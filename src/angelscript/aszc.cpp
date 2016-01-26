@@ -579,6 +579,7 @@ void initializeAngelScript()
     builder.AddSectionFromFile("angelscript/trapConstant.as");
     builder.AddSectionFromFile("angelscript/trapLOS.as");
     builder.AddSectionFromFile("angelscript/trigger.as");
+    builder.AddSectionFromFile("angelscript/walkflagInfo.as");
     builder.AddSectionFromFile("angelscript/walkingEnemy.as");
     builder.AddSectionFromFile("angelscript/wallMaster.as");
     builder.AddSectionFromFile("angelscript/wizzrobe.as");

@@ -29,6 +29,7 @@
 #include "guys.h"
 #include "link.h"
 #include "maps.h"
+#include "room.h"
 #include "zdefs.h"
 #include "zelda.h"
 #include "zc_sys.h"
@@ -53,15 +54,11 @@ bool item::canPickUp(LinkClass* link)
         if(more_carried_items()<=1) // I don't know what's going on here...
             hasitem&=~2;
     
-    if((pickup&ipDUMMY)!=0) // Dummy item; can't be picked up
+    if((pickup&ipDUMMY)!=0) // Dummy item; Link can't pick this up
     {
-        // But it may still do something.
-        // This should be moved, but it'll have to wait...
+        // But some will still do something when he tries
         if((pickup&ipMONEY)!=0)
-        {
-           // if(onGetDummyMoney)
-           //     onGetDummyMoney();
-        }
+            onGetDummyMoney();
         
         return false;
     }
@@ -105,6 +102,54 @@ int item::getUpgradeResult() const
     }
     
     return nextItem;
+}
+
+// Handles both dummy money and regular pickup. Fortunately, there's no overlap.
+void item::setPickupType(pickupType type, int arg1, int arg2)
+{
+    puType=type;
+    pickupArg1=arg1;
+    pickupArg2=arg2;
+}
+
+void item::onPickUp()
+{
+    switch(puType)
+    {
+    case pt_clear:
+        clearRoomItems();
+        break;
+        
+    case pt_buyItem:
+        buyShopItem(this, pickupArg1);
+        break;
+    }
+}
+
+void item::onGetDummyMoney()
+{
+    switch(puType)
+    {
+    case pt_buyInfo:
+        buyInfo(pickupArg1, pickupArg2);
+        break;
+        
+    case pt_getMoney:
+        getSecretMoney(this, pickupArg1);
+        break;
+        
+    case pt_gamble:
+        gamble(pickupArg1);
+        break;
+        
+    case pt_bombsOrArrows:
+        moreBombsOrArrows(this, pickupArg1, pickupArg2);
+        break;
+        
+    case pt_moneyOrLife:
+        leaveMoneyOrLife(this, pickupArg1);
+        break;
+    }
 }
 
 bool addfairy(fix x, fix y, int misc3, int id)

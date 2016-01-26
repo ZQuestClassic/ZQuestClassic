@@ -32,6 +32,12 @@ bool can_drop(fix x, fix y);
 int select_dropitem(int item_set, int x, int y);
 bool is_side_view();
 
+enum pickupType
+{
+    pt_none, pt_clear, pt_buyItem, pt_buyInfo,
+    pt_getMoney, pt_gamble, pt_bombsOrArrows, pt_moneyOrLife
+};
+
 class item : public sprite
 {
 public:
@@ -63,10 +69,8 @@ public:
      */
     int getUpgradeResult() const;
     
-	//TODO: These are broken. There should be a less clever way to do this.
-    // public for now...
-	void* onGetDummyMoney; // ..WHY??
-    void* onPickUp;
+    void setPickupType(pickupType type, int arg1=0, int arg2=0);
+    void onPickUp();
     
     inline void setPrice(int newPrice)
     {
@@ -78,6 +82,11 @@ protected:
 
 private:
     int price;
+    pickupType puType;
+    int pickupArg1;
+    int pickupArg2;
+    
+    void onGetDummyMoney();
 };
 
 // easy way to draw an item

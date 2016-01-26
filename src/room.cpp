@@ -146,9 +146,6 @@ void RoomItems::setPricesVisible(bool val, bool showRupee)
     }
 }
 
-namespace
-{
-
 void clearRoomItems()
 {
     roomItems.clear();
@@ -173,7 +170,7 @@ void buyShopItem(item* it, int price)
         else if(it2==it)
             continue;
         it2->setPickupFlags(ipDUMMY|ipFADE);
-        //it2->onGetDummyMoney.clear();
+        it2->setPickupType(pt_none);
     }
 }
 
@@ -194,7 +191,7 @@ void buyInfo(int infoMsg, int price)
         if(!it)
             break;
         it->setPickupFlags(ipDUMMY);
-        //it->onGetDummyMoney.clear();
+        it->setPickupType(pt_none);
     }
 }
 
@@ -208,7 +205,7 @@ void getSecretMoney(item* it, int amount)
 }
 
 // There's probably a simpler way to handle this...
-const int gambleResults[24][3]={
+static const int gambleResults[24][3]={
     { 20, -10, -10 }, { 20, -10, -10 }, { 20, -40, -10}, { 20, -10, -40},
     { 50, -10, -10 }, { 50, -10, -10 }, { 50, -40, -10}, { 50, -10, -40},
     { -10, 20, -10 }, { -10, 20, -10 }, { -40, 20, -10}, { -10, 20, -40},
@@ -235,7 +232,7 @@ void gamble(int index)
         if(!it)
             break;
         it->setPickupFlags(ipDUMMY);
-        //it->onGetDummyMoney.clear();
+        it->setPickupType(pt_none);
     }
 }
 
@@ -303,7 +300,7 @@ void leaveMoneyOrLife(item* it, int price)
         if(!it2)
             break;
         it2->setPickupFlags(ipDUMMY|ipFADE);
-        //it2->onGetDummyMoney.clear();
+        it->setPickupType(pt_none);
     }
     
     roomItems.setPricesVisible(false);
@@ -313,7 +310,7 @@ void leaveMoneyOrLife(item* it, int price)
 }
 
 // Adjust for wealth medals. Price should be positive.
-int adjustPrice(int price)
+static int adjustPrice(int price)
 {
     if(price==0)
         return 0;
@@ -359,8 +356,6 @@ void payForDoorRepair(int amount)
     game->change_drupy(amount);
 }
 
-} // End namespace
-
 
 
 void setUpRoom(const mapscr& screen)
@@ -377,7 +372,7 @@ void setUpRoom(const mapscr& screen)
         
         theItem=createItem(screen.catchall);
         theItem->setPickupFlags(ipONETIME2|ipHOLDUP|ipCHECK|ipSPECIAL);
-        theItem->onPickUp=clearRoomItems;
+        theItem->setPickupType(pt_clear);
         roomItems.addItem(theItem);
         
         break;
@@ -401,9 +396,8 @@ void setUpRoom(const mapscr& screen)
                 
                 theItem=createItem(iRupy);
                 theItem->setPickupFlags(ipMONEY|ipDUMMY);
-                //theItem->onGetDummyMoney=fastdelegate::bind(buyInfo, msg, price);
-				theItem->onGetDummyMoney= (void*)buyInfo;
-               roomItems.addItem(theItem, -price);
+                theItem->setPickupType(pt_buyInfo, msg, price);
+                roomItems.addItem(theItem, -price);
             }
             
             break;
@@ -417,8 +411,7 @@ void setUpRoom(const mapscr& screen)
             int amount=screen.catchall;
             theItem=createItem(iRupy);
             theItem->setPickupFlags(ipONETIME|ipDUMMY|ipMONEY);
-            //theItem->onGetDummyMoney=fastdelegate::bind(getSecretMoney, theItem, amount);
-			theItem->onGetDummyMoney=(void*)getSecretMoney;
+            theItem->setPickupType(pt_getMoney, amount);
             roomItems.addItem(theItem, amount);
             
             break;
@@ -433,8 +426,7 @@ void setUpRoom(const mapscr& screen)
         {
             theItem=createItem(iRupy);
             theItem->setPickupFlags(ipMONEY|ipDUMMY);
-			//theItem->onGetDummyMoney=fastdelegate::bind(gamble, i);
-            theItem->onGetDummyMoney=(void*)(gamble);
+            theItem->setPickupType(pt_gamble, i);
             roomItems.addItem(theItem, -10);
         }
         
@@ -491,8 +483,7 @@ void setUpRoom(const mapscr& screen)
             theItem=createItem(shop.item[i]);
             theItem->setPickupFlags(flags);
             theItem->setPrice(price); // There's got to be a better way...
-           // theItem->onPickUp=fastdelegate::bind(buyShopItem, theItem, price);
-			theItem->onPickUp=(void*)(buyShopItem);
+			theItem->setPickupType(pt_buyItem, price);
             roomItems.addItem(theItem, price);
         }
         
@@ -510,8 +501,7 @@ void setUpRoom(const mapscr& screen)
             bool arrows=(screen.room==rARROWS); // Select arrows or bombs
             theItem=createItem(iRupy);
             theItem->setPickupFlags(ipDUMMY|ipMONEY);
-            //theItem->onGetDummyMoney=fastdelegate::bind(moreBombsOrArrows, theItem, price, arrows);
-			theItem->onGetDummyMoney=(void*)(moreBombsOrArrows);
+			theItem->setPickupType(pt_bombsOrArrows, arrows ? 1 : 0);
             roomItems.addItem(theItem, -price);
             
             break;
@@ -526,13 +516,11 @@ void setUpRoom(const mapscr& screen)
             int price=screen.catchall;
             theItem=createItem(iHeartC);
             theItem->setPickupFlags(ipDUMMY|ipMONEY);
-           // theItem->onGetDummyMoney=fastdelegate::bind(leaveMoneyOrLife, theItem, price);
-			theItem->onGetDummyMoney=(void*)(leaveMoneyOrLife);
+            theItem->setPickupType(pt_moneyOrLife, price);
             roomItems.addItem(theItem, -1);
             theItem=createItem(iRupy);
             theItem->setPickupFlags(ipDUMMY|ipMONEY);
-           // theItem->onGetDummyMoney=fastdelegate::bind(leaveMoneyOrLife, theItem, price);
-			theItem->onGetDummyMoney=(void*)(leaveMoneyOrLife);
+            theItem->setPickupType(pt_moneyOrLife, price);
             roomItems.addItem(theItem, -price);
             
             break;
@@ -569,7 +557,7 @@ void setUpRoom(const mapscr& screen)
             break;
             
         case rREPAIR:
-			__debugbreak();
+			;//__debugbreak();
             //messageMgr.setMessageEndCallback(fastdelegate::bind(payForDoorRepair, repairCharge));
             break;
             

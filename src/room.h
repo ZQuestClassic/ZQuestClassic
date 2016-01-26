@@ -50,4 +50,13 @@ extern RoomItems roomItems;
 
 void setUpRoom(const mapscr& screen);
 
+// Used when items are picked up
+void clearRoomItems();
+void buyShopItem(item* it, int price);
+void buyInfo(int infoMsg, int price);
+void getSecretMoney(item* it, int amount);
+void gamble(int index);
+void moreBombsOrArrows(item* it, int price, bool arrows);
+void leaveMoneyOrLife(item* it, int price);
+
 #endif

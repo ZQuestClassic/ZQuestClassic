@@ -231,6 +231,7 @@ void item::init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy)
     aframe=aclk=0;
     anim=flash=twohand=subscreenItem=false;
     PriceIndex=-1;
+    puType=pt_none;
     
     alsoHaveBow=false;
     
