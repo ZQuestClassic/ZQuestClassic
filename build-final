@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Let's get this bad boy.. 
+# Welcome to the Mac OS X installer script for Zelda Classic
+#do some basic stuff
+#echo "Input password for gcc_select 4.0"
+#sudo gcc_select 4.0
+
+# start with the normal build.
+make clean
+make macosx
+cp -R ZQuest\ Editor.app ZQuest\ Editor.app.bak
+cp -R Zelda\ Classic.app Zelda\ Classic.app.bak
+hdiutil create -type SPARSE -size 25m -fs HFS -volname ZC_N -attach ZC.dmg
+sleep 3
+echo "Please Wait while your files are being copied"
+mv -v ZQuest\ Editor.app /Volumes/ZC_N/ZQuest\ Editor.app
+mv -v Zelda\ Classic.app /Volumes/ZC_N/Zelda\ Classic.app
+hdiutil detach /Volumes/ZC_N/
+hdiutil convert ZC.dmg.sparseimage -format UDRO -o ZC-N.dmg
+rm -Rf ZC.dmg.sparseimage
+rm -Rf *.bak
+tar -cjvf ZC-N.tar.bz2 ZC-N.dmg
+rm -Rf ZC-N.dmg
+#now for the older one, >_<;
+
+sudo gcc_select 3.3
+make clean
+make macosx
+cp -R ZQuest\ Editor.app ZQuest\ Editor.app.bak
+cp -R Zelda\ Classic.app Zelda\ Classic.app.bak
+hdiutil create -type SPARSE -size 45m -fs HFS -volname ZC_O -attach ZC.dmg
+sleep 3
+echo "Please Wait while your files are being copied"
+mv -v ZQuest\ Editor.app /Volumes/ZC_O/ZQuest\ Editor.app
+mv -v Zelda\ Classic.app /Volumes/ZC_O/Zelda\ Classic.app
+hdiutil detach /Volumes/ZC_O/
+hdiutil convert ZC.dmg.sparseimage -format UDRO -o ZC-O.dmg
+rm -Rf ZC.dmg.sparseimage
+rm -Rf *.bak
+tar -cjvf ZC-O.tar.bz2 ZC-O.dmg
+rm -Rf ZC-O.dmg
+sudo gcc_select 4.0
+make clean

@@ -1,0 +1,2930 @@
++--------------------------------+
+|  /\      ZQuest v2.50      /\  |
+| /__\    User Reference    /__\ |
+|  http://www.zeldaclassic.com   |
++--------------------------------+
+
++-----------------------------+
+| 1. INTRODUCTION             |
++-----------------------------+
+
+    "The first thing you should know is that Zelda Classic does have its limitations. It started out as a clone of Zelda 1, which is also very limited. Although it has grown and will continue to grow, it can't do everything you might have in mind. 
+    "That said, you'll find that there is a lot that can be done within ZC's limitations. It allows for multiple overworlds, huge dungeons, and caves and dungeons that aren't "levels". It also allows you to customize the graphics, colors, MIDIs, and more. Some features are still in development." 
+    The above was written by Phantom Menace referring to the 1.84 version in mid 2000. It still holds true, though its limitations are fewer with each new version. It is now possible to make quests that bear very little resemblance to The Legend of Zelda. 
+
+     This is not an exhaustive manual, but a summary of the numerous features of ZQuest. There is a documentation wiki which explains each feature in detail. It is available at http://www.shardstorm.com/ZCwiki/. It is also considerably easier to navigate than this text file.
+
++-----------------------------+
+| 2.1 FUNDAMENTAL CONCEPTS    |
++-----------------------------+
+
+Here is a list of terms and concepts for various defining features of Zelda Classic quests.
+
+ - The Header lists the name of the quest, its author, and contains the password required to edit it (if any).
+
+ - Quest Rules alter the behaviour and features of Zelda Classic's game engine.
+
+ - Cheats are special passwords that the player can enter to enable certain cheat functions.
+
+ - Items are the numerous objects that Link collects and uses during play, such as Rupees, Clocks, Boomerangs or Rings.
+
+ - Enemies (also known as NPCs) are the foes that Link encounters, including bosses.
+
+ - Weapons are projectile sprites that are created by enemies or Link's items, such as fireballs, arrows or magic. In the game engine, they are divided into LWeapons ("Link Weapons", weapons that affect enemies) and EWeapons ("Enemy Weapons", weapons that affect Link).
+
+ - Guys are the non-player characters who speak to Link in The Legend of Zelda.
+
+ - Strings are the messages that the Guys say to Link. They can also appear by other means, such as by scripts.
+
+ - Init Data determines Link's starting inventory, his starting DMap, and some miscellaneous physics constants.
+
+ - Palettes are grids of colours used by sprites and combos in the game. They are divided into sets of 16 colours called CSets. 
+
+ - Tiles are raw graphics. They are typically divided into 16x16 pixel squares. In accordance with NES limitations, they are initially 4-bit, which means they are limited to 16 colours. However, 4-bit tiles can be drawn with different CSets, and thus it is very easy to 'palette-swap' tiles. Individual tiles can also be converted to 8-bit colour, letting them use all 256 colours of a palette, but preventing them from being palette-swapped.
+
+ - Combos are terrain squares. They are a 'combination' of a tile, collision data, and various options. Combos are 'painted' onto screens to make environments.
+
+ - Combo Flags are placed on screens to indicate secret triggers (such as bombable squares) as well as pushable blocks and specific enemy spawn locations.
+
+ - DMaps (Dungeon Maps) define the 'dungeons' in the quest and their characteristics - their music, palette, subscreen map and such.
+
+ - Screens are the environments that Link explores. They are grids of combos, 16 wide and 11 high (thus making them 256x176 pixel rectangles). Screens are stored in 16x8 grids
+known as Maps. In addition to combos, they each have an Enemy List, Layers, Screen Flags, Freeform Combos, Warps, Secret Combos, and more. 
+
+ - Freeform Combos are miscellaneous sprites used for a variety of purposes - primarily, as combos that aren't adhered to the grid, and secondarily, as slots for scripts. Each screen has 32 Freeform Combos.
+
+ - Subscreens are the game displays that show Link's current status, as well as the pause screens where Link equips his equipment items.
+
+ - Item Drop Sets determine the odds that a certain item will appear when an enemy is defeated.
+ 
+ - Door Combo Sets are templates for the doors used in NES Dungeons - shutters, locked doors, bombable walls, and such.
+
+ - MIDIs are the music tracks in your quest. (It is also possible for your quest's DMaps to use external music files in much richer formats, though.)
+
+ - Scripts are programming code that you can attach to screens (via their Freeform Combos), items, or the game engine itself, and give you tremendous power to modify or build upon the game engine of Zelda Classic. Scripts can be written in a high-level C-like language called ZScript, or in an assembly-like language called ZASM.
+
++-----------------------------+
+| 2.2 BASIC COMMANDS          |
++-----------------------------+
+
+    ZQuest is loaded with "hot keys". Once you become familiar with them, you will be able to work faster. Many hot keys are listed in the main menus. Here are some important ones: 
+
+Main Editor View: 
+ - u: undo
+ - w: toggle 'Show Walkability', highlighting solid areas of the screen
+ - f: toggle 'Show Flags', showing where Combo Flags are placed
+ - arrow keys: change the current screen 
+ - control + arrow keys: activate the current screen's Side Warp in the given direction
+ - comma,period: dec/inc the current map 
+ - +,-: inc/dec the current CSet 
+ - *,/: inc/dec the current combo flag value 
+ - d: toggles the "dark room" screen flag 
+ - l: turn out the lights (waits for keypress) 
+ - q: toggles 'show csets', then 'show types'
+ - 0-9: set the screen palette to this level palette (this is only for convenience in editing; the game ignores this setting).
+ - shift + 0-9: same as above but adds 10 to the level number
+ - shift + up,down: scroll combo selector one line 
+ - shift + pgup,pgdn: scroll combo selector one screen of a combo page
+ - control + pgup,pgdn: scroll combo selector one combo page
+ - p: scroll combo selector to the specified combo page 
+ - shift + h: flip the screen horizontally, rearranging its combos
+ - shift + v: flip the screen vertically
+ - control + h: flip the map horizontally, rearranging its screens
+ - control + v: flip the map vertically
+ - shift + X: Preview mode, a mode in which screen secrets and freeform combo movement can be previewed.
+
+Other Editors and Dialogs may use:
+ - u: undo  
+ - F1: show this help file 
+ - c,v: copy/cut, paste 
+ - del: delete 
+ - h,v: flip tiles horizontally, vertically. This works in almost every editor that lets you select a tile for an entity.
+ - n: normalize (used in the tile editor after flipping a tile, to make it stay flipped.) 
+ - o: overlap 
+ - r: rotate (used in the tile editor to rotate a tile clockwise. Shift/r will rotate the tile counter-clockwise.)
+ - m: move (in tile or combo editors).
+ - s: swap (in combo editor; more convenient than "move").
+
++-----------------------------+
+| 2.3 MAIN SCREEN             |
++-----------------------------+
+
+    The main screen is where you edit the screens of your quest. Select combos from the selector or selectors to the right, and paint them onto the screen. The gray shaded bar indicates part of the screen that, in accordance with The Legend of Zelda, isn't visible unless the screen is scrolling vertically. Additionally, there may be four dark-shaded strips surrounding the main screen, conveniently showing the combos of the adjoining screens.
+
+    If Freeform Combos have been placed on a screen, you can click on a Freeform Combo and drag it to a new location.
+
+Main Screen Right-Click Menu:
+ - Select Combo: Makes the combo you right-clicked on the selected combo.
+ - Scroll to Combo: Scrolls the currently active combo selector to the current combo. Useful if your quest has many pages of combos.
+ - Edit Combo: Brings up the Edit Combo window for the combo you right-clicked on.
+ - Draw Block commands: The first number is width and the second height.  Example: to draw the large tree (2x2) select the upper left combo of the tree, right-click where you want the upper left combo to be on the screen, then click on Draw Block -> 2x2.  The entire tree will be drawn.
+ - Brush Width/Height: They allow you to draw with more than one combo at once. So, if you need to place a lot of something down and that thing takes up a 4-combo square, you'd set the brush height and brush witdh both to 2. Then, you start drawing with it.
+ - Set Fill Type: control + click to fill an area with one combo.
+ 1) Flood fills the whole screen with the selected combo.
+ 2) Fill is basically like the fill command in a paint program. It changes the CTRL+Click'ed on combo to the selected combo, so long as the fill can reach it without crossing over another combo type. The 4-way version can only travel up, down, left, or right from any combo. The 8-way version can go diagonally as well. 
+ 3) Fill2 command is useful for making lakes. Draw an outline and then use fill2 inside it. Anything that's not your current combo gets changed. There's also a 4-way and 8-way version for that.   
+ - Replace All: Replaces all instnces of the combo you right-clicked on with the selected combo.
+ - Properties: Gives the position, combo, cset, flag (if any), and combo type of the tile you right-clicked on.
+ - Place + Edit FFC: Places the first unused Freeform Combo at this location and edits it.
+ - Paste FFC as FFC: Pastes a copied FFC into this FFC slot.
+
+Additionally, right-clicking an FFC brings up a menu with these items:
+ - Copy FFC: Copies the FFC.
+ - Paste FFC: Replaces the FFC with the copied FFC.
+ - Edit FFC: Edits the FFC.
+ - Clear FFC: Removes the FFC, rendering that slot unused.
+
++-----------------------------+
+| 2.4 MAIN PANEL              |
++-----------------------------+
+
+    If you are in Large Mode (the default ZQuest mode), then below the main screen will be 9 buttons. These are Screen Tabs, and function much like the tabs in a web browser. You can use them to edit multiple screens in a convenient fashion.
+
+    Furthermore, below the Screen Tabs is the Layers Toolbar. You can use this to toggle or switch the layers of a screen. See the summary of the Screen menu for more information on Layers.
+
+    At the bottom-left corner is a pane showing the current map. Click or use the arrow keys to change to different screens on the map. Push the comma or period keys to change the current map.
+
+    Next to the map pane there may be several placement squares. These are used to edit the location of various spots where Link or other things appear. Click on a square, and then click and drag on the screen to place it. 
+
+- The rupee/item square affects the location of the screen's item. 
+- The stairs square affects the location of the screen's stairs secret, if it exists.
+- The green square affects where Link appears when he continues or starts the game if the 'Use Warp Return Points Only' rule is NOT set. Otherwise, it does nothing and its functionality is handled by warp return A.
+- The flag lets you place a combo flag in addition to using the Combo Flag menu item in the Tools menu. Press / or * to increment/decrement the combo flag.
+- The blue squares let you place the screen's Warp Returns. Warp Returns are the locations Link appears at when he is warped to this screen from other places. If placed directly on top of Cave combos, Link will climb out of the combo when he appears. (And, for compatability with Whistle Warps, they will also do this if placed 16 pixels below the Cave combo.)
+- The large black pane visually lists all of the enemies in the Enemy List for this screen.
+
+    If you are in Large Mode, there are two more panes: Commands and Favorites. Commands allows you to allocate commonly used menu items (such as 'Tiles' or 'Compile ZScript') to a convenient button. Click a button labelled '(None)' to edit the command, or control-click a button to remove its command. 
+
+    Favourites allows you to 'bookmark' commonly used combos. Click to place combos in the favourites pane. Right-click and select 'Remove Combo' to remove them.
+
++----------------------------+
+| 2.5 SMALL MODE MAIN PANEL  |
++----------------------------+
+
+  The old ZQuest interface prior to 2.50 can be toggled in the ZQuest options, where it is called Small Mode. It is 320x240 resolution and lacks several recent ZQuest features.
+
+  In Small Mode, the ZQuest main panel is divided into 8 pages which can be navigated with Page Up and Page Down.
+
+ - Page 1 shows the title of the quest file you are editing and the combo type of the tile you currently have selected, which will be placed on the screen if you click on the screen. 
+The two squares show the tile you have selected, the first square showing in red the parts of the tile that are unwalkable. The number to the right of the squares is the current cset, toggled by pressing + or - on the numeric keyboard. The numbers below the squares are the combo page and tile number of the selected tile. 
+ - Page 2 features the first four placement squares, which are described in the previous section.
+ - Page 3 shows at a glance a few of the screen and enemy flags for the current screen. 
+(Screen) Flags: D (Dodongo roar), H (Hold up item), E (Enemies->secret), T (Floating traps), G (Roar=gasp style), S (Secret SFX), O (Ocean surf SFX), M (Maze path), L (Use ladder), W (Whistle->Stairs), R (Boss roar SFX), D (Dark room), I (Enemies->Item), B (Block->Shutters), I (Invisible enemies). 
+Enemy (Flags): B (Dungeon boss), I (Enemy carries item), L (Has ringleader), F (Statues shoot fire), R (Falling rocks), 2 (Center traps), 4 (Corner traps), Z (Zora). P (Pattern): random or enter from sides. 
+ - Page 4 shows the Guy, String, and Room type assigned to the current screen. If the Room Type requires additional information of the kind that usually appears in the 'Screen -> Catch All' menu item, this information will be shown too. 
+ - Page 5 shows Tile Warp A and Side Warp A of the current screen along with the warps destination (DMap : Screen) and type. 
+ - Page 6 shows triggers for side warps: Right, Left, Bottom, Top, Maze Path for the current screen and the Exit direction of the maze. 
+ - Page 7 features a Layers selector. Check the layers you want to show on the base (Layer 0) screen in ZQuest.  If any layers besides 0 are used (assigned in Data/Layers), a circle will appear under that layer.  By clicking on that circle, you can edit that layer from the base screen instead of having to go to the map/screen where that layer actually is.  To see what layer you are editting without going to this page, press the letter B.
+ - Page 8 shows the four blue squares, which are described in the previous section.
+
++-----------------------------+
+| 3. FILE MENU                |
++-----------------------------+
+
+ - New: Start a new quest with the current quest template (which by default is New Default). You can choose a set of quest rules for the new quest.
+ - Open (F3): Used to load existing quests or quests-in-progress into the editor. If a quest is passworded, you must have the password to open the quest.
+ - Save (F2): Used to save changes to an already named quest.
+ - Save As: Used to save changes to a quest without eliminating the current version. For instance, is you open one of the example quests to use as the basis of your quest, use Save As so that the example quest will still be there unchanged to use again. With Save As you must give a name and location for your new quest.
+ - Quest Templates: Lets you edit the list of quest templates to use when you create a new quest. Quest templates are quest files that are used as a starting point for a quest. The default template is New Default.
+ - Import: This is used to import files with the extensions given below to a quest you are working on. Remember that the imported file will replace the one already in the quest, e.g. importing a .zpl file will replace your current palettes with the new palettes. 
+Exceptions:
+1) When importing tiles and combos you can specify which page of your current tile or combo sheet to start the import on, so that you can avoid erasing current tiles and combos.  
+2) When importing a map, ZQ bring up a Map Import Bias window.  The options are:
+--Total Copy: Use this option if you want to erase the original map you are importing to.  With the next 2 options, blank screens are not imported.
+--Prefer Original: If the map you are importing has unblank screens where the original does, the original screens will be used and the conflicting screen will not be imported.
+--Prefer Import: Like the above except that conflicting screens on the import map will be imported, erasing those screens on the original map.
+
+ - Export: Used to make a file (extensions below) of a part of your quest. Exporting does not erase that segment of your quest. 
+[Map (.map file); DMaps (.dmp); Tiles (.til), a ZQuest-specific tile format; Palettes (.zpl); String Table (.zqs); Text Dump (.txt): a formatted string table; Combo Table (.cmb); Graphics Pack (.zgp): consists of tiles, palettes, and combos; Quest Template (.zqt): a compressed graphics pack; Unencoded Quest (.qsu)]
+
+- Exit (ESC): Closes ZQuest. You will be prompted to save if you have unsaved changes.
+
++-----------------------------+
+| 4. QUEST MENU               |
++-----------------------------+
+
+  This menu contains most all of the significant data and asset editors in ZQuest.
+
+ - Header: Lets you password-protect your quest. Also contains quest metadata that is displayed when you first load a quest.
+ - Rules: Lets you choose among the various Quest Rules.
+ - Map Count: Lets you add or remove maps from your quest.
+ - Cheats: Lets you add cheat passwords.
+ - Items: Lets you edit the item varieties that will appear in your quest.
+ - Enemies: Lets you edit the enemy varieties that will appear in your quest.
+ - Strings: Lets you edit the basic strings in your quest.
+ - DMaps: Lets you edit the quest's DMaps.
+ - Init Data: Lets you edit Link's starting DMap and inventory/
+ - Misc. Data: Lets you edit Subscreens and various miscellaneous data sets.
+ - Graphics: Lets you edit palettes, tile settings for various sprites, and combo structures such as Combo Aliases and Door Combo Sets.
+ - Audio: Lets you load MIDIs and sound effects.
+ - Scripts: Lets you load and compile ZScript and ZASM scripts.
+ - Template: Lets you load a quest template.
+ - Defaults: Lets you restore default settings for certain data types.
+
+  The full details of these functions and editors are given below.
+
++----------------------------+
+| 4.1 HEADER                 |
++----------------------------+
+
+Quest Version: The version number of your quest. 
+
+Minimum Version: If a player's saved game was from a version less than the minimum version (using a string comparison) they have to restart from the beginning. This is useful if you make major changes to your quest. 
+
+Quest Number: This is only editable if you hold down Shift while selecting Header from the menu. Custom quests should always use the default, 0. Other numbers are reserved for built-in quests. 
+
+Password: Use a password to lock your quest. If the quest has a password, it can't be loaded in ZQuest without entering the password. You should know that for testing or debugging purposes, the ZC developers can open any quest file without knowing the password.
+
+Title and Author: You get about 60 characters for each. 
+
++----------------------------+
+| 4.2 QUEST RULES            |
++----------------------------+
+
+  Leave all rules unchecked for normal NES-style game play. 
+  Note: in addition to these rules, there is also a rule that enables Link to move diagonally. This can be toggled in Quest -> Graphics -> Sprites -> Link.
+
++----------------------------+
+| 4.2a ANIMATION RULES       |
++----------------------------+
+
+ - BS-Zelda Animation
+Changes the number of Link's frames to three, redefining his tile positions, and also alters the animation of some other items, like the boomerang. 
+
+ - Interpolated Fading
+Dark rooms no longer refer to the level palette to determine the colors in between their light state and dark state. The colors are instead automatically generated. The freed up space in the level palettes can now be used to implement palette cycling. A second CSet 2 row will also appear in the palette editor. Colors filled in here determine what colors in CSet 2 appear slightly when the room is completely dark. 
+
+ - Fade CSet 5
+Dark rooms, fading between DMaps with different palettes, and other actions that darken the normal level csets will also affect CSet 5 with this rule. 
+
+ - Fast Dungeon Scrolling
+Scrolling between screens in Dungeon DMaps is sped up approximately 5 times. 
+
+ - Cool Opening/Closing Wipes
+Instead of the left and right sides of the screen closing inward when warping, a circle with center at the point of the warp rapidly shrinks until the screen is black. 
+
+ - No Screen Scrolling
+When Link enters a different screen, Zelda Classic jump-cuts to the destination screen instead of smoothly scrolling between them. The advantage of this is that the designer is less obliged to make the adjacent combos of each screen transition into each other. 
+
+ - Expanded Link Tile Modifiers
+If this rule is checked, when Link picks up an item with a Link Tile Modifier, all of his sprites will be moved down the tile page by the specified amount, rather than just his walking animation tiles. 
+
+ - Invincible Link Flickers
+Getting a Clock, or taking damage, made Link flash through different CSets. With this checked, he instead flickers.
+
+ - Items Held Above Link's Head Continue to Animate
+Fixed the bug where items would stop animating when holding them in the air. 
+
+ - Bomb Explosions Don't Flash Palette
+The entire screen will not flash when a Bomb explodes. 
+
+ - Layers 1 And 2 Are Drawn Under Caves
+"Caves" refers to "Cave (Walk Down)" and "Cave (Walk Up)" combos. If this rule is checked, Link will be drawn above layers 1 and 2 when he walks down or up a Cave combo. 
+
+ - FFCs are Visible While The Screen Is Scrolling
+FFCs will scroll with other sprites when Link transitions between two screens. 
+
+ - Smooth Vertical Scrolling
+The screen scrolls smoothly vertically instead of half-tile by half-tile as the original did due to NES limitations. 
+
++----------------------------+
+| 4.2b COMBO RULES           |
++----------------------------+
+
+ - Push Blocks Don't Move When Bumped/Hesitant Push Blocks
+Link must push blocks for 1 second before they will move. This is designed to prevent accidental pushing of blocks.
+
+ - Link Drowns in Walkable Water
+Just like in the Oracle games, if Link lacks the flippers, he will sink, take damage, and respawn at the exact location where he entered the screen. This requires that Water combos are not solid or unwalkable. 
+
+ - Smart Screen Scrolling
+Prevents Link from walking into an unwalkable combo from another screen. Can be a bit buggy. 
+
+ - Can't Push Blocks Onto Unwalkable Tiles/Solid Blocks
+Pushable blocks cannot be pushed onto combos that are unwalkable. 
+
+ - Burn Flags Are Triggered Instantly
+Rather than wait for a flame to animate and disappear before the flag is triggered, the flag is triggered as soon as the Flame touches the combo. This also allows fiery Wand magic to trigger "Burn 3 (Wand)" flags without having to burst into flame first. 
+
+ - Magic Mirror/Prism Combos Reflect Sword Beams
+The Magic Mirrors and Prisms do the same to Sword Beams that they do to Magic. 
+
+ - Magic Mirrors Reflect Whistle Whirlwinds
+With this rule checked, any Magic Mirror combos will reflect the Whistle's Whirlwind as well as Magic cast with the Wand and by Wizzrobes. 
+
+ - Combo Cycling On Layers
+Allows combo cycling to function on layers other than Layer 0. You will most surely want this checked.
+
+ - Full Priority Damage Combos
+ In the case of Link colliding with overlapping damage combos, the most damaging damage combo takes priority.
+ 
+ - Warps Ignore Arrival X/Y Position
+This rule affects whether Scrolling Warps or Entrance/Exit warps set Link's continue point if the warp return is in the upper-left corner of the screen, and exists primarily for backwards-compatability with older versions of ZC. You will most probably want this off.
+ 
+ - Use Warp Return Points Only
+If this rule is enabled, Zelda Classic will ignore the green continue square and use the blue Warp Returns when warping. In this case, the Warp A square also acts as the continue square (for instance, when you specify the continue here point in a DMap). If this rule is disabled, Zelda Classic uses the green continue square to determine where Link appears on a screen when he warps to it; the blue warp markers are ignored.
+
+ - Use Old-Style Warp Detection (NES Movement Only)
+This rule affects how Link collides with warp combos using NES movement, and exists solely for backwards-compatability with older versions of ZC. You will most probably want it to be off.
+
+ - Damage Combos Work on Layers 1 and 2
+With this rule checked, damage combos that are placed on layers 1 and 2 will hurt Link. You will most surely want this checked.
+
+ - Hookshot Grab Combos Work on Layers 1 and 2
+With this rule checked, Link can use the hookshot to grapple onto Hookshot Grab combos that are placed on layers 1 and 2. You will most surely want this checked.
+
+ - Scrolling Warps Don't Set The Continue Point
+In older versions of Zelda Classic, when Link passed through a scrolling warp, the continue point was set to the screen he arrived on. This was an intended feature, but a little known one that many people mistook for a bug. This rule disables it.
+
++----------------------------+
+| 4.2c ITEMS RULES           |
++----------------------------+
+
+ - Link's Bombs Hurt Link
+Causes bombs to hurt Link, much like in later Zelda games. By default, Bombs will deal 2 hearts of damage to Link and Super Bombs will deal 8 hearts of damage to Link. 
+
+ - Enable Magic
+Items with magic costs, such as the Lens of Truth, will expend that much magic (or rupees) when used.
+
+ - Medicine Doesn't Remove Sword Jinxes
+Using a blue potion or red potion will not restore the player's use of the A or B button if they were taken away by a red bubble or red item bubble. 
+
+ - Fairies Don't Remove Sword Jinxes
+Grabbing a fairy will not restore the player's use of the A or B button if they were taken away by a red bubble or red item bubble. 
+
+ - New Boomerang/Hookshot
+The Boomerang and Hookshot physically drag items they hit towards Link, as in later Zelda games, and can also be used to block enemy projectiles. Note that arrows cannot grab items with this rule turned on. 
+
+ - True Arrows
+Enables the Quivers and causes the number of arrows to be stored in a separate counter. 
+
+ - No Diving
+Link can't dive underwater. This rule's status can be reversed by a screen flag, so specific screens can (dis)allow diving at their whim.
+
+ - Dark Rooms Stay Lit Only While Fire Is On Screen
+Self explanatory. Rooms will revert to the state they were in before Link used a Fire-generating item in the room. 
+
+ - Link Isn't Hurt By Own Fire Weapons/Own Fire Doesn't Hurt
+The flames created from the Blue Candle, Red Candle, or Wand and Magic Book will not hurt Link, like in ALttP. 
+
+ - Rings Affect Damage Combos
+This rule will cause the strength of a damage combo to be lessened by the damage factor of the ring, in effect making it like the damage taken from an enemy. With it off, damage combos will always remove the specified number of hearts, regardless of the ring. 
+
+ - Quick Sword
+The sword can be swung again before its animation is finished. Also works with the wand. 
+
+ - Flip Right-Facing Slash
+With this checked, Link can slash in all 4 Diagonal Directions. 
+
+ - Wand Can't Be Used As Melee Weapon
+You can not use the Wand itself to damage enemies. 
+
+ - Melee Weapons Can't Pick Up Items
+Items such as the sword will not grab rupees or hearts dropped by enemies that they touch. 
+
+ - Boomerang/Hookshot Grabs All Items
+The Boomerang and Hookshot can grab screen items and special items, not just enemy item drops. 
+
+ - 'Hearts Required' Affects Non-Special Items
+With this rule checked, items not in special guy rooms that require a certain number of hearts cannot be picked up unless Link has the required number of hearts. 
+
+ - Big Triforce Pieces
+The number of Triforce pieces needed is halved. See Level 9 Entrance. 
+
+ - 3 or 6 Triforce Total
+The number of Triforce pieces needed is reduced from 8 to 6. If Big Triforce Pieces is also turned on, it is reduced from 4 to 3. See Level 9 Entrance. 
+
+ - Slow Walk While Charging
+Link walks slowly while charging his sword for a spin attack. 
+
+ - Show Secret Combo Hints When Using the Lens/Show Lens Hints
+The sprite for the item that can activate a secret combo shown by the Lens of Truth will be displayed, instead of just the combos themselves. 
+
+ - Lens Shows Raft Paths
+The Lens of Truth reveals rafting routes. 
+
+ - Lens Reveals Invisible Enemies
+Normally the Amulet reveals invisible enemies. With this checked, you can use the Lens of Truth to do the same, regardless of the amulet. 
+
+ - Triforce Doesn't Remove Sword Jinxes/Non-Bubble Triforce
+Getting a Triforce piece will not restore the player's use of the A or B button if they were taken away by a red bubble or red item bubble. 
+
+ - Things That Remove Sword Jinxes Also Remove Item Jinxes
+With this rule turned on, any item that removes a jinx from a sword bubble also removes a jinx from an item bubble.
+ 
++----------------------------+
+| 4.2d ENEMIES RULES         |
++----------------------------+
+
+ - Use New Enemy Tiles
+Enemies use their New Tiles and E. Anims for animation instead of their Old Tiles and O. Anims. The Old Tiles are, by default, concise two-frame or one-frame sets of tiles on tile page 0, whereas the New Tiles are four-frame sets starting on page 6. A larger number of tiles can be defined for each enemy, opening up more graphical possibilities. 
+
+ - Show Shadows
+Some enemies, such as Tektites, Peahats, or Keese, will have shadows underneath of them. The graphic of the shadow can be defined in the Sprites/Misc. menu item. 
+
+ - Translucent Shadows
+The shadows shown under enemies will be partially transparent. See Show Shadows. 
+
+ - Shadows Flicker
+The shadows shown under enemies will blink. See Show Shadows. 
+
+ - Enemies Jump/Fly Through Z-Axis
+With the implementation of the Roc's Feather, a Z-axis or height parameter was added to the engine. With this rule checked, jumping and flying enemies will move through the Z-axis instead of the Y-axis. Peahats are slightly easier to defeatt, and Pols Voice enemies in the air won't collide with Link on the ground.
+
+ - Hide Enemy-Carried Items
+Hides items carried by enemies, and fixes the bug where getting hit by an enemy would give you their item. 
+
+ - Enemies Always Return
+Enemies now return much faster. Killing all but one will not cause only one to appear on that screen, and all the enemies may reappear after exiting and immediately reentering the screen. 
+
+ - Temporary No Return Disabled
+Fixes a bug in The Legend of Zelda where some enemies would not return when they were supposed to. In the NES game, Lanmolas stay dead until you exit the dungeon. Also, if you defeat every enemy in a room that has traps, they stay dead until you exit the dungeon. This rule disables this behavior. 
+
+ - Must Kill All Bosses To Set 'No Return' Screen State
+Fixes the bug where killing one enemy on a screen where the boss flag is set and then continuing will kill all enemies on that screen.
+
+ - Multi-Directional Traps
+Center traps may now strike in other directions, not just toward the center of the screen. 
+
+ - Line-Of-Sight Traps Can Move Across Entire Screen
+Line-of-Sight Traps placed by flags can move across the entire screen if unobstructed. If left unchecked, they will only move about the distance covered by 4 combos. Note that Line-Of-Sight Traps will ignore walkability and the invisible border unless the 'Multi-Directional Traps' rule is also turned on. 
+
+ - Constant Traps Can Pass Through Enemies
+Constant Traps placed by flags will not bounce if they hit each other or an enemy. 
+
+ - Flying Enemies Can Appear on Unwalkable Combos
+Flying enemies, such as Peahats or Keese, can appear on unwalkable combos. 
+
+ - Broken Enemy Shield Tiles/Broken Darknut Shield Tiles
+New sprites will be substituted for the normal shielded enemy tiles when its shield is broken (requires New Enemy Tiles). 
+
+ - Enemies Don't Flash When Dying/No Flashing Enemy Death
+The death sprite used by enemies does not flash different csets.
+
++----------------------------+
+| 4.2e NES FIXES RULES       |
++----------------------------+
+
+- Freeform Dungeons
+Removes the overhead border around screens in NES Dungeon DMaps and the restriction of not being able to walk parallel to an edge of the screen you're close to. This should probably always be on. Note that this doesn't remove the automatic walking of 2 combo lengths into each screen.
+
+ - Can Safely Trigger Armos/Grave From The South
+Link can touch a Grave or Armos from the south end, without taking damage. 
+
+ - Can Use Items/Weapons on Edge of Screen
+Unchecked, Link cannot use any items if he is less than 2 combos away from the edge of the screen. 
+
+ - Fix Link's Position in Dungeons
+In The Legend of Zelda, Link's screen position in NES Dungeons was slightly higher than in the overworld. Checking this rule fixes that. 
+
+ - Raft/Ladder Fix
+The raft and ladder will have their sprites rotated 90 degrees when used in a horizontal motion. 
+
+ - No Palette 3 CSet 6 Fix/No Level 3 CSet Fix
+When entering a DMap with a Level number of 3, no changes occur to CSet 6. This fixes the simulation of a bug in The Legend of Zelda. 
+
+ - Holding Up Items Doesn't Restart Music
+In The Legend of Zelda, holding up an item causes the music to stop, and then start again. This rule disables this behavior. 
+
+ - Leaving Item Cellar/Passageway Doesn't Restart Music
+In The Legend of Zelda, when Link left a screen 80 or 81 item or passage room, the music would be reset. This rule stops the reset from happening. 
+
+ - Tunic Color Can Change On Overworld
+When Link is given a ring, his color will change immediately rather than only after changing screens.
+
+ - Sword/Wand Flip Fix
+Makes the weapon sprites flip when you swing them the opposite way so you can line them up with Link's hand. 
+
+ - Weapon Animation Fix
+With this rule checked, weapons can be fully animated in all 4 directions instead of only being able to be 1 frame. 
+
+ - Push Block CSet Fix
+In the Legend Of Zelda, moving push blocks in NES Dungeons are visible even in darkness. Presumably, this is because they are set to CSet 9. This rule fixes that. 
+
+ - Trap Position Fix
+Fixes the position of Trap enemies.
+
+ - No Invisible Border On Non-Dungeon DMaps
+With this rule checked, enemies and enemy projectiles can step onto the edges of the screen on Non-Dungeon DMaps, where Link would be safe with this rule turned off. 
+
+ - Items Disappear During Hold-Up
+When Link holds up an item, all other items on the screen disappear. Keep this checked for NES behaviour.
+
+ - Subscreen Appears Above Sprites
+In The Legend of Zelda, it is possible for Tektites and other creatures to momentarily jump into the passive subscreen region, where their sprites were drawn above it. This rule gives the passive subscreen priority over enemies. 
+
+ - Correct Bomb/Darknut Interaction
+Normally, a shielded walking enemy will 'block' a bomb's explosion if the bomb's placement direction (that is, the direction Link was facing when he placed the bomb) is counter to the enemy's shield. This rule fixes this behavior. 
+
+ - Correct Offset Enemy Weapon Collision Detection
+Enemy weapons' collision boxes are correctly offset.
+
+ - Special Items Don't Appear In Passageways
+This rule fixes a bug in the Zelda 1 Hack 'Zelda Challenge- The Outlands', in which a special item appears on the screen used for passageway warps if a screen with a passageway warp set has the special item room type set. 
+
+ - No NES Sprite Flicker/No Sprite Flicker
+Fixes the bug where sprites on the same row would flicker to overcome an NES limitation. 
+
+ - Invincible Link Isn't Hurt By Own Fire Weapons
+The flames created from the Blue Candle, Red Candle, or Wand and Magic Book will not hurt Link while he is invincible. 
+
+ - Link Holds Special Bombs Over His Head/Bomb Hold Fix
+In The Legend of Zelda, Link will never hold the Bomb item over his head. This rule fixes that. 
+
+ - No Position Offset For Screen Items
+In The Legend of Zelda, screen items are placed a few pixels lower than normal. This rule fixes that.
+
+ - Allow Ladder Anywhere
+Normally, the ladder cannot be used on non-Dungeon DMaps. This rule fixes that. This rule's status can be reversed by a screen flag.
+
++----------------------------+
+| 4.2f OTHER RULES           |
++----------------------------+
+
+ - More Sound Effects
+When this rule is checked, the following events will be accompanied with certain sound effects: 
+   - Octoroks shooting Magic weapons 
+   - Constant-moving Traps reversing direction 
+   - Summoners summoning enemies (note: if rule is off, this will play SFX_FIRE instead) 
+   - Pounding shallow water combos with the Hammer 
+   - Slashing Tall Grass, Flowers or Bush combos. 
+   - Pounding a Pound combo 
+   - Spell rockets rising and falling 
+   - Din's Fire flame ring expanding 
+   - Using the Nayru's Love shield 
+   - Using the Lens of Truth 
+   - Using Farore's Wind 
+   - Pushing a "Push" combo 
+   - Whistle whirlwinds moving across the screen 
+   - Enemy fireballs being shot 
+   - Enemy rocks being shot 
+   - Enemy boomerangs flying 
+
+ - Can Select A Button Weapon on Subscreen
+The sword is no longer the permanent A-Button Item, and you can select items, as in Link's Awakening. All items on the subscreen will remain in their same positions, so the subscreen must be edited to include the sword if this rule is checked. 
+
+ - Fast Heart Refill
+When a fairy flag is touched, or when a Triforce piece is obtained, the refilling of hearts is about 3 times faster than it was in The Legend of Zelda. 
+
+ - Enable 1/4 Heart Life Bar
+Enables the life bear to display quarter-heart quantities of life, not just halves. 
+
+ - Messages Can Be Sped Up With The A Button/Allow Fast Messages
+Messages display at triple speed when you hold A. 
+
+ - Messages Can Be Bypassed With The B Button
+When a string appears on the screen, if the player presses the 'B' button, it will then dissapear. 
+
+ - Messages Freeze All Action
+While a message string appears, ALL action is frozen, including animations. 
+
+ - Messages Disappear
+The Text from a Message String Disappears after it has finished by pressing the A button. This DOES remove the invisible 5 combo tall wall that prevents Link from accessing the upper half of the room. 
+
+ - Show Time on Subscreen
+The time spent playing the quest will be displayed on the subscreen. 
+
+ - Healing Fairy Heart Circle Is Centered Around Link
+The heart circle that is displayed when a fairy flag is touched will be centered around Link's position, instead of the center of the screen. 
+
+ - No Healing Fairy Heart Circle
+The heart circle that is displayed when a fairy flag is touched will not appear. 
+
+ - No Saving When Continuing
+With this ruled checked, the save option will not be available on the continue screen. 
+
+ - Skip Continue Screen
+When Link dies, and the game is over, or the player uses F6 to quit the game, Zelda Classic will return to the file select screen without offering the player the ability to continue. 
+
+ - No Fires in Special Rooms/No Guy Room Fires
+The fire graphics in rooms with guys will not be displayed. 
+
+ - Special Room Guys Don't Create A Puff When Appearing
+Guys in the room type "Special Item" don't puff into existence. 
+
+ - Log Game Events To Allegro.log
+All of the special event logging is tied to this rule. It's a helpful rule for debugging, but it should be turned off if you don't want players to be able to peek behind the curtain, so to speak.
+
++-----------------------------+
+| 4.3 MAPS / MAP COUNT        |
++-----------------------------+
+
+Maps are just 16x8 (+4) collections of screens. The limit is 255 maps to a quest, but you can have more than one DMap per map.
+
+The last four screens in a map have specific uses:
+ - 0x80:  Cave or Item Cellar
+ - 0x81:  3-Stair Warp Cave, or Passageway
+ - 0x82:  Reserved for future use
+ - 0x83:  NES Dungeon Template (see Template section) 
+ - 0x84-0x87: Reserved for future use
+
+To create a new map, increase the Map Count number by one. 
+
++----------------------------+
+| 4.4 CHEATS                 |
++----------------------------+
+
+There are four levels of cheats, each with a separate code (a 40 character string) that enables them. You can disable cheats altogether, or disable certain ones by leaving the code empty (be sure there are no spaces). It's helpful to use the cheats when designing a quest. You can also choose to give out the cheat codes. It's up to you. 
+
+ - Level 1: Refill life, bombs, arrows, or rupees any time you want. 
+ - Level 2: Lets you to set your number of heart containers, your maximum bombs, and make Link invincible.
+ - Level 3: Allows you to choose what items, equipment, and triforce pieces Link has. 
+ - Level 4: Quest debugging. Allows Link to walk through walls, display sprite hitboxes, warp directly to specific screens and DMaps, hide or show specific layers, and toggle darkness.
+
++-----------------------------+
+| 4.5 ITEM EDITOR             |
++-----------------------------+
+
+This editor allows you to define new items and modify the existing ones. A certain number of items are defined by default; to create a new one, a quest builder can select an unused item slot ("zz###") towards the bottom of the list and continue to name it and set its attributes. There is a limit of 256 distinct items per quest. 
+
+The options within the editor are explained below.
+
++-----------------------------+
+| 4.5a ITEM EDITOR -> DATA    |
++-----------------------------+
+
+ - Name
+Give your item a name. The name of the item appears in the Subscreen's 'Selected Item Name' element whenever this item is selected.
+
+ - Level
+This determines if the item is 'better' than another item of the same class. When Link possesses multiple items of the same class, in the subscreen only the highest-leveled item will be displayed and selectable. (Though subscreen elements can optionally override this and access specific items in particular.)
+
+ - Class 
+Select the type of item. This determines most of the item's built-in abilities and functions. See the official wiki for detailed information about classes' behaviour. Note that the 'zz###' classes are reserved for future Zelda Classic expansion. Use the 'Custom Itemclass' classes instead, if you intend to use a new item class.
+
+ - Power
+Determines the 'strength' of the item. What this means depends on the item's class. In the case of damaging items, the Power is the amount of HP damage to do to enemies. An item with a power of 1 does 2HP damage to enemies.
+
+ - Equipment Item (checkbox)
+Set this for items Link can hold in his inventory, like Boomerangs, Rings or Bomb Bags. Note that this cannot be set for Hearts, Arrow Ammo, etc. If a Triforce Piece has this checkbox set and you are in a DMap whose level is between 1 and 8, collecting it will set the appropriate Triforce Piece # as collected.
+
+ - Misc. Attributes
+These checkboxes and values allow behaviour specific to the item class to be edited. For a complete description of every class's attributes, see the wiki.
+
++-----------------------------+
+| 4.5b ITEM EDITOR -> GFX     |
++-----------------------------+
+
+This tab concerns the graphics of the item in the subscreen and in the game. Click on the tile box to bring up the tile page. Find the tile you wish to assign to this item and click on it. Use + and - to change the CSet until the tile is the color you want it, than press Enter. (Keep in mind that items using CSets 2, 3, 4, and 9 will change color if the player enters a level.) Unlike in other editors, you can't give the item's tile a Flip setting by pressing H and V.
+
+For animated items, enter the number of animation frames and the animation speed on the proper lines. The speed determines how long to delay before proceeding to the next tile (smaller = faster).
+
+Other options:
+ - Flash (checkbox): Check if you want the item to "flash" between its CSet and the Flash CSet.
+ - 2-Hand (checkbox): When checked, Link uses two hands to hold up the item.
+ - Test: Preview the animation of the item.
+ - Initial Delay: The delay before running or rerunning the animation sequence. The Number entered is a multiple (2=2x, etc.). 
+ - Link Tile Modification: If this is an Equipment Item and Link possesses this item, Link's sprite tiles are offset in the tile page by an amount equal to this number. If this number were set to 20, then Link's sprites would be drawn with the tiles that are 20 tiles right of their original positions in the tile pages. If it were -20, then all Link tiles would shift left 20 tiles. Be careful: Link Tile Modification is cumulative - Link's tile is offset by the sum of all possessed equipment items' Link Tile Modifiers.
+
+Link Tile Modification is used, for instance, by the Shield items to change the shield that Link's sprite wears. Also, using a script to give Link a 'dummy' invisible equipment item with a Link Tile Modification is one of the easiest ways to alter Link's sprite for specific purposes.
+
++-----------------------------+
+| 4.5c ITEM EDITOR -> PICKUP  |
++-----------------------------+
+
+The Pickup tab concerns what happens when Link gets the item. ZC has several internal counters for things like Link's hearts, rupees, arrows etc. and these can be changed when Link picks up items.
+
+ - Increase Amount 
+For items like bombs, rupees or keys this tells you how much you gain. For instance, the 100-rupee item has this set to 100. Set to 0 if you don't use a counter. 
+
+ - Counter Reference 
+Which counter this item uses. Set to -1 for none. The counters are listed below. 
+   - 0: Life. 
+   - 1: Rupees. Uses DCounter. 
+   - 2: Bombs. 
+   - 3: Arrows. 
+   - 4: Magic. Uses DCounter. 
+   - 5: Keys. This is different to Level-Specific Keys.
+   - 6: Super Bombs.
+
+ - DCounter (checkbox) 
+If this is set, then the counter rolls upward or downward rather than immediately being set to the new value. Only some counters use this.
+
+ - Full Max 
+The highest your maximum can get when you collect the item. The only time when you would want this higher than +Max would be with items which you would collect more than once, like Heart Containers. Set to 0 if you don't need to change the maximum. This setting is for items like quivers, wallets or bomb bags which don't change the number of items (arrows) you have, but the maximum you can carry. 
+
+ - +Max 
+How much the maximum actually increases. For instance, if this is a wallet and you set Full Max to 500 and +Max to 500, you can carry up to 500 rupees in total. If you instead set this to 50, you can carry 50 more than you could before. 
+
+ - Script 
+Run the item script in this numbered slot when the item is picked up. Note: it runs before everything else (such as counter increments) does. See compiling scripts and assigning scripts (ZScript) for details on how to compile and use scripts with items. 
+
+ - Sound 
+Which sound slot plays when you pick up this item. 
+
+- Hearts Required 
+Refuse pickup if Link doesn't have enough hearts. In The Legend of Zelda, for instance, you needed a certain number of hearts to get the White Sword. Leave blank or as 0 to disable. 
+
+ - Keep Lower Level Items 
+If Link had previously collected lower-level items of the same class, then the lower-level items are not removed from his inventory when this item is collected. This is useful if, for instance, this item can be eaten
+
+ - Gain All Lower Level Items 
+When Link collects this item, all lower-level items of the same class are added to his inventory. This means that if this item is destroyed or eaten, Link will revert to the next highest item of the same class. 
+
+ - Can be eaten by Enemies 
+If Link is engulfed by any enemy that can eat items (such as Like Likes), this item will be removed from his inventory if he doesn't escape quickly enough. 
+
+ - Upgrade Item When Collected Twice
+Getting two of this item gives one of the same class but a higher level. In The Legend of Zelda, collecting a Blue Potion while already possessing a Blue Potion would cause Link to obtain a Red Potion. Note that if the higher-leveled item has the 'Keep Lover Level Items' checkbox set, then this lower-level item is retained.
+
++-----------------------------+
+| 4.5d ITEM EDITOR -> ACTION  |
++-----------------------------+
+
+If this is an equipment item, this tab controls what happens when this item is assigned to an in-game button and Link presses that button. 
+
+ - Script 
+The slot number of the item script to be run when Link uses the item. If this value is 0, then no script will run. See compiling scripts and assigning scripts (ZScript) for details on how to compile and use scripts with items. 
+
+ - Magic 
+If the 'Enable Magic' quest rule is set, depletes the magic counter by this value whenever the item is used. If Link does not have enough magic, the item will not do anything. If this value is set to 0, then no magic is used by this item. 
+
+ - Sound 
+Notes the sound slot that plays when this item is used. If this value is set to 0, then no sound will play. Sound slots can be assigned with the SFX Editor. At the current version of ZQuest, some items' sounds are defined, and others are not. 
+
+ - Remove Item When Used (checkbox) 
+When this box is checked, the item is removed from Link's inventory when he uses it. This checkbox is mainly used for Potions.
+
+ - Uses Rupees Instead of Magic (checkbox) 
+When checked, this item consumes rupees instead of magic.
+
+ - Weapon 1-10 
+The weapon/misc sprite graphics that this item displays when used. For instance, they determine the sword's stab, slash and beam sprites. Unused weapon sprites are disabled.
+
++-------------------------------+
+| 4.5e ITEM EDITOR -> ARGUMENTS |
++-------------------------------+
+
+These are the arguments for the item's Pickup and Action scripts. If you have no scripts assigned, ignore this tab. A1 and A2 are only used for ZASM scripts.
+
++-----------------------------+
+| 4.6 ENEMY EDITOR            |
++-----------------------------+
+
+This editor allows you to define new enemies and modify the existing ones. Only a limited number of items are defined by default; to create a new one, a quest builder can select an unused enemy slot ("zz###") towards the bottom of the list and name it and set its attributes. There is a limit of 256 distinct enemies per quest. 
+
+The options within the editor are explained below.
+
++------------------------------+
+| 4.6a ENEMY EDITOR -> DATA 1  |
++------------------------------+
+
+ - Name
+Give the enemy a name.
+
+ - Old, Special, New
+Select the tiles your enemy uses. If the 'Use New Enemy Tiles' quest rule is enabled (that is, the O. Anim dropdown menu is disabled), the New tile is used for the enemy, otherwise the Old tile is used. Special is used for certain specific enemies such as Pols Voice, or walkers with breakable shields.
+
+ - Type 
+What type of enemy it is. Determines most of its movement and actions. You should avoid using (None)-type enemies in the game. Ganon-type enemies can't be instantiated in-game outside of being spawned by the Ganon room type.
+
+ - HP
+How many hit points this enemy has. It should be noted that a weapon with a Power of 1 will remove two points per hit. This is because, in The Legend of Zelda, an enemy having 1 HP meant that it could be killed by the boomerang. This is not the case for Zelda Classic, however, and the ratio of enemy HP to weapon Power is reluctantly maintained for historical reasons.
+
+ - Damage 
+How many quarter-hearts Link loses if it touches him. 
+
+ - W. Damage 
+How much damage, in quarter-hearts, Link takes if this enemy's weapon hits him. 
+
+ - Hunger 
+Determines how attracted this enemy is to the Bait weapon. The range of values is 0 (no response) to 4 (extremely attracted). This is only applicable to the following enemy types: Walking Enemy, Armos, Ghini (except phantoms), Dodongo, Ganon, Lanmola. 
+
+ - Weapon 
+Which weapon, if any, this enemy fires. This is only applicable to the following enemy types: Walking Enemy, Projectile, Zora, Wizzrobe, Aquamentus, Manhandla, Gleeok, Gohma, Patra, Ganon. Weapons are typically only fired when the enemy halts - that is, when its Halt Rate is greater than 0.
+
+ - O. Anim, E. Anim
+What animation sequence to use. The 'n-Frame m-Dir' options refer to how many directions the enemy can face, and the number of animation frames it uses. A '4-Frame 4-Dir' animation makes use of four up-facing tiles, four down-facing tiles, four left-facing tiles, and four right-facing tiles, in that order. 'Firing' means that it uses an additional set of n-by-m tiles when it pauses to fire its weapon, and a third set of n-by-m tiles as it fires. 'Tracking' means that it faces toward Link regardless of its actual movement direction. Also, '3-Frame' animations actually has four animation frames, but repeats the second frame for the fourth frame, and thus only uses 3 tiles per direction.
+
+ - F. Rate
+Determines how long to delay before proceeding to the next tile (smaller = faster).
+
+ - Item Set 
+What items this enemy may drop when killed. For exact information, see Item Drop Sets in Misc. Data. 
+
+ - Random Rate 
+How often this enemy considers changing direction after stepping upon a new combo, ranging from 0 (never) to 16 (always).
+
+ - Halt Rate 
+How often this enemy considers stopping after moving to a new combo, ranging from 0 (never) to 16 (always). Zols by default use 16, and Bubbles by default use 0.
+
+ - Homing Factor 
+How often this enemy changes to a direction that points toward Link.
+
+ - Step Speed 
+Movement speed. 150 step speed is about as fast as Link's walking speed. Note that only certain enemy types use this. 
+
+ - Use Pal CSet 
+If checked, the enemy will use a CSet from the Extra Sprite Palettes instead of a standard CSet. 
+
+ - Pal CSet 
+The number of the CSet in the Extra Sprite Palettes to use. Does nothing unless Use Pal CSet is checked.
+
++------------------------------+
+| 4.6b ENEMY EDITOR -> DATA 2  |
++------------------------------+
+
+ - Misc. Attributes
+These dropdown boxes and values allow behaviour specific to the enemy type to be edited. For a complete description of every class's attributes, see the wiki. Since the Walking Enemy type has the most options, they shall be briefly discussed here.
+   - Shot Type: How the enemy fires its weapon. If the weapon is a Fire Trail or a Boomerang, most of these will be ignored.
+   - Death Type: What happens when the enemy is attacked/killed.
+   - Extra Shots: When the enemy has halted and fired a shot, it has a chance of remaining halted and firing additional shots. This number determines the number of additional shots.
+   - Touch Effects: What happens to Link when the enemy touches.
+   - Walk Style: How the enemy moves.
+
+ - BG Sound
+In The Legend of Zelda, certain enemies (i.e bosses) repeatedly roared until they were slain. This option lets you specify a sound that loops until the enemy is removed.
+
+ - Hit Sound
+In The Legend of Zelda, certain enemies (i.e bosses) screeched when you damaged them. This option lets you specify a sound that plays when you damage the enemy.
+
+ - Death Sound
+This option lets you specify a sound that plays when you slay the enemy.
+
++-----------------------------------+
+| 4.6c ENEMY EDITOR -> MISC. FLAGS  |
++-----------------------------------+
+
+ - Damaged by Power 0 Weapons 
+If these weapons have a Power of 0, they will deal damage to the enemy instead of stunning them. The amount of damage dealt depends on the weapon's level, so a power 0 weapon with a level of 1 deals 1 point of damage, a level 2 power 0 weapon deals 2 points of damage, and so on. 
+
+ - Is Invisible 
+This enemy is invisible, but if you look closely you can see a slight shimmer at its location. If you have an Amulet equipment item, the enemy becomes visible.
+
+ - Never Returns After Death (Boss) 
+Once killed, this enemy does not return even if you leave the screen and return. 
+
+ - Doesn't Count as Beatable Enemy 
+This enemy does not affect push blocks, Enemies->Secret screen flags, or shutters, and is not affected by the Kill All Enemies Item or the death of the Ringleader. Projectile shooters and spinning tiles are not counted as beatable enemies regardless of this flag. 
+
+ - Can Only Be Seen By Lens of Truth 
+Is invisible, even with the Amulet, and does not shimmer. The quest rule 'Lens Reveals Invisible Enemies' must be turned on in order for the Lens of Truth to reveal this enemy. 
+
+ - Is Flashing 
+This enemy's sprite will flash between its CSet and another CSet.
+
+ - Is Flickering 
+This enemy's sprite will flicker.
+
+ - Is Transparent 
+This enemy's sprite is drawn translucent.
+
+ - Shielded In Front (Walker) 
+This walking enemy is invulnerable on the front side. Only has an effect for Walking Enemies.
+
+ - Shielded On Left (Walker) 
+This walking enemy is invulnerable on the left side. Only has an effect for Walking Enemies.
+
+ - Shielded On Right (Walker) 
+This walking enemy is invulnerable on the right side. Only has an effect for Walking Enemies.
+
+ - Shielded In Back (Walker) 
+This walking enemy is invulnerable on the back side. Only has an effect for Walking Enemies.
+
+ - Hammer Can Break Shield 
+This walking enemy's shield can be broken by the hammer. Only has an effect for Walking Enemies.
+
++--------------------------------+
+| 4.6d ENEMY EDITOR -> DEFENSES  |
++--------------------------------+
+
+Defenses determine how the enemy reacts to Link's weapons. Currently, these defenses do not apply to Traps, Rocks, Dodongos, Big Digdoggers, Ganon, Projectile Shooters, or (None)-Type Enemies. 
+
+Each type of reaction is described below. To make an enemy invincible, set all of its Defenses to either 'Block' or 'Ignore'.
+
+ - (None) 
+The enemy takes damage, or is stunned if the weapon's damage is 0. 
+
+ - Block 
+The enemy blocks the weapon. The weapon is destroyed or returns to Link, and the Shield sound effect is played. 
+
+ - Ignore 
+The weapon passes harmlessly through the enemy. 
+
+ - 1/2 Damage 
+The damage of the weapon is reduced by half. It cannot be reduced below 1/2 power. 
+
+ - 1/4 Damage 
+The damage of the weapon is reduced even further. It cannot be reduced below 1/4 power. 
+
+ - Stun 
+The enemy is stunned, even if the weapon normally does damage. 
+
+ - Stun or Block 
+If the weapon's damage is 1 or more, the enemy is stunned. Otherwise, the enemy blocks the weapon. 
+
+ - Stun or Ignore 
+If the weapon's damage is 1 or more, the enemy is stunned. Otherwise, the enemy ignores the weapon. 
+
+ - Block if < 1 
+If the weapon's damage is less than 1, the enemy blocks the weapon. Otherwise, normal damage is dealt. 
+
+ - Block if < 2 
+If the weapon's damage is less than 2, the enemy blocks the weapon. Otherwise, normal damage is dealt. 
+
+ - Block if < 4 
+If the weapon's damage is less than 4, the enemy blocks the weapon. Otherwise, normal damage is dealt. 
+
+ - Block if < 6 
+If the weapon's damage is less than 6, the enemy blocks the weapon. Otherwise, normal damage is dealt. 
+
+ - Block if < 8 
+If the weapon's damage is less than 8, the enemy blocks the weapon. Otherwise, normal damage is dealt. 
+
+ - Ignore If < 1 
+If the weapon's damage is less than 1, the enemy ignores the weapon.
+
+ - One-Hit-Kill 
+The enemy dies, and the weapon continues on.
+
++-----------------------------------+
+| 4.6e ENEMY EDITOR -> SPAWN FLAGS  |
++-----------------------------------+
+
+These determine where and how the enemy spawns.
+
+ - Spawned by ... 
+When the enemy flag/combo type/combo flag/Ganon room type is on the screen, one of these enemies appears. 
+ - Spawn Animation (Walker)
+The manner in which the enemy appears. Only has an effect for Walking Enemies.
+   - Poof: Enemy uses the 'MISC: Spawn' Sprite when it appears. Used by most NES enemies.
+   - Flicker: Enemy fades in when it appears. Used by Armos.
+   - Instant: Enemy appears instantly with no spawn animation. Used by several bosses.
+
++----------------------------+
+| 4.7a STRINGS               |
++----------------------------+
+
+Strings are lines of text which can be displayed by a screen's Guy, but can also be displayed with scripts.
+
+In the string list, double-click a string to edit it, double click "New String" to begin creating a new one. You can also use the "Duplicate" button to duplicate a string and all of its font, tile, position, sound and spacing options. This is a fast and convenient way to create many strings with similar options.
+
+You can reorder your strings by using the arrow buttons on the right. The top and bottom arrows move a string upward or downward 12 positions in the list, and the middle arrows move it up or down once in the list.
+
+If a string is linked to by the previous string in the list, it will be indented in the string list. This makes it easy to see long chains of linked strings.
+
+At the bottom, you may set the position of "Message More", which is a sprite prompting the player to press the "A" button to continue. The Y is Offset checkbox indicates that the Message More prompt's Y position should be added to that of the current string's Y position.
+
++----------------------------+
+| 4.7b STRING EDITOR         |
++----------------------------+
+
+Here you are presented with a white box near the top, for text. The preview pane displays your text as it would appear in the game. Only the first three lines of text will be displayed, though. 
+
+You can select a string that will be displayed immediately after this string. Click the 'Next in List' button to set it to the string that follows this one in the list.
+
+On the Attributes tab you can also select a tile to serve as the border of the string, in the form of a 2x2 frame.
+
+Also on the Attributes tab are a number of options.
+
+ - X, Y
+The onscreen position that the text will appear at.
+
+ - Width, Height
+The width and height of the string bounding box, in pixels.
+
+ - H. Spacing, V. Spacing
+You can manually set additional spacing between characters and lines. Leave at 0 to use the default values.
+
+ - SFX
+The sound effect to play when each of the string's characters appears.
+
+ - Is continuation of previous string
+If set, this string's contents will be printed after that of the previous string's, without clearing the previous string from the screen.
+
+ - Text wraps around bounding box
+If this is set, the string's text will wrap around automatically. In previous versions it was necessary to manually position the string text with spaces.
+
++-----------------------------+
+| 4.7c STRING CONTROL CODES   |
++-----------------------------+
+
+Enter these control codes into a message string for special formatting, effects, basic dialog branching, or modification. (Henceforth, "X" denotes a number from 0 to 9999.) 
+
+(Note: If you switch to a string that hasn't been created yet, then ZC will act as if you switched to a string with no characters in it. )
+
+ - Formatting Codes
+
+\1\X\X - Text Colour. Changes the following text to a certain colour. Argument 1 is the CSet, and argument 2 is the colour within that CSet. The text in the Preview Pane changes to reflect the addition and modification of this Control Code. 
+
+\2\X - Text Speed. Changes the length of the delay between text characters appearing. If 0, text appears instantaneously. Argument 1 is the speed. 
+
+\25 - New Line. Equivalent to pressing Enter in a document. Best used when text wrapping is enabled.
+
+\32 through \126 - ASCII Character. Prints a character based on its ASCII code. For example, \91 allows you to display a backslash.
+
+ - Switch Codes
+
+\3\X\X\X - Goto If Screen Variable. If one of the Screen->D[] variables of the current screen is at or above a certain value, then ZC switches to another string. Argument 1 is the index into the screen's D array, argument 2 is the value, and argument 3 is the string to switch to. 
+
+\4\X\X - Goto If Random. There is a one-in-(argument 1) chance that ZC switches to another string (argument 2). 
+
+\5\X\X - Goto If Item. If Link has a certain item, then ZC switches to another string. Argument 1 is the item ID, and argument 2 is the string to switch to. 
+
+\6\X\X\X - Goto If Counter. If a counter is at or above a certain value, then ZC switches to another string. Argument 1 is the counter, argument 2 is the value, and argument 3 is the string to switch to. 
+
+\7\X\X\X - Goto If Counter %. If a counter is at or above a certain percentage of its maximum, then ZC switches to another string. 
+
+\8\X\X - Goto If Triforce. If Link has acquired the Triforce from a certain level, then ZC switches to another string. Argument 1 is the level, and argument 2 is the string to switch to. 
+
+\9\X\X - Goto If Triforce Count. If Link has acquired a certain number of Triforce pieces, then ZC switches to another string. Argument 1 is the quantity, and argument 2 is the string to switch to.
+
+ - Counter Up/Down Codes
+
+\10\X\X - Counter Up. Increases a counter by a certain value. Argument 1 is the counter, and argument 2 is the value. 
+
+\11\X\X - Counter Down. Reduces a counter by a certain value. Argument 1 is the counter, and argument 2 is the value. 
+
+\12\X\X - Counter Set. Sets a counter to a certain value. Argument 1 is the counter, and argument 2 is the value. 
+
+\13\X\X - Counter Up %. Increases a counter by a certain percentage of its maximum. Argument 1 is the counter, and argument 2 is the percentage. 
+
+\14\X\X - Counter Down %. Reduces a counter by a certain percentage of its maximum. Argument 1 is the counter, and argument 2 is the percentage. 
+
+\15\X\X - Counter Set %. Sets a counter to a certain percentage of its maximum. Argument 1 is the counter, and argument 2 is the percentage. 
+
+\16\X - Give Item. An item is silently added to Link's inventory. Link does not hold up the item, and the item's Pickup Script does not run - though the item's counter modifications will still take effect. Argument 1 is the item ID. 
+
+\17\X - Take Item. An item is removed from Link's inventory. The item's counter modifications will be undone when this occurs. Argument 1 is the item ID.
+
+ - Audio Effect Codes
+
+\20\X - Sound Effect. Argument 1 is the sound effect number. 
+
+\21\X - Play MIDI. Argument 1 is the quest MIDI number. You cannot play the built-in MIDIs using this.
+
++----------------------------+
+| 4.8 DMAPS                  |
++----------------------------+
+
+DMaps are a way of dividing up Maps into "Dungeon Maps" with different characteristics.
+
+It is constructive to think of DMaps as being the data that tells Zelda Classic how to interpret the information put on Maps in the editor. When Zelda Classic plays your quest, it needs to know more information that just what Combos to draw on a Screen. It must also know what Music to play, what Palette to display the screen in, whether the Whistle works on that screen, what the minimap looks like on the subscreen, and other details. Most of these details come from the DMap. 
+
+A single DMap is usually smaller than a whole Map. DMaps are typically horizontally offset from the actual edge of the Map. Whenever you are moving the player using a Warp, you specify the Warp location using the coordinates of the screen within the DMap, not the Map.
+
++----------------------------+
+| 4.8 DMAPS -> MECHANICS     |
++----------------------------+
+
+ - Map
+This is the number of the map that the DMap's traits apply to. 
+
+ - Type
+This determines the main traits of the DMap. A number of quest rules, screen flags and 
+   - NES Dungeon - These DMaps are 8 screens by 8 screens in area. Door Combo Sets only function in this type of DMap. Secrets are always temporary.
+   - Overworld - These DMaps are 8 screens tall and 16 screens wide - thus, they are the only type of DMap which covers the entire area of a Map. 
+   - Interior - These DMaps are 8 screens by 8 screens in area.
+   - BS-Overworld - These DMaps are 8 screens by 8 screens in area. They simulate the overworld of BS-Zelda. Unlike other DMap types, the passive subscreen map is a grid of screens.
+
+ - Level
+This number is used for continuity between different DMaps. DMaps with equal levels will use the same level-specific items and variables, such as Dungeon Maps, Compasses, Boss Keys, etc. For example, say you want to make a cavern with 8 floors using 8 DMaps, and want the Boss Key found in one floor to work on all others. Give them all the same level number (say 12) and this will be possible.
+
+ - Minimap Grid
+Use this grid to edit what the classic NES-style minimap looks like.
+
+ - Slider
+If the map is 8x8, this is used to position the DMap over certain screens on the Map. 
+
+ - Continue Here
+If checked, Link starts on this map upon dying and having "Continue" selected. 
+
+ - Compass
+This is the screen that the red compass icon indicates on the mini-map. 
+
+ - Continue
+This is the screen that Link starts on after continuing from a Game Over, and also the screen that Link returns to when he is nabbed by a Wall Master, hit by an enemy's Wind weapon, uses a Farore's Wind item, or uses a whistle whirlwind when the 'Whistle Whirlwind Returns Link To Start'
+
++----------------------------+
+| 4.8 DMAPS -> APPEARANCE    |
++----------------------------+
+
+ - Color
+This is the palette that the DMap uses.
+
+ - DMap Title
+This is the title that displays above the subscreen's minimap. If the first letter of the first word is in the top-left corner, and the last letter of the last word is in the bottom-right corner, the full title will be drawn centered.
+
+ - DMap Intro
+This is a basic message that displays upon the first entry of the DMap. Leave blank to disable. 
+
+ - Subscreens
+The Active subscreen is the main item-selection subscreen that displays when you hit "Start." The Passive subscreen is the subscreen that occupies the top of the main screen.
+
++-------------------------+
+| 4.8 DMAPS -> MUSIC      |
++-------------------------+
+
+Choose the MIDI that you want to play in this DMap. If you transition between two DMaps with identical MIDIs, then the music will not be interrupted.
+
+DMaps can optionally call upon external music files for music, falling back on the MIDI if it cannot find the file. Currently, this is the only way to play non-MIDI music. Zelda Classic understands the following formats: OGG, MP3, IT, XM, S3M, MOD, SPC, GYM, NSF, GBS, and VGM. The music file must be included in the same folder/directory as the quest file for Zelda Classic to play it.
+
++-------------------------+
+| 4.8 DMAPS -> MAPS       |
++-------------------------+
+
+This allows you to change the appearance of the mini-map in the Passive Subscreen and the Large Map in the Active Subscreen, before and after Link finds the Map item for this DMap. Click on the map you want to change, the tiles screen will come up, then click on the upper-left tile of the map you want and press Enter. Note that setting the 'With Map' Minimap will disable the classic NES-style minimap.
+
++-------------------------+
+| 4.8 DMAPS -> FLAGS      |
++-------------------------+
+
+ - Use Caves Instead Of Item Cellars
+The 'Cave/Item Cellar' warp behaves like Overworld-style caves rather than Dungeon-style item cellars. This flag entails, among other things, that warps to screen 80 will enter and exit at the center of the bottom instead of the upper left. 
+
+ - Allow 3-Stair Warp Rooms
+Unless this is checked, the Room Type "3-Stair Warp" does nothing on this DMap. 
+
+ - Allow Whistle Whirlwinds
+Unless this is checked, the Whistle cannot summon whirlwinds.
+
+ - Whistle Whirlwind Returns Link To Start
+Using the Whistle returns Link to the DMap's Start Screen instead of using the whistle warps. 
+
+ - Special Rooms And Guys Are In Caves Only
+If this is checked, Guys, Message Strings and Room Types will not appear in ordinary screens, but only in screens 0x80 and 0x81. The exception to this rule is the 'Fairy' Guy. 
+
+ - Don't Display Compass Marker In Minimap
+Even if you have the Compass, its marker won't appear in the passive subscreen. Useful if you're making a multi-floor dungeon with multiple DMaps of the same Level. 
+
+ - Underwater Wave Effect
+Causes the screen to shift and warp, creating an 'underwater' effect, as seen in The Legend of Zelda: Oracle of Ages.
+
+ - Always Display Intro String
+The intro string displays every time Link enters the DMap, instead of just the first. 
+
+ - View Overworld Map By Pressing 'Map'
+If the player presses the "Map" key, they can consult a large, detailed map of the screens that have been visited. 
+
+ - Use Minimap Foreground Color 2 
+In Misc. Colors, an alternative Minimap Foreground Color can be set and used. In previous versions Foreground Color 2 was used exclusively for Interior DMaps.
+
+ - Script 1-5
+These have no built-in purpose, but can be used by scripts to check if some scripted feature should occur in this DMap.
+
++-------------------------+
+| 4.8 DMAPS -> DISABLE    |
++-------------------------+
+
+This is a new feature that lets certain specific equipment items be temporarily excluded from Link's inventory, preventing him from using them. Has no effect for non-equipment items, obviously.
+
++-------------------------+
+| 4.9 INIT DATA           |
++-------------------------+
+
+This is where you set the equipment items that Link starts the quest with, as well as his initial Bombs, Arrows, Keys, Super Bombs, Magic, and maximums of each.
+
+In previous versions of Zelda Classic, the number of Super Bombs Link could carry was dependant on his maximum Bombs. Due to this, you can't directly change Link's maximum Super Bombs. You must adjust the Super Bomb ratio, which is the number of maximum Bombs per Super Bomb.
+
+The Level Items tab lets you set the Map, Compass, Boss Key or Level-Specific Keys that Link starts the game with, if any. As a DMap can have a level from 0 to 512, there are thus 512 possibilities.
+
+Under the Misc tab and Constants tabs, further options are available.
+
+ - Starting DMap
+You can set Link's starting DMap. Link will begin the quest in the Continue screen for that DMap.
+
+ - Heart Containers, Pieces
+The amount of Heart Containers and Pieces of Heart Link starts the quest with.
+
+ - Per HC
+The number of Heart Container Pieces that make up a Heart Container. When Link obtains this many Pieces, he also picks up item #20 (which is the Heart Container by default).
+
+ - Starting HP, Continue HP
+The amount of hearts that Link starts the game with. Continue HP can be expressed as a percentage of Link's maximum hearts.
+
+ - Slash
+If checked, Link begins the game with the ability to slash with melee weapons, such as Swords.
+
+ - Magic
+The amount of magic Link starts with. One Magic Container is equal to 32 units.
+
+ - Double
+If checked, Link begins the game with the '1/2 Magic Upgrade', which cuts his items' magic costs in half (as long as they use magic).
+
+ - Triforce
+Link can begin the game with specific Triforce pieces.
+
+ - Gravity
+The acceleration of sprites falling through the Z axis (and the Y axis in Sideview screens). This cannot be changed in-game.
+
+ - Terminal Velocity
+The maximum speed at which things can fall. This cannot be changed in-game.
+
+ - Jumping Sprite Layer Threshold
+If Link's Z height is greater than this, he is drawn above Layer 3 (but not Layer 4). This cannot be changed in-game.
+
++-----------------------------+
+| 4.10 MISC. DATA             |
++-----------------------------+
+
+ - Master Subscreen Type
+If you want to edit your subscreens, this must be set to 'Custom'. Otherwise, changing it will replace all of your subscreens with built-in Zelda Classic subscreens, and change the subscreen settings for all of your DMaps.
+
+ - Shop Types
+This is used to set up shops for your quest. Shop Types are used for both the Shop room type and the Take One Item room type. To create a new shop type, click on a number you haven't used yet and Edit.
+This brings up a Shop Data dialog box with spaces for three items. Choose an item from the drop-down menu and enter the price for it above that item. You can have a shop with just one item by using only the first item listed, or 2 items by using only the first 2, but don't leave one blank and enter something in the next one. 
+
+ - Info Types
+This is for the Pay For Info room type. It works just like Shop Data: set the prices and choose the message strings from the drop-down menu. To create new strings go to Quest->Strings first.
+
+ - Warp Rings
+The Warp Rings are used for both Whistle Warps and the rooms with 3 staircases that warp you to different parts of your quest. Ring 8 is used by the default Whistle item.
+When you click on Warp Rings, a dialog box will popup with the numbers 0-8. To create a warp ring, click on a number you haven't used yet and Edit.
+This brings up the dialog box for that particular warp ring. Count (3-8) is where you enter how many locations you want for that warp ring. You then edit each site number, entering the dmap and screen number you want to warp to for each one. Then click OK, or (to test the warp) Go will take you to the screen you just entered. 
+
+ - Triforce pieces
+For changing the placement of the triforce pieces in the Triforce Frame subscreen object.
+
+ - End String
+For making custom end-game messages. Without an End String, Zelda Classic just displays "THANKS LINK, YOU'RE THE HERO OF HYRULE" and "FINALLY, PEACE RETURNS TO HYRULE. THIS ENDS THE STORY." when you save Zelda. Note that Zelda Classic uses two strings: the selected string, and the string whose number is one more than the selected string. ZC currently ignores the Next String setting of the string, as well as all control codes in the string.
+
+ - Item Drop Sets
+Item Drop Sets are lists of items which are used to decide whether an enemy should drop an item when it is defeated, and if so, which. The Enemy Editor can change the drop set used by a certain enemy. One Item Drop Set, "Tall Grass Combos", is also used for Slash->Item, Tall Grass, Flowers and Bush combo types. Also, the "Bombs 100%" and "Super Bombs 100%" sets are used whenever you slay a Dodongo by slashing it, or using a Super Bomb, respectively.
+
++-----------------------------+
+| 4.11 PALETTES               |
++-----------------------------+
+
+PALETTES:
+
+The ZC palette is divided up into 15 blocks of 16 colors each. These blocks are called "CSets" (color sets). The first color in each cset is transparent. 
+
+Main: CSets 0-5 are background colors and 6-14 are typically used by sprites. Below is an explanation of each: 
+
+Background colors: 
+ - 0,1: used for subscreen colors and map colors 
+ - 2-4: loaded with different "level colors" * 
+ - 5: extra bkg CSet, independent of level 
+
+Sprite colors: 
+ - 6: Link's colors 
+ - 7-8: constant sprite colors 
+ - 9: level-defined sprite colors * 
+ - 10-13: extra constant sprite color CSets 
+ - 14: used for boss colors, which are loaded as needed 
+
+* These CSets will change color according to the level the player is in. 
+
+Levels: 
+ - 00: Overworld dmap csets that change according to level 
+ - 01-09: Palettes for Levels 1-9 dmaps 
+ - 0A: Palettes for cave dmaps 
+ - 0B: Palettes for passageways and item rooms in dungeons. 
+ - 0C-FF: Extra level dmap palettes 
+
+Note: The white numbers on the left in the level palette editor are the regular colors for the dungeon csets. 
+The black numbers show what that csets turns to when the room is dark. 
+The 2 shades of gray numbers are the in-between colors that csets go through when fading from light to dark or vice versa. 
+
+Sprites: 
+
+Extra Sprite Palette 1: 
+ - 0: Aquamentus cset 
+ - 1: Gleeok cset 
+ - 2: Digdogger and its kids cset 
+ - 3: Ganon cset 
+ - 4: Ganon stunned cset 
+ - 5: Ganon dying cset 
+ - 6: Link with blue ring cset (used by the default Ring 1 item)
+ - 7: Link with red ring cset (used by the default Ring 2 item)
+ - 8: Link with gold ring cset (used by the default Ring 3 item)
+ - 9-12: Game Icon csets: 0, 1, 2, 3+
+ - 13: Gleeok 2 cset 
+ - 14: Unused
+
+Extra Sprite Palette 2: If you need extra sprite c-sets in making custom quests, load them here. 
+ - 15: Patra BS cset 
+
+Palette Edit Window: 
+In the palette windows, you can copy an entire Cset over to a different Cset. Highlight the Cset you wish to copy and press 'C', then highlight the any other Cset and press 'V'. Presto, you have copied the Cset. This can save a lot of time if you want to copy animated palettes, like the water and fire in dungeons, over to different levels. 
+When editing a palette, you can copy a single color to one of the other 16 colors in the palette. 
+
+Also you can use the numeric keys to manually edit individual colors. 1, 2, 3, to move RGB values down (respectively), 7,8,9 to move RGB values up (respectively), and 4 to move the cursor left, 6 to move it right. This is easier than adjusting with the cross on the color spectrum and Inserting. 
+
+In the level palettes there is a name field where you can name the palette for easy identification. 
+
++-----------------------------+
+| 4.12  WEAPONS/MISC SPRITES  |
++-----------------------------+
+
+   These are the sprites for the weapons in the game. As seen in the Item Editor, various items use these data entries to determine the graphics of their projectiles. Enemies also use specific sprites for their weapons.
+
+This also includes sprites used for various special effects that occur in-game. Some of these are:
+
+ - MISC: More: If you use string linking and assign a tile or set of tiles to this, it will be shown on the screen (position is adjustable in the Init Data dialog) to let you know there is more text available. 
+ - MISC: Death: This is the flash created when enemies are killed.
+ - MISC: Spawn: Enemies with the 'Puff' spawn animation use these tiles when they appear.
+ - MISC: Ripples: These are drawn under Link when he walks on Shallow Water tiles. They use halves of tiles - only the top or bottom of the tile is drawn in a particular animation frame.
+ - MISC: Tall Grass: Much like Ripples, but are drawn when Link walks on Tall Grass tiles.
+ - MISC: Hover Boots Glow: Much like Ripples, but are drawn when Link uses the Hover Boots item.
+ - MISC: Shadow (Small): This is drawn under Link when he is in midair (usually by using the Roc's Feather item) or underneath enemies if they are moving through the Z axis, or the appropriate Quest Rule is set.
+ - MISC: Shadow (Large): Currently used exclusively by Boulder enemies.
+ - MISC: Bush Leaves: Drawn when Link slashes a Bush combo. Uses quarters of tiles - each of the four corners of the tile is treated as an individual animation frame.
+ - MISC: Flower Clippings: Drawn when Link slashes a Flowers combo. Uses quarters of tiles.
+ - MISC: Grass Clippings: Drawn when Link slashes a Tall Grass combo. Uses quarters of tiles.
+ - MISC: Quarter Hearts: Set this to allow the Life Gauges in the subscreen to draw quarter-hearts correctly.
+
++-----------------------------+
+| 4.13  COMBOS                |
++-----------------------------+
+
+   Combos are the building blocks of the many maps and terrain of your quest. They are a combination of a graphics tile and a type that determines how Link is affected when he steps on it. Various types include Damage, Lock Block, Water, Treasure Chest, Shallow Water, and many more. Combos also feature solidity flags that can be set for each corner, and prevent Link or certain enemies from walking on them.
+
++-----------------------------+
+| 4.13a  COMBO LIST           |
++-----------------------------+
+
+   The combo list is used to organize your quest's combos. Combos are arranged in 254 pages of 255 combos each. Change pages by clicking the arrows near the page number, or by using the hotkeys (see below).
+
+   As with the tile pages, you can select large groups of combos at once. Click on one combo, then click on a second combo while holding Shift. The combos between the two will be selected. You can then copy and paste the combos as a group, or perform some other action on them.
+
+The right-click menu contains:
+
+ - Copy: Copies the combo to the 'clipboard'
+ - Paste: Pastes the clipboard combo to this location, overwriting the combo.
+ - Swap: Swaps the data of the clicked combo with the clipboard combo, thus making them switch places.
+ - Delete: Erases the data of the selected combo.
+ - Edit: Edits the combo.
+ - Insert New: Moves all of the subsequent combos to the right by one position, and edits an empty combo at this location.
+ - Remove: Moves all of the subsequent combos to the left by one position, overwriting this combo.
+ - Locations: Shows you whether this combo is actually used in the quest's maps, and where.
+
+Hot keys are: 
+
+ - space: toggle horizontal and vertical views. Horizontal view lists all of the combos horizontally and vertically. Vertical view arranges the combos in a series of 
+ - +,-: change CSet 
+ - e: edit current combo 
+ - c: copy (select) a combo.
+ - o: overwrite the destination combo with the source combo.
+ - s: swap source and destination combos.
+ - v: paste. This will copy the source combo to the destination.  
+ - p: go to a specific page.
+ - page up, page down: changes the combo page
+
+   Note: To copy and paste a whole combo page (or part of one), click on the first combo, hold shift and click on the last combo. Press c. Go to the combo page you want to copy to. Click on the first space and hit v. This method can also be used to delete a number of combos by pressing delete after selecting the combos. 
+
++-----------------------------+
+| 4.13b  COMBO EDITOR         |
++-----------------------------+
+  
+   Click on the tile to edit the tile and/or flip status. Within the tile selector, click on "Old" or press Esc to cancel, or "New" to use the new one.
+ 
+   The square next to the tile shows the solidity - the places where Link can't walk. Click corners to toggle gray for walkable and red for unwalkable.
+
+   The second square is used if you want to use more than one cset on the tile. Click the corners to toggle gray (regular cset) and blue (2nd cset). Enter the difference between the cset and thenumber of the 2nd cset on the CSet 2 line. With this, you can also make combos that use Cset 6, 7, 8, 9, 10, or 11 by making the entire square blue. 
+
+Options include the following.
+ - Cycle: If the combo is animated, it will change into this combo as soon as its animation finishes. A very useful tool for a variety of purposes, including making combos that only animate once (such as doors swinging open), or timed traps and mechanisms (such as spikes that rise and fall repeatedly).
+ - A. Frames: Number of frames for the animated combo. 
+ - A. Speed: Speed delay of animation. Lower numbers = faster animation.
+ - A. Skip X: Normally, the next 'frame' in a combo's animation is the tile directly after the combo's current tile. With this option, the animation will 'skip forward' and choose a further tile on the tile page for the next frame. For instance, an A. Skip X of 1 will make its animation use every other tile after its default tile.
+ - A. Skip Y: Similar to A. Skip X, but the animation will skip entire rows of the tile page. You could thus lay out a combo's animation tiles vertically in the page if you wish.
+ - Type: The combo's type. This defines what kind of combo this is. See below for a list of types.
+ - Flag: The combo's inherent flag. Use this for combos which should always have a certain combo flag on them. For instance, a cracked rock combo which should always have the 'Bomb Trigger' combo flag. See the Combo Flags section later in this document for more details.
+ - Refresh Animation on Room Entry: When Link enters the screen, this combo starts its animation from the beginning.
+ - Restart Animation when Cycled To: If a combo cycles into this combo, then it will start its animation from the beginning.
+
+   Combo Types can be grouped into Weapon Types, Enemy Placement Types, Warp Types, Visual Types, Walk Effect Types, Destructible Types, Screen State Types, Push Block Types, Screen-Wide Effect Types, Save Types, Obsolete Types and Script Specific Combo Types.
+
++-----------------------------+
+| 4.13b.1  WEAPON COMBO TYPES |
++-----------------------------+
+
+ - Block All
+All projectile weapons that would usually pass through unwalkable combos will be stopped by Block All combos. 
+
+ - Block Arrow (All)
+All Arrows that would usually pass through unwalkable combos will be stopped by Block Arrow (All) combos. 
+
+ - Block Arrow (L1, L2)
+Arrows with a Level of 1 or 2 that would usually pass through unwalkable combos will be stopped by these combos, whereas higher-leveledArrows will still pass through this combotype. 
+
+ - Block Arrow (L1)
+Arrows with a Level of 1 that would usually pass through unwalkable combos will be stopped by these combos, whereas higher-leveled Arrows will still pass through this combotype.
+ 
+ - Block Brang (All)
+All Boomerangs that would usually pass through unwalkable combos will be stopped by Block Brang (All) combos. 
+
+ - Block Brang (L1, L2)
+Boomerangs with a Level of 1 or 2 that would usually pass through unwalkable combos will be stopped by these combos, whereas higher-leveled Boomerangs will still pass through this combo type. 
+
+ - Block Brang (L1)
+Boomerangs with a Level of 1 that would usually pass through unwalkable combos will be stopped by these combos, whereas higher-leveled Boomerang swill still pass through this combo type. 
+
+ - Block Fireball
+Enemy Fireball projectiles that would usually pass through unwalkable combos will be stopped by Block Fireball combos. 
+
+ - Block Magic
+Wand magic or enemy magic that hits this combo is destroyed. 
+
+ - Block Sword Beam
+Sword Beams, that would usually pass through unwalkable combos will be stopped by Block Sword Beam combos. 
+
+ - Hookshot Grab
+If this combo is struck by the hookshot, Link is pulled towards the combo. 
+
+ - Hookshot Only
+The hookshot's chain can pass through this combo, as can other ranged items that cannot normally pass through unwalkable combos. 
+
+ - Ladder Only
+The ladder will be placed on this combo, and other ranged items that cannot normally pass through unwalkable combos. Note that the hookshot cannot pass through this combo. 
+
+ - Ladder or Hookshot
+The ladder will be placed on this combo, and other ranged items including the hookshot that cannot normally pass through unwalkable combos will pass through it. 
+
+ - Magic Mirror (4-Way)
+Wand magic or enemy magic that hits this combo is reflected 180 degrees. 
+
+ - Magic Mirror (Up-Left, Down-Right)
+Wand magic or enemy magic that hits this combo is reflected 90 degrees as if the mirror were shaped like the following slash: \ 
+
+ - Magic Mirror (Up-Right, Down-Left)
+Wand magic or enemy magic that hits this combo is reflected 90 degrees as if the mirror were shaped like the following slash: / 
+
+ - Magic Prism (3-Way)
+Wand magic or enemy magic that hits this combo is duplicated twice. The two duplicate shots are fired perpendicular to the direction of the original shot. 
+
+ - Magic Prism (4-Way)
+Wand magic or enemy magic that hits this combo is duplicated three times. The three magic shots are fired from all 4 directions. 
+
++--------------------------------+
+| 4.13b.2  ENEMY PLACEMENT TYPES |
++--------------------------------+
+
+ - Armos
+When touched, the combo produces an Armos enemy. The Armos combo can be safely activated from the East, North or West sides of the combo, but if activated from the south the player will take damage (but this NES behaviour can be removed with a quest rule). When activated, the Armos combo changes to the screen's Under Combo. The Armos combo can also be set to work with flags 'Armos->Secret' and 'Armos->Item'. The 'Armos->Secret' flag will display the corresponding secret combo set in the screen's secret combo editor when the Armos is activated, and the 'Armos->Item' flag will put the screen's Secret Item beneath the Armos when it is activated. 
+
+ - BS Grave
+BS Grave combos act exactly the same as Grave combos, but will change to the next combo on the list when activated. 
+
+ - Center Statue
+If the 'Statues Shoot Fire' Screen Data flag is checked, a "Shooter (Fireball)" enemy is created on this combo. 
+
+ - Grave
+When touched, a "Ghini (L1, Phantom)" appears from the combo. Graves can be safetly activated from the East, North and West sides, but if Link activates a grave from the South, he will take damage (but this NES behaviour can be removed with a quest rule). 
+
+ - Left Statue
+If the 'Statues Shoot Fire' Screen Data flag is checked, a "Shooter (Fireball)" enemy is created on the left side of this combo. 
+
+ - No Enemies
+Enemies cannot walk onto a No Enemies combo. 
+
+ - No Flying Enemies
+Enemies such as peahats or keese, which normally ignore walkability, cannot fly here. 
+
+ - No Jumping Enemies
+Tektites and Pols Voices, which normally ignore walkability, cannot jump here. 
+
+ - Right Statue
+If the 'Statues Shoot Fire' Screen Data flag is checked, a "Shooter (Fireball)" enemy is created on the right side of this combo. 
+
+ - Spinning Tile (Immediate)
+This combo spawns a 'Spinning Tile (Combo)' enemy as soon as it appears on the screen. The Spinning Tile will take its graphics from the tile page tiles preceding this combo's tile - thus, you can have different-looking Spinning Tiles spawn from different-looking combos.
+
++-----------------------------+
+| 4.13b.3  WARP TYPES         |
++-----------------------------+
+
+These combos transport Link to a different screen in a certain manner when he steps on them. 
+
+ - Cave (Walk Down) [A-D]
+Link appears to walk down on the combo when stepped on, warping him to the specified letter warp. Any pixels filled with a color other than transparent will appear about Link while the walking down animation plays. 
+
+ - Cave (Walk Up) [A-D]
+Link appears to walk up on the combo when stepped on, warping him to the specified letter warp. Any pixels filled with a color other than transparent will appear about Link while the walking up animation plays. 
+
+ - Direct Warp [A-D]
+Specified letter warp in which the exit point on the destination screen is ignored, instead using Link's position when the warp was touched. This warp is triggered even if Link walks on the top half of the combo. 
+
+ - Direct Warp [Random]
+A direct warp that sends Link to any of the defined letter warps on that screen randomly. 
+
+ - Dive Warp [A-D]
+Acts as a water combo, but if Link dives here, he is warped via the lettered tile warp. 
+
+ - Sensitive Warp [A-D]
+Sensitive Warp [A-D] combos act exactly the same as Stairs [A-D] combos, but will be activated as soon as Link touches one pixel of the tile. These combos can be made to work exactly the same as Direct Warp [A-D] combos by checking the screen flag 'Auto-Warps Are Direct'. 
+
+ - Sensitive Warp [Random]
+Sensitive Warp [Random] combos act exactly the same as Stairs [Random] combos, but will be activated as soon as Link touches one pixel of the tile. This combo can be made to work exactly the same as the Direct Warp [Random] combo by checking the screen flag 'Auto-Warps Are Direct'. 
+
+ - Stairs [A-D]
+Basic Warp tile. This warp is triggered only if Link walks on the bottom half of the combo. Link will be warped via the corresponding lettered warp, and appear at the blue warp return point on the screen to be warped to. 
+
+ - Stairs [Random]
+When Link steps onto a Stairs [Random] combo, there is a random chance of him warping to any of the screen's four Tile-Warps. 
+
+ - Swim Warp [A-D]
+Acts as a combination between a water combo and a stairs combo. If Link swims here, he is warped to the corresponding lettered warp.
+
++-----------------------------+
+| 4.13b.4    VISUAL TYPES     |
++-----------------------------+
+
+ - Eyeball (8-way, A)
+The tile changes depending on the position of Link relative to this combo. The directions are N, NE, E, SE, S, SW, W, and NW. 
+
+ - Eyeball (8-way, B)
+The tile changes depending on the position of Link relative to this combo. The directions are NNE, ENE, ESE, SSE, SSW, WSW, WNW, and NNW. 
+
+ - Eyeball (4-way)
+The tile changes depending on the position of Link relative to this combo. The directions are N, S, E, W. 
+
+ - Overhead
+Non-flying sprites, like Link and most enemies, appear under this combo except for the transparent portions of the tile. If an Overhead combo is placed on layer 0 that contains some transparent pixels, tiles places on layers 1 and 2 will appear in place of the transparent pixels.
+
++-----------------------------+
+| 4.13b.5  WALK EFFECT TYPES  |
++-----------------------------+
+
+These combos produce a certain effect if Link is stepping on them. 
+
+ - Conveyor D/L/R/U
+Link will be shifted in the designated direction when he steps here, although the movement is not so strong that he cannot walk against it. Conveyors can be a little bit bugged. On a 'Sideview Gravity' screen, solid left and right conveyors will shift Link in the designated direction when he stands on top of them. 
+
+ - Damage (X Heart(s))
+When this combo is stepped on without the boots, Link loses the designated amount of hearts. Rings will not affect the damage taken unless the particular quest rule is checked. Damage amounts include 1/2 heart, 1 heart, 2 hearts, 4 hearts, 8 hearts, 16 hearts, and 32 hearts. 
+
+ - Dock
+Link must begin a Raft Path on a dock combo. 
+
+ - Shallow Water
+A small 16x8 pixel effect appears on Link while walking here. The graphic is set in Sprites/Misc. 
+
+ - Slow Walk
+Link's walking speed is reduced on this combo. Enemy speed will not be. 
+
+ - Step->Next
+When Link steps on a Step->Next combo, it will change to the next combo in the list. 
+
+ - Step->Next (All)
+When Link steps on a Step->Next (All) combo, all Step->Next combos including Step->Next (Copycat) and Step->Next (Same) will change to the next combo on the list. 
+
+ - Step->Next (Copycat)
+When a Step->Next (All) combo is activated on a screen with a Step->Next (Copycat) Combo, it will also change to the next combo on the list, but it cannot be triggered itself. 
+
+ - Step->Next (Same)
+When Link steps on a Step->Next (Same) combo, all tiles of the same combo number will change to the next combo on the list. 
+
+ - Step->Secrets (Permanent)
+This triggers Screen Secrets when the bottom half of this combo is stepped on. 
+
+ - Step->Secrets (Sens. Perm)
+Trigger (Sens. Perm) combos act exactly the same as Trigger (Permanent) Combos, but will be activated as soon as Link touches one pixel of the tile. 
+
+ - Step->Secrets (Sens. Temp)
+Trigger (Sens. Temp) combos act exactly the same as Trigger (Temporary) Combos, but will be activated as soon as Link touches one pixel of the tile. 
+
+ - Step->Secrets (Temporary)
+This triggers Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's "Secret" Screen State - that is, the Screen Secrets are temporary. 
+
+ - Reset Room
+When Link steps on this combo, all of the current Screen's States are reset to 0 (except for those that have been labeled "No Reset" in Screen Data), and Link is instantly warped to the very same screen - effectively leaving Link unmoved, but resetting all of the enemies and combos. 
+
+ - Water
+Water has the following properties:
+ -- Zora-type enemies can appear on this combo. 
+ -- Ranged weapons that are normally stopped by unwalkable combos, like the Hookshot, fire freely over this combo regardless of its walkability. 
+ -- The Ladder can be used to cross over this combo if it is unwalkable. 
+ -- If Link has the flippers, and this combo is unwalkable, then he can swim on this combo. His tiles will be changed to the Link Swimming tiles set in the Link Sprites box. 
+ -- If the "Whistle->Dry Lake" Screen Flag is set, then it loses its combo type and unwalkable flags when the Whistle is played. This effect is temporary, and vanishes if the screen is reentered.
+If the "Link Drowns in Walkable Water" Rule is set, then the following changes to the above behaviour occur:
+ -- If Link is standing on this combo without the Flippers, and his Z-axis position is 0, he will drown. His sprite tiles will change to the "Diving" Link tiles, he will not be able to move, and after 60 frames he will lose 1/4 of a heart and reappear at the exact location where he entered the screen, flashing. 
+ -- The Stepladder can be used to cross over this combo regardless of its walkability. 
+ -- Other walking enemies will not walk on it, regardless of its walkability.
+
++-----------------------------+
+| 4.13b.6  DESTRUCTIBLE TYPES |
++-----------------------------+
+
+These can be destroyed with Link's items.
+
+ - Bush
+Acts as a Slash->Item combo. Small graphics will fly out from it when slashed, usually leaves, and the bush will change to the screen's under combo. These graphics are set in Sprites/Misc. A sound effect is also played when the bush is slashed. It will also create an item in the "Bush/Grass Combos" Item Drop Set. 
+
+ - Bush (Continuous)
+Same as the Bush Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Bush->Next (Item)
+The Bush->Next (Item) combo works in exactly the same way as the Bush combo, but instead of changing to the screen's under combo, it will change to the next combo in the list. It will also create an item in the "Bush/Grass Combos" Item Drop Set. 
+
+ - Bush->Next (Item, Continuous)
+Same as the Bush->Next (Item) Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Flowers
+Acts as a Slash->Item combo. Small graphics will fly out from it when slashed, usually leaves, and the flowers will change to the screen's under combo. These graphics are set in Sprites/Misc. A sound effect is also played when the flowers are slashed. It will also create an item in the "Bush/Grass Combos" Item Drop Set. 
+
+ - Flowers (Continuous)
+Same as the Flowers Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Pound
+When this combo is hit with the hammer, it changes to the next one in the combo list. 
+
+ - Slash
+When hit with a sword, this combo becomes the screen's under combo. 
+
+ - Slash (Continuous)
+Same as the Slash Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Slash (Item)
+When hit with a sword, this combo becomes the under combo. It will also create an item in the "Bush/Grass Combos" Item Drop Set. 
+
+ - Slash (Item, Continuous)
+Same as the Slash (Item) Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Slash->Next
+This combo is the same as the Slash combo, but instead of changing to the screen's undercombo when touched with a sword, it will change to the next combo in the list. 
+
+ - Slash->Next (Continuous)
+Same as the Slash->Next Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Slash->Next (Item)
+This combo is the same as the Slash (->Item) combo, but instead of changing to the screen's undercombo when touched with a sword, it will change to the next combo in the list. 
+
+ - Slash->Next (Item, Continuous)
+Same as the Slash->Next (Item) Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Tall Grass
+Acts as a Slash->Item combo and Shallow Water combo combined. A 16x8 pixel effect appears on Link when walking here. Small graphics will fly out from it when slashed, usually leaves. Both of these graphics are set in Sprites/Misc (note that Tall Grass uses a different graphic to Shallow Water). It will also create an item in the "Bush/Grass Combos" Item Drop Set. 
+
+ - Tall Grass (Continuous)
+Same as the Tall Grass Combo, but if it has a secret combo flag and the secret combo is a slashable combo, the slash's influence continues from this combo and affects the resultant slashable combo. 
+
+ - Tall Grass->Next
+Same as the Tall Grass Combo, but it changes to the next combo on the list instead of the screen's under combo.
+
++-----------------------------+
+| 4.13b.7  SCREEN STATE TYPES |
++-----------------------------+
+
+These combos affect and are affected by Screen States. 
+
+ - Lock Block (Boss)
+If pressed against while the player possesses the boss key, this combo and all others of its type, including the copycats, change into the next one on the list. 
+
+ - Lock Block (Boss, Copycat)
+If a Boss Lock Block on the screen is pressed against while the player possesses the boss key, this combo changes into the next one on the list. 
+
+ - Lock Block (Normal)
+If pressed against while the player possesses a key, this combo and all others of its type, including the copycats, changes into the next one on the list. A key will also be used. 
+
+ - Lock Block (Normal, Copycat)
+If a Lock Block on the screen is pressed against while the player possesses a key, this combo changes into the next one on the list. 
+
+ - Treasure Chest (Boss)
+Identical to "Treasure Chest (Normal)", but opening it requires the level Boss Key, and the "Treasure Chest (Boss)" Screen State is set. This combo is automatically opened if the screen's "Treasure Chest (Boss)" Screen State is already set. 
+
+ - Treasure Chest (Boss, Copycat)
+When a Treasure Chest (Boss) combo is activated on a screen with a Treasure Chest (Boss, Copycat) combo, it will also change to the next combo on the list, but it cannot be triggered itself. 
+
+ - Treasure Chest (Locked)
+Identical to "Treasure Chest (Normal)", but opening it requires and expends one Key, and the "Treasure Chest (Locked)" Screen State is set. This combo is automatically opened if the screen's "Treasure Chest (Locked)" Screen State is already set. 
+
+ - Treasure Chest (Locked, Copycat)
+When a Treasure Chest (Locked) combo is activated on a screen with a Treasure Chest (Locked, Copycat) combo, it will also change to the next combo on the list, but it cannot be triggered itself. 
+
+ - Treasure Chest (Normal)
+When Link walks upwards against the bottom of a Treasure Chest (Normal) combo, the combo will change to the next combo in the list, and the "Treasure Chest" Screen State is set. If the Treasure Chest (Normal) combo has flag 10, Armos->Item set to it, Link will recieve the screen's Secret Item when the combo changes. This flag placement is a throwback to when Treasure Chests were simulated with "Slash(->Item)" combos older versions of ZC. This combo is automatically opened if the screen's "Treasure Chest" Screen State is already set. 
+
+ - Treasure Chest (Normal, Copycat)
+When a Treasure Chest (Normal) combo is activated on a screen with a Treasure Chest (Normal, Copycat) combo, it will also change to the next combo on the list, but it cannot be triggered itself.
+
++-----------------------------+
+| 4.13b.8  PUSH BLOCK TYPES   |
++-----------------------------+
+
+Note: none of these combos can be pushed unless a Push Combo Flag is placed on them! 
+
+ - Push (Heavy)
+The Bracelet is required to move this combo. 
+
+ - Push (Heavy, Wait)
+The Bracelet is required to move this combo, but it cannot be moved until all enemies have been rid from the screen and will play the screen's Secret Sound effect. It will always hesitate before moving. 
+
+ - Push (Very Heavy)
+The Bracelet 3 item is required to move this combo. 
+
+ - Push (Very Heavy, Wait)
+The Bracelet 3 item is required to move this combo, but it cannot be moved until all enemies have been rid from the screen and will play the screen's Secret Sound effect. It will always hesitate before moving. 
+
+ - Push (Wait)
+No Bracelet is needed to move this combo, but it will hesitate (if the correct Quest Rule is checked), trigger secrets or stairs, and not be able to move until the enemies are cleared from the screen. 
+
++----------------------------------+
+| 4.13b.9 SCREEN-WIDE EFFECT TYPES |
++----------------------------------+
+
+These affect the entire screen instantly, regardless of where they are placed.
+
+ - Auto Side Warp [A-D]
+The Auto-Warp combo will warp Link to the given co-ordinates as soon as one is displayed on the screen. A-D is the reference to which warp will be used. Interestingly, the Auto-Warp combo will use the screen's corresponding Side-Warp, rather than the Tile-Warp. 
+
+ - Auto Side Warp [Random]
+As soon an Auto-Warp [Random] combo is displayed on the screen, it will select at random one of the screen's Side-Warps, and send Link to its destination. 
+
+ - Screen Freeze
+While this combo is on the screen, the screen is frozen as if the "Messages Freeze All Action" rule was in effect. 
+
+ - Screen Freeze (FFCs Animate)
+Identical to the above, except that FFCs will continue to move.
+
++----------------------------+
+| 4.13b.10  SAVE TYPES       |
++----------------------------+
+
+   These combos allow Link to save his game without having to die or use F6 to quit. Note that these combos are the only way for Link to save his game if 1) the Save option on the Continue screen has been disabled by the Quest Rule 'No Saving When Continuing' or 2) the Continue screen has been disabled by the Quest Rule 'Skip Continue Screen'. 
+
+ - Save Point
+Press the "Start" button when Link is standing on this combo, and the Save menu appears. This combo is used for saving and continuing. 
+
+ - Save-Quit Point
+Press the "Start" button when Link is standing on this combo, and the Save menu appears. This combo is used for saving and quitting.
+
++----------------------------+
+| 4.13b.11  OBSOLETE TYPES   |
++----------------------------+
+
+ - Trap (4-way, Line of Sight) 
+Generates the lowest-numbered enemy with the "Spawned by '4-Way Trap' Combo Type/Flag" enemy data flag on this combo. Obsoleted by Combo Flag 34. 
+
+ - Trap (Horizontal, Constant) 
+Generates the lowest-numbered enemy with the "Spawned by 'LR Trap' Combo Type/Flag" enemy data flag on this combo. Obsoleted by Combo Flag 35. 
+
+ - Trap (Horizontal, Line of Sight) 
+Generates the lowest-numbered enemy with the "Spawned by 'Horz Trap' Combo Type/Flag" enemy data flag on this combo. Obsoleted by Combo Flag 32. 
+
+ - Trap (Vertical, Constant) 
+Generates the lowest-numbered enemy with the "Spawned by 'UD Trap' Combo Type/Flag" enemy data flag on this combo. Obsoleted by Combo Flag 36. 
+
+ - Trap (Vertical, Line of Sight) 
+Generates the lowest-numbered enemy with the "Spawned by 'Vert Trap' Combo Type/Flag" enemy data flag on this combo. Obsoleted by Combo Flag 33. 
+
+ - Win Game
+Obsoleted by Flag 15 (Zelda).
+
++-----------------------------+
+| 4.14  TILES                 |
++-----------------------------+
+
+  Tiles are the basic graphical "units" in ZQuest. All of the graphics in a Zelda Classic quest (apart from primitive graphics drawn by scripts) are made from tiles, including the combos, enemies, subscreens, and Link. 
+
+  All of your quest's tiles are stored in 252 'pages' of 260 tiles each. The Select Tile editor is where you organize your quest's tiles, by moving, rotating, and adjusting large groups of tiles. In the dialog, You can see one page at a time, and can change pages by clicking the arrows above and below the page number, or using the hotkeys (see below).
+
+  As mentioned earlier, tiles can be either 8-bit or 4-bit. 8-bit tiles are signified by a flashing '8' in the lower-right corner, and by their inability to change color when you change the CSet.
+
+  An important tile editing feature is the ability to select multiple tiles at once. Click on a tile, and then click on a second tile while holding Shift. All of the tiles between the first and second tile will be selected. You can then perform tile adjustment functions on the entire selected area, such as pixel-increment shifting, flipping horizontally or verically, or copying and pasting. However, you can currently only edit or rotate one tile at a time. The third box on the bottom panel changes the selection method.
+
+  The second box on the bottom panel shows the first tile you have selected. The first box will show what tile(s) you have copied, ready to paste elsewhere. The number of the tile(s) will be under the box.
+
+  In version 2.50, a new feature called Tile Protection was added. If you attempt to copy or paste into a tile, ZQuest will attempt to see if the tile is being used by a resource, and, if it thinks so, it asks for confirmation before performing the action. This only takes combos, enemies and items into account, and, currently, might not take into account the animation setting of each enemy.
+
+Buttons:
+ - Export: saves the current tile page in BMP format.
+ - Grab: opens the Tile Grabber to write grabbed tiles at the current position.
+ - Edit: edits the selected tile.
+ - Done: exits the tile list.
+
+Right click menu:
+ - Copy: copies the selected tile(s) to the 'clipboard' (the leftmost box on the lower panel).
+ - Paste: pastes the copied tile(s), replacing any tiles at the destination position(s).
+ - Move: pastes the copied tile(s) and erases its original position(s).
+ - Clear: erases the tile(s).
+ - Edit: edits the first selected tile.
+ - Grab: opens the Tile Grabber to load graphics from external files and place the results at the current tile position.
+ - Color Depth: changes the color depth (bit depth) of the currently selected tiles. 4-bit tiles can be drawn with different CSets, and thus it is very easy to 'palette-swap' tiles by changing the CSet. 8-bit tiles, conversely, can use all 256 colours of a palette.
+ - Blank?: tells you if the tile is blank.
+ - View: changes the view options of the tile selector. Hidden tiles have a static effect drawn in their place. By default, blank tiles are hidden. You can also hide used tiles to find unused sections of the tile pages, so that you don't accidentally overwrite a used block of tiles.
+
+Hot keys:
+ - Page up: go to the previous page.
+ - Page down: go to the next page.
+ - p: go to a specific page number.
+ - c: copies the selected tile(s) to the 'clipboard'.
+ - m (tile copied): moves the selected tile(s) from their current position to that of the destination tile(s), replacing the destination tile(s) in the process.
+ - v (tile copied): pastes the selected tile(s), replacing the destination tile(s) with the copied tile(s).
+ - o: overlays the copied tile on the destination tile, such that blank pixels in the copied tile(s) are replaced with those from the destination tile(s). A useful tool!
+ - h,v: flip all selected tiles horizontally, vertically. This does not change the position of tiles, but merely flips each of them individually.
+ - r: rotate the first selected tile clockwise.
+ - shift+r: rotate the first selected tile counterclockwise.
+ - option+arrows: shift the selected tiles by one-pixel increments. A very useful tool! Shifted tiles will 'wrap around' through the entire selection area. Use a larger selection if you want to reposition entire blocks of tiles.
+ - shift+arrows: increase or decrease the selection area.
+ - control+arrows: move the cursor to the corners of the page.
+ - d: create Relational or Dungeon Carving variants of the selected tile. Useful only if you use the Relational or Dungeon Carving combo drawing modes.
+ - control+u: toggles the hiding of unused and used tiles.
+ - b: changes bit depth of tile(s) to 8-bit.
+ - control+b: changes bit depth of tile(s) to 4-bit.
+ - m (no tile copied): opens the Combo Editor to let you create a new combo using this tile.
+
++-----------------------------+
+| 4.14a  TILE EDITOR          |
++-----------------------------+
+
+A simple paint editor that lets you edit individual tiles. Your paint tool has a primary and secondary color, assigned to the left and right mouse buttons.
+
+The tool boxes on the left are: 
+ - Draw (sword): Changes color of only the pixel the cursor is on. Left-click to use the primary color, and right-click to use the secondary color. If a selected area exists, this will not affect any pixels outside of the selection.
+ - Shift (gauntlet): Shift the pixels in the drawing area. If a selected area exists, this will not affect any pixels outside of the selection.
+ - Fill Area (spilling potion): Changes the color of the colored area the cursor is on to the selected color. 
+ - Replace (jeweled wand): Changes the color of all pixels the same color as the pixel the cursor is on to the selected color. 
+ - Select (hookshot): select a rectangle of pixels. You can only draw, or use the Fill and Replace tools, within the selected area.
+ - Select Color (gnarled wand): select all pixels of a certain color.
+ - Eyedropper (lens of truth): left click to change the primary color to that of the clicked pixel. Right click to change the secondary color.
+
+The four boxes on the right are: 
+ - Upper left: Original tile. 
+ - Upper right: Original tile with transparent pixels transparent. 
+ - Lower left:Changed tile. 
+ - Lower right:Changed tile with transparent pixels transparent.
+
+Edit: Lets you edit the game's palettes quickly. 
+
+Palette Square: Left-click on a color to assign it to the left mouse button. Right-click on a color to assign it to a right mouse button. Selected colors are shown in the 2 small squares to the right. A special note about 8-bit tile editing: since you can use colors from any CSet, you should be careful about using colors from CSets that are palette-dependant - i.e. CSets that change when the palette is changed. You should also be careful about using colors from Link's CSet - these colors are likely to change when Link acquires a Ring item. 
+
+Hot keys:
+ - up, down, left, right: shift the tile by one-pixel increments in the given direction.
+ - +/-: change cset. Does nothing if the tile is 8-bit.
+ - r: rotate entire tile.
+ - h: flip entire tile horizontally.
+ - v: flip entire tile vertically.
+ - d: deselect, removing the selection.
+ - i: invert the selection, causing the outside to become selected instead of the inside.
+ - s: swap primary and secondary colors (assigned to the mouse buttons).
+ - control+s: replaces all instances of the primary colour in the tile with the secondary color (and vice versa).
+
+
++-----------------------------+
+| 4.14b  TILE GRABBER         |
++-----------------------------+
+
+This is how you import graphics from image files, game ROMs or other files into your quest. File extensions that are "grabbable": .qst, .til, .zgp, .bmp, .gif, .jpg, .smc, .nes, .gb, .gba
+
+On the left, a group of status counters are shown:
+ - sel: shows how many pixels from the upper left corner of the image that the upper left corner of the tile you have selected is.
+ - pos: This show the postion in pixels that the top left corner of your current view is on the file you are viewing.
+ - cset: The current CSet used to view the grabbed tiles. Change this by pressing + or -.
+ - step: Shows how many pixel increments the selector will move in. Toggle this from 16 to 1 to 8 by pressing S.
+ - file: Shows information about the file you have selected. Image size and beneath that the image's postion on your hard drive. Choose the image by clicking on File and Browse. 
+
+ - Leech: the leech option window. It will allow you to take any graphic and cut it up into tiles and import those tiles into your quest. It has the following options:
+
+1. Update Status Every: (default) 500. --causes the counters on the next window to update every time this many tiles have been examined.
+2. Check only new tiles: With this option checked, the program will only check the new tiles you have imported for duplicates. With this option off, it will check every tile up to the current tile, starting from tile 0. 
+3. Normal: If "Ignore" is selected, program won't check for exact duplicates at all. If "Check" is selected, it will check for exact duplicates and keep a count of them. If "Discard" is selected, it will check for exact duplicates and discard them.
+4. H-Flip: If "Ignore" is selected, program won't check for horizontally-flipped duplicates at all. If "Check" is selected, it will check for h-flipped duplicates and keep a count of them. If "Discard" is selected, it will check for h-flipped duplicates and discard them. 
+5. V-Flip: Same as above, but with vertically flipped duplicates.
+6. HV-Flip: Same as above but with horizontally and vertically flipped (rotated 180 degrees) duplicates.
+
+*Note: When you build a combo, you can flip a tile horizontally or vertically, so, these options can come in handy in saving space, since you only need one version of a tile to have 4 different combos.
+
+ - The 1st box: You can choose not to grab any of the 4 8X8 pixel corners of the tile you have selected by toggling that portion of this box red. 
+ - The next 2 boxes show the tile you have selected in the image, normal view and with transparencies. 
+ - The 2 boxes under these show the tile you will be replacing when you Grab a tile from the image. 
+* To grab multiple tiles, click on the first tile you want to grab and shift-click on the last one.  You can grab up to a 20 x 10 rectangle of tiles this way.
+
++---------------------------+
+| 4.15  GAME ICONS          |
++---------------------------+
+
+   This is where you choose the tile for your game icon (the picture that shows in the ZC Select box when you start or continue a game). The saved game icon changes when Link acquires a Ring item. Click on the first black square to choose the tile for Link with no rings, the 2nd for Link with the blue ring, the 3rd for Link with the red ring, and 4th for Link with a higher ring. In most cases this is the same tile. The colors will be determined by Extra Sprite Palette 1 CSets 9-12. 
+
++---------------------------+
+| 4.16  MISC. COLORS        |
++---------------------------+
+
+This pane lets you adjust colours for a variety of miscellaneous game features. Choose a color by entering the hexadecimal coordinates for its location in the square to the left.
+ - Text: the default text colour for subscreen text.
+ - Caption: Caption color on the subscreen. 
+ - Overworld Minimap: the color of the NES minimap for Overworld DMaps. 
+ - Minimap Background: the Interior or Dungeon minimaps' background color. In The Legend of Zelda, this is black.
+ - Minimap Foreground 1 and 2: the color used to draw the minimaps' rooms. DMaps can use either of these colours.
+ - BS Dark and Goal: Used for BS overworld maps. 
+ - Compass Light and Dark: Light when the Triforce is still in the DMap, Dark when it is gone. 
+ - Subscreen Background: the default color for subscreens. In The Legend of Zelda, this is black.
+ - Subscreen Shadow: in The Legend of Zelda, this is black.
+ - Triforce Frame color: the color for Triforce Frame objects in the subscreens.
+ - Big Map Background: color for the background of Big Map subscreen objects.
+ - Big Map Foreground: color for the background of Big Map subscreen objects.
+ - Link's Position: By default, ues Cset 6, color 1 (0x61) so that the indicator will change colors according to Link's ring. 
+ - Message Text: the default message string color.
+
++---------------------------+
+| 4.17    MAP STYLES        |
++---------------------------+
+
+   Used for customizing the default tiles of some subscreen elements:  Minimap (5x3), 2x2 Frame, Triforce Frame (which can be 6x3 or 6x6 depending on the quest rules), Triforce Fragments to fit into the frame (1x1 or 2x3), and Heart Container Pieces (1x1 - enter the first of the set of 5 tiles: empty, 1/4, 1/2, 3/4, and full). In earlier versions of ZC, this was the only way to customize a quest's subscreen.
+
++---------------------------+
+| 4.18  DOOR COMBO SETS     |
++---------------------------+
+
+   Door Combo Sets are used by NES Dungeon DMaps to perform the function of dungeon doors in The Legend of Zelda.
+
+   In the Door Combo Set list, you can copy, paste and replace entire sets. Click on a set, then hit 'c'. Move to another, then hit 'v' (for paste) to make a duplicate. Hit 'r' to make all references to the other set change to this one (if you select set 1, hit 'c', select 2, then hit 'r', all screens that use set 1 will now use set 2).
+
+Here is an explanation of each type of Door Combo:
+ - Wall: Used for walls, and walls which can be bombed.
+ - Open: Used for open door.
+ - Locked / Unlocked: Used for locked doors.
+ - Shuttered / Open Shuttered: Used for shutters.
+ - Boss / Open Boss: Used for Boss doors.
+ - Bomb: Used for holes opened by bombs. The bottom two combos are for 'rubble' that appears above the screen's floor combos.
+ - Walk-Through: A marker that only appears in ZQuest, which signifies the presence of walk-through walls.
+
+   The Overlay Walkthrough checkbox inside the editor sets whether or not the ZQuest walkthrough marker (used to indicate a walk-through wall) is transparent or not. It has no in-game effect.
+
+   The Auto button takes the combos you've already assigned and tries to fill in what the other combos will be. For instance, If you have the left side of something, it will put in the right side automatically. It will copy the Open setting to any other blank Unlocked or Open sets. This is useful to quickly creating door sets.
+
+   A brief note: Lock Block combos' functionality are suppressed if they are used as part of a Door Combo Set. This is to ensure that the door's trigger takes precedence over the Lock Block. The same applies to Boss Lock Blocks and Boss Doors.
+
++---------------------------+
+| 4.19 SFX DATA             |
++---------------------------+
+
+  This editor lets you change your quest's sound effects. Much like the Enemy and Item editors, you have 256 'slots' for sound effects. Sound effects are in WAV format.
+
+  It should be noted that, while many items' and enemies' sound effects can be adjusted in their respective editors, some sound effect slots have hard-coded uses by ZQuest. Some of these are:
+ - 3 (Bomb blast): Used for the impact of the Quake Hammer and Super Quake.
+ - 5 (Subscreen cursor): Used by the subscreen cursor.
+ - 6 (Shield is hit): Used by the cursor on the Save / Continue / Retry screen, and when a weapon is blocked by an enemy's defenses.
+ - 7 (Item chime): Used when the 'Enemies->Item' screen flag causes an item to appear.
+ - 9 (Shutter): Used when a Lock Block is unlocked, when a locked door is unlocked, and when a shutter closes or opens.
+ - 12 (Low hearts warning): Used when Link is dangerously low on hearts.
+ - 13 (Fire): Used by various enemies' attacks.
+ - 14 (Ganon's fanfare): Used in Ganon rooms.
+ - 18 (Message): Used when Link is being healed.
+ - 19 (Link is hit): Used when Link takes damage.
+ - 21 (Bomb placed): Used when an item is selected in the subscreen if the 'Can Select A-Button Weapon On Subscreen' rule is set.
+ - 23 (Refill): Used when Link is being healed.
+ - 28 (Link dies): Used when Link dies.
+ - 29 (Stairs): Used when Link enters and exits Cave (Walk Down) and Cave (Walk Up) combos.
+ - 34 (Zelda's fanfare): Used for the ending cutscene.
+ - 35 (Charging weapon): Used when charging power for the Spin Attack or Quake Hammer.
+ - 36 (Charging weapon 2): Used for the Hurricane Spin and Super Quake.
+ - 56 (Summon magic): Used when an enemy with the 'Summon (Layer)' shot type summons enemies.
+ - 57 (Sword tapping): Used when Link taps a solid combo with a sword while charging the Spin Attack.
+ - 58 (Sword tapping (secret)): Used when Link taps a solid combo with a Bomb or Super Bomb flag, or taps a Bombable Door.
+The following sounds are used if the 'More Sound Effects' quest rule is set.
+ - 38 (Enemy falls from ceiling): Used when enemies fall from the ceiling.
+ - 40 (Fireball): Used when enemies shoot a Fireball or Fireball (Rising) type weapon.
+ - 41 (Tall Grass slashed): Used when a Tall Grass, Bush or Flowers type combo is slashed.
+ - 42 (Pound pounded): Used when a Pound combo is pounded.
+ - 49 (Nayru's Love shield 2): Used when the Nayru's Love shield is running out.
+ - 50 (Push block): Used when a push block combo is pushed.
+ - 51 (Rock): Used when enemies shoot a Rock type weapon.
+ - 52 (Spell rocket down): Used when a Din's Fire or Nayru's Love rocket descends.
+ - 53 (Spell rocket up): Used when a Din's Fire or Nayru's Love rocket ascends.
+ - 55 (Splash): Used when Link jumps on a Water or Shallow Water combo, or uses the Hammer to hit a Water or Shallow Water combo.
+ - 59 (Whistle whirlwind): Used when a whistle whirlwind is moving.
+
+A brief note: while you could load an entire music file (in WAV format) into a sound effect slot to play higher-quality music in your quest, this is likely to greatly increase your quest's file size, and is not highly recommended.
+
++----------------------------+
+| 4.20 MIDIs                 |
++----------------------------+
+
+   This loads MIDI files into your quest. These are currently the only music files (apart from WAVs) that can be stored internally in the quest file. Click on it to bring up the Select MIDI dialog box. 
+
+   Click on a number that has no MIDI file loaded, then Edit.  This brings up the MIDI Specs dialog box. Click on Load to browse for a MIDI file on your hard drive. The one you select will be loaded and take you back to the Specs box. The Time, Length, and Name of the MIDI will be entered in the Specs...you can rename the file if you like. 
+ - Volume: change the volume of the MIDI file if necessary. 
+ - Start: Start position in MIDI file. 
+ - Loop: Check this box if you want the MIDI to loop instead of playing through once and stopping. 
+ - L.Strt: Starting point in looping MIDI. If a MIDI is looping, it will return to this point once it reached the L.End point.
+ - L.End: Ending point in looping MIDI. 
+
++----------------------------+
+| 4.21 TEMPLATE & DEFAULTS   |
++----------------------------+
+
+  Template lets you set or change the quest template used for the current quest. It won't change your current information, but if you use the Quest->Default menu, it will use whatever quest template you have selected for the default you pick. 
+
+  Defaults is used to reset the chosen item (palettes, tiles, combos, sounds, items, enemies, weapon sprites, or map styles) to original settings based on your currently selected quest template.
+
++----------------------------+
+| 5. EDIT MENU               |
++----------------------------+
+
+  This menu contains standard copy and paste options for editing screens.
+
+ - Undo (U): Undoes your last action. Will not undo multiple actions. 
+ - Copy (C): Copies the screen. 
+ - Paste (V): Pastes the screen. This only pastes combos, and leaves the more advanced screen options alone.
+ - Paste All: will paste all information about the screen you have copied to the new screen, including enemies, screen flags, warps, etc. 
+ - Adv. Paste: Paste the current screen onto 
+ -- Paste to All: Pastes the copied screen's combos to all screen on the map. 
+ -- Paste All to All: Performs the Paste All operation from the copied screen to all screens on the map. 
+ - Paste Spec.: Lets you only paste certain kinds of screen attributes. For instance, choosing 'Warps' only pastes the warp data from the copied screen onto the destination screen. A very useful feature.
+ - Delete (Del): deletes the current screen. 
+ - Delete Map: deletes every screen on the entire map.
+ - Goto Map: go to a specific map.
+
++----------------------------+
+| 6. VIEW MENU               |
++----------------------------+
+
+   This menu lets you show and hide information pertaining to the current screen.
+
+ - View Map: Shows the current overall map with your choice of 3 different resolutions, and lets you save it to a file. Note: in the Mac OS X version, the map will be saved to a location inside the ZQuest app bundle. 
+The options allow you to view walkable area, flags used, dark areas, and item placement.  
+ - View Palette: This shows you the colours in the current palette being used for displaying the current screen.
+ - Show Walkability: If set, highlights all solid areas of the screen with a red colour. Useful for seeing at a glance where Link can or cannot travel. Can be toggled with the W hotkey.
+ - Show Flags: If set, shows the placed Combo Flags. Placed flags' numbers occupy the top-left corner of combos, whereas Inherent Flags' numbers occupy the bottom-left corner of combos.
+ - Show CSets: If set, displays each combo position's csets as numerals in the bottom-right corner of combos.
+ - Show Types: If set, displays each combo's csets as numerals in the bottom-right corner of combos.
+ - Show Screen Info: If set, then the bottom-right corner important information related to the mechanics of the current screen. This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Link', 'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags, the String, every Room Type and Catch All, and all relevant Tile and Side Warps. Can be toggled with the N hotkey.
+ - Show Squares: If set, Warp Returns, Green Squares and Stairs Square locations are highlighted.
+ - Show Script Names: If set, shows the names of the scripts attached to this screen's Freeform Combos in the upper-left corner.
+ - Show Grid: If set, shows the grid boundaries of the combos. Can be toggled with the ~ hotkey.
+
++----------------------------+
+| 7. TOOLS MENU              |
++----------------------------+
+
+  This menu contains several miscellaneous tools for editing screens.
+
++----------------------------+
+| 7.1 COMBO FLAGS            |
++----------------------------+
+
+   A combo flag is a special property that can be applied to one or more combos. Combo flags are used to implement various screen-specific game features, such as making some combos pushable, changing a screen's combos when an action is performed, and defining areas where enemies can or cannot go.
+
+   Combo flags should not be confused with Combo Types, although they are very similar. Combo Types, accessible by editing a combo, generally affect the characteristics of the terrain that combo is used for. Flags, meanwhile, usually define miscellaneous properties and can be selected using the Tools->Flags menu, then placed over other combos. In this way, a combo may have both a Combo Type and a Combo Flag simultaneously. Flags that are included with a combo and not manually placed are called Inherent Flags.
+
+   Combo Flags can be grouped into Trigger Flags, Screen Secrets-Related Flags, Stair Based Flags, Special Item-Based Flags, Walk Effect Flags, Enemy Placement Flags, Push Block Flags, Visual Flags and Script-Specific Flags.
+
++----------------------------+
+| 7.1a TRIGGER FLAGS         |
++----------------------------+
+
+A type of Combo Flag that can trigger Screen Secrets if a certain weapon touches it or a certain condition is met. When Screen Secrets are triggered, these flags are replaced with Secret Combos. The following flags are Trigger Combo Flags: 
+
+ - 1 Push Block (Vertical, Trigger)
+Allows Link to push the combo up or down once, triggering Screen Secrets (or just the "Stairs" secret combo). 
+
+ - 2 Push Block (4-Way, Trigger)
+Allows Link to push the combo in any direction once, triggering Screen Secrets (or just the "Stairs" secret combo). 
+
+ - 3 Whistle Trigger
+Trigger secret tile 16-31 when Link plays the Whistle on this combo. 
+
+- 4 Burn Trigger (Any) 
+Makes the combo trigger when Link touches it with fire from any source (candles, wand, Din's Fire, etc.) When Screen Secrets are triggered, this is replaced with the "Blue Candle" Secret Combo. 
+
+ - 5 Arrow Trigger (Any) 
+Will be triggered with level 1 (Wooden) arrows or higher. When Screen Secrets are triggered, this is replaced with the "Wooden Arrow" Secret Combo. 
+
+ - 6 Bomb Trigger (Any) 
+Makes the combo trigger when a bomb explodes in range of it. When Screen Secrets are triggered, this is replaced with the "Bomb" Secret Combo. 
+
+ - 11 Bomb (Super) 
+Makes the combo trigger when a Super bomb explodes in range of it. When Screen Secrets are triggered, this is replaced with the "Super Bomb" Secret Combo. 
+
+- 47 Push Block(Horiz, Once, Trigger)
+Allows Link to push the combo left or right once, triggering Screen Secrets (or just the "Stairs" secret combo). 
+
+- 48 Push Block (Up, Once, Trigger), 49 (Down, Once, Trigger), 50 (Left, Once, Trigger), 51 (Right, Once, Trigger)
+Ditto, but in specific other directions. 
+
+- 66 Block Trigger 
+Pushing blocks (any, but typically flags 59-65) onto ALL Block Triggers will trigger Screen Secrets (or just the "Stairs" secret combo). 
+
+- 68 Boomerang Trigger (Any) 
+Will be triggered by the level 1 (Wooden) boomerang or higher. When Screen Secrets are triggered, this is replaced with the "Wooden Boomerang" Secret Combo. 
+
+- 69 Boomerang Trigger (Magic +) 
+Will be triggered by the level 2 (Magic) boomerang or higher. When Screen Secrets are triggered, this is replaced with the "Magic Boomerang" Secret Combo. 
+
+- 70 Boomerang Trigger (Fire) 
+Will be triggered by the level 3 (Fire) boomerang or higher. When Screen Secrets are triggered, this is replaced with the "Fire Boomerang" Secret Combo. 
+
+- 71 Arrow Trigger (Silver +) 
+Will be triggered by the level 2 (Silver) arrows or higher. When Screen Secrets are triggered, this is replaced with the "Silver Arrow" Secret Combo. 
+
+- 72 Arrow Trigger (Golden) 
+Will be triggered by the level 3 (Golden) arrows or higher. When Screen Secrets are triggered, this is replaced with the "Golden Arrow" Secret Combo. 
+
+- 73 Burn Trigger (Red Candle +) 
+Will be triggered by fire from the level 2 Candle, the Magic Wand (fire only, not magic) or Din's Fire. When Screen Secrets are triggered, this is replaced with the "Red Candle" Secret Combo. 
+
+- 74 Burn Trigger (Wand Fire) 
+Will be triggered by fire from the Magic Wand (fire only, not magic) or Din's Fire. When Screen Secrets are triggered, this is replaced with the "Wand Fire" Secret Combo. 
+
+- 75 Burn Trigger (Din's Fire) 
+Will only be triggered by fire from Din's Fire, nothing less. When Screen Secrets are triggered, this is replaced with the "Din's Fire" Secret Combo. 
+
+- 76 Magic Trigger (Wand) 
+Will be triggered by any magic from the Magic Wand. When Screen Secrets are triggered, this is replaced with the "Wand Magic" Secret Combo. 
+
+- 77 Magic Trigger (Reflected) 
+Will be triggered by magic that has been reflected (by Mirrors, Prisms or the Mirror Shield) from any source. When Screen Secrets are triggered, this is replaced with the "Reflected Magic" Secret Combo. 
+
+- 78 Fireball Trigger (Reflected) 
+Will be triggered by an enemy fireball that has been reflected by the Mirror Shield. When Screen Secrets are triggered, this is replaced with the "Reflected Fireball" Secret Combo. 
+
+- 79 Sword Trigger (Any) 
+Will be triggered by the level 1 (Wooden) sword or higher. When Screen Secrets are triggered, this is replaced with the "Sword" Secret Combo. 
+
+- 80 Sword Trigger (White +) 
+Will be triggered by the level 2 (White) sword or higher. When Screen Secrets are triggered, this is replaced with the "White Sword" Secret Combo. 
+
+- 81 Sword Trigger (Magic +) 
+Will be triggered by the level 3 (Magic) sword or higher. When Screen Secrets are triggered, this is replaced with the "Magic Sword" Secret Combo. 
+
+- 82 Sword Trigger (Master) 
+Will only be triggered by the level 4 (Master) sword or higher. When Screen Secrets are triggered, this is replaced with the "Master Sword" Secret Combo. 
+
+- 83 Sword Beam Trigger (Any) 
+Will be triggered by beams from the level 1 (Wooden) sword or higher. When Screen Secrets are triggered, this is replaced with the "Sword Beam" Secret Combo. 
+
+- 84 Sword Beam Trigger (White +) 
+Will be triggered by beams from the level 2 (White) sword or higher. When Screen Secrets are triggered, this is replaced with the "White Sword Beam" Secret Combo. 
+
+- 85 Sword Beam Trigger (Magic +) 
+Will be triggered by beams from the level 3 (Magic) sword or higher. When Screen Secrets are triggered, this is replaced with the "Magic Sword Beam" Secret Combo. 
+
+- 86 Sword Beam Trigger (Master) 
+Will only be triggered beams from by the level 4 (Master) sword or higher. When Screen Secrets are triggered, this is replaced with the "Master Sword Beam" Secret Combo. 
+
+- 87 Hookshot Trigger
+Will be triggered by shooting it with the Hookshot. When Screen Secrets are triggered, this is replaced with the "Hookshot" Secret Combo. 
+
+- 88 Wand Trigger
+Will be triggered by whacking it with the Magic Wand itself (NOT its magic!) When Screen Secrets are triggered, this is replaced with the "Wand" Secret Combo. 
+
+- 89 Hammer Trigger
+Will be triggered by pounding it with the Hammer. When Screen Secrets are triggered, this is replaced with the "Hammer" Secret Combo. 
+
+- 90 Strike Trigger
+Will be triggered by just about any weapon or projectile Link could throw at it. When Screen Secrets are triggered, this is replaced with the "Any Weapon" Secret Combo. The following weapons cannot trigger this flag: Sword Beam, Flame, Stomp Boots, Cane of Byrna.
+
++------------------------------------+
+| 7.1b SCREEN SECRETS-RELATED FLAGS  |
++------------------------------------+
+
+These flags affect exactly what conditions will trigger Screen Secrets. 
+
+- 16-31 Secret Tile 0-15 
+When placed on a combo, causes that combo to change to the appropriate Secret Combo when the secret combos are triggered on that screen. Also, a Destructible Combo with these flags changes to the appropriate Secret Combo instead of the screen's Under Combo. 
+
+- 94 Trigger -> Self Only
+If used as an inherent flag with a Trigger Combo Flag (or vice versa), then triggering the Trigger Combo Flag will prevent the Screen Secrets process from changing the other flagged combos in the screen. That is to say even when every singular flag is triggered, it will not immediately trigger the other secret combos, even if the Screen Flag, "All Triggers -> 16-31" is set without accompaniment with other screen flags. 
+
+- 95 Trigger->Self, Secret Tiles
+As with 94, but the Secret Tile (16-31) flagged combos are still permitted to change. (Note: the "All Triggers->16-31" Screen Flag overrides this.)
+
++------------------------------------+
+| 7.1c STAIR-BASED FLAGS             |
++------------------------------------+
+
+  Only one such flag exists. It is used to replicate the feature in The Legend of Zelda where a stairway could appear underneath a specific Armos combo.
+
+ - 9 Armos -> Secret
+When placed on an Armos, causes the "Stairs" secret combo to appear when the Armos is triggered, instead of the screen's Under Combo.
+
++------------------------------------+
+| 7.1d SPECIAL ITEM BASED FLAGS      |
++------------------------------------+
+
+ - 10 Armos/Chest -> Item
+When placed on an Armos, Treasure Chest, or destructible combo, it causes the room's Special Item to appear when the combo is activated. Note that if the special item is in a treasure chest or under a destructible combo, Link will hold it up even if the Hold Up Item Screen Flag is off, whereas if the item is under an Armos, the flag must be turned on in order for Link to hold up the item. 
+
+ - 13 Dive -> Item
+When Link dives on this combo (make it a water combo, of course), he will receive the screen's Special Item. Note that Link holds up the special item even if the Hold Up Item Screen Flag is off. 
+
++------------------------------------+
+| 7.1e WALK EFFECT FLAGS             |
++------------------------------------+
+
+These flags produce certain effects when Link walks on them. 
+
+ - 7 Fairy Ring (Life)
+Makes a heart ring appear on screen when Link steps on it, causing his Life to be refilled. 
+
+ - 8 Raft Path
+Placed in paths to define the path Link travels when using the Raft. It should start on the "dock", and end on a walkable combo. If a path branches, Link takes the clockwise-most path, starting from North (needs confirmation) 
+
+ - 12 Raft Branch
+Placed at intersections of Raft flag paths to define points the player may change directions by holding down a direction. 
+
+ - 15 Zelda (Win Game)
+When Link steps on this flag, the game will end, and the credits will roll. 
+
+ - 92 Fairy Ring (Magic)
+Makes a heart ring appear on screen when Link steps on it, causing his Magic to be refilled. 
+
+ - 93 Fairy Ring (All)
+Makes a heart ring appear on screen when Link steps on it, causing both his Life AND Magic to be refilled. 
+
+ - 103 Raft Bounce
+Reverses the direction the raft is moving in.
+
++------------------------------------+
+| 7.1f ENEMY PLACEMENT FLAGS         |
++------------------------------------+
+
+ - 32 Trap (Horizontal, Line of Sight) 
+Generates the lowest-numbered enemy with the "Spawned by 'Horz Trap' Combo Type/Flag" enemy data flag on this combo.
+
+ - 33 Trap (Vertical, Line of Sight) 
+Generates the lowest-numbered enemy with the "Spawned by 'Vert Trap' Combo Type/Flag" enemy data flag on this combo. 
+
+ - 34 Trap (4-way, Line of Sight) 
+Generates the lowest-numbered enemy with the "Spawned by '4-Way Trap' Combo Type/Flag" enemy data flag on this combo. 
+
+ - 35 Trap (Horizontal, Constant) 
+Generates the lowest-numbered enemy with the "Spawned by 'LR Trap' Combo Type/Flag" enemy data flag on this combo. 
+
+ - 36 Trap (Vertical, Constant) 
+Generates the lowest-numbered enemy with the "Spawned by 'UD Trap' Combo Type/Flag" enemy data flag on this combo. 
+
+ - 37-46 Enemy (0-9)
+Causes the indicated screen enemy to appear on that flag, instead of at a random location. 
+
+ - 96 No Enemies
+Prevents enemies from stepping on this combo.
+
++------------------------------------+
+| 7.1g PUSH BLOCK FLAGS              |
++------------------------------------+
+
+ - 52-58 Push Block (*direction*, Once)
+Same as the Push Block Trigger flags, but does not trigger secrets. 
+
+ - 59-65 Push Block (*direction*, Many)
+Same as 52-58, but can be pushed many times. Does not trigger secrets. 
+
+ - 67 No Push Blocks 
+Prevents a block from being pushed onto this combo. Note that solid combos already prevent blocks from being pushed onto them. 
+
+ - 91 Block Hole
+Causes blocks pushed onto this combo to cycle to the next combo. This is typically used to make blocks that 'sink down' and become walkable terrain, but it can be used for a variety of purposes.
+
++------------------------------------+
+| 7.1h VISUAL FLAGS                  |
++------------------------------------+
+
+ - 14 Lens Marker
+Combos with this flag will appear white when viewed with the Lens of Truth item.
+
++------------------------------------+
+| 7.1i SCRIPT-SPECIFIC FLAGS         |
++------------------------------------+
+
+ - 98-102 General Purpose 1-5 (Scripts)
+These flags have no built-in effect, but can be given special significance with scripting. 
+
++----------------------------+
+| 7.2 COLOR SET FIX          |
++----------------------------+
+
+  This changes the CSet of all of the combos on layer 0 to the current CSet. The 'Full Screen' option causes every combo on the layer to be changed, and the 'Dungeon Floor' option changes all but the first two rows and columns of combos. Setting 'All Layers' causes this to be applied to every layer as well.
+
++----------------------------+
+| 7.3 NES DUNGEON TEMPLATE   |
++----------------------------+
+
+  In The Legend of Zelda, the dungeon rooms follow a standard template of four walls, each with at most one door. To ease the creation of NES-style quests, a 'dungeon template' can be made and applied quickly to a screen. 
+
+  The dungeon template is made in screen 0x83 of the current map. Only the first two rows and columns of combos in layer 0 are used in the template.
+
+  In a usable screen, choosing 'NES Dungeon Template' will let you place the template onto the current screen. You can choose to use a certain combo to fill the 'floor' of the screen, or leave the floor blank.
+
+  Selecting 'Apply Template to All' applies the NES Dungeon Template to every screen in the map.
+
++----------------------------+
+| 7.4 PREVIEW MODE           |
++----------------------------+
+
+This is a screen display mode designed to quickly test combo cycling, screen secrets, and freeform combos. It can be quickly activated by pressing X. In this mode, a list of hotkeys is visible.
+
+ - page up/page down: scroll through hotkey list
+ - esc/enter: exit Preview Mode.
+ - r: restore screen to original state.
+ - c: turn combo cycling on and off.
+ - s: trigger screen secrets. This can be done multiple times.
+ - w: toggle walkability visibility.
+ - f: toggle Combo Flag visibility.
+ - p: pause all animations, freeform combos and processes.
+ - a: advance through animations etc. by one frame.
+ - 1: trigger the screen's tile warp A, changing the current screen.
+ - 2: trigger the screen's side warp A, changing the current screen.
+ - 3: enable timed warps.
+
++----------------------------+
+| 7.5 DRAWING MODE           |
++----------------------------+
+
+   In version 2.50 of Zelda Classic, three new experimental drawing modes were added: Relational mode, Dungeon Carving mode and Combo Alias mode.
+
++----------------------------+
+| 7.5a COMBO ALIAS MODE      |
++----------------------------+
+
+   Combo Aliases are pre-defined combo structures which can be placed on a screen quickly. Unlike Door Combo Sets, they can feature combos on multiple layers. Thus, the current layer setting is irrelevant when placing combo aliases on the screen.
+
+   When you enter Combo Alias mode, the combo selector changes to list the currently defined combo aliases. You can edit combo aliases by right-clicking on an alias.
+
+   In the Combo Alias Editor, you can change which combos a particular alias is comprised from by clicking on different areas of the alias. You can adjust the alias's width and height, as well as choose which layers it uses, by clicking Properties.
+
+   When you've set the alias to use multiple layers, you can toggle between these layers by clicking the radio buttons on the right. You can also switch to other aliases using the dropdown menu in the upper-right corner.
+
+   You can reorganize combo aliases using the Org button. This dialog lets you copy a combo alias from a given slot to a given destination, insert a new empty alias, or delete the current alias.
+
+   If a combo alias uses multiple layers, placing it on a screen will also place its layered combos on the appropriate layers if said layers exist on this screen.
+
++----------------------------+
+| 7.5b RELATIONAL MODE       |
++----------------------------+
+
+   Relational mode will automatically place different combos depending on where you draw them. It's meant for creating areas of terrain that are surrounded by a border, such as water.
+
+   In order to use relational mode, all the necessary combos be arranged correctly combo list. See the wiki for the exact order. Select the first combo in the group when drawing.
+
+   Combos that are already present before you switch to relational mode are ignored. For instance, if you use it to draw water, any water already on the screen will not be recognized as such when determining which border combos to use. This also means that you can't switch out of relational mode and back and resume drawing where you left off.
+
++----------------------------+
+| 7.5b DUNGEON CARVING MODE  |
++----------------------------+
+
+   Dungeon carving mode will place combos around those you draw yourself. It allows you to draw the floor of an indoor area and have walls added around it automatically.
+
+   Like relational mode, dungeon carving mode requires the necessary combos be organized correctly in the combo list. See the wiki for the order. Select the first combo in the group when drawing.
+
+   When you start drawing in dungeon carving mode, the entire screen will be filled with the wall combo, so use it only before doing any other screen design.
+
++----------------------------+
+| 7.6 LIST COMBOS USED       |
++----------------------------+
+
+   This presents a basic list of the combos used on this screen. Combos are listed by combo number, followed by the number of occurences in the screen in parentheses.
+
++----------------------------+
+| 7.7 QUEST REPORTS          |
++----------------------------+
+
+   Quest Reports allow the quest maker to quickly see where various resources are used in the quest, as well as identify locations of possible problems.
+
+   In each report, screens are listed by the ZQuest palette used, followed by the map and screen number of the screen. A screen's palette provides some indication of which DMap a screen might be used in.
+
+Reports include:
+ - Combo Locations: Lists the screens in which the currently selected combo appears. This includes Freeform Combos, Under Combos and Secret Combos. This doesn't take into account combo cycling, though.
+ - Combo Type Locations: For each Combo Type, this report lists the locations of combos which use that type. Can be useful for finding the locations of water, lock blocks or Pound combos, among other things. This includes Freeform Combos, Under Combos and Secret Combos. This doesn't take into account combo cycling, though.
+ - Enemy Locations: For each defined enemy, this report lists the locations of the enemy. This doesn't take into account the possibility of enemies summoning other enemies, enemies placed by scripts, or enemies created as a result of combo types or combo flags.
+ - Item Locations: For each defined item, this report lists the locations of the item. This doesn't take into account item drop lists, or items placed by scripts.
+ - Script Locations: For each defined FFC script, this report lists the locations of FFCs that use this script. This also lists the arguments given to the script.
+ - What Links Here: This lists the screens whose Tile Warp or Side Warp destinations include this screen. That is, screens where Link can warp to this screen. This also lists screens which use the current screen as a layer, so it can be useful for identifying unused layer screens.
+
+There are also integrity checks. These are used to find possible problems in the quest.
+ - All: Runs every integrity check.
+ - Screens: This check searches through the entire quest and attempts to find the following problems: 
+ -- Screens which have the 'Special Item' Room Type but have no means of acquiring the special item
+ -- Screens which have the 'Enemies->Item' Screen Flag, but have no enemies.
+ -- Screens which have the 'Enemies->Secret' Screen Flag, but have no enemies.
+ -- Screens which have combos that are typically replaced with the Under Combo, but the Under Combo is 0.
+ -- Screens with save point combos, but don't have the 'Use As Save Screen' flag (and thus will return Link to the DMap's entrance when he resumes the game).
+ -- Screens with a String, but no Guy (or vice versa)
+ -- Screens whose Room Type requires a Guy or a String, but lack them.
+ -- Screens whose items are in unwalkable locations (which may not be a problem depending on Link's equipment).
+ - Warps: This check searches through the entire quest and attempts to find the following problems: 
+ -- Screens whose tile warp destinations are in unwalkable locations.
+ -- Screens with warps to invalid screens.
+ -- Screens which are warp destinations but have destination squares in the upper-left corner (i.e its default position)
+ -- Screens which use the default 'Cave/Item Cellar' warp (which is useful for NES-style quests, but may be a problem for modern-style quests).
+ -- Screens whose Auto Side Warps or Triforce warps are 'Cave/Item Cellar' type.
+
++----------------------------+
+| 8. SCREEN MENU             |
++----------------------------+
+
+  This menu contains various important settings applying to the current screen.
+
++----------------------------+
+| 8.1 SCREEN DATA            |
++----------------------------+
+
+  Screen flags affect how a particular screen behaves. They can be divided into Room Type, View, Secrets, Warp, Items, Combos, Save, FFC, Whistle and Misc. Flags.
+
++--------------------------------+
+| 8.1a SCREEN FLAGS -> ROOM TYPE |
++--------------------------------+
+
+ - Treat as Interior Screen
+The Dmap type specific attributes to this screen will be set to those on an 'Interior' Dmap, despite what is already set in the Dmap Editor. 
+
+ - Treat as NES Dungeon Screen
+The Dmap type specific attributes to this screen will be set to those on a 'NES Dungeon' Dmap, despite what is already set in the Dmap Editor. 
+
+ - Sideview Gravity
+With this checked, Link and enemies will fall toward the bottom of the screen, and an item such as Roc's Feather will cause him to bound upwards. Solid combos will become platforms. Intended for use in sideview areas (such as dungeon passageways) mimicking Link's Awakening's passageway areas. 
+
++----------------------------+
+| 8.1b SCREEN FLAGS -> VIEW  |
++----------------------------+
+
+ - Invisible Link
+Link's position cannot be seen. This is usually used for cutscenes. 
+
+ - No Link Marker in Minimap
+Instead of a colored dot being shown on the minimap in the passive subscreen, nothing will show. 
+
+ - No Subscreen
+The subscreen cannot be pulled down, and the passive subscreen is not visible at the top. This is usually used for cutscenes or title screens. 
+
+ - ... But Don't Offset Screen
+Normally, the screen would be offset if there is no subscreen. This flag fixes that. 
+
+ - Layer 2 Is Background
+Tiles used on Layer 2 will appear under Layer 0. 
+
+ - Layer 3 Is Background
+Tiles used on Layer 3 will appear under Layer 0. 
+
+ - Dark Room
+The screen is initially dark. If either the candle, or wand with magic book is used, the screen reverts to normal lighting. This screen flag can also be toggled by pressing 'D" in the main ZQuest screen. 
+
++------------------------------+
+| 8.1c SCREEN FLAGS -> SECRETS |
++------------------------------+
+
+ - Block->Shutters
+The shutters door combo opens when a block is pushed, instead of when all the enemies are killed. If there are block trigger flags on the screen, the shutters will not open until a block is pushed onto every block trigger flag. 
+
+ - Secrets are Temporary
+Instead of this screen's secrets being kept or discarded when traveling to another screen based on the DMap type, they are automatically made temporary. 
+
+ - Hit All Triggers->Perm Scrt
+The "Secrets" Screen State is only set when Screen Secrets are triggered and no other Trigger Combo Flags exist in the screen. Useful if you want to make a secret that only appears when multiple triggers are triggered. 
+
+ - Hit All Triggers->16-31
+The "Secret Tile" Secret Combos are only changed when Screen Secrets are triggered and no other Trigger Combo Flags exist in the screen. Useful if you want to make a secret that only appears when multiple triggers are triggered. 
+
++----------------------------+
+| 8.1d SCREEN FLAGS -> WARP  |
++----------------------------+
+
+ - Auto-Warps Are Direct
+If Link is warped via an Auto-warp combo type, instead of warping to the specified blue warp-return square, he will arrive at the screen at his current (x,y) position. 
+
+ - Sensitive Warps Are Direct
+If Link is warped via a Sensitive Warp combo type, instead of warping to the specified blue warp-return square, he will arrive at the screen at his current (x,y) position. 
+
+ - Use Maze Path
+Must be set for the path settings to take effect. See Path for details. 
+
+ - Maze Overrides Side Warps
+If a maze path is used on a screen with side warps, this flag prevents the side warp from being triggered until the maze path has been solved. If the fourth direction is the side warp, it would be triggered the instant Link solves the maze path. Note that this flag does not work if there is more than one side warp. 
+
+ - Sprites Carry Over In Warps
+Things like Link weapons and even push blocks (while they're still moving) are carried over when Link warps from one screen to another. 
+
++----------------------------+
+| 8.1e SCREEN FLAGS -> ITEMS |
++----------------------------+
+
+ - Hold Up Item
+When the item in the room is taken, a sound effect plays and Link holds it above his head. NOTE: This flag is not needed for Link to hold up a special item if the special item is in any treasure chest combo marked with flag 10, any destructible combo (slash, bush, flowers, tall grass, pound) marked with flag 10, or a water combo marked with flag 13. On the other hand, this flag is needed in order for Link to hold up a special item hidden under an Armos combo marked with flag 10. 
+
+ - Item Falls From Ceiling
+Any item that appears in a room, except for dropped enemy items, will appear to fall from the ceiling.
+
++-----------------------------+
+| 8.1f SCREEN FLAGS -> COMBOS |
++-----------------------------+
+
+ - Combos Affect Midair Link
+If this flag is set, combos that affect Link on touch (such as damage combos and warps) will ignore jumping and affect Link mid-jump. 
+
+ - Combos Cycle On Screen Init
+Cycled combos will cycle when the screen is loaded 
+
+ - Damage Combos Ignore Boots
+If this flag is set, damage combos on this screen hurt Link regardless of whether or not he possesses boots. 
+
+ - Toggle Ring Affect Combos
+The rule 'Rings Affect Damage Combos' is applied.
+
++----------------------------+
+| 8.1g SCREEN FLAGS -> SAVE  |
++----------------------------+
+
+ - Save Point->Continue Here
+Upon quitting the game, Link will continue on this screen the next time he resumes his quest. Note that this should be on a DMap with the Continue Here Flag checked. 
+
+ - Save Game On Entry
+The instant Link enters this screen, the save screen will appear. 
+
+ - Continue Here
+If Link dies in the current DMap, he will be taken to the last screen he visited with this flag set. If no such screen exists, he will be taken to the screen at which he entered the DMap. 
+
+ - No Continue Here After Warp
+If this flag is set, and Link entered the current DMap at this screen, and he dies without visiting a screen with the Continue Here flag set, he will continue in the previous DMap (as if he had never left it) instead of continuing at this screen. 
+
++----------------------------+
+| 8.1h SCREEN FLAGS -> FFC   |
++----------------------------+
+
+ - FF Combos Wrap Around
+If this flag is set and an FFC travels outside the bounds of the screen, the FFC will reappear on the other side of the screen, as if the screen had toroidal topology. 
+
+ - No FFC carryover
+Free Form Combos will NOT carry over to the next screen from the current, regardless of whether they are set to do so in their specific data or not. 
+
++------------------------------+
+| 8.1i SCREEN FLAGS -> WHISTLE |
++------------------------------+
+
+ - Whistle->Stairs
+If the whistle is played in this screen, the stairs secret combo is triggered after a brief interval. 
+
+ - Whistle->Pal Change
+When Link blows the whistle on this screen, the third color in all combos in CSet 3 will incur a color change, in the same way as is seen at the entrance to the level 7 dungeon in the First Quest of the original Legend of Zelda 
+
+ - Whistle->Dry Lake
+When Link blows the whistle on this screen, all water combos become fully walkable. 
+
++----------------------------+
+| 8.1j SCREEN FLAGS -> MISC  |
++----------------------------+
+
+ - Toggle 'Allow Ladder'
+The rule 'Allow Ladder Anywhere' is applied. In dungeon Dmaps, the ladder is always usable, so this has no effect. 
+
+ - Toggle 'No Diving'
+The rule 'No Diving' is applied. 
+
+ - General Use 1-5 (Scripts)
+Open for use by scripts.
+
++----------------------------+
+| 8.1k ENVIRONMENTAL ENEMIES |
++----------------------------+
+
+ - Zora
+Spawns one enemy which has the 'Zora' spawn flag.  By default, these are Zora enemies.
+
+ - Corner Traps
+Spawns one enemy, which has the 'Corner Traps' spawn flag, in each corner of the room. By default, these are Trap (4-Way) enemies.
+
+ - Middle Traps
+Spawns two enemies, which has the 'Middle Traps' spawn flag, in the middle of the room. By default, these are Trap (4-Way) enemies.
+
+ - Falling Rocks
+Spawns three enemies which have the 'Falling Rocks' spawn flag. By default, these are Rock enemies.
+
+ - Shooting Statues
+On each Left Statue, Center Statue and Right Statue-type combo, spawns an enemy with the 'Statue Fire' spawn flag. By default, this is 'Shooter (Fireball)'.
+
++----------------------------+
+| 8.1l ENEMY FLAGS           |
++----------------------------+
+
+ - First Enemy Is 'Ring Leader'
+If the first enemy on the screen is killed, all other enemies die as well. 
+
+ - First Enemy Carries Item
+The first enemy on the screen carries the screen item. 
+
+ - All Enemies Are Invisible
+In version 1.90, enemies in this screen are completely invisible, though their projectiles are not. In later versions, enemies create a slight blur where they are but are difficult to see. In all versions, the enemies are perfectly visible if the player has the amulet. 
+
+ - Don't Return If Boss Killed
+Enemies on this screen stay dead permanently once the boss on the current DMap is killed. Note that this flag can be useful for events when the trigger enemy is used, because when all enemies are killed on a screen with this flag checked, all enemies, including the trigger enemies, on any screen on the same DMap that also has this flag checked will also disappear permanently. 
+
+ - Traps Ignore Walkability
+Traps in the room completely ignore walkability. NOTE: Line-of-Sight Traps will ignore walkability regardless of this flag unless the 'Multi-Directional Traps' Rule is turned on. 
+
+ - Enemies Carry Over In Warps
+All enemies on the screen are warped with Link when he enters a warp. 
+
+ - Enemies Always Return
+The rule Enemies Always Return applies to this screen. 
+
+ - Enemies->Item
+The item in the room only appears when all the enemies are killed. 
+
+ - Enemies->Secret
+Secret combos are triggered when all enemies are killed. 
+
+ - Enemies->Secret is Permanent
+If the 'Enemies->Secret' flag is checked, secrets triggered by killing all enemies will remain on this screen permanently. NOTE: This flag has no effect on screens that are treated as NES Dungeon screens, as secrets on NES Dungeon screens are always temporary. 
+
++----------------------------+
+| 8.1m SCREEN DATA           |
++----------------------------+
+
+ - Screen State Carry Over
+This convenient feature can be used to make events on one screen affect another, distant screen. If a particular Screen State on this screen is set, it will also be set on the specified screen (but some states can be prevented from carrying over - see below). It is also possible to have Screen State Carry Overs carry secrets to more than one screen, by "chaining" Screen State Carry Overs - that is, setting the Screen State Carry Over of the screen that the first Screen State Carry Over is applied to, to Carry Over to the third screen, and so on. 
+
+In the Next Map dropdown menu, you can set the Map (not DMap) number of the destination screen for the Room State Carryover. In the Next Screen dropdown menu, you can set the number of the destination screen for the Room State Carryover.
+
+ - No Reset
+You can choose which Screen States are not reset by the Reset Room combo type. 
+
+ - No Carry Over
+You can choose which Screen States are not carried over by Room State Carry Over.
+
+ - Screen Midi
+Allows one to choose a MIDI resource that is played exclusively on this screen. It overrides the DMap MIDI. 
+
+ - Lens Effect
+Allows one to hide or show certain layers whenever the Lens of Truth is used.
+
+ - Damage Combo Sensitivity
+A value from 1 to 8 that represents how far Link may wander into a damage combo before he gets hurt. A value of 1 is least sensitive--Link's hitbox may only pass half-way into the combo before he takes damage. A value of 8 is most sensitive--If Link's hitbox touches one pixel of the combo, the damage combo affects him. 
+
+ - Ocean Sound
+This sound effect plays repeatedly on this screen. (In The Legend of Zelda, some overworld screens played an ocean wave sound effect repeatedly.) 
+
+ - Boss Roar Sound
+Unless the boss flag has been triggered on that DMap, this sound effect plays repeatedly on this screen. 
+
+ - Hold Up Item Sound
+The ID of a sound effect that will play when Link holds up an item. 
+
+ - Secret Sound
+The ID of a sound effect that will play when Link first enters the screen. It will only play once, and will not be activated if Link enters the screen in any other way (such as via a warp) 
+
+ - Play Secret SFX On Entry
+The secret sound plays when the screen is entered. 
+
++----------------------------+
+| 8.1n TIMED WARP            |
++----------------------------+
+
+A timed warp is an automatic warp. After a given time from when Link enters the screen, the screen's Side Warp A is triggered. 
+
+ - Timed Warp Ticks
+60 ticks per second; 0.00 Seconds=No Timed Warp 
+
+ - Timed Warps Are Direct.
+If Link is warped via the screen's Timed Warp, instead of warping to the specified blue warp-return square, he will arrive at the screen at his current (x,y) position. 
+
+ - Secrets Disable Timed Warp
+Triggering Secrets on the screen prevents the timed warp from occurring. 
+
+ - Timed Warp Is Random (A, B, C, or D)
+By default, Side Warp A is used by the warp. If this is checked, it chooses either Side Warp A, B, C or D at random.
+
++----------------------------+
+| 8.2 FREEFORM COMBOS        |
++----------------------------+
+
+  Freeform Combos are miscellaneous sprites that consist of a combo, motion values, and script values. They can be used for placing combos unconstrained by the combo grid, making a constantly moving combo, or running a script. Each screen can have a maximum of 32 Freeform Combos. If an FFC uses combo 0, it is considered vacant.
+
+  FFCs are drawn between layer 1 and layer 2, unless its 'Draw Over' flag is set, in which case they will be drawn between layers 4 and 5.
+
+  While a combo's type and inherent flags are still functional when used in an FFC, its solidity data is ignored.
+
+  FFCs have the following editable values:
+
+ - Combo
+This is the tile you wish to assign to the Freeform Combo. Even though only one tile is displayed, the combo itself can be made different sizes in the Combo W. and Combo H. fields.
+
+ - Link to
+FFCs can be linked to Any movement of the former Freeform Combo is reflected in this "linked" Combo.
+
+ - X Pos
+This is the number of pixels from the left of the screen the Combo begins at. Recall that there are sixteen pixels per tile. Also note that if this value becomes smaller than -32 or larger than 288, it will either wrap around or be deactivated. 
+
+ - Y Pos
+This is the number of pixels from the top of the screen the Combo begins at. Note that if this value becomes smaller than -32 or larger than 208, it will either wrap around or be deactivated. 
+
+ - X Speed
+ This is the initial velocity this Combo has parallel to the X-axis, in pixels per frame. Positive numbers will move the FFC to the right, while a negative number can be entered to make the Combo move leftward. Fractions may also be used. For example, entering an X Speed of 1 will make the Combo move to the right 1 pixel every frame. Entering an X Speed of 0.5 will make the Combo move to the right at 0.5 pixels per frame, which is converted to be 1 pixel every 2 frames (since you cannot have half of a pixel).
+
+ - Y Speed
+ This is the initial velocity this Combo has parallel to the Y-axis, in pixels per frame. Positive numbers will move the FFC down, while a negative number can be entered to make the Combo move up. Fractions may also be used. For example, entering a Y Speed of 1 will make the Combo move down 1 pixel every frame. Entering a Y Speed of 0.5 will make the Combo move down at 0.5 pixels per frame, which is converted to be 1 pixel every 2 frames (since you cannot have half of a pixel). 
+
+ - X Accel
+This is the Combo's rightward acceleration. A zero can be entered so that the Combo moves at a constant velocity, or a negative number can be entered so the Combo accelerates in the opposite direction. 
+
+ - Y Accel
+This is the Combo's downward acceleration.
+
+ - A. Delay
+This is the delay, in frames, before the combo begins moving.
+
+ - Combo W.
+The Combo W. of a freeform combo denotes the width of the field of effect that the FFC's Combo Type attribute has, in pixels.
+
+ - Combo H.
+The Combo H. of a freeform combo denotes the height of the field of effect that the FFC's Combo Type attribute has, in pixels.
+
+ - Tile W.
+The Tile W. of a freeform combo denotes how large the width of the Freeform combo will be drawn. It will be drawn with tiles from the tile page, rather than the combo page. If a Freeform combo larger than 1 x 1 tiles is animated, it will need to use the combos 'A.SkipX' and 'A.SkipY' values to animate as desired.
+
+ - Tile H.
+The Tile H. of a freeform combo denotes how large the height of the Freeform combo will be drawn. It will be drawn with tiles from the tile page, rather than the combo page. If a Freeform combo larger than 1 x 1 tiles is animated, it will need to use the combos 'A.SkipX' and 'A.SkipY' values to animate as desired.
+
+ - Script
+Freeform Combo scripts (ZScript or ZASM) are set via this dropdown menu. By default, an FFC's script will execute immediately - as soon as Link enters the screen.
+
+ - Arguments
+These are used to give certain initial variables if a script is attached to the Freeform Combo. This allows for greater customisation of scripts, because the variables no longer need to be completely hard-coded into the script. The D variables are declared within the run() command of a ZScript FFC script. The A variables are almost exclusively used by ZASM scripts.
+
+ - Draw Over
+When checked, this Freeform Combo is drawn between layers 4 and 5.
+
+ - Translucent
+When checked, this Freeform Combo becomes translucent, or partly visible.
+
+ - Carry-Over
+If the 'Carry-Over' flag is checked, when Link warps to a new screen the FFC will be copied over the same-numbered FFC in the destination screen. Motion and scripts will, by default, continue as they were, and will not restart. Note: Carry Over will NOT occur if Link was sent back to the start of the DMap by Whistle Whirlwind, Wizzrobe wind, or by a Wallmaster.
+
+ - Run Script at Screen Init
+The Freeform Combo's script will begin running just before Link scrolls onto or appears on the screen. This can be used to "preprocess" a screen - changing and rearranging combos before the screen becomes visible to the player. 
+
+ - Only Visible to Lens of Truth
+This Freeform Combo appears invisible unless viewed through the Lens of Truth when checked. 
+ 
+ - Script Restarts When Carried Over
+Normally, if an FFC is carried over to another screen, its script execution state is also carried over. If this is checked, it will instead restart its script from the beginning once it is carried over. 
+
+ - Ethereal
+ If this flag is checked, the FFC's Combo Type and Inherent Combo Flag are ignored by Zelda Classic, and have no effect. 
+
+ - Stationary
+This Freeform Combo doesn't move, even though it has speed and acceleration values. Best used on Changers.
+
+ - Is a Changer (Invisible)
+This Freeform Combo is a Changer. A Changer is designed to modify the behaviour of any FFCs that move over it, without having to use scripts. Use Changers to make FFCs move back and forth along a predefined area, and make FFCs change their Combos and CSets. Changers are normally invisible, but in ZQuest their locations are denoted by a single multicoloured pixel.  The X and Y values of FFC and Changer must be exactly equal during one frame of animation for a Changer to affect an FFC.
+
+The following flags are Changer-specific:
+
+ - Swap speed with next FFC
+If an FFC of number N hits this Changer, its speed and acceleration values are swapped with the speed of FFC number N+1. 
+
+ - Swap speed with prev. FFC
+If an FFC of number N hits this Changer, its speed and acceleration values swapped with the speed of FFC number N-1. 
+
+ - Increase combo ID
+When a Freeform Combo hits this Changer, its Combo changes into the next combo in the list. 
+
+ - Decrease combo ID
+When a Freeform Combo hits this Changer, its Combo changes into the previous combo in the list. 
+
+ - Change combo/cset to this
+When a Freeform Combo hits this Changer, the Freeform Combo will take on the Changer's Combo and CSet attributes. 
+
++----------------------------+
+| 8.3 LAYERS                 |
++----------------------------+
+
+
+
+Old stuff:
+
+
+Tile Warp (F10): 
+This is used to set the warp from a cave or stair tile. Only one tile warp can be used per screen. Clicking on this brings up the Tile Warp dialog box. 
+Choose the type of warp you want: 
+1) Cave/Item Room: This takes Link to Room 80 on the current dmap. It's not necessary to enter any further information. 
+2) Passageway: This takes Link to passageway (Room 81) of the current dmap. Enter the dmap and screen number of the screen you would like Link to be when he emerges from the passageway. Click on Go to test the warp, and to place the blue square where you want Link to appear on the new screen. 
+3) Entrance/Exit: Use this to take Link directly to another dmap. Enter the dmap and screen number, Go to test warp and place the green square. 
+4) Scrolling Warp: This makes it appear as if Link had just walked from the old screen to the new screen. More often used with side warps. Enter the new dmap and screen #, test and place the blue square. 
+5) Insta-Warp: Link is instantly transported to the blue square on the new dmap/screen #. 
+6) I-Warp w/ Blkout: Same as Insta-Warp but with blackout effect. 
+7) I-Warp w/ OpenScr: Open screen...a black screen that parts in the middle and opens like a curtain. 
+8) I-Warp w/ Zap FX: Zap effects are a sort of scrambling of the screen to make the warp more dramatic. 
+9) I-Warp w/ Wave FX: Somewhat like the light world/dark world warp in Zelda 3.
+10) No Warp: Disables the warp trigger. Link will appear to go down the stairs but will not warp, he will reappear at the top of the stairway.
+
+Side Warp (F11): 
+Used when you want Link to warp when he leaves one side of a screen. Choose which side activates the warp on triggers. The mechanics of setting the warp are much like tile warp. Again, only one side warp per screen, but you may have a tile warp and side warp on the same screen. Not used for cave/item room or passageway warps. 
+
+Enemy Flags (F12): 
+1) Zora: Places one zora on the screen (water required). 
+2) Corner Traps: Places a spiked "trap" in each corner of the room/screen. 
+3) Center Traps:Places 2 traps on the center row of a room. 
+4) Falling Rocks: Will place 3 falling rocks on the screen. 
+5) Statues Shoot Fire: All lstatue and rstatue combos on the screen will shoot fire at Link. 
+6) Has Ringleader: One of the enemies on the screen is the "ringleader"; when it dies, they all die. 
+7) Enemy Carries Item: One of the enemies on the screen will "carry" the selected item. 
+8) Dungeon Boss: Used in the "boss" room. When the boss is beaten , the boss sound effects in the dungeon will stop.
+9) Path:Brings up the Maze Path dialog box. For the path to work, you must also check the "use maze path" screen flag. 
+Select the 4 directions in the order they should be taken. Only 3 directions can be used...the other direction is entered as the Exit and will take Link back to the screen he entered the maze from. The 4th direction should be the direction of the screen where you want Link to end up. 
+If the maze path is on the extreme left or right screen of a dmap, you cannot use the direction that would take Link off the map. 
+
+Item (I): This is for selecting Items that will appear on the screen either when Link enters, when the enemies are dead if that screen flag is checked, or that an enemy will be carrying if that enemy flag is checked. Unless an enemy is carrying the item, to place the item where you want it to appear on the screen press PageDown and click the item icon (far left), then click on the place you want the item to be. 
+
+Guy (G): Used to place the "guy" of your choice in a cave or dungeon room. 
+
+Message String (S): Used to select the message string you want the "guy" to be saying. To create a new message string, go to Quest->Strings. 
+
+Room Type (R): 
+
+Special Item: Takes Link to Screen 80. Set the Special Item. In the OW a guy and message string may be used. 
+1) Pay for Info: A cave or dungeon room that has a guy with info for sale. Set guy and message, then info type number. Create Info Types under Quest->Misc. Data. 
+2) Secret Money: Cave or dungeon room that gives Link money. Enter the amount, and set the guy and message. 
+3) Gamble: Creates a gambling room. Set guy and message. 
+4) Door Repair: Takes money away from Link when he enters. Set guy, message, and repair fee. 
+5) Heart Container: Gives Link his choice of red potion or heart container. 
+6) Feed the Goriya: Link must give the "guy" bait so that he will disappear. Set guy and message. Use in a place where Link must get past the guy in order to continue. 
+7) Level 9 Entrance: Guy that Link cannot get past unless he has the complete triforce. Set guy and message. 
+8) Potion Shop: A shop that Link must have the letter to buy from. Set guy, message, and shop type number. Create shop types under Quest->Misc. Data. 
+9) Shop: A regular shop, no letter required. Set guy, message, and shop type number. 
+10) More Bombs: Increases the number of bombs Link can carry by 4 and gives him the maximum he can carry. Set guy, message, and price. 
+11) Leave Money or Life: Link must give up a heart container or a certain amount of money. Set guy, message, and price. Use in a place where Link must get past the guy in order to continue. 
+12) 10 Rupies: Creates a room with 10 rupies set out in a diamond shape. 
+13) 3-Stair Warp: Creates a warp ring room using Room 81. Enter Warp Ring number from Quest->Misc. Data. 
+14) Ganon: Makes Ganon the enemy in a dungeon room. 
+15) Zelda: Used to create a Zelda room to trigger the end game sequence. 
+16) Item pond: Not implemented yet. 
+17) Magic upgrade: Makes you use half as much magic per use, effectively doubling your magic. This can only be done once per quest.
+18) Learn Slash:  Link will be able to use the slash ability after visiting this room.  Once per quest.
+
+Catch All: Information for room types that need additional information will appear in this spot if that room type is selected.
+
+Enemies (E): 
+Click here or press E to bring up the Enemy dialog box. 
+Double-click on a (none) space to bring up the enemy list, choose one and click OK to select it. If you want more than one of that enemy on the current screen you can press C to copy, click on a (none) space and press V to paste. 
+Paste Enemies: If you copy a screen and go to a new screen, paste enemies will put the same enemies that were on the old screen on the new screen. 
+Flags brings up the Enemy Flag dialog box. 
+Pattern: If you want the enemies to enter from the sides of the screen, click on pattern and choose this option. 
+
+Under Combos: 
+To set an undercombo, first click on the tile you want for the undercombo, then on Under Combo. In the new dialog box are 2 squares. If the tile in the New square is the one you want for the undercombo, click on Set. Set All makes this tile the undercombo for all screens on this map. Undercombos should be set on every screen that has movable objects on it--armos, blocks, etc. Under combo stores both the combo and the CSet. 
+
+Secret Combos: 
+Brings up the Secret Combo dialog box. 
+ - Burn: (4 squares) Flags #4, #73, #74, and #75, in that order.
+ - Arrow: (3) Flags #5, #71, and #72
+ - Bomb: (2) Flags #6, and #11
+ - Stair: For the Stair Icon in the lower dialog box.
+ - Boomerang: (3) Flags #68, #69, and #70
+ - Magic: (2) Flags #76 and #77
+ - Sword: (4) Flags #79, #80, #81, and #82
+ - Sword Beam: (4) Flags #83, #84, #85, and #86
+ - Misc.: (5) Flags #78 (reflected fireball), #87 (hookshot), #88 (wand), #89 (hammer), and #90 (strike).
+ - Secret Combos 16-31: These combos appear when other flags are triggered. 
+To set a secret combo, click on the proper square to bring up the Combo Table, then click on the tile you want for the secret combo and press Enter. 
+
+Layers: 
+Used for layering. While on the base screen, click on Layers and enter the map and screen number where you put the tiles for each layer. Layers 1 and 2 appear under Link, 3 and 4 are over Link but below flying enemies, 5 and 6 are above flyers. To prepare a screen for any layer except 0, first fill it with the walkable transparent (black) tile so that the layers below will show through.
+Note: Anything in layer 0 with a push flag on it appears on top of layers 1 and 2.  Link is walking on layers 1 and 2, so he can't very well push something below those layers.  This allows you to push a pushblock over different combos without changing them all to the same thing (it is actually still doing this, but set up the real floor on layer 1, then the block won't be erasing it, just layer 0, which is covered up by layer 1). 
+Trans. makes that layer translucent (see-through).
+Click the button with the asterisk (*) on it for a particular layer to enter the auto layer setup mode.  A new screen will popup. asking you to enter a map number.  Basically, every screen on that map will be set up as the selected layer screen for every screen on the current map that doesn't already have a layer map set.
+
+Palette: This allows you to change a particular screen to any palette in ZQuest. It does not affect the screen in ZC: when playing the quest that screen will still use the palette assigned on the dmap. 
+
++----------------------------+
+| 9. ETC. MENU               |
++----------------------------+
+
+ - Help
+Brings up this zquest.txt help file. 
+
+ - About
+Brings up a dialog with the ZQuest version number, and credits for the Travels of Link MIDI.
+
+ - Video Mode
+In some ports of ZQuest, this can be used to adjust the video mode.
+
+ - Fullscreen
+This toggles the fullscreen and windowed view for ZQuest.
+
+ - Options
+Brings up the ZQuest preferences pane. Page 1 has these options:
+ -- Mouse scroll: Allows you to use the mouse to scroll through the combo selector.
+ -- Save paths: Makes ZQuest remember what directory you were in when you loaded a quest, saved it, grabbed tiles, imported/exported stuff, etc. 
+ -- Palette cycle: Allows you to see palette cycling effects in ZQuest. 
+ -- Vsync: Makes it so that it waits for the monitor to stop drawing before doing graphics work. This can help eliminate flicker. 
+ -- Show Frames Per Second: Tells you how many frames there are per second. 
+ -- Combo Brush: Makes the cursor resemble the current combo being used. 
+ -- Floating Brush: In combination with the combo brush, makes the cursor cast a shadow.
+ -- Reload Last Quest: With this box checked ZQuest will automatically open the last quest you worked on when you start it. 
+ -- Show Misaligns: This option is only useful in Small Mode. It helps you avoid having a walkable combo on one screen lead into an unwalkable combo on the next screen. 
+ -- Animate Combos: Have this option checked if you want animated combos to be animated in ZQuest. Unchecked, the combos won't appear animated and there will be less cursor flickering.
+ -- Overwrite Protection: If checked, you won't be able to overwrite existing files when saving in ZQuest.
+ -- Tile Protection: Enables the aforementioned Tile Protection feature.
+ -- Use Static For Invalid Data: Draws black and white 'static' in places where no graphics have been defined (such as the tile list). Otherwise, a white X is used.
+ -- Show Ruleset Dialog When Creating New Quests: If checked, the ruleset dialog is displayed when you create a new quest.
+ -- Enable Tooltips: Enables tooltips to appear when your cursor hovers over a combo on the screen, or in the combo selector.
+Page 2 has these options:
+ -- Auto-backup Retention: Determines how many permanent backup files should be kept per quest file. Permanent backups have a .qb suffix.
+ -- Auto-save Interval: Determines how frequently ZQuest saves an auto-save backup of your quest. Auto-save backups have a .qt suffix
+ -- Auto-save Retention: Determines how many auto-save backups to keep.
+ -- Uncompressed Auto-Saves: If this is checked, auto-saves are uncompressed, which can save time during the auto-save process.
+ -- Grid Color: Color of the combo grid that can be toggled in the View menu.
+ -- Snapshot Format: Image format for ZQuest snapshots. 
+ -- Keyboard Repeat Delay: Delay before a held keyboard key repeats.
+ -- Keyboard Repeat Rate: Rate at which held keyboard keys repeat.
+
+ - View Pic
+With this, you can load and view a graphic from inside ZQ. This feature was useful in the original MS-DOS version of ZQuest, but is now largely irrelevant.
+
+ - The Travels of Link
+Plays a rousing piano medley MIDI while you work in ZQuest. Use the menu to choose a particular section of the medley.
+
+ - Play music
+Allows you to choose and play any readable music file on your file system through ZQuest. This feature was useful during the DOS incarnation of ZQuest, but is now largely irrelevant.
+
+ - Change track
+If you loaded a multi-track format (NSF, GBS, GYM) you can change tracks with this.
+
+ - Stop Tunes
+Turns off all music currently being played in ZQuest.
+
+ - Take Snapshot
+Takes a screenshot of the ZQuest interface. This feature is primarily designed for bug reporting purposes.
+
+--- finis. ---

@@ -1,0 +1,9 @@
+// std.zh
+// Standard header for ZScript.
+// Please don't edit this file. Instead, create a new header file for your
+// quests' scripts,  add constants and procedures to that file,
+// and import it separately.
+
+import "std_constants.zh"
+import "std_functions.zh"
+

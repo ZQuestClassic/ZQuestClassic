@@ -1,0 +1,2602 @@
+
+//================================================
+//--- ZScript built-in functions and variables ---
+//================================================
+//
+// Functions and variables other than global functions are properties
+// of objects. The syntax for using them is [object name]->[property]
+// where "[object name]" is the object's name and "[property]" is the
+// property. "Link", "Screen" and "Game" are Link, Screen and Game
+// objects that are always available and don't need to be instantiated.
+//
+// In the following, "int" indicates that a parameter is truncated
+// by a function to an integer, or that the return value will always
+// be an integer. ZScript itself makes no distinction between int and
+// float.
+
+
+
+//========================
+//--- Global Functions ---
+//========================
+
+/**
+* Computes and returns a random integer between 0 and maxvalue,
+* or a negative value between maxvalue and 0 if maxvalue is negative.
+*/
+int Rand(int maxvalue);
+
+/**
+* Terminates execution of the current script. Does not return.
+*/
+void Quit();
+
+/**
+* Temporarily halts execution of the current script. This function returns at
+* the beginning of the next frame of gameplay.
+* Slots 1, 3 and 4 Global scripts and item scripts only execute for one frame,
+* so in those scripts Waitframe() is essentially Quit().
+* It is safe to call Waitframe in the active global script.
+*/
+void Waitframe();
+
+/**
+* Halts execution of the script until ZC's internal code has been run (movement,
+* collision detection, etc.), but before the screen is drawn. This can only
+* be used in the active global script.
+*/
+void Waitdraw();
+
+/**
+* Prints a line containing a string representation of val to allegro.log.
+* Useful for debugging scripts.
+*/
+void Trace(float val);
+
+/**
+* Prints a boolean state to allegro.log
+*/
+void TraceB(bool state);
+
+/**
+* Takes the array pointer as its argument, and prints it as a string to allegro.log
+* Maximum 512 characters. Functions from string.zh can be used to split larger strings.
+*/
+void TraceS(int s[]);
+
+/**
+* Prints a line in allegro.log representing 'val' in numerical base 'base',
+* where 2 <= base <= 36, with minimum digits 'mindigits'.
+* Can be useful for checking hex values or flags ORed together, or just to trace
+* an integer value, as Trace() always traces to four decimal places.
+*/
+void TraceToBase(int val, int base, int mindigits);
+
+/**
+* Traces a newline to allegro.log
+*/
+void TraceNL();
+
+/**
+* Clears allegro.log of all current traces and messages from Zelda Classic/ZQuest.
+*/
+void ClearTrace();
+
+/**
+* Returns the trigonometric sine of the parameter, which is interpreted
+* as a degree value.
+*/
+float Sin(float deg);
+
+/**
+* Returns the trigonometric cosine of the parameter, which is
+* interpreted as a degree value.
+*/
+float Cos(float deg);
+
+/**
+* Returns the trigonometric tangent of the parameter, which is
+* interpreted as a degree value. The return value is undefined if
+* deg is of the form 90 + 180n for an integral value of n.
+*/
+float Tan(float deg);
+
+/**
+* Returns the trigonometric sine of the parameter, which is interpreted
+* as a radian value.
+*/
+float RadianSin(float rad);
+
+/**
+* Returns the trigonometric cosine of the parameter, which is
+* interpreted as a radian value.
+*/
+float RadianCos(float rad);
+
+/**
+* Returns the trigonometric tangent of the parameter, which is
+* interpreted as a radian value. The return value is undefined for
+* values of rad near (pi/2) + n*pi, for n an integer.
+*/
+float RadianTan(float rad);
+
+/**
+* Returns the trigonometric arctangent of the coordinates, which is
+* interpreted as a radian value.
+*/
+float ArcTan(int x, int y);
+
+/**
+* Returns the trigonometric arcsine of x, which is
+* interpreted as a radian value.
+*/
+float ArcSin(float x);
+
+/**
+* Returns the trigonometric arccosine of x, which is
+* interpreted as a radian value.
+*/
+float ArcCos(float x);
+
+/**
+* Returns the greater of a and b.
+*/
+float Max(float a, float b);
+
+/**
+* Returns the lesser of a and b.
+*/
+float Min(float a, float b);
+
+/**
+* Returns base^exp. The return value is undefined for base=exp=0. Note
+* also negative values of exp may not be useful, as the return value is
+* truncated to the nearest integer.
+*/
+int Pow(int base, int exp);
+
+/**
+* Returns base^(1/exp). The return value is undefined for exp=0, or
+* if exp is even and base is negative. Note also that negative values
+* of exp may not be useful, as the return value is truncated to the
+* nearest integer.
+*/
+int InvPow(int base, int exp);
+
+/**
+* Returns the log of val to the base 10. Any value <= 0 will return 0.
+*/
+float Log10(float val);
+
+/**
+* Returns the natural logarithm of val (to the base e). Any value <= 0 will return 0.
+*/
+float Ln(float val);
+
+/**
+* Returns val!. val < 0 returns 0.
+*/
+int Factorial(int val);
+
+/**
+* Return the absolute value of the parameter, if possible. If the
+* absolute value would overflow the parameter, the return value is
+* undefined.
+*/
+float Abs(float val);
+
+/**
+* Computes the square root of the parameter. The return value is
+* undefined for val < 0.
+*/
+float Sqrt(float val);
+
+/**
+* Copies the tile specified by scrtile onto the tile space
+* specified by desttile.
+*/
+void CopyTile(int srctile, int desttile);
+
+/**
+* Swaps the two tiles specified by firsttile and secondtile.
+*/
+void SwapTile(int firsttile, int secondtile);
+
+/**
+* Erases the tile specified by tileref.
+*/
+void ClearTile(int tileref);
+
+/**
+* Returns the size of the array pointed by 'array'
+*/
+int SizeOfArray(int array[]);
+
+
+//===================================
+//--- FFC Functions and Variables ---
+//===================================
+
+class ffc
+{
+	/**
+	* The number of the combo associated with this FFC.
+	*/
+	int Data;
+
+	/**
+	* The number of the script assigned to the FFC. This will be automatically
+	* set to 0 when the FFC's script halts. A script cannot change the script of
+	* the FFC running it; in other words, f->Script is read-only when f==this.
+	* When an FFC's script is changed, its arguments, Misc[], and registers will
+	* all be set to 0, and it will start running from the beginning. Set
+	* ffc->InitD[] after setting the script before the script starts running
+	* to pass arguments to it.
+	*/
+	int Script;
+
+	/**
+	* The cset of the FFC.
+	*/
+	int CSet;
+
+	/**
+	* The FFC's animation delay, in frames.
+	*/
+	int Delay;
+
+	/**
+	* The FFC's X position on the screen.
+	*/
+	float X;
+
+	/**
+	* The FFC's Y position on the screen.
+	*/
+	float Y;
+
+	/**
+	* The FFC's velocity's X-component.
+	*/
+	float Vx;
+
+	/**
+	* The FFC's velocity's Y-component.
+	*/
+	float Vy;
+
+	/**
+	* The FFC's acceleration's X-component.
+	*/
+	float Ax;
+
+	/**
+	* The FFC's acceleration's Y-component.
+	*/
+	float Ay;
+
+	/**
+	* The FFC's set of flags. Use the FFCF_ constants in std.zh as the
+	* index to access a particular flag.
+	*/
+	bool Flags[];
+
+	/**
+	* The number of tile columns composing the FFC.
+	*/
+	int TileWidth;
+
+	/**
+	* The number of tile rows composing the FFC.
+	*/
+	int TileHeight;
+
+	/**
+	* The width of the area of effect of the combo associated with the FFC,
+	* in pixels.
+	*/
+	int EffectWidth;
+
+	/**
+	* The height of the area of effect of the combo associated with the FFC,
+	* in pixels.
+	*/
+	int EffectHeight;
+
+	/**
+	* The number of the FFC linked to by this FFC.
+	*/
+	int Link;
+
+	/**
+	* The original values of the FFC's 8 D input values as they are stored in
+	* the .qst file, regardless of whether they have been modified by ZScript.
+	*/
+	float InitD[];
+
+	/**
+	* An array of 16 miscellaneous variables for you to use as you please.
+	* These variables are not saved with the ffc.
+	*/
+	float Misc[];
+
+}; //ffc
+
+
+//====================================
+//--- Link Functions and Variables ---
+//====================================
+
+namespace Link
+{
+	/**
+	* Link's X position on the screen, in pixels. Float values passed to this will be cast to int.
+	*/
+	int X;
+
+	/**
+	* Link's Y position on the screen, in pixels. Float values passed to this will be cast to int.
+	*/
+	int Y;
+
+	/**
+	* Link's Z position on the screen, in pixels. Float values passed to this will be cast to int.
+	*/
+	int Z;
+
+	/**
+	* Whether Link is currently being draw to the screen. Set true to remove him from view.
+	*/
+	bool Invisible;
+
+	/**
+	* If true, Link's collision detection with npcs and eweapons is currently turned off.
+	* This variable works on a different system to clocks and the level 4 cheat, so it will not
+	* necessarily return true if they are set.
+	*/
+	bool CollDetection;
+
+	/**
+	* Link's upward velocity, in pixels. If negative, Link will fall.
+	* The downward acceleration of Gravity (in Init Data) modifies this value every frame.
+	*/
+	int Jump;
+
+	/**
+	* The time, in frames, until Link regains use of his sword. -1 signifies
+	* a permanent loss of the sword.
+	*/
+	int SwordJinx;
+
+	/**
+	* The time, in frames, until Link regains use of his items. -1 signifies
+	* a permanent loss of his items.
+	*/
+	int ItemJinx;
+
+	/**
+	* The time, in frames, that Link will be 'drunk'. If positive, the player's
+	* controls are randomly interfered with, causing Link to move erratically.
+	* This value is decremented once per frame. As the value of Drunk approaches 0,
+	* the intensity of the effect decreases.
+	*/
+	int Drunk;
+
+	/**
+	* The direction Link is facing. Use the DIR_ constants in std.zh to set
+	* or compare this variable. Note: even though Link can move diagonally if the
+	* quest allows it, his sprite doesn't ever use any of the diagonal directions,
+	* which are intended for enemies only.
+	*/
+	int Dir;
+
+	/**
+	* The direction Link should bounce in when he is hit. This is mostly useful for
+	* simulating getting hit by setting Link->Action to LA_GOTHURTLAND.
+	*/
+	int HitDir;
+
+	/**
+	* Link's current hitpoints, in 16ths of a heart.
+	*/
+	int HP;
+
+	/**
+	* Link's current amount of magic, in 32nds of a magic block.
+	*/
+	int MP;
+
+	/**
+	* Link's maximum hitpoints, in 16ths of a heart.
+	*/
+	int MaxHP;
+
+	/**
+	* Link's maximum amount of magic, in 32nds of a magic block.
+	*/
+	int MaxMP;
+
+	/**
+	* Link's current action. Use the LA_ constants in std.zh to set or
+	* compare this value. The effect of writing to this field is currently
+	* undefined.
+	*/
+	int Action;
+
+	/**
+	* The item that Link is currently holding up; reading or setting this
+	* field is undefined if Link's action is not current a hold action.
+	* Use the I_ constants in std.zh to specify the item, or -1 to show
+	* no item. Setting HeldItem to values other than -1 or a valid item
+	* ID is undefined.
+	*/
+	int HeldItem;
+
+	/**
+	* The X position of Link's stepladder, or 0 if no ladder is onscreen.
+	* This is read-only; while setting it is not syntactically incorrect,
+	* it does nothing.
+	*/
+	int LadderX;
+
+	/**
+	* The Y position of Link's stepladder, or 0 if no ladder is onscreen.
+	* This is read-only; while setting it is not syntactically incorrect,
+	* it does nothing.
+		int LadderY;
+
+	*** Input Variables ***
+	/*
+	* The following Input* boolean values return true if the player is pressing
+	* the corresponding button, analog stick, or key. Writing to this variable
+	* simulating the press or release of that button, analog stick, or key.
+	*/
+	bool InputStart;
+	bool InputMap;
+	bool InputUp;
+	bool InputDown;
+	bool InputLeft;
+	bool InputRight;
+	bool InputA;
+	bool InputB;
+	bool InputL;
+	bool InputR;
+	bool InputEx1
+	bool InputEx2
+	bool InputEx3
+	bool InputEx4
+	bool InputAxisUp;
+	bool InputAxisDown;
+	bool InputAxisLeft;
+	bool InputAxisRight;
+
+    *** Press Variables ***
+    /*
+	* The following Press* boolean values return true if the player pressed
+	* the corresponding button, analog stick, or key this frame. Writing to this
+	* variable simulates the press or release of that button, analog stick,
+	* or keys input press state.
+	*/
+	bool PressStart;
+	bool PressMap;
+	bool PressUp;
+	bool PressDown;
+	bool PressLeft;
+	bool PressRight;
+	bool PressA;
+	bool PressB;
+	bool PressL;
+	bool PressR;
+	bool PressEx1
+	bool PressEx2
+	bool PressEx3
+	bool PressEx4
+	bool PressAxisUp;
+	bool PressAxisDown;
+	bool PressAxisLeft;
+	bool PressAxisRight;
+
+	/**
+	* The mouse's in-game X position. This value is undefined if
+	* the mouse pointer is outside the Zelda Classic window.
+	*/
+	int InputMouseX;
+
+	/**
+	* The mouse's in-game Y position. This value is undefined if
+	* the mouse pointer is outside the Zelda Classic window.
+	*/
+	int InputMouseY;
+
+	/**
+	* Whether the left or right mouse buttons are pressed as two flags
+	* OR'd (|) together; use the MB_ constants or the InputLeftClick() and
+	* InputRightClick() functions in std.zh to check the button states.
+	* InputMouseB is read only; while setting it is not syntactically incorrect,
+	* it does nothing.
+	*/
+	int InputMouseB;
+
+	/**
+	* The current state of the mouse's scroll wheel. The value is negative when
+	* scrolling down and positive when scrolling up.
+	*/
+	int InputMouseZ;
+
+	/**
+	* True if Link's inventory contains the item whose ID is the index of
+	* the array access. Use the I_ constants in std.zh as an index into this array.
+	*/
+	bool Item[];
+
+	/**
+	* Contains the item IDs of what is currently equiped to Link's A and B buttons.
+	* The first 8 bits contain the A button item, and the second 8 bits contain the B button item.
+	* Currently it is only possible to retrieve this value and not to set it.
+	* If you are not comfortable with performing binary operations,
+	* you can use the GetLinkEquipment'X' functions from std.zh.
+	*/
+	int Equipment;
+
+	/**
+	* The current tile associated with Link. The effect of writing to this variable is undefined.
+	* Because Link's tile is not determined until he is drawn, this will actually represent
+	* Link's tile in the previous frame.
+	*/
+	int Tile;
+
+	/**
+	* The current tile associated with Link. The effect of writing to this variable is undefined.
+	* Because Link's tile is not determined until he is drawn, this will actually represent
+	* Link's tile flip in the previous frame.
+	*/
+	int Flip;
+
+	/**
+	* The Z-axis height of Link's hitbox, or collision rectangle.
+	* The lower it is, the lower a flying or jumping enemy must fly in order to hit Link.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int HitZHeight;
+
+	/**
+	* The X offset of Link's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move Link's hitbox left or right.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int HitXOffset;
+
+	/**
+	* The Y offset of Link's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move Link's hitbox up or down.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int HitYOffset;
+
+	/**
+	* The X offset of Link's sprite.
+	* Setting it to positive or negative values will move the sprite's tiles left or right relative to its position.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int DrawXOffset;
+
+	/**
+	* The Y offset of Link's sprite.
+	* Setting it to positive or negative values will move the sprite's tiles up or down relative to its position.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int DrawYOffset;
+
+	/**
+	* The Z offset of Link's sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int DrawZOffset;
+
+	/**
+	* An array of 16 miscellaneous variables for you to use as you please.
+	* These variables are not saved with Link.
+	*/
+	float Misc[];
+
+	/**
+	* Warps link to the given screen in the given DMap, just like if he'd
+	* triggered an 'Insta-Warp'-type warp.
+	*/
+	void Warp(int DMap, int screen);
+
+	/**
+	* This is identical to Warp, but Link's X and Y positions are preserved
+	* when he enters the destination screen, rather than being set to the
+	* Warp Return square.
+	*/
+	void PitWarp(int DMap, int screen);
+	
+	/**
+	* Sets the A button item to the next one in the given direction based on
+	* the indices set in the subscreen. This will skip over items if A and B
+	* would be set to the same item.
+	* If the quest rule "Can Select A-Button Weapon On Subscreen" is disabled,
+	* this function does nothing.
+	*/
+	SelectAWeapon(int dir);
+	
+	/**
+	* Sets the B button item to the next one in the given direction based on
+	* the indices set in the subscreen. This will skip over items if A and B
+	* would be set to the same item.
+	*/
+	SelectBWeapon(int dir);
+	
+}; //Link
+
+//======================================
+//--- Screen Functions and Variables ---
+//======================================
+
+namespace Screen
+{
+	/**
+	* Each screen has 8 general purpose registers for use by script
+	* programmers. These values are recorded in the save file when the
+	* player saves their game. Do with these as you will.
+	* Note that these registers are tied to screen/DMap combinations.
+	* Encountering the same screen in a different DMap will result in a
+	* different D[] array.
+	*/
+	float D[];
+
+	/**
+	* An array of ten integers containing the states of the flags in the
+	* 10 categories on the Screen Data tabs 1 and 2. Each flag is ORed into the
+	* Flags[x] value, starting with the top flag as the smallest bit.
+	* Use the SF_ constants as the array acces for this value, and the
+	* GetScreenFlags function if you are not comfortable with binary.
+	* This is read-only; while setting it is not syntactically incorrect, it does nothing.
+	*/
+	int Flags[];
+
+	/**
+	* An array of 3 integers containing the states of the flags in the
+	* E.Flags tab of the Screen Data dialog. Each flag is ORed into the
+	* EFlags[x] value, starting with the top flag as the smallest bit.
+	* Use the SEF_ constants as the array acces for this value, and the
+	* GetScreenEFlags function if you are not comfortable with binary.
+	* This is read-only; while setting it is not syntactically incorrect, it does nothing.
+	*/
+	int EFlags[];
+
+	/**
+	* The combo ID of the ith combo on the screen, where i is the index
+	* used to access this array. Combos are counted left to right, top to
+	* bottom.
+	*/
+	int ComboD[];
+
+	/**
+	* The CSet of the tile used by the ith combo on the screen, where i is
+	* the index used to access this array. Combos are counted left to right,
+	* top to bottom.
+	*/
+	int ComboC[];
+
+	/**
+	* The placed flag of the ith combo on the screen, where i is the index
+	* used to access this array. Combos are counted left to right, top to
+	* bottom. Use the CF_ constants in std.zh to set or compare these values.
+	*/
+	int ComboF[];
+
+	/**
+	* The inherent flag of the ith combo on the screen, where i is the index
+	* used to access this array. Combos are counted left to right, top to
+	* bottom. Use the CF_ constants in std.zh to set or compare these values.
+	*/
+	int ComboI[];
+
+	/**
+	* The combo type of the ith combo on the screen, where i is the index
+	* used to access this array. Combos are counted left to right, top to
+	* bottom. Use the CT_ constants in std.zh to set or compare these values.
+	*/
+	int ComboT[];
+
+	/**
+	* The walkability mask of the ith combo on the screen, where i is the
+	* index used to access this array. Combos are counted left to right, top
+	* to bottom. The least signficant bit is true if the top-left of the combo
+	* is solid, the second-least signficant bit is true if the bottom-left
+	* of the combo is is solid, the third-least significant bit is true if the
+	* top-right of the combo is solid, and the fourth-least significant bit is
+	* true if the bottom-right of the combo is solid.
+	*/
+	int ComboS[];
+
+	/**
+	* The X position of the current moving block. If there is no moving block
+	* on the screen, it will be -1. This is read-only; while setting it is not
+	* syntactically incorrect, it does nothing.
+	*/
+	int MovingBlockX;
+
+	/**
+	* The Y position of the current moving block. If there is no moving block
+	* on the screen, it will be -1. This is read-only; while setting it is not
+	* syntactically incorrect, it does nothing.
+	*/
+	int MovingBlockY;
+
+	/**
+	* The combo used by moving block. If there is no block moving, the value
+	* is undefined.
+	*/
+	int MovingBlockCombo;
+
+	/**
+	* The CSet used by moving block. If there is no block moving, the value
+	* is undefined.
+	*/
+	int MovingBlockCSet;
+
+	/**
+	* The current screen's under combo.
+	*/
+	int UnderCombo;
+
+	/**
+	* The current screen's under CSet.
+	*/
+	int UnderCSet;
+
+	/**
+	* An array of miscellaneous status data associated with the current
+	* screen.
+	* Screen states involve such things as permanent screen secrets, the
+	* status of lock blocks and treasure chest combos, and whether items have
+	* been collected.
+	* These values are recorded in the save file when the player saves their
+	* game. Use the ST_ constants in std.zh as indices into this array.
+	*/
+	bool State[];
+
+	/**
+	* The door type for each of the four doors on a screen. Doors are counted
+	* using the first four DIR_ constants in std.zh. Use the D_ constants in
+	* std.zh to get or set these values.
+	*/
+	int Door[];
+
+	/**
+	* The type of room this screen is (Special Item, Bomb Upgrade, etc)
+	* This is currently read-only.
+	* Use the RT_* constants in std.zh
+	*/
+	int RoomType;
+
+	/**
+	* This is the data associated with the room type above. What it means depends
+	on the room type. For Special Item, it will be the item ID, for a Shop, it
+	will be the Shop Number, etc.
+	* Basically, this is what's in the "Catch-all" menu item underneath Room Type.
+	* If the room type has no data (eg, Ganon's room), this will be undefined.
+	*/
+	int RoomData;
+
+	/**
+	* Triggers screen secrets temporarily. Set Screen->State[ST_SECRET]
+	* to true beforehand or afterward if you would like them to remain
+	* permanent.
+	*/
+	void TriggerSecrets();
+
+	/**
+	* Whether or not the screen is lit. Setting this variable will change the
+	* lighting setting of the screen until you change screens.
+	*/
+	bool Lit;
+
+	/**
+	* The time, in frames, that the 'wave' screen effect will be in effect.
+	* This value is decremented once per frame. As the value of Wavy approaches 0,
+	* the intensity of the waves decreases.
+	*/
+	int Wavy;
+
+	/**
+	* The time, in frames, that the screen will shake. This value is decremented
+	* once per frame. As the value of Quake approaches 0, the intensity of the
+	* screen shaking decreases.
+	*/
+	int Quake;
+
+	/**
+	* Sets the current screen's side warp 'warp' to the destination screen,
+	* DMap and type. If any of the parameters screen, dmap or type are equal
+	* to -1, they will remain unchanged. If warp is not between 0 and 3, the
+	* function does nothing.
+	*/
+	void SetSideWarp(int warp, int screen, int dmap, int type);
+
+	/**
+	* Sets the current screen's tile warp 'warp' to the destination screen,
+	* DMap and type. If any of the parameters screen, dmap or type are equal
+	* to -1, they will remain unchanged. If warp is not between 0 and 3, the
+	* function does nothing.
+	*/
+	void SetTileWarp(int warp, int screen, int dmap, int type);
+
+	/**
+	* Returns the destination DMap of the given side warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetSideWarpDMap(int warp);
+	
+	/**
+	* Returns the destination screen of the given side warp on the current
+	* screen. Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetSideWarpScreen(int warp);
+
+	/**
+	* Returns the warp type of the given side warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetSideWarpType(int warp);
+
+	/**
+	* Returns the destination DMap of the given tile warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetTileWarpDMap(int warp);
+	
+	/**
+	* Returns the destination screen of the given tile warp on the current
+	* screen. Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetTileWarpScreen(int warp);
+
+	/**
+	* Returns the warp type of the given tile warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetTileWarpType(int warp);
+
+	/**
+	* Returns the map of the screen currently being used as the nth layer.
+	* Values of n less than 1 or greater than 6, or layers that are not set up,
+	* returns -1.
+	*/
+	int LayerMap(int n);
+
+	/**
+	* Returns the number of the screen currently being used as the nth layer.
+	* Values of n less than 1 or greater than 6, or layers that are not set up,
+	* returns -1.
+	*/
+	int LayerScreen(int n);
+
+	/**
+	* Returns the number of items currently present on the screen. Screen
+	* items, shop items, and items dropped by enemies are counted; Link's
+	* weapons, such as lit bombs, or enemy weapons are not counted.
+	* Note that this value is only correct up until the next call to
+	* Waitframe().
+	*/
+	int NumItems();
+
+	/**
+	* Returns a pointer to the numth item on the current screen. The return
+	* value is undefined unless 1 <= num <= NumItems().
+	*/
+	item LoadItem(int num);
+
+	/**
+	* Creates an item of the given type at (0,0). Use the I_ constants in
+	* std.zh to pass into this method. The return value is a pointer to the
+	* new item.
+	*/
+	item CreateItem(int id);
+
+	/**
+	* Returns a pointer to the numth FFC on the current screen. The return
+	* value is undefined unless 1 <= num <= ffcs, where ffcs is the number
+	* of FFCs active on the screen.
+	*/
+	ffc LoadFFC(int num);
+
+	/**
+	* Returns the number of NPCs (enemies and guys) on the screen.
+	* Note that this value is only correct up until the next call to
+	* Waitframe().
+	*/
+	int NumNPCs();
+
+	/**
+	* Returns a pointer to the numth NPC on the current screen. The return
+	* value is undefined unless 1 <= num <= NumNPCs().
+	*/
+	npc LoadNPC(int num);
+
+	/**
+	* Creates an npc of the given type at (0,0). Use the NPC_ constants in
+	* std.zh to pass into this method. The return value is a pointer to the
+	* new NPC.
+	*/
+	npc CreateNPC(int id);
+
+	/**
+	* Returns the number of Link weapon projectiles currently present on the screen.
+	* This includes things like Link's arrows, bombs, magic, etc. Note that this
+	* value is only correct up until the next call of Waitframe()
+	*/
+	int NumLWeapons();
+
+	/**
+	* Returns a pointer to the numth lweapon on the current screen. The return
+	* value is undefined unless 1 <= num <= NumLWeapons().
+	*/
+	lweapon LoadLWeapon(int num);
+
+	/**
+	* Creates an lweapon of the given type at (0,0). Use the LW_ constants in
+	* std.zh to pass into this method. The return value is a pointer to the
+	* new lweapon.
+	*/
+	lweapon CreateLWeapon(int type);
+
+	/**
+	* Returns the number of Enemy weapon projectiles currently present on the screen.
+	* This includes things like Enemy arrows, bombs, magic, etc. Note that this
+	* value is only correct up until the next call of Waitframe()
+	*/
+	int NumEWeapons();
+
+	/**
+	* Returns a pointer to the numth eweapon on the current screen. The return
+	* value is undefined unless 1 <= num <= NumEWeapons().
+	*/
+	eweapon LoadEWeapon(int num);
+
+	/**
+	* Creates an eweapon of the given type at (0,0). Use the EW_ constants in
+	* std.zh to pass into this method. The return value is a pointer to the
+	* new lweapon.
+	*/
+	eweapon CreateEWeapon(int type);
+
+	/**
+	* Returns true if the screen position (x, y) is solid - that is, if it
+	* is within the solid portion of a combo on layers 0, 1 or 2. If either
+	* x or y exceed the screen's bounds, then it will return false.
+	* It will also return false if the only applicable solid combo is a solid
+	* water combo that has recently been 'dried' by the whistle.
+	*/
+	bool isSolid(int x, int y);
+
+	/**
+	* Clears all of a certain kind of sprite from the screen. Use the SL_
+	* constants in std.zh to pass into this method.
+	*/
+	void ClearSprites(int spritelist);
+
+	/*
+	* Please note: For all draw primitives, if the quest rule 'Subscreen Appears
+	* Above Sprites' is set,passing the layer argument as 7 will allow drawing
+	* on top of the subscreen
+	*/
+
+	/**
+	* Draws a rectangle on the specified layer of the current screen, using
+	* (x,y) as the top-left corner and (x2,y2) as the bottom-right corner.
+	* Then scales the rectangle uniformly about its center by the given
+	* factor.
+	* Lastly, a rotation, centered about the point (rx, ry), is performed
+	* counterclockwise using an angle of rangle degrees.
+	* A filled rectangle is drawn if fill is true; otherwise, this method
+	* draws a wireframe.
+	* The rectangle is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the rectangle will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void Rectangle(int layer, int x, int y, int x2, int y2, int color, float scale, int rx, int ry, int rangle, bool fill, int opacity);
+
+	/**
+	* Draws a circle on the specified layer of the current screen with
+	* center (x,y) and radius scale*radius.
+	* Then performs a rotation counterclockwise, centered about the point
+	* (rx, ry), using an angle of rangle degrees.
+	* A filled circle is drawn if fill is true; otherwise, this method
+	* draws a wireframe.
+	* The circle is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the circle will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void Circle(int layer, int x, int y, int radius, int color, float scale, int rx, int ry, int rangle, bool fill, int opacity);
+
+	/**
+	* Draws an arc of a circle on the specified layer of the current
+	* screen. The circle in question has center (x,y) and radius
+	* scale*radius.
+	* The arc beings at startangle degrees counterclockwise from standard
+	* position, and ends at endangle degress counterclockwise from standard
+	* position. The behavior of this function is undefined unless
+	* 0 <= endangle-startangle < 360.
+	* The arc is then rotated about the point (rx, ry) using an angle of
+	* rangle radians.
+	* If closed is true, a line is drawn from the center of the circle to
+	* each endpoint of the arc, forming a sector of the circle. If fill
+	* is also true, a filled sector is drawn instead.
+	* The arc or sector is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the arc will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void Arc(int layer, int x, int y, int radius, int startangle, int endangle, int color, float scale, int rx, int ry, int rangle, bool closed, bool fill, int opacity);
+
+	/**
+	* Draws an ellipse on the specified layer of the current screen with
+	* center (x,y), x-axis radius xradius, and y-axis radius yradius.
+	* Then performs a rotation counterclockwise, centered about the point
+	* (rx, ry), using an angle of rangle degrees.
+	* A filled ellipse is drawn if fill is true; otherwise, this method
+	* draws a wireframe.
+	* The ellipse is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the ellipse will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void Ellipse(int layer, int x, int y, int xradius, int yradius, int color, float scale, int rx, int ry, int rangle, bool fill, int opacity);
+
+	/**
+	* Draws a cardinal spline on the specified layer of the current screen
+	* between (x1,y1) and (x4,y4)
+	* The spline is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the ellipse will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void Spline(int layer, int x1, int y1, int x2, int y2, int x3, int y3,int x4, int y4, int color, int opacity);
+
+	/**
+	* Draws a line on the specified layer of the current screen between
+	* (x,y) and (x2,y2).
+	* Then scales the line uniformly by a factor of scale about the line's
+	* midpoint.
+	* Finally, performs a rotation counterclockwise, centered about the
+
+	* point (rx, ry), using an angle of rangle degrees.
+	* The line is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the line will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void Line(int layer, int x, int y, int x2, int y2, int color, float scale, int rx, int ry, int rangle, int opacity);
+
+	/**
+	* Draws a raw pixel on the specified layer of the current screen
+	* at (x,y).
+	* Then performs a rotation counterclockwise, centered about the point
+	* (rx, ry), using an angle of rangle degrees.
+	* The point is drawn using the specified index into the entire
+	* 256-element palette: for instance, passing in a color of 17 would
+	* use color 1 of cset 1.
+	* Opacity controls how transparent the point will be. Values other
+	* than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void PutPixel(int layer, int x, int y, int color, int rx, int ry, int rangle, int opacity);
+
+	/**
+	* Draws a block of tiles on the specified layer of the current screen,
+	* starting at (x,y), using the specified cset.
+	* Starting with the specified tile, this method copies a block of size
+	* blockh x blockw from the tile sheet to the screen. This method's
+	* behavior is undefined unless 1 <= blockh, blockw <= 20.
+	* Scale specifies the actual size in pixels! So scale 1 would mean it is
+	* only one pixel in size. To use the default sizes of block w,h you must
+	* set xscale and yscale to -1. These values are not independant of one another,
+	* so you cannot set xscale and leave yscale at -1.
+	* rx, ry : these work now, just like the other primitives.
+	* rangle performs a rotation clockwise using an angle of rangle degrees.
+	* Flip specifies how the tiles should be flipped when drawn:
+	* 0: No flip
+	* 1: Horizontal flip
+	* 2: Vertical flip
+	* 3: Both (180 degree rotation)
+	* If transparency is true, the tiles' transparent regions will be
+	* respected.
+	* Opacity controls how transparent the solid portions of the tiles will
+	* be. Values other than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void DrawTile(int layer, int x, int y, int tile, int blockw, int blockh, int cset, int xscale, int yscale, int rx, int ry, int rangle, int flip, bool transparency, int opacity);
+
+	/**
+	* Optimized and simpler version of DrawTile()
+	* Draws a single tile on the current screen much in the same way as DrawTile().
+	* See DrawTile() for an explanation on what these arguments do.
+	*/
+	void FastTile( int layer, int x, int y, int tile, int cset, int opacity );
+
+	/**
+	* Draws a combo on the specified layer of the current screen,
+	* starting at (x,y), using the specified cset.
+	* Starting with the specified tile referenced by the combo,
+	* this method copies a block of size
+	* blockh x blockw from the tile sheet to the screen. This method's
+	* behavior is undefined unless 1 <= blockh, blockw <= 20.
+	* Scale specifies the actual size in pixels! So scale 1 would mean it is
+	* only one pixel in size. To use the default sizes of block w,h you must
+	* set xscale and yscale to -1. These values are not independant of one another,
+	* so you cannot set xscale and leave yscale at -1.
+	* rx, ry : works now :
+	* rangle performs a rotation clockwise using an angle of rangle degrees.
+	* Flip specifies how the tiles should be flipped when drawn:
+	* 0: No flip
+	* 1: Horizontal flip
+	* 2: Vertical flip
+	* 3: Both (180 degree rotation)
+	* If transparency is true, the tiles' transparent regions will be
+	* respected.
+	* Opacity controls how transparent the solid portions of the tiles will
+	* be. Values other than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void DrawCombo(int layer, int x, int y, int combo, int w, int h, int cset, int xscale, int yscale, int rx, int ry, int rangle, int frame, int flip, bool transparency, int opacity);
+
+	/**
+	* Optimized and simpler version of DrawCombo()
+	* Draws a single combo on the current screen much in the same way as DrawCombo().
+	* See DrawCombo() for an explanation on what these arguments do.
+	*/
+	void FastCombo( int layer, int x, int y, int combo, int cset, int opacity );
+
+	/**
+	* Prints the message string with given ID onto the screen.
+	* If string is 0, the currently displayed message is removed.
+	* This method's behavior is undefined if string is less than 0
+	* or greater than the total number of messages in the quest.
+	*/
+	void Message(int string);
+
+	/**
+	* Draws a single ASCII character 'glyph' on the specified layer of the current screen,
+	* using the specified font index (see std.zh for FONT_* list to pass to this method),
+	* starting at (x,y), using the specified color as the foreground color
+	* and background_color as the background color. * NOTE * Use -1 for a transparent background.
+	* The arguments width and height may be used to draw the glyph
+	* of any arbitrary size begining at 1 pixel up to 512 pixels large. (more than four times the size of the screen)
+	* Passing 0 or negative values to this will use the default fonts w and h.
+	* Opacity controls how transparent the is.
+	* Values other than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void DrawCharacter(int layer, int x, int y, int font,int color, int background_color,int width, int height, int glyph, int opacity );
+
+	/**
+	* Draws a zscript 'int' or 'float' on the specified layer of the current screen,
+	* using the specified font index (see std.zh for FONT_* list to pass to this method),
+	* starting at (x,y), using the specified color as the foreground color
+	* and background_color as the background color. * NOTE * Use -1 for a transparent background.
+	* The arguments width and height may be used to draw the number
+	* of any arbitrary size begining at 1 pixel up to 512 pixels large.
+	* Passing 0 or negative values to this will use the default fonts w and h.
+	* The number can be rendered as type 'int' or 'float' by setting the argument
+	* "number_decimal_places", which is only valid if set to 0 or <= 4.
+	* Opacity controls how transparent the is.
+	* Values other than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void DrawInteger(int layer, int x, int y, int font,int color, int background_color,int width, int height, int number, int number_decimal_places, int opacity);
+
+	/**
+	* Prints a NULL terminated string up to 256 characters from an int array
+	* containing ASCII data (*ptr) on the specified layer of the current screen,
+	* using the specified font index (see std.zh for FONT_* list to pass to this method),
+	* using the specified color as the foreground color
+	* and background_color as the background color. * NOTE * Use -1 for a transparent background.
+	* The array pointer should be passed as the argument for '*ptr', ie.
+	* int string[] = "Example String"; Screen->DrawString(l,x,y,f,c,b_c,fo,o,string);
+	* int format tells the engine how to format the string. (see std.zh for TF_* list to pass to this method)
+	* Opacity controls how transparent the message is.
+	* Values other than OP_OPAQUE and OP_TRANS are currently undefined.
+	*/
+	void DrawString( int layer, int x, int y, int font,int color, int background_color,int format, int ptr[], int opacity );
+
+	// (Psuedo) 3D drawing
+
+	/**
+	* Draws a quad on the specified layer with the corners x1,y1 through x4,y4.
+	* Corners are drawn in a counterclockwise order starting from x1,y1. ( So
+	* if you draw a "square" for example starting from the bottom-right corner
+	* instead of the usual top-left, the the image will be textured onto the
+	* quad so it appears upside-down. -yes, these are rotatable. )
+	* From there a single or block of tiles or combos is then texture mapped
+	* onto the quad using the arguments w, h, cset, flip, and render_mode.
+	* A positive vale in texture will draw the image from the tilesheet pages,
+	* whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
+	* Both w and h are undefined unless 1 <= blockh, blockw <= 16, and it is a power of
+	* two. ie: 1, 2 are acceptable, but 2, 15 are not.
+
+	* Flip specifies how the tiles/combos should be flipped when drawn:
+	* 0: No flip
+	* 1: Horizontal flip
+	* 2: Vertical flip
+	* 3: Both (180 degree rotation)
+	*** See std.zh for a list of all available render_mode arguments.
+	*/
+	void Quad( int layer, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,int w, int h, int cset, int flip, int texture, int render_mode);
+
+	/**
+	* Draws a triangle on the specified layer with the corners x1,y1 through x4,y4.
+	* Corners are drawn in a counterclockwise order starting from x1,y1.
+	* From there a single or block of tiles or combos is then texture mapped
+	* onto the triangle using the arguments w, h, cset, flip, and render_mode.
+	* A positive vale in texture will draw the image from the tilesheet pages,
+	* whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
+	* Both w and h are undefined unless 1 <= blockh, blockw <= 16, and it is a power of
+	* two. ie: 1, 2 are acceptable, but 2, 15 are not.
+	* Flip specifies how the tiles/combos should be flipped when drawn:
+	* 0: No flip
+	* 1: Horizontal flip
+	* 2: Vertical flip
+	* 3: Both (180 degree rotation)
+	*** See std.zh for a list of all available render_mode arguments.
+	*/
+	void Triangle( int layer, int x1, int y1, int x2, int y2, int x3, int y3,int w, int h, int cset, int flip, int texture, int render_mode);
+
+	/**
+	* Draws a Quad on the specified layer similar to Quad.
+	* [12]pos - x, y, z positions of the 4 corners.
+	* [8]uv - x, y texture coordinates of the given texture.
+	* [4]csets - of the corners to interpolate between.
+	* [2]size - w, h, of the texture.
+	*** See std.zh for a list of all available render_mode arguments.
+	*/
+	void Quad3D( int layer, int pos[], int uv[], int cset[], int size[], int flip, int texture, int render_mode );
+
+	/**
+	* Draws a triangle on the specified layer similar to Triangle.
+	* [9]pos - x, y, z positions of the 3 corners.
+	* [6]uv - x, y texture coordinates of the given texture.
+	* [3]csets - of the corners to interpolate between.
+	* [2]size - w, h, of the texture.
+	*** See std.zh for a list of all available render_mode arguments.
+	*/
+	void Triangle3D( int layer, int pos[], int uv[], int csets[], int size[], int flip, int texture, int render_mode );
+
+	// Bitmap Drawing
+
+	/**
+	* Sets the target bitmap for all succesive drawing commands.
+	* These can be directly to the screen or any one of the available off-screen bitmaps,
+	* which are generally categorized as -1(screen) or 0-bitmapNumber(off-screen).
+	*** See std.zh for a complete list of valid render targets (RT_*).
+	*/
+	void SetRenderTarget( int bitmap_id );
+
+	/**
+	* Draws a source rect from off-screen Bitmap with id of bitmap_id onto
+	* an area of the screen described by dest rect at the given layer.
+	* *Example:
+	* Screen->Bitmap( 6, myBitmapId, 0, 0, 16, 16, 79, 57, 32, 32, 0, true );
+	* //Would draw a 16x16 area starting at the upper-left corner of source bitmap to
+	* //layer 6 of the current screen at coordinates 79,57 with a width and height of 32.
+	***Note* Script drawing functions are enqueued and executed in a frame-by-frame basis 
+	based on the order of which layer they need to be drawn to. Drawing to or from
+	seperate render tagets or bitmaps is no exception! So keep in mind in order to 
+	eliminate unwanted drawing orders or bugs.
+	*/
+	void DrawBitmap( int layer, int bitmap_id, int source_x, int source_y, int source_w, int source_h, int dest_x, int dest_y, int dest_w, int dest_h, float rotation, bool mask);
+
+	// Screen/Layer Drawing
+
+	/**
+	* Draws an entire Layer from source_screen on source_map on the specified layer of the current screen at (x,y).
+	* If rotation is not zero, it(the entire layer) will rotate about its center.
+	* Opacity controls how transparent the solid portions of the tiles will
+	* be. Values other than OP_OPAQUE and OP_TRANS are currently
+	* undefined.
+	*/
+	void DrawLayer(int layer, int source_map, int source_screen, int source_layer, int x, int y, float rotation, int opacity);
+
+	/**
+	* Draws an entire screen from screen on map on the specified layer of the current screen at (x,y).
+	* If rotation is not zero, it(the entire screen) will rotate about its center.
+	*/
+	void DrawScreen(int layer, int map, int source_screen, int x, int y, float rotation);
+
+}; //Screen
+
+
+//====================================
+//--- Item Functions and Variables ---
+//====================================
+
+class item
+{
+	/**
+	* Returns whether this item pointer is still valid. An item pointer
+	* becomes invalid when Link picks up the item, the item fades away,
+	* or Link leaves the screen. Accessing any variables using an
+	* invalid item pointer prints an error message to allegro.log and
+	* does nothing.
+	*/
+	bool isValid();
+
+	/**
+	* The item's X position on the screen, in pixels. Float values passed to this will be cast to int.
+	*/
+	int X;
+
+	/**
+	* The item's Y position on the screen, in pixels. Float values passed to this will be cast to int.
+	*/
+	int Y;
+
+	/**
+	* The item's upward velocity, in pixels. If negative, the item will fall.
+	* The downward acceleration of Gravity (in Init Data) modifies this value every frame.
+	*/
+	int Jump;
+
+	/**
+	* An integer representing how the item is to be drawn. Use one of the
+	* DS_ constants in std.zh to set or compare this value.
+	*/
+	int DrawStyle;
+
+	/**
+	* This item's ID number. Use the I_ constants to compare this value. The effect of writing to this field is currently undefined.
+	*/
+	int ID;
+
+	/**
+	* The starting tile of the item's animation.
+	*/
+	int OriginalTile;
+
+	/**
+	* The current tile associated with this item.
+	*/
+	int Tile;
+
+	/**
+	* This item's CSet.
+	*/
+	int CSet;
+
+	/**
+	* The CSet used during this item's flash frames, if this item flashes.
+	*/
+	int FlashCSet;
+
+	/**
+	* The number of frames in this item's animation.
+	*/
+	int NumFrames;
+
+	/**
+	* The tile that is this item's current animation frame.
+	*/
+	int Frame;
+
+	/**
+	* The speed at which this item animates, in screen frames.
+	*/
+	int ASpeed;
+
+	/**
+	* The amount of time the animation is suspended after the last frame,
+	* before the animation restarts, in item frames. That is, the total
+	* number of screen frames of extra wait is Delay*ASpeed.
+	*/
+	int Delay;
+
+	/**
+	* Whether or not the item flashes. A flashing item alternates between
+	* its CSet and its FlashCSet.
+	*/
+	bool Flash;
+
+	/**
+	* Whether and how the item's tiles should be flipped.
+	* 0: No flip
+	* 1: Horizontal flip
+	* 2: Vertical flip
+	* 3: Both (180 degree rotation)
+	*/
+	int Flip;
+
+	/**
+	* The pickup flags of the item, which determine what happens when Link
+	* picks up the item. Its value consists of flags OR'd (|) together; use
+	* the IP_ constants in std.zh to set or compare these values.
+	* A special note about IP_ENEMYCARRIED: if the Quest Rule "Hide Enemy-
+	* Carried Items" is set, then an item carried by an enemy will have its
+	* X and Y values set to -128 while the enemy is carrying it. If this
+	* flag is removed from such an item, then it will be moved to the enemy's
+	* on-screen location.
+	* If you are not comfortable with performing binary operations, use the ItemPickup functions from std.zh.
+	*/
+	int Pickup;
+
+	/**
+	* Whether to extend the sprite of the item.
+	*/
+	int Extend;
+
+	/**
+	* The number of tile columns composing the sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int TileWidth;
+
+	/**
+	* The number of tile rows composing the sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int TileHeight;
+
+	/**
+	* The width of the sprite's hitbox, or collision rectangle.
+	*/
+	int HitWidth;
+
+	/**
+	* The height of the sprite's hitbox, or collision rectangle.
+	*/
+	int HitHeight;
+
+	/**
+	* The Z-axis height of the sprite's hitbox, or collision rectangle.
+	* The greater it is, the higher Link must jump or fly over the sprite to avoid picking up the item.
+	*/
+	int HitZHeight;
+
+	/**
+	* The X offset of the sprite's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move the sprite's hitbox left or right.
+	*/
+	int HitXOffset;
+
+	/**
+	* The Y offset of the sprite's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move the sprite's hitbox up or down.
+	*/
+	int HitYOffset;
+
+	/**
+	* The X offset of the sprite.
+	* Setting it to positive or negative values will move the sprite's tiles left or right relative to its position.
+	*/
+	int DrawXOffset;
+
+	/**
+	* The Y offset of the sprite.
+	* Setting it to positive or negative values will move the sprite's tiles up or down relative to its position.
+	*/
+	int DrawYOffset;
+
+	/**
+	* The Z offset of the sprite.
+	*/
+	int DrawZOffset;
+
+	/**
+	* An array of 16 miscellaneous variables for you to use as you please.
+	* Note that lweapons and eweapons possess exactly the same attributes,
+	* although their designation affects how they are treated by the engine.
+	* The values here correspond to both the lweapon and eweapon type.
+	*/
+	float Misc[];
+	
+}; //item
+
+
+//======================================
+//--- Weapon Functions and Variables ---
+//======================================
+
+class weapon
+{
+	/**
+	* Returns whether this weapon pointer is still valid. A weapon pointer
+	* becomes invalid when the weapon fades away or disappears
+	* or Link leaves the screen. Accessing any variables using an
+	* invalid weapon pointer prints an error message to allegro.log and
+	* does nothing.
+	*/
+	bool isValid();
+
+	/**
+	* Reads a 'Weapons/Misc' sprite entry in your quest file, and assigns
+	* the OriginalTile, Tile, OriginalCSet, CSet, FlashCSet, NumFrames,
+	* Frame, ASpeed, Flip and Flash variables of this weapon based on
+	* this entry's data. Passing negative values, and values greater than
+	* 255, will do nothing.
+	*/
+	void UseSprite(int id);
+
+	/**
+	* Ensures that the weapon's graphic is drawn behind Link and enemies.
+	*/
+	bool Behind;
+
+	/**
+	* The weapon's ID number. Use the LW_ or EW_ constants to compare
+	* this value. The effect of writing to this field is currently undefined.
+	*/
+	int ID;
+
+	/**
+	* The weapon's X position on the screen, in pixels. Float values passed
+	* to this will be cast to int.
+	*/
+	int X;
+
+	/**
+	* The weapon's Y position on the screen, in pixels. Float values passed
+	* to this will be cast to int.
+	*/
+	int Y;
+
+	/**
+	* The weapon's Z position on the screen, in pixels. Float values passed
+	* to this will be cast to int.
+	*/
+	int Z;
+
+	/**
+	* The weapon's falling speed on the screen. Bombs, Bait and
+	* Fire obey gravity.
+	*/
+	int Jump;
+
+	/**
+	* An integer representing how the weapon is to be drawn. Use one of the
+	* DS_ constants in std.zh to set or compare this value.
+	*/
+	int DrawStyle;
+
+	/**
+	* The direction that the weapon is facing. Used by certain weapon types
+	* to determine movement, shield deflection and such.
+	*/
+	int Dir;
+
+	/**
+	* The starting tile of the weapon's animation.
+	*/
+	int OriginalTile;
+
+	/**
+	* The current tile associated with this weapon.
+	*/
+	int Tile;
+
+	/**
+	* The starting CSet of the weapon's animation.
+	*/
+	int OriginalCSet;
+
+	/**
+	* This weapon's current CSet.
+	*/
+	int CSet;
+
+	/**
+	* The CSet used during this weapon's flash frames, if this weapon flashes.
+	*/
+	int FlashCSet;
+
+	/**
+	* The number of frames in this weapon's animation.
+	*/
+	int NumFrames;
+
+	/**
+	* The weapon's current animation frame.
+	*/
+	int Frame;
+
+	/**
+	* The speed at which this weapon animates, in screen frames.
+	*/
+	int ASpeed;
+
+	/**
+	* The amount of damage that this weapon causes to Link/an enemy upon contact.
+	*/
+	int Damage;
+
+	/**
+	* Usually associated with the weapon's velocity. A Step of 100
+	* typically means that the weapon moves at approximately one pixel
+	* per animation frame.
+	*/
+	int Step;
+
+	/**
+	* The weapon's current angle in clockwise radians; used by certain weapon
+	* types with angular movement. 0 = right, PI/2 = down, etc. Note: if you
+	* want Link's shield to interact with the weapon correctly, you must set
+	* its Dir to a direction that approximates this angle.
+	*/
+	int Angle;
+
+	/**
+	* Specifies whether a weapon has angular movement.
+	*/
+	bool Angular;
+
+	/**
+	* Whether the weapon will use the system's code to work out collisions with
+	* Link and/or enemies (depending on weapon type). Initialised as 'true'.
+	*/
+	bool CollDetection;
+
+	/**
+	* The current state of the weapon. Important to keep track of. A value of
+	* -1 indicates that it is active, and moves according to the weapon's
+	* Dir, Step, Angular, and Angle values. Use -1 if you want the engine to
+	* handle movement and collision. Use any value below -1 if you want a
+	* dummy weapon that you can control on your own.
+	* Given a deadstate value of -10, a weapon will turn of its collision
+	* detection and movement. If it has a positive value, it will
+	* decrement once per frame until it equals 0, whereupon the weapon is
+	* removed. If you want to remove the weapon, write one of the WDS_
+	* constants in std.zh (appropriate for the weapon) to this variable.
+	*/
+	int DeadState;
+
+	/**
+	* Whether or not the weapon flashes. A flashing weapon alternates between
+	* its CSet and its FlashCSet.
+	*/
+	bool Flash;
+
+	/**
+	* Whether and how the weapon's tiles should be flipped.
+	* 0: No flip
+	* 1: Horizontal flip
+	* 2: Vertical flip
+	* 3: Both (180 degree rotation)
+	*/
+	int Flip;
+
+	/**
+	* Whether to extend the sprite of the weapon.
+	*/
+	int Extend;
+
+	/**
+	* The number of tile columns composing the sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int TileWidth;
+
+	/**
+	* The number of tile rows composing the sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int TileHeight;
+
+	/**
+	* The width of the sprite's hitbox, or collision rectangle.
+	*/
+	int HitWidth;
+
+	/**
+	* The height of the sprite's hitbox, or collision rectangle.
+	*/
+	int HitHeight;
+
+	/**
+	* The Z-axis height of the sprite's hitbox, or collision rectangle.
+	* The greater it is, the higher Link must jump or fly over the sprite
+	* to avoid taking damage.
+	*/
+	int HitZHeight;
+
+	/**
+	* The X offset of the sprite's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move the sprite's
+	* hitbox left or right.
+	*/
+	int HitXOffset;
+
+	/**
+	* The Y offset of the sprite's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move the sprite's
+	* hitbox up or down.
+	*/
+	int HitYOffset;
+
+	/**
+	* The X offset of the sprite.
+	* Setting it to positive or negative values will move the sprite's
+	* tiles left or right relative to its position.
+	*/
+	int DrawXOffset;
+
+	/**
+	* The Y offset of the sprite.
+	* Setting it to positive or negative values will move the sprite's
+	* tiles up or down relative to its position.
+	*/
+	int DrawYOffset;
+
+	/**
+	* The Z offset of the sprite.
+	*/
+	int DrawZOffset;
+
+	/**
+	* An array of 16 miscellaneous variables for you to use as you please.
+	*/
+	float Misc[];
+	
+}; //weapon
+
+typedef weapon lweapon;
+typedef weapon eweapon;
+	
+
+//=========================================
+//--- Itemdata Functions and Variables ---
+//=========================================
+
+class itemdata
+{
+	/**
+	* The original values of the item's 8 D input values are they are stored in the
+	* .qst file, regardles of whether they have been modified by ZScript.
+	*/
+	float InitD[];
+	
+	/**
+	* Loads the item this itemdata is attributed to's name into 'buffer'
+	*/
+	void GetName(int buffer[]);
+
+	/**
+	* The kind of item to which this class belongs (swords, boomerangs,
+	* potions, etc.) Use the IC_ constants in std.zh to set or compare this
+	* value.
+	*/
+	int Family;
+
+	/**
+	* The level of this item. Higher-level items replace lower-level items
+	* when they are picked up.
+	*/
+	int Level;
+
+	/**
+	* The item's power, for most items this is amount of damage dealt but is
+	* used for other values in some items (ie. Roc's Feather)
+	*/
+	int Power;
+
+	/**
+	* Corresponds to the "Increase Amount" entry in the Item Editor.
+	* The value of this data member can have two meanings:
+	* If Amount & 0x8000 is 1, the drain counter for this item is set
+	* to Amount & 0x3FFF. The game then slowly fills the counter of this item
+	* (see Counter below) out of the drain counter. Gaining rupees uses the
+	* drain counter, for example.
+	* is set to Amount when the item is picked up.
+	* If Amount & 0x8000 is 0, the counter of this item is increased, if
+	* Amount & 0x4000 is 1, or decreased, if Amount & 0x4000 is 0, by
+	* Amount & 0x3FFF when the item is picked up.
+	*/
+	int Amount;
+
+	/**
+	* Corresponds to the "Increase Counter Max" entry in the Item Editor.
+	* In conjunction with Max (see below) this value controls how the
+	* maximum value of the counter of this item (see Counter below) is
+	* modified when the item is picked up. If MaxIncrement is nonzero at that
+	* time, the counter's new maximum value is at that time set to the
+	* minimum of its current value plus MaxIncrement, and Max.
+	* If Max is less than the current maximum of the counter, Max is ignored
+	* and that maximum is used instead.
+	*/
+	int MaxIncrement;
+	
+	/**
+	* Corresponds to the "But Not Above" entry in the Item Editor.
+	* In conjunction with MaxIncrement (see above) this value controls how
+	* the maximum value of the counter of this item (see Counter below) is
+	* modified when the item is picked up. If MaxIncrement is nonzero at that
+	* time, the counter's new maximum value is at that time set to the
+	* minimum of its current value plus MaxIncrement, Max.
+	* If Max is less than the current maximum of the counter, Max is ignored
+	* and that maximum is used instead.
+	* Notice that as a special case, if Max = MaxIncrement, the counter's
+	* maximum value will be forced equal to Max.
+	*/
+	int Max;
+
+	/**
+	* Corresponds to the "Equipment Item" checkbox in the Item Editor.
+	* If true, Link will keep the item, and it will show up as an item or
+	* equipment in the subscreen. If false, it may modify the current value
+	* or maximum value of its counter (see Counter below), then disappear.
+	* The White Sword and Raft, for instance, have Keep true, and keys and
+	* rupees have Keep false.
+	*/
+	bool Keep;
+
+	/**
+	* Corresponds to the "Counter Reference" entry in the Item Editor.
+	* The game counter whose current and modified values might be modified
+	* when the item is picked up (see Amount, Max, and MaxIncrement above.)
+	* Use the CT_ constants in std.zh to set or compare this value.
+	*/
+	int Counter;
+
+	/**
+	* Corresponds to the "Sound" entry on the action tab in the Item Editor.
+	*/
+	int UseSound;
+	
+}; //itemdata
+
+
+//====================================
+//--- Game Functions and Variables ---
+//====================================
+
+namespace Game
+{
+	/**
+	* Retrieves the number of the current screen within the current map.
+	*/
+	int GetCurScreen();
+
+	/**
+	* Retrieves the number of the current screen within the current DMap.
+	*/
+	int GetCurDMapScreen();
+
+	/**
+	* Retrieves the number of the dungeon level of the current DMap. Multiple
+	* DMaps can have the same dungeon level - this signifies that they share
+	* a map, compass, level keys and such.
+	*/
+	int GetCurLevel();
+
+	/**
+	* Retrieves the number of the current map.
+	*/
+	int GetCurMap();
+
+	/**
+	* Returns the number of the current DMap.
+	*/
+	int GetCurDMap();
+
+	/**
+	* An array of 512 integers, containing the DMap's flags ORed (|) together.
+	* Use the 'DMF_' constants, or the 'DMapFlag()' functions from std.zh if you are not comfortable with binary.
+	*/
+	int DMapFlags[];
+
+	/**
+	* An array of 512 integers containing each DMap's level
+	*/
+	int DMapLevel[];
+
+	/**
+	* An array of 512 integers containing each DMap's compass screen
+	*/
+	int DMapCompass[];
+
+	/**
+	* An array of 512 integers containing each DMap's continue screen
+	*/
+	int DMapContinue[];
+
+	/**
+	* An array of 512 integers containing each DMap's MIDI.
+	* Positive numbers are for custom MIDIs, and negative values are used for
+	* the built-in game MIDIs. Because of the way DMap MIDIs are handled
+	* internally, however, built-in MIDIs besides the overworld, dungeon, and
+	* level 9 songs won't match up with Game->PlayMIDI() and Game->GetMIDI().
+	*/
+	int DMapMIDI[];
+
+	/**
+	* Loads DMap with ID 'DMap's name into 'buffer'.
+	* See std.zh for appropriate buffer size.
+	*/
+	void GetDMapName(int DMap, int buffer[]);
+
+	/**
+	* Loads DMap with ID 'DMap's title into 'buffer'.
+	* See std.zh for appropriate buffer size.
+	*/
+	void GetDMapTitle(int DMap, int buffer[]);
+
+	/**
+	* Loads DMap with ID 'DMap's intro string into 'buffer'.
+	* See std.zh for appropriate buffer size.
+	*/
+	void GetDMapIntro(int DMap, int buffer[]);
+
+	/**
+	* An array of 512 integers containing the X offset of each DMap.
+	* Game->DMapOffset is read-only; while setting it is not syntactically
+	* incorrect, it does nothing.
+	*/
+	int DMapOffset[];
+
+	/**
+	* An array of 512 integers containing the map used by each DMap.
+	* Game->DMapMap is read-only; while setting it is not syntactically
+	* incorrect, it does nothing.
+	*/
+	int DMapMap[];
+
+	/**
+	* The number of times Link has perished during this quest.
+	*/
+	int NumDeaths;
+
+	/**
+	* The current cheat level of the quest player.
+	*/
+	int Cheat;
+
+	/**
+	* Returns the time elapsed in this quest, in 60ths of a second. The
+	* return value is undefined if TimeValid is false (see below).
+	*/
+	int Time;
+
+	/**
+	* True if the elapsed quest time can be determined for the current quest.
+	*/
+	bool TimeValid;
+
+	/**
+	* This value is true if the current quest session was loaded from a saved
+	* game, false if the quest was started fresh.
+	*/
+	bool HasPlayed;
+
+	/**
+	* This value is true if the game is running in standalone mode, false if not.
+	* Game->Standalone is read-only; while setting it is not syntactically
+	* incorrect, it does nothing.
+	*/
+	bool Standalone;
+
+	/**
+	* The number of NPCs (enemies and guys) on screen i of this map, where
+	* i is the index used to access this array. This array is exclusively used
+	* to determine which enemies had previously been killed, and thus won't
+	* return, when you re-enter a screen.
+	*/
+	int GuyCount[];
+
+	/**
+	* The DMap where Link will be respawned after quitting and reloading the game.
+	*/
+	int ContinueDMap;
+
+	/**
+	* The map screen where Link will be respawned after quitting and reloading the game.
+	*/
+	int ContinueScreen;
+
+	/**
+	* The DMap where Link will be respawned after dying and continuing.
+	*/
+	int LastEntranceDMap;
+
+	/**
+	* The map screen where Link will be respawned after dying and continuing.
+	*/
+	int LastEntranceScreen;
+
+	/**
+	* The current value of the game counters. Use the CR_ constants in
+	* std.zh to index into this array.
+	*/
+	int Counter[];
+
+	/**
+	* The current maximum value of the game counters. Use the CR_ constants
+	* in std.zh to index into this array.
+	*/
+	int MCounter[];
+
+	/**
+	* The current value of the game drain counters. Use the CR_ constants
+	* in std.zh to index into this array.
+	* Note that if the player hasn't acquired the '1/2 Magic Upgrade' yet,
+	* then setting the CR_MAGIC drain counter to a negative value will
+	* drain the magic counter by 2 per frame rather than 1.
+	*/
+	int DCounter[];
+
+	/**
+	* An array of miscellaneous game values, such as number of heart
+	* containers and magic drain rate. Use the GEN_ constants in std.zh
+	* to index into this array.
+	*/
+	int Generic[];
+
+	/**
+	* The exploration items (map, compass, boss key etc.) of dungeon level i
+	* currently under the possession of the player, where i is
+	* the index used to access this array. Each element of this
+	* array consists of flags OR'd (|) together; use the LI_ constants in
+	* std.zh to set or compare these values.
+	*/
+	int LItems[];
+
+	/**
+	* The number of level keys of level i currently under the possession of
+	* the player, where i is the index used to access this array.
+	*/
+	int LKeys[];
+
+	/**
+	* Returns the screen flags from screen 'screen' on map 'map',
+	* interpreted in the same way as Screen->Flags
+	*/
+	int GetScreenFlags(int map, int screen, int flagset);
+
+	/**
+	* Returns the enemy flags from screen 'screen' on map 'map',
+	* interpreted in the same way as Screen->EFlags
+	*/
+	int GetScreenEFlags(int map, int screen, int flagset);
+
+	/**
+	* As with State, but retrieves the miscellaneous flags of any screen,
+	* not just the current one. This function is undefined if map is less
+	* than 1 or greater than the maximum map number of your quest, or if
+	* screen is greater than 127.
+	* Note: Screen numbers in ZQuest are usually displayed in hexadecimal.
+	* Use the ST_ constants in std.zh for the flag parameter.
+	*/
+	bool GetScreenState(int map, int screen, int flag);
+
+	/**
+	* As with State, but sets the miscellaneous flags of any screen, not
+	* just the current one. This function is undefined if map is less than
+	* 1 or greater than the maximum map number of your quest, or if
+	* screen is greater than 127.
+	* Note: Screen numbers in ZQuest are usually displayed in hexadecimal.
+	* Use the ST_ constants in std.zh for the flag parameter.
+	*/
+	void SetScreenState(int map, int screen, int flag, bool value);
+
+	/**
+	* Retrieves the value of D[reg] on the given screen of the current
+	* DMap.
+	*/
+	float GetScreenD(int screen, int reg);
+
+	/**
+	* Sets the value of D[reg] on the given screen of the current DMap.
+	*/
+	void SetScreenD(int screen, int reg, float value);
+
+	/**
+	* Retrieves the value of D[reg] on the given screen of the given
+	* DMap.
+	*/
+	float GetDMapScreenD(int dmap, int screen, int reg);
+
+	/**
+	* Sets the value of D[reg] on the given screen of the given DMap.
+	*/
+	void SetDMapScreenD(int dmap, int screen, int reg, float value);
+
+	/**
+	* Retrieves the itemdata pointer corresponding to the given item.
+	* Use the item pointer ID variable or I_ constants in std.zh as values.
+	*/
+	itemdata LoadItemData(int item);
+
+	/**
+	* Plays one of the quest's sound effects. Use the SFX_ constants in
+	* std.zh as values of soundid.
+	*/
+	void PlaySound(int soundid);
+
+	/**
+	* Changes the current screen MIDI to MIDIid.
+	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
+	*/
+	void PlayMIDI(int MIDIid);
+
+	/**
+	* Returns the current screen MIDI that is playing.
+	* Positive numbers are for custom MIDIs, and negative values are used
+	* for the built-in game MIDIs.
+	*/
+	int GetMIDI();
+
+	/**
+	* Play the specified enhanced music if it's available. If the music
+	* cannot be played, the current music will continue. The music will
+	* revert to normal upon leaving the screen.
+	* Returns true if the music file was loaded successfully.
+	* The filename cannot be more than 255 characters. If the music format
+	* does not support multiple tracks, the track argument will be ignored.
+	*/
+	bool PlayEnhancedMusic(int filename[], int track);
+
+	/**
+	* Load the filename of the given DMap's enhanced music into buf.
+	* buf should be at least 256 elements in size.
+	*/
+	void GetDMapMusicFilename(int dmap, int buf[]);
+
+	/**
+	* Returns the given DMap's enhanced music track. This is valid but
+	* meaningless if the music format doesn't support multiple tracks.
+	*/
+	int GetDMapMusicTrack(int dmap);
+
+	/**
+	* Sets the specified DMap's enhanced music to the given filename and
+	* track number. If the music format does not support multiple tracks,
+	* the track argument will be ignored. The filename must not be more
+	* than 255 characters.
+	*/
+	void SetDMapEnhancedMusic(int dmap, int filename[], int track);
+
+	/**
+	* Grabs a particular combo reference from anywhere in the game
+	* world, based on map (NOT DMap), screen number, and position.
+	* Don't forget that the screen index should be in hexadecimal,
+	* and that maps are counted from 1 upwards.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboD[].
+	*/
+	int GetComboData(int map, int screen, int position);
+
+	/**
+	* Sets a particular combo reference anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position.
+	* Don't forget that the screen index should be in hexadecimal,
+	* and that maps are counted from 1 upwards.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboD[].
+	*/
+	void SetComboData(int map, int screen, int position, int value);
+
+	/**
+	* Grabs a particular combo's CSet from anywhere in the game
+	* world, based on map (NOT DMap), screen number, and position.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboC[].
+	*/
+	int GetComboCSet(int map, int screen, int position);
+
+	/**
+	* Sets a particular combo's CSet anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
+	* is considered an index, treated the same way as in Screen->ComboC[].
+	*/
+	void SetComboCSet(int map, int screen, int position, int value);
+
+	/**
+	* Grabs a particular combo's placed flag from anywhere in the game
+	* world, based on map (NOT DMap), screen number, and position.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboF[].
+	*/
+	int GetComboFlag(int map, int screen, int position);
+
+	/**
+	* Sets a particular combo's placed flag anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
+	* is considered an index, treated the same way as in Screen->ComboF[].
+	*/
+	void SetComboFlag(int map, int screen, int position, int value);
+
+	/**
+	* Grabs a particular combo's type from anywhere in the game
+	* world, based on map (NOT DMap), screen number, and position.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboT[]. Note that you are grabbing an actual combo
+	* attribute as referenced by the combo on screen you're
+	* referring to.
+	*/
+	int GetComboType(int map, int screen, int position);
+
+	/**
+	* Sets a particular combo's type anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
+	* is considered an index, treated the same way as in Screen->ComboT[].
+	* Note that you are grabbing an actual combo attribute as referenced
+	* by the combo on screen you're referring to, which means that
+	* setting this attribute will affect ALL references to this combo
+	* throughout the quest.
+	*/
+	void SetComboType(int map, int screen, int position, int value);
+
+	/**
+	* Grabs a particular combo's inherent flag from anywhere in the game
+	* world, based on map (NOT DMap), screen number, and position.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboI[]. Note that you are grabbing an actual combo
+	* attribute as referenced by the combo on screen you're
+	* referring to.
+	*/
+	int GetComboInherentFlag(int map, int screen, int position);
+
+	/**
+	* Sets a particular combo's inherent flag anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
+	* is considered an index, treated the same way as in Screen->ComboI[].
+	* Note that you are grabbing an actual combo attribute as referenced
+	* by the combo on screen you're referring to, which means that
+	* setting this attribute will affect ALL references to this combo
+	* throughout the quest.
+	*/
+	void SetComboInherentFlag(int map, int screen, int position, int value);
+
+	/**
+	* Grabs a particular combo's solidity flag from anywhere in the game
+	* world, based on map (NOT DMap), screen number, and position.
+	* Position is considered an index, treated the same way as in
+	* Screen->ComboS[]. Note that you are grabbing an actual combo
+	* attribute as referenced by the combo on screen you're
+	* referring to.
+	*/
+	int GetComboSolid(int map, int screen, int position);
+
+	/**
+	* Sets a particular combo's solidity anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
+	* is considered an index, treated the same way as in Screen->ComboS[].
+	* Note that you are grabbing an actual combo attribute as referenced
+	* by the combo on screen you're referring to, which means that
+	* setting this attribute will affect ALL references to this combo
+	* throughout the quest.
+	*/
+	void SetComboSolid(int map, int screen, int position, int value);
+
+	/**
+	* Returns the tile used by combo 'combo'
+	*/
+	int ComboTile(int combo);
+
+	/**
+	* Loads the current save file's name into 'buffer'
+	* Buffer should be at least 9 elements long
+	*/
+	void GetSaveName(int buffer[]);
+
+	/**
+	* Sets the current file's save name to 'name'
+	* Buffer should be no more than 9 elements
+	*/
+	void SetSaveName(int name[]);
+
+	/**
+	* Ends the current game and returns to the file select screen
+	*/
+	void End();
+
+	/**
+	* Saves the current game
+	*/
+	void Save();
+
+	/**
+	* Displays the save screen. Returns true if the user chose to save, false otherwise.
+	*/
+	bool ShowSaveScreen();
+
+	/**
+	* Displays the save and quit screen.
+	*/
+	void ShowSaveQuitScreen();
+
+	/**
+	* Loads 'string' into 'buffer'. Use the function from std.zh
+	* to remove trailing ' ' characters whilst loading.
+	*/
+	void GetMessage(int string, int buffer[]);
+	
+	/**
+	* Returns the number of the script with the given name or -1 if there is
+	* no such script.
+	*/
+	int GetFFCScript(int name[]);
+	
+	/**
+	* If this is false, the "Click to Freeze" setting will not function, ensuring
+	* that the script can use the mouse freely. This overrides the setting rather
+	* than changing it, so remembering and restoring the initial value is unnecessary.
+	*/
+	bool ClickToFreezeEnabled;
+}; //Game
+
+
+//===================================
+//--- NPC Functions and Variables ---
+//===================================
+
+class npc
+{
+	/**
+	* Returns whether or not this NPC pointer is still valid. A pointer
+	* becomes invalid if the enemy dies or Link leaves the screen.
+	* Trying to access any variable of an invalid NPC pointer prints
+	* an error to allegro.log and does nothing.
+	*/
+	bool isValid();
+
+	/**
+	* Loads the npc's name into 'buffer'. To load an NPC from an ID rather than a pointer,
+	* use 'GetNPCName' from std.zh
+	*/
+	void GetName(int buffer[]);
+
+	/**
+	* The NPC's enemy ID number.
+	* npc->ID is read-only; while setting it is not syntactically incorrect, it does nothing.
+	*/
+	int ID;
+
+	/**
+	* The NPC's Type. Use the NPCT_ constants in std.zh to compare this value.
+	* npc->Type is read-only; while setting it is not syntactically incorrect, it does nothing.
+	*/
+	int Type;
+
+	/**
+	* The NPC's current X coordinate, in pixels. Float values passed to this will be cast to int.
+	*/
+	int X;
+
+	/**
+	* The NPC's current Y coordinate, in pixels. Float values passed to this will be cast to int.
+	*/
+	int Y;
+
+	/**
+	* The NPC's current Z coordinate, in pixels. Float values passed to this will be cast to int.
+	*/
+	int Z;
+
+	/**
+	* The NPC's upward velocity, in pixels. If negative, the NPC will fall.
+	* The downward acceleration of Gravity (in Init Data) modifies this value every frame.
+	*/
+	int Jump;
+
+	/**
+	* The direction the NPC is facing. Use the DIR_ constants in std.zh to
+	* set and compare this value.
+	*/
+	int Dir;
+
+	/**
+	* The rate at which the NPC changes direction. For a point of reference,
+	* the "Octorok (Magic)" enemy has a rate of 16. The effect of writing to
+	* this field is currently undefined.
+	*/
+	int Rate;
+
+	/**
+	* The extent to which the NPC stands still while moving around the
+	* screen. As a point of reference, the Zols and Gels have haltrate of
+	* 16. The effect of writing to this field is currently undefined.
+	*/
+	int Haltrate;
+
+	/**
+	* How likely the NPC is to move towards Link.
+	* The effect of writing to this field is currently undefined.
+	*/
+	int Homing;
+
+	/**
+	* How likely the NPC is to move towards bait.
+	* The effect of writing to this field is currently undefined.
+	*/
+	int Hunger;
+
+	/**
+	* The NPC's movement speed. A Step of 100 usually means that
+	* the enemy moves at approximately one pixel per animation frame.
+	* As a point of reference, the "Octorok (Magic)" enemy has
+	* a step of 200. The effect of writing to this field is
+	* currently undefined.
+	*/
+	int Step;
+
+	/**
+	* Whether the NPC will use the system's code to work out collisions with Link
+	* Initialised as 'true'.
+	*/
+	bool CollDetection;
+
+	/**
+	* The the NPC's animation frame rate, in screen frames. The effect of
+	* writing to this field is currently undefined.
+	*/
+	int ASpeed;
+
+	/**
+	* The way the NPC is animated. Use the DS_ constants in std.zh to set or
+	* compare this value. The effect of writing to this field is currently undefined.
+	*/
+	int DrawStyle;
+
+	/**
+	* The NPC's current hitpoints. A weapon with a Power of 1 removes 2
+	* hitpoints.
+	*/
+	int HP;
+
+	/**
+	* The amount of damage dealt to an unprotected Link when he touches this NPC, in
+	* quarter-hearts.
+	*/
+	int Damage;
+
+	/**
+	* The amount of damage dealt to an unprotected Link by this NPC's weapon, in
+	* quarter-hearts.
+	*/
+	int WeaponDamage;
+
+	/**
+	* The time, in frames, that the NPC will be stunned. Some types of enemies cannot be stunned.
+	*/
+	int Stun;
+
+	/**
+	* The number of the starting tile used by this NPC.
+	*/
+	int OriginalTile;
+
+	/**
+	* The current tile associated with this NPC. The effect of writing to this variable is undefined.
+	*/
+	int Tile;
+
+	/**
+	* The weapon used by this enemy. Use the WPN_ constants (NOT the EW_ constants)
+	* in std.zh to set or compare this value.
+	*/
+	int Weapon;
+
+	/**
+	* The items that the NPC might drop when killed. Use the IS_ constants
+	* in std.zh to set or compare this value.
+	*/
+	int ItemSet;
+
+	/**
+	* The CSet used by this NPC.
+	*/
+	int CSet;
+
+	/**
+	* The boss pallete used by this NPC; this pallete is only used if CSet
+	* is 14 (the reserved boss cset). Use the BPAL_ constants in std.zh to
+	* set or compare this value.
+	*/
+	int BossPal;
+
+	/**
+	* The sound effects emitted by the enemy. Use the SFX_ constants in
+	* std.zh to set or compare this value.
+	*/
+	int SFX;
+
+	/**
+	* Whether to extend the sprite of the enemy.
+	*/
+	int Extend;
+
+	/**
+	* The number of tile columns composing the sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int TileWidth;
+
+	/**
+	* The number of tile rows composing the sprite.
+	* Writing to this is ignored unless Extend is set to values >=3.
+	*/
+	int TileHeight;
+
+	/**
+	* The width of the sprite's hitbox, or collision rectangle.
+	*/
+	int HitWidth;
+
+	/**
+	* The height of the sprite's hitbox, or collision rectangle.
+	*/
+	int HitHeight;
+
+	/**
+	* The Z-axis height of the sprite's hitbox, or collision rectangle.
+	* The greater it is, the higher Link must jump or fly over the sprite to avoid taking damage.
+	*/
+	int HitZHeight;
+
+	/**
+	* The X offset of the sprite's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move the sprite's hitbox left or right.
+	*/
+	int HitXOffset;
+
+	/**
+	* The Y offset of the sprite's hitbox, or collision rectangle.
+	* Setting it to positive or negative values will move the sprite's hitbox up or down.
+	*/
+	int HitYOffset;
+
+	/**
+	* The X offset of the sprite.
+	* Setting it to positive or negative values will move the sprite's tiles left or right relative to its position.
+	*/
+	int DrawXOffset;
+
+	/**
+	* The Y offset of the sprite. In non-sideview screens, this is usually -2.
+	* Setting it to positive or negative values will move the sprite's tiles up or down relative to its position.
+	*/
+	int DrawYOffset;
+
+	/**
+	* The Z offset of the sprite. This is ignored unless Extend is set to values >=3.
+	*/
+	int DrawZOffset;
+
+	/**
+	* The npc's Defense values, as an array of 18 integers. Use the NPCD_ and NPCDT_ constants
+	* in std.zh to set or compare these values.
+	*/
+	int Defense[];
+
+	/**
+	* The npc's Miscellaneous Attributes, as an array of ten integers.
+	* They are read-only; while setting them is not syntactically incorrect, it does nothing.
+	*/
+	int Attributes[];
+
+	/**
+	* The npc's Misc. Flags as 14 bits ORed together, starting with 'Damaged by Power 0 Weapons',
+	* and working down the flags in the order they are shown in the Enemy Editor.
+	* npc->MiscFlags is read-only; while setting it is not syntactically incorrect, it does nothing.
+
+	* If you are not comfortable with binary operations, you can use 'GetNPCMiscFlag' from std.zh
+	*/
+	int MiscFlags;
+
+	/**
+	* An array of 16 miscellaneous variables for you to use as you please.
+	*/
+	float Misc[];
+
+	/**
+	* Breaks the enemy's shield if it has one. This works even if the flag
+	* "Hammer Can Break Shield" is not checked.
+	void BreakShield();
+
+}; //npc
+
+
+

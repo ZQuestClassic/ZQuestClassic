@@ -1,0 +1,657 @@
+=================
+--- Constants ---
+=================
+
+const float PI, PI2, E
+ * The mathematical constants pi, 2*pi and e.
+
+const int NULL
+ * Refers to an invalid array pointer, returned by ALLOCATEMEM when memory cannot be allocated
+
+const int MAX_CONSTANT, float MAX_VARIABLE
+const int MAX_BITSPERVARIABLE
+const int MAX_SCRIPTDRAWINGCOMMANDS
+const int MAX_MESSAGES
+const int MAX_MESSAGELENGTH
+const int MAX_DMAPS
+const int MAX_DMAPNAMELENGTH, MAX_DMAPTITLELENGTH, MAX_DMAPINTROLENGTH
+ * Information about some system constraints
+
+const float GRAVITY
+const float TERMINAL_VELOCITY
+const float JUMPING_LAYER_THRESHOLD
+ * Some defaults from Init. Data
+
+const int HP_PER_HEART, MP_PER_BLOCK
+ * Constants about how HP and MP work
+
+const int SFX_*
+ * Sound effects, can be used with Game->PlaySound.
+
+const int IC_*
+ * Itemclass IDs, can be compared against itemdata->Family
+
+const int I_*
+ * Item IDs, can be used with Link->Item, Link->Equipment, item->ID, Link->HeldItem, GetEquipmentA,
+ * GetEquipmentB, Screen->CreateItem, CreateItemAt, NumItemsOf
+
+const int LA_*
+ * Link's actions, can be used to set or compare against Link->Action
+
+const int NPCT_*
+ * NPC Types, can be used to compare against npc->Type
+
+const int NPC_*
+ * NPC IDs, can be used with npc->ID, Screen->CreateNPC, NumNPCsOf
+
+const int HP_SILENT
+ * NPC HP value, can be used to set npc->HP
+
+const int LW_*
+ * LWeapon IDs, can be used with lweapon->ID, Screen->CreateLWeapon, CreateLWeaponAt, NumLWeaponsOf
+
+const int EW_*
+ * EWeapon IDs, can be used with eweapon->ID, Screen->CreateEWeapon, CreateEWeaponAt, NumEWeaponsOf
+
+const int WDS_*
+ * Weapon DeadState Values, can be used to set or compare against *weapon->DeadState
+
+const int FFCF_*
+ * FFC Flags, can be used to set or compare against ffc->Flags[]
+
+const int DIR_*
+ * Directions, can be used with Link->Dir, npc->Dir, *weapon->Dir
+
+const int CF_*
+ * Combo Flags, can be used with Screen->ComboF[], Screen->ComboI[], Game->GetComboFlag, Game->SetComboFlag,
+ * Game->GetComboInherentFlag, Game->SetComboInherentFlag
+
+const int CT_*
+ * Combo Types, can be used with Screen->ComboT[], Game->GetComboType, Game->SetComboFlag
+
+const int IP_*
+ * Item Pickup Flags, can be used with item->Pickup, GetItemPickup, SetItemPickup
+
+const int SF_*
+ * Screen Flag Categories, can be used with Screen->Flags, GetScreenFlags
+
+const int SEF_*
+ * Screen Enemy Flag Categories, can be used with Screen->EFlags, GetScreenEFlags
+
+const int DMF_*
+ * DMap Flags, can be used with Game->DMapFlags[], GetDMapFlag, SetDMapFlag
+
+const int NPCA*_*
+ * NPC Attributes, can be used to compare against npc->Attributes[]
+
+const int NPCD_*
+ * NPC Defenses, can be used to compare against npc->Defense[]
+
+const int NPCDT_*
+ * NPC Defense types, can be used to compare against npc->Defense[]
+
+const int DS_*
+ * Draw Styles, can be used with item->DrawStyle
+
+const int WT_*
+ * Warp Types, can be used with Screen->SetSideWarp, Screen->SetTileWarp
+
+const int FONT_*
+ * Font Types, can be used with Screen->DrawCharacter, Screen->DrawString, Screen->DrawInteger
+
+const int TF_*
+ * Text Formats, can be used with Screen->DrawString
+
+const int PT_*
+ * Texture Mapping Rendering Modes, can be used with Screen->*3D
+
+const int OP_*
+ * Opacity options, can be used with all shape and tile drawing commands.
+
+const int RT_*
+ * Render targets, can be used with Screen->SetRenderTarget and Screen->DrawBitmap.
+
+const int EXT_*
+ * Sprite Extend Types, can be used with Link->Extend, npc->Extend, *weapon->Extend, item->Extend
+
+const int CR_*
+ * Counter types, can be used with itemclass->Counter, Game->Counter[], Game->MCounter[], Game->DCounter[]
+
+const int GEN_*
+ * Generic Data Types, can be used to set or compare against Game->Generic[]
+
+const int LI_*
+ * Level Item Flags, can be used with Game->LItems[], GetLevelItems, SetLevelItems
+
+cosnt int ST_*
+ * Screen States, can be used with Screen->State[], Game->GetScreenState, Game->SetScreenState
+
+const int D_*
+ * Door types, can be used with Screen->Door[]
+
+const int WPN_*
+ * Enemy Weapon Types, can be used with npc->Weapon
+ 
+const int AT_*
+ * Weapon aim types, to be used with AimEWeapon
+
+const int IS_*
+ * Item Drop Sets, can be used to set or compare against npc->ItemSet
+
+const int BPAL_*
+ * Boss Palletes, can be used to set or compare against npc->BossPal
+
+const int SL_*
+ * Sprite Lists, can be used with Screen->ClearSprites
+
+const int MB_*
+ * Mouse Buttons, can be used with Link->InputMouseB
+ 
+
+=================
+--- Functions ---
+=================
+
+-- Mathematical Functions --
+============================
+
+float LogToBase(float x, float base)
+ * Returns the logarithm of x to the given base
+
+int Floor(float x)
+ * Truncates x to an integer
+
+int Ceiling(float x)
+ * Raises x to the nearest integer
+
+int Round(float x)
+ * Rounds x to the nearest integer
+
+int VBound(int x, int high, int low)
+ * Bounds x between two values
+
+int Div(float x, float y)
+ * Modulo's complement; returns the quotient only of x divided by y
+
+int Rand(int min, int max)
+ * Overload to rand, returning a random integer in the bounds of min and max
+
+float Randf(float n)
+ * Returns a random floating point number up to n
+
+float Randf(float n1, float n2)
+ * Overloaded to take two boundaries as arguments
+
+float DegtoRad(float d)
+ * Converts 'd' in degrees to radians
+
+float RadtoDeg(float r)
+ * Converts 'r' in radians to degrees
+
+int Sign(int n)
+ * Returns the sign of n
+
+float Distance(int x1, int y1, int x2, int y2)
+ * Returns the distance between two sets of coordinates using Pythagoras' Theorem
+
+float Angle(int x1, int y1, int x2, int y2)
+ * Returns the direction of the vector from point 1 to point 2, in degrees from -180 to 180. (0 = right)
+
+float RadianAngle(int x1, int y1, int x2, int y2)
+ * The above, but in radians.
+
+float VectorX(int len, float angle)
+ * Returns the X component of a vector with a degree angle.
+ * A length of 3 and angle of 0 returns 3.
+ * A length of 3 and angle of 45 returns approx. 1.57.
+ * A length of 3 and angle of 90 returns 0.
+
+float VectorY(int len, float angle)
+ * Returns the Y component of a vector with a degree angle.
+ * A length of 3 and angle of 0 returns 0.
+ * A length of 3 and angle of 45 returns approx. 1.57.
+ * A length of 3 and angle of 90 returns 3.
+
+float Lerp(float p1, float p2, float t)
+ * Interpolates between p1 and p2 given 't' clamped within range 0,1.
+
+float DotProduct( float x1, float y1, float x2, float y2 )
+ * Returns the dot product of two vectors.
+
+float CrossProduct( float x1, float y1, float x2, float y2 )
+ * Returns the cross product of two vectors.
+
+float DistanceSquared( float x, float y )
+ * Returns the squared distance of a vector.
+
+float Midpoint(float p1, float p2)
+ * Finds the center of p1 and p2.
+
+float SmoothStep(float p1, float p2, float t)
+ * Performs a "Smooth" Interpolation given 't' clamped within range 0,1.
+
+float WrapAngle( float radians )
+ * Wraps radian value towards the range of -PI,PI.
+
+float WrapDegrees( float degrees )
+ * Wraps degree value towards the range of -180,180.
+
+float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t )
+ * Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
+
+-- Direction Functions --
+=========================
+ * Make sure your angles are in the range -PI to PI (with WrapAngle) before using these functions
+
+
+int AngleDir8(float angle)
+ * Converts a counterclockwise degree angle (from -180 to 180) into one of the eight
+ * standard directions (DIR_UP etc.) used by ZC.
+
+int RadianAngleDir8(float angle)
+ * The above, but for radian angles.
+
+int AngleDir4(float angle)
+ * Converts a counterclockwise degree angle (from -180 to 180) into one of the four
+ * standard directions (DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT) used by ZC.
+
+int RadianAngleDir4(float angle)
+ * The above, but for radian angles.
+
+int OppositeDir(int dir)
+ * Returns the opposite direction to 'dir'
+
+int SpinDir(int dir)
+ * Converts directions to go round in a circle rather than U, D, L, R
+
+-- Drawing Functions --
+=======================
+
+void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
+				int string, int start)
+ * Overload to Screen->DrawString which includes a position to start drawing from in the string
+ * Does not check for overflow
+
+void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
+				int string, int start, int end)
+ * Overload to Screen->DrawString which includes a start and end position to draw the string
+ * Does not check for overflow
+
+void DrawTileSimple(int x, int y, int tile, int color)
+ *  A very simple layer 0 tile drawing routine.
+
+void DrawToLayer(T ptr, int layer, int opacity)
+ * Draws a pointer to given layer. Overloaded to take all pointers as arguments
+
+
+-- Conditional Functions --
+===========================
+
+T Cond(bool cond, T a, T b)
+ * Returns a if cond is true, else b. Overloaded to take all types as arguments
+
+float Choose(float a, float b)
+float Choose(float a, float b, float c)
+float Choose(float a, float b, float c, float d)
+float Choose(float a, float b, float c, float d, float e)
+float Choose(float a, float b, float c, float d, float e, float f)
+ * Chooses one of the options randomly and fairly.
+
+
+-- Collision Detection Functions --
+===================================
+
+bool RectCollision(int box1_x1, int box1_y1, int box1_x2, int box1_y2, int box2_x1, int box2_y1, int box2_x2, int box2_y2)
+ * Generalized and optimized rectangle collision checking function.
+ * Returns true if the bounding box of box1 and box2 overlap.
+
+bool SquareCollision(int c1x, int c1y, int side1, int c2x, int c2y, int side2)
+ * Check for collisions of two squares given upper-left coordinates and a side length for each.
+
+bool SquareCollision2(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2)
+ * Check for collisions of two squares given center coordinates and a halved side length for each.
+
+bool CircleCollision(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2)
+ * Returns true if the two circles c1 and c2 overlap.
+
+bool Collision(T a, S b)
+ * Returns true if there is a collision between the hitboxes of any two pointers
+
+bool LinkCollision(T ptr)
+ * Returns true if there is a collision between Link's hitbox and any pointer's
+
+int HitboxLeft(T ptr)
+ * Returns the X coordinate of the left edge of the hitbox for any pointer
+
+int HitboxTop(T ptr)
+ * Returns the Y coordinate of the top edge of the hitbox for any pointer
+
+int HitboxRight(T ptr)
+ * Returns the X coordinate of the right edge of the hitbox for any pointer
+
+int HitboxBottom(T ptr)
+ * Returns the Y coordinate of the bottom edge of the hitbox.
+
+bool CanWalk(int x, int y, int dir, int step, bool full_tile)
+ * This should allow any scripted object to easily mimic Link styled LOZ solidity collision
+ * checking, be it Link, FFCs, or enemies.
+ * Note - You should use full_tile=true if you don't want the upper eight pixels to overlap
+ * solid combos as per LOZ1 behavior.
+
+bool OnSidePlatform(int x, int y)
+bool OnSidePlatform(int x, int y, int xOff, int yOff, int h)
+ * Returns true if the sprite at (x,y) is standing on a sideview platform on a sideview screen, as worked out
+ * by ZC's internal code.
+
+
+
+-- Functions for accessing data stored in binary format --
+==========================================================
+
+void SetScreenDBit(int dmap, int screen, int d, int bit, bool state)
+void SetScreenDBit(int screen, int d, int bit, bool state)
+void SetScreenDBit(int d, int bit, bool state)
+ * Sets bit 'bit' of Screen->D[] register 'd' to 'state', overloaded to set on other screens
+
+bool GetScreenDBit(int dmap, int screen, int d, int bit)
+bool GetScreenDBit(int screen, int d, int bit)
+bool GetScreenDBit(int d, int bit)
+ * Returns the state of bit 'bit' of Screen->D[] register 'd'
+ * Overloaded to get from other screens
+
+bool InputLeftClick()
+ * Returns true if the left mouse button is pressed
+
+bool InputRightClick()
+ * Returns true if the right mouse button is pressed
+
+int GetEquipmentA()
+ * Returns the item ID of the item equipped to Link's A button
+
+int GetEquipmentB()
+ * Returns the item ID of the item equipped to Link's B button
+
+bool UsingItem(int id)
+ * Returns true if Link is using item 'id'
+
+int ScreenFlag(int category, int flag)
+ * Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+ * Flags are numbered starting from 0
+
+int ScreenEFlag(int category, int flag)
+ * Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+ * Flags are numbered starting from 0
+
+bool GetDMapFlag(int dmap, int flag)
+ * Returns true if DMap Flag 'flag' is set on dmap 'dmap'
+
+void SetDMapFlag(int dmap, int flag, bool state)
+ * Sets a certain DMap flag to 'state'
+
+bool GetItemPickup(item i, int pickup)
+ * Returns true if an item's Pickup state is set
+ * Use the IP_ constants for the 'pickup' argument of this function
+
+void SetItemPickup(item i, int pickup, bool state)
+ * Sets an item's Pickup state to 'state'
+
+bool GetNPCMiscFlag(npc e, int flag)
+ * Returns true if an npc's Misc. flag is set.
+
+bool GetLevelItem(int level, int itm)
+bool GetLevelItem(int itm)
+ * Returns true if Link has the level item 'itm' from level 'level'
+ * Overloaded to use the current level if no 'level' arg is entered
+ * Use the LI_ constants for the 'itm' argument
+
+void SetLevelItem(int level, int itm, bool state)
+void SetLevelItem(int itm, bool state)
+ * Gives or removes a level item from Link's inventory
+
+
+-- Functions to help handling in-built pointers --
+==================================================
+
+lweapon NextToLink(int id, int distx, int disty)
+lweapon NextToLink(int id, int dist)
+ * Creates an lweapon at 'distx, disty' away from where Link is facing
+
+eweapon NextToNPC(npc n, int id, int distx, int disty)
+eweapon NextToNPC(npc n, int id, int dist)
+ * Creates an eweapon at 'distx, disty' away from where npc 'n' is facing
+
+void AimEWeapon(eweapon e, int aimtype)
+ * Aims eweapon e according to the AT_* constant passed to aimtype
+
+void AimLWeapon(lweapon l, npc n, int aimtype)
+void AimLWeapon(lweapon l, int aimtype)
+ * Aims lweapon l according to the AT_* constant passed to aimtype, overloaded to shoot
+ * at an npc or at random
+
+int WeaponTypeToID(int weapontype)
+ * Turns a WPN_* constant to an EW_* constant
+
+*weapon Duplicate(*weapon a)
+ * Creates and returns an exact copy of the passed weapon. Assumes that the passed pointer is valid.
+
+npc CreateNPCAt(int id, int x, int y)
+ * Create an NPC and set its X and Y position in one command
+
+item CreateItemAt(int id, int x, int y)
+ * Create an Item and set its X and Y position in one command
+
+lweapon CreateLWeaponAt(int id, int x, int y)
+ * Create an LWeapon and set its X and Y position in one command
+
+eweapon CreateEWeaponAt(int id, int x, int y)
+ * Create an EWeapon and set its X and Y position in one command
+
+void Remove(T n)
+ * Removes sprite 'n' from the screen. Overloaded.
+
+int NumLWeaponsOf(int type)
+ * Returns the number of lweapons of type 'type' currently on the screen
+
+int NumEWeaponsOf(int type)
+ * Returns the number of weapons of type 'type' currently on the screen
+
+int NumNPCsOf(int type)
+ * Returns the number of npcs of type 'type' currently on the screen
+
+int NumItemsOf(int type)
+ * Returns the number of items of type 'type' currently on the screen
+
+lweapon LoadLWeaponOf(int type)
+ * Returns the first LWeapon of the given type. Use the LW_ constants.
+ * If none exist, it returns an uninitialised pointer.
+
+eweapon LoadEWeaponOf(int type)
+ * Returns the first EWeapon of the given type. Use the EW_ constants.
+ * If none exist, it returns an uninitialised pointer.
+
+npc LoadNPCOfType(int type)
+ * Returns the first NPC of the given type. Use the NPCT_ constants.
+ * If none exist, it returns an uninitialised pointer.
+
+npc LoadNPCOf(int type)
+ * Returns the first NPC of the given ID. Use the NPC_ constants.
+ * If none exist, it returns an uninitialised pointer.
+
+item CreateTimeoutItem(int id, int x, int y)
+ * Creates a timeout item (such as a rupee or heart) with ID 'id' at '(x, y)'
+
+-- Position Functions --
+========================
+
+int GridX(int x)
+ * Snaps 'x' to the combo grid
+ * Equivalent to calling ComboX(ComboAt(x, foo));
+
+int GridY(int y)
+ * Snaps 'y' to the combo grid
+ * Equivalent to calling ComboY(ComboAt(foo, y));
+
+int AtFrontX(int dir)
+int AtFrontY(int dir)
+ * Returns the correct offset to be at the front of a sprite facing in
+ * the direction 'dir'
+
+int InFrontX(int dir, int dist)
+int InFrontY(int dir, int dist)
+ * Returns the correct offset to be 'dist' pixels away from the front of
+ * a sprite facing in the direction 'dir'
+
+int CenterX(ffc anFFC)
+int CenterY(ffc anFFC)
+int CenterX(npc anNPC)
+int CenterY(npc anNPC)
+int CenterX(eweapon anEWeapon)
+int CenterY(eweapon anEWeapon)
+int CenterX(lweapon anLWeapon)
+int CenterY(lweapon anLWeapon)
+int CenterLinkX()
+int CenterLinkY()
+ * Returns the X or Y coordinate at the center of the given sprite.
+
+
+-- Combo Functions --
+=====================
+
+int ComboAt(int x, int y)
+ * Finds the location of a combo, given its (x,y) coordinates on the screen
+
+int ComboX(int loc)
+int ComboY(int y)
+ * Return the coordinates of a combo on the screen
+
+bool ComboFI(int x, int y, int flag)
+bool ComboFI(int loc, int flag)
+ * Returns true if the combo at '(x, y)' or 'loc' has either an
+ * inherent or placed flag of type 'flag'
+
+int GetLayerComboD(int layer, int pos)
+ * A shorthand way to get a combo on the current layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboD(int layer, int pos, int combo)
+ * A shorthand way to set a combo on the current layer.
+ * Layer 0 is the screen itself.
+
+int GetLayerComboF(int layer, int pos)
+ * A shorthand way to get a combo flag on the current layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboF(int layer, int pos, int flag)
+ * A shorthand way to set a combo flag on the current layer.
+ * Layer 0 is the screen itself.
+
+int GetLayerComboT(int layer, int pos)
+ * A shorthand way to get a combo type on the current layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboT(int layer, int pos, int type)
+ * A shorthand way to set a combo type on the current layer.
+ * Layer 0 is the screen itself.
+
+int GetLayerComboS(int layer, int pos)
+ * A shorthand way to get a combo's solidity on the current layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboS(int layer, int pos, int solidity)
+ * A shorthand way to set a combo's solidity on the current layer.
+ * Layer 0 is the screen itself.
+
+int FirstComboOf(int t, int layer)
+ * Returns the position of the first instance of the given combo, or -1.
+
+int LastComboOf(int t, int layer)
+ * Returns the position of the last instance of the given combo, or -1.
+
+int FirstComboTypeOf(int t, int layer)
+ * Returns the position of the first instance of the given combo, or -1.
+
+int LastComboTypeOf(int t, int layer)
+ * Returns the position of the last instance of the given combo, or -1.
+
+int FirstComboFlagOf(int t, int layer)
+ * Returns the position of the first instance of the given combo flag, or -1.
+ * Checks inherent flags too!
+
+int LastComboFlagOf(int t, int layer)
+ * Returns the position of the last instance of the given combo flag, or -1.
+ * Checks inherent flags too!
+
+bool IsWater(int position)
+ * Returns true if the combo at the given position is water or a swim or dive warp. Shallow water doesn't count.
+
+bool IsPit(int position)
+ * Returns true if the combo at the given position is a pit.
+
+
+-- Tile Functions --
+====================
+
+void SwapTileRow(int first, int second, int length)
+ * Swaps a row of tiles of length 'length' between positions 'first' and 'second'
+
+void CopyTileRow(int source, int dest, int length)
+ * Copies a row of tiles of length 'length' from 'source' onto 'dest'
+
+void ClearTileRow(int ref, int length)
+ * Clears a row of tiles of length 'length' starting from tile 'ref'
+
+void SwapTileBlock(int first, int last, int second)
+ * Swaps a block of tiles defined by diagonal corners 'first' and 'last'
+ * with the block starting with top left tile 'second'
+
+void CopyTileBlock(int sourcefirst, int sourcelast, int destfirst)
+ * Copies a block of tiles defined by diagonal corners 'sourcefirst' and 'sourcelast'
+ * onto the block starting with top left tile 'destfirst'
+
+void ClearTileBlock(int reffirst, int reflast)
+ * Clears a block of tiles defined by diagonal corners 'reffirst' and 'reflast'
+
+
+-- Miscellaneous Functions --
+=============================
+
+void Waitframes(int n)
+ * Wait for 'n' frames
+
+void NoAction()
+ * Kills all of Link's inputs
+
+void WaitNoAction()
+void WaitNoAction(int frames)
+ * NoAction, then Waitframe or (equivalent of) Waitframes
+
+void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr)
+ * Copies the combos and csets from one screen to another.
+ * Only copies layer 0!
+
+int FFCNum(ffc f)
+ * Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
+
+int NumTriforcePieces()
+ * Returns the number of Triforce Pieces Link currently has
+
+void GetNPCName(int ID, int string[])
+ * Puts the name of an npc into a string
+
+void GetMessage(int ID, int string[])
+ * Puts string 'ID' into 'string', removing the trailing spaces.
+
+itemdata GetItemData(item i)
+ * Returns an itemdata pointer from an item pointer
+
+int GetHighestLevelItem(int itemclass)
+int GetHighestLevelItem(item i)
+ * Returns the highest level item of a given itemclass, or of the class 'i' belongs to
+
+bool IsSideview()
+ * Returns true if Link is on a sideview screen
+
+int DMapToMap(int screen, int dmap)
+int MapToDMap(int screen, int dmap)
+ * Convert between map and DMap screen coordinates
+

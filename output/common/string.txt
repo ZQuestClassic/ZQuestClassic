@@ -1,0 +1,234 @@
+==========================================================
+--- String.zh: string-handling constants and functions ---
+==========================================================
+
+===============
+-- Constants --
+===============
+
+ * Message ASCII Code
+const int MSGC_LINEFEED			= 10
+ * The ASCII value for '\n'
+
+ * Message Format
+const int MF_NONE				= 0
+const int MF_STRING				= 1
+const int MF_INT				= 2
+const int MF_FLOAT				= 3
+const int MF_NUM				= 4
+const int MF_PTR				= 5
+const int MF_CHAR				= 6
+ * Entered directly into 'strcatf' and 'strncatf' as the format type for the
+ * argument
+ * Converted (respectively) from the '%n', '%s', '%i', '%f', '%d', '%p' and '%c'
+ * format arguments in sprintf and printf (via the sprintf_MFCodeToInt function)
+
+================================
+-- Single Character Functions --
+================================
+
+bool isControlCode(int chr)
+ * Returns true if 'chr' is in the control code range of ascii characters
+
+bool isNumber(int chr)
+ * Returns true if 'chr' is in the range of ascii characters '0' to '9'
+
+bool isAlphabetic(int chr)
+ * Returns true if 'chr' is an alphabetic character
+
+bool isAlphaNumeric(int chr)
+ * Returns true if 'chr' is an alphanumeric character
+
+bool isHex(int chr)
+ * Returns true if 'chr' is in the set { '0'-'9', 'A'-'F' , 'a'-'f' }
+
+bool isUpperCase(int chr)
+ * Returns true if 'chr' is an upper-case character
+
+bool isLowerCase(int chr)
+ * Returns true if 'chr' is a lower-case character
+
+int UpperToLower(int chr)
+ * Converts all upper case characters to lower case, leaving non-alphabetic
+ * characters unchanged
+
+int LowerToUpper(int chr)
+ * Converts all lower case characters to upper case, leaving non-alphabetic
+ * characters unchanged
+
+int ConvertCase(int chr)
+ * Converts lower case to upper case and upper case to lower case
+
+=========================
+-- Memory Manipulation --
+=========================
+
+ * Memory Set
+void memset(int ptr[], int value, int n)
+ * Sets block of memory of size 'n' pointed by 'ptr' to 'value'
+
+ * Memory Copy
+int memcpy(int dest[], int src[], int n)
+ * Copys block of memory pointed by 'src' of size 'n' to 'dest' and returns
+ * 'dest'
+
+ * Memory Move
+int memmove(int dest[], int src[], int n)
+ * As memcpy, but uses a buffer so memory space can overlap
+
+ * Array Set
+void arrayset(int a[], int a0, int a1, int a2,...)
+ * Assign all elements of array 'a'. Overloaded for up to 16 elements
+
+=========================
+-- String Manipulation --
+=========================
+
+ * String Copy
+void strcpy(int dest[], int src[])
+ * Copys string 'src' into string 'dest' without checking for overflow in 'dest'
+void strncpy(int dest[], int src[], int n)
+ * As strcpy, but only takes the first 'n' characters from src
+
+ * Remove Characters
+void remchr(int string[])
+ * Remove all characters starting from pointer 'string'
+void remnchr(int string[], int n)
+ * Remove 'n' characters and shift the rest of the string back to pointer 'string'
+
+ * String Length
+int strlen(int string[])
+ * Returns the length of string 'string'
+
+ * String Concatenate
+int strcat(int dest[], int src[])
+ * Appends string 'src' onto string 'dest' (assuming dest has enough extra memory
+ * allocated to allow the operation)
+int strncat(int dest, int src, int n)
+ * strcat for the first 'n' characters in src
+
+
+-- String Searching --
+======================
+
+ * String Character
+int strchr(int string[], int character)
+ * Returns the position of the first occurence of 'character' in 'string',
+ * or -1 if none are found
+
+ * String Reverse Character
+int strrchr(int string[], int character)
+ * Returns the position of the last occurence of 'character' in 'string'
+ * starting from the end, or -1 if none are found
+
+ * String Sub-String
+int strstr(int string[], int sub[])
+ * Returns the position of the first occurence of sub-string 'sub' in 'string,
+ * or -1 if sub is not found
+
+ * String Span
+int strspn(int str[], int keys[])
+ * Returns the length of characters in 'str' before a character not contained in
+ * 'keys' is found
+
+ * String Complement Span
+int strcspn(int str[], int keys[])
+ * Returns the length of characters in 'str' before a character contained in
+ * 'keys' is found
+
+
+-- String Comparison --
+=======================
+
+ * String Compare
+int strcmp(int str1[], int str2[])
+ * Iterates through str1 and str2 until a character is found which is not the same in
+ * both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
+ * larger in str2. Returns 0 if the strings are equal
+int strncmp(int str1[], int str2[], int n)
+ * strcmp up to 'n' characters
+
+
+-- Converting between variables and strings --
+==============================================
+
+ * ASCII to Integer
+int atoi(int string[])
+ * Returns the decimal integer pointed by 'string'
+
+ * Integer Length
+int ilen(int string[])
+ * Returns the length of characters of the decimal integer pointed by 'string'
+
+ * Hexadecimal ASCII to Integer
+int xtoi(int string[])
+ * Returns the (positive) hexadecimal integer pointed by 'string'
+
+ * Hexadecimal Length
+int xlen(int string[])
+ * Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
+
+ * ASCII to Float
+float atof(int string[])
+ * Returns the floating point number pointed by 'string'
+
+ * Float Length
+int flen(int string[])
+ * Returns the length of characters of the floating point number pointed by 'string'
+
+  * ASCII to Number
+float aton(int string[])
+ * Returns the number pointed by 'string', calling either atoi or atof depending on context
+
+ * Number Length
+int nlen(int string[])
+ * Returns the length of characters of the number pointed by 'string', calling either
+ * ilen or flen depending on context
+
+ * Integer to ASCII
+int itoa(int string[], int num)
+ * Places integer 'num' into string 'string' without checking for overflow,
+ * and returns the number of characters used
+
+ * Float to ASCII
+int ftoa(int string[], float num, bool printall)
+ * Places float 'num' into string 'string' without checking for overflow,
+ * and returns the number of characters used. If 'printall' is true, it will add 4 decimal places
+ * regardless of the most significant digit
+
+ * Number to ASCII
+int ntoa(int string[], float num)
+ * Checks whether 'num' is an integer or not, and calls the appropriate function
+
+
+-- String Formatting --
+=======================
+
+ * String Concatenate Format
+int strcatf(int dest[], int arg, int format)
+ * Appends 'arg' onto 'dest' as the MF_ constant passed into 'format'
+int strncatf(int dest[], int arg, int format, int n)
+ * As strcatf, using only 'n' characters of 'arg'
+
+ * String Print Format
+void sprintf(int ret[], int formatstr[], int a0, int a1, int a2,...)
+ * Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference),
+ * returning the number of characters used. Does not check for overflow in 'ret'
+ * Overloaded up to a maximum of 16 arguments. Enter the right number of arguments for your format string;
+ * there is (currently) no way to check how many arguments have been entered or of what type they are
+ * Currently supported arguments:
+ * '%s' - String
+ * '%i' - Integer
+ * '%f' - Float
+ * '%d' - Number (Integer/Float depending on context)
+ * '%n' - Nothing
+ * '%p' - Pointer Address
+ * '%c' - Single character
+ * '%x' - Hexadecimal Integer (lower case)
+ * '%X' - Hexadecimal Integer (upper case)
+ * '\n' places a line feed ASCII character into the string
+
+ * Print Format
+void printf(int formatstr[], int a0, int a1, int a2,...)
+ * Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
+ * Overloaded up to a maximum of 16 arguments

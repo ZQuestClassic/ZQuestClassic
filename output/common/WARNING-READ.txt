@@ -1,0 +1,6 @@
+WARNING: THIS IS AN AUTOMATIC ALPHA BUILD
+It is work in progress, released without careful inspection by the developers. It may be unstable, contain missing, partially implemented, or broken features, or corrupt your quests. Active development of quests on this build is not recommended. 
+
+***THE DEVELOPERS TAKE NO RESPONSIBILTY FOR ANY DAMAGE THAT THIS BUILD MIGHT DO TO YOUR COMPUTER OR YOUR QUESTS.***
+
+This build is intended for testing only and is NOT suitable for redistribution. If you obtained this build from anywhere other than Armageddon Games (www.armageddongames.com), the official home of Zelda Classic, please contact the developers at evouga@gmail.com. 
