@@ -1,0 +1,14 @@
+* text=auto
+
+*.h text
+*.hpp text
+*.c text
+*.cpp text
+*.tab text
+*.yy text
+*.as text
+*.txt text
+
+*.sln text eol=crlf
+*.vcproj text eol=crlf
+
