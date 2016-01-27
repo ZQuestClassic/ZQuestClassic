@@ -3,6 +3,29 @@
 
 #include <angelscript.h>
 
+
+
+// asScriptContext pool that caches script contexts for performance reasons.
+// This 
+struct ScriptContextPool
+{
+	asIScriptContext* contexts[256];
+
+
+	asIScriptContext* AquireFreeContext();
+	void ReleaseContext(asIScriptContext* instance);
+
+	struct ReverseIndexSorter
+	{
+		bool operator() (size_t a, size_t b) const { return a > b; }
+	};
+
+	asIScriptEngine* pEngine;
+
+};
+
+
+
 // The script data and context.
 // This class was created in anticipation of greater complexity.
 // It doesn't do much at the moment.

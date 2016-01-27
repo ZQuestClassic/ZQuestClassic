@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="angelscriptd.lib pthread.lib Ws2_32.lib zcsoundd.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib alld.lib"
+				AdditionalDependencies="pthread.lib Ws2_32.lib zcsoundd.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib alld.lib"
 				OutputFile="$(OutDir)/zc.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/win32dbg;"
@@ -126,7 +126,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
+				Optimization="2"
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="0"
@@ -155,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="angelscript.lib zcsound.lib Ws2_32.lib pthread.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib alleg_crt.lib"
+				AdditionalDependencies="zcsound.lib Ws2_32.lib pthread.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib alleg_crt.lib"
 				OutputFile="$(OutDir)/zelda-w.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="../../libs/win32"
@@ -1924,7 +1924,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_icon.rc"
+				RelativePath="..\..\zc_icon.rc"
 				>
 			</File>
 		</Filter>
@@ -2477,6 +2477,28 @@
 		<Filter
 			Name="Modules"
 			>
+			<File
+				RelativePath="..\..\src\build_modules\angelscript_unity.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						BasicRuntimeChecks="0"
+						DebugInformationFormat="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+					/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\..\src\build_modules\gui_module.cpp"
 				>

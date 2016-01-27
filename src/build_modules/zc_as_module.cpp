@@ -8,4 +8,3 @@
 #include "angelscript/scriptmath/scriptmath.cpp"
 #include "angelscript/scriptstdstring/scriptstdstring.cpp"
 #include "angelscript/scriptarray/scriptarray.cpp"
-
