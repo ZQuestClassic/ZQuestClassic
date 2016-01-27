@@ -9,6 +9,10 @@
 *.as text
 *.txt text
 
-*.sln text eol=crlf
-*.vcproj text eol=crlf
+*.sln eol=crlf
+*.vcproj eol=crlf
 
+*.png binary
+*.jpg binary
+*.gif binary
+*.bmp binary
