@@ -3422,6 +3422,7 @@ bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
     return (dead!=-1&&dead!=-10) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
 }
 
+/* it's at the bottom now. -Tamamo
 void weapon::update_weapon_frame(int change, int orig)
 {
     if(extend > 2)
@@ -3432,6 +3433,7 @@ void weapon::update_weapon_frame(int change, int orig)
     else
         tile=orig+change;
 }
+*/
 
 void weapon::draw(BITMAP *dest)
 {
@@ -3774,6 +3776,71 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
+}
+
+void weapon::update_weapon_frame(int change, int orig)
+{
+    if(get_bit(quest_rules, qr_WPNANIMFIX)) &&frames>1&&dir>-1)
+    {
+        switch(id)
+        {
+        case wSword:
+        case wWand:
+        case wHammer:
+        case wCByrna:
+        case wHSHandle:
+        case wHookshot:
+        case wArrow:
+        case ewArrow:
+        case wMagic:
+        case ewMagic:
+        case wRefMagic:
+        case wBeam:
+        case ewBeam:
+        case wRefBeam:
+        case wRefRock:
+        case ewBomb:
+        case ewSBomb:
+            break;
+        case default: //All others ignore directional sprites. Including the boomerang since that's done with the item editor.
+            goto SkipWpnAnimFix;
+        }
+        int ddir=dir;
+        switch(ddir) //directions get messed up after 8 *shrug*
+        {
+        case 8: // up
+            ddir=up;
+        case 9:
+            ddir=r_up;
+        case right:
+        case 10:
+            ddir=right;
+        case 11:
+            ddir=r_down;
+        case 12:
+            ddir=down;
+        case 13:
+            ddir=l_down;
+        case 14:
+            ddir=left;
+        case 15:
+            ddir=l_up;
+        default:
+            if(dir<0 || dir>15) //set by script probably, it'll break if we do that!
+                ddir=0
+            break;
+        }
+        orig+=(ddir*frames);
+    }
+SkipWpnAnimFix:
+    if(extend > 2)
+    {
+        byte extra_rows=(tysz-1)*(((orig%TILES_PER_ROW)+(txsz*change))/TILES_PER_ROW);
+        tile=orig+(txsz*change)+(extra_rows*TILES_PER_ROW);
+    }
+    else
+        tile=orig+change;
+	
 }
 
 /*** end of weapons.cpp ***/
