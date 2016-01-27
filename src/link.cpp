@@ -11849,8 +11849,7 @@ void LinkClass::checkitems(int index)
         ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
     }
     
-    if(theItem->onPickUp)
-        ;//__debugbreak();//theItem->onPickUp();
+    theItem->onPickUp();
     
     getitem(id2);
     
