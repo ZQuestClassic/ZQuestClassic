@@ -1,4 +1,4 @@
-* text=auto
+* text=auto !eol
 
 *.h text
 *.hpp text
@@ -6,8 +6,10 @@
 *.cpp text
 *.tab text
 *.yy text
-*.as text
 *.txt text
+*.as text
+*.z text
+*.zh text
 
 *.sln eol=crlf
 *.vcproj eol=crlf
