@@ -7,15 +7,82 @@ class TrapConstant: enemy
         mainguy=false;
         count_enemy=false;
         step=2;
+		dir=-1;
         
-        if(dmisc1==1 || (dmisc1==0 && (rand()&2)!=0))
+		if(dmisc1==1 || (dmisc1==0 && (rand()&2)!=0))
         {
             dir=(x<=112)?right:left;
         }
-        else
+        else if(dmisc1==2||dmisc1==0)
         {
             dir=(y<=72)?down:up;
         }
+		else //diagonal traps are a bit trickier.
+		{
+			if(Abs(x-112)>=Abs(y-72)) //check x
+			{
+				if(dmisc1==6)
+				{
+					dir=(x<=112)?r_up:l_down;
+				}
+				else if(dmisc1==8)
+				{
+					dir=(x<=112)?r_down:l_up;
+				}
+			}
+			else //check y
+			{
+				if(dmisc1==6)
+				{
+					dir=(y<=72)?l_down:r_up;
+				}
+				else if(dmisc1==8)
+				{
+					dir=(y<=72)?r_down:l_up;
+				}
+			}		
+		}
+		
+		//and X and and eight way traps...
+		if(dir==-1)
+		{
+			if(dmisc||(dmisc1==4&&(rand()&2)!=0))
+			{
+				if(Abs(x-112)>=Abs(y-72)) //check x
+				{
+					if(rand()&2)
+					{
+						dir=(x<=112)?r_up:l_down;
+					}
+					else
+					{
+						dir=(x<=112)?r_down:l_up;
+					}
+				}
+				else //check y
+				{
+					if((rand()&2)!=0)
+					{
+						dir=(y<=72)?l_down:r_up;
+					}
+					else
+					{
+						dir=(y<=72)?r_down:l_up;
+					}
+				}
+			}
+			else //just c&p the code for 4way traps
+			{
+				if((rand()&2)!=0)
+				{
+					dir=(x<=112)?right:left;
+				}
+				else
+				{
+					dir=(y<=72)?down:up;
+				}
+			}
+		}
         
         if(questRuleEnabled(qr_TRAPPOSFIX))
         {
@@ -75,7 +142,10 @@ class TrapConstant: enemy
                 if(questRuleEnabled(qr_MORESOUNDS))
                     sfx(WAV_ZN1TAP, x);
                     
-                dir=dir^1;
+				if(dir<4)
+					dir=dir^1;
+				else
+					dir=dir^3;
             }
             
             sprite::move(step);
@@ -87,7 +157,10 @@ class TrapConstant: enemy
                 if(questRuleEnabled(qr_MORESOUNDS))
                     sfx(WAV_ZN1TAP, x);
                     
-                dir=dir^1;
+                if(dir<4)
+					dir=dir^1;
+				else
+					dir=dir^3;
             }
             
             sprite::move(step);
