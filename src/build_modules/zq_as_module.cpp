@@ -1,7 +1,9 @@
 
+#include "precompiled.h"
+#include "config.h"
+
 
 #include "angelscript/scriptData.cpp"
-
 
 #include "angelscript/scriptmath/scriptmath.cpp"
 

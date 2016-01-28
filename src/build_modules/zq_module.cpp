@@ -1,5 +1,6 @@
 
-//#include "precompiled.h"
+#include "precompiled.h"
+#include "config.h"
 
 #define NOMINMAX
 

@@ -47,7 +47,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				WarningLevel="4"
+				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
@@ -1806,6 +1806,20 @@
 		<Filter
 			Name="Modules"
 			>
+			<File
+				RelativePath="..\..\src\build_modules\angelscript_unity.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						BasicRuntimeChecks="0"
+						DebugInformationFormat="3"
+					/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\..\src\build_modules\gui_module.cpp"
 				>

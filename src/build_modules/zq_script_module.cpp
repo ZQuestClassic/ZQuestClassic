@@ -1,5 +1,6 @@
 
-
+#include "precompiled.h"
+#include "config.h"
 
 #include "parser/AST.cpp"
 #include "parser/BuildVisitors.cpp"

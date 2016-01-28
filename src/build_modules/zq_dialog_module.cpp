@@ -1,9 +1,11 @@
 
 #include "precompiled.h"
+#include "config.h"
 
 #define BOOST_FUNCTION_MAX_ARGS 4
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+
 
 #include "guiBitmapRenderer.cpp"
 #include "messageList.cpp"
