@@ -65,7 +65,7 @@ static void fixCons(fix* addr)
     new(addr) fix(0);
 }
 
-static void fixConsCopy(fix* addr, const fix* other)
+static void fixConsCopy(fix* addr, const fix& other)
 {
    new(addr) fix(other);
 }
