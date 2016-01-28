@@ -1,4 +1,6 @@
 
+#include "precompiled.h"
+#include "config.h"
 
 #include "angelscript/aszc.cpp"
 #include "angelscript/scriptData.cpp"
@@ -8,3 +10,5 @@
 #include "angelscript/scriptmath/scriptmath.cpp"
 #include "angelscript/scriptstdstring/scriptstdstring.cpp"
 #include "angelscript/scriptarray/scriptarray.cpp"
+
+#include "angelscript/scriptContext.cpp"
