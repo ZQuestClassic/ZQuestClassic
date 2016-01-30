@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthread.lib Ws2_32.lib zcsoundd.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib alld.lib"
+				AdditionalDependencies="pthread.lib Ws2_32.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib &quot;..\..\libs\win32\alleg_crt.lib&quot; &quot;..\..\libs\win32\zcsound.lib&quot;"
 				OutputFile="$(OutDir)/zc.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/win32dbg;"
