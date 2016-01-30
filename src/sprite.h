@@ -40,6 +40,7 @@ extern int conveyclk;
 
 template<typename T> class EntityPtr;
 class EntityRef;
+class sprite_list;
 
 class sprite
 {
@@ -47,7 +48,10 @@ private:
     static long getNextUID();
     //unique sprite ID
     //given upon construction
-    long uid;
+
+protected:
+	friend class sprite_list;
+    long uid; //do not access this outside this file.
     
 public:
     long getUID()
@@ -143,17 +147,17 @@ private:
 
 class sprite_list
 {
+	int count;
     sprite *sprites[SLMAX];
-    int count;
-    map<long, int> containedUIDs;
+	long uids[SLMAX];
     
 public:
     sprite_list();
     
-    sprite *getByUID(long uid);
+    sprite *getByUID(long uid) const;
+	bool isValidUID(long uid) const;
     void clear();
     sprite *spr(int index);
-    bool swap(int a,int b);
     bool add(sprite *s);
     bool addAtFront(sprite *s);
     // removes pointer from list but doesn't delete it

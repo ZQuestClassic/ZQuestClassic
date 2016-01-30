@@ -657,48 +657,38 @@ void sprite::scriptDrawCloaked()
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255
-
-//class enemy;
 
 sprite_list::sprite_list() : count(0) {}
 void sprite_list::clear()
 {
-    while(count>0) del(0);
+	for(int i(0); i < count; i++)
+	{
+		delete sprites[i];
+	}
+
+	count = 0;
 }
 
 sprite *sprite_list::spr(int index)
 {
-    if(index<0 || index>=count)
+    if((unsigned)index >= (unsigned)count)
         return NULL;
         
     return sprites[index];
 }
 
-bool sprite_list::swap(int a,int b)
-{
-    if(a<0 || a>=count || b<0 || b>=count)
-        return false;
-        
-    sprite* c=sprites[a];
-    sprites[a] = sprites[b];
-    sprites[b] = c;
-    containedUIDs[sprites[a]->getUID()] = a;
-    containedUIDs[sprites[b]->getUID()] = b;
-// checkConsistency();
-    return true;
-}
-
 bool sprite_list::add(sprite *s)
 {
-    if(count>=SLMAX)
+    if(count >= SLMAX)
     {
         delete s;
         return false;
     }
     
-    containedUIDs[s->getUID()] = count;
-    sprites[count++]=s;
+    uids[count] = s->getUID();
+    sprites[count] = s;
+	++count;
+
     //checkConsistency();
     return true;
 }
@@ -711,45 +701,41 @@ bool sprite_list::addAtFront(sprite *s)
         return false;
     }
     
-    for(int i=count-1; i>=0; i--)
-    {
-        containedUIDs[sprites[i]->getUID()]=i+1;
-        sprites[i+1]=sprites[i];
-    }
-    
-    containedUIDs[s->getUID()]=0;
-    sprites[0]=s;
-    count++;
+	// Reflect sign bit to reverse direction of integer.
+	// This is needed to keep uids sorted.
+	s->uid = -s->uid;
+
+	//std::copy(sprites, sprites + count, sprites + 1);
+	//std::copy(uids, uids + count, uids + 1);
+
+	::memmove(sprites + 1, sprites, count * sizeof(sprite*));
+	::memmove(uids + 1, uids, count * sizeof(long));
+
+	uids[0] = s->getUID();
+	sprites[0] = s;
+	++count;
+
     return true;
 }
 
 bool sprite_list::remove(sprite *s)
 // removes pointer from list but doesn't delete it
 {
-    map<long, int>::iterator it = containedUIDs.find(s->getUID());
-    
-    if(it != containedUIDs.end())
-        containedUIDs.erase(it);
-        
-    int j=0;
-    
-    for(; j<count; j++)
-        if(sprites[j] == s)
-            goto gotit;
-            
-    return false;
-    
-gotit:
+	for(int i(0); i != count; ++i)
+	{
+		if(sprites[i] == s)
+		{
+			int n = count - i;
+			::memcpy(sprites + i, sprites + i + 1, n * sizeof(sprite*));
+			::memcpy(uids + i, uids + i + 1, n * sizeof(long));
 
-    for(int i=j; i<count-1; i++)
-    {
-        sprites[i]=sprites[i+1];
-        containedUIDs[sprites[i]->getUID()] = i;
-    }
-    
-    --count;
+			--count;
+			return true;
+		}
+	}
+
     //checkConsistency();
-    return true;
+    return false;
 }
 
 fix sprite_list::getX(int j)
@@ -794,21 +780,14 @@ int sprite_list::getMisc(int j)
 
 bool sprite_list::del(int j)
 {
-    if(j<0||j>=count)
+    if((unsigned)j >= (unsigned)count)
         return false;
-        
-    map<long, int>::iterator it = containedUIDs.find(sprites[j]->getUID());
-    
-    if(it != containedUIDs.end())
-        containedUIDs.erase(it);
-        
-    delete sprites[j];
-    
-    for(int i=j; i<count-1; i++)
-    {
-        sprites[i]=sprites[i+1];
-        containedUIDs[sprites[i]->getUID()] = i;
-    }
+
+	delete sprites[j];
+
+	int n = count - j;
+	::memcpy(sprites + j, sprites + j + 1, n * sizeof(sprite*));
+	::memcpy(uids + j, uids + j + 1, n * sizeof(long));
     
     --count;
     //checkConsistency();
@@ -1013,23 +992,31 @@ int sprite_list::idLast(int id)
     return idLast(id,0xFFFF);
 }
 
-sprite * sprite_list::getByUID(long uid)
+sprite * sprite_list::getByUID(long uid) const
 {
-    map<long, int>::iterator it = containedUIDs.find(uid);
-    
-    if(it != containedUIDs.end())
-        return spr(it->second);
+	if(count)
+	{
+		const long* p = std::lower_bound(uids, uids + count, uid);
+		if(p != (uids + count))
+			return sprites[(int)(p - uids)];
+	}
         
     return NULL;
 }
 
 void sprite_list::checkConsistency()
 {
-    assert((int)containedUIDs.size() == count);
+    //assert((int)containedUIDs.size() == count);
     
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
+
+bool sprite_list::isValidUID(long uid) const
+{
+	return getByUID(uid) == NULL;
+}
+
 
 /**********************************/
 /********** Moving Block **********/

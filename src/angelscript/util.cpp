@@ -250,7 +250,8 @@ int asGetGuyProp(int id, int prop)
 
 void asSwapGuys(int index1, int index2)
 {
-    guys.swap(index1, index2);
+	//swap is not supported.
+   // guys.swap(index1, index2);
 }
 
 

@@ -5601,8 +5601,7 @@ void do_isvaliditem()
 {
     long IID = get_register(sarg1);
     
-    for(int j = 0; j < items.Count(); j++)
-        if(items.spr(j)->getUID() == IID)
+        if(items.isValidUID(IID))
         {
             set_register(sarg1, 10000);
             return;
@@ -5615,8 +5614,7 @@ void do_isvalidnpc()
 {
     long UID = get_register(sarg1);
     
-    for(int j = 0; j < guys.Count(); j++)
-        if(guys.spr(j)->getUID() == UID)
+        if(guys.isValidUID(UID))
         {
             set_register(sarg1, 10000);
             return;
@@ -5629,8 +5627,7 @@ void do_isvalidlwpn()
 {
     long WID = get_register(sarg1);
     
-    for(int j = 0; j < Lwpns.Count(); j++)
-        if(Lwpns.spr(j)->getUID() == WID)
+        if(Lwpns.isValidUID(WID))
         {
             set_register(sarg1, 10000);
             return;
@@ -5643,8 +5640,7 @@ void do_isvalidewpn()
 {
     long WID = get_register(sarg1);
     
-    for(int j = 0; j < Ewpns.Count(); j++)
-        if(Ewpns.spr(j)->getUID() == WID)
+        if(Ewpns.isValidUID(WID))
         {
             set_register(sarg1, 10000);
             return;
