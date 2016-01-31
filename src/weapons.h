@@ -91,6 +91,7 @@ private:
     void matchDirToAngle();
     
     friend void setScreenLimits(weapon&);
+    friend void registerWeapon();
 };
 
 void putMiscSprite(BITMAP *dest, int spr, int x, int y);
