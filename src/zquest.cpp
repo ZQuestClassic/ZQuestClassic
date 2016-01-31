@@ -38,6 +38,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <time.h>
+#include <map>
 #include <vector>
 #include <util.h>
 
@@ -18580,7 +18581,7 @@ void compileZScript()
             build_biffs_list();
             build_biitems_list();
             
-            for(map<std::string, std::vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+            for(std::map<std::string, std::vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
             {
                 for(std::vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
                 {
