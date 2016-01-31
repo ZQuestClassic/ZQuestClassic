@@ -522,12 +522,34 @@ void registerWeapon()
 	int r = 0;
     r = asEngine->RegisterObjectProperty("__RealWeapon", "int power", asOFFSET(weapon, power)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "int type", asOFFSET(weapon, type)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int dead", asOFFSET(weapon, dead)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int clk2", asOFFSET(weapon, clk2)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int misc2", asOFFSET(weapon, misc2)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int ignorecombo", asOFFSET(weapon, ignorecombo)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "bool isLit", asOFFSET(weapon, isLit)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "int parentid", asOFFSET(weapon, parentid)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "int parentitem", asOFFSET(weapon, parentitem)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int dragging", asOFFSET(weapon, dragging)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "fix step", asOFFSET(weapon, step)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "bool bounce", asOFFSET(weapon, bounce)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "bool ignoreLink", asOFFSET(weapon, ignoreLink)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "uint16 flash", asOFFSET(weapon, flash)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "uint16 wid", asOFFSET(weapon, wid)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "uint16 aframe", asOFFSET(weapon, aframe)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "uint16 csclk", asOFFSET(weapon, csclk)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "int o_tile", asOFFSET(weapon, o_tile)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "int o_cset", asOFFSET(weapon, o_cset)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int o_speed", asOFFSET(weapon, o_speed)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int o_type", asOFFSET(weapon, o_type)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int frames", asOFFSET(weapon, frames)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int o_flip", asOFFSET(weapon, o_flip)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int temp1", asOFFSET(weapon, temp1)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "bool behind", asOFFSET(weapon, behind)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealWeapon", "bool aimedBrang", asOFFSET(weapon, aimedBrang)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int minX", asOFFSET(weapon, minX)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int maxX", asOFFSET(weapon, maxX)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int minY", asOFFSET(weapon, minY)); Assert(r >= 0);
+    r = asEngine->RegisterObjectProperty("__RealWeapon", "int maxY", asOFFSET(weapon, maxY)); Assert(r >= 0);
     
     r = asEngine->RegisterObjectMethod("__RealWeapon", "void adjustDraggedItem(int)", asMETHOD(weapon, adjustDraggedItem), asCALL_THISCALL); Assert(r >= 0);
 }
