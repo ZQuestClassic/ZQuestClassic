@@ -38,6 +38,7 @@
 #endif
 
 #include "debug.h"
+#include <map>
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 /*template <typename T>

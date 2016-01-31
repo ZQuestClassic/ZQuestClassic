@@ -595,7 +595,13 @@ void initializeAngelScript()
     builder.AddSectionFromFile("angelscript/wallMaster.as");
     builder.AddSectionFromFile("angelscript/wizzrobe.as");
     builder.AddSectionFromFile("angelscript/zora.as");
-    builder.BuildModule();
+
+    int buildResult = builder.BuildModule(); //if this fails zc will crash.
+	Assert(buildResult == 0);
+	if(buildResult != 0)
+	{
+		exit(1);
+	}
     
     // Create global Link
     currentSprite=&Link;

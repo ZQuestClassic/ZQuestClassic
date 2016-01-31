@@ -17,13 +17,10 @@
 
 #include "zc_alleg.h"
 #include "zdefs.h"
-#include <set>
-#include <map>
 
 class EntityScriptData;
 class asIScriptObject;
 
-using std::map;
 // this code needs some patching for use in zquest.cc
 
 extern itemdata *itemsbuf;

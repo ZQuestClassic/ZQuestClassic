@@ -2992,9 +2992,10 @@ bool is_ceiling_pattern(int i)
     return (i==pCEILING || i==pCEILINGR);
 }
 
-int placeenemy(int i)
+
+// @param  int * freeposcache - an array buffer to use as scratch stack memory for combo indices.
+int placeenemy(int i, int* freeposcache)
 {
-    std::map<int, int> freeposcache;
     int frees = 0;
     
     for(int y=0; y<176; y+=16)
@@ -3086,6 +3087,8 @@ void loadenemies()
         
     // load enemies
     
+	int freeposcacheBuffer[176];
+
     //if(true)                    // enemies appear at random places
     //{
     //int set=loadside*9;
@@ -3143,7 +3146,7 @@ void loadenemies()
         if(t<0 || t >= 20) // above enemy pattern failed
         {
             // Final chance: find a random position anywhere onscreen
-            int randpos = placeenemy(i);
+            int randpos = placeenemy(i, freeposcacheBuffer);
             
             if(randpos>-1)
             {
