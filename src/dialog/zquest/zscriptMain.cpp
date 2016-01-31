@@ -8,14 +8,14 @@
 #include <boost/bind.hpp>
 #include <cstdio>
 
-#define CB(func) boost::bind(&ZScriptMainDialog::func, this)
-
 extern std::string zScript;
 
 ZScriptMainDialog::ZScriptMainDialog(GUI::GUIManager& g):
     gui(g)
 {
 }
+
+#define CB(func) boost::bind(&ZScriptMainDialog::func, this)
 
 GUI::Widget* ZScriptMainDialog::createDialog(const GUI::WidgetFactory& f)
 {
@@ -39,6 +39,8 @@ GUI::Widget* ZScriptMainDialog::createDialog(const GUI::WidgetFactory& f)
     
     return win;
 }
+
+#undef CB
 
 void ZScriptMainDialog::onEdit()
 {

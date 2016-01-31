@@ -7,8 +7,6 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#define CB(func) boost::bind(&ZScriptEditor::func, this)
-
 extern std::string zScript;
 
 ZScriptEditor::ZScriptEditor(GUI::GUIManager& g):
@@ -20,7 +18,7 @@ GUI::Widget* ZScriptEditor::createDialog(const GUI::WidgetFactory& f)
 {
     GUI::Window* win=f.window("ZScript editor", textBox=f.textBox());
     textBox->setText(zScript);
-    win->setOnClose(CB(onClose));
+    win->setOnClose(boost::bind(&ZScriptEditor::onClose, this));
     
     return win;
 }

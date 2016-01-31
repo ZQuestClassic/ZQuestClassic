@@ -87,6 +87,10 @@ GUI::Widget* ShopEditor::createDialog(const GUI::WidgetFactory& f)
     return win;
 }
 
+#undef CB
+#undef CB1
+#undef CBID1
+
 void ShopEditor::onItemChanged(int id, int newItem)
 {
     int sel=shopItems[id]->getSelected();

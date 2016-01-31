@@ -62,6 +62,8 @@ GUI::Widget* TileSelector::createDialog(const GUI::WidgetFactory& f)
     return win;
 }
 
+#undef CB
+
 bool TileSelector::onKeyPressed(const KeyInput& key)
 {
     bool handled=true;

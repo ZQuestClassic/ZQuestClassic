@@ -34,6 +34,8 @@ GUI::Widget* CheatEditor::createDialog(const GUI::WidgetFactory& f)
     return win;
 }
 
+#undef CB
+
 void CheatEditor::onOK()
 {
     zcheats.flags=enabledCB->getValue() ? 1 : 0;

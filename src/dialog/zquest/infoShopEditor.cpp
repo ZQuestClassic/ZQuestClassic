@@ -66,6 +66,10 @@ GUI::Widget* InfoShopEditor::createDialog(const GUI::WidgetFactory& f)
     return win;
 }
 
+#undef CB
+#undef MLCB
+#undef MLCB1
+
 void InfoShopEditor::onOK()
 {
     sprintf(shop.name, "%s", shopName->getText().c_str());

@@ -218,6 +218,8 @@ Widget* QuestRulesEditor::createDialog(const WidgetFactory& f)
     return win;
 }
 
+#undef CB
+
 void QuestRulesEditor::onOK()
 {
     for(int i=0; i<checkboxes.size(); i++)

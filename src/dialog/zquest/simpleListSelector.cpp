@@ -53,6 +53,9 @@ GUI::Widget* SimpleListSelector::createDialog(const GUI::WidgetFactory& f)
     return win;
 }
 
+#undef CB
+#undef CB1
+
 void SimpleListSelector::onDoubleClick(int item)
 {
     onOK();
