@@ -189,6 +189,12 @@ fix  LinkClass::getFall()
     return fall;
 }
 
+void LinkClass::setDir(int newdir)
+{
+    dir=newdir;
+    reset_hookshot();
+}
+
 int LinkClass::getHitDir()
 {
     return hitdir;
@@ -219,10 +225,118 @@ fix  LinkClass::getClimbCoverY()
     return climb_cover_y;
 }
 
+int  LinkClass::getLadderX()
+{
+    return ladderx;
+}
+int  LinkClass::getLadderY()
+{
+    return laddery;
+}
+
+void LinkClass::setX(int new_x)
+{
+    fix dx=new_x-x;
+    if(Lwpns.idFirst(wHookshot)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
+    }
+    
+    if(Lwpns.idFirst(wHSHandle)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=dx;
+    }
+	
+	if(chainlinks.Count()>0)
+	{
+		for(int j=0; j<chainlinks.Count(); j++)
+        {
+            chainlinks.spr(j)->x+=dx;
+        }
+	}
+    
+    x=new_x;
+    
+    // A kludge
+    if(!diagonalMovement && dir<=down)
+        is_on_conveyor=true;
+}
+
+void LinkClass::setY(int new_y)
+{
+    fix dy=new_y-y;
+    if(Lwpns.idFirst(wHookshot)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
+    }
+    
+    if(Lwpns.idFirst(wHSHandle)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=dy;
+    }
+	
+	if(chainlinks.Count()>0)
+	{
+		for(int j=0; j<chainlinks.Count(); j++)
+        {
+            chainlinks.spr(j)->y+=dy;
+        }
+	}
+    
+    y=new_y;
+    
+    // A kludge
+    if(!diagonalMovement && dir>=left)
+        is_on_conveyor=true;
+}
+
+void LinkClass::setZ(int new_z)
+{
+    if(tmpscr->flags7&fSIDEVIEW)
+        return;
+        
+    if(z==0 && new_z > 0)
+    {
+        switch(action)
+        {
+        case swimming:
+            diveclk=0;
+            action=walking;
+            break;
+            
+        case waterhold1:
+            action=landhold1;
+            break;
+            
+        case waterhold2:
+            action=landhold2;
+            break;
+            
+        default:
+            if(charging)
+            {
+                reset_swordcharge();
+                attackclk=0;
+            }
+            
+            break;
+        }
+    }
+    
+    z=(new_z>0 ? new_z : 0);
+}
+
+void LinkClass::setFall(fix new_fall)
+{
+    fall=new_fall;
+    jumping=-1;
+}
+
 int  LinkClass::getLStep()
 {
     return lstep;
 }
+
 void LinkClass::onMeleeWeaponHit()
 {
     if(charging>0)
@@ -299,6 +413,10 @@ int  LinkClass::getAction() // Used by ZScript
 
 void LinkClass::setAction(actiontype new_action)
 {
+    if(new_action==dying || new_action==won || new_action==scrolling ||
+       new_action==inwind || new_action==rafting || new_action==ischarging)
+        return; // Can't use these actions.
+    
     if(currentItemAction)
     {
         currentItemAction->abort();
@@ -502,6 +620,8 @@ void LinkClass::init()
     conveyor_flags=0;
     drunkclk=0;
     drawstyle=3;
+    ffwarp=false;
+    ffpit=false;
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
     stepnext=stepsecret=-1;
     entry_x=x;
@@ -2838,7 +2958,20 @@ bool LinkClass::animate(int)
                 dowarp(1,ind);
             }
         }
+    }
+    
+    if(ffwarp)
+    {
+        if(ffpit)
+        {
+            ffpit=false;
+            didpit=true;
+            pitx=x;
+            pity=y;
+        }
         
+        ffwarp=false;
+        dowarp(1,0);
     }
     
     // walk through bombed doors and fake walls

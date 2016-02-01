@@ -28,7 +28,6 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "rendertarget.h"
-#include "linkZScriptInterface.h"
 #include "messageManager.h"
 #include "sfxManager.h"
 #include "sound.h"
@@ -82,8 +81,6 @@ bool global_wait = false;
 
 //Item script data
 refInfo itemScriptData;
-
-LinkZScriptInterface linkIF;
 
 //The stacks
 long(*stack)[256] = NULL;
@@ -1091,15 +1088,15 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(linkIF.getX()) * 10000;
+        ret = long(Link.getX()) * 10000;
         break;
         
     case LINKY:
-        ret = long(linkIF.getY()) * 10000;
+        ret = long(Link.getY()) * 10000;
         break;
         
     case LINKZ:
-        ret = long(linkIF.getZ()) * 10000;
+        ret = long(Link.getZ()) * 10000;
         break;
         
     case LINKJUMP:
@@ -1108,7 +1105,7 @@ long get_register(const long arg)
         break;
         
     case LINKDIR:
-        ret=(int)(linkIF.getDir())*10000;
+        ret=(int)(Link.dir)*10000;
         break;
         
     case LINKHITDIR:
@@ -1156,11 +1153,11 @@ long get_register(const long arg)
         break;
         
     case LINKLADDERX:
-        ret=(int)(linkIF.getLadderX())*10000;
+        ret=(int)(Link.getLadderX())*10000;
         break;
         
     case LINKLADDERY:
-        ret=(int)(linkIF.getLadderY())*10000;
+        ret=(int)(Link.getLadderY())*10000;
         break;
         
     case LINKSWORDJINX:
@@ -2973,29 +2970,26 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        linkIF.setX(value/10000);
+        Link.setX(value/10000);
         break;
         
     case LINKY:
-        linkIF.setY(value/10000);
+        Link.setY(value/10000);
         break;
         
     case LINKZ:
-        linkIF.setZ(value/10000);
+        Link.setZ(value/10000);
         break;
         
     case LINKJUMP:
-        linkIF.setJump(fix((value * (100.0)) / 10000.0));
+        Link.setFall(fix((-value * (100.0)) / 10000.0));
         break;
         
     case LINKDIR:
     {
         //Link.setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-        //if(Link.getAction() == attacking) Link.dir = (value/10000);
-        //else Link.setDir(value/10000);
-        
-        // Meh, let it. It'll get fixed later.
-        linkIF.setDir(value/10000);
+        if(Link.getAction() == attacking) Link.dir = (value/10000);
+        else Link.setDir(value/10000);
         
         break;
     }
@@ -3021,7 +3015,7 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKACTION:
-        linkIF.setAction((actiontype)(value/10000));
+        Link.setAction((actiontype)(value/10000));
         break;
         
     case LINKHELD:
@@ -4140,7 +4134,7 @@ void set_register(const long arg, const long value)
                 GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
                 
             if(GuyH::hasLink())
-                linkIF.setJump(-value / fix(10000.0));
+                Link.setFall(value / fix(10000.0));
         }
     }
     break;
@@ -5346,9 +5340,21 @@ void do_rshift(const bool v)
 ///----------------------------------------------------------------------------------------------------//
 //Gameplay functions
 
-void do_warp(bool v, bool pit)
+void do_warp(bool v)
 {
-    linkIF.warp(SH::get_arg(sarg1, v)/10000, SH::get_arg(sarg2, v)/10000, pit);
+    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
+    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    tmpscr->sidewarptype[0] = wtIWARP;
+    Link.ffwarp = true;
+}
+
+void do_pitwarp(bool v)
+{
+    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
+    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    tmpscr->sidewarptype[0] = wtIWARP;
+    Link.ffwarp = true;
+    Link.ffpit = true;
 }
 
 void do_breakshield()
@@ -6999,19 +7005,19 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         case WARP:
-            do_warp(true, false);
+            do_warp(true);
             break;
             
         case WARPR:
-            do_warp(false, false);
+            do_warp(false);
             break;
             
         case PITWARP:
-            do_warp(true, true);
+            do_pitwarp(true);
             break;
             
         case PITWARPR:
-            do_warp(false, true);
+            do_pitwarp(false);
             break;
             
         case BREAKSHIELD:

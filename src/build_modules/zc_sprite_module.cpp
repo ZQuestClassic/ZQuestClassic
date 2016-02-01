@@ -12,7 +12,6 @@
 #include "guys.cpp"
 #include "weapons.cpp"
 #include "link.cpp"
-#include "linkZScriptInterface.cpp"
 #include "linkHandler.cpp"
 #include "particles.cpp"
 #include "items.cpp"

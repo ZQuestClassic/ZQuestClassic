@@ -2,7 +2,6 @@
 #include "decorations.h"
 #include "guys.h"
 #include "link.h"
-#include "linkZScriptInterface.h"
 #include "sequence.h"
 #include "sfxManager.h"
 #include "sound.h"
@@ -11,7 +10,6 @@
 
 extern LinkClass Link;
 extern SFXManager sfxMgr;
-extern LinkZScriptInterface linkIF;
 
 LinkHandler::LinkHandler():
     link(Link),
@@ -90,12 +88,6 @@ void LinkHandler::updateLowHealthWarning()
 
 bool LinkHandler::update()
 {
-    if(linkIF.warpPending())
-    {
-        linkIF.activateWarp();
-        return false;
-    }
-    
     if(DrunkrLbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
         selectNextBWpn(SEL_LEFT);
     else if(DrunkrRbtn() && !get_bit(quest_rules,qr_SELECTAWPN))

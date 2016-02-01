@@ -276,6 +276,9 @@ private:
     int ringpower(int dmg);
     
 public:
+    bool ffwarp;
+    bool ffpit;
+    
     void StartRefill(int refillWhat);
     void checkitems(int index = -1);
     int DrunkClock();
@@ -305,6 +308,12 @@ public:
     void setYOfs(int newyofs);
     fix  getClimbCoverX();
     fix  getClimbCoverY();
+    int  getLadderX();
+    int  getLadderY();
+    void setX(int new_x);
+    void setY(int new_y);
+    void setZ(int new_Z);
+    void setFall(fix new_fall);
     int  getLStep();
     int  getCharging();
     bool isCharged();
@@ -313,6 +322,7 @@ public:
     int  getItemClk();
     void  setSwordClk(int newclk);
     void  setItemClk(int newclk);
+    void setDir(int new_dir);
     int  getHitDir();
     void setHitDir(int new_dir);
     int  getClk();
@@ -363,7 +373,6 @@ private:
     void checkLadderRemoval();
     
     friend class LinkHandler;
-    friend class LinkZScriptInterface;
     friend void registerLink();
 };
 
