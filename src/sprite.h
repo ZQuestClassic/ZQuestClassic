@@ -155,8 +155,18 @@ public:
 	bool isValidUID(long uid) const;
     void clear();
     sprite *spr(int index);
+
+	// TODO: 'add*()' is not entirely clear how it works.
+	//   (this can be a cause of bugs; such as in the case of reflected weapons
+	//    it can actually delete the sprite and cause undefined behavior...
+	//      [note; this has been fixed in that case only. use with caution.])
+
     bool add(sprite *s);
     bool addAtFront(sprite *s);
+
+	// adds a sprite that was created in a past frame. (eg; reflected weapons)
+	bool addExisting(sprite *s);
+
     // removes pointer from list but doesn't delete it
     bool remove(sprite *s);
     fix getX(int j);

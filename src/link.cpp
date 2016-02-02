@@ -1597,8 +1597,8 @@ int LinkClass::EwpnHit()
             if(ew->id != oldid)                                     // changed type from ewX to wX
             {
                 //        ew->power*=DAMAGE_MULTIPLIER;
-                Lwpns.add(ew);
                 Ewpns.remove(ew);
+				Lwpns.addExisting(ew);
             }
             
             if(ew->id==wRefMagic)
@@ -1898,8 +1898,8 @@ killweapon:
                             
                             if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
                             {
-                                Lwpns.add(ew);
                                 Ewpns.remove(ew);
+								Lwpns.addExisting(ew);
                             }
                             
                             if(ew->id==wRefMagic)

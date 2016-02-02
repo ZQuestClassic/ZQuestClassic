@@ -732,6 +732,14 @@ bool sprite_list::addAtFront(sprite *s)
     return true;
 }
 
+
+bool sprite_list::addExisting(sprite *s)
+{
+	s->uid = s->getNextUID();
+	return add(s);
+}
+
+
 bool sprite_list::remove(sprite *s)
 // removes pointer from list but doesn't delete it
 {
@@ -1011,7 +1019,7 @@ sprite * sprite_list::getByUID(long uid) const
 	if(count)
 	{
 		const long* p = std::lower_bound(uids, uids + count, uid);
-		if(p != (uids + count))
+		if(p != (uids + count) && *p == uid)
 			return sprites[(int)(p - uids)];
 	}
         
@@ -1020,15 +1028,13 @@ sprite * sprite_list::getByUID(long uid) const
 
 void sprite_list::checkConsistency()
 {
-    //assert((int)containedUIDs.size() == count);
-    
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
 
 bool sprite_list::isValidUID(long uid) const
 {
-	return getByUID(uid) == NULL;
+	return getByUID(uid) != NULL;
 }
 
 
