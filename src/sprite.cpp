@@ -719,9 +719,6 @@ bool sprite_list::addAtFront(sprite *s)
 	// This is needed to keep uids sorted.
 	s->uid = -s->uid;
 
-	//std::copy(sprites, sprites + count, sprites + 1);
-	//std::copy(uids, uids + count, uids + 1);
-
 	::memmove(sprites + 1, sprites, count * sizeof(sprite*));
 	::memmove(uids + 1, uids, count * sizeof(long));
 
@@ -747,7 +744,7 @@ bool sprite_list::remove(sprite *s)
 	{
 		if(sprites[i] == s)
 		{
-			int n = count - i;
+			int n = count - i - 1;
 			::memcpy(sprites + i, sprites + i + 1, n * sizeof(sprite*));
 			::memcpy(uids + i, uids + i + 1, n * sizeof(long));
 
@@ -807,7 +804,7 @@ bool sprite_list::del(int j)
 
 	delete sprites[j];
 
-	int n = count - j;
+	int n = count - j - 1;
 	::memcpy(sprites + j, sprites + j + 1, n * sizeof(sprite*));
 	::memcpy(uids + j, uids + j + 1, n * sizeof(long));
     
