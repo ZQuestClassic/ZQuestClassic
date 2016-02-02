@@ -6,6 +6,14 @@
 *.elf
 *.ko
 
+# Generally ignored, but is meant as the main cmake directory.
+build/
+
+# Generated cMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
 # Generated precompiled headers
 *.gch
 *.pch

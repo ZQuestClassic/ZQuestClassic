@@ -1,7 +1,8 @@
 
 #pragma once
 
-#if defined(ZC_PCH)
+//#if defined(ZC_PCH)
+#ifdef true
 
 //globally remove extraneous bullshit
 //
