@@ -693,7 +693,9 @@ obj/gui/allegro/column.o: src/gui/allegro/column.cpp src/gui/allegro/column.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/column.cpp -o obj/gui/allegro/column.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/comboBox.o: src/gui/allegro/comboBox.cpp src/gui/allegro/comboBox.h src/gui/allegro/list.h src/gui/list.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/comboBox.cpp -o obj/gui/allegro/comboBox.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/controller.o: src/gui/allegro/controller.cpp src/gui/allegro/controller.h
+obj/gui/allegro/common.o: src/gui/allegro/common.cpp src/gui/allegro/common.h src/gui/allegro/scrollbar.h src/gui/key.h src/gui/mouse.h src/zsys.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/common.cpp -o obj/gui/allegro/common.o $(SFLAG) $(WINFLAG)
+obj/gui/allegro/controller.o: src/gui/allegro/controller.cpp src/gui/allegro/controller.h src/gui/allegro/common.h src/gui/allegro/widget.h src/gui/key.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/controller.cpp -o obj/gui/allegro/controller.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/dummy.o: src/gui/allegro/dummy.cpp src/gui/allegro/dummy.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/dummy.cpp -o obj/gui/allegro/dummy.o $(SFLAG) $(WINFLAG)
@@ -727,8 +729,6 @@ obj/gui/allegro/text.o: src/gui/allegro/text.cpp src/gui/allegro/text.h src/gui/
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/text.cpp -o obj/gui/allegro/text.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/textField.o: src/gui/allegro/textField.cpp src/gui/allegro/textField.h src/gui/allegro/editableText.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/textField.cpp -o obj/gui/allegro/textField.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/common.o: src/gui/allegro/common.cpp src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/common.cpp -o obj/gui/allegro/common.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/window.o: src/gui/allegro/window.cpp src/gui/allegro/window.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/window.cpp -o obj/gui/allegro/window.o $(SFLAG) $(WINFLAG)
 

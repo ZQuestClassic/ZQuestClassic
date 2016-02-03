@@ -1,5 +1,7 @@
 #include "controller.h"
+#include "common.h"
 #include "widget.h"
+#include "../key.h"
 #include <allegro.h>
 #include <cstring>
 
@@ -7,6 +9,22 @@ extern BITMAP *hw_screen; // Because ZQuest replaces screen...
 
 namespace GUI
 {
+
+// This catches any keyboard input not handled by widgets.
+static int handleKeyProc(int msg, DIALOG* d, int c)
+{
+    if(msg==MSG_XCHAR)
+    {
+        KeyInput ki;
+        if(!translateKeyInput(c, ki))
+            return D_O_K;
+        AllegroDialogController* c=static_cast<AllegroDialogController*>(d->dp);
+        if(c->onKeyPressed(ki))
+            return D_USED_CHAR;
+    }
+    
+    return D_O_K;
+}
 
 AllegroDialogController::AllegroDialogController():
     root(0),
@@ -50,10 +68,13 @@ void AllegroDialogController::setDialogRoot(Widget* r)
 
 void AllegroDialogController::initialize()
 {
-    int dialogSize=root->getDataSize()+1; // Last one is the terminator
+    // Allocate an array big enough for all widgets, the keyboard handler,
+    // and the terminator
+    int dialogSize=root->getDataSize()+2;
     allegDlg=new DIALOG[dialogSize];
     std::memset(allegDlg, 0, dialogSize*sizeof(DIALOG));
     
+    // Load up widgets
     int x, y, w, h;
     root->getPreferredSize(w, h);
     x=(SCREEN_W-w)/2;
@@ -61,11 +82,18 @@ void AllegroDialogController::initialize()
     root->setSizeAndPos(x, y, w, h);
     root->realize(allegDlg, 0);
     
+    // Set up the keyboard handler
+    allegDlg[dialogSize-2].proc=handleKeyProc;
+    allegDlg[dialogSize-2].dp=this;
+    
+    // Save the background to redraw when the dialog is closed
+    // (... Is this actually useful?)
     savedBG.bmp=create_bitmap_ex(8, w, h);
     savedBG.x=x;
     savedBG.y=y;
     blit(screen, savedBG.bmp, x, y, 0, 0, w, h);
     
+    // And start the dialog
     player=init_dialog(allegDlg, -1);
     open=true;
     updating=false;

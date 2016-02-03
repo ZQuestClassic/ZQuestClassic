@@ -5,6 +5,7 @@
 #include <allegro.h>
 #include <string>
 
+struct KeyInput;
 struct MouseInput;
 
 extern BITMAP* hw_screen;
@@ -55,7 +56,6 @@ extern GUIPalette pal;
 #define MSG_SCROLL MSG_USER
 #define D_WANTWHEEL D_USER
 
-// Is this useful?  Not sure.
 inline bool dialogUnderMouse(DIALOG* d)
 {
     return mouse_in_rect(d->x, d->y, d->w, d->h);
@@ -75,6 +75,9 @@ void forwardMouseWheel(DIALOG* d, int c);
 /// Translates Allegro dialog messages into MouseInput.
 void translateMouseInput(int msg, int c, int bmpX, int bmpY, int scale,
   MouseInput& out);
+
+/// Translates Allegro dialog messages into KeyInput.
+bool translateKeyInput(int keycode, KeyInput& out);
 
 /// Dialog proc that does nothing.
 int dummyProc(int msg, DIALOG* d, int c);
