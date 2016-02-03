@@ -1,4 +1,71 @@
-*.gcda
+# Compiled object files
+*.slo
+*.lo
 *.o
+*.obj
+*.elf
+*.ko
+
+# Generated precompiled headers
+*.gch
+*.pch
+
+# Compiled dynamic libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Compiled static libraries
+*.lai
+*.la
+*.a
+*.lib
+*.lo
+
+# Generated executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Generated buidl directories
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Debug based files.
+*.dSYM/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.userprefs
+
+# Visual Studio based files
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Misc files
+*.gcda
 makefile.inc
 
