@@ -6,6 +6,10 @@
 *.elf
 *.ko
 
+# Visual Studio upgrading
+UpgradeLog.htm
+Backup/
+
 # Generated precompiled headers
 *.gch
 *.pch
