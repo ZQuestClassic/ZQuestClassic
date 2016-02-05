@@ -2593,12 +2593,12 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos>=0 && pos<176 &&
-          scr>=0 && scr<MAPSCRS &&
+          sc>=0 && sc<MAPSCRS &&
           m>=0 && m<map_count)
         {
+            long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->data[pos]*10000;
@@ -2616,12 +2616,12 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos>=0 && pos<176 &&
-          scr>=0 && scr<MAPSCRS &&
+          sc>=0 && sc<MAPSCRS &&
           m>=0 && m<map_count)
         {
+            long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
@@ -2639,12 +2639,12 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos>=0 && pos<176 &&
-          scr>=0 && scr<MAPSCRS &&
+          sc>=0 && sc<MAPSCRS &&
           m>=0 && m<map_count)
         {
+            long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
@@ -2662,12 +2662,12 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos>=0 && pos<176 &&
-          scr>=0 && scr<MAPSCRS &&
+          sc>=0 && sc<MAPSCRS &&
           m>=0 && m<map_count)
         {
+            long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
@@ -2686,12 +2686,12 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos>=0 && pos<176 &&
-          scr>=0 && scr<MAPSCRS &&
+          sc>=0 && sc<MAPSCRS &&
           m>=0 && m<map_count)
         {
+            long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
@@ -2709,12 +2709,12 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos>=0 && pos<176 &&
-          scr>=0 && scr<MAPSCRS &&
+          sc>=0 && sc<MAPSCRS &&
           m>=0 && m<map_count)
         {
+            long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
@@ -4569,13 +4569,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos<0 || pos>=176 ||
-          scr<0 || scr>=MAPSCRS ||
+          sc<0 || sc>=MAPSCRS ||
           m<0 || m>=map_count)
             break;
         
+        long scr = m*MAPSCRS+sc;
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
             
@@ -4605,13 +4605,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos<0 || pos>=176 ||
-          scr<0 || scr>=MAPSCRS ||
+          sc<0 || sc>=MAPSCRS ||
           m<0 || m>=map_count)
             break;
         
+        long scr = m*MAPSCRS+sc;
         TheMaps[scr].cset[pos]=(value/10000)&15;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -4629,13 +4629,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos<0 || pos>=176 ||
-          scr<0 || scr>=MAPSCRS ||
+          sc<0 || sc>=MAPSCRS ||
           m<0 || m>=map_count)
             break;
         
+        long scr = m*MAPSCRS+sc;
         TheMaps[scr].sflag[pos]=value/10000;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -4653,13 +4653,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos<0 || pos>=176 ||
-          scr<0 || scr>=MAPSCRS ||
+          sc<0 || sc>=MAPSCRS ||
           m<0 || m>=map_count)
             break;
-            
+        
+        long scr = m*MAPSCRS+sc;
         int cdata = TheMaps[scr].data[pos];
         
         // Preprocess the screen's combos in case the combo changed is present on the screen. -L
@@ -4688,13 +4688,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos<0 || pos>=176 ||
-          scr<0 || scr>=MAPSCRS ||
+          sc<0 || sc>=MAPSCRS ||
           m<0 || m>=map_count)
             break;
-            
+        
+        long scr = m*MAPSCRS+sc;
         combobuf[TheMaps[scr].data[pos]].flag=value/10000;
     }
     break;
@@ -4704,13 +4704,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
-        long scr = m*MAPSCRS+sc;
         
         if(pos<0 || pos>=176 ||
-          scr<0 || scr>=MAPSCRS ||
+          sc<0 || sc>=MAPSCRS ||
           m<0 || m>=map_count)
             break;
         
+        long scr = m*MAPSCRS+sc;
         combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
     }
     break;
