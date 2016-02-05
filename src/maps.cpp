@@ -64,7 +64,7 @@
 
 
 //MSVC does not provide a log2 funcion in <cmath>
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1800
 double log2(double n)
 {
     return log(n) / log(2.0);
