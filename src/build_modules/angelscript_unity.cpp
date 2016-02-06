@@ -1,4 +1,5 @@
 
+#include "config.h"
 
 #define AS_NO_EXCEPTIONS 1
 #define AS_NO_THREADS 1 // Useful optimization as zc does dot support multithreading.
