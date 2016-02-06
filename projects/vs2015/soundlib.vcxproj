@@ -72,7 +72,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>pthread.lib;Ws2_32.lib;aldmd.lib;dumbd.lib;almp3.lib;alogg.lib;gme.lib;alld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pthread.lib;Ws2_32.lib;aldmd.lib;dumbd.lib;almp3.lib;alogg.lib;gme.lib;alld_crt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)zcsoundd.dll</OutputFile>
       <AdditionalLibraryDirectories>../../libs/win32dbg;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
