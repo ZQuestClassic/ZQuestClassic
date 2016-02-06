@@ -47,11 +47,11 @@
 //short of fixing gme, these warnings will always be there...
 #pragma warning(disable:4512) //assignment operator could not be generated
 #pragma warning(disable:4100) //unreferenced formal parameter
-#include "gme/Nsf_Emu.h"
-#include "gme/Gbs_Emu.h"
-#include "gme/Spc_Emu.h"
-#include "gme/Vgm_Emu.h"
-#include "gme/Gym_Emu.h"
+#include "Nsf_Emu.h"
+#include "Gbs_Emu.h"
+#include "Spc_Emu.h"
+#include "Vgm_Emu.h"
+#include "Gym_Emu.h"
 #pragma warning(default:4100)
 #pragma warning(default:4512)
 #define int8_t       signed char
