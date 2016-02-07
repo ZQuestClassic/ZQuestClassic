@@ -31,18 +31,6 @@
 *.x86_64
 *.hex
 
-# Generated buidl directories
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-
 # Debug based files.
 *.dSYM/
 
@@ -69,3 +57,5 @@ bld/
 *.gcda
 makefile.inc
 
+/projects/vs2015/Release
+/projects/vs2015/Debug
