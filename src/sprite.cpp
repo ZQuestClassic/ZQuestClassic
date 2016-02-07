@@ -35,6 +35,8 @@
 
 #include "precompiled.h" //always first
 
+#include <algorithm>
+
 #include "sprite.h"
 #include "entityPtr.h"
 #include "zdefs.h"

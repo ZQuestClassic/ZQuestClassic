@@ -13,17 +13,18 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{50ACE952-7298-4317-9AC5-F7823095B346}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -55,8 +56,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZCM_DLL_IMPORT;_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\src;..\..\libs;..\..\libs\src;..\..\libs\msvc;..\..\libs\msvc\directx;..\..\libs\msvc\pthreads;..\..\libs\src\vorbis\include;..\..\libs\src\allegro;..\..\libs\src\allegro\src;..\..\libs\src\alogg;..\..\libs\src\almp3;..\..\libs\src\rubberband\src;..\..\libs\src\dumb\include;..\..\libs\src\zlib\;..\..\libs\src\libpng;..\..\libs\src\loadpng;..\..\libs\src\jpgalleg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_ZQUEST_SCALE_;_ITERATOR_DEBUG_LEVEL=0;RANDOM_PREFIX=rubberband;DUMB_DECLARE_DEPRECATED;HAVE_STRUCT_TIMESPEC;NOMINMAX;WIN32_LEAN_AND_MEAN;ALLEGRO_HAVE_STDINT_H;ALLEGRO_MSVC;HAVE_STDINT_H;ALLEGRO_STATICLINK;ALLEGRO_NO_ASM;ALLEGRO_SRC;ZCM_DLL_IMPORT;WIN32;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -64,13 +65,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>pthread.lib;Ws2_32.lib;libjpgal.lib;loadpng.lib;zlibd.lib;libpng.lib;al_gif.lib;..\..\libs\win32\alleg_crt.lib;..\..\libs\win32\zcsound.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ddraw.lib;dsound.lib;dxguid.lib;dinput.lib;winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)zquest.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\libs\win32dbg;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>../../libs/msvc;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)zquest.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -87,8 +88,8 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZCM_DLL_IMPORT;_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\src;..\..\libs;..\..\libs\src;..\..\libs\msvc;..\..\libs\msvc\directx;..\..\libs\msvc\pthreads;..\..\libs\src\vorbis\include;..\..\libs\src\allegro;..\..\libs\src\allegro\src;..\..\libs\src\alogg;..\..\libs\src\almp3;..\..\libs\src\rubberband\src;..\..\libs\src\dumb\include;..\..\libs\src\zlib\;..\..\libs\src\libpng;..\..\libs\src\loadpng;..\..\libs\src\jpgalleg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_ZQUEST_SCALE_;_ITERATOR_DEBUG_LEVEL=0;RANDOM_PREFIX=rubberband;DUMB_DECLARE_DEPRECATED;HAVE_STRUCT_TIMESPEC;NOMINMAX;WIN32_LEAN_AND_MEAN;ALLEGRO_HAVE_STDINT_H;ALLEGRO_MSVC;HAVE_STDINT_H;ALLEGRO_STATICLINK;ALLEGRO_NO_ASM;ALLEGRO_SRC;ZCM_DLL_IMPORT;WIN32;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -97,12 +98,12 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Ws2_32.lib;pthread.lib;alleg_crt.lib;zcsound.lib;al_gif.lib;libjpgal.lib;libpng.lib;loadpng.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ddraw.lib;dsound.lib;dxguid.lib;dinput.lib;winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)zquest-w.exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>../../libs/msvc;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
