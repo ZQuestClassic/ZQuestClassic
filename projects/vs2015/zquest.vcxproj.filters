@@ -1,0 +1,541 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\compiler">
+      <UniqueIdentifier>{c61cdcf5-3fb6-4857-a2eb-fe1e211d5762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dialog">
+      <UniqueIdentifier>{c176e210-e9fc-4f85-904d-432cd5c48af7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dialog\zquest">
+      <UniqueIdentifier>{51c3384c-25b6-4049-8774-f7bea422cc83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dialog\bitmap">
+      <UniqueIdentifier>{6979162a-9738-471b-80c0-0f3b9514e7b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Compiler">
+      <UniqueIdentifier>{5f7e8a80-5187-4bfb-949b-41d01e40756c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dialog">
+      <UniqueIdentifier>{e91850ba-e079-442e-9113-511ab05205df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dialog\bitmap">
+      <UniqueIdentifier>{d6f9cd2c-8e80-40a8-a777-bbc2e03962b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dialog\zquest">
+      <UniqueIdentifier>{eeb936be-20d3-4bb9-9917-e5eca07a68a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{e24e7068-2eb5-45ce-8cc6-572e3103d744}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\callback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\colors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\defdata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\editbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EditboxModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EditboxView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ffasm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gamedata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jwin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jwinfsel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\load_gif.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\md5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\midi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\particles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\qst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\save_gif.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Subscr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tab_ctl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_custom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_cset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_custom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_doors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_rules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_subscr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zq_tiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zqscale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zquest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zsys.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\AST.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\BuildVisitors.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\ByteCode.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\DataStructs.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\GlobalSymbols.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\lex.yy.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\ParseError.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\ScriptParser.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\SymbolVisitors.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\TypeChecker.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\UtilVisitors.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\parser\y.tab.cpp">
+      <Filter>Source Files\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\cheatEditor.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\infoShopEditor.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\paletteViewer.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\questRules.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\shopEditor.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\simpleListSelector.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\tileSelector.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\tileSelectorBackend.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\zscriptEditor.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\zquest\zscriptMain.cpp">
+      <Filter>Source Files\dialog\zquest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\bitmap\tilePreview.cpp">
+      <Filter>Source Files\dialog\bitmap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\dialog\bitmap\tileSelector.cpp">
+      <Filter>Source Files\dialog\bitmap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\angelscript_unity.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\gui_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zq_as_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zq_dialog_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zq_gui_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zq_misc_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zq_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zq_script_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\aglogo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\decorations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\defdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\editbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\EditboxNew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ending.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ffscript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fontsdat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gamedata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gfxpal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\guys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jwin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\jwinfsel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\link.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\load_gif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\map_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\maps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\md5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\midi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\qst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\save_gif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sprite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\subscr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tab_ctl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\title.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\weapons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zc_alleg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zc_custom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zc_init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zc_subscr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zc_sys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zcmusic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zdefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zelda.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zeldadat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_cset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_custom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_doors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_files.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_rules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_subscr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zq_tiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zqscale.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zquest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zquestdat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zsys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\zsyssimple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\AST.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\bisontypes.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\BuildVisitors.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\ByteCode.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\Compiler.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\DataStructs.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\GlobalSymbols.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\ParseError.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\ScriptParser.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\SymbolVisitors.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\TypeChecker.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\UtilVisitors.h">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\parser\y.tab.hpp">
+      <Filter>Header Files\Compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\bitmap\tilePreview.h">
+      <Filter>Header Files\dialog\bitmap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\bitmap\tileSelector.h">
+      <Filter>Header Files\dialog\bitmap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\cheatEditor.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\infoShopEditor.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\paletteViewer.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\questRules.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\shopEditor.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\simpleListSelector.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\tileSelector.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\tileSelectorBackend.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\zscriptEditor.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\dialog\zquest\zscriptMain.h">
+      <Filter>Header Files\dialog\zquest</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\zq_icon.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="..\..\src\parser\ffscript.lpp">
+      <Filter>Source Files\compiler</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\parser\ffscript.ypp">
+      <Filter>Source Files\compiler</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+</Project>

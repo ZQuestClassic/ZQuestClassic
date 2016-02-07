@@ -1,0 +1,122 @@
+Changes
+-------
+
+ v2.0.5
+  - Added some little tests so it won't crash when reading (after seeking)
+    from some badly encoded MP3s.
+
+ v2.0.4
+  - Avoid errors to popup while playing an MP3 or converting to a SAMPLE
+    if the error was found on the last frame. Thanks goes to Bruno Dupuis
+    for fixing it.
+
+ v2.0.3
+  - Improved the error tolerance of ALMP3_MP3s. It should be as good as the
+    ALMP3_MP3STREAMs one now. Thanks to Eduardo Machado for pointing this
+    out.
+
+ v2.0.2
+  - Added some lacking definitions to the header file and deleted some
+    that never existed
+  - Fixed some little bugs and typos
+
+ v2.0.1
+  - Fixed a small bug where the MP3s would sound with static if their
+    volume was too loud
+
+ v2.0.0
+  - Changed the mp3 decoder to the mpglib of mpg123-pre0.59s, it should
+    be faster and is LGPLed unlike Xing's decoder, that was GPLed
+  - Changed the version scheme, now it uses x.y.z being 'x' used for big
+    changes, 'y' used for normal changes and 'z' for small changes like
+    bugfixes
+  - Removed the almp3_create_mp3_ex() and almp3_create_mp3stream_ex() since
+    the new decoder doesn't support (as far as I know) downmixing and
+    downsampling, but it should be faster than the old one though
+
+ v1.9
+  - Fixed a little typo in the header pointed out by Henrik Schmidt
+  - Changed the license to the Xing MP3 decoder real license, that is
+    GPL. Looks like the lib I downloaded had by error the LGPL license
+    file in its folder where the GPL should had been, they changed it
+    recently and I didn't find it out till today. Version 2.0.0 should
+    be LPGLed again, thanks to the mpglib of mpg123 (used for example
+    in XMMS)
+
+ v1.8
+  - Added options to create the lib as a DLL, please read the README.txt
+    file again for further instructions. Deleted the ML and MT models in
+    MSVC, since this lib needs Allegro and Allegro is only built in MD
+    mode
+  - Added a notice about LGPL license restrictions and how to avoid them
+    using the DLL version of the library
+
+ v1.71
+  - Changed a bit more the makefile because of compability issues with
+    gcc 3.0.x (now the "underwater" sounding should be totally gone)
+
+ v1.7
+  - Changed the makefile to make it compatible with gcc 3.0.x (all the
+    "underwater" sounding should be fixed now)
+
+ v1.6
+  - Major change on the API (added the 'almp3_'and "ALMP3_" prefixes to
+    every function and type the library uses) to avoid name crashes.
+    Also changed some functions names for a better name.
+  - Some mp3stream bugfixes and feedback by David Dribin.
+  - Added functions to seek and get the pos and length in bytes for both
+    mp3s and mp3streams as suggested by Dave Dribin.
+  - Alexey V. Medvedev suggested a function to make possible downmixing
+    (stereo to mono) and downsampling for less powerful computers.
+    Functions create_mp3_ex() and create_mp3stream_ex() added for this
+    purpose.
+  - Changes on the makefiles and directory structure to be able to
+    compile for several platforms using the same directory.
+  - Added mp3stream_get_audiostream() and mp3_get_audiostream() as
+    suggested by Connelly Barnes.
+  - Fixed some "staticness" in some functions.
+  - Added some functions to mp3streams to get information when seeking
+    (read carefully their docs, they are not like mp3 seek ones).
+
+ v1.5
+  - Nick Sumner found a BIG bug on the play_mp3 and play_mp3_ex functions
+    that prevented mp3s (not mp3streams) from being played!
+  - Other minor bugfixes
+  - Added options in the MSVC project to make able the lib to be compiled
+    as Single-Threaded (ML), Multi-Threaded (MT) or Multi-Threaded DLL (MD)
+
+ v1.4
+  - Added mp3_is_looping() and mp3_set_loop()
+  - Added a function to calculate the length of an MP3STREAM
+  - Added the function mp3_is_playing() and mp3stream_is_playing()
+  - Fixed (again) the MSVC project files
+
+
+ v1.3
+  - Fixed some bugs reported by Troy D Patterson
+  - Added adjust_mp3 and adjust_mp3stream to the headers (thanks to
+    Chris Jones for pointing it out)
+  - Fixed bugs affecting very small mp3s reported by Chris Graham
+  - Fixed more bugs in the example program
+  - Chris Graham fixed the MSVC example project file
+
+
+ v1.2
+  - Added some functions to retrieve the decoded data.
+  - Changes on the streaming API (sorry!) because the old one had serious
+    design flaws
+  - Gillius added a port for Microsoft Visual C++
+  - Gillius fixed a little bug in the example
+  - Some minor bugfixes
+  - New functions to change the parameters of the MP3 meanwhile it is
+    playing (adjust_mp3(), adjust_mp3stream())
+  - New functions to get mp3 info like mp3_get_wave_is_stereo() or
+    mp3_get_wave_freq()
+  - Now the lib is able to load an mp3 into a SAMPLE (suggestion by
+    Chris Graham)
+  - Peter Wang did a change of format in fixunix.sh
+  - Eric Botcazou suggested a change in the buffer size of the examples
+
+
+ v1.1
+  - First public release

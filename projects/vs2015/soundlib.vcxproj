@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{435B52F1-524D-4A5A-88E6-0C7B319A4892}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZC\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZC\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/output\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/ZC\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZCM_DLL;WIN32;_DEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>pthread.lib;Ws2_32.lib;aldmd.lib;dumbd.lib;almp3.lib;alogg.lib;gme.lib;alld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zcsoundd.dll</OutputFile>
+      <AdditionalLibraryDirectories>../../libs/win32dbg;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)zcsoundd.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MinSpace</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ZCM_DLL;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;pthread.lib;aldmb.lib;dumb.lib;almp3.lib;alogg.lib;alspc.lib;gme.lib;al_gif.lib;libjpgal.lib;libpng.lib;loadpng.lib;zlib.lib;alleg_crt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zcsound.dll</OutputFile>
+      <AdditionalLibraryDirectories>../../libs/win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreEmbeddedIDL>false</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libs\src\GME\Ay_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ay_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ay_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Blip_Buffer.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Classic_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Data_Reader.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Dual_Resampler.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Effects_Buffer.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Fir_Resampler.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gbs_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gb_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gb_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gb_Oscs.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\gme.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gme_File.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gym_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Hes_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Hes_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Hes_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Kss_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Kss_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Kss_Scc_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\M3u_Playlist.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Multi_Buffer.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Music_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Fme7_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Namco_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Oscs.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Vrc6_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nsfe_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nsf_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sap_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sap_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sap_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sms_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Snes_Spc.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Dsp.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Filter.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Vgm_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Vgm_Emu_Impl.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ym2413_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ym2612_Emu.cpp" />
+    <ClCompile Include="..\..\src\zcmusic.cpp" />
+    <ClCompile Include="..\..\src\zcmusicd.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\src\GME\Ay_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ay_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ay_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_common.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_config.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_endian.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_source.h" />
+    <ClInclude Include="..\..\libs\src\GME\Blip_Buffer.h" />
+    <ClInclude Include="..\..\libs\src\GME\Classic_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Data_Reader.h" />
+    <ClInclude Include="..\..\libs\src\GME\Dual_Resampler.h" />
+    <ClInclude Include="..\..\libs\src\GME\Effects_Buffer.h" />
+    <ClInclude Include="..\..\libs\src\GME\Fir_Resampler.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gbs_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gb_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gb_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\gb_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gb_Oscs.h" />
+    <ClInclude Include="..\..\libs\src\GME\gme.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gme_File.h" />
+    <ClInclude Include="..\..\libs\src\GME\gme_types.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gym_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Hes_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Hes_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\hes_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Hes_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Kss_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Kss_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Kss_Scc_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\M3u_Playlist.h" />
+    <ClInclude Include="..\..\libs\src\GME\Multi_Buffer.h" />
+    <ClInclude Include="..\..\libs\src\GME\Music_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\nes_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Fme7_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Namco_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Oscs.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Vrc6_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nsfe_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nsf_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sap_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sap_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\sap_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sap_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sms_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sms_Oscs.h" />
+    <ClInclude Include="..\..\libs\src\GME\Snes_Spc.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Dsp.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Filter.h" />
+    <ClInclude Include="..\..\libs\src\GME\Vgm_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Vgm_Emu_Impl.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ym2413_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ym2612_Emu.h" />
+    <ClInclude Include="..\..\src\zcmusic.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\libs\src\GME\CMakeLists.txt" />
+    <None Include="..\..\libs\src\GME\gme_types.h.in" />
+    <None Include="..\..\libs\src\GME\libgme.pc.in" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
