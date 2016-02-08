@@ -20,7 +20,6 @@
 *.lai
 *.la
 *.a
-*.lib
 *.lo
 
 # Generated executables
@@ -59,3 +58,4 @@ makefile.inc
 
 /projects/vs2015/Release
 /projects/vs2015/Debug
+/libs/msvc/pthreads/COPYING.LIB
