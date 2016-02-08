@@ -1027,6 +1027,9 @@ void sprite_list::checkConsistency()
 {
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
+
+	for(int i=0; i<count-1; i++)
+		assert(uids[i] < uids[i + 1]);
 }
 
 bool sprite_list::isValidUID(long uid) const
