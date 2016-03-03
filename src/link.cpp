@@ -360,6 +360,12 @@ int  LinkClass::getItemClk()
 {
     return itemclk;
 }
+
+int LinkClass::getHoverClk() const
+{
+    return hoverclk;
+}
+
 void LinkClass::setSwordClk(int newclk)
 {
     swordclk=newclk;
@@ -2437,6 +2443,11 @@ void LinkClass::updateGravity()
                 fall = jumping = 0;
                 int itemid = current_item_id(itype_hoverboots);
                 hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+                
+                if(itemsbuf[itemid].wpn)
+                    decorations.add(new dHover(x, y, dHOVER, 0));
+                    
+                sfx(itemsbuf[itemid].usesound,pan(int(x)));
             }
             else if(!ladderx && !laddery)
             {
@@ -2519,6 +2530,8 @@ void LinkClass::updateGravity()
                 fall = 0;
                 int itemid = current_item_id(itype_hoverboots);
                 hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+                decorations.add(new dHover(x, y, dHOVER, 0));
+                sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(int(x)));
             }
             else fall += zinit.gravity;
         }
@@ -2562,6 +2575,22 @@ bool LinkClass::animate(int)
     itemEffects.update();
     int lsave=0;
     
+    if(isGrassType(COMBOTYPE(x,y+15)) && isGrassType(COMBOTYPE(x+15,y+15))&& z<=8)
+    {
+        if(decorations.idCount(dTALLGRASS)==0)
+        {
+            decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+        }
+    }
+    
+    if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER) && z==0)
+    {
+        if(decorations.idCount(dRIPPLES)==0)
+        {
+            decorations.add(new dRipples(x, y, dRIPPLES, 0));
+        }
+    }
+    
     scriptData->runFunction(asUpdate);
     int asRet=scriptData->getLastResult<int>();
     if(asRet==1)
@@ -2604,6 +2633,14 @@ bool LinkClass::animate(int)
             break;
         }
     }
+    
+    if(DrunkrLbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
+        selectNextBWpn(SEL_LEFT);
+    else if(DrunkrRbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
+        selectNextBWpn(SEL_RIGHT);
+    
+    if(rPbtn())
+        onViewMap(); // return?
     
     // Pay magic cost for Byrna beams
     if(Lwpns.idCount(wCByrna))
@@ -2820,6 +2857,22 @@ bool LinkClass::animate(int)
     
     if(hopclk!=0xFF) ilswim=false;
     
+    if((!loaded_guys) && (frame - newscr_clk >= 1))
+    {
+        if(tmpscr->room==rGANON)
+        {
+            beginSpecialSequence(seq_ganonIntro);
+            return false; // May be unnecessary
+        }
+        else
+            loadguys();
+    }
+    
+    if((!loaded_enemies) && (frame - newscr_clk >= 2))
+        loadenemies();
+    
+    checkscroll();
+    
     if(action!=inwind && action!=drowning)
     {
         checkspecial();
@@ -3021,6 +3074,36 @@ bool LinkClass::animate(int)
         stepforward(29, true);
         action=scrolling;
         pushing=false;
+    }
+    
+    if(game->get_life()<=(HP_PER_HEART) && !(game->get_maxlife()<=(HP_PER_HEART)))
+    {
+        if(heart_beep)
+        {
+            cont_sfx(WAV_ER);
+        }
+        else
+        {
+            if(heart_beep_timer==-1)
+            {
+                heart_beep_timer=70;
+            }
+            
+            if(heart_beep_timer>0)
+            {
+                --heart_beep_timer;
+                cont_sfx(WAV_ER);
+            }
+            else
+            {
+                stop_sfx(WAV_ER);
+            }
+        }
+    }
+    else
+    {
+        heart_beep_timer=-1;
+        stop_sfx(WAV_ER);
     }
     
     if(rSbtn())

@@ -116,6 +116,7 @@ fix  LinkY();
 fix  LinkZ();
 int  LinkHClk();
 int  LinkNayrusLoveShieldClk();
+int  LinkHoverClk();
 int  LinkSwordClk();
 int  LinkItemClk();
 int  LinkAction();

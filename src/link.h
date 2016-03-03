@@ -320,6 +320,7 @@ public:
     void cancelAttack();
     int  getSwordClk();
     int  getItemClk();
+    int getHoverClk() const;
     void  setSwordClk(int newclk);
     void  setItemClk(int newclk);
     void setDir(int new_dir);
@@ -372,7 +373,6 @@ private:
     void updateGravity();
     void checkLadderRemoval();
     
-    friend class LinkHandler;
     friend void registerLink();
 };
 

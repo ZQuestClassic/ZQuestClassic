@@ -75,7 +75,6 @@
 #include "win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
-#include "linkHandler.h"
 #include "messageManager.h"
 #include "room.h"
 #include "screenFreezeState.h"
@@ -91,7 +90,6 @@
 
 MessageManager messageMgr;
 SFXManager sfxMgr;
-LinkHandler linkHandler;
 ScreenFreezeState freezeState(messageMgr);
 
 ZCMUSIC *zcmusic = NULL;
@@ -747,6 +745,11 @@ int  LinkAction()
 int  LinkCharged()
 {
     return Link.isCharged();
+}
+
+int LinkHoverClk()
+{
+    return Link.getHoverClk();
 }
 
 int  LinkSwordClk()
@@ -1689,8 +1692,7 @@ void game_loop()
         
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
-            //if(Link.animate(0))
-            if(linkHandler.update())
+            if(Link.animate(0))
             {
                 if(!Quit)
                 {
