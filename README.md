@@ -5,6 +5,13 @@ Zelda Classic is a game and editing tool that let you create custom Legend of Ze
 
 ![alt tag](http://zeldaclassic.com/what/4.gif)
 
+Homepage:
+http://zeldaclassic.com
+
+The latest stable release of Zelda Classic is 2.50.2.
+Current and previous releases of Zelda Classic can be downloaded at: http://zeldaclassic.com/downloads.php
+
+# License
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
