@@ -2,7 +2,9 @@
 #include "precompiled.h"
 #include "config.h"
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
 
 //#include "callback.cpp"

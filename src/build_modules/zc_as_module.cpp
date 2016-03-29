@@ -12,4 +12,4 @@
 #include "angelscript/scriptarray/scriptarray.cpp"
 
 #include "angelscript/scriptContext.cpp"
-#include "angelscript/scriptGC.cpp"
+//#include "angelscript/scriptGC.cpp" //zero 07-feb-2016 - uhhh where's this file?

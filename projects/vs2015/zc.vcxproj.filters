@@ -1,0 +1,1849 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{a38a4e15-76ba-4bb6-855f-bc81aaa4cec7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zcsound">
+      <UniqueIdentifier>{300fc87b-bce5-4702-9e13-7e2df286f61b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{672dd884-a13b-49ef-a288-55d7c281709e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src #included in Modules">
+      <UniqueIdentifier>{88ccb26e-b593-4571-b11f-0ed481350446}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src #included in Modules\gui">
+      <UniqueIdentifier>{7659ae49-3d07-48a0-8277-b4fad4155cf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src #included in Modules\gui\allegroGui">
+      <UniqueIdentifier>{ced4af92-84c4-4592-b0d4-9b66f0419376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src #included in Modules\item">
+      <UniqueIdentifier>{d428f93d-eb8b-401e-845b-4d2b44853607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src #included in Modules\sequence">
+      <UniqueIdentifier>{c727a816-eb18-4fa8-ba28-52489bc10de9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{d0dbc148-8d99-4ace-8d76-3774ed2b89c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src">
+      <UniqueIdentifier>{556121fe-ca04-4cbb-be01-83ac72cc4d1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\allegro">
+      <UniqueIdentifier>{76ec454c-5e4b-43c4-8b04-602ede85a9de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\allegro\src">
+      <UniqueIdentifier>{fdad8a17-78c2-4bfb-b753-76594732c648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\allegro\src\allegro">
+      <UniqueIdentifier>{ba90885b-8c11-4692-b2e8-86f86a41b400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\allegro\src\allegro\c">
+      <UniqueIdentifier>{98b8dd90-d067-42b6-b115-2a24afa661fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\allegro\src\allegro\misc">
+      <UniqueIdentifier>{adfb96cc-b552-4c05-b433-5f301658d201}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\allegro\src\allegro\win">
+      <UniqueIdentifier>{cde15917-7cbe-48f9-a4c6-5c4dc64cc114}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband">
+      <UniqueIdentifier>{4420cd37-d4f2-44a1-ab8d-1c2568821885}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src">
+      <UniqueIdentifier>{f21c59b1-d76e-4d08-8ce4-b791a08ea3e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\almp3">
+      <UniqueIdentifier>{6d34799c-b4de-4eee-a07e-0cd81aaf7d88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\alogg">
+      <UniqueIdentifier>{3d95b53d-c141-4a44-8fdd-302fd2681c17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\GME">
+      <UniqueIdentifier>{6a2387f7-ed8c-4d11-9ba5-95035dc38541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\ogg">
+      <UniqueIdentifier>{9e67d09e-70cc-4a27-981a-5ddeeaeaa86a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\ogg\src">
+      <UniqueIdentifier>{5f4340de-1961-4e3d-a716-50ed4e7138aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\vorbis">
+      <UniqueIdentifier>{afa1b2e8-6ec9-4537-b219-0766d3158a92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\vorbis\src">
+      <UniqueIdentifier>{c6eb64ae-88c4-4b4d-9d17-62d589d9e451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\audiocurves">
+      <UniqueIdentifier>{811718f5-6f06-4a08-a6f8-9e0327c9be5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\base">
+      <UniqueIdentifier>{18a4086f-4ae2-4492-9208-3c2952bdfe4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\dsp">
+      <UniqueIdentifier>{25dee63c-1a30-4ee4-b2c4-92562698a328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\kissfft">
+      <UniqueIdentifier>{3a40557e-526d-48f3-8345-0c6a3620ee76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\rubberband">
+      <UniqueIdentifier>{5043dfca-5d3d-421f-b86a-c435ffd36ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\speex">
+      <UniqueIdentifier>{4ae68335-8cab-4314-b29c-3d5ded12c935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\rubberband\src\system">
+      <UniqueIdentifier>{53b33f66-7ea7-49c8-aa28-acb220b2357f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\pthreads">
+      <UniqueIdentifier>{00a1ed47-ef5b-4b89-8fce-0d5146937a32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\dumb">
+      <UniqueIdentifier>{43abc8fa-9a7e-4dee-9195-cbe8d841e840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\dumb\src">
+      <UniqueIdentifier>{d984ca9a-d056-488c-87e3-46e4cb361fb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\dumb\src\core">
+      <UniqueIdentifier>{00716f8f-ab8d-449f-8f02-f62de5c41058}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\dumb\src\allegro">
+      <UniqueIdentifier>{3f9926d3-116a-49e1-a2bc-e91ec088eb31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\dumb\helpers">
+      <UniqueIdentifier>{6d14371a-cefe-45a8-8995-980e3f4cb128}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\dumb\it">
+      <UniqueIdentifier>{ff5df038-cc9f-49e8-8354-0b8b0b8a260d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\loadpng">
+      <UniqueIdentifier>{cd250f9d-c911-4c16-b0b5-25bb3217334f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\zlib">
+      <UniqueIdentifier>{14e9db67-53cb-4c27-8e3d-7bcce6f8f6ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\libpng">
+      <UniqueIdentifier>{f784744c-3f43-443c-8a65-17eb710ee45b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{a758b98c-578e-4543-9087-9996977ae154}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\src\jpegalleg">
+      <UniqueIdentifier>{b0c5eb55-c72d-408d-a0ea-ff38e090b127}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\item\dinsFire.cpp">
+      <Filter>src #included in Modules\item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\item\faroresWind.cpp">
+      <Filter>src #included in Modules\item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\item\nayrusLove.cpp">
+      <Filter>src #included in Modules\item</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\alert.cpp">
+      <Filter>src #included in Modules\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\contents.cpp">
+      <Filter>src #included in Modules\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\controller.cpp">
+      <Filter>src #included in Modules\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\dialog.cpp">
+      <Filter>src #included in Modules\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\manager.cpp">
+      <Filter>src #included in Modules\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\bitmap.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\button.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\checkbox.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\column.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\comboBox.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\common.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\controller.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\dummy.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\editableText.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\factory.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\frame.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\list.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\renderer.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\row.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\scrollbar.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\scrollingPane.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\serialContainer.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\standardWidget.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\tab.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\tabBar.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\tabPanel.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\text.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\textField.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\window.cpp">
+      <Filter>src #included in Modules\gui\allegroGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\gameOver.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\ganonIntro.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\getBigTriforce.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\getTriforce.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\potion.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\sequence.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\whistle.cpp">
+      <Filter>src #included in Modules\sequence</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\angelscript_unity.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\gui_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zc_as_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zc_gui_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zc_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zc_objects_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zc_sprite_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\zc_subscreen_module.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zcmusic.cpp">
+      <Filter>zcsound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zcmusicd.cpp">
+      <Filter>zcsound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Blip_Buffer.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Classic_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Data_Reader.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Dual_Resampler.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Effects_Buffer.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Fir_Resampler.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Gb_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Gb_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Gb_Oscs.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Gbs_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\gme.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Gme_File.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Gym_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Hes_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Hes_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Hes_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Kss_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Kss_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Kss_Scc_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\M3u_Playlist.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Multi_Buffer.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Music_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nes_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nes_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nes_Fme7_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nes_Namco_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nes_Oscs.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nes_Vrc6_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nsf_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Nsfe_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Sap_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Sap_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Sap_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Sms_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Snes_Spc.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Spc_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Spc_Dsp.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Spc_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Spc_Filter.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Vgm_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Vgm_Emu_Impl.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Ym2413_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Ym2612_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Ay_Apu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Ay_Cpu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\GME\Ay_Emu.cpp">
+      <Filter>libs\src\GME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zsys.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\aglogo.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\colors.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debug.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\decorations.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\defdata.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\editbox.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EditboxModel.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EditboxView.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ending.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ffscript.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gamedata.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\guys.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\init.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\items.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jwin.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jwinfsel.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\link.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\maps.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\matrix.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\md5.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\messageManager.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\messageRenderer.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\messageStream.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\midi.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pal.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\particles.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\qst.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\script_drawing.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sprite.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\subscr.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tab_ctl.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tiles.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\title.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\weapons.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win32.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_custom.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_init.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_items.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_sprite.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_subscr.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_sys.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zelda.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zscriptversion.cpp">
+      <Filter>src #included in Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\mapping0.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\mdct.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\psy.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\registry.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\res0.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\smallft.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\synthesis.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\vorbisfile.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\window.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\analysis.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\bitrate.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\block.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\codebook.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\envelope.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\floor0.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\floor1.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\info.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\lookup.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\lpc.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\lsp.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\ogg\src\framing.c">
+      <Filter>libs\src\ogg\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\ogg\src\bitwise.c">
+      <Filter>libs\src\ogg\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\alogg\alogg.c">
+      <Filter>libs\src\alogg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan8.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan15.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan16.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan24.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan32.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr8.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr15.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr16.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr24.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr32.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cstretch.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan8.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan15.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan16.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan24.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan32.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit8.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit16.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit24.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit32.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\ccpu.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\ccsprite.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx8.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx15.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx16.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx24.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx32.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cmisc.c">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\misc\ccolconv.c">
+      <Filter>libs\src\allegro\src\allegro\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\misc\colconv.c">
+      <Filter>libs\src\allegro\src\allegro\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddbmpl.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddfull.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddlock.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddmode.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddovl.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddraw.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddwin.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdispsw.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdsinput.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdsndmix.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdsound.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdxver.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wfile.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wgdi.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wgfxdrv.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\winput.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoydrv.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoydx.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoyhelp.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoyw32.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wkeybd.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wmidi.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wmouse.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wsnddrv.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wsndwo.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wsystem.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wthread.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wtimer.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wwnd.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\gdi.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddaccel.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddbmp.c">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\text.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\tga.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\timer.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\unicode.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable8.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable15.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable16.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable24.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable32.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\allegro.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\blit.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\bmp.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\clip3d.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\clip3df.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\colblend.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\color.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\config.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\datafile.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\dataregi.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\digmid.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\dispsw.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\dither.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\drvlist.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\file.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fli.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\flood.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\font.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontbios.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontbmp.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontdat.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontgrx.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fonttxt.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fsel.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\gfx.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\glyph.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\graphics.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\gsprite.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\gui.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\guiproc.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\inline.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\joystick.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\keyboard.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\lbm.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\libc.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\lzss.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\math.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\math3d.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\midi.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\mixer.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\modesel.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\mouse.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\pcx.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\poly3d.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\polygon.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\quantize.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\quat.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\readbmp.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\readfont.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\readsmp.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\rle.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\rotate.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\scene3d.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\sound.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\spline.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\stream.c">
+      <Filter>libs\src\allegro\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\RubberBandStretcher.cpp">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretchCalculator.cpp">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretcherChannelData.cpp">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretcherImpl.cpp">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretcherProcess.cpp">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\rubberband-c.cpp">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\almp3.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\vorbis\src\sharedbook.c">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\HighFrequencyAudioCurve.cpp">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\PercussiveAudioCurve.cpp">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\SilentAudioCurve.cpp">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\SpectralDifferenceAudioCurve.cpp">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\CompoundAudioCurve.cpp">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\ConstantAudioCurve.cpp">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\dsp\FFT.cpp">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\dsp\Resampler.cpp">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\dsp\AudioCurveCalculator.cpp">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\kissfft\kiss_fft.c">
+      <Filter>libs\src\rubberband\src\kissfft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\kissfft\kiss_fftr.c">
+      <Filter>libs\src\rubberband\src\kissfft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\speex\resample.c">
+      <Filter>libs\src\rubberband\src\speex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\system\Thread.cpp">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\rubberband\src\system\sysutils.cpp">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\dct64_i386.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\decode_i386.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\interface.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\layer2.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\layer3.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\tabinit.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\almp3\common.c">
+      <Filter>libs\src\almp3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\msvc\pthreads\pthread.c">
+      <Filter>libs\src\pthreads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\duhlen.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\duhtag.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\dumbfile.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\loadduh.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\makeduh.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\rawsig.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\readduh.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\register.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\rendduh.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\rendsig.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\unload.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\core\atexit.c">
+      <Filter>libs\src\dumb\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datunld.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datxm.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datxmq.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\packfile.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\alplay.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datduh.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datit.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datitq.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datmod.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datmodq.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\dats3m.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\dats3mq.c">
+      <Filter>libs\src\dumb\src\allegro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\resample.c">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\sampbuf.c">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\silence.c">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\stdfile.c">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\clickrem.c">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\memfile.c">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loads3m2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadxm.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadxm2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readmod.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readmod2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\reads3m.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\reads3m2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readxm.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readxm2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\xmeffect.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itload.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itload2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itmisc.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itorder.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itread.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itread2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itrender.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itunload.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadmod.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadmod2.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loads3m.c">
+      <Filter>libs\src\dumb\it</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\loadpng\loadpng.c">
+      <Filter>libs\src\loadpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngread.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngrio.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngrtran.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngrutil.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngset.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngtrans.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngwio.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngwrite.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngwtran.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngwutil.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\png.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngerror.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngget.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngmem.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\libpng\pngpread.c">
+      <Filter>libs\src\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\uncompr.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\zutil.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\adler32.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\compress.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\crc32.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\deflate.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\gzclose.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\gzlib.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\gzread.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\gzwrite.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\infback.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\inffast.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\inflate.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\inftrees.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\zlib\trees.c">
+      <Filter>libs\src\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\loadpng\regpng.c">
+      <Filter>libs\src\loadpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\load_gif.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\save_gif.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\jpgalleg\jpgalleg.c">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\jpgalleg\decode.c">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\jpgalleg\encode.c">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\jpgalleg\io.c">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\src\loadpng\savepng.c">
+      <Filter>libs\src\loadpng</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\zcmusic.h">
+      <Filter>zcsound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\blargg_config.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\blargg_endian.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\blargg_source.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Blip_Buffer.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Classic_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Data_Reader.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Dual_Resampler.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Effects_Buffer.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Fir_Resampler.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Gb_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Gb_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\gb_cpu_io.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Gb_Oscs.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Gbs_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\gme.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Gme_File.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\gme_types.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Gym_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Hes_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Hes_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\hes_cpu_io.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Hes_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Kss_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Kss_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Kss_Scc_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\M3u_Playlist.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Multi_Buffer.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Music_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nes_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nes_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\nes_cpu_io.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nes_Fme7_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nes_Namco_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nes_Oscs.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nes_Vrc6_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nsf_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Nsfe_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Sap_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Sap_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\sap_cpu_io.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Sap_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Sms_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Sms_Oscs.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Snes_Spc.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Spc_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Spc_Dsp.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Spc_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Spc_Filter.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Vgm_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Vgm_Emu_Impl.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Ym2413_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Ym2612_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Ay_Apu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Ay_Cpu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\Ay_Emu.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\GME\blargg_common.h">
+      <Filter>libs\src\GME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\msvc\unistd.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\lsp.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\masking.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\mdct.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\misc.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\os.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\psy.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\registry.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\scales.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\smallft.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\window.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\backends.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\bitrate.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\codebook.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\codec_internal.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\envelope.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\highlevel.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\lookup.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\lookup_data.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\src\lpc.h">
+      <Filter>libs\src\vorbis\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\codec.h">
+      <Filter>libs\src\vorbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\vorbisenc.h">
+      <Filter>libs\src\vorbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\vorbis\vorbisfile.h">
+      <Filter>libs\src\vorbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\ogg\ogg.h">
+      <Filter>libs\src\ogg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\ogg\os_types.h">
+      <Filter>libs\src\ogg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\alogg\alogg.h">
+      <Filter>libs\src\alogg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cspr.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\czscan.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cblit.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs8.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs15.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs16.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs24.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs32.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cgfx.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cscan.h">
+      <Filter>libs\src\allegro\src\allegro\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\win\wddraw.h">
+      <Filter>libs\src\allegro\src\allegro\win</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\RubberBandStretcher.h">
+      <Filter>libs\src\rubberband</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\rubberband-c.h">
+      <Filter>libs\src\rubberband</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\StretchCalculator.h">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\StretcherChannelData.h">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\StretcherImpl.h">
+      <Filter>libs\src\rubberband\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\almp3\almp3.h">
+      <Filter>libs\src\almp3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\HighFrequencyAudioCurve.h">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\PercussiveAudioCurve.h">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\SilentAudioCurve.h">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\SpectralDifferenceAudioCurve.h">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\CompoundAudioCurve.h">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\ConstantAudioCurve.h">
+      <Filter>libs\src\rubberband\src\audiocurves</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\base\Scavenger.h">
+      <Filter>libs\src\rubberband\src\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\base\RingBuffer.h">
+      <Filter>libs\src\rubberband\src\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\FFT.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\MovingMedian.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\Resampler.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\SampleFilter.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\SincWindow.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\Window.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\AudioCurveCalculator.h">
+      <Filter>libs\src\rubberband\src\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\kissfft\kiss_fft.h">
+      <Filter>libs\src\rubberband\src\kissfft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\kissfft\kiss_fftr.h">
+      <Filter>libs\src\rubberband\src\kissfft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\kissfft\_kiss_fft_guts.h">
+      <Filter>libs\src\rubberband\src\kissfft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\rubberband\RubberBandStretcher.h">
+      <Filter>libs\src\rubberband\src\rubberband</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\rubberband\rubberband-c.h">
+      <Filter>libs\src\rubberband\src\rubberband</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\speex\speex_resampler.h">
+      <Filter>libs\src\rubberband\src\speex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\sysutils.h">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\Thread.h">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\VectorOps.h">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\VectorOpsComplex.h">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\Allocators.h">
+      <Filter>libs\src\rubberband\src\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\msvc\pthreads\pthread.h">
+      <Filter>libs\src\pthreads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\loadpng\loadpng.h">
+      <Filter>libs\src\loadpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\libpng\png.h">
+      <Filter>libs\src\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\libpng\pngconf.h">
+      <Filter>libs\src\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\zconf.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\zlib.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\zutil.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\crc32.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\deflate.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\gzguts.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\inffast.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\inffixed.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\inflate.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\inftrees.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\zlib\trees.h">
+      <Filter>libs\src\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\load_gif.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\save_gif.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\jpgalleg\jpgalleg.h">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\jpgalleg\dct.h">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\src\jpgalleg\internal.h">
+      <Filter>libs\src\jpegalleg</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\libs\src\GME\CMakeLists.txt">
+      <Filter>libs\src\GME</Filter>
+    </None>
+    <None Include="..\..\libs\src\GME\gme_types.h.in">
+      <Filter>libs\src\GME</Filter>
+    </None>
+    <None Include="..\..\libs\src\GME\libgme.pc.in">
+      <Filter>libs\src\GME</Filter>
+    </None>
+    <None Include="..\..\libs\src\rubberband\src\kissfft\COPYING">
+      <Filter>libs\src\rubberband\src\kissfft</Filter>
+    </None>
+    <None Include="..\..\libs\src\rubberband\src\speex\COPYING">
+      <Filter>libs\src\rubberband\src\speex</Filter>
+    </None>
+    <None Include="..\..\libs\src\dumb\src\helpers\resamp2.inc">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </None>
+    <None Include="..\..\libs\src\dumb\src\helpers\resamp3.inc">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </None>
+    <None Include="..\..\libs\src\dumb\src\helpers\resample.inc">
+      <Filter>libs\src\dumb\helpers</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\zc_icon.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\libs\src\jpgalleg\license.txt">
+      <Filter>libs\src\jpegalleg</Filter>
+    </Text>
+    <Text Include="..\..\libs\src\jpgalleg\readme.txt">
+      <Filter>libs\src\jpegalleg</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

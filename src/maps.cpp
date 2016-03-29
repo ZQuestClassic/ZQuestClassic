@@ -63,8 +63,8 @@
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
 
-//MSVC does not provide a log2 funcion in <cmath>
-#ifdef _MSC_VER
+//old MSVC does not provide a log2 funcion in <cmath>
+#if defined(_MSC_VER) && _MSC_VER<1600
 double log2(double n)
 {
     return log(n) / log(2.0);

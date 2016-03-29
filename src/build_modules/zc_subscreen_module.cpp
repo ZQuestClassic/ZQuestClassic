@@ -27,5 +27,5 @@
 #include "gui.cpp"
 #include "zc_sys.cpp"
 
-int zcmusic_bufsz = 64;
+//int zcmusic_bufsz = 64; //zero 07-feb-2016 - uhhh this is already defined in zcmusic
 

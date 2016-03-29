@@ -1,0 +1,1027 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project InitialTargets="UNDUPOBJ" DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C716DE8B-1181-4B5D-947C-F8233C562464}</ProjectGuid>
+    <RootNamespace>zc</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZC\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZC\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/output\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/ZC\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\src;..\..\libs;..\..\libs\src;..\..\libs\msvc;..\..\libs\msvc\directx;..\..\libs\msvc\pthreads;..\..\libs\src\vorbis\include;..\..\libs\src\allegro;..\..\libs\src\allegro\src;..\..\libs\src\alogg;..\..\libs\src\almp3;..\..\libs\src\rubberband\src;..\..\libs\src\dumb\include;..\..\libs\src\zlib\;..\..\libs\src\libpng;..\..\libs\src\loadpng;..\..\libs\src\jpgalleg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;RANDOM_PREFIX=rubberband;DUMB_DECLARE_DEPRECATED;HAVE_STRUCT_TIMESPEC;NOMINMAX;WIN32_LEAN_AND_MEAN;ALLEGRO_HAVE_STDINT_H;ALLEGRO_MSVC;HAVE_STDINT_H;ALLEGRO_STATICLINK;ALLEGRO_NO_ASM;ALLEGRO_SRC;ZCM_DLL_IMPORT;WIN32;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>
+      </MinimalRebuild>
+      <BasicRuntimeChecks>
+      </BasicRuntimeChecks>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level2</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ddraw.lib;dsound.lib;dxguid.lib;dinput.lib;winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zc.exe</OutputFile>
+      <AdditionalLibraryDirectories>../../libs/msvc;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)zc.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\src;..\..\libs;..\..\libs\src;..\..\libs\msvc;..\..\libs\msvc\directx;..\..\libs\msvc\pthreads;..\..\libs\src\vorbis\include;..\..\libs\src\allegro;..\..\libs\src\allegro\src;..\..\libs\src\alogg;..\..\libs\src\almp3;..\..\libs\src\rubberband\src;..\..\libs\src\dumb\include;..\..\libs\src\zlib\;..\..\libs\src\libpng;..\..\libs\src\loadpng;..\..\libs\src\jpgalleg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;RANDOM_PREFIX=rubberband;DUMB_DECLARE_DEPRECATED;HAVE_STRUCT_TIMESPEC;NOMINMAX;WIN32_LEAN_AND_MEAN;ALLEGRO_HAVE_STDINT_H;ALLEGRO_MSVC;HAVE_STDINT_H;ALLEGRO_STATICLINK;ALLEGRO_NO_ASM;ALLEGRO_SRC;ZCM_DLL_IMPORT;WIN32;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ddraw.lib;dsound.lib;dxguid.lib;dinput.lib;winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zelda-w.exe</OutputFile>
+      <AdditionalLibraryDirectories>../../libs/msvc;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreEmbeddedIDL>false</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libs\msvc\pthreads\pthread.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\allegro.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\blit.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\bmp.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\clip3d.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\clip3df.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\colblend.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\color.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\config.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit16.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit24.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cblit8.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\ccpu.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\ccsprite.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx15.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx16.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx24.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cgfx8.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cmisc.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan15.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan16.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan24.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cscan8.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr15.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr16.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr24.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cspr8.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\cstretch.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan15.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan16.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan24.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\c\czscan8.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\datafile.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\dataregi.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\digmid.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\dispsw.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\dither.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\drvlist.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\file.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fli.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\flood.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\font.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontbios.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontbmp.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontdat.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fontgrx.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fonttxt.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\fsel.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\gfx.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\glyph.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\graphics.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\gsprite.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\gui.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\guiproc.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\inline.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\joystick.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\keyboard.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\lbm.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\libc.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\lzss.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\math.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\math3d.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\midi.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\misc\ccolconv.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\misc\colconv.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\mixer.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\modesel.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\mouse.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\pcx.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\poly3d.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\polygon.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\quantize.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\quat.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\readbmp.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\readfont.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\readsmp.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\rle.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\rotate.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\scene3d.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\sound.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\spline.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\stream.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\text.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\tga.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\timer.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\unicode.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable15.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable16.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable24.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\vtable8.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\gdi.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddaccel.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddbmp.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddbmpl.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddfull.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddlock.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddmode.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddovl.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddraw.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wddwin.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdispsw.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdsinput.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdsndmix.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdsound.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wdxver.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wfile.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wgdi.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wgfxdrv.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\winput.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoydrv.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoydx.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoyhelp.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wjoyw32.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wkeybd.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wmidi.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wmouse.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wsnddrv.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wsndwo.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wsystem.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wthread.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wtimer.c" />
+    <ClCompile Include="..\..\libs\src\allegro\src\allegro\win\wwnd.c" />
+    <ClCompile Include="..\..\libs\src\almp3\almp3.c" />
+    <ClCompile Include="..\..\libs\src\almp3\common.c" />
+    <ClCompile Include="..\..\libs\src\almp3\dct64_i386.c" />
+    <ClCompile Include="..\..\libs\src\almp3\decode_i386.c" />
+    <ClCompile Include="..\..\libs\src\almp3\interface.c" />
+    <ClCompile Include="..\..\libs\src\almp3\layer2.c" />
+    <ClCompile Include="..\..\libs\src\almp3\layer3.c" />
+    <ClCompile Include="..\..\libs\src\almp3\tabinit.c" />
+    <ClCompile Include="..\..\libs\src\alogg\alogg.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\alplay.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datduh.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datit.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datitq.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datmod.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datmodq.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\dats3m.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\dats3mq.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datunld.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datxm.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\datxmq.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\allegro\packfile.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\atexit.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\duhlen.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\duhtag.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\dumbfile.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\loadduh.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\makeduh.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\rawsig.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\readduh.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\register.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\rendduh.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\rendsig.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\core\unload.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\clickrem.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\memfile.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\resample.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\sampbuf.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\silence.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\helpers\stdfile.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itload.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itload2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itmisc.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itorder.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itread.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itread2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itrender.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\itunload.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadmod.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadmod2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loads3m.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loads3m2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadxm.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\loadxm2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readmod.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readmod2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\reads3m.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\reads3m2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readxm.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\readxm2.c" />
+    <ClCompile Include="..\..\libs\src\dumb\src\it\xmeffect.c" />
+    <ClCompile Include="..\..\libs\src\GME\Ay_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ay_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ay_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Blip_Buffer.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Classic_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Data_Reader.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Dual_Resampler.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Effects_Buffer.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Fir_Resampler.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gbs_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gb_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gb_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gb_Oscs.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\gme.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gme_File.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Gym_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Hes_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Hes_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Hes_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Kss_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Kss_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Kss_Scc_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\M3u_Playlist.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Multi_Buffer.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Music_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Fme7_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Namco_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Oscs.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nes_Vrc6_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nsfe_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Nsf_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sap_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sap_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sap_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Sms_Apu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Snes_Spc.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Cpu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Dsp.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Spc_Filter.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Vgm_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Vgm_Emu_Impl.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ym2413_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\GME\Ym2612_Emu.cpp" />
+    <ClCompile Include="..\..\libs\src\jpgalleg\decode.c" />
+    <ClCompile Include="..\..\libs\src\jpgalleg\encode.c" />
+    <ClCompile Include="..\..\libs\src\jpgalleg\io.c" />
+    <ClCompile Include="..\..\libs\src\jpgalleg\jpgalleg.c" />
+    <ClCompile Include="..\..\libs\src\libpng\png.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngerror.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngget.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngmem.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngpread.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngread.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngrio.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngrtran.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngrutil.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngset.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngtrans.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngwio.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngwrite.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngwtran.c" />
+    <ClCompile Include="..\..\libs\src\libpng\pngwutil.c" />
+    <ClCompile Include="..\..\libs\src\loadpng\loadpng.c" />
+    <ClCompile Include="..\..\libs\src\loadpng\regpng.c" />
+    <ClCompile Include="..\..\libs\src\loadpng\savepng.c" />
+    <ClCompile Include="..\..\libs\src\ogg\src\bitwise.c" />
+    <ClCompile Include="..\..\libs\src\ogg\src\framing.c" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\CompoundAudioCurve.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\ConstantAudioCurve.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\HighFrequencyAudioCurve.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\PercussiveAudioCurve.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\SilentAudioCurve.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\audiocurves\SpectralDifferenceAudioCurve.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\dsp\AudioCurveCalculator.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\dsp\FFT.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\dsp\Resampler.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\kissfft\kiss_fft.c" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\kissfft\kiss_fftr.c" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\rubberband-c.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\RubberBandStretcher.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\speex\resample.c" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretchCalculator.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretcherChannelData.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretcherImpl.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\StretcherProcess.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\system\sysutils.cpp" />
+    <ClCompile Include="..\..\libs\src\rubberband\src\system\Thread.cpp" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\analysis.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\bitrate.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\block.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\codebook.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\envelope.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\floor0.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\floor1.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\info.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\lookup.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\lpc.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\lsp.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\mapping0.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\mdct.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\psy.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\registry.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\res0.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\sharedbook.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\smallft.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\synthesis.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\vorbisfile.c" />
+    <ClCompile Include="..\..\libs\src\vorbis\src\window.c" />
+    <ClCompile Include="..\..\libs\src\zlib\adler32.c" />
+    <ClCompile Include="..\..\libs\src\zlib\compress.c" />
+    <ClCompile Include="..\..\libs\src\zlib\crc32.c" />
+    <ClCompile Include="..\..\libs\src\zlib\deflate.c" />
+    <ClCompile Include="..\..\libs\src\zlib\gzclose.c" />
+    <ClCompile Include="..\..\libs\src\zlib\gzlib.c" />
+    <ClCompile Include="..\..\libs\src\zlib\gzread.c" />
+    <ClCompile Include="..\..\libs\src\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\libs\src\zlib\infback.c" />
+    <ClCompile Include="..\..\libs\src\zlib\inffast.c" />
+    <ClCompile Include="..\..\libs\src\zlib\inflate.c" />
+    <ClCompile Include="..\..\libs\src\zlib\inftrees.c" />
+    <ClCompile Include="..\..\libs\src\zlib\trees.c" />
+    <ClCompile Include="..\..\libs\src\zlib\uncompr.c" />
+    <ClCompile Include="..\..\libs\src\zlib\zutil.c" />
+    <ClCompile Include="..\..\src\aglogo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\colors.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debug.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\decorations.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\defdata.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\editbox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EditboxModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EditboxView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ending.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ffscript.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gamedata.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\guys.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\src\init.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\items.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jwin.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jwinfsel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\link.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\load_gif.cpp" />
+    <ClCompile Include="..\..\src\maps.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\matrix.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\md5.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\messageManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\messageRenderer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\messageStream.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\midi.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pal.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\src\particles.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\qst.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\save_gif.cpp" />
+    <ClCompile Include="..\..\src\script_drawing.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sprite.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\subscr.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tab_ctl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tiles.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\title.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\weapons.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win32.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zcmusic.cpp">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PreprocessToFile>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zcmusicd.cpp" />
+    <ClCompile Include="..\..\src\zc_custom.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_init.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_items.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_sprite.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_subscr.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zc_sys.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zelda.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zscriptversion.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\zsys.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\item\dinsFire.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\item\faroresWind.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\item\nayrusLove.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\alert.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\contents.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\controller.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\dialog.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\manager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\bitmap.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\button.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\checkbox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\column.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\comboBox.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\common.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\controller.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\dummy.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\editableText.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\factory.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\frame.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\list.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\renderer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\row.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\scrollbar.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\scrollingPane.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\serialContainer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\standardWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\tab.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\tabBar.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\tabPanel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\text.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\textField.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\allegro\window.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\gameOver.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\ganonIntro.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\getBigTriforce.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\getTriforce.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\potion.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\sequence.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sequence\whistle.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\angelscript_unity.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MinSpace</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MinSpace</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\src\build_modules\gui_module.cpp" />
+    <ClCompile Include="..\..\src\build_modules\zc_as_module.cpp" />
+    <ClCompile Include="..\..\src\build_modules\zc_gui_module.cpp" />
+    <ClCompile Include="..\..\src\build_modules\zc_module.cpp" />
+    <ClCompile Include="..\..\src\build_modules\zc_objects_module.cpp" />
+    <ClCompile Include="..\..\src\build_modules\zc_sprite_module.cpp" />
+    <ClCompile Include="..\..\src\build_modules\zc_subscreen_module.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\msvc\pthreads\pthread.h" />
+    <ClInclude Include="..\..\libs\msvc\unistd.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cblit.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs15.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs16.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs24.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs32.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cdefs8.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cgfx.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cscan.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\cspr.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\c\czscan.h" />
+    <ClInclude Include="..\..\libs\src\allegro\src\allegro\win\wddraw.h" />
+    <ClInclude Include="..\..\libs\src\almp3\almp3.h" />
+    <ClInclude Include="..\..\libs\src\alogg\alogg.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ay_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ay_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ay_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_common.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_config.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_endian.h" />
+    <ClInclude Include="..\..\libs\src\GME\blargg_source.h" />
+    <ClInclude Include="..\..\libs\src\GME\Blip_Buffer.h" />
+    <ClInclude Include="..\..\libs\src\GME\Classic_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Data_Reader.h" />
+    <ClInclude Include="..\..\libs\src\GME\Dual_Resampler.h" />
+    <ClInclude Include="..\..\libs\src\GME\Effects_Buffer.h" />
+    <ClInclude Include="..\..\libs\src\GME\Fir_Resampler.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gbs_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gb_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gb_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\gb_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gb_Oscs.h" />
+    <ClInclude Include="..\..\libs\src\GME\gme.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gme_File.h" />
+    <ClInclude Include="..\..\libs\src\GME\gme_types.h" />
+    <ClInclude Include="..\..\libs\src\GME\Gym_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Hes_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Hes_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\hes_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Hes_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Kss_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Kss_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Kss_Scc_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\M3u_Playlist.h" />
+    <ClInclude Include="..\..\libs\src\GME\Multi_Buffer.h" />
+    <ClInclude Include="..\..\libs\src\GME\Music_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\nes_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Fme7_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Namco_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Oscs.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nes_Vrc6_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nsfe_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Nsf_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sap_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sap_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\sap_cpu_io.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sap_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sms_Apu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Sms_Oscs.h" />
+    <ClInclude Include="..\..\libs\src\GME\Snes_Spc.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Cpu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Dsp.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Spc_Filter.h" />
+    <ClInclude Include="..\..\libs\src\GME\Vgm_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Vgm_Emu_Impl.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ym2413_Emu.h" />
+    <ClInclude Include="..\..\libs\src\GME\Ym2612_Emu.h" />
+    <ClInclude Include="..\..\libs\src\jpgalleg\dct.h" />
+    <ClInclude Include="..\..\libs\src\jpgalleg\internal.h" />
+    <ClInclude Include="..\..\libs\src\jpgalleg\jpgalleg.h" />
+    <ClInclude Include="..\..\libs\src\libpng\png.h" />
+    <ClInclude Include="..\..\libs\src\libpng\pngconf.h" />
+    <ClInclude Include="..\..\libs\src\loadpng\loadpng.h" />
+    <ClInclude Include="..\..\libs\src\ogg\ogg.h" />
+    <ClInclude Include="..\..\libs\src\ogg\os_types.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\rubberband-c.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\RubberBandStretcher.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\CompoundAudioCurve.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\ConstantAudioCurve.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\HighFrequencyAudioCurve.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\PercussiveAudioCurve.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\SilentAudioCurve.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\audiocurves\SpectralDifferenceAudioCurve.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\base\RingBuffer.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\base\Scavenger.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\AudioCurveCalculator.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\FFT.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\MovingMedian.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\Resampler.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\SampleFilter.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\SincWindow.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\dsp\Window.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\kissfft\kiss_fft.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\kissfft\kiss_fftr.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\kissfft\_kiss_fft_guts.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\rubberband\rubberband-c.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\rubberband\RubberBandStretcher.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\speex\speex_resampler.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\StretchCalculator.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\StretcherChannelData.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\StretcherImpl.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\Allocators.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\sysutils.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\Thread.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\VectorOps.h" />
+    <ClInclude Include="..\..\libs\src\rubberband\src\system\VectorOpsComplex.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\codec.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\backends.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\bitrate.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\codebook.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\codec_internal.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\envelope.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\highlevel.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\lookup.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\lookup_data.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\lpc.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\lsp.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\masking.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\mdct.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\misc.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\os.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\psy.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\registry.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\scales.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\smallft.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\src\window.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\vorbisenc.h" />
+    <ClInclude Include="..\..\libs\src\vorbis\vorbisfile.h" />
+    <ClInclude Include="..\..\libs\src\zlib\crc32.h" />
+    <ClInclude Include="..\..\libs\src\zlib\deflate.h" />
+    <ClInclude Include="..\..\libs\src\zlib\gzguts.h" />
+    <ClInclude Include="..\..\libs\src\zlib\inffast.h" />
+    <ClInclude Include="..\..\libs\src\zlib\inffixed.h" />
+    <ClInclude Include="..\..\libs\src\zlib\inflate.h" />
+    <ClInclude Include="..\..\libs\src\zlib\inftrees.h" />
+    <ClInclude Include="..\..\libs\src\zlib\trees.h" />
+    <ClInclude Include="..\..\libs\src\zlib\zconf.h" />
+    <ClInclude Include="..\..\libs\src\zlib\zlib.h" />
+    <ClInclude Include="..\..\libs\src\zlib\zutil.h" />
+    <ClInclude Include="..\..\src\load_gif.h" />
+    <ClInclude Include="..\..\src\save_gif.h" />
+    <ClInclude Include="..\..\src\zcmusic.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\zc_icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\libs\src\dumb\src\helpers\resamp2.inc" />
+    <None Include="..\..\libs\src\dumb\src\helpers\resamp3.inc" />
+    <None Include="..\..\libs\src\dumb\src\helpers\resample.inc" />
+    <None Include="..\..\libs\src\GME\CMakeLists.txt" />
+    <None Include="..\..\libs\src\GME\gme_types.h.in" />
+    <None Include="..\..\libs\src\GME\libgme.pc.in" />
+    <None Include="..\..\libs\src\rubberband\src\kissfft\COPYING" />
+    <None Include="..\..\libs\src\rubberband\src\speex\COPYING" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\libs\src\jpgalleg\license.txt" />
+    <Text Include="..\..\libs\src\jpgalleg\readme.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <!-- ================ UNDUPOBJ ================ -->
+  <!-- relevant topics -->
+  <!-- http://stackoverflow.com/questions/3729515/visual-studio-2010-2008-cant-handle-source-files-with-identical-names-in-diff/26935613 -->
+  <!-- http://stackoverflow.com/questions/7033855/msvc10-mp-builds-not-multicore-across-folders-in-a-project -->
+  <!-- http://stackoverflow.com/questions/18304911/how-can-one-modify-an-itemdefinitiongroup-from-an-msbuild-target -->
+  <!-- other maybe related info -->
+  <!-- http://stackoverflow.com/questions/841913/modify-msbuild-itemgroup-metadata -->
+  <UsingTask TaskName="UNDUPOBJ_TASK" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <OutputDir ParameterType="System.String" Required="true" />
+      <ItemList ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <OutputItemList ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Code><![CDATA[
+            //general outline: for each item (in ClCompile) assign it to a subdirectory of $(IntDir) by allocating subdirectories 0,1,2, etc., as needed to prevent duplicate filenames from clobbering each other
+            //this minimizes the number of batches that need to be run, since each subdirectory will necessarily be in a distinct batch due to /Fo specifying that output subdirectory
+
+            var assignmentMap = new Dictionary<string,int>();
+            foreach( var item in ItemList )
+            {
+              var filename = item.GetMetadata("Filename");
+
+              //assign reused filenames to increasing numbers
+              //assign previously unused filenames to 0
+              int assignment = 0;
+              if(assignmentMap.TryGetValue(filename, out assignment))
+                assignmentMap[filename] = ++assignment;
+              else
+                assignmentMap[filename] = 0;
+
+              var thisFileOutdir = Path.Combine(OutputDir,assignment.ToString()) + "/"; //take care it ends in / so /Fo knows it's a directory and not a filename
+              item.SetMetadata( "ObjectFileName", thisFileOutdir );
+            }
+
+            OutputItemList = ItemList;
+            ItemList = new Microsoft.Build.Framework.ITaskItem[0];
+
+        ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="UNDUPOBJ">
+    <!-- see stackoverflow topics for discussion on why we need to do some loopy copying stuff here -->
+    <ItemGroup>
+      <ClCompileCopy Include="@(ClCompile)" />
+      <ClCompile Remove="@(ClCompile)" />
+    </ItemGroup>
+    <UNDUPOBJ_TASK OutputDir="$(IntDir)" ItemList="@(ClCompileCopy)" OutputItemList="@(ClCompile)">
+      <Output ItemName="ClCompile" TaskParameter="OutputItemList" />
+    </UNDUPOBJ_TASK>
+  </Target>
+  <!-- ================ UNDUPOBJ ================ -->
+</Project>
