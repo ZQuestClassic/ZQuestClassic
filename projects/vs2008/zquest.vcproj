@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src"
-				PreprocessorDefinitions="ZCM_DLL_IMPORT;_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB"
+				PreprocessorDefinitions="ZQUEST;ZCM_DLL_IMPORT;_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"

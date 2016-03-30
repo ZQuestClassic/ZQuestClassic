@@ -40,6 +40,7 @@
 #include "zdefs.h"
 #include "tiles.h"
 #include "angelscript/scriptData.h"
+#include <algorithm>
 
 extern bool get_debug();
 extern bool halt;

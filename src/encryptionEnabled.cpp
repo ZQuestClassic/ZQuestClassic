@@ -1,5 +1,5 @@
 #ifndef USE_ENCRYPTION
-    #error "USE_ENCRYPTION is not defined; use encryptionDisabled.cpp"
+   #error "USE_ENCRYPTION is not defined; use encryptionDisabled.cpp"
 #else
 
 #include "encryption.h"

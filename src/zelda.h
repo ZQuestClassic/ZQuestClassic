@@ -18,7 +18,6 @@
 #include <vector>
 #include "zdefs.h"
 #include "zc_array.h"
-#include "zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
@@ -28,6 +27,8 @@
 
 int isFullScreen();
 int onFullscreen();
+
+#define ZC_MIDI_COUNT  7 // this shouldn't change
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 

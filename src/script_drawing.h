@@ -139,6 +139,7 @@ protected:
 };
 
 
+//TODO: Clean up all this nonsense.
 class DrawingContainer
 {
 public:
@@ -224,6 +225,11 @@ protected:
 };
 
 
+struct CScriptDrawingCommandArrayBufferHeader //Say that 10 times fast!
+{
+	int type;
+	int count;
+};
 
 
 class CScriptDrawingCommandVars
@@ -241,17 +247,22 @@ public:
     
     void SetString(std::string* str)
     {
-        ptr = (void*)str;
+        data[19] = (int)(void*)str;
     }
     
     void SetVector(std::vector<long>* v)
     {
-        ptr = (void*)v;
+		data[19] = (int)(void*)v;
     }
+
+	void SetPtr(void* bufPtr)
+	{
+		data[19] = (int)bufPtr;
+	}
     
     void* GetPtr()
     {
-        return ptr;
+        return (void*)data[19];
     }
     
     int &operator [](const int i)
@@ -265,7 +276,6 @@ public:
     
 protected:
     int data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
-    void* ptr; //will be changed later
 };
 
 

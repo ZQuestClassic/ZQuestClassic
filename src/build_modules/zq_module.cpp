@@ -8,7 +8,12 @@
 //#include "callback.cpp"
 #include "colors.cpp"
 #include "defdata.cpp"
-#include "encryptionDisabled.cpp"
+
+#ifndef USE_ENCRYPTION
+#define USE_ENCRYPTION 1 // Encryption should be enabled by default unless specified.
+#endif
+#include "encryptionEnabled.cpp"
+
 #include "editbox.cpp"
 #include "EditboxModel.cpp"
 #include "EditboxView.cpp"

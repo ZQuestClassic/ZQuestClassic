@@ -13,13 +13,14 @@ const int radsperdeg = 572958;
 #define typeVOID ScriptParser::TYPE_VOID
 #define S ScriptParser::TYPE_SCREEN
 #define F ScriptParser::TYPE_FLOAT
+#define B ScriptParser::TYPE_BOOL
 
-#define ARGS_4(t, arg1, arg2, arg3, arg4) \
-	{ t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
-#define ARGS_6(t, arg1, arg2, arg3, arg4, arg5, arg6) \
-	{ t, arg1, arg2, arg3, arg4, arg5, arg6, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
-#define ARGS_8(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-	{ t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_3(t, arg1, arg2, arg3) { t, arg1, arg2, arg3, -1, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_4(t, arg1, arg2, arg3, arg4) { t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_5(t, arg1, arg2, arg3, arg4, arg5) { t, arg1, arg2, arg3, arg4, arg5, -1, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_6(t, arg1, arg2, arg3, arg4, arg5, arg6) { t, arg1, arg2, arg3, arg4, arg5, arg6, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_8(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_12(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,-1,-1,-1,-1,-1,-1,-1 }
 
 #define POP_ARGS(num_args, t) \
 	for(int _i(0); _i < num_args; ++_i) \
@@ -1218,9 +1219,16 @@ static AccessorTable ScreenTable[] =
     { "FastTile",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
     { "FastCombo",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
     { "DrawString",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
-    { "DrawLayer",     typeVOID, FUNCTION, 0, 1, ARGS_8(S,F,F,F,F,F,F,F,F) },
-    { "DrawScreen",    typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
+    { "DrawLayer",         typeVOID, FUNCTION, 0, 1, ARGS_8(S,F,F,F,F,F,F,F,F) },
+    { "DrawScreen",        typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
+	{ "Polygon",           typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
+	{ "DrawPixelArray",    typeVOID, FUNCTION, 0, 1, ARGS_4(S,F,F,F,F) },
+	{ "DrawTileArray",     typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
+	{ "DrawComboArray",    typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
+	{ "CreateBitmap",      typeVOID, FUNCTION, 0, 1, ARGS_3(S,F,F,F) },
     { "DrawBitmap",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,       ScriptParser::TYPE_FLOAT,   ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
+	{ "DrawBitmapEx",      typeVOID, FUNCTION, 0, 1, ARGS_12(S,F,F,F,F,F,F,F,F,F,B,B,B) },
+	{ "SetRenderSource",   typeVOID, FUNCTION, 0, 1, ARGS_5(S,F,F,F,F,F) },
     { "SetRenderTarget",        ScriptParser::TYPE_VOID,		    FUNCTION,	  0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,		  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1							 } },
     { "Message",                ScriptParser::TYPE_VOID,		    FUNCTION,	   0,                   1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,		  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1							 } },
     { "NumLWeapons",            ScriptParser::TYPE_FLOAT,         GETTER,       LWPNCOUNT,            1,      {  ScriptParser::TYPE_SCREEN,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -1675,7 +1683,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         Opcode *first = new OQuad3DRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(8, EXP2);
+        POP_ARGS(9, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -1691,7 +1699,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         Opcode *first = new OTriangle3DRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(8, EXP2);
+        POP_ARGS(9, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -1780,6 +1788,96 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+	//void DrawPolygon(screen, float, float, float, float, float, float, float)
+	{
+		int id = memberids["Polygon"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawPolygonRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void DrawPixelArray(screen, float, float, float)
+	{
+		int id = memberids["DrawPixelArray"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawPixelArrayRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void DrawTileArray(screen, float, float, float, float, float)
+	{
+		int id = memberids["DrawTileArray"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawTileArrayRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void DrawComboArray(screen, float, float, float, float, float)
+	{
+		int id = memberids["DrawComboArray"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawComboArrayRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void CreateBitmap(bitmap, float, float, float)
+	{
+		int id = memberids["CreateBitmap"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OCreateBitmapRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
     //void DrawBitmap(screen, float, float, float, float, float, float, float, float, float, bool)
     {
         int id = memberids["DrawBitmap"];
@@ -1788,7 +1886,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         Opcode *first = new ODrawBitmapRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(12, EXP2);
+        POP_ARGS(12, EXP2); //......... 12?? ...
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -1796,6 +1894,38 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+	//void DrawBitmapEx(screen, float, float, float, float, float, float, float, float, float, bool, bool, bool)
+	{
+		int id = memberids["DrawBitmapEx"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawBitmapExRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(12, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void SetRenderSource(bitmap,x,y,w,h)
+	{
+		int id = memberids["SetRenderSource"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OSetRenderSourceRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(5, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
     //void SetRenderTarget(bitmap)
     {
         int id = memberids["SetRenderTarget"];
@@ -3380,4 +3510,11 @@ map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
     }
     return rval;
 }
+
+
+
+#undef typeVOID
+#undef S
+#undef F
+#undef B
 

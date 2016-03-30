@@ -6036,8 +6036,99 @@ void do_drawing_command(const int script_command)
         ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
         script_drawing_commands[j].SetString(str);
     }
-    break;
-    }
+	break;
+
+	case BITMAPEXR:
+		{
+			//todo
+		}
+		break;
+
+	case POLYGONR:
+		{
+			set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* p = ptr;
+
+			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+		}
+		break;
+
+	case PIXELARRAYR:
+		{
+			set_drawing_command_args(j, 5);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* p = ptr;
+
+			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+		}
+		break;
+
+	case TILEARRAYR:
+		{
+			set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* p = ptr;
+
+			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+		}
+		break;
+
+	case COMBOARRAYR:
+		{
+			set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* p = ptr;
+
+			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+		}
+		break;
+
+	}
+}
+
+
+//todo: Could probably use some error checking...
+void do_createbitmap(bool)
+{
+	int target = int(SH::read_stack(ri->sp + 2) / 10000);
+	int x = int(SH::read_stack(ri->sp + 1) / 10000);
+	int y = int(SH::read_stack(ri->sp) / 10000);
+	zscriptDrawingRenderTarget->CreateBitmap(target, x, y);
+}
+
+void do_set_rendersource(bool)
+{
+	int target = int(SH::read_stack(ri->sp + 4) / 10000);
+	int x = int(SH::read_stack(ri->sp + 3) / 10000);
+	int y = int(SH::read_stack(ri->sp + 2) / 10000);
+	int w = int(SH::read_stack(ri->sp + 1) / 10000);
+	int h = int(SH::read_stack(ri->sp) / 10000);
+	zscriptDrawingRenderTarget->SetCurrentRenderSource(target, x, y, w, h);
 }
 
 void do_set_rendertarget(bool)
@@ -7305,9 +7396,14 @@ int run_script(const byte type, const word script, const byte i)
         case BITMAPR:
         case DRAWLAYERR:
         case DRAWSCREENR:
+		case BITMAPEXR:
+		case POLYGONR:
+		case PIXELARRAYR:
+		case TILEARRAYR:
+		case COMBOARRAYR:
             do_drawing_command(scommand);
             break;
-            
+
         case COPYTILEVV:
             do_copytile(true, true);
             break;
@@ -7412,9 +7508,17 @@ int run_script(const byte type, const word script, const byte i)
             do_shifttile(false, false);
             break;
             
-        case SETRENDERTARGET:
-            do_set_rendertarget(true);
+        case SETRENDERSOURCE:
+            do_set_rendersource(true);
             break;
+
+		case CREATEBITMAP:
+			do_createbitmap(true);
+			break;
+
+		case SETRENDERTARGET:
+			do_set_rendertarget(true);
+			break;
             
         case GAMEEND:
             Quit = qQUIT;

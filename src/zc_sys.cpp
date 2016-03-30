@@ -71,6 +71,7 @@
 #include "screenWipe.h"
 #include "sound.h"
 #include "mem_debug.h"
+#include "zeldadat.h"
 
 int d_stringloader(int msg,DIALOG *d,int c);
 

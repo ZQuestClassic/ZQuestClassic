@@ -16,6 +16,9 @@
 
 
 //sound
+#include "zcmusic.cpp"
+#include "zcmusicd.cpp"
+
 #include "midi.cpp"
 #include "sfxAllegro.cpp"
 #include "sfxClass.cpp"
@@ -27,5 +30,5 @@
 #include "gui.cpp"
 #include "zc_sys.cpp"
 
-int zcmusic_bufsz = 64;
+//int zcmusic_bufsz = 64;
 

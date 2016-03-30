@@ -276,16 +276,15 @@ enum ASM_DEFINE
     GETTILEWARPSCR,       //0x00E6
     GETTILEWARPTYPE,      //0x00E7
     GETFFCSCRIPT,         //0x00E8
-    /* ..sorry, forgot about these ...for now. -Gleeok
-      CALCSPLINE,           //0x00
-      COLLISIONRECT,  ?      //0x00
-      COLLISIONBOX,   ?      //0x00
-      SETBITMAPBUFFER,
-      GETBITMAPBUFFER,
-      CLEARBITMAPBUFFER,
-      RENDERBITMAPBUFFER,
-    */
-    NUMCOMMANDS           //0x00E9
+	SETRENDERSOURCE,      //0x00E9
+	CREATEBITMAP,         //0x00EA
+	BITMAPEXR,            //0x00EB
+	POLYGONR,             //0x00EC
+	PIXELARRAYR,          //0x00ED
+	TILEARRAYR,           //0x00EE
+	COMBOARRAYR,          //0x00EF
+
+    NUMCOMMANDS           //0x00F0
 };
 
 //ZASM registers

@@ -1590,9 +1590,24 @@ string ODrawStringRegister::toString()
     return "DRAWSTRING";
 }
 
+string OCreateBitmapRegister::toString()
+{
+    return "CREATEBITMAP";
+}
+
 string ODrawBitmapRegister::toString()
 {
-    return "DRAWBITMAP";
+	return "DRAWBITMAP";
+}
+
+string ODrawBitmapExRegister::toString()
+{
+	return "DRAWBITMAPEX";
+}
+
+string OSetRenderSourceRegister::toString()
+{
+	return "SETRENDERSOURCE";
 }
 
 string OSetRenderTargetRegister::toString()
@@ -1630,7 +1645,6 @@ string OTriangleRegister::toString()
     return "TRIANGLE";
 }
 
-
 string OQuad3DRegister::toString()
 {
     return "QUAD3D";
@@ -1649,6 +1663,26 @@ string ODrawLayerRegister::toString()
 string ODrawScreenRegister::toString()
 {
     return "DRAWSCREEN";
+}
+
+string ODrawPolygonRegister::toString()
+{
+	return "DRAWPOLYGON";
+}
+
+string ODrawPixelArrayRegister::toString()
+{
+	return "DRAWPIXELARRAY";
+}
+
+string ODrawTileArrayRegister::toString()
+{
+	return "DRAWTILEARRAY";
+}
+
+string ODrawComboArrayRegister::toString()
+{
+	return "DRAWCOMBOARRAY";
 }
 
 string OMessageRegister::toString()

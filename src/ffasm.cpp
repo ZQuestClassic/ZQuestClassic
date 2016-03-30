@@ -232,10 +232,10 @@ script_command command_list[NUMCOMMANDS+1]=
     { "DEPRECATED",	       1,   0,   0,   0},
     { "QUAD3D",              0,   0,   0,   0},
     { "TRIANGLE3D",          0,   0,   0,   0},
-    { "SETCOLORB",           0,   0,   0,   0},
-    { "SETDEPTHB",           0,   0,   0,   0},
-    { "GETCOLORB",           0,   0,   0,   0},
-    { "GETDEPTHB",           0,   0,   0,   0},
+    { "SETCOLORB",           0,   0,   0,   0}, //not used
+    { "SETDEPTHB",           0,   0,   0,   0}, //not used
+    { "GETCOLORB",           0,   0,   0,   0}, //not used
+    { "GETDEPTHB",           0,   0,   0,   0}, //not used
     { "COMBOTILE",           2,   0,   0,   0},
     { "SETTILEWARP",         0,   0,   0,   0},
     { "GETSCREENEFLAGS",     1,   0,   0,   0},
@@ -271,6 +271,13 @@ script_command command_list[NUMCOMMANDS+1]=
     { "GETTILEWARPSCR",      1,   0,   0,   0},
     { "GETTILEWARPTYPE",     1,   0,   0,   0},
     { "GETFFCSCRIPT",        1,   0,   0,   0},
+	{ "SETRENDERSOURCE",     0,   0,   0,   0},
+	{ "CREATEBITMAP",        0,   0,   0,   0},
+	{ "BITMAPEXR",           0,   0,   0,   0},
+	{ "POLYGONR",            0,   0,   0,   0},
+	{ "PIXELARRAYR",         0,   0,   0,   0},
+	{ "TILEARRAYR",          0,   0,   0,   0},
+	{ "COMBOARRAYR",         0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

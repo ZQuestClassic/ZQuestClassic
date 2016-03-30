@@ -87,6 +87,7 @@
 #include <crtdbg.h>
 #define stricmp _stricmp
 #endif
+#include "zeldadat.h"
 
 MessageManager messageMgr;
 SFXManager sfxMgr;
