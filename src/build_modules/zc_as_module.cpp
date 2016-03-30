@@ -12,4 +12,3 @@
 #include "angelscript/scriptarray/scriptarray.cpp"
 
 #include "angelscript/scriptContext.cpp"
-#include "angelscript/scriptGC.cpp"

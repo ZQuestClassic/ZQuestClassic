@@ -9,9 +9,15 @@
 
 // C++
 #if defined(_MSC_VER)
+#if defined(DEBUG) || defined(_DEBUG)
+#define _SECURE_SCL 1
+#define _HAS_ITERATOR_DEBUGGING 1
+#define _ITERATOR_DEBUG_LEVEL 2
+#else
 	#define _HAS_ITERATOR_DEBUGGING 0
 	#define _HAS_EXCEPTIONS 0
 	#define _SECURE_SCL 0
+#endif
 #endif
 
 // DebugBreak
