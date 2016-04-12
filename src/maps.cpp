@@ -36,7 +36,6 @@
 #include <assert.h>
 #include <math.h>
 #include <vector>
-#include <deque>
 #include <string>
 
 //#include "zc_math.h"

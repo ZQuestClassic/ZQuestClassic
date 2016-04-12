@@ -7,7 +7,6 @@
 
 #include "precompiled.h" //always first
 
-#include <deque>
 //#include <algorithm>
 #include <string>
 #include <sstream>
@@ -5988,53 +5987,76 @@ void do_drawing_command(const int script_command)
         
     case QUAD3DR:
     {
-        std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(26, 0);
-        
-        long* pos = &v->at(0);
-        long* uv = &v->at(12);
-        long* col = &v->at(20);
-        long* size = &v->at(24);
+		long* p = script_drawing_commands.AllocateDrawBuffer(26 * sizeof(long));
+
+        long* pos = p;
+        long* uv = p + 12;
+        long* col = p + 20;
+        long* size = p + 24;
         
         set_drawing_command_args(j, 8);
         ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
         ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
         ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
         ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
-        
-        script_drawing_commands[j].SetVector(v);
+
+		ZScriptDrawingRenderTarget::SourceParamInfo& si = zscriptDrawingRenderTarget->GetCurrentRenderSourceInfo();
+		if(si.i)
+		{
+			script_drawing_commands[j][10] = si.i;
+			script_drawing_commands[j][11] = si.x;
+			script_drawing_commands[j][12] = si.y;
+			script_drawing_commands[j][13] = si.w;
+			script_drawing_commands[j][14] = si.h;
+		}
+
+		script_drawing_commands[j][18] |= (si.i << 16);
+        script_drawing_commands[j].SetPtr(p);
     }
     break;
     
     case TRIANGLE3DR:
     {
-        std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(20, 0);
+		long* p = script_drawing_commands.AllocateDrawBuffer(20 * sizeof(long));
         
-        long* pos = &v->at(0);
-        long* uv = &v->at(9);
-        long* col = &v->at(15);
-        long* size = &v->at(18);
+		long* pos = p;
+		long* uv = p + 9;
+		long* col = p + 15;
+		long* size = p + 18;
         
         set_drawing_command_args(j, 8);
         ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
         ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
         ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
         ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
-        
-        script_drawing_commands[j].SetVector(v);
+
+		ZScriptDrawingRenderTarget::SourceParamInfo& si = zscriptDrawingRenderTarget->GetCurrentRenderSourceInfo();
+		if(si.i)
+		{
+			script_drawing_commands[j][10] = si.i;
+			script_drawing_commands[j][11] = si.x;
+			script_drawing_commands[j][12] = si.y;
+			script_drawing_commands[j][13] = si.w;
+			script_drawing_commands[j][14] = si.h;
+		}
+
+        script_drawing_commands[j].SetPtr(p);
     }
     break;
     
     case DRAWSTRINGR:
     {
         set_drawing_command_args(j, 9);
-        // Unused
-        //const int index = script_drawing_commands[j][19] = j;
-        
-        string *str = script_drawing_commands.GetString();
-        ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
-        script_drawing_commands[j].SetString(str);
+
+		static std::string tempStr; //oh well...
+        ArrayH::getString(script_drawing_commands[j][8] / 10000, tempStr);
+
+
+		size_t strSize = tempStr.size();
+		long* p = script_drawing_commands.AllocateDrawBuffer((strSize + 1) * sizeof(char));
+		p[tempStr.size()] = 0;
+
+        script_drawing_commands[j].SetPtr(p);
     }
 	break;
 
@@ -6049,12 +6071,22 @@ void do_drawing_command(const int script_command)
 			set_drawing_command_args(j, 6);
 			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
 
-			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
 			long* p = ptr;
 
 			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
 			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
 			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+			
+			ZScriptDrawingRenderTarget::SourceParamInfo& si = zscriptDrawingRenderTarget->GetCurrentRenderSourceInfo();
+			if(si.i)
+			{
+				script_drawing_commands[j][10] = si.i;
+				script_drawing_commands[j][11] = si.x;
+				script_drawing_commands[j][12] = si.y;
+				script_drawing_commands[j][13] = si.w;
+				script_drawing_commands[j][14] = si.h;
+			}
 
 			script_drawing_commands[j].SetPtr(ptr);
 		}
@@ -6065,7 +6097,7 @@ void do_drawing_command(const int script_command)
 			set_drawing_command_args(j, 5);
 			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
 
-			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
 			long* p = ptr;
 
 			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
@@ -6081,7 +6113,7 @@ void do_drawing_command(const int script_command)
 			set_drawing_command_args(j, 6);
 			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
 
-			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
 			long* p = ptr;
 
 			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
@@ -6097,7 +6129,7 @@ void do_drawing_command(const int script_command)
 			set_drawing_command_args(j, 6);
 			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
 
-			long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
 			long* p = ptr;
 
 			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;

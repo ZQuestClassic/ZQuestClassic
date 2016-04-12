@@ -1377,7 +1377,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[8]=opacity
     //sdci[9]=char
     
-    std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
+    char* str = (char*)script_drawing_commands[i].GetPtr();
     
     if(!str)
     {
@@ -1402,19 +1402,21 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         
     if(format_type == 2)   // right-sided text
     {
-        textout_right_ex(bmp, get_zc_font(font_index), str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+        textout_right_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
     }
     else if(format_type == 1)   // centered text
     {
-        textout_centre_ex(bmp, get_zc_font(font_index), str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+        textout_centre_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
     }
     else // standard left-sided text
     {
-        textout_ex(bmp, get_zc_font(font_index), str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+        textout_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
     }
     
     if(opacity < 128)
         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+
+	script_drawing_commands.DeallocateDrawBuffer(str);
 }
 
 
@@ -1641,24 +1643,20 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     float rot = sdci[11]/10000;
     bool masked = (sdci[12] != 0);
 
-	//bugfix
-	sx = vbound(sx, 0, 512);
-	sy = vbound(sy, 0, 512);
-	sw = vbound(sw, 0, 512 - sx); //keep the w/h within range as well
-	sh = vbound(sh, 0, 512 - sy);
+	BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+	if(sx >= sourceBitmap->w || sy >= sourceBitmap->h)
+		return;
 
-    
-    if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
-        return;
+	sx = vbound(sx, 0, sourceBitmap->w);
+	sy = vbound(sy, 0, sourceBitmap->h);
+	sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	sh = vbound(sh, 0, sourceBitmap->h - sy);
         
     bool stretched = (sw != dw || sh != dh);
-    
-    BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-    
+        
     if(!sourceBitmap)
     {
         Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
-        Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
         return;
     }
     
@@ -1672,7 +1670,6 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         {
         }
     }
-    
     
     dx = dx + xoffset;
     dy = dy + yoffset;
@@ -1743,23 +1740,18 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    long* p = script_drawing_commands[i].GetPtr();
     
-    if(!v_ptr)
+    if(!p)
     {
         al_trace("Quad3d: Vector pointer is null! Internal error. \n");
         return;
-    }
-    
-    std::vector<long> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
+    };
         
-    long* pos = &v[0];
-    long* uv = &v[12];
-    long* col = &v[20];
-    long* size = &v[24];
+    long* pos = &p[0];
+    long* uv = &p[12];
+    long* col = &p[20];
+    long* size = &p[24];
     
     int w = size[0]; //magic numerical constants... yuck.
     int h = size[1];
@@ -1783,7 +1775,20 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-    
+
+	int sourceID = sdci[10];
+	if(sourceID)
+	{
+		BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(sourceID);
+
+		int sx = script_drawing_commands[i][11];
+		int sy = script_drawing_commands[i][12];
+		int sw = script_drawing_commands[i][13];
+		int sh = script_drawing_commands[i][14];
+
+		//todo: render from bitmap;
+	}
+
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
@@ -1807,6 +1812,7 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
+	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -1822,23 +1828,18 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    long* p = (long*)script_drawing_commands[i].GetPtr();
     
-    if(!v_ptr)
+    if(!p)
     {
         al_trace("Quad3d: Vector pointer is null! Internal error. \n");
         return;
     }
-    
-    std::vector<long> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
         
-    long* pos = &v[0];
-    long* uv = &v[9];
-    long* col = &v[15];
-    long* size = &v[18];
+    long* pos = &p[0];
+    long* uv = &p[9];
+    long* col = &p[15];
+    long* size = &p[18];
     
     int w = size[0]; //magic numerical constants... yuck.
     int h = size[1];
@@ -1863,6 +1864,19 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         clear_bitmap(tex);
     }
     
+	int sourceID = sdci[10];
+	if(sourceID)
+	{
+		BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(sourceID);
+
+		int sx = script_drawing_commands[i][11];
+		int sy = script_drawing_commands[i][12];
+		int sw = script_drawing_commands[i][13];
+		int sh = script_drawing_commands[i][14];
+
+		//todo: render from bitmap;
+	}
+
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
@@ -1885,6 +1899,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
+	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -1928,7 +1943,7 @@ void do_pixelarrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffs
 			pc[i] / 10000);
 	}
 
-	zc_free(p);
+	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -1968,7 +1983,7 @@ void do_tilearrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffse
 		);
 	}
 
-	zc_free(p);
+	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -2008,7 +2023,7 @@ void do_comboarrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffs
 		);
 	}
 
-	zc_free(p);
+	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -2236,7 +2251,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             continue;
             
         // get the correct render target, if set.
-        BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[18] & 0xffff);
+        BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[18]);
         
         if(!bmp)
         {

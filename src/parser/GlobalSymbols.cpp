@@ -1222,7 +1222,7 @@ static AccessorTable ScreenTable[] =
     { "DrawLayer",         typeVOID, FUNCTION, 0, 1, ARGS_8(S,F,F,F,F,F,F,F,F) },
     { "DrawScreen",        typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
 	{ "Polygon",           typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
-	{ "DrawPixelArray",    typeVOID, FUNCTION, 0, 1, ARGS_4(S,F,F,F,F) },
+	{ "DrawPixelArray",    typeVOID, FUNCTION, 0, 1, ARGS_5(S,F,F,F,F,F) },
 	{ "DrawTileArray",     typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
 	{ "DrawComboArray",    typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
 	{ "CreateBitmap",      typeVOID, FUNCTION, 0, 1, ARGS_3(S,F,F,F) },
