@@ -34,6 +34,7 @@
 #include "init.h"
 #include "gamedata.h"
 #include "sound.h"
+#include "zeldadat.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;

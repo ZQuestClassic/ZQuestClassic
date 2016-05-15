@@ -3,6 +3,7 @@
 #define _zc_script_drawing_h
 
 #include "zc_malloc.h"
+#include <vector>
 
 
 #define MAX_SCRIPT_DRAWING_COMMANDS 1000

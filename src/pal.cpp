@@ -25,6 +25,7 @@
 #include "pal.h"
 #include "subscr.h"
 #include "sound.h"
+#include "zeldadat.h"
 
 extern LinkClass Link;
 

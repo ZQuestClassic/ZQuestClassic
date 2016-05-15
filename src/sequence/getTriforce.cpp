@@ -3,6 +3,7 @@
 #include <link.h>
 #include <sound.h>
 #include <zelda.h>
+#include <zeldadat.h>
 
 extern int draw_screen_clip_rect_x1;
 extern int draw_screen_clip_rect_x2;

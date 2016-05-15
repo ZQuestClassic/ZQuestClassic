@@ -35,6 +35,7 @@
 #include "link.h"
 #include "mem_debug.h"
 #include "sound.h"
+#include "zeldadat.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
