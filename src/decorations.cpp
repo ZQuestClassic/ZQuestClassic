@@ -498,7 +498,7 @@ dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dTallGrass::animate(int)
 {
-    return false;
+    return (!isGrassType(COMBOTYPE(LinkX(),LinkY()+15)) || !isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15)) || LinkZ()>8);
 }
 
 void dTallGrass::draw(BITMAP *dest)
@@ -535,7 +535,8 @@ dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 bool dRipples::animate(int)
 {
     clk++;
-    return false;
+    return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
+            (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
 }
 
 void dRipples::draw(BITMAP *dest)
@@ -577,7 +578,7 @@ void dHover::draw(BITMAP *dest)
 bool dHover::animate(int)
 {
     clk++;
-    return false;
+    return LinkHoverClk()<=0;
 }
 
 dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y, const int& t):
