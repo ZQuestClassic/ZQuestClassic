@@ -477,9 +477,11 @@ public:
     
     static bool hasLink()
     {
-        if(tempenemy->family == eeWALLM ||
-          tempenemy->family == eeWALK)
-            return ((ASEnemy *) tempenemy)->haslink;
+        if(tempenemy->family == eeWALLM)
+            return ((eWallM *) tempenemy)->haslink;
+            
+        if(tempenemy->family == eeWALK)
+            return ((eStalfos *) tempenemy)->haslink;
             
         return false;
     }

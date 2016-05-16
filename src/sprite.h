@@ -18,9 +18,6 @@
 #include "zc_alleg.h"
 #include "zdefs.h"
 
-class EntityScriptData;
-class asIScriptObject;
-
 // this code needs some patching for use in zquest.cc
 
 extern itemdata *itemsbuf;
@@ -116,18 +113,9 @@ public:
     inline void markForDeletion() { toBeDeleted=true; }
     inline bool isMarkedForDeletion() const { return toBeDeleted; }
     
-    inline void setScriptData(EntityScriptData* esd) { scriptData=esd; }
-    asIScriptObject* getScriptObject();
-    
-protected:
-    EntityScriptData* scriptData;
-    
 private:
     bool toBeDeleted;
     EntityRef* ref;
-    
-    void scriptDraw();                        // main layer
-    void scriptDrawCloaked();                 // main layer
     
     template<typename T> friend class EntityPtr;
     friend void registerSprite();
@@ -162,6 +150,7 @@ public:
 	//      [note; this has been fixed in that case only. use with caution.])
 
     bool add(sprite *s);
+    bool swap(int a,int b);
     bool addAtFront(sprite *s);
 
 	// adds a sprite that was created in a past frame. (eg; reflected weapons)

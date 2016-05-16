@@ -171,7 +171,7 @@ static void registerTypes()
     r = asEngine->RegisterGlobalFunction("__RealSprite@ __getRealSprite()", asFUNCTION(getRealSprite), asCALL_CDECL); Assert(r >= 0);
     r = asEngine->RegisterObjectType("__RealLink", sizeof(LinkClass), asOBJ_REF|asOBJ_NOCOUNT); Assert(r >= 0);
     r = asEngine->RegisterGlobalFunction("__RealLink@ __getRealLink()", asFUNCTION(getRealLink), asCALL_CDECL); Assert(r >= 0);
-    r = asEngine->RegisterObjectType("__RealEnemy", sizeof(ASEnemy), asOBJ_REF|asOBJ_NOCOUNT); Assert(r >= 0);
+    r = asEngine->RegisterObjectType("__RealEnemy", sizeof(enemy), asOBJ_REF|asOBJ_NOCOUNT); Assert(r >= 0);
     r = asEngine->RegisterGlobalFunction("__RealEnemy@ __getRealEnemy()", asFUNCTION(getRealEnemy), asCALL_CDECL); Assert(r >= 0);
     r = asEngine->RegisterObjectType("__RealItem", sizeof(item), asOBJ_REF|asOBJ_NOCOUNT); Assert(r >= 0);
     r = asEngine->RegisterGlobalFunction("__RealItem@ __getRealItem()", asFUNCTION(getRealItem), asCALL_CDECL); Assert(r >= 0);
@@ -392,8 +392,8 @@ void registerSprite()
     r = asEngine->RegisterObjectProperty("__RealSprite", "int extend", asOFFSET(sprite, extend)); Assert(r >= 0);
     r = asEngine->RegisterObjectProperty("__RealSprite", "uint8 scriptcoldet", asOFFSET(sprite, scriptcoldet)); Assert(r >= 0);
     
-    r = asEngine->RegisterObjectMethod("__RealSprite", "void draw()", asMETHOD(sprite, scriptDraw), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealSprite", "void drawcloaked()", asMETHOD(sprite, scriptDrawCloaked), asCALL_THISCALL); Assert(r >= 0);
+    //r = asEngine->RegisterObjectMethod("__RealSprite", "void draw()", asMETHOD(sprite, scriptDraw), asCALL_THISCALL); Assert(r >= 0);
+    //r = asEngine->RegisterObjectMethod("__RealSprite", "void drawcloaked()", asMETHOD(sprite, scriptDrawCloaked), asCALL_THISCALL); Assert(r >= 0);
 }
 
 void registerLink()
@@ -436,78 +436,6 @@ void registerLink()
 
 void registerEnemy()
 {
-    // Only a fraction of the variables and functions
-	int r = 0;
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int o_tile", asOFFSET(ASEnemy, o_tile)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int frate", asOFFSET(ASEnemy, frate)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int hp", asOFFSET(ASEnemy, hp)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int hclk", asOFFSET(ASEnemy, hclk)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int stunclk", asOFFSET(ASEnemy, stunclk)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int fading", asOFFSET(ASEnemy, fading)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int superman", asOFFSET(ASEnemy, superman)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool mainguy", asOFFSET(ASEnemy, mainguy)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool did_armos", asOFFSET(ASEnemy, did_armos)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "uint8 item_set", asOFFSET(ASEnemy, item_set)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "uint8 grumble", asOFFSET(ASEnemy, grumble)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool itemguy", asOFFSET(ASEnemy, itemguy)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool count_enemy", asOFFSET(ASEnemy, count_enemy)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "fix step", asOFFSET(ASEnemy, step)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "fix floor_y", asOFFSET(ASEnemy, floor_y)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool dying", asOFFSET(ASEnemy, dying)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool ceiling", asOFFSET(ASEnemy, ceiling)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool leader", asOFFSET(ASEnemy, leader)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool scored", asOFFSET(ASEnemy, scored)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool script_spawned", asOFFSET(ASEnemy, script_spawned)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "uint flags", asOFFSET(ASEnemy, flags)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "uint flags2", asOFFSET(ASEnemy, flags2)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 family", asOFFSET(ASEnemy, family)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 dcset", asOFFSET(ASEnemy, dcset)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 anim", asOFFSET(ASEnemy, anim)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 dp", asOFFSET(ASEnemy, dp)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 wpn", asOFFSET(ASEnemy, wpn)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 rate", asOFFSET(ASEnemy, rate)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 hrate", asOFFSET(ASEnemy, hrate)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 homing", asOFFSET(ASEnemy, homing)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "fix dstep", asOFFSET(ASEnemy, dstep)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc1", asOFFSET(ASEnemy, dmisc1)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc2", asOFFSET(ASEnemy, dmisc2)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc3", asOFFSET(ASEnemy, dmisc3)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc4", asOFFSET(ASEnemy, dmisc4)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc5", asOFFSET(ASEnemy, dmisc5)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc6", asOFFSET(ASEnemy, dmisc6)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc7", asOFFSET(ASEnemy, dmisc7)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc8", asOFFSET(ASEnemy, dmisc8)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc9", asOFFSET(ASEnemy, dmisc9)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dmisc10", asOFFSET(ASEnemy, dmisc10)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int16 bgsfx", asOFFSET(ASEnemy, bgsfx)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int dummy_int1", asOFFSET(ASEnemy, dummy_int1)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int clk2", asOFFSET(ASEnemy, clk2)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int sclk", asOFFSET(ASEnemy, sclk)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "uint16 s_tile", asOFFSET(ASEnemy, s_tile)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "int scriptFlags", asOFFSET(ASEnemy, scriptFlags)); Assert(r >= 0);
-    r = asEngine->RegisterObjectProperty("__RealEnemy", "bool haslink", asOFFSET(ASEnemy, haslink)); Assert(r >= 0);
-    
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void leave_item()", asMETHOD(ASEnemy, leave_item), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "bool canmove(int, fix, int, int, int, int, int)", asMETHODPR(ASEnemy, canmove, (int, fix, int, int, int, int, int), bool), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void fireWeapon()", asMETHOD(ASEnemy, fireWeapon), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "bool isFiring() const", asMETHOD(ASEnemy, isFiring), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void updateFiring()", asMETHOD(ASEnemy, updateFiring), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void setBreathTimer(int)", asMETHOD(ASEnemy, setBreathTimer), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void setAttackOwner(int)", asMETHOD(ASEnemy, setAttackOwner), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void activateDeathAttack()", asMETHOD(ASEnemy, activateDeathAttack), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void draw()", asMETHOD(ASEnemy, scriptDraw), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void drawblock()", asMETHOD(ASEnemy, scriptDrawBlock), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void drawshadow()", asMETHOD(ASEnemy, scriptDrawShadow), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void masked_draw(int, int, int, int)", asMETHOD(ASEnemy, scriptMaskedDraw), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void overtilecloaked16(int, int, int, int)", asMETHOD(ASEnemy, overTileCloaked16), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void overtile16(int, int, int, int, int)", asMETHOD(ASEnemy, overTile16), asCALL_THISCALL); Assert(r >= 0);
-    
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void stopBGSFX()", asMETHOD(ASEnemy, stopBGSFX), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void playDeathSFX()", asMETHOD(ASEnemy, playDeathSFX), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "void playHitSFX(int)", asMETHOD(ASEnemy, playHitSFX), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "int defenditemclass(int, int)", asMETHOD(ASEnemy, scriptDefendItemClass), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "int getDefendedItemPower()", asMETHOD(ASEnemy, getDefendedItemPower), asCALL_THISCALL); Assert(r >= 0);
-    r = asEngine->RegisterObjectMethod("__RealEnemy", "int takehit(__RealWeapon@)", asMETHOD(ASEnemy, defaultTakeHit), asCALL_THISCALL); Assert(r >= 0);
 }
 
 void registerItem()
@@ -556,6 +484,9 @@ void registerWeapon()
 
 void initializeAngelScript()
 {
+    // Nope.
+    return;
+    
     asEngine=asCreateScriptEngine();
     asEngine->SetMessageCallback(asFUNCTION(messageCallback), 0, asCALL_CDECL);
     RegisterScriptArray(asEngine, true);
@@ -640,7 +571,7 @@ void initializeAngelScript()
 
 void shutDownAngelScript()
 {
-    asEngine->ShutDownAndRelease();
+    //asEngine->ShutDownAndRelease();
 }
 
 // This is kind of ugly, but it'll do...
@@ -676,7 +607,7 @@ static void assignSpriteScript(sprite* spr, const char* scriptName)
     asIScriptModule *module=asEngine->GetModuleByIndex(0);
     asIObjectType* objType=module->GetObjectTypeByName(scriptName);
     asIScriptObject* scriptObj=(asIScriptObject*)asEngine->CreateScriptObject(objType);
-    spr->setScriptData(new EntityScriptData(scriptObj, asEngine->CreateContext()));
+    //spr->setScriptData(new EntityScriptData(scriptObj, asEngine->CreateContext()));
 }
 
 void assignEnemyScript(enemy* en, const char* scriptName)

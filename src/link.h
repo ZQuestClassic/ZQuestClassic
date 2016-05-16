@@ -303,6 +303,8 @@ public:
     void unfreeze();
     void finishedmsg();
     void Drown();
+    int getEaten();
+    void setEaten(int i);
     fix  getFall();
     fix  getXOfs();
     fix  getYOfs();

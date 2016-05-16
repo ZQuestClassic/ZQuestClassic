@@ -39,7 +39,6 @@
 #include "entityPtr.h"
 #include "zdefs.h"
 #include "tiles.h"
-#include "angelscript/scriptData.h"
 #include <algorithm>
 
 extern bool get_debug();
@@ -48,14 +47,12 @@ extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int x1, int y1, int x2, int y2);
-extern BITMAP* scriptDrawingTarget;
 
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
 
 sprite::sprite():
-    scriptData(0),
     toBeDeleted(false),
     ref(new EntityRef())
 {
@@ -111,7 +108,6 @@ sprite::sprite(sprite const & other):
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
     extend(other.extend),
-    scriptData(0),
     toBeDeleted(false),
     ref(new EntityRef())
 {
@@ -123,7 +119,6 @@ sprite::sprite(sprite const & other):
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs),
-    scriptData(0),
     toBeDeleted(false),
     ref(new EntityRef())
 {
@@ -152,7 +147,6 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
 sprite::~sprite()
 {
     ref->onEntityDelete();
-    delete scriptData;
 }
 
 long sprite::getNextUID()
@@ -651,21 +645,6 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
     }
 }
 
-asIScriptObject* sprite::getScriptObject()
-{
-    return scriptData->getObject();
-}
-
-void sprite::scriptDraw()
-{
-    sprite::draw(scriptDrawingTarget);
-}
-
-void sprite::scriptDrawCloaked()
-{
-    sprite::drawcloaked(scriptDrawingTarget);
-}
-
 /***************************************************************************/
 
 /**********************************/
@@ -706,6 +685,12 @@ bool sprite_list::add(sprite *s)
 
     //checkConsistency();
     return true;
+}
+
+bool sprite_list::swap(int a,int b)
+{
+    // Re-added for now, but stil unimplemented.
+    return false;
 }
 
 bool sprite_list::addAtFront(sprite *s)

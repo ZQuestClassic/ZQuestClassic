@@ -196,6 +196,17 @@ void LinkClass::finishedmsg()
         holdclk = 1;
     }
 }
+
+void LinkClass::setEaten(int i)
+{
+    inlikelike=i;
+}
+
+int LinkClass::getEaten()
+{
+    return inlikelike;
+}
+
 fix  LinkClass::getFall()
 {
     return fall;

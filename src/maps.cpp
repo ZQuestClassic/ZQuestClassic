@@ -2885,10 +2885,17 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     for(int i=0; i<guys.Count(); i++)
     {
-        if(((enemy*)guys.spr(i))->family == eeWALLM
-           || ((enemy*)guys.spr(i))->family == eeWALK)
+        if(((enemy*)guys.spr(i))->family == eeWALK)
         {
-            if(((ASEnemy*)guys.spr(i))->haslink)
+            if(((eStalfos*)guys.spr(i))->haslink)
+            {
+                guys.spr(i)->draw(framebuf);
+            }
+        }
+        
+        if(((enemy*)guys.spr(i))->family == eeWALLM)
+        {
+            if(((eWallM*)guys.spr(i))->haslink)
             {
                 guys.spr(i)->draw(framebuf);
             }

@@ -202,9 +202,7 @@ void asSetItem(int id, bool value)
 
 asIScriptObject* asGetGuyObject(int index)
 {
-    asIScriptObject* obj=guys.spr(index)->getScriptObject();
-    obj->AddRef();
-    return obj;
+    return 0;
 }
 
 int asNumGuys()
@@ -257,9 +255,7 @@ void asSwapGuys(int index1, int index2)
 
 asIScriptObject* asGetItemObject(int index)
 {
-    asIScriptObject* obj=items.spr(index)->getScriptObject();
-    obj->AddRef();
-    return obj;
+    return 0;
 }
 
 int asNumItems()
@@ -275,9 +271,7 @@ void asDeleteItem(int index)
 
 asIScriptObject* asGetLwpnObject(int index)
 {
-    asIScriptObject* obj=Lwpns.spr(index)->getScriptObject();
-    obj->AddRef();
-    return obj;
+    return 0;
 }
 
 int asNumLwpns()
@@ -288,9 +282,7 @@ int asNumLwpns()
 
 asIScriptObject* asGetEwpnObject(int index)
 {
-    asIScriptObject* obj=Ewpns.spr(index)->getScriptObject();
-    obj->AddRef();
-    return obj;
+    return 0;
 }
 
 int asNumEwpns()
