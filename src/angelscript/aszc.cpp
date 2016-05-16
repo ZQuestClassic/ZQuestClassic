@@ -628,7 +628,6 @@ void initializeAngelScript()
     // Create global Link
     currentSprite=&Link;
     assignSpriteScript(&Link, "LinkClass");
-    Link.scriptInit();
     /*
     asIScriptContext* context=asEngine->CreateContext();
     asIScriptModule *module=asEngine->GetModuleByIndex(0);
