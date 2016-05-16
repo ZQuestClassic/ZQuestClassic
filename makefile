@@ -32,7 +32,6 @@ ifdef COMPILE_FOR_WIN
   SINGLE_QUOTE_HELPER = ^"
   REPO_LOCATION = _zcrepo
   ALLEG_LIB = -lalleg -lws2_32
-  AS_LIB = -langelscript
   SFLAG = -s
   WINFLAG = -mwindows -static-libgcc -static-libstdc++
   PLATEXT = -w
@@ -59,7 +58,6 @@ else
 ifdef COMPILE_FOR_LINUX
   PLATEXT = -l
   ALLEG_LIB = `allegro-config --libs --static`
-  AS_LIB = -langelscript
   SFLAG = -s
   ZC_ICON = zc_icon.o
   ZC_ICON_DEPS = zc_icon.c
@@ -82,7 +80,6 @@ ifdef COMPILE_FOR_LINUX
 else
 ifdef COMPILE_FOR_DOS
   ALLEG_LIB = -lalleg
-  AS_LIB = -langelscript
   STDCXX_LIB = -lstdcxx
   EXEEXT = .exe
   ZC_PLATFORM = DOS
@@ -94,7 +91,6 @@ ifdef COMPILE_FOR_MACOSX
   SINGLE_QUOTE_HELPER = \"
   PLATEXT = -m
   ALLEG_LIB = -framework Cocoa -framework Allegro -lalleg-main -arch i386 
-  AS_LIB = -langelscript
   ZC_PLATFORM = Mac OS X
   CFLAG = $(CFLAGBASE) -pedantic -arch i386 -I./include/dumb/ -I./include/alogg/ -I./include/almp3/ -I./include/libjpgal/ -I./src/
   CC = g++
@@ -113,7 +109,6 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
   SINGLE_QUOTE_HELPER = \"
   PLATEXT = -mu
   ALLEG_LIB = -framework Cocoa -framework Allegro -lalleg-main
-  AS_LIB = -langelscript
   ZC_PLATFORM = Mac OS X Universal
   CFLAG = -pedantic -Wno-long-long -Wall -arch i386 -arch ppc -DMACOSX_
   CC = g++
@@ -130,7 +125,6 @@ else
 ifdef COMPILE_FOR_MACOSX_SNOW_LEOPARD
   PLATEXT = -msl
   ALLEG_LIB = -framework Cocoa -framework Allegro -lalleg-main
-  AS_LIB = -langelscript
   ZC_PLATFORM = Mac OS X Universal
   CFLAG = -pedantic -Wno-long-long -Wall -arch i386 -arch ppc -DMACOSX_
   CC = g++
@@ -148,7 +142,6 @@ ifdef COMPILE_FOR_GP2X
   PLATEXT = -g
   EXEEXT = .gpe
   ALLEG_LIB = -lalleg -lpthread -static
-  AS_LIB = -langelscript
   ZC_PLATFORM = GP2X
   CFLAG = $(CFLAGBASE) -Werror -I/devkitGP2X/include
   CC = arm-linux-g++
@@ -178,16 +171,14 @@ ALLEGRO_GUI_OBJECTS = obj/gui/allegro/bitmap.o obj/gui/allegro/button.o obj/gui/
 ZELDA_OBJECTS = obj/aglogo.o obj/colors.o obj/debug.o obj/decorations.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ending.o obj/enemyAttack.o obj/ffc.o obj/ffscript.o obj/fontClass.o obj/gamedata.o obj/gui.o obj/guys.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/link.o obj/linkHandler.o obj/load_gif.o obj/maps.o obj/matrix.o obj/md5.o obj/message.o obj/messageManager.o obj/messageRenderer.o obj/messageStream.o obj/midi.o obj/pal.o obj/particles.o obj/qst.o obj/refInfo.o obj/room.o obj/save_gif.o obj/screenFreezeState.o obj/screenWipe.o obj/script_drawing.o $(SINGLE_INSTANCE_O) obj/sfxAllegro.o obj/sfxClass.o obj/sfxManager.o obj/sound.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/title.o obj/weapons.o obj/zc_custom.o obj/zc_init.o obj/zc_items.o obj/zc_sprite.o obj/zc_subscr.o obj/zc_sys.o obj/zelda.o obj/zscriptversion.o obj/zsys.o \
 obj/item/clock.o obj/item/dinsFire.o obj/item/hookshot.o obj/item/faroresWind.o obj/item/itemEffect.o obj/item/nayrusLove.o \
 obj/sequence/gameOver.o obj/sequence/ganonIntro.o obj/sequence/getBigTriforce.o obj/sequence/getTriforce.o obj/sequence/potion.o obj/sequence/sequence.o obj/sequence/whistle.o \
-obj/angelscript/aszc.o obj/angelscript/scriptData.o obj/angelscript/util.o obj/angelscript/scriptarray/scriptarray.o obj/angelscript/scriptbuilder/scriptbuilder.o obj/angelscript/scriptmath/scriptmath.o obj/angelscript/scriptstdstring/scriptstdstring.o \
 $(ZC_ICON)
 
-ZQUEST_OBJECTS = obj/zquest.o obj/colors.o obj/defdata.o obj/dummyZQ.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ffc.o obj/gamedata.o obj/gui.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/load_gif.o obj/md5.o obj/messageList.o obj/midi.o obj/particles.o obj/qst.o obj/questReport.o obj/refInfo.o obj/save_gif.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/zc_custom.o obj/zq_class.o obj/zq_cset.o obj/zq_custom.o obj/zq_doors.o obj/zq_files.o obj/zq_items.o obj/zq_init.o obj/zq_misc.o obj/zq_sprite.o obj/zq_strings.o obj/zq_subscr.o obj/zq_tiles.o obj/zqscale.o obj/zsys.o obj/ffasm.o obj/parser/AST.o obj/parser/BuildVisitors.o obj/parser/ByteCode.o obj/parser/DataStructs.o obj/parser/GlobalSymbols.o obj/parser/lex.yy.o obj/parser/ParseError.o obj/parser/ScriptParser.o obj/parser/SymbolVisitors.o obj/parser/TypeChecker.o obj/parser/UtilVisitors.o obj/parser/y.tab.o \
+ZQUEST_OBJECTS = obj/zquest.o obj/colors.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ffc.o obj/gamedata.o obj/gui.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/load_gif.o obj/md5.o obj/messageList.o obj/midi.o obj/particles.o obj/qst.o obj/questReport.o obj/refInfo.o obj/save_gif.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/zc_custom.o obj/zq_class.o obj/zq_cset.o obj/zq_custom.o obj/zq_doors.o obj/zq_files.o obj/zq_items.o obj/zq_init.o obj/zq_misc.o obj/zq_sprite.o obj/zq_strings.o obj/zq_subscr.o obj/zq_tiles.o obj/zqscale.o obj/zsys.o obj/ffasm.o obj/parser/AST.o obj/parser/BuildVisitors.o obj/parser/ByteCode.o obj/parser/DataStructs.o obj/parser/GlobalSymbols.o obj/parser/lex.yy.o obj/parser/ParseError.o obj/parser/ScriptParser.o obj/parser/SymbolVisitors.o obj/parser/TypeChecker.o obj/parser/UtilVisitors.o obj/parser/y.tab.o \
 obj/guiBitmapRenderer.o \
 obj/gui/alert.o obj/gui/contents.o obj/gui/controller.o obj/gui/dialog.o obj/gui/manager.o \
 $(ALLEGRO_GUI_OBJECTS) \
 obj/dialog/bitmap/tilePreview.o obj/dialog/bitmap/tileSelector.o \
 obj/dialog/zquest/cheatEditor.o obj/dialog/zquest/infoShopEditor.o obj/dialog/zquest/paletteViewer.o obj/dialog/zquest/questRules.o obj/dialog/zquest/shopEditor.o obj/dialog/zquest/simpleListSelector.o obj/dialog/zquest/tileSelector.o obj/dialog/zquest/tileSelectorBackend.o obj/dialog/zquest/zscriptEditor.o obj/dialog/zquest/zscriptMain.o \
-obj/angelscript/scriptData.o \
 $(ZQ_ICON)
 
 ROMVIEW_OBJECTS = obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/gui.o obj/jwin.o obj/jwinfsel.o obj/load_gif.o obj/romview.o obj/save_gif.o obj/tab_ctl.o obj/zqscale.o obj/zsys.o \
@@ -454,8 +445,6 @@ obj/decorations.o: src/decorations.cpp src/decorations.h src/gamedata.h src/jwin
 	$(CC) $(OPTS) $(CFLAG) -c src/decorations.cpp -o obj/decorations.o $(SFLAG) $(WINFLAG)
 obj/defdata.o: src/defdata.cpp src/defdata.h src/gamedata.h src/guys.h src/items.h src/sfx.h src/sprite.h src/weapons.h src/zc_alleg.h src/zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c src/defdata.cpp -o obj/defdata.o $(SFLAG) $(WINFLAG)
-obj/dummyZQ.o: src/dummyZQ.cpp
-	$(CC) $(OPTS) $(CFLAG) -c src/dummyZQ.cpp -o obj/dummyZQ.o $(SFLAG) $(WINFLAG)
 obj/editbox.o: src/editbox.cpp src/EditboxNew.h src/jwin.h src/tab_ctl.h src/zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c src/editbox.cpp -o obj/editbox.o $(SFLAG) $(WINFLAG)
 obj/EditboxModel.o: src/EditboxModel.cpp src/editbox.h src/EditboxNew.h src/gamedata.h src/gui.h src/jwin.h src/tab_ctl.h src/zc_alleg.h src/zdefs.h
@@ -482,7 +471,7 @@ obj/gamedata.o: src/gamedata.cpp src/gamedata.h src/items.h src/jwin.h src/sfx.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gamedata.cpp -o obj/gamedata.o $(SFLAG) $(WINFLAG)
 obj/gui.o: src/gui.cpp src/colors.h src/debug.h src/gamedata.h src/gui.h src/items.h src/jwin.h src/jwinfsel.h src/midi.h src/pal.h src/qst.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui.cpp -o obj/gui.o $(SFLAG) $(WINFLAG)
-obj/guys.o: src/guys.cpp src/aglogo.h src/colors.h src/defdata.h src/ffscript.h src/gamedata.h src/guys.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/qst.h src/room.h src/sfx.h src/sound.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h src/angelscript/scriptData.h
+obj/guys.o: src/guys.cpp src/aglogo.h src/colors.h src/defdata.h src/ffscript.h src/gamedata.h src/guys.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/qst.h src/room.h src/sfx.h src/sound.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/guys.cpp -o obj/guys.o $(SFLAG) $(WINFLAG)
 obj/init.o: src/init.cpp src/gamedata.h src/gui.h src/init.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(CFLAG) -c src/init.cpp -o obj/init.o $(SFLAG) $(WINFLAG)
@@ -615,21 +604,6 @@ obj/zscriptversion.o: src/zscriptversion.cpp src/zelda.h src/link.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zscriptversion.cpp -o obj/zscriptversion.o $(SFLAG) $(WINFLAG)
 obj/zsys.o: src/zsys.cpp src/gamedata.h src/jwin.h src/tab_ctl.h src/zc_alleg.h src/zc_sys.h src/zdefs.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zsys.cpp -o obj/zsys.o $(SFLAG) $(WINFLAG)
-
-obj/angelscript/aszc.o: src/angelscript/aszc.cpp src/angelscript/aszc.h src/zc_alleg.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/aszc.cpp -o obj/angelscript/aszc.o $(SFLAG) $(WINFLAG)
-obj/angelscript/scriptData.o: src/angelscript/scriptData.cpp src/angelscript/scriptData.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/scriptData.cpp -o obj/angelscript/scriptData.o $(SFLAG) $(WINFLAG)
-obj/angelscript/util.o: src/angelscript/util.cpp src/angelscript/util.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/util.cpp -o obj/angelscript/util.o $(SFLAG) $(WINFLAG)
-obj/angelscript/scriptarray/scriptarray.o: src/angelscript/scriptarray/scriptarray.cpp src/angelscript/scriptarray/scriptarray.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/scriptarray/scriptarray.cpp -o obj/angelscript/scriptarray/scriptarray.o $(SFLAG) $(WINFLAG)
-obj/angelscript/scriptbuilder/scriptbuilder.o: src/angelscript/scriptbuilder/scriptbuilder.cpp src/angelscript/scriptbuilder/scriptbuilder.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/scriptbuilder/scriptbuilder.cpp -o obj/angelscript/scriptbuilder/scriptbuilder.o $(SFLAG) $(WINFLAG)
-obj/angelscript/scriptmath/scriptmath.o: src/angelscript/scriptmath/scriptmath.cpp src/angelscript/scriptmath/scriptmath.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/scriptmath/scriptmath.cpp -o obj/angelscript/scriptmath/scriptmath.o $(SFLAG) $(WINFLAG)
-obj/angelscript/scriptstdstring/scriptstdstring.o: src/angelscript/scriptstdstring/scriptstdstring.cpp src/angelscript/scriptstdstring/scriptstdstring.h
-	$(CC) $(OPTS) $(CFLAG) -c src/angelscript/scriptstdstring/scriptstdstring.cpp -o obj/angelscript/scriptstdstring/scriptstdstring.o $(SFLAG) $(WINFLAG)
 
 obj/item/clock.o: src/item/clock.cpp src/item/clock.h src/link.h
 	$(CC) $(OPTS) $(CFLAG) -c src/item/clock.cpp -o obj/item/clock.o $(SFLAG) $(WINFLAG)
