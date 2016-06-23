@@ -2,7 +2,7 @@
 #define _ZC_GUI_WINDOW_H_
 
 #include "widget.h"
-#include <boost/function.hpp>
+#include "bind.h"
 #include <string>
 
 namespace GUI
@@ -22,7 +22,7 @@ public:
     /// Set a function to be called when the window's close button is clicked.
     /** If the function return false, the window will not close.
      */
-    virtual void setOnClose(boost::function<bool()> func)=0;
+    virtual void setOnClose(zc_function<bool()> func)=0;
 };
 
 }

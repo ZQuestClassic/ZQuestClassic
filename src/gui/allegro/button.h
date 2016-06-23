@@ -3,7 +3,7 @@
 
 #include "../button.h"
 #include "standardWidget.h"
-#include <boost/function.hpp>
+#include "bind.h"
 #include <string>
 
 struct FONT;
@@ -14,7 +14,7 @@ namespace GUI
 class AllegroButton: public Button, public StandardAllegroWidget
 {
 public:
-    AllegroButton(AllegroWidget* image, boost::function<void(void)> onClick);
+    AllegroButton(AllegroWidget* image, zc_function<void(void)> onClick);
     
     // Inherited
     void draw(AllegroGUIRenderer& renderer) const;
@@ -27,7 +27,7 @@ public:
     
 private:
     AllegroWidget* image;
-    boost::function<void(void)> onClick;
+    zc_function<void(void)> onClick;
     bool underMouse, clicked;
     
     void onMouseEnter();

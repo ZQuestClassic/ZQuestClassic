@@ -4,8 +4,7 @@
 #include <gui/manager.h>
 #include <gui/textBox.h>
 #include <zquest.h>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include "bind.h"
 
 extern std::string zScript;
 
@@ -18,7 +17,7 @@ GUI::Widget* ZScriptEditor::createDialog(const GUI::WidgetFactory& f)
 {
     GUI::Window* win=f.window("ZScript editor", textBox=f.textBox());
     textBox->setText(zScript);
-    win->setOnClose(boost::bind(&ZScriptEditor::onClose, this));
+    win->setOnClose(zc_bind(&ZScriptEditor::onClose, this));
     
     return win;
 }

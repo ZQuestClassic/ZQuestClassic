@@ -2478,33 +2478,7 @@
 			Name="Modules"
 			>
 			<File
-				RelativePath="..\..\src\build_modules\angelscript_unity.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						BasicRuntimeChecks="0"
-						DebugInformationFormat="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\src\build_modules\gui_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zc_as_module.cpp"
 				>
 			</File>
 			<File

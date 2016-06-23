@@ -43,7 +43,7 @@ Window* AllegroWidgetFactory::window(const std::string& title,
 }
 
 Button* AllegroWidgetFactory::button(const std::string& text,
-  boost::function<void(void)> onClick) const
+  zc_function<void(void)> onClick) const
 {
     AllegroText* allText=new AllegroText(text, lfont, pal.buttonText);
     allText->setCentered(true);

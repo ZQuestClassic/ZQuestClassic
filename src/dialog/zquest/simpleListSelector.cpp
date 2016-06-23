@@ -1,9 +1,9 @@
 #include "simpleListSelector.h"
 #include <gui/factory.h>
-#include <boost/bind.hpp>
+#include "bind.h"
 
 SimpleListSelector::SimpleListSelector(const std::string& t,
-  const boost::function<std::string(int)>& strF, int num, bool em, int init):
+  const zc_function<std::string(int)>& strF, int num, bool em, int init):
     editMode(em),
     title(t),
     stringFunc(strF),
@@ -15,8 +15,8 @@ SimpleListSelector::SimpleListSelector(const std::string& t,
 }
 
 SimpleListSelector::SimpleListSelector(const std::string& t,
-  const boost::function<std::string(int)>& strF, int num,
-  const boost::function<void(int)>& helpF, bool em, int init):
+  const zc_function<std::string(int)>& strF, int num,
+  const zc_function<void(int)>& helpF, bool em, int init):
     editMode(em),
     title(t),
     stringFunc(strF),
@@ -28,8 +28,8 @@ SimpleListSelector::SimpleListSelector(const std::string& t,
 {
 }
 
-#define CB(func) boost::bind(&SimpleListSelector::func, this)
-#define CB1(func) boost::bind(&SimpleListSelector::func, this, _1)
+#define CB(func) zc_bind(&SimpleListSelector::func, this)
+#define CB1(func) zc_bind(&SimpleListSelector::func, this, _1)
 
 GUI::Widget* SimpleListSelector::createDialog(const GUI::WidgetFactory& f)
 {

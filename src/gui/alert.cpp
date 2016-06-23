@@ -1,6 +1,6 @@
 #include "alert.h"
 #include "factory.h"
-#include <boost/bind.hpp>
+#include "bind.h"
 
 using std::string;
 
@@ -62,7 +62,7 @@ void Alert::fixText()
     }
 }
 
-#define SETVAL(v) boost::bind(&Alert::setValue, this, v)
+#define SETVAL(v) zc_bind(&Alert::setValue, this, v)
 
 Widget* Alert::createDialog(const GUI::WidgetFactory& f)
 {

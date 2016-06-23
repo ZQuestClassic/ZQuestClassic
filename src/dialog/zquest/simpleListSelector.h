@@ -2,7 +2,7 @@
 #define _ZC_DIALOG_ZQUEST_SIMPLELISTSELECTOR_H_
 
 #include <gui/dialog.h>
-#include <boost/function.hpp>
+#include "bind.h"
 #include <string>
 
 namespace GUI
@@ -14,11 +14,11 @@ class SimpleListSelector: public GUI::Dialog
 {
 public:
     SimpleListSelector(const std::string& title,
-      const boost::function<std::string(int)>& stringFunc, int numItems,
+      const zc_function<std::string(int)>& stringFunc, int numItems,
       bool editMode, int initialSelection);
     SimpleListSelector(const std::string& title,
-      const boost::function<std::string(int)>& stringFunc, int numItems,
-      const boost::function<void(int)>& helpFunc, bool editMode,
+      const zc_function<std::string(int)>& stringFunc, int numItems,
+      const zc_function<void(int)>& helpFunc, bool editMode,
       int initialSelection);
     GUI::Widget* createDialog(const GUI::WidgetFactory& f);
     
@@ -33,8 +33,8 @@ public:
 private:
     const bool editMode; // Show Edit/Done rather than OK/Cancel
     const std::string title;
-    const boost::function<std::string(int)> stringFunc;
-    const boost::function<void(int)> helpFunc;
+    const zc_function<std::string(int)> stringFunc;
+    const zc_function<void(int)> helpFunc;
     const int numItems;
     int selected;
     int initialSelection;

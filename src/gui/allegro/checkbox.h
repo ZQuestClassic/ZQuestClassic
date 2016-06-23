@@ -3,7 +3,7 @@
 
 #include "../checkbox.h"
 #include "standardWidget.h"
-#include <boost/function.hpp>
+#include "bind.h"
 #include <string>
 
 struct FONT;
@@ -19,7 +19,7 @@ public:
     // Inherited
     inline bool getValue() const { return checked; }
     inline void setValue(bool newValue) { checked=newValue; }
-    inline void setCallback(boost::function<void(bool)> func) { onValueChanged=func; }
+    inline void setCallback(zc_function<void(bool)> func) { onValueChanged=func; }
     void draw(AllegroGUIRenderer& renderer) const;
     void getPreferredSize(int& prefWidth, int& prefHeight);
     void setSizeAndPos(int newX, int newY, int newWidth, int newHeight);
@@ -31,7 +31,7 @@ private:
     std::string text;
     FONT* font;
     bool checked;
-    boost::function<void(bool)> onValueChanged;
+    zc_function<void(bool)> onValueChanged;
     
     /// Toggles the checkbox's state.
     void toggle();

@@ -2,7 +2,7 @@
 #define _ZC_GUI_CHECKBOX_H_
 
 #include "widget.h"
-#include <boost/function.hpp>
+#include "bind.h"
 
 namespace GUI
 {
@@ -20,7 +20,7 @@ public:
     virtual void setValue(bool newValue)=0;
     
     /// Set a function to be called when the box is checked or unchecked.
-    virtual void setCallback(boost::function<void(bool)> func)=0;
+    virtual void setCallback(zc_function<void(bool)> func)=0;
 };
 
 }

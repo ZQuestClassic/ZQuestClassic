@@ -6,8 +6,7 @@
 #include <gui/spinner.h>
 #include <gui/text.h>
 #include <util.h>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include "bind.h"
 #include <cstdio>
 
 TileSelector::TileSelector(int tile, int cset, Orientation orientation):
@@ -23,7 +22,7 @@ TileSelector::TileSelector(int tile, int cset, Orientation orientation):
     
 }
 
-#define CB(func) boost::bind(&TileSelector::func, this)
+#define CB(func) zc_bind(&TileSelector::func, this)
 
 GUI::Widget* TileSelector::createDialog(const GUI::WidgetFactory& f)
 {
@@ -54,7 +53,7 @@ GUI::Widget* TileSelector::createDialog(const GUI::WidgetFactory& f)
     );
     
     pageSelector->setOnValueChanged(
-      boost::bind(&TileSelectorBackend::setPage, &backend, _1, false));
+      zc_bind(&TileSelectorBackend::setPage, &backend, _1, false));
     
     onPageChanged();
     onCSetChanged();

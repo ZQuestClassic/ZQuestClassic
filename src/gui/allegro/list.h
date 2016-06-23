@@ -17,8 +17,8 @@ public:
     void getPreferredSize(int& prefWidth, int& prefHeight);
     void draw(AllegroGUIRenderer& renderer) const;
     
-    inline void setOnValueChanged(const boost::function<void(int)>& f) { onSelectionChanged=f; }
-    inline void setOnDoubleClick(const boost::function<void(int)>& f) { onDoubleClick=f; }
+    inline void setOnValueChanged(const zc_function<void(int)>& f) { onSelectionChanged=f; }
+    inline void setOnDoubleClick(const zc_function<void(int)>& f) { onDoubleClick=f; }
     void setSelected(int num);
     inline int getSelected() const { return selected; }
     
@@ -30,8 +30,8 @@ private:
     const ListData* data;
     const AllegroWidgetFactory& widgetFactory;
     int selected;
-    boost::function<void(int)> onSelectionChanged;
-    boost::function<void(int)> onDoubleClick;
+    zc_function<void(int)> onSelectionChanged;
+    zc_function<void(int)> onDoubleClick;
 };
 
 }

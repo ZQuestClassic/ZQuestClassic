@@ -151,7 +151,7 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #include "dialog/zquest/zscriptMain.h"
 //#include "gui/gtk/manager.h"
 #include "gui/allegro/manager.h"
-#include <boost/bind.hpp>
+#include "bind.h"
 
 GUI::GUIManager* gui;
 MessageList msgList; // Trivial for now
@@ -11036,7 +11036,7 @@ std::string getMessage(int id)
 int onString()
 {
     SimpleListSelector sls("Select screen message",
-      boost::bind(&MessageList::getListMessageText, &msgList, 1),
+      zc_bind(&MessageList::getListMessageText, &msgList, 1),
       msgList.getNumMessages(), false, 0);
     gui->showDialog(sls);
     int ret=sls.getSelected();
@@ -11051,7 +11051,7 @@ int onString()
 int onEndString()
 {
     SimpleListSelector sls("Select ending message",
-      boost::bind(&MessageList::getListMessageText, &msgList, 1), 
+      zc_bind(&MessageList::getListMessageText, &msgList, 1), 
       msgList.getNumMessages(), false, 0);
     gui->showDialog(sls);
     int ret=sls.getSelected();

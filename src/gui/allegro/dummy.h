@@ -26,7 +26,7 @@ public:
     // Spinner
     void setValue(int val) {}
     int getValue() const { return 0; }
-    void setOnValueChanged(boost::function<void(int)> func) {}
+    void setOnValueChanged(zc_function<void(int)> func) {}
     
     // TextBox
     void setText(const std::string& text) {}

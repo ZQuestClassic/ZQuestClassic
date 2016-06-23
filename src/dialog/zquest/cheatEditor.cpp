@@ -1,13 +1,13 @@
 #include "cheatEditor.h"
 #include "../../gui/factory.h"
 #include "../../zdefs.h" // for ZCHEATS
-#include <boost/bind.hpp>
+#include "bind.h"
 #include <cstring>
 
 extern ZCHEATS zcheats;
 extern bool saved;
 
-#define CB(func) boost::bind(&CheatEditor::func, this)
+#define CB(func) zc_bind(&CheatEditor::func, this)
 
 GUI::Widget* CheatEditor::createDialog(const GUI::WidgetFactory& f)
 {

@@ -4,8 +4,7 @@
 #include "../../gui/manager.h"
 #include "../../gui/text.h"
 #include "../../zquest.h"
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include "bind.h"
 #include <cstdio>
 
 extern std::string zScript;
@@ -15,7 +14,7 @@ ZScriptMainDialog::ZScriptMainDialog(GUI::GUIManager& g):
 {
 }
 
-#define CB(func) boost::bind(&ZScriptMainDialog::func, this)
+#define CB(func) zc_bind(&ZScriptMainDialog::func, this)
 
 GUI::Widget* ZScriptMainDialog::createDialog(const GUI::WidgetFactory& f)
 {

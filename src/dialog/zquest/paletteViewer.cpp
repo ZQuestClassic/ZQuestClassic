@@ -1,6 +1,6 @@
 #include "paletteViewer.h"
 #include "../../gui/factory.h"
-#include <boost/bind.hpp>
+#include "bind.h"
 
 #include "../../gui/bitmap.h"
 
@@ -39,7 +39,7 @@ GUI::Widget* PaletteViewer::createDialog(const GUI::WidgetFactory& f)
     return f.window("Current palette",
       f.column(GUI::Contents(
         f.bitmap(new PaletteViewerBitmap(), 1),
-        f.button("O&K", boost::bind(&PaletteViewer::shutDown, this))
+        f.button("O&K", zc_bind(&PaletteViewer::shutDown, this))
       ))
     );
 }

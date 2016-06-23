@@ -24,7 +24,7 @@ public:
     void setSizeAndPos(int newX, int newY, int newW, int newH);
     void draw(AllegroGUIRenderer& renderer) const;
     void setMenu(Menu* menu) {}
-    inline void setOnClose(boost::function<bool()> func) { onClose=func; }
+    inline void setOnClose(zc_function<bool()> func) { onClose=func; }
     
     static int proc(int msg, DIALOG* d, int c);
     
@@ -32,7 +32,7 @@ private:
     std::string title;
     FONT* titleFont;
     AllegroWidget* contents;
-    boost::function<bool()> onClose;
+    zc_function<bool()> onClose;
     
     DIALOG* dlgArray;
     int contentStart, contentEnd;

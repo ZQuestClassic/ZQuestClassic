@@ -4,7 +4,7 @@
 #include <zquest.h>
 #include "../bitmap/tilePreview.h"
 #include <gui/factory.h>
-#include <boost/bind.hpp>
+#include "bind.h"
 #include <cstdio>
 
 extern bool saved;
@@ -17,9 +17,9 @@ ShopEditor::ShopEditor(shoptype& s, const item_struct* il):
 {
 }
 
-#define CB(func) boost::bind(&ShopEditor::func, this)
-#define CB1(func) boost::bind(&ShopEditor::func, this, _1)
-#define CBID1(func, id) boost::bind(&ShopEditor::func, this, id, _1)
+#define CB(func) zc_bind(&ShopEditor::func, this)
+#define CB1(func) zc_bind(&ShopEditor::func, this, _1)
+#define CBID1(func, id) zc_bind(&ShopEditor::func, this, id, _1)
 
 GUI::Widget* ShopEditor::createDialog(const GUI::WidgetFactory& f)
 {

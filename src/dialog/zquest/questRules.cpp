@@ -2,8 +2,7 @@
 #include "../../gui/factory.h"
 #include "../../zdefs.h"
 #include "../../zsys.h"
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include "bind.h"
 #include <string>
 
 extern zinitdata zinit;
@@ -190,7 +189,7 @@ void addTab(const std::string& name, const RuleData* rules,
 
 } // namespace
 
-#define CB(func) boost::bind(&QuestRulesEditor::func, this)
+#define CB(func) zc_bind(&QuestRulesEditor::func, this)
 
 Widget* QuestRulesEditor::createDialog(const WidgetFactory& f)
 {

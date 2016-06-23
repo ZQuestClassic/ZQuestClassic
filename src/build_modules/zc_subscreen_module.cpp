@@ -1,6 +1,7 @@
 
 #include "precompiled.h"
 #include "config.h"
+#include "bind.h"
 
 #define USE_ENCRYPTION
 //misc

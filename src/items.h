@@ -17,7 +17,7 @@
 
 #include "sprite.h"
 #include "zdefs.h"
-#include <boost/bind.hpp>
+#include "bind.h"
 
 class LinkClass;
 

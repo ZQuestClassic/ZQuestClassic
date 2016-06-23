@@ -2,7 +2,7 @@
 #define _ZC_GUI_SPINNER_H_
 
 #include "widget.h"
-#include <boost/function.hpp>
+#include "bind.h"
 
 namespace GUI
 {
@@ -21,7 +21,7 @@ public:
     
     /// Set a function to call when the spinner's value changes.
     /** The new value will be the argument to the function. */
-    virtual void setOnValueChanged(boost::function<void(int)> func)=0;
+    virtual void setOnValueChanged(zc_function<void(int)> func)=0;
 };
 
 }

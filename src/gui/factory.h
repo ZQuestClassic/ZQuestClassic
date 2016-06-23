@@ -17,7 +17,7 @@
 #include "textField.h"
 #include "widget.h"
 #include "window.h"
-#include <boost/function.hpp>
+#include "bind.h"
 #include <string>
 
 namespace GUI
@@ -32,7 +32,7 @@ public:
     
     // Regular widgets
     virtual BitmapWidget* bitmap(BitmapBackend* backend, int scale=2) const=0;
-    virtual Button* button(const std::string& text, boost::function<void(void)> onClick) const=0;
+    virtual Button* button(const std::string& text, zc_function<void(void)> onClick) const=0;
     virtual Checkbox* checkbox(const std::string& text) const=0;
     virtual List* comboBox(const ListData* data) const=0;
     virtual List* list(const ListData* data) const=0;

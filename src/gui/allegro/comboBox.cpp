@@ -6,7 +6,7 @@
 #include "renderer.h"
 #include "text.h"
 #include <allegro.h>
-#include <boost/bind.hpp>
+#include "bind.h"
 
 namespace GUI
 {
@@ -31,7 +31,7 @@ AllegroComboBox::AllegroComboBox(const ListData* ld, const AllegroWidgetFactory&
     data(ld),
     selected(-1)
 {
-    list->setOnValueChanged(boost::bind(&AllegroComboBox::selectionChanged, this, _1));
+    list->setOnValueChanged(zc_bind(&AllegroComboBox::selectionChanged, this, _1));
 }
 
 AllegroComboBox::~AllegroComboBox()

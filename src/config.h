@@ -7,7 +7,16 @@
 	#define constexpr
 #endif
 
-// C++
+// No idea, but this may need greater accuracy on different platforms. Water as needed.
+#if __cplusplus > 199711L
+	#define ZC_HAS_CPP0X 1
+	#define ZC_HAS_CPP11 1
+#else
+	#define ZC_HAS_CPP0X 0
+	#define ZC_HAS_CPP11 0
+#endif
+
+// VC++
 #if defined(_MSC_VER)
 	#define _HAS_ITERATOR_DEBUGGING 0
 	#define _HAS_EXCEPTIONS 0
@@ -56,4 +65,5 @@
 	typedef unsigned int		uint32;
 	typedef unsigned long long	uint64;
 #endif
+
 

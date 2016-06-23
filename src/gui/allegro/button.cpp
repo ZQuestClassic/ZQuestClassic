@@ -47,7 +47,7 @@ int AllegroButton::proc(int msg, DIALOG* d, int c)
     return D_O_K;
 }
 
-AllegroButton::AllegroButton(AllegroWidget* i, boost::function<void(void)> f):
+AllegroButton::AllegroButton(AllegroWidget* i, zc_function<void(void)> f):
     image(i),
     onClick(f),
     underMouse(false),

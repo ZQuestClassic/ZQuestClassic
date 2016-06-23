@@ -25,7 +25,7 @@ public:
     
     void setSelected(int num);
     inline int getSelected() const { return selected; }
-    inline void setOnValueChanged(const boost::function<void(int)>& f) { onValueChanged=f; }
+    inline void setOnValueChanged(const zc_function<void(int)>& f) { onValueChanged=f; }
     static int proc(int msg, DIALOG* d, int c);
     
 private:
@@ -33,7 +33,7 @@ private:
     AllegroText* text;
     const ListData* data;
     int selected;
-    boost::function<void(int)> onValueChanged;
+    zc_function<void(int)> onValueChanged;
     
     void onClick();
     void selectionChanged(int newSel);

@@ -1,7 +1,7 @@
 #ifndef _ZC_MESSAGEMANAGER_H_
 #define _ZC_MESSAGEMANAGER_H_
 
-#include <boost/function.hpp>
+#include "bind.h"
 
 class Message;
 struct MsgStr;
@@ -38,7 +38,7 @@ public:
     /// Set a function to be called when the current message is finished.
     /** Call this after setting the message to display.
      */
-    inline void setMessageEndCallback(boost::function<void()> func)
+    inline void setMessageEndCallback(zc_function<void()> func)
     {
         // Should it be called immediately if the message is blank?
         onMessageEnd=func;
@@ -53,7 +53,7 @@ private:
     Message* activeMessage;
     msgState state;
     int timer;
-    boost::function<void()> onMessageEnd;
+    zc_function<void()> onMessageEnd;
 };
 
 #endif

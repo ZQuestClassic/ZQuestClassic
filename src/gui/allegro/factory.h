@@ -13,7 +13,7 @@ public:
     
     // Regular widgets
     BitmapWidget* bitmap(BitmapBackend* backend, int scale) const;
-    Button* button(const std::string& text, boost::function<void(void)> onClick) const;
+    Button* button(const std::string& text, zc_function<void(void)> onClick) const;
     Checkbox* checkbox(const std::string& text) const;
     List* comboBox(const ListData* data) const;
     List* list(const ListData* data) const;

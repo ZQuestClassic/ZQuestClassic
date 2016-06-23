@@ -1,5 +1,6 @@
 
 #include "config.h"
+#include "bind.h"
 
 
 #include "sequence/sequence.cpp"
