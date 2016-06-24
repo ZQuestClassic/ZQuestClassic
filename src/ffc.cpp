@@ -51,8 +51,8 @@ void FFC::clear()
     link=0;
     lastChangerX=-1000;
     lastChangerY=-1000;
-    prevX=-10000000;
-    prevY=-10000000;
+    prevX=-100000000;
+    prevY=-100000000;
     
     script=0;
     scriptData.Clear();
@@ -283,7 +283,7 @@ void FFCSet::updateMovement(mapscr* tmpscr, bool holdingItem)
                     
                 if((isonline(curr.x, curr.y, curr.prevX, curr.prevY, changer.x, changer.y) || // Along the line, or...
                   (curr.x==changer.x && curr.y==changer.y)) && // At exactly the same position, and...
-                  (curr.prevX>-1000 && curr.prevY>-1000)) // Whatever this means
+                  (curr.prevX>-10000000 && curr.prevY>-10000000)) // Whatever this means
                 {
                     curr.applyChanger(changer);
                     
