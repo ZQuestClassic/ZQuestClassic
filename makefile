@@ -47,7 +47,7 @@ ifdef COMPILE_FOR_WIN
   RV_ICON_CMD = windres --use-temp-file -J rc -O coff -i rv_icon.rc -o rv_icon.o
   ZC_PLATFORM = Windows
   CC = g++
-  CFLAG = $(CFLAGBASE) -pedantic -I./include/dumb/ -I./include/alogg/ -I./include/almp3 -I./include/lpng1212/ -I./include/loadpng/ -I./include/lpng1212/ -I./include/jpgalleg-2.5/ -I./include/zlib123/ -I./gme -I./src/
+  CFLAG = $(CFLAGBASE) -pedantic -I./include/dumb/ -I./include/alogg/ -I./include/almp3 -I./include/lpng1212/ -I./include/loadpng/ -I./include/lpng1212/ -I./include/jpgalleg-2.5/ -I./include/zlib123/ -I./include/gme/ -I./src/
   LIBDIR = -L./libs/mingw
   
   ZCSOUND_SO = libs/mingw/libzcsound.dll
@@ -168,14 +168,16 @@ GTK_GUI_OBJECTS = obj/gui/gtk/bitmap.o obj/gui/gtk/button.o obj/gui/gtk/buttonRo
 
 ALLEGRO_GUI_OBJECTS = obj/gui/allegro/bitmap.o obj/gui/allegro/button.o obj/gui/allegro/checkbox.o obj/gui/allegro/column.o obj/gui/allegro/comboBox.o obj/gui/allegro/common.o obj/gui/allegro/controller.o obj/gui/allegro/dummy.o obj/gui/allegro/editableText.o obj/gui/allegro/factory.o obj/gui/allegro/frame.o obj/gui/allegro/list.o obj/gui/allegro/renderer.o obj/gui/allegro/row.o obj/gui/allegro/scrollbar.o obj/gui/allegro/scrollingPane.o obj/gui/allegro/serialContainer.o obj/gui/allegro/standardWidget.o obj/gui/allegro/tab.o obj/gui/allegro/tabBar.o obj/gui/allegro/tabPanel.o obj/gui/allegro/text.o obj/gui/allegro/textField.o obj/gui/allegro/window.o
 
-ZELDA_OBJECTS = obj/aglogo.o obj/colors.o obj/debug.o obj/decorations.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ending.o obj/enemyAttack.o obj/ffc.o obj/ffscript.o obj/fontClass.o obj/gamedata.o obj/gui.o obj/guys.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/link.o obj/linkHandler.o obj/load_gif.o obj/maps.o obj/matrix.o obj/md5.o obj/message.o obj/messageManager.o obj/messageRenderer.o obj/messageStream.o obj/midi.o obj/pal.o obj/particles.o obj/qst.o obj/refInfo.o obj/room.o obj/save_gif.o obj/screenFreezeState.o obj/screenWipe.o obj/script_drawing.o $(SINGLE_INSTANCE_O) obj/sfxAllegro.o obj/sfxClass.o obj/sfxManager.o obj/sound.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/title.o obj/weapons.o obj/zc_custom.o obj/zc_init.o obj/zc_items.o obj/zc_sprite.o obj/zc_subscr.o obj/zc_sys.o obj/zelda.o obj/zscriptversion.o obj/zsys.o \
+ZELDA_OBJECTS = obj/aglogo.o obj/colors.o obj/debug.o obj/decorations.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ending.o obj/enemyAttack.o obj/ffc.o obj/ffscript.o obj/fontClass.o obj/gamedata.o obj/gui.o obj/guys.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/link.o obj/load_gif.o obj/maps.o obj/matrix.o obj/md5.o obj/message.o obj/messageManager.o obj/messageRenderer.o obj/messageStream.o obj/midi.o obj/pal.o obj/particles.o obj/qst.o obj/refInfo.o obj/room.o obj/save_gif.o obj/screenFreezeState.o obj/screenWipe.o obj/script_drawing.o $(SINGLE_INSTANCE_O) obj/sfxAllegro.o obj/sfxClass.o obj/sfxManager.o obj/sound.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/title.o obj/weapons.o obj/zc_custom.o obj/zc_init.o obj/zc_items.o obj/zc_sprite.o obj/zc_subscr.o obj/zc_sys.o obj/zelda.o obj/zscriptversion.o obj/zsys.o \
 obj/item/clock.o obj/item/dinsFire.o obj/item/hookshot.o obj/item/faroresWind.o obj/item/itemEffect.o obj/item/nayrusLove.o \
 obj/sequence/gameOver.o obj/sequence/ganonIntro.o obj/sequence/getBigTriforce.o obj/sequence/getTriforce.o obj/sequence/potion.o obj/sequence/sequence.o obj/sequence/whistle.o \
+obj/win32.o \
 $(ZC_ICON)
 
 ZQUEST_OBJECTS = obj/zquest.o obj/colors.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ffc.o obj/gamedata.o obj/gui.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/load_gif.o obj/md5.o obj/messageList.o obj/midi.o obj/particles.o obj/qst.o obj/questReport.o obj/refInfo.o obj/save_gif.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/zc_custom.o obj/zq_class.o obj/zq_cset.o obj/zq_custom.o obj/zq_doors.o obj/zq_files.o obj/zq_items.o obj/zq_init.o obj/zq_misc.o obj/zq_sprite.o obj/zq_strings.o obj/zq_subscr.o obj/zq_tiles.o obj/zqscale.o obj/zsys.o obj/ffasm.o obj/parser/AST.o obj/parser/BuildVisitors.o obj/parser/ByteCode.o obj/parser/DataStructs.o obj/parser/GlobalSymbols.o obj/parser/lex.yy.o obj/parser/ParseError.o obj/parser/ScriptParser.o obj/parser/SymbolVisitors.o obj/parser/TypeChecker.o obj/parser/UtilVisitors.o obj/parser/y.tab.o \
 obj/guiBitmapRenderer.o \
 obj/gui/alert.o obj/gui/contents.o obj/gui/controller.o obj/gui/dialog.o obj/gui/manager.o \
+obj/win32.o \
 $(ALLEGRO_GUI_OBJECTS) \
 obj/dialog/bitmap/tilePreview.o obj/dialog/bitmap/tileSelector.o \
 obj/dialog/zquest/cheatEditor.o obj/dialog/zquest/infoShopEditor.o obj/dialog/zquest/paletteViewer.o obj/dialog/zquest/questRules.o obj/dialog/zquest/shopEditor.o obj/dialog/zquest/simpleListSelector.o obj/dialog/zquest/tileSelector.o obj/dialog/zquest/tileSelectorBackend.o obj/dialog/zquest/zscriptEditor.o obj/dialog/zquest/zscriptMain.o \
@@ -485,7 +487,7 @@ obj/jwinfsel.o: src/jwinfsel.cpp src/jwin.h src/jwinfsel.h src/tab_ctl.h src/zc_
 	$(CC) $(OPTS) $(CFLAG) -c src/jwinfsel.cpp -o obj/jwinfsel.o $(SFLAG) $(WINFLAG)
 obj/link.o: src/link.cpp src/aglogo.h src/colors.h src/decorations.h src/ffc.h src/gamedata.h src/guys.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/qst.h src/screenWipe.h src/sfx.h src/sound.h src/sprite.h src/tab_ctl.h src/tiles.h src/title.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_subscr.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h src/item/itemEffect.h
 	$(CC) $(OPTS) $(CFLAG) -c src/link.cpp -o obj/link.o $(SFLAG) $(WINFLAG)
-obj/linkHandler.o: src/linkHandler.cpp src/linkHandler.h src/decorations.h src/guys.h src/link.h src/sequence.h src/sfxManager.h src/zc_sys.h src/zelda.h
+#obj/linkHandler.o: src/linkHandler.cpp src/linkHandler.h src/decorations.h src/guys.h src/link.h src/sequence.h src/sfxManager.h src/zc_sys.h src/zelda.h
 obj/load_gif.o: src/load_gif.cpp src/load_gif.h src/zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c src/load_gif.cpp -o obj/load_gif.o $(SFLAG) $(WINFLAG)
 obj/maps.o: src/maps.cpp src/aglogo.h src/colors.h src/ffc.h src/ffscript.h src/gamedata.h src/guys.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/particles.h src/qst.h src/sfx.h src/sound.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_subscr.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h src/rendertarget.h
@@ -554,6 +556,8 @@ obj/title.o: src/title.cpp src/aglogo.h src/colors.h src/encryption.h src/gameda
 	$(CC) $(OPTS) $(CFLAG) -c src/title.cpp -o obj/title.o $(SFLAG) $(WINFLAG)
 obj/weapons.o: src/weapons.cpp src/aglogo.h src/colors.h src/gamedata.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/qst.h src/sfx.h src/sound.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/weapons.cpp -o obj/weapons.o $(SFLAG) $(WINFLAG)
+obj/win32.o: src/win32.cpp src/win32.h 
+	$(CC) $(OPTS) $(CFLAG) -c src/win32.cpp -o obj/win32.o $(SFLAG) $(WINFLAG)
 obj/zc_custom.o: src/zc_custom.cpp src/gamedata.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zc_custom.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zc_custom.cpp -o obj/zc_custom.o $(SFLAG) $(WINFLAG)
 obj/zc_icon.o: src/$(ZC_ICON_DEPS)
@@ -781,4 +785,3 @@ obj/sequence/sequence.o: src/sequence/sequence.cpp src/sequence/sequence.h
 	$(CC) $(OPTS) $(CFLAG) -c src/sequence/sequence.cpp -o obj/sequence/sequence.o $(SFLAG) $(WINFLAG)
 obj/sequence/whistle.o: src/sequence/whistle.cpp src/sequence/whistle.h src/link.h src/sfxClass.h src/weapons.h src/zc_sys.h src/zelda.h src/sequence/sequence.h
 	$(CC) $(OPTS) $(CFLAG) -c src/sequence/whistle.cpp -o obj/sequence/whistle.o $(SFLAG) $(WINFLAG)
-
