@@ -251,7 +251,7 @@ obj/zcmusic.o: src/zcmusic.cpp src/mutex.h src/zc_alleg.h src/zcmusic.h src/zsys
 obj/zcmusicd.o: src/zcmusicd.cpp src/zcmusic.h
 	$(CC) $(OPTS) $(CFLAG) -fpic -c src/zcmusicd.cpp -o obj/zcmusicd.o $(SFLAG) $(WINFLAG)
 
-$(ZELDA_EXE): $(ZELDA_OBJECTS)
+$(ZELDA_EXE): $(ZELDA_OBJECTS) $(ZCSOUND_SO)
 	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(AS_LIB) $(STDCXX_LIB) $(ZC_ICON) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZELDA_EXE)
@@ -322,7 +322,7 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
 	mv $(ZELDA_EXE).app "Zelda Classic.app"
 endif
 
-$(ZQUEST_EXE): $(ZQUEST_OBJECTS)
+$(ZQUEST_EXE): $(ZQUEST_OBJECTS) $(ZCSOUND_SO)
 	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(ZQ_ICON) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZQUEST_EXE)
@@ -477,7 +477,7 @@ obj/guys.o: src/guys.cpp src/aglogo.h src/colors.h src/defdata.h src/ffscript.h 
 	$(CC) $(OPTS) $(CFLAG) -c src/guys.cpp -o obj/guys.o $(SFLAG) $(WINFLAG)
 obj/init.o: src/init.cpp src/gamedata.h src/gui.h src/init.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(CFLAG) -c src/init.cpp -o obj/init.o $(SFLAG) $(WINFLAG)
-obj/items.o: src/items.cpp src/gamedata.h src/items.h src/jwin.h src/maps.h src/sfx.h src/sound.h src/sprite.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
+obj/items.o: src/items.cpp src/bind.h src/gamedata.h src/items.h src/jwin.h src/maps.h src/sfx.h src/sound.h src/sprite.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/items.cpp -o obj/items.o $(SFLAG) $(WINFLAG)
 obj/jmenu.o: src/jmenu.cpp src/gamedata.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/jmenu.cpp -o obj/jmenu.o $(SFLAG) $(WINFLAG)
@@ -500,7 +500,7 @@ obj/message.o: src/message.cpp src/message.h src/fontClass.h src/link.h src/mess
 	$(CC) $(OPTS) $(CFLAG) -c src/message.cpp -o obj/message.o $(SFLAG) $(WINFLAG)
 obj/messageList.o: src/messageList.cpp src/messageList.h src/types.h src/zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c src/messageList.cpp -o obj/messageList.o $(SFLAG) $(WINFLAG)
-obj/messageManager.o: src/messageManager.cpp src/messageManager.h src/link.h src/message.h src/weapons.h src/zc_sys.h src/zdefs.h src/zelda.h
+obj/messageManager.o: src/messageManager.cpp src/messageManager.h src/bind.h src/link.h src/message.h src/weapons.h src/zc_sys.h src/zdefs.h src/zelda.h
 	$(CC) $(OPTS) $(CFLAG) -c src/messageManager.cpp -o obj/messageManager.o $(SFLAG) $(WINFLAG)
 obj/messageRenderer.o: src/messageRenderer.cpp src/messageRenderer.h src/subscr.h src/zelda.h
 	$(CC) $(OPTS) $(CFLAG) -c src/messageRenderer.cpp -o obj/messageRenderer.o $(SFLAG) $(WINFLAG)
@@ -602,7 +602,7 @@ obj/zq_tiles.o: src/zq_tiles.cpp src/colors.h src/gamedata.h src/gui.h src/items
 	$(CC) $(OPTS) -D_ZQUEST_SCALE_ $(CFLAG) -c src/zq_tiles.cpp -o obj/zq_tiles.o $(SFLAG) $(WINFLAG)
 obj/zqscale.o: src/zqscale.cpp
 	$(CC) $(OPTS) $(CFLAG) -c src/zqscale.cpp -o obj/zqscale.o $(SFLAG) $(WINFLAG)
-obj/zquest.o: src/zquest.cpp src/colors.h src/editbox.h src/EditboxNew.h src/ffasm.h src/ffc.h src/ffscript.h src/fontsdat.h src/gamedata.h src/gui.h src/items.h src/jwin.h src/jwinfsel.h src/load_gif.h src/midi.h src/parser/Compiler.h src/qst.h src/save_gif.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zq_class.h src/zq_cset.h src/zq_custom.h src/zq_doors.h src/zq_files.h src/zq_init.h src/zq_misc.h src/zq_subscr.h src/zq_tiles.h src/zquest.h src/zquestdat.h src/zsys.h
+obj/zquest.o: src/zquest.cpp src/bind.h src/colors.h src/editbox.h src/EditboxNew.h src/ffasm.h src/ffc.h src/ffscript.h src/fontsdat.h src/gamedata.h src/gui.h src/items.h src/jwin.h src/jwinfsel.h src/load_gif.h src/midi.h src/parser/Compiler.h src/qst.h src/save_gif.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zq_class.h src/zq_cset.h src/zq_custom.h src/zq_doors.h src/zq_files.h src/zq_init.h src/zq_misc.h src/zq_subscr.h src/zq_tiles.h src/zquest.h src/zquestdat.h src/zsys.h
 	$(CC) $(OPTS) -D_ZQUEST_SCALE_ $(CFLAG) -c src/zquest.cpp -o obj/zquest.o $(SFLAG) $(WINFLAG)
 obj/zscriptversion.o: src/zscriptversion.cpp src/zelda.h src/link.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zscriptversion.cpp -o obj/zscriptversion.o $(SFLAG) $(WINFLAG)
@@ -650,7 +650,7 @@ obj/parser/y.tab.o: src/parser/y.tab.cpp src/zsyssimple.h src/parser/AST.h src/p
 obj/guiBitmapRenderer.o: src/guiBitmapRenderer.cpp src/guiBitmapRenderer.h
 	$(CC) $(OPTS) $(CFLAG) -c src/guiBitmapRenderer.cpp -o obj/guiBitmapRenderer.o $(SFLAG) $(WINFLAG)
 
-obj/gui/alert.o: src/gui/alert.cpp src/gui/alert.h src/gui/dialog.h src/gui/factory.h
+obj/gui/alert.o: src/gui/alert.cpp src/gui/alert.h src/bind.h src/gui/dialog.h src/gui/factory.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/alert.cpp -o obj/gui/alert.o $(SFLAG) $(WINFLAG)
 obj/gui/contents.o: src/gui/contents.cpp src/gui/contents.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/contents.cpp -o obj/gui/contents.o $(SFLAG) $(WINFLAG)
@@ -663,27 +663,27 @@ obj/gui/manager.o: src/gui/manager.cpp src/gui/manager.h src/gui/alert.h src/gui
 
 obj/gui/allegro/bitmap.o: src/gui/allegro/bitmap.cpp src/gui/allegro/bitmap.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/bitmap.cpp -o obj/gui/allegro/bitmap.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/button.o: src/gui/allegro/button.cpp src/gui/allegro/button.h src/gui/allegro/common.h
+obj/gui/allegro/button.o: src/gui/allegro/button.cpp src/gui/allegro/button.h src/bind.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/button.cpp -o obj/gui/allegro/button.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/checkbox.o: src/gui/allegro/checkbox.cpp src/gui/allegro/checkbox.h src/gui/allegro/common.h
+obj/gui/allegro/checkbox.o: src/gui/allegro/checkbox.cpp src/gui/allegro/checkbox.h src/bind.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/checkbox.cpp -o obj/gui/allegro/checkbox.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/column.o: src/gui/allegro/column.cpp src/gui/allegro/column.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/column.cpp -o obj/gui/allegro/column.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/comboBox.o: src/gui/allegro/comboBox.cpp src/gui/allegro/comboBox.h src/gui/allegro/list.h src/gui/list.h
+obj/gui/allegro/comboBox.o: src/gui/allegro/comboBox.cpp src/gui/allegro/comboBox.h src/bind.h src/gui/allegro/list.h src/gui/list.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/comboBox.cpp -o obj/gui/allegro/comboBox.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/common.o: src/gui/allegro/common.cpp src/gui/allegro/common.h src/gui/allegro/scrollbar.h src/gui/key.h src/gui/mouse.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/common.cpp -o obj/gui/allegro/common.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/controller.o: src/gui/allegro/controller.cpp src/gui/allegro/controller.h src/gui/allegro/common.h src/gui/allegro/widget.h src/gui/key.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/controller.cpp -o obj/gui/allegro/controller.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/dummy.o: src/gui/allegro/dummy.cpp src/gui/allegro/dummy.h
+obj/gui/allegro/dummy.o: src/gui/allegro/dummy.cpp src/gui/allegro/dummy.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/dummy.cpp -o obj/gui/allegro/dummy.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/editableText.o: src/gui/allegro/editableText.cpp src/gui/allegro/editableText.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/editableText.cpp -o obj/gui/allegro/editableText.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/factory.o: src/gui/allegro/factory.cpp src/gui/allegro/factory.h
+obj/gui/allegro/factory.o: src/gui/allegro/factory.cpp src/gui/allegro/factory.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/factory.cpp -o obj/gui/allegro/factory.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/frame.o: src/gui/allegro/frame.cpp src/gui/allegro/frame.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/frame.cpp -o obj/gui/allegro/frame.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/list.o: src/gui/allegro/list.cpp src/gui/allegro/list.h src/gui/allegro/scrollingPane.h
+obj/gui/allegro/list.o: src/gui/allegro/list.cpp src/gui/allegro/list.h src/bind.h src/gui/allegro/scrollingPane.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/list.cpp -o obj/gui/allegro/list.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/renderer.o: src/gui/allegro/renderer.cpp src/gui/allegro/renderer.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/renderer.cpp -o obj/gui/allegro/renderer.o $(SFLAG) $(WINFLAG)
@@ -707,7 +707,7 @@ obj/gui/allegro/text.o: src/gui/allegro/text.cpp src/gui/allegro/text.h src/gui/
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/text.cpp -o obj/gui/allegro/text.o $(SFLAG) $(WINFLAG)
 obj/gui/allegro/textField.o: src/gui/allegro/textField.cpp src/gui/allegro/textField.h src/gui/allegro/editableText.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/textField.cpp -o obj/gui/allegro/textField.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/window.o: src/gui/allegro/window.cpp src/gui/allegro/window.h src/gui/allegro/common.h
+obj/gui/allegro/window.o: src/gui/allegro/window.cpp src/gui/allegro/window.h src/bind.h src/gui/allegro/common.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/window.cpp -o obj/gui/allegro/window.o $(SFLAG) $(WINFLAG)
 
 obj/gui/gtk/bitmap.o: src/gui/gtk/bitmap.cpp src/gui/gtk/bitmap.h src/guiBitmapRenderer.h src/gui/mouse.h src/gui/widget.h src/gui/bitmap.h src/gui/gtk/util.h src/gui/gtk/widget.h
@@ -716,11 +716,11 @@ obj/gui/gtk/button.o: src/gui/gtk/button.cpp src/gui/gtk/button.h src/gui/gtk/ut
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/button.cpp -o obj/gui/gtk/button.o $(SFLAG) $(WINFLAG)
 obj/gui/gtk/buttonRow.o: src/gui/gtk/buttonRow.cpp src/gui/gtk/buttonRow.h src/gui/gtk/util.h src/gui/widget.h src/gui/serialContainer.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/buttonRow.cpp -o obj/gui/gtk/buttonRow.o $(SFLAG) $(WINFLAG)
-obj/gui/gtk/checkbox.o: src/gui/gtk/checkbox.cpp src/gui/gtk/checkbox.h src/gui/gtk/util.h src/gui/widget.h src/gui/checkbox.h src/gui/gtk/widget.h
+obj/gui/gtk/checkbox.o: src/gui/gtk/checkbox.cpp src/gui/gtk/checkbox.h src/bind.h src/gui/gtk/util.h src/gui/widget.h src/gui/checkbox.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/checkbox.cpp -o obj/gui/gtk/checkbox.o $(SFLAG) $(WINFLAG)
 obj/gui/gtk/controller.o: src/gui/gtk/controller.cpp src/gui/gtk/controller.h src/gui/controller.h src/gui/widget.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/controller.cpp -o obj/gui/gtk/controller.o $(SFLAG) $(WINFLAG)
-obj/gui/gtk/factory.o: src/gui/gtk/factory.cpp src/gui/gtk/factory.h src/gui/factory.h
+obj/gui/gtk/factory.o: src/gui/gtk/factory.cpp src/gui/gtk/factory.h src/bind.h src/gui/factory.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/factory.cpp -o obj/gui/gtk/factory.o $(SFLAG) $(WINFLAG)
 obj/gui/gtk/frame.o: src/gui/gtk/frame.cpp src/gui/gtk/frame.h src/gui/gtk/util.h src/gui/widget.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/frame.cpp -o obj/gui/gtk/frame.o $(SFLAG) $(WINFLAG)
@@ -728,7 +728,7 @@ obj/gui/gtk/manager.o: src/gui/gtk/manager.cpp src/gui/gtk/manager.h src/gui/man
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/manager.cpp -o obj/gui/gtk/manager.o $(SFLAG) $(WINFLAG)
 obj/gui/gtk/serialContainer.o: src/gui/gtk/serialContainer.cpp src/gui/gtk/factory.h src/gui/gtk/util.h src/gui/widget.h src/gui/serialContainer.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/serialContainer.cpp -o obj/gui/gtk/serialContainer.o $(SFLAG) $(WINFLAG)
-obj/gui/gtk/spinner.o: src/gui/gtk/spinner.cpp src/gui/gtk/spinner.h src/gui/widget.h src/gui/spinner.h src/gui/gtk/widget.h
+obj/gui/gtk/spinner.o: src/gui/gtk/spinner.cpp src/gui/gtk/spinner.h src/bind.h src/gui/widget.h src/gui/spinner.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/spinner.cpp -o obj/gui/gtk/spinner.o $(SFLAG) $(WINFLAG)
 obj/gui/gtk/tabPanel.o: src/gui/gtk/tabPanel.cpp src/gui/gtk/tabPanel.h src/gui/gtk/util.h src/gui/widget.h src/gui/tabPanel.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/tabPanel.cpp -o obj/gui/gtk/tabPanel.o $(SFLAG) $(WINFLAG)
@@ -742,33 +742,32 @@ obj/gui/gtk/util.o: src/gui/gtk/util.cpp src/gui/gtk/util.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/util.cpp -o obj/gui/gtk/util.o $(SFLAG) $(WINFLAG)
 obj/gui/gtk/widget.o: src/gui/gtk/widget.cpp src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/widget.cpp -o obj/gui/gtk/widget.o $(SFLAG) $(WINFLAG)
-obj/gui/gtk/window.o: src/gui/gtk/window.cpp src/gui/gtk/window.h src/gui/key.h src/gui/gtk/util.h src/gui/widget.h src/gui/window.h src/gui/gtk/widget.h
+obj/gui/gtk/window.o: src/gui/gtk/window.cpp src/gui/gtk/window.h src/bind.h src/gui/key.h src/gui/gtk/util.h src/gui/widget.h src/gui/window.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/window.cpp -o obj/gui/gtk/window.o $(SFLAG) $(WINFLAG)
 
 obj/dialog/bitmap/tilePreview.o: src/dialog/bitmap/tilePreview.cpp src/dialog/bitmap/tilePreview.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/bitmap/tilePreview.cpp -o obj/dialog/bitmap/tilePreview.o $(SFLAG) $(WINFLAG)
-obj/dialog/bitmap/tileSelector.o: src/dialog/bitmap/tileSelector.cpp src/dialog/bitmap/tileSelector.h src/dialog/zquest/tileSelector.h src/gui/bitmap.h
+obj/dialog/bitmap/tileSelector.o: src/dialog/bitmap/tileSelector.cpp src/dialog/bitmap/tileSelector.h src/dialog/zquest/tileSelector.h src/gui/bitmap.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/bitmap/tileSelector.cpp -o obj/dialog/bitmap/tileSelector.o $(SFLAG) $(WINFLAG)
-
-obj/dialog/zquest/cheatEditor.o: src/dialog/zquest/cheatEditor.cpp src/dialog/zquest/cheatEditor.h src/gui/dialog.h src/zdefs.h src/gui/factory.h
+obj/dialog/zquest/cheatEditor.o: src/dialog/zquest/cheatEditor.cpp src/dialog/zquest/cheatEditor.h src/gui/dialog.h src/zdefs.h src/gui/factory.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/cheatEditor.cpp -o obj/dialog/zquest/cheatEditor.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/infoShopEditor.o: src/dialog/zquest/infoShopEditor.cpp src/dialog/zquest/infoShopEditor.h src/gui/dialog.h
+obj/dialog/zquest/infoShopEditor.o: src/dialog/zquest/infoShopEditor.cpp src/dialog/zquest/infoShopEditor.h src/gui/dialog.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/infoShopEditor.cpp -o obj/dialog/zquest/infoShopEditor.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/paletteViewer.o: src/dialog/zquest/paletteViewer.cpp src/dialog/zquest/paletteViewer.h src/gui/dialog.h src/gui/bitmap.h src/gui/factory.h
+obj/dialog/zquest/paletteViewer.o: src/dialog/zquest/paletteViewer.cpp src/dialog/zquest/paletteViewer.h src/gui/dialog.h src/gui/bitmap.h src/gui/factory.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/paletteViewer.cpp -o obj/dialog/zquest/paletteViewer.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/questRules.o: src/dialog/zquest/questRules.cpp src/dialog/zquest/questRules.h src/zdefs.h src/zsys.h src/gui/dialog.h src/gui/factory.h
+obj/dialog/zquest/questRules.o: src/dialog/zquest/questRules.cpp src/dialog/zquest/questRules.h src/zdefs.h src/zsys.h src/gui/dialog.h src/gui/factory.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/questRules.cpp -o obj/dialog/zquest/questRules.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/shopEditor.o: src/dialog/zquest/shopEditor.cpp src/dialog/zquest/shopEditor.h src/gui/dialog.h
+obj/dialog/zquest/shopEditor.o: src/dialog/zquest/shopEditor.cpp src/dialog/zquest/shopEditor.h src/gui/dialog.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/shopEditor.cpp -o obj/dialog/zquest/shopEditor.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/simpleListSelector.o: src/dialog/zquest/simpleListSelector.cpp src/dialog/zquest/simpleListSelector.h src/gui/dialog.h
+obj/dialog/zquest/simpleListSelector.o: src/dialog/zquest/simpleListSelector.cpp src/dialog/zquest/simpleListSelector.h src/gui/dialog.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/simpleListSelector.cpp -o obj/dialog/zquest/simpleListSelector.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/tileSelector.o: src/dialog/zquest/tileSelector.cpp src/dialog/zquest/tileSelector.h src/dialog/bitmap/tileSelector.h src/gui/dialog.h
+obj/dialog/zquest/tileSelector.o: src/dialog/zquest/tileSelector.cpp src/dialog/zquest/tileSelector.h src/dialog/bitmap/tileSelector.h src/gui/dialog.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/tileSelector.cpp -o obj/dialog/zquest/tileSelector.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/tileSelectorBackend.o: src/dialog/zquest/tileSelectorBackend.cpp src/dialog/zquest/tileSelectorBackend.cpp src/dialog/zquest/tileSelector.h
+obj/dialog/zquest/tileSelectorBackend.o: src/dialog/zquest/tileSelectorBackend.cpp src/dialog/zquest/tileSelectorBackend.cpp src/dialog/zquest/tileSelector.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/tileSelectorBackend.cpp -o obj/dialog/zquest/tileSelectorBackend.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/zscriptEditor.o: src/dialog/zquest/zscriptEditor.cpp src/dialog/zquest/zscriptEditor.h src/gui/dialog.h src/gui/factory.h src/gui/manager.h src/gui/text.h
+obj/dialog/zquest/zscriptEditor.o: src/dialog/zquest/zscriptEditor.cpp src/dialog/zquest/zscriptEditor.h src/gui/dialog.h src/gui/factory.h src/gui/manager.h src/gui/text.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/zscriptEditor.cpp -o obj/dialog/zquest/zscriptEditor.o $(SFLAG) $(WINFLAG)
-obj/dialog/zquest/zscriptMain.o: src/dialog/zquest/zscriptMain.cpp src/dialog/zquest/zscriptMain.h src/dialog/zquest/zscriptEditor.h src/gui/dialog.h src/gui/factory.h src/gui/manager.h src/gui/text.h
+obj/dialog/zquest/zscriptMain.o: src/dialog/zquest/zscriptMain.cpp src/dialog/zquest/zscriptMain.h src/dialog/zquest/zscriptEditor.h src/gui/dialog.h src/gui/factory.h src/gui/manager.h src/gui/text.h src/bind.h
 	$(CC) $(OPTS) $(CFLAG) -c src/dialog/zquest/zscriptMain.cpp -o obj/dialog/zquest/zscriptMain.o $(SFLAG) $(WINFLAG)
 
 obj/sequence/gameOver.o: src/sequence/gameOver.cpp src/sequence/gameOver.h src/link.h src/sfx.h src/sound.h src/zelda.h src/sequence/sequence.h
@@ -785,3 +784,4 @@ obj/sequence/sequence.o: src/sequence/sequence.cpp src/sequence/sequence.h
 	$(CC) $(OPTS) $(CFLAG) -c src/sequence/sequence.cpp -o obj/sequence/sequence.o $(SFLAG) $(WINFLAG)
 obj/sequence/whistle.o: src/sequence/whistle.cpp src/sequence/whistle.h src/link.h src/sfxClass.h src/weapons.h src/zc_sys.h src/zelda.h src/sequence/sequence.h
 	$(CC) $(OPTS) $(CFLAG) -c src/sequence/whistle.cpp -o obj/sequence/whistle.o $(SFLAG) $(WINFLAG)
+
