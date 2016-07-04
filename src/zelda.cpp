@@ -348,7 +348,7 @@ bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
      pull_link=false, hs_fix=false,
      cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
-     pausenow=false, is_on_conveyor, activated_timed_warp=false;
+     pausenow=false, castnext=false, is_on_conveyor, activated_timed_warp=false;
 
 byte COOLSCROLL;
 
@@ -685,6 +685,9 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         
     particles.clear();
     
+    if(Link.getNayrusLoveShieldClk())
+        Link.setNayrusLoveShieldClk(Link.getNayrusLoveShieldClk());
+    
     Link.resetflags(false);
     Link.reset_hookshot();
     //linkedmsgclk=0;
@@ -745,6 +748,11 @@ int  LinkAction()
 int  LinkCharged()
 {
     return Link.isCharged();
+}
+
+int  LinkNayrusLoveShieldClk()
+{
+    return Link.getNayrusLoveShieldClk();
 }
 
 int LinkHoverClk()
@@ -1564,13 +1572,14 @@ void do_magic_casting()
     
     switch(itemsbuf[magicitem].family)
     {
-    /*
+        
     case itype_dinsfire:
     {
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),LinkZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Link.getUID()));
-            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            weapon* w1=new weapon(LinkX(),LinkY(),LinkZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Link.getUID());
+            Lwpns.add(w1);
+            w1->setSparkleFunc(dfRocketSparkle);
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
@@ -1585,8 +1594,9 @@ void do_magic_casting()
         
         if(magiccastclk==64)
         {
-            Lwpns.add(new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
-            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            weapon* w1=new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID());
+            Lwpns.add(w1);
+            w1->setSparkleFunc(dfRocketSparkle);
             w1->step=4;
             //          Link.tile=29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
@@ -1634,7 +1644,7 @@ void do_magic_casting()
         }
     }
     break;
-    */
+    
     case itype_faroreswind:
     {
         if(magiccastclk==0)
@@ -1739,17 +1749,20 @@ void do_magic_casting()
         }
     }
     break;
-    /*
+    
     case itype_nayruslove:
     {
         // See also Link.cpp, LinkClass::checkhit().
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID()));
-            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            weapon* w1=new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID());
+            Lwpns.add(w1);
+            w1->setSparkleFunc(nlRocketSparkle);
             w1->step=4;
-            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID()));
-            w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            
+            w1=new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID());
+            Lwpns.add(w1);
+            w1->setSparkleFunc(nlRocketSparkle);
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
@@ -1765,11 +1778,14 @@ void do_magic_casting()
         if(magiccastclk==64)
         {
             int d=zc_max(LinkX(),256-LinkX())+32;
-            Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
-            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            weapon* w1=new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID());
+            Lwpns.add(w1);
+            w1->setSparkleFunc(nlRocketSparkle);
             w1->step=4;
-            Lwpns.add(new weapon((fix)(LinkX()+d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID()));
-            w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            
+            w1=new weapon((fix)(LinkX()+d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID());
+            Lwpns.add(w1);
+            w1->setSparkleFunc(nlRocketSparkle);
             w1->step=4;
             //          Link.tile=29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
@@ -1818,7 +1834,7 @@ void do_magic_casting()
         }
     }
     break;
-    */
+    
     default:
         magiccastclk=0;
         break;

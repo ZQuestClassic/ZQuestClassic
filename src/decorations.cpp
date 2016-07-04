@@ -581,19 +581,20 @@ bool dHover::animate(int)
     return LinkHoverClk()<=0;
 }
 
-dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y, const int& t):
-    decoration(X, Y, dNAYRUSLOVESHIELD, 0),
-    flickering((itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0),
-    translucent((itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0),
-    timer(t)
+dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
+    id=Id;
+    clk=Clk;
 }
 
-bool dNayrusLoveShield::animate(int)
+bool dNayrusLoveShield::animate(int index)
 {
+    index=index;  //this is here to bypass compiler warnings about unused arguments
     clk++;
-    return false;
+    return LinkNayrusLoveShieldClk()<=0;
 }
+
+
 
 void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
 {
@@ -601,19 +602,6 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     {
         return;
     }
-    
-    bool doDraw=true;
-    if(timer<256 && (timer&0x20)==0)
-        doDraw=false;
-    if(flickering)
-    {
-        if(misc==1)
-            doDraw=(frame&1)==0;
-        else
-            doDraw=(frame&1)==1;
-    }
-    if(!doDraw)
-        return;
     
     int fb=(misc==0?
             (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
@@ -625,9 +613,11 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     int spd=wpnsbuf[fb].speed;
     cs=wpnsbuf[fb].csets&15;
     flip=0;
+    bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
+    bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
     
-    //if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
-    {
+    if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
+{
         drawstyle=translucent?1:0;
         x=LinkX()-8;
         y=LinkY()-8-LinkZ();

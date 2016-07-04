@@ -38,9 +38,7 @@
 #include "sequence.h"
 #include "sound.h"
 
-#include "item/dinsFire.h"
 #include "item/hookshot.h"
-#include "item/nayrusLove.h"
 
 using std::set;
 
@@ -139,8 +137,18 @@ void LinkClass::resetflags(bool all)
         
     if(all)
     {
-        itemEffects.clear();
+        NayrusLoveShieldClk=0;
+        
+        if(nayruitem != -1)
+        {
+            stop_sfx(itemsbuf[nayruitem].usesound);
+            stop_sfx(itemsbuf[nayruitem].usesound+1);
+        }
+        
+        nayruitem = -1;
         hoverclk=jumping=0;
+        
+        itemEffects.clear();
     }
     
     hopclk=0;
@@ -381,6 +389,26 @@ int  LinkClass::getSwordClk()
 int  LinkClass::getItemClk()
 {
     return itemclk;
+}
+
+void LinkClass::setNayrusLoveShieldClk(int newclk)
+{
+    NayrusLoveShieldClk=newclk;
+    
+    if(decorations.idCount(dNAYRUSLOVESHIELD)==0)
+    {
+        decoration *dec;
+        decorations.add(new dNayrusLoveShield(LinkX(), LinkY(), dNAYRUSLOVESHIELD, 0));
+        decorations.spr(decorations.Count()-1)->misc=0;
+        decorations.add(new dNayrusLoveShield(LinkX(), LinkY(), dNAYRUSLOVESHIELD, 0));
+        dec=(decoration *)decorations.spr(decorations.Count()-1);
+        decorations.spr(decorations.Count()-1)->misc=1;
+    }
+}
+
+int LinkClass::getNayrusLoveShieldClk()
+{
+    return NayrusLoveShieldClk;
 }
 
 int LinkClass::getHoverClk() const
@@ -670,8 +698,7 @@ void LinkClass::init()
     entry_y=y;
     falling_oldy = y;
     magicitem = -1;
-    magiccastclk=0;
-    nayrusLoveActive=false;
+    magicitem = nayruitem = -1;
     
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
@@ -1117,7 +1144,7 @@ void LinkClass::draw(BITMAP* dest)
         {
             cs += (((~frame)>>1)&3);
         }
-        else if(hclk && !nayrusLoveActive)
+        else if(hclk && NayrusLoveShieldClk<=0)
         {
             cs += ((hclk>>1)&3);
         }
@@ -2858,8 +2885,30 @@ int LinkClass::LwpnHit() // Check for reflected weapons
 
 void LinkClass::checkhit()
 {
-    if(checklink && hclk>0)
-        hclk--;
+    if(checklink)
+    {
+        if(hclk>0)
+        {
+            --hclk;
+        }
+        
+        if(NayrusLoveShieldClk>0)
+        {
+            --NayrusLoveShieldClk;
+            
+            if(NayrusLoveShieldClk == 0 && nayruitem != -1)
+            {
+                stop_sfx(itemsbuf[nayruitem].usesound);
+                stop_sfx(itemsbuf[nayruitem].usesound+1);
+                nayruitem = -1;
+            }
+            else if(get_bit(quest_rules,qr_MORESOUNDS) && !(NayrusLoveShieldClk&0xF00) && nayruitem != -1)
+            {
+                stop_sfx(itemsbuf[nayruitem].usesound);
+                cont_sfx(itemsbuf[nayruitem].usesound+1);
+            }
+        }
+    }
     
     if(hclk<39 && action==gothit)
         action=none;
@@ -2919,7 +2968,7 @@ void LinkClass::checkhit()
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
             {
-                if(!nayrusLoveActive)
+                if(NayrusLoveShieldClk<=0)
                 {
                     int ringpow = ringpower(lwpn_dp(i));
                     game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3058,7 +3107,7 @@ killweapon:
             //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
             if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1))
             {
-                if(!nayrusLoveActive)
+                if(NayrusLoveShieldClk<=0)
                 {
                     int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *HP_PER_HEART));
                     game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
@@ -3121,7 +3170,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        if(!nayrusLoveActive)
+        if(NayrusLoveShieldClk<=0)
         {
             int ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3152,7 +3201,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        if(!nayrusLoveActive)
+        if(NayrusLoveShieldClk<=0)
         {
             int ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3255,7 +3304,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     {
         if((itemid<0) || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !checkmagiccost(itemid))
         {
-            if(!nayrusLoveActive)
+            if(NayrusLoveShieldClk<=0)
             {
                 int ringpow = ringpower(-hp_modmin);
                 game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
@@ -3310,7 +3359,7 @@ void LinkClass::hitlink(int hit2)
     }
     else if(superman || !(scriptcoldet&1))
         return;
-    else if(!nayrusLoveActive)
+    else if(NayrusLoveShieldClk<=0)
     {
         int ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -4700,7 +4749,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_dinsfire:
-        if(z!=0 || (tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(z!=0 || ((tmpscr->flags7&fSIDEVIEW)!=0 && !ON_SIDEPLATFORM))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -4708,11 +4757,11 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         action=casting;
-        currentItemAction=new DinsFireAction(itemid, *this);
+        magicitem=itemid;
         break;
         
     case itype_faroreswind:
-        if(z!=0 || (tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(z!=0 || ((tmpscr->flags7&fSIDEVIEW)!=0 && !ON_SIDEPLATFORM))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -4724,7 +4773,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_nayruslove:
-        if(z!=0 || (tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(z!=0 || ((tmpscr->flags7&fSIDEVIEW)!=0 && !ON_SIDEPLATFORM))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -4732,7 +4781,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         action=casting;
-        currentItemAction=new NayrusLoveAction(itemid, *this);
+        magicitem=itemid;
         break;
         
     case itype_cbyrna:

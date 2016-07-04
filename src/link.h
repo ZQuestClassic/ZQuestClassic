@@ -169,6 +169,7 @@ class LinkClass : public sprite
         fairyclk, //fairy circle timeout.
         refillclk,//life refill timeout.
         drunkclk, //intoxication timeout.
+        NayrusLoveShieldClk, // Nayru's Love timeout.
         hoverclk, //hover boots timeout.
         hclk,     //damage blinking timeout.
         holdclk,  //"hold up item" timeout.
@@ -196,7 +197,6 @@ class LinkClass : public sprite
          lastdir[4], // used in Maze Path screens
          ladderstart, // starting direction of ladder...?
          inlikelike; // 1 = Like Like. 2 = Taking damage while trapped
-    bool nayrusLoveActive;
     int shiftdir; // shift direction when walking into corners of solid combos
     int sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
@@ -324,6 +324,8 @@ public:
     void cancelAttack();
     int  getSwordClk();
     int  getItemClk();
+    void setNayrusLoveShieldClk(int newclk);
+    int getNayrusLoveShieldClk();
     int getHoverClk() const;
     void  setSwordClk(int newclk);
     void  setItemClk(int newclk);
@@ -356,7 +358,6 @@ public:
     
     inline bool isHoldingItem() const { return holdclk>0; }
     inline void addItemEffect(ItemEffect* newEffect) { itemEffects.add(newEffect); }
-    inline void setNayrusLoveActive(bool nl) { nayrusLoveActive=nl; } // Eh.
     
     // This'll be moved...
     inline void modWhistleCounter(int amt) { blowcnt+=amt; }

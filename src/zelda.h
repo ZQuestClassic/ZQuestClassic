@@ -278,7 +278,7 @@ extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
 extern bool fixed_door, darkroom,naturaldark,BSZ;
 extern bool hookshot_used, hookshot_frozen, pull_link;
 extern bool hs_fix, cheat_superman, gofast, checklink;
-extern bool ewind_restart, didpit, heart_beep, pausenow;
+extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool is_on_conveyor, activated_timed_warp;
 
 extern byte COOLSCROLL;

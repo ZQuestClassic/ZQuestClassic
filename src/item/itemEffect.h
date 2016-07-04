@@ -3,7 +3,7 @@
 
 class ItemEffectList;
 
-enum itemEffectType { ie_nayrusLove };
+enum itemEffectType { ie_dummy };
 
 /** This is the base class for effects that persist independently after
  *  an item or weapon has been used.

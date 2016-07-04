@@ -100,17 +100,13 @@ public:
 class dNayrusLoveShield : public decoration
 {
 public:
-    dNayrusLoveShield(fix X,fix Y, const int& timer);
+    dNayrusLoveShield(fix X,fix Y,int Id,int Clk);
     virtual bool animate(int index);
     virtual void realdraw(BITMAP *dest, int draw_what);
     virtual void draw(BITMAP *dest);
     virtual void draw2(BITMAP *dest);
-    
-private:
-    bool flickering;
-    bool translucent;
-    const int& timer;
 };
+
 #endif
 /*** end of sprite.cc ***/
 

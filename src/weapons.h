@@ -97,6 +97,10 @@ private:
 void putMiscSprite(BITMAP *dest, int spr, int x, int y);
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe,
                int parentid);
+
+void dfRocketSparkle(const weapon& wpn);
+void nlRocketSparkle(const weapon& wpn);
+
 #endif
 /*** end of sprite.cc ***/
 

@@ -1213,7 +1213,19 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(type)
         {
         case pDINSFIREROCKET:
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(WAV_ZN1ROCKETUP,(int)x);
+                
+            LOADGFX(itemsbuf[parentitem].wpn);
+            step = 4;
+            break;
+            
         case pDINSFIREROCKETRETURN:
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(WAV_ZN1ROCKETDOWN,(int)x);
+                
+            LOADGFX(itemsbuf[parentitem].wpn2);
+            step = 4;
             break;
             
         case pDINSFIREROCKETTRAIL:
@@ -1229,9 +1241,22 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case pNAYRUSLOVEROCKET1:
+            LOADGFX(itemsbuf[parentitem].wpn);
+            
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(WAV_ZN1ROCKETUP,(int)x);
+                
+            step = 4;
+            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+            break;
+            
         case pNAYRUSLOVEROCKETRETURN1:
-        case pNAYRUSLOVEROCKET2:
-        case pNAYRUSLOVEROCKETRETURN2:
+            LOADGFX(itemsbuf[parentitem].wpn2);
+            
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(WAV_ZN1ROCKETDOWN,(int)x);
+                
+            step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
             break;
             
@@ -1242,6 +1267,18 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             
         case pNAYRUSLOVEROCKETTRAILRETURN1:
             LOADGFX(itemsbuf[parentitem].wpn4);
+            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+            break;
+            
+        case pNAYRUSLOVEROCKET2:
+            LOADGFX(itemsbuf[parentitem].wpn6);
+            step = 4;
+            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+            break;
+            
+        case pNAYRUSLOVEROCKETRETURN2:
+            LOADGFX(itemsbuf[parentitem].wpn7);
+            step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
             break;
             
@@ -2456,12 +2493,21 @@ bool weapon::animate(int)
         switch(type)
         {
         case pDINSFIREROCKET:
-        case pDINSFIREROCKETRETURN:   
-        case pNAYRUSLOVEROCKETRETURN1:
-        case pNAYRUSLOVEROCKETRETURN2:
+            if(y <= -200)
+                dead = 1;
+                
             break;
             
-        case pDINSFIREROCKETTRAIL:
+        case pDINSFIREROCKETRETURN:                                             //Din's Fire Rocket return
+            if(y>=casty)
+            {
+                dead=1;
+                castnext=true;
+            }
+            
+            break;
+            
+        case pDINSFIREROCKETTRAIL:                                             //Din's Fire Rocket trail
             if(clk>=(((wpnsbuf[wDINSFIRES1A].frames) * (wpnsbuf[wDINSFIRES1A].speed))-1))
             {
                 dead=0;
@@ -2469,7 +2515,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pDINSFIREROCKETTRAILRETURN:
+        case pDINSFIREROCKETTRAILRETURN:                                             //Din's Fire Rocket return trail
             if(clk>=(((wpnsbuf[wDINSFIRES1B].frames) * (wpnsbuf[wDINSFIRES1B].speed))-1))
             {
                 dead=0;
@@ -2477,7 +2523,16 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETTRAIL1:
+        case pNAYRUSLOVEROCKETRETURN1:                                             //Nayru's Love Rocket return
+            if(x>=castx)
+            {
+                dead=1;
+                castnext=true;
+            }
+            
+            break;
+            
+        case pNAYRUSLOVEROCKETTRAIL1:                                             //Nayru's Love Rocket trail
             if(clk>=(((wpnsbuf[wNAYRUSLOVES1A].frames) * (wpnsbuf[wNAYRUSLOVES1A].speed))-1))
             {
                 dead=0;
@@ -2485,7 +2540,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETTRAILRETURN1:
+        case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
             if(clk>=(((wpnsbuf[wNAYRUSLOVES1B].frames) * (wpnsbuf[wNAYRUSLOVES1B].speed))-1))
             {
                 dead=0;
@@ -2493,7 +2548,16 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETTRAIL2:
+        case pNAYRUSLOVEROCKETRETURN2:                                             //Nayru's Love Rocket return
+            if(x<=castx)
+            {
+                dead=0;
+                castnext=true;
+            }
+            
+            break;
+            
+        case pNAYRUSLOVEROCKETTRAIL2:                                             //Nayru's Love Rocket trail
             if(clk>=(((wpnsbuf[wNAYRUSLOVES2A].frames) * (wpnsbuf[wNAYRUSLOVES2A].speed))-1))
             {
                 dead=0;
@@ -2501,14 +2565,13 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETTRAILRETURN2:
+        case pNAYRUSLOVEROCKETTRAILRETURN2:                                             //Nayru's Love Rocket return trail
             if(clk>=(((wpnsbuf[wNAYRUSLOVES2B].frames) * (wpnsbuf[wNAYRUSLOVES2B].speed))-1))
             {
                 dead=0;
             }
             
             break;
-            
         }
         
         if(blocked()) //not really sure this is needed
@@ -3770,6 +3833,55 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
+}
+
+// Sparkle functions
+void dfRocketSparkle(const weapon& wpn)
+{
+    if((frame&3)!=0)
+        return;
+    
+    int type;
+    if(wpn.type==pDINSFIREROCKET)
+        type=pDINSFIREROCKETTRAIL;
+    else
+        type=pDINSFIREROCKETTRAILRETURN;
+    
+    Lwpns.add(new weapon(
+      fix((wpn.getX()-3)+(rand()%7)),
+      fix((wpn.getY()-3)+(rand()%7)),
+      wpn.getZ(), wPhantom, type, 0, 0, wpn.parentitem, -1));
+}
+
+void nlRocketSparkle(const weapon& wpn)
+{
+    if((frame&3)!=0)
+        return;
+    
+    int type;
+    switch(wpn.type)
+    {
+    case pNAYRUSLOVEROCKET1:
+        type=pNAYRUSLOVEROCKETTRAIL1;
+        break;
+        
+    case pNAYRUSLOVEROCKET2:
+        type=pNAYRUSLOVEROCKETTRAIL2;
+        break;
+        
+    case pNAYRUSLOVEROCKETRETURN1:
+        type=pNAYRUSLOVEROCKETTRAILRETURN1;
+        break;
+        
+    case pNAYRUSLOVEROCKETRETURN2:
+        type=pNAYRUSLOVEROCKETTRAILRETURN2;
+        break;
+    }
+    
+    Lwpns.add(new weapon(
+      fix((wpn.getX()-3)+(rand()%7)),
+      fix((wpn.getY()-3)+(rand()%7)),
+      wpn.getZ(), wPhantom, type, 0, 0, wpn.parentitem, -1));
 }
 
 /*** end of weapons.cpp ***/

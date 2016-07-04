@@ -96,24 +96,10 @@ void ItemEffectList::clear()
 
 // -----------------------------------------------------------------------------
 
-#include "nayrusLove.h"
 #include <link.h>
 extern LinkClass Link;
 
 ItemEffect* getItemEffect(int itemID)
 {
-    const itemdata& data=itemsbuf[itemID];
-    switch(data.family)
-    {
-    case itype_nayruslove:
-        if(get_bit(quest_rules,qr_MORESOUNDS))
-        {
-            return new NayrusLoveEffect(Link, data.misc1,
-              sfxMgr.getSFX(data.usesound), sfxMgr.getSFX(data.usesound+1));
-        }
-        else
-            return new NayrusLoveEffect(Link, data.misc1, SFX(0), SFX(0));
-    }
-    
     return 0;
 }
