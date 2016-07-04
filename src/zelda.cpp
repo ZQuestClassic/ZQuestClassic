@@ -1841,6 +1841,155 @@ void do_magic_casting()
     }
 }
 
+void update_hookshot()
+{
+    int hs_x, hs_y, hs_z,hs_dx, hs_dy;
+    bool check_hs=false;
+    int dist_bx, dist_by, hs_w;
+    chainlinks.animate();
+    //  char tempbuf[80];
+    //  char tempbuf2[80];
+    
+    //find out where the head is and make it
+    //easy to reference
+    if(Lwpns.idFirst(wHookshot)>-1)
+    {
+        check_hs=true;
+    }
+    
+    if(check_hs)
+    {
+        int parentitem = ((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
+        hs_x=Lwpns.spr(Lwpns.idFirst(wHookshot))->x;
+        hs_y=Lwpns.spr(Lwpns.idFirst(wHookshot))->y;
+        hs_z=Lwpns.spr(Lwpns.idFirst(wHookshot))->z;
+        hs_dx=hs_x-hs_startx;
+        hs_dy=hs_y-hs_starty;
+        
+        //extending
+        if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
+        {
+            int maxchainlinks=itemsbuf[parentitem].misc2;
+            
+            if(chainlinks.Count()<maxchainlinks)           //extending chain
+            {
+                if(abs(hs_dx)>=hs_xdist+8)
+                {
+                    hs_xdist=abs(hs_x-hs_startx);
+                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                }
+                else if(abs(hs_dy)>=hs_ydist+8)
+                {
+                    hs_ydist=abs(hs_y-hs_starty);
+                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                }
+            }                                                     //stretching chain
+            else
+            {
+                dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
+                dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
+                hs_w=8;
+                
+                if(hs_dx<0)
+                {
+                    dist_bx=0-dist_bx;
+                    hs_w=-8;
+                }
+                
+                if(hs_dy<0)
+                {
+                    dist_by=0-dist_by;
+                    hs_w=-8;
+                }
+                
+                for(int counter=0; counter<chainlinks.Count(); counter++)
+                {
+                    if(Link.getDir()>down)                            //chain is moving horizontally
+                    {
+                        chainlinks.spr(counter)->x=hs_startx+hs_w+dist_bx+(counter*(hs_w+dist_bx));
+                    }
+                    else
+                    {
+                        chainlinks.spr(counter)->y=hs_starty+hs_w+dist_by+(counter*(hs_w+dist_by));
+                    }
+                }
+            }
+        }                                                       //retracting
+        else if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==1)
+        {
+            dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
+            dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
+            hs_w=8;
+            
+            if(hs_dx<0)
+            {
+                dist_bx=0-dist_bx;
+                hs_w=-8;
+            }
+            
+            if(hs_dy<0)
+            {
+                dist_by=0-dist_by;
+                hs_w=-8;
+            }
+            
+            /* With ZScript modification, chains can conceivably move diagonally.*/
+            //if (Link.getDir()>down)                               //chain is moving horizontally
+            {
+                if(abs(hs_dx)-(8*chainlinks.Count())>0)             //chain is stretched
+                {
+                    for(int counter=0; counter<chainlinks.Count(); counter++)
+                    {
+                        chainlinks.spr(counter)->x=hs_startx+hs_w+dist_bx+(counter*(hs_w+dist_bx));
+                    }
+                }
+                else
+                {
+                    if(abs(hs_x-hs_startx)<=hs_xdist-8)
+                    {
+                        hs_xdist=abs(hs_x-hs_startx);
+                        
+                        if(pull_link==false)
+                        {
+                            chainlinks.del(chainlinks.idLast(wHSChain));
+                        }
+                        else
+                        {
+                            chainlinks.del(chainlinks.idFirst(wHSChain));
+                        }
+                    }
+                }
+            }                                                     //chain is moving vertically
+            //else
+            {
+                if(abs(hs_dy)-(8*chainlinks.Count())>0)             //chain is stretched
+                {
+                    for(int counter=0; counter<chainlinks.Count(); counter++)
+                    {
+                        chainlinks.spr(counter)->y=hs_starty+hs_w+dist_by+(counter*(hs_w+dist_by));
+                    }
+                }
+                else
+                {
+                    if(abs(hs_y-hs_starty)<=hs_ydist-8)
+                    {
+                        hs_ydist=abs(hs_y-hs_starty);
+                        
+                        if(pull_link==false)
+                        {
+                            chainlinks.del(chainlinks.idLast(wHSChain));
+                        }
+                        else
+                        {
+                            chainlinks.del(chainlinks.idFirst(wHSChain));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void do_dcounters()
 {
     static bool sfxon = false;
@@ -2002,6 +2151,7 @@ void game_loop()
         Lwpns.animate();
         decorations.animate();
         particles.animate();
+        update_hookshot();
         
         if(conveyclk<=0)
         {

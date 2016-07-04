@@ -31,8 +31,6 @@
 #include "sprite.h"
 #include "zc_custom.h"
 #include "subscr.h"
-#include "item/itemEffect.h"
-class ItemAction;
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -357,14 +355,9 @@ public:
     int getSpecialCave(); // used only by maps.cpp
     
     inline bool isHoldingItem() const { return holdclk>0; }
-    inline void addItemEffect(ItemEffect* newEffect) { itemEffects.add(newEffect); }
     
     // This'll be moved...
     inline void modWhistleCounter(int amt) { blowcnt+=amt; }
-    
-//private: // sigh
-    ItemAction* currentItemAction;
-    ItemEffectList itemEffects;
     
     // Cancels charging when the wand or sword hits an enemy.
     void onMeleeWeaponHit();

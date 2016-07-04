@@ -38,8 +38,6 @@
 #include "sequence.h"
 #include "sound.h"
 
-#include "item/hookshot.h"
-
 using std::set;
 
 extern MessageManager messageMgr;
@@ -147,8 +145,6 @@ void LinkClass::resetflags(bool all)
         
         nayruitem = -1;
         hoverclk=jumping=0;
-        
-        itemEffects.clear();
     }
     
     hopclk=0;
@@ -473,13 +469,6 @@ void LinkClass::setAction(actiontype new_action)
        new_action==inwind || new_action==rafting || new_action==ischarging)
         return; // Can't use these actions.
     
-    if(currentItemAction)
-    {
-        currentItemAction->abort();
-        delete currentItemAction;
-        currentItemAction=0;
-    }
-    
     if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
     {
         // Using Farore's Wind
@@ -636,7 +625,6 @@ int LinkClass::getSpecialCave()
 
 void LinkClass::init()
 {
-    currentItemAction=0;
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -3774,7 +3762,6 @@ bool LinkClass::animate(int)
         climb_cover_y=-1000;
     }
     
-    itemEffects.update();
     int lsave=0;
     
     if(isGrassType(COMBOTYPE(x,y+15)) && isGrassType(COMBOTYPE(x+15,y+15))&& z<=8)
@@ -3795,17 +3782,6 @@ bool LinkClass::animate(int)
     
     if(stomping)
         stomping = false;
-    
-    if(currentItemAction)
-    {
-        currentItemAction->update();
-        if(currentItemAction->isFinished())
-        {
-            delete currentItemAction;
-            currentItemAction=0;
-        }
-        return false;
-    }
     
     updateGravity();
     
@@ -3848,6 +3824,114 @@ bool LinkClass::animate(int)
                     addenemy(0,0,i,0);
             }
         }
+    }
+    
+    if(hookshot_frozen==true)
+    {
+        if(hookshot_used==true)
+        {
+            action=freeze;
+            
+            if(pull_link==true)
+            {
+                sprite *t;
+                int i;
+                
+                for(i=0; i<Lwpns.Count() && (Lwpns.spr(i)->id!=wHSHandle); i++)
+                {
+                    /* do nothing */
+                }
+                
+                t = Lwpns.spr(i);
+                
+                for(i=0; i<Lwpns.Count(); i++)
+                {
+                    sprite *s = Lwpns.spr(i);
+                    
+                    if(s->id==wHookshot)
+                    {
+                        if((s->y)>y)
+                        {
+                            y+=4;
+                            
+                            if(Lwpns.idFirst(wHSHandle)!=-1)
+                            {
+                                t->y+=4;
+                            }
+                            
+                            hs_starty+=4;
+                        }
+                        
+                        if((s->y)<y)
+                        {
+                            y-=4;
+                            
+                            if(Lwpns.idFirst(wHSHandle)!=-1)
+                            {
+                                t->y-=4;
+                            }
+                            
+                            hs_starty-=4;
+                        }
+                        
+                        if((s->x)>x)
+                        {
+                            x+=4;
+                            
+                            if(Lwpns.idFirst(wHSHandle)!=-1)
+                            {
+                                t->x+=4;
+                            }
+                            
+                            hs_startx+=4;
+                        }
+                        
+                        if((s->x)<x)
+                        {
+                            x-=4;
+                            
+                            if(Lwpns.idFirst(wHSHandle)!=-1)
+                            {
+                                t->x-=4;
+                            }
+                            
+                            hs_startx-=4;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            Lwpns.del(Lwpns.idFirst(wHSHandle));
+            reset_hookshot();
+        }
+        
+        if(hs_fix)
+        {
+            if(dir==up)
+            {
+                y=int(y+7)&0xF0;
+            }
+            
+            if(dir==down)
+            {
+                y=int(y+7)&0xF0;
+            }
+            
+            if(dir==left)
+            {
+                x=int(x+7)&0xF0;
+            }
+            
+            if(dir==right)
+            {
+                x=int(x+7)&0xF0;
+            }
+            
+            hs_fix=false;
+        }
+        
     }
     
     if(DrunkrLbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
@@ -4735,9 +4819,6 @@ bool LinkClass::startwpn(int itemid)
     break;
     
     case itype_hookshot:
-        if(!HookshotAction::canUse(*this))
-            break;
-        
         if(inlikelike || Lwpns.idCount(wHookshot))
             return false;
             
@@ -4745,7 +4826,103 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        currentItemAction=new HookshotAction(itemid, *this);
+        
+        for(int i=-1; i<2; i++)
+        {
+            if(dir==up)
+            {
+                if((combobuf[MAPCOMBO2(i,x,y-7)].type==cHSGRAB)||
+                        (_walkflag(x+2,y+4,1) && !ishookshottable(int(x),int(y+4))))
+                {
+                    use_hookshot=false;
+                }
+            }
+            else if(dir==down)
+            {
+                if((combobuf[MAPCOMBO2(i,x+12,y+23)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+            else if(dir==left)
+            {
+                if((combobuf[MAPCOMBO2(i,x-7,y+12)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+            else if(dir==right)
+            {
+                if((combobuf[MAPCOMBO2(i,x+23,y+12)].type==cHSGRAB))
+                {
+                    use_hookshot=false;
+                }
+            }
+        }
+        
+        if(use_hookshot)
+        {
+            int hookitem = itemsbuf[itemid].fam_type;
+            int hookpower = itemsbuf[itemid].power;
+            
+            if(Lwpns.Count()>=SLMAX)
+            {
+                Lwpns.del(0);
+            }
+            
+            if(Lwpns.Count()>=SLMAX-1)
+            {
+                Lwpns.del(0);
+            }
+            
+            if(dir==up)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                Lwpns.add(new weapon((fix)wx,(fix)wy-4,(fix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                hs_startx=wx;
+                hs_starty=wy-4;
+            }
+            
+            if(dir==down)
+            {
+                int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+                hookshot_used=true;
+                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                hs_startx=wx;
+                hs_starty=wy;
+            }
+            
+            if(dir==left)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                Lwpns.add(new weapon((fix)(wx-4),(fix)wy,(fix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                hs_startx=wx-4;
+                hs_starty=wy;
+            }
+            
+            if(dir==right)
+            {
+                hookshot_used=true;
+                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                Lwpns.add(new weapon((fix)(wx+4),(fix)wy,(fix)wz,wHookshot,hookitem,
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                hs_startx=wx+4;
+                hs_starty=wy;
+            }
+            
+            hookshot_frozen=true;
+        }
+        
         break;
         
     case itype_dinsfire:
