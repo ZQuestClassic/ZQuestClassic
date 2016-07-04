@@ -45,6 +45,7 @@ int wallm_load_clk=0;
 int sle_x,sle_y,sle_cnt,sle_clk;
 int vhead=0;
 int guycarryingitem=0;
+int clock_zoras[eMAXGUYS];
 
 char *guy_string[eMAXGUYS];
 
@@ -5870,7 +5871,7 @@ bool eZora::animate(int index)
     
     if(watch)
     {
-        clk=0;
+        clock_zoras[id]++;
         return false;
     }
     

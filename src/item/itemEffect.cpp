@@ -96,8 +96,6 @@ void ItemEffectList::clear()
 
 // -----------------------------------------------------------------------------
 
-// This should all go in a proper factory class, but it can wait
-#include "clock.h"
 #include "nayrusLove.h"
 #include <link.h>
 extern LinkClass Link;
@@ -107,9 +105,6 @@ ItemEffect* getItemEffect(int itemID)
     const itemdata& data=itemsbuf[itemID];
     switch(data.family)
     {
-    case itype_clock:
-        return new ClockEffect(Link, data.misc1);
-        
     case itype_nayruslove:
         if(get_bit(quest_rules,qr_MORESOUNDS))
         {

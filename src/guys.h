@@ -32,6 +32,7 @@ extern int wallm_load_clk;
 extern int sle_x,sle_y,sle_cnt,sle_clk;
 extern int vhead;
 extern int guycarryingitem;
+extern int clock_zoras[eMAXGUYS];
 
 bool can_do_clock();
 int link_on_wall();

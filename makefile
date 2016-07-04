@@ -169,7 +169,7 @@ GTK_GUI_OBJECTS = obj/gui/gtk/bitmap.o obj/gui/gtk/button.o obj/gui/gtk/buttonRo
 ALLEGRO_GUI_OBJECTS = obj/gui/allegro/bitmap.o obj/gui/allegro/button.o obj/gui/allegro/checkbox.o obj/gui/allegro/column.o obj/gui/allegro/comboBox.o obj/gui/allegro/common.o obj/gui/allegro/controller.o obj/gui/allegro/dummy.o obj/gui/allegro/editableText.o obj/gui/allegro/factory.o obj/gui/allegro/frame.o obj/gui/allegro/list.o obj/gui/allegro/renderer.o obj/gui/allegro/row.o obj/gui/allegro/scrollbar.o obj/gui/allegro/scrollingPane.o obj/gui/allegro/serialContainer.o obj/gui/allegro/standardWidget.o obj/gui/allegro/tab.o obj/gui/allegro/tabBar.o obj/gui/allegro/tabPanel.o obj/gui/allegro/text.o obj/gui/allegro/textField.o obj/gui/allegro/window.o
 
 ZELDA_OBJECTS = obj/aglogo.o obj/colors.o obj/debug.o obj/decorations.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ending.o obj/enemyAttack.o obj/ffc.o obj/ffscript.o obj/fontClass.o obj/gamedata.o obj/gui.o obj/guys.o obj/init.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/link.o obj/load_gif.o obj/maps.o obj/matrix.o obj/md5.o obj/message.o obj/messageManager.o obj/messageRenderer.o obj/messageStream.o obj/midi.o obj/pal.o obj/particles.o obj/qst.o obj/refInfo.o obj/room.o obj/save_gif.o obj/screenFreezeState.o obj/screenWipe.o obj/script_drawing.o $(SINGLE_INSTANCE_O) obj/sfxAllegro.o obj/sfxClass.o obj/sfxManager.o obj/sound.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/title.o obj/weapons.o obj/zc_custom.o obj/zc_init.o obj/zc_items.o obj/zc_sprite.o obj/zc_subscr.o obj/zc_sys.o obj/zelda.o obj/zscriptversion.o obj/zsys.o \
-obj/item/clock.o obj/item/dinsFire.o obj/item/hookshot.o obj/item/faroresWind.o obj/item/itemEffect.o obj/item/nayrusLove.o \
+obj/item/dinsFire.o obj/item/hookshot.o obj/item/itemEffect.o obj/item/nayrusLove.o \
 obj/sequence/gameOver.o obj/sequence/ganonIntro.o obj/sequence/getBigTriforce.o obj/sequence/getTriforce.o obj/sequence/potion.o obj/sequence/sequence.o obj/sequence/whistle.o \
 obj/win32.o \
 $(ZC_ICON)
@@ -609,12 +609,8 @@ obj/zscriptversion.o: src/zscriptversion.cpp src/zelda.h src/link.h
 obj/zsys.o: src/zsys.cpp src/gamedata.h src/jwin.h src/tab_ctl.h src/zc_alleg.h src/zc_sys.h src/zdefs.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zsys.cpp -o obj/zsys.o $(SFLAG) $(WINFLAG)
 
-obj/item/clock.o: src/item/clock.cpp src/item/clock.h src/link.h
-	$(CC) $(OPTS) $(CFLAG) -c src/item/clock.cpp -o obj/item/clock.o $(SFLAG) $(WINFLAG)
 obj/item/dinsFire.o: src/item/dinsFire.cpp src/item/dinsFire.h src/entityPtr.h src/link.h src/zc_sys.h src/zdefs.h src/zelda.h src/item/itemAction.h
 	$(CC) $(OPTS) $(CFLAG) -c src/item/dinsFire.cpp -o obj/item/dinsFire.o $(SFLAG) $(WINFLAG)
-obj/item/faroresWind.o: src/item/faroresWind.cpp src/item/faroresWind.h src/link.h src/particles.h src/zc_sys.h src/zelda.h src/item/itemAction.h
-	$(CC) $(OPTS) $(CFLAG) -c src/item/faroresWind.cpp -o obj/item/faroresWind.o $(SFLAG) $(WINFLAG)
 obj/item/hookshot.o: src/item/hookshot.cpp src/item/hookshot.h src/link.h src/zelda.h src/item/itemAction.h
 	$(CC) $(OPTS) $(CFLAG) -c src/item/hookshot.cpp -o obj/item/hookshot.o $(SFLAG) $(WINFLAG)
 obj/item/itemEffect.o: src/item/itemEffect.cpp src/item/itemEffect.h src/debug.h src/items.h src/sfxManager.h src/zelda.h

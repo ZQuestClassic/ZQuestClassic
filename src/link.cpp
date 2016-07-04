@@ -39,7 +39,6 @@
 #include "sound.h"
 
 #include "item/dinsFire.h"
-#include "item/faroresWind.h"
 #include "item/hookshot.h"
 #include "item/nayrusLove.h"
 
@@ -453,6 +452,20 @@ void LinkClass::setAction(actiontype new_action)
         currentItemAction=0;
     }
     
+    if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
+    {
+        // Using Farore's Wind
+        if(magiccastclk<96)
+        {
+            // Not cast yet; cancel it
+            magicitem=-1;
+            magiccastclk=0;
+        }
+        else
+            // Already activated; don't do anything
+            return;
+    }
+    
     if(action==inwind) // Remove from whirlwind
     {
         xofs=0;
@@ -657,6 +670,7 @@ void LinkClass::init()
     entry_y=y;
     falling_oldy = y;
     magicitem = -1;
+    magiccastclk=0;
     nayrusLoveActive=false;
     
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
@@ -3768,6 +3782,25 @@ bool LinkClass::animate(int)
         }
     }
     
+    if(watch && clockclk>0)
+    {
+        clockclk--;
+        
+        if(!clockclk)
+        {
+            if(!cheat_superman)
+                setClock(false);
+            
+            watch=false;
+            
+            for(int i=0; i<eMAXGUYS; i++)
+            {
+                for(int zoras=0; zoras<clock_zoras[i]; zoras++)
+                    addenemy(0,0,i,0);
+            }
+        }
+    }
+    
     if(DrunkrLbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
         selectNextBWpn(SEL_LEFT);
     else if(DrunkrRbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
@@ -4687,7 +4720,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         action=casting;
-        currentItemAction=new FaroresWindAction(itemid, *this);
+        magicitem=itemid;
         break;
         
     case itype_nayruslove:
@@ -13043,7 +13076,12 @@ void getitem(int id, bool nosound)
     switch(itemsbuf[id&0xFF].family)
     {
     case itype_clock:
-        Link.addItemEffect(getItemEffect(id&0xFF));
+        setClock(watch=true);
+        
+        for(int i=0; i<eMAXGUYS; i++)
+            clock_zoras[i]=0;
+            
+        clockclk=itemsbuf[id&0xFF].misc1;
         break;
     
     case itype_lkey:

@@ -319,10 +319,10 @@ int lastentrance=0,lastentrance_dmap=0,loadside, Bwpn, Awpn;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
 int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density, ss_enable;
-int hs_startx, hs_starty, hs_xdist, hs_ydist;
+int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
 int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
 int pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
-int nets=1580, magicitem=-1, title_version, quakeclk=0, wavy=0;
+int nets=1580, magicitem=-1, nayruitem=-1, title_version, magiccastclk, castx, casty, quakeclk=0, wavy=0;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
 float avgfps=0;
 dword fps_secs=0;
@@ -1202,6 +1202,7 @@ int init_game()
     
     ALLOFF();
     whistleclk=-1;
+    clockclk=0;
     currcset=DMaps[currdmap].color;
     darkroom=naturaldark=false;
     
@@ -1548,6 +1549,282 @@ void show_ffscript_names()
     }
 }
 
+void do_magic_casting()
+{
+    static int tempx, tempy;
+    static byte linktilebuf[256];
+    int ltile=0;
+    int lflip=0;
+    bool shieldModify=true;
+    
+    if(magicitem==-1)
+    {
+        return;
+    }
+    
+    switch(itemsbuf[magicitem].family)
+    {
+    /*
+    case itype_dinsfire:
+    {
+        if(magiccastclk==0)
+        {
+            Lwpns.add(new weapon(LinkX(),LinkY(),LinkZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Link.getUID()));
+            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            w1->step=4;
+            //          Link.tile=(BSZ)?32:29;
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+            
+            casty=Link.getY();
+        }
+        
+        if(magiccastclk==64)
+        {
+            Lwpns.add(new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
+            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            w1->step=4;
+            //          Link.tile=29;
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+            
+            castnext=false;
+        }
+        
+        if(castnext)
+        {
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+            
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
+                
+            int flamemax=itemsbuf[magicitem].misc1;
+            
+            for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
+            {
+                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+                                     (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
+                weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+                w->step=(itemsbuf[magicitem].misc2/100.0);
+                w->angular=true;
+                w->angle=(flamecounter*PI/(flamemax/2.0));
+            }
+            
+            castnext=false;
+            magiccastclk=128;
+        }
+        
+        if((magiccastclk++)>=226)
+        {
+            magicitem=-1;
+            magiccastclk=0;
+        }
+    }
+    break;
+    */
+    case itype_faroreswind:
+    {
+        if(magiccastclk==0)
+        {
+            linktile(&ltile, &lflip, ls_stab, down, zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                ltile+=item_tile_mod(shieldModify);
+            }
+            
+            unpack_tile(newtilebuf, ltile, lflip, true);
+            memcpy(linktilebuf, unpackbuf, 256);
+            tempx=Link.getX();
+            tempy=Link.getY();
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_pound, down, zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+        }
+        
+        if(magiccastclk>=0&&magiccastclk<64)
+        {
+            Link.setX(tempx+((rand()%3)-1));
+            Link.setY(tempy+((rand()%3)-1));
+        }
+        
+        if(magiccastclk==64)
+        {
+            Link.setX(tempx);
+            Link.setY(tempy);
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_stab, down, zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+        }
+        
+        if(magiccastclk==96)
+        {
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
+                
+            Link.setDontDraw(true);
+            
+            for(int i=0; i<16; ++i)
+            {
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(itemsbuf[magicitem].misc1==1)  // Twilight
+                        {
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=Link.getYOfs();
+                        }
+                    }
+                }
+            }
+        }
+        
+        if((magiccastclk++)>=226)
+        {
+            //attackclk=0;
+            int nayrutemp=nayruitem;
+            restart_level();
+            nayruitem=nayrutemp;
+            //xofs=0;
+            //action=none;
+            magicitem=-1;
+            magiccastclk=0;
+            Link.setDontDraw(false);
+        }
+    }
+    break;
+    /*
+    case itype_nayruslove:
+    {
+        // See also Link.cpp, LinkClass::checkhit().
+        if(magiccastclk==0)
+        {
+            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID()));
+            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            w1->step=4;
+            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID()));
+            w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            w1->step=4;
+            //          Link.tile=(BSZ)?32:29;
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+            
+            castx=Link.getX();
+        }
+        
+        if(magiccastclk==64)
+        {
+            int d=zc_max(LinkX(),256-LinkX())+32;
+            Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
+            weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            w1->step=4;
+            Lwpns.add(new weapon((fix)(LinkX()+d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID()));
+            w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+            w1->step=4;
+            //          Link.tile=29;
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+            
+            castnext=false;
+        }
+        
+        if(castnext)
+        {
+            //          Link.tile=4;
+            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            
+            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            {
+                Link.tile+=item_tile_mod(shieldModify);
+            }
+            
+            Link.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
+            
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+            {
+                if(nayruitem != -1)
+                {
+                    stop_sfx(itemsbuf[nayruitem].usesound+1);
+                    stop_sfx(itemsbuf[nayruitem].usesound);
+                }
+                
+                cont_sfx(itemsbuf[magicitem].usesound);
+            }
+            
+            castnext=false;
+            magiccastclk=128;
+            nayruitem = magicitem;
+        }
+        
+        // Finish the final spell pose
+        if((magiccastclk++)>=160)
+        {
+            magicitem=-1;
+            magiccastclk=0;
+        }
+    }
+    break;
+    */
+    default:
+        magiccastclk=0;
+        break;
+    }
+}
+
 void do_dcounters()
 {
     static bool sfxon = false;
@@ -1705,6 +1982,7 @@ void game_loop()
             checklink=false;
         }
         
+        do_magic_casting();
         Lwpns.animate();
         decorations.animate();
         particles.animate();
