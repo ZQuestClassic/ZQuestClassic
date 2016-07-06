@@ -4796,6 +4796,15 @@ void eWallM::grablink()
     superman=1;
 }
 
+void eWallM::onHitLink()
+{
+    if(hp>0)
+    {
+        grablink();
+        Link.onGrabbed();
+    }
+}
+
 void eWallM::draw(BITMAP *dest)
 {
     dummy_bool[1]=haslink;
@@ -6659,6 +6668,52 @@ void eStalfos::eatlink()
         }
         
         clk2=0;
+    }
+}
+
+void eStalfos::onHitLink()
+{
+    if(dmisc7 >= e7tEATITEMS)
+    {
+        eatlink();
+        Link.onEaten(dmisc7==e7tEATHURT);
+        return;
+    }
+    
+    switch(dmisc7)
+    {
+        case e7tTEMPJINX:
+            if(dmisc8==0 || dmisc8==2)
+                Link.setSwordJinx(false, 150, false);
+            if(dmisc8==1 || dmisc8==2)
+                Link.setItemJinx(false, 150, false);
+            break;
+            
+        case e7tPERMJINX:
+            if(dmisc8==0 || dmisc8==2)
+                Link.setSwordJinx(true, 150, false);
+            if(dmisc8==1 || dmisc8==2)
+                Link.setItemJinx(true, 150, false);
+            break;
+            
+        case e7tUNJINX:
+            if(dmisc8==0 || dmisc8==2)
+                Link.setSwordJinx(false, 0, false);
+            if(dmisc8==1 || dmisc8==2)
+                Link.setItemJinx(false, 0, false);
+            break;
+            
+        case e7tTAKEMAGIC:
+            game->change_dmagic(-dmisc8*game->get_magicdrainrate());
+            break;
+        
+        case e7tTAKERUPEES:
+            game->change_drupy(-dmisc8);
+            break;
+            
+        case e7tDRUNK:
+            Link.modDrunkClock(dmisc8);
+            break;
     }
 }
 
@@ -10574,16 +10629,6 @@ bool hasMainGuy()
     }
     
     return false;
-}
-
-void EatLink(int index)
-{
-    ((eStalfos*)guys.spr(index))->eatlink();
-}
-
-void GrabLink(int index)
-{
-    ((eWallM*)guys.spr(index))->grablink();
 }
 
 bool CarryLink()

@@ -283,6 +283,7 @@ public:
     void checkitems(int index = -1);
     int DrunkClock();
     void setDrunkClock(int newdrunkclk);
+    void modDrunkClock(int diff);
     void setEntryPoints(int x, int y);
     LinkClass();
     void init();
@@ -320,13 +321,11 @@ public:
     int  getCharging();
     bool isCharged();
     void cancelAttack();
-    int  getSwordClk();
-    int  getItemClk();
+    int  getSwordJinx();
+    int  getItemJinx();
     void setNayrusLoveShieldClk(int newclk);
     int getNayrusLoveShieldClk();
     int getHoverClk() const;
-    void  setSwordClk(int newclk);
-    void  setItemClk(int newclk);
     void setDir(int new_dir);
     int  getHitDir();
     void setHitDir(int new_dir);
@@ -349,7 +348,6 @@ public:
     void setDontDraw(bool new_dontdraw);
     bool getDontDraw();
     void setHitTimer(int newhclk);
-    int getHClk();
     void setScrollDir(int sd);
     void setInvincible(bool inv);
     int getSpecialCave(); // used only by maps.cpp
@@ -361,6 +359,21 @@ public:
     
     // Cancels charging when the wand or sword hits an enemy.
     void onMeleeWeaponHit();
+    
+    // If direct is true, whisp rings are ignored.
+    // If permanent is true, time is used if a whisp ring makes the effect temporary.
+    // If time is 0, the jinx is cleared regardless of the other arguments.
+    void setSwordJinx(bool permanent, int time, bool direct);
+    void setItemJinx(bool permanent, int time, bool direct);
+    
+    // Returns true if Link will be visible this frame.
+    bool willBeDrawn() const;
+    
+    // Called when grabbed by a wall master
+    void onGrabbed();
+    
+    // Called when eaten by a like-like
+    void onEaten(bool damage);
     
 private:
     void updateGravity();

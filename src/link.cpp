@@ -104,6 +104,11 @@ void LinkClass::setDrunkClock(int newdrunkclk)
     drunkclk=newdrunkclk;
 }
 
+void LinkClass::modDrunkClock(int diff)
+{
+    drunkclk+=diff;
+}
+
 LinkClass::LinkClass(): sprite()
 {
     init();
@@ -378,11 +383,11 @@ void  LinkClass::cancelAttack()
     attackclk=0;
 }
 
-int  LinkClass::getSwordClk()
+int  LinkClass::getSwordJinx()
 {
     return swordclk;
 }
-int  LinkClass::getItemClk()
+int  LinkClass::getItemJinx()
 {
     return itemclk;
 }
@@ -410,15 +415,6 @@ int LinkClass::getNayrusLoveShieldClk()
 int LinkClass::getHoverClk() const
 {
     return hoverclk;
-}
-
-void LinkClass::setSwordClk(int newclk)
-{
-    swordclk=newclk;
-}
-void LinkClass::setItemClk(int newclk)
-{
-    itemclk=newclk;
 }
 
 void LinkClass::setHitDir(int newdir)
@@ -613,9 +609,18 @@ void LinkClass::setHitTimer(int newhclk)
     hclk=newhclk;
 }
 
-int LinkClass::getHClk()
+bool LinkClass::willBeDrawn() const
 {
-    return hclk;
+    if(get_bit(quest_rules, qr_LINKFLICKER)!=0 && (frame&1)==1)
+    {
+        if(superman || hclk>0)
+            return true;
+    }
+    
+    if((tmpscr->flags3&fINVISLINK)!=0)
+        return false;
+    
+    return !dontdraw;
 }
 
 int LinkClass::getSpecialCave()
@@ -3267,81 +3272,76 @@ void LinkClass::hitlink(int hit2)
     
     getHit(enemy_dp(hit2), guys.spr(hit2)->hitdir(x, y, 16, 16, dir));
     enemy_scored(hit2);
-    
-    int dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
-    int dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
-    
-    switch(((enemy*)guys.spr(hit2))->family)
+    static_cast<enemy*>(guys.spr(hit2))->onHitLink();
+}
+
+void LinkClass::setSwordJinx(bool permanent, int time, bool direct)
+{
+    if(time==0)
     {
-    case eeWALLM:
-        if(((enemy*)guys.spr(hit2))->hp>0)
-        {
-            GrabLink(hit2);
-            inwallm=true;
-            action=none;
-        }
-        
-        break;
-        
-    case eeWALK:
+        swordclk=0;
+        return;
+    }
+    else if(direct)
     {
-        int itemid = current_item_id(itype_whispring);
-        //I can only assume these are supposed to be int, not bool ~pkmnfrk
-        int sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
-        int itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
-        
-        switch(dm7)
+        swordclk=(permanent ? -1 : time);
+        return;
+    }
+    else if(swordclk<0)
+        // Don't apply a temporary jinx when a permanent one is in effect
+        return;
+    
+    // Normal case - apply whisp ring
+    int whispRing=current_item_id(itype_whispring);
+    if(whispRing>0)
+    {
+        if((itemsbuf[whispRing].flags&ITEM_FLAG1)!=0)
+            permanent=false;
+        if((itemsbuf[whispRing].misc1&1)!=0)
         {
-        case e7tTEMPJINX:
-            if(dm8==0 || dm8==2)
-                if(swordclk>=0 && !(sworddivisor==0))
-                    swordclk=150;
-                    
-            if(dm8==1 || dm8==2)
-                if(itemclk>=0 && !(itemdivisor==0))
-                    itemclk=150;
-                    
-            break;
-            
-        case e7tPERMJINX:
-            if(dm8==0 || dm8==2)
-                if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int(150/sworddivisor) : -1;
-                
-            if(dm8==1 || dm8==2)
-                if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int(150/itemdivisor) : -1;
-                
-            break;
-            
-        case e7tUNJINX:
-            if(dm8==0 || dm8==2)
-                swordclk=0;
-                
-            if(dm8==1 || dm8==2)
-                itemclk=0;
-                
-            break;
-            
-        case e7tTAKEMAGIC:
-            game->change_dmagic(-dm8*game->get_magicdrainrate());
-            break;
-            
-        case e7tTAKERUPEES:
-            game->change_drupy(-dm8);
-            break;
-            
-        case e7tDRUNK:
-            drunkclk += dm8;
-            break;
-        }
-        
-        if(dm7 >= e7tEATITEMS)
-        {
-            EatLink(hit2);
-            inlikelike=(dm7 == e7tEATHURT ? 2:1);
-            action=none;
+            int divisor=itemsbuf[whispRing].power;
+            if(divisor==0) // Ignores unset perm->temp flag
+                return;
+            else
+                time/=divisor;
         }
     }
+    
+    swordclk=(permanent ? -1 : time);
+}
+
+void LinkClass::setItemJinx(bool permanent, int time, bool direct)
+{
+    // Copied and pasted...
+    if(time==0)
+    {
+        itemclk=0;
+        return;
     }
+    else if(direct)
+    {
+        itemclk=(permanent ? -1 : time);
+        return;
+    }
+    else if(itemclk<0)
+        return;
+    
+    int whispRing=current_item_id(itype_whispring);
+    if(whispRing>0)
+    {
+        if((itemsbuf[whispRing].flags&ITEM_FLAG1)!=0)
+            permanent=false;
+        if((itemsbuf[whispRing].misc1&2)!=0)
+        {
+            int divisor=itemsbuf[whispRing].power;
+            if(divisor==0)
+                return;
+            else
+                time/=divisor;
+        }
+    }
+    
+    itemclk=(permanent ? -1 : time);
 }
 
 void LinkClass::getHit(int damage, int hd, bool applyRing)
@@ -3369,6 +3369,18 @@ void LinkClass::getHit(int damage, int hd, bool applyRing)
     hitdir=hd;
     sfx(WAV_OUCH, pan(int(x)));
     game->set_life(zc_max(game->get_life()-damage, 0));
+}
+
+void LinkClass::onGrabbed()
+{
+    inwallm=true;
+    action=none;
+}
+
+void LinkClass::onEaten(bool damage)
+{
+    inlikelike=(damage ? 2 : 1);
+    action=none;
 }
 
 static void byrnaSparkle(const weapon& wpn)
@@ -5215,7 +5227,7 @@ void do_lens()
     if(itemid<0)
         return;
         
-    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
+    if(isWpnPressed(itype_lens) && Link.getItemJinx()==0 && !lensclk && checkmagiccost(itemid))
     {
         if(lensid<0)
         {
@@ -5238,7 +5250,7 @@ void do_lens()
     {
         did_scriptl=false;
         
-        if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
+        if(lensid>-1 && !(isWpnPressed(itype_lens) && Link.getItemJinx()==0 && checkmagiccost(itemid)))
         {
             lensid=-1;
             lensclk = 0;
@@ -13248,17 +13260,19 @@ void getitem(int id, bool nosound)
         
     case itype_whispring:
     {
-        if(itemsbuf[id].flags & ITEM_FLAG1)
+        if(Link.getSwordJinx()<0)
         {
-            if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
-            
-            if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
+            if(itemsbuf[id].power==0)
+                Link.setSwordJinx(false, 0, true);
+            else if((itemsbuf[id].flags&ITEM_FLAG1)!=0)
+                Link.setSwordJinx(false, 150, true);
         }
-        
-        if(itemsbuf[id].power==0)
+        if(Link.getItemJinx()<0)
         {
-            setSwordClk(0);
-            setItemClk(0);
+            if(itemsbuf[id].power==0)
+                Link.setItemJinx(false, 0, true);
+            else if((itemsbuf[id].flags&ITEM_FLAG1)!=0)
+                Link.setItemJinx(false, 150, true);
         }
         
         break;

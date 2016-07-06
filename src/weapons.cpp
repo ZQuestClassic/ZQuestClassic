@@ -3562,10 +3562,9 @@ void weapon::draw(BITMAP *dest)
     {
     case wSword:
     case wHammer:
-        if(get_bit(quest_rules,qr_LINKFLICKER)&&((getClock()||LinkHClk())&&(frame&1)) ||
-                Link.getDontDraw() || tmpscr->flags3&fINVISLINK)
+        if(!Link.willBeDrawn())
             return;
-            
+        
     case wBeam:
     case wRefBeam:
     {

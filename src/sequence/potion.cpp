@@ -44,9 +44,9 @@ void PotionSequence::activate()
     // Clear jinxes
     if(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
     {
-        link.setSwordClk(0);
+        link.setSwordJinx(false, 0, true);
         if(get_bit(quest_rules,qr_ITEMBUBBLE))
-            link.setItemClk(0);
+            link.setItemJinx(false, 0, true);
     }
 }
 

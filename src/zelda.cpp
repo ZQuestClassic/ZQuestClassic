@@ -737,10 +737,6 @@ fix  LinkZ()
 {
     return Link.getZ();
 }
-int  LinkHClk()
-{
-    return Link.getHClk();
-}
 int  LinkAction()
 {
     return Link.getAction();
@@ -760,22 +756,6 @@ int LinkHoverClk()
     return Link.getHoverClk();
 }
 
-int  LinkSwordClk()
-{
-    return Link.getSwordClk();
-}
-int  LinkItemClk()
-{
-    return Link.getItemClk();
-}
-void setSwordClk(int newclk)
-{
-    Link.setSwordClk(newclk);
-}
-void setItemClk(int newclk)
-{
-    Link.setItemClk(newclk);
-}
 int  LinkLStep()
 {
     return Link.getLStep();

@@ -1162,11 +1162,11 @@ long get_register(const long arg)
         break;
         
     case LINKSWORDJINX:
-        ret = (int)(Link.getSwordClk())*10000;
+        ret = (int)(Link.getSwordJinx())*10000;
         break;
         
     case LINKITEMJINX:
-        ret = (int)(Link.getItemClk())*10000;
+        ret = (int)(Link.getItemJinx())*10000;
         break;
         
     case LINKDRUNK:
@@ -3058,11 +3058,11 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKSWORDJINX:
-        Link.setSwordClk(value/10000);
+        Link.setSwordJinx(value<0, value/10000, true);
         break;
         
     case LINKITEMJINX:
-        Link.setItemClk(value/10000);
+        Link.setItemJinx(value<0, value/10000, true);
         break;
         
     case LINKDRUNK:

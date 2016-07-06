@@ -115,6 +115,8 @@ public:
         return false;
     }
     
+    virtual void onHitLink() {} // Grab Link, drain rupees, whatever
+    
 protected:
     int  clk2,sclk;
     int  starting_hp;
@@ -333,6 +335,7 @@ public:
     virtual bool animate(int index);
     void wallm_crawl();
     void grablink();
+    void onHitLink();
     virtual void draw(BITMAP *dest);
 };
 
@@ -442,6 +445,7 @@ public:
     void KillWeapon();
     void charge_attack();
     void eatlink();
+    void onHitLink();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int takehit(weapon *w);
@@ -718,8 +722,6 @@ int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 // For Link's hit detection. Count them if they are dying.
 int GuyHit(int index,int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 bool hasMainGuy();
-void EatLink(int index);
-void GrabLink(int index);
 bool CarryLink();
 void movefairy(fix &x,fix &y,int misc);
 void movefairy2(fix x,fix y,int misc);
