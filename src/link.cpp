@@ -2956,29 +2956,7 @@ void LinkClass::checkhit()
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
             {
-                if(NayrusLoveShieldClk<=0)
-                {
-                    int ringpow = ringpower(lwpn_dp(i));
-                    game->set_life(zc_max(game->get_life()-ringpow,0));
-                }
-                
-                hitdir = s->hitdir(x,y,16,16,dir);
-                
-                if(action!=rafting && action!=freeze)
-                    action=gothit;
-                    
-                if(action==swimming || hopclk==0xFF)
-                    action=swimhit;
-                    
-                if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-                {
-                    spins = charging = attackclk = 0;
-                    attack=none;
-                    tapping = false;
-                }
-                
-                hclk=48;
-                sfx(WAV_OUCH,pan(int(x)));
+                getHit(lwpn_dp(i), s->hitdir(x,y,16,16,dir));
                 return;
             }
         }
@@ -3095,29 +3073,13 @@ killweapon:
             //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
             if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1))
             {
-                if(NayrusLoveShieldClk<=0)
-                {
-                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *HP_PER_HEART));
-                    game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
-                }
-                
-                hitdir = s->hitdir(x,y,16,16,dir);
-                
-                if(action!=rafting && action!=freeze)
-                    action=gothit;
-                    
-                if(action==swimming || hopclk==0xFF)
-                    action=swimhit;
-                    
-                if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-                {
-                    spins = charging = attackclk = 0;
-                    attack=none;
-                    tapping = false;
-                }
-                
-                hclk=48;
-                sfx(WAV_OUCH,pan(int(x)));
+                int damage;
+                int bombID=static_cast<weapon*>(s)->parentitem;
+                if(bombID>-1)
+                    damage=itemsbuf[bombID].misc3*HP_PER_HEART;
+                else
+                    damage=static_cast<weapon*>(s)->power*HP_PER_HEART;
+                getHit(damage, s->hitdir(x,y,16,16,dir));
                 return;
             }
         }
@@ -3158,30 +3120,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        if(NayrusLoveShieldClk<=0)
-        {
-            int ringpow = ringpower(lwpn_dp(hit2));
-            game->set_life(zc_max(game->get_life()-ringpow,0));
-        }
-        
-        hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
-        ((weapon*)Lwpns.spr(hit2))->onhit(false);
-        
-        if(action==swimming || hopclk==0xFF)
-            action=swimhit;
-        else
-            action=gothit;
-            
-        hclk=48;
-        
-        if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-        {
-            spins = charging = attackclk = 0;
-            attack=none;
-            tapping = false;
-        }
-        
-        sfx(WAV_OUCH,pan(int(x)));
+        getHit(lwpn_dp(hit2), Lwpns.spr(hit2)->hitdir(x,y,16,16,dir));
         return;
     }
     
@@ -3189,30 +3128,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        if(NayrusLoveShieldClk<=0)
-        {
-            int ringpow = ringpower(ewpn_dp(hit2));
-            game->set_life(zc_max(game->get_life()-ringpow,0));
-        }
-        
-        hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
-        ((weapon*)Ewpns.spr(hit2))->onhit(false);
-        
-        if(action==swimming || hopclk==0xFF)
-            action=swimhit;
-        else
-            action=gothit;
-            
-        hclk=48;
-        
-        if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-        {
-            spins = charging = attackclk = 0;
-            attack=none;
-            tapping = false;
-        }
-        
-        sfx(WAV_OUCH,pan(int(x)));
+        getHit(ewpn_dp(hit2), Ewpns.spr(hit2)->hitdir(x,y,16,16,dir));
         return;
     }
     
@@ -3281,47 +3197,47 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
     
-    bool global_ring = (get_bit(quest_rules,qr_RINGAFFECTDAMAGE) != 0);
-    bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
-    
-    int itemid = current_item_id(itype_boots);
-    
-    bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
-    
     if(hp_modmin<0)
     {
-        if((itemid<0) || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !checkmagiccost(itemid))
-        {
-            if(NayrusLoveShieldClk<=0)
-            {
-                int ringpow = ringpower(-hp_modmin);
-                game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
-            }
-            
-            hitdir = (dir^1);
-            
-            if(action!=rafting && action!=freeze)
-                action=gothit;
-                
-            if(action==swimming || hopclk==0xFF)
-                action=swimhit;
-                
-            hclk=48;
-            
-            if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-            {
-                spins = charging = attackclk = 0;
-                attack=none;
-                tapping = false;
-            }
-            
-            sfx(WAV_OUCH,pan(int(x)));
-            return true;
-        }
-        else paymagiccost(itemid); // Boots are successful
+        touchSpikes(-hp_modmin, solid);
+        return hclk>0;
+    }
+    else
+        return false;
+}
+
+void LinkClass::touchSpikes(int damage, bool solid)
+{
+    // First, see if the damage is nullified by boots
+    if((tmpscr->flags5&fDAMAGEWITHBOOTS)==0) // "Ignore boots" screen flag
+    {
+        int bootsID=current_item_id(itype_boots);
+        const itemdata& boots=itemsbuf[bootsID>=0 ? bootsID : 0]; // Whatever
+        
+        if(bootsID<0)
+            goto noBoots;
+        
+        if(solid && (boots.flags&ITEM_FLAG1)!=0) // Don't affect solid combos?
+            goto noBoots;
+        
+        if(!checkmagiccost(bootsID)) // Can't afford the MP cost?
+            goto noBoots;
+        
+        if((4<<boots.power)<damage) // Boots aren't powerful enough?
+            goto noBoots;
+        
+        // Boots are go
+        paymagiccost(bootsID);
+        return;
+        
+        noBoots:
+            ;
     }
     
-    return false;
+    bool ringOK=get_bit(quest_rules,qr_RINGAFFECTDAMAGE)!=0;
+    if((tmpscr->flags6&fTOGGLERINGDAMAGE)!=0)
+        ringOK=!ringOK;
+    getHit(damage, dir^1, ringOK);
 }
 
 void LinkClass::hitlink(int hit2)
@@ -3345,32 +3261,13 @@ void LinkClass::hitlink(int hit2)
         
         return;
     }
-    else if(superman || !(scriptcoldet&1))
+    
+    if(superman || !(scriptcoldet&1))
         return;
-    else if(NayrusLoveShieldClk<=0)
-    {
-        int ringpow = ringpower(enemy_dp(hit2));
-        game->set_life(zc_max(game->get_life()-ringpow,0));
-    }
     
-    hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
-    
-    if(action==swimming || hopclk==0xFF)
-        action=swimhit;
-    else
-        action=gothit;
-        
-    hclk=48;
-    sfx(WAV_OUCH,pan(int(x)));
-    
-    if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-    {
-        spins = charging = attackclk = 0;
-        attack=none;
-        tapping = false;
-    }
-    
+    getHit(enemy_dp(hit2), guys.spr(hit2)->hitdir(x, y, 16, 16, dir));
     enemy_scored(hit2);
+    
     int dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
     int dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
     
@@ -3386,8 +3283,6 @@ void LinkClass::hitlink(int hit2)
         
         break;
         
-        //case eBUBBLEST:
-        //case eeBUBBLE:
     case eeWALK:
     {
         int itemid = current_item_id(itype_whispring);
@@ -3447,6 +3342,33 @@ void LinkClass::hitlink(int hit2)
         }
     }
     }
+}
+
+void LinkClass::getHit(int damage, int hd, bool applyRing)
+{
+    if(action!=rafting && action!=freeze)
+        action=gothit;
+    if(action==swimming || hopclk==0xFF)
+        action=swimhit;
+    
+    if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer) // Not the wand?
+    {
+        spins=0;
+        charging=0;
+        attackclk=0;
+        attack=none;
+        tapping=false;
+    }
+    
+    if(NayrusLoveShieldClk>0)
+        damage=0;
+    else if(applyRing)
+        damage=ringpower(damage);
+    
+    hclk=48;
+    hitdir=hd;
+    sfx(WAV_OUCH, pan(int(x)));
+    game->set_life(zc_max(game->get_life()-damage, 0));
 }
 
 static void byrnaSparkle(const weapon& wpn)

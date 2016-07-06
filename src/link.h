@@ -366,7 +366,8 @@ private:
     void updateGravity();
     void checkLadderRemoval();
     
-    friend void registerLink();
+    void touchSpikes(int damage, bool solid);
+    void getHit(int damage, int hitDir, bool applyRing=true);
 };
 
 bool isRaftFlag(int flag);
