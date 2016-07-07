@@ -3835,6 +3835,84 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
 }
 
 // Sparkle functions
+void standardSparkle(const weapon& wpn)
+{
+    if((frame&3)!=0)
+        return;
+        
+    const itemdata& data=itemsbuf[wpn.parentitem];
+    int wpn2=data.wpn2;
+    int wpn3=data.wpn3;
+    int newWpn;
+    // Either one (wpn2) or the other (wpn3). If both are present, randomise.
+    if(wpn2!=0)
+    {
+        if(wpn3==0)
+            newWpn=wpn2;
+        else
+            newWpn=((rand()&1)==0) ? wpn2 : wpn3;
+    }
+    else
+        newWpn=wpn3;
+    
+    if(newWpn)
+    {
+        int h=0;
+        int v=0;
+        int dir=wpn.getDir();
+        
+        if(dir==right || dir==r_up || dir==r_down)
+            h=-4;
+        
+        if(dir==left || dir==l_up || dir==l_down)
+            h=4;
+        
+        if(dir==down || dir==l_down || dir==r_down)
+            v=-4;
+        
+        if(dir==up || dir==l_up || dir==r_up)
+            v=4;
+        
+        // Damaging boomerang sparkle?
+        if(newWpn==wpn3 && data.family==itype_brang)
+        {
+            // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
+            // whatever it just bounced off of if it's shielded from that direction.
+            if(wpn.misc==1 && wpn.clk2>256 && wpn.clk2<272)
+                dir=oppositeDir[dir];
+        }
+        
+        Lwpns.add(new weapon(
+          fix(wpn.getX()+rand()%4)+h, fix(wpn.getY()+rand()%4)+v, wpn.getZ(),
+          newWpn==wpn3 ? wFSparkle : wSSparkle,
+          newWpn, 0, dir, wpn.parentitem, -1));
+    }
+}
+
+void byrnaSparkle(const weapon& wpn)
+{
+    const itemdata& data=itemsbuf[wpn.parentitem];
+    
+    int wpn2=data.wpn4;
+    int wpn3=data.wpn5;
+    int newWpn;
+    // Either one (wpn2) or the other (wpn3). If both are present, randomise.
+    if(wpn2!=0)
+    {
+        if(wpn3==0)
+            newWpn=wpn2;
+        else
+            newWpn=((rand()&1)==0) ? wpn2 : wpn3;
+    }
+    else
+        newWpn=wpn3;
+    
+    Lwpns.add(new weapon(
+      fix(wpn.getX()+2), fix(wpn.getY()+2), wpn.getZ(),
+      newWpn==wpn3 ? wFSparkle : wSSparkle,
+      newWpn, 0, wpn.getDir(), wpn.parentitem, -1));
+}
+
 void dfRocketSparkle(const weapon& wpn)
 {
     if((frame&3)!=0)

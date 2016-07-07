@@ -33,6 +33,7 @@
 #include "gamedata.h"
 #include "zc_custom.h"
 #include "title.h"
+#include "inventory.h"
 #include "messageManager.h"
 #include "screenWipe.h"
 #include "sequence.h"
@@ -363,6 +364,15 @@ void LinkClass::setFall(fix new_fall)
     jumping=-1;
 }
 
+void LinkClass::jump(fix j)
+{
+    fall-=j;
+    
+    // Reset the ladder, unless on an unwalkable combo
+    if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
+        reset_ladder();
+}
+
 int  LinkClass::getLStep()
 {
     return lstep;
@@ -373,6 +383,11 @@ void LinkClass::onMeleeWeaponHit()
     if(charging>0)
         attackclk=attackclk+1; //Cancel charging
 }
+bool LinkClass::isCharging()
+{
+    return charging>0;
+}
+
 bool LinkClass::isCharged()
 {
     return spins>0;
@@ -3383,82 +3398,9 @@ void LinkClass::onEaten(bool damage)
     action=none;
 }
 
-static void byrnaSparkle(const weapon& wpn)
+bool LinkClass::isBeingEaten() const
 {
-    const itemdata& data=itemsbuf[wpn.parentitem];
-    
-    int wpn2=data.wpn4;
-    int wpn3=data.wpn5;
-    int newWpn;
-    // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    if(wpn2!=0)
-    {
-        if(wpn3==0)
-            newWpn=wpn2;
-        else
-            newWpn=((rand()&1)==0) ? wpn2 : wpn3;
-    }
-    else
-        newWpn=wpn3;
-    
-    Lwpns.add(new weapon(
-      fix(wpn.getX()+2), fix(wpn.getY()+2), wpn.getZ(),
-      newWpn==wpn3 ? wFSparkle : wSSparkle,
-      newWpn, 0, wpn.getDir(), wpn.parentitem, -1));
-}
-
-static void standardSparkle(const weapon& wpn)
-{
-    if((frame&3)!=0)
-        return;
-        
-    const itemdata& data=itemsbuf[wpn.parentitem];
-    int wpn2=data.wpn2;
-    int wpn3=data.wpn3;
-    int newWpn;
-    // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    if(wpn2!=0)
-    {
-        if(wpn3==0)
-            newWpn=wpn2;
-        else
-            newWpn=((rand()&1)==0) ? wpn2 : wpn3;
-    }
-    else
-        newWpn=wpn3;
-    
-    if(newWpn)
-    {
-        int h=0;
-        int v=0;
-        int dir=wpn.getDir();
-        
-        if(dir==right || dir==r_up || dir==r_down)
-            h=-4;
-        
-        if(dir==left || dir==l_up || dir==l_down)
-            h=4;
-        
-        if(dir==down || dir==l_down || dir==r_down)
-            v=-4;
-        
-        if(dir==up || dir==l_up || dir==r_up)
-            v=4;
-        
-        // Damaging boomerang sparkle?
-        if(newWpn==wpn3 && data.family==itype_brang)
-        {
-            // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
-            // whatever it just bounced off of if it's shielded from that direction.
-            if(wpn.misc==1 && wpn.clk2>256 && wpn.clk2<272)
-                dir=oppositeDir[dir];
-        }
-        
-        Lwpns.add(new weapon(
-          fix(wpn.getX()+rand()%4)+h, fix(wpn.getY()+rand()%4)+v, wpn.getZ(),
-          newWpn==wpn3 ? wFSparkle : wSSparkle,
-          newWpn, 0, dir, wpn.parentitem, -1));
-    }
+    return inlikelike>0;
 }
 
 void LinkClass::updateGravity()
@@ -4391,6 +4333,31 @@ void LinkClass::deselectbombs(int super)
 int potion_life=0;
 int potion_magic=0;
 
+void LinkClass::doOncePerScreen(int stuff)
+{
+    didstuff|=stuff;
+}
+
+bool LinkClass::didOnThisScreen(int stuff) const
+{
+    return (didstuff&stuff)!=0;
+}
+
+void LinkClass::setAttack(int att)
+{
+    attack=att;
+}
+
+bool LinkClass::isOnSideviewPlatform() const
+{
+    return ON_SIDEPLATFORM;
+}
+
+bool LinkClass::ladderIsActive() const
+{
+    return ladderx>0 || laddery>0;
+}
+
 bool LinkClass::startwpn(int itemid)
 {
     if(itemid < 0) return false;
@@ -4399,530 +4366,16 @@ bool LinkClass::startwpn(int itemid)
             (dir==left && x<32) || (dir==right && x>208)) && !(get_bit(quest_rules,qr_ITEMSONEDGES) || inlikelike))
         return false;
         
-    int wx=x;
-    int wy=y;
-    int wz=z;
-    bool ret = true;
-    
-    
-    switch(dir)
+    bool ret=true;
+    int type=itemsbuf[itemid].family;
+    if(type<itype_misc)
     {
-    case up:
-        wy-=16;
-        break;
-        
-    case down:
-        wy+=16;
-        break;
-        
-    case left:
-        wx-=16;
-        break;
-        
-    case right:
-        wx+=16;
-        break;
-    }
-    
-    bool use_hookshot=true;
-    
-    switch(itemsbuf[itemid].family)
-    {
-    case itype_potion:
-        if(!checkmagiccost(itemid))
+        if(!itemFuncs[type].canUse(itemid, *this))
             return false;
-            
-        paymagiccost(itemid);
-        beginSpecialSequence(seq_potion, itemid);
+        ret=itemFuncs[type].activate(itemid, *this);
+    }
+    else
         ret=false;
-        
-        break;
-        
-    case itype_rocs:
-    {
-        if(!inlikelike && z==0 && charging==0 && !(tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM && !ladderx && !laddery) && hoverclk==0)
-        {
-            if(!checkmagiccost(itemid))
-                return false;
-                
-            paymagiccost(itemid);
-            fall -= FEATHERJUMP*(itemsbuf[itemid].power+2);
-            
-            // Reset the ladder, unless on an unwalkable combo
-            if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
-                reset_ladder();
-                
-            sfx(itemsbuf[itemid].usesound,pan(int(x)));
-        }
-        
-        ret = false;
-    }
-    break;
-    
-    case itype_letter:
-    {
-        if(current_item(itype_letter)==i_letter &&
-                tmpscr[currscr<128?0:1].room==rP_SHOP &&
-                tmpscr[currscr<128?0:1].guy &&
-                ((currscr<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))||(currscr>=128&&DMaps[currdmap].flags&dmfGUYCAVES))
-          )
-        {
-            int usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
-            
-            if(usedid != -1)
-                getitem(usedid, true);
-                
-            sfx(tmpscr[currscr<128?0:1].secretsfx);
-            setupscreen();
-            action=none;
-        }
-        
-        ret = false;
-    }
-    break;
-    
-    case itype_whistle:
-        {
-            bool whistleflag;
-            
-            if(!checkmagiccost(itemid))
-                return false;
-                
-            paymagiccost(itemid);
-            beginSpecialSequence(seq_whistle, itemid);
-        }
-        ret=false;
-        break;
-    
-    case itype_bomb:
-    {
-        //Remote detonation
-        if(Lwpns.idCount(wLitBomb) >= zc_max(itemsbuf[itemid].misc2,1))
-        {
-            weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
-            
-            while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
-            {
-                ew->activateRemoteBomb();
-                ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
-            }
-            
-            deselectbombs(false);
-            return false;
-        }
-        
-        //Remote bombs:
-        //Even if you have no bombs, the icon remains so that you can detonate laid bombs.
-        //But the remaining code requires at least one bomb.
-        if(!game->get_bombs() && !current_item_power(itype_bombbag))
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        
-        if(!get_debug() && !current_item_power(itype_bombbag))
-            game->change_bombs(-1);
-            
-        if(itemsbuf[itemid].misc1>0) // If not remote bombs
-            deselectbombs(false);
-            
-        if(isdungeon())
-        {
-            wy=zc_max(wy,16);
-        }
-        
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitBomb,itemsbuf[itemid].fam_type,
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-        sfx(WAV_PLACE,pan(wx));
-    }
-    break;
-    
-    case itype_sbomb:
-    {
-        //Remote detonation
-        if(Lwpns.idCount(wLitSBomb) >= zc_max(itemsbuf[itemid].misc2,1))
-        {
-            weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitSBomb)));
-            
-            while(Lwpns.idCount(wLitSBomb) && ew->misc == 0)
-            {
-                ew->activateRemoteBomb();
-                ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitSBomb)));
-            }
-            
-            deselectbombs(true);
-            return false;
-        }
-        
-        //Remote bombs:
-        //Even if you have no bombs, the icon remains so that you can detonate laid bombs.
-        //But the remaining code requires at least one bomb.
-        bool magicbag = (current_item_power(itype_bombbag)
-                         && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1);
-                         
-        if(!game->get_sbombs() && !magicbag)
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        
-        if(!get_debug() && !magicbag)
-            game->change_sbombs(-1);
-            
-        if(itemsbuf[itemid].misc1>0) // If not remote bombs
-            deselectbombs(true);
-            
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID()));
-        sfx(WAV_PLACE,pan(wx));
-    }
-    break;
-    
-    case itype_wand:
-    {
-        if(Lwpns.idCount(wMagic))
-            return false;
-            
-        int bookid = current_item_id(itype_book);
-        bool paybook = (bookid>-1 && checkmagiccost(bookid));
-        
-        if(!(itemsbuf[itemid].flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        if(Lwpns.idCount(wBeam))
-            Lwpns.del(Lwpns.idFirst(wBeam));
-            
-        int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-        int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
-        
-        for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
-            if(dir!=(i^1))
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
-                
-        paymagiccost(itemid);
-        
-        if(paybook)
-            paymagiccost(current_item_id(itype_book));
-            
-        if(bookid != -1)
-            sfx(itemsbuf[bookid].usesound,pan(wx));
-        else
-            sfx(itemsbuf[itemid].usesound,pan(wx));
-    }
-    break;
-    
-    case itype_sword:
-    {
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        if((Lwpns.idCount(wBeam) && spins==0)||Lwpns.idCount(wMagic))
-            return false;
-            
-        paymagiccost(itemid);
-        float temppower;
-        
-        if(itemsbuf[itemid].flags & ITEM_FLAG2)
-        {
-            temppower=DAMAGE_MULTIPLIER*itemsbuf[itemid].power;
-            temppower=temppower*itemsbuf[itemid].misc2;
-            temppower=temppower/100;
-        }
-        else
-        {
-            temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
-        }
-        
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
-        sfx(WAV_BEAM,pan(wx));
-    }
-    break;
-    
-    case itype_candle:
-    {
-        if(itemsbuf[itemid].flags&ITEM_FLAG1 && didstuff&did_candle)
-        {
-            return false;
-        }
-        
-        if(Lwpns.idCount(wFire)>=2)
-        {
-            return false;
-        }
-        
-        if(!checkmagiccost(itemid))
-        {
-            return false;
-        }
-        
-        paymagiccost(itemid);
-        
-        if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff|=did_candle;
-        
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wFire,
-                             (itemsbuf[itemid].fam_type > 1), //To do with combo flags
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-        sfx(itemsbuf[itemid].usesound,pan(wx));
-        attack=wFire;
-    }
-    break;
-    
-    case itype_arrow:
-    {
-        if(Lwpns.idCount(wArrow) > itemsbuf[itemid].misc2)
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        
-        if(get_bit(quest_rules,qr_TRUEARROWS) && !current_item_power(itype_quiver))
-        {
-            if(game->get_arrows()<=0)
-                return false;
-                
-            game->change_arrows(-1);
-        }
-        else if(!current_item_power(itype_quiver) && !current_item_power(itype_wallet))
-        {
-            if(game->get_drupy()+game->get_rupies()<=0)
-                return false;
-                
-            game->change_drupy(-1);
-        }
-        
-        weapon* wpn=new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID());
-        if(itemsbuf[itemid].wpn2!=0 || itemsbuf[itemid].wpn3!=0)
-            wpn->setSparkleFunc(standardSparkle);
-        Lwpns.add(wpn);
-        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
-        sfx(itemsbuf[itemid].usesound,pan(wx));
-    }
-    break;
-    
-    case itype_bait:
-        if(Lwpns.idCount(wBait)) //TODO: More than one Bait per screen?
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        sfx(itemsbuf[itemid].usesound,pan(wx));
-        
-        if(tmpscr->room==rGRUMBLE && !getmapflag())
-        {
-            items.add(new item((fix)wx,(fix)wy,(fix)0,iBait,ipDUMMY+ipFADE,0));
-            fadeclk=66;
-            messageMgr.clear(true);
-            //    putscr(scrollbuf,0,0,tmpscr);
-            setmapflag();
-            removeItemsOfFamily(game,itemsbuf,itype_bait);
-            verifyBothWeapons();
-            sfx(tmpscr->secretsfx);
-            return false;
-        }
-        
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBait,0,0,dir,itemid,getUID()));
-        break;
-        
-    case itype_brang:
-    {
-        if(Lwpns.idCount(wBrang) > itemsbuf[itemid].misc2)
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        current_item_power(itype_brang);
-        weapon* wpn=new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,
-          itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),
-          dir,itemid,getUID());
-        if(itemsbuf[itemid].wpn2!=0 || itemsbuf[itemid].wpn3!=0)
-            wpn->setSparkleFunc(standardSparkle);
-        Lwpns.add(wpn);
-    }
-    break;
-    
-    case itype_hookshot:
-        if(inlikelike || Lwpns.idCount(wHookshot))
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        
-        for(int i=-1; i<2; i++)
-        {
-            if(dir==up)
-            {
-                if((combobuf[MAPCOMBO2(i,x,y-7)].type==cHSGRAB)||
-                        (_walkflag(x+2,y+4,1) && !ishookshottable(int(x),int(y+4))))
-                {
-                    use_hookshot=false;
-                }
-            }
-            else if(dir==down)
-            {
-                if((combobuf[MAPCOMBO2(i,x+12,y+23)].type==cHSGRAB))
-                {
-                    use_hookshot=false;
-                }
-            }
-            else if(dir==left)
-            {
-                if((combobuf[MAPCOMBO2(i,x-7,y+12)].type==cHSGRAB))
-                {
-                    use_hookshot=false;
-                }
-            }
-            else if(dir==right)
-            {
-                if((combobuf[MAPCOMBO2(i,x+23,y+12)].type==cHSGRAB))
-                {
-                    use_hookshot=false;
-                }
-            }
-        }
-        
-        if(use_hookshot)
-        {
-            int hookitem = itemsbuf[itemid].fam_type;
-            int hookpower = itemsbuf[itemid].power;
-            
-            if(Lwpns.Count()>=SLMAX)
-            {
-                Lwpns.del(0);
-            }
-            
-            if(Lwpns.Count()>=SLMAX-1)
-            {
-                Lwpns.del(0);
-            }
-            
-            if(dir==up)
-            {
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)wx,(fix)wy-4,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx;
-                hs_starty=wy-4;
-            }
-            
-            if(dir==down)
-            {
-                int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx;
-                hs_starty=wy;
-            }
-            
-            if(dir==left)
-            {
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)(wx-4),(fix)wy,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx-4;
-                hs_starty=wy;
-            }
-            
-            if(dir==right)
-            {
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)(wx+4),(fix)wy,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx+4;
-                hs_starty=wy;
-            }
-            
-            hookshot_frozen=true;
-        }
-        
-        break;
-        
-    case itype_dinsfire:
-        if(z!=0 || ((tmpscr->flags7&fSIDEVIEW)!=0 && !ON_SIDEPLATFORM))
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        action=casting;
-        magicitem=itemid;
-        break;
-        
-    case itype_faroreswind:
-        if(z!=0 || ((tmpscr->flags7&fSIDEVIEW)!=0 && !ON_SIDEPLATFORM))
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        action=casting;
-        magicitem=itemid;
-        break;
-        
-    case itype_nayruslove:
-        if(z!=0 || ((tmpscr->flags7&fSIDEVIEW)!=0 && !ON_SIDEPLATFORM))
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        action=casting;
-        magicitem=itemid;
-        break;
-        
-    case itype_cbyrna:
-    {
-        //Beams already deployed
-        if(Lwpns.idCount(wCByrna))
-        {
-            stopCaneOfByrna();
-            return false;
-        }
-        
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        
-        for(int i=0; i<itemsbuf[itemid].misc3; i++)
-        {
-            weapon* wpn=new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,
-              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID());
-            if(itemsbuf[itemid].wpn4!=0 || itemsbuf[itemid].wpn5!=0)
-                wpn->setSparkleFunc(byrnaSparkle);
-            Lwpns.add(wpn);
-        }
-    }
-    break;
-    
-    default:
-        ret = false;
-    }
     
     if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
     {
@@ -11871,7 +11324,7 @@ bool LinkClass::maze_enabled_sizewarp(int scrolldir)
     return false;
 }
 
-int LinkClass::get_scroll_step(int scrolldir)
+static int get_scroll_step(int scrolldir)
 {
 	// For side-scrollers, where the reletive speed of 'fast' scrolling is a bit slow.
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
@@ -11894,7 +11347,7 @@ int LinkClass::get_scroll_step(int scrolldir)
     }
 }
 
-int LinkClass::get_scroll_delay(int scrolldir)
+static int get_scroll_delay(int scrolldir)
 {
     if(get_bit(quest_rules, qr_NOSCROLL))
         return 0;

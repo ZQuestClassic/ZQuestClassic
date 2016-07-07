@@ -98,6 +98,8 @@ void putMiscSprite(BITMAP *dest, int spr, int x, int y);
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe,
                int parentid);
 
+void standardSparkle(const weapon& wpn);
+void byrnaSparkle(const weapon& wpn);
 void dfRocketSparkle(const weapon& wpn);
 void nlRocketSparkle(const weapon& wpn);
 

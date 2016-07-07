@@ -236,7 +236,6 @@ class LinkClass : public sprite
     void checkchest(int type);
     void checktouchblk();
     void checklocked();
-    void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
     bool startwpn(int itemid);
     bool doattack();
     bool can_attack();
@@ -248,8 +247,6 @@ class LinkClass : public sprite
     bool checkmaze(mapscr *scr, bool sound);
     bool maze_enabled_sizewarp(int scrolldir);
     
-    int get_scroll_step(int scrolldir);
-    int get_scroll_delay(int scrolldir);
 public:
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
 private:
@@ -317,8 +314,9 @@ public:
     void setY(int new_y);
     void setZ(int new_Z);
     void setFall(fix new_fall);
+    void jump(fix jump); // Used by roc's feather
     int  getLStep();
-    int  getCharging();
+    bool isCharging();
     bool isCharged();
     void cancelAttack();
     int  getSwordJinx();
@@ -351,6 +349,7 @@ public:
     void setScrollDir(int sd);
     void setInvincible(bool inv);
     int getSpecialCave(); // used only by maps.cpp
+    void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
     
     inline bool isHoldingItem() const { return holdclk>0; }
     
@@ -374,6 +373,19 @@ public:
     
     // Called when eaten by a like-like
     void onEaten(bool damage);
+    
+    // Returns true if Link is in a like-like
+    bool isBeingEaten() const;
+    
+    // Track that a once-per-screen action has been performed
+    void doOncePerScreen(int action);
+    
+    // Determines whether a once-per-screen action has been performed
+    bool didOnThisScreen(int action) const;
+    
+    void setAttack(int att);
+    bool isOnSideviewPlatform() const;
+    bool ladderIsActive() const;
     
 private:
     void updateGravity();
