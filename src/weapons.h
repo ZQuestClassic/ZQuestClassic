@@ -64,6 +64,8 @@ public:
     virtual void update_weapon_frame(int change, int orig);
     void setAngle(double angle);
     
+    inline int getBlockFlag() const { return blockFlag; }
+    
     // Bombs only
     void activateRemoteBomb();
     
@@ -83,6 +85,9 @@ private:
     // How close the weapon can get to the edge of the screen before
     // being deleted (or bouncing, in the case of boomerangs)
     int minX, maxX, minY, maxY;
+    
+    // Compare against shield flags to see if it blocks or reflects this weapon
+    int blockFlag;
     
     // If set, this function will be called every frame to add sparkles.
     void (*sparkleFunc)(const weapon&);

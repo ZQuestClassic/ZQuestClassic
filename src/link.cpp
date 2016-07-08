@@ -2688,79 +2688,10 @@ int LinkClass::EwpnHit()
             
             bool reflect = false;
             
-            switch(ew->id)
-            {
-            case ewFireball2:
-            case ewFireball:
-                if(ew->type & 1) //Boss fireball
-                {
-                    if(!(itemsbuf[itemid].misc1 & (shFIREBALL2)))
-                        return i;
-                        
-                    reflect = ((itemsbuf[itemid].misc2 & shFIREBALL2) != 0);
-                }
-                else
-                {
-                    if(!(itemsbuf[itemid].misc1 & (shFIREBALL)))
-                        return i;
-                        
-                    reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
-                }
+            if((itemsbuf[itemid].misc1&ew->getBlockFlag())==0)
+                return i;
                 
-                break;
-                
-            case ewMagic:
-                if(!(itemsbuf[itemid].misc1 & shMAGIC))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
-                break;
-                
-            case ewSword:
-                if(!(itemsbuf[itemid].misc1 & shSWORD))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
-                break;
-                
-            case ewFlame:
-                if(!(itemsbuf[itemid].misc1 & shFLAME))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shFLAME) != 0); // Actually isn't reflected.
-                break;
-                
-            case ewRock:
-                if(!(itemsbuf[itemid].misc1 & shROCK))
-                    return i;
-                    
-                reflect = (itemsbuf[itemid].misc2 & shROCK);
-                break;
-                
-            case ewArrow:
-                if(!(itemsbuf[itemid].misc1 & shARROW))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shARROW) != 0); // Actually isn't reflected.
-                break;
-                
-            case ewBrang:
-                if(!(itemsbuf[itemid].misc1 & shBRANG))
-                    return i;
-                    
-                break;
-                
-            default: // Just throw the script weapons in here...
-                if(ew->id>=wScript1 && ew->id<=wScript10)
-                {
-                    if(!(itemsbuf[itemid].misc1 & shSCRIPT))
-                        return i;
-                        
-                    reflect = ((itemsbuf[itemid].misc2 & shSCRIPT) != 0);
-                }
-                
-                break;
-            }
+            reflect=((itemsbuf[itemid].misc2&ew->getBlockFlag())!=0);
             
             int oldid = ew->id;
             ew->onhit(false, reflect ? 2 : 1, dir);
@@ -2829,46 +2760,19 @@ int LinkClass::LwpnHit() // Check for reflected weapons
             switch(lw->id)
             {
             case wRefFireball:
-                if(itemid<0)
-                    return i;
-                    
-                if(lw->type & 1)  //Boss fireball
-                    return i;
-                    
-                if(!(itemsbuf[itemid].misc1 & (shFIREBALL)))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
-                break;
-                
             case wRefMagic:
-                if(itemid<0)
-                    return i;
-                    
-                if(!(itemsbuf[itemid].misc1 & shMAGIC))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
-                break;
-                
             case wRefBeam:
-                if(itemid<0)
-                    return i;
-                    
-                if(!(itemsbuf[itemid].misc1 & shSWORD))
-                    return i;
-                    
-                reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
-                break;
-                
             case wRefRock:
                 if(itemid<0)
                     return i;
-                    
-                if(!(itemsbuf[itemid].misc1 & shROCK))
+                
+                if(lw->type & 1)  //Boss fireball
                     return i;
                     
-                reflect = (itemsbuf[itemid].misc2 & shROCK);
+                if((itemsbuf[itemid].misc1&lw->getBlockFlag())==0)
+                    return i;
+                    
+                reflect=((itemsbuf[itemid].misc2&lw->getBlockFlag())!= 0);
                 break;
                 
             default:
@@ -2967,7 +2871,7 @@ void LinkClass::checkhit()
     
     for(int i=0; i<Lwpns.Count(); i++)
     {
-        sprite *s = Lwpns.spr(i);
+        weapon* s=static_cast<weapon*>(Lwpns.spr(i));
         
         if(!get_bit(quest_rules,qr_FIREPROOFLINK) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
         {
@@ -2993,93 +2897,30 @@ void LinkClass::checkhit()
                 
                 for(int j=0; j<Ewpns.Count(); j++)
                 {
-                    sprite *t = Ewpns.spr(j);
+                    weapon* ew=static_cast<weapon*>(Ewpns.spr(j));
                     
-                    if(s->hit(t->x+7,t->y+7,t->z,2,2,1))
+                    if(s->hit(ew->x+7, ew->y+7, ew->z, 2, 2, 1))
                     {
-                        bool reflect = false;
+                        bool reflect=false;
+                        if((itemsbuf[itemid].misc3&ew->getBlockFlag())==0)
+                            break;
                         
-                        switch(t->id)
+                        reflect=((itemsbuf[itemid].misc4&ew->getBlockFlag())!=0);
+                        
+                        s->dead=1;
+                        int oldid=ew->id;
+                        ew->onhit(true, reflect ? 2 : 1, s->dir);
+                        
+                        if(ew->id!=oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
                         {
-                        case ewBrang:
-                            if(!(itemsbuf[itemid].misc3 & shBRANG)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shBRANG) != 0);
-                            goto killweapon;
-                            
-                        case ewArrow:
-                            if(!(itemsbuf[itemid].misc3 & shARROW)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shARROW) != 0);
-                            goto killweapon;
-                            
-                        case ewRock:
-                            if(!(itemsbuf[itemid].misc3 & shROCK)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shROCK) != 0);
-                            goto killweapon;
-                            
-                        case ewFireball2:
-                        case ewFireball:
-                        {
-                            int mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
-                            
-                            if(!(itemsbuf[itemid].misc3 & mask)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & mask) != 0);
-                            goto killweapon;
+                            Ewpns.remove(ew);
+                            Lwpns.addExisting(ew);
                         }
                         
-                        case ewSword:
-                            if(!(itemsbuf[itemid].misc3 & shSWORD)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shSWORD) != 0);
-                            goto killweapon;
-                            
-                        case wRefMagic:
-                        case ewMagic:
-                            if(!(itemsbuf[itemid].misc3 & shMAGIC)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
-                            goto killweapon;
-                            
-                        case wScript1:
-                        case wScript2:
-                        case wScript3:
-                        case wScript4:
-                        case wScript5:
-                        case wScript6:
-                        case wScript7:
-                        case wScript8:
-                        case wScript9:
-                        case wScript10:
-                            if(!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
-                            goto killweapon;
-                            
-                        case ewLitBomb:
-                        case ewLitSBomb:
-killweapon:
-                            ((weapon*)s)->dead=1;
-                            weapon *ew = ((weapon*)t);
-                            int oldid = ew->id;
-                            ew->onhit(true, reflect ? 2 : 1, s->dir);
-                            
-                            
-                            if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
-                            {
-                                Ewpns.remove(ew);
-								Lwpns.addExisting(ew);
-                            }
-                            
-                            if(ew->id==wRefMagic)
-                            {
-                                ew->ignoreLink=true;
-                                ew->ignorecombo=-1;
-                            }
-                            
-                            break;
+                        if(ew->id==wRefMagic)
+                        {
+                            ew->ignoreLink=true;
+                            ew->ignorecombo=-1;
                         }
                         
                         break;

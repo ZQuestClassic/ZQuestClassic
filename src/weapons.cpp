@@ -85,6 +85,121 @@ void getdraggeditem(int j)
     LinkCheckItems();
 }
 
+void setScreenLimits(weapon& w)
+{
+    bool isDgn=isdungeon();
+    int border=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
+    
+    if(w.id>wEnemyWeapons && w.id!=ewBrang)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+    else if(w.id==wHookshot || w.id==wHSChain)
+    {
+        w.minY=isDgn ? 8 : 0;
+        w.maxY=isDgn ? 152 : 160;
+        w.minX=isDgn ? 8 : 0;
+        w.maxX=isDgn ? 248 : 256;
+    }
+    else
+    {
+        w.minY=isDgn ? 18 : 2;
+        w.maxY=isDgn ? 144 : 160;
+        w.minX=isDgn ? 20 : 4;
+        w.maxX=isDgn ? 220 : 236;
+    }
+    
+    if(w.id==wSSparkle || w.id==wFSparkle)
+    {
+        w.minY=0;
+        w.maxY=176;
+        w.minX=0;
+        w.maxX=256;
+    }
+    else if(w.id==ewFlame)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+    else if(w.id==ewFireTrail)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+    
+    else if(w.id==ewWind)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+}
+
+static int getWeaponBlockFlag(int id, int type)
+{
+    switch(id)
+    {
+    case ewRock:
+    case wRefRock:
+        return shROCK;
+        
+    case wArrow:
+    case ewArrow:
+        return shARROW;
+        
+    case wBrang:
+    case ewBrang:
+        return shBRANG;
+        
+    case ewFireball:
+    case ewFireball2:
+        if((type&1)==1) // Boss fireball
+            return shFIREBALL2;
+        else
+            return shFIREBALL;
+        
+    case wRefFireball:
+        if((type&1)==1)
+            return 0; // This is how it works... Was that intentional?
+        else
+            return shFIREBALL;
+        
+    case ewSword:
+    case wRefBeam:
+        return shSWORD;
+        
+    case ewMagic:
+    case wRefMagic:
+        return shMAGIC;
+        
+    case ewFlame:
+        return shFLAME;
+        
+    case wScript1:
+    case wScript2:
+    case wScript3:
+    case wScript4:
+    case wScript5:
+    case wScript6:
+    case wScript7:
+    case wScript8:
+    case wScript9:
+    case wScript10:
+        return shSCRIPT;
+        
+    default:
+        return 0;
+    }
+}
+
 void weapon::seekLink()
 {
     angular = true;
@@ -186,6 +301,7 @@ weapon::weapon(weapon const & other):
     maxX(other.maxX),
     minY(other.minY),
     maxY(other.maxY),
+    blockFlag(other.blockFlag),
     aimedBrang(other.aimedBrang),
     sparkleFunc(other.sparkleFunc)
 {
@@ -250,68 +366,10 @@ weapon::~weapon()
     }
 }
 
-// This should be done elsewhere
-void setScreenLimits(weapon& w)
-{
-    bool isDgn=isdungeon();
-    int border=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
-    
-    if(w.id>wEnemyWeapons && w.id!=ewBrang)
-    {
-        w.minY=isDgn ? 32 : (16-border);
-        w.maxY=isDgn ? 128 : (144+border);
-        w.minX=isDgn ? 32 : (16-border);
-        w.maxX=isDgn ? 208 : (224+border);
-    }
-    else if(w.id==wHookshot || w.id==wHSChain)
-    {
-        w.minY=isDgn ? 8 : 0;
-        w.maxY=isDgn ? 152 : 160;
-        w.minX=isDgn ? 8 : 0;
-        w.maxX=isDgn ? 248 : 256;
-    }
-    else
-    {
-        w.minY=isDgn ? 18 : 2;
-        w.maxY=isDgn ? 144 : 160;
-        w.minX=isDgn ? 20 : 4;
-        w.maxX=isDgn ? 220 : 236;
-    }
-    
-    if(w.id==wSSparkle || w.id==wFSparkle)
-    {
-        w.minY=0;
-        w.maxY=176;
-        w.minX=0;
-        w.maxX=256;
-    }
-    else if(w.id==ewFlame)
-    {
-        w.minY=isDgn ? 32 : (16-border);
-        w.maxY=isDgn ? 128 : (144+border);
-        w.minX=isDgn ? 32 : (16-border);
-        w.maxX=isDgn ? 208 : (224+border);
-    }
-    else if(w.id==ewFireTrail)
-    {
-        w.minY=isDgn ? 32 : (16-border);
-        w.maxY=isDgn ? 128 : (144+border);
-        w.minX=isDgn ? 32 : (16-border);
-        w.maxX=isDgn ? 208 : (224+border);
-    }
-    
-    else if(w.id==ewWind)
-    {
-        w.minY=isDgn ? 32 : (16-border);
-        w.maxY=isDgn ? 128 : (144+border);
-        w.minX=isDgn ? 32 : (16-border);
-        w.maxX=isDgn ? 208 : (224+border);
-    }
-}
-
 weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy):
     sprite(),
     parentid(prntid),
+    blockFlag(getWeaponBlockFlag(Id, Type)),
     sparkleFunc(0)
 {
     /*
