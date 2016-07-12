@@ -477,7 +477,7 @@ obj/guys.o: src/guys.cpp src/aglogo.h src/colors.h src/defdata.h src/ffscript.h 
 obj/init.o: src/init.cpp src/gamedata.h src/gui.h src/init.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(CFLAG) -c src/init.cpp -o obj/init.o $(SFLAG) $(WINFLAG)
 obj/inventory.o: src/inventory.cpp src/inventory.h src/guys.h src/link.h src/messageManager.h src/sequence.h src/sound.h src/weapons.h src/zc_sys.h src/zdefs.h src/zelda.h
-	$(CC) $(OPTS) $(CFLAG) -c src/inventory.cpp -o src/inventory.o $(SFLAG) $(WINFLAG)
+	$(CC) $(OPTS) $(CFLAG) -c src/inventory.cpp -o obj/inventory.o $(SFLAG) $(WINFLAG)
 obj/items.o: src/items.cpp src/bind.h src/gamedata.h src/items.h src/jwin.h src/maps.h src/sfx.h src/sound.h src/sprite.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/items.cpp -o obj/items.o $(SFLAG) $(WINFLAG)
 obj/jmenu.o: src/jmenu.cpp src/gamedata.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
