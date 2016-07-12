@@ -167,6 +167,7 @@ const RuleData compatRules[]={
   { qr_OLDHOOKSHOTGRAB, "Old Hookshot Grab Checking" },
   { qr_PEAHATCLOCKVULN, "Peahats Are Vulnerable When Frozen By Clocks" },
   { qr_OFFSCREENWEAPONS, "Weapons With No Collision Detection Move Offscreen" },
+  { qr_OLDFFCSWAP, "Old FFC Swap Behavior" },
   { -1, "" }
 };
 
