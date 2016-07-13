@@ -8391,13 +8391,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(guyversion > 3)
     {
-        for(int i=0; i<eMAXGUYS; i++)
+        for(int i=0; i<MAXGUYS; i++)
         {
             char tempname[64];
             
             // rev. 1511 : guyversion = 23. upped to 512 editable enemies. -Gleeok
             // if guyversion < 23 then there is only 256 enemies in the packfile, so default the rest.
-            if(guyversion < 23 && i >= OLDBETAMAXGUYS)
+            if(guyversion < 23 && i >= OLDBETAMAXGUYS && keepdata)
             {
                 memset(tempname, 0, sizeof(char)*64);
                 sprintf(tempname, "e%03d", i);
@@ -8522,11 +8522,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         guydata tempguy;
         
-        for(int i=0; i<eMAXGUYS; i++)
+        for(int i=0; i<MAXGUYS; i++)
         {
-            if(guyversion < 23)   // May 2012 : 512 max enemies
+            if(guyversion < 23 && keepdata)   // May 2012 : 512 max enemies
             {
-                if(i >= 256)
+                if(i >= OLDBETAMAXGUYS)
                 {
                     memset(&guysbuf[i], 0, sizeof(guydata));
                     continue;
