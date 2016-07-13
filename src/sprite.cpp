@@ -11,23 +11,6 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -35,11 +18,9 @@
 
 #include "precompiled.h" //always first
 
-#include "sprite.h"
-#include "entityPtr.h"
 #include "zdefs.h"
+#include "sprite.h"
 #include "tiles.h"
-#include <algorithm>
 
 extern bool get_debug();
 extern bool halt;
@@ -52,9 +33,7 @@ extern void debugging_box(int x1, int y1, int x2, int y2);
 /******* Sprite Base Class ********/
 /**********************************/
 
-sprite::sprite():
-    toBeDeleted(false),
-    ref(new EntityRef())
+sprite::sprite()
 {
     uid = getNextUID();
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
@@ -68,10 +47,39 @@ sprite::sprite():
     angular=canfreeze=false;
     drawstyle=0;
     extend=0;
+    
+    /*ewpnclass=0;
+    lwpnclass=0;
+    guyclass=0;*/ //Not implemented
+    //ewpnref=0;
+    //lwpnref=0;
+    //guyref=0;
+    //itemref=0;
     lasthitclk=0;
     lasthit=0;
     angle=0;
     misc=0;
+    
+    for(int i=0; i<10; i++)
+    {
+        dummy_int[i]=0;
+        dummy_fix[i]=0;
+        dummy_float[i]=0;
+        dummy_bool[i]=0;
+    }
+    
+    /*for(int i=0;i<8;i++)
+    {
+      if(i<2) a[i]=0;
+      d[i]=0;
+    }
+    scriptflag=0;
+    pc=0;
+    sp=0;
+    itemclass=0;
+    ffcref=0; */
+    //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
+    //doscript=1;
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
@@ -107,20 +115,47 @@ sprite::sprite(sprite const & other):
     lasthit(other.lasthit),
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
-    extend(other.extend),
-    toBeDeleted(false),
-    ref(new EntityRef())
+    extend(other.extend)
+    //scriptData(other.scriptData),
+/*ffcref(other.ffcref),
+itemref(other.itemref),
+guyref(other.guyref),
+lwpnref(other.lwpnref),
+ewpnref(other.ewpnref),
+sp(other.sp),
+pc(other.pc),
+scriptflag(other.scriptflag),
+doscript(other.doscript),
+itemclass(other.itemclass)
+guyclass(other.guyclass),
+lwpnclass(other.lwpnclass),
+ewpnclass(other.ewpnclass)*/
 {
     uid = getNextUID();
+    
+    for(int i=0; i<10; ++i)
+    {
+        dummy_int[i]=other.dummy_int[i];
+        dummy_fix[i]=other.dummy_fix[i];
+        dummy_float[i]=other.dummy_float[i];
+        dummy_bool[i]=other.dummy_bool[i];
+    }
+    
+    /*for (int i=0; i<8; ++i)
+    {
+      d[i]=other.d[i];
+    }
+    for (int i=0; i<2; ++i)
+    {
+      a[i]=other.a[i];
+    }*/
     for(int i=0; i<16; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
-    x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs),
-    toBeDeleted(false),
-    ref(new EntityRef())
+    x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
     uid = getNextUID();
     hxsz=hysz=16;
@@ -131,9 +166,30 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     dir=down;
     angular=canfreeze=false;
     extend=0;
+    
+    /*for(int i=0;i<8;i++)
+    {
+      if(i<2) a[i]=0;
+      d[i]=0;
+    }
+    scriptflag=0;
+    pc=0;
+    sp=0;
+    ffcref=0;
+    doscript=1;*/
+    //itemclass=0;
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
+    
+    //scriptData.Clear();
+    /*ewpnclass=0;
+    lwpnclass=0;
+    guyclass=0;*/ //Not implemented
+    /*ewpnref=0;
+    lwpnref=0;
+    guyref=0;
+    itemref=0;*/
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;
@@ -146,7 +202,6 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
 
 sprite::~sprite()
 {
-    ref->onEntityDelete();
 }
 
 long sprite::getNextUID()
@@ -651,49 +706,39 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 /********** Sprite List ***********/
 /**********************************/
 
+#define SLMAX 255
+
+//class enemy;
 
 sprite_list::sprite_list() : count(0) {}
 void sprite_list::clear()
 {
-	for(int i(0); i < count; i++)
-	{
-		delete sprites[i];
-	}
-
-	count = 0;
+    while(count>0) del(0);
 }
 
 sprite *sprite_list::spr(int index)
 {
-    if((unsigned)index >= (unsigned)count)
+    if(index<0 || index>=count)
         return NULL;
         
     return sprites[index];
 }
 
-bool sprite_list::add(sprite *s)
+bool sprite_list::swap(int a,int b)
 {
-    if(count >= SLMAX)
-    {
-        delete s;
+    if(a<0 || a>=count || b<0 || b>=count)
         return false;
-    }
-    
-    uids[count] = s->getUID();
-    sprites[count] = s;
-	++count;
-
-    //checkConsistency();
+        
+    sprite *c = sprites[a];
+    sprites[a] = sprites[b];
+    sprites[b] = c;
+    containedUIDs[sprites[a]->getUID()] = a;
+    containedUIDs[sprites[b]->getUID()] = b;
+// checkConsistency();
     return true;
 }
 
-bool sprite_list::swap(int a,int b)
-{
-    // Re-added for now, but stil unimplemented.
-    return false;
-}
-
-bool sprite_list::addAtFront(sprite *s)
+bool sprite_list::add(sprite *s)
 {
     if(count>=SLMAX)
     {
@@ -701,46 +746,39 @@ bool sprite_list::addAtFront(sprite *s)
         return false;
     }
     
-	// Reflect sign bit to reverse direction of integer.
-	// This is needed to keep uids sorted.
-	s->uid = -s->uid;
-
-	::memmove(sprites + 1, sprites, count * sizeof(sprite*));
-	::memmove(uids + 1, uids, count * sizeof(long));
-
-	uids[0] = s->getUID();
-	sprites[0] = s;
-	++count;
-
+    containedUIDs[s->getUID()] = count;
+    sprites[count++]=s;
+    //checkConsistency();
     return true;
 }
-
-
-bool sprite_list::addExisting(sprite *s)
-{
-	s->uid = s->getNextUID();
-	return add(s);
-}
-
 
 bool sprite_list::remove(sprite *s)
 // removes pointer from list but doesn't delete it
 {
-	for(int i(0); i != count; ++i)
-	{
-		if(sprites[i] == s)
-		{
-			int n = count - i - 1;
-			::memcpy(sprites + i, sprites + i + 1, n * sizeof(sprite*));
-			::memcpy(uids + i, uids + i + 1, n * sizeof(long));
-
-			--count;
-			return true;
-		}
-	}
-
-    //checkConsistency();
+    map<long, int>::iterator it = containedUIDs.find(s->getUID());
+    
+    if(it != containedUIDs.end())
+        containedUIDs.erase(it);
+        
+    int j=0;
+    
+    for(; j<count; j++)
+        if(sprites[j] == s)
+            goto gotit;
+            
     return false;
+    
+gotit:
+
+    for(int i=j; i<count-1; i++)
+    {
+        sprites[i]=sprites[i+1];
+        containedUIDs[sprites[i]->getUID()] = i;
+    }
+    
+    --count;
+    //checkConsistency();
+    return true;
 }
 
 fix sprite_list::getX(int j)
@@ -785,14 +823,21 @@ int sprite_list::getMisc(int j)
 
 bool sprite_list::del(int j)
 {
-    if((unsigned)j >= (unsigned)count)
+    if(j<0||j>=count)
         return false;
-
-	delete sprites[j];
-
-	int n = count - j - 1;
-	::memcpy(sprites + j, sprites + j + 1, n * sizeof(sprite*));
-	::memcpy(uids + j, uids + j + 1, n * sizeof(long));
+        
+    map<long, int>::iterator it = containedUIDs.find(sprites[j]->getUID());
+    
+    if(it != containedUIDs.end())
+        containedUIDs.erase(it);
+        
+    delete sprites[j];
+    
+    for(int i=j; i<count-1; i++)
+    {
+        sprites[i]=sprites[i+1];
+        containedUIDs[sprites[i]->getUID()] = i;
+    }
     
     --count;
     //checkConsistency();
@@ -882,12 +927,6 @@ void sprite_list::animate()
     
     while(i<count)
     {
-        if(sprites[i]->isMarkedForDeletion())
-        {
-            del(i);
-            continue;
-        }
-        
         if(!(freeze_guys && sprites[i]->canfreeze))
         {
             if(sprites[i]->animate(i))
@@ -997,32 +1036,23 @@ int sprite_list::idLast(int id)
     return idLast(id,0xFFFF);
 }
 
-sprite * sprite_list::getByUID(long uid) const
+sprite * sprite_list::getByUID(long uid)
 {
-	if(count)
-	{
-		const long* p = std::lower_bound(uids, uids + count, uid);
-		if(p != (uids + count) && *p == uid)
-			return sprites[(int)(p - uids)];
-	}
+    map<long, int>::iterator it = containedUIDs.find(uid);
+    
+    if(it != containedUIDs.end())
+        return spr(it->second);
         
     return NULL;
 }
 
 void sprite_list::checkConsistency()
 {
+    assert((int)containedUIDs.size() == count);
+    
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
-
-	for(int i=0; i<count-1; i++)
-		assert(uids[i] < uids[i + 1]);
 }
-
-bool sprite_list::isValidUID(long uid) const
-{
-	return getByUID(uid) != NULL;
-}
-
 
 /**********************************/
 /********** Moving Block **********/

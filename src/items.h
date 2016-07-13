@@ -17,9 +17,7 @@
 
 #include "sprite.h"
 #include "zdefs.h"
-#include "bind.h"
 
-class LinkClass;
 
 extern char *item_string[ITEMCNT];
 
@@ -32,12 +30,6 @@ bool can_drop(fix x, fix y);
 int select_dropitem(int item_set, int x, int y);
 bool is_side_view();
 
-enum pickupType
-{
-    pt_none, pt_clear, pt_buyItem, pt_buyInfo,
-    pt_getMoney, pt_gamble, pt_bombsOrArrows, pt_moneyOrLife
-};
-
 class item : public sprite
 {
 public:
@@ -46,47 +38,10 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     int o_tile,o_cset, o_speed, o_delay, frames;
-    
-    bool alsoHaveBow; // Used in subscreens
-    
-    item(int id);
     item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
-
-    void setPickupFlags(int newPickup);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
-    
-    /// Determines whether Link is able to collect an item.
-    /** \note ZC only
-     */
-    bool canPickUp(LinkClass* link);
-    
-    /// Finds the item that will be added when an upgrading item is collected.
-    /** \return The ID of the resulting item, or -1 if this is not
-     *          an upgrade item or no suitable upgrade could be found.
-     *  \note ZC only
-     */
-    int getUpgradeResult() const;
-    
-    void setPickupType(pickupType type, int arg1=0, int arg2=0);
-    void onPickUp();
-    
-    inline void setPrice(int newPrice)
-    {
-        price=newPrice;
-    }
-    
-protected:
-	void init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
-
-private:
-    int price;
-    pickupType puType;
-    int pickupArg1;
-    int pickupArg2;
-    
-    void onGetDummyMoney();
 };
 
 // easy way to draw an item

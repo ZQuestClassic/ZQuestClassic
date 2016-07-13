@@ -14,6 +14,8 @@
 #include "ffscript.h"
 #include <stdio.h>
 
+#define DegtoFix(d)     ((d)*0.7111111111111)
+#define RadtoFix(d)     ((d)*40.743665431525)
 
 template<class T> inline
 fixed degrees_to_fixed(T d)
@@ -1349,10 +1351,11 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         if(opacity < 128)
         {
-            BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
+            FONT* font = get_zc_font(font_index);
+            BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(font, numbuf), text_height(font));
             clear_bitmap(pbmp);
             
-            textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+            textout_ex(pbmp, font, numbuf, 0, 0, color, bg_color);
             draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
             
             destroy_bitmap(pbmp);
@@ -1374,10 +1377,10 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[5]=color
     //sdci[6]=bg color
     //sdci[7]=format_option
-    //sdci[8]=opacity
-    //sdci[9]=char
+    //sdci[8]=string
+    //sdci[9]=opacity
     
-    char* str = (char*)script_drawing_commands[i].GetPtr();
+    std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
     
     if(!str)
     {
@@ -1387,7 +1390,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     int x=sdci[2]/10000;
     int y=sdci[3]/10000;
-    int font_index=sdci[4]/10000;
+    FONT* font=get_zc_font(sdci[4]/10000);
     int color=sdci[5]/10000;
     int bg_color=sdci[6]/10000; //-1 = transparent
     int format_type=sdci[7]/10000;
@@ -1398,25 +1401,33 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(bg_color < -1) bg_color = -1;
     
     if(opacity < 128)
-        drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-        
-    if(format_type == 2)   // right-sided text
     {
-        textout_right_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
+        int width=zc_min(text_length(font, str->c_str()), 512);
+        BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
+        clear_bitmap(pbmp);
+        textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
+        if(format_type == 2)   // right-sided text
+            x-=width;
+        else if(format_type == 1)   // centered text
+            x-=width/2;
+        draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
+        destroy_bitmap(pbmp);
     }
-    else if(format_type == 1)   // centered text
+    else // no opacity
     {
-        textout_centre_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
+        if(format_type == 2)   // right-sided text
+        {
+            textout_right_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+        }
+        else if(format_type == 1)   // centered text
+        {
+            textout_centre_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+        }
+        else // standard left-sided text
+        {
+            textout_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+        }
     }
-    else // standard left-sided text
-    {
-        textout_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
-    }
-    
-    if(opacity < 128)
-        drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-
-	script_drawing_commands.DeallocateDrawBuffer(str);
 }
 
 
@@ -1643,20 +1654,24 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     float rot = sdci[11]/10000;
     bool masked = (sdci[12] != 0);
 
-	BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-	if(sx >= sourceBitmap->w || sy >= sourceBitmap->h)
-		return;
+	//bugfix
+	sx = vbound(sx, 0, 512);
+	sy = vbound(sy, 0, 512);
+	sw = vbound(sw, 0, 512 - sx); //keep the w/h within range as well
+	sh = vbound(sh, 0, 512 - sy);
 
-	sx = vbound(sx, 0, sourceBitmap->w);
-	sy = vbound(sy, 0, sourceBitmap->h);
-	sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
-	sh = vbound(sh, 0, sourceBitmap->h - sy);
+    
+    if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
+        return;
         
     bool stretched = (sw != dw || sh != dh);
-        
+    
+    BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+    
     if(!sourceBitmap)
     {
         Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
+        Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
         return;
     }
     
@@ -1670,6 +1685,7 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         {
         }
     }
+    
     
     dx = dx + xoffset;
     dy = dy + yoffset;
@@ -1740,18 +1756,23 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    long* p = script_drawing_commands[i].GetPtr();
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
     
-    if(!p)
+    if(!v_ptr)
     {
         al_trace("Quad3d: Vector pointer is null! Internal error. \n");
         return;
-    };
+    }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
         
-    long* pos = &p[0];
-    long* uv = &p[12];
-    long* col = &p[20];
-    long* size = &p[24];
+    long* pos = &v[0];
+    long* uv = &v[12];
+    long* col = &v[20];
+    long* size = &v[24];
     
     int w = size[0]; //magic numerical constants... yuck.
     int h = size[1];
@@ -1775,20 +1796,7 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-
-	int sourceID = sdci[10];
-	if(sourceID)
-	{
-		BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(sourceID);
-
-		int sx = script_drawing_commands[i][11];
-		int sy = script_drawing_commands[i][12];
-		int sw = script_drawing_commands[i][13];
-		int sh = script_drawing_commands[i][14];
-
-		//todo: render from bitmap;
-	}
-
+    
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
@@ -1812,7 +1820,6 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
-	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -1828,18 +1835,23 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    long* p = (long*)script_drawing_commands[i].GetPtr();
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
     
-    if(!p)
+    if(!v_ptr)
     {
         al_trace("Quad3d: Vector pointer is null! Internal error. \n");
         return;
     }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
         
-    long* pos = &p[0];
-    long* uv = &p[9];
-    long* col = &p[15];
-    long* size = &p[18];
+    long* pos = &v[0];
+    long* uv = &v[9];
+    long* col = &v[15];
+    long* size = &v[18];
     
     int w = size[0]; //magic numerical constants... yuck.
     int h = size[1];
@@ -1864,19 +1876,6 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         clear_bitmap(tex);
     }
     
-	int sourceID = sdci[10];
-	if(sourceID)
-	{
-		BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(sourceID);
-
-		int sx = script_drawing_commands[i][11];
-		int sy = script_drawing_commands[i][12];
-		int sw = script_drawing_commands[i][13];
-		int sh = script_drawing_commands[i][14];
-
-		//todo: render from bitmap;
-	}
-
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
@@ -1899,131 +1898,6 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
-	script_drawing_commands.DeallocateDrawBuffer(p);
-}
-
-
-void do_bitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-{
-	//todo
-}
-
-
-void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-{
-	//todo
-}
-
-
-void do_pixelarrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffset)
-{
-	//sdci[1]=layer
-	//sdci[2]=count
-	//sdci[3]=x[]
-	//sdci[4]=y[]
-	//sdci[5]=colors[]
-
-	long* p = (long*)script_drawing_commands[icommand].GetPtr();
-	if(!p)
-	{
-		al_trace("do_pixelarrayr: pointer is null! Internal error. \n");
-		return;
-	}
-
-	int count = sdci[2]/10000;
-	long* px = p;
-	long* py = p + count;
-	long* pc = p + count * 2;
-
-	for(int i(0); i != count; ++i)
-	{
-		putpixel(bmp,
-			xoffset + px[i] / 10000,
-			yoffset + py[i] / 10000,
-			pc[i] / 10000);
-	}
-
-	script_drawing_commands.DeallocateDrawBuffer(p);
-}
-
-
-void do_tilearrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffset)
-{
-	//sdci[1]=layer
-	//sdci[2]=count
-	//sdci[3]=tile[]
-	//sdci[4]=x[]
-	//sdci[5]=y[]
-	//sdci[6]=colors[]
-
-	long* p = (long*)script_drawing_commands[icommand].GetPtr();
-	if(!p)
-	{
-		al_trace("do_tilearrayr: pointer is null! Internal error. \n");
-		return;
-	}
-
-	int count = sdci[2] / 10000;
-	long* ptiles = p;
-	long* px = p + count;
-	long* py = p + count * 2;
-	long* pc = p + count * 3;
-
-	for(int i(0); i != count; ++i)
-	{
-		int x = px[i] / 10000;
-		int y = py[i] / 10000;
-
-		overtile16(bmp,
-			ptiles[i] / 10000,
-			xoffset + x,
-			yoffset + y,
-			pc[i] / 10000,
-			0 //flip
-		);
-	}
-
-	script_drawing_commands.DeallocateDrawBuffer(p);
-}
-
-
-void do_comboarrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffset)
-{
-	//sdci[1]=layer
-	//sdci[2]=count
-	//sdci[3]=tile[]
-	//sdci[4]=x[]
-	//sdci[5]=y[]
-	//sdci[6]=colors[]
-
-	long* p = (long*)script_drawing_commands[icommand].GetPtr();
-	if(!p)
-	{
-		al_trace("do_tilearrayr: pointer is null! Internal error. \n");
-		return;
-	}
-
-	int count = sdci[2]/10000;
-	long* pcombos = p;
-	long* px = p + count;
-	long* py = p + count * 2;
-	long* pc = p + count * 3;
-
-	for(int i(0); i != count; ++i)
-	{
-		int x = px[i] / 10000;
-		int y = py[i] / 10000;
-
-		overtile16(bmp,
-			combo_tile(pcombos[i] / 10000, x, y),
-			xoffset + x,
-			yoffset + y,
-			pc[i] / 10000,
-			0 //flip
-		);
-	}
-
-	script_drawing_commands.DeallocateDrawBuffer(p);
 }
 
 
@@ -2109,7 +1983,7 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
 		return;
 	}
-
+    
     const mapscr & l = *m;
     
     BITMAP* b = bmp;
@@ -2234,8 +2108,8 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     //[][0]: type
     //[][1-16]: defined by type
     //[][17]: unused
-    //[][18]: LOWORD = rendertarget; HIWORD = rendersource
-    //[][19]: pointer to auxiliary memory buffer.
+    //[][18]: rendertarget
+    //[][19]: unused
     
     bool isTargetOffScreenBmp = false;
     const int type_mul_10000 = type * 10000;
@@ -2395,37 +2269,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
         }
         break;
-
-		case BITMAPEXR:
-		{
-			do_bitmapexr(bmp, sdci, xoffset, yoffset);
-		}
-		break;
-
-		case POLYGONR:
-		{
-			do_polygonr(bmp, sdci, xoffset, yoffset);
-		}
-		break;
-
-		case PIXELARRAYR:
-		{
-			do_pixelarrayr(bmp, i, sdci, xoffset, yoffset);
-		}
-		break;
-
-		case TILEARRAYR:
-		{
-			do_tilearrayr(bmp, i, sdci, xoffset, yoffset);
-		}
-		break;
-
-		case COMBOARRAYR:
-		{
-			do_comboarrayr(bmp, i, sdci, xoffset, yoffset);
-		}
-		break;
-       
+        
         }
     }
     

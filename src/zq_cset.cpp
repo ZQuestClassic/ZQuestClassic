@@ -8,23 +8,6 @@
 //
 //--------------------------------------------------------
 
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -46,9 +29,6 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
-
-#define edc  208 //246
-#define edi  209 //247
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -1595,12 +1575,21 @@ int onColors_Main()
     return D_O_K;
 }
 
+void copyPal(int src, int dest)
+{
+    int srcStart=CSET(src*pdLEVEL+poLEVEL)*3;
+    int destStart=CSET(dest*pdLEVEL+poLEVEL)*3;
+    
+    for(int i=0; i<pdLEVEL*16*3; i++)
+        colordata[destStart+i]=colordata[srcStart+i];
+}
+
 int onColors_Levels()
 {
     int cycle = get_bit(quest_rules,qr_FADE);
     int index=0;
     
-    while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont))!=-1)
+    while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
     {
         char buf[40];
         sprintf(buf,"Level %X Palettes",index);

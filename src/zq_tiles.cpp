@@ -7,8 +7,6 @@
 //  Tile editor stuff, etc., for ZQuest.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -36,16 +34,15 @@
 #include "questReport.h"
 #include "mem_debug.h"
 
-#include "dialog/zquest/tileSelector.h"
-#include "gui/manager.h"
-
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
 
-extern GUI::GUIManager* gui;
-
 extern void large_dialog(DIALOG *d);
+static void massRecolorReset4Bit();
+static void massRecolorReset8Bit();
+static bool massRecolorSetup(int cset);
+static void massRecolorApply(int tile);
 
 int ex=0;
 int nextcombo_fake_click=0;
@@ -61,8 +58,6 @@ byte selection_anchor=0;
 enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, selection_mode_exclude};
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
-
-word combobufFoo[MAXCOMBOS] = {}; //No idea what this actually does...
 
 
 BITMAP *intersection_pattern;
@@ -273,6 +268,88 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
             memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter4>>2].data[((j+((src_quarter4&2)<<2))*size)+((src_quarter4&1)*size2)]), size2);
         }
     }
+}
+
+static void make_combos(int startTile, int endTile, int cs)
+{
+    int startCombo=0;
+    
+    if(!select_combo_2(startCombo,cs))
+        return;
+    
+    int temp=combobuf[startCombo].tile;
+    combobuf[startCombo].tile=startTile;
+    
+    if(!edit_combo(startCombo, false, cs))
+    {
+        combobuf[startCombo].tile=temp;
+        return;
+    }
+    
+    go_combos();
+    
+    for(int i=0; i<=endTile-startTile; i++)
+    {
+        combobuf[startCombo+i]=combobuf[startCombo];
+        combobuf[startCombo+i].tile=startTile+i;
+    }
+    
+    setup_combo_animations();
+    setup_combo_animations2();
+}
+
+static void make_combos_rect(int top, int left, int numRows, int numCols, int cs)
+{
+    int startCombo=0;
+    
+    if(!select_combo_2(startCombo, cs))
+        return;
+    
+    int startTile=top*TILES_PER_ROW+left;
+    int temp=combobuf[startCombo].tile;
+    combobuf[startCombo].tile=startTile;
+    
+    if(!edit_combo(startCombo, false, cs))
+    {
+        combobuf[startCombo].tile=temp;
+        return;
+    }
+    
+    bool smartWrap=false;
+    if(numCols!=4 && numRows>1)
+    {
+        char buf[64];
+        if(numCols<4)
+            sprintf(buf, "Limit to %d column%s?", numCols, numCols==1 ? "" : "s");
+        else
+            sprintf(buf, "Fit to 4 columns?"); // Meh, whatever.
+        int ret=jwin_alert("Wrapping", buf, NULL, NULL, "&Yes", "&No", 'y', 'n', lfont);
+        if(ret==1)
+            smartWrap=true;
+    }
+        
+    go_combos();
+    
+    int combo=startCombo-1;
+    for(int row=0; row<numRows; row++)
+    {
+        for(int col=0; col<numCols; col++)
+        {
+            int tile=startTile+row*TILES_PER_ROW+col;
+            if(smartWrap)
+                // Add 4 per row, and another numRows*4 for every 4 columns
+                // (col&0xFC==col/4*4), and then the column %4
+                combo=startCombo+4*row+(col&0xFC)*numRows+col%4;
+            else
+                combo++;
+            
+            combobuf[combo]=combobuf[startCombo];
+            combobuf[combo].tile=tile;
+        }
+    }
+    
+    setup_combo_animations();
+    setup_combo_animations2();
 }
 
 int d_combo_proc(int msg,DIALOG *d,int c);
@@ -4844,25 +4921,25 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
         jwin_draw_win(screen2,0, 208, 320, 32, FR_WIN);
     }
     
-    jwin_draw_frame(screen2,(36*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
+    // Copied tile and numbers
+    jwin_draw_frame(screen2,(34*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
     int coldiff=tile_col(copy)-tile_col(copy+copycnt-1);
-    
     if(copy>=0)
     {
         puttile16(buf,rect_sel&&coldiff>0?copy-coldiff:copy,0,0,cs,0);
-        stretch_blit(buf,screen2,0,0,16,16,36*mul,216*mul+yofs,16*mul,16*mul);
+        stretch_blit(buf,screen2,0,0,16,16,34*mul,216*mul+yofs,16*mul,16*mul);
         
         if(copycnt>1)
         {
-            textprintf_right_ex(screen2,tfont,30*mul,(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d-",copy);
-            textprintf_right_ex(screen2,tfont,26*mul,(224*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",copy+copycnt-1);
+            textprintf_right_ex(screen2,tfont,28*mul,(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d-",copy);
+            textprintf_right_ex(screen2,tfont,24*mul,(224*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",copy+copycnt-1);
         }
         else
         {
-            textprintf_right_ex(screen2,tfont,26*mul,(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",copy);
+            textprintf_right_ex(screen2,tfont,24*mul,(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",copy);
         }
     }
-    else
+    else // No tiles copied
     {
         if(InvalidStatic)
         {
@@ -4876,21 +4953,22 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
         }
         else
         {
-            rectfill(screen2, 36*mul, (216*mul)+yofs, (36+15)*mul, ((216+15)*mul)+yofs, vc(0));
-            rect(screen2, 36*mul, (216*mul)+yofs, (36+15)*mul, ((216+15)*mul)+yofs, vc(15));
-            line(screen2, 36*mul, (216*mul)+yofs, (36+15)*mul, ((216+15)*mul)+yofs, vc(15));
-            line(screen2, 36*mul, ((216+15)*mul)+yofs, (36+15)*mul, (216*mul)+yofs, vc(15));
+            rectfill(screen2, 34*mul, (216*mul)+yofs, (34+15)*mul, ((216+15)*mul)+yofs, vc(0));
+            rect(screen2, 34*mul, (216*mul)+yofs, (34+15)*mul, ((216+15)*mul)+yofs, vc(15));
+            line(screen2, 34*mul, (216*mul)+yofs, (34+15)*mul, ((216+15)*mul)+yofs, vc(15));
+            line(screen2, 34*mul, ((216+15)*mul)+yofs, (34+15)*mul, (216*mul)+yofs, vc(15));
         }
     }
     
     
-    //current tile
-    jwin_draw_frame(screen2,(108*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
+    // Current tile
+    jwin_draw_frame(screen2,(104*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
     puttile16(buf,tile,0,0,cs,0);
-    stretch_blit(buf,screen2,0,0,16,16,108*mul,216*mul+yofs,16*mul,16*mul);
+    stretch_blit(buf,screen2,0,0,16,16,104*mul,216*mul+yofs,16*mul,16*mul);
     
-    jwin_draw_frame(screen2,(132*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-    stretch_blit(select_bmp[rect_sel?1:0],screen2,0,0,16,16,132*mul,216*mul+yofs,16*mul,16*mul);
+    // Current selection mode
+    jwin_draw_frame(screen2,(127*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
+    stretch_blit(select_bmp[rect_sel?1:0],screen2,0,0,16,16,127*mul,216*mul+yofs,16*mul,16*mul);
     
     if(tile>tile2)
     {
@@ -4905,17 +4983,19 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
         sprintf(tbuf,"-%d",tile2);
     }
     
-    textprintf_ex(screen2,tfont,58*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cs: %d",cs);
-    textprintf_right_ex(screen2,tfont,102*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile:");
-    textprintf_right_ex(screen2,tfont,102*mul,224*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d%s",tile,tbuf);
+    // Current tile and CSet text
+    textprintf_ex(screen2,tfont,55*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cs: %d",cs);
+    textprintf_right_ex(screen2,tfont,99*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile:");
+    textprintf_right_ex(screen2,tfont,99*mul,224*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d%s",tile,tbuf);
     
     FONT *tf = font;
     font = tfont;
     
-    draw_text_button(screen2,157*mul,213*mul+yofs,32*mul,21*mul,"Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen2,(157+32)*mul,213*mul+yofs,32*mul,21*mul,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen2,(157+32*2)*mul,213*mul+yofs,32*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-    draw_text_button(screen2,(157+32*3)*mul,213*mul+yofs,32*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    draw_text_button(screen2,150*mul,213*mul+yofs,28*mul,21*mul,"Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    draw_text_button(screen2,(150+28)*mul,213*mul+yofs,28*mul,21*mul,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    draw_text_button(screen2,(150+28*2)*mul,213*mul+yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    draw_text_button(screen2,(150+28*3)*mul,213*mul+yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+    draw_text_button(screen2,(150+28*4)*mul,213*mul+yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
     
     textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
     textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
@@ -7622,9 +7702,9 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
             
             for(int k=0; k<MAXFFCS; k++)
             {
-                if((TheMaps[i*MAPSCRS+j].ffcs[k].data >= copy) && (TheMaps[i*MAPSCRS+j].ffcs[k].data < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffcs[k].data != 0))
+                if((TheMaps[i*MAPSCRS+j].ffdata[k] >= copy) && (TheMaps[i*MAPSCRS+j].ffdata[k] < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
                 {
-                    TheMaps[i*MAPSCRS+j].ffcs[k].data = TheMaps[i*MAPSCRS+j].ffcs[k].data-copy+tile;
+                    TheMaps[i*MAPSCRS+j].ffdata[k] = TheMaps[i*MAPSCRS+j].ffdata[k]-copy+tile;
                 }
             }
         }
@@ -8035,7 +8115,7 @@ void draw_tile_list_window()
 void show_blank_tile(int t)
 {
     char tbuf[80], tbuf2[80], tbuf3[80];
-    sprintf(tbuf, "Tile is %s blank.", blank_tile_table[t]?"":"not");
+    sprintf(tbuf, "Tile is%s blank.", blank_tile_table[t]?"":" not");
     sprintf(tbuf2, "%c %c", blank_tile_quarters_table[t*4]?'X':'-', blank_tile_quarters_table[(t*4)+1]?'X':'-');
     sprintf(tbuf3, "%c %c", blank_tile_quarters_table[(t*4)+2]?'X':'-', blank_tile_quarters_table[(t*4)+3]?'X':'-');
     jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,lfont);
@@ -8143,6 +8223,36 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
     
     bool bdown=false;
     
+    #define FOREACH_START(_t) \
+    { \
+        int _first, _last; \
+        if(is_rect) \
+        { \
+            _first=top*TILES_PER_ROW+left; \
+            _last=_first+rows*TILES_PER_ROW|+columns-1; \
+        } \
+        else \
+        { \
+            _first=zc_min(tile, tile2); \
+            _last=zc_max(tile, tile2); \
+        } \
+        for(int _t=_first; _t<=_last; _t++) \
+        { \
+            if(is_rect) \
+            { \
+                int row=tile_row(_t); \
+                if(row<top || row>=top+rows) \
+                    continue; \
+                int col=tile_col(_t); \
+                if(col<left || col>=left+columns) \
+                    continue; \
+            } \
+        
+    #define FOREACH_END\
+        } \
+    }
+    
+    
     do
     {
         //int tile_col(int tile)
@@ -8191,31 +8301,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
                         key[KEY_ALT] || key[KEY_ALTGR])
                 {
-                    if(is_rect)
-                    {
-                        for(int col=0; col<columns; col++)
-                        {
-                            for(int row=0; row<rows; row++)
-                            {
-                                int t=((top+row)*TILES_PER_ROW)+left+col;
-                                
-                                if(key[KEY_ALT] || key[KEY_ALTGR])
-                                    shift_tile_colors(t, 16, false);
-                                else
-                                    shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for(int i=zc_min(tile, tile2); i<=zc_max(tile, tile2); i++)
-                        {
-                            if(key[KEY_ALT] || key[KEY_ALTGR])
-                                shift_tile_colors(i, 16, false);
-                            else
-                                shift_tile_colors(i, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                        }
-                    }
+                    FOREACH_START(t)
+                        if(key[KEY_ALT] || key[KEY_ALTGR])
+                            shift_tile_colors(t, 16, false);
+                        else
+                            shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                    FOREACH_END
                     
                     register_blank_tiles();
                 }
@@ -8232,31 +8323,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
                         key[KEY_ALT] || key[KEY_ALTGR])
                 {
-                    if(is_rect)
-                    {
-                        for(int col=0; col<columns; col++)
-                        {
-                            for(int row=0; row<rows; row++)
-                            {
-                                int t=((top+row)*TILES_PER_ROW)+left+col;
-                                
-                                if(key[KEY_ALT] || key[KEY_ALTGR])
-                                    shift_tile_colors(t, -16, false);
-                                else
-                                    shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for(int i=zc_min(tile, tile2); i<=zc_max(tile, tile2); i++)
-                        {
-                            if(key[KEY_ALT] || key[KEY_ALTGR])
-                                shift_tile_colors(i, -16, false);
-                            else
-                                shift_tile_colors(i, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-                        }
-                    }
+                    FOREACH_START(t)
+                        if(key[KEY_ALT] || key[KEY_ALTGR])
+                            shift_tile_colors(t, -16, false);
+                        else
+                            shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                    FOREACH_END
                     
                     register_blank_tiles();
                 }
@@ -8793,21 +8865,28 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     
                 go_tiles();
                 
-                if(is_rect)
+                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-                    for(int col=0; col<columns; col++)
+                    bool go=false;
+                    if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+                        go=true;
+                    else if(massRecolorSetup(cs))
+                        go=true;
+                    
+                    if(go)
                     {
-                        for(int row=0; row<rows; row++)
-                        {
-                            int t=((top+row)*TILES_PER_ROW)+left+col;
-                            rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
-                        }
+                        FOREACH_START(t)
+                            massRecolorApply(t);
+                        FOREACH_END
+                        
+                        register_blank_tiles();
                     }
                 }
                 else
                 {
-                    for(int i=zc_min(tile, tile2); i<=zc_max(tile, tile2); i++)
-                        rotate_tile(i,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+                    FOREACH_START(t)
+                        rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+                    FOREACH_END
                 }
                 
                 redraw=true;
@@ -8892,34 +8971,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     }
                     else if(copy==-1)
                     {
-                        //snuffles
-                        int combo2=0;
-                        int cs2=0;
-                        
-                        if(select_combo_2(combo2,cs2))
-                        {
-                            go_combos();
-                            int temptile=combobuf[combo2].tile;
-                            combobuf[combo2].tile=zc_min(tile,tile2);
-                            
-                            if(edit_combo(combo2,false,cs2))
-                            {
-                                int frames=zc_max(combobuf[combo2].frames,1);
-                                
-                                for(int i=1; i<(zc_max(tile2,tile)-zc_min(tile,tile2)+1)/frames; ++i)
-                                {
-                                    memcpy(&(combobuf[combo2+i]), &(combobuf[combo2]), sizeof(newcombo));
-                                    combobuf[combo2+i].tile+=(frames*i);
-                                }
-                                
-                                setup_combo_animations();
-                                setup_combo_animations2();
-                            }
-                            else
-                            {
-                                combobuf[combo2].tile=temptile;
-                            }
-                        }
+                        // I don't know what this was supposed to be doing before.
+                        // It didn't work in anything like a sensible way.
+                        if(rect_sel)
+                            make_combos_rect(top, left, rows, columns, cs);
+                        else
+                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
                     }
                     
                     redraw=true;
@@ -9099,18 +9156,18 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
                     done=2;
             }
-            else if(!bdown && isinRect(x,y,132*mul,216*mul+panel_yofs,(132+15)*mul,(216+15)*mul+panel_yofs))
+            else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
             {
                 rect_sel=!rect_sel;
                 copy=-1;
                 redraw=true;
             }
-            else if(!bdown && isinRect(x,y,157*mul,213*mul+panel_yofs,(157+32)*mul,(213+21)*mul+panel_yofs))
+            else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
             {
                 FONT *tf = font;
                 font = tfont;
                 
-                if(do_text_button(157*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,32*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
                 {
                     font = tf;
                     grab_tile(tile,cs);
@@ -9121,12 +9178,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 
                 font = tf;
             }
-            else if(!bdown && isinRect(x,y,(157+32)*mul,213*mul+panel_yofs,(157+32*2)*mul,(213+21)*mul+panel_yofs+21))
+            else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
             {
                 FONT *tf = font;
                 font = tfont;
                 
-                if(do_text_button((157+32)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,32*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
                 {
                     font = tf;
                     edit_tile(tile,flip,cs);
@@ -9136,12 +9193,12 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 
                 font = tf;
             }
-            else if(!bdown && isinRect(x,y,(157+32*2)*mul,213*mul+panel_yofs,(157+32*3)*mul,(213+21)*mul+panel_yofs))
+            else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
             {
                 FONT *tf = font;
                 font = tfont;
                 
-                if(do_text_button((157+32*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,32*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
                 {
                     if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
                     {
@@ -9156,12 +9213,31 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 
                 font = tf;
             }
-            else if(!bdown && isinRect(x,y,(157+32*3)*mul,213*mul+panel_yofs,(157+32*4)*mul,(213+21)*mul+panel_yofs))
+            else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
             {
                 FONT *tf = font;
                 font = tfont;
                 
-                if(do_text_button((157+32*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,32*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+                {
+                    if(massRecolorSetup(cs))
+                    {
+                        FOREACH_START(t)
+                            massRecolorApply(t);
+                        FOREACH_END
+                        
+                        register_blank_tiles();
+                    }
+                }
+                
+                font = tf;
+            }
+            else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
+            {
+                FONT *tf = font;
+                font = tfont;
+                
+                if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
                 {
                     done=1;
                 }
@@ -9667,7 +9743,7 @@ int select_combo_2(int &tile,int &cs)
     
     for(int i=0; i<MAXCOMBOS; i++)
         //   for (int x=0; x<9; x++)
-        combobufFoo[i]=i;
+        combobuf[i].foo=i;
         
     go();
     int window_xofs=0;
@@ -10007,7 +10083,7 @@ int select_combo_2(int &tile,int &cs)
             
             for(int j=0; j<256; j++)
             {
-                if(combobufFoo[j+p]==i+p)
+                if(combobuf[j+p].foo==i+p)
                 {
                     pos=j+p;
                     goto down;
@@ -10126,7 +10202,7 @@ int combo_screen(int pg, int tl)
     
     for(int i=0; i<MAXCOMBOS; i++)
     {
-        combobufFoo[i]=i;
+        combobuf[i].foo=i;
     }
     
     go();
@@ -10923,22 +10999,12 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
         int t=curr_combo.tile;
         int f=curr_combo.flip;
         
-        TileSelector ts(t, edit_combo_cset, f);
-        gui->showDialog(ts);
-        if(!ts.userCanceled())
-        {
-            curr_combo.tile=ts.getTile();
-            curr_combo.flip=ts.getOrientation();
-            return D_REDRAW;
-        }
-        /*
         if(select_tile(t,f,1,edit_combo_cset,true,0,true))
         {
             curr_combo.tile=t;
             curr_combo.flip=f;
             return D_REDRAW;
         }
-        */
     }
     
     return D_O_K;
@@ -11462,16 +11528,6 @@ int onIcons()
     return D_O_K;
 }
 
-void center_zq_tiles_dialogs()
-{
-    jwin_center_dialog(combo_dlg);
-    jwin_center_dialog(create_relational_tiles_dlg);
-    jwin_center_dialog(icon_dlg);
-    jwin_center_dialog(leech_dlg);
-    jwin_center_dialog(tile_move_list_dlg);
-}
-
-
 // Identical to jwin_frame_proc, but is treated differently by large_dialog()
 int d_comboframe_proc(int msg, DIALOG *d, int c)
 {
@@ -11621,4 +11677,393 @@ void center_zq_tiles_dialog()
 }
 
 
+// Hey, let's have a few hundred more lines of code, why not.
 
+#define MR_4BIT 0
+#define MR_8BIT 1
+
+static byte massRecolorSrc4Bit[16]={ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+static byte massRecolorDest4Bit[16]={ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+static word massRecolor8BitCSets=0; // Which CSets are affected? One bit each.
+
+static byte massRecolorSrc8Bit[16]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static byte massRecolorDest8Bit[16]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+static int massRecolorDraggedColor=-1;
+static int massRecolorCSet;
+static bool massRecolorIgnoreBlank=true;
+static byte massRecolorType=MR_4BIT;
+
+// Shows the sets of colors to replace from/to.
+// D_CSET: Colors are 0-15 within the current CSet rather than absolute.
+// D_SETTABLE: Colors can be dragged and dropped onto this one.
+#define D_CSET D_USER
+#define D_SETTABLE (D_USER<<1)
+int d_mr_cset_proc(int msg, DIALOG* d, int)
+{
+    BITMAP* bmp=gui_get_screen();
+    int colorWidth=(d->w-4)/16;
+    byte* colors=static_cast<byte*>(d->dp);
+    
+    switch(msg)
+    {
+    case MSG_DRAW:
+        {
+            jwin_draw_frame(bmp, d->x, d->y, d->w, d->h, FR_DEEP);
+            
+            int baseColor=((d->flags&D_CSET)!=0) ? massRecolorCSet*16 : 0;
+            for(int c=0; c<16; c++)
+            {
+                rectfill(bmp,
+                  d->x+2+c*colorWidth, d->y+2,
+                  d->x+2+((c+1)*colorWidth)-1, d->y+2+d->h-5,
+                  baseColor+colors[c]);
+            }
+        }
+        break;
+        
+    case MSG_LPRESS:
+        {
+            int x=gui_mouse_x()-(d->x+2);
+            massRecolorDraggedColor=colors[x/colorWidth];
+        }
+        break;
+        
+    case MSG_LRELEASE: // This isn't exactly right, but it'll do...
+        if((d->flags&D_SETTABLE)!=0 && massRecolorDraggedColor>=0)
+        {
+            int x=gui_mouse_x()-(d->x+2);
+            colors[x/colorWidth]=massRecolorDraggedColor;
+            d->flags|=D_DIRTY;
+        }
+        massRecolorDraggedColor=-1;
+        break;
+    }
+    
+    return D_O_K;
+}
+
+// Used for the full palette in 8-bit mode.
+static int d_mr_palette_proc(int msg, DIALOG* d, int)
+{
+    BITMAP* bmp=gui_get_screen();
+    int colorWidth=(d->w-4)/16;
+    int colorHeight=(d->h-4)/12;
+    
+    switch(msg)
+    {
+    case MSG_DRAW:
+        {
+            jwin_draw_frame(bmp, d->x, d->y, d->w, d->h, FR_DEEP);
+            for(int cset=0; cset<=11; cset++)
+            {
+                for(int color=0; color<16; color++)
+                {
+                    rectfill(bmp,
+                      d->x+2+color*colorWidth,
+                      d->y+2+cset*colorHeight,
+                      d->x+2+((color+1)*colorWidth)-1,
+                      d->y+2+((cset+1)*colorHeight)-1,
+                      cset*16+color);
+                }
+            }
+        }
+        break;
+        
+    case MSG_LPRESS:
+        {
+            int cset=(gui_mouse_y()-(d->y+2))/colorHeight;
+            int color=(gui_mouse_x()-(d->x+2))/colorWidth;
+            massRecolorDraggedColor=cset*16+color;
+        }
+        break;
+    }
+    
+    return D_O_K;
+}
+
+static DIALOG recolor_4bit_dlg[] =
+{
+    // (dialog proc)         (x)   (y) (w)  (h)    (fg)   (bg) (key)            (flags) (d1) (d2)  (dp)
+    { jwin_win_proc,           0,   0, 216, 224,      0,     0,    0,            D_EXIT,   0,   0, (void *) "Recolor setup", NULL, NULL },
+    
+    // 1
+    { jwin_text_proc,         12,  32, 176,   8, vc(15), vc(1),    0,                 0,   0,   0, (void *) "From", NULL, NULL },
+    { d_mr_cset_proc,         10,  42, 196,  16,      0,     0,    0,            D_CSET,   0,   0, (void *)massRecolorSrc4Bit, NULL, NULL },
+    { jwin_text_proc,         12,  60, 176,   8, vc(15), vc(1),    0,                 0,   0,   0, (void *) "To", NULL, NULL },
+    { d_mr_cset_proc,         10,  70, 196,  16,      0,     0,    0, D_CSET|D_SETTABLE,   0,   0, (void *)massRecolorDest4Bit, NULL, NULL },
+    
+    // 5
+    { jwin_text_proc,         12,  96, 176,   8, vc(15), vc(1),    0,                 0,   0,   0, (void *) "Apply to which CSets in 8-bit tiles?", NULL, NULL },
+    { jwin_check_proc,        12, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "0", NULL, NULL },
+    { jwin_check_proc,        36, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "1", NULL, NULL },
+    { jwin_check_proc,        60, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "2", NULL, NULL },
+    { jwin_check_proc,        84, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "3", NULL, NULL },
+    { jwin_check_proc,       108, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "4", NULL, NULL },
+    { jwin_check_proc,       132, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "5", NULL, NULL },
+    { jwin_check_proc,        12, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "6", NULL, NULL },
+    { jwin_check_proc,        36, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "7", NULL, NULL },
+    { jwin_check_proc,        60, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "8", NULL, NULL },
+    { jwin_check_proc,        84, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "9", NULL, NULL },
+    { jwin_check_proc,       108, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "10", NULL, NULL },
+    { jwin_check_proc,       132, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "11", NULL, NULL },
+    
+    // 18
+    { jwin_check_proc,        12, 144, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "Ignore blank tiles", NULL, NULL },
+    { jwin_func_button_proc,  14, 160,  60,  20, vc(14), vc(1),    0,                 0,   0,   0, (void *) "Reset", NULL, (void*)massRecolorReset4Bit },
+    { jwin_button_proc,       82, 160, 120,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "Switch to 8-bit mode", NULL, NULL },
+    { jwin_button_proc,       44, 188,  60,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,      112, 188,  60,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "Cancel", NULL, NULL },
+    
+    { NULL,                    0,   0,   0,   0,   0,        0,    0,                 0,   0,   0, NULL, NULL,  NULL }
+};
+
+#define MR4_SRC_COLORS 2
+#define MR4_DEST_COLORS 4
+#define MR4_8BIT_EFFECT_START 6
+#define MR4_IGNORE_BLANK 18
+#define MR4_RESET 19
+#define MR4_SWITCH 20
+#define MR4_OK 21
+#define MR4_CANCEL 22
+
+static DIALOG recolor_8bit_dlg[] =
+{
+    // (dialog proc)         (x)  (y)  (w)  (h)   (fg)    (bg) (key)     (flags) (d1) (d2) (dp)
+    { jwin_win_proc,           0,   0, 288, 224,     0,      0,    0,     D_EXIT,   0,  0, (void *) "Recolor setup", NULL, NULL },
+    
+    // 1
+    { jwin_text_proc,         12,  32, 176,   8, vc(15), vc(1),    0,          0,   0,  0, (void *) "From", NULL, NULL },
+    { d_mr_cset_proc,         10,  42, 132,  12,      0,     0,    0, D_SETTABLE,   0,  0, (void *)massRecolorSrc8Bit, NULL, NULL },
+    { jwin_text_proc,         12,  60, 176,   8, vc(15), vc(1),    0,          0,   0,  0, (void *) "To", NULL, NULL },
+    { d_mr_cset_proc,         10,  70, 132,  12,      0,     0,    0, D_SETTABLE,   0,  0, (void *)massRecolorDest8Bit, NULL, NULL },
+    { d_mr_palette_proc,     144,  32, 132, 100, vc(15), vc(1),    0,          0,   0,  0, (void *) NULL, NULL, NULL },
+    
+    // 6
+    { jwin_check_proc,        12, 144, 168,   8, vc(15), vc(1),    0,          0,   1,  0, (void *) "Ignore blank tiles", NULL, NULL },
+    { jwin_func_button_proc,  50, 160,  60,  20, vc(14), vc(1),    0,          0,   0,  0, (void *) "Reset", NULL, (void*)massRecolorReset8Bit },
+    { jwin_button_proc,      118, 160, 120,  20, vc(14), vc(1),    0,     D_EXIT,   0,  0, (void *) "Switch to 4-bit mode", NULL, NULL },
+    { jwin_button_proc,       80, 188,  60,  20, vc(14), vc(1),    0,     D_EXIT,   0,  0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,      148, 188,  60,  20, vc(14), vc(1),    0,     D_EXIT,   0,  0, (void *) "Cancel", NULL, NULL },
+    
+    { NULL,                    0,   0,   0,   0,      0,     0,    0,          0,   0,  0,       NULL,                           NULL,  NULL }
+};
+
+#define MR8_SRC_COLORS 2
+#define MR8_DEST_COLORS 4
+#define MR8_PALETTE 5
+#define MR8_IGNORE_BLANK 6
+#define MR8_RESET 7
+#define MR8_SWITCH 8
+#define MR8_OK 9
+#define MR8_CANCEL 10
+
+static void massRecolorInit(int cset)
+{
+    massRecolorDraggedColor=-1;
+    massRecolorCSet=cset;
+    
+    recolor_4bit_dlg[0].dp2=lfont;
+    recolor_8bit_dlg[0].dp2=lfont;
+    
+    for(int i=0; i<=11; i++)
+    {
+        if((massRecolor8BitCSets&(1<<i))!=0)
+            recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags|=D_SELECTED;
+        else
+            recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&=~D_SELECTED;
+    }
+    
+    if(massRecolorIgnoreBlank)
+    {
+        recolor_4bit_dlg[MR4_IGNORE_BLANK].flags|=D_SELECTED;
+        recolor_8bit_dlg[MR8_IGNORE_BLANK].flags|=D_SELECTED;
+    }
+    else
+    {
+        recolor_4bit_dlg[MR4_IGNORE_BLANK].flags&=~D_SELECTED;
+        recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&=~D_SELECTED;
+    }
+    
+    if(is_large)
+    {
+        large_dialog(recolor_4bit_dlg);
+        large_dialog(recolor_8bit_dlg);
+        
+        // Quick fix for large_dialog() screwing these up. It's ugly. Whatever.
+        if((recolor_4bit_dlg[MR4_DEST_COLORS].w-4)%4!=0)
+        {
+            recolor_4bit_dlg[MR4_SRC_COLORS].x++;
+            recolor_4bit_dlg[MR4_SRC_COLORS].w-=2;
+            recolor_4bit_dlg[MR4_DEST_COLORS].x++;
+            recolor_4bit_dlg[MR4_DEST_COLORS].w-=2;
+            
+            recolor_8bit_dlg[MR8_SRC_COLORS].x++;
+            recolor_8bit_dlg[MR8_SRC_COLORS].w-=2;
+            recolor_8bit_dlg[MR8_DEST_COLORS].x++;
+            recolor_8bit_dlg[MR8_DEST_COLORS].w-=2;
+            recolor_8bit_dlg[MR8_PALETTE].x++;
+            recolor_8bit_dlg[MR8_PALETTE].w-=2;
+            recolor_8bit_dlg[MR8_PALETTE].y++;
+            recolor_8bit_dlg[MR8_PALETTE].h-=2;
+        }
+    }
+}
+
+static void massRecolorApplyChanges()
+{
+    massRecolor8BitCSets=0;
+    for(int i=0; i<=11; i++)
+    {
+        if((recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&D_SELECTED)!=0)
+            massRecolor8BitCSets|=1<<i;
+    }
+    
+    if(massRecolorType==MR_4BIT)
+        massRecolorIgnoreBlank=(recolor_4bit_dlg[MR4_IGNORE_BLANK].flags&D_SELECTED)!=0;
+    else
+        massRecolorIgnoreBlank=(recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&D_SELECTED)!=0;
+}
+
+static bool massRecolorSetup(int cset)
+{
+    massRecolorInit(cset);
+    
+    // Remember the current colors in case the user cancels.
+    int oldDest4Bit[16], oldSrc8Bit[16], oldDest8Bit[16];
+    for(int i=0; i<16; i++)
+    {
+        oldDest4Bit[i]=massRecolorDest4Bit[i];
+        oldSrc8Bit[i]=massRecolorSrc8Bit[i];
+        oldDest8Bit[i]=massRecolorDest8Bit[i];
+    }
+    
+    byte type=massRecolorType;
+    int ret;
+    do
+    {
+        if(type==MR_4BIT)
+        {
+            ret=zc_popup_dialog(recolor_4bit_dlg, MR4_OK);
+            if(ret==MR4_SWITCH)
+                type=MR_8BIT;
+        }
+        else
+        {
+            ret=zc_popup_dialog(recolor_8bit_dlg, MR8_OK);
+            if(ret==MR8_SWITCH)
+                type=MR_4BIT;
+        }
+    } while(ret==MR4_SWITCH || ret==MR8_SWITCH);
+    
+    if(ret!=MR4_OK && ret!=MR8_OK) // Canceled
+    {
+        for(int i=0; i<16; i++)
+        {
+            massRecolorDest4Bit[i]=oldDest4Bit[i];
+            massRecolorSrc8Bit[i]=oldSrc8Bit[i];
+            massRecolorDest8Bit[i]=oldDest8Bit[i];
+        }
+        return false;
+    }
+    
+    // OK
+    massRecolorType=type;
+    massRecolorApplyChanges();
+    return true;
+}
+
+static void massRecolorApply4Bit(int tile)
+{
+    byte buf[256];
+    unpack_tile(newtilebuf, tile, 0, true);
+    
+    if(newtilebuf[tile].format==tf4Bit)
+    {
+        for(int i=0; i<256; i++)
+            buf[i]=massRecolorDest4Bit[unpackbuf[i]];
+    }
+    else // 8-bit
+    {
+        for(int i=0; i<256; i++)
+        {
+            word cset=unpackbuf[i]>>4;
+            if((massRecolor8BitCSets&(1<<cset))!=0) // Recolor this CSet?
+            {
+                word color=unpackbuf[i]&15;
+                buf[i]=(cset<<4)|massRecolorDest4Bit[color];
+            }
+            else
+                buf[i]=unpackbuf[i];
+        }
+    }
+    
+    pack_tile(newtilebuf, buf, tile);
+}
+
+static void massRecolorApply8Bit(int tile)
+{
+    byte buf[256];
+    unpack_tile(newtilebuf, tile, 0, true);
+    
+    for(int i=0; i<256; i++)
+    {
+        byte color=unpackbuf[i];
+        for(int j=0; j<16; j++)
+        {
+            if(massRecolorSrc8Bit[j]==color)
+            {
+                color=massRecolorDest8Bit[j];
+                break;
+            }
+        }
+        buf[i]=color;
+    }
+    
+    pack_tile(newtilebuf, buf, tile);
+}
+
+static void massRecolorApply(int tile)
+{
+    if(massRecolorIgnoreBlank && blank_tile_table[tile])
+        return;
+    
+    if(massRecolorType==MR_4BIT)
+        massRecolorApply4Bit(tile);
+    else // 8-bit
+    {
+        if(newtilebuf[tile].format==tf4Bit)
+            return;
+        massRecolorApply8Bit(tile);
+    }
+}
+
+static void massRecolorReset4Bit()
+{
+    for(int i=0; i<16; i++)
+        massRecolorDest4Bit[i]=i;
+    recolor_4bit_dlg[MR4_DEST_COLORS].flags|=D_DIRTY;
+}
+
+static void massRecolorReset8Bit()
+{
+    for(int i=0; i<16; i++)
+    {
+        massRecolorSrc8Bit[i]=0;
+        massRecolorDest8Bit[i]=0;
+    }
+    
+    recolor_8bit_dlg[MR8_SRC_COLORS].flags|=D_DIRTY;
+    recolor_8bit_dlg[MR8_DEST_COLORS].flags|=D_DIRTY;
+}
+
+void center_zq_tiles_dialogs()
+{
+    jwin_center_dialog(combo_dlg);
+    jwin_center_dialog(create_relational_tiles_dlg);
+    jwin_center_dialog(icon_dlg);
+    jwin_center_dialog(leech_dlg);
+    jwin_center_dialog(tile_move_list_dlg);
+    jwin_center_dialog(recolor_4bit_dlg);
+    jwin_center_dialog(recolor_8bit_dlg);
+}

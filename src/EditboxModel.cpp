@@ -1,6 +1,3 @@
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -32,12 +29,12 @@ static DIALOG help_dlg[] =
     { NULL,                 0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL }
 };
 
-int Unicode::indexToOffset(std::string &s, int i)
+int Unicode::indexToOffset(string &s, int i)
 {
     return uoffset(s.c_str(), i);
 }
 
-void Unicode::insertAtIndex(std::string &s, int c, int i)
+void Unicode::insertAtIndex(string &s, int c, int i)
 {
     char temp[50];
     int bytes = usetc(temp, c);
@@ -46,21 +43,21 @@ void Unicode::insertAtIndex(std::string &s, int c, int i)
     s = s.substr(0,offset) + temp + s.substr(offset, s.size()-offset);
 }
 
-void Unicode::extractRange(std::string &s, std::string &dest, int first, int last)
+void Unicode::extractRange(string &s, string &dest, int first, int last)
 {
     int firstoffset = indexToOffset(s,first);
     int lastoffset = indexToOffset(s,last);
     dest = s.substr(firstoffset, lastoffset-firstoffset);
 }
 
-void Unicode::removeRange(std::string &s, int first, int last)
+void Unicode::removeRange(string &s, int first, int last)
 {
     int firstoffset = indexToOffset(s,first);
     int lastoffset = indexToOffset(s,last);
     s = s.substr(0,firstoffset) + s.substr(lastoffset, s.size()-lastoffset);
 }
 
-int Unicode::getCharAtIndex(std::string &s, int i)
+int Unicode::getCharAtIndex(string &s, int i)
 {
     int offset = indexToOffset(s,i);
     return ugetc(s.c_str()+offset);
@@ -90,7 +87,7 @@ int Unicode::getCharAtOffset(const char *s, int offset)
     return ugetc(s+offset);
 }
 
-std::pair<int, int> Unicode::munchWord(std::string &s, int startoffset, FONT *f)
+pair<int, int> Unicode::munchWord(string &s, int startoffset, FONT *f)
 {
     unsigned int endoffset;
     
@@ -103,16 +100,16 @@ std::pair<int, int> Unicode::munchWord(std::string &s, int startoffset, FONT *f)
         }
     }
     
-    std::pair<int, int> rval;
+    pair<int, int> rval;
     rval.first = endoffset-startoffset; //guaranteed >= 1
     rval.second = text_length(f,s.substr(startoffset, endoffset-startoffset).c_str());
     return rval;
 }
 
-void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, std::string &s, int x, int y, int fg, int bg)
+void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int x, int y, int fg, int bg)
 {
     unsigned int offset = 0;
-    std::string newstring;
+    string newstring;
     const char *txt = s.c_str();
     
     while(offset < s.size())
@@ -150,7 +147,7 @@ void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, std::string &s, int x, 
     textout_ex(bmp, f, newstring.c_str(), x, y, fg, bg);
 }
 
-int Unicode::getIndexOfWidth(std::string &s, int x, FONT *f)
+int Unicode::getIndexOfWidth(string &s, int x, FONT *f)
 {
     int index = 0;
     unsigned int offset = 0;
@@ -181,7 +178,7 @@ int Unicode::getIndexOfWidth(std::string &s, int x, FONT *f)
     return index+1;
 }
 
-int Unicode::getLength(std::string &s)
+int Unicode::getLength(string &s)
 {
     int length=0;
     unsigned int offset=0;
@@ -201,12 +198,12 @@ bool TextSelection::hasSelection()
     return (start != end);
 }
 
-std::pair<int, int> TextSelection::getSelection()
+pair<int, int> TextSelection::getSelection()
 {
     if(start < end)
-        return std::pair<int, int>(start,end);
+        return pair<int, int>(start,end);
         
-    return std::pair<int, int>(end, start);
+    return pair<int, int>(end, start);
 }
 
 void TextSelection::clearSelection()
@@ -297,7 +294,7 @@ void EditboxCursor::deleteChar()
     host.getView()->update();
 }
 
-void EditboxCursor::insertString(std::string s)
+void EditboxCursor::insertString(string s)
 {
     if(host.isReadonly())
         return;
@@ -320,14 +317,14 @@ void EditboxCursor::insertNewline()
     CursorPos cp = host.findCursor();
     //split off the next line
     int offset = Unicode::indexToOffset(cp.it->line, cp.index);
-    std::string newline = cp.it->line.substr(offset, cp.it->line.size()-offset);
+    string newline = cp.it->line.substr(offset, cp.it->line.size()-offset);
     LineData newld = {newline, cp.it->numchars-cp.index, cp.it->newlineterminated,true,NULL};
     cp.it->line = cp.it->line.substr(0,offset);
     Unicode::insertAtIndex(cp.it->line, c, cp.index);
     cp.it->numchars = cp.index+1;
     cp.it->newlineterminated = true;
     cp.it->dirtyflag = true;
-    std::list<LineData>::iterator next = cp.it;
+    list<LineData>::iterator next = cp.it;
     next++;
     host.getLines().insert(next,newld);
     next--;
@@ -348,7 +345,7 @@ CursorPos EditboxModel::findIndex(int totalindex)
     int curindex = 0;
     CursorPos rval;
     
-    for(std::list<LineData>::iterator it = lines.begin(); it != lines.end(); it++)
+    for(list<LineData>::iterator it = lines.begin(); it != lines.end(); it++)
     {
         curindex += it->numchars;
         rval.it = it;
@@ -362,7 +359,7 @@ CursorPos EditboxModel::findIndex(int totalindex)
     int offinline = totalindex-curindex+rval.it->numchars;
     rval.lineno = lineno;
     rval.index = offinline;
-    std::string &str = rval.it->line;
+    string &str = rval.it->line;
     rval.x = 0;
     
     for(int i=0; i<offinline; i++)
@@ -374,10 +371,10 @@ CursorPos EditboxModel::findIndex(int totalindex)
     return rval;
 }
 
-void EditboxModel::markAsDirty(std::list<LineData>::iterator line)
+void EditboxModel::markAsDirty(list<LineData>::iterator line)
 {
     //coalesce lines that are NOT newline-terminated
-    std::list<LineData>::reverse_iterator rit = std::list<LineData>::reverse_iterator(line);
+    list<LineData>::reverse_iterator rit = list<LineData>::reverse_iterator(line);
     
     //find start of line
     while(rit != lines.rend() && !rit->newlineterminated)
@@ -389,7 +386,7 @@ void EditboxModel::markAsDirty(std::list<LineData>::iterator line)
     
     while(!line->newlineterminated)
     {
-        std::list<LineData>::iterator next = line;
+        list<LineData>::iterator next = line;
         next++;
         assert(next != lines.end());
         line->numchars += next->numchars;
@@ -407,7 +404,7 @@ void EditboxModel::copy()
     if(!getSelection().hasSelection())
         return;
         
-    std::pair<int,int> sel = getSelection().getSelection();
+    pair<int,int> sel = getSelection().getSelection();
     Unicode::extractRange(getBuffer(), clipboard, sel.first, sel.second);
 }
 
@@ -429,7 +426,7 @@ void EditboxModel::clear()
     if(!getSelection().hasSelection())
         return;
         
-    std::pair<int, int> sel = getSelection().getSelection();
+    pair<int, int> sel = getSelection().getSelection();
     getCursor().updateCursor(sel.first);
     getSelection().clearSelection();
     Unicode::removeRange(getBuffer(),sel.first, sel.second);
@@ -457,7 +454,7 @@ void EditboxModel::clear()
         start.it->line = start.it->line.substr(0, start.index);
         start.it->numchars = start.index;
         //count the number of lines to munch
-        std::list<LineData>::iterator it = start.it;
+        list<LineData>::iterator it = start.it;
         int numtomunch=0;
         
         for(it++; it != end.it; ++it) ++numtomunch;
@@ -498,11 +495,11 @@ void EditboxModel::paste()
     buffer = buffer.substr(0,offset) + clipboard + buffer.substr(offset, buffer.size()-offset);
     //nevermind, THIS is the ultimate annoying
     //break up the lines int he clipboard
-    std::list<LineData> toinsert;
+    list<LineData> toinsert;
     makeLines(toinsert,clipboard);
     //now split up the line being pasted onto
     offset = Unicode::indexToOffset(cp.it->line, cp.index);
-    std::string therest = cp.it->line.substr(offset, cp.it->line.size()-offset);
+    string therest = cp.it->line.substr(offset, cp.it->line.size()-offset);
     LineData therestline;
     therestline.line = therest;
     therestline.numchars = cp.it->numchars-cp.index;
@@ -512,13 +509,13 @@ void EditboxModel::paste()
     cp.it->newlineterminated = false;
     cp.it->numchars = cp.index;
     //insert the damn lines
-    std::list<LineData>::iterator it = cp.it;
+    list<LineData>::iterator it = cp.it;
     it++;
     getLines().insert(it, therestline);
     
-    for(std::list<LineData>::reverse_iterator toiit = toinsert.rbegin(); toiit != toinsert.rend(); toiit++)
+    for(list<LineData>::reverse_iterator toiit = toinsert.rbegin(); toiit != toinsert.rend(); toiit++)
     {
-        std::list<LineData>::iterator iter = cp.it;
+        list<LineData>::iterator iter = cp.it;
         iter++;
         getLines().insert(iter, *toiit);
     }
@@ -542,10 +539,10 @@ void EditboxModel::paste()
     getView()->update();
 }
 
-void EditboxModel::makeLines(std::list<LineData> &target, std::string &source)
+void EditboxModel::makeLines(list<LineData> &target, string &source)
 {
     target.clear();
-    std::string &str = source;
+    string &str = source;
     const char *buf = str.c_str();
     int startoffset = 0;
     int startindex = 0;
@@ -593,7 +590,7 @@ void EditboxModel::makeLines(std::list<LineData> &target, std::string &source)
 
 void EditboxModel::doHelp()
 {
-    std::string helpstr = "";
+    string helpstr = "";
     
     if(!helpfile)
         return;

@@ -11,9 +11,6 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 
 /**********************************/
 /**********  Item Class  **********/
@@ -26,7 +23,6 @@
 #include "zelda.h"
 #include "zdefs.h"
 #include "mem_debug.h"
-#include "sound.h"
 
 #include <queue>
 
@@ -40,32 +36,6 @@ item::~item()
 {
     if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0)
         killfairy(misc);
-}
-
-void item::setPickupFlags(int newPickup)
-{
-    pickup=newPickup;
-    
-    if(pickup&ipBIGRANGE)
-    {
-        hxofs=-8;
-        hxsz=17;
-        hyofs=-4;
-        hysz=20;
-    }
-    else if(pickup&ipBIGTRI)
-    {
-        hxofs=-8;
-        hxsz=28;
-        hyofs=-4;
-        hysz=20;
-    }
-    else
-    {
-        hxsz=1;
-        hyofs=4;
-        hysz=12;
-    }
 }
 
 bool item::animate(int)
@@ -203,22 +173,7 @@ void item::draw(BITMAP *dest)
     }
 }
 
-item::item(int id):
-    sprite(),
-    price(0)
-{
-	init(fix(0), fix(0), fix(0), id, 0, 0, false);
-}
-
-item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy):
-    sprite(),
-    price(0)
-{
-	init(X, Y, Z, i, p, c, isDummy);
-}
-
-
-void item::init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy)
+item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
 {
     x=X;
     y=Y;
@@ -229,10 +184,7 @@ void item::init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy)
     misc=clk2=0;
     aframe=aclk=0;
     anim=flash=twohand=subscreenItem=false;
-    PriceIndex=-1;
-    puType=pt_none;
-    
-    alsoHaveBow=false;
+    dummy_int[0]=PriceIndex=-1;
     
     if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
         return;

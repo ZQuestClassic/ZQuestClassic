@@ -15,8 +15,6 @@
 #ifndef _DECORATIONS_H_
 #define _DECORATIONS_H_
 
-#include "sprite.h"
-
 /***************************************/
 /*******  Decoration Base Class  *******/
 /***************************************/
@@ -106,7 +104,6 @@ public:
     virtual void draw(BITMAP *dest);
     virtual void draw2(BITMAP *dest);
 };
-
 #endif
 /*** end of sprite.cc ***/
 

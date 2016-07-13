@@ -11,9 +11,6 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 
 #include "precompiled.h" //always first
 
@@ -21,7 +18,6 @@
 #include "decorations.h"
 #include "zc_custom.h"
 #include "zelda.h"
-#include "zc_sys.h"
 #include "maps.h"
 #include "zsys.h"
 
@@ -494,10 +490,13 @@ void dHammerSmack::draw(BITMAP *dest)
 
 dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
+    id=Id;
+    clk=Clk;
 }
 
-bool dTallGrass::animate(int)
+bool dTallGrass::animate(int index)
 {
+    index=index;  //this is here to bypass compiler warnings about unused arguments
     return (!isGrassType(COMBOTYPE(LinkX(),LinkY()+15)) || !isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15)) || LinkZ()>8);
 }
 
@@ -530,10 +529,13 @@ void dTallGrass::draw(BITMAP *dest)
 
 dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
+    id=Id;
+    clk=Clk;
 }
 
-bool dRipples::animate(int)
+bool dRipples::animate(int index)
 {
+    index=index;  //this is here to bypass compiler warnings about unused arguments
     clk++;
     return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
             (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
@@ -558,6 +560,8 @@ void dRipples::draw(BITMAP *dest)
 
 dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
+    id=Id;
+    clk=Clk;
     wpnid = itemsbuf[current_item_id(itype_hoverboots)].wpn;
 }
 
@@ -575,8 +579,9 @@ void dHover::draw(BITMAP *dest)
     decoration::draw8(dest);
 }
 
-bool dHover::animate(int)
+bool dHover::animate(int index)
 {
+    index=index;  //this is here to bypass compiler warnings about unused arguments
     clk++;
     return LinkHoverClk()<=0;
 }

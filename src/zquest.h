@@ -1,20 +1,3 @@
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 #ifndef _ZQUEST_H_
 #define _ZQUEST_H_
 
@@ -41,11 +24,8 @@
 #define rtgxo 2
 #define rtgyo 2
 
-// These cause problems in gtk.h
-//#define edc  208 //246
-//#define edi  209 //247
-
-// And these are just unused, I guess
+#define edc  208 //246
+#define edi  209 //247
 //#define ed0  248
 //#define ed1  249
 //#define ed7  250
@@ -481,8 +461,8 @@ int onCSetFix();
 int onTemplate();
 int onComboPage();
 const char *flaglist(int index, int *list_size);
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font);
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font);
+int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font, void (*copyFunc)(int, int)=0);
+int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int, int)=0);
 int select_flag(int &f);
 int d_scombo_proc(int msg,DIALOG *d,int c);
 int d_ffcombolist_proc(int msg,DIALOG *d,int c);
@@ -490,7 +470,6 @@ int d_comboalist_proc(int msg,DIALOG *d,int c);
 int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
-void compileZScript();
 int onImportFFScript();
 int onImportItemScript();
 int onImportGScript();
@@ -735,7 +714,6 @@ const char *screenmidilist(int index, int *list_size);
 const char *custommidilist(int index, int *list_size);
 const char *enhancedmusiclist(int index, int *list_size);
 const char *levelnumlist(int index, int *list_size);
-int onQuestRules();
 int onMapCount();
 int onGotoMap();
 int onFlags();

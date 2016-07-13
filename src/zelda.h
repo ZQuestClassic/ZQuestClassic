@@ -18,6 +18,8 @@
 #include <vector>
 #include "zdefs.h"
 #include "zc_array.h"
+#include "zc_sys.h"
+#include "zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
@@ -27,8 +29,6 @@
 
 int isFullScreen();
 int onFullscreen();
-
-#define ZC_MIDI_COUNT  7 // this shouldn't change
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 
@@ -112,14 +112,20 @@ void Z_scripterrlog(const char * const format, ...);
 // zelda.cc
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true);
+void centerLink();
 fix  LinkX();
 fix  LinkY();
 fix  LinkZ();
+int  LinkHClk();
 int  LinkNayrusLoveShieldClk();
 int  LinkHoverClk();
+int  LinkSwordClk();
+int  LinkItemClk();
 int  LinkAction();
 int  LinkCharged();
 bool LinkGetDontDraw();
+void setSwordClk(int newclk);
+void setItemClk(int newclk);
 int  LinkLStep();
 void LinkCheckItems();
 fix  LinkModifiedX();
@@ -132,6 +138,7 @@ void StunGuy(int j,int stun);
 bool  GuySuperman(int j);
 int  GuyCount();
 int  LinkDir();
+void add_grenade(int wx, int wy, int wz, int size, int parentid);
 fix distance(int x1, int y1, int x2, int y2);
 bool getClock();
 void setClock(bool state);
@@ -139,6 +146,8 @@ void CatchBrang();
 int LinkAction();
 
 void do_dcounters();
+void donewmsg(int str);
+void dismissmsg();
 void dointro();
 void init_dmap();
 int  init_game();
@@ -159,7 +168,15 @@ bool is_zquest();
 bool screenIsScrolling();
 //void quit_game();
 int d_timer_proc(int msg, DIALOG *d, int c);
-void showCurrentDMapIntro(); // Actually in link.cpp, but it shouldn't be
+
+INLINE void sfx(int index)
+{
+    sfx(index,128,false);
+}
+INLINE void sfx(int index,int pan)
+{
+    sfx(index,vbound(pan, 0, 255) ,false);
+}
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
@@ -182,7 +199,7 @@ extern int strike_hint;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
@@ -220,11 +237,23 @@ extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of bla
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 */
 extern bool ewind_restart;
-extern word msg_count;
+extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
+       msg_h,
+       msg_count,
+       msgorig,
+       msg_xpos,
+       msg_ypos,
+       cursor_x,
+       cursor_y;
+extern bool msg_onscreen, msg_active,msgspace;
+extern FONT	*msgfont;
 extern word     door_combo_set_count;
+extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
 extern short    lensclk;
 extern int     lensid;
 extern int    Bpos;
+extern byte screengrid[22];
+extern byte ffcgrid[4];
 extern volatile int logic_counter;
 #ifdef _SCRIPT_COUNTER
 extern volatile int script_counter;
@@ -252,14 +281,14 @@ extern char *SAVE_FILE;
 
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
-extern int lastentrance,lastentrance_dmap, loadside, Bwpn, Awpn;
+extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
 extern int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density, ss_enable;
-extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
-extern int currcset, pitx, pity, refill_what, refill_why;
+extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
+extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;
-extern int magiccastclk, castx, casty, quakeclk, wavy, magicdrainclk, conveyclk, memrequested;
+extern int magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern dword fps_secs;
 extern float avgfps;
 
@@ -270,15 +299,18 @@ extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool fixed_door, darkroom,naturaldark,BSZ;
-extern bool hookshot_used, hookshot_frozen, pull_link;
-extern bool hs_fix, cheat_superman, gofast, checklink;
+extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
+extern bool hookshot_used, hookshot_frozen, pull_link, add_chainlink;
+extern bool del_chainlink, hs_fix, cheat_superman, gofast, checklink;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
+extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
 
 extern byte COOLSCROLL;
 
 extern int SnapshotFormat, NameEntryMode;
+
+extern int add_asparkle, add_bsparkle;
 
 extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts;
 
@@ -350,6 +382,7 @@ extern byte                *quest_file;
 /**********************************/
 
 extern const char startguy[8];
+extern const char gambledat[12*6];
 extern const byte stx[4][9];
 extern const byte sty[4][9];
 extern const byte ten_rupies_x[10];

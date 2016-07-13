@@ -2,15 +2,15 @@
 #ifndef _zc_script_drawing_h
 #define _zc_script_drawing_h
 
-#include "zc_malloc.h"
 #include <vector>
+#include <string>
 
 
 #define MAX_SCRIPT_DRAWING_COMMANDS 1000
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
 
 
-//TODO: It's possible to remove this...if anyone even cares.
+// For Quad and Triangle. *allegro Bug-Fix* -Gleeok
 class SmallBitmapTextureCache
 {
 public:
@@ -139,11 +139,91 @@ protected:
 };
 
 
-struct CScriptDrawingCommandArrayBufferHeader //Say that 10 times fast!
+class DrawingContainer
 {
-	int type;
-	int count;
+public:
+    DrawingContainer() :
+        drawstring(), current_string_count(0),
+        drawdata(), current_drawdata_count(0)
+    {}
+    
+    ~DrawingContainer()
+    {
+        this->Dispose();
+    }
+    
+    void Dispose()
+    {
+        for(size_t i(0); i < drawstring.size(); ++i)
+            delete drawstring[i];
+            
+        drawstring.clear();
+        
+        
+        for(size_t i(0); i < drawdata.size(); ++i)
+            delete drawdata[i];
+            
+        drawdata.clear();
+    }
+    
+    void Clear()
+    {
+        current_string_count = 0;
+        current_drawdata_count = 0;
+    }
+    
+    std::string* GetString()
+    {
+        std::string* str;
+        
+        if(drawstring.size() > current_string_count)
+        {
+            str = drawstring[current_string_count];
+            str->clear();
+        }
+        else
+        {
+            str = new std::string();
+            drawstring.push_back(str);
+        }
+        
+        current_string_count++;
+        
+        return str;
+    }
+    
+    std::vector<long>* GetVector()
+    {
+        std::vector<long>* v;
+        
+        if(drawdata.size() > current_drawdata_count)
+        {
+            v = drawdata[current_drawdata_count];
+            v->clear();
+        }
+        else
+        {
+            v = new std::vector<long>();
+            drawdata.push_back(v);
+        }
+        
+        current_drawdata_count++;
+        
+        return v;
+    }
+    
+protected:
+    //for drawstring
+    std::vector<std::string*> drawstring;
+    size_t current_string_count;
+    
+    //for other dynamic drawing (quad3d etc..)
+    std::vector<std::vector<long>*> drawdata;
+    size_t current_drawdata_count;
+    
 };
+
+
 
 
 class CScriptDrawingCommandVars
@@ -158,15 +238,20 @@ public:
     {
         memset((void*)this, 0, sizeof(CScriptDrawingCommandVars));
     }
-
-	void SetPtr(void* bufPtr)
-	{
-		data[19] = (int)bufPtr;
-	}
     
-    long* GetPtr()
+    void SetString(std::string* str)
     {
-        return (long*)data[19];
+        ptr = (void*)str;
+    }
+    
+    void SetVector(std::vector<long>* v)
+    {
+        ptr = (void*)v;
+    }
+    
+    void* GetPtr()
+    {
+        return ptr;
     }
     
     int &operator [](const int i)
@@ -180,6 +265,7 @@ public:
     
 protected:
     int data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
+    void* ptr; //will be changed later
 };
 
 
@@ -224,12 +310,20 @@ public:
         memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
         count = 0;
         
-       // draw_container.Clear();
+        draw_container.Clear();
     }
     
     int Count() const
     {
         return count;
+    }
+    std::string* GetString()
+    {
+        return draw_container.GetString();
+    }
+    std::vector<long>* GetVector()
+    {
+        return draw_container.GetVector();
     }
     
     int GetNext()
@@ -266,6 +360,7 @@ public:
         return commands[i];
     }
     
+    
     inline BITMAP* AquireSubBitmap(int w, int h)
     {
         return bitmap_pool.AquireSubBitmap(w,h);
@@ -281,28 +376,12 @@ public:
         return small_tex_cache.GetTexture(bw, bh);
     }
     
-	// Shouldn't be needed, but a simple stack allocator would get rid of 
-	// memory allocations here. It would be more worthwhile to give a frame allocator
-	// to everything in zc anyway, rather than just script drawing.
-
-	long* AllocateDrawBuffer(unsigned nBytes)
-	{
-		return (long*)zc_malloc(nBytes);
-	}
-
-	void DeallocateDrawBuffer(void* p)
-	{
-		if(p)
-		{
-			zc_free(p);
-		}
-	}
-
+    
 protected:
     vec_type commands;
     int count;
     
-   // DrawingContainer draw_container;
+    DrawingContainer draw_container;
     ScriptDrawingBitmapPool bitmap_pool;
     SmallBitmapTextureCache small_tex_cache;
     

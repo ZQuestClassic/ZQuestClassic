@@ -7,22 +7,17 @@
 //  Code for the "Matrix" screen saver.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 
 #include "precompiled.h" //always first
 
 #include "matrix.h"
-#include "zc_alleg.h"
-#include "zc_sys.h"
 
 // external FONTs
 extern FONT *deffont, *mfont;
 
 
 #define MAX_COLS      256
-#define MAX_MATRIX_TRACERS   MAX_COLS * 2
+#define MAX_TRACERS   MAX_COLS * 2
 
 #define BLACK         253
 #define LIGHT_GREEN   250
@@ -36,22 +31,22 @@ extern FONT *deffont, *mfont;
 
 typedef unsigned char byte;
 
-typedef struct MATRIX_TRACER
+typedef struct TRACER
 {
     byte x, y;
     byte speed;
     byte cnt;
-} MATRIX_TRACER;
+} TRACER;
 
-typedef struct MATRIX_COLUMN
+typedef struct COLUMN
 {
     short speed, cnt;
-} MATRIX_COLUMN;
+} COLUMN;
 
 static BITMAP *linebmp = NULL;
-static MATRIX_TRACER tracer[MAX_MATRIX_TRACERS];
-static MATRIX_TRACER eraser[MAX_MATRIX_TRACERS];
-static MATRIX_COLUMN column[MAX_COLS];
+static TRACER tracer[MAX_TRACERS];
+static TRACER eraser[MAX_TRACERS];
+static COLUMN column[MAX_COLS];
 static byte   activecol[MAX_COLS];
 static int cols, rows, maxtracers, _speed, _density;
 

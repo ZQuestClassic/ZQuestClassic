@@ -7,8 +7,6 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -34,7 +32,6 @@
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_combo_proc(int msg,DIALOG *d,int c);
-extern int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font);
 extern void refresh(int flags);
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();

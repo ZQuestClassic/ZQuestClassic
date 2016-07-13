@@ -102,6 +102,7 @@ int jwin_win_proc(int msg, DIALOG *d, int c);
 int jwin_frame_proc(int msg, DIALOG *d, int c);
 int jwin_guitest_proc(int msg, DIALOG *d, int c);
 int jwin_button_proc(int msg, DIALOG *d, int c);
+int jwin_func_button_proc(int msg, DIALOG *d, int c);
 int jwin_text_proc(int msg, DIALOG *d, int c);
 int jwin_ctext_proc(int msg, DIALOG *d, int c);
 int jwin_rtext_proc(int msg, DIALOG *d, int c);

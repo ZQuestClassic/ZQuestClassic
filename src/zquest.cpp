@@ -8,23 +8,6 @@
 //
 //--------------------------------------------------------
 
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 /*
   #define  INTERNAL_VERSION  0xA721
   */
@@ -38,9 +21,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <time.h>
-#include <map>
 #include <vector>
-#include <util.h>
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -53,7 +34,6 @@ void setZScriptVersion(int) { } //bleh...
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "ffc.h"
 #include "gui.h"
 #include "load_gif.h"
 #include "save_gif.h"
@@ -132,30 +112,15 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "zq_init.h"
 #include "zq_doors.h"
+#include "zq_rules.h"
 #include "zq_cset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
 #define unlink _unlink
-#define snprintf _snprintf
+
 #endif
-
-#include "messageList.h"
-#include "dialog/zquest/cheatEditor.h"
-#include "dialog/zquest/infoShopEditor.h"
-#include "dialog/zquest/paletteViewer.h"
-#include "dialog/zquest/questRules.h"
-#include "dialog/zquest/shopEditor.h"
-#include "dialog/zquest/simpleListSelector.h"
-#include "dialog/zquest/zscriptMain.h"
-//#include "gui/gtk/manager.h"
-#include "gui/allegro/manager.h"
-#include "bind.h"
-
-GUI::GUIManager* gui;
-MessageList msgList; // Trivial for now
-
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
@@ -175,18 +140,18 @@ int passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
 int scale_arg;
-int zq_scale;
+int zq_scale_small, zq_scale_large, zq_scale;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 
 // Used to find FFC script names
-extern std::map<int, std::pair<std::string,std::string> > ffcmap;
-std::vector<std::string> asffcscripts;
-extern std::map<int, std::pair<std::string,std::string> > globalmap;
-std::vector<std::string> asglobalscripts;
-extern std::map<int, std::pair<std::string, std::string> > itemmap;
-std::vector<std::string> asitemscripts;
+extern std::map<int, pair<string,string> > ffcmap;
+vector<string> asffcscripts;
+extern std::map<int, pair<string,string> > globalmap;
+vector<string> asglobalscripts;
+extern std::map<int, pair<string, string> > itemmap;
+vector<string> asitemscripts;
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -399,7 +364,7 @@ int fill_type=1;
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
 char *helpbuf;
-std::string helpstr;
+string helpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int midi_volume = 255;
@@ -645,10 +610,22 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU rules_menu[] =
+{
+    { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
+    { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
+    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
+    { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
+    { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
+    { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
+    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU quest_menu[] =
 {
     { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
-    { (char *)"&Rules",                     onQuestRules,              NULL,                     0,            NULL   },
+    { (char *)"&Rules\t ",                  NULL,                      rules_menu,               0,            NULL   },
     { (char *)"Ma&p Count",                 onMapCount,                NULL,                     0,            NULL   },
     { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
     { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
@@ -854,7 +831,7 @@ int onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
-    gui->alert("Notice", "Translucency table rebuilt");
+    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,lfont);
     
     refresh(rALL);
     return D_O_K;
@@ -1193,10 +1170,7 @@ bool layers_valid(mapscr *tempscr)
 
 void fix_layers(mapscr *tempscr, bool showwarning)
 {
-    char buf[256]=
-      "One or more layers on this screen used "
-      "maps that do not exist. The settings of these"
-      "layers have been changed: ";
+    char buf[80]="layers have been changed: ";
     
     for(int i=0; i<6; i++)
     {
@@ -1209,7 +1183,12 @@ void fix_layers(mapscr *tempscr, bool showwarning)
     }
     
     if(showwarning)
-        gui->alert("Invalid layers detected", buf);
+    {
+        jwin_alert("Invalid layers detected",
+                   "One or more layers on this screen used",
+                   "maps that do not exist. The settings of these",
+                   buf, "O&K", NULL, 'o', 0, lfont);
+    }
 }
 
 /***********************/
@@ -1540,10 +1519,7 @@ int onDrawingModeAlias()
 
 int onReTemplate()
 {
-    int ret=gui->alert("Confirm overwrite",
-      "Apply NES dungeon template to all screens on this map?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
     {
         Map.TemplateAll();
         refresh(rALL);
@@ -1559,11 +1535,25 @@ int onUndo()
     return D_O_K;
 }
 
+extern short ffposx[32];
+extern short ffposy[32];
+extern long ffprvx[32];
+extern long ffprvy[32];
+
 int onCopy()
 {
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
+        
+        for(int i=0; i<32; i++)
+        {
+            ffposx[i]=-1000;
+            ffposy[i]=-1000;
+            ffprvx[i]=-10000000;
+            ffprvy[i]=-10000000;
+        }
+        
         return D_O_K;
     }
     
@@ -1696,10 +1686,7 @@ int onDelete()
     
     if(Map.CurrScr()->valid&mVALID)
     {
-        int ret=gui->alert("Confirm Delete",
-          "Delete this screen?",
-          "&Yes", "&No", 2);
-        if(ret==1)
+        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
         {
             Map.Ugo();
             Map.clearscr(Map.getCurrScr());
@@ -1715,10 +1702,7 @@ int onDelete()
 
 int onDeleteMap()
 {
-    int ret=gui->alert("Confirm delete",
-      "Clear this entire map?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         Map.clearmap(false);
         refresh(rALL);
@@ -1783,15 +1767,14 @@ int onDecMap()
 
 int onDefault_Pals()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset all palette data?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         
         if(!init_colordata(true, &header, &misc))
-            gui->alert("Error", "Palette reset failed.");
+        {
+            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+        }
         
         refresh_pal();
     }
@@ -1801,15 +1784,14 @@ int onDefault_Pals()
 
 int onDefault_Combos()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset combo data?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         
         if(!init_combos(true, &header))
-            gui->alert("Error", "Combo reset failed.");
+        {
+            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+        }
         
         refresh(rALL);
     }
@@ -1819,10 +1801,7 @@ int onDefault_Combos()
 
 int onDefault_Items()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset all items?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         reset_items(true, &header);
@@ -1833,10 +1812,7 @@ int onDefault_Items()
 
 int onDefault_Weapons()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset weapon/misc. sprite data?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         reset_wpns(true, &header);
@@ -1847,10 +1823,7 @@ int onDefault_Weapons()
 
 int onDefault_Guys()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset all enemy/NPC data?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         reset_guys();
@@ -1862,15 +1835,14 @@ int onDefault_Guys()
 
 int onDefault_Tiles()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset all tiles?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         
         if(!init_tiles(true, &header))
-            gui->alert("Error", "Tile reset failed.");
+        {
+            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+        }
         
         refresh(rALL);
     }
@@ -1882,10 +1854,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int onDefault_SFX()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset all sound effects?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         SAMPLE *temp_sample;
@@ -1909,10 +1878,7 @@ int onDefault_SFX()
 
 int onDefault_MapStyles()
 {
-    int ret=gui->alert("Confirm reset",
-      "Reset all map styles?",
-      "&Yes", "&No", 2);
-    if(ret==1)
+    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
         reset_mapstyles(true, &misc);
@@ -4709,9 +4675,9 @@ void refresh(int flags)
         int ypos = ShowFPS ? 28 : 18;
         
         for(int i=0; i< MAXFFCS; i++)
-            if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
+            if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
             {
-                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].second.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].second.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
                 ypos+=16;
             }
     }
@@ -4950,7 +4916,7 @@ void refresh(int flags)
 //Fixme:
             int ctype =
                 combobuf[vbound(
-                             (c>=305 ? Map.CurrScr()->ffcs[c-305].data :
+                             (c>=305 ? Map.CurrScr()->ffdata[c-305] :
                               c>=304 ? Map.CurrScr()->undercombo :
                               c>=176 ? Map.CurrScr()->secretcombo[c-176] :
                               Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
@@ -6073,6 +6039,14 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
         
         do_animations();
         refresh(rALL | rNOCURSOR);
+        //if(zqwin_scale > 1)
+        {
+            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+        }
+        // else
+        {
+            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+        }
     }
     
 finished:
@@ -6227,6 +6201,14 @@ void doflags()
         
         do_animations();
         refresh(rALL | rNOCURSOR);
+        //if(zqwin_scale > 1)
+        {
+            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+        }
+        // else
+        {
+            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+        }
     }
     
 finished:
@@ -6243,15 +6225,15 @@ finished:
 // Drag FFCs around
 void moveffc(int i, int cx, int cy)
 {
-    int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
-    int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
+    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
+    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
     showxypos_ffc = i;
-    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((Map.CurrScr()->ffcs[i].getTileWidth())*16),((Map.CurrScr()->ffcs[i].getTileHeight())*16));
+    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
     
-    if((ffx != int(Map.CurrScr()->ffcs[i].x/10000.0)) || (ffy != int(Map.CurrScr()->ffcs[i].y/10000.0)))
+    if((ffx != int(Map.CurrScr()->ffx[i]/10000.0)) || (ffy != int(Map.CurrScr()->ffy[i]/10000.0)))
     {
-        Map.CurrScr()->ffcs[i].x = ffx*10000;
-        Map.CurrScr()->ffcs[i].y = ffy*10000;
+        Map.CurrScr()->ffx[i] = ffx*10000;
+        Map.CurrScr()->ffy[i] = ffy*10000;
         saved = false;
     }
 }
@@ -7091,14 +7073,14 @@ void domouse()
     if(isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
     {
         for(int i=MAXFFCS-1; i>=0; i--)
-            if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+            if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
             {
-                int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
-                int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
+                int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
+                int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
                 int cx2 = (x-startxint)/mapscreensize;
                 int cy2 = (y-startyint)/mapscreensize;
                 
-                if(cx2 >= ffx && cx2 < ffx+((Map.CurrScr()->ffcs[i].getTileWidth())*16) && cy2 >= ffy && cy2 < ffy+((Map.CurrScr()->ffcs[i].getTileHeight())*16))
+                if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
                 {
                     // FFC tooltip
                     if(tooltip_current_ffc != i)
@@ -7109,9 +7091,9 @@ void domouse()
                     tooltip_current_ffc = i;
                     char msg[288];
                     sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-                            i+1, Map.CurrScr()->ffcs[i].data,Map.CurrScr()->ffcs[i].cset,
-                            combo_class_buf[combobuf[Map.CurrScr()->ffcs[i].data].type].name,
-                            Map.CurrScr()->ffcs[i].script<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffcs[i].script-1].second.c_str());
+                            i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
+                            combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
+                            Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].second.c_str());
                     update_tooltip(x, y, startxint, startyint, int(256*mapscreensize),int(176*mapscreensize), msg);
                     break;
                 }
@@ -7263,19 +7245,44 @@ void domouse()
             
             // Move FFCs
             for(int i=MAXFFCS-1; i>=0; i--)
-                if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+                if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
                 {
-                    int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
-                    int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
+                    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
+                    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
                     
-                    if(cx2 >= ffx && cx2 < ffx+((Map.CurrScr()->ffcs[i].getTileWidth())*16) && cy2 >= ffy && cy2 < ffy+((Map.CurrScr()->ffcs[i].getTileHeight())*16))
+                    if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
                     {
                         moveffc(i,cx2,cy2);
                         break;
                     }
                 }
+            
+            if(key[KEY_ALT]||key[KEY_ALTGR])
+            {
+                int drawmap, drawscr;
+                if(CurrentLayer==0)
+                {
+                    drawmap=Map.getCurrMap();
+                    drawscr=Map.getCurrScr();
+                }
+                else
+                {
+                    drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+                    drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+                }
+                if(drawmap<0)
+                    return;
                 
-            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+                Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+                if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+                    CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+                if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+                    First[current_combolist]=vbound(
+                      (Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),
+                      0,
+                      MAXCOMBOS-(combolist[0].w*combolist[0].h));
+            }
+            else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
             {
                 if(canfill)
                 {
@@ -7367,12 +7374,9 @@ void domouse()
             if(isinRect(x,y,panel[8].x+16+(32*2),panel[8].y+14,panel[8].x+16+(32*2)+15,panel[8].y+14+15))
             {
                 if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-                {
-                    gui->alert("Obsolete square",
-                      "The arrival square is ignored if the quest rule "
-                      "\"Use Warp Return Points Only\" is enabled. It is included "
-                      "only for backwards-compatibility purposes.");
-                }
+                    jwin_alert("Obsolete Square","The arrival square is obsolete if you use the recommended",
+                               "quest rule, 'Use Warp Return Points Only' It is included",
+                               "only for backwards-compatibility purposes.","O&K",NULL,'k',0,lfont);
                                
                 doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
             }
@@ -7802,20 +7806,20 @@ void domouse()
             // This loop also serves to find the free ffc with the smallest slot number.
             for(int i=MAXFFCS-1; i>=0; i--)
             {
-                if(Map.CurrScr()->ffcs[i].data==0 && i < earliestfreeffc)
+                if(Map.CurrScr()->ffdata[i]==0 && i < earliestfreeffc)
                     earliestfreeffc = i;
                     
                 if(clickedffc || !(Map.CurrScr()->valid&mVALID))
                     continue;
                     
-                if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+                if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
                 {
-                    int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
-                    int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
+                    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
+                    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
                     int cx2 = (x-startxint)/mapscreensize;
                     int cy2 = (y-startyint)/mapscreensize;
                     
-                    if(cx2 >= ffx && cx2 < ffx+((Map.CurrScr()->ffcs[i].getTileWidth())*16) && cy2 >= ffy && cy2 < ffy+((Map.CurrScr()->ffcs[i].getTileHeight())*16))
+                    if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
                     {
                         draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
                         
@@ -7844,13 +7848,16 @@ void domouse()
                         case 3:
                             if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
                             {
-                                Map.CurrScr()->ffcs[i].clear();
+                                Map.CurrScr()->ffdata[i] = Map.CurrScr()->ffcset[i] = Map.CurrScr()->ffx[i] = Map.CurrScr()->ffy[i] = Map.CurrScr()->ffxdelta[i] =
+                                                               Map.CurrScr()->ffydelta[i] = Map.CurrScr()->ffxdelta2[i] = Map.CurrScr()->ffydelta2[i] = Map.CurrScr()->ffflags[i] = Map.CurrScr()->ffscript[i] =
+                                                                       Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
+                                Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
                                 
                                 for(int j=0; j<8; j++)
-                                    Map.CurrScr()->ffcs[i].initd[j] = 0;
+                                    Map.CurrScr()->initd[i][j] = 0;
                                     
                                 for(int j=0; j<2; j++)
-                                    Map.CurrScr()->ffcs[i].inita[j] = 10000;
+                                    Map.CurrScr()->inita[i][j] = 10000;
                                     
                                 saved = false;
                             }
@@ -8021,18 +8028,18 @@ void domouse()
                 
                 case 13:
                 {
-                    Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-                    Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-                    Map.CurrScr()->ffcs[earliestfreeffc].data = Combo;
-                    Map.CurrScr()->ffcs[earliestfreeffc].cset = CSet;
+                    Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffdata[earliestfreeffc] = Combo;
+                    Map.CurrScr()->ffcset[earliestfreeffc] = CSet;
                     onEditFFCombo(earliestfreeffc);
                 }
                 break;
                 
                 case 14:
                 {
-                    Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-                    Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
                     Map.PasteOneFFC(earliestfreeffc);
                 }
                 break;
@@ -8329,10 +8336,36 @@ void domouse()
     }
 }
 
+static DIALOG showpal_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,     24,   68,   272,  119,   vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "View Palette", NULL, NULL },
+    { jwin_frame_proc,   30,   76+16,   260,  68,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_bitmap_proc,     32,   76+18,   256,  64,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,     130,  144+18,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
 int onShowPal()
 {
-    PaletteViewer pv;
-    gui->showDialog(pv);
+    float palscale = is_large ? 1.5 : 1;
+    
+    BITMAP *palbmp = create_bitmap_ex(8,(int)(256*palscale),(int)(64*palscale));
+    
+    if(!palbmp)
+        return D_O_K;
+        
+    showpal_dlg[0].dp2=lfont;
+    
+    for(int i=0; i<256; i++)
+        rectfill(palbmp,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale),i);
+    showpal_dlg[2].dp=(void *)palbmp;
+    
+    if(is_large)
+        large_dialog(showpal_dlg);
+    zc_popup_dialog(showpal_dlg,2);
+    destroy_bitmap(palbmp);
     return D_O_K;
 }
 
@@ -9489,6 +9522,18 @@ static DIALOG wlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+static DIALOG rlist_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,     70,   163,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     190,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     130,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
 
 
 /*
@@ -9726,11 +9771,217 @@ int select_weapon(const char *prompt,int weapon)
 }
 
 
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font)
+item_struct bir[rMAX];
+int bir_cnt=-1;
+
+void build_bir_list()
+{
+    bir_cnt=0;
+    
+    for(int i=0; i<rMAX; i++)
+    {
+        if(roomtype_string[i][0]!='-')
+        {
+            bir[bir_cnt].s = (char *)roomtype_string[i];
+            bir[bir_cnt].i = i;
+            ++bir_cnt;
+        }
+    }
+    
+    for(int i=0; i<bir_cnt-1; i++)
+    {
+        for(int j=i+1; j<bir_cnt; j++)
+        {
+            if(stricmp(bir[i].s,bir[j].s)>0)
+            {
+                zc_swap(bir[i],bir[j]);
+            }
+        }
+    }
+}
+
+const char *roomlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bir_cnt;
+        return NULL;
+    }
+    
+    return bir[index].s;
+}
+
+int select_room(const char *prompt,int room)
+{
+    if(bir_cnt==-1)
+    {
+        build_bir_list();
+    }
+    
+    int index=0;
+    
+    for(int j=0; j<bir_cnt; j++)
+    {
+        if(bir[j].i == room)
+        {
+            index=j;
+        }
+    }
+    
+    rlist_dlg[0].dp=(void *)prompt;
+    rlist_dlg[0].dp2=lfont;
+    rlist_dlg[2].d1=index;
+    ListData room_list(roomlist, &font);
+    rlist_dlg[2].dp=(void *) &room_list;
+    
+    if(is_large)
+        large_dialog(rlist_dlg);
+        
+    int ret;
+    
+    do
+    {
+        ret=zc_popup_dialog(rlist_dlg,2);
+        
+        if(ret==5)
+        {
+            int id = bir[rlist_dlg[2].d1].i;
+            
+            switch(id)
+            {
+            case rSP_ITEM:
+                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer an item to Link.","Also used for Item Cellar warps, and","'Armos/Chest->Item' and 'Dive For Item' combo flags.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rINFO:
+                jwin_alert(roomtype_string[id],"Pay rupees to make one of three strings appear.","Strings and prices are set in","Misc. Data -> Info Types.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rMONEY:
+                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer rupees to Link.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rGAMBLE:
+                jwin_alert(roomtype_string[id],"The 'Money-Making Game' from The Legend of Zelda.","Risk losing up to 40 rupees for a","chance to win up to 50 rupees.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rREPAIR:
+                jwin_alert(roomtype_string[id],"When the Guy's String vanishes,","Link loses a given amount of rupees.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rRP_HC:
+                jwin_alert(roomtype_string[id],"The Guy offers item 28 and item 30 to Link.","Taking one makes the other vanish forever.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rGRUMBLE:
+                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link uses (and thus loses) a Bait item.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rTRIFORCE:
+                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","unless Link has Triforces from levels 1-8.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rP_SHOP:
+                jwin_alert(roomtype_string[id],"Similar to a Shop, but the items and String","won't appear until Link uses a Letter item.","(Or, if Link already has a Level 2 Letter item.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rSHOP:
+                jwin_alert(roomtype_string[id],"The Guy offers three items for a fee.","You can use the Shop as often as you want.","Items and prices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rBOMBS:
+                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Bombs","and Max. Bombs by 4, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rSWINDLE:
+                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link pays the fee or forfeits a Heart Container.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case r10RUPIES:
+                jwin_alert(roomtype_string[id],"10 instances of item 0 appear in a","diamond formation in the center of the screen.","No Guy or String needs to be set for this.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rWARP:
+                jwin_alert(roomtype_string[id],"All 'Stair [A]' type combos send Link to","a destination in a given Warp Ring, based","on the combo's X position (<112, >136, or between).","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rGANON:
+                jwin_alert(roomtype_string[id],"Link holds up the Triforce, and Ganon appears.",NULL,"(Unless the current DMap's Dungeon Boss was beaten.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rZELDA:
+                jwin_alert(roomtype_string[id],"Four instances of enemy 85 appear","on the screen in front of the Guy.","(That's all it does.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rMUPGRADE:
+                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the 1/2 Magic Usage attribute.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rLEARNSLASH:
+                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the Slash attribute.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rARROWS:
+                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Arrows","and Max. Arrows by 10, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case rTAKEONE:
+                jwin_alert(roomtype_string[id],"The Guy offers three items.","Taking one makes the others vanish forever.","Item choices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            default:
+                jwin_alert("Help","Select a Room Type, then click","Help to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+            }
+        }
+    }
+    while(ret==5);
+    
+    if(ret==0||ret==4)
+    {
+        position_mouse_z(0);
+        return -1;
+    }
+    else
+        index = rlist_dlg[2].d1;
+        
+    position_mouse_z(0);
+    return bir[index].i;
+}
+
+static MENU seldata_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+static int seldata_copy;
+static void (*seldata_paste_func)(int, int);
+
+void seldata_rclick_func(int index, int x, int y)
+{
+    if(seldata_copy<0)
+        seldata_rclick_menu[1].flags|=D_DISABLED;
+    else
+        seldata_rclick_menu[1].flags&=~D_DISABLED;
+    
+    int ret=popup_menu(seldata_rclick_menu, x, y);
+    
+    if(ret==0) // copy
+        seldata_copy=index;
+    else if(ret==1) // paste
+    {
+        seldata_paste_func(seldata_copy, index);
+        saved=false;
+    }
+}
+
+int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font, void (*copyFunc)(int, int))
 {
     if(proc==NULL)
         return -1;
-        
+    
     list_dlg[0].dp=(void *)prompt;
     list_dlg[0].dp2=title_font;
     list_dlg[2].d1=index;
@@ -9739,7 +9990,20 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT 
     
     if(is_large)
         large_dialog(list_dlg);
-        
+    
+    seldata_copy=-1;
+    seldata_paste_func=copyFunc;
+    if(copyFunc)
+    {
+        list_dlg[2].flags|=D_USER<<1;
+        list_dlg[2].dp3=(void*)seldata_rclick_func;
+    }
+    else
+    {
+        list_dlg[2].flags&=~(D_USER<<1);
+        list_dlg[2].dp3=0;
+    }
+    
     int ret=zc_popup_dialog(list_dlg,2);
     
     if(ret==0||ret==4)
@@ -9751,9 +10015,8 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT 
     return list_dlg[2].d1;
 }
 
-int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font)
+int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int, int))
 {
-
     if(proc==NULL)
         return -1;
         
@@ -9767,7 +10030,20 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
     
     if(is_large)
         large_dialog(list_dlg);
-        
+    
+    seldata_copy=-1;
+    seldata_paste_func=copyFunc;
+    if(copyFunc)
+    {
+        list_dlg[2].flags|=D_USER<<1;
+        list_dlg[2].dp3=(void*)seldata_rclick_func;
+    }
+    else
+    {
+        list_dlg[2].flags&=~(D_USER<<1);
+        list_dlg[2].dp3=0;
+    }
+    
     int ret = zc_popup_dialog(list_dlg,2);
     list_dlg[3].dp=(void *) "OK";
     list_dlg[4].dp=(void *) "Cancel";
@@ -10688,13 +10964,6 @@ int onMapCount()
     return D_O_K;
 }
 
-int onQuestRules()
-{
-    QuestRulesEditor qre;
-    gui->showDialog(qre);
-    return D_O_K;
-}
-
 int onGotoMap()
 {
     int ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
@@ -10908,187 +11177,90 @@ int onItem()
     return D_O_K;
 }
 
-namespace
-{
-
-struct RoomOrGuyData // Whatever
-{
-    int value;
-    const char* name;
-    const char* info;
-};
-
-const RoomOrGuyData roomData[]={
-    { rNONE, "(None)", "Select a Room Type, then click Help to find out what it does." },
-    { rMUPGRADE, "1/2 magic upgrade", "When the Guy's message finishes, Link gains the 1/2 Magic Usage attribute." },
-    { r10RUPIES, "10 rupees", "10 instances of item 0 appear in a diamond formation in the center of the screen. No Guy or String needs to be set for this." },
-    { rWARP, "3-stair warp", "All 'Stair [A]' type combos send Link to a destination in a given Warp Ring, based on the combo's X position (<112, >136, or between)." },
-    { rREPAIR, "Door repair", "When the Guy's String vanishes, Link loses a given amount of rupees." },
-    { rGRUMBLE, "Feed the Goriya", "The Guy and his invisible wall won't vanish until Link uses (and thus loses) a Bait item. (Shutters won't open until the Guy vanishes, too.)" },
-    { rGAMBLE, "Gamble", "The 'Money-Making Game' from The Legend of Zelda. Risk losing up to 40 rupees for a chance to win up to 50 rupees." },
-    { rGANON, "Ganon", "Link holds up the Triforce and Ganon appears unless the current DMap's dungeon boss has been beaten." },
-    { rLEARNSLASH, "Learn slash", "When the Guy's message finishes, Link gains the Slash attribute." },
-    { rSWINDLE, "Leave money or life", "The Guy and his invisible wall won't vanish until Link pays the fee or forfeits a Heart Container. (Shutters won't open until the Guy vanishes, too.)" },
-    { rTRIFORCE, "Level 9 entrance", "The Guy and his invisible wall won't vanish unless Link has Triforce pieces from levels 1-8. (Shutters won't open until the Guy vanishes, too.)" },
-    { rARROWS, "More arrows", "The Guy offers to increase Link's Arrows and Max. Arrows by 10 for a fee. You can only buy it once." },
-    { rBOMBS, "More bombs", "The Guy offers to increase Link's Bombs and Max. Bombs by 4 for a fee. You can only buy it once." },
-    { rINFO, "Pay for info", "Pay rupees to make one of three messages appear. Messages and prices are set in Misc. Data -> Info Types." },
-    { rP_SHOP, "Potion shop", "Similar to a shop, but the items and message won't appear until Link uses a Letter item (Or if Link already has a Level 2 Letter item)." },
-    { rRP_HC, "Red potion or heart container", "The Guy offers item 28 and item 30 to Link. Taking one makes the other vanish forever." },
-    { rMONEY, "Secret money", "If a Guy is set, he will offer rupees to Link." },
-    { rSHOP, "Shop", "The Guy offers up to three items for a fee. You can use the shop as often as you want. Items and prices are set in Misc. Data -> Shop Types." },
-    { rSP_ITEM, "Special item", "If a Guy is set, he will offer an item to Link. Also used for Item Cellar warps and 'Armos/Chest->Item' and 'Dive For Item' combo flags." },
-    { rTAKEONE, "Take one item", "The Guy offers up to three items. Taking one makes the others vanish forever. Item choices are set in Misc. Data -> Shop Types." },
-    { rZELDA, "Zelda", "Four instances of enemy 85 appear on the screen in front of the Guy. That's all it does." }
-};
-
-const RoomOrGuyData guyData[]={ // There's already a "guydata"... Ugh.
-    { gNONE, "(None)", "" },
-    { gABEI, "Abei", "The old man. Uses tile 84." },
-    { gABEI2, "Abei 2", "A different old man. Uses tile 87." },
-    { gAMA, "Ama", "The old woman. Uses tile 85." },
-    { gEMPTY, "Empty", "An invisible Guy. Uses tile 259, which is usually empty. Use it when you just want the String to appear without a visible Guy." },
-    { gFAIRY, "Fairy", "A fairy. Uses tiles 63 and 64. Even if the DMap uses 'Special Rooms/Guys In Caves Only' she will still appear in regular screens." },
-    { gFIRE, "Fire", "A sentient flame. Uses tile 65 and flips horizontally as it animates." },
-    { gGORIYA, "Goriya", "The hungry Goriya. Uses tile 132. He isn't actually necessary to make use of the 'Feed the Goriya' Room Type." },
-    { gDUDE, "Merchant", "The shopkeeper. Uses tile 86." },
-    { gMOBLIN, "Moblin", "The generous Moblin. Uses tile 116." },
-    { gZELDA, "Zelda", "The princess. Uses tiles 35 and 36. Approaching her won't cause the game to end (Unless you touch a Zelda combo flag)." }
-};
-
-} // Namespace
-
-std::string getRoomName(int id)
-{
-    return roomData[id].name;
-}
-
-void showRoomInfo(int id)
-{
-    gui->alert(roomData[id].name, roomData[id].info);
-}
-
 int onRType()
 {
-    int init=0;
-    for(int i=0; i<21; i++)
+    if(prv_mode)
     {
-        if(roomData[i].value==Map.CurrScr()->room)
-        {
-            init=i;
-            break;
-        }
+        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
+        Map.set_prvcmb(0);
+        return D_O_K;
     }
     
-    SimpleListSelector sls("Select room type", getRoomName, 21, showRoomInfo, false, init);
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
+    restore_mouse();
+    build_bir_list();
+    int ret=select_room("Select Room Type",Map.CurrScr()->room);
+    
     if(ret>=0)
     {
-        Map.CurrScr()->room=roomData[ret].value;
         saved=false;
-        if(ret==rSP_ITEM)
-            Map.CurrScr()->catchall=clamp(Map.CurrScr()->catchall, 0, ITEMCNT-1);
-        // That's the only one it checks for? The others must be handled elsewhere...
+        Map.CurrScr()->room=ret;
     }
+    
+    int c=Map.CurrScr()->catchall;
+    
+    switch(Map.CurrScr()->room)
+    {
+    case rSP_ITEM:
+        Map.CurrScr()->catchall=bound(c,0,ITEMCNT-1);
+        break;
+        // etc...
+    }
+    
+    refresh(rMENU);
+    
     return D_O_K;
-}
-
-std::string getGuyName(int id)
-{
-    return guyData[id].name;
-}
-
-void showGuyInfo(int id)
-{
-    gui->alert(guyData[id].name, guyData[id].info);
 }
 
 int onGuy()
 {
-    int init=0;
-    for(int i=0; i<11; i++)
-    {
-        if(guyData[i].value==Map.CurrScr()->guy)
-        {
-            init=i;
-            break;
-        }
-    }
+    restore_mouse();
+    build_big_list(true);
+    int ret=select_guy("Select Guy",Map.CurrScr()->guy);
     
-    SimpleListSelector sls("Select guy", getGuyName, 11, showGuyInfo, false, init);
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
     if(ret>=0)
     {
-        Map.CurrScr()->guy=guyData[ret].value;
         saved=false;
+        Map.CurrScr()->guy=ret;
     }
+    
+    refresh(rMAP+rMENU);
     return D_O_K;
-}
-
-std::string getMessage(int id)
-{
-    // ...
-    return msgList.getListMessageText(id);
 }
 
 int onString()
 {
-    SimpleListSelector sls("Select screen message",
-      zc_bind(&MessageList::getListMessageText, &msgList, 1),
-      msgList.getNumMessages(), false, 0);
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
+    if(prv_mode)
+    {
+        Map.prv_secrets(false);
+        refresh(rALL);
+        return D_O_K;
+    }
+    
+    restore_mouse();
+    int ret=select_data("Select Message String",MsgStrings[Map.CurrScr()->str].listpos,msgslist,lfont);
+    
     if(ret>=0)
     {
-        Map.CurrScr()->str=msgList.getMessageNum(ret);
         saved=false;
+        Map.CurrScr()->str=msglistcache[ret];
     }
+    
+    refresh(rMENU);
     return D_O_K;
 }
 
 int onEndString()
 {
-    SimpleListSelector sls("Select ending message",
-      zc_bind(&MessageList::getListMessageText, &msgList, 1), 
-      msgList.getNumMessages(), false, 0);
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
+    int ret=select_data("Select Ending String",misc.endstring,msgslist,lfont);
+    
     if(ret>=0)
     {
-        misc.endstring=msgList.getMessageNum(ret);
         saved=false;
-    }
-    return D_O_K;
-}
-
-static std::string getShopListItem(int index); // Move this...
-void onCatchallShop(int roomType)
-{
-    const char* title;
-    int init=clamp(Map.CurrScr()->catchall, 0, 255);
-    std::string (*strFunc)(int);
-    switch(roomType)
-    {
-        case rINFO:
-            title="Select info type";
-            strFunc=getShopListItem;
-            break;
-            
-        case rP_SHOP:
-        case rSHOP:
-        case rTAKEONE:
-            title="Select shop type";
-            strFunc=getShopListItem;
-            break;
+        misc.endstring=msglistcache[ret];
     }
     
-    SimpleListSelector sls(title, strFunc, 256, false, init);
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
-    if(ret>=0)
-        Map.CurrScr()->catchall=ret;
+    refresh(rMENU);
+    return D_O_K;
 }
 
 int onCatchall()
@@ -11107,12 +11279,6 @@ int onCatchall()
     restore_mouse();
     int ret=-1;
     int rtype=Map.CurrScr()->room;
-    
-    if(rtype==rINFO || rtype==rSHOP || rtype==rP_SHOP || rtype==rTAKEONE)
-    {
-        onCatchallShop(rtype);
-        return D_O_K;
-    }
     
     switch(rtype)
     {
@@ -11133,6 +11299,22 @@ int onCatchall()
         }
         while(exit_status == 5);
         
+        break;
+        
+    case rINFO:
+        info_list_size = 256;
+        ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
+        break;
+        
+    case rTAKEONE:
+        shop_list_size = 256;
+        ret = select_data("Select \"Take One Item\" Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
+        break;
+        
+    case rP_SHOP:
+    case rSHOP:
+        shop_list_size = 256;
+        ret = select_data("Select Shop Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
         break;
         
     default:
@@ -12876,13 +13058,15 @@ static ListData dmap_list(dmaplist, &font);
 static DIALOG selectdmap_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc, 72-44,   56-30,   176+88+1,  120+74+1,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select DMap", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_dmaplist_proc,   46,   50,   64+72+88+1,   60+24+1+2,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &dmap_list, NULL, selectdmapxy },
-    { jwin_button_proc,     90,   152+44,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  152+44,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+    { jwin_win_proc,   72-44,   56-30,   176+88+1,  120+74+1,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select DMap", NULL, NULL },
+    { d_timer_proc,        0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { d_dmaplist_proc,    46,   50,   64+72+88+1,   60+24+1+2,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &dmap_list, NULL, selectdmapxy },
+    { jwin_button_proc,   90,   152+44,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,  170,  152+44,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { d_keyboard_proc,     0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,     0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_C, (void*)close_dlg, NULL, NULL },
+    { d_keyboard_proc,     0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_V, (void*)close_dlg, NULL, NULL },
+    { NULL,                0,    0,    0,    0,    0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int onDmaps()
@@ -12897,23 +13081,21 @@ int onDmaps()
         large_dialog(selectdmap_dlg);
         
     ret=zc_popup_dialog(selectdmap_dlg,2);
+    dmap* pSelectedDmap = 0;
     
-	dmap* pSelectedDmap = 0;
-
     while(ret!=4&&ret!=0)
     {
         int d=selectdmap_dlg[2].d1;
         
-		if( key[KEY_C] ) //copy
+        if(ret==6) //copy
 		{
 			pSelectedDmap = &DMaps[d];
 		}
-		else if( key[KEY_V] && pSelectedDmap != 0 ) //paste
+		else if(ret==7 && pSelectedDmap != 0 ) //paste
 		{
-			dmap* srcDmap = &DMaps[d];
-			if( pSelectedDmap != srcDmap )
+			if( pSelectedDmap != &DMaps[d] )
 			{
-				::memcpy(pSelectedDmap, &DMaps[d], sizeof(dmap));
+				::memcpy(&DMaps[d], pSelectedDmap, sizeof(dmap));
 				saved=false;
 			}
 		}
@@ -14963,27 +15145,137 @@ int onPath()
 /********* onInfoTypes **********/
 /********************************/
 
-static std::string getInfoShopListItem(int index)
+static DIALOG editinfo_dlg[] =
 {
-    char buf[37];
-    sprintf(buf, "%d: %s", index, misc.info[index].name);
-    return buf;
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,       0,   10,  208,  204,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,     24,   60,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "1st", NULL, NULL },
+    { jwin_text_proc,     24,  106,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "2nd", NULL, NULL },
+    { jwin_text_proc,     24,  152,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "3rd", NULL, NULL },
+    { jwin_text_proc,     56,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
+    { jwin_text_proc,     56,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
+    { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
+    // 8
+    { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_ndroplist_proc,   56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_ndroplist_proc,   56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_ndroplist_proc,   56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
+    // 16
+    { jwin_button_proc,   34,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,  114,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL,                           NULL,  NULL }
+};
+
+void EditInfoType(int index)
+{
+    char ps1[6],ps2[6],ps3[6];
+    char infoname[32];
+    char caption[40];
+    
+    int str1, str2, str3;
+    
+    sprintf(caption,"Info Data %d",index);
+    editinfo_dlg[0].dp = caption;
+    editinfo_dlg[0].dp2 = lfont;
+    
+    sprintf(ps1,"%d",misc.info[index].price[0]);
+    sprintf(ps2,"%d",misc.info[index].price[1]);
+    sprintf(ps3,"%d",misc.info[index].price[2]);
+    snprintf(infoname,32,"%s",misc.info[index].name);
+    editinfo_dlg[8].dp  = ps1;
+    editinfo_dlg[10].dp = ps2;
+    editinfo_dlg[12].dp = ps3;
+    editinfo_dlg[15].dp = infoname;
+    str1 = misc.info[index].str[0];
+    str2 = misc.info[index].str[1];
+    str3 = misc.info[index].str[2];
+    editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
+    editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
+    editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
+//  ListData msgs_list(msgslist, is_large ? &sfont3 : &font);
+    ListData msgs_list(msgslist2, is_large ? &lfont_l : &font);
+    editinfo_dlg[9].dp  =
+        editinfo_dlg[11].dp =
+            editinfo_dlg[13].dp = (void *) &msgs_list;
+            
+    if(is_large)
+        large_dialog(editinfo_dlg);
+        
+    int ret = zc_popup_dialog(editinfo_dlg,-1);
+    
+    if(ret==16)
+    {
+        saved=false;
+        misc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
+        misc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
+        misc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
+        snprintf(misc.info[index].name,32,"%s",infoname);
+        str1 = editinfo_dlg[9].d1;
+        str2 = editinfo_dlg[11].d1;
+        str3 = editinfo_dlg[13].d1;
+        misc.info[index].str[0] = msg_at_pos(str1);
+        misc.info[index].str[1] = msg_at_pos(str2);
+        misc.info[index].str[2] = msg_at_pos(str3);
+        
+        //move 0s to the end
+        word swaptmp;
+        
+        if(misc.info[index].str[0] == 0)
+        {
+            //possibly permute the infos
+            if(misc.info[index].str[1] != 0)
+            {
+                //swap
+                swaptmp = misc.info[index].str[0];
+                misc.info[index].str[0] = misc.info[index].str[1];
+                misc.info[index].str[1] = swaptmp;
+                swaptmp = misc.info[index].price[0];
+                misc.info[index].price[0] = misc.info[index].price[1];
+                misc.info[index].price[1] = swaptmp;
+            }
+            else if(misc.info[index].str[2] != 0)
+            {
+                //move info 0 to 1, 1 to 2, and 2 to 0
+                swaptmp = misc.info[index].str[0];
+                misc.info[index].str[0] = misc.info[index].str[2];
+                misc.info[index].str[2] = misc.info[index].str[1];
+                misc.info[index].str[1] = swaptmp;
+                swaptmp = misc.info[index].price[0];
+                misc.info[index].price[0] = misc.info[index].price[2];
+                misc.info[index].price[2] = misc.info[index].price[1];
+                misc.info[index].price[1] = swaptmp;
+            }
+        }
+        
+        if(misc.info[index].str[1] == 0 && misc.info[index].str[2] != 0)
+            //swap
+        {
+            swaptmp = misc.info[index].str[1];
+            misc.info[index].str[1] = misc.info[index].str[2];
+            misc.info[index].str[2] = swaptmp;
+            swaptmp = misc.info[index].price[1];
+            misc.info[index].price[1] = misc.info[index].price[2];
+            misc.info[index].price[2] = swaptmp;
+        }
+    }
 }
 
 int onInfoTypes()
 {
-    SimpleListSelector sls("Info shop types", getInfoShopListItem, 256, true, 0);
+    info_list_size = 256;
     
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
-    while(ret>=0)
+    int index = select_data("Info Types",0,infolist,"Edit","Done",lfont);
+    
+    while(index!=-1)
     {
-        InfoShopEditor ise(misc.info[ret], msgList);
-        gui->showDialog(ise);
+        EditInfoType(index);
         
-        sls.setInitialSelection(ret);
-        gui->showDialog(sls);
-        ret=sls.getSelected();
+        index = select_data("Info Types",index,infolist,"Edit","Done",lfont);
     }
     
     return D_O_K;
@@ -14993,27 +15285,141 @@ int onInfoTypes()
 /********* onShopTypes **********/
 /********************************/
 
-static std::string getShopListItem(int index)
+static DIALOG editshop_dlg[] =
 {
-    char buf[37];
-    sprintf(buf, "%d: %s", index, misc.shop[index].name);
-    return buf;
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,       0,   10,  221,  204,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,     24,   60,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "1st", NULL, NULL },
+    { jwin_text_proc,     24,  106,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "2nd", NULL, NULL },
+    { jwin_text_proc,     24,  152,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "3rd", NULL, NULL },
+    { jwin_text_proc,     56,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
+    { jwin_text_proc,     56,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
+    { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
+    // 8
+    { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_nidroplist_proc,  56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_nidroplist_proc,  56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_nidroplist_proc,  56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
+    
+    // 16
+    { jwin_button_proc,   40,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,  121,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void EditShopType(int index)
+{
+
+    build_bii_list(true);
+    char ps1[6],ps2[6],ps3[6];
+    char shopname[32];
+    char caption[40];
+    
+    sprintf(caption,"Shop Data %d",index);
+    editshop_dlg[0].dp = caption;
+    editshop_dlg[0].dp2=lfont;
+    
+    sprintf(ps1,"%d",misc.shop[index].price[0]);
+    sprintf(ps2,"%d",misc.shop[index].price[1]);
+    sprintf(ps3,"%d",misc.shop[index].price[2]);
+    sprintf(shopname,"%s",misc.shop[index].name);
+    editshop_dlg[8].dp  = ps1;
+    editshop_dlg[10].dp = ps2;
+    editshop_dlg[12].dp = ps3;
+    editshop_dlg[15].dp = shopname;
+    
+//  ListData item_list(itemlist, is_large ? &sfont3 : &font);
+    ListData item_list(itemlist, is_large ? &lfont_l : &font);
+    
+    editshop_dlg[9].dp  = (void *) &item_list;
+    editshop_dlg[11].dp  = (void *) &item_list;
+    editshop_dlg[13].dp  = (void *) &item_list;
+    
+    for(int i=0; i<3; ++i)
+    {
+        if(misc.shop[index].hasitem[i])
+        {
+            for(int j=0; j<bii_cnt; j++)
+            {
+                if(bii[j].i == misc.shop[index].item[i])
+                {
+                    editshop_dlg[9+(i<<1)].d1  = j;
+                }
+            }
+        }
+        else
+        {
+            editshop_dlg[9+(i<<1)].d1 = -2;
+        }
+    }
+    
+    if(is_large)
+        large_dialog(editshop_dlg);
+        
+    int ret = zc_popup_dialog(editshop_dlg,-1);
+    
+    if(ret==16)
+    {
+        saved=false;
+        misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
+        misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
+        misc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
+        snprintf(misc.shop[index].name, 32, "%s",shopname);
+        
+        for(int i=0; i<3; ++i)
+        {
+            if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
+            {
+                misc.shop[index].hasitem[i] = 0;
+                misc.shop[index].item[i] = 0;
+                misc.shop[index].price[i] = 0;
+            }
+            else
+            {
+                misc.shop[index].hasitem[i] = 1;
+                misc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
+            }
+        }
+        
+        //filter all the 0 items to the end (yeah, bubble sort; sue me)
+        word swaptmp;
+        
+        for(int j=0; j<3-1; j++)
+        {
+            for(int k=0; k<2-j; k++)
+            {
+                if(misc.shop[index].hasitem[k]==0)
+                {
+                    swaptmp = misc.shop[index].item[k];
+                    misc.shop[index].item[k] = misc.shop[index].item[k+1];
+                    misc.shop[index].item[k+1] = swaptmp;
+                    swaptmp = misc.shop[index].price[k];
+                    misc.shop[index].price[k] = misc.shop[index].price[k+1];
+                    misc.shop[index].price[k+1] = swaptmp;
+                    swaptmp = misc.shop[index].hasitem[k];
+                    misc.shop[index].hasitem[k] = misc.shop[index].item[k+1];
+                    misc.shop[index].hasitem[k+1] = swaptmp;
+                }
+            }
+        }
+    }
 }
 
 int onShopTypes()
 {
-    build_bii_list(true); // ...
-    SimpleListSelector sls("Shop types", getShopListItem, 256, true, 0);
-    gui->showDialog(sls);
-    int ret=sls.getSelected();
-    while(ret>=0)
+    shop_list_size = 256;
+    
+    int index = select_data("Shop Types",0,shoplist,"Edit","Done",lfont);
+    
+    while(index!=-1)
     {
-        ShopEditor se(misc.shop[ret], bii);
-        gui->showDialog(se);
-        
-        sls.setInitialSelection(ret);
-        gui->showDialog(sls);
-        ret=sls.getSelected();
+        EditShopType(index);
+        index = select_data("Shop Types",index,shoplist,"Edit","Done",lfont);
     }
     
     return D_O_K;
@@ -15330,6 +15736,24 @@ void EditWarpRingScr(int ring,int index)
     warp_dlg[12].x = SCREEN_W+10;
     warp_dlg[13].x = SCREEN_W+10;
     
+    /*warp_dlg[20].x = SCREEN_W+10;
+      warp_dlg[21].x = SCREEN_W+10;
+      warp_dlg[25].x = SCREEN_W+10;
+      warp_dlg[26].x = SCREEN_W+10;
+      warp_dlg[27].x = SCREEN_W+10;
+      warp_dlg[28].x = SCREEN_W+10;
+      warp_dlg[32].x = SCREEN_W+10;
+      warp_dlg[33].x = SCREEN_W+10;
+      warp_dlg[37].x = SCREEN_W+10;
+      warp_dlg[38].x = SCREEN_W+10;
+      warp_dlg[39].x = SCREEN_W+10;
+      warp_dlg[40].x = SCREEN_W+10;
+      warp_dlg[44].x = SCREEN_W+10;
+      warp_dlg[45].x = SCREEN_W+10;
+      warp_dlg[49].x = SCREEN_W+10;
+      warp_dlg[50].x = SCREEN_W+10;
+      warp_dlg[51].x = SCREEN_W+10;
+      warp_dlg[52].x = SCREEN_W+10;*/
     for(int i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0;
@@ -15389,6 +15813,26 @@ void EditWarpRingScr(int ring,int index)
         warp_dlg[m].x=tempx[m-17];
     }
     
+    /*warp_dlg[20].x = tempx20;
+      warp_dlg[21].x = tempx21;
+      warp_dlg[25].x = tempx25;
+      warp_dlg[26].x = tempx26;
+      warp_dlg[27].x = tempx27;
+      warp_dlg[28].x = tempx28;
+    
+      warp_dlg[32].x = tempx32;
+      warp_dlg[33].x = tempx33;
+      warp_dlg[37].x = tempx37;
+      warp_dlg[38].x = tempx38;
+      warp_dlg[39].x = tempx39;
+      warp_dlg[40].x = tempx40;
+    
+      warp_dlg[44].x = tempx44;
+      warp_dlg[45].x = tempx45;
+      warp_dlg[49].x = tempx49;
+      warp_dlg[50].x = tempx50;
+      warp_dlg[51].x = tempx51;
+      warp_dlg[52].x = tempx52;*/
     for(int i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0x80;
@@ -15738,6 +16182,18 @@ DIALOG elist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+static DIALOG glist_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,     50,   40,   220,  145,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { jwin_abclist_proc,    62,   68,   196,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,     70,   160,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     190,  160,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     130,  160,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
 int efrontfacingtile(int id)
 {
     int anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
@@ -15942,6 +16398,102 @@ int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit
     
     index = elist_dlg[2].d1;
     return bie[index].i;
+}
+
+int select_guy(const char *prompt,int guy)
+{
+    //  if(bie_cnt==-1)
+    {
+        build_big_list(true);
+    }
+    
+    int index=0;
+    
+    for(int j=0; j<big_cnt; j++)
+    {
+        if(big[j].i == guy)
+        {
+            index=j;
+        }
+    }
+    
+    glist_dlg[0].dp=(void *)prompt;
+    glist_dlg[0].dp2=lfont;
+    glist_dlg[2].d1=index;
+    ListData guy_list(guylist, &font);
+    glist_dlg[2].dp=(void *) &guy_list;
+    
+    if(is_large)
+        large_dialog(glist_dlg);
+        
+    int ret;
+    
+    do
+    {
+        ret=zc_popup_dialog(glist_dlg,2);
+        
+        if(ret==5)
+        {
+            int id = big[glist_dlg[2].d1].i;
+            
+            switch(id)
+            {
+            case gABEI:
+                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gAMA:
+                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gDUDE:
+                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gMOBLIN:
+                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gGORIYA:
+                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gFIRE:
+                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gFAIRY:
+                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gZELDA:
+                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gABEI2:
+                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+                
+            case gEMPTY:
+                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,lfont);
+                break;
+                
+            default:
+                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,lfont);
+                break;
+            }
+        }
+    }
+    while(ret==5);
+    
+    if(ret==0||ret==4)
+    {
+        return -1;
+    }
+    
+    
+    index = glist_dlg[2].d1;
+    return big[index].i;
 }
 
 unsigned char check[2] = { (unsigned char)'\x81',0 };
@@ -16269,10 +16821,52 @@ int onHeader()
     return D_O_K;
 }
 
+
+static ZCHEATS tmpcheats;
+
+
+static DIALOG cheats_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,      32,   44,   256,  142,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Cheat Codes", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    // 2
+    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { d_keyboard_proc,       0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    // 5
+    { jwin_check_proc,      104,  72,   0,    9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enable Cheats", NULL, NULL },
+    { jwin_text_proc,       40,   72,   0,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Lvl  Code", NULL, NULL },
+    { jwin_text_proc,       48,   90,   8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
+    { jwin_text_proc,       48,   108,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
+    { jwin_text_proc,       48,   126,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "3", NULL, NULL },
+    { jwin_text_proc,       48,   144,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "4", NULL, NULL },
+    // 11
+    { jwin_edit_proc,       61,   86,   210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[0], NULL, NULL },
+    { jwin_edit_proc,       61,   104,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[1], NULL, NULL },
+    { jwin_edit_proc,       61,   122,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[2], NULL, NULL },
+    { jwin_edit_proc,       61,   140,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[3], NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
 int onCheats()
 {
-    CheatEditor ce;
-    gui->showDialog(ce);
+    cheats_dlg[0].dp2=lfont;
+    tmpcheats = zcheats;
+    cheats_dlg[5].flags = zcheats.flags ? D_SELECTED : 0;
+    
+    if(is_large)
+        large_dialog(cheats_dlg);
+        
+    int ret = zc_popup_dialog(cheats_dlg, 3);
+    
+    if(ret == 2)
+    {
+        saved = false;
+        zcheats = tmpcheats;
+        zcheats.flags = (cheats_dlg[5].flags & D_SELECTED) ? 1 : 0;
+    }
+    
     return D_O_K;
 }
 
@@ -16369,6 +16963,15 @@ bool do_x_button(BITMAP *dest, int x, int y)
                 unscare_mouse();
                 over=false;
             }
+        }
+        
+        //if(zqwin_scale > 1)
+        {
+            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+        }
+        //else
+        {
+            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
         }
     }
     
@@ -17647,7 +18250,7 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
         if(buf)
         {
             clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].data,Map.CurrScr()->ffcs[d1].cset);
+            putcombo(buf,0,0,Map.CurrScr()->ffdata[d1],Map.CurrScr()->ffcset[d1]);
             stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
             destroy_bitmap(buf);
         }
@@ -17661,46 +18264,46 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
         rectfill(screen,xd,y2,x+196*int(is_large?1.5:1),y+127*int(is_large?1.5:1),jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].data);
+        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdata[d1]);
         
         textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcset[d1]);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].x/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffx[d1]/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].y/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffy[d1]/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].xVel/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta[d1]/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].yVel/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta[d1]/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].xAccel/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta2[d1]/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].yAccel/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta2[d1]/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Linked To:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].link);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->fflink[d1]);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Move Delay:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].delay);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdelay[d1]);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffcs[d1].width&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]&63)+1);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffcs[d1].height&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]&63)+1);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getTileWidth());
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]>>6)+1);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getTileHeight());
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]>>6)+1);
         
         break;
     }
@@ -17715,7 +18318,7 @@ int onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
-    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
+    putcombo(ffcur,0,0,Map.CurrScr()->ffdata[ff_combo],Map.CurrScr()->ffcset[ff_combo]);
     ffcombo_sel_dlg[5].dp = ffcur;
     
     if(is_large)
@@ -17871,21 +18474,21 @@ static DIALOG ffcombo_dlg[] =
 };
 
 
-char *strip_decimals(char *str)
+char *strip_decimals(char *string)
 {
-    int len=(int)strlen(str);
+    int len=(int)strlen(string);
     char *src=(char *)zc_malloc(len+1);
     char *tmpsrc=src;
-    memcpy(src,str,len+1);
+    memcpy(src,string,len+1);
     memset(src,0,len+1);
     
-    for(unsigned int i=0; str[i]&&i<=strlen(str); i++)
+    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
     {
-        *tmpsrc=str[i];
+        *tmpsrc=string[i];
         
         if(*tmpsrc=='.')
         {
-            while(str[i+1]=='.'&&i<=strlen(str))
+            while(string[i+1]=='.'&&i<=strlen(string))
             {
                 i++;
             }
@@ -17894,26 +18497,26 @@ char *strip_decimals(char *str)
         tmpsrc++;
     }
     
-    memcpy(str,src,len);
+    memcpy(string,src,len);
     zc_free(src);
-    return str;
+    return string;
 }
 
 // Unused??? -L 6/6/11
-char *clean_numeric_string(char *str)
+char *clean_numeric_string(char *string)
 {
     bool found_sign=false;
     bool found_decimal=false;
-    int len=(int)strlen(str);
+    int len=(int)strlen(string);
     char *src=(char *)zc_malloc(len+1);
     char *tmpsrc=src;
-    memcpy(src,str,len+1);
+    memcpy(src,string,len+1);
     memset(src,0,len+1);
     
     // strip out non-numerical characters
-    for(unsigned int i=0; str[i]&&i<=strlen(str); i++)
+    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
     {
-        *tmpsrc=str[i];
+        *tmpsrc=string[i];
         
         if(*tmpsrc!='.'&&*tmpsrc!='-'&&*tmpsrc!='+'&&!isdigit(*tmpsrc))
         {
@@ -17966,10 +18569,10 @@ char *clean_numeric_string(char *str)
         tmpsrc++;
     }
     
-    sprintf(str, "%s", src2);
+    sprintf(string, "%s", src2);
     zc_free(src);
     zc_free(src2);
-    return str;
+    return string;
 }
 
 script_struct biffs[NUMSCRIPTFFC]; //ff script
@@ -18293,6 +18896,38 @@ static DIALOG assignscript_dlg[] =
     
 };
 
+//editbox_data zscript_edit_data;
+
+static DIALOG edit_zscript_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Edit ZScript", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   320-12,  240-6-25,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,        NULL, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void doEditZScript(int bg,int fg)
+{
+    string old = zScript;
+    EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],(is_large?sfont3:sfont2),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
+    edit_zscript_dlg[0].dp2= lfont;
+    edit_zscript_dlg[2].dp = em;
+    edit_zscript_dlg[2].bg = bg;
+    
+    zc_popup_dialog(edit_zscript_dlg,2);
+    
+    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
+        zScript = old;
+    else
+        saved=false;
+        
+    delete em;
+}
+
 static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
 
 static DIALOG ffscript_sel_dlg[] =
@@ -18338,330 +18973,417 @@ static DIALOG gscript_sel_dlg[] =
 
 int onCompileScript()
 {
-    ZScriptMainDialog dlg(*gui);
-    gui->showDialog(dlg);
-    return D_O_K;
-}
-
-void compileZScript()
-{
-    FILE *tempfile = fopen("tmp","w");
-
-    if(!tempfile)
-    {
-        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return;
-    }
-
-    fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-    fclose(tempfile);
-    box_start(1, "Compile Progress", lfont, sfont,true);
-    gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-    ScriptsData *result = compile("tmp");
-    unlink("tmp");
-    box_end(true);
-    refresh(rALL);
-
-    if(result == NULL)
-    {
-        jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
-        return;
-    }
-
-    std::map<std::string, int> stypes = result->scriptTypes;
-    std::map<std::string, std::vector<Opcode *> > scripts = result->theScripts;
-    delete result;
-    asffcscripts.clear();
-    asffcscripts.push_back("<none>");
-    asglobalscripts.clear();
-    asglobalscripts.push_back("<none>");
-    asitemscripts.clear();
-    asitemscripts.push_back("<none>");
-
-    for(std::map<std::string, int>::iterator it = stypes.begin(); it != stypes.end(); it++)
-    {
-        switch(it->second)
-        {
-        case ScriptParser::TYPE_FFC:
-        {
-            asffcscripts.push_back(it->first);
-            break;
-        }
+    compile_dlg[0].dp2 = lfont;
+    
+    if(is_large)
+        large_dialog(compile_dlg);
         
-        case ScriptParser::TYPE_GLOBAL:
-        {
-            if(it->first != "~Init") //Don't allow assigning the allocate memory script, bad things could happen
-                asglobalscripts.push_back(it->first);
-                
-            break;
-        }
-        
-        case ScriptParser::TYPE_ITEMCLASS: //Technically they're now itemclass scripts
-        {
-            asitemscripts.push_back(it->first);
-            break;
-        }
-        }
-    }
-
-    assignscript_dlg[0].dp2 = lfont;
-    assignscript_dlg[4].d1 = -1;
-    assignscript_dlg[5].d1 = -1;
-    assignscript_dlg[7].d1 = -1;
-    assignscript_dlg[8].d1 = -1;
-    assignscript_dlg[10].d1 = -1;
-    assignscript_dlg[11].d1 = -1;
-    assignscript_dlg[13].flags = 0;
-
-    //assign scripts to slots
     for(;;) //while(true)
     {
-        char temp[100];
+        sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
+        int ret = zc_popup_dialog(compile_dlg,5);
         
-        for(int i = 0; i < NUMSCRIPTFFC-1; i++)
-        {
-            sprintf(temp, "Slot %d: %s", i+1,(ffcmap[i].second == "" ? "<none>" : ffcmap[i].second.c_str()));
-            ffcmap[i].first = temp;
-        }
-        
-        for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
-        {
-            globalmap[i].first = gscriptlist2(i, NULL); //nicked this function from the ASM list
-        }
-        
-        for(int i = 0; i < NUMSCRIPTITEM-1; i++)
-        {
-            sprintf(temp, "Slot %d: %s", i+1, (itemmap[i].second == "" ? "<none>" : itemmap[i].second.c_str()));
-            itemmap[i].first = temp;
-        }
-        
-        if(is_large)
-            large_dialog(assignscript_dlg);
-            
-        int ret2 = zc_popup_dialog(assignscript_dlg,3);
-        
-        switch(ret2)
+        switch(ret)
         {
         case 0:
-        case 2:
+        case 1:
             //Cancel
-            return;
+            return D_O_K;
+            
+        case 2:
+            //Edit
+            doEditZScript(vc(15),vc(0));
+            break;
             
         case 3:
         {
-        
-            //OK
-            bool output = (assignscript_dlg[13].flags == D_SELECTED);
-            
-            for(std::map<int, std::pair<std::string,std::string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+            //Load from File
+            if(zScript.size() > 0)
             {
-                if(it->second.second != "")
-                {
-                    tempfile = fopen("tmp","w");
+                if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
+                    break;
                     
-                    if(!tempfile)
-                    {
-                        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                        return;
-                    }
-                    
-                    if(output)
-                    {
-                        al_trace("\n");
-                        al_trace("%s",it->second.second.c_str());
-                        al_trace("\n");
-                    }
-                    
-                    for(std::vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
-                    {
-                        std::string theline = (*line)->printLine();
-                        fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-                        
-                        if(output)
-                        {
-                            al_trace("%s",theline.c_str());
-                        }
-                    }
-                    
-                    fclose(tempfile);
-                    parse_script_file(&ffscripts[it->first+1],"tmp",false);
-                }
-                else if(ffscripts[it->first+1])
-                {
-                    delete[] ffscripts[it->first+1];
-                    ffscripts[it->first+1] = new ffscript[1];
-                    ffscripts[it->first+1][0].command = 0xFFFF;
-                }
+                zScript.clear();
             }
             
-            for(std::map<int, std::pair<std::string,std::string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+            if(!getname("Load ZScript (.z)","z",NULL,datapath,false))
+                break;
+                
+            FILE *zscript = fopen(temppath,"r");
+            
+            if(zscript == NULL)
             {
-                if(it->second.second != "")
-                {
-                    tempfile = fopen("tmp","w");
-                    
-                    if(!tempfile)
-                    {
-                        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                        return;
-                    }
-                    
-                    if(output)
-                    {
-                        al_trace("\n");
-                        al_trace("%s",it->second.second.c_str());
-                        al_trace("\n");
-                    }
-                    
-                    for(std::vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
-                    {
-                        std::string theline = (*line)->printLine();
-                        fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-                        
-                        if(output)
-                        {
-                            al_trace("%s",theline.c_str());
-                        }
-                    }
-                    
-                    fclose(tempfile);
-                    parse_script_file(&globalscripts[it->first],"tmp",false);
-                }
-                else if(globalscripts[it->first])
-                {
-                    delete[] globalscripts[it->first];
-                    globalscripts[it->first] = new ffscript[1];
-                    globalscripts[it->first][0].command = 0xFFFF;
-                }
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
             }
             
-            for(std::map<int, std::pair<std::string,std::string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+            char c = fgetc(zscript);
+            
+            while(!feof(zscript))
             {
-                if(it->second.second != "")
-                {
-                    tempfile = fopen("tmp","w");
-                    
-                    if(!tempfile)
-                    {
-                        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                        return;
-                    }
-                    
-                    if(output)
-                    {
-                        al_trace("\n");
-                        al_trace("%s",it->second.second.c_str());
-                        al_trace("\n");
-                    }
-                    
-                    for(std::vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
-                    {
-                        std::string theline = (*line)->printLine();
-                        fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-                        
-                        if(output)
-                        {
-                            al_trace("%s",theline.c_str());
-                        }
-                    }
-                    
-                    fclose(tempfile);
-                    parse_script_file(&itemscripts[it->first+1],"tmp",false);
-                }
-                else if(itemscripts[it->first+1])
-                {
-                    delete[] itemscripts[it->first+1];
-                    itemscripts[it->first+1] = new ffscript[1];
-                    itemscripts[it->first+1][0].command = 0xFFFF;
-                }
+                zScript += c;
+                c = fgetc(zscript);
             }
             
-            unlink("tmp");
-            jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
-            build_biffs_list();
-            build_biitems_list();
-            
-            for(std::map<std::string, std::vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
-            {
-                for(std::vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-                {
-                    delete *it2;
-                }
-            }
-            
-            return;
+            fclose(zscript);
+            saved = false;
+            break;
         }
         
         case 6:
-            //<<, FFC
+            //Export
         {
-            int lind = assignscript_dlg[4].d1;
-            int rind = assignscript_dlg[5].d1;
-            
-            if(lind < 0 || rind < 0)
+            if(!getname("Save ZScript (.z)", "z", NULL,datapath,false))
                 break;
                 
-            if(asffcscripts[rind] == "<none>")
+            if(exists(temppath))
             {
-                ffcmap[lind].second = "";
-            }
-            else
-            {
-                ffcmap[lind].second = asffcscripts[rind];
+                if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+                    break;
             }
             
+            FILE *zscript = fopen(temppath,"w");
+            
+            if(!zscript)
+            {
+                jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                break;
+            }
+            
+            int written = (int)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
+            
+            if(written != (int)zScript.size())
+                jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                
+            fclose(zscript);
             break;
         }
         
-        case 9:
-            //<<, Global
-        {
-            int lind = assignscript_dlg[7].d1;
-            int rind = assignscript_dlg[8].d1;
+        case 5:
+            //Compile!
+            FILE *tempfile = fopen("tmp","w");
             
-            if(lind < 0 || rind < 0)
+            if(!tempfile)
+            {
+                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                return D_O_K;
+            }
+            
+            fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+            fclose(tempfile);
+            box_start(1, "Compile Progress", lfont, sfont,true);
+            gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
+            ScriptsData *result = compile("tmp");
+            unlink("tmp");
+            box_end(true);
+            refresh(rALL);
+            
+            if(result == NULL)
+            {
+                jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
                 break;
+            }
+            
+            std::map<string, int> stypes = result->scriptTypes;
+            std::map<string, vector<Opcode *> > scripts = result->theScripts;
+            delete result;
+            asffcscripts.clear();
+            asffcscripts.push_back("<none>");
+            asglobalscripts.clear();
+            asglobalscripts.push_back("<none>");
+            asitemscripts.clear();
+            asitemscripts.push_back("<none>");
+            
+            for(std::map<string, int>::iterator it = stypes.begin(); it != stypes.end(); it++)
+            {
+                switch(it->second)
+                {
+                case ScriptParser::TYPE_FFC:
+                {
+                    asffcscripts.push_back(it->first);
+                    break;
+                }
                 
-            if(lind == 0)
-            {
-                jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
+                case ScriptParser::TYPE_GLOBAL:
+                {
+                    if(it->first != "~Init") //Don't allow assigning the allocate memory script, bad things could happen
+                        asglobalscripts.push_back(it->first);
+                        
+                    break;
+                }
+                
+                case ScriptParser::TYPE_ITEMCLASS: //Technically they're now itemclass scripts
+                {
+                    asitemscripts.push_back(it->first);
+                    break;
+                }
+                }
             }
             
-            if(asglobalscripts[rind] == "<none>")
+            assignscript_dlg[0].dp2 = lfont;
+            assignscript_dlg[4].d1 = -1;
+            assignscript_dlg[5].d1 = -1;
+            assignscript_dlg[7].d1 = -1;
+            assignscript_dlg[8].d1 = -1;
+            assignscript_dlg[10].d1 = -1;
+            assignscript_dlg[11].d1 = -1;
+            assignscript_dlg[13].flags = 0;
+            
+            //assign scripts to slots
+            for(;;) //while(true)
             {
-                globalmap[lind].second = "";
-            }
-            else
-            {
-                globalmap[lind].second = asglobalscripts[rind];
+                char temp[100];
+                
+                for(int i = 0; i < NUMSCRIPTFFC-1; i++)
+                {
+                    sprintf(temp, "Slot %d: %s", i+1,(ffcmap[i].second == "" ? "<none>" : ffcmap[i].second.c_str()));
+                    ffcmap[i].first = temp;
+                }
+                
+                for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+                {
+                    globalmap[i].first = gscriptlist2(i, NULL); //nicked this function from the ASM list
+                }
+                
+                for(int i = 0; i < NUMSCRIPTITEM-1; i++)
+                {
+                    sprintf(temp, "Slot %d: %s", i+1, (itemmap[i].second == "" ? "<none>" : itemmap[i].second.c_str()));
+                    itemmap[i].first = temp;
+                }
+                
+                if(is_large)
+                    large_dialog(assignscript_dlg);
+                    
+                int ret2 = zc_popup_dialog(assignscript_dlg,3);
+                
+                switch(ret2)
+                {
+                case 0:
+                case 2:
+                    //Cancel
+                    return D_O_K;
+                    
+                case 3:
+                {
+                
+                    //OK
+                    bool output = (assignscript_dlg[13].flags == D_SELECTED);
+                    
+                    for(std::map<int, pair<string,string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&ffscripts[it->first+1],"tmp",false);
+                        }
+                        else if(ffscripts[it->first+1])
+                        {
+                            delete[] ffscripts[it->first+1];
+                            ffscripts[it->first+1] = new ffscript[1];
+                            ffscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    
+                    for(std::map<int, pair<string,string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&globalscripts[it->first],"tmp",false);
+                        }
+                        else if(globalscripts[it->first])
+                        {
+                            delete[] globalscripts[it->first];
+                            globalscripts[it->first] = new ffscript[1];
+                            globalscripts[it->first][0].command = 0xFFFF;
+                        }
+                    }
+                    
+                    for(std::map<int, pair<string,string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&itemscripts[it->first+1],"tmp",false);
+                        }
+                        else if(itemscripts[it->first+1])
+                        {
+                            delete[] itemscripts[it->first+1];
+                            itemscripts[it->first+1] = new ffscript[1];
+                            itemscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    
+                    unlink("tmp");
+                    jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                    build_biffs_list();
+                    build_biitems_list();
+                    
+                    for(map<string, vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+                    {
+                        for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+                        {
+                            delete *it2;
+                        }
+                    }
+                    
+                    return D_O_K;
+                }
+                
+                case 6:
+                    //<<, FFC
+                {
+                    int lind = assignscript_dlg[4].d1;
+                    int rind = assignscript_dlg[5].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asffcscripts[rind] == "<none>")
+                    {
+                        ffcmap[lind].second = "";
+                    }
+                    else
+                    {
+                        ffcmap[lind].second = asffcscripts[rind];
+                    }
+                    
+                    break;
+                }
+                
+                case 9:
+                    //<<, Global
+                {
+                    int lind = assignscript_dlg[7].d1;
+                    int rind = assignscript_dlg[8].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(lind == 0)
+                    {
+                        jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                        break;
+                    }
+                    
+                    if(asglobalscripts[rind] == "<none>")
+                    {
+                        globalmap[lind].second = "";
+                    }
+                    else
+                    {
+                        globalmap[lind].second = asglobalscripts[rind];
+                    }
+                    
+                    break;
+                }
+                
+                case 12:
+                    //<<, ITEM
+                {
+                    int lind = assignscript_dlg[10].d1;
+                    int rind = assignscript_dlg[11].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asitemscripts[rind] == "<none>")
+                    {
+                        itemmap[lind].second = "";
+                    }
+                    else
+                    {
+                        itemmap[lind].second = asitemscripts[rind];
+                    }
+                    
+                    break;
+                }
+                }
             }
             
             break;
-        }
-        
-        case 12:
-            //<<, ITEM
-        {
-            int lind = assignscript_dlg[10].d1;
-            int rind = assignscript_dlg[11].d1;
-            
-            if(lind < 0 || rind < 0)
-                break;
-                
-            if(asitemscripts[rind] == "<none>")
-            {
-                itemmap[lind].second = "";
-            }
-            else
-            {
-                itemmap[lind].second = asitemscripts[rind];
-            }
-            
-            break;
-        }
         }
     }
+    
+// return D_O_K;//unreachable
 }
 
 int onImportFFScript()
@@ -18754,29 +19476,29 @@ int onEditFFCombo(int ffcombo)
     char xystring[8][10];
     char wstring[4][10];
     char dastring[10][13];
-    sprintf(xystring[0],"%.4f",Map.CurrScr()->ffcs[ffcombo].x/10000.0);
-    sprintf(xystring[1],"%.4f",Map.CurrScr()->ffcs[ffcombo].y/10000.0);
-    sprintf(xystring[2],"%.4f",Map.CurrScr()->ffcs[ffcombo].xVel/10000.0);
-    sprintf(xystring[3],"%.4f",Map.CurrScr()->ffcs[ffcombo].yVel/10000.0);
-    sprintf(xystring[4],"%.4f",Map.CurrScr()->ffcs[ffcombo].xAccel/10000.0);
-    sprintf(xystring[5],"%.4f",Map.CurrScr()->ffcs[ffcombo].yAccel/10000.0);
-    sprintf(xystring[6],"%d",Map.CurrScr()->ffcs[ffcombo].delay);
+    sprintf(xystring[0],"%.4f",Map.CurrScr()->ffx[ffcombo]/10000.0);
+    sprintf(xystring[1],"%.4f",Map.CurrScr()->ffy[ffcombo]/10000.0);
+    sprintf(xystring[2],"%.4f",Map.CurrScr()->ffxdelta[ffcombo]/10000.0);
+    sprintf(xystring[3],"%.4f",Map.CurrScr()->ffydelta[ffcombo]/10000.0);
+    sprintf(xystring[4],"%.4f",Map.CurrScr()->ffxdelta2[ffcombo]/10000.0);
+    sprintf(xystring[5],"%.4f",Map.CurrScr()->ffydelta2[ffcombo]/10000.0);
+    sprintf(xystring[6],"%d",Map.CurrScr()->ffdelay[ffcombo]);
     
-    sprintf(wstring[0],"%d",(Map.CurrScr()->ffcs[ffcombo].width&63)+1);
-    sprintf(wstring[1],"%d",(Map.CurrScr()->ffcs[ffcombo].height&63)+1);
-    sprintf(wstring[2],"%d",Map.CurrScr()->ffcs[ffcombo].getTileWidth());
-    sprintf(wstring[3],"%d",Map.CurrScr()->ffcs[ffcombo].getTileHeight());
+    sprintf(wstring[0],"%d",(Map.CurrScr()->ffwidth[ffcombo]&63)+1);
+    sprintf(wstring[1],"%d",(Map.CurrScr()->ffheight[ffcombo]&63)+1);
+    sprintf(wstring[2],"%d",(Map.CurrScr()->ffwidth[ffcombo]>>6)+1);
+    sprintf(wstring[3],"%d",(Map.CurrScr()->ffheight[ffcombo]>>6)+1);
     
-    sprintf(dastring[0],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[0]/10000.0);
-    sprintf(dastring[1],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[1]/10000.0);
-    sprintf(dastring[2],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[2]/10000.0);
-    sprintf(dastring[3],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[3]/10000.0);
-    sprintf(dastring[4],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[4]/10000.0);
-    sprintf(dastring[5],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[5]/10000.0);
-    sprintf(dastring[6],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[6]/10000.0);
-    sprintf(dastring[7],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[7]/10000.0);
-    sprintf(dastring[8],"%ld",Map.CurrScr()->ffcs[ffcombo].inita[0]/10000);
-    sprintf(dastring[9],"%ld",Map.CurrScr()->ffcs[ffcombo].inita[1]/10000);
+    sprintf(dastring[0],"%.4f",Map.CurrScr()->initd[ffcombo][0]/10000.0);
+    sprintf(dastring[1],"%.4f",Map.CurrScr()->initd[ffcombo][1]/10000.0);
+    sprintf(dastring[2],"%.4f",Map.CurrScr()->initd[ffcombo][2]/10000.0);
+    sprintf(dastring[3],"%.4f",Map.CurrScr()->initd[ffcombo][3]/10000.0);
+    sprintf(dastring[4],"%.4f",Map.CurrScr()->initd[ffcombo][4]/10000.0);
+    sprintf(dastring[5],"%.4f",Map.CurrScr()->initd[ffcombo][5]/10000.0);
+    sprintf(dastring[6],"%.4f",Map.CurrScr()->initd[ffcombo][6]/10000.0);
+    sprintf(dastring[7],"%.4f",Map.CurrScr()->initd[ffcombo][7]/10000.0);
+    sprintf(dastring[8],"%ld",Map.CurrScr()->inita[ffcombo][0]/10000);
+    sprintf(dastring[9],"%ld",Map.CurrScr()->inita[ffcombo][1]/10000);
     
     char wtitle[80];
     sprintf(wtitle,"Edit Freeform Combo (#%d)", ffcombo+1);
@@ -18784,10 +19506,10 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[0].dp = wtitle;
     ffcombo_dlg[4].dp2 = spfont;
     
-    ffcombo_dlg[6].d1 = Map.CurrScr()->ffcs[ffcombo].data;
-    ffcombo_dlg[6].fg = Map.CurrScr()->ffcs[ffcombo].cset;
+    ffcombo_dlg[6].d1 = Map.CurrScr()->ffdata[ffcombo];
+    ffcombo_dlg[6].fg = Map.CurrScr()->ffcset[ffcombo];
     
-    ffcombo_dlg[15].d1 = Map.CurrScr()->ffcs[ffcombo].link;
+    ffcombo_dlg[15].d1 = Map.CurrScr()->fflink[ffcombo];
     ffcombo_dlg[16].dp = xystring[0];
     ffcombo_dlg[17].dp = xystring[1];
     ffcombo_dlg[18].dp = xystring[2];
@@ -18817,7 +19539,7 @@ int onEditFFCombo(int ffcombo)
     
     for(int j = 0; j < biffs_cnt; j++)
     {
-        if(biffs[j].second == Map.CurrScr()->ffcs[ffcombo].script - 1)
+        if(biffs[j].second == Map.CurrScr()->ffscript[ffcombo] - 1)
         {
             index = j;
         }
@@ -18825,7 +19547,7 @@ int onEditFFCombo(int ffcombo)
     
     ffcombo_dlg[55].d1 = index;
     
-    int f=Map.CurrScr()->ffcs[ffcombo].flags;
+    int f=Map.CurrScr()->ffflags[ffcombo];
     ffcombo_dlg[33].flags = (f&ffOVERLAY) ? D_SELECTED : 0;
     ffcombo_dlg[34].flags = (f&ffTRANS) ? D_SELECTED : 0;
     ffcombo_dlg[35].flags = (f&ffCARRYOVER) ? D_SELECTED : 0;
@@ -18862,36 +19584,36 @@ int onEditFFCombo(int ffcombo)
     if(ret==2)
     {
         saved=false;
-        Map.CurrScr()->ffcs[ffcombo].data = ffcombo_dlg[6].d1;
-        Map.CurrScr()->ffcs[ffcombo].cset = ffcombo_dlg[6].fg;
-        Map.CurrScr()->ffcs[ffcombo].link = ffcombo_dlg[15].d1;
-        Map.CurrScr()->ffcs[ffcombo].x = vbound(ffparse(xystring[0]),-320000, 2880000);
-        Map.CurrScr()->ffcs[ffcombo].y = vbound(ffparse(xystring[1]),-320000, 2080000);
-        Map.CurrScr()->ffcs[ffcombo].xVel= vbound(ffparse(xystring[2]),-1280000, 1280000);
-        Map.CurrScr()->ffcs[ffcombo].yVel = vbound(ffparse(xystring[3]),-1280000, 1280000);
-        Map.CurrScr()->ffcs[ffcombo].xAccel = vbound(ffparse(xystring[4]),-1280000, 1280000);
-        Map.CurrScr()->ffcs[ffcombo].yAccel = vbound(ffparse(xystring[5]),-1280000, 1280000);
-        Map.CurrScr()->ffcs[ffcombo].delay = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
-        Map.CurrScr()->ffcs[ffcombo].script = biffs[ffcombo_dlg[55].d1].second + 1;
+        Map.CurrScr()->ffdata[ffcombo] = ffcombo_dlg[6].d1;
+        Map.CurrScr()->ffcset[ffcombo] = ffcombo_dlg[6].fg;
+        Map.CurrScr()->fflink[ffcombo] = ffcombo_dlg[15].d1;
+        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse(xystring[0]),-320000, 2880000);
+        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse(xystring[1]),-320000, 2080000);
+        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse(xystring[2]),-1280000, 1280000);
+        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse(xystring[3]),-1280000, 1280000);
+        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse(xystring[4]),-1280000, 1280000);
+        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse(xystring[5]),-1280000, 1280000);
+        Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
+        Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
         
         int cw = atoi(wstring[0])<65?zc_max(1,atoi(wstring[0])):64;
         int ch = atoi(wstring[1])<65?zc_max(1,atoi(wstring[1])):64;
         int tw = atoi(wstring[2])<5?zc_max(1,atoi(wstring[2])):4;
         int th = atoi(wstring[3])<5?zc_max(1,atoi(wstring[3])):4;
-        Map.CurrScr()->ffcs[ffcombo].width = (cw-1)+((tw-1)<<6);
-        Map.CurrScr()->ffcs[ffcombo].height = (ch-1)+((th-1)<<6);
+        Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
+        Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
         
-        Map.CurrScr()->ffcs[ffcombo].initd[0] = vbound(ffparse(dastring[0]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[1] = vbound(ffparse(dastring[1]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[2] = vbound(ffparse(dastring[2]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[3] = vbound(ffparse(dastring[3]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[4] = vbound(ffparse(dastring[4]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[5] = vbound(ffparse(dastring[5]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[6] = vbound(ffparse(dastring[6]),-2147483647, 2147483647);
-        Map.CurrScr()->ffcs[ffcombo].initd[7] = vbound(ffparse(dastring[7]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][0] = vbound(ffparse(dastring[0]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][1] = vbound(ffparse(dastring[1]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][2] = vbound(ffparse(dastring[2]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][3] = vbound(ffparse(dastring[3]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][4] = vbound(ffparse(dastring[4]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][5] = vbound(ffparse(dastring[5]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][6] = vbound(ffparse(dastring[6]),-2147483647, 2147483647);
+        Map.CurrScr()->initd[ffcombo][7] = vbound(ffparse(dastring[7]),-2147483647, 2147483647);
         
-        Map.CurrScr()->ffcs[ffcombo].inita[0] = vbound(atoi(dastring[8])*10000,0,320000);
-        Map.CurrScr()->ffcs[ffcombo].inita[1] = vbound(atoi(dastring[9])*10000,0,320000);
+        Map.CurrScr()->inita[ffcombo][0] = vbound(atoi(dastring[8])*10000,0,320000);
+        Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
         
         f=0;
         f |= (ffcombo_dlg[33].flags&D_SELECTED) ? ffOVERLAY : 0;
@@ -18910,15 +19632,15 @@ int onEditFFCombo(int ffcombo)
         f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
         f |= (ffcombo_dlg[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
         f |= (ffcombo_dlg[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
-        Map.CurrScr()->ffcs[ffcombo].flags = f;
+        Map.CurrScr()->ffflags[ffcombo] = f;
         
-        if(Map.CurrScr()->ffcs[ffcombo].data!=0)
+        if(Map.CurrScr()->ffdata[ffcombo]!=0)
         {
-            Map.CurrScr()->ffcsUsed|=(1<<ffcombo);
+            Map.CurrScr()->numff|=(1<<ffcombo);
         }
         else
         {
-            Map.CurrScr()->ffcsUsed&=~(1<<ffcombo);
+            Map.CurrScr()->numff&=~(1<<ffcombo);
         }
     }
     
@@ -20063,6 +20785,22 @@ void fps_callback()
 
 END_OF_FUNCTION(fps_callback)
 
+//unsigned int col_diff[3*128];
+/*
+  void bestfit_init(void)
+  {
+  int i;
+
+  for (i=1; i<64; i++)
+
+  {
+  int k = i * i;
+  col_diff[0  +i] = col_diff[0  +128-i] = k * (59 * 59);
+  col_diff[128+i] = col_diff[128+128-i] = k * (30 * 30);
+  col_diff[256+i] = col_diff[256+128-i] = k * (11 * 11);
+  }
+  }
+  */
 void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int pos))
 {
 #define UNUSED 65535
@@ -20307,6 +21045,23 @@ void hit_close_button()
 /******  MAIN  ******/
 /********************/
 
+/*
+  enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
+  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
+  jcMAX };
+
+  enum { light gray, white, off-white, gray, dark gray, black,
+  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
+  jcMAX };
+  */
+
+/*
+  static int jwin_pal[jcMAX] =
+  {
+  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
+  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
+  };
+  */
 void custom_vsync()
 {
     ++framecnt;
@@ -20468,9 +21223,6 @@ sprite_list Sitems, Lwpns;
 
 int main(int argc,char **argv)
 {
-    //gui=new GUI::GtkGUIManager();
-    gui=new GUI::AllegroGUIManager();
-    
     switch(IS_BETA)
     {
     case -1:
@@ -21017,32 +21769,6 @@ int main(int argc,char **argv)
         comboalias_preview[2].w=comboaliaslist[2].w<<4;
         comboalias_preview[2].h=64;
         
-        /*
-            comboaliaslist[0].x=368;
-            comboaliaslist[0].y=172;
-            comboaliaslist[0].w=4;
-            comboaliaslist[0].h=17;
-            comboalias_preview[0].x=368;
-            comboalias_preview[0].y=388;
-            comboalias_preview[0].w=64;
-            comboalias_preview[0].h=64;
-            comboaliaslist[1].x=440;
-            comboaliaslist[1].y=172;
-            comboaliaslist[1].w=4;
-            comboaliaslist[1].h=17;
-            comboalias_preview[1].x=440;
-            comboalias_preview[1].y=388;
-            comboalias_preview[1].w=64;
-            comboalias_preview[1].h=64;
-            comboaliaslist[2].x=542;
-            comboaliaslist[2].y=172;
-            comboaliaslist[2].w=4;
-            comboaliaslist[2].h=17;
-            comboalias_preview[2].x=512;
-            comboalias_preview[2].y=388;
-            comboalias_preview[2].w=64;
-            comboalias_preview[2].h=64;
-        */
         mapscreen_x=0;
         mapscreen_y=16;
         mapscreensize=2;
@@ -21118,6 +21844,13 @@ int main(int argc,char **argv)
         help_dlg[1].h=600-27;
         help_dlg[2].w=800-8-4;
         help_dlg[2].h=600-27-4;
+        
+        edit_zscript_dlg[0].w=800;
+        edit_zscript_dlg[0].h=600;
+        edit_zscript_dlg[1].w=800-8;
+        edit_zscript_dlg[1].h=600-27;
+        edit_zscript_dlg[2].w=800-8-4;
+        edit_zscript_dlg[2].h=600-27-4;
         
         editmsg_help_dlg[0].w=800;
         editmsg_help_dlg[0].h=600;
@@ -21343,7 +22076,9 @@ int main(int argc,char **argv)
     set_close_button_callback((void (*)()) hit_close_button);
     
 #ifndef ALLEGRO_DOS
-    zq_scale = get_config_int("zquest","scale",1);
+    zq_scale_small = get_config_int("zquest","scale",1);
+    zq_scale_large = get_config_int("zquest","scale_large",1);
+    zq_scale = is_large ? zq_scale_large : zq_scale_small;
     scale_arg = used_switch(argc,argv,"-scale");
     
     if(scale_arg && (argc>(scale_arg+1)))
@@ -21362,18 +22097,19 @@ int main(int argc,char **argv)
         scale_arg = zq_scale;
     }
     
-    if(!is_large) zqwin_set_scale(scale_arg);
-    else zqwin_scale = 1;
+    zqwin_set_scale(scale_arg);
     
 #endif
     
     if(used_switch(argc,argv,"-fullscreen"))
     {
         tempmode = GFX_AUTODETECT_FULLSCREEN;
+        zqwin_set_scale(1);
     }
     else if(used_switch(argc,argv,"-windowed"))
     {
         tempmode=GFX_AUTODETECT_WINDOWED;
+        zqwin_set_scale(scale_arg);
     }
     
     /*if (tempmode==GFX_AUTODETECT_FULLSCREEN)
@@ -21809,11 +22545,7 @@ int main(int argc,char **argv)
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
     {
-        int ret=gui->alert("ZQuest",
-          "It appears that ZQuest crashed last time. "
-          "Would you like to load the last timed save?",
-          "&Yes", "&No", 1);
-        if(ret==1)
+        if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
         {
             int ret = load_quest(last_timed_save,true,true);
             
@@ -21824,7 +22556,9 @@ int main(int argc,char **argv)
                 saved=false;
             }
             else
-                gui->alert("Error", "Unable to reload the last timed save.");
+            {
+                jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,lfont);
+            }
         }
     }
     
@@ -22071,6 +22805,7 @@ int main(int argc,char **argv)
     
     
     quit_game();
+    
     if(ForceExit) //last resort fix to the allegro process hanging bug.
         exit(0);
         
@@ -22302,14 +23037,13 @@ void quit_game()
     destroy_bitmaps_on_exit();
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
     
-    delete gui;
-    
 }
 
 void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
     jwin_center_dialog(autolayer_dlg);
+    jwin_center_dialog(cheats_dlg);
     jwin_center_dialog(clist_dlg);
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
@@ -22320,15 +23054,18 @@ void center_zquest_dialogs()
     center_zq_door_dialogs();
     jwin_center_dialog(editcomboa_dlg);
     jwin_center_dialog(editdmap_dlg);
+    jwin_center_dialog(editinfo_dlg);
     jwin_center_dialog(editmidi_dlg);
     jwin_center_dialog(editmsg_dlg);
     jwin_center_dialog(editmusic_dlg);
+    jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(elist_dlg);
     jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(ffscript_sel_dlg);
     jwin_center_dialog(getnum_dlg);
+    jwin_center_dialog(glist_dlg);
     jwin_center_dialog(gscript_sel_dlg);
     jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
@@ -22346,6 +23083,8 @@ void center_zquest_dialogs()
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(password_dlg);
     jwin_center_dialog(pattern_dlg);
+    jwin_center_dialog(rlist_dlg);
+    center_zq_rules_dialog();
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
@@ -22354,6 +23093,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(selectmusic_dlg);
     jwin_center_dialog(sfxlist_dlg);
     jwin_center_dialog(sfx_edit_dlg);
+    jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(subscreen_type_dlg);
     jwin_center_dialog(template_dlg);
@@ -22460,6 +23200,56 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
     rest(4);
     ret = jwin_menu_proc(msg,d,c);
     
+    /*
+        static int counter=0;
+        // Copy allegro_screen to sdl_screen
+    
+        if ( SDL_LockSurface(sdl_screen) == 0 )
+        {
+          al_trace("Locking SDL surface! (%d)\n", counter);
+    //      Uint32 black;
+          Uint8 *pixels;
+    
+    //      black = SDL_MapRGB(sdl_screen->format, 0, 0, 0);
+          pixels = (Uint8 *)sdl_screen->pixels;
+          for ( int y=0; y<sdl_screen->h; ++y )
+          {
+    //        memset(pixels, black, sdl_screen->w*sdl_screen->format->BytesPerPixel);
+            memcpy(pixels, screen->line[y], sdl_screen->w*sdl_screen->format->BytesPerPixel);
+            pixels += sdl_screen->pitch;
+          }
+          SDL_UnlockSurface(sdl_screen);
+          SDL_UpdateRect(sdl_screen, 0, 0, 0, 0);
+        }
+        else
+        {
+          al_trace("Unable to lock SDL surface! (%d)\n", counter);
+        }
+    
+        ++counter;
+        // Create a display surface with a grayscale palette
+        SDL_Color colors[256];
+        PALETTE tp;
+        get_palette(tp);
+        int i;
+        // Fill colors with color information
+        for(i=0;i<256;i++){
+          colors[i].r=tp[i].r;
+          colors[i].g=tp[i].g;
+          colors[i].b=tp[i].b;
+        }
+    
+        // Set palette
+        SDL_SetColors(sdl_screen, colors, 0, 256);
+    */
+    //if(zqwin_scale > 1)
+    {
+        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+    }
+    //else
+    {
+        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+    }
     return ret;
 }
 
@@ -22624,12 +23414,28 @@ void dopreview()
             {
                 do_animations();
                 Map.set_prvadvance(0);
+                //if(zqwin_scale > 1)
+                {
+                    //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                }
+                // else
+                {
+                    //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                }
             }
         }
         else
         {
             do_animations();
             Map.set_prvadvance(0);
+            //if(zqwin_scale > 1)
+            {
+                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            //else
+            {
+                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
         }
         
         refresh(rALL);
@@ -22857,7 +23663,8 @@ int save_config_file()
     set_config_int("zquest","float_brush",FloatBrush);
     set_config_int("zquest","open_last_quest",OpenLastQuest);
     set_config_int("zquest","show_misalignments",ShowMisalignments);
-    set_config_int("zquest","scale",zq_scale);
+    set_config_int("zquest","scale",zq_scale_small);
+    set_config_int("zquest","scale_large",zq_scale_large);
     set_config_int("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
     set_config_int("zquest","showffscripts",ShowFFScripts);
     set_config_int("zquest","showsquares",ShowSquares);
@@ -23057,12 +23864,6 @@ int onCmdExit()
     return 0;
 }
 
-int disabledCommand()
-{
-    gui->alert("Command deleted", "This command has been deleted.");
-    return D_O_K;
-}
-
 //remember to adjust this number in zquest.h if it changes here!
 //P.S: Must be listed in the same order as the enum in zquest.h. No exceptions! -L
 command_pair commands[cmdMAX]=
@@ -23088,7 +23889,7 @@ command_pair commands[cmdMAX]=
     { "Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon                             },
     { "End String",                         0, (intF) onEndString                                      },
     { "Enemy Editor",                       0, (intF) onCustomEnemies                                  },
-    { "Default Enemies",                    0, (intF) onDefault_Guys                                   },
+    { "Default Enemies",				  0, (intF) onDefault_Guys                                   },
     { "Set Enemies",                        0, (intF) onEnemies                                        },
     { "Paste Enemies",                      0, (intF) onPasteEnemies                                   },
     { "Enhanced Music ",                    0, (intF) onEnhancedMusic                                  },
@@ -23166,7 +23967,7 @@ command_pair commands[cmdMAX]=
     { "Revert",                             0, (intF) onRevert                                         },
     { "Room Type",                          0, (intF) onRType                                          },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
     { "Save",                               0, (intF) onSave                                           },
     { "Save as",                            0, (intF) onSaveAs                                         },
     { "Paste Screen Data",                  0, (intF) onPasteScreenData                                },
@@ -23206,15 +24007,15 @@ command_pair commands[cmdMAX]=
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },
     { "Toggle CSets",                       0, (intF) onShowCSet                                       },
     { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
-    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "Rules - Combos",                     0, (intF) onComboRules                                     },
+    { "Rules - Items",                      0, (intF) onItemRules                                      },
+    { "Rules - Enemies",                    0, (intF) onEnemyRules                                     },
+    { "Rules - NES Fixes",                  0, (intF) onFixesRules                                     },
+    { "Rules - Other",                      0, (intF) onMiscRules                                      },
+    { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "DELETED",                            0, (intF) disabledCommand                                  }
+    { "Rules - Compatibility",              0, (intF) onCompatRules                                    }
 };
 
 /********************************/
@@ -23526,5 +24327,4 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
 
 
 /* end */
-
 

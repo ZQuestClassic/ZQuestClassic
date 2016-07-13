@@ -1,20 +1,3 @@
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 /* Zelda Classic Music Library         */
 /* ------------------------------------*/
 /* Wrapper for transparently extending */
@@ -47,11 +30,11 @@
 //short of fixing gme, these warnings will always be there...
 #pragma warning(disable:4512) //assignment operator could not be generated
 #pragma warning(disable:4100) //unreferenced formal parameter
-#include "Nsf_Emu.h"
-#include "Gbs_Emu.h"
-#include "Spc_Emu.h"
-#include "Vgm_Emu.h"
-#include "Gym_Emu.h"
+#include "gme/Nsf_Emu.h"
+#include "gme/Gbs_Emu.h"
+#include "gme/Spc_Emu.h"
+#include "gme/Vgm_Emu.h"
+#include "gme/Gym_Emu.h"
 #pragma warning(default:4100)
 #pragma warning(default:4512)
 #define int8_t       signed char

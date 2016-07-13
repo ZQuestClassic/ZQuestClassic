@@ -13,15 +13,7 @@
 
 #include "zc_malloc.h"
 
-#ifdef _DEBUG
-    #include <cassert>
-    #define ZCASSERT(x) assert(x)
-#else
-    #define ZCASSERT(X) 
-#endif
-
 void trace_reset();
 void trace(char *format,...);
-
 #endif
  

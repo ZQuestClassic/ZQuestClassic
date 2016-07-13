@@ -18,7 +18,7 @@ void debugging_box(int x1, int y1, int x2, int y2);
 void clear_dmap(word i);
 void clear_dmaps();
 int count_dmaps();
-bool isdungeon(int dmap = -1, int scr = -1);
+int isdungeon(int dmap = -1, int scr = -1);
 int MAPCOMBO(int x,int y);
 int MAPFFCOMBO(int x,int y);
 int MAPCSET(int x,int y);
@@ -98,10 +98,6 @@ bool water_walkflag(int x,int y,int cnt);
 bool hit_walkflag(int x,int y,int cnt);
 void map_bkgsfx(bool on);
 
-// Used by scripts
-bool asScreenFlagIsSet(int flag);
-int asGetComboType(int pos);
-
 //extern FONT *lfont;
 /****  View Map  ****/
 extern int mapres;
@@ -109,10 +105,7 @@ bool displayOnMap(int x, int y);
 void ViewMap();
 int onViewMap();
 
-
-#define DegtoFix(d)     ((d)*0.7111111111111)
-#define RadtoFix(d)     ((d)*40.743665431525)
-
+//extern bool FuckIAlreadyDrewThatAlready[ 7 ];
 #endif
 
 /*** end of maps.cc ***/

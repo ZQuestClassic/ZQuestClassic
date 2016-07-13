@@ -2,7 +2,6 @@
 #define _zscript_rendertarget_h_
 
 #include<allegro.h>
-#include "util.h"
 
 
 #ifdef _MSC_VER
@@ -16,17 +15,11 @@
 #endif
 
 
+
 class ZScriptDrawingRenderTarget
 {
 public:
-
-	struct SourceParamInfo
-	{
-		int i;
-		int x, y, w, h;
-	};
-
-	static const int MaxBuffers = 7;
+    static const int MaxBuffers = 7;
     
     //These aren't allocated unless requested by the user,
     //so we can handle sizes up to 512x512 with script drawing.
@@ -36,8 +29,7 @@ public:
 protected:
     BITMAP* _bitmap[ MaxBuffers ];
     int _current_target;
-	SourceParamInfo _sourceInfo;
-   
+    
 public:
     ZScriptDrawingRenderTarget() : _current_target(-1)
     {
@@ -55,55 +47,17 @@ public:
                 destroy_bitmap(_bitmap[i]);
         }
     }
-
-	_FORCE_INLINE void CreateBitmap(int index, int w, int h, int depth = 8)
-	{
-		if((unsigned)index < MaxBuffers)
-		{
-			int minBitmapSize = 1;
-			int maxBitmapSize = 2048;
-			w = clamp(w, minBitmapSize, maxBitmapSize);
-			h = clamp(h, minBitmapSize, maxBitmapSize);
-
-			if(_bitmap[index])
-			{
-				if(_bitmap[index]->w == w && _bitmap[index]->h == h)
-					return;
-
-				destroy_bitmap(_bitmap[index]);
-				_bitmap[index] = NULL;
-			}
-
-			_bitmap[index] = create_bitmap_ex(depth, w, h);
-		}
-	}
-  
-    _FORCE_INLINE void SetCurrentRenderSource(int source, int x, int y, int w, int h)
+    
+    _FORCE_INLINE void SetCurrentRenderTarget(int target)
     {
-		SourceParamInfo si = { source, x, y, w, h };
-        _sourceInfo = si;
+        _current_target = target;
     }
     
-    _FORCE_INLINE int GetCurrentRenderSource()
+    _FORCE_INLINE int GetCurrentRenderTarget()
     {
-        return _sourceInfo.i;
+        return _current_target;
     }
-
-	_FORCE_INLINE SourceParamInfo& GetCurrentRenderSourceInfo()
-	{
-		return _sourceInfo;
-	}
-
-	_FORCE_INLINE void SetCurrentRenderTarget(int target)
-	{
-		_current_target = target;
-	}
-
-	_FORCE_INLINE int GetCurrentRenderTarget()
-	{
-		return _current_target;
-	}
-   
+    
     _FORCE_INLINE BITMAP* GetTargetBitmap(int target)
     {
         if(target < 0 || target >= MaxBuffers)

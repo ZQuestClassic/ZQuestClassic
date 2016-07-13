@@ -7,9 +7,6 @@
 //  Ending code for Zelda Classic.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -22,7 +19,6 @@
 
 #include "ending.h"
 #include "zelda.h"
-#include "zc_sys.h"
 #include "zsys.h"
 #include "sprite.h"
 #include "items.h"
@@ -33,8 +29,6 @@
 #include "subscr.h"
 #include "init.h"
 #include "gamedata.h"
-#include "sound.h"
-#include "zeldadat.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -264,6 +258,7 @@ void ending()
         if(Quit) return;
     }
     
+    clear_bitmap(msgdisplaybuf);
     draw_screen(tmpscr);
     advanceframe(true);
     
@@ -450,7 +445,6 @@ void ending()
         
     case 3:
     case 4:
-	case 5:
         endText=quest34End;
         numEndTextLines=numQuest34EndLines;
         deathsYPos=792;

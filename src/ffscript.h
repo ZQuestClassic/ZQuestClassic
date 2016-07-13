@@ -276,21 +276,22 @@ enum ASM_DEFINE
     GETTILEWARPSCR,       //0x00E6
     GETTILEWARPTYPE,      //0x00E7
     GETFFCSCRIPT,         //0x00E8
-	SETRENDERSOURCE,      //0x00E9
-	CREATEBITMAP,         //0x00EA
-	BITMAPEXR,            //0x00EB
-	POLYGONR,             //0x00EC
-	PIXELARRAYR,          //0x00ED
-	TILEARRAYR,           //0x00EE
-	COMBOARRAYR,          //0x00EF
-
-    NUMCOMMANDS           //0x00F0
+    /* ..sorry, forgot about these ...for now. -Gleeok
+      CALCSPLINE,           //0x00
+      COLLISIONRECT,  ?      //0x00
+      COLLISIONBOX,   ?      //0x00
+      SETBITMAPBUFFER,
+      GETBITMAPBUFFER,
+      CLEARBITMAPBUFFER,
+      RENDERBITMAPBUFFER,
+    */
+    NUMCOMMANDS           //0x00E9
 };
 
 //ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
-#define REG_D(n)           ((0x0000)+(n)) //8
-#define REG_A(n)           ((0x0008)+(n)) //2
+#define D(n)               ((0x0000)+(n)) //8
+#define A(n)               ((0x0008)+(n)) //2
 #define DATA                 0x000A
 #define FCSET                0x000B
 #define DELAY                0x000C

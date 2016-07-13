@@ -11,9 +11,6 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 
 #include "precompiled.h" //always first
 
@@ -21,7 +18,6 @@
 #include "zelda.h"
 #include "maps.h"
 #include "tiles.h"
-#include "sound.h"
 
 /*
 void sprite::check_conveyor()

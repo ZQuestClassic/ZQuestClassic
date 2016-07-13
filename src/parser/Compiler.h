@@ -10,6 +10,9 @@
 #include <string>
 #include <stdio.h>
 
+using std::string;
+using std::vector;
+using std::pair;
 
 class ArgumentVisitor;
 
@@ -18,7 +21,7 @@ class Opcode
 public:
     Opcode() : label(-1) {}
     virtual ~Opcode() {}
-    virtual std::string toString()=0;
+    virtual string toString()=0;
     int getLabel()
     {
         return label;
@@ -27,7 +30,7 @@ public:
     {
         label=l;
     }
-    std::string printLine(bool showlabel = false)
+    string printLine(bool showlabel = false)
     {
         char buf[100];
         
@@ -35,7 +38,7 @@ public:
             return " " + toString() + "\n";
             
         sprintf(buf, "l%d:", label);
-        return (showlabel ? std::string(buf) : " ")+ toString() + "\n";
+        return (showlabel ? string(buf) : " ")+ toString() + "\n";
     }
     Opcode * makeClone()
     {
@@ -57,8 +60,8 @@ private:
 
 struct ScriptsData
 {
-    std::map<std::string, std::vector<Opcode *> > theScripts;
-    std::map<std::string, int> scriptTypes;
+    std::map<string, vector<Opcode *> > theScripts;
+    std::map<string, int> scriptTypes;
 };
 
 ScriptsData *compile(const char *filename);
@@ -102,8 +105,8 @@ public:
     static const int TYPE_NPC = 10;
     static const int TYPE_LWPN = 11;
     static const int TYPE_EWPN = 12;
-    static bool preprocess(AST *theAST, int reclevel, std::map<std::string,long> *constants);
-    static SymbolData *buildSymbolTable(AST *theAST, std::map<std::string, long> *constants);
+    static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
+    static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
     static FunctionData *typeCheck(SymbolData *sdata);
     static IntermediateData *generateOCode(FunctionData *fdata);
     static ScriptsData *assemble(IntermediateData *id);
@@ -114,8 +117,8 @@ public:
         gid=1;
         lid=0;
     }
-    static std::pair<long,bool> parseLong(std::pair<std::string,std::string> parts);
-    static std::string printType(int type)
+    static pair<long,bool> parseLong(pair<string,string> parts);
+    static string printType(int type)
     {
         switch(type)
         {
@@ -163,8 +166,8 @@ public:
         }
     }
 private:
-    static std::string trimQuotes(std::string quoteds);
-    static std::vector<Opcode *> assembleOne(std::vector<Opcode *> script, std::map<int, std::vector<Opcode *> > &otherfuncs, int numparams);
+    static string trimQuotes(string quoteds);
+    static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);
     static int vid;
     static int fid;
     static int gid;

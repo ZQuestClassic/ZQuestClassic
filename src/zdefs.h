@@ -85,9 +85,6 @@
   GFX_QUARTZ_WINDOW
   */
 
-#include "types.h"
-#include "ffc.h"
-#include "refInfo.h"
 #include <math.h>
 #include <string.h>
 #include <vector>
@@ -240,6 +237,11 @@ extern int passive_subscreen_offset;
 
 extern int CSET_SIZE;
 extern int CSET_SHFT;
+
+typedef unsigned char        byte;                               //0-                       255  ( 8 bits)
+typedef unsigned short       word;                               //0-                    65,535  (16 bits)
+typedef unsigned long        dword;                              //0-             4,294,967,295  (32 bits)
+typedef unsigned long long   qword;                              //0-18,446,744,073,709,551,616  (64 bits)
 
 extern int readsize, writesize;
 extern bool fake_pack_writing;
@@ -442,19 +444,18 @@ extern bool fake_pack_writing;
 #define efBOSS          128
 
 // item "pick up" flags
-#define ipBIGRANGE      1    // Collision rectangle is large
-#define ipHOLDUP        2    // Link holds up item when he gets it
-#define ipONETIME       4    // Getting this item sets mITEM
-#define ipDUMMY         8    // Dummy item.  Can't get this.
-#define ipCHECK         16   // Check restrictions (money in a shop, etc.)
-#define ipMONEY         32   // This item causes money loss (bomb upgrade, swindle room, etc.)
-#define ipFADE          64   // Blinks if fadeclk>0
-#define ipENEMY         128  // Enemy is carrying it around
-#define ipTIMER         256  // Disappears after a while
-#define ipBIGTRI        512  // Large collision rectangle (used for large triforce)
-#define ipNODRAW        1024 // Don't draw this (for underwater items)
-#define ipONETIME2      2048 // Getting this item sets mBELOW
-#define ipSPECIAL       4096 // This is the item in a Special Item room
+#define ipBIGRANGE      1                                   // Collision rectangle is large
+#define ipHOLDUP        2                                   // Link holds up item when he gets it
+#define ipONETIME       4                                   // Getting this item sets mITEM
+#define ipONETIME2      2048                                // Getting this item sets mBELOW
+#define ipDUMMY         8                                   // Dummy item.  Can't get this.
+#define ipCHECK         16                                  // Check restrictions (money in a shop, etc.)
+#define ipMONEY         32                                  // This item causes money loss (bomb upgrade, swindle room, etc.)
+#define ipFADE          64                                  // Blinks if fadeclk>0
+#define ipENEMY         128                                 // Enemy is carrying it around
+#define ipTIMER         256                                 // Disappears after a while
+#define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
+#define ipNODRAW        1024                                // Don't draw this (for underwater items)
 
 
 enum
@@ -609,7 +610,7 @@ enum
 {
     rNONE, rSP_ITEM, rINFO, rMONEY, rGAMBLE, rREPAIR, rRP_HC, rGRUMBLE,
     rTRIFORCE, rP_SHOP, rSHOP, rBOMBS, rSWINDLE, r10RUPIES, rWARP,
-    rGANON, rZELDA, rUNUSED, rMUPGRADE, rLEARNSLASH, rARROWS, rTAKEONE,
+    rGANON, rZELDA, rITEMPOND, rMUPGRADE, rLEARNSLASH, rARROWS, rTAKEONE,
     rMAX
 };
 
@@ -1122,6 +1123,29 @@ struct item_drop_object
 #define guy_superman    0x00000008
 #define guy_sbombonly   0x00000010
 
+//FF combo flags
+
+#define ffOVERLAY       0x00000001
+#define ffTRANS         0x00000002
+#define ffSOLID         0x00000004
+#define ffCARRYOVER     0x00000008
+#define ffSTATIONARY    0x00000010
+#define ffCHANGER       0x00000020 //Is a changer
+#define ffPRELOAD       0x00000040 //Script is run before screen appears.
+#define ffLENSVIS       0x00000080 //Invisible, but not to the Lens of Truth.
+#define ffSCRIPTRESET	0x00000100 //Script resets when carried over.
+#define ffETHEREAL      0x00000200 //Does not occlude combo and flags on the screen
+#define ffIGNOREHOLDUP  0x00000400 //Updated even while Link is holding an item
+
+//FF combo changer flags
+
+#define ffSWAPNEXT      0x80000000 //Swap speed with next FFC
+#define ffSWAPPREV      0x40000000 //Swap speed with prev. FFC
+#define ffCHANGENEXT    0x20000000 //Increase combo ID
+#define ffCHANGEPREV    0x10000000 //Decrease combo ID
+#define ffCHANGETHIS    0x08000000 //Change combo/cset to this
+#define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
+
 struct guydata
 {
     dword flags;
@@ -1148,6 +1172,51 @@ struct guydata
     //  short  startx, starty;
     //  short  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
+};
+
+class refInfo
+{
+public:
+    //word script; //script number
+    dword pc; //current command offset
+    
+    long d[8]; //d registers
+    long a[2]; //a regsisters (reference to another ffc on screen)
+    byte sp; //stack pointer for current script
+    dword scriptflag; //stores whether various operations were true/false etc.
+    
+    byte ffcref, idata; //current object pointers
+    dword itemref, guyref, lwpn, ewpn;
+    
+    //byte ewpnclass, lwpnclass, guyclass; //Not implemented
+    
+    void Clear()
+    {
+        pc = 0, sp = 0, scriptflag = 0;
+        ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
+        memset(d, 0, 8 * sizeof(long));
+        a[0] = a[1] = 0;
+    }
+    
+    refInfo()
+    {
+        Clear();
+    }
+    
+    refInfo(const refInfo &copy)
+    {
+        *this = copy;
+    }
+    
+    refInfo &operator = (const refInfo &rhs)
+    {
+        pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
+        ffcref = rhs.ffcref, idata = rhs.idata;
+        itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
+        memcpy(d, rhs.d, 8 * sizeof(long));
+        memcpy(a, rhs.a, 2 * sizeof(long));
+        return *this;
+    }
 };
 
 
@@ -1216,7 +1285,7 @@ struct mapscr
     word secretcombo[128];
     byte secretcset[128];
     byte secretflag[128];
-    
+    // you're listening to ptr radio, the sounds of insane. ;)
     std::vector<word> data;
     std::vector<byte> sflag;
     std::vector<byte> cset;
@@ -1224,12 +1293,64 @@ struct mapscr
     word viewY;
     byte scrWidth;
     byte scrHeight;
-
-	///TODO: This is just plain wasteful and needs fixing at some point.
-    FFCSet ffcs;
-	//FFCSet* ffcs;
-
-    dword ffcsUsed; // Each bit corresponds to an FFC
+    
+    //Why doesn't ffc get to be its own class?
+    dword numff;
+    word ffdata[32];
+    byte ffcset[32];
+    word ffdelay[32];
+    long ffx[32];
+    long ffy[32];
+    long ffxdelta[32];
+    long ffydelta[32];
+    long ffxdelta2[32];
+    long ffydelta2[32];
+    dword ffflags[32];
+    byte ffwidth[32];
+    byte ffheight[32];
+    byte fflink[32];
+    long ffmisc[32][16];
+    
+    //ffc script attachments
+    word ffscript[32];
+    long initd[32][8];
+    long inita[32][2];
+    bool initialized[32];
+    
+    refInfo scriptData[32];
+    /*long d[32][8];
+    long a[32][2];
+    word pc[32];
+    dword scriptflag[32];
+    byte sp[32]; //stack pointer
+    byte ffcref[32];
+    dword itemref[32];
+    byte itemclass[32];
+    dword lwpnref[32];
+    dword ewpnref[32];
+    dword guyref[32];*/
+    //byte lwpnclass[32]; Not implemented
+    //byte ewpnclass[32]; Not implemented
+    //byte guyclass[32]; Not implemented
+    
+    /*long map_stack[256];
+    long map_d[8];
+    word map_pc;
+    dword map_scriptflag;
+    byte map_sp;
+    byte map_itemref;
+    byte map_itemclass;
+    byte map_lwpnref;
+    byte map_lwpnclass;
+    byte map_ewpnref;
+    byte map_ewpnclass;
+    byte map_guyref;
+    byte map_guyclass;
+    byte map_ffcref;*/ //All this is trash because we don't have map scripts, waste of memory
+    word script_entry;
+    word script_occupancy;
+    word script_exit;
+    
     byte oceansfx;
     byte bosssfx;
     byte secretsfx;
@@ -1291,7 +1412,7 @@ struct mapscr
         viewY=0;
         scrWidth=0;
         scrHeight=0;
-        ffcsUsed=0;
+        numff=0;
         
         for(int i(0); i<4; i++)
         {
@@ -1324,8 +1445,71 @@ struct mapscr
             layeropacity[i]=0;
         }
         
-        ffcs.clear(); // Actually sets width and height to 15, not 0
+        for(int i(0); i<32; i++)
+        {
+            scriptData[i].Clear();
+            
+            for(int j(0); j<8; j++)
+            {
+                //d[i][j]=0;
+                initd[i][j]=0;
+            }
+            
+            for(int j(0); j<16; j++)
+            {
+                ffmisc[i][j]=0;
+            }
+            
+            for(int j(0); j<2; j++)
+            {
+                inita[i][j]=0;
+                //a[i][j]=0;
+            }
+            
+            initialized[i]=0;
+            /*pc[i]=0;
+            scriptflag[i]=0;
+            sp[i]=0;
+            ffcref[i]=0;
+            itemref[i]=0;
+            itemclass[i]=0;*/
+            ffdata[i]=0;
+            ffcset[i]=0;
+            ffdelay[i]=0;
+            ffx[i]=0;
+            ffy[i]=0;
+            ffxdelta[i]=0;
+            ffydelta[i]=0;
+            ffxdelta2[i]=0;
+            ffydelta2[i]=0;
+            ffflags[i]=0;
+            ffwidth[i]=0;
+            ffheight[i]=0;
+            fflink[i]=0;
+            ffscript[i]=0;
+        }
         
+        /*	  for(int i(0);i<256;i++)
+        	  {
+        	   map_stack[i]=0;
+        	  }
+        	   for(int i(0);i<8;i++)
+        	  {
+        	   map_d[i]=0;
+        	  }
+           map_pc=0;
+           map_scriptflag=0;
+           map_sp=map_itemref=map_itemclass=0;
+           map_lwpnref=0;
+           map_lwpnclass=0;
+           map_ewpnref=0;
+           map_ewpnclass=0;
+           map_guyref=0;
+           map_guyclass=0;
+           map_ffcref=0;*/
+        script_entry=0;
+        script_occupancy=0;
+        script_exit=0;
         oceansfx=0;
         bosssfx=0;
         secretsfx=0;
@@ -1343,31 +1527,12 @@ struct mapscr
     
     mapscr()
     {
-		// TODO: We can just create a single contiguous block for these.
-		//zero_memory() already assigns these to 0.
-        //data.resize(176,0);
-        //sflag.resize(176,0);
-        //cset.resize(176,0);
-
+        data.resize(176,0);
+        sflag.resize(176,0);
+        cset.resize(176,0);
         zero_memory();
     }
     
-    // Functions for AngelScript
-    word getData(int index) const { return data[index]; }
-    void setData(int index, word value) { data[index]=value; }
-    byte getCSet(int index) const { return cset[index]; }
-    void setCSet(int index, byte value) { cset[index]=value; }
-    byte getSFlag(int index) const { return sflag[index]; }
-    void setSFlag(int index, byte value) { sflag[index]=value; }
-    
-    word getSecretCombo(int index) const { return secretcombo[index]; }
-    void setSecretCombo(int index, word value) { secretcombo[index]=value; }
-    byte getSecretCSet(int index) const { return secretcset[index]; }
-    void setSecretCSet(int index, byte value) { secretcset[index]=value; }
-    byte getSecretFlag(int index) const { return secretflag[index]; }
-    void setSecretFlag(int index, byte value) { secretflag[index]=value; }
-    
-    FFC* getFFC(int index) { return ffcs.getPtr(index); }
 };
 
 struct ffscript
@@ -1462,21 +1627,22 @@ enum {cfOFFSET, cfMAX};
 struct newcombo
 {
     word tile;
-    word nextcombo;
-	word nexttimer;
     byte flip;
     byte walk;
     byte type;
     byte csets;
-	byte frames;
-	byte speed;
+    word foo; // used in zq_tiles for some reason. May be redundant. -- L.
+    byte frames;
+    byte speed;
+    word nextcombo;
     byte nextcset;
     byte flag;
     byte skipanim;
+    word nexttimer;
     byte skipanimy;
     byte animflags;
-	// TODO: It might be worth compressing newcombo into an aligned 16 byte block.
-    //17 (+3)
+    byte expansion[6];
+    //24
 };
 
 #define AF_FRESH 1
@@ -1987,7 +2153,7 @@ public:
 } emusic;
 */
 
-enum itemType // used for gamedata ITEMS
+enum // used for gamedata ITEMS
 {
     // 0
     itype_sword, itype_brang, itype_arrow, itype_candle, itype_whistle,
@@ -2896,6 +3062,7 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels
 int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
 
 extern void flushItemCache();
+extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTFFC		512
 #define NUMSCRIPTFFCOLD		256
 #define NUMSCRIPTITEM		256

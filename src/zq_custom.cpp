@@ -8,23 +8,6 @@
 //
 //--------------------------------------------------------
 
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -3233,7 +3216,9 @@ int onCustomEnemies()
     while(index >= 0)
     {
         //I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
-        //,,.Someone feel free to fix the thing properly later on. -Gleeok
+        //,,.Someone feel free to fix the thing properly later on.
+        //Right now creating custom enemies remains a long painful process, but it shouldn't be this hard for users to use.
+        //-Two cents worth. -Gleeok
         if(key[KEY_OPENBRACE])   //copy
         {
             if(index != 0)

@@ -245,32 +245,32 @@ void jwin_draw_button(BITMAP *dest,int x,int y,int w,int h,int state,int type)
 }
 
 /*  mix_value:
-  *   Returns a mix of the values c1 and c2 with jwinPOS==0 being c1,
-  *   jwinPOS==max being c2, jwinPOS==max/2 being half way between c1 and c2, etc.
+  *   Returns a mix of the values c1 and c2 with pos==0 being c1,
+  *   pos==max being c2, pos==max/2 being half way between c1 and c2, etc.
   */
-int mix_value(int c1,int c2,int jwinPOS,int max)
+int mix_value(int c1,int c2,int pos,int max)
 {
     if(max<=0)
         return c1;
         
-    return (c2 - c1) * jwinPOS / max + c1;
+    return (c2 - c1) * pos / max + c1;
 }
 
 /*  mix_color:
-  *   Returns a mix of the colors c1 and c2 with jwinPOS==0 being c1,
-  *   jwinPOS==max being c2, jwinPOS==max/2 being half way between c1 and c2, etc.
+  *   Returns a mix of the colors c1 and c2 with pos==0 being c1,
+  *   pos==max being c2, pos==max/2 being half way between c1 and c2, etc.
   *
-  static int mix_color(int c1,int c2,int jwinPOS,int max)
+  static int mix_color(int c1,int c2,int pos,int max)
   {
   int c;
 
   if(bitmap_color_depth(screen) == 8)
-  c = mix_value(c1, c2, jwinPOS, max);
+  c = mix_value(c1, c2, pos, max);
   else
   {
-  int r = mix_value(getr(c1), getr(c2), jwinPOS, max);
-  int g = mix_value(getg(c1), getg(c2), jwinPOS, max);
-  int b = mix_value(getb(c1), getb(c2), jwinPOS, max);
+  int r = mix_value(getr(c1), getr(c2), pos, max);
+  int g = mix_value(getg(c1), getg(c2), pos, max);
+  int b = mix_value(getb(c1), getb(c2), pos, max);
   c = makecol(r,g,b);
   }
 
@@ -410,7 +410,7 @@ int mouse_in_rect(int x,int y,int w,int h)
             (gui_mouse_x() < x + w) && (gui_mouse_y() < y + h));
 }
 
-static int jwin_do_x_button(BITMAP *dest, int x, int y)
+static int do_x_button(BITMAP *dest, int x, int y)
 {
     int down=0, last_draw = 0;
     
@@ -479,7 +479,7 @@ static void _dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
   *
   *  Handles '\n' characters.
   */
-int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int color, int bg, int jwinPOS)
+int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int color, int bg, int pos)
 {
     char tmp[1024];
     int c = 0;
@@ -519,11 +519,11 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int col
         
         x = xx;
         
-        if(jwinPOS==1)  //center
+        if(pos==1)  //center
         {
             x -= pix_len / 2;
         }
-        else if(jwinPOS==2)  //right
+        else if(pos==2)  //right
         {
             x -= pix_len;
         }
@@ -551,9 +551,9 @@ int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int col
     return pix_len;
 }
 
-int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int bg, int jwinPOS)
+int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int bg, int pos)
 {
-    return gui_textout_ln(bmp, font, s, x, y, color, bg, jwinPOS);
+    return gui_textout_ln(bmp, font, s, x, y, color, bg, pos);
 }
 
 
@@ -638,7 +638,7 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
     case MSG_CLICK:
         if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
         {
-            if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
+            if(do_x_button(screen, d->x+d->w-21, d->y+5))
                 return D_CLOSE;
         }
         
@@ -927,7 +927,6 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-            //	#ifdef _ZQUEST_SCALE_
             if(is_zquest())
             {
                 if(myvsync)
@@ -944,8 +943,6 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
                     myvsync=0;
                 }
             }
-            
-            //	#endif
         }
         
         /* redraw in normal state */
@@ -968,6 +965,89 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
     }
     
     return D_O_K;
+}
+
+/* jwin_func_button_proc:
+  *  A button that runs a void() function when clicked.
+  *  dp: Button text
+  *  dp2: Function to run
+  */
+int jwin_func_button_proc(int msg, DIALOG *d, int c)
+{
+    int down=0;
+    int selected=(d->flags&D_SELECTED)?1:0;
+    int last_draw;
+    
+    if(msg==MSG_CLICK || msg==MSG_KEY)
+    {
+        last_draw = 0;
+        
+        /* track the mouse until it is released */
+        while(gui_mouse_b())
+        {
+            down = mouse_in_rect(d->x, d->y, d->w, d->h);
+            
+            /* redraw? */
+            if(last_draw != down)
+            {
+                if(down != selected)
+                    d->flags |= D_SELECTED;
+                else
+                    d->flags &= ~D_SELECTED;
+                    
+                scare_mouse();
+                object_message(d, MSG_DRAW, 0);
+                unscare_mouse();
+                last_draw = down;
+            }
+            
+            /* let other objects continue to animate */
+            broadcast_dialog_message(MSG_IDLE, 0);
+            
+            if(is_zquest())
+            {
+                if(myvsync)
+                {
+                    if(zqwin_scale > 1)
+                    {
+                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+                    }
+                    else
+                    {
+                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+                    }
+                    
+                    myvsync=0;
+                }
+            }
+        }
+        
+        /* redraw in normal state */
+        if(down)
+        {
+            if(d->flags&D_EXIT)
+            {
+                d->flags &= ~D_SELECTED;
+                scare_mouse();
+                object_message(d, MSG_DRAW, 0);
+                unscare_mouse();
+            }
+        }
+        
+        /* pop up and call the function */
+        if(down)
+        {
+            d->flags &= ~D_SELECTED;
+            object_message(d, MSG_DRAW, 0);
+            typedef void (*funcType)(void);
+            funcType func=reinterpret_cast<funcType>(d->dp3);
+            func();
+        }
+            
+        return D_O_K;
+    }
+    
+    return jwin_button_proc(msg, d, c);
 }
 
 /* jwin_edit_proc:
@@ -1201,7 +1281,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
                 return D_O_K;
         }
         
-        /* if we changed something, jwinBETTER redraw... */
+        /* if we changed something, better redraw... */
         scare_mouse();
         object_message(d, MSG_DRAW, 0);
         unscare_mouse();
@@ -1242,11 +1322,11 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c)
   *   Helps find positions of buttons on the scroll bar.
   */
 void _calc_scroll_bar(int h, int height, int listsize, int offset,
-                      int *bh, int *len, int *jwinPOS)
+                      int *bh, int *len, int *pos)
 {
     *bh = zc_max(zc_min((h-4)/2, 14), 0);
     *len = zc_max(((h - 32) * height + listsize/2) / listsize , 6);
-    *jwinPOS = ((h - 32 - *len) * offset) / (listsize-height);
+    *pos = ((h - 32 - *len) * offset) / (listsize-height);
 }
 
 /* _handle_scrollable_click:
@@ -1261,11 +1341,11 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
     int height = (d->h-3) / text_height(fnt);
     int hh = d->h - 32;
     int obj = bar;
-    int bh, len, jwinPOS;
+    int bh, len, pos;
     int down = 1, last_draw = 0;
     int redraw = 0, mouse_delay = 0;
     
-    _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &jwinPOS);
+    _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
     
     xx = d->x + d->w - 18;
     
@@ -1285,15 +1365,15 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
     }
     else if(d->h > 32+6)
     {
-        if(yy < d->y+2+bh+jwinPOS)
+        if(yy < d->y+2+bh+pos)
             obj = top_bar;
-        else if(yy >= d->y+2+bh+jwinPOS+len)
+        else if(yy >= d->y+2+bh+pos+len)
             obj = bottom_bar;
     }
     
     while(gui_mouse_b())
     {
-        _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &jwinPOS);
+        _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
         
         switch(obj)
         {
@@ -1341,12 +1421,12 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
             {
                 if(obj==top_bar)
                 {
-                    if(gui_mouse_y() < d->y+2+bh+jwinPOS)
+                    if(gui_mouse_y() < d->y+2+bh+pos)
                         yy = *offset - height;
                 }
                 else
                 {
-                    if(gui_mouse_y() >= d->y+2+bh+jwinPOS+len)
+                    if(gui_mouse_y() >= d->y+2+bh+pos+len)
                         yy = *offset + height;
                 }
                 
@@ -1366,16 +1446,16 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
                 }
             }
             
-            _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &jwinPOS);
+            _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
             
-            if(!mouse_in_rect(xx, d->y+2+bh+jwinPOS, 16, len))
+            if(!mouse_in_rect(xx, d->y+2+bh+pos, 16, len))
                 break;
                 
             // fall through
             
         case bar:
         default:
-            xx = gui_mouse_y() - jwinPOS;
+            xx = gui_mouse_y() - pos;
             
             while(gui_mouse_b())
             {
@@ -1576,7 +1656,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
   */
 void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int type)
 {
-    int jwinPOS, len;
+    int pos, len;
     int xx, yy, hh, bh;
     static BITMAP *pattern = NULL;                            // just create it once
     
@@ -1590,7 +1670,7 @@ void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height
     /* possibly draw scrollbar */
     if(listsize > height)
     {
-        _calc_scroll_bar(d->h, height, listsize, offset, &bh, &len, &jwinPOS);
+        _calc_scroll_bar(d->h, height, listsize, offset, &bh, &len, &pos);
         
         xx = d->x + d->w - 18;
         
@@ -1617,7 +1697,7 @@ void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height
             
             if(d->h > 32+6)
             {
-                jwin_draw_button(screen, xx, yy+jwinPOS, 16, len, 0, 1);
+                jwin_draw_button(screen, xx, yy+pos, 16, len, 0, 1);
             }
         }
         
@@ -1941,7 +2021,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 }
             }
             
-            /* if we changed something, jwinBETTER redraw... */
+            /* if we changed something, better redraw... */
             _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
             scare_mouse();
             object_message(d, MSG_DRAW, 0);
@@ -2267,7 +2347,7 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
         start = d->d2;
         d->d2 = (c > 0) ? MAX(0, d->d2-delta) : MIN(d->d1-l, d->d2+delta);
         
-        // if we changed something, jwinBETTER redraw...
+        // if we changed something, better redraw...
         if(d->d2 != start)
         {
             d->flags |= D_DIRTY;
@@ -2321,7 +2401,7 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
         else
             used = D_O_K;
             
-        /* if we changed something, jwinBETTER redraw... */
+        /* if we changed something, better redraw... */
         if(d->d2 != start)
         {
             scare_mouse();
@@ -4021,61 +4101,61 @@ int makecol8_map(int r, int g, int b, RGB_MAP *table)
   *  about them etc...
   *
   *  It does just about 80000 tests for distances and this is about 100
-  *  times jwinBETTER than normal 256*32000 tests so the calculation time
+  *  times better than normal 256*32000 tests so the calculation time
   *  is now less than one second at all computers I tested.
   */
-void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char start, unsigned char end, void (*callback)(int jwinPOS))
+void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char start, unsigned char end, void (*callback)(int pos))
 {
-#define jwinUNUSED 65535
-#define jwinLAST 65532
+#define UNUSED 65535
+#define LAST 65532
 
-    /* macro jwinADD adds to single linked list */
-#define jwinADD(i)    (next[(i)] == jwinUNUSED ? (next[(i)] = jwinLAST, \
-                                          (first != jwinLAST ? (next[last] = (i)) : (first = (i))), \
+    /* macro add adds to single linked list */
+#define add(i)    (next[(i)] == UNUSED ? (next[(i)] = LAST, \
+                                          (first != LAST ? (next[last] = (i)) : (first = (i))), \
                                           (last = (i))) : 0)
     
     /* same but w/o checking for first element */
-#define jwinADD1(i)   (next[(i)] == jwinUNUSED ? (next[(i)] = jwinLAST, \
+#define add1(i)   (next[(i)] == UNUSED ? (next[(i)] = LAST, \
                                           next[last] = (i), \
                                           (last = (i))) : 0)
     
     /* calculates distance between two colors */
-#define jwinDIST(a1, a2, a3, b1, b2, b3) \
+#define dist(a1, a2, a3, b1, b2, b3) \
           (col_diff[ ((a2) - (b2)) & 0x7F] + \
            (col_diff + 128)[((a1) - (b1)) & 0x7F] + \
            (col_diff + 256)[((a3) - (b3)) & 0x7F])
     
     /* converts r,g,b to position in array and back */
-#define jwinPOS(r, g, b) \
+#define pos(r, g, b) \
           (((r) / 2) * 32 * 32 + ((g) / 2) * 32 + ((b) / 2))
     
-#define jwinDEPOS(pal, r, g, b) \
+#define depos(pal, r, g, b) \
           ((b) = ((pal) & 31) * 2, \
            (g) = (((pal) >> 5) & 31) * 2, \
            (r) = (((pal) >> 10) & 31) * 2)
     
-    /* is current color jwinBETTER than pal1? */
-#define jwinBETTER(r1, g1, b1, pal1) \
-          (((int)jwinDIST((r1), (g1), (b1), \
+    /* is current color better than pal1? */
+#define better(r1, g1, b1, pal1) \
+          (((int)dist((r1), (g1), (b1), \
                       (pal1).r, (pal1).g, (pal1).b)) > (int)dist2)
     
     /* checking of position */
-#define jwinDOPOS(rp, gp, bp, ts) \
+#define dopos(rp, gp, bp, ts) \
           if ((rp > -1 || r > 0) && (rp < 1 || r < 61) && \
               (gp > -1 || g > 0) && (gp < 1 || g < 61) && \
               (bp > -1 || b > 0) && (bp < 1 || b < 61)) { \
           i = first + rp * 32 * 32 + gp * 32 + bp; \
           if (!data[i]) {     \
             data[i] = val;    \
-            jwinADD1(i);          \
+            add1(i);          \
           }                   \
           else if ((ts) && (data[i] != val)) { \
               dist2 = (rp ? (col_diff+128)[(r+2*rp-pal[val].r) & 0x7F] : r2) + \
                 (gp ? (col_diff    )[(g+2*gp-pal[val].g) & 0x7F] : g2) + \
                 (bp ? (col_diff+256)[(b+2*bp-pal[val].b) & 0x7F] : b2); \
-              if (jwinBETTER((r+2*rp), (g+2*gp), (b+2*bp), pal[data[i]])) { \
+              if (better((r+2*rp), (g+2*gp), (b+2*bp), pal[data[i]])) { \
                 data[i] = val; \
-                jwinADD1(i);      \
+                add1(i);      \
               }               \
             }                 \
         }
@@ -4084,8 +4164,8 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
     unsigned int r2, g2, b2;
     unsigned short next[32*32*32];
     unsigned char *data;
-    int first = jwinLAST;
-    int last = jwinLAST;
+    int first = LAST;
+    int last = LAST;
     int count = 0;
     int cbcount = 0;
     
@@ -4099,22 +4179,22 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
     
     data = (unsigned char *)table->data;
     
-    /* jwinADD starting seeds for floodfill */
+    /* add starting seeds for floodfill */
     for(i=start; i<PAL_SIZE&&i<=end; i++)
     {
-        curr = jwinPOS(pal[i].r, pal[i].g, pal[i].b);
+        curr = pos(pal[i].r, pal[i].g, pal[i].b);
         
-        if(next[curr] == jwinUNUSED)
+        if(next[curr] == UNUSED)
         {
             data[curr] = i;
-            jwinADD(curr);
+            add(curr);
         }
     }
     
     /* main floodfill: two versions of loop for faster growing in blue axis */
-    while(first < jwinLAST)
+    while(first < LAST)
     {
-        jwinDEPOS(first, r, g, b);
+        depos(first, r, g, b);
         
         /* calculate distance of current color */
         val = data[first];
@@ -4126,12 +4206,12 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
 #ifdef _MSC_VER
 #pragma warning(disable:4127)
 #endif
-        jwinDOPOS(0, 0, 1, 1);
-        jwinDOPOS(0, 0,-1, 1);
-        jwinDOPOS(1, 0, 0, 1);
-        jwinDOPOS(-1, 0, 0, 1);
-        jwinDOPOS(0, 1, 0, 1);
-        jwinDOPOS(0,-1, 0, 1);
+        dopos(0, 0, 1, 1);
+        dopos(0, 0,-1, 1);
+        dopos(1, 0, 0, 1);
+        dopos(-1, 0, 0, 1);
+        dopos(0, 1, 0, 1);
+        dopos(0,-1, 0, 1);
 #ifdef _MSC_VER
 #pragma warning(default:4127)
 #endif
@@ -4146,10 +4226,10 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
 #ifdef _MSC_VER
 #pragma warning(disable:4127)
 #endif
-            jwinDOPOS(-1, 0, 0, 0);
-            jwinDOPOS(1, 0, 0, 0);
-            jwinDOPOS(0,-1, 0, 0);
-            jwinDOPOS(0, 1, 0, 0);
+            dopos(-1, 0, 0, 0);
+            dopos(1, 0, 0, 0);
+            dopos(0,-1, 0, 0);
+            dopos(0, 1, 0, 0);
 #ifdef _MSC_VER
 #pragma warning(default:4127)
 #endif
@@ -4160,12 +4240,12 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
         /* get next from list */
         i = first;
         first = next[first];
-        next[i] = jwinUNUSED;
+        next[i] = UNUSED;
         
         /* second version of loop */
-        if(first != jwinLAST)
+        if(first != LAST)
         {
-            jwinDEPOS(first, r, g, b);
+            depos(first, r, g, b);
             
             val = data[first];
             r2 = (col_diff+128)[((pal[val].r)-(r)) & 0x7F];
@@ -4175,12 +4255,12 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
 #ifdef _MSC_VER
 #pragma warning(disable:4127)
 #endif
-            jwinDOPOS(0, 0, 1, 1);
-            jwinDOPOS(0, 0,-1, 1);
-            jwinDOPOS(1, 0, 0, 1);
-            jwinDOPOS(-1, 0, 0, 1);
-            jwinDOPOS(0, 1, 0, 1);
-            jwinDOPOS(0,-1, 0, 1);
+            dopos(0, 0, 1, 1);
+            dopos(0, 0,-1, 1);
+            dopos(1, 0, 0, 1);
+            dopos(-1, 0, 0, 1);
+            dopos(0, 1, 0, 1);
+            dopos(0,-1, 0, 1);
 #ifdef _MSC_VER
 #pragma warning(default:4127)
 #endif
@@ -4194,10 +4274,10 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
 #ifdef _MSC_VER
 #pragma warning(disable:4127)
 #endif
-                jwinDOPOS(-1, 0, 0, 0);
-                jwinDOPOS(1, 0, 0, 0);
-                jwinDOPOS(0,-1, 0, 0);
-                jwinDOPOS(0, 1, 0, 0);
+                dopos(-1, 0, 0, 0);
+                dopos(1, 0, 0, 0);
+                dopos(0,-1, 0, 0);
+                dopos(0, 1, 0, 0);
 #ifdef _MSC_VER
 #pragma warning(default:4127)
 #endif
@@ -4207,7 +4287,7 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
             
             i = first;
             first = next[first];
-            next[i] = jwinUNUSED;
+            next[i] = UNUSED;
         }
         
         count++;

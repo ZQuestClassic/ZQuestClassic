@@ -10,23 +10,6 @@
 //
 //--------------------------------------------------------
 
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 #include "precompiled.h" //always first
 
 #include "zc_alleg.h"
@@ -46,14 +29,12 @@ extern byte        quest_rules[QUESTRULES_SIZE];
 //BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
 newcombo *combobuf;
-
 word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 word animated_combos;
 word animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 word animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 word animated_combos2;
-
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool used_tile_table[NEWMAXTILES];                          //keeps track of used tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tile quarters
@@ -215,8 +196,7 @@ void setup_combo_animations2()
 
 void reset_combo_animation(int c)
 {
-	const int count = animated_combos;
-    for(int x=0; x<count; ++x)
+    for(word x=0; x<animated_combos; ++x)
     {
         int y=animated_combo_table4[x][0];                      //combo number
         
@@ -231,8 +211,7 @@ void reset_combo_animation(int c)
 
 void reset_combo_animation2(int c)
 {
-	const int count2 = animated_combos2;
-    for(int x=0; x<count2; ++x)
+    for(word x=0; x<animated_combos2; ++x)
     {
         int y=animated_combo_table24[x][0];                      //combo number
         
@@ -247,8 +226,7 @@ void reset_combo_animation2(int c)
 
 void reset_combo_animations()
 {
-	const int count = animated_combos;
-    for(int x=0; x<count; ++x)
+    for(word x=0; x<animated_combos; ++x)
     {
         combobuf[animated_combo_table4[x][0]].tile=animated_combo_table[animated_combo_table4[x][0]][1];
     }
@@ -256,8 +234,7 @@ void reset_combo_animations()
 
 void reset_combo_animations2()
 {
-	const int count2 = animated_combos2;
-    for(int x=0; x<count2; ++x)
+    for(word x=0; x<animated_combos; ++x)
     {
         combobuf[animated_combo_table24[x][0]].tile=animated_combo_table2[animated_combo_table24[x][0]][1];
     }
@@ -268,9 +245,8 @@ extern void update_combo_cycling();
 void animate_combos()
 {
     update_combo_cycling();
-
-	const int count = animated_combos;
-    for(int x=0; x<count; ++x)
+    
+    for(word x=0; x<animated_combos; ++x)
     {
         int y=animated_combo_table4[x][0];                      //combo number
         
@@ -301,8 +277,7 @@ void animate_combos()
         }
     }
     
-	const int count2 = animated_combos2;
-    for(int x=0; x<count2; ++x)
+    for(word x=0; x<animated_combos2; ++x)
     {
         int y=animated_combo_table24[x][0];                      //combo number
         

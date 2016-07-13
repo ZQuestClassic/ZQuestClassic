@@ -36,11 +36,8 @@ WNDPROC hAllegroProc = 0;
 
 
 /*
-	These are unfinished, though the windows stuff is here if it is needed.
-	This might work, but most likely will crash for most cases so I don't even bother
-	with it anymore.
-	NOTE : None of the code below is actually used by zc by default and needs to be
-	removed as soon as allegro version can be updated to 4.4.
+	These are unfinished, though the windows stuff is here if it is needed. -Gleeok.
+	//todo* The return values and pointers NEED to be checked.
 */
 
 

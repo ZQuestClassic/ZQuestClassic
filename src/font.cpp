@@ -23,8 +23,8 @@
 #include <string.h>
 
 #include "zc_alleg.h"
-#include <allegro/internal/aintern.h>
-#include <allegro/tools/datedit.h>
+#include "allegro/internal/aintern.h"
+#include "/allegro/tools/datedit.h"
 #include "font.h"
 
 extern FONT* create_font();

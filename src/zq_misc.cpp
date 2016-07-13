@@ -7,8 +7,6 @@
 //  Misc. stuff for ZQuest.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 //INLINE void SCRFIX() {}

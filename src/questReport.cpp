@@ -1,20 +1,3 @@
-//
-//Copyright (C) 2016 Zelda Classic Team
-//
-//This program is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
-//
-//You should have received a copy of the GNU General Public License
-//along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 #include "questReport.h"
 
 #include <map>
@@ -35,7 +18,7 @@
 #include "zquest.h"
 
 extern int bie_cnt;
-extern std::map<int, std::pair<std::string,std::string> > ffcmap;
+extern std::map<int, pair<std::string,std::string> > ffcmap;
 
 std::string quest_report_str;
 
@@ -951,7 +934,7 @@ void integrityCheckSaveCombo()
             for(int c=0; c< MAXFFCS; c++)
             {
                 // Checks both combos and secret combos.
-                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].data].type))
+                if(integrityBoolSaveCombo(ts,combobuf[ts->ffdata[c]].type))
                     case_found = true;
             }
             
@@ -1079,6 +1062,7 @@ bool integrityBoolRoomNoGuy(mapscr *ts)
     case rBOMBS:
     case rSWINDLE:
     case rWARP:
+    case rITEMPOND:
     case rMUPGRADE:
     case rLEARNSLASH:
     case rARROWS:
@@ -1148,6 +1132,7 @@ bool integrityBoolRoomNoString(mapscr *ts)
     case rBOMBS:
     case rSWINDLE:
     case rWARP:
+    case rITEMPOND:
     case rMUPGRADE:
     case rLEARNSLASH:
     case rARROWS:
@@ -1218,6 +1203,7 @@ bool integrityBoolRoomNoGuyNoString(mapscr *ts)
     case rBOMBS:
     case rSWINDLE:
     case rWARP:
+    case rITEMPOND:
     case rMUPGRADE:
     case rLEARNSLASH:
     case rARROWS:
@@ -2132,9 +2118,9 @@ void scriptLocationReport()
             
             for(int i=0; i<32; i++)
             {
-                int script = ts->ffcs[i].script;
+                int script = ts->ffscript[i];
                 
-                if(!script || !ts->ffcs[i].data) continue;
+                if(!script || !ts->ffdata[i]) continue;
                 
                 tempnode=&(script_location_grid[script]);
                 
@@ -2152,7 +2138,7 @@ void scriptLocationReport()
                 newnode->pal=ts->color;
                 
                 for(int j=0; j<8; ++j)
-                    newnode->d[j] = ts->ffcs[i].initd[j];
+                    newnode->d[j] = ts->initd[i][j];
                     
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -2270,7 +2256,7 @@ void ComboLocationReport()
                 }
                 else if(c<336)
                 {
-                    if(ts->ffcs[c-304].data == Combo && Combo > 0) ffuses++;
+                    if(ts->ffdata[c-304] == Combo && Combo > 0) ffuses++;
                 }
                 else if(ts->undercombo == Combo) undercombouses = true;
             }
@@ -2398,7 +2384,7 @@ void ComboTypeLocationReport()
                     }
                     else if(c<336)
                     {
-                        if(combobuf[ts->ffcs[c-304].data].type == Type) ffuses++;
+                        if(combobuf[ts->ffdata[c-304]].type == Type) ffuses++;
                     }
                     else if(combobuf[ts->undercombo].type == Type) undercombouses = true;
                 }

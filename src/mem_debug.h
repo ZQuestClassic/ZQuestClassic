@@ -3,6 +3,7 @@
 #ifndef __trapperkeeper_h_
 #define __trapperkeeper_h_
 
+#include "gc.h"
 #include "zc_malloc.h"
 
 

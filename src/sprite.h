@@ -17,7 +17,10 @@
 
 #include "zc_alleg.h"
 #include "zdefs.h"
+#include <set>
+#include <map>
 
+using std::map;
 // this code needs some patching for use in zquest.cc
 
 extern itemdata *itemsbuf;
@@ -32,20 +35,13 @@ extern int conveyclk;
 /******* Sprite Base Class ********/
 /**********************************/
 
-template<typename T> class EntityPtr;
-class EntityRef;
-class sprite_list;
-
 class sprite
 {
 private:
     static long getNextUID();
     //unique sprite ID
     //given upon construction
-
-protected:
-	friend class sprite_list;
-    long uid; //do not access this outside this file.
+    long uid;
     
 public:
     long getUID()
@@ -69,11 +65,36 @@ public:
     bool angular,canfreeze;
     double angle;
     int lasthit, lasthitclk;
+    int dummy_int[10];
+    fix dummy_fix[10];
+    float dummy_float[10];
+    bool dummy_bool[10];
     int drawstyle;                                          //0=normal, 1=translucent, 2=cloaked
     int extend;
     // Scripting additions
     long miscellaneous[16];
     byte scriptcoldet;
+    //long stack[256];
+    //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
+    //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
+    
+    //refInfo scriptData; //For when we have npc scripts maybe
+    /*long d[8];
+    long a[2];
+    byte ffcref;
+    dword itemref;
+    dword guyref;
+    dword lwpnref;
+    dword ewpnref;
+    byte sp;
+    word pc;
+    dword scriptflag;
+    word doscript;
+    byte itemclass;*/
+    //byte guyclass; //Not implemented
+    //byte lwpnclass;
+    //byte ewpnclass;
+    
     
     sprite();
     sprite(sprite const & other);
@@ -98,29 +119,7 @@ public:
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
     virtual void move(fix dx,fix dy);
     virtual void move(fix s);
-    
-    inline fix getX() const { return x; }
-    inline fix getY() const { return y; }
-    inline fix getZ() const { return z; }
-    
-    inline void setX(fix newX) { x=newX; }
-    inline void setY(fix newY) { y=newY; }
-    inline void setZ(fix newZ) { z=newZ; }
-    
-    inline int getDir() const { return dir; }
-    inline void setDir(int newDir) { dir=(newDir<0) ? 0 : (newDir>7) ? 7 : newDir; }
-    
-    inline void markForDeletion() { toBeDeleted=true; }
-    inline bool isMarkedForDeletion() const { return toBeDeleted; }
-    
-private:
-    bool toBeDeleted;
-    EntityRef* ref;
-    
-    template<typename T> friend class EntityPtr;
-    friend void registerSprite();
 };
-
 
 /***************************************************************************/
 
@@ -132,30 +131,18 @@ private:
 
 class sprite_list
 {
-	int count;
     sprite *sprites[SLMAX];
-	long uids[SLMAX];
+    int count;
+    map<long, int> containedUIDs;
     
 public:
     sprite_list();
     
-    sprite *getByUID(long uid) const;
-	bool isValidUID(long uid) const;
+    sprite *getByUID(long uid);
     void clear();
     sprite *spr(int index);
-
-	// TODO: 'add*()' is not entirely clear how it works.
-	//   (this can be a cause of bugs; such as in the case of reflected weapons
-	//    it can actually delete the sprite and cause undefined behavior...
-	//      [note; this has been fixed in that case only. use with caution.])
-
-    bool add(sprite *s);
     bool swap(int a,int b);
-    bool addAtFront(sprite *s);
-
-	// adds a sprite that was created in a past frame. (eg; reflected weapons)
-	bool addExisting(sprite *s);
-
+    bool add(sprite *s);
     // removes pointer from list but doesn't delete it
     bool remove(sprite *s);
     fix getX(int j);

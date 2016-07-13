@@ -16,6 +16,7 @@
 #include "zc_alleg.h"
 #include "zcmusic.h"
 #include "zdefs.h"
+#include "zelda.h"
 #include "maps.h"
 #include "tiles.h"
 #include "colors.h"
@@ -83,13 +84,34 @@ class LinkClass : public sprite
         static const int CLEARCHARGEATTACK = 32;
         static const int SETHOPDIR = 64;
         
-        inline int getHopClk() const { return newhopclk; }
-        inline int getHopDir() const { return newhopdir; }
-        inline int getDir() const { return newdir; }
-        inline int getLadderdir() const { return newladderdir; }
-        inline int getLadderx() const { return newladderx; }
-        inline int getLaddery() const { return newladdery; }
-        inline int getLadderstart() const { return newladderstart; }
+        int getHopClk()
+        {
+            return newhopclk;
+        }
+        int getHopDir()
+        {
+            return newhopdir;
+        }
+        int getDir()
+        {
+            return newdir;
+        }
+        int getLadderdir()
+        {
+            return newladderdir;
+        }
+        int getLadderx()
+        {
+            return newladderx;
+        }
+        int getLaddery()
+        {
+            return newladdery;
+        }
+        int getLadderstart()
+        {
+            return newladderstart;
+        }
         
         void setUnwalkable(bool val)
         {
@@ -236,6 +258,7 @@ class LinkClass : public sprite
     void checkchest(int type);
     void checktouchblk();
     void checklocked();
+    void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
     bool startwpn(int itemid);
     bool doattack();
     bool can_attack();
@@ -247,22 +270,30 @@ class LinkClass : public sprite
     bool checkmaze(mapscr *scr, bool sound);
     bool maze_enabled_sizewarp(int scrolldir);
     
+    int get_scroll_step(int scrolldir);
+    int get_scroll_delay(int scrolldir);
 public:
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
 private:
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
-    void walkdown(bool opening, bool cave2);
-    void walkup(bool opening, bool cave2);
+    void walkdown(bool opening);
+    void walkup(bool opening);
+    void walkdown2(bool opening);
+    void walkup2(bool opening);
     
     void exitcave();
     void stepout();
     void masked_draw(BITMAP *dest);
+    void getTriforce(int id);
     int weaponattackpower();
     void positionSword(weapon* w,int itemid);
     void checkstab();
     void fairycircle(int type);
+    void StartRefill(int refillWhat);
     int  EwpnHit();
     int  LwpnHit();
+    void gameover();
+    void ganon_intro();
     void saved_Zelda();
     void check_slash_block(int bx, int by);
     void check_wand_block(int bx, int by);
@@ -271,16 +302,14 @@ private:
     bool sideviewhammerpound();
     bool agonyflag(int flag);
     int ringpower(int dmg);
+    void addsparkle(int wpn);
+    void addsparkle2(int type1, int type2);
     
 public:
-    bool ffwarp;
-    bool ffpit;
-    
-    void StartRefill(int refillWhat);
+
     void checkitems(int index = -1);
     int DrunkClock();
     void setDrunkClock(int newdrunkclk);
-    void modDrunkClock(int diff);
     void setEntryPoints(int x, int y);
     LinkClass();
     void init();
@@ -301,11 +330,18 @@ public:
     void Drown();
     int getEaten();
     void setEaten(int i);
+    fix  getX();
+    fix  getY();
+    fix  getZ();
     fix  getFall();
     fix  getXOfs();
     fix  getYOfs();
     void setXOfs(int newxofs);
     void setYOfs(int newyofs);
+    int  getHXOfs();
+    int  getHYOfs();
+    int  getHXSz();
+    int  getHYSz();
     fix  getClimbCoverX();
     fix  getClimbCoverY();
     int  getLadderX();
@@ -314,16 +350,21 @@ public:
     void setY(int new_y);
     void setZ(int new_Z);
     void setFall(fix new_fall);
-    void jump(fix jump); // Used by roc's feather
+    void setClimbCoverX(int new_x);
+    void setClimbCoverY(int new_y);
     int  getLStep();
-    bool isCharging();
+    int  getCharging();
+    void setCharging(int new_charging);
     bool isCharged();
-    void cancelAttack();
-    int  getSwordJinx();
-    int  getItemJinx();
-    void setNayrusLoveShieldClk(int newclk);
-    int getNayrusLoveShieldClk();
-    int getHoverClk() const;
+    int  getAttackClk();
+    void  setAttackClk(int new_clk);
+    int  getSwordClk();
+    int  getItemClk();
+    void  setSwordClk(int newclk);
+    void  setItemClk(int newclk);
+    fix  getModifiedX();
+    fix  getModifiedY();
+    int  getDir();
     void setDir(int new_dir);
     int  getHitDir();
     void setHitDir(int new_dir);
@@ -345,54 +386,17 @@ public:
     bool isSwimming();
     void setDontDraw(bool new_dontdraw);
     bool getDontDraw();
-    void setHitTimer(int newhclk);
-    void setScrollDir(int sd);
-    void setInvincible(bool inv);
+    void setHClk(int newhclk);
+    int getHClk();
+    void setNayrusLoveShieldClk(int newclk);
+    int getNayrusLoveShieldClk();
+    int getHoverClk();
+    int getHoldClk();
     int getSpecialCave(); // used only by maps.cpp
-    void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
-    
-    inline bool isHoldingItem() const { return holdclk>0; }
-    
-    // This'll be moved...
-    inline void modWhistleCounter(int amt) { blowcnt+=amt; }
-    
-    // Cancels charging when the wand or sword hits an enemy.
-    void onMeleeWeaponHit();
-    
-    // If direct is true, whisp rings are ignored.
-    // If permanent is true, time is used if a whisp ring makes the effect temporary.
-    // If time is 0, the jinx is cleared regardless of the other arguments.
-    void setSwordJinx(bool permanent, int time, bool direct);
-    void setItemJinx(bool permanent, int time, bool direct);
-    
-    // Returns true if Link will be visible this frame.
-    bool willBeDrawn() const;
-    
-    // Called when grabbed by a wall master
-    void onGrabbed();
-    
-    // Called when eaten by a like-like
-    void onEaten(bool damage);
-    
-    // Returns true if Link is in a like-like
-    bool isBeingEaten() const;
-    
-    // Track that a once-per-screen action has been performed
-    void doOncePerScreen(int action);
-    
-    // Determines whether a once-per-screen action has been performed
-    bool didOnThisScreen(int action) const;
-    
-    void setAttack(int att);
-    bool isOnSideviewPlatform() const;
-    bool ladderIsActive() const;
-    
-private:
-    void updateGravity();
-    void checkLadderRemoval();
-    
-    void touchSpikes(int damage, bool solid);
-    void getHit(int damage, int hitDir, bool applyRing=true);
+    bool ffwarp;
+    bool ffpit;
+    void setscriptnohit(bool);
+    bool getscriptnohit();
 };
 
 bool isRaftFlag(int flag);
@@ -400,6 +404,7 @@ void do_lens();
 int touchcombo(int x,int y);
 extern bool did_secret;
 int selectWlevel(int d);
+void computeMaxArrows();
 
 /************************************/
 /********  More Items Code  *********/
@@ -428,8 +433,10 @@ void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
 bool canget(int id);
+void dospecialmoney(int index);
 void getitem(int id, bool nosound=false);
 void takeitem(int id);
-
+void red_shift();
+void slide_in_color(int color);
 #endif
 /*** end of link.cc ***/

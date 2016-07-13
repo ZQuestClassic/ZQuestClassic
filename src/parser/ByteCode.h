@@ -1994,56 +1994,6 @@ public:
     }
 };
 
-class ODrawPolygonRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new ODrawPolygonRegister();
-	}
-};
-
-class ODrawPixelArrayRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new ODrawPixelArrayRegister();
-	}
-};
-
-class ODrawTileArrayRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new ODrawTileArrayRegister();
-	}
-};
-
-class ODrawComboArrayRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new ODrawComboArrayRegister();
-	}
-};
-
-class OCreateBitmapRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new OCreateBitmapRegister();
-	}
-};
-
 class ODrawBitmapRegister : public Opcode
 {
 public:
@@ -2054,16 +2004,6 @@ public:
     }
 };
 
-class ODrawBitmapExRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new ODrawBitmapExRegister();
-	}
-};
-
 class OSetRenderTargetRegister : public Opcode
 {
 public:
@@ -2072,16 +2012,6 @@ public:
     {
         return new OSetRenderTargetRegister();
     }
-};
-
-class OSetRenderSourceRegister : public Opcode
-{
-public:
-	string toString();
-	Opcode *clone()
-	{
-		return new OSetRenderSourceRegister();
-	}
 };
 
 class OSetDepthBufferRegister : public Opcode
