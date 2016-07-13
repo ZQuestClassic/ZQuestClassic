@@ -1829,7 +1829,7 @@ void update_freeform_combos()
                     
                 if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
                         (tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
-                        (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // Whatever this means
+                        (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
                 {
                     if(tmpscr->ffflags[j]&ffCHANGETHIS)
                     {
@@ -3856,8 +3856,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
             // If these aren't reset, changers may not work right
             ffposx[i]=-1000;
             ffposy[i]=-1000;
-            ffprvx[i]=-1000;
-            ffprvy[i]=-1000;
+            ffprvx[i]=-10000000;
+            ffprvy[i]=-10000000;
             
             if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
             {
