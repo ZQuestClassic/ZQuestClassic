@@ -104,6 +104,7 @@ const RuleData enemyRules[]={
   { qr_TRANSSHADOWS, "Translucent Shadows" },
   { qr_SHADOWSFLICKER, "Shadows Flicker" },
   { qr_ENEMIESFLICKER, "Enemies Flicker When Hit" },
+  { qr_BROKENSTATUES, "No Statue Minimum Range Or Double Fireballs" },
   { -1, "" }
 };
 

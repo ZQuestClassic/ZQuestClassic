@@ -5522,7 +5522,8 @@ int eBoulder::takehit(weapon*)
     return 0;
 }
 
-eProjectile::eProjectile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eProjectile::eProjectile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
+    minRange(get_bit(quest_rules, qr_BROKENSTATUES) ? 0 : Clk)
 {
     /* fixing
       hp=1;
@@ -5587,13 +5588,14 @@ bool eProjectile::animate(int index)
         {
             unsigned r=rand();
             
-            if(!(r&63) && !LinkInRange(hclk))
+            if(!(r&63) && !LinkInRange(minRange))
             {
                 if(attack)
                 {
                     attack->activate();
-                
-                    if(wpn==ewFireball || wpn==ewFireball2) // Shouldn't it check that it's single-shot, too?
+                    
+                    if(get_bit(quest_rules, qr_BROKENSTATUES)==0 &&
+                      ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL))
                     {
                         if((r&(15<<7))==0) // Is this right? Seems too frequent.
                         {
