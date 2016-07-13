@@ -2237,14 +2237,21 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     //[][18]: LOWORD = rendertarget; HIWORD = rendersource
     //[][19]: pointer to auxiliary memory buffer.
     
+    // Trying to match the old behavior exactly...
+    const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
+    
     bool isTargetOffScreenBmp = false;
     const int type_mul_10000 = type * 10000;
     const int numDrawCommandsToProcess = script_drawing_commands.Count();
+    int xoffset=xoff, yoffset=yoff;
     
     for(int i(0); i < numDrawCommandsToProcess; ++i)
     {
-		int xoffset = 0;
-		int yoffset = 0;
+        if(!brokenOffset)
+        {
+            xoffset = 0;
+            yoffset = 0;
+        }
         int *sdci = &script_drawing_commands[i][0];
         
         if(sdci[1] != type_mul_10000)
@@ -2256,15 +2263,21 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
         if(!bmp)
         {
 			// draw to screen with subscreen offset
-			xoffset = xoff;
-			yoffset = yoff;
+			if(!brokenOffset)
+            {
+                xoffset = xoff;
+                yoffset = yoff;
+            }
             bmp = targetBitmap;
         }
         else
         {
             //not drawing to screen, so no subscreen offset
-            //xoffset = 0;
-            //yoffset = 0;
+            if(brokenOffset)
+            {
+                xoffset = 0;
+                yoffset = 0;
+            }
             isTargetOffScreenBmp = true;
         }
         

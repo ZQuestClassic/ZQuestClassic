@@ -2564,6 +2564,13 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules,qr_SHOPCHEAT, 1);
     }
     
+    // Not entirely sure this is the best place for this...
+    memset(extra_rules, 0, EXTRARULES_SIZE);
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+    {
+        set_bit(extra_rules, er_BITMAPOFFSET, 1);
+    }
+    
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
@@ -13448,11 +13455,13 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     word old_map_count=map_count;
     
     byte old_quest_rules[QUESTRULES_SIZE];
+    byte old_extra_rules[EXTRARULES_SIZE];
     byte old_midi_flags[MIDIFLAGS_SIZE];
     
     if(keepall==false||get_bit(skip_flags, skip_rules))
     {
         memcpy(old_quest_rules, quest_rules, QUESTRULES_SIZE);
+        memcpy(old_extra_rules, extra_rules, EXTRARULES_SIZE);
     }
     
     if(keepall==false||get_bit(skip_flags, skip_midis))
@@ -14198,6 +14207,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     if(!keepall||get_bit(skip_flags, skip_rules))
     {
         memcpy(quest_rules, old_quest_rules, QUESTRULES_SIZE);
+        memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
     }
     
     if(!keepall||get_bit(skip_flags, skip_midis))
