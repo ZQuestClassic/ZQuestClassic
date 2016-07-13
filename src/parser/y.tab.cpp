@@ -3496,7 +3496,7 @@ yyreturn:
 void yyerror(const char *s)
 {
     char temp[512];
-    sprintf(temp, "line %d: %s, on token %s", yylineno, s, yytext);
+    snprintf(temp, 512, "line %d: %s, on token %s", yylineno, s, yytext);
     box_out(temp);
     box_eol();
 }
