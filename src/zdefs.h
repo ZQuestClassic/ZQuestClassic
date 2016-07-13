@@ -541,6 +541,7 @@ enum
 };
 
 #define QUESTRULES_SIZE 20
+#define EXTRARULES_SIZE 1
 
 // "quest rules" flags (bit numbers in bit string)
 enum
@@ -605,6 +606,13 @@ enum
     // 20
     qr_BROKENSTATUES /* Compatibility */,
     qr_MAX
+};
+
+// Unsaved compatibility rules
+enum extraRules
+{
+    er_BITMAPOFFSET,
+    er_MAX
 };
 
 // room types

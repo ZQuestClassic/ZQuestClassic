@@ -412,6 +412,7 @@ END_OF_FUNCTION(myvsync_callback)
 // quest data
 zquestheader header;
 byte                quest_rules[QUESTRULES_SIZE];
+byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
