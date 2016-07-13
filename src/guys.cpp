@@ -5791,7 +5791,8 @@ int eBoulder::takehit(weapon*)
     return 0;
 }
 
-eProjectile::eProjectile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eProjectile::eProjectile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
+    minRange(get_bit(quest_rules, qr_BROKENSTATUES) ? 0 : Clk)
 {
     /* fixing
       hp=1;
@@ -5868,11 +5869,12 @@ bool eProjectile::animate(int index)
         {
             unsigned r=rand();
             
-            if(!(r&63) && !LinkInRange(24))
+            if(!(r&63) && !LinkInRange(minRange))
             {
                 FireWeapon();
                 
-                if((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL)
+                if(get_bit(quest_rules, qr_BROKENSTATUES)==0 &&
+                  ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL))
                 {
                     if(!((r>>7)&15))
                     {

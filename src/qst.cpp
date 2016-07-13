@@ -2468,6 +2468,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         // All 2.10 and lower quests need this enabled to preseve compatability.
         // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
 		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
+		
+		// Broke in build 695
+		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
+            set_bit(quest_rules, qr_BROKENSTATUES, 1);
     }
     
     if(s_version < 3)

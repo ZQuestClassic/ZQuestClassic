@@ -379,6 +379,9 @@ public:
     eProjectile(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+    
+private:
+    const int minRange;
 };
 
 class eTrigger : public enemy

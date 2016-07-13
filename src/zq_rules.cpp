@@ -546,7 +546,7 @@ static int compatrules[] =
 {
    qr_GOTOLESSNOTEQUAL, qr_OLDLENSORDER, qr_NOFAIRYGUYFIRES, qr_TRIGGERSREPEAT,
    qr_HOOKSHOTDOWNBUG, qr_REPLACEOPENDOORS, qr_NOSOLIDDAMAGECOMBOS, qr_OLDHOOKSHOTGRAB,
-   qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS,
+   qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_BROKENSTATUES,
    -1 
 };
 
@@ -576,6 +576,7 @@ static DIALOG compatrules_dlg[] =
     { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Hookshot Grab Checking", NULL, NULL },
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Peahats Are Vulnerable When Frozen By Clocks", NULL, NULL },
     { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons With No Collision Detection Move Offscreen", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Statue Behavior", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
