@@ -4911,8 +4911,6 @@ bool LinkClass::startwpn(int itemid)
             
         if(!checkmagiccost(itemid))
             return false;
-            
-        paymagiccost(itemid);
         
         if(get_bit(quest_rules,qr_TRUEARROWS) && !current_item_power(itype_quiver))
         {
@@ -4928,6 +4926,8 @@ bool LinkClass::startwpn(int itemid)
                 
             game->change_drupy(-1);
         }
+        
+        paymagiccost(itemid);
         
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
