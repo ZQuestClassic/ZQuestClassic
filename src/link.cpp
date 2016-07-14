@@ -1868,10 +1868,13 @@ void LinkClass::checkstab()
             
             return;
         }
-        else if(attackclk==15 && w->dir==up)
+        else if(attackclk==15)
         {
             // Hammer's reach needs adjusted slightly for backward compatibility
-            w->hyofs-=1;
+            if(w->dir==up)
+                w->hyofs-=1;
+            else if(w->dir==left)
+                w->hxofs-=2;
         }
     }
     
