@@ -418,19 +418,6 @@ public:
         return tempenemy;
     }
     
-    // Currently only used in a context where the enemy is known to be valid,
-    // so there's no need to print an error
-    static int getNPCIndex(const long eid)
-    {
-        for(word i = 0; i < guys.Count(); i++)
-        {
-            if(guys.spr(i)->getUID() == eid)
-                return i;
-        }
-        
-        return -1;
-    }
-    
     static long getNPCDMisc(const byte a)
     {
         switch(a)

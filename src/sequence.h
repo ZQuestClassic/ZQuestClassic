@@ -1,6 +1,10 @@
 #ifndef _ZC_SEQUENCE_H_
 #define _ZC_SEQUENCE_H_
 
+
+#include "sequence/sequence.h"  // Redefinition errors... Is this right?
+
+/*
 enum sequenceID
 {
     seq_ganonIntro, seq_getTriforce, seq_getBigTriforce, seq_gameOver,
@@ -11,5 +15,6 @@ void beginSpecialSequence(sequenceID id, int itemID=0);
 bool specialSequenceIsActive();
 void updateSpecialSequence();
 void clearSpecialSequence();
+*/
 
 #endif

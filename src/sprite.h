@@ -141,6 +141,7 @@ public:
     
     sprite *getByUID(long uid) const;
 	bool isValidUID(long uid) const;
+
     void clear();
     sprite *spr(int index);
 
@@ -158,6 +159,7 @@ public:
 
     // removes pointer from list but doesn't delete it
     bool remove(sprite *s);
+
     fix getX(int j);
     fix getY(int j);
     int getID(int j);

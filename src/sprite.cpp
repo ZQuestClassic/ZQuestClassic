@@ -689,7 +689,14 @@ bool sprite_list::add(sprite *s)
 
 bool sprite_list::swap(int a,int b)
 {
-    // Re-added for now, but stil unimplemented.
+    // Depricated. Used only by moldorms and patra body currently.
+
+    if(a < count && b < count) {
+		zc_swap(sprites[a], sprites[b]);
+		zc_swap(sprites[a]->uid, sprites[b]->uid);
+        return true;
+    }
+
     return false;
 }
 
@@ -999,7 +1006,7 @@ int sprite_list::idLast(int id)
 
 sprite * sprite_list::getByUID(long uid) const
 {
-	if(count)
+	//if(count)
 	{
 		const long* p = std::lower_bound(uids, uids + count, uid);
 		if(p != (uids + count) && *p == uid)

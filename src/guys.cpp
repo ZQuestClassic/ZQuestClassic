@@ -13,7 +13,6 @@
 
 #include "precompiled.h" //always first
 
-#include <map>
 #include <string.h>
 #include <stdio.h>
 #include "zc_alleg.h"
@@ -12142,7 +12141,7 @@ bool is_ceiling_pattern(int i)
 
 int placeenemy(int i)
 {
-    std::map<int, int> freeposcache;
+    int freeposcache[256];
     int frees = 0;
     
     for(int y=0; y<176; y+=16)
