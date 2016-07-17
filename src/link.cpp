@@ -11262,6 +11262,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         tmpscr3[1].cset.resize(_mapsSize, 0);
     }
     
+    conveyclk = 2;
+    
     mapscr *newscr = &tmpscr[0];
     mapscr *oldscr = &tmpscr[1];
     
