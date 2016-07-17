@@ -6473,7 +6473,7 @@ void do_combotile(const bool v)
 // Let's do this
 int run_script(const byte type, const word script, const byte i)
 {
-    if(Quit) // In case an earlier script hung
+    if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
         return 1;
     
     curScriptType=type;
