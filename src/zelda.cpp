@@ -1985,6 +1985,14 @@ void do_magic_casting()
         
         if(magiccastclk==64)
         {
+            for(int i=0; i<Lwpns.Count(); i++)
+            {
+                weapon* w=static_cast<weapon*>(Lwpns.spr(i));
+                if(w->id==wPhantom &&
+                  w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
+                    Lwpns.del(i);
+            }
+            
             int d=zc_max(LinkX(),256-LinkX())+32;
             Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
@@ -2034,6 +2042,14 @@ void do_magic_casting()
         // Finish the final spell pose
         if((magiccastclk++)>=160)
         {
+            for(int i=0; i<Lwpns.Count(); i++)
+            {
+                weapon* w=static_cast<weapon*>(Lwpns.spr(i));
+                if(w->id==wPhantom &&
+                  w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
+                    Lwpns.del(i);
+            }
+            
             magicitem=-1;
             magiccastclk=0;
         }
