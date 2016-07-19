@@ -460,7 +460,7 @@ obj/enemyAttack.o: src/enemyAttack.cpp src/enemyAttack.h src/guys.h src/link.h s
 	$(CC) $(OPTS) $(CFLAG) -c src/enemyAttack.cpp -o obj/enemyAttack.o $(SFLAG) $(WINFLAG)
 obj/ffasm.o: src/ffasm.cpp src/ffasm.h src/ffscript.h src/gamedata.h src/jwin.h src/jwinfsel.h src/midi.h src/sprite.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/ffasm.cpp -o obj/ffasm.o $(SFLAG) $(WINFLAG)
-obj/ffc.o: src/ffc.cpp src/ffc.h src/refInfo.h src/types.h src/zdefs.h src/zelda.h src/zsys/h
+obj/ffc.o: src/ffc.cpp src/ffc.h src/refInfo.h src/types.h src/zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c src/ffc.cpp -o obj/ffc.o $(SFLAG) $(WINFLAG)
 obj/ffscript.o: src/ffscript.cpp src/aglogo.h src/colors.h src/ffc.h src/ffscript.h src/gamedata.h src/guys.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/qst.h src/sfx.h src/sound.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_init.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h src/rendertarget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/ffscript.cpp -o obj/ffscript.o $(SFLAG) $(WINFLAG)

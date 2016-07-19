@@ -1,8 +1,6 @@
 #include "ffc.h"
 #include "tiles.h" // isonline() is in tiles for some reason...
 #include "zdefs.h" // mapscr
-#include "zsys.h"
-#include "zelda.h"
 
 FFC::FFC()
 {
@@ -298,7 +296,7 @@ void FFCSet::updateMovement(mapscr* tmpscr, bool holdingItem)
                     
                     if((changer.flags&ffSWAPPREV)!=0)
                         swapData(changer, ffcs[(j>0) ? j-1 : 31]);
-                    else if((changer.flags&ffSWAPNEXT)!=0)
+                    else if((changer.flags&ffSWAPPREV)!=0)
                         swapData(changer, ffcs[(j<31) ? j+1 : 0]);
                     
                     break;
@@ -315,18 +313,15 @@ void FFCSet::swapData(FFC& f1, FFC& f2)
 {
     // The flag checkboxes just say "swap speed"...
     // Should all this stuff really be swapped
+    zc_swap(f1.data, f2.data);
+    zc_swap(f1.cset, f2.cset);
     zc_swap(f1.delay, f2.delay);
     zc_swap(f1.xVel, f2.xVel);
     zc_swap(f1.yVel, f2.yVel);
     zc_swap(f1.xAccel, f2.xAccel);
     zc_swap(f1.yAccel, f2.yAccel);
-	if(get_bit(quest_rules, qr_OLDFFCSWAP)!=0)
-	{
-		zc_swap(f1.data, f2.data);
-		zc_swap(f1.cset, f2.cset);
-		zc_swap(f1.link, f2.link);
-		zc_swap(f1.width, f2.width);
-		zc_swap(f1.height, f2.height);
-		zc_swap(f1.flags, f2.flags);
-	}
+    zc_swap(f1.link, f2.link);
+    zc_swap(f1.width, f2.width);
+    zc_swap(f1.height, f2.height);
+    zc_swap(f1.flags, f2.flags);
 }
