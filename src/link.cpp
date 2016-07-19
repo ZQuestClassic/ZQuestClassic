@@ -5225,16 +5225,40 @@ bool LinkClass::doattack()
         magiccharge = itemsbuf[itemid].misc2;
     }
     
+    itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
+    
+    bool doCharge=true;
+    if(z!=0)
+        doCharge=false;
+    if(attack==wSword)
+    {
+        if(!(attackclk==SWORDCHARGEFRAME && isWpnPressed(itype_sword)))
+            doCharge=false;
+        else if(charging<=normalcharge)
+        {
+            if(itemid<0 || !checkmagiccost(itemid))
+                doCharge=false;
+        }
+    }
+    else if(attack==wHammer)
+    {
+        if(!(attackclk==HAMMERCHARGEFRAME && isWpnPressed(itype_hammer)))
+            doCharge=false;
+        else if(charging<=normalcharge)
+        {
+            if(itemid<0 || !checkmagiccost(itemid))
+                doCharge=false;
+        }
+    }
+    else
+        doCharge=false;
+    
     // Now work out the magic cost
     itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
     
     // charging up weapon...
     //
-    if(((attack==wSword && attackclk==SWORDCHARGEFRAME && itemid>=0 && isWpnPressed(itype_sword)) ||
-#if 0
-            (attack==wWand && attackclk==WANDCHARGEFRAME && itemid>=0 isWpnPressed(itype_wand)) ||
-#endif
-            (attack==wHammer && attackclk==HAMMERCHARGEFRAME && itemid>=0 && isWpnPressed(itype_hammer))) && z==0 && checkmagiccost(itemid))
+    if(doCharge)
     {
         // Increase charging while holding down button.
         if(spins==0 && charging<magiccharge)
@@ -5246,11 +5270,11 @@ bool LinkClass::doattack()
             paymagiccost(itemid);
             sfx(WAV_ZN1CHARGE,pan(int(x)));
         }
-        else
+        else if(charging==magiccharge)
         {
             itemid = current_item_id(attack==wHammer ? itype_quakescroll2 : itype_spinscroll2);
             
-            if(itemid>-1 && charging==magiccharge && checkmagiccost(itemid))
+            if(itemid>-1 && checkmagiccost(itemid))
             {
                 paymagiccost(itemid);
                 charging++; // charging>magiccharge signifies a successful supercharge.
