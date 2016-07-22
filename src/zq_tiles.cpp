@@ -6887,28 +6887,25 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 
                 for(u=0; u<eMAXGUYS; u++)
                 {
+                    const guydata& enemy=guysbuf[bie[u].i];
                     bool darknut=false;
                     int gleeok=0;
                     
-                    switch(bie[u].i)
-                    {
-                    case eDKNUT1:
-                    case eDKNUT2:
-                    case eDKNUT3:
-                    case eDKNUT5:
+                    if(enemy.family==eeWALK && enemy.flags&(inv_back|inv_front|inv_left|inv_right)!=0)
                         darknut=true;
-                        break;
+                    else if(enemy.family==eeGLEEOK)
+                    {
+                        // Not certain this is the right thing to check...
+                        if(enemy.misc3==0)
+                            gleeok=1;
+                        else
+                            gleeok=2;
                     }
                     
-                    if(bie[u].i>=eGLEEOK1 && bie[u].i<=eGLEEOK4)
-                        gleeok=1;
-                    else if(bie[u].i>=eGLEEOK1F && bie[u].i<=eGLEEOK4F)
-                        gleeok=2;
-                        
-                    // Unimplemented enemies, or enemies with no tiles.
+                    // Dummied out enemies
                     if(bie[u].i>=eOCTO1S && bie[u].i<e177)
                     {
-                        if((char)(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1])==' ')
+                        if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
                         {
                             continue;
                         }
@@ -6995,7 +6992,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                                 found=true;
                             }
                         }
-                        else if(bie[u].i==eGANON && i==ti_none)
+                        else if(enemy.family==eeGANON && i==ti_none)
                         {
                             if(rect)
                             {
