@@ -9219,6 +9219,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 {
                     if(massRecolorSetup(cs))
                     {
+                        go_tiles();
+                        
                         FOREACH_START(t)
                             massRecolorApply(t);
                         FOREACH_END
