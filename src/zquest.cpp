@@ -147,11 +147,11 @@ bool show_hitboxes = false;
 
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
-vector<string> asffcscripts;
+std::vector<string> asffcscripts;
 extern std::map<int, pair<string,string> > globalmap;
-vector<string> asglobalscripts;
+std::vector<string> asglobalscripts;
 extern std::map<int, pair<string, string> > itemmap;
-vector<string> asitemscripts;
+std::vector<string> asitemscripts;
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -18875,10 +18875,10 @@ static ListData assignitemscript_list(assignitemscriptlist, &font);
 static DIALOG assignscript_dlg[] =
 {
     //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-    { jwin_win_proc,		  0,	0,		320,	200,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
+    { jwin_win_proc,		  0,	0,		320,	220,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
     { jwin_tab_proc,		  6,	25,		308,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
-    { jwin_button_proc,	  251,	171,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,	  182,	171,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
+    { jwin_button_proc,	  251,	191,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
@@ -18889,9 +18889,10 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
-    { jwin_check_proc,      22,  171,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
-    { jwin_text_proc,       108,  25,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated.", NULL, NULL },
-    { jwin_text_proc,       100,  158,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
+    { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
+    { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
+    { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with ** were not found in the buffer and will not function.", NULL, NULL },
+    { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -19137,18 +19138,45 @@ int onCompileScript()
                 
                 for(int i = 0; i < NUMSCRIPTFFC-1; i++)
                 {
-                    sprintf(temp, "Slot %d: %s", i+1,(ffcmap[i].second == "" ? "<none>" : ffcmap[i].second.c_str()));
+                    if(ffcmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(ffcmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, ffcmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, ffcmap[i].second.c_str());
                     ffcmap[i].first = temp;
                 }
                 
                 for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
                 {
-                    globalmap[i].first = gscriptlist2(i, NULL); //nicked this function from the ASM list
+                    char buffer[64];
+                    const char* format;
+                    const char* asterisks;
+                    switch(i)
+                    {
+                        case 0: format="Initialization: %s%s%s"; break;
+                        case 1: format="Active: %s%s%s"; break;
+                        case 2: format="onExit: %s%s%s"; break;
+                        case 3: format="onContinue: %s%s%s"; break;
+                    }
+                    if(globalmap[i].second == "")
+                        asterisks="";
+                    else if(scripts.find(globalmap[i].second) != scripts.end())
+                        asterisks="";
+                    else // Unloaded
+                        asterisks="**";
+                    snprintf(buffer, 50, format, asterisks, globalmap[i].second.c_str(), asterisks);
+                    globalmap[i].first=buffer;
                 }
                 
                 for(int i = 0; i < NUMSCRIPTITEM-1; i++)
                 {
-                    sprintf(temp, "Slot %d: %s", i+1, (itemmap[i].second == "" ? "<none>" : itemmap[i].second.c_str()));
+                    if(itemmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(itemmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, itemmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, itemmap[i].second.c_str());
                     itemmap[i].first = temp;
                 }
                 
