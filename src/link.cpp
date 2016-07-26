@@ -1863,7 +1863,24 @@ void LinkClass::checkstab()
             
             if(attackclk==12 && z==0 && sideviewhammerpound())
             {
-                decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+                switch(dir)
+                {
+                case up:
+                    decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
+                    break;
+                    
+                case down:
+                    decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
+                    break;
+                    
+                case left:
+                    decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
+                    break;
+                    
+                case right:
+                    decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
+                    break;
+                }
             }
             
             return;
