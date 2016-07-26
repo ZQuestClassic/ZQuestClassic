@@ -465,7 +465,8 @@ int  LinkClass::getAction() // Used by ZScript
 void LinkClass::setAction(actiontype new_action) // Used by ZScript
 {
     if(new_action==dying || new_action==won || new_action==scrolling ||
-       new_action==inwind || new_action==rafting || new_action==ischarging)
+       new_action==inwind || new_action==rafting || new_action==ischarging ||
+       new_action==hopping)
         return; // Can't use these actions.
     
     if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
