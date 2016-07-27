@@ -4085,6 +4085,8 @@ void syskeys()
         if(ReadKey(KEY_W))   onShowLayerW();
         
         if(ReadKey(KEY_L))   onLightSwitch();
+        
+        if(ReadKey(KEY_V))   onIgnoreSideview();
     }
     
     if(volkeys)
@@ -4108,18 +4110,6 @@ void syskeys()
         rectfill(screen,0,8,31,239,BLACK);
         rectfill(screen,288,8,319,239,BLACK);
         rectfill(screen,32,232,287,239,BLACK);
-    }
-    
-    if(ReadKey(KEY_V))
-    {
-        Throttlefps=!Throttlefps;
-        /*
-          remove_int(fps_callback);
-        
-          install_int_ex(fps_callback,SECS_TO_TIMER(1));
-          */
-        avgfps=fps_secs=framecnt=0;
-        logic_counter = 0;
     }
     
     if(ReadKey(KEY_P))   Paused=!Paused;
@@ -6697,7 +6687,7 @@ static MENU cheat_menu[] =
     { (char *)"&Link Data...",              onCheatConsole,          NULL,                      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Walk Through &Walls\tF11",   onNoWalls,               NULL,                      0, NULL },
-    { (char *)"Link Ignores Side&view",     onIgnoreSideview,        NULL,                      0, NULL },
+    { (char *)"Link Ignores Side&view\tv",  onIgnoreSideview,        NULL,                      0, NULL },
     { (char *)"&Quick Movement\tq",         onGoFast,                NULL,                      0, NULL },
     { (char *)"&Kill All Enemies",          onKillCheat,             NULL,                      0, NULL },
     { (char *)"Show/Hide Layer",            NULL,                    show_menu,                 0, NULL },
