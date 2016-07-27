@@ -2751,8 +2751,62 @@ int onLightSwitch()
 int onGoTo();
 int onGoToComplete();
 
+// Used in syskeys() to prevent keys from being read as both game and system input
+static int storedInput[14];
+static void backupAndClearInput()
+{
+    storedInput[0]=key[DUkey];
+    key[DUkey]=false;
+    storedInput[1]=key[DDkey];
+    key[DDkey]=false;
+    storedInput[2]=key[DLkey];
+    key[DLkey]=false;
+    storedInput[3]=key[DRkey];
+    key[DRkey]=false;
+    storedInput[4]=key[Akey];
+    key[Akey]=false;
+    storedInput[5]=key[Bkey];
+    key[Bkey]=false;
+    storedInput[6]=key[Skey];
+    key[Skey]=false;
+    storedInput[7]=key[Lkey];
+    key[Lkey]=false;
+    storedInput[8]=key[Rkey];
+    key[Rkey]=false;
+    storedInput[9]=key[Pkey];
+    key[Pkey]=false;
+    storedInput[10]=key[Exkey1];
+    key[Exkey1]=false;
+    storedInput[11]=key[Exkey2];
+    key[Exkey2]=false;
+    storedInput[12]=key[Exkey3];
+    key[Exkey3]=false;
+    storedInput[13]=key[Exkey4];
+    key[Exkey4]=false;
+}
+
+static void restoreInput()
+{
+    key[DUkey]=storedInput[0];
+    key[DDkey]=storedInput[1];
+    key[DLkey]=storedInput[2];
+    key[DRkey]=storedInput[3];
+    key[Akey]=storedInput[4];
+    key[Bkey]=storedInput[5];
+    key[Skey]=storedInput[6];
+    key[Lkey]=storedInput[7];
+    key[Rkey]=storedInput[8];
+    key[Pkey]=storedInput[9];
+    key[Exkey1]=storedInput[10];
+    key[Exkey2]=storedInput[11];
+    key[Exkey3]=storedInput[12];
+    key[Exkey4]=storedInput[13];
+}
+
 void syskeys()
 {
+    backupAndClearInput();
+    
     int oldtitle_version;
     
     if(close_button_quit)
@@ -3047,6 +3101,8 @@ bottom:
         Matrix(ss_speed, ss_density, 0);
         game_pal();
     }
+    
+    restoreInput();
     
     //while(Playing && keypressed())
     //readkey();
@@ -6633,6 +6689,10 @@ bool control_state[18]=
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
+// Used to check if accelerators and controller buttons are mapped to the same key
+//static const int& inputKeys[]={ DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
+//bool is
+
 void load_control_state()
 {
 #define STICK_PRECISION   56 //define your own sensitivity
@@ -6679,7 +6739,6 @@ void load_control_state()
     button_press[15]=rButton(AxisDown,button_hold[15]);
     button_press[16]=rButton(AxisLeft,button_hold[16]);
     button_press[17]=rButton(AxisRight,button_hold[17]);
-    
 }
 
 // Returns true if any game key is pressed. This is needed because keypressed()
