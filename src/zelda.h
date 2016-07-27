@@ -348,6 +348,7 @@ extern int screen_scale; //user adjustable screen size.
 
 extern bool scanlines;                                      //do scanlines if sbig==1
 extern bool toogam;
+extern bool ignoreSideview;
 
 extern int cheat;                                           // 0 = none; 1,2,3,4 = cheat level
 

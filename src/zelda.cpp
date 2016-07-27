@@ -421,6 +421,7 @@ bool sbig2;													// bigger screen
 int screen_scale = 2; //default = 2 (640x480)
 bool scanlines;                                             //do scanlines if sbig==1
 bool toogam=false;
+bool ignoreSideview=false;
 
 int cheat=0;                                                // 0 = none; 1,2,3,4 = cheat level
 
@@ -3560,6 +3561,7 @@ int main(int argc, char* argv[])
         // this is here to continually fix the keyboard repeat
         set_keyboard_rate(250,33);
         toogam = false;
+        ignoreSideview=false;
         titlescreen(load_save);
         
         load_save=0;

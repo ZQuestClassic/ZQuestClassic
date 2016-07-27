@@ -3750,6 +3750,12 @@ int onNoWalls()
     return D_O_K;
 }
 
+int onIgnoreSideview()
+{
+    ignoreSideview = !ignoreSideview;
+    return D_O_K;
+}
+
 int input_idle(bool checkmouse)
 {
     static int mx, my, mz, mb;
@@ -6635,6 +6641,7 @@ static MENU cheat_menu[] =
     { (char *)"&Link Data...",              onCheatConsole,          NULL,                      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Walk Through &Walls\tF11",   onNoWalls,               NULL,                      0, NULL },
+    { (char *)"Link Ignores Side&view",     onIgnoreSideview,        NULL,                      0, NULL },
     { (char *)"&Quick Movement\tq",         onGoFast,                NULL,                      0, NULL },
     { (char *)"&Kill All Enemies",          onKillCheat,             NULL,                      0, NULL },
     { (char *)"Show/Hide Layer",            NULL,                    show_menu,                 0, NULL },
@@ -7538,7 +7545,8 @@ void System()
             cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
             cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
             cheat_menu[11].flags = toogam ? D_SELECTED : 0;
-            cheat_menu[12].flags = gofast ? D_SELECTED : 0;
+            cheat_menu[12].flags = ignoreSideview ? D_SELECTED : 0;
+            cheat_menu[13].flags = gofast ? D_SELECTED : 0;
             
             show_menu[0].flags = show_layer_0 ? D_SELECTED : 0;
             show_menu[1].flags = show_layer_1 ? D_SELECTED : 0;

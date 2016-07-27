@@ -61,6 +61,11 @@ void playLevelMusic();
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 
+static inline bool isSideview()
+{
+    return (tmpscr->flags7&fSIDEVIEW)!=0 && !ignoreSideview;
+}
+
 int LinkClass::DrunkClock()
 {
     return drunkclk;
@@ -297,7 +302,7 @@ void LinkClass::setY(int new_y)
 
 void LinkClass::setZ(int new_z)
 {
-    if(tmpscr->flags7&fSIDEVIEW)
+    if(isSideview())
         return;
         
     if(z==0 && new_z > 0)
@@ -1384,7 +1389,7 @@ attack:
             
             w->power = weaponattackpower();
             
-            if(attackclk==15 && z==0 && (sideviewhammerpound() || !(tmpscr->flags7&fSIDEVIEW)))
+            if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideview()))
             {
                 sfx(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(int(x)));
             }
@@ -1475,7 +1480,7 @@ attack:
                     }
                 }
             }
-            else if((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
+            else if((z>0 || isSideview()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
             {
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 tile+=((int)jumping2/8)*(extend==2?2:1);
@@ -1536,7 +1541,7 @@ attack:
                 linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
                 tile += anim_3_4(lstep,7)*(extend==2?2:1);
             }
-            else if((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping2>0 && jumping2<24 && game->get_life()>0)
+            else if((z>0 || isSideview()) && jumping2>0 && jumping2<24 && game->get_life()>0)
             {
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 tile+=((int)jumping2/8)*(extend==2?2:1);
@@ -1599,7 +1604,7 @@ attack:
                 l-=((l>3)?1:0)+((l>12)?1:0);
                 tile+=(l/2)*(extend==2?2:1);
             }
-            else if((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping2>0 && jumping2<24 && game->get_life()>0)
+            else if((z>0 || isSideview()) && jumping2>0 && jumping2<24 && game->get_life()>0)
             {
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
                 tile+=((int)jumping2/8)*(extend==2?2:1);
@@ -3359,7 +3364,7 @@ void LinkClass::hitlink(int hit2)
 //printf("Stomp check: %d <= 12, %d < %d\n", int((y+16)-(((enemy*)guys.spr(hit2))->y)), (int)falling_oldy, (int)y);
     if(current_item(itype_stompboots) && checkmagiccost(current_item(itype_stompboots)) && (stomping ||
             (z > (((enemy*)guys.spr(hit2))->z)) ||
-            (((tmpscr->flags7&fSIDEVIEW) && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
+            ((isSideview() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
     {
         int itemid = current_item_id(itype_stompboots);
         paymagiccost(itemid);
@@ -3614,7 +3619,7 @@ bool LinkClass::animate(int)
     if(stomping)
         stomping = false;
         
-    if(tmpscr->flags7&fSIDEVIEW)  // Sideview gravity
+    if(isSideview())  // Sideview gravity
     {
         // Fall, unless on a ladder, rafting, using the hookshot, drowning or cheating.
         if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0))
@@ -4619,7 +4624,7 @@ bool LinkClass::startwpn(int itemid)
         
     case itype_rocs:
     {
-        if(!inlikelike && z==0 && charging==0 && !(tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM && !ladderx && !laddery) && hoverclk==0)
+        if(!inlikelike && z==0 && charging==0 && !(isSideview() && !ON_SIDEPLATFORM && !ladderx && !laddery) && hoverclk==0)
         {
             if(!checkmagiccost(itemid))
                 return false;
@@ -5106,7 +5111,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_dinsfire:
-        if(z!=0 || (tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -5118,7 +5123,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_faroreswind:
-        if(z!=0 || (tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -5130,7 +5135,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_nayruslove:
-        if(z!=0 || (tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6388,7 +6393,7 @@ void LinkClass::movelink()
                 }
                 
                 //walkable if Ladder can be placed or is already placed vertically
-                if(tmpscr->flags7&fSIDEVIEW && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)))
+                if(isSideview() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)))
                 {
                     walkable=false;
                 }
@@ -6557,7 +6562,7 @@ void LinkClass::movelink()
                 }
                 
                 //bool walkable;
-                if(tmpscr->flags7&fSIDEVIEW && !toogam)
+                if(isSideview() && !toogam)
                 {
                     walkable=false;
                 }
@@ -6772,7 +6777,7 @@ void LinkClass::movelink()
                 
                 int s=shiftdir;
                 
-                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || tmpscr->flags7&fSIDEVIEW)
+                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || isSideview())
                 {
                     shiftdir=-1;
                 }
@@ -6939,7 +6944,7 @@ void LinkClass::movelink()
                 
                 int s=shiftdir;
                 
-                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || tmpscr->flags7&fSIDEVIEW)
+                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || isSideview())
                 {
                     shiftdir=-1;
                 }
@@ -7304,7 +7309,7 @@ LEFTRIGHT:
         else
         {
             info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) ||
-                   walkflag(x-int(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8), 1,left);
+                   walkflag(x-int(lsteps[int(x)&7]),y+(isSideview() ?0:8), 1,left);
             execute(info);
             
             if(!info.isUnwalkable())
@@ -7367,7 +7372,7 @@ LEFTRIGHT:
         }
         else
         {
-            info = walkflag((int)x+15+(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag((int)x+15+(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8),             1,right);
+            info = walkflag((int)x+15+(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag((int)x+15+(lsteps[int(x)&7]),y+(isSideview() ?0:8),             1,right);
             execute(info);
             
             if(!info.isUnwalkable())
@@ -7409,16 +7414,12 @@ void LinkClass::move(int d2)
     int ystep=lsteps[int(y)&7];
     int z3skip=0;
     int z3diagskip=0;
-    // xstep=ystep=0;
-    //  if((combobuf[MAPCOMBO(x+7,y+8)].type==cOLD_WALKSLOW && z==0) ||
-    //    (tmpscr->flags7&fSIDEVIEW && _walkflag(x+7,y+16,0) && combobuf[MAPCOMBO(x+7,y+16)].type==cOLD_WALKSLOW) ||
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (tmpscr->flags7&fSIDEVIEW && ON_SIDEPLATFORM && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+                     (isSideview() && ON_SIDEPLATFORM && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
     bool slowcharging = get_bit(quest_rules,qr_SLOWCHARGINGWALK) && charging>0;
     bool is_swimming = (action == swimming);
     
     //slow walk combo, or charging, moves at 2/3 speed
-//  if(!is_swimming && (slowcharging ^ slowcombo))
     if(
         (!is_swimming && (slowcharging ^ slowcombo))||
         (is_swimming && (zinit.link_swim_speed>60))
@@ -7652,12 +7653,12 @@ void LinkClass::move(int d2)
             switch(d2)
             {
             case up:
-                if(!(tmpscr->flags7&fSIDEVIEW) || (ladderx && laddery && ladderdir==up)) dy-=ystep;
+                if(!isSideview() || (ladderx && laddery && ladderdir==up)) dy-=ystep;
                 
                 break;
                 
             case down:
-                if(!(tmpscr->flags7&fSIDEVIEW) || (ladderx && laddery && ladderdir==up)) dy+=ystep;
+                if(!isSideview() || (ladderx && laddery && ladderdir==up)) dy+=ystep;
                 
                 break;
                 
@@ -7682,7 +7683,7 @@ void LinkClass::move(int d2)
         linkstep();
         
         //ack... don't walk if in midair! -DD
-        if(charging==0 && spins==0 && z==0 && !(tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM))
+        if(charging==0 && spins==0 && z==0 && !(isSideview() && !ON_SIDEPLATFORM))
             action = walking;
             
         if(++link_count > (16*link_animation_speed))
@@ -7869,7 +7870,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                         return ret;
                     }
                     
-                    if(current_item_power(itype_ladder)<2 && (d2==left || d2==right) && !(tmpscr->flags7&fSIDEVIEW))
+                    if(current_item_power(itype_ladder)<2 && (d2==left || d2==right) && !isSideview())
                     {
                         ret.setUnwalkable(true);
                         return ret;
@@ -7944,7 +7945,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             
             // different dir
-            if(current_item_power(itype_ladder)<2 && !(tmpscr->flags7&fSIDEVIEW && (d2==left || d2==right)))
+            if(current_item_power(itype_ladder)<2 && !(isSideview() && (d2==left || d2==right)))
             {
                 ret.setUnwalkable(true);
                 return ret;
@@ -7957,7 +7958,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
         }
     }
-    else if(wf || (tmpscr->flags7&fSIDEVIEW) || get_bit(quest_rules, qr_DROWN))
+    else if(wf || isSideview() || get_bit(quest_rules, qr_DROWN))
     {
         // see if it's a good spot for the ladder or for swimming
         bool unwalkablex  = _walkflag(wx,wy,1); //will be used later for the ladder -DD
@@ -8026,7 +8027,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             
             if(wtrx || wtrx8)
             {
-                if(tmpscr->flags7&fSIDEVIEW)
+                if(isSideview())
                 {
                     wtrx  = !_walkflag(wx, wy+8, 1) && !_walkflag(wx, wy, 1) && dir!=down;
                     wtrx8 = !_walkflag(wx+8, wy+8, 1) && !_walkflag(wx+8, wy, 1) && dir!=down;
@@ -8157,7 +8158,7 @@ void LinkClass::checkpushblock()
         if(int(x)&15) earlyReturn=true;
         
     // if(y<16) return;
-    if(tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM) return;
+    if(isSideview() && !ON_SIDEPLATFORM) return;
     
     int bx = int(x)&0xF0;
     int by = (int(y)&0xF0);
@@ -8230,7 +8231,7 @@ void LinkClass::checkpushblock()
     }
     
     // In sideview, we still have to check for damage combos.
-    if(earlyReturn && (tmpscr->flags7&fSIDEVIEW)==0)
+    if(earlyReturn && !isSideview())
         return;
     
     int f = MAPFLAG(bx,by);
@@ -8252,7 +8253,7 @@ void LinkClass::checkpushblock()
                               by+zc_max((bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
             return;
         }
-        if((tmpscr->flags7&fSIDEVIEW) && // Check for sideview damage combos
+        if(isSideview() && // Check for sideview damage combos
                 hclk<1 && action!=casting) // ... but only if Link could be hurt
         {
             if(checkdamagecombos(x+4, x+12, y+16, y+24))
@@ -8577,7 +8578,7 @@ void LinkClass::checkchest(int type)
     switch(dir)
     {
     case up:
-        if(tmpscr->flags7&fSIDEVIEW) return;
+        if(isSideview()) return;
         
         if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
@@ -8585,7 +8586,7 @@ void LinkClass::checkchest(int type)
         
     case left:
     case right:
-        if(tmpscr->flags7&fSIDEVIEW) break;
+        if(isSideview()) break;
         
     case down:
         return;
@@ -9051,7 +9052,7 @@ void LinkClass::checktouchblk()
         
         if(di<176 && !guygrid[di] && gc<11)
         {
-            if((getAction() != hopping || (tmpscr->flags7&fSIDEVIEW)))
+            if((getAction() != hopping || isSideview()))
             {
                 guygrid[di]=61; //Note: not 60.
                 int id2=0;
@@ -9274,8 +9275,8 @@ void LinkClass::checkspecial()
                     sfx(WAV_CLEARED);
                     
                 items.add(new item((fix)tmpscr->itemx,
-                                   (tmpscr->flags7&fITEMFALLS && tmpscr->flags7&fSIDEVIEW) ? (fix)-170 : (fix)tmpscr->itemy+1,
-                                   (tmpscr->flags7&fITEMFALLS && !(tmpscr->flags7&fSIDEVIEW)) ? (fix)170 : (fix)0,
+                                   (tmpscr->flags7&fITEMFALLS && isSideview()) ? (fix)-170 : (fix)tmpscr->itemy+1,
+                                   (tmpscr->flags7&fITEMFALLS && !isSideview()) ? (fix)170 : (fix)0,
                                    Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
             }
@@ -10262,7 +10263,7 @@ bool LinkClass::dowarp(int type, int index)
     int wrindex = 0;
     //int lastent_org = lastentrance;
     //int lastdmap_org = lastentrance_dmap;
-    bool wasSideview = (tmpscr[t].flags7 & fSIDEVIEW) > 0 ? true :false;
+    bool wasSideview = (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
     
     // Drawing commands probably shouldn't carry over...
     script_drawing_commands.Clear();
@@ -10905,19 +10906,19 @@ bool LinkClass::dowarp(int type, int index)
     loadside=dir^1;
     whistleclk=-1;
     
-    if(z>0 && (tmpscr->flags7)&fSIDEVIEW)
+    if(z>0 && isSideview())
     {
         y-=z;
         z=0;
     }
-    else if(!((tmpscr->flags7)&fSIDEVIEW))
+    else if(!isSideview())
     {
         fall=0;
     }
     
     // If warping between top-down and sideview screens,
     // fix enemies that are carried over by Full Screen Warp
-    const bool tmpscr_is_sideview = (tmpscr->flags7 & fSIDEVIEW) > 0 ? true : false;
+    const bool tmpscr_is_sideview = isSideview();
     
     if(!wasSideview && tmpscr_is_sideview)
     {
@@ -12821,7 +12822,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         }
     }
     
-    if(z > 0 && tmpscr->flags7&fSIDEVIEW)
+    if(z > 0 && isSideview())
     {
         y -= z;
         z = 0;
@@ -12977,7 +12978,7 @@ bool LinkClass::sideviewhammerpound()
         wx=-1;
         wy=-15;
         
-        if(tmpscr->flags7&fSIDEVIEW)  wy+=8;
+        if(isSideview())  wy+=8;
         
         break;
         
@@ -12985,7 +12986,7 @@ bool LinkClass::sideviewhammerpound()
         wx=8;
         wy=28;
         
-        if(tmpscr->flags7&fSIDEVIEW)  wy-=8;
+        if(isSideview())  wy-=8;
         
         break;
         
@@ -12993,7 +12994,7 @@ bool LinkClass::sideviewhammerpound()
         wx=-8;
         wy=14;
         
-        if(tmpscr->flags7&fSIDEVIEW) wy+=8;
+        if(isSideview()) wy+=8;
         
         break;
         
@@ -13001,12 +13002,12 @@ bool LinkClass::sideviewhammerpound()
         wx=21;
         wy=14;
         
-        if(tmpscr->flags7&fSIDEVIEW) wy+=8;
+        if(isSideview()) wy+=8;
         
         break;
     }
     
-    if(!(tmpscr->flags7&fSIDEVIEW))
+    if(!isSideview())
     {
         return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswater(MAPCOMBO(x+wx,y+wy)));
     }
@@ -15052,7 +15053,7 @@ bool LinkClass::can_deploy_ladder()
     bool ladderallowed = ((!get_bit(quest_rules,qr_LADDERANYWHERE) && tmpscr->flags&fLADDER) || isdungeon()
                           || (get_bit(quest_rules,qr_LADDERANYWHERE) && !(tmpscr->flags&fLADDER)));
     return (current_item_id(itype_ladder)>-1 && ladderallowed && !ilswim && z==0 &&
-            (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM));
+            (!isSideview() || ON_SIDEPLATFORM));
 }
 
 void LinkClass::reset_ladder()
@@ -15079,7 +15080,7 @@ void LinkClass::check_conveyor()
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
         
-        if((deltax==0&&deltay==0)&&(tmpscr->flags7&fSIDEVIEW && ON_SIDEPLATFORM))
+        if((deltax==0&&deltay==0)&&(isSideview() && ON_SIDEPLATFORM))
         {
             ctype=(combobuf[MAPCOMBO(x+8,y+16)].type);
             deltax=combo_class_buf[ctype].conveyor_x_speed;
@@ -15102,7 +15103,7 @@ void LinkClass::check_conveyor()
                 
                 if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!diagonalMovement)
                 {
-                    while(step<(abs(deltay)*((tmpscr->flags7&fSIDEVIEW)?2:1)))
+                    while(step<(abs(deltay)*(isSideview()?2:1)))
                     {
                         yoff=((int)y-step)&7;
                         
