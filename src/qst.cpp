@@ -13513,6 +13513,9 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     if(keepall&&!get_bit(skip_flags, skip_ffscript))
     {
         zScript.clear();
+        globalmap.clear();
+        ffcmap.clear();
+        itemmap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
