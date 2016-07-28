@@ -17829,8 +17829,8 @@ static DIALOG ffcombo_dlg[] =
     { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
     { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
     //49
-    { jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Swap speed with next FFC", NULL, NULL },
-    { jwin_check_proc,      6+10,  125+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Swap speed with prev. FFC", NULL, NULL },
+    { jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Swap with next FFC", NULL, NULL },
+    { jwin_check_proc,      6+10,  125+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Swap with prev. FFC", NULL, NULL },
     { jwin_check_proc,      6+10,  135+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Increase combo ID", NULL, NULL },
     { jwin_check_proc,      6+10,  145+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Decrease combo ID", NULL, NULL },
     { jwin_check_proc,      6+10,  155+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Change combo/cset to this", NULL, NULL },
