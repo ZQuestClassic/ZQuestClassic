@@ -10250,6 +10250,9 @@ void kill_enemy_sfx()
         if(((enemy*)guys.spr(i))->bgsfx)
             stop_sfx(((enemy*)guys.spr(i))->bgsfx);
     }
+    
+    if(tmpscr->room==rGANON)
+        stop_sfx(WAV_ROAR);
 }
 
 void LinkClass::setEntryPoints(int x2, int y2)
