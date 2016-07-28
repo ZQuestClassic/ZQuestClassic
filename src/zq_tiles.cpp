@@ -7249,10 +7249,25 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
                     }
                     
-                    if(move /*&& NEWMAXTILES*/)  //do we need to check this? ~pkmnfrk
+                    if(move)
                     {
-                        if(((st%TILES_PER_ROW)<(dest_first%TILES_PER_ROW)||(st%TILES_PER_ROW)>((dest_first+cols-1)%TILES_PER_ROW))||(st<dest_first||st>(dest_first+((rows-1)*TILES_PER_ROW)+(cols-1))))
+                        if((st<dest_first||st>dest_first+((rows-1)*TILES_PER_ROW)+(cols-1)))
                             reset_tile(newtilebuf, st, tf4Bit);
+                        else
+                        {
+                            int destLeft=dest_first%TILES_PER_ROW;
+                            int destRight=(dest_first+cols-1)%TILES_PER_ROW;
+                            if(destLeft<destRight)
+                            {
+                                if(st%TILES_PER_ROW<destLeft || st%TILES_PER_ROW>destRight)
+                                    reset_tile(newtilebuf, st, tf4Bit);
+                            }
+                            else // Wrapped around
+                            {
+                                if(st%TILES_PER_ROW<destLeft && st%TILES_PER_ROW>destRight)
+                                    reset_tile(newtilebuf, st, tf4Bit);
+                            }
+                        }
                     }
                 }
             }
