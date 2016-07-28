@@ -1269,7 +1269,7 @@ int init_game()
         if(bpos==0xFF)
         {
             bpos=apos;
-            apos=0;
+            apos=-1;
         }
         
         Awpn = Bweapon(apos);
