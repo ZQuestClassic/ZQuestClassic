@@ -8065,12 +8065,27 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                         // If the difference between wy and y is small enough
                         if(abs((wy)-(int(y+c)))<=(b) && wtrx)
                         {
-                            ladderx = wx&0xF0;
-                            laddery = y;
-                            ladderdir = left;
-                            ladderstart = d2;
-                            ret.setUnwalkable(laddery!=int(y));
-                            return ret;
+                            // Don't activate the ladder if it would be entirely
+                            // over water and Link has the flippers. This isn't
+                            // a good way to do this, but it's too risky
+                            // to make big changes to this stuff.
+                            bool deployLadder=true;
+                            int lx=wx&0xF0;
+                            if(current_item(itype_flippers) && z==0)
+                            {
+                                if(iswater(MAPCOMBO(lx, y)) && iswater(MAPCOMBO(lx+15, y)) &&
+                                  iswater(MAPCOMBO(lx, y+15)) && iswater(MAPCOMBO(lx+15, y+15)))
+                                    deployLadder=false;
+                            }
+                            if(deployLadder)
+                            {
+                                ladderx = wx&0xF0;
+                                laddery = y;
+                                ladderdir = left;
+                                ladderstart = d2;
+                                ret.setUnwalkable(laddery!=int(y));
+                                return ret;
+                            }
                         }
                     }
                     else if(d2<=down)
