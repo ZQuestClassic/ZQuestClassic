@@ -758,7 +758,7 @@ int onStrings()
         
         if(index>0 && doedit)
         {
-            int lp = MsgStrings[addAfter].listpos;
+            int lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
             editmsg(index, addAfter);
             
             if(MsgStrings[index].listpos!=msg_count) // Created new string
@@ -772,9 +772,8 @@ int onStrings()
                 }
                 editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
             }
-            else // Canceled or edited an existing string
-                // Select previously selected message
-                strlist_dlg[2].d1 = lp;
+            else if(lp>=0)              // Canceled or edited an existing string
+                strlist_dlg[2].d1 = lp; // Select previously selected message
             
             // Fix the quick-category menu
             strlist_dlg[17].d1=0;
