@@ -7347,10 +7347,7 @@ void domouse()
             if(isinRect(x,y,combolist_window.x-64,0,combolist_window.x-1,15))
             {
                 if(do_text_button(combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),true))
-                {
-                    draw_mode=(draw_mode+1)%dm_max;
-                    fix_drawing_mode_menu();
-                }
+                    onDrawingMode();
             }
         }
         
