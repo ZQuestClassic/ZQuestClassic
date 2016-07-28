@@ -280,9 +280,14 @@ int onItemRules()
     return D_O_K;
 }
 
-/*static int enemyrules1_list[] =
+static int enemyrules1_list[] =
 {
-  6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,-1
+    6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1
+};
+
+static int enemyrules2_list[] =
+{
+    22,-1
 };
 
 static TABPANEL enemyrules_tabs[] =
@@ -291,14 +296,14 @@ static TABPANEL enemyrules_tabs[] =
   { (char *)" 1 ",     D_SELECTED, enemyrules1_list, 0, NULL },
   { (char *)" 2 ",     0,          enemyrules2_list, 0, NULL },
   { NULL,              0,          NULL,             0, NULL }
-};*/
+};
 
 static DIALOG enemyrules_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Enemies", NULL, NULL },
     { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0,        NULL, NULL, NULL },
+    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) enemyrules_tabs, NULL, (void *)enemyrules_dlg },
     // 3
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
@@ -321,6 +326,9 @@ static DIALOG enemyrules_dlg[] =
     { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Translucent Shadows", NULL, NULL },
     { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Shadows Flicker", NULL, NULL },
     { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Flicker When Hit", NULL, NULL },
+    
+    // rules 2
+    { jwin_check_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Statue Minimum Range Or Double Fireballs", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -330,7 +338,7 @@ static int enemyrules[] =
     qr_HIDECARRIEDITEMS, qr_ALWAYSRET, qr_NOTMPNORET, qr_KILLALL,
     qr_MEANTRAPS, qr_MEANPLACEDTRAPS, qr_PHANTOMPLACEDTRAPS, qr_WALLFLIERS,
     qr_BRKNSHLDTILES, qr_NOFLASHDEATH, qr_SHADOWS, qr_TRANSSHADOWS,
-    qr_SHADOWSFLICKER, qr_ENEMIESFLICKER,
+    qr_SHADOWSFLICKER, qr_ENEMIESFLICKER, qr_BROKENSTATUES,
     -1
 };
 
@@ -546,7 +554,7 @@ static int compatrules[] =
 {
    qr_GOTOLESSNOTEQUAL, qr_OLDLENSORDER, qr_NOFAIRYGUYFIRES, qr_TRIGGERSREPEAT,
    qr_HOOKSHOTDOWNBUG, qr_REPLACEOPENDOORS, qr_NOSOLIDDAMAGECOMBOS, qr_OLDHOOKSHOTGRAB,
-   qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_BROKENSTATUES,
+   qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS,
    -1 
 };
 
@@ -576,7 +584,6 @@ static DIALOG compatrules_dlg[] =
     { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Hookshot Grab Checking", NULL, NULL },
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Peahats Are Vulnerable When Frozen By Clocks", NULL, NULL },
     { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons With No Collision Detection Move Offscreen", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Statue Behavior", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
