@@ -8388,6 +8388,9 @@ void LinkClass::checkspecial()
     {
         remove_bosschests((currscr>=128)?1:0);
     }
+    
+    if(tmpscr->room==rGANON)
+        stop_sfx(WAV_ROAR);
 }
 
 void LinkClass::checkspecial2(int *ls)
