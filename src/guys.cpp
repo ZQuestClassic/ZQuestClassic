@@ -6788,6 +6788,7 @@ bool eStalfos::animate(int index)
             haslink=false;
         }
         
+        stop_bgsfx(index);
         return true;
     }
     
@@ -7136,6 +7137,7 @@ bool eKeese::animate(int index)
                     ((enemy*)guys.spr(kids))->count_enemy = count_enemy;
                 }
                 
+                stop_bgsfx(index);
                 return true;
             }
             else
