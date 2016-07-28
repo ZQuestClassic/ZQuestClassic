@@ -9601,8 +9601,6 @@ const char *DIlist(int index, int *list_size)
 
 int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
 {
-    build_bii_list(true);
-    
     int index=0;
     
     for(int j=0; j<bii_cnt; j++)
