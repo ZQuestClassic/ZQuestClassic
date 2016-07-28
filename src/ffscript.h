@@ -5,6 +5,9 @@
 #include <string>
 #include <list>
 
+extern long ffmisc[32][16];
+extern refInfo ffcScriptData[32];
+
 long get_register(const long arg);
 int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
 int ffscript_engine(const bool preload);

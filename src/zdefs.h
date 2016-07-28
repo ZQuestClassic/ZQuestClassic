@@ -1319,7 +1319,6 @@ struct mapscr
     byte ffwidth[32];
     byte ffheight[32];
     byte fflink[32];
-    long ffmisc[32][16];
     
     //ffc script attachments
     word ffscript[32];
@@ -1327,7 +1326,6 @@ struct mapscr
     long inita[32][2];
     bool initialized[32];
     
-    refInfo scriptData[32];
     /*long d[32][8];
     long a[32][2];
     word pc[32];
@@ -1457,17 +1455,10 @@ struct mapscr
         
         for(int i(0); i<32; i++)
         {
-            scriptData[i].Clear();
-            
             for(int j(0); j<8; j++)
             {
                 //d[i][j]=0;
                 initd[i][j]=0;
-            }
-            
-            for(int j(0); j<16; j++)
-            {
-                ffmisc[i][j]=0;
             }
             
             for(int j(0); j<2; j++)

@@ -77,6 +77,8 @@ long(*stack)[256] = NULL;
 long ffc_stack[32][256];
 long global_stack[256];
 long item_stack[256];
+long ffmisc[32][16];
+refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
 {
@@ -1069,7 +1071,7 @@ long get_register(const long arg)
         if(BC::checkMisc(a, "ffc->Misc") != SH::_NoError)
             ret = -10000;
         else
-            ret = tmpscr->ffmisc[ri->ffcref][a];
+            ret = ffmisc[ri->ffcref][a];
     }
     break;
     
@@ -2885,7 +2887,7 @@ void set_register(const long arg, const long value)
         tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
         
         for(int i=0; i<16; i++)
-            tmpscr->ffmisc[ri->ffcref][i] = 0;
+            ffmisc[ri->ffcref][i] = 0;
             
         for(int i=0; i<2; i++)
             tmpscr->inita[ri->ffcref][i] = 0;
@@ -2893,7 +2895,7 @@ void set_register(const long arg, const long value)
         for(int i=0; i<8; i++)
             tmpscr->initd[ri->ffcref][i] = 0;
             
-        tmpscr->scriptData[ri->ffcref].Clear();
+        ffcScriptData[ri->ffcref].Clear();
         tmpscr->initialized[ri->ffcref] = false;
         break;
         
@@ -2957,7 +2959,7 @@ void set_register(const long arg, const long value)
     case FFMISCD:
     {
         int a = vbound(ri->d[0]/10000,0,15);
-        (tmpscr->ffmisc[ri->ffcref][a])=value;
+        ffmisc[ri->ffcref][a]=value;
         break;
     }
     
@@ -4989,11 +4991,11 @@ void do_loada(const byte a)
     long reg = get_register(sarg2); //Register in FFC 2
     
     if(reg >= D(0) || reg <= D(7))
-        set_register(sarg1, tmpscr->scriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
+        set_register(sarg1, ffcScriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
     else if(reg == A(0) || reg == A(1))
-        set_register(sarg1, tmpscr->scriptData[ffcref].a[reg - A(0)]);
+        set_register(sarg1, ffcScriptData[ffcref].a[reg - A(0)]);
     else if(reg == SP)
-        set_register(sarg1, tmpscr->scriptData[ffcref].sp * 10000);
+        set_register(sarg1, ffcScriptData[ffcref].sp * 10000);
         
     //Can get everything else using REFFFC
 }
@@ -5014,11 +5016,11 @@ void do_seta(const byte a)
     long reg = get_register(sarg2); //Register in FFC 2
     
     if(reg >= D(0) || reg <= D(7))
-        tmpscr->scriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
+        ffcScriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
     else if(reg == A(0) || reg == A(1))
-        tmpscr->scriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
+        ffcScriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
     else if(reg == SP)
-        tmpscr->scriptData[ffcref].sp = get_register(sarg1) / 10000;
+        ffcScriptData[ffcref].sp = get_register(sarg1) / 10000;
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -6498,7 +6500,7 @@ int run_script(const byte type, const word script, const byte i)
     {
     case SCRIPT_FFC:
     {
-        ri = &(tmpscr->scriptData[i]);
+        ri = &(ffcScriptData[i]);
         
         curscript = ffscripts[script];
         stack = &(ffc_stack[i]);

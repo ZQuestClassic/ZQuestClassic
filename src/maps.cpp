@@ -3876,9 +3876,6 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
                 tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
                 tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
                 
-                for(int j=0; j<16; j++)
-                    tmpscr[tmp].ffmisc[i][j] = ffscr.ffmisc[i][j];
-                    
                 for(int j=0; j<2; ++j)
                 {
                     tmpscr[tmp].inita[i][j] = ffscr.inita[i][j];
@@ -3889,8 +3886,6 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
                     tmpscr[tmp].initd[i][j] = ffscr.initd[i][j];
                 }
                 
-                tmpscr[tmp].scriptData[i] = ffscr.scriptData[i];
-                
                 if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
                 {
                     tmpscr[tmp].ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
@@ -3900,14 +3895,15 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
                 {
                     tmpscr[tmp].initialized[i] = false;
                     
-                    tmpscr[tmp].scriptData[i].pc = 0;
-                    tmpscr[tmp].scriptData[i].sp = 0;
-                    tmpscr[tmp].scriptData[i].ffcref = 0;
+                    ffcScriptData[i].pc = 0;
+                    ffcScriptData[i].sp = 0;
+                    ffcScriptData[i].ffcref = 0;
                 }
             }
             else
             {
-                memset(tmpscr[tmp].ffmisc[i], 0, 16 * sizeof(long));
+                memset(ffmisc[i], 0, 16 * sizeof(long));
+                ffcScriptData[i].Clear();
                 clear_ffc_stack(i);
             }
         }

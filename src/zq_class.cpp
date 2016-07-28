@@ -1355,9 +1355,6 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     
     for(int i=0; i<32; i++)
     {
-        for(int j=0; j<16; j++)
-            dest->ffmisc[i][j]=src->ffmisc[i][j];
-            
         for(int j=0; j<8; j++)
         {
             //dest->d[i][j]=src->d[i][j];
@@ -1394,7 +1391,6 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
         dest->lwpnref[i]=src->lwpnref[i];
         dest->ewpnref[i]=src->ewpnref[i];
         dest->guyref[i]=src->guyref[i];*/
-        dest->scriptData[i] = src->scriptData[i];
     }
     
     /*for(int i=0; i<256; i++)

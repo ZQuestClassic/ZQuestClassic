@@ -271,6 +271,9 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 
+// Dummy - needed to compile, but unused
+refInfo ffcScriptData[32];
+
 extern std::string zScript;
 char zScriptBytes[512];
 SAMPLE customsfxdata[WAV_COUNT];

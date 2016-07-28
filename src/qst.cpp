@@ -3386,8 +3386,6 @@ void clear_screen(mapscr *temp_scr)
     {
         temp_scr->ffwidth[j] = 15;
         temp_scr->ffheight[j] = 15;
-        temp_scr->scriptData[j].a[0] = 10000;
-        temp_scr->scriptData[j].a[1] = 10000;
         //temp_scr->a[j][0] = 10000;
         //temp_scr->a[j][1] = 10000;
     }
@@ -10750,8 +10748,6 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                 temp_mapscr->ffheight[m]=15;
                 temp_mapscr->ffflags[m]=0;
                 temp_mapscr->ffscript[m]=0;
-                temp_mapscr->scriptData[m].a[0] = 10000;
-                temp_mapscr->scriptData[m].a[1] = 10000;
                 //temp_mapscr->a[m][0] = 10000;
                 //temp_mapscr->a[m][1] = 10000;
                 temp_mapscr->initialized[m] = false;
@@ -10766,6 +10762,13 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         {
             temp_mapscr->flags7 |= (fWHISTLEPAL | fWHISTLEWATER);
         }
+    }
+    
+    for(int m=0; m<MAXFFCS; m++)
+    {
+        // ffcScriptData used to be part of mapscr, and this was handled just above
+        ffcScriptData[m].a[0] = 10000;
+        ffcScriptData[m].a[1] = 10000;
     }
     
     return 0;
@@ -10828,17 +10831,21 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     
-    if(keepdata==true)
+    if(keepdata)
     {
         const int _mapsSize = MAPSCRS*temp_map_count;
         TheMaps.resize(_mapsSize);
         
         for(int i(0); i<_mapsSize; i++)
             TheMaps[i].zero_memory();
-    }
-    
-    if(keepdata==true)
-    {
+        
+        // Used to be done for each screen
+        for(int i=0; i<32; i++)
+        {
+            ffcScriptData[i].a[0] = 10000;
+            ffcScriptData[i].a[1] = 10000;
+        }
+        
         memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
     }
     
