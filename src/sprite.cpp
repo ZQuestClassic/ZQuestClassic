@@ -714,6 +714,8 @@ sprite_list::sprite_list() : count(0) {}
 void sprite_list::clear()
 {
     while(count>0) del(0);
+    lastUIDRequested=0;
+    lastSpriteRequested=0;
 }
 
 sprite *sprite_list::spr(int index)
@@ -755,6 +757,12 @@ bool sprite_list::add(sprite *s)
 bool sprite_list::remove(sprite *s)
 // removes pointer from list but doesn't delete it
 {
+    if(s==lastSpriteRequested)
+    {
+        lastUIDRequested=0;
+        lastSpriteRequested=0;
+    }
+    
     map<long, int>::iterator it = containedUIDs.find(s->getUID());
     
     if(it != containedUIDs.end())
@@ -830,7 +838,13 @@ bool sprite_list::del(int j)
     
     if(it != containedUIDs.end())
         containedUIDs.erase(it);
-        
+    
+    if(sprites[j]==lastSpriteRequested)
+    {
+        lastUIDRequested=0;
+        lastSpriteRequested=0;
+    }
+    
     delete sprites[j];
     
     for(int i=j; i<count-1; i++)
@@ -1038,10 +1052,18 @@ int sprite_list::idLast(int id)
 
 sprite * sprite_list::getByUID(long uid)
 {
+    if(uid==lastUIDRequested)
+        return lastSpriteRequested;
+    
     map<long, int>::iterator it = containedUIDs.find(uid);
     
     if(it != containedUIDs.end())
-        return spr(it->second);
+    {
+        // Only update cache if requested sprite was found
+        lastUIDRequested=uid;
+        lastSpriteRequested=spr(it->second);
+        return lastSpriteRequested;
+    }
         
     return NULL;
 }
@@ -1049,6 +1071,7 @@ sprite * sprite_list::getByUID(long uid)
 void sprite_list::checkConsistency()
 {
     assert((int)containedUIDs.size() == count);
+    assert(lastUIDRequested==0 || containedUIDs.find(lastUIDRequested)!=containedUIDs.end());
     
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
