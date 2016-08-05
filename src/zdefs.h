@@ -611,7 +611,7 @@ enum
 // Unsaved compatibility rules
 enum extraRules
 {
-    er_BITMAPOFFSET,
+    er_BITMAPOFFSET, er_SHORTDGNWALK,
     er_MAX
 };
 

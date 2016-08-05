@@ -2548,6 +2548,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(extra_rules, er_BITMAPOFFSET, 1);
     }
     
+    if(tempheader.zelda_version < 0x193)
+    {
+        set_bit(extra_rules, er_SHORTDGNWALK, 1);
+    }
+    
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));

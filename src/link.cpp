@@ -10614,7 +10614,11 @@ bool LinkClass::dowarp(int type, int index)
         if(isdungeon())
         {
             openscreen();
-            stepforward(diagonalMovement?11:12, false);
+            if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+                stepforward(diagonalMovement?11:12, false);
+            else
+                // Didn't walk as far pre-1.93, and some quests depend on that
+                stepforward(8, false);
         }
         else
         {
