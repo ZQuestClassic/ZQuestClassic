@@ -189,15 +189,15 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case ARRAYTOOSMALL:
-        oss << "Error O1: Array is too small." ;
+        oss << "Error A43: Array is too small." ;
         break;
         
     case ARRAYLISTTOOLARGE:
-        oss << "Error O2: Array initializer larger than specified dimensions." ;
+        oss << "Error A44: Array initializer larger than specified dimensions." ;
         break;
         
     case ARRAYLISTSTRINGTOOLARGE:
-        oss << "Error O3: String array initializer larger than specified dimensions, space must be allocated for NULL terminator." ;
+        oss << "Error A45: String array initializer larger than specified dimensions, space must be allocated for NULL terminator." ;
         break;
         
     case NONINTEGERARRAYSIZE:

@@ -90,7 +90,7 @@ extern YYLTYPE noloc;
 %token IDENTIFIER
 %token QUOTEDSTRING
 %token SINGLECHAR
-
+%token COMMENTBLOCK
 %left LSHIFT RSHIFT
 %left BITAND BITOR BITXOR
 %left AND OR
