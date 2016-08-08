@@ -1,9 +1,32 @@
-// std.zh
+// std.zh - 12th January, 2016
 // Standard header for ZScript.
 // Please don't edit this file. Instead, create a new header file for your
 // quests' scripts,  add constants and procedures to that file,
 // and import it separately.
 
+//Proposed expansion for ZC 2.50.2
+//12-JAN-2016
+
+//Main Files
 import "std_constants.zh"
 import "std_functions.zh"
+import "std_vars.zh"	//Basic array, and some generic handlers. Useful in preventing quest fixing/expansion issues. 
 
+//ZScript string handling functions, akin to those found in C
+//import "string.zh"
+import "string_constants.zh" //Now imported from here. This prevents conflicts for those people
+import "string_functions.zh" //who would import string.zh from a secondary source, as that file is now 
+			     //empty, and the string.ch components load from here. 
+
+//Memory Management Utilities
+//import "mem.zh"
+
+//Shortcuts and Macros
+import "std_shortcuts.zh" //Shortcuts for ZScript functions
+import "std_constants_shortcuts.zh" //Shorter constants, requested by users. 
+
+//Locale
+import "locale/std_EnglishIntl.zh" //International English Localisation
+
+//Settings
+import "std.cfg"

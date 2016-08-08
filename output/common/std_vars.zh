@@ -1,0 +1,60 @@
+//General-Use Arrays with Getter/Setter functions
+//13th February, 2016, 2016
+
+//A generic array, pre-included with all quests. 
+//float stdArray[4096]; //This should be called GlobalRAM[]
+int GlobalRAM[4096];
+int GlobalBugger[214747];
+
+//! Because this is the first global array that will likely be declared, called from the 'import "std.zh"' 
+//! directive in scripts, or from the buffer; as the import directive for std.zh is usually the very first
+//! instruction in any compilation attempt; this array will automatically have the highest numbered pointer.
+//! This means that if it is added after a quest is made, it will be unavailable for use in existing SAVES
+//! but it will not change the ordering of other arrays, or variables. 
+//! 
+//! Thus, running the quest on an old SAVE will NOT break anything, but it allows a quest developer who uses
+//! this feature FROM THE ONSET, before releasing a agme, to EASILY go back in, and add global values EVEN
+//! after releasing a quest, and with people playing it, WITHOUT invalidating their saved games; and it 
+//! WILL allow them to use the new variables. 
+//! 
+//! It's essentially a catch-all for questmakers, as a way to later expand a quest, without breaking player
+//! save files, or requiring them to start from scratch, to play the update. 
+
+
+
+//Data Handling Functions
+
+//Get the value of any 'index' in the generic array.
+float GetV(int index){
+	return GlobalRAM[index];
+}
+
+//Set the value of any 'index', to a specific amount 'value'.
+void SetV(int index, int value){
+	GlobalRAM[index] = value;
+}
+
+//Increase the value of any 'index' by +1.
+void IncV(int index) {
+	GlobalRAM[index]++;
+}
+
+//Increase the value of any 'index' by 'amount'.
+void IncV(int index, int amount){
+	GlobalRAM[index] += amount;
+}
+
+//Decrease the value of any 'index' by -1.
+void DecV(int index){
+	GlobalRAM[index]--;
+}
+
+//Decrease the value of any 'index' by 'amount'.
+void DecV(int index, int amount){
+	GlobalRAM[index] -= amount;
+}
+
+//Stores the pointer of any array to an inmdex of GlobalRAM to allow accessing it from any script. 
+void StoreArrayPointer(int arr, int index){
+    GlobalRAM[index] = arr;
+}

@@ -82,20 +82,21 @@ bool global_wait = false;
 refInfo itemScriptData;
 
 //The stacks
-long(*stack)[256] = NULL;
-long ffc_stack[32][256];
-long global_stack[256];
-long item_stack[256];
+long(*stack)[4096] = NULL;
+long ffc_stack[32][4096];
+long global_stack[4096];
+long item_stack[4096];
 
 void clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, 4096 * sizeof(long));
 }
 
 void clear_global_stack()
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    memset(global_stack, 0, 4096 * sizeof(long));
 }
+
 
 //ScriptHelper
 class SH
@@ -4807,6 +4808,131 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case REFNPC:
         ri->guyref = value;
         break;
+    
+    //-------------New ( 2016 ) ---------///
+    
+    case ITEMCLASSTILE:
+        //
+        break;
+	case ITEMCLASSFLAGS:
+		//
+		break;
+	case ITEMCLASSCSET:
+		//
+		break;
+	case ITEMCLASSMISCD:
+		//
+		break;
+	case ITEMCLASSDD:
+		//
+		break;
+	case ITEMCLASSID:
+		//
+		break;
+	case SCREENDOORDD:
+		//
+		break;
+	case LINKEXTEND:
+		//
+		break;
+	case LINKOTILE:
+		//
+		break;
+
+	case GAMETHROTTLE:
+		ret=Throttlefps?10000:0;
+		break;
+
+	case GAMEPAUSED:
+		ret=Paused?10000:0;
+		break;
+
+	case GAMESHOWFPS:
+		ret=ShowFPS?10000:0;
+		break;
+
+	case GAMESHOWPAL:
+		ret=Showpal?10000:0;
+		break;
+
+	//case GAMENOCLICKFREEZE:
+	  //      ret=disableClickToFreeze?10000:0;
+	    //    break;
+
+	case GAMECLICKFREEZE2:
+		ret=ClickToFreeze?10000:0;
+		break;
+
+	case GAMEPLAYING:
+		ret=Playing?10000:0;
+		break;
+
+	case GAMEDEBUG:
+		ret=__debug?10000:0;
+		break;
+
+	case GAMEDEBUGON:
+		ret=debug_enabled?10000:0;
+		break;
+
+	case GAMEDEBUGON:
+		ret=debug_enabled?10000:0;
+		break;
+
+	case PRESSF12:
+		ret=debug_enabled?10000:0;
+		break;
+
+	case PRESSF11:
+		ret=F11?10000:0;
+		break;
+
+	case PRESSF5:
+		ret=F5?10000:0;
+		break;
+
+	case PRESSFI:
+		ret=keyI?10000:0;
+		break;
+
+	case PRESSFQ:
+		ret=keyQ?10000:0;
+		break;
+
+	case GAMEHEARTBEEP:
+		ret=heart_beep?10000:0;
+		break;
+
+	case ONCONVEY:
+		ret=is_on_conveyor?10000:0;
+		break;
+
+	case ACTTIMEDWARP:
+		ret=activated_timed_warp?10000:0;
+		break;
+
+	case GOFAST:
+		ret=gofast?10000:0;
+		break;
+
+	/*
+	case GETZCVERSION:
+		ret=zcversion*10000;
+		break;
+	*/
+	/*
+	case INPUTS:
+		ret=control_state[   ...   ]?10000:0;
+		break;
+	//Read inputs as a single flagset
+
+	case PRESSES:
+		ret = button_press [ ... ]?10000:0;
+		break;
+	//Read button presses as a single flagset
+
+	*/
+	    
         
     default:
     {

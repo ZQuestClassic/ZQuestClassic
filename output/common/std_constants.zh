@@ -1,33 +1,153 @@
-// std_constants.zh
+// std_constants.zh for ZC v2.50.2 and later.
+// 13-JUNE-2016
 // Contains required constants for std.zh and ZScript functions.
 
 
-const float PI						= 3.1416;
-const float PI2						= 6.2832;
-const float E						= 2.7183;
+///////////////////////
+/// Mathematical values
 
-const int NULL						= 0;
+const float PI				= 3.1416;
+const float PI2				= 6.2832;
+const float E				= 2.7183;
 
-const float MAX_CONSTANT			= 214747.9999;
-//const float MAX_VARIABLE			= 214748.3648; Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
-const int MAX_BITSPERVARIABLE		= 18;
+const int NULL				= 0;
+
+const int RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
+const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 
+
+const int SQRT_ERROR			= 464; // The return value of SafeSqrt() if a negative value is passed. 
+const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
+//const int DIAGONAL			= 
+
+////////////////////////////
+/// ZC Minimums and Maximums
+
+const float MAX_CONSTANT		= 214747.9999;
+const float MAX_FLOAT			= 214747.9999;
+//const float MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
+const float MIN_CONSTANT		= -214747.9999; //! This is because of a bug. The minimum (negative) float
+							//! **is** -214747.9999, but the min (negative) const float
+							//! is -021473.0001 because of an error in char counting including the sign. 
+							//!...and will be fixed in 2.50.3.
+//2.50.0 to 2.50.2 SPECIAL Constant Minimums							
+const int MIN_CONST_INT			= -99999; 	
+							//! This is due to a bug in 2.50.2 and earlier. 
+							//! ...and will be fixed in 2.50.3 to -214747.
+const float MIN_CONST_FLOAT		= -21473.0001; //! This is because of a bug. The minimum (negative) float
+							//! **is** -214747.9999, but the min (negative) const float
+							//! is -021473.0001 because of an error in char counting including the sign. 
+							//!...and will be fixed in 2.50.3.
+
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
+const int MAX_INT 			= 214747;
+const int MIN_INT 			= -99999; //This value is assigned to the constant due to the bug involving negative constants in 2.50.0-2.50.2. 
+						  //MIN_INT for variables is -214747
+const int MIN_FLOAT 			= -21473.0001; //This value is a ZC bug, and will be fixed in 2.50.3.
+							//MIN_FLOAT for variables is -214747
 
-const int HP_PER_HEART				= 16;
-const int MP_PER_BLOCK				= 32;
+const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
+const int MIN_COUNTER 			= -32768; //" -32767
 
-const int MAX_MESSAGES				= 65535;
-const int MAX_MESSAGELENGTH			= 145; //Pass an array of (at least) this size to Game->GetMessage
 
-const int MAX_DMAPS					= 512;
+const int MIN_LWEAPON 			= 1; //Lowest numbered objects.
+const int MIN_EWEAPON 			= 1;
+const int MIN_NPC			= 1;
+const int MIN_ITEM			= 1;
+const int MAX_LWEAPON 			= 255; //1 to 255. 
+const int MAX_EWEAPON 			= 255; //1 to 255. 
+const int MAX_NPCS	 		= 255; //1 to 255. 
+const int MAX_ITEM	 		= 255; //1 to 255;
+//!This is already called in stdExtra.zh
+//! Fixed; de-pluralised all. 
+
+const int MIN_FFC			= 1;
+const int MAX_FFC			= 32; 
+const int MIN_OBJ			= 1; //Short, const for loops. 
+
+
+const int MAX_OBJECT_POINTERS 		= 255; //Max of any one type. 
+const int MAX_WEAPON_POINTERS 		= 510; //eweapon and lweapon combined.
+const int MAX_TOTAL_OBJECT_POINTERS 	= 1020; //Max shared, across the three types. 
+const int MAX_SPRITES 			= 1020; //npc, eweapon, and lweapon
+const int MAX_DRAWING 			= 1000; //Maximum number of simultaneous drawing commands.
+
+const int MIN_BITMAP_X			= 0; //Legal Bitmap Region for Drawing
+const int MAX_BITMAP_X			= 511;
+const int MIN_BITMAP_Y			= 0;
+const int MAX_BITMAP_Y		 	= 511;
+
+const int MAX_GLOBAL_VARIABLES		= 255;
+const int MAX_VARIABLES			= 255; //Vars in operation at any one time.
+const int MAX_BITSPERVARIABLE		= 18;
+
+const int MAX_ARRAY_POINTERS	 	= 4095; //Arrays in operation. 
+const int MAX_TILES 			= 65519;
+const int MAX_COMBOS			= 65279;
+const int MAX_STRINGS			= 65519; //Strings in String Editor
+
+const int HP_PER_HEART			= 16;
+const int MP_PER_BLOCK			= 32;
+
+const int MAX_MESSAGES			= 65535;
+const int MAX_MESSAGELENGTH		= 145; //Pass an array of (at least) this size to Game->GetMessage
+
+const int MAX_MAPS 			= 256;
+const int MAX_DMAPS			= 512;
 const int MAX_DMAPNAMELENGTH		= 21; //Size of arrays to pass to Game->GetDMapX
 const int MAX_DMAPTITLELENGTH		= 21;
 const int MAX_DMAPINTROLENGTH		= 73;
 
+//FFC Size Limitations
+const int MAX_FFC_W 			= 4; //Four tiles wide
+const int MAX_FFC_H 			= 4; //Four tiles high
+const int MAX_FFC_EFFECT_W		= 64; //Sixty-four pixels wide.
+const int MAX_FFC_EFFECT_H		= 64; //Sixty four pixels high. 
+
+/////////////////////
+/// Screen Dimensions
+
+const int SCREEN_W 			= 256; //X width of the Screen, starting at 0 (left) and goign right). 
+//!SCREEN_WIDTH  is already called in stdExtra.zh
+const int SCREEN_H 			= 176; //Y height of the screen, starting at 0 (top), going down.
+//!SCREEN_HEIGHT  is already called in stdExtra.zh
+
+const int SCREEN_RIGHT 			= 255; //The rightmost screen pixel.
+const int SCREEN_LEFT 			= 0; //The leftmost screen pixel.
+const int SCREEN_TOP 			= 0; //The top screen pixel, below the subscreen.
+const int SCREEN_BOTTOM 		= 175; //The lowest screen pixel.  
+
+const int SUBSCREEN_BOTTOM		= -1; //Bottom of passive subscreen.
+const int SUBSCREEN_TOP 		= -56; //Top of passive subscreen.
+//! In stdExtra.zh, this is -64. ?!
+
+
+
+///////////////////
+/// Game Properties
+
 //Defaults from Init Data
-const float GRAVITY					= 0.16;
+const float GRAVITY			= 0.16;
 const float TERMINAL_VELOCITY		= 3.20;
 const int JUMPING_LAYER_THRESHOLD	= 16;
+
+//CSet Initial Colour Swatch positions
+const int CSET_0 	= 0; //Sixteen colours per, starting at '0' each.
+const int CSET_1 	= 16;
+const int CSET_2 	= 32;
+const int CSET_3 	= 48;
+const int CSET_4 	= 64;
+const int CSET_5 	= 80;
+const int CSET_6 	= 96;
+const int CSET_7 	= 112;
+const int CSET_8 	= 128;
+const int CSET_9 	= 144;
+const int CSET_10 	= 160;
+const int CSET_11 	= 176;
+const int CSET_12 	= 192;
+const int CSET_13 	= 208; //Warning: Using CSets 13 through 15 is not officially supported, 
+const int CSET_14 	= 224; //	  and may affect compatibility with future ZC builds.
+const int CSET_15 	= 240;
+
 
 //Sound effect IDs. To be used for PlaySound().
 const int SFX_ARROW       = 1; // Arrow is fired.
@@ -89,6 +209,226 @@ const int SFX_WAND        = 32; // Magic is fired by Wizzrobes or Link.
 const int SFX_WHIRLWIND   = 59; // Whistle whirlwind.
 const int SFX_WHISTLE     = 33; // Whistle is played.
 const int SFX_ZELDA       = 34; // Music when ending sequence begins.
+
+
+//Sprite IDs. To be used with UseSprite().
+const int SP_ARROW_ENEMY 		= 19;
+const int SP_ARROW1 			= 10; //Wooden Arrow
+const int SP_ARROW2 			= 11; //Silver Arrow
+const int SP_ARROW3 			= 34; //Golden Arrow
+const int SP_BAIT 			= 14; //Enemy bait
+const int SP_BOMB_ENEMY 		= 76; //Bomb (Enemy, normal)
+const int SP_SBOMB_ENEMY 		= 77; //Bomb (Enemy, Super)
+const int SP_BOMB 			= 7; //Normal Bomb
+const int SP_SBOMB 			= 8; //Super Bomb
+const int SP_BRANG1 			= 4; //Wooden Boomerang
+const int SP_BRANG2 			= 5; //Magical Boomerang
+const int SP_BRANG3 			= 6; //Fire Boomerang
+const int SP_CANEOFBYRNA 		= 69; //Cane of Byrna Object
+const int SP_BYRNABEAM 			= 87; //Cane of Byrna Orbiter
+const int SP_BYRNASLASH 		= 70; //Cane of Byrna Slashing Sprite
+const int SP_DINSFIRE_FALL 		= 39; //Din's Fire (Falling)
+const int SP_DINSFIRE_RISE 		= 38; //Din's Fire (Rising)
+const int SP_DINSFIRE_TRAIL_FALL 	= 41; //Din's Fire (Trail, Falling)
+const int SP_DINSFIRE_TRAIL_RISE 	= 40; //Din's Fire (Trail, Rising)
+const int SP_BOMB_ENEMY_EXPLOSION 	= 78; //Normal Bomb Exploion (Enemy)
+const int SP_SBOMB_ENEMY_EXPLOSION 	= 79; //Super Bomb Explosion (Enemy)
+const int SP_BOMB_EXPLOSION 		= 9; //Normal Bomb Explosion
+const int SP_SBOMB_EXPLOSION 		= 75; //Super Bomb Explosion
+const int SP_FIRE_ENEMY 		= 35; //Fire (Enemy)
+const int SP_FIRE2_ENEMY 		= 81; //Fire 2 (Enemy)
+const int SP_FIRETRAIL2			= 82; //Fire Trail 2 (Enemy) [Unused]
+const int SP_FIRETRAIL 			= 80; //Fire Trail (Enemy)
+const int SP_FIREBALL 			= 17; //Fireball (Enemy)
+const int SP_FLAME 			= 12; //Candle Fire
+const int SP_FIRE 			= 12; //Candle Fire
+const int SP_HAMMER 			= 25; //Hammer
+const int SP_HOOKSHOT1_CHAIN_H 		= 27; //Hookshot (Short, Chain, Horizontal)
+const int SP_HOOKSHOT1_CHAIN_V 		= 42; //Hookshot (Short, Chain, Vertical)
+const int SP_HOOKSHOT1_HANDLE 		= 28; //Hookshot Handle (Short)
+const int SP_HOOKSHOT1_HEAD 		= 26; //Hookshot Head (Short)
+const int SP_HOOKSHOT2_CHAIN_H 		= 72; //Hookshot (Short, Chain, Horizontal)
+const int SP_HOOKSHOT2_CHAIN_V 		= 74; //Hookshot (Short, Chain, Vertical)
+const int SP_HOOKSHOT2_HANDLE 		= 73; //Hookshot Handle (Short)
+const int SP_HOOKSHOT2_HEAD 		= 71; //Hookshot Head (Short)
+const int SP_ICE 			= 83; //Ice Magic (Enemy, Unused)
+const int SP_MAGIC_ENEMY 		= 21; //Magic (Enemy)
+const int SP_MAGIC_FIRE 		= 85; //Magic (Fire)
+const int SP_MAGIC 			= 16; //Magic (Wand)
+const int SP_MISC44 			= 44; //Misc 44, unused
+const int SP_MISC45 			= 45; //Misc 45, unused
+const int SP_MISC57 			= 57; //Misc 57, unused
+const int SP_MISC24 			= 24; //Misc 24, unused
+const int SP_MISC_ARROW2 		= 29; //Silver Arrow Sparkles
+const int SP_MISC_ARROW3 		= 30; //Golden Arrow Sparkles
+const int SP_MISC_BRANG2 		= 31; //Magic Boomerang Sparkles
+const int SP_MISC_BRANG3 		= 32; //Fire Boomerang Sparkles
+const int SP_MISC_BUSH 			= 52; //Bush Leaf Clippings
+const int SP_MISC_DEATH 		= 23; //Link Death Winkout
+const int SP_MISC_FLOWER 		= 53; //Flower Clippings
+const int SP_MISC_GRASS 		= 54; //Grass Clippings
+const int SP_MISC_HAMMER 		= 33; //Hammer Impact
+const int SP_MISC_HOVER 		= 84; //Hover Boots Glow
+const int SP_MISC_MAGICMETER 		= 37; //Magic Meter
+const int SP_MISC_MORE 			= 43; //More Indicator
+const int SP_MISC_QHEART 		= 86; //Quarter Heart
+const int SP_MISC_RIPPLE 		= 56; //Ripples
+const int SP_MISC_SHADOW2 		= 51; //Shadow (Large)
+const int SP_MISC_SHADOW1 		= 50; //Shadow (Small)
+const int SP_SPAWN 			= 22; //Enemy Spawn Poof
+const int SP_MISC_SSVINE 		= 68; //Subscreen Vine
+const int SP_TALLGRASS 			= 55; //Tall Grass Movement
+const int SP_NAYRU_LEFT 		= 58; //Nayru's Love (Left)
+const int SP_NAYRU_LEFT2 		= 59; //Nayru's Love (Left, Returning)
+const int SP_NAYRU_RIGHT 		= 62; //Nayru's Love (Right)
+const int SP_NAYRU_RIGHT2 		= 63; //Nayru's Love (Right, Returning)
+const int SP_NAYRU_BACK 		= 67; //Nayru's Love Shield (Back)
+const int SP_NAYRU_FRONT 		= 66; //Nayru's Love Shield (Front)
+const int SP_NAYRU_TRAIL_LEFT 		= 60; //Nayru's Love Trail (Left)
+const int SP_NAYRU_TRAIL_LEFT2 		= 61; //Nayru's Love Trail (Left, Returning)
+const int SP_NAYRU_TRAIL_RIGHT 		= 64; //Nayru's Love Trail (Right)
+const int SP_NAYRU_TRAIL_RIGHT2 	= 65; //Nayru's Love Trail (Right, Returning)
+const int SP_ROCK 			= 18; //Rock
+const int SP_SWORD_ENEMY 		= 20; //Enemy Sword Beam
+const int SP_SWORD1 			= 0; //Wooden Sword
+const int SP_SLASH1 			= 46; //Wooden Sword Slash
+const int SP_SWORD2 			= 1; //White Sword
+const int SP_SLASH2 			= 47; //White Sword Slash
+const int SP_SWORD3 			= 2; //Magical Sword
+const int SP_SLASH3 			= 48; //Magical Sword Slash
+const int SP_SWORD4 			= 3; //Master Sword
+const int SP_SLASH4 			= 49; //master Sword Slash
+const int SP_WAND 			= 15; //Wand Object
+const int SP_WHIRL		 	= 13; //Whiste Whirlwind
+const int SP_WIND 			= 36; //Wind Magic (Enemy)
+
+//User-Defined Sprites Range 088 to 255
+
+//Directions. Use with Link->Dir, etc.
+const int DIR_UP                = 0; //000b
+const int DIR_DOWN              = 1; //001b
+const int DIR_LEFT              = 2; //010b
+const int DIR_RIGHT             = 3; //011b
+const int DIR_LEFTUP            = 4; //100b
+const int DIR_RIGHTUP           = 5; //101b
+const int DIR_LEFTDOWN          = 6; //110b
+const int DIR_RIGHTDOWN         = 7; //111b
+const int DIR_IGNORESHIELD 	= 8; //dir+DIR_IGNORESHIELD: Prevents blocking by enemy shields.
+					//Does not work with some enemy types. 
+					//Directions above 7 are used by some Z1 bosses. 
+
+//Flip Types for Tiles, or Sprites
+const int FLIP_NONE 		= 0;
+const int FLIP_HORIZONTAL 	= 1; //Horizontal Flip
+//!This is already called in stdExtra.zh
+//Fixed
+const int FLIP_VERTICAL 	= 2; //Vertical Flip
+//!This is already called in stdExtra.zh
+//Fixed
+const int FLIP_HV 		= 3; //Horizontal and vertical Flip
+const int FLIP_VH 		= 3;
+const int FLIP_BOTH 		= 3;
+
+//Rotations + Flip
+const int ROT_CW 		= 4;
+const int ROT_CW_FLIP 		= 5;
+const int ROT_CCW_FLIP 		= 6;
+const int ROT_CCW 		= 7; 
+
+
+
+
+//Sprite extending methods. Use with item->Extend,
+//npc->Extend, eweapon->Extend and lweapon->Extend.
+const int EXT_NONE              = 0; // Not extended
+const int EXT_16X32		= 1; // Object is extended as 16x32; or Link is extended in Sprites->Link to 16x32.
+const int EXT_32X32		= 2; // Object is extended as 32x32; or Link is extended in Sprites->Link to 32x32.
+const int EXT_NORMAL            = 3; // Extended
+const int EXT_EXTENDED          = 3; // Extended
+const int EXT_NOSHADOW          = 4; // Extended; NPC has no shadow.
+
+//! We need some better names for Extend constants. 
+
+//Generic counters. Use with itemclass->Counter, Game->Counter[], Game->MCounter[] and Game->DCounter[]
+const int CR_LIFE               = 0;
+const int CR_RUPEES             = 1;
+const int CR_BOMBS              = 2;
+const int CR_ARROWS             = 3;
+const int CR_MAGIC              = 4;
+const int CR_KEYS               = 5;
+const int CR_SBOMBS             = 6;
+const int CR_SCRIPT1            = 7;
+const int CR_SCRIPT2            = 8;
+const int CR_SCRIPT3            = 9;
+const int CR_SCRIPT4            = 10;
+const int CR_SCRIPT5            = 11;
+const int CR_SCRIPT6            = 12;
+const int CR_SCRIPT7            = 13;
+const int CR_SCRIPT8            = 14;
+const int CR_SCRIPT9            = 15;
+const int CR_SCRIPT10           = 16;
+const int CR_SCRIPT11           = 17;
+const int CR_SCRIPT12           = 18;
+const int CR_SCRIPT13           = 19;
+const int CR_SCRIPT14           = 20;
+const int CR_SCRIPT15           = 21;
+const int CR_SCRIPT16           = 22;
+const int CR_SCRIPT17           = 23;
+const int CR_SCRIPT18           = 24;
+const int CR_SCRIPT19           = 25;
+const int CR_SCRIPT20           = 26;
+const int CR_SCRIPT21           = 27;
+const int CR_SCRIPT22           = 28;
+const int CR_SCRIPT23           = 29;
+const int CR_SCRIPT24           = 30;
+const int CR_SCRIPT25           = 31;
+
+//Generic data indices. Use this with Game->Generic[]
+const int GEN_HEARTPIECES       = 0; // Heart Pieces currently possessed
+const int GEN_MAGICDRAINRATE    = 1; // Link's magic usage equals n / 2.
+const int GEN_CANSLASH          = 2; // Link can slash with the sword.
+const int GEN_WARPLEVEL         = 3; // Warp Ring number that a Whirlwind warp will send Link to.
+							  // It is set every time that Link uses the Whistle.
+const int GEN_HCPPERHC          = 4; // How many Pieces of Heart form a complete Heart Container?
+const int GEN_CONTINUEHEARTS    = 5; // Amount of life that Link continues with
+const int GEN_CONTINUEISPERCENT = 6; // ...Or a percentage of his total life
+
+//Level item flags. Or (|) these together and use with Game->LItems[]
+const int LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
+const int LI_MAP                = 0x02; // The Dungeon Map of this Level has been obtained
+const int LI_COMPASS            = 0x04; // The Compass of this Level has been obtained
+const int LI_BOSS               = 0x08; // A "Dungeon Boss" enemy has been slain
+const int LI_BOSSKEY            = 0x10; // The Boss Key of this Level has been obtained
+
+//Mouse buttons
+const int MB_LEFTCLICK			= 0x1; //AND (&) these with Link->InputMouseB to get the current button state of the mouse
+const int MB_RIGHTCLICK			= 0x2;
+const int MB_MIDDLECLICK		= 0x4; //Keep in in mind that not all mice/touchpads have a middle mouse button
+
+//Controller buttons
+const int CB_UP 	= 1; 
+const int CB_DOWN	= 2;
+const int CB_LEFT	= 3;
+const int CB_RIGHT	= 4;
+const int CB_A		= 5;
+const int CB_B		= 6;
+const int CB_L		= 7;
+const int CB_R		= 8;
+const int CB_START	= 9;
+const int CB_MAP	= 10;
+const int CB_EX1	= 11;
+const int CB_EX2	= 12;
+const int CB_EX3	= 12;
+const int CB_EX4	= 14;
+const int CB_STICKUP	= 15;
+const int CB_STICKDOWN	= 16;
+const int CB_STICKLEFT	= 17;
+const int CB_STICKRIGHT	= 18;
+
+
+
+////////////////////
+/// Items & Itemdata
 
 //Item class ids. Use as comparisons with Itemdata->Family
 const int IC_AMULET             = 11;
@@ -310,31 +650,97 @@ const int I_WHISPRING1          = 99;
 const int I_WHISPRING2          = 100;
 const int I_WHISTLE             = 31;
 
-//Link actions
-const int LA_NONE               = 0;
-const int LA_WALKING            = 1;
-const int LA_ATTACKING          = 2;
-const int LA_FROZEN             = 3;
-const int LA_HOLD1LAND          = 4; // One hand.
-const int LA_HOLD2LAND          = 5; // Both hands.
-const int LA_RAFTING            = 6;
-const int LA_GOTHURTLAND        = 7;
-const int LA_INWIND             = 8;
-const int LA_SCROLLING          = 9;
-const int LA_WINNING            = 10;
-const int LA_SWIMMING           = 11;
-const int LA_HOPPING            = 12; // Leaving water.
-const int LA_GOTHURTWATER       = 13;
-const int LA_HOLD1WATER         = 14;
-const int LA_HOLD2WATER         = 15;
-const int LA_CASTING            = 16; // Casting a spell.
-const int LA_CAVEWALKUP         = 17;
-const int LA_CAVEWALKDOWN       = 18;
-const int LA_DYING              = 19;
-const int LA_DROWNING           = 20;
-const int LA_CHARGING           = 22; // Charging the sword.
-const int LA_SPINNING           = 23; // Spin attack.
-const int LA_DIVING             = 24;
+//Item pickup flags. OR (|) these together to use with item->Pickup
+//Other values are reserved for internal usage, and have no effect
+const int IP_HOLDUP			= 0x002; //Link holds it up when collecting it.
+const int IP_ST_ITEM			= 0x004; //Sets the screen state "Item" when collected.
+const int IP_DUMMY			= 0x008; //A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.
+const int IP_ENEMYCARRIED		= 0x080; //The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.
+const int IP_TIMEOUT			= 0x100; //Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.
+const int IP_ST_SPECIALITEM		= 0x800; //Sets the screen state "Special Item" when collected.
+
+
+/////////////////////////
+/// EWeapons and LWeapons
+
+//LWeapon types. Use with Screen->CreateLWeapon() and Screen->LoadLWeapon().
+const int LW_SWORD              = 1; // This cannot be created
+const int LW_WAND               = 12; // This cannot be created
+const int LW_CANDLE             = 12; // This cannot be created
+const int LW_HAMMER             = 19; // This cannot be created
+const int LW_HOOKSHOT           = 20; // This cannot be created
+const int LW_CANEOFBYRNA        = 27; // This cannot be created
+const int LW_ARROW              = 8;
+const int LW_BEAM               = 2; // Sword beam
+const int LW_BRANG              = 3;
+const int LW_BOMB               = 6;
+const int LW_BOMBBLAST          = 4; // Bomb explosion
+const int LW_SBOMB              = 7;
+const int LW_SBOMBBLAST         = 5; // Super Bomb explosion
+const int LW_FIRE               = 9;
+const int LW_WHISTLE            = 10; // Whistle music - kills Digdogger
+const int LW_BAIT               = 11;
+const int LW_MAGIC              = 13; // Wand magic
+const int LW_WIND               = 15; // Whistle whirlwind
+const int LW_REFMAGIC           = 16; // Reflected wand magic
+const int LW_REFFIREBALL        = 17; // Reflected fireball
+const int LW_REFROCK            = 18; // Reflected rock
+const int LW_REFBEAM            = 28; // Reflected sword beam
+const int LW_SPARKLE            = 23;
+const int LW_FIRESPARKLE        = 24; // Damages enemies
+// Dummy weapons, for use with scripts.
+const int LW_SCRIPT1            = 31;
+const int LW_SCRIPT2            = 32;
+const int LW_SCRIPT3            = 33;
+const int LW_SCRIPT4            = 34;
+const int LW_SCRIPT5            = 35;
+const int LW_SCRIPT6            = 36;
+const int LW_SCRIPT7            = 37;
+const int LW_SCRIPT8            = 38;
+const int LW_SCRIPT9            = 39;
+const int LW_SCRIPT10           = 40;
+
+//EWeapon types. Use with Screen->CreateEWeapon() and Screen->LoadEWeapon().
+const int EW_ARROW              = 130;
+const int EW_BRANG              = 131;
+const int EW_BEAM               = 132; // Sword beam
+const int EW_ROCK               = 133;
+const int EW_MAGIC              = 134;
+const int EW_FIREBALL           = 129;
+const int EW_FIREBALL2          = 145; // Arcing boss fireball
+const int EW_BOMB               = 137; // Projectile bomb
+const int EW_BOMBBLAST          = 135; // Bomb explosion
+const int EW_SBOMB              = 138; // Projectile super bomb
+const int EW_SBOMBBLAST         = 136; // Super bomb explosion
+const int EW_FIRETRAIL          = 139;
+const int EW_FIRE               = 140;
+const int EW_WIND               = 141; // Wind wizzrobe magic
+const int EW_FIRE2		= 142; //! What is 'Fire 2' ?
+// Dummy weapons, for use with scripts.
+const int EW_SCRIPT1            = 31;
+const int EW_SCRIPT2            = 32;
+const int EW_SCRIPT3            = 33;
+const int EW_SCRIPT4            = 34;
+const int EW_SCRIPT5            = 35;
+const int EW_SCRIPT6            = 36;
+const int EW_SCRIPT7            = 37;
+const int EW_SCRIPT8            = 38;
+const int EW_SCRIPT9            = 39;
+const int EW_SCRIPT10           = 40;
+
+//Weapon DeadState values. Use with Weapon->DeadState.
+const int WDS_NOHIT             = -10; // This value switches collision detection off. Deprecated by weapon->CollDetection.
+const int WDS_ALIVE		= -1; // Weapon is currently 'alive'.
+const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
+const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
+const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
+const int WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
+                                      // make it 'bounce off' and start returning to Link.
+
+
+////////////////////
+/// NPCs and Enemies
+
 
 //NPC Types. Compare against npc->Type.
 const int NPCT_GUY			= 0;
@@ -527,102 +933,472 @@ const int NPC_ZORA              = 33;
 //NPC hit point values. Use with npc->HP to make the enemy die in a special manner.
 const int HP_SILENT = -1000;  // The enemy will die without their Death Sound playing.
 
-//LWeapon types. Use with Screen->CreateLWeapon() and Screen->LoadLWeapon().
-const int LW_SWORD              = 1; // This cannot be created
-const int LW_WAND               = 12; // This cannot be created
-const int LW_CANDLE             = 12; // This cannot be created
-const int LW_HAMMER             = 19; // This cannot be created
-const int LW_HOOKSHOT           = 20; // This cannot be created
-const int LW_CANEOFBYRNA        = 27; // This cannot be created
-const int LW_ARROW              = 8;
-const int LW_BEAM               = 2; // Sword beam
-const int LW_BRANG              = 3;
-const int LW_BOMB               = 6;
-const int LW_BOMBBLAST          = 4; // Bomb explosion
-const int LW_SBOMB              = 7;
-const int LW_SBOMBBLAST         = 5; // Super Bomb explosion
-const int LW_FIRE               = 9;
-const int LW_WHISTLE            = 10; // Whistle music - kills Digdogger
-const int LW_BAIT               = 11;
-const int LW_MAGIC              = 13; // Wand magic
-const int LW_WIND               = 15; // Whistle whirlwind
-const int LW_REFMAGIC           = 16; // Reflected wand magic
-const int LW_REFFIREBALL        = 17; // Reflected fireball
-const int LW_REFROCK            = 18; // Reflected rock
-const int LW_REFBEAM            = 28; // Reflected sword beam
-const int LW_SPARKLE            = 23;
-const int LW_FIRESPARKLE        = 24; // Damages enemies
-// Dummy weapons, for use with scripts.
-const int LW_SCRIPT1            = 31;
-const int LW_SCRIPT2            = 32;
-const int LW_SCRIPT3            = 33;
-const int LW_SCRIPT4            = 34;
-const int LW_SCRIPT5            = 35;
-const int LW_SCRIPT6            = 36;
-const int LW_SCRIPT7            = 37;
-const int LW_SCRIPT8            = 38;
-const int LW_SCRIPT9            = 39;
-const int LW_SCRIPT10           = 40;
+//NPC Attribute 1 constants. Use with npc->Attributes.
+const int NPCA1_1SHOT			= 0;
+const int NPCA1_ENDHALT			= 1;
+const int NPCA1_RAPIDFIRE		= 2;
+const int NPCA1_1FAST			= 3;
+const int NPCA1_1SLANT			= 4;
+const int NPCA1_3SHOTS			= 5;
+const int NPCA1_4SHOTS			= 6;
+const int NPCA1_5SHOTS			= 7;
+const int NPCA1_3FAST			= 8;
+const int NPCA1_BREATH			= 9;
+const int NPCA1_8SHOTS			= 10;
+const int NPCA1_SUMMON			= 11;
+const int NPCA1_SUMMONLAYER		= 12;
 
-//EWeapon types. Use with Screen->CreateEWeapon() and Screen->LoadEWeapon().
-const int EW_ARROW              = 130;
-const int EW_BRANG              = 131;
-const int EW_BEAM               = 132; // Sword beam
-const int EW_ROCK               = 133;
-const int EW_MAGIC              = 134;
-const int EW_FIREBALL           = 129;
-const int EW_FIREBALL2          = 145; // Arcing boss fireball
-const int EW_BOMB               = 137; // Projectile bomb
-const int EW_BOMBBLAST          = 135; // Bomb explosion
-const int EW_SBOMB              = 138; // Projectile super bomb
-const int EW_SBOMBBLAST         = 136; // Super bomb explosion
-const int EW_FIRETRAIL          = 139;
-const int EW_FIRE               = 140;
-const int EW_WIND               = 141; // Wind wizzrobe magic
-const int EW_FIRE2				= 142;
-// Dummy weapons, for use with scripts.
-const int EW_SCRIPT1            = 31;
-const int EW_SCRIPT2            = 32;
-const int EW_SCRIPT3            = 33;
-const int EW_SCRIPT4            = 34;
-const int EW_SCRIPT5            = 35;
-const int EW_SCRIPT6            = 36;
-const int EW_SCRIPT7            = 37;
-const int EW_SCRIPT8            = 38;
-const int EW_SCRIPT9            = 39;
-const int EW_SCRIPT10           = 40;
+//NPC Attribute 2 constants. Use with npc->Attributes.
+const int NPCA2_NORMAL			= 0;
+const int NPCA2_SPLITHIT		= 1;
+const int NPCA2_SPLIT			= 2;
+const int NPCA2_8SHOTS			= 3;
+const int NPCA2_EXPLODE			= 4;
+const int NPCA2_TRIBBLE			= 5;
 
-//Weapon DeadState values. Use with Weapon->DeadState.
-const int WDS_NOHIT             = -10; // This value switches collision detection off. Deprecated by weapon->CollDetection.
-const int WDS_ALIVE		= -1; // Weapon is currently 'alive'.
-const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
-const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
-const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
-const int WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
-                                      // make it 'bounce off' and start returning to Link.
+//NPC Attribute 7 constants. Use with npc->Attributes.
+const int NPCA7_NORMAL			= 0;
+const int NPCA7_TEMPJINX		= 1;
+const int NPCA7_PERMJINX		= 2;
+const int NPCA7_CUREJINX		= 3;
+const int NPCA7_LOSEMAGIC		= 4;
+const int NPCA7_LOSERUPEES		= 5;
+const int NPCA7_DRUNK			= 6;
+const int NPCA7_EATITEMS		= 7;
+const int NPCA7_EATMAGIC		= 8;
+const int NPCA7_EATRUPEES		= 9;
 
-//FFC Flags. To be used as indices into ffc->Flags[].
-const int FFCF_OVERLAY          = 0; // Draw Over (draw between layers 4 and 5)
-const int FFCF_TRANS            = 1; // Translucent
-const int FFCF_SOLID            = 2; // Unused
-const int FFCF_CARRYOVER        = 3; // Carry Over
-const int FFCF_STATIONARY       = 4; // Stationary
-const int FFCF_CHANGER          = 5; // Is A Changer
-const int FFCF_PRELOAD          = 6; // Run Script On Screen Init
-const int FFCF_LENSVIS          = 7; // Only Visible to Lens of Truth
-const int FFCF_RESET            = 8; // Script Resets When Carried Over
-const int FFCF_ETHEREAL         = 9; // The FFC's Combo Type is ignored.
-const int FFCF_IGNOREHOLDUP     = 10; // The FFC is updated while Link is holding up an item
+//NPC Attribute 9 constants. Use with npc->Attributes.
+const int NPCA9_NORMAL			= 0;
+const int NPCA9_ROPE			= 1;
+const int NPCA9_VIRE			= 2;
+const int NPCA9_POLSVOICE		= 3;
 
-//Directions. Use with Link->Dir, etc.
-const int DIR_UP                = 0; //000b
-const int DIR_DOWN              = 1; //001b
-const int DIR_LEFT              = 2; //010b
-const int DIR_RIGHT             = 3; //011b
-const int DIR_LEFTUP            = 4; //100b
-const int DIR_RIGHTUP           = 5; //101b
-const int DIR_LEFTDOWN          = 6; //110b
-const int DIR_RIGHTDOWN         = 7; //111b
+//NPC Defenses. Use as indices to npc->Defense[].
+const int NPCD_ARROW			= 3;
+const int NPCD_BEAM			= 10;
+const int NPCD_BRANG			= 0;
+const int NPCD_BOMB			= 1;
+const int NPCD_BYRNA			= 16;
+const int NPCD_FIRE			= 4;
+const int NPCD_HAMMER			= 8;
+const int NPCD_HOOKSHOT			= 7;
+const int NPCD_MAGIC			= 6;
+const int NPCD_REFBEAM			= 11;
+const int NPCD_REFMAGIC			= 12;
+const int NPCD_REFFIREBALL		= 13;
+const int NPCD_REFROCK			= 14;
+const int NPCD_SBOMB			= 2;
+const int NPCD_SCRIPT			= 17;
+const int NPCD_STOMP			= 15;
+const int NPCD_SWORD			= 9;
+const int NPCD_WAND			= 5;
+
+//NPC Defense types. Use with npc->Defense[].
+const int NPCDT_NONE			= 0;
+const int NPCDT_HALFDAMAGE		= 1;
+const int NPCDT_QUARTERDAMAGE		= 2;
+const int NPCDT_STUN			= 3;
+const int NPCDT_STUNORBLOCK		= 4;
+const int NPCDT_STUNORIGNORE		= 5;
+const int NPCDT_BLOCK1			= 6;
+const int NPCDT_BLOCK2			= 7;
+const int NPCDT_BLOCK4			= 8;
+const int NPCDT_BLOCK6			= 9;
+const int NPCDT_BLOCK8			= 10;
+const int NPCDT_BLOCK			= 11;
+const int NPCDT_IGNORE1			= 12;
+const int NPCDT_IGNORE			= 13;
+const int NPCDT_ONEHITKILL		= 14;
+
+//NPC Misc.
+const int NPCM_0POWERWEAPS 		= 0x0001; //Damaged by 0-Power Weapons
+const int NPCM_ISINVISIBLE 		= 0x0002; //Is Invisible
+const int NPCM_NEVERRETURNS 		= 0x0004; //Never Returns After Death
+const int NPCM_NOT_BEATABLE  		= 0x0008; //Doesn't Count as beatable Enemy
+const int NPCM_SPAWNFLICKER 		= 0x0010; //Unused.
+//! These may be offset here, as MM defines:
+//!	const int NPCMF_SPAWNFLICKER = 0x0010; //Spawn animation = flicker (???) 
+//!	in stdExtra.zh.  If so, the values should be offset to include this, ending at 0x2000. 
+// Fixed
+const int NPCM_ONLY_LENS 		= 0x0020; //Only Seen By Lens of truth
+const int NPCM_FLASHING 		= 0x0040; //Is Flashing
+const int NPCM_FLICKERING 		= 0x0080; //Is Flickering
+const int NPCM_TRANSLUCENT 		= 0x0100; //Is translucent
+const int NPCM_SHIELDED_FRONT 		= 0x0200; //Shielded on Front
+const int NPCM_SHIELDED_LEFT 		= 0x0400; //Shielded on Left
+const int NPCM_SHIELDED_RIGHT 		= 0x0800; //Shielded on Right
+const int NPCM_SHIELDED_BACK 		= 0x1000; //Shielded on Back
+const int NPCM_HAMMERBREAKS 		= 0x2000; //Hammer Can break Shield
+
+//NPC Spawn Flags
+const int NPCSF_ZORA			= 0x0001; //Spawned by Zora Screen Flag
+const int NPCSF_FALLINGROCK		= 0x0002; //Spawned by Falling Rocks Screen Flag
+const int NPCSF_CORNERTRAP		= 0x0004; //Spawned by Corner Traps Screen Flag
+const int NPCSF_HORIZTRAP		= 0x0008; //Spawned by Horiz Trap Combo Type or Flag
+const int NPCSF_VERTTRAP		= 0x0010; //Spawned by Vert Trap Combo Type or Flag
+const int NPCSF_4WAYTRAP		= 0x0020; //Spawned by 4-Way Trap Combo Type or Flag
+const int NPCSF_LRTRAP			= 0x0040; //Spawned by LR Trap Combo Type or Flag
+const int NPCSF_UPTRAP			= 0x0080; //Spawned by UD Trap Combo Type or Flag
+const int NPCSF_MIDTRAP			= 0x0100; //Spawned by Middle Traps Screen Flag
+const int NPCSF_STATUEFIRE		= 0x0200; //Spawned by Statue Fire Screen Flag
+const int NPCSF_ARMOS			= 0x0400; //Spawned by Armos Combo Type
+const int NPCSF_GRAVE			= 0x0800; //Spawned by Grave Combo Type
+const int NPCSF_GANONROOM		= 0x1000; //Spawned by Ganon Room Type
+const int NPCSF_SPAWNANIM		= 0x2000; //Spawn Animation Type
+
+//Enemy projectile weapon selections. Use with npc->Weapon.
+//Note: Don't use these with Screen->CreateEWeapon! Use the EW_ constants instead.
+const int WPN_NONE              = 0;
+const int WPN_ENEMYFLAME        = 140;
+const int WPN_ENEMYWIND         = 141;
+const int WPN_ENEMYFIREBALL     = 129;
+const int WPN_ENEMYARROW        = 130;
+const int WPN_ENEMYBRANG        = 131;
+const int WPN_ENEMYSWORD        = 132;
+const int WPN_ENEMYROCK         = 133;
+const int WPN_ENEMYMAGIC        = 134;
+const int WPN_ENEMYBOMB         = 135;
+const int WPN_ENEMYSBOMB        = 136;
+const int WPN_ENEMYLITBOMB      = 137;
+const int WPN_ENEMYLITSBOMB     = 138;
+const int WPN_ENEMYFIRETRAIL    = 139;
+const int WPN_ENEMYFLAME2       = 142;
+const int WPN_ENEMYFLAME2TRAIL  = 143; // Not implemented
+const int WPN_ENEMYICE          = 144; // Not implemented
+const int WPN_ENEMYFIREBALL2    = 145; // A fireball that doesn't fly toward Link
+
+//Default item drop sets. Use with npc->ItemSet
+const int IS_NONE               = 0;
+const int IS_DEFAULT            = 1;
+const int IS_BOMBS              = 2;
+const int IS_MONEY              = 3;
+const int IS_LIFE               = 4;
+const int IS_BOMB100            = 5; // Used by Dodongos
+const int IS_SBOMB100           = 6; // Used by Dodongos
+const int IS_MAGIC              = 7;
+const int IS_MAGICBOMBS         = 8;
+const int IS_MAGICMONEY         = 9;
+const int IS_MAGICLIFE          = 10;
+const int IS_MAGIC2             = 11;
+const int IS_COMBOS		= 12; // Used by Tall Grass / Bush / Slash combos.
+
+//Boss palettes. Use with npc->BossPal
+const int BPAL_AQUA             = 0;
+const int BPAL_GLEEOK           = 1;
+const int BPAL_DODONGO          = 2;
+const int BPAL_GANON            = 3;
+const int BPAL_BROWN            = 4;
+const int BPAL_PILE             = 5;  // Used for the Dust Pile.
+const int BPAL_BLUE             = 6;
+const int BPAL_RED              = 7;
+const int BPAL_GOLD             = 8;
+const int BPAL_ICON1            = 9;  // Used for Quest Icon 1.
+const int BPAL_ICON2            = 10; // Used for Quest Icon 2.
+const int BPAL_ICON3            = 11; // Used for Quest Icon 3.
+const int BPAL_ICON4            = 12; // Used for Quest Icon 4.
+const int BPAL_GLEEOKF          = 13;
+const int BPAL_FROZEN           = 14; // Unused
+
+
+
+
+
+///////////////////
+/// Script Drawing
+
+//Draw styles. Use with item->DrawStyle
+const int DS_NORMAL             = 0;
+const int DS_PHANTOM            = 1;
+const int DS_CLOAKED            = 2;
+const int DS_LINK               = 3;
+
+// Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
+//and all of these are completely undocumented. Use at your own peril
+const int FONT_Z1               = 0;
+const int FONT_Z3               = 1;
+const int FONT_Z3SMALL          = 2;
+const int FONT_DEF              = 3;
+const int FONT_L                = 4;
+const int FONT_L2               = 5;
+const int FONT_P                = 6;
+const int FONT_MATRIX           = 7;
+const int FONT_ZTIME            = 8;
+const int FONT_S                = 9;
+const int FONT_S2               = 10;
+const int FONT_SP               = 11;
+const int FONT_SUBSCREEN1       = 12;
+const int FONT_SUBSCREEN2       = 13;
+const int FONT_SUBSCREEN3       = 14;
+const int FONT_SUBSCREEN4       = 15;
+const int FONT_GBLA             = 16;
+const int FONT_GORON            = 17;
+const int FONT_ZORAN            = 18;
+const int FONT_HYLIAN1          = 19;
+const int FONT_HYLIAN2          = 20;
+const int FONT_HYLIAN3          = 21;
+const int FONT_HYLIAN4          = 22;
+const int FONT_GBORACLE         = 23;
+const int FONT_GBORACLEP        = 24;
+const int FONT_DSPHANTOM        = 25;
+const int FONT_DSPHANTOMP       = 26;
+
+// PrintString Text Formats. Use with Screen->DrawString.
+const int TF_NORMAL             = 0; // treats the left-most char as (x)
+const int TF_CENTERED           = 1; // prints the string centered on (x)
+const int TF_RIGHT              = 2; // treats the right-most char as (x)
+
+// Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle
+const int PT_FLAT               = 0; // single color shading
+const int PT_FLATSHADED         = 1; // "" with flat shading (*3D only)
+const int PT_COLSHADED          = 2; // "" with color shading (*3D only)
+const int PT_TEXTURE            = 3; // texture mapped polygon using 2d linear interpolation
+const int PT_PTEXTURE           = 4; // "" 
+const int PT_MASKTEXTURE        = 5; // transparent texture mapped polygon using 2d linear interpolation
+const int PT_MASKPTEXTURE       = 6; // "" 
+const int PT_LITTEXTURE         = 7; // "" with lighting (*3D only)
+const int PT_LITPTEXTURE        = 8; // "" (*3D only)
+const int PT_MASKLITTEXTURE     = 9; // "" with transparency
+const int PT_MASKLITPTEXTURE    = 10; // "" 
+const int PT_TRANSTEXTURE       = 11; // translucent texture mapped polygon using 2d linear interpolation
+const int PT_TRANSPTEXTURE      = 12; // "" 
+const int PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
+const int PT_MASKTRANSPTEXTURE  = 14; // "" 
+
+// Opacity options. Use with drawing commands.
+const int OP_TRANS              = 64;
+const int OP_OPAQUE             = 128;
+const float OP_XOR		= 1234.9875; //REMOVE from PUBLIC Docs
+
+// Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
+const int RT_SCREEN             = -1; // draws to screen
+const int RT_BITMAP0            = 0; // draws to off-screen bitmap 0
+const int RT_BITMAP1            = 1; // draws to off-screen bitmap 1
+const int RT_BITMAP2            = 2; // draws to off-screen bitmap 2
+const int RT_BITMAP3            = 3; // draws to off-screen bitmap 3
+const int RT_BITMAP4            = 4; // draws to off-screen bitmap 4
+const int RT_BITMAP5            = 5; // draws to off-screen bitmap 5
+const int RT_BITMAP6            = 6; // draws to off-screen bitmap 6
+
+
+
+
+/////////////////////////
+/// DMaps, Screens, Rooms
+
+//Screen Flag categories. Flags from each category are ORed together, starting with the first flag
+//See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
+const int SF_ROOMTYPE			= 0;
+const int SF_VIEW			= 1;
+const int SF_SECRETS			= 2;
+const int SF_WARP			= 3;
+const int SF_ITEMS			= 4;
+const int SF_COMBOS			= 5;
+const int SF_SAVE			= 6;
+const int SF_FFC			= 7;
+const int SF_WHISTLE			= 8;
+const int SF_MISC			= 9;
+
+
+//! These DMap Flag values do not return the expected results when compared via TraeS()ing what is anticipated!
+
+//Screen Flag Roomtype
+const int SFR_INTERIOR = 0; //0x0000 ?
+const int SFR_DUNGEON = 1; //0x0001
+const int SFR_SIDEVIEW = 2; //0x0002
+
+//Screen Flag View
+const int SFV_INVISLINK = 0; //0x0001;
+const int SFV_NOLINKMARKER = 1;// 0x0002;
+const int SFV_NOSUBSCREEN = 2;// 0x0004;
+const int SFV_NOOFFSET = 3; // 0x0008; //'...but don't offset'
+const int SFV_LAYER2BG = 4; // 0x0010; //Layer 2 is Background
+const int SFV_LAYER3BG = 5; //0x0020;
+const int SFV_DARKROOM = 6; //0x0040; 
+
+//Screen Flag Secrets
+const int SFS_BLOCKSHUT = 0; //0x0001; //Block->Shutters
+const int SFS_TEMPSECRETS = 1; //0x0002; //Secrets are temporary.
+const int SFS_TRIGPERM = 2; //0x0004; //All Triggers->Perm Secret
+const int SFS_ALLTRIGFLAGS = 3; //0x0008; //All triggers->16-31
+
+//Screen Flag Warp
+const int SFW_AUTODIRECT = 0; //  0x0001; //Auto Warps are Direct
+const int SFW_SENDDIRECT = 1; //0x0002; //Sensitive Warps are direct.
+const int SFW_MAZEPATHS = 2; //0x0004; //Use maze Path
+const int SFW_MAZEOVERRIDE = 3; //0x0008; //maze Overrides Sidewarps
+const int SFW_SPRITECARRY = 4; //0x0010; //Sprites carry over. 
+
+
+//Screen Flag Items
+const int SFI_HOLDUP = 0; //0x0001; //Hold up item.
+const int SFI_FALLS = 1; //0x0002; //Falls from ceiling
+
+//Screen Flag Combos
+const int SFC_MIDAIR = 0;// 0x0001; //Combos affect midair Link
+const int SFC_CYCLEINIT = 1; //0x0002; //Cycle combos on screen init.
+const int SFC_IGNOREBOOTS = 2; //0x0004; //Damage combos ignore boots. 
+const int SFC_TOGGLERINGS = 3; //0x0008; //Toggle 'Rings Affect Combos'
+
+//Screen Flag Save
+const int SFSV_SAVECONTHERE = 0; //0x0001; //Save Point->ontinue here.
+const int SFSV_SAVEONENTRY = 1; //0x0002; //Save game on entry.
+const int SFSV_CONTHERE = 2; // 0x0004; //Comtinue here.
+const int SFSV_NOCONTINUEWARP = 3; //0x0008; //No continue Here after warp. 
+
+//Screen Flags FFC
+const int SFF_WRAP = 0;  //  0x0001; //Freeform Combos Wrap Around
+const int SFF_NOCARRYOVER = 1; //0x0002; //No FFC carry over. 
+
+//Screen Flags Whistle
+const int SFW_STAIRS = 0; //0x0001; //Whistle->Stairs
+const int SFW_PALCHANGE = 1; //0x0002; //Whistle->Palette Change
+const int SFW_DRYLAKE = 2; //0x0004; //Whistle->Dry lake
+
+//Misc. Screen flags. OR (|) these together to use (Read-Only).
+const int SFM_ALLOW_LADDER	= 0; //0x0001; //Toggle 'Allow Ladder'
+const int SFM_NO_DIVING		= 1; //0x0002; //Toggle 'No Diving' 
+const int SFM_SCRIPT1		= 2; //0x0004; //General use 1 (Scripts)
+const int SFM_SCRIPT2		= 3; //0x0008; //General use 2 (Scripts)
+const int SFM_SCRIPT3		= 4; //0x0010; //General use 3 (Scripts)
+const int SFM_SCRIPT4		= 5; //0x0020; //General use 4 (Scripts)
+const int SFM_SCRIPT5		= 6; //0x0040; //General use 5 (Scripts)
+
+//Screen Enemy Flag categories, handled in the same way as the SF_ constants.
+//Use in Screen->EFlags
+const int SEF_SPAWN				= 0;
+const int SEF_LIST1				= 1; //left-hand list
+const int SEF_LIST2				= 2; //right-hand list
+
+//Room types (Screen => Room Type)
+//Use with Screen->RoomType
+const int RT_DOORREPAIR         = 5;
+const int RT_FEEDTHEGORIYA      = 7;
+const int RT_GAMBLE             = 4;
+const int RT_GANON              = 15;
+const int RT_ITEMPOND           = 17; //doesn't work
+const int RT_LEARNSLASH         = 19;
+const int RT_LEVEL9ENTRANCE     = 8;
+const int RT_MAGICUPGRADE       = 18;
+const int RT_MONEYORLIFE        = 12;
+const int RT_MOREARROWS         = 20;
+const int RT_MOREBOMBS          = 11;
+const int RT_NONE               = 0;
+const int RT_PAYFORINFO         = 2;
+const int RT_POTIONORHEART      = 6;
+const int RT_POTIONSHOP         = 9;
+const int RT_SECRETMONEY        = 3;
+const int RT_SHOP               = 10;
+const int RT_SPECIALITEM        = 1;
+const int RT_STAIRWARP          = 14;
+const int RT_TAKEONEITEM        = 21;
+const int RT_TENRUPEES          = 13;
+const int RT_ZELDA              = 16;
+
+//DMap Flag constants. Use with Game->DMapFlags.
+const int DMF_CAVESNOTCELLARS		= 0x0001; //Use caves instead of item cellars
+const int DMF_3STAIRWARPS		= 0x0002; //Allow 3-stair warps
+const int DMF_WWIND			= 0x0004; //Allow whistle whirlwinds
+const int DMF_GUYCAVES			= 0x0008; //Special rooms and guys are in caves only
+const int DMF_NOCOMPASS			= 0x0010; //Don't display compass marker in minimap
+const int DMF_WAVY 			= 0x0020; //Underwater wave effect
+const int DMF_WWINDRET			= 0x0040; //Whistle whirlwind returns Link to start
+const int DMF_ALWAYSINTROMSG		= 0x0080; //Always display intro string
+const int DMF_VIEWMAP       		= 0x0100; //View overworld map by pressing 'Map'
+const int DMF_DMAPMAP         		= 0x0200; //...But only show screens marked in minimap
+const int DMF_MINIMAPCOLORFIX 		= 0x0400; //Use minimap foreground colour 2
+const int DMF_MINIMAPCOLOURFIX 		= 0x0400; //Use minimap foreground colour 2
+const int DMF_SCRIPT1 			= 0x0800; //DMap Script Flags
+const int DMF_SCRIPT2 			= 0x1000;
+const int DMF_SCRIPT3 			= 0x2000;
+const int DMF_SCRIPT4 			= 0x4000;
+const int DMF_SCRIPT5 			= 0x8000;
+
+//Screen states. Use these with Screen->State[], etc.
+const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_DOORDOWN			= 1; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_DOORLEFT			= 2; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_DOORRIGHT			= 3; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_ITEM			= 4; // If set, the item is gone
+const int ST_SPECIALITEM		= 5; // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
+const int ST_ENEMYNORETURN		= 6; // If set, enemies won't return
+const int ST_TEMPNORETURN		= 7; // If set, enemies won't return. This is automatically unset when you leave the DMap
+const int ST_LOCKBLOCK			= 8; // The lock block on the screen has been triggered
+const int ST_BOSSLOCKBLOCK		= 9; // The boss lock block on the screen has been triggered
+const int ST_CHEST			= 10; // The unlocked chest on this screen has been opened
+const int ST_LOCKEDCHEST		= 11; // The locked chest on this screen has been opened
+const int ST_BOSSCHEST			= 12; // The boss chest on this screen has been opened
+const int ST_SECRET			= 13; // Screen Secrets have been made permanent
+const int ST_VISITED			= 14; // If set, this screen will appear on the Overworld Map
+
+//Door types. Use with Screen->Door[]
+const int D_WALL                = 0;
+const int D_OPEN                = 1;
+const int D_LOCKED              = 2;
+const int D_UNLOCKED            = 3; // A locked door that has been opened
+const int D_SHUTTER             = 4; // Defeat enemies to unlock this door
+const int D_BOMB                = 6; // A door that changes when bombed
+const int D_BOMBED              = 7; // A door that has been bombed
+const int D_WALKTHRU            = 8; // Push against the wall to pass through
+const int D_BOSSLOCKED          = 10;
+const int D_BOSSUNLOCKED        = 11; // A boss door that has been opened
+const int D_OPENSHUTTER         = 12; // A shutter that has been opened
+const int D_1WAYSHUTTER         = 14; // A shutter that locks behind you and never opens
+
+//Sprite lists. Use with Screen->ClearSprites()
+const int SL_GUYS               = 0; // Enemies
+const int SL_ITEMS              = 1; // Items
+const int SL_EWPNS              = 2; // Enemy weapons
+const int SL_LWPNS              = 3; // Link's weapons
+const int SL_DECORATIONS        = 4; // Grass clippings, Hover boots glow, etc.
+const int SL_PARTICLES          = 5; // Farore's Wind particles
+
+//Warp types. Use with Screen->SetSideWarp
+const int WT_CAVE			= 0;
+const int WT_PASSAGE			= 1;
+const int WT_ENTRANCEEXIT		= 2;
+const int WT_SCROLLING			= 3;
+const int WT_IAWARP			= 4;
+const int WT_IWARPBLACKOUT		= 5;
+const int WT_IWARPOPENWIPE		= 6;
+const int WT_IWARPZAP			= 7;
+const int WT_IWARPWAVE		  	= 8;
+const int WT_NOWARP			= 9;
+
+
+///////////////////
+/// Link Properties
+
+//Link actions
+const int LA_NONE               = 0;
+const int LA_WALKING            = 1;
+const int LA_ATTACKING          = 2;
+const int LA_FROZEN             = 3;
+const int LA_HOLD1LAND          = 4; // One hand.
+const int LA_HOLD2LAND          = 5; // Both hands.
+const int LA_RAFTING            = 6;
+const int LA_GOTHURTLAND        = 7;
+const int LA_INWIND             = 8;
+const int LA_SCROLLING          = 9;
+const int LA_WINNING            = 10;
+const int LA_SWIMMING           = 11;
+const int LA_HOPPING            = 12; // Leaving water.
+const int LA_GOTHURTWATER       = 13;
+const int LA_HOLD1WATER         = 14;
+const int LA_HOLD2WATER         = 15;
+const int LA_CASTING            = 16; // Casting a spell.
+const int LA_CAVEWALKUP         = 17;
+const int LA_CAVEWALKDOWN       = 18;
+const int LA_DYING              = 19;
+const int LA_DROWNING           = 20;
+const int LA_CHARGING           = 22; // Charging the sword.
+const int LA_SPINNING           = 23; // Spin attack.
+const int LA_DIVING             = 24;
+
+///////////////////////
+/// Combo Types & Flags
+
+
 
 //Combo flags. Use with Screen->ComboF[]
 const int CF_NONE               = 0;
@@ -751,9 +1527,9 @@ const int CT_BOSSLOCKBLOCK      = 61;
 const int CT_BOSSLOCKBLOCK2     = 62;
 const int CT_BSGRAVE            = 64;
 const int CT_BUSH               = 55;
-const int CT_BUSHC             = 134;
+const int CT_BUSHC              = 134;
 const int CT_BUSHNEXT           = 131;
-const int CT_BUSHNEXTC             = 139;
+const int CT_BUSHNEXTC          = 139;
 const int CT_CAVE               = 2;
 const int CT_CAVE2              = 51;
 const int CT_CAVE2B             = 83;
@@ -763,6 +1539,7 @@ const int CT_CAVEB              = 74;
 const int CT_CAVEC              = 75;
 const int CT_CAVED              = 76;
 const int CT_CENTERSTATUE       = 35;
+const int CT_CENTRESTATUE       = 35;
 const int CT_CHEST              = 65;
 const int CT_CHEST2             = 66;
 const int CT_CVDOWN             = 15;
@@ -825,20 +1602,21 @@ const int CT_SAVE               = 72;
 const int CT_SAVE2              = 73;
 const int CT_SCREENFREEZE       = 126;
 const int CT_SCREENFREEZEFF     = 127;
-const int CT_SCRIPT1		  = 142;
-const int CT_SCRIPT2		  = 143;
-const int CT_SCRIPT3		  = 144;
-const int CT_SCRIPT4		  = 145;
-const int CT_SCRIPT5		  = 146;
+const int CT_SCRIPT1		= 142;
+const int CT_SCRIPT2		= 143;
+const int CT_SCRIPT3		= 144;
+const int CT_SCRIPT4		= 145;
+const int CT_SCRIPT5		= 146;
 const int CT_SHALLOWWATER       = 58;
 const int CT_SLASH              = 24;
 const int CT_SLASHC             = 132;
 const int CT_SLASHITEM          = 25;
 const int CT_SLASHITEMC         = 133;
 const int CT_SLASHNEXT          = 129;
-const int CT_SLASHNEXTC             = 137;
+const int CT_SLASHNEXTC         = 137;
 const int CT_SLASHNEXTITEM      = 130;
-const int CT_SLASHNEXTITEMC             = 138;
+const int CT_SLASHNEXTITEMC     = 138;
+const int CT_SLOWWALK           = 13;
 const int CT_SPINTILE1          = 124;
 const int CT_SPINTILE2          = 125;
 const int CT_STAIR              = 1;
@@ -876,392 +1654,62 @@ const int CT_WATER              = 3;
 const int CT_ZELDA              = 23;
 
 
-//Item pickup flags. OR (|) these together to use with item->Pickup
-//Other values are reserved for internal usage, and have no effect
-const int IP_HOLDUP				= 0x002; //Link holds it up when collecting it.
-const int IP_ST_ITEM			= 0x004; //Sets the screen state "Item" when collected.
-const int IP_DUMMY				= 0x008; //A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.
-const int IP_ENEMYCARRIED		= 0x080; //The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.
-const int IP_TIMEOUT			= 0x100; //Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.
-const int IP_ST_SPECIALITEM		= 0x800; //Sets the screen state "Special Item" when collected.
+//////////////////
+/// FFC Properties
 
-//Screen Flag categories. Flags from each category are ORed together, starting with the first flag
-//See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
-const int SF_ROOMTYPE			= 0;
-const int SF_VIEW				= 1;
-const int SF_SECRETS			= 2;
-const int SF_WARP				= 3;
-const int SF_ITEMS				= 4;
-const int SF_COMBOS				= 5;
-const int SF_SAVE				= 6;
-const int SF_FFC				= 7;
-const int SF_WHISTLE			= 8;
-const int SF_MISC				= 9;
-
-//Screen Enemy Flag categories, handled in the same way as the SF_ constants.
-//Use in Screen->EFlags
-const int SEF_SPAWN				= 0;
-const int SEF_LIST1				= 1; //left-hand list
-const int SEF_LIST2				= 2; //right-hand list
-
-//Room types (Screen => Room Type)
-//Use with Screen->RoomType
-const int RT_DOORREPAIR         = 5;
-const int RT_FEEDTHEGORIYA      = 7;
-const int RT_GAMBLE             = 4;
-const int RT_GANON              = 15;
-const int RT_ITEMPOND           = 17; //doesn't work
-const int RT_LEARNSLASH         = 19;
-const int RT_LEVEL9ENTRANCE     = 8;
-const int RT_MAGICUPGRADE       = 18;
-const int RT_MONEYORLIFE        = 12;
-const int RT_MOREARROWS         = 20;
-const int RT_MOREBOMBS          = 11;
-const int RT_NONE               = 0;
-const int RT_PAYFORINFO         = 2;
-const int RT_POTIONORHEART      = 6;
-const int RT_POTIONSHOP         = 9;
-const int RT_SECRETMONEY        = 3;
-const int RT_SHOP               = 10;
-const int RT_SPECIALITEM        = 1;
-const int RT_STAIRWARP          = 14;
-const int RT_TAKEONEITEM        = 21;
-const int RT_TENRUPEES          = 13;
-const int RT_ZELDA              = 16;
-
-//DMap Flag constants. Use with Game->DMapFlags.
-const int DMF_CAVESNOTCELLARS	= 0x0001; //Use caves instead of item cellars
-const int DMF_3STAIRWARPS		= 0x0002; //Allow 3-stair warps
-const int DMF_WWIND				= 0x0004; //Allow whistle whirlwinds
-const int DMF_GUYCAVES			= 0x0008; //Special rooms and guys are in caves only
-const int DMF_NOCOMPASS			= 0x0010; //Don't display compass marker in minimap
-const int DMF_WAVY 				= 0x0020; //Underwater wave effect
-const int DMF_WWINDRET			= 0x0040; //Whistle whirlwind returns Link to start
-const int DMF_ALWAYSINTROMSG	= 0x0080; //Always display intro string
-const int DMF_VIEWMAP       	= 0x0100; //View overworld map by pressing 'Map'
-const int DMF_DMAPMAP         	= 0x0200; //...But only show screens marked in minimap
-const int DMF_MINIMAPCOLORFIX 	= 0x0400; //Use minimap foreground colour 2
-const int DMF_SCRIPT1 			= 0x0800;
-const int DMF_SCRIPT2 			= 0x1000;
-const int DMF_SCRIPT3 			= 0x2000;
-const int DMF_SCRIPT4 			= 0x4000;
-const int DMF_SCRIPT5 			= 0x8000;
-
-//NPC Attribute 1 constants. Use with npc->Attributes.
-const int NPCA1_1SHOT			= 0;
-const int NPCA1_ENDHALT			= 1;
-const int NPCA1_RAPIDFIRE		= 2;
-const int NPCA1_1FAST			= 3;
-const int NPCA1_1SLANT			= 4;
-const int NPCA1_3SHOTS			= 5;
-const int NPCA1_4SHOTS			= 6;
-const int NPCA1_5SHOTS			= 7;
-const int NPCA1_3FAST			= 8;
-const int NPCA1_BREATH			= 9;
-const int NPCA1_8SHOTS			= 10;
-const int NPCA1_SUMMON			= 11;
-const int NPCA1_SUMMONLAYER		= 12;
-
-//NPC Attribute 2 constants. Use with npc->Attributes.
-const int NPCA2_NORMAL			= 0;
-const int NPCA2_SPLITHIT		= 1;
-const int NPCA2_SPLIT			= 2;
-const int NPCA2_8SHOTS			= 3;
-const int NPCA2_EXPLODE			= 4;
-const int NPCA2_TRIBBLE			= 5;
-
-//NPC Attribute 7 constants. Use with npc->Attributes.
-const int NPCA7_NORMAL			= 0;
-const int NPCA7_TEMPJINX		= 1;
-const int NPCA7_PERMJINX		= 2;
-const int NPCA7_CUREJINX		= 3;
-const int NPCA7_LOSEMAGIC		= 4;
-const int NPCA7_LOSERUPEES		= 5;
-const int NPCA7_DRUNK			= 6;
-const int NPCA7_EATITEMS		= 7;
-const int NPCA7_EATMAGIC		= 8;
-const int NPCA7_EATRUPEES		= 9;
-
-//NPC Attribute 9 constants. Use with npc->Attributes.
-const int NPCA9_NORMAL			= 0;
-const int NPCA9_ROPE			= 1;
-const int NPCA9_VIRE			= 2;
-const int NPCA9_POLSVOICE		= 3;
-
-//NPC Defenses. Use as indices to npc->Defense[].
-const int NPCD_ARROW			= 3;
-const int NPCD_BEAM				= 10;
-const int NPCD_BRANG			= 0;
-const int NPCD_BOMB				= 1;
-const int NPCD_BYRNA			= 16;
-const int NPCD_FIRE				= 4;
-const int NPCD_HAMMER			= 8;
-const int NPCD_HOOKSHOT			= 7;
-const int NPCD_MAGIC			= 6;
-const int NPCD_REFBEAM			= 11;
-const int NPCD_REFMAGIC			= 12;
-const int NPCD_REFFIREBALL		= 13;
-const int NPCD_REFROCK			= 14;
-const int NPCD_SBOMB			= 2;
-const int NPCD_SCRIPT			= 17;
-const int NPCD_STOMP			= 15;
-const int NPCD_SWORD			= 9;
-const int NPCD_WAND				= 5;
-
-//NPC Defense types. Use with npc->Defense[].
-const int NPCDT_NONE			= 0;
-const int NPCDT_HALFDAMAGE		= 1;
-const int NPCDT_QUARTERDAMAGE	= 2;
-const int NPCDT_STUN			= 3;
-const int NPCDT_STUNORBLOCK		= 4;
-const int NPCDT_STUNORIGNORE	= 5;
-const int NPCDT_BLOCK1			= 6;
-const int NPCDT_BLOCK2			= 7;
-const int NPCDT_BLOCK4			= 8;
-const int NPCDT_BLOCK6			= 9;
-const int NPCDT_BLOCK8			= 10;
-const int NPCDT_BLOCK			= 11;
-const int NPCDT_IGNORE1			= 12;
-const int NPCDT_IGNORE			= 13;
-const int NPCDT_ONEHITKILL		= 14;
-
-//Draw styles. Use with item->DrawStyle
-const int DS_NORMAL             = 0;
-const int DS_PHANTOM            = 1;
-const int DS_CLOAKED            = 2;
-const int DS_LINK               = 3;
-
-//Warp types. Use with Screen->SetSideWarp
-const int WT_CAVE				= 0;
-const int WT_PASSAGE			= 1;
-const int WT_ENTRANCEEXIT		= 2;
-const int WT_SCROLLING			= 3;
-const int WT_IAWARP				= 4;
-const int WT_IWARPBLACKOUT		= 5;
-const int WT_IWARPOPENWIPE		= 6;
-const int WT_IWARPZAP			= 7;
-const int WT_IWARPWAVE		  	= 8;
-const int WT_NOWARP				= 9;
-
-// Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
-//and all of these are completely undocumented. Use at your own peril
-const int FONT_Z1               = 0;
-const int FONT_Z3               = 1;
-const int FONT_Z3SMALL          = 2;
-const int FONT_DEF              = 3;
-const int FONT_L                = 4;
-const int FONT_L2               = 5;
-const int FONT_P                = 6;
-const int FONT_MATRIX           = 7;
-const int FONT_ZTIME            = 8;
-const int FONT_S                = 9;
-const int FONT_S2               = 10;
-const int FONT_SP               = 11;
-const int FONT_SUBSCREEN1       = 12;
-const int FONT_SUBSCREEN2       = 13;
-const int FONT_SUBSCREEN3       = 14;
-const int FONT_SUBSCREEN4       = 15;
-const int FONT_GBLA             = 16;
-const int FONT_GORON            = 17;
-const int FONT_ZORAN            = 18;
-const int FONT_HYLIAN1          = 19;
-const int FONT_HYLIAN2          = 20;
-const int FONT_HYLIAN3          = 21;
-const int FONT_HYLIAN4          = 22;
-const int FONT_GBORACLE         = 23;
-const int FONT_GBORACLEP        = 24;
-const int FONT_DSPHANTOM        = 25;
-const int FONT_DSPHANTOMP       = 26;
-
-// PrintString Text Formats. Use with Screen->DrawString.
-const int TF_NORMAL             = 0; // treats the left-most char as (x)
-const int TF_CENTERED           = 1; // prints the string centered on (x)
-const int TF_RIGHT              = 2; // treats the right-most char as (x)
-
-// Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle
-const int PT_FLAT               = 0; // single color shading
-const int PT_FLATSHADED         = 1; // "" with flat shading (*3D only)
-const int PT_COLSHADED          = 2; // "" with color shading (*3D only)
-const int PT_TEXTURE            = 3; // texture mapped polygon using 2d linear interpolation
-const int PT_PTEXTURE           = 4; // "" 
-const int PT_MASKTEXTURE        = 5; // transparent texture mapped polygon using 2d linear interpolation
-const int PT_MASKPTEXTURE       = 6; // "" 
-const int PT_LITTEXTURE         = 7; // "" with lighting (*3D only)
-const int PT_LITPTEXTURE        = 8; // "" (*3D only)
-const int PT_MASKLITTEXTURE     = 9; // "" with transparency
-const int PT_MASKLITPTEXTURE    = 10; // "" 
-const int PT_TRANSTEXTURE       = 11; // translucent texture mapped polygon using 2d linear interpolation
-const int PT_TRANSPTEXTURE      = 12; // "" 
-const int PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
-const int PT_MASKTRANSPTEXTURE  = 14; // "" 
-
-// Opacity options. Use with drawing commands.
-const int OP_TRANS              = 64;
-const int OP_OPAQUE             = 128;
-
-// Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
-const int RT_SCREEN             = -1; // draws to screen
-const int RT_BITMAP0            = 0; // draws to off-screen bitmap 0
-const int RT_BITMAP1            = 1; // draws to off-screen bitmap 1
-const int RT_BITMAP2            = 2; // draws to off-screen bitmap 2
-const int RT_BITMAP3            = 3; // draws to off-screen bitmap 3
-const int RT_BITMAP4            = 4; // draws to off-screen bitmap 4
-const int RT_BITMAP5            = 5; // draws to off-screen bitmap 5
-const int RT_BITMAP6            = 6; // draws to off-screen bitmap 6
-
-//Sprite extending methods. Use with Link->Extend, item->Extend,
-//npc->Extend, eweapon->Extend and lweapon->Extend.
-const int EXT_NONE              = 0; // Not extended
-const int EXT_NORMAL            = 3; // Extended
-const int EXT_NOSHADOW          = 4; // Extended; NPC has no shadow.
-
-//Generic counters. Use with itemclass->Counter, Game->Counter[], Game->MCounter[] and Game->DCounter[]
-const int CR_LIFE               = 0;
-const int CR_RUPEES             = 1;
-const int CR_BOMBS              = 2;
-const int CR_ARROWS             = 3;
-const int CR_MAGIC              = 4;
-const int CR_KEYS               = 5;
-const int CR_SBOMBS             = 6;
-const int CR_SCRIPT1            = 7;
-const int CR_SCRIPT2            = 8;
-const int CR_SCRIPT3            = 9;
-const int CR_SCRIPT4            = 10;
-const int CR_SCRIPT5            = 11;
-const int CR_SCRIPT6            = 12;
-const int CR_SCRIPT7            = 13;
-const int CR_SCRIPT8            = 14;
-const int CR_SCRIPT9            = 15;
-const int CR_SCRIPT10           = 16;
-const int CR_SCRIPT11           = 17;
-const int CR_SCRIPT12           = 18;
-const int CR_SCRIPT13           = 19;
-const int CR_SCRIPT14           = 20;
-const int CR_SCRIPT15           = 21;
-const int CR_SCRIPT16           = 22;
-const int CR_SCRIPT17           = 23;
-const int CR_SCRIPT18           = 24;
-const int CR_SCRIPT19           = 25;
-const int CR_SCRIPT20           = 26;
-const int CR_SCRIPT21           = 27;
-const int CR_SCRIPT22           = 28;
-const int CR_SCRIPT23           = 29;
-const int CR_SCRIPT24           = 30;
-const int CR_SCRIPT25           = 31;
+//FFC Flags. To be used as indices into ffc->Flags[].
+const int FFCF_OVERLAY          = 0; // Draw Over (draw between layers 4 and 5)
+const int FFCF_TRANS            = 1; // Translucent
+const int FFCF_SOLID            = 2; // Unused
+const int FFCF_CARRYOVER        = 3; // Carry Over
+const int FFCF_STATIONARY       = 4; // Stationary
+const int FFCF_CHANGER          = 5; // Is A Changer
+const int FFCF_PRELOAD          = 6; // Run Script On Screen Init
+const int FFCF_LENSVIS          = 7; // Only Visible to Lens of Truth
+const int FFCF_RESET            = 8; // Script Resets When Carried Over
+const int FFCF_ETHEREAL         = 9; // The FFC's Combo Type is ignored.
+const int FFCF_IGNOREHOLDUP     = 10; // The FFC is updated while Link is holding up an item
 
 
-//Generic data indices. Use this with Game->Generic[]
-const int GEN_HEARTPIECES       = 0; // Heart Pieces currently possessed
-const int GEN_MAGICDRAINRATE    = 1; // Link's magic usage equals n / 2.
-const int GEN_CANSLASH          = 2; // Link can slash with the sword.
-const int GEN_WARPLEVEL         = 3; // Warp Ring number that a Whirlwind warp will send Link to.
-							  // It is set every time that Link uses the Whistle.
-const int GEN_HCPPERHC          = 4; // How many Pieces of Heart form a complete Heart Container?
-const int GEN_CONTINUEHEARTS    = 5; // Amount of life that Link continues with
-const int GEN_CONTINUEISPERCENT = 6; // ...Or a percentage of his total life
 
-//Level item flags. Or (|) these together and use with Game->LItems[]
-const int LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
-const int LI_MAP                = 0x02; // The Dungeon Map of this Level has been obtained
-const int LI_COMPASS            = 0x04; // The Compass of this Level has been obtained
-const int LI_BOSS               = 0x08; // A "Dungeon Boss" enemy has been slain
-const int LI_BOSSKEY            = 0x10; // The Boss Key of this Level has been obtained
 
-//Screen states. Use these with Screen->State[], etc.
+//Aim-type constants, for use with AimEWeapon
+const int AT_NONE		= 0;
+const int AT_4DIR		= 1;
+const int AT_8DIR		= 2;
+const int AT_ANGULAR		= 3;
+const int AT_RAND4DIR		= 4;
+const int AT_RAND8DIR		= 5;
+const int AT_RANDANGULAR	= 6;
 
-const int ST_DOORUP				= 0; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_DOORDOWN			= 1; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_DOORLEFT			= 2; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_DOORRIGHT			= 3; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_SECRET				= 13; // Screen Secrets have been made permanent
-const int ST_ITEM				= 4; // If set, the item is gone
-const int ST_SPECIALITEM		= 5; // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
-const int ST_ENEMYNORETURN		= 6; // If set, enemies won't return
-const int ST_TEMPNORETURN		= 7; // If set, enemies won't return. This is automatically unset when you leave the DMap
-const int ST_LOCKBLOCK			= 8; // The lock block on the screen has been triggered
-const int ST_BOSSLOCKBLOCK		= 9; // The boss lock block on the screen has been triggered
-const int ST_CHEST				= 10; // The unlocked chest on this screen has been opened
-const int ST_LOCKEDCHEST		= 11; // The locked chest on this screen has been opened
-const int ST_BOSSCHEST			= 12; // The boss chest on this screen has been opened
-const int ST_VISITED			= 14; // If set, this screen will appear on the Overworld Map
+//Tile and Side Warps
+const int TILEWARP_A 		= 0;
+const int TILEWARP_B		= 1;
+const int TILEWARP_C		= 2;
+const int TILEWARP_D		= 3;
+const int SIDEWARP_A		= 0;
+const int SIDEWARP_B		= 1;
+const int SIDEWARP_C		= 2;
+const int SIDEWARP_D		= 3;
 
-//Door types. Use with Screen->Door[]
-const int D_WALL                = 0;
-const int D_OPEN                = 1;
-const int D_LOCKED              = 2;
-const int D_UNLOCKED            = 3; // A locked door that has been opened
-const int D_SHUTTER             = 4; // Defeat enemies to unlock this door
-const int D_BOMB                = 6; // A door that changes when bombed
-const int D_BOMBED              = 7; // A door that has been bombed
-const int D_WALKTHRU            = 8; // Push against the wall to pass through
-const int D_BOSSLOCKED          = 10;
-const int D_BOSSUNLOCKED        = 11; // A boss door that has been opened
-const int D_OPENSHUTTER         = 12; // A shutter that has been opened
-const int D_1WAYSHUTTER         = 14; // A shutter that locks behind you and never opens
+//Array Handling
+//const float MALLOC_FREE = 214747.9898; //Used with malloc to determine is an index is available. 
+//const float MALLOC_RESERVED = 214747.8989; //used with Malloc to reserve indices.
 
-//Enemy projectile weapon selections. Use with npc->Weapon.
-//Note: Don't use these with Screen->CreateEWeapon! Use the EW_ constants instead.
-const int WPN_NONE              = 0;
-const int WPN_ENEMYFLAME        = 140;
-const int WPN_ENEMYWIND         = 141;
-const int WPN_ENEMYFIREBALL     = 129;
-const int WPN_ENEMYARROW        = 130;
-const int WPN_ENEMYBRANG        = 131;
-const int WPN_ENEMYSWORD        = 132;
-const int WPN_ENEMYROCK         = 133;
-const int WPN_ENEMYMAGIC        = 134;
-const int WPN_ENEMYBOMB         = 135;
-const int WPN_ENEMYSBOMB        = 136;
-const int WPN_ENEMYLITBOMB      = 137;
-const int WPN_ENEMYLITSBOMB     = 138;
-const int WPN_ENEMYFIRETRAIL    = 139;
-const int WPN_ENEMYFLAME2       = 142;
-const int WPN_ENEMYFLAME2TRAIL  = 143; // Not implemented
-const int WPN_ENEMYICE          = 144; // Not implemented
-const int WPN_ENEMYFIREBALL2    = 145; // A fireball that doesn't fly toward Link
+//! Moved to mem.zh
 
-//Default item drop sets. Use with npc->ItemSet
-const int IS_NONE               = 0;
-const int IS_DEFAULT            = 1;
-const int IS_BOMBS              = 2;
-const int IS_MONEY              = 3;
-const int IS_LIFE               = 4;
-const int IS_BOMB100            = 5; // Used by Dodongos
-const int IS_SBOMB100           = 6; // Used by Dodongos
-const int IS_MAGIC              = 7;
-const int IS_MAGICBOMBS         = 8;
-const int IS_MAGICMONEY         = 9;
-const int IS_MAGICLIFE          = 10;
-const int IS_MAGIC2             = 11;
-const int IS_COMBOS				= 12; // Used by Tall Grass / Bush / Slash combos.
+//Drawing texture Modes
 
-//Boss palettes. Use with npc->BossPal
-const int BPAL_AQUA             = 0;
-const int BPAL_GLEEOK           = 1;
-const int BPAL_DODONGO          = 2;
-const int BPAL_GANON            = 3;
-const int BPAL_BROWN            = 4;
-const int BPAL_PILE             = 5;  // Used for the Dust Pile.
-const int BPAL_BLUE             = 6;
-const int BPAL_RED              = 7;
-const int BPAL_GOLD             = 8;
-const int BPAL_ICON1            = 9;  // Used for Quest Icon 1.
-const int BPAL_ICON2            = 10; // Used for Quest Icon 2.
-const int BPAL_ICON3            = 11; // Used for Quest Icon 3.
-const int BPAL_ICON4            = 12; // Used for Quest Icon 4.
-const int BPAL_GLEEOKF          = 13;
-const int BPAL_FROZEN           = 14; // Unused
+const int TEX_BITMAP        = 214739;
 
-//Sprite lists. Use with Screen->ClearSprites()
-const int SL_GUYS               = 0; // Enemies
-const int SL_ITEMS              = 1; // Items
-const int SL_EWPNS              = 2; // Enemy weapons
-const int SL_LWPNS              = 3; // Link's weapons
-const int SL_DECORATIONS        = 4; // Grass clippings, Hover boots glow, etc.
-const int SL_PARTICLES          = 5; // Farore's Wind particles
+//Constants for AdjacentCombo()
 
-//Mouse buttons
-const int MB_LEFTCLICK			= 0x1; //AND (&) these with Link->InputMouseB to get the current button state of the mouse
-const int MB_RIGHTCLICK			= 0x2;
-const int MB_MIDDLECLICK		= 0x4; //Keep in in mind that not all mice/touchpads have a middle mouse button
-
+const int CMB_UPLEFT    = 0;
+const int CMB_UP        = 1;
+const int CMB_UPRIGHT   = 2;
+const int CMB_RIGHT     = 3;
+const int CMB_DOWNRIGHT = 4;
+const int CMB_DOWN      = 5;
+const int CMB_DOWNLEFT  = 6;
+const int CMB_LEFT      = 7;
+const int CMB_LEFTUP    = 0; //Not 8, as those are dir + shield

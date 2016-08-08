@@ -1,0 +1,1376 @@
+///ZScript Docs v0.6.9
+///12-JUNE-2016
+
+Preamble: The ZScript lexer uses string formatting detection to detect the type of instructions being fed to it. 
+This falls into a strict syntax, with each element represented by a case or enum. The following are the legal types of components
+that the compiler recognises.
+
+When scanning a code file, for example, the following example lines may be evaluated:
+
+ffc script my_ffc{
+    void run(){
+        my_function();
+    }
+}
+
+The parser looks at this, one line at a time,as a string in a buffer, and matches symbolic concepts from that:
+
+ffc script my_ffc{
+    scans as
+TYPE TOKEN IEENTIFIER LBRACE
+
+The lexer then tries to match this to a type of possible legal string, and examines each of the internal keywords with 
+a table.
+TYPE ffc
+TOKEN script
+IDENTIFIER my_ffc
+LBRACE {
+
+This tells the lexer that it is an ffc script, opening, with the name my_ffc. The LBRACE indicates that a codeblock will follow.
+
+
+LBRACE
+RBRACE
+CHARACTER
+QUOTEDSTRING
+FUNCTION
+QUOTE
+LPAREN
+LPAREN
+IDENTIFIER
+TYPE
+NUMBER
+SIGN
+LBRACKET
+RBRACKET
+OPERATOR
+
+
+Compiler Directives
+
+import
+
+Basic Types
+
+int
+float
+bool
+const *
+void
+
+ZScript types
+* ffc
+* lweapon
+* eweapon
+* npc
+* itemdata
+* item
+* !npcdata -> To be added.
+* wtf : This is used by the lexer when it can;t identify a legal type. 
+        The lexer will return an error, e.g. 'Cannot cast from wtf to float'.
+
+Namespace and Class Types
+* link
+* screen
+* game
+
+
+Declarations
+* Variables
+* Arrays
+* Objects
+
+Arrays
+
+Pointers
+* General
+* Array
+* Link
+* This
+* Objects
+
+Strings
+* String Formatting
+* Strings vs. Arrays
+* String.zh
+
+
+Functions
+
+Making Functions
+Making Accessors
+
+Instructions & Statements`
+* Break
+* Continue
+* Return
+* While
+* Do
+-->Until
+* If
+* Else
+* Else If
+* True
+* False
+//* More
+//* Less
+
+Tokens and Operator Symbols (ffscript.ypp, ffscript.lpp)
+The scanner operates by reading your code in the form of strings, and scanning those strings for specific values that it translates
+into TOKENS. It uses these TOKENS to determine the syntax of your program, using various routines. The following are a list of
+all the legal types of TOKENS in ZScript, used by the scanner/parser:
+
+TYPE
+Type is the type of variable, function, or SCRIPT; for IDENTIFIERS and may be any of the following:
+
+FLOAT           float
+BOOL            bool
+VOID            void
+FFC             ffc
+ITEM            item
+ITEMCLASS       itemdata
+NPC             npc
+LWEAPON         lweapon
+EWEAPON         eweapon
+
+SCRIPT          script
+This is true, except if the TYPE token is preceded by the SCRIPT token, in which case, the only *legal* types are:
+
+GLOBAL          global
+FFC             ffc
+ITEM            item
+
+
+STATEMENT
+
+FOR             for
+BOOL            bool
+VOID            void
+IF              if
+ELSE            else
+RETURN          return
+FLOAT           float
+ELSE            else
+RETURN          return
+IMPORT          import
+TRUE            true
+FALSE           false
+WHILE           while
+ITEMCLASS       itemclass
+BREAK           break
+CONTINUE        continue
+CONST           const
+DO              do
+NPC             npc
+LWEAPON         lweapon
+EWEAPON         eweapon
+
+ASSIGN          =
+SEMICOLON       ;
+COMMA           ,
+LBRACKET        [
+RBRACKET        ]
+LPAREN          (
+RPAREN          )
+DOT             .
+LBRACE          {
+BRACE           }
+ARROW           ->
+
+PLUSASSIGN      +=
+MINUSASSIGN     -=
+TIMESASSIGN     *=
+DIVIDEASSIGN    /=
+ANDASSIGN       &&=
+ORASSIGN        ||=
+BITANDASSIGN    &=
+BITORASSIGN     |=
+BITXORASSIGN    ^=
+MODULOASSIGN    %=
+LSHIFTASSIGN    <<=
+RSHIFTASSIGN    >>=
+
+QUOTEDSTRING    "string"
+SINGLECHAR      ' ? `
+ASSIGN          =
+LSHIFT          <<
+RSHIFT          >>
+BITAND          &
+BITOR           |
+BITXOR          ^
+AND             &&
+OR              ||
+NOT             !
+BITNOT          ~
+INCREMENT       ++
+DECREMENT       ==
+LE              <=
+LT              <
+GE              >=
+GT              >
+EQ              ==
+NE              !=
+PLUS            +
+MINUS           -
+TIMES           *
+DIVIDE          /  
+MODULO          %
+
+COMMENT         //
+
+
+NUMBER          0 1 2 3 4 5 6 7 8 9 0 (any combination)
+NUMBER          0
+IDENTIFIER      ABCDEFGHIJLKMNOPQRSTUVWXYZambcedghijklmnopqrstuvwxyz1234567890 (any combination)
+
+A NUMBER is differntiated from an IDENTIFIER int hat it has *noA* alpha chars in it, except A-F for Hex, and lowercase b
+for binary. The lexer reads a hexidecimal value by the prefix '0x', so any value starting with 0x that contains
+'0 1 2 3 4 5 6 7 8 9 A B C D E F a b c d e f' in any combination is read as a NUMBER.
+Likewise, any string that has only chars 0 1 b where 'b' is at the end of the string, is recognised as a binary NUMBER
+and *not* an IDENTIFIER. Thus: 100010b is recognised as NUMBER< but 01102b is recognised as an IDENTIFIER.
+
+Otherwise, an IDENTIFIER always has at least one alpha character, and may mix NUMBERS and alpha chars that is not
+either a hexidecimal NUMBER, or a binary NUMBER.
+
+Support for octal NUMBERS may be added at a later time.
+
+A QUOTEDSTRING is recognised as any string of characters, other then the QUOTE ( " ) that are between two quotes, thus:
+"This 1023 string 0x1F is a QUOTEDSTRING 102b"
+This is a QUOTEDSTRING, and the values between the quote marks are the astring itself.
+
+because thw quote marks are the TOKENS for this, you cannot use quote marksa *inside* the string itself:
+int "The Dwarf said, "I cannot do this".";
+This is illegal, as the parser will read the following value as a QUOTESSTRING: int "The Dwarf said, "
+The chars that follow, will not be considered part of the string, and will throw an error.
+
+
+\'[^\']?\'				{ doLines();yylval = new ASTString(yytext, yylloc); return SINGLECHAR; }
+
+//* What is this one supposed to be?
+{WS}					{ ; }
+WS (set)        { ; } 
+A set is defined as a series of values between braces that follow an ASSIGN
+
+A COMMENT is defined as two div signs in sequence ( // ) followed by any combination fo characters, and a LINEBREAK.
+Anything between the COMMENT token and a LINEBREAK is considered a comment, and not parsed.
+
+###################
+## Illegal Chars ##
+###################
+
+SINGLECHAR in an IDENTIFIER
+Any SINGLECHAR that is not also registered in IDENTIFIER may not be used as part of an IDENTIFIER.
+Likewise,DOT, COLON, SEMICOLON, COMMA< LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, any OPERATOR, and
+most symbols are not legal in identifiers. Many of these are however, legal inside a QUOTEDSTRING.
+
+#############
+## Parsing ##
+#############
+
+When you supply code to the parser, the scanner uses the above TOKENS and to determine how to match your formatting. 
+A series of predefined routines is used, inm order to match code. For example:
+
+ffc script my_script{
+    void run(int id){
+        int x = 4;
+        for ( int q = 0; q < id; q++ ) exec_function();
+    }
+    void exec_function(){ x+=2;}
+}
+
+The scanner sees this as:
+
+FFC SCRIPT IDENTIFIER LBRACE
+VOID IDENTIFIER LPAREN RPAREN LBRACE
+INT IDENTIFIER ASSIGN NUMBER SEMICOLON
+FOR LPAREN INT IDENTIFIER ASSIGN NUMBER SEMICOLON IDENTIFIER LESSTHAN IDENTIFIER SEMICOLON IDENTIFIER INCREMENT RPAREN IDENTIFIER LPAREN RPAREN SEMICOLON
+RBRACE
+VOID IDENTIFIER LPAREN RPAREN LBRACE IDENTIFIER PLUSASSIGN NUMBER SEMICOLON RBRACE
+RBRACE
+
+This is then re-examined, by sorting sub-TOKENS into broader TOKENS:
+
+TYPE SCRIPT IDENTIFIER LBRACE
+TYPE IDENTIFIER LPAREN RPAREN LBRACE
+TYPE IDENTIFIER ASSIGN NUMBER SEMICOLON
+FOR LPAREN TYPE IDENTIFIER ASSIGN NUMBER SEMICOLON IDENTIFIER LESSTHAN IDENTIFIER SEMICOLON IDENTIFIER INCREMENT RPAREN IDENTIFIER LPAREN RPAREN SEMICOLON
+RBRACE
+TYPE IDENTIFIER LPAREN RPAREN LBRACE IDENTIFIER PLUSASSIGN NUMBER SEMICOLON RBRACE
+RBRACE
+
+From these tokens, it determines what the syntax is, using the following routines, to find loops, functions, and so forth:
+
+######################
+## PARSING ROUTINES ##
+######################
+
+#################
+## Upper-ASCII ##
+#################
+
+The parser does not itself use Auuper-ASCII, and use of Upper-ASCII is *not* legal in IDENTIFIERS, 
+however it is possible (and legal) to include it in QUOTEDSTRINGS.
+
+###################
+## Code Comments ##
+###################
+
+Formatting for the Parser: The following are the symbols that the lexer eecognises, with regard to legal syntax.
+
+Global Statements
+
+The following TOKENS are part of DEFINITIONS, that the parser uses to scan lines.
+The scanner lexicon uses these as Sub-TOKENS when parsing scripts:
+
+
+
+
+Import
+
+
+    
+####################################################
+## VarDecl : Variable Declarations and Statements ##
+####################################################
+
+The syntax for declaring variables is as follows:
+Type IDENTIFIER SEMICOLON                                   int x;
+Type IDENTIFIER ASSIGN NUMBER SEMICOLON                     int x = 3;
+Type IDENTIFIER ASSIGN IDENTIFIER SEMICOLON                 int x = y;
+
+Variables may be of any TYPE, excluding VOID.
+
+#######################################
+## ConstDecl : Constant Declarations ##
+#######################################
+
+Constants are declared int he following syntax:
+
+CONST FLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON              const float THIRTYPOINTSIX = 30.6;
+CONST FLOAT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON        const float NEGTHIRTYPOINTSIX = -30.6;
+CONST INT IDENTIFIER ASSIGN NUMBER SEMICOLON                const float THIRTY= 30;
+CONST INT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON          const float NEGTHIRTY = -30;
+
+Constants may only be type INT or FLOAT, and are resolve into numeric literals durinc compilation. The IDENTIFIER of the 
+constant is not preserved after compilation.
+
+
+######################################
+## FuncDecl : Function Declarations ##
+######################################
+
+Function Declarations
+Type IDENTIFIER LPAREN ParamList RPAREN Block
+Type IDENTIFIER LPAREN RPAREN Block 
+where block is the following syntax:
+LBRACE StmtList RBRACE
+LBRACE RBRACE
+
+########################
+## Array Declarations ##
+########################
+
+Declaring arrays may take any of the following formats:
+
+Type IDENTIFIER LBRACKET NUMBER RBRACKET
+            int MyArray[20];
+Type IDENTIFIER LBRACKET NUMBER RBRACKET ASSIGN LBRACE ArrayList RBRACE
+            int MyArray[5]={1,16,27,13,900};
+Type IDENTIFIER LBRACKET RBRACKET ASSIGN LBRACE ArrayList RBRACE
+            int MyArray[]={6,240,512.6,913.2198};
+
+Where 'Type' may be any legal type; and Arraylist is the field (set) of values as:
+LBRACE NUMBER | CONSTANT COMMA NUMBER | CONSTANT COMMA NUMBER | CONSTANT [...] RBRACE SEMICOLON
+        { 12, 17, MYCONSTANT, 16, 3 };
+        { 12 };
+        You may populate the list with as few as one element, uo to the size of the array declared, if you used an explicit size.
+        Otherwise, if you did not specify an explicit size, the array will autosize to the number of elements that you dseclare.
+        If you do not specify a size, and you do not include a set, the compiler will return an error.
+        Thus, the following is *illegal*:
+            int MyArray[];
+            
+            You must either specify a size: 
+                                            int MyArray[20];
+            ...or provide a set: 
+                                            int MyArray[]={12,6,10,9,23};
+                                            In this case, the array willbe given a size of '5'.
+
+Arrays may be of any of the following types:
+FLOAT       float
+INT         int
+BOOL        bool
+NPC         npc
+ITEM        item
+ITEMCLASS   itemdata
+FFC         ffc
+LWEAPON     lweapon
+EWEAPON     eweapon
+
+You may not declare a VOID type array.
+    
+#########################
+## String Declarations ##
+#########################
+
+Declaring ZScript strings (not to be confused with ZQuest strings, in the string table; or true C strings, based ont he char 
+or string types) follows this syntax:
+
+Type IDENTIFIER LBRACKET NUMBER RBRACKET ASSIGN QUOTEDSTRING
+Type IDENTIFIER LBRACKET RBRACKET ASSIGN QUOTEDSTRING
+
+For example: 
+            int MyString[18]="This is a string.";
+            int MyString[]="This is a string.";
+            With strings, if you do not set a size, the string is sized to equal the number of chars in the QUOTEDSTRING
+            plus one (NULL) to terminate the string. If you set an *explicit size*, you must ensure that it is one value
+            greater than the number of chars that you anticipate storing in it, so that it will have a NULL char at the 
+            end to terminate it.
+            
+Strings are internally stored as arrays, with one element per character, plus one elemnt for NULL. 
+Each character is stored in the array as its lower-ASCII equivalent:
+
+                            int string[]="Is a string.";
+
+This is equivalent to:  
+                            int string[]={73,115,32,97,32,115,116,114,105,110,103,46,0};
+                            
+As you can saee, each ASCII char is converted to its numeric equivalent:
+I = 73, s = 115, (space) = 32, a = 97, (space) = 32, s = 115, t = 116, r = 114, i = 105, n = 110, g = 103, . = 46, NULL = 0
+
+You are free to create arrays with ASCII values directly. QUOTEDSTRING arrays are available as a convenient way to create
+strings in ZScript without needing to memorise ASCII charts, and to type natural syntax as the string itself.
+
+They merely automate the population of arrays holding numeric literals, and are not a proper *char* type, as C-based strings.
+
+QUOTEDSTRING should always have formatting as follows:
+QUOTE text QUOTE                "textofstring"
+
+For this reason, it is not possible to use QUOTE ( " ) inside strings, as this is a tokenm that starts, or
+ends a QUOTEDSTRING. You may use the SINGLECHAR ' in sequence ( '' ) or ` in sequence (``) to simulate double-quotes
+inside a string, asthese are registered as SINGLECHAR.
+
+#########################
+## Script Declarations ##
+#########################
+
+Script Declarations:
+ScriptType SCRIPT IDENTIFIER ScriptBlock
+ScriptBlock:
+LBRACE ScriptStmtList RBRACE
+or
+LBRACE RBRACE
+ScriptStmtList is the field of the codeblock as text.
+
+Import Directives
+IMPORT QUOTEDSTRING
+
+
+
+#################################
+## ParamList : Parameter Lists ##
+#################################
+
+VarDecl COMMA ParamList
+
+############
+## Blocks ##
+############
+
+#######################
+## Stmt : Statements ##
+#######################
+
+Stmt : VarDecl SEMICOLON {$$ = $1;}
+	| ArrayDecl SEMICOLON {$$ = $1;}
+	| AssignStmt SEMICOLON {$$ = $1;}
+	| ShortcutAssignStmt SEMICOLON {$$=$1;}
+	| ForStmt {$$ = $1;}
+	| IfStmt {$$ = $1;}
+	| Block {$$ = $1;}
+	| ReturnStmt SEMICOLON {$$ = $1;}
+	| WhileStmt {$$ = $1;}
+	| DoStmt {$$ = $1;}
+	| SEMICOLON {$$ = new ASTStmtEmpty(@1);}
+	| Expr SEMICOLON {$$=$1;}
+	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@1);}
+	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@1);}
+	;
+
+
+StmtNoSemi : VarDecl {$$ = $1;}
+	| ArrayDecl {$$ = $1;}
+	| AssignStmt {$$ = $1;}
+	| ShortcutAssignStmt {$$=$1;}
+	| ForStmt {$$ = $1;}
+	| IfStmt {$$ = $1;}
+	| Block {$$ = $1;}
+	| ReturnStmt {$$ = $1;}
+	| WhileStmt {$$ = $1;}
+	| DoStmt {$$ = $1;}
+	| {$$ = new ASTStmtEmpty(noloc);}
+	| Expr {$$=$1;}
+	| BREAK {$$ = new ASTStmtBreak(@1);}
+	| CONTINUE {$$ = new ASTStmtContinue(@1);}
+	;
+    
+ShortcutAssignStmt : DotExpr PLUSASSIGN Expr {SHORTCUT(ASTExprPlus,$1,$3,$$,@1,@2) }
+				   | DotExpr MINUSASSIGN Expr {SHORTCUT(ASTExprMinus,$1,$3,$$,@1,@2) }
+				   | DotExpr TIMESASSIGN Expr {SHORTCUT(ASTExprTimes,$1,$3,$$,@1,@2) }
+				   | DotExpr DIVIDEASSIGN Expr {SHORTCUT(ASTExprDivide,$1,$3,$$,@1,@2) }
+				   | DotExpr ANDASSIGN Expr {SHORTCUT(ASTExprAnd,$1,$3,$$,@1,@2) }
+				   | DotExpr ORASSIGN Expr {SHORTCUT(ASTExprOr,$1,$3,$$,@1,@2) }
+				   | DotExpr BITANDASSIGN Expr {SHORTCUT(ASTExprBitAnd,$1,$3,$$,@1,@2) }
+				   | DotExpr BITORASSIGN Expr {SHORTCUT(ASTExprBitOr,$1,$3,$$,@1,@2) }
+				   | DotExpr BITXORASSIGN Expr {SHORTCUT(ASTExprBitXor,$1,$3,$$,@1,@2) }
+				   | DotExpr LSHIFTASSIGN Expr {SHORTCUT(ASTExprLShift,$1,$3,$$,@1,@2) }
+				   | DotExpr RSHIFTASSIGN Expr {SHORTCUT(ASTExprRShift,$1,$3,$$,@1,@2) }
+				   | DotExpr MODULOASSIGN Expr {SHORTCUT(ASTExprModulo,$1,$3,$$,@1,@2) }
+				   ;
+
+
+AssignStmt : LVal ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt *)$1, (ASTExpr *)$3,@1);}
+	;
+    
+ForStmt : FOR LPAREN StmtNoSemi SEMICOLON Expr SEMICOLON StmtNoSemi RPAREN Stmt {ASTStmt *prec = (ASTStmt *)$3;
+												ASTExpr *term = (ASTExpr *)$5;
+												ASTStmt *incr = (ASTExpr *)$7;
+												ASTStmt *stmt = (ASTStmt *)$9;
+												$$ = new ASTStmtFor(prec,term,incr,stmt,@1);}
+	;
+
+WhileStmt : WHILE LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
+										   ASTStmt *stmt = (ASTStmt *)$5;
+										   $$ = new ASTStmtWhile(cond,stmt,@1);}
+
+DoStmt : DO Stmt WHILE LPAREN Expr RPAREN {ASTExpr *cond = (ASTExpr *)$5;
+										   ASTStmt *stmt = (ASTStmt *)$2;
+										   $$ = new ASTStmtDo(cond,stmt,@1);}
+
+IfStmt : IF LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
+							  ASTStmt *stmt = (ASTStmt *)$5;
+							  $$ = new ASTStmtIf(cond,stmt,@1);}
+	| IF LPAREN Expr RPAREN Stmt ELSE Stmt {ASTExpr *cond = (ASTExpr *)$3;
+										ASTStmt *ifstmt = (ASTStmt *)$5;
+										ASTStmt *elsestmt = (ASTStmt *)$7;
+										$$ = new ASTStmtIfElse(cond,ifstmt,elsestmt,@1);}
+	;
+
+ReturnStmt : RETURN Expr {$$ = new ASTStmtReturnVal((ASTExpr *)$2,@1);}
+	| RETURN {$$ = new ASTStmtReturn(@1);}
+	;
+
+%%
+
+#####################
+## Dot Expressions ##
+#####################
+
+DotExpr : IDENTIFIER DOT IDENTIFIER
+IDENTIFIER LBRACKET Expr RBRACKET
+IDENTIFIER DOT IDENTIFIER LBRACKET Expr RBRACKET 
+DotExpr ARROW IDENTIFIER
+DotExpr ARROW IDENTIFIER LBRACKET Expr RBRACKET
+
+#################
+## Expressions ##
+#################
+
+EXPR SYMBOL EXPR
+Where SYMBOL is of the following:
+OR  AND     BITOR   BITXOR  BITAND   LSHIFT RSHIFT  TIMES   NOT MINUS DIVIDE MODULO PLUS MINUS BITNOT
+
+ExprList : Expr COMMA ExprList {ASTFuncCall *fc = (ASTFuncCall *)$3;
+					  ASTExpr *e = (ASTExpr *)$1;
+					  fc->addParam(e);
+					  $$ = fc;}
+	| Expr {ASTFuncCall *fc = new ASTFuncCall(@1);
+		  ASTExpr *e = (ASTExpr *)$1;
+		  fc->addParam(e);
+		  $$ = fc;}
+	;
+
+############
+## MultOp ##
+############
+
+RelOp (GT, GE, LT,  LE, EQ, NE ) : GREATERTHAN, GREATEROREQUAL, LESSTHAN, LESSOREQUAL, EQUAL, NOTEQUAL
+
+############
+## Factor ##
+############
+
+
+Factor : LPAREN Expr RPAREN {$$=$2;}
+	| DotExpr {$$ = $1;}
+	| DotExpr INCREMENT {ASTUnaryExpr *e = new ASTExprIncrement(@2);
+						 ASTExpr *op = (ASTExpr *)$1;
+						 e->setOperand(op);
+						 $$=e;}
+	| INCREMENT DotExpr {ASTUnaryExpr *e = new ASTExprPreIncrement(@1);
+						 ASTExpr *op = (ASTExpr *)$2;
+						 e->setOperand(op);
+						 $$=e;}
+	| DotExpr DECREMENT {ASTUnaryExpr *e = new ASTExprDecrement(@2);
+						 ASTExpr *op = (ASTExpr *)$1;
+						 e->setOperand(op);
+						 $$=e;}
+	| DECREMENT DotExpr {ASTUnaryExpr *e = new ASTExprPreDecrement(@1);
+						 ASTExpr *op = (ASTExpr *)$2;
+						 e->setOperand(op);
+						 $$=e;}
+	| NUMBER {ASTFloat *val = (ASTFloat *)$1;
+		    $$ = new ASTNumConstant(val,@1);}
+	| SINGLECHAR {ASTString *as = (ASTString *)$1;
+			char val[15];
+			sprintf(val, "%d", as->getValue().at(1));
+			$$ = new ASTNumConstant(new ASTFloat(val,0,@1),@1);}
+	| BoolConstant {$$ = $1;}
+	| FuncCall {$$=$1;}
+	;
+
+BoolConstant : TRUE {$$ = new ASTBoolConstant(true,@1);}
+		 | FALSE {$$ = new ASTBoolConstant(false,@1);}
+		 ;
+
+####################
+## Function Calls ##
+####################
+
+FuncCall : DotExpr LPAREN ExprList RPAREN {ASTFuncCall *fc = (ASTFuncCall *)$3;
+							    ASTExpr *name = (ASTExpr *)$1;
+							    fc->setName(name);
+							    $$=fc;}
+	| DotExpr LPAREN RPAREN {ASTFuncCall *fc = new ASTFuncCall(@1);
+					    ASTExpr *name = (ASTExpr *)$1;
+					    fc->setName(name);
+					    $$=fc;}
+	;
+
+
+
+
+
+##########################
+## ZSCRIPT - FORMATTING ##
+##########################
+
+#####################
+## MAKING A SCRIPT ##
+##     AND THE     ##
+##      run()      ##
+##    FUNCTION     ##
+#####################
+
+################################
+## COMPILER ERROR DEFINITIONS ##
+################################
+
+Error codes are broken down by type:
+P** Preprocessing errors.
+S** Symbol table errors.
+T** Type-checking errors.
+G** Code Generation Errors
+** Array Errors ---We need to change these to A**
+
+Errors of each class are given unique numerical identifiers, ranging from 00 to 41, such as P01, or G33. 
+The letter code will give you an indication of the type of error, and the full code will give you specific details.
+
+In ZQuest v2.50.2 and later, the compiler will report name of the script that generated (where possible).
+This applies only to errors caused by scripts, and not errors at a 'global' level, such as global functions.
+Thus, if you are using 2.50.2, or later, an error without a script name is likely to be caused at global scope.
+
+#####################
+## Specific Errors ##
+##  Preprocessing  ##
+#####################
+
+P00: Can't open or parse input file!
+
+Your script file contains illegal characters, or is not plain ASCII Text.
+
+Otherwise, it is possible that the compiler is unable to write to the disk, that the disk is out of space.
+
+Last, your file may be bad, such as a file in the qrong encoding format (not ASCII text).
+
+P01: Failure to parse imported file foo.
+
+Generally means that you are trying to call a file via the import directive that does not exist; or that
+you have a typo in the filename, or path.
+
+
+P02: Recursion limit of x hit while preprocessing.
+
+Caused by attempting to import a file recursively. For example:
+
+If you declare: import "script.z" ... and ... the file 'script.z' has the line: ' import "script.z" ' inside it.
+
+This error should no longer exist! Recursive imports should resolve as duplicate finction/variable/script declarations.
+
+Error P03: You may only place import statements at file scope.
+
+Import directives ( import "file.z" ) may only be declared at a global scope, not within
+a function, statement, or script.
+
+P35: There is already a constant with name 'foo' defined.
+You attempted to define the same constant more than once.
+The identifier (declared name) of all constants MUST be UNIQUE.
+
+
+#####################
+## Specific Errors ##
+##  Symbol Table   ##
+#####################
+
+S04: Function 'foo' was already declared with that type signature.
+
+You attempted to declare a function with the same parameters twice, int he same scope. 
+This can occur when using different types, if the compiler cannot resolve a difference between the signatures.
+
+To fix this, remove one function,or change its signature (the arguments inside the parens) so that each is unique or;
+If you declare a functiona t a global scope, and the same at a local scope, remove one of the two.
+
+Note that return type is NOT enough to distinguish otherwise identical function declarations and that 'int' and 'float'
+types are the same type internally, so int/float is identical insofar as the signature is concerned.
+
+If two function type signatures are identical except that one has a parameter of type float where the other has the 
+same parameter of type int, you will have a conflict.
+
+There are two additional subtle situations where you might get a conflict:
+
+1. A function declared at file scope might conflict with a function that's implicitly added to file scope 
+by the preprocessor because of an import statement.
+2. A function might conflict with one already reserved by the ZScript standard library (std.zh). 
+
+S05: Function parameter 'foo' cannot have void type.
+
+You cannot set a parameter (argument of a function) as a void type. e.g.:
+int foo(void var){ return var+1; }
+
+This is illegal, and the param 'var' muct be changed to a legal type.
+
+S06: Duplicate script with name 'foo' already exists.
+
+Script names must be wholly unique. For example, if there's already an ffc script named 'my_script' you cannot 
+declare an item script with the name 'my_script'.
+
+S07: Variable 'foo' can't have type void.
+
+Variables at any scope may not have a void type. Only functions may have this type.
+
+S08: There is already a variable with name 'foo' defined in this scope.
+
+Variable identifiers must be unique at any given scope. Thus, this is illegal:
+
+ffc script my_ffc(){
+    void run(int x){
+        int v = 1;
+        int w = 10;
+        int x = 0.5;
+        int y = 13;
+        int z = v+w+x+y;
+        Trace(z);
+    }
+}
+
+As the variable 'x' is declared in the params of the run() function, it cannot be declared inside the function with 
+the same identifier (name).
+    
+
+S09: Variable 'foo' is undeclared.
+
+You attempted to reference a variable identifier (namme) that has not been declared.
+Usually this is due to a typo:
+
+int var;
+if ( val > 0 ) Link->X += var;
+
+Here, 'val' will return this error, as it was not declared.
+
+A variable with the give name could not be found in the current or any enclosing scope. Keep in mind the following subtleties:
+1. To access a different script's global variables, or to access a global variable from within a function delcared at file scope, 
+you must use the dot operator: scriptname.varname.
+2. To access the data members of the ffc or item associated with a script, you must use the this pointer: this->varname.
+3. ZScript uses C++-style for loop scoping rules, so variables declared in the header part of the for loop cannot be 
+accessed outside the loop:
+
+Code:
+
+for(int i=0; i<5;i++);
+i = 2; //NOT legal
+
+S10: Function 'foo' is undeclared.
+
+You attempted to call a function that was not declared. This is usually due to either a typo in your code, or failing
+to import a mandatory header. Check that you are importing 'std.zh' as well, as failing to do this will result in a slew
+of this error type.
+
+S11: Script 'foo' must implement void run().
+
+Every script must implement run() function call. The signature may be empty, or contain arguments.
+Zelda Classic uses all the code inside the run() function when executing the script, so a script without
+this function would do nothing, and will return an error.
+
+S12: Script 'foo's' run() must have return type void.
+
+Is this error even implemented? The run() function is automatic, and never declared by type, unless the user tries to declare
+a separate run(params) function with a different type.
+
+S26: Pointer types (ffc, etc) cannot be declared as global variables.
+
+/* It is illegal to declare a global variable (that is, a variable in script scope) or any type other than int, float, and bool. 
+Why? Recall that global variables are permanent; they persist from frame to frame, screen to screen. 
+Pointer types, on the other hand, reference ffcs or items that are transitory; they become stale after a single WAITFRAME, 
+so it makes no sense to try to store them for the long term.
+*/
+
+This explanation may no longer be true, as pointers may no longer be dereferenced by Waitframe(), 
+and global pointers may also be implemented in a future version.
+
+
+S30: Script foo may have only one run method.
+
+You may not call a run() function more than once per script.
+Your run method may have any type signature, but because of this flexibility, the compiler cannot 
+determine which run script it the "real" entry point of the script if multiple run methods are declared.
+
+S32: Script foo is of illegal type.
+
+The only legal script tokens are: global, ffc, and item. You cannot declare other types (such as itemdata script).
+
+S38: Script-scope global variable declaration syntax is deprecated; put declarations at file scope instead.
+You cannot declare a global variable in a global script, outside the run function.
+
+Example:
+
+global script active{
+    int x;
+    void run(){
+        x = 16;
+    }
+}
+
+This is ILLEGAL. The declaration of variable 'x' must either be at a global scope, or at the scope of the
+run function. Do this, instead:
+
+int x;
+global script active{
+    void run(){
+        x = 16;
+    }
+}
+
+This creates a global variable at the file scope. 
+
+S39: Array 'foo' can't have type void.
+Arrays may be types of int, float, bool, ffc, item, itemdata, npc, lweapon, or eweapon; but arrays
+with a void type are illegal.
+
+S40: Pointer types (ffc, etc) cannot be declared as global arrays.
+As of 2.50.2, global array declarations may only have the following types:
+int, float, bool
+Any other type is illegal.
+
+S41: There is already an array with name 'foo' defined in this scope.
+As with variables, and functions, arrays must have unique identifiers within the same scope.
+
+###################
+## LEXING ERRORS ##
+###################
+L24: Too many global variables.
+
+The assembly language to which ZScript is compiled has a built-in maximum of 256 global variables. ZScript can't do anything if you exceed this limit.
+
+#####################
+## Specific Errors ##
+##  Type Checking  ##
+#####################
+
+T13: Script 'foo' has id that's not an integer.
+
+/* I do not know what can cause this error, or if it ever occurs. */
+
+T14: Script 'foo's' id must be between 0 and 255.
+
+Occurs if you try to load more than 256 scripts of any given type at any given time.
+/* The maximum number of concurrent scripts (of any given type?) is 256. */
+
+T15: Script 'foo's' id is already in use.
+You attempted to laod two scripts into the same slot. 
+/* I do not know if this is EVER possible. */
+
+T16: Cast from foo to bar.
+
+The only "safe" implicit casts are from int to float and vice-versa (since they are the same type), 
+and from int (or float) to bool (0 becomes false, anything else true). 
+The results of any other kind of cast are unspecified.
+
+/*
+Is this error still in effect? Casting from npc to itemdata, or others, usually results in a different error code.
+Further, Cannot cast from wtf to int, is a thing.
+*/
+
+Explicit casts are unimplemented and unnecessary.
+
+T17: Cannot cast from foo to bar.
+
+You attempted to typecast illegally, such as tyring to typecast from bool to float.
+
+T18: Operand is void.
+Occurs if you try to use a void type value in an operation.
+/* I do not know if this is EVER possible. */
+
+T19: Constant division by zero.
+
+While constant-folding, the compiler has detected a division by zero.
+
+Note that only division by a CONSTANT zero can be detected at compile time. 
+The following code, for instace, compiles with no errors but will most likely still crash ZC:
+
+Code:
+
+int x=0;
+1/0;
+
+
+T20: Truncation of constant x.
+
+Constants can only be specified to four places of decimal precision, withing the legal range of values. 
+Any extra digits are simply ignored by the compiler, which then issues this warning.
+
+Any values greater than MAX_CONSTANT, or less then MIN_CONSTANT will result in this error.
+
+## Applies to variables, but does not throw an error:
+Both floats and ints can only be specified to four places of decimal precision. 
+Any extra digits are simply ignored by the compiler, which then issues this warning.
+
+Any values greater than MAX_VARIABLE, or less then MIN_VARIABLE will result in this error.
+
+########
+
+T21: Could not match type signature 'foo'.
+
+When calling a function, you used the wrong number, or types, of parameters.
+The compiler can determine no way of casting the parameters of a function call so that they 
+match the type signature of a declared function. 
+
+For instance, in the following snippet
+Code:
+
+int x = Sin(true);
+
+since true cannot be cast to a float, this function call cannot be matched to the library function Sin, triggering this error.
+
+
+T22: Two or more functions match type signature 'foo'.
+
+If there is ambiguity as to which function declaration a function call should matched to, 
+the compiler will attempt to determine the "best fit." 
+These measures are however occasionally still not enough. Consider for instance the following snippet:
+Code:
+
+void foo(int x, bool y) {}
+void foo(bool x, int y) {}
+foo(1,1);
+
+matching either of the two foo declarations requires one cast, so no match can be made. 
+In contrast, the following code has no error:
+Code:
+
+void foo(int x, bool y) {}
+void foo(bool x, bool y) {}
+foo(1,1);
+
+(The first foo function is matched.)
+
+It is best to design functions so that noambiguity is possible, by addign extra params, to change the signature or by using 
+different identifiers (function names) when using more params is not desirable.
+
+T23: This function must return a value.
+
+All return statements must be followed by an expression if the enclosing function returns a value. 
+Note that the compiler does NOT attempt to verify that all executions paths of a function with non-void 
+return type actually returns a value; if you fail to return a value, the return value is undefined. 
+For instace, the following is a legal (though incorrect) ZScript program:
+
+int foo() {}
+
+/* I don't believe anythign ever returns this error.
+I've seen functions with int/float/bool types, and no returns compile, without errors. 
+Perhaps we should fix this, and issue a warning during compilation? */
+
+T25: Constant bitshift by noninteger amount; truncating to nearest integer.
+
+The bitshift operators (<< and >>) require that their second parameters be whole integers.
+
+T27: Left of the arrow (->) operator must be a pointer type (ffc, etc).
+
+It makes no sense to write "x->foo" if x is of type int. 
+You may only use the dereference (->) operator on pointer types.
+
+T28: That pointer type does not have a function 'foo'.
+
+You tried to use the dereference operator (->) to call a function that does not exist for the pointer type being dereferenced. 
+Check the list of member variables and functions and verify you have not mistyped the function you are trying to call.
+
+This generally occurs when calling internal functions, using the incorrect class, or namespace, such as:
+
+Game->Rectangle() instead of Screen->Rectangle()
+
+The extra std.zh component 'shortcuts.zh' assists in preventing this error type.
+
+
+T29: That pointer type does not have a variable 'foo'.
+
+You tried to use the dereference operator (->) to call a member variable that does not exist for the pointer type being dereferenced. 
+Check the list of member variables and verify you have not mistyped the variable you are trying to call.
+
+This generally occurs when calling internal variables, using the incorrect class, or namespace, such as:
+
+Link->D[] instead of Screen->D[]
+
+/* The extra std.zh component 'shortcuts.zh' assists in preventing this error type.
+Probaby not, as this requires silly amounts of functions to handle variables with identical identifiers.
+C'est la vie. perhaps we'll do it, but I really am not fond of the idea. */
+
+As above, but the member variable you tried to access does not exist.
+
+Error T31: The index of 'foo' must be an integer.
+
+/* This has been deprecated, so who cares? */
+
+
+T36: Cannot change the value of constant variable 'foo'.
+
+You cannot assign a CONSTANT to another value.
+
+T37: Global variables can only be initialized to constants or globals declared in the same script.
+You cannot (directly) simultaneously declare, and initialise a global value using the value of a variable at
+the scope of another script, or function.
+
+Example:
+int x = script.a;
+ffc script foo{
+    int a = 6;
+    void run(){
+        for ( int q = 9; q < Rand(15); q++ ) a++;
+    }
+}
+
+This is ILLEGAL. You cannot initialise the value of the global variable 'x' using the local value
+of 'a' in the ffc script 'foo'.
+
+/* I believe this is deprecated, as I do not believe that script level declarations remain legal */
+
+T45 (old version, T38): Arrays can only be initialized to numerical values
+You attempted to declare an array using a floating point value (e.g. 10.5), constant or equation, 
+rather than a numeric literal.
+
+
+    Consider that you want to declare an array with an explicit size of '40':
+    These are ILLEGAL:
+        int my_arr[26+14];
+        const int CONSTANT = 30;
+        int my_arr[CONSTANT];
+        int my_arr[CONSTANT/2+20]
+    
+    YOu must declare an arrray with a numeric literal:
+        int my_array[40];
+        This is the only legal way to declare the size of an array as of 2.50.2.
+
+
+#####################
+## Specific Errors ##
+##   @Generation   ##
+#####################
+
+
+G33: Break must lie inside of an enclosing for or while loop.
+
+The 'break' keyword aborts the loop (in a for, while, or do statement) in which it is called.
+You must be in a loop to break out of one, so calling 'break' outside of a loop is illegal.
+
+
+G34: Continue must lie inside of an enclosing for or while loop.
+
+The 'continue' keyword halts a loop, and repeats the loop from its head (in a for, while, or do statement) in which it is called.
+You must be in a loop to continue one, so calling 'continue' outside of a loop is illegal.
+
+As the above error, but with the continue keyword. Continue aborts the current iteration of the loop and skips to the next iteration.
+
+
+##################
+## Array Errors ##
+##################
+
+Error A42 (old, Error O1): Array is too small. ( Converting to A42 in 2.50.3 )
+You attempted to declare an array, with a set of values, where the number of values in the set
+exceeds an explicit array size declaration:
+
+int foo[4]={1,2,3,4,5};
+The declared size is '4', but you tried to initialise it with five elements.
+
+/* THis doesn't seem right, as this seems to be covered by Err 02. Check the source to see what causes this. */
+
+Error O2: Array initializer larger than specified dimensions. ( Converting to A43 in 2.50.3)
+You attempted to initialise an array, with a set of values, where the number of values in the set
+exceeds an explicit array size declaration:
+
+int foo[4]={1,2,3,4,5};
+The declared size is '4', but you tried to initialise it with five elements.
+
+Error O3: String array initializer larger than specified dimensions, space must be allocated for NULL terminator.
+( Convering to A44 in 2.50.3 )
+YOu attempted to seclare a QUOTEDSTRING of an explicit size, but you didn;t add space
+for the NULL terminator; or you used more chars than you allocated:
+
+int my_string[17]="This is a string.";
+    THis allocates only enough indices for the chars, but not for the NULL terminator. 
+    The array size here needs to be 18.
+int my_string[12]="THis is a string.";
+    You tried to initialise a QUOTEDSTRING that is longer than the array size.
+    The minimum array size for this is '18'.
+    
+    It is generally best either to declare strings with an implicit size (set by the initialiser):
+        int my_string[]="This is a string";
+            This reads the nuber of chars, adds one to the count (for NULL), and sizes the array to 18.
+    ...or...
+    Declare the string with an arbitrarily large size:
+        int my_string[256]="This is a string";
+            This reserves 256 chars. Only 18 are used, and the rest of the indices
+            are initialised as '0' (NULL). YOu may later populate the unused space, if desired.
+            
+
+#################            
+## Misc Errors ##
+#################
+
+FATAL FATAL ERROR I0: bad internal error code
+A fallback error is no other type matches the problem.
+
+/* I have no idea what causes this. Be afraid, very afraid. */
+
+/* OTHER ERRORS 
+Document any further error codes here.
+We need to convert the array errors from raw numeric, to A** codes. 
+*/
+
+
+########################
+## OPERATIONAL ERRORS ##
+###################################################################################################
+## These errors occur only during the operation of script execution (i.e. when running a script, ##
+## in Zelda Classic while playing a quest).                                                      ##
+## --------------------------------------------------------------------------------------------- ##
+## In ZC versions 2.50.2, and later, operational script errors will return the ID of the script  ##
+## from which they were generated.                                                               ##
+################################################################################################### 
+
+//! These errors will be reported to allegro.log (or the ZConsole) when scripts run.
+
+
+
+////////////////////
+/// Stack Errors ///
+////////////////////
+
+	"Stack over or underflow, stack pointer = %ld\n"
+
+	"Invalid ZASM command %ld reached\n"
+
+////////////////////
+/// Array Errors ///
+////////////////////
+
+	"Invalid value (%i) passed to '%s'\n"
+	"Invalid index (%ld) to local array of size %ld\n"
+	
+You attempted to reference an array index that is either too small, or too large. 
+Check the size of your array, and try again.
+Perhaps you have a for loop, or other loop that is parsing the array, and trying to read beyond its index ranges.
+
+
+	"Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n"
+
+Array pointers values in operation are 1 through 4095, ( and 4096 to 8164? as declared global pointers ?).
+An array may not have a pointer of '0', nor may you reference an array for which a pointer does not exist.
+Often, this error is caused by attempting to reference an array that you created, without updating the saved game slot
+as the old save does not have the array allocated, but the script is attempting to reference its global ID.
+
+	"Script tried to deallocate memory at invalid address %ld\n"
+	"Script tried to deallocate memory that was not allocated at address %ld\n"
+
+/* Script attempted to change the value of an array index // that does not exist // due to the inability to declare an array
+because too many registers are in use?
+
+
+	"You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n"
+You attempted to read, or write to a Screen->D[register] that was less than 1, or greater than 10.
+Check for loops, and vriables that read/write to Screen->D for any that can fall outside the legal range.
+
+	"Array initialized to invalid size of %d\n"
+You attempted to init array to a size less than 1, or a size greater than 214747, or;
+You attempted to init array with a constant, a variable, a formula, or with a floating point value.
+Arrays may ONLY be initialised with numeric literals (integers only) between 1 and 214747. 
+	
+	"%d local arrays already in use, no more can be allocated\n", MAX_ZCARRAY_SIZE-1);
+The maximum number of arrays in operation at one time is 4095.
+	
+"Invalid pointer value of %ld passed to global allocate\n"
+	!
+
+/////////////////////////////
+/// Object Pointer Errors ///
+/////////////////////////////
+
+	"Invalid NPC with UID %ld passed to %s\nNPCs on screen have UIDs "
+	"Invalid item with UID %ld passed to %s\nItems on screen have UIDs "
+	"Invalid lweapon with UID %ld passed to %s\nLWeapons on screen have UIDs "
+	"Invalid eweapon with UID %ld passed to %s\nEWeapons on screen have UIDs "
+	
+	"Script attempted to reference a nonexistent NPC!\n"
+	"You were trying to reference the %s of an NPC with UID = %ld; NPC on screen are UIDs "
+
+	"Script attempted to reference a nonexistent item!\n"
+	"You were trying to reference an item with UID = %ld; Items on screen are UIDs: "
+
+	"Script attempted to reference a nonexistent LWeapon!\n"
+	"You were trying to reference the %s of an LWeapon with UID = %ld; LWeapons on screen are UIDs "
+        
+	"Script attempted to reference a nonexistent EWeapon!\n"
+	"You were trying to reference the %s of an EWeapon with UID = %ld; EWeapons on screen are UIDs "
+
+You attempted to reference a game object that has a maximum legal range of 1 to 255. 
+It is possible that you tried to read outside that range, or that the pointer that you were loading is not valid.
+Check NumItems(), NumLWeapons(), NumEWeapons(0, and NumNPCs() before referencing them; and verify that the object ->IsValid()
+Check for loops that may attempt ro reference items outside of the range that actually exist.
+Look for any for loops that access these objects, that start, or end at zero.
+
+The best way to ensure this does not occur, is to make a for loop as follows:
+
+	for ( int q = 1; q < Screen->NumLWeapons; q++ )
+
+			//or//
+
+	for ( int q = Screen->NumLWeapons(); q > 0; q-- ) 
+
+...replacing NumLWeapons() withthe appropriate type that you are attempting to load.
+
+You may be attempting to refrence a pointer that has fallen out of scope.
+You may be attempting to reference a pointer that is no longer valid, or has been removed.
+Check ( pinter->IsValid() ) by itself, to ensure this does not occur:
+
+		if ( pointer->IsValid ) {
+			if ( pointer->ID == LW_FIRE ) //Do things.
+		}
+	
+This helps to prevent loading invalid pointers.
+
+////////////////////////////////
+/// Maths and Logical Errors ///
+////////////////////////////////
+
+"Script attempted to divide %ld by zero!\n"
+"Script attempted to modulo %ld by zero!\n"
+	
+"Script attempted to pass %ld into ArcSin!\n"
+"Script attempted to pass %ld into ArcCos!\n"
+"Script tried to calculate log of 0\n"
+"Script tried to calculate log of %f\n"
+"Script tried to calculate ln of 0\n"
+"Script tried to calculate ln of %f\n"
+"Script attempted to calculate 0 to the power 0!\n"
+"Script attempted to calculate square root of %ld!\n"
+	
+Look for scripts that pass a variable into these functions, or use a variable in a mathematical operation, that 
+may be zero at any point, and correct it to ensure that it is never zero, or that it is never illegal for the type of 
+mathematical operation you wish to perform.
+
+Chweck for any hardcoded values, or constants that are in use with these functions that may be illegal, or irrational.
+
+////////////////////////////////
+/// System Limitation Errors ///
+////////////////////////////////
+	
+"Couldn't create lweapon %ld, screen lweapon limit reached\n"
+"Couldn't create eweapon %ld, screen eweapon limit reached\n"
+"Couldn't create item \"%s\", screen item limit reached\n"
+"Couldn't create NPC \"%s\", screen NPC limit reached\n"
+    
+You may create a maximum of 255 of any one object type on the screen at any one time.
+Look for anything that is generating extra pointers, and add a statement such as:
+	if ( Screen->NumNPCs() < 255 ) 
+    
+	"Max draw primitive limit reached\n"
+The maximum number of drawing function calls, per frame, is 1,000.
+    
+/////////////////////
+/// String Errors ///
+/////////////////////
+
+	"Array supplied to 'Game->GetDMapMusicFilename' not large enough\n"
+	"Array supplied to 'Game->GetSaveName' not large enough\n"
+	"String supplied to 'Game->GetSaveName' too large\n"
+	"Array supplied to 'Game->GetMessage' not large enough\n"
+	"Array supplied to 'Game->GetDMapName' not large enough\n"
+	"Array supplied to 'Game->GetDMapTitle' not large enough\n"
+	"Array supplied to 'Game->GetDMapIntro' not large enough\n"
+	"Array supplied to 'itemdata->GetName' not large enough\n"
+	"Array supplied to 'npc->GetName' not large enough\n"
+
+The buffer for these actions must be equal to the size of the text to load into it, plus one, for NULL.
+
+If you wish to load a game name, with Game->LoadSaveName(), and the name on the file select is FOO, you must 
+supply a buffer with a size of [4] to hold it. (Three chars in the name, plus one for NULL.)
+
+////////////////////
+/// Misc. Errors ///
+////////////////////
+
+	"Waitdraw can only be used in the active global script\n"
+You attempted to call Waitdrw() in an ffc script, or an item script; or in your global OnContinue, 
+global OnExit, or ~Init scripts.
+You may only use the Waitdraw() function from a global active script.
+
+	"No other scripts are currently supported\n"
+? You should never see this. May indicate that you have attempted to load more scripts than ZC can handle.
+
+
+	"Invalid value (%i) passed to '%s'\n"
+!
+    
+	"Global scripts currently have no A registers\n"
+This error can only occur if you are coding ZASM, and attempt to utilise an Address register with a global script.
+    
+////////////////////////
+/// Script Reporting ///
+////////////////////////
+    
+    //Events that will be recorded if Quest Rule 'Log Game Events to Allegro.log' is enabled:
+    
+"Script created lweapon %ld with UID = %ld\n"
+"Script created eweapon %ld with UID = %ld\n"
+"Script created item \"%s\" with UID = %ld\n"
+"Script created NPC \"%s\" with UID = %ld\n"
+
+When any new game object is generated by script, and reporting is enabled, the lweapon, and the name of the
+script that generated it, will be reported to allegro.log.
+
+
+##############################
+##  MIXING ZASM AND ZSCRIPT ##
+##############################
+
+n general adding ASM scripts in slots unused by ZScript is safe. Just realize that if you write to global or screen registers, you may be writing over values used by some of the ZScript scripts.
+
+After every compilation the full ASM output of the compiler is written to allegro.log, so by inspecting this output you can determine what global variables are being used by ZScript, so that you can avoid (or not avoid!) using them in your ASM scripts.
+
+On the other hand, directly modifying the ASM output of a ZScript compilation requires very, very great care, for several reasons:
+
+1. Almost all of the D registers (currently D0-D6) are reserved as important scratch spaces for things like computing the stack frame offset of local variables, and should not be overwritten by foreign code.
+
+2. ZScript-compiled code is heavily reliant on the stack for storing everything from local variables to parameters of function calls to this pointers. The state of the stack must thus also be preserved by foreign code.
+
+3. Changing the line numbers of ZScript code requires a lot of work verifying that references to those line numbers (in things like GOTO) are modified accordingly. Even more tricky is that line numbers are sometimes indirectly stored in registers, pushed onto the stack, then popped off much later and used as return values via GOTOR.
+
+4. If you ever decide to modify the ZScript code and recompile, you'll of course need to reapply your "patch." 
+

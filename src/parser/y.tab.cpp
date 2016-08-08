@@ -198,7 +198,8 @@ enum yytokentype
     PLUS = 326,
     DIVIDE = 327,
     TIMES = 328,
-    MODULO = 329
+    MODULO = 329,
+    COMMENTBLOCK = 330
 };
 #endif
 
