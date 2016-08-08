@@ -1222,7 +1222,7 @@ do_action:	/* This label is used only to access EOF actions. */
             YY_BREAK
             
         case 71:
-            YY_RULE_SETUP
+            #line 93 "ffscript.lpp"
 #line 95 "ffscript.lpp"
             {
                 doLines();
@@ -1230,7 +1230,8 @@ do_action:	/* This label is used only to access EOF actions. */
                 return IDENTIFIER;
             }
             YY_BREAK
-            
+
+
         case 72:
             YY_RULE_SETUP
 #line 101 "ffscript.lpp"
@@ -1283,6 +1284,12 @@ do_action:	/* This label is used only to access EOF actions. */
 #line 121 "ffscript.lpp"
             ECHO;
             YY_BREAK
+	
+	case 80
+#line 93 "ffscript.lpp"
+		YY_RULE_SETUP
+		{ commentblock(); }
+		YY_BREAK
 #line 1186 "lex.yy.cpp"
             
         case YY_STATE_EOF(INITIAL):
@@ -2202,5 +2209,20 @@ void doLines()
 {
 YYLTYPE rval = {yylineno, 0, yylineno, 0};
 yylloc = rval;
+}
+
+void commentblock(void) {
+	int c; 
+	
+	while ( ( c = input() ) != 0 ) 
+		if  ( c == '*' ) {
+			while ( ( c = input() == '*' ) 
+				;
+			if ( c == '/' ) 
+				return;
+			if ( c == 0 ) 
+				break;
+		}
+		yyerror("Premature end of comment block. ");
 }
 
