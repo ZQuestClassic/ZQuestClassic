@@ -25,25 +25,14 @@ const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 const float MAX_CONSTANT		= 214747.9999;
 const float MAX_FLOAT			= 214747.9999;
 //const float MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
-const float MIN_CONSTANT		= -214747.9999; //! This is because of a bug. The minimum (negative) float
-							//! **is** -214747.9999, but the min (negative) const float
-							//! is -021473.0001 because of an error in char counting including the sign. 
-							//!...and will be fixed in 2.50.3.
-//2.50.0 to 2.50.2 SPECIAL Constant Minimums							
-const int MIN_CONST_INT			= -99999; 	
-							//! This is due to a bug in 2.50.2 and earlier. 
-							//! ...and will be fixed in 2.50.3 to -214747.
-const float MIN_CONST_FLOAT		= -21473.0001; //! This is because of a bug. The minimum (negative) float
-							//! **is** -214747.9999, but the min (negative) const float
-							//! is -021473.0001 because of an error in char counting including the sign. 
-							//!...and will be fixed in 2.50.3.
+const float MIN_CONSTANT		= -214747.9999; 
+
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
 const int MAX_INT 			= 214747;
-const int MIN_INT 			= -99999; //This value is assigned to the constant due to the bug involving negative constants in 2.50.0-2.50.2. 
+const int MIN_INT 			= -214747; //This value is assigned to the constant due to the bug involving negative constants in 2.50.0-2.50.2. 
 						  //MIN_INT for variables is -214747
-const int MIN_FLOAT 			= -21473.0001; //This value is a ZC bug, and will be fixed in 2.50.3.
-							//MIN_FLOAT for variables is -214747
+const int MIN_FLOAT 			= -214747.9999; 
 
 const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
 const int MIN_COUNTER 			= -32768; //" -32767
@@ -55,7 +44,7 @@ const int MIN_NPC			= 1;
 const int MIN_ITEM			= 1;
 const int MAX_LWEAPON 			= 255; //1 to 255. 
 const int MAX_EWEAPON 			= 255; //1 to 255. 
-const int MAX_NPCS	 		= 255; //1 to 255. 
+const int MAX_NPCS	 		= 255; //1 to 255. //NPCs seem to have a space of 512, but they only use 256?
 const int MAX_ITEM	 		= 255; //1 to 255;
 //!This is already called in stdExtra.zh
 //! Fixed; de-pluralised all. 
