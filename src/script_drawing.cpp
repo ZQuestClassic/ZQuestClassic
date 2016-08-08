@@ -352,6 +352,10 @@ void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
+    if(sdci[12]/10000==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
     
     if(sdci[10]==0) //no rotation
     {
@@ -446,6 +450,11 @@ void do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if(sdci[11]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+    }
+    
+    if(sdci[11]/10000==1234.9875) //XOR
+    {
+        drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
     }
     
     if(sdci[9]!=0&&(sdci[2]!=sdci[7]||sdci[3]!=sdci[8])) //rotation
@@ -557,6 +566,10 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
             {
                 draw_trans_sprite(bmp, prim_bmp, 0,0);
             }
+	      if(sdci[14]/10000==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
             else
             {
                 draw_sprite(bmp, prim_bmp, 0,0);
@@ -575,6 +588,10 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         {
             drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
         }
+	 if(sdci[14]/10000==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
         
         arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -723,6 +740,10 @@ void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
+    if(sdci[11]/10000==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
     
     if(sdci[10]!=0) //rotation
     {
@@ -762,6 +783,10 @@ void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
+    if(sdci[11]/10000==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
     
     spline(bmp, points, sdci[10]/10000);
     
@@ -787,7 +812,11 @@ void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
+    if(sdci[14]/10000==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
+	    
     if(sdci[7]!=0) //rotation
     {
         int xy[2];
@@ -1351,11 +1380,10 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         if(opacity < 128)
         {
-            FONT* font = get_zc_font(font_index);
-            BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(font, numbuf), text_height(font));
+            BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
             clear_bitmap(pbmp);
             
-            textout_ex(pbmp, font, numbuf, 0, 0, color, bg_color);
+            textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
             draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
             
             destroy_bitmap(pbmp);
@@ -1377,10 +1405,10 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[5]=color
     //sdci[6]=bg color
     //sdci[7]=format_option
-    //sdci[8]=string
-    //sdci[9]=opacity
+    //sdci[8]=opacity
+    //sdci[9]=char
     
-    std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
+    char* str = (char*)script_drawing_commands[i].GetPtr();
     
     if(!str)
     {
@@ -1390,7 +1418,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     int x=sdci[2]/10000;
     int y=sdci[3]/10000;
-    FONT* font=get_zc_font(sdci[4]/10000);
+    int font_index=sdci[4]/10000;
     int color=sdci[5]/10000;
     int bg_color=sdci[6]/10000; //-1 = transparent
     int format_type=sdci[7]/10000;
@@ -1401,35 +1429,30 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(bg_color < -1) bg_color = -1;
     
     if(opacity < 128)
+        drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+    if(opacity==1234.9875) //XOR
+	    {
+		drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+	    }
+        
+    if(format_type == 2)   // right-sided text
     {
-        int width=zc_min(text_length(font, str->c_str()), 512);
-        BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
-        clear_bitmap(pbmp);
-        textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
-        if(format_type == 2)   // right-sided text
-            x-=width;
-        else if(format_type == 1)   // centered text
-            x-=width/2;
-        draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-        destroy_bitmap(pbmp);
+        textout_right_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
     }
-    else // no opacity
+    else if(format_type == 1)   // centered text
     {
-        if(format_type == 2)   // right-sided text
-        {
-            textout_right_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
-        }
-        else if(format_type == 1)   // centered text
-        {
-            textout_centre_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
-        }
-        else // standard left-sided text
-        {
-            textout_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
-        }
+        textout_centre_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
     }
-}
+    else // standard left-sided text
+    {
+        textout_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
+    }
+    
+    if(opacity < 128)
+        drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
+	script_drawing_commands.DeallocateDrawBuffer(str);
+}
 
 void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
