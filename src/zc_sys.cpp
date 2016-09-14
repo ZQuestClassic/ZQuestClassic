@@ -289,9 +289,17 @@ void load_game_configs()
     
     scanlines = get_config_int(cfg_sect,"scanlines",0)!=0;
     loadlast = get_config_int(cfg_sect,"load_last",0);
+    
+// Fullscreen, page flipping may be problematic on newer windows systems.
+#ifdef _WIN32
+    fullscreen = get_config_int(cfg_sect,"fullscreen",0);
+    disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",1);
+    can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
+#else
     fullscreen = get_config_int(cfg_sect,"fullscreen",1);
     disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",0);
     can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
+#endif
     
     zc_color_depth = (byte) get_config_int(cfg_sect,"color_depth",8);
     
