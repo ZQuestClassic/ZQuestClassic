@@ -1832,7 +1832,16 @@ int save_savedgames()
 {
     if(saves==NULL)
         return 1;
-        
+    
+    // Not sure why this happens, but apparently it does...
+    for(int i=0; i<MAXSAVES; i++)
+    {
+        for(int j=0; j<48; j++)
+        {
+            saves[i].pal[j]&=63;
+        }
+    }
+    
     char tmpfilename[32];
     temp_name(tmpfilename);
     
