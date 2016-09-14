@@ -570,7 +570,7 @@ const char *combotype_help_string[cMAX*3] =
     "This flag is obsolete. It behaves identically to","Combo Flag 36, Trap (Vertical Constant).","",
     "Link is warped via Tile Warp A if he touches","any part of this combo, but his on-screen","position remains the same. Ground enemies can't enter.",
     "If this combo is solid, the Hookshot","can be used to cross over it.","",
-    "This combo's tile is drawn between layers","3 and 4, even if it is placed on layer 0.","",
+    "This combo's tile is drawn between layers","3 and 4 if it is placed on layer 0.","",
     "Flying enemies (Keese, Peahats, Moldorms,","Patras, Fairys, Digdogger, Manhandla, Ghinis,","Gleeok heads) can't fly over or appear on this combo.",
     "Wand magic and enemy magic that hits"," this combo is reflected 180 degrees,","and becomes 'reflected magic'.",
     "Wand magic and enemy magic that hits"," this combo is reflected 90 degrees,","and become 'reflected magic'.",
