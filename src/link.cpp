@@ -7465,7 +7465,8 @@ void LinkClass::checklockblock()
         break;
         
     case left:
-        bx-=16;
+        if((((int)x)&0x0F)<8)
+            bx-=16;
         
         if(int(y)&8)
         {
@@ -7542,7 +7543,8 @@ void LinkClass::checkbosslockblock()
         break;
         
     case left:
-        bx-=16;
+        if((((int)x)&0x0F)<8)
+            bx-=16;
         
         if(int(y)&8)
         {
