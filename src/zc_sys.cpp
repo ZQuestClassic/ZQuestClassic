@@ -3054,6 +3054,19 @@ bottom:
     clear_keybuf();
 }
 
+void checkQuitKeys()
+{
+#ifndef ALLEGRO_MACOSX
+    if(ReadKey(KEY_F9))    f_Quit(qRESET);
+    
+    if(ReadKey(KEY_F10))   f_Quit(qEXIT);
+#else
+    if(ReadKey(KEY_F7))    f_Quit(qRESET);
+    
+    if(ReadKey(KEY_F8))   f_Quit(qEXIT);
+#endif
+}
+
 // 99*360 + 59*60
 #define MAXTIME  21405240
 

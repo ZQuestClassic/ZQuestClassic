@@ -69,6 +69,7 @@ long sarg2 = 0;
 refInfo *ri = NULL;
 ffscript *curscript = NULL;
 
+static int numInstructions; // Used to detect hangs
 static bool scriptCanSave = true;
 byte curScriptType;
 word curScriptNum;
@@ -6576,20 +6577,15 @@ void do_combotile(const bool v)
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
 
-INLINE void check_quit()
-{
-    if(key[KEY_F4] && (key[KEY_ALT] || key[KEY_ALTGR]))
-    {
-        quit_game();
-        exit(101);
-    }
-}
-
 // Let's do this
 int run_script(const byte type, const word script, const byte i)
 {
+    if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
+        return 1;
+    
     curScriptType=type;
     curScriptNum=script;
+    numInstructions=0;
     
 #ifdef _SCRIPT_COUNTER
     dword script_timer[NUMCOMMANDS];
@@ -6693,7 +6689,14 @@ int run_script(const byte type, const word script, const byte i)
     
     while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
     {
-        check_quit();
+        numInstructions++;
+        if(numInstructions==100000) // No need to check frequently
+        {
+            numInstructions=0;
+            checkQuitKeys();
+            if(Quit)
+                scommand=0xFFFF;
+        }
         
 #ifdef _FFDEBUG
 #ifdef _FFDISSASSEMBLY

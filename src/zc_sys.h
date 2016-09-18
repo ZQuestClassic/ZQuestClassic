@@ -34,6 +34,7 @@ void f_Quit(int type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true);
 void updatescr(bool allowwavy);
 void syskeys();
+void checkQuitKeys();
 void System();
 void system_pal();
 void switch_out_callback();
