@@ -5134,14 +5134,14 @@ int onLife()
 
 int onHeartC()
 {
-    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,4096) * HP_PER_HEART);
+    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,4095) * HP_PER_HEART);
     game->set_life(vbound(getnumber("Life",game->get_life()/HP_PER_HEART),1,game->get_maxlife()/HP_PER_HEART)*HP_PER_HEART);
     return D_O_K;
 }
 
 int onMagicC()
 {
-    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,4096) * MAGICPERBLOCK);
+    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,2047) * MAGICPERBLOCK);
     game->set_magic(vbound(getnumber("Magic",game->get_magic()/MAGICPERBLOCK),0,game->get_maxmagic()/MAGICPERBLOCK)*MAGICPERBLOCK);
     return D_O_K;
 }
