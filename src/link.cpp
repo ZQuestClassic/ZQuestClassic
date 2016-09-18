@@ -11313,6 +11313,12 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     lstep = (lstep + 6) % 12;
     cx = scx;
     
+    if(global_wait)
+    {
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        global_wait=false;
+    }
+    
     do
     {
         draw_screen(tmpscr);
@@ -11331,6 +11337,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         ++cx;
     }
     while(cx < 32);
+    
+    script_drawing_commands.Clear();
     
     if((DMaps[currdmap].type&dmfTYPE)==dmCAVE)
         markBmap(scrolldir);
@@ -11470,6 +11478,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         action = scrolling;
         ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
         action = lastaction;
+        global_wait=false;
         
         if(no_move > 0)
             no_move--;
