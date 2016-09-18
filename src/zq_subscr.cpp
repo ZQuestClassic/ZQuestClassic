@@ -7197,7 +7197,7 @@ void delete_subscreen(int subscreenidx)
 #define D8        0x00000080
 #define D9        0x00000100
 #define D10       0x00000200
-#define D1_TO_D10 0x000002FF
+#define D1_TO_D10 0x000003FF
 #define COLOR1    0x00000400
 #define COLOR2    0x00000800
 #define COLOR3    0x00001000
