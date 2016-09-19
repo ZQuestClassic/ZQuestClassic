@@ -6037,15 +6037,13 @@ void do_drawing_command(const int script_command)
     case DRAWSTRINGR:
     {
         set_drawing_command_args(j, 9);
-
+        
 		static std::string tempStr; //oh well...
         ArrayH::getString(script_drawing_commands[j][8] / 10000, tempStr);
-
-
+        
 		size_t strSize = tempStr.size();
 		long* p = script_drawing_commands.AllocateDrawBuffer((strSize + 1) * sizeof(char));
-		p[tempStr.size()] = 0;
-
+		strcpy((char*)p, tempStr.c_str());
         script_drawing_commands[j].SetPtr(p);
     }
 	break;
