@@ -1387,7 +1387,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     int x=sdci[2]/10000;
     int y=sdci[3]/10000;
-    int font_index=sdci[4]/10000;
+    FONT* font=get_zc_font(sdci[4]/10000);
     int color=sdci[5]/10000;
     int bg_color=sdci[6]/10000; //-1 = transparent
     int format_type=sdci[7]/10000;
@@ -1398,23 +1398,33 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(bg_color < -1) bg_color = -1;
     
     if(opacity < 128)
-        drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-        
-    if(format_type == 2)   // right-sided text
     {
-        textout_right_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
+        int width=zc_min(text_length(font, str), 512);
+        BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
+        clear_bitmap(pbmp);
+        textout_ex(pbmp, font, str, 0, 0, color, bg_color);
+        if(format_type == 2)   // right-sided text
+            x-=width;
+        else if(format_type == 1)   // centered text
+            x-=width/2;
+        draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
+        destroy_bitmap(pbmp);
     }
-    else if(format_type == 1)   // centered text
+    else // no opacity
     {
-        textout_centre_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
+        if(format_type == 2)   // right-sided text
+        {
+            textout_right_ex(bmp, font, str, x+xoffset, y+yoffset, color, bg_color);
+        }
+        else if(format_type == 1)   // centered text
+        {
+            textout_centre_ex(bmp, font, str, x+xoffset, y+yoffset, color, bg_color);
+        }
+        else // standard left-sided text
+        {
+            textout_ex(bmp, font, str, x+xoffset, y+yoffset, color, bg_color);
+        }
     }
-    else // standard left-sided text
-    {
-        textout_ex(bmp, get_zc_font(font_index), str, x+xoffset, y+yoffset, color, bg_color);
-    }
-    
-    if(opacity < 128)
-        drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
 	script_drawing_commands.DeallocateDrawBuffer(str);
 }
