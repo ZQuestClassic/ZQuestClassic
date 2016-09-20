@@ -2654,15 +2654,14 @@ public:
 }
 static Triplebuffer;
 
-
-
-
+bool setGraphicsMode(bool windowed)
+{
+    int type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
+    return set_gfx_mode(type, resx, resy, 0, 0)==0;
+}
 
 int onFullscreen()
 {
-#ifdef ALLEGRO_DOS
-    return D_O_K;
-#endif
     PALETTE oldpal;
     get_palette(oldpal);
     
@@ -2672,25 +2671,16 @@ int onFullscreen()
     // these will become ultra corrupted no matter what.
     Triplebuffer.Destroy();
     
-    fullscreen=!fullscreen;
-    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,resx,resy,0,0);
-    
-    if(ret!=0)
+    bool success=setGraphicsMode(!windowed);
+    if(success)
+        fullscreen=!fullscreen;
+    else
     {
-        if(!windowed)
+        // Try to restore the previous mode, then...
+        success=setGraphicsMode(windowed);
+        if(!success)
         {
-            ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,resx,resy,0,0);
-            
-            if(ret!=0)
-            {
-                Z_message("Can't set video mode (%d).\n", ret);
-                Z_message(allegro_error);
-                exit(1);
-            }
-        }
-        else
-        {
-            Z_message("Can't set video mode (%d).\n", ret);
+            Z_message("Failed to set video mode.\n");
             Z_message(allegro_error);
             exit(1);
         }
@@ -2702,7 +2692,8 @@ int onFullscreen()
         Triplebuffer.Create();
         Z_message("Triplebuffer enabled \n");
     }
-    else Z_message("Triplebuffer disabled \n");
+    else
+        Z_message("Triplebuffer disabled \n");
     
     //Everything set?
     Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
