@@ -1229,22 +1229,63 @@ const char *autosavelist(int index, int *list_size)
 {
     if(index>=0)
     {
-        bound(index,0,10);
-        
         if(index==0)
-        {
-            sprintf(autosave_str_buf,"Disabled");
-        }
-        else
-        {
-            sprintf(autosave_str_buf,"%2d Minute%c",index,index>1?'s':0);
-        }
+            sprintf(autosave_str_buf, "Disabled");
+        else if(index<=10)
+            sprintf(autosave_str_buf, "%d Minute%c", index, index>1 ? 's' : 0);
+        else if(index==11)
+            sprintf(autosave_str_buf, "15 Minutes");
+        else if(index==12)
+            sprintf(autosave_str_buf, "30 Minutes");
+        else if(index==13)
+            sprintf(autosave_str_buf, "45 Minutes");
+        else if(index==14)
+            sprintf(autosave_str_buf, "1 Hour");
+        else if(index==15)
+            sprintf(autosave_str_buf, "90 Minutes");
+        else if(index==16)
+            sprintf(autosave_str_buf, "2 Hours");
         
         return autosave_str_buf;
     }
     
-    *list_size=11;
+    *list_size=17;
     return NULL;
+}
+
+int autosaveListToMinutes(int index)
+{
+    switch(index)
+    {
+        case 11: return 15;
+        case 12: return 30;
+        case 13: return 45;
+        case 14: return 60;
+        case 15: return 90;
+        case 16: return 120;
+        default: return index;
+    }
+}
+
+int autosaveMinutesToList(int time)
+{
+    if(time<=0)
+        return 0;
+    if(time<10)
+        return time;
+    
+    // Use <= so, say, 12 minutes doesn't become 2 hours
+    if(time<=15)
+        return 11;
+    if(time<=30)
+        return 12;
+    if(time<=45)
+        return 13;
+    if(time<=60)
+        return 14;
+    if(time<=90)
+        return 15;
+    return 16;
 }
 
 const char *autosavelist2(int index, int *list_size)
@@ -1385,7 +1426,7 @@ int onOptions()
     options_dlg[18].flags = RulesetDialog ? D_SELECTED : 0;
     options_dlg[19].flags = EnableTooltips ? D_SELECTED : 0;
     options_dlg[32].d1 = AutoBackupRetention;
-    options_dlg[34].d1 = AutoSaveInterval;
+    options_dlg[34].d1 = autosaveMinutesToList(AutoSaveInterval);
     options_dlg[36].d1 = AutoSaveRetention;
     options_dlg[37].flags = UncompressedAutoSaves ? D_SELECTED : 0;
     options_dlg[39].d1 = GridColor;
@@ -1415,7 +1456,7 @@ int onOptions()
         RulesetDialog              = options_dlg[18].flags & D_SELECTED ? 1 : 0;
         EnableTooltips             = options_dlg[19].flags & D_SELECTED ? 1 : 0;
         AutoBackupRetention        = options_dlg[32].d1;
-        AutoSaveInterval           = options_dlg[34].d1;
+        AutoSaveInterval           = autosaveListToMinutes(options_dlg[34].d1);
         AutoSaveRetention          = options_dlg[36].d1;
         UncompressedAutoSaves      = options_dlg[37].flags & D_SELECTED ? 1 : 0;
         GridColor                  = options_dlg[39].d1;
