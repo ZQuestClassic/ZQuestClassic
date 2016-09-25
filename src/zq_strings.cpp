@@ -1264,6 +1264,25 @@ int mprvnextstring=0;
 int mprvw=0;
 int mprvh=0;
 
+// Returns true if the given character should be encoded as a control code.
+// lastWasSCC indicates whether this is immediately after a control code.
+static inline bool isSCC(char character, bool lastWasSCC)
+{
+    // Non-ASCII character
+    if(character<32 || character>126)
+        return true;
+    
+    // Numeral after a control code
+    if(lastWasSCC && character>='0' && character<='9')
+        return true;
+    
+    // Backslash
+    if(character=='\\')
+        return true;
+    
+    return false;
+}
+
 // Load a stored string into msgbuf for editing.
 void encode_msg_str(int index)
 {
@@ -1281,6 +1300,7 @@ void encode_msg_str(int index)
     char sccArgBuf[10];
     word sccArg;
     int sccNumArgs;
+    bool lastWasSCC=false;
     
     while(msgbufPos<MSGSIZE*3 && strPos<MSGSIZE+1)
     {
@@ -1289,11 +1309,11 @@ void encode_msg_str(int index)
         if(nextChar=='\0')
             return;
             
-        // Regular text character other than backslash get put
-        // directly into msgbuf
-        if(nextChar>=32 && nextChar<=126 && nextChar!='\\')
+        // Most regular text characters get put directly into msgbuf
+        if(!isSCC(nextChar, lastWasSCC))
         {
             msgbuf[msgbufPos]=nextChar;
+            lastWasSCC=false;
             msgbufPos++;
             strPos++;
         }
@@ -1301,10 +1321,10 @@ void encode_msg_str(int index)
         // String control codes...
         else
         {
-            // Backslash is a special case
-            if(nextChar=='\\')
+            // ASCII character as control code
+            if(nextChar>=32)
             {
-                sprintf(sccBuf, "\\91");
+                sprintf(sccBuf, "\\%d", nextChar-1);
                 strPos++;
             }
             else
@@ -1354,6 +1374,9 @@ void encode_msg_str(int index)
             // Finally, copy the control code into msgbuf
             strcat(msgbuf, sccBuf);
             msgbufPos+=strlen(sccBuf);
+            
+            // And remember that we just entered a string control code
+            lastWasSCC=true;
         }
     }
 }
