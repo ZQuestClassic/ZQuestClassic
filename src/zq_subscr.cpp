@@ -4187,9 +4187,10 @@ int onDuplicateSubscreenObject()
     return D_O_K;
 }
 
-int onEditGrid();
-int onSelectionOptions();
-int onShowHideGrid();
+static int onToggleInvis();
+static int onEditGrid();
+static int onSelectionOptions();
+static int onShowHideGrid();
 
 
 static MENU subscreen_rc_menu[] =
@@ -5522,10 +5523,11 @@ static MENU ss_edit_menu[] =
     { NULL,                          NULL,                                 NULL, 0, NULL }
 };
 
-static MENU ss_grid_menu[] =
+static MENU ss_view_menu[] =
 {
-    { (char *)"&Edit",                      onEditGrid,                    NULL, 0, NULL },
-    { (char *)"&Show",                      onShowHideGrid,                NULL, 0, NULL },
+    { (char *)"Show in&visible items",           onToggleInvis,                 NULL, 0, NULL },
+    { (char *)"&Edit grid",                      onEditGrid,                    NULL, 0, NULL },
+    { (char *)"&Show grid",                      onShowHideGrid,                NULL, 0, NULL },
     { NULL,                                 NULL,                          NULL, 0, NULL }
 };
 
@@ -5543,7 +5545,7 @@ static MENU ss_selection_menu[] =
 static MENU subscreen_menu[] =
 {
     { (char *)"&Edit",               NULL,                                 ss_edit_menu, 0, NULL },
-    { (char *)"&Grid",               NULL,                                 ss_grid_menu, 0, NULL },
+    { (char *)"&View",               NULL,                                 ss_view_menu, 0, NULL },
     { (char *)"&Selection",          NULL,                                 ss_selection_menu, 0, NULL },
     { NULL,                         NULL,                                 NULL, 0, NULL }
 };
@@ -6316,7 +6318,16 @@ int onGridSnapBottom()
     return D_O_K;
 }
 
-int onEditGrid()
+static int onToggleInvis()
+{
+    bool show=!(zinit.ss_flags&ssflagSHOWINVIS);
+    zinit.ss_flags&=~ssflagSHOWINVIS;
+    zinit.ss_flags|=(show?ssflagSHOWINVIS:0);
+    ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
+    return D_O_K;
+}
+
+static int onEditGrid()
 {
     grid_dlg[0].dp2=lfont;
     char xsize[4];
@@ -6350,12 +6361,12 @@ int onEditGrid()
     return D_O_K;
 }
 
-int onShowHideGrid()
+static int onShowHideGrid()
 {
     bool show=!(zinit.ss_flags&ssflagSHOWGRID);
     zinit.ss_flags&=~ssflagSHOWGRID;
     zinit.ss_flags|=(show?ssflagSHOWGRID:0);
-    ss_grid_menu[1].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+    ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
     return D_O_K;
 }
 
@@ -6629,7 +6640,8 @@ void edit_subscreen()
     }
     
     onClearSelection();
-    ss_grid_menu[1].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+    ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
+    ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
     
     if(css->objects[0].type==ssoNULL)
     {

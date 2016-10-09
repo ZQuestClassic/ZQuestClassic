@@ -3592,7 +3592,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             
             case ssoCURRENTITEM:
             {
-                if(css->objects[i].d2)
+                // Shouldn't really be checking is_zquest here, but it's okay for now...
+                if(css->objects[i].d2 || (is_zquest() && (zinit.ss_flags&ssflagSHOWINVIS)!=0))
                 {
                     subscreenitem(dest, x, y, css->objects[i].d8>0 ? ((css->objects[i].d8-1) | 0x8000) : css->objects[i].d1);
                 }

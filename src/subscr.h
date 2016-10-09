@@ -15,7 +15,8 @@
 #include "items.h"
 #include <stdio.h>
 
-#define ssflagSHOWGRID 1
+#define ssflagSHOWGRID  1
+#define ssflagSHOWINVIS 2
 
 
 extern bool show_subscreen_dmap_dots;
