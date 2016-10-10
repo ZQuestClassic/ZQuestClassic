@@ -1216,8 +1216,10 @@ void LValBOHelper::caseExprArray(ASTExprArray &host, void *param)
         result.push_back(new OLoadIndirect(new VarArgument(INDEX), new VarArgument(SFTEMP)));
     }
     
-    result.push_back(new OSetRegister(new VarArgument(NUL), new VarArgument(EXP1)));
-    result.push_back(new OPushRegister(new VarArgument(INDEX))); //Push on the pointer (might change inside the index expression)
+    // Both the index and the value may be expressions that can change
+    // any register, so push both
+    result.push_back(new OPushRegister(new VarArgument(EXP1)));
+    result.push_back(new OPushRegister(new VarArgument(INDEX)));
     
     //Get the index
     BuildOpcodes oc;
@@ -1230,10 +1232,10 @@ void LValBOHelper::caseExprArray(ASTExprArray &host, void *param)
         result.push_back(*it);
     }
     
-    //Go
-    result.push_back(new OPopRegister(new VarArgument(INDEX))); //Pop back off
+    result.push_back(new OPopRegister(new VarArgument(INDEX))); // Pop the index
     result.push_back(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
-    result.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(NUL)));
+    result.push_back(new OPopRegister(new VarArgument(EXP2))); // Pop the value
+    result.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP2)));
 }
 
 void LValBOHelper::caseVarDecl(ASTVarDecl &host, void *param)
