@@ -127,7 +127,8 @@ vector<Opcode *> LibrarySymbols::getVariable(LinkTable &lt, int id, int var)
     first->setLabel(label);
     code.push_back(first);
     //load object pointer into ref register
-    code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
+    if(refVar!=NUL)
+        code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
     code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     code.push_back(new OGotoRegister(new VarArgument(EXP2)));
@@ -145,7 +146,8 @@ vector<Opcode *> LibrarySymbols::getIndexedVariable(LinkTable &lt, int id, int v
     //pop object pointer
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     //load object pointer into ref register
-    code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
+    if(refVar!=NUL)
+        code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
     code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(var)));
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     code.push_back(new OGotoRegister(new VarArgument(EXP2)));
@@ -163,7 +165,8 @@ vector<Opcode *> LibrarySymbols::setVariable(LinkTable &lt, int id, int var)
     //pop object pointer
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     //load object pointer into ref register
-    code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
+    if(refVar!=NUL)
+        code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
     code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     code.push_back(new OGotoRegister(new VarArgument(EXP2)));
@@ -189,7 +192,8 @@ vector<Opcode *> LibrarySymbols::setBoolVariable(LinkTable &lt, int id, int var)
     next->setLabel(donerenorm);
     code.push_back(next);
     //load object pointer into ref register
-    code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
+    if(refVar!=NUL)
+        code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
     code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     code.push_back(new OGotoRegister(new VarArgument(EXP2)));
@@ -209,7 +213,8 @@ vector<Opcode *> LibrarySymbols::setIndexedVariable(LinkTable &lt, int id, int v
     //pop object pointer
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     //load object pointer into ref register
-    code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
+    if(refVar!=NUL)
+        code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
     code.push_back(new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
     code.push_back(new OPopRegister(new VarArgument(EXP2)));
     code.push_back(new OGotoRegister(new VarArgument(EXP2)));
