@@ -7337,7 +7337,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             int destLeft=dest_first%TILES_PER_ROW;
                             int destRight=(dest_first+cols-1)%TILES_PER_ROW;
-                            if(destLeft<destRight)
+                            if(destLeft<=destRight)
                             {
                                 if(st%TILES_PER_ROW<destLeft || st%TILES_PER_ROW>destRight)
                                     reset_tile(newtilebuf, st, tf4Bit);
