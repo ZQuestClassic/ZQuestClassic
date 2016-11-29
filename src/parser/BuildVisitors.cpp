@@ -141,12 +141,16 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
     if(host.getList() != NULL)
     {
         result.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-        result.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(-10000)));
         
-        for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
+        int i=0;
+        for(list<ASTExpr *>::iterator it = host.getList()->getList().begin();
+          it != host.getList()->getList().end();
+          it++, i+=10000)
         {
-            result.push_back(new OAddImmediate(new VarArgument(INDEX2), new LiteralArgument(10000)));
+            result.push_back(new OPushRegister(new VarArgument(INDEX)));
             (*it)->execute(*this, param);
+            result.push_back(new OPopRegister(new VarArgument(INDEX)));
+            result.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i)));
             result.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP1)));
         }
     }
