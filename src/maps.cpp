@@ -64,14 +64,16 @@
 
 //MSVC does not provide a log2 funcion in <cmath>
 #ifdef _MSC_VER
-double log2(double n)
-{
-    return log(n) / log(2.0);
-}
-float log2(float n)
-{
-    return log(n) / log(2.f);
-}
+	#if _MSC_VER < 1900
+		double log2(double n)
+		{
+			return log(n) / log(2.0);
+		}
+		float log2(float n)
+		{
+			return log(n) / log(2.f);
+		}
+	#endif
 #endif
 
 

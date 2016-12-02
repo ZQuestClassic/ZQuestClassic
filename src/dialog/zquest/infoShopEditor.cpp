@@ -14,7 +14,7 @@ InfoShopEditor::InfoShopEditor(infotype& s, const MessageList& ml):
 
 #define CB(func) zc_bind(&InfoShopEditor::func, this)
 #define MLCB(func) zc_bind(&MessageList::func, msgList)
-#define MLCB1(func) zc_bind(&MessageList::func, msgList, _1)
+#define MLCB1(func) zc_bind(&MessageList::func, msgList, zc_placeholder_1)
 
 GUI::Widget* InfoShopEditor::createDialog(const GUI::WidgetFactory& f)
 {

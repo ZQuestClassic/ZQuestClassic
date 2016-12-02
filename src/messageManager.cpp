@@ -42,7 +42,7 @@ void MessageManager::showMessage(int id)
     if(onMessageEnd)
     {
         onMessageEnd();
-        onMessageEnd.clear();
+        clearFunction(onMessageEnd);
     }
     delete activeMessage;
     
@@ -71,7 +71,7 @@ void MessageManager::showDMapIntro(int dmap)
     if(onMessageEnd)
     {
         onMessageEnd();
-        onMessageEnd.clear();
+        clearFunction(onMessageEnd);
     }
     delete activeMessage;
     currMsgStr=0;
@@ -84,7 +84,7 @@ void MessageManager::clear(bool runCallback)
     if(onMessageEnd && runCallback)
     {
         onMessageEnd();
-        onMessageEnd.clear();
+		clearFunction(onMessageEnd);
     }
     delete activeMessage;
     activeMessage=0;
@@ -130,7 +130,7 @@ void MessageManager::update()
                 if(onMessageEnd)
                 {
                     onMessageEnd();
-                    onMessageEnd.clear();
+					clearFunction(onMessageEnd);
                 }
             }
         }
@@ -168,7 +168,7 @@ void MessageManager::update()
                 if(onMessageEnd)
                 {
                     onMessageEnd();
-                    onMessageEnd.clear();
+					clearFunction(onMessageEnd);
                 }
             }
         }
@@ -180,7 +180,7 @@ void MessageManager::switchTo(int msg)
     if(onMessageEnd)
     {
         onMessageEnd();
-        onMessageEnd.clear();
+        clearFunction(onMessageEnd);
     }
     
     if(msg<0 || msg>msg_count)
