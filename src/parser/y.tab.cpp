@@ -198,7 +198,8 @@ enum yytokentype
     PLUS = 326,
     DIVIDE = 327,
     TIMES = 328,
-    MODULO = 329
+    MODULO = 329,
+    COMMENTBLOCK = 330
 };
 #endif
 
@@ -619,7 +620,7 @@ static const char *const yytname[] =
     "QUOTEDSTRING", "SINGLECHAR", "RSHIFT", "LSHIFT", "BITXOR", "BITOR",
     "BITAND", "OR", "AND", "BITNOT", "NOT", "DECREMENT", "INCREMENT", "NE",
     "EQ", "GT", "GE", "LT", "LE", "MINUS", "PLUS", "DIVIDE", "TIMES",
-    "MODULO", "$accept", "Init", "Prog", "GlobalStmt", "ConstDecl",
+    "MODULO", "COMMENTBLOCK", "$accept", "Init", "Prog", "GlobalStmt", "ConstDecl",
     "ArrayDecl", "ArrayList", "Script", "ScriptType", "Import",
     "ScriptBlock", "ScriptStmtList", "ScriptStmt", "VarDecl", "Type",
     "FuncDecl", "ParamList", "Block", "StmtList", "Stmt", "StmtNoSemi",
@@ -643,7 +644,7 @@ static const yytype_uint16 yytoknum[] =
     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
-    325,   326,   327,   328,   329
+    325,   326,   327,   328,   329,	330
 };
 # endif
 

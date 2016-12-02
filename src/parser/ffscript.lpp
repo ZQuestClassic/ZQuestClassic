@@ -90,7 +90,7 @@ eweapon					{doLines(); return EWEAPON;}
 \^				{ doLines(); return BITXOR; }
 \!			{ doLines();return NOT; }
 \%			{ doLines(); return MODULO; }
-
+\/\*			{ commentblock(); }
 
 [_a-zA-Z]([_a-zA-Z]|[0-9])*	{
 						doLines();
@@ -129,3 +129,18 @@ YYLTYPE rval = {yylineno, 0, yylineno, 0};
 yylloc = rval;
 }
  
+
+void commentblock(void) {
+	int c; 
+	
+	while ( ( c = input() ) != 0 ) 
+		if  ( c == '*' ) {
+			while ( ( c = input() == '*' ) 
+				;
+			if ( c == '/' ) 
+				return;
+			if ( c == 0 ) 
+				break;
+		}
+		yyerror("Premature end of comment block. ");
+}

@@ -265,6 +265,7 @@ static AccessorTable GlobalTable[] =
     { "CopyTile",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SwapTile",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "ClearTile",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "OverlayTile",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "GetScriptRAM",           ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SetScriptRAM",           ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "GetGlobalRAM",           ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -673,6 +674,23 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+    
+    
+     //int OverlayTile(int first, int second)
+    {
+        id = memberids["OverlayTile"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(EXP1)));
+        code.push_back(new OOverlayTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+    
     //int SwapTile(int first, int second)
     {
         id = memberids["SwapTile"];

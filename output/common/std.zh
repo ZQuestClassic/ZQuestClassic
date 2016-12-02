@@ -6,4 +6,4 @@
 
 import "std_constants.zh"
 import "std_functions.zh"
-
+import "std.cfg"

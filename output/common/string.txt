@@ -2,6 +2,8 @@
 --- String.zh: string-handling constants and functions ---
 ==========================================================
 
+//13-JUNE-2016
+
 ===============
 -- Constants --
 ===============
@@ -22,6 +24,9 @@ const int MF_CHAR				= 6
  * argument
  * Converted (respectively) from the '%n', '%s', '%i', '%f', '%d', '%p' and '%c'
  * format arguments in sprintf and printf (via the sprintf_MFCodeToInt function)
+ 
+const int CHAR_*
+ * A complete map of all ASCII characters.
 
 ================================
 -- Single Character Functions --
@@ -232,3 +237,42 @@ void sprintf(int ret[], int formatstr[], int a0, int a1, int a2,...)
 void printf(int formatstr[], int a0, int a1, int a2,...)
  * Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
  * Overloaded up to a maximum of 16 arguments
+
+================================================
+-- string.zh Changes and Additions ( 2.50.2 ) --
+================================================
+As of this version, string.zh is a base include with std.zh. You no longer need to call it separately, as it 
+is imported directly from the main std.zh file. If this poses a problem for you, you may comment out that
+import directive instruction. 
+ 
+//Constants for string.zh
+
+const int CHAR_*
+ * ASCII CHaratcers 0 to 255
+ 
+//New Functions for string.zh
+
+bool isSpace(int chr)
+ * Returns true if 'chr' is a space.
+ 
+bool isVowel(int chr)
+ * Returns true if 'chr' is a vowel (a, e, i, o , u, A, E, I, O, U)
+ 
+bool ContainsChar(int chr, int buffer)
+ * Returns true is string 'buffewr' contains the character 'chr'. 
+ 
+int ContainsCharPos(int chr, int buffer)
+* Returns the index position of the first occurrence of charcter 'chr' in string 'buffer'.
+* Returns -1 if the char was not present. 
+
+int NumCharsOf(int str, int chr)
+ * Returns the number of chracters of a given type in a specified string.
+ 
+int ReturnStringCharPos(int str, int chr)
+ * Returns the index of the first character matching 'chr', starting at index 0.
+ 
+int IsChar(int chr) 
+ * Returns the numeric value of chr constant.
+ 
+bool IsChar(int chr, int compare){
+ * Returns true if character chr is identical to the value specified as 'compare'.
