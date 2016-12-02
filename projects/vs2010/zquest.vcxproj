@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{50ACE952-7298-4317-9AC5-F7823095B346}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZQ\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZQ\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/output\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/ZQ\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>pthread.lib;Ws2_32.lib;aldmd.lib;dumbd.lib;almp3.lib;alogg.lib;gme.lib;libjpgal.lib;loadpng.lib;zlibd.lib;libpng.lib;al_gif.lib;alld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)zquest.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\..\libs\win32dbg;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)zquest.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;pthread.lib;alleg_crt.lib;aldmb.lib;dumb.lib;almp3.lib;alogg.lib;alspc.lib;gme.lib;al_gif.lib;libjpgal.lib;libpng.lib;loadpng.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zquest-w.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\..\libs\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\colors.cpp" />
+    <ClCompile Include="..\..\defdata.cpp" />
+    <ClCompile Include="..\..\editbox.cpp" />
+    <ClCompile Include="..\..\EditboxModel.cpp" />
+    <ClCompile Include="..\..\EditboxView.cpp" />
+    <ClCompile Include="..\..\ffasm.cpp" />
+    <ClCompile Include="..\..\gamedata.cpp" />
+    <ClCompile Include="..\..\gui.cpp" />
+    <ClCompile Include="..\..\init.cpp" />
+    <ClCompile Include="..\..\items.cpp" />
+    <ClCompile Include="..\..\jwin.cpp" />
+    <ClCompile Include="..\..\jwinfsel.cpp" />
+    <ClCompile Include="..\..\load_gif.cpp" />
+    <ClCompile Include="..\..\md5.cpp" />
+    <ClCompile Include="..\..\midi.cpp" />
+    <ClCompile Include="..\..\particles.cpp" />
+    <ClCompile Include="..\..\qst.cpp" />
+    <ClCompile Include="..\..\save_gif.cpp" />
+    <ClCompile Include="..\..\sprite.cpp" />
+    <ClCompile Include="..\..\Subscr.cpp" />
+    <ClCompile Include="..\..\tab_ctl.cpp" />
+    <ClCompile Include="..\..\tiles.cpp" />
+    <ClCompile Include="..\..\win32.cpp" />
+    <ClCompile Include="..\..\zc_custom.cpp" />
+    <ClCompile Include="..\..\zcmusic.cpp" />
+    <ClCompile Include="..\..\zcmusicd.cpp" />
+    <ClCompile Include="..\..\zq_class.cpp" />
+    <ClCompile Include="..\..\zq_cset.cpp" />
+    <ClCompile Include="..\..\zq_custom.cpp" />
+    <ClCompile Include="..\..\zq_doors.cpp" />
+    <ClCompile Include="..\..\zq_files.cpp" />
+    <ClCompile Include="..\..\zq_init.cpp" />
+    <ClCompile Include="..\..\zq_items.cpp" />
+    <ClCompile Include="..\..\zq_misc.cpp" />
+    <ClCompile Include="..\..\zq_rules.cpp" />
+    <ClCompile Include="..\..\zq_sprite.cpp" />
+    <ClCompile Include="..\..\zq_subscr.cpp" />
+    <ClCompile Include="..\..\zq_tiles.cpp" />
+    <ClCompile Include="..\..\zqscale.cpp" />
+    <ClCompile Include="..\..\zquest.cpp" />
+    <ClCompile Include="..\..\zsys.cpp" />
+    <ClCompile Include="..\..\parser\AST.cpp" />
+    <ClCompile Include="..\..\parser\BuildVisitors.cpp" />
+    <ClCompile Include="..\..\parser\ByteCode.cpp" />
+    <ClCompile Include="..\..\parser\DataStructs.cpp" />
+    <ClCompile Include="..\..\parser\GlobalSymbols.cpp" />
+    <ClCompile Include="..\..\parser\lex.yy.cpp" />
+    <ClCompile Include="..\..\parser\ParseError.cpp" />
+    <ClCompile Include="..\..\parser\ScriptParser.cpp" />
+    <ClCompile Include="..\..\parser\SymbolVisitors.cpp" />
+    <ClCompile Include="..\..\parser\TypeChecker.cpp" />
+    <ClCompile Include="..\..\parser\UtilVisitors.cpp" />
+    <ClCompile Include="..\..\parser\y.tab.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\parser\ffscript.lpp" />
+    <None Include="..\..\parser\ffscript.ypp" />
+    <CustomBuildStep Include="..\..\output\common\std.zh">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+    <CustomBuildStep Include="TEST.z">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\output\common\zscript.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\aglogo.h" />
+    <ClInclude Include="..\..\colors.h" />
+    <ClInclude Include="..\..\debug.h" />
+    <ClInclude Include="..\..\decorations.h" />
+    <ClInclude Include="..\..\defdata.h" />
+    <ClInclude Include="..\..\editbox.h" />
+    <ClInclude Include="..\..\EditboxNew.h" />
+    <ClInclude Include="..\..\ending.h" />
+    <ClInclude Include="..\..\ffscript.h" />
+    <ClInclude Include="..\..\font.h" />
+    <ClInclude Include="..\..\fontsdat.h" />
+    <ClInclude Include="..\..\gamedata.h" />
+    <ClInclude Include="..\..\gfxpal.h" />
+    <ClInclude Include="..\..\gui.h" />
+    <ClInclude Include="..\..\guys.h" />
+    <ClInclude Include="..\..\init.h" />
+    <ClInclude Include="..\..\items.h" />
+    <ClInclude Include="..\..\jwin.h" />
+    <ClInclude Include="..\..\jwinfsel.h" />
+    <ClInclude Include="..\..\link.h" />
+    <ClInclude Include="..\..\load_gif.h" />
+    <ClInclude Include="..\..\map_helper.h" />
+    <ClInclude Include="..\..\maps.h" />
+    <ClInclude Include="..\..\matrix.h" />
+    <ClInclude Include="..\..\md5.h" />
+    <ClInclude Include="..\..\midi.h" />
+    <ClInclude Include="..\..\pal.h" />
+    <ClInclude Include="..\..\particles.h" />
+    <ClInclude Include="..\..\qst.h" />
+    <ClInclude Include="..\..\resource.h" />
+    <ClInclude Include="..\..\save_gif.h" />
+    <ClInclude Include="..\..\sfx.h" />
+    <ClInclude Include="..\..\sprite.h" />
+    <ClInclude Include="..\..\subscr.h" />
+    <ClInclude Include="..\..\tab_ctl.h" />
+    <ClInclude Include="..\..\tiles.h" />
+    <ClInclude Include="..\..\title.h" />
+    <ClInclude Include="..\..\weapons.h" />
+    <ClInclude Include="..\..\win32.h" />
+    <ClInclude Include="..\..\zc_alleg.h" />
+    <ClInclude Include="..\..\zc_custom.h" />
+    <ClInclude Include="..\..\zc_init.h" />
+    <ClInclude Include="..\..\zc_subscr.h" />
+    <ClInclude Include="..\..\zc_sys.h" />
+    <ClInclude Include="..\..\zcmusic.h" />
+    <ClInclude Include="..\..\zdefs.h" />
+    <ClInclude Include="..\..\zelda.h" />
+    <ClInclude Include="..\..\zeldadat.h" />
+    <ClInclude Include="..\..\zq_class.h" />
+    <ClInclude Include="..\..\zq_cset.h" />
+    <ClInclude Include="..\..\zq_custom.h" />
+    <ClInclude Include="..\..\zq_doors.h" />
+    <ClInclude Include="..\..\zq_files.h" />
+    <ClInclude Include="..\..\zq_init.h" />
+    <ClInclude Include="..\..\zq_misc.h" />
+    <ClInclude Include="..\..\zq_rules.h" />
+    <ClInclude Include="..\..\zq_subscr.h" />
+    <ClInclude Include="..\..\zq_tiles.h" />
+    <ClInclude Include="..\..\zqscale.h" />
+    <ClInclude Include="..\..\zquest.h" />
+    <ClInclude Include="..\..\zquestdat.h" />
+    <ClInclude Include="..\..\zsys.h" />
+    <ClInclude Include="..\..\zsyssimple.h" />
+    <ClInclude Include="..\..\parser\AST.h" />
+    <ClInclude Include="..\..\parser\bisontypes.h" />
+    <ClInclude Include="..\..\parser\BuildVisitors.h" />
+    <ClInclude Include="..\..\parser\ByteCode.h" />
+    <ClInclude Include="..\..\parser\Compiler.h" />
+    <ClInclude Include="..\..\parser\DataStructs.h" />
+    <ClInclude Include="..\..\parser\GlobalSymbols.h" />
+    <ClInclude Include="..\..\parser\ParseError.h" />
+    <ClInclude Include="..\..\parser\ScriptParser.h" />
+    <ClInclude Include="..\..\parser\SymbolVisitors.h" />
+    <ClInclude Include="..\..\parser\TypeChecker.h" />
+    <ClInclude Include="..\..\parser\UtilVisitors.h" />
+    <ClInclude Include="..\..\parser\y.tab.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\zq_icon.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

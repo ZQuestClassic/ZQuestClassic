@@ -4,7 +4,6 @@
 	Version="9.00"
 	Name="zc"
 	ProjectGUID="{C716DE8B-1181-4B5D-947C-F8233C562464}"
-	RootNamespace="zc"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -42,14 +41,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src"
+				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough="precompiled.h"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
@@ -64,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthread.lib Ws2_32.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib aldmd.lib dumbd.lib almp3.lib alogg.lib gme.lib &quot;..\..\libs\win32\alleg_crt.lib&quot;"
+				AdditionalDependencies="pthread.lib Ws2_32.lib aldmd.lib dumbd.lib almp3.lib alogg.lib gme.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib alld.lib"
 				OutputFile="$(OutDir)/zc.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/win32dbg;"
@@ -126,19 +124,19 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src"
-				PreprocessorDefinitions="ZCM_DLL_IMPORT;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;PTW32_STATIC_LIB"
+				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;PTW32_STATIC_LIB"
 				MinimalRebuild="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="2"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="0"
 				Detect64BitPortabilityProblems="false"
@@ -155,7 +153,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zcsound.lib Ws2_32.lib pthread.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib alleg_crt.lib"
+				AdditionalDependencies="Ws2_32.lib pthread.lib aldmb.lib dumb.lib almp3.lib alogg.lib alspc.lib gme.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib alleg_crt.lib"
 				OutputFile="$(OutDir)/zelda-w.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="../../libs/win32"
@@ -203,259 +201,58 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\aglogo.cpp"
+				RelativePath="..\..\aglogo.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\colors.cpp"
+				RelativePath="..\..\colors.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\debug.cpp"
+				RelativePath="..\..\debug.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\decorations.cpp"
+				RelativePath="..\..\decorations.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\defdata.cpp"
+				RelativePath="..\..\defdata.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\editbox.cpp"
+				RelativePath="..\..\editbox.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxModel.cpp"
+				RelativePath="..\..\EditboxModel.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxView.cpp"
+				RelativePath="..\..\EditboxView.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\ending.cpp"
+				RelativePath="..\..\ending.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\ffscript.cpp"
+				RelativePath="..\..\ffscript.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\gamedata.cpp"
+				RelativePath="..\..\gamedata.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\gui.cpp"
+				RelativePath="..\..\gui.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\guys.cpp"
+				RelativePath="..\..\guys.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -464,259 +261,46 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\init.cpp"
+				RelativePath="..\..\init.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\items.cpp"
+				RelativePath="..\..\items.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\jwin.cpp"
+				RelativePath="..\..\jwin.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\jwinfsel.cpp"
+				RelativePath="..\..\jwinfsel.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\link.cpp"
+				RelativePath="..\..\link.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\maps.cpp"
+				RelativePath="..\..\maps.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\matrix.cpp"
+				RelativePath="..\..\matrix.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\md5.cpp"
+				RelativePath="..\..\md5.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\messageManager.cpp"
+				RelativePath="..\..\midi.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\messageRenderer.cpp"
+				RelativePath="..\..\pal.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\src\messageStream.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\src\midi.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\src\pal.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -725,179 +309,42 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\particles.cpp"
+				RelativePath="..\..\particles.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\qst.cpp"
+				RelativePath="..\..\qst.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\script_drawing.cpp"
+				RelativePath="..\..\script_drawing.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\sprite.cpp"
+				RelativePath="..\..\sprite.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\subscr.cpp"
+				RelativePath="..\..\subscr.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\tab_ctl.cpp"
+				RelativePath="..\..\tab_ctl.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\tiles.cpp"
+				RelativePath="..\..\tiles.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\title.cpp"
+				RelativePath="..\..\title.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\weapons.cpp"
+				RelativePath="..\..\weapons.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -906,1001 +353,49 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\win32.cpp"
+				RelativePath="..\..\win32.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_custom.cpp"
+				RelativePath="..\..\zc_custom.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_init.cpp"
+				RelativePath="..\..\zc_init.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_items.cpp"
+				RelativePath="..\..\zc_items.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_sprite.cpp"
+				RelativePath="..\..\zc_sprite.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_subscr.cpp"
+				RelativePath="..\..\zc_subscr.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_sys.cpp"
+				RelativePath="..\..\zc_sys.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zelda.cpp"
+				RelativePath="..\..\zcmusic.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zscriptversion.cpp"
+				RelativePath="..\..\zelda.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zsys.cpp"
+				RelativePath="..\..\zscriptversion.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
-			<Filter
-				Name="item"
+			<File
+				RelativePath="..\..\zsys.cpp"
 				>
-				<File
-					RelativePath="..\..\src\item\dinsFire.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\item\faroresWind.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\item\nayrusLove.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="gui"
-				>
-				<File
-					RelativePath="..\..\src\gui\alert.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\contents.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\controller.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\dialog.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\manager.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<Filter
-					Name="allegroGui"
-					>
-					<File
-						RelativePath="..\..\src\gui\allegro\bitmap.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\button.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\checkbox.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\column.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\comboBox.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\common.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\controller.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\dummy.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\editableText.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\factory.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\frame.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\list.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\renderer.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\row.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\scrollbar.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\scrollingPane.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\serialContainer.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\standardWidget.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\tab.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\tabBar.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\tabPanel.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\text.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\textField.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\window.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-				</Filter>
-			</Filter>
-			<Filter
-				Name="sequence"
-				>
-				<File
-					RelativePath="..\..\src\sequence\gameOver.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\ganonIntro.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\getBigTriforce.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\getTriforce.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\potion.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\sequence.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\whistle.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -1908,7 +403,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\src\precompiled.cpp"
+				RelativePath="..\..\precompiled.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1920,7 +415,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\precompiled.h"
+				RelativePath="..\..\precompiled.h"
 				>
 			</File>
 			<File
@@ -1934,576 +429,272 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\src\aglogo.h"
+				RelativePath="..\..\aglogo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\colors.h"
+				RelativePath="..\..\colors.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\debug.h"
+				RelativePath="..\..\debug.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\decorations.h"
+				RelativePath="..\..\decorations.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\defdata.h"
+				RelativePath="..\..\defdata.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\editbox.h"
+				RelativePath="..\..\editbox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\ending.h"
+				RelativePath="..\..\ending.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\font.h"
+				RelativePath="..\..\font.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\fontsdat.h"
+				RelativePath="..\..\fontsdat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gamedata.h"
+				RelativePath="..\..\gamedata.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gc.h"
+				RelativePath="..\..\gc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gfxpal.h"
+				RelativePath="..\..\gfxpal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gui.h"
+				RelativePath="..\..\gui.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\guys.h"
+				RelativePath="..\..\guys.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\init.h"
+				RelativePath="..\..\init.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\items.h"
+				RelativePath="..\..\items.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\jwin.h"
+				RelativePath="..\..\jwin.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\jwinfsel.h"
+				RelativePath="..\..\jwinfsel.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\link.h"
+				RelativePath="..\..\link.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\load_gif.h"
+				RelativePath="..\..\load_gif.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\maps.h"
+				RelativePath="..\..\maps.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\matrix.h"
+				RelativePath="..\..\matrix.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\md5.h"
+				RelativePath="..\..\md5.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\mem_debug.h"
+				RelativePath="..\..\mem_debug.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\messageManager.h"
+				RelativePath="..\..\midi.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\messageRenderer.h"
+				RelativePath="..\..\pal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\messageStream.h"
+				RelativePath="..\..\particles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\midi.h"
+				RelativePath="..\..\qst.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\pal.h"
+				RelativePath="..\..\rendertarget.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\particles.h"
+				RelativePath="..\..\save_gif.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\qst.h"
+				RelativePath="..\..\script_drawing.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\rendertarget.h"
+				RelativePath="..\..\sfx.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\save_gif.h"
+				RelativePath="..\..\sprite.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\script_drawing.h"
+				RelativePath="..\..\subscr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\sfx.h"
+				RelativePath="..\..\tab_ctl.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\sprite.h"
+				RelativePath="..\..\tiles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\subscr.h"
+				RelativePath="..\..\title.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\tab_ctl.h"
+				RelativePath="..\..\vectorset.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\tiles.h"
+				RelativePath="..\..\weapons.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\title.h"
+				RelativePath="..\..\zc_alleg.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\vectorset.h"
+				RelativePath="..\..\zc_array.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\weapons.h"
+				RelativePath="..\..\zc_custom.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_alleg.h"
+				RelativePath="..\..\zc_init.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_array.h"
+				RelativePath="..\..\zc_malloc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_custom.h"
+				RelativePath="..\..\zc_math.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_init.h"
+				RelativePath="..\..\zc_subscr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_malloc.h"
+				RelativePath="..\..\zc_sys.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_math.h"
+				RelativePath="..\..\zc_vec2.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_subscr.h"
+				RelativePath="..\..\zcmusic.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_sys.h"
+				RelativePath="..\..\zconsole.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_vec2.h"
+				RelativePath="..\..\zdefs.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zconsole.h"
+				RelativePath="..\..\zelda.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zdefs.h"
+				RelativePath="..\..\zeldadat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zelda.h"
+				RelativePath="..\..\zq_class.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zeldadat.h"
+				RelativePath="..\..\zq_cset.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_class.h"
+				RelativePath="..\..\zq_custom.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_cset.h"
+				RelativePath="..\..\zq_doors.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_custom.h"
+				RelativePath="..\..\zq_files.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_doors.h"
+				RelativePath="..\..\zq_init.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_files.h"
+				RelativePath="..\..\zq_misc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_init.h"
+				RelativePath="..\..\zq_rules.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_misc.h"
+				RelativePath="..\..\zq_subscr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_rules.h"
+				RelativePath="..\..\zq_tiles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_subscr.h"
+				RelativePath="..\..\zquest.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_tiles.h"
+				RelativePath="..\..\zquestdat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zquest.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\zquestdat.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\zsys.h"
-				>
-			</File>
-			<Filter
-				Name="item"
-				>
-				<File
-					RelativePath="..\..\src\item\dinsFire.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\item\faroresWind.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\item\itemAction.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\item\nayrusLove.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="gui"
-				>
-				<File
-					RelativePath="..\..\src\gui\alert.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\bitmap.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\button.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\checkbox.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\contents.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\controller.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\dialog.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\factory.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\key.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\list.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\manager.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\menu.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\menuItem.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\mouse.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\serialContainer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\spinner.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\tabPanel.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\text.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\textBox.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\textField.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\widget.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gui\window.h"
-					>
-				</File>
-				<Filter
-					Name="allegroGui"
-					>
-					<File
-						RelativePath="..\..\src\gui\allegro\bitmap.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\button.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\checkbox.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\column.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\comboBox.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\common.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\controller.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\dummy.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\editableText.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\factory.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\frame.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\list.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\manager.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\renderer.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\row.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\scrollbar.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\scrollingPane.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\serialContainer.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\standardWidget.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\tab.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\tabBar.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\tabPanel.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\text.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\textField.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\widget.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gui\allegro\window.h"
-						>
-					</File>
-				</Filter>
-			</Filter>
-			<Filter
-				Name="angelscript"
-				>
-				<File
-					RelativePath="..\..\src\angelscript\aszc.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\angelscript\scriptData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\angelscript\util.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="sequence"
-				>
-				<File
-					RelativePath="..\..\src\sequence\gameOver.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\ganonIntro.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\getBigTriforce.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\getTriforce.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\potion.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\sequence.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\sequence\whistle.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="Modules"
-			>
-			<File
-				RelativePath="..\..\src\build_modules\gui_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zc_gui_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zc_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zc_objects_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zc_sprite_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zc_subscreen_module.cpp"
+				RelativePath="..\..\zsys.h"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\src\VTune\zc.vpj"
+			RelativePath="..\..\VTune\zc.vpj"
 			>
 		</File>
 	</Files>

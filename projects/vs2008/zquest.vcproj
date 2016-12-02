@@ -41,13 +41,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src"
-				PreprocessorDefinitions="ZQUEST;ZCM_DLL_IMPORT;_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB"
+				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS,_ZQUEST_SCALE_;PTW32_STATIC_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthread.lib Ws2_32.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib &quot;..\..\libs\win32\alleg_crt.lib&quot; &quot;..\..\libs\win32\zcsound.lib&quot;"
+				AdditionalDependencies="pthread.lib Ws2_32.lib aldmd.lib dumbd.lib almp3.lib alogg.lib gme.lib libjpgal.lib loadpng.lib zlibd.lib libpng.lib al_gif.lib alld.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)/zquest.exe"
 				LinkIncremental="2"
@@ -122,13 +122,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="1"
-				InlineFunctionExpansion="1"
+				Optimization="2"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="2"
+				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;..\..\src"
-				PreprocessorDefinitions="ZCM_DLL_IMPORT;_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;_RELEASE;NDEBUG"
+				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;_RELEASE;NDEBUG"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="true"
@@ -149,7 +149,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pthread.lib alleg_crt.lib zcsound.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib"
+				AdditionalDependencies="Ws2_32.lib pthread.lib alleg_crt.lib aldmb.lib dumb.lib almp3.lib alogg.lib alspc.lib gme.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib"
 				OutputFile="$(OutDir)/zquest-w.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\libs\win32"
@@ -195,1228 +195,228 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\callback.cpp"
+				RelativePath="..\..\colors.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\colors.cpp"
+				RelativePath="..\..\defdata.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\defdata.cpp"
+				RelativePath="..\..\editbox.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\editbox.cpp"
+				RelativePath="..\..\EditboxModel.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxModel.cpp"
+				RelativePath="..\..\EditboxView.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxView.cpp"
+				RelativePath="..\..\ffasm.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\ffasm.cpp"
+				RelativePath="..\..\gamedata.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\gamedata.cpp"
+				RelativePath="..\..\gui.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\gui.cpp"
+				RelativePath="..\..\init.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\init.cpp"
+				RelativePath="..\..\items.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\items.cpp"
+				RelativePath="..\..\jwin.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\jwin.cpp"
+				RelativePath="..\..\jwinfsel.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\jwinfsel.cpp"
+				RelativePath="..\..\load_gif.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\load_gif.cpp"
+				RelativePath="..\..\md5.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\md5.cpp"
+				RelativePath="..\..\midi.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\midi.cpp"
+				RelativePath="..\..\particles.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\particles.cpp"
+				RelativePath="..\..\qst.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\qst.cpp"
+				RelativePath="..\..\save_gif.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\save_gif.cpp"
+				RelativePath="..\..\sprite.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\sprite.cpp"
+				RelativePath="..\..\Subscr.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\Subscr.cpp"
+				RelativePath="..\..\tab_ctl.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\tab_ctl.cpp"
+				RelativePath="..\..\tiles.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\tiles.cpp"
+				RelativePath="..\..\win32.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\win32.cpp"
+				RelativePath="..\..\zc_custom.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_custom.cpp"
+				RelativePath="..\..\zcmusic.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_class.cpp"
+				RelativePath="..\..\zcmusicd.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_cset.cpp"
+				RelativePath="..\..\zq_class.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_custom.cpp"
+				RelativePath="..\..\zq_cset.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_doors.cpp"
+				RelativePath="..\..\zq_custom.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_files.cpp"
+				RelativePath="..\..\zq_doors.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_init.cpp"
+				RelativePath="..\..\zq_files.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_items.cpp"
+				RelativePath="..\..\zq_init.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_misc.cpp"
+				RelativePath="..\..\zq_items.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_rules.cpp"
+				RelativePath="..\..\zq_misc.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_sprite.cpp"
+				RelativePath="..\..\zq_rules.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_subscr.cpp"
+				RelativePath="..\..\zq_sprite.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_tiles.cpp"
+				RelativePath="..\..\zq_subscr.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zqscale.cpp"
+				RelativePath="..\..\zq_tiles.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zquest.cpp"
+				RelativePath="..\..\zqscale.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\zsys.cpp"
+				RelativePath="..\..\zquest.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\zsys.cpp"
+				>
 			</File>
 			<Filter
 				Name="compiler"
 				>
 				<File
-					RelativePath="..\..\src\parser\AST.cpp"
+					RelativePath="..\..\parser\AST.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\BuildVisitors.cpp"
+					RelativePath="..\..\parser\BuildVisitors.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ByteCode.cpp"
+					RelativePath="..\..\parser\ByteCode.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\DataStructs.cpp"
+					RelativePath="..\..\parser\DataStructs.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ffscript.lpp"
+					RelativePath="..\..\parser\ffscript.lpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ffscript.ypp"
+					RelativePath="..\..\parser\ffscript.ypp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\GlobalSymbols.cpp"
+					RelativePath="..\..\parser\GlobalSymbols.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\lex.yy.cpp"
+					RelativePath="..\..\parser\lex.yy.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ParseError.cpp"
+					RelativePath="..\..\parser\ParseError.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ScriptParser.cpp"
+					RelativePath="..\..\parser\ScriptParser.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\SymbolVisitors.cpp"
+					RelativePath="..\..\parser\SymbolVisitors.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\TypeChecker.cpp"
+					RelativePath="..\..\parser\TypeChecker.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\UtilVisitors.cpp"
+					RelativePath="..\..\parser\UtilVisitors.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\y.tab.cpp"
+					RelativePath="..\..\parser\y.tab.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
-			</Filter>
-			<Filter
-				Name="dialog"
-				>
-				<Filter
-					Name="zquest"
-					>
-					<File
-						RelativePath="..\..\src\dialog\zquest\cheatEditor.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\infoShopEditor.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\paletteViewer.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\questRules.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\shopEditor.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\simpleListSelector.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\tileSelector.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\tileSelectorBackend.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\zscriptEditor.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\zscriptMain.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-				</Filter>
-				<Filter
-					Name="bitmap"
-					>
-					<File
-						RelativePath="..\..\src\dialog\bitmap\tilePreview.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\bitmap\tileSelector.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -1425,372 +425,312 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\src\aglogo.h"
+				RelativePath="..\..\aglogo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\colors.h"
+				RelativePath="..\..\colors.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\debug.h"
+				RelativePath="..\..\debug.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\decorations.h"
+				RelativePath="..\..\decorations.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\defdata.h"
+				RelativePath="..\..\defdata.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\editbox.h"
+				RelativePath="..\..\editbox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxNew.h"
+				RelativePath="..\..\EditboxNew.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\ending.h"
+				RelativePath="..\..\ending.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\ffscript.h"
+				RelativePath="..\..\ffscript.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\font.h"
+				RelativePath="..\..\font.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\fontsdat.h"
+				RelativePath="..\..\fontsdat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gamedata.h"
+				RelativePath="..\..\gamedata.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gfxpal.h"
+				RelativePath="..\..\gfxpal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gui.h"
+				RelativePath="..\..\gui.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\guys.h"
+				RelativePath="..\..\guys.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\init.h"
+				RelativePath="..\..\init.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\items.h"
+				RelativePath="..\..\items.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\jwin.h"
+				RelativePath="..\..\jwin.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\jwinfsel.h"
+				RelativePath="..\..\jwinfsel.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\link.h"
+				RelativePath="..\..\link.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\load_gif.h"
+				RelativePath="..\..\load_gif.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\map_helper.h"
+				RelativePath="..\..\map_helper.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\maps.h"
+				RelativePath="..\..\maps.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\matrix.h"
+				RelativePath="..\..\matrix.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\md5.h"
+				RelativePath="..\..\md5.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\midi.h"
+				RelativePath="..\..\midi.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\pal.h"
+				RelativePath="..\..\pal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\particles.h"
+				RelativePath="..\..\particles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\qst.h"
+				RelativePath="..\..\qst.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\resource.h"
+				RelativePath="..\..\resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\save_gif.h"
+				RelativePath="..\..\save_gif.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\sfx.h"
+				RelativePath="..\..\sfx.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\sprite.h"
+				RelativePath="..\..\sprite.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\subscr.h"
+				RelativePath="..\..\subscr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\tab_ctl.h"
+				RelativePath="..\..\tab_ctl.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\tiles.h"
+				RelativePath="..\..\tiles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\title.h"
+				RelativePath="..\..\title.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\weapons.h"
+				RelativePath="..\..\weapons.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\win32.h"
+				RelativePath="..\..\win32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_alleg.h"
+				RelativePath="..\..\zc_alleg.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_custom.h"
+				RelativePath="..\..\zc_custom.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_init.h"
+				RelativePath="..\..\zc_init.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_subscr.h"
+				RelativePath="..\..\zc_subscr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zc_sys.h"
+				RelativePath="..\..\zc_sys.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zcmusic.h"
+				RelativePath="..\..\zcmusic.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zdefs.h"
+				RelativePath="..\..\zdefs.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zelda.h"
+				RelativePath="..\..\zelda.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zeldadat.h"
+				RelativePath="..\..\zeldadat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_class.h"
+				RelativePath="..\..\zq_class.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_cset.h"
+				RelativePath="..\..\zq_cset.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_custom.h"
+				RelativePath="..\..\zq_custom.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_doors.h"
+				RelativePath="..\..\zq_doors.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_files.h"
+				RelativePath="..\..\zq_files.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_init.h"
+				RelativePath="..\..\zq_init.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_misc.h"
+				RelativePath="..\..\zq_misc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_rules.h"
+				RelativePath="..\..\zq_rules.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_subscr.h"
+				RelativePath="..\..\zq_subscr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zq_tiles.h"
+				RelativePath="..\..\zq_tiles.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zqscale.h"
+				RelativePath="..\..\zqscale.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zquest.h"
+				RelativePath="..\..\zquest.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zquestdat.h"
+				RelativePath="..\..\zquestdat.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zsys.h"
+				RelativePath="..\..\zsys.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zsyssimple.h"
+				RelativePath="..\..\zsyssimple.h"
 				>
 			</File>
 			<Filter
 				Name="Compiler"
 				>
 				<File
-					RelativePath="..\..\src\parser\AST.h"
+					RelativePath="..\..\parser\AST.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\bisontypes.h"
+					RelativePath="..\..\parser\bisontypes.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\BuildVisitors.h"
+					RelativePath="..\..\parser\BuildVisitors.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ByteCode.h"
+					RelativePath="..\..\parser\ByteCode.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\Compiler.h"
+					RelativePath="..\..\parser\Compiler.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\DataStructs.h"
+					RelativePath="..\..\parser\DataStructs.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\GlobalSymbols.h"
+					RelativePath="..\..\parser\GlobalSymbols.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ParseError.h"
+					RelativePath="..\..\parser\ParseError.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\ScriptParser.h"
+					RelativePath="..\..\parser\ScriptParser.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\SymbolVisitors.h"
+					RelativePath="..\..\parser\SymbolVisitors.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\TypeChecker.h"
+					RelativePath="..\..\parser\TypeChecker.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\UtilVisitors.h"
+					RelativePath="..\..\parser\UtilVisitors.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\parser\y.tab.hpp"
+					RelativePath="..\..\parser\y.tab.hpp"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="dialog"
-				>
-				<Filter
-					Name="bitmap"
-					>
-					<File
-						RelativePath="..\..\src\dialog\bitmap\tilePreview.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\bitmap\tileSelector.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="zquest"
-					>
-					<File
-						RelativePath="..\..\src\dialog\zquest\cheatEditor.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\infoShopEditor.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\paletteViewer.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\questRules.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\shopEditor.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\simpleListSelector.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\tileSelector.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\tileSelectorBackend.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\zscriptEditor.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\dialog\zquest\zscriptMain.h"
-						>
-					</File>
-				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -1799,36 +739,44 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath="..\..\output\common\std.zh"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\TEST.z"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\zq_icon.rc"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Modules"
-			>
 			<File
-				RelativePath="..\..\src\build_modules\gui_module.cpp"
+				RelativePath="..\..\output\common\zscript.txt"
 				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zq_dialog_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zq_gui_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zq_misc_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zq_module.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\build_modules\zq_script_module.cpp"
-				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>
