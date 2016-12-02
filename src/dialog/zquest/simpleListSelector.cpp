@@ -29,7 +29,7 @@ SimpleListSelector::SimpleListSelector(const std::string& t,
 }
 
 #define CB(func) zc_bind(&SimpleListSelector::func, this)
-#define CB1(func) zc_bind(&SimpleListSelector::func, this, _1)
+#define CB1(func) zc_bind(&SimpleListSelector::func, this, zc_placeholder_1)
 
 GUI::Widget* SimpleListSelector::createDialog(const GUI::WidgetFactory& f)
 {

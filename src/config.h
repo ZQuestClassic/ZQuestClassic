@@ -13,8 +13,14 @@
 	#define ZC_HAS_CPP11 1
 #else
 	#define ZC_HAS_CPP0X 0
-	#define ZC_HAS_CPP11 0
+	#if _MSC_VER >= 1900
+		#define ZC_HAS_CPP11 1
+	#else
+		#define ZC_HAS_CPP11 0
+	#endif
 #endif
+
+
 
 // VC++
 #if defined(_MSC_VER)

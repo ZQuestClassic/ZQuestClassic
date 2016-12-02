@@ -53,7 +53,7 @@ GUI::Widget* TileSelector::createDialog(const GUI::WidgetFactory& f)
     );
     
     pageSelector->setOnValueChanged(
-      zc_bind(&TileSelectorBackend::setPage, &backend, _1, false));
+      zc_bind(&TileSelectorBackend::setPage, &backend, zc_placeholder_1, false));
     
     onPageChanged();
     onCSetChanged();

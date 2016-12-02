@@ -31,7 +31,7 @@ AllegroComboBox::AllegroComboBox(const ListData* ld, const AllegroWidgetFactory&
     data(ld),
     selected(-1)
 {
-    list->setOnValueChanged(zc_bind(&AllegroComboBox::selectionChanged, this, _1));
+    list->setOnValueChanged(zc_bind(&AllegroComboBox::selectionChanged, this, zc_placeholder_1));
 }
 
 AllegroComboBox::~AllegroComboBox()

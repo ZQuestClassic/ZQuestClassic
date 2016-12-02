@@ -141,6 +141,12 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #define snprintf _snprintf
 #endif
 
+// MSVC fix
+#if _MSC_VER >= 1900
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+
 #include "messageList.h"
 #include "dialog/zquest/cheatEditor.h"
 #include "dialog/zquest/infoShopEditor.h"

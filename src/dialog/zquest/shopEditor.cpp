@@ -18,8 +18,8 @@ ShopEditor::ShopEditor(shoptype& s, const item_struct* il):
 }
 
 #define CB(func) zc_bind(&ShopEditor::func, this)
-#define CB1(func) zc_bind(&ShopEditor::func, this, _1)
-#define CBID1(func, id) zc_bind(&ShopEditor::func, this, id, _1)
+#define CB1(func) zc_bind(&ShopEditor::func, this, zc_placeholder_1)
+#define CBID1(func, id) zc_bind(&ShopEditor::func, this, id, zc_placeholder_1)
 
 GUI::Widget* ShopEditor::createDialog(const GUI::WidgetFactory& f)
 {
