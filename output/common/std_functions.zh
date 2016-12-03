@@ -345,6 +345,9 @@ void SetLayerComboT(int layer, int pos, int type) {
 int GetLayerComboS(int layer, int pos) {
   if (layer==0)
     return Screen->ComboS[pos];
+  else if(Screen->LayerMap(layer)<0)
+    // Special case for this one: return 0 if there's no layer
+    return 0;
   else
     return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 }
@@ -1639,13 +1642,13 @@ bool IsSideview() {
 //by ZC's internal code.
 //For 16 pixel high sprites only.
 bool OnSidePlatform(int x, int y) {
-    return (Screen->isSolid(x+4,y+16) && Screen->isSolid(x+12,y+16) && Screen->Flags[SF_ROOMTYPE]&4);
+    return ((Screen->isSolid(x+4,y+16) || Screen->isSolid(x+12,y+16)) && Screen->Flags[SF_ROOMTYPE]&4);
 }
 
 //Returns true if a sprite of height 'h' at position (x,y) with an offset of (xOff,yOff) is standing
 //on a sideview platform on a sideview screen.
 bool OnSidePlatform(int x, int y, int xOff, int yOff, int h) {
-    return (Screen->isSolid((x+xOff)+4,(y+yOff)+h) && Screen->isSolid((x+xOff)+12,(y+yOff)+h) && Screen->Flags[SF_ROOMTYPE]&4);
+    return ((Screen->isSolid((x+xOff)+4,(y+yOff)+h) || Screen->isSolid((x+xOff)+12,(y+yOff)+h)) && Screen->Flags[SF_ROOMTYPE]&4);
 }
 
 //Kills all of Link's inputs
