@@ -2608,7 +2608,7 @@ else \
             else ret=TheMaps[scr].data[pos]*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2631,7 +2631,7 @@ else \
             else ret=TheMaps[scr].cset[pos]*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2654,7 +2654,7 @@ else \
             else ret=TheMaps[scr].sflag[pos]*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2678,7 +2678,7 @@ else \
                              TheMaps[scr].data[pos]].type*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2701,7 +2701,7 @@ else \
             else ret=combobuf[TheMaps[scr].data[pos]].flag*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2724,7 +2724,7 @@ else \
             else ret=(combobuf[TheMaps[scr].data[pos]].walk&15)*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
