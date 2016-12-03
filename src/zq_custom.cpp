@@ -1656,10 +1656,10 @@ static MENU ilist_rclick_menu[] =
 
 void ilist_rclick_func(int index, int x, int y)
 {
-    if(index==0)
+    if(bii[index].i<0) // Clicked (none)?
         return;
     
-    if(copiedItem<=0)
+    if(copiedItem<0)
         ilist_rclick_menu[1].flags|=D_DISABLED;
     else
         ilist_rclick_menu[1].flags&=~D_DISABLED;
