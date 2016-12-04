@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C716DE8B-1181-4B5D-947C-F8233C562464}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZC\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug/ZC\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/output\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release/ZC\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>pthread.lib;Ws2_32.lib;aldmd.lib;dumbd.lib;almp3.lib;alogg.lib;gme.lib;libjpgal.lib;loadpng.lib;zlibd.lib;libpng.lib;al_gif.lib;alld.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zc.exe</OutputFile>
+      <AdditionalLibraryDirectories>../../libs/win32dbg;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)zc.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;pthread.lib;aldmb.lib;dumb.lib;almp3.lib;alogg.lib;alspc.lib;gme.lib;al_gif.lib;libjpgal.lib;libpng.lib;loadpng.lib;zlib.lib;alleg_crt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)zelda-w.exe</OutputFile>
+      <AdditionalLibraryDirectories>../../libs/win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreEmbeddedIDL>false</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\aglogo.cpp" />
+    <ClCompile Include="..\..\colors.cpp" />
+    <ClCompile Include="..\..\debug.cpp" />
+    <ClCompile Include="..\..\decorations.cpp" />
+    <ClCompile Include="..\..\defdata.cpp" />
+    <ClCompile Include="..\..\editbox.cpp" />
+    <ClCompile Include="..\..\EditboxModel.cpp" />
+    <ClCompile Include="..\..\EditboxView.cpp" />
+    <ClCompile Include="..\..\ending.cpp" />
+    <ClCompile Include="..\..\ffscript.cpp" />
+    <ClCompile Include="..\..\gamedata.cpp" />
+    <ClCompile Include="..\..\gui.cpp" />
+    <ClCompile Include="..\..\guys.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\init.cpp" />
+    <ClCompile Include="..\..\items.cpp" />
+    <ClCompile Include="..\..\jwin.cpp" />
+    <ClCompile Include="..\..\jwinfsel.cpp" />
+    <ClCompile Include="..\..\link.cpp" />
+    <ClCompile Include="..\..\maps.cpp" />
+    <ClCompile Include="..\..\matrix.cpp" />
+    <ClCompile Include="..\..\md5.cpp" />
+    <ClCompile Include="..\..\midi.cpp" />
+    <ClCompile Include="..\..\pal.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\particles.cpp" />
+    <ClCompile Include="..\..\qst.cpp" />
+    <ClCompile Include="..\..\script_drawing.cpp" />
+    <ClCompile Include="..\..\sprite.cpp" />
+    <ClCompile Include="..\..\subscr.cpp" />
+    <ClCompile Include="..\..\tab_ctl.cpp" />
+    <ClCompile Include="..\..\tiles.cpp" />
+    <ClCompile Include="..\..\title.cpp" />
+    <ClCompile Include="..\..\weapons.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\win32.cpp" />
+    <ClCompile Include="..\..\zc_custom.cpp" />
+    <ClCompile Include="..\..\zc_init.cpp" />
+    <ClCompile Include="..\..\zc_items.cpp" />
+    <ClCompile Include="..\..\zc_sprite.cpp" />
+    <ClCompile Include="..\..\zc_subscr.cpp" />
+    <ClCompile Include="..\..\zc_sys.cpp" />
+    <ClCompile Include="..\..\zcmusic.cpp" />
+    <ClCompile Include="..\..\zelda.cpp" />
+    <ClCompile Include="..\..\zscriptversion.cpp" />
+    <ClCompile Include="..\..\zsys.cpp" />
+    <ClCompile Include="..\..\precompiled.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\precompiled.h" />
+    <ClInclude Include="..\..\aglogo.h" />
+    <ClInclude Include="..\..\colors.h" />
+    <ClInclude Include="..\..\debug.h" />
+    <ClInclude Include="..\..\decorations.h" />
+    <ClInclude Include="..\..\defdata.h" />
+    <ClInclude Include="..\..\editbox.h" />
+    <ClInclude Include="..\..\ending.h" />
+    <ClInclude Include="..\..\font.h" />
+    <ClInclude Include="..\..\fontsdat.h" />
+    <ClInclude Include="..\..\gamedata.h" />
+    <ClInclude Include="..\..\gc.h" />
+    <ClInclude Include="..\..\gfxpal.h" />
+    <ClInclude Include="..\..\gui.h" />
+    <ClInclude Include="..\..\guys.h" />
+    <ClInclude Include="..\..\init.h" />
+    <ClInclude Include="..\..\items.h" />
+    <ClInclude Include="..\..\jwin.h" />
+    <ClInclude Include="..\..\jwinfsel.h" />
+    <ClInclude Include="..\..\link.h" />
+    <ClInclude Include="..\..\load_gif.h" />
+    <ClInclude Include="..\..\maps.h" />
+    <ClInclude Include="..\..\matrix.h" />
+    <ClInclude Include="..\..\md5.h" />
+    <ClInclude Include="..\..\mem_debug.h" />
+    <ClInclude Include="..\..\midi.h" />
+    <ClInclude Include="..\..\pal.h" />
+    <ClInclude Include="..\..\particles.h" />
+    <ClInclude Include="..\..\qst.h" />
+    <ClInclude Include="..\..\rendertarget.h" />
+    <ClInclude Include="..\..\save_gif.h" />
+    <ClInclude Include="..\..\script_drawing.h" />
+    <ClInclude Include="..\..\sfx.h" />
+    <ClInclude Include="..\..\sprite.h" />
+    <ClInclude Include="..\..\subscr.h" />
+    <ClInclude Include="..\..\tab_ctl.h" />
+    <ClInclude Include="..\..\tiles.h" />
+    <ClInclude Include="..\..\title.h" />
+    <ClInclude Include="..\..\vectorset.h" />
+    <ClInclude Include="..\..\weapons.h" />
+    <ClInclude Include="..\..\zc_alleg.h" />
+    <ClInclude Include="..\..\zc_array.h" />
+    <ClInclude Include="..\..\zc_custom.h" />
+    <ClInclude Include="..\..\zc_init.h" />
+    <ClInclude Include="..\..\zc_malloc.h" />
+    <ClInclude Include="..\..\zc_math.h" />
+    <ClInclude Include="..\..\zc_subscr.h" />
+    <ClInclude Include="..\..\zc_sys.h" />
+    <ClInclude Include="..\..\zc_vec2.h" />
+    <ClInclude Include="..\..\zcmusic.h" />
+    <ClInclude Include="..\..\zconsole.h" />
+    <ClInclude Include="..\..\zdefs.h" />
+    <ClInclude Include="..\..\zelda.h" />
+    <ClInclude Include="..\..\zeldadat.h" />
+    <ClInclude Include="..\..\zq_class.h" />
+    <ClInclude Include="..\..\zq_cset.h" />
+    <ClInclude Include="..\..\zq_custom.h" />
+    <ClInclude Include="..\..\zq_doors.h" />
+    <ClInclude Include="..\..\zq_files.h" />
+    <ClInclude Include="..\..\zq_init.h" />
+    <ClInclude Include="..\..\zq_misc.h" />
+    <ClInclude Include="..\..\zq_rules.h" />
+    <ClInclude Include="..\..\zq_subscr.h" />
+    <ClInclude Include="..\..\zq_tiles.h" />
+    <ClInclude Include="..\..\zquest.h" />
+    <ClInclude Include="..\..\zquestdat.h" />
+    <ClInclude Include="..\..\zsys.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\zc_icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\VTune\zc.vpj" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

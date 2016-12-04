@@ -1,10 +1,10 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zc", "zc.vcproj", "{C716DE8B-1181-4B5D-947C-F8233C562464}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zc", "zc.vcxproj", "{C716DE8B-1181-4B5D-947C-F8233C562464}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zquest", "zquest.vcproj", "{50ACE952-7298-4317-9AC5-F7823095B346}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zquest", "zquest.vcxproj", "{50ACE952-7298-4317-9AC5-F7823095B346}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "romview", "romview.vcproj", "{EF810A76-BA22-41A6-AEDF-C19E50969355}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "romview", "romview.vcxproj", "{EF810A76-BA22-41A6-AEDF-C19E50969355}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

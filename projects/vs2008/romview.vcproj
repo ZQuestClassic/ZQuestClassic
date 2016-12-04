@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\src"
+				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_ZQUEST_SCALE_"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -122,7 +122,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\src"
+				AdditionalIncludeDirectories="..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;&quot;..\..\include\jpgalleg-2.5&quot;;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_ZQUEST_SCALE_"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -185,51 +185,51 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\editbox.cpp"
+				RelativePath="..\..\editbox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxModel.cpp"
+				RelativePath="..\..\EditboxModel.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\EditboxView.cpp"
+				RelativePath="..\..\EditboxView.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gui.cpp"
+				RelativePath="..\..\gui.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\jwin.cpp"
+				RelativePath="..\..\jwin.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\jwinfsel.cpp"
+				RelativePath="..\..\jwinfsel.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\load_gif.cpp"
+				RelativePath="..\..\load_gif.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\romview.cpp"
+				RelativePath="..\..\romview.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\save_gif.cpp"
+				RelativePath="..\..\save_gif.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\tab_ctl.cpp"
+				RelativePath="..\..\tab_ctl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zqscale.cpp"
+				RelativePath="..\..\zqscale.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\zsys.cpp"
+				RelativePath="..\..\zsys.cpp"
 				>
 			</File>
 		</Filter>
