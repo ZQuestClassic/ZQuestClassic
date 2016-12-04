@@ -1347,21 +1347,22 @@ int onAbout()
         switch(IS_BETA)
         {
         case -1:
-            sprintf(buf1,"ZQuest %s Alpha Build %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf2,"(%s Alpha Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
             break;
             
         case 1:
-            sprintf(buf1,"ZQuest %s Beta Build %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf2,"(%s Beta Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
             break;
             
         case 0:
         default:
-            sprintf(buf1,"ZQuest %s Build %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf2,"(%s Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
             break;
         }
         
+        sprintf(buf1,"ZQuest " ZELDA_VERSION_STR);
         sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
-        jwin_alert("About ZQuest",buf1,NULL,buf3,"OK", NULL, 13, 27, lfont);
+        jwin_alert("About ZQuest",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
     }
     
     return D_O_K;
