@@ -2712,6 +2712,7 @@ int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
     
+#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
     if(!is_only_instance("zc.lck"))
     {
         if(used_switch(argc, argv, "-multiple"))
@@ -2719,6 +2720,7 @@ int main(int argc, char* argv[])
         else
             exit(1);
     }
+#endif
     
     switch(IS_BETA)
     {
