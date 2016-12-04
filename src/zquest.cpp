@@ -15568,7 +15568,7 @@ static DIALOG edititemdropset_dlg[] =
     { jwin_text_proc,      37,  162+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
     { d_idroplist_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,      39,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,      37,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL, NULL,  NULL }
 };
 
@@ -15710,16 +15710,26 @@ int count_item_drop_sets()
     return count+1;
 }
 
+static void copyDropSet(int src, int dest)
+{
+    for(int i=0; i<11; i++)
+    {
+        if(i<10)
+            item_drop_sets[dest].item[i]=item_drop_sets[src].item[i];
+        item_drop_sets[dest].chance[i]=item_drop_sets[src].chance[i];
+    }
+}
+
 int onItemDropSets()
 {
     item_drop_set_list_size = MAXITEMDROPSETS;
     
-    int index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont);
+    int index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont, copyDropSet);
     
     while(index!=-1)
     {
         EditItemDropSet(index);
-        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",lfont);
+        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",lfont, copyDropSet);
     }
     
     return D_O_K;

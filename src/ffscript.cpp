@@ -2608,7 +2608,7 @@ else \
             else ret=TheMaps[scr].data[pos]*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2631,7 +2631,7 @@ else \
             else ret=TheMaps[scr].cset[pos]*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2654,7 +2654,7 @@ else \
             else ret=TheMaps[scr].sflag[pos]*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2678,7 +2678,7 @@ else \
                              TheMaps[scr].data[pos]].type*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2701,7 +2701,7 @@ else \
             else ret=combobuf[TheMaps[scr].data[pos]].flag*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -2724,7 +2724,7 @@ else \
             else ret=(combobuf[TheMaps[scr].data[pos]].walk&15)*10000;
         }
         else
-            ret = 10000;
+            ret = -10000;
     }
     break;
     
@@ -5349,16 +5349,34 @@ void do_rshift(const bool v)
 
 void do_warp(bool v)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    int dmap=SH::get_arg(sarg1, v) / 10000;
+    if(dmap<0 || dmap>=MAXDMAPS)
+        return;
+    int screen=SH::get_arg(sarg2, v) / 10000;
+    if(screen<0 || screen>=MAPSCRS) // Should this be MAPSCRSNORMAL?
+        return;
+    // A shifted DMap can still go past the end of the maps, so check that
+    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>=TheMaps.size())
+        return;
+    
+    tmpscr->sidewarpdmap[0] = dmap;
+    tmpscr->sidewarpscr[0]  = screen;
     tmpscr->sidewarptype[0] = wtIWARP;
     Link.ffwarp = true;
 }
 
 void do_pitwarp(bool v)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    int dmap=SH::get_arg(sarg1, v) / 10000;
+    if(dmap<0 || dmap>=MAXDMAPS)
+        return;
+    int screen=SH::get_arg(sarg2, v) / 10000;
+    if(screen<0 || screen>=MAPSCRS)
+        return;
+    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>=TheMaps.size())
+        return;
+    tmpscr->sidewarpdmap[0] = dmap;
+    tmpscr->sidewarpscr[0]  = screen;
     tmpscr->sidewarptype[0] = wtIWARP;
     Link.ffwarp = true;
     Link.ffpit = true;

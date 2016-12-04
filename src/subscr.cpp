@@ -2679,10 +2679,16 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
     speed=speed;
     delay=delay;
     
-    if(((game->get_magicdrainrate()==1)&&show==2)||
-            ((game->get_magicdrainrate()==2)&&show==1))
+    // show
+    //   0: always
+    //   1: 1/2 magic
+    //   2: normal magic
+    if(show!=0)
     {
-        return;
+        if(show==1 && game->get_magicdrainrate()!=1)
+            return;
+        if(show==2 && game->get_magicdrainrate()!=2)
+            return;
     }
     
     int containers=game->get_maxmagic()/MAGICPERBLOCK;
@@ -2716,7 +2722,7 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
     
     if(mod_value)
     {
-        if(!game->get_magicdrainrate() || game->get_magic()>=container*MAGICPERBLOCK)
+        if(game->get_magic()>=container*MAGICPERBLOCK)
         {
             //tile=tile;                                        //full block
             if(game->get_magic()==container*MAGICPERBLOCK)
