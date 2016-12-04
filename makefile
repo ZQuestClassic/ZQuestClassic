@@ -234,7 +234,7 @@ obj/zcmusicd.o: src/zcmusicd.cpp src/zcmusic.h
 	$(CC) $(OPTS) $(CFLAG) -fpic -c src/zcmusicd.cpp -o obj/zcmusicd.o $(SFLAG) $(WINFLAG)
 
 $(ZELDA_EXE): $(ZELDA_OBJECTS) $(ZCSOUND_SO)
-	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(ZC_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZELDA_EXE)
 endif
@@ -277,7 +277,7 @@ ifdef MAKE_MAC_APP
 endif
 
 $(ZQUEST_EXE): $(ZQUEST_OBJECTS) $(ZCSOUND_SO)
-	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(ZQ_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZQUEST_EXE)
 endif
@@ -317,7 +317,7 @@ ifdef MAKE_MAC_APP
 endif
 
 $(ROMVIEW_EXE): $(ROMVIEW_OBJECTS)
-	$(CC) $(LINKOPTS) -o $(ROMVIEW_EXE) $(ROMVIEW_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(RV_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ROMVIEW_EXE) $(ROMVIEW_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZQUEST_EXE)
 endif
@@ -403,7 +403,7 @@ obj/questReport.o: src/questReport.cpp src/questReport.h src/editbox.h src/Editb
 	$(CC) $(OPTS) $(CFLAG) -c src/questReport.cpp -o obj/questReport.o $(SFLAG) $(WINFLAG)
 obj/romview.o: src/romview.cpp src/fontsdat.h src/gamedata.h src/jwin.h src/jwinfsel.h src/load_gif.h src/save_gif.h src/tab_ctl.h src/zc_alleg.h src/zdefs.h src/zqscale.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/romview.cpp -o obj/romview.o $(SFLAG) $(WINFLAG)
-obj/rv_icon.o: $(RV_ICON_DEPS)
+$(RV_ICON): $(RV_ICON_DEPS)
 	$(RV_ICON_CMD)
 obj/save_gif.o: src/save_gif.cpp src/save_gif.h src/zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c src/save_gif.cpp -o obj/save_gif.o $(SFLAG) $(WINFLAG)
@@ -425,7 +425,7 @@ obj/weapons.o: src/weapons.cpp src/aglogo.h src/colors.h src/gamedata.h src/item
 	$(CC) $(OPTS) $(CFLAG) -c src/weapons.cpp -o obj/weapons.o $(SFLAG) $(WINFLAG)
 obj/zc_custom.o: src/zc_custom.cpp src/gamedata.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zc_custom.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zc_custom.cpp -o obj/zc_custom.o $(SFLAG) $(WINFLAG)
-obj/zc_icon.o: $(ZC_ICON_DEPS)
+$(ZC_ICON): $(ZC_ICON_DEPS)
 	$(ZC_ICON_CMD)
 obj/zc_init.o: src/zc_init.cpp src/aglogo.h src/colors.h src/gamedata.h src/gui.h src/init.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/midi.h src/pal.h src/qst.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zc_custom.h src/zc_init.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zq_init.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zc_init.cpp -o obj/zc_init.o $(SFLAG) $(WINFLAG)
@@ -453,7 +453,7 @@ obj/zq_doors.o: src/zq_doors.cpp src/gamedata.h src/gui.h src/jwin.h src/jwinfse
 	$(CC) $(OPTS) $(CFLAG) -c src/zq_doors.cpp -o obj/zq_doors.o $(SFLAG) $(WINFLAG)
 obj/zq_files.o: src/zq_files.cpp src/gamedata.h src/gui.h src/items.h src/jwin.h src/jwinfsel.h src/midi.h src/qst.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zq_class.h src/zq_custom.h src/zq_files.h src/zq_misc.h src/zq_tiles.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zq_files.cpp -o obj/zq_files.o $(SFLAG) $(WINFLAG)
-obj/zq_icon.o: $(ZQ_ICON_DEPS)
+$(ZQ_ICON): $(ZQ_ICON_DEPS)
 	$(ZQ_ICON_CMD)
 obj/zq_init.o: src/zq_init.cpp src/gamedata.h src/gui.h src/init.h src/jwin.h src/jwinfsel.h src/midi.h src/sprite.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zq_init.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zq_init.cpp -o obj/zq_init.o $(SFLAG) $(WINFLAG)
