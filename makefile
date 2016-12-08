@@ -39,7 +39,7 @@ ifdef COMPILE_FOR_WIN
   RV_ICON_CMD = windres --use-temp-file -J rc -o coff -i rv_icon.rc -o rv_icon.o
   ZC_PLATFORM = Windows
   CC = g++
-  CFLAG = $(CFLAGBASE) -pedantic -I./include/dumb/ -I./include/alogg/ -I./include/almp3 -I./include/lpng1212/ -I./include/loadpng/ -I./include/lpng1212/ -I./include/jpgalleg-2.5/ -I./include/zlib123/ -I./gme
+  CFLAG = $(CFLAGBASE) -pedantic -I./include -I./include/alogg -I./include/almp3 -I./include/dumb -I./include/loadpng -I./include/lpng1212 -I./include/jpgalleg-2.5 -I./include/zlib123
   LIBDIR = -L./libs/mingw
   
   ZCSOUND_SO = libs/mingw/libzcsound.dll
@@ -62,7 +62,7 @@ ifdef COMPILE_FOR_LINUX
   RV_ICON_CMD = $(CC) $(OPTS) $(CFLAG) -c src/rv_icon.c -o rv_icon.o $(SFLAG)
   ZC_PLATFORM = Linux
   CC = g++ 
-  CFLAG = -I./include -I../include -I./include/alogg -I./include/almp3
+  CFLAG = $(CFLAGBASE) -pedantic -I./include -I./include/alogg -I./include/almp3 -I./include/dumb -I./include/loadpng -I./include/lpng1212 -I./include/jpgalleg-2.5 -I./include/zlib123
   LIBDIR = -L./libs/linux
   
   SINGLE_INSTANCE_CPP = src/single_instance_unix.cpp
@@ -86,16 +86,17 @@ ifdef COMPILE_FOR_MACOSX
   PLATEXT = -m
   ALLEG_LIB = -framework Cocoa -framework Allegro -lalleg-main -arch i386 
   ZC_PLATFORM = Mac OS X
-  CFLAG = $(CFLAGBASE) -pedantic -arch i386 -I./include/dumb/ -I./include/alogg/ -I./include/almp3/ -I./include/libjpgal/
+  CFLAG = $(CFLAGBASE) -pedantic -arch i386 -I./include -I./include/alogg -I./include/almp3 -I./include/dumb -I./include/loadpng -I./include/lpng1212 -I./include/jpgalleg-2.5 -I./include/zlib123
   CC = g++
   LIBDIR= -L./libs/osx
   DATA = output/common/
-  SINGLE_INSTANCE_O = single_instance.o
   
   ZCSOUND_SO = libs/osx/libzcsound.dylib
   ZCSOUND_LIB = -lzcsound
   ZCSOUND_LINKOPTS = $(LINKOPTS) -shared
   ZCSOUND_ALLEG_LIB = $(ALLEG_LIB)
+  
+  MAKE_MAC_APP = 1
 else
 ifdef COMPILE_FOR_MACOSX_UNIVERSAL
   ECHO_HELPER = \
@@ -108,28 +109,30 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
   LIBDIR= -L./libs/osx
   DATA = output/common/
   LINKOPTS = -arch i386 -arch ppc
-  SINGLE_INSTANCE_O = single_instance.o
   
   ZCSOUND_SO = libs/osx/libzcsound.dylib
   ZCSOUND_LIB = -lzcsound
   ZCSOUND_LINKOPTS = $(LINKOPTS) -shared
   ZCSOUND_ALLEG_LIB = $(ALLEG_LIB)
+  
+  MAKE_MAC_APP = 1
 else
 ifdef COMPILE_FOR_MACOSX_SNOW_LEOPARD
   PLATEXT = -msl
   ALLEG_LIB = -framework Cocoa -framework Allegro -lalleg-main
   ZC_PLATFORM = Mac OS X Universal
-  CFLAG = -pedantic -Wno-long-long -Wall -arch i386 -arch ppc -DMACOSX_
+  CFLAG = -pedantic -Wno-long-long -Wall -arch i386 -DMACOSX_ -I./include -I./include/alogg -I./include/almp3 -I./include/dumb -I./include/loadpng -I./include/lpng1212 -I./include/jpgalleg-2.5 -I./include/zlib123
   CC = g++
   LIBDIR= -L./libs/osx
   DATA = output/common/
-  LINKOPTS = -arch i386 -arch ppc
-  SINGLE_INSTANCE_O = single_instance.o
+  LINKOPTS = -arch i386
   
   ZCSOUND_SO = libs/osx/libzcsound.dylib
   ZCSOUND_LIB = -lzcsound
   ZCSOUND_LINKOPTS = $(LINKOPTS) -shared
   ZCSOUND_ALLEG_LIB = $(ALLEG_LIB)
+  
+  MAKE_MAC_APP = 1
 else
 ifdef COMPILE_FOR_GP2X
   PLATEXT = -g
@@ -140,7 +143,6 @@ ifdef COMPILE_FOR_GP2X
   CC = arm-linux-g++
   AUDIO_LIBS = -L/devkitGP2X/lib -lalspc -lalogg -lalmp3 -laldmb -ldumb
   IMAGE_LIBS = -L/devkitGP2X/lib -ljpgal -lldpng -lpng -lz
-  SINGLE_INSTANCE_O = single_instance.o
 endif
 endif
 endif
@@ -232,7 +234,7 @@ obj/zcmusicd.o: src/zcmusicd.cpp src/zcmusic.h
 	$(CC) $(OPTS) $(CFLAG) -fpic -c src/zcmusicd.cpp -o obj/zcmusicd.o $(SFLAG) $(WINFLAG)
 
 $(ZELDA_EXE): $(ZELDA_OBJECTS) $(ZCSOUND_SO)
-	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(ZC_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZELDA_EXE)
 endif
@@ -241,17 +243,17 @@ ifdef 0
 	cp zelda-m zc/zelda-m
 	zc/zelda-m
 endif
-ifdef COMPILE_FOR_MACOSX
+ifdef MAKE_MAC_APP
 	rm -rf "Zelda Classic.app"
 	fixbundle $(ZELDA_EXE) -e
-	cp Info1.plist $(ZELDA_EXE).app/Contents/tempinfo
+	cp info1.plist $(ZELDA_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleExecutable</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '	<string>Zelda Classic</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleIconFile</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '	<string>zc_icon.icns</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '  <key>CFBundleIdentifier</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '  <string>com.armageddon.Zelda Classic</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	cat $(ZELDA_EXE).app/Contents/tempinfo Info2.plist > $(ZELDA_EXE).app/Contents/Info.plist
+	cat $(ZELDA_EXE).app/Contents/tempinfo info2.plist > $(ZELDA_EXE).app/Contents/Info.plist
 	rm $(ZELDA_EXE).app/Contents/tempinfo
 	cp "zc_icon.icns" $(ZELDA_EXE).app/Contents/Resources/
 	cp $(DATA)zelda.dat $(ZELDA_EXE).app/Contents/Resources/
@@ -259,41 +261,13 @@ ifdef COMPILE_FOR_MACOSX
 	cp $(DATA)fonts.dat $(ZELDA_EXE).app/Contents/Resources/
 	cp $(DATA)qst.dat $(ZELDA_EXE).app/Contents/Resources/
 	cp $(DATA)zelda.nsf $(ZELDA_EXE).app/Contents/Resources/
+	cp $(DATA)5thmusic.nsf $(ZELDA_EXE).app/Contents/Resources/
 	cp "ag_nofull.cfg" $(ZELDA_EXE).app/Contents/Resources/ag.cfg
 	cp $(DATA)1st.qst $(ZELDA_EXE).app/Contents/Resources/
 	cp $(DATA)2nd.qst $(ZELDA_EXE).app/Contents/Resources/
 	cp $(DATA)3rd.qst $(ZELDA_EXE).app/Contents/Resources/
 	cp $(DATA)4th.qst $(ZELDA_EXE).app/Contents/Resources/
-	
-	cp libs/osx/libzcsound.dylib $(ZELDA_EXE).app/Contents/Frameworks/
-	install_name_tool -change libs/osx/libzcsound.dylib @executable_path/../Frameworks/libzcsound.dylib $(ZELDA_EXE).app/Contents/MacOS/$(ZELDA_EXE)
-	
-	mv $(ZELDA_EXE).app/Contents/MacOS/$(ZELDA_EXE) "$(ZELDA_EXE).app/Contents/MacOS/Zelda Classic"
-	mv $(ZELDA_EXE).app "Zelda Classic.app"
-endif
-ifdef COMPILE_FOR_MACOSX_UNIVERSAL
-	rm -rf "Zelda Classic.app"
-	fixbundle $(ZELDA_EXE) -e
-	cp Info1.plist $(ZELDA_EXE).app/Contents/tempinfo
-	echo '	<key>CFBundleExecutable</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	echo '	<string>Zelda Classic</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	echo '	<key>CFBundleIconFile</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	echo '	<string>zc_icon.icns</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	echo '  <key>CFBundleIdentifier</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	echo '  <string>com.armageddon.Zelda Classic</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	cat $(ZELDA_EXE).app/Contents/tempinfo Info2.plist > $(ZELDA_EXE).app/Contents/Info.plist
-	rm $(ZELDA_EXE).app/Contents/tempinfo
-	cp "zc_icon.icns" $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)zelda.dat $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)sfx.dat $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)fonts.dat $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)qst.dat $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)zelda.nsf $(ZELDA_EXE).app/Contents/Resources/
-	cp "ag_nofull.cfg" $(ZELDA_EXE).app/Contents/Resources/ag.cfg
-	cp $(DATA)1st.qst $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)2nd.qst $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)3rd.qst $(ZELDA_EXE).app/Contents/Resources/
-	cp $(DATA)4th.qst $(ZELDA_EXE).app/Contents/Resources/
+	cp $(DATA)5th.qst $(ZELDA_EXE).app/Contents/Resources/
 	
 	cp libs/osx/libzcsound.dylib $(ZELDA_EXE).app/Contents/Frameworks/
 	install_name_tool -change libs/osx/libzcsound.dylib @executable_path/../Frameworks/libzcsound.dylib $(ZELDA_EXE).app/Contents/MacOS/$(ZELDA_EXE)
@@ -303,61 +277,29 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
 endif
 
 $(ZQUEST_EXE): $(ZQUEST_OBJECTS) $(ZCSOUND_SO)
-	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(ZQ_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ZCSOUND_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZQUEST_EXE)
 endif
-ifdef COMPILE_FOR_MACOSX
+ifdef MAKE_MAC_APP
 	rm -rf "ZQuest Editor.app"
 	fixbundle $(ZQUEST_EXE) -e
 	chmod 755 $(ZQUEST_EXE)
-	cp Info1.plist $(ZQUEST_EXE).app/Contents/tempinfo
+	cp info1.plist $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleExecutable</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '	<string>ZQuest Editor</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleIconFile</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '	<string>zq_icon.icns</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '  <key>CFBundleIdentifier</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '  <string>com.armageddon.ZQuest Editor</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	cat $(ZQUEST_EXE).app/Contents/tempinfo Info2.plist > $(ZQUEST_EXE).app/Contents/Info.plist
+	cat $(ZQUEST_EXE).app/Contents/tempinfo info2.plist > $(ZQUEST_EXE).app/Contents/Info.plist
 	rm $(ZQUEST_EXE).app/Contents/tempinfo
 	cp "zq_icon.icns" $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)zquest.dat $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)sfx.dat $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)qst.dat $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)zelda.nsf $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)fonts.dat $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)zquest.txt $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)zscript.txt $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)zstrings.txt $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)std.zh $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)std_constants.zh $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)std_functions.zh $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)string.zh $(ZQUEST_EXE).app/Contents/Resources/
-	
-	cp libs/osx/libzcsound.dylib $(ZQUEST_EXE).app/Contents/Frameworks/
-	install_name_tool -change libs/osx/libzcsound.dylib @executable_path/../Frameworks/libzcsound.dylib $(ZQUEST_EXE).app/Contents/MacOS/$(ZQUEST_EXE)
-	
-	mv $(ZQUEST_EXE).app/Contents/MacOS/$(ZQUEST_EXE) "$(ZQUEST_EXE).app/Contents/MacOS/ZQuest Editor"
-	mv $(ZQUEST_EXE).app "ZQuest Editor.app"
-endif
-ifdef COMPILE_FOR_MACOSX_UNIVERSAL
-	rm -rf "ZQuest Editor.app"
-	fixbundle $(ZQUEST_EXE) -e
-	chmod 755 $(ZQUEST_EXE)
-	cp Info1.plist $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '	<key>CFBundleExecutable</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '	<string>ZQuest Editor</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '	<key>CFBundleIconFile</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '	<string>zq_icon.icns</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '  <key>CFBundleIdentifier</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '  <string>com.armageddon.ZQuest Editor</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	cat $(ZQUEST_EXE).app/Contents/tempinfo Info2.plist > $(ZQUEST_EXE).app/Contents/Info.plist
-	rm $(ZQUEST_EXE).app/Contents/tempinfo
-	cp "zq_icon.icns" $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)zquest.dat $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)sfx.dat $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)qst.dat $(ZQUEST_EXE).app/Contents/Resources/
-	cp $(DATA)zelda.nsf $(ZQUEST_EXE).app/Contents/Resources/
+	cp $(DATA)5thmusic.nsf $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)fonts.dat $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)zquest.txt $(ZQUEST_EXE).app/Contents/Resources/
 	cp $(DATA)zscript.txt $(ZQUEST_EXE).app/Contents/Resources/
@@ -375,40 +317,22 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
 endif
 
 $(ROMVIEW_EXE): $(ROMVIEW_OBJECTS)
-	$(CC) $(LINKOPTS) -o obj/$(ROMVIEW_EXE) $(ROMVIEW_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(RV_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ROMVIEW_EXE) $(ROMVIEW_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZQUEST_EXE)
 endif
-ifdef COMPILE_FOR_MACOSX
+ifdef MAKE_MAC_APP
 	rm -rf "ROM Viewer.app"
 	fixbundle $(ROMVIEW_EXE) -e
 	chmod 755 $(ROMVIEW_EXE)
-	cp Info1.plist $(ROMVIEW_EXE).app/Contents/tempinfo
+	cp info1.plist $(ROMVIEW_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleExecutable</key>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
 	echo '	<string>ROM Viewer</string>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleIconFile</key>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
 	echo '	<string>rv_icon.icns</string>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
 	echo '  <key>CFBundleIdentifier</key>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
 	echo '  <string>com.armageddon.ROMView</string>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	cat $(ROMVIEW_EXE).app/Contents/tempinfo Info2.plist > $(ROMVIEW_EXE).app/Contents/Info.plist
-	rm $(ROMVIEW_EXE).app/Contents/tempinfo
-	cp "rv_icon.icns" $(ROMVIEW_EXE).app/Contents/Resources/
-	cp $(DATA)fonts.dat $(ROMVIEW_EXE).app/
-	mv $(ROMVIEW_EXE).app/Contents/MacOS/$(ROMVIEW_EXE) "$(ROMVIEW_EXE).app/Contents/MacOS/ROMView"
-	mv $(ROMVIEW_EXE).app "ROM Viewer.app"
-endif
-ifdef COMPILE_FOR_MACOSX_UNIVERSAL
-	rm -rf "ROM Viewer.app"
-	fixbundle $(ROMVIEW_EXE) -e
-	chmod 755 $(ROMVIEW_EXE)
-	cp Info1.plist $(ROMVIEW_EXE).app/Contents/tempinfo
-	echo '	<key>CFBundleExecutable</key>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	echo '	<string>ROM Viewer</string>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	echo '	<key>CFBundleIconFile</key>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	echo '	<string>rv_icon.icns</string>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	echo '  <key>CFBundleIdentifier</key>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	echo '  <string>com.armageddon.ROMView</string>' >> $(ROMVIEW_EXE).app/Contents/tempinfo
-	cat $(ROMVIEW_EXE).app/Contents/tempinfo Info2.plist > $(ROMVIEW_EXE).app/Contents/Info.plist
+	cat $(ROMVIEW_EXE).app/Contents/tempinfo info2.plist > $(ROMVIEW_EXE).app/Contents/Info.plist
 	rm $(ROMVIEW_EXE).app/Contents/tempinfo
 	cp "rv_icon.icns" $(ROMVIEW_EXE).app/Contents/Resources/
 	cp $(DATA)fonts.dat $(ROMVIEW_EXE).app/
@@ -479,7 +403,7 @@ obj/questReport.o: src/questReport.cpp src/questReport.h src/editbox.h src/Editb
 	$(CC) $(OPTS) $(CFLAG) -c src/questReport.cpp -o obj/questReport.o $(SFLAG) $(WINFLAG)
 obj/romview.o: src/romview.cpp src/fontsdat.h src/gamedata.h src/jwin.h src/jwinfsel.h src/load_gif.h src/save_gif.h src/tab_ctl.h src/zc_alleg.h src/zdefs.h src/zqscale.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/romview.cpp -o obj/romview.o $(SFLAG) $(WINFLAG)
-obj/rv_icon.o: $(RV_ICON_DEPS)
+$(RV_ICON): $(RV_ICON_DEPS)
 	$(RV_ICON_CMD)
 obj/save_gif.o: src/save_gif.cpp src/save_gif.h src/zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c src/save_gif.cpp -o obj/save_gif.o $(SFLAG) $(WINFLAG)
@@ -501,7 +425,7 @@ obj/weapons.o: src/weapons.cpp src/aglogo.h src/colors.h src/gamedata.h src/item
 	$(CC) $(OPTS) $(CFLAG) -c src/weapons.cpp -o obj/weapons.o $(SFLAG) $(WINFLAG)
 obj/zc_custom.o: src/zc_custom.cpp src/gamedata.h src/jwin.h src/sfx.h src/tab_ctl.h src/zc_alleg.h src/zc_custom.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zc_custom.cpp -o obj/zc_custom.o $(SFLAG) $(WINFLAG)
-obj/zc_icon.o: $(ZC_ICON_DEPS)
+$(ZC_ICON): $(ZC_ICON_DEPS)
 	$(ZC_ICON_CMD)
 obj/zc_init.o: src/zc_init.cpp src/aglogo.h src/colors.h src/gamedata.h src/gui.h src/init.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/midi.h src/pal.h src/qst.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zc_custom.h src/zc_init.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zq_init.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zc_init.cpp -o obj/zc_init.o $(SFLAG) $(WINFLAG)
@@ -529,7 +453,7 @@ obj/zq_doors.o: src/zq_doors.cpp src/gamedata.h src/gui.h src/jwin.h src/jwinfse
 	$(CC) $(OPTS) $(CFLAG) -c src/zq_doors.cpp -o obj/zq_doors.o $(SFLAG) $(WINFLAG)
 obj/zq_files.o: src/zq_files.cpp src/gamedata.h src/gui.h src/items.h src/jwin.h src/jwinfsel.h src/midi.h src/qst.h src/sfx.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zq_class.h src/zq_custom.h src/zq_files.h src/zq_misc.h src/zq_tiles.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zq_files.cpp -o obj/zq_files.o $(SFLAG) $(WINFLAG)
-obj/zq_icon.o: $(ZQ_ICON_DEPS)
+$(ZQ_ICON): $(ZQ_ICON_DEPS)
 	$(ZQ_ICON_CMD)
 obj/zq_init.o: src/zq_init.cpp src/gamedata.h src/gui.h src/init.h src/jwin.h src/jwinfsel.h src/midi.h src/sprite.h src/tab_ctl.h src/zc_alleg.h src/zcmusic.h src/zdefs.h src/zq_init.h src/zquest.h src/zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c src/zq_init.cpp -o obj/zq_init.o $(SFLAG) $(WINFLAG)

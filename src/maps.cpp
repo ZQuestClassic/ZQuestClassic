@@ -3825,8 +3825,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         {
             if(ffscr.layermap[i]>0 && tmpscr[tmp].layermap[i]>0)
             {
-                int lm = tmpscr[tmp].layermap[i]*MAPSCRS+tmpscr[tmp].layerscreen[i];
-                int fm = ffscr.layermap[i]*MAPSCRS+ffscr.layerscreen[i];
+                int lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
+                int fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
                 
                 if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
                 {

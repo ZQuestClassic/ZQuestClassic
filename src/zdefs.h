@@ -95,9 +95,11 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       29                              //build number of this version
-#define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "October 22, 2015"
+#define VERSION_BUILD       30                              //build number of this version
+#define ZELDA_VERSION_STR   "2.50.3 RC1"                    //version of the program as presented in text
+#define IS_BETA             1                               //is this a beta? (1: beta, -1: alpha)
+#define DATE_STR            "December 04, 2016"
+#define COPYRIGHT_YEAR      "2016"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
 
