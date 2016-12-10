@@ -26,8 +26,9 @@
 
 //#include "precompiled.h" //always first
 
-
+#ifdef __OSX__
 #include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
+#endif
 #include <string.h>
 #include <aldumb.h>
 #include <alogg.h>
