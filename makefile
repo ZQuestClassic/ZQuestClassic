@@ -229,6 +229,7 @@ win:
 	@make
 linux:
 	@echo COMPILE_FOR_LINUX=1 > makefile.inc
+	@echo "#define ALLEGRO_UNIX=1" > ./allegro/allegro/platform/alplatf.h
 	@make
 macosx:
 	@echo COMPILE_FOR_MACOSX=1 > makefile.inc
