@@ -166,7 +166,8 @@ ROMVIEW_EXE = $(ROMVIEW_PREFIX)$(PLATEXT)$(EXEEXT)
 
 GTK_GUI_OBJECTS = obj/gui/gtk/bitmap.o obj/gui/gtk/button.o obj/gui/gtk/buttonRow.o obj/gui/gtk/checkbox.o obj/gui/gtk/controller.o obj/gui/gtk/factory.o obj/gui/gtk/frame.o obj/gui/gtk/manager.o obj/gui/gtk/serialContainer.o obj/gui/gtk/spinner.o obj/gui/gtk/tabPanel.o obj/gui/gtk/text.o obj/gui/gtk/textBox.o obj/gui/gtk/textField.o obj/gui/gtk/util.o obj/gui/gtk/widget.o obj/gui/gtk/window.o
 
-ALLEGRO_GUI_OBJECTS = obj/gui/allegro/bitmap.o obj/gui/allegro/button.o obj/gui/allegro/checkbox.o obj/gui/allegro/column.o obj/gui/allegro/comboBox.o obj/gui/allegro/common.o obj/gui/allegro/controller.o obj/gui/allegro/dummy.o obj/gui/allegro/editableText.o obj/gui/allegro/factory.o obj/gui/allegro/frame.o obj/gui/allegro/list.o obj/gui/allegro/renderer.o obj/gui/allegro/row.o obj/gui/allegro/scrollbar.o obj/gui/allegro/scrollingPane.o obj/gui/allegro/serialContainer.o obj/gui/allegro/standardWidget.o obj/gui/allegro/tab.o obj/gui/allegro/tabBar.o obj/gui/allegro/tabPanel.o obj/gui/allegro/text.o obj/gui/allegro/textField.o obj/gui/allegro/window.o
+ALLEGRO_OBJ_DIR = obj/gui/allegro
+ALLEGRO_GUI_OBJECTS = $(ALLEGRO_OBJ_DIR)/bitmap.o $(ALLEGRO_OBJ_DIR)/button.o $(ALLEGRO_OBJ_DIR)/checkbox.o $(ALLEGRO_OBJ_DIR)/column.o $(ALLEGRO_OBJ_DIR)/comboBox.o $(ALLEGRO_OBJ_DIR)/common.o $(ALLEGRO_OBJ_DIR)/controller.o $(ALLEGRO_OBJ_DIR)/dummy.o $(ALLEGRO_OBJ_DIR)/editableText.o $(ALLEGRO_OBJ_DIR)/factory.o $(ALLEGRO_OBJ_DIR)/frame.o $(ALLEGRO_OBJ_DIR)/list.o $(ALLEGRO_OBJ_DIR)/renderer.o $(ALLEGRO_OBJ_DIR)/row.o $(ALLEGRO_OBJ_DIR)/scrollbar.o $(ALLEGRO_OBJ_DIR)/scrollingPane.o $(ALLEGRO_OBJ_DIR)/serialContainer.o $(ALLEGRO_OBJ_DIR)/standardWidget.o $(ALLEGRO_OBJ_DIR)/tab.o $(ALLEGRO_OBJ_DIR)/tabBar.o $(ALLEGRO_OBJ_DIR)/tabPanel.o $(ALLEGRO_OBJ_DIR)/text.o $(ALLEGRO_OBJ_DIR)/textField.o $(ALLEGRO_OBJ_DIR)/window.o
 
 ZELDA_OBJECTS = obj/aglogo.o obj/colors.o obj/debug.o obj/decorations.o obj/defdata.o obj/editbox.o obj/EditboxModel.o obj/EditboxView.o obj/encryption.o obj/ending.o obj/enemyAttack.o obj/ffc.o obj/ffscript.o obj/fontClass.o obj/gamedata.o obj/gui.o obj/guys.o obj/init.o obj/inventory.o obj/items.o obj/jwin.o obj/jwinfsel.o obj/link.o obj/load_gif.o obj/maps.o obj/matrix.o obj/md5.o obj/message.o obj/messageManager.o obj/messageRenderer.o obj/messageStream.o obj/midi.o obj/pal.o obj/particles.o obj/qst.o obj/refInfo.o obj/room.o obj/save_gif.o obj/screenFreezeState.o obj/screenWipe.o obj/script_drawing.o $(SINGLE_INSTANCE_O) obj/sfxAllegro.o obj/sfxClass.o obj/sfxManager.o obj/sound.o obj/sprite.o obj/subscr.o obj/tab_ctl.o obj/tiles.o obj/title.o obj/weapons.o obj/zc_custom.o obj/zc_init.o obj/zc_items.o obj/zc_sprite.o obj/zc_subscr.o obj/zc_sys.o obj/zelda.o obj/zscriptversion.o obj/zsys.o \
 obj/sequence/gameOver.o obj/sequence/ganonIntro.o obj/sequence/getBigTriforce.o obj/sequence/getTriforce.o obj/sequence/potion.o obj/sequence/sequence.o obj/sequence/whistle.o \
@@ -196,6 +197,7 @@ done:
 	@echo Done!
 clean:
 	rm -f $(ZELDA_OBJECTS) $(ZQUEST_OBJECTS) $(ROMVIEW_OBJECTS) $(ZCSOUND_OBJECTS)
+	rm -rf ./obj
 veryclean: clean
 	rm -f $(ZELDA_EXE) $(ZQUEST_EXE) $(ROMVIEW_EXE) $(ZCSOUND_SO)
 
@@ -649,54 +651,59 @@ obj/gui/dialog.o: src/gui/dialog.cpp src/gui/dialog.h src/gui/controller.h src/g
 obj/gui/manager.o: src/gui/manager.cpp src/gui/manager.h src/gui/alert.h src/gui/dialog.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/manager.cpp -o obj/gui/manager.o $(SFLAG) $(WINFLAG)
 
-obj/gui/allegro/bitmap.o: src/gui/allegro/bitmap.cpp src/gui/allegro/bitmap.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/bitmap.cpp -o obj/gui/allegro/bitmap.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/button.o: src/gui/allegro/button.cpp src/gui/allegro/button.h src/bind.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/button.cpp -o obj/gui/allegro/button.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/checkbox.o: src/gui/allegro/checkbox.cpp src/gui/allegro/checkbox.h src/bind.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/checkbox.cpp -o obj/gui/allegro/checkbox.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/column.o: src/gui/allegro/column.cpp src/gui/allegro/column.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/column.cpp -o obj/gui/allegro/column.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/comboBox.o: src/gui/allegro/comboBox.cpp src/gui/allegro/comboBox.h src/bind.h src/gui/allegro/list.h src/gui/list.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/comboBox.cpp -o obj/gui/allegro/comboBox.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/common.o: src/gui/allegro/common.cpp src/gui/allegro/common.h src/gui/allegro/scrollbar.h src/gui/key.h src/gui/mouse.h src/zsys.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/common.cpp -o obj/gui/allegro/common.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/controller.o: src/gui/allegro/controller.cpp src/gui/allegro/controller.h src/gui/allegro/common.h src/gui/allegro/widget.h src/gui/key.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/controller.cpp -o obj/gui/allegro/controller.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/dummy.o: src/gui/allegro/dummy.cpp src/gui/allegro/dummy.h src/bind.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/dummy.cpp -o obj/gui/allegro/dummy.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/editableText.o: src/gui/allegro/editableText.cpp src/gui/allegro/editableText.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/editableText.cpp -o obj/gui/allegro/editableText.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/factory.o: src/gui/allegro/factory.cpp src/gui/allegro/factory.h src/bind.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/factory.cpp -o obj/gui/allegro/factory.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/frame.o: src/gui/allegro/frame.cpp src/gui/allegro/frame.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/frame.cpp -o obj/gui/allegro/frame.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/list.o: src/gui/allegro/list.cpp src/gui/allegro/list.h src/bind.h src/gui/allegro/scrollingPane.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/list.cpp -o obj/gui/allegro/list.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/renderer.o: src/gui/allegro/renderer.cpp src/gui/allegro/renderer.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/renderer.cpp -o obj/gui/allegro/renderer.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/row.o: src/gui/allegro/row.cpp src/gui/allegro/row.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/row.cpp -o obj/gui/allegro/row.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/scrollbar.o: src/gui/allegro/scrollbar.cpp src/gui/allegro/scrollbar.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/scrollbar.cpp -o obj/gui/allegro/scrollbar.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/scrollingPane.o: src/gui/allegro/scrollingPane.cpp src/gui/allegro/scrollingPane.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/scrollingPane.cpp -o obj/gui/allegro/scrollingPane.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/serialContainer.o: src/gui/allegro/serialContainer.cpp src/gui/allegro/serialContainer.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/serialContainer.cpp -o obj/gui/allegro/serialContainer.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/standardWidget.o: src/gui/allegro/standardWidget.cpp src/gui/allegro/standardWidget.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/standardWidget.cpp -o obj/gui/allegro/standardWidget.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/tab.o: src/gui/allegro/tab.cpp src/gui/allegro/tab.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/tab.cpp -o obj/gui/allegro/tab.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/tabBar.o: src/gui/allegro/tabBar.cpp src/gui/allegro/tabBar.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/tabBar.cpp -o obj/gui/allegro/tabBar.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/tabPanel.o: src/gui/allegro/tabPanel.cpp src/gui/allegro/tabPanel.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/tabPanel.cpp -o obj/gui/allegro/tabPanel.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/text.o: src/gui/allegro/text.cpp src/gui/allegro/text.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/text.cpp -o obj/gui/allegro/text.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/textField.o: src/gui/allegro/textField.cpp src/gui/allegro/textField.h src/gui/allegro/editableText.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/textField.cpp -o obj/gui/allegro/textField.o $(SFLAG) $(WINFLAG)
-obj/gui/allegro/window.o: src/gui/allegro/window.cpp src/gui/allegro/window.h src/bind.h src/gui/allegro/common.h
-	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/window.cpp -o obj/gui/allegro/window.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR):
+	@if [ ! -d "./$(ALLEGRO_OBJ_DIR)" ]; then \
+		mkdir -vp "./$(ALLEGRO_OBJ_DIR)"; \
+	fi; \
+
+$(ALLEGRO_OBJ_DIR)/bitmap.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/bitmap.cpp src/gui/allegro/bitmap.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/bitmap.cpp -o $(ALLEGRO_OBJ_DIR)/bitmap.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/button.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/button.cpp src/gui/allegro/button.h src/bind.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/button.cpp -o $(ALLEGRO_OBJ_DIR)/button.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/checkbox.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/checkbox.cpp src/gui/allegro/checkbox.h src/bind.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/checkbox.cpp -o $(ALLEGRO_OBJ_DIR)/checkbox.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/column.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/column.cpp src/gui/allegro/column.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/column.cpp -o $(ALLEGRO_OBJ_DIR)/column.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/comboBox.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/comboBox.cpp src/gui/allegro/comboBox.h src/bind.h src/gui/allegro/list.h src/gui/list.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/comboBox.cpp -o $(ALLEGRO_OBJ_DIR)/comboBox.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/common.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/common.cpp src/gui/allegro/common.h src/gui/allegro/scrollbar.h src/gui/key.h src/gui/mouse.h src/zsys.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/common.cpp -o $(ALLEGRO_OBJ_DIR)/common.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/controller.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/controller.cpp src/gui/allegro/controller.h src/gui/allegro/common.h src/gui/allegro/widget.h src/gui/key.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/controller.cpp -o $(ALLEGRO_OBJ_DIR)/controller.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/dummy.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/dummy.cpp src/gui/allegro/dummy.h src/bind.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/dummy.cpp -o $(ALLEGRO_OBJ_DIR)/dummy.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/editableText.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/editableText.cpp src/gui/allegro/editableText.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/editableText.cpp -o $(ALLEGRO_OBJ_DIR)/editableText.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/factory.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/factory.cpp src/gui/allegro/factory.h src/bind.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/factory.cpp -o $(ALLEGRO_OBJ_DIR)/factory.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/frame.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/frame.cpp src/gui/allegro/frame.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/frame.cpp -o $(ALLEGRO_OBJ_DIR)/frame.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/list.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/list.cpp src/gui/allegro/list.h src/bind.h src/gui/allegro/scrollingPane.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/list.cpp -o $(ALLEGRO_OBJ_DIR)/list.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/renderer.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/renderer.cpp src/gui/allegro/renderer.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/renderer.cpp -o $(ALLEGRO_OBJ_DIR)/renderer.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/row.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/row.cpp src/gui/allegro/row.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/row.cpp -o $(ALLEGRO_OBJ_DIR)/row.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/scrollbar.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/scrollbar.cpp src/gui/allegro/scrollbar.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/scrollbar.cpp -o $(ALLEGRO_OBJ_DIR)/scrollbar.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/scrollingPane.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/scrollingPane.cpp src/gui/allegro/scrollingPane.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/scrollingPane.cpp -o $(ALLEGRO_OBJ_DIR)/scrollingPane.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/serialContainer.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/serialContainer.cpp src/gui/allegro/serialContainer.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/serialContainer.cpp -o $(ALLEGRO_OBJ_DIR)/serialContainer.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/standardWidget.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/standardWidget.cpp src/gui/allegro/standardWidget.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/standardWidget.cpp -o $(ALLEGRO_OBJ_DIR)/standardWidget.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/tab.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/tab.cpp src/gui/allegro/tab.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/tab.cpp -o $(ALLEGRO_OBJ_DIR)/tab.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/tabBar.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/tabBar.cpp src/gui/allegro/tabBar.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/tabBar.cpp -o $(ALLEGRO_OBJ_DIR)/tabBar.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/tabPanel.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/tabPanel.cpp src/gui/allegro/tabPanel.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/tabPanel.cpp -o $(ALLEGRO_OBJ_DIR)/tabPanel.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/text.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/text.cpp src/gui/allegro/text.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/text.cpp -o $(ALLEGRO_OBJ_DIR)/text.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/textField.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/textField.cpp src/gui/allegro/textField.h src/gui/allegro/editableText.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/textField.cpp -o $(ALLEGRO_OBJ_DIR)/textField.o $(SFLAG) $(WINFLAG)
+$(ALLEGRO_OBJ_DIR)/window.o: $(ALLEGRO_OBJ_DIR) src/gui/allegro/window.cpp src/gui/allegro/window.h src/bind.h src/gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c src/gui/allegro/window.cpp -o $(ALLEGRO_OBJ_DIR)/window.o $(SFLAG) $(WINFLAG)
 
 obj/gui/gtk/bitmap.o: src/gui/gtk/bitmap.cpp src/gui/gtk/bitmap.h src/guiBitmapRenderer.h src/gui/mouse.h src/gui/widget.h src/gui/bitmap.h src/gui/gtk/util.h src/gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/gui/gtk/bitmap.cpp -o obj/gui/gtk/bitmap.o $(SFLAG) $(WINFLAG)
