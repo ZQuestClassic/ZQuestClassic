@@ -72,6 +72,8 @@
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
 
+AL_FUNC(PACKFILE *, pack_fopen_password, (AL_CONST char *filename, AL_CONST char *mode, AL_CONST char *password));
+
 int zcmusic_bufsz = 64;
 static int zcmusic_bufsz_private = 64;
 
