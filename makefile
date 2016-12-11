@@ -196,6 +196,7 @@ done:
 	@echo Done!
 clean:
 	rm -f $(ZELDA_OBJECTS) $(ZQUEST_OBJECTS) $(ROMVIEW_OBJECTS) $(ZCSOUND_OBJECTS)
+	rm -rf ./obj
 veryclean: clean
 	rm -f $(ZELDA_EXE) $(ZQUEST_EXE) $(ROMVIEW_EXE) $(ZCSOUND_SO)
 
@@ -225,8 +226,9 @@ windows: win
 win:
 	@echo COMPILE_FOR_WIN=1 > makefile.inc
 	@make
-linux:
+linux: obj_dir
 	@echo COMPILE_FOR_LINUX=1 > makefile.inc
+	@echo "#define ALLEGRO_UNIX=1" > ./allegro/allegro/platform/alplatf.h
 	@make
 macosx:
 	@echo COMPILE_FOR_MACOSX=1 > makefile.inc
@@ -435,6 +437,13 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
 	mv $(ROMVIEW_EXE).app "ROM Viewer.app"
 endif
 
+obj_dir:
+	@if [ ! -d "obj/gui/allegro" ]; then \
+		mkdir -p "obj/gui/allegro"; \
+	fi; \
+	if [ ! -d "obj/parser" ]; then \
+		mkdir -p "obj/parser"; \
+	fi; \
 
 obj/aglogo.o: src/aglogo.cpp src/gamedata.h src/zc_alleg.h src/zdefs.h src/zeldadat.h
 	$(CC) $(OPTS) $(CFLAG) -c src/aglogo.cpp -o obj/aglogo.o $(SFLAG) $(WINFLAG)
@@ -464,7 +473,7 @@ obj/ffc.o: src/ffc.cpp src/ffc.h src/refInfo.h src/types.h src/zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c src/ffc.cpp -o obj/ffc.o $(SFLAG) $(WINFLAG)
 obj/ffscript.o: src/ffscript.cpp src/aglogo.h src/colors.h src/ffc.h src/ffscript.h src/gamedata.h src/guys.h src/items.h src/jwin.h src/jwinfsel.h src/link.h src/maps.h src/matrix.h src/pal.h src/qst.h src/sfx.h src/sound.h src/sprite.h src/subscr.h src/tab_ctl.h src/tiles.h src/weapons.h src/zc_alleg.h src/zc_custom.h src/zc_init.h src/zc_sys.h src/zcmusic.h src/zdefs.h src/zelda.h src/zeldadat.h src/zsys.h src/rendertarget.h
 	$(CC) $(OPTS) $(CFLAG) -c src/ffscript.cpp -o obj/ffscript.o $(SFLAG) $(WINFLAG)
-obj/font.o: src//allegro/tools/datedit.h src/font.cpp src/font.h src/zc_alleg.h
+obj/font.o: src/allegro/tools/datedit.h src/font.cpp src/font.h src/zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c src/font.cpp -o obj/font.o $(SFLAG) $(WINFLAG)
 obj/fontClass.o: src/fontClass.cpp src/fontClass.h
 	$(CC) $(OPTS) $(CFLAG) -c src/fontClass.cpp -o obj/fontClass.o $(SFLAG) $(WINFLAG)

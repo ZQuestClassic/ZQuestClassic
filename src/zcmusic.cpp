@@ -26,8 +26,9 @@
 
 //#include "precompiled.h" //always first
 
-
+#ifdef __OSX__
 #include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
+#endif
 #include <string.h>
 #include <aldumb.h>
 #include <alogg.h>
@@ -70,6 +71,8 @@
 #define DUH_CHANNELS  2                                     // stereo
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
+
+AL_FUNC(PACKFILE *, pack_fopen_password, (AL_CONST char *filename, AL_CONST char *mode, AL_CONST char *password));
 
 int zcmusic_bufsz = 64;
 static int zcmusic_bufsz_private = 64;
