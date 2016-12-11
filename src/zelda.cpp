@@ -3583,6 +3583,7 @@ int main(int argc, char* argv[])
         case qQUIT:
         case qGAMEOVER:
         {
+            playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
             Link.setDontDraw(false);
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
