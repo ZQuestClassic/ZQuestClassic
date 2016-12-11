@@ -6470,7 +6470,6 @@ void LinkClass::movelink()
                         {
                             info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,left);
                             execute(info);
-                            
                             if(info.isUnwalkable())
                             {
                                 shiftdir=-1;
@@ -15361,7 +15360,9 @@ void LinkClass::execute(LinkClass::WalkflagInfo info)
         hopclk = info.getHopClk();
     }
     
-    if(flags & WalkflagInfo::SETHOPDIR)
+    // Only set hopdir if it's not set already; otherwise, the wrong direction
+    // might be set if Link is moving diagonally
+    if((flags & WalkflagInfo::SETHOPDIR)==0 && hopdir==-1)
     {
         hopdir = info.getHopDir();
     }
