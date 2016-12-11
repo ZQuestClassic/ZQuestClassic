@@ -227,7 +227,7 @@ windows: win
 win:
 	@echo COMPILE_FOR_WIN=1 > makefile.inc
 	@make
-linux:
+linux: obj_dir
 	@echo COMPILE_FOR_LINUX=1 > makefile.inc
 	@echo "#define ALLEGRO_UNIX=1" > ./allegro/allegro/platform/alplatf.h
 	@make
@@ -438,6 +438,10 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
 	mv $(ROMVIEW_EXE).app "ROM Viewer.app"
 endif
 
+obj_dir:
+	@if [ ! -d "obj/parser" ]; then \
+		mkdir -p "obj/parser"; \
+	fi; \
 
 obj/aglogo.o: src/aglogo.cpp src/gamedata.h src/zc_alleg.h src/zdefs.h src/zeldadat.h
 	$(CC) $(OPTS) $(CFLAG) -c src/aglogo.cpp -o obj/aglogo.o $(SFLAG) $(WINFLAG)
