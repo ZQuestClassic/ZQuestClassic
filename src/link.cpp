@@ -1116,17 +1116,24 @@ void LinkClass::draw(BITMAP* dest)
         
     if(agonyid>-1)
     {
-        // Stolen some code from checkdamagecombos()...
-        int power = itemsbuf[agonyid].power;
-        int dx1 = (int)x+8-power;
-        int dx2 = (int)x+8+(power-1);
-        int dy1 = (int)y+(bigHitbox?8:12)-(bigHitbox?power:(power+1)/2);
-        int dy2 = (int)y+(bigHitbox?8:12)+(bigHitbox?power:(power+1)/2)-1;
+        int power=itemsbuf[agonyid].power;
+        int left=static_cast<int>(x+8-power)&0xF0; // Check top-left pixel of each tile
+        int right=(static_cast<int>(x+8+power)&0xF0)+16;
+        int top=static_cast<int>(y+(bigHitbox ? 8 : 12)-power)&0xF0;
+        int bottom=(static_cast<int>(y+(bigHitbox ? 8 : 12)+power)&0xF0)+16;
         
-        agony = (agonyflag(MAPFLAG(dx1,dy1))      || agonyflag(MAPFLAG(dx1,dy2))
-                 || agonyflag(MAPFLAG(dx2,dy1))      || agonyflag(MAPFLAG(dx2,dy2))
-                 || agonyflag(MAPCOMBOFLAG(dx1,dy1)) || agonyflag(MAPCOMBOFLAG(dx1,dy2))
-                 || agonyflag(MAPCOMBOFLAG(dx2,dy1)) || agonyflag(MAPCOMBOFLAG(dx2,dy2)));
+        for(int x=left; x<right; x+=16)
+        {
+            for(int y=top; y<bottom; y+=16)
+            {
+                if(agonyflag(MAPFLAG(x, y)) || agonyflag(MAPCOMBOFLAG(x, y)))
+                {
+                    agony=true;
+                    x=right; // Break out of outer loop
+                    break;
+                }
+            }
+        }
     }
     
     cs = 6;
