@@ -3454,7 +3454,7 @@ void updatescr(bool allowwavy)
                      scry+8 - my + sy, //y1
                      scrx+32 - mx + sx, //x2
                      scry+8 - my + sy + (16 * scale_mul), //y2
-                     0);
+                     BLACK);
                      
         //stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-128,scry+8-112,512,448);
         //if(quakeclk>0) rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
@@ -3463,7 +3463,7 @@ void updatescr(bool allowwavy)
     {
         blit(source,target,0,0,scrx+32,scry+8,256,224);
         
-        if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,0);
+        if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
     if(ShowFPS)
