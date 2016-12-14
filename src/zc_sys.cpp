@@ -3212,7 +3212,7 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     //recreating a big bitmap every frame is highly sluggish.
     static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
     
-    clear_to_color(wavebuf,0);
+    clear_to_color(wavebuf, BLACK);
     blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
     
     int ofs;
@@ -3226,18 +3226,19 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     {
         if(j&1 && interpol)
         {
-            ofs=int(sin((double(i+j)*2*PI/amp2))*amplitude);
+            // Add 288*2048 to ensure it's never negative. It'll get modded out.
+            ofs=288*2048+int(sin((double(i+j)*2*PI/amp2))*amplitude);
         }
         else
         {
-            ofs=-int(sin((double(i+j)*2*PI/amp2))*amplitude);
+            ofs=288*2048-int(sin((double(i+j)*2*PI/amp2))*amplitude);
         }
         
         if(ofs)
         {
             for(int k=0; k<256; k++)
             {
-                target->line[j+original_playing_field_offset][k]=wavebuf->line[j][k+ofs+16];
+                target->line[j+original_playing_field_offset][k]=wavebuf->line[j][(k+ofs+16)%288];
             }
         }
     }
