@@ -7781,8 +7781,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     //int vy=((int)y+4)&0xFFF8;
                     if(d2==left)
                     {
-                        if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?7:11)))&&!iswater(MAPCOMBO(x-1,y+(bigHitbox?8:12)))
-                                && !_walkflag(x-1,y+(bigHitbox?7:11),1) && !_walkflag(x-1,y+(bigHitbox?8:12),1))
+                        if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?6:11))) &&
+                           !iswater(MAPCOMBO(x-1,y+(bigHitbox?9:12))) &&
+                           !_walkflag(x-1,y+(bigHitbox?6:11),1) &&
+                           !_walkflag(x-1,y+(bigHitbox?9:12),1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -7791,8 +7793,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==right)
                     {
-                        if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?7:11)))&&!iswater(MAPCOMBO(x+16,y+(bigHitbox?8:12)))
-                                && !_walkflag(x+16,y+(bigHitbox?7:11),1) && !_walkflag(x+16,y+(bigHitbox?8:12),1))
+                        if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?6:11))) &&
+                           !iswater(MAPCOMBO(x+16,y+(bigHitbox?9:12))) &&
+                           !_walkflag(x+16,y+(bigHitbox?6:11),1) &&
+                           !_walkflag(x+16,y+(bigHitbox?9:12),1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -7801,8 +7805,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==up)
                     {
-                        if(!iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1))&&!iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1))
-                                && !_walkflag(x+7,y+(bigHitbox?0:8)-1,1) && !_walkflag(x+8,y+(bigHitbox?0:8)-1,1))
+                        if(!iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1)) &&
+                           !iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1)) &&
+                           !_walkflag(x+7,y+(bigHitbox?0:8)-1,1) &&
+                           !_walkflag(x+8,y+(bigHitbox?0:8)-1,1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -7811,8 +7817,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==down)
                     {
-                        if(!iswater(MAPCOMBO(x+7,y+16))&&!iswater(MAPCOMBO(x+8,y+16))
-                                && !_walkflag(x+7,y+16,1) && !_walkflag(x+8,y+16,1))
+                        if(!iswater(MAPCOMBO(x+7,y+16)) &&
+                           !iswater(MAPCOMBO(x+8,y+16)) &&
+                           !_walkflag(x+7,y+16,1) &&
+                           !_walkflag(x+8,y+16,1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -15360,9 +15368,7 @@ void LinkClass::execute(LinkClass::WalkflagInfo info)
         hopclk = info.getHopClk();
     }
     
-    // Only set hopdir if it's not set already; otherwise, the wrong direction
-    // might be set if Link is moving diagonally
-    if((flags & WalkflagInfo::SETHOPDIR)==0 && hopdir==-1)
+    if(flags & WalkflagInfo::SETHOPDIR)
     {
         hopdir = info.getHopDir();
     }
