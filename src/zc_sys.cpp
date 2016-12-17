@@ -4829,10 +4829,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
             sprintf(str_l,"%d\n%s",Lkey,key_str[Lkey]);
             sprintf(str_r,"%d\n%s",Rkey,key_str[Rkey]);
             sprintf(str_p,"%d\n%s",Pkey,key_str[Pkey]);
-            sprintf(str_ex1,"%d\n%s",Pkey,key_str[Exkey1]);
-            sprintf(str_ex2,"%d\n%s",Pkey,key_str[Exkey2]);
-            sprintf(str_ex3,"%d\n%s",Pkey,key_str[Exkey3]);
-            sprintf(str_ex4,"%d\n%s",Pkey,key_str[Exkey4]);
+            sprintf(str_ex1,"%d\n%s",Exkey1,key_str[Exkey1]);
+            sprintf(str_ex2,"%d\n%s",Exkey2,key_str[Exkey2]);
+            sprintf(str_ex3,"%d\n%s",Exkey3,key_str[Exkey3]);
+            sprintf(str_ex4,"%d\n%s",Exkey4,key_str[Exkey4]);
             break;
             
         case 1:
@@ -4850,6 +4850,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
             sprintf(str_r,"%d",Rbtn);
             sprintf(str_m,"%d",Mbtn);
             sprintf(str_p,"%d",Pbtn);
+            sprintf(str_ex1,"%d",Exbtn1);
+            sprintf(str_ex2,"%d",Exbtn2);
+            sprintf(str_ex3,"%d",Exbtn3);
+            sprintf(str_ex4,"%d",Exbtn4);
             break;
             
         case 3:
@@ -4963,8 +4967,8 @@ static DIALOG keydir_dlg[] =
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
     { jwin_win_proc,       8,    44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Keyboard Directions", NULL,  NULL },
     { d_stringloader,      0,    0,    1,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL, NULL },
-    { jwin_frame_proc,     14,   70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     159,  70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   147,  80,   0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     159,  70,   147,  80,   0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
     { jwin_text_proc,         30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Vertical", NULL,  NULL },
     { jwin_text_proc,         175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Horizontal", NULL,  NULL },
     
