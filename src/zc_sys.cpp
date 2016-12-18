@@ -232,6 +232,19 @@ int d_dummy_proc(int msg,DIALOG *d,int c)
 void load_game_configs()
 {
     joystick_index = get_config_int(cfg_sect,"joystick_index",0);
+    js_stick_1_x_stick = get_config_int(cfg_sect,"js_stick_1_x_stick",0);
+    js_stick_1_x_axis = get_config_int(cfg_sect,"js_stick_1_x_axis",0);
+    js_stick_1_x_offset = get_config_int(cfg_sect,"js_stick_1_x_offset",0) ? 128 : 0;
+    js_stick_1_y_stick = get_config_int(cfg_sect,"js_stick_1_y_stick",0);
+    js_stick_1_y_axis = get_config_int(cfg_sect,"js_stick_1_y_axis",1);
+    js_stick_1_y_offset = get_config_int(cfg_sect,"js_stick_1_y_offset",0) ? 128 : 0;
+    js_stick_2_x_stick = get_config_int(cfg_sect,"js_stick_2_x_stick",1);
+    js_stick_2_x_axis = get_config_int(cfg_sect,"js_stick_2_x_axis",0);
+    js_stick_2_x_offset = get_config_int(cfg_sect,"js_stick_2_x_offset",0) ? 128 : 0;
+    js_stick_2_y_stick = get_config_int(cfg_sect,"js_stick_2_y_stick",1);
+    js_stick_2_y_axis = get_config_int(cfg_sect,"js_stick_2_y_axis",1);
+    js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
+    analog_movement = get_config_int(cfg_sect,"analog_movement",1);
     
     if((unsigned int)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
@@ -263,6 +276,11 @@ void load_game_configs()
     Exbtn2 = get_config_int(cfg_sect,"btn_ex2",8);
     Exbtn3 = get_config_int(cfg_sect,"btn_ex3",4);
     Exbtn4 = get_config_int(cfg_sect,"btn_ex4",3);
+    
+    DUbtn = get_config_int(cfg_sect,"btn_up",13);
+    DDbtn = get_config_int(cfg_sect,"btn_down",14);
+    DLbtn = get_config_int(cfg_sect,"btn_left",15);
+    DRbtn = get_config_int(cfg_sect,"btn_right",16);
     
     digi_volume = get_config_int(cfg_sect,"digi",248);
     midi_volume = get_config_int(cfg_sect,"midi",255);
@@ -362,6 +380,20 @@ void load_game_configs()
 void save_game_configs()
 {
     set_config_int(cfg_sect,"joystick_index",joystick_index);
+    set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
+    set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
+    set_config_int(cfg_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
+    set_config_int(cfg_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
+    set_config_int(cfg_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
+    set_config_int(cfg_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
+    set_config_int(cfg_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
+    set_config_int(cfg_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
+    set_config_int(cfg_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
+    set_config_int(cfg_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
+    set_config_int(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
+    set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
+    set_config_int(cfg_sect,"analog_movement",analog_movement);
+    
     set_config_int(cfg_sect,"key_a",Akey);
     set_config_int(cfg_sect,"key_b",Bkey);
     set_config_int(cfg_sect,"key_s",Skey);
@@ -389,6 +421,11 @@ void save_game_configs()
     set_config_int(cfg_sect,"btn_ex2",Exbtn2);
     set_config_int(cfg_sect,"btn_ex3",Exbtn3);
     set_config_int(cfg_sect,"btn_ex4",Exbtn4);
+    
+    set_config_int(cfg_sect,"btn_up",DUbtn);
+    set_config_int(cfg_sect,"btn_down",DDbtn);
+    set_config_int(cfg_sect,"btn_left",DLbtn);
+    set_config_int(cfg_sect,"btn_right",DRbtn);
     
     set_config_int(cfg_sect,"digi",digi_volume);
     set_config_int(cfg_sect,"midi",midi_volume);
@@ -8297,18 +8334,18 @@ bool control_state[18]=
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-// Used to check if accelerators and controller buttons are mapped to the same key
-//static const int& inputKeys[]={ DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
-//bool is
+#define STICK_1_X joy[joystick_index].stick[js_stick_1_x_stick].axis[js_stick_1_x_axis]
+#define STICK_1_Y joy[joystick_index].stick[js_stick_1_y_stick].axis[js_stick_1_y_axis]
+#define STICK_2_X joy[joystick_index].stick[js_stick_2_x_stick].axis[js_stick_2_x_axis]
+#define STICK_2_Y joy[joystick_index].stick[js_stick_2_y_stick].axis[js_stick_2_y_axis]
+#define STICK_PRECISION   56 //define your own sensitivity
 
 void load_control_state()
 {
-#define STICK_PRECISION   56 //define your own sensitivity
-
-    control_state[0]=key[DUkey]||joy[joystick_index].stick[0].axis[1].d1||joy[joystick_index].stick[0].axis[1].pos< -STICK_PRECISION;
-    control_state[1]=key[DDkey]||joy[joystick_index].stick[0].axis[1].d2||joy[joystick_index].stick[0].axis[1].pos > STICK_PRECISION;
-    control_state[2]=key[DLkey]||joy[joystick_index].stick[0].axis[0].d1||joy[joystick_index].stick[0].axis[0].pos< -STICK_PRECISION;
-    control_state[3]=key[DRkey]||joy[joystick_index].stick[0].axis[0].d2||joy[joystick_index].stick[0].axis[0].pos > STICK_PRECISION;
+    control_state[0]=key[DUkey]||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
+    control_state[1]=key[DDkey]||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
+    control_state[2]=key[DLkey]||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
+    control_state[3]=key[DRkey]||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
     control_state[4]=key[Akey]||joybtn(Abtn);
     control_state[5]=key[Bkey]||joybtn(Bbtn);
     control_state[6]=key[Skey]||joybtn(Sbtn);
@@ -8322,11 +8359,10 @@ void load_control_state()
     
     if(num_joysticks != 0)
     {
-        //this is a workaround to a really stupid allegro bug.
-        control_state[14]= joy[joystick_index].stick[1].axis[0].pos - 128 < -STICK_PRECISION;
-        control_state[15]= joy[joystick_index].stick[1].axis[0].pos - 128 > STICK_PRECISION;
-        control_state[16]= joy[joystick_index].stick[0].axis[2].pos < -STICK_PRECISION;
-        control_state[17]= joy[joystick_index].stick[0].axis[2].pos > STICK_PRECISION;
+        control_state[14]= STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
+        control_state[15]= STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
+        control_state[16]= STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
+        control_state[17]= STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
     }
     
     button_press[0]=rButton(Up,button_hold[0]);
@@ -8353,10 +8389,10 @@ void load_control_state()
 // doesn't detect modifier keys and control_state[] can be modified by scripts.
 bool zc_key_pressed()
 {
-    if((key[DUkey]||joy[joystick_index].stick[0].axis[1].d1||joy[joystick_index].stick[0].axis[1].pos< -STICK_PRECISION) ||
-       (key[DDkey]||joy[joystick_index].stick[0].axis[1].d2||joy[joystick_index].stick[0].axis[1].pos > STICK_PRECISION) ||
-       (key[DLkey]||joy[joystick_index].stick[0].axis[0].d1||joy[joystick_index].stick[0].axis[0].pos< -STICK_PRECISION) ||
-       (key[DRkey]||joy[joystick_index].stick[0].axis[0].d2||joy[joystick_index].stick[0].axis[0].pos > STICK_PRECISION) ||
+    if((key[DUkey]||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
+       (key[DDkey]||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
+       (key[DLkey]||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
+       (key[DRkey]||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
        (key[Akey]||joybtn(Abtn)) ||
        (key[Bkey]||joybtn(Bbtn)) ||
        (key[Skey]||joybtn(Sbtn)) ||
