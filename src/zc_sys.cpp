@@ -233,8 +233,8 @@ void load_game_configs()
 {
     joystick_index = get_config_int(cfg_sect,"joystick_index",0);
     
-    if((unsigned int)joystick_index > 4)
-        joystick_index = 0; // 4 is the max number supported by allegro
+    if((unsigned int)joystick_index >= MAX_JOYSTICKS)
+        joystick_index = 0;
         
     Akey = get_config_int(cfg_sect,"key_a",KEY_ALT);
     Bkey = get_config_int(cfg_sect,"key_b",KEY_ZC_LCONTROL);
@@ -8190,7 +8190,6 @@ int pan(int x)
 /******* Input Handlers ********/
 /*******************************/
 
-#define MAX_BUTTONS_CHK		13 // button range 0 - 12
 
 bool joybtn(int b)
 {
@@ -8220,9 +8219,9 @@ int next_press_key()
 int next_press_btn()
 {
     clear_keybuf();
-    bool b[MAX_BUTTONS_CHK];
+    bool b[joy[joystick_index].num_buttons+1];
     
-    for(int i=1; i<MAX_BUTTONS_CHK; i++)
+    for(int i=1; i<=joy[joystick_index].num_buttons; i++)
         b[i]=joybtn(i);
         
     //first, we need to wait until they're pressing no buttons
@@ -8243,7 +8242,7 @@ int next_press_btn()
         poll_joystick();
         bool done = true;
         
-        for(int i=1; i<MAX_BUTTONS_CHK; i++)
+        for(int i=1; i<=joy[joystick_index].num_buttons; i++)
         {
             if(joybtn(i)) done = false;
         }
@@ -8268,7 +8267,7 @@ int next_press_btn()
         
         poll_joystick();
         
-        for(int i=1; i<MAX_BUTTONS_CHK; i++)
+        for(int i=1; i<=joy[joystick_index].num_buttons; i++)
         {
             if(joybtn(i)) return i;
         }
