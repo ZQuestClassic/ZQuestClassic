@@ -4903,10 +4903,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
             break;
             
         case 4:
-            sprintf(str_ex1,"%d",Exbtn1);
-            sprintf(str_ex2,"%d",Exbtn2);
-            sprintf(str_ex3,"%d",Exbtn3);
-            sprintf(str_ex4,"%d",Exbtn4);
+            sprintf(str_a,"%d",DUbtn);
+            sprintf(str_b,"%d",DDbtn);
+            sprintf(str_l,"%d",DLbtn);
+            sprintf(str_r,"%d",DRbtn);
         }
     }
     
@@ -5027,62 +5027,67 @@ static DIALOG keydir_dlg[] =
 
 static DIALOG btn_dlg[] =
 {
-    /* (dialog proc)       (x)     (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
-    { jwin_win_proc,       8,      44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick/Gamepad Buttons", NULL,  NULL },
-    { d_stringloader,      0,      0,    2,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL, NULL },
-    { jwin_frame_proc,     159,    70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,     70,   147,  132,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_ctext_proc,     22+31,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
-    { jwin_ctext_proc,     167+31, 76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
+    // (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3)
+    { jwin_win_proc,       8,    44,   304,  228,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick Buttons", NULL,  NULL },
+    { d_stringloader,      0,    0,    2,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     158,  70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,  171,   292,  67,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_text_proc,      30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Standard", NULL,  NULL },
+    { jwin_text_proc,      175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Extended", NULL,  NULL },
     
-    { jwin_ctext_proc,     100+20, 96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
-    { jwin_ctext_proc,     100+20, 124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
-    { jwin_ctext_proc,     100+20, 152,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
-    { jwin_ctext_proc,     100+20, 180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_m, NULL,  NULL },
-    { jwin_ctext_proc,     245+20, 96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
-    { jwin_ctext_proc,     245+20, 124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
-    { jwin_ctext_proc,     245+20, 152,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_p, NULL,  NULL },
-    // 13
-    { d_jbutton_proc,      22,     90,   61,   21,   vc(14),  vc(11),  0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
-    { d_jbutton_proc,      22,     118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
-    { d_jbutton_proc,      22,     146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
-    { d_jbutton_proc,      22,     174,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
-    { d_jbutton_proc,      167,    90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
-    { d_jbutton_proc,      167,    118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
-    { d_jbutton_proc,      167,    146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
-    // 20
-    { jwin_button_proc,    170,    184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK",        NULL, NULL },
-    { jwin_button_proc,    240,    184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel",    NULL, NULL },
-    { jwin_ctext_proc,     100+20, 76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL, NULL },
-    { jwin_ctext_proc,     245+20, 76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL, NULL },
-    { d_timer_proc,        0,      0,    0,    0,    0,       0,       0,       0,         0,        0,       NULL,                 NULL, NULL },
-    { NULL,                0,      0,    0,    0,    0,       0,       0,       0,         0,        0,       NULL,                 NULL, NULL }
+    { jwin_ctext_proc,      92,   92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
+    { jwin_ctext_proc,      92,   120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
+    { jwin_ctext_proc,      92,   148,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
+    { jwin_ctext_proc,      92,   180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex1, NULL,  NULL },
+    { jwin_ctext_proc,      92,   212,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex3, NULL,  NULL },
+    { jwin_ctext_proc,      237,  92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
+    { jwin_ctext_proc,      237,  120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
+    { jwin_ctext_proc,      237,  148,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_p, NULL,  NULL },
+    { jwin_ctext_proc,      237,  180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
+    { jwin_ctext_proc,      237,  212,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
+    
+    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
+    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
+    { d_jbutton_proc,      22,   146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
+    { d_jbutton_proc,      22,   178,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
+    { d_jbutton_proc,      22,   210,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exbtn3},
+    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
+    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
+    { d_jbutton_proc,      167,  146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
+    { d_jbutton_proc,      167,  178,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
+    { d_jbutton_proc,      167,  210,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
+    
+    { jwin_button_proc,    90,   240,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
+    { jwin_button_proc,    170,  240,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG exbtn_dlg[] =
+static DIALOG btndir_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
-    { jwin_win_proc,       8,    44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Extra Joystick/Gamepad Buttons", NULL,  NULL },
+    { jwin_win_proc,       8,    44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick Directions", NULL,  NULL },
     { d_stringloader,      0,    0,    4,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL, NULL },
-    { jwin_frame_proc,     159,  70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,   70,   147,  132,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_ctext_proc,     22+31,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
-    { jwin_ctext_proc,     167+31,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   147,  80,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     159,  70,   147,  80,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_text_proc,         30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Vertical", NULL,  NULL },
+    { jwin_text_proc,         175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Horizontal", NULL,  NULL },
     
-    { jwin_ctext_proc,         100+20,  96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex1, NULL,  NULL },
-    { jwin_ctext_proc,         100+20,  124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex3, NULL,  NULL },
-    { jwin_ctext_proc,         245+20,  96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
-    { jwin_ctext_proc,         245+20,  124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
-    // 13
-    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(11),  0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
-    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3",     NULL, &Exbtn3},
-    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
-    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",     NULL, &Exbtn4},
-    // 20
-    { jwin_button_proc,    170,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_button_proc,    240,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
-    { jwin_ctext_proc,     100+20,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL,  NULL },
-    { jwin_ctext_proc,     245+20,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL,  NULL },
+    { jwin_text_proc,      92,   92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
+    { jwin_text_proc,      92,   120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
+    { jwin_text_proc,      237,  92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
+    { jwin_text_proc,      237,  120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
+    
+    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(11),  0,       0,         0,        0, (void *) "Up",     NULL, &DUbtn },
+    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Down",   NULL, &DDbtn },
+    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Left",   NULL, &DLbtn },
+    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Right",  NULL, &DRbtn },
+    { jwin_check_proc,     22,   154,  147,  8,    vc(14),  vc(1),   0,       0,         1,        0, (void *) "Use Analog Stick Instead Of Buttons", NULL, NULL },
+    
+    // 16
+    { jwin_button_proc,    90,   184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
+    { jwin_button_proc,    170,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -6071,16 +6076,20 @@ int onJoystick()
     int r = Rbtn;
     int m = Mbtn;
     int p = Pbtn;
+    int ex1 = Exbtn1;
+    int ex2 = Exbtn2;
+    int ex3 = Exbtn3;
+    int ex4 = Exbtn4;
     
     btn_dlg[0].dp2=lfont;
     
     if(is_large)
         large_dialog(btn_dlg);
         
-    int ret = zc_popup_dialog(btn_dlg,20);
+    int ret = zc_popup_dialog(btn_dlg,27);
     
     // not OK'd
-    if(ret != 20)
+    if(ret != 27)
     {
         Abtn = a;
         Bbtn = b;
@@ -6089,33 +6098,42 @@ int onJoystick()
         Rbtn = r;
         Mbtn = m;
         Pbtn = p;
+        Exbtn1 = ex1;
+        Exbtn2 = ex2;
+        Exbtn3 = ex3;
+        Exbtn4 = ex4;
     }
     
     save_game_configs();
     return D_O_K;
 }
 
-int onEXJoystick()
+int onJoystickDir()
 {
-    int ex1 = Exbtn1;
-    int ex2 = Exbtn2;
-    int ex3 = Exbtn3;
-    int ex4 = Exbtn4;
+    int up = DUbtn;
+    int down = DDbtn;
+    int left = DLbtn;
+    int right = DRbtn;
     
-    exbtn_dlg[0].dp2=lfont;
+    btndir_dlg[0].dp2=lfont;
+    if(analog_movement)
+        btndir_dlg[14].flags|=D_SELECTED;
+    else
+        btndir_dlg[14].flags&=~D_SELECTED;
     
     if(is_large)
-        large_dialog(exbtn_dlg);
+        large_dialog(btndir_dlg);
         
-    int ret = zc_popup_dialog(exbtn_dlg,14);
+    int ret = zc_popup_dialog(btndir_dlg,15);
     
-    // not OK'd
-    if(ret != 14)
+    if(ret==15) // OK
+        analog_movement = btndir_dlg[14].flags&D_SELECTED;
+    else // Cancel
     {
-        Exbtn1 = ex1;
-        Exbtn2 = ex2;
-        Exbtn3 = ex3;
-        Exbtn4 = ex4;
+        DUbtn = up;
+        DDbtn = down;
+        DLbtn = left;
+        DRbtn = right;
     }
     
     save_game_configs();
@@ -6643,8 +6661,8 @@ static MENU controls_menu[] =
 {
     { (char *)"Key &Buttons...",            onKeyboard,              NULL,                      0, NULL },
     { (char *)"Key &Directions...",         onKeyboardDir,           NULL,                      0, NULL },
-    { (char *)"&Joystick/Gamepad...",       onJoystick,              NULL,                      0, NULL },
-    { (char *)"&Extra Joystick/Gamepad...", onEXJoystick,            NULL,                      0, NULL },
+    { (char *)"&Joystick Buttons...",       onJoystick,              NULL,                      0, NULL },
+    { (char *)"Joy&stick Directions...",    onJoystickDir,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -7750,7 +7768,7 @@ void fix_dialogs()
     
     jwin_center_dialog(about_dlg);
     jwin_center_dialog(btn_dlg);
-    jwin_center_dialog(exbtn_dlg);
+    jwin_center_dialog(btndir_dlg);
     jwin_center_dialog(cheat_dlg);
     jwin_center_dialog(credits_dlg);
     jwin_center_dialog(gamemode_dlg);
@@ -8226,7 +8244,6 @@ int pan(int x)
 /*******************************/
 /******* Input Handlers ********/
 /*******************************/
-
 
 bool joybtn(int b)
 {
