@@ -232,9 +232,22 @@ int d_dummy_proc(int msg,DIALOG *d,int c)
 void load_game_configs()
 {
     joystick_index = get_config_int(cfg_sect,"joystick_index",0);
+    js_stick_1_x_stick = get_config_int(cfg_sect,"js_stick_1_x_stick",0);
+    js_stick_1_x_axis = get_config_int(cfg_sect,"js_stick_1_x_axis",0);
+    js_stick_1_x_offset = get_config_int(cfg_sect,"js_stick_1_x_offset",0) ? 128 : 0;
+    js_stick_1_y_stick = get_config_int(cfg_sect,"js_stick_1_y_stick",0);
+    js_stick_1_y_axis = get_config_int(cfg_sect,"js_stick_1_y_axis",1);
+    js_stick_1_y_offset = get_config_int(cfg_sect,"js_stick_1_y_offset",0) ? 128 : 0;
+    js_stick_2_x_stick = get_config_int(cfg_sect,"js_stick_2_x_stick",1);
+    js_stick_2_x_axis = get_config_int(cfg_sect,"js_stick_2_x_axis",0);
+    js_stick_2_x_offset = get_config_int(cfg_sect,"js_stick_2_x_offset",0) ? 128 : 0;
+    js_stick_2_y_stick = get_config_int(cfg_sect,"js_stick_2_y_stick",1);
+    js_stick_2_y_axis = get_config_int(cfg_sect,"js_stick_2_y_axis",1);
+    js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
+    analog_movement = get_config_int(cfg_sect,"analog_movement",1);
     
-    if((unsigned int)joystick_index > 4)
-        joystick_index = 0; // 4 is the max number supported by allegro
+    if((unsigned int)joystick_index >= MAX_JOYSTICKS)
+        joystick_index = 0;
         
     Akey = get_config_int(cfg_sect,"key_a",KEY_ALT);
     Bkey = get_config_int(cfg_sect,"key_b",KEY_ZC_LCONTROL);
@@ -263,6 +276,11 @@ void load_game_configs()
     Exbtn2 = get_config_int(cfg_sect,"btn_ex2",8);
     Exbtn3 = get_config_int(cfg_sect,"btn_ex3",4);
     Exbtn4 = get_config_int(cfg_sect,"btn_ex4",3);
+    
+    DUbtn = get_config_int(cfg_sect,"btn_up",13);
+    DDbtn = get_config_int(cfg_sect,"btn_down",14);
+    DLbtn = get_config_int(cfg_sect,"btn_left",15);
+    DRbtn = get_config_int(cfg_sect,"btn_right",16);
     
     digi_volume = get_config_int(cfg_sect,"digi",248);
     midi_volume = get_config_int(cfg_sect,"midi",255);
@@ -362,6 +380,20 @@ void load_game_configs()
 void save_game_configs()
 {
     set_config_int(cfg_sect,"joystick_index",joystick_index);
+    set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
+    set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
+    set_config_int(cfg_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
+    set_config_int(cfg_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
+    set_config_int(cfg_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
+    set_config_int(cfg_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
+    set_config_int(cfg_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
+    set_config_int(cfg_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
+    set_config_int(cfg_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
+    set_config_int(cfg_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
+    set_config_int(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
+    set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
+    set_config_int(cfg_sect,"analog_movement",analog_movement);
+    
     set_config_int(cfg_sect,"key_a",Akey);
     set_config_int(cfg_sect,"key_b",Bkey);
     set_config_int(cfg_sect,"key_s",Skey);
@@ -389,6 +421,11 @@ void save_game_configs()
     set_config_int(cfg_sect,"btn_ex2",Exbtn2);
     set_config_int(cfg_sect,"btn_ex3",Exbtn3);
     set_config_int(cfg_sect,"btn_ex4",Exbtn4);
+    
+    set_config_int(cfg_sect,"btn_up",DUbtn);
+    set_config_int(cfg_sect,"btn_down",DDbtn);
+    set_config_int(cfg_sect,"btn_left",DLbtn);
+    set_config_int(cfg_sect,"btn_right",DRbtn);
     
     set_config_int(cfg_sect,"digi",digi_volume);
     set_config_int(cfg_sect,"midi",midi_volume);
@@ -3212,7 +3249,7 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     //recreating a big bitmap every frame is highly sluggish.
     static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
     
-    clear_to_color(wavebuf,0);
+    clear_to_color(wavebuf, BLACK);
     blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
     
     int ofs;
@@ -3226,18 +3263,19 @@ void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
     {
         if(j&1 && interpol)
         {
-            ofs=int(sin((double(i+j)*2*PI/amp2))*amplitude);
+            // Add 288*2048 to ensure it's never negative. It'll get modded out.
+            ofs=288*2048+int(sin((double(i+j)*2*PI/amp2))*amplitude);
         }
         else
         {
-            ofs=-int(sin((double(i+j)*2*PI/amp2))*amplitude);
+            ofs=288*2048-int(sin((double(i+j)*2*PI/amp2))*amplitude);
         }
         
         if(ofs)
         {
             for(int k=0; k<256; k++)
             {
-                target->line[j+original_playing_field_offset][k]=wavebuf->line[j][k+ofs+16];
+                target->line[j+original_playing_field_offset][k]=wavebuf->line[j][(k+ofs+16)%288];
             }
         }
     }
@@ -3454,7 +3492,7 @@ void updatescr(bool allowwavy)
                      scry+8 - my + sy, //y1
                      scrx+32 - mx + sx, //x2
                      scry+8 - my + sy + (16 * scale_mul), //y2
-                     0);
+                     BLACK);
                      
         //stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-128,scry+8-112,512,448);
         //if(quakeclk>0) rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
@@ -3463,7 +3501,7 @@ void updatescr(bool allowwavy)
     {
         blit(source,target,0,0,scrx+32,scry+8,256,224);
         
-        if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,0);
+        if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
     if(ShowFPS)
@@ -4828,10 +4866,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
             sprintf(str_l,"%d\n%s",Lkey,key_str[Lkey]);
             sprintf(str_r,"%d\n%s",Rkey,key_str[Rkey]);
             sprintf(str_p,"%d\n%s",Pkey,key_str[Pkey]);
-            sprintf(str_ex1,"%d\n%s",Pkey,key_str[Exkey1]);
-            sprintf(str_ex2,"%d\n%s",Pkey,key_str[Exkey2]);
-            sprintf(str_ex3,"%d\n%s",Pkey,key_str[Exkey3]);
-            sprintf(str_ex4,"%d\n%s",Pkey,key_str[Exkey4]);
+            sprintf(str_ex1,"%d\n%s",Exkey1,key_str[Exkey1]);
+            sprintf(str_ex2,"%d\n%s",Exkey2,key_str[Exkey2]);
+            sprintf(str_ex3,"%d\n%s",Exkey3,key_str[Exkey3]);
+            sprintf(str_ex4,"%d\n%s",Exkey4,key_str[Exkey4]);
             break;
             
         case 1:
@@ -4849,6 +4887,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
             sprintf(str_r,"%d",Rbtn);
             sprintf(str_m,"%d",Mbtn);
             sprintf(str_p,"%d",Pbtn);
+            sprintf(str_ex1,"%d",Exbtn1);
+            sprintf(str_ex2,"%d",Exbtn2);
+            sprintf(str_ex3,"%d",Exbtn3);
+            sprintf(str_ex4,"%d",Exbtn4);
             break;
             
         case 3:
@@ -4861,10 +4903,10 @@ int d_stringloader(int msg,DIALOG *d,int c)
             break;
             
         case 4:
-            sprintf(str_ex1,"%d",Exbtn1);
-            sprintf(str_ex2,"%d",Exbtn2);
-            sprintf(str_ex3,"%d",Exbtn3);
-            sprintf(str_ex4,"%d",Exbtn4);
+            sprintf(str_a,"%d",DUbtn);
+            sprintf(str_b,"%d",DDbtn);
+            sprintf(str_l,"%d",DLbtn);
+            sprintf(str_r,"%d",DRbtn);
         }
     }
     
@@ -4962,8 +5004,8 @@ static DIALOG keydir_dlg[] =
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
     { jwin_win_proc,       8,    44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Keyboard Directions", NULL,  NULL },
     { d_stringloader,      0,    0,    1,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL, NULL },
-    { jwin_frame_proc,     14,   70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     159,  70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   147,  80,   0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     159,  70,   147,  80,   0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
     { jwin_text_proc,         30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Vertical", NULL,  NULL },
     { jwin_text_proc,         175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Horizontal", NULL,  NULL },
     
@@ -4985,62 +5027,67 @@ static DIALOG keydir_dlg[] =
 
 static DIALOG btn_dlg[] =
 {
-    /* (dialog proc)       (x)     (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
-    { jwin_win_proc,       8,      44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick/Gamepad Buttons", NULL,  NULL },
-    { d_stringloader,      0,      0,    2,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL, NULL },
-    { jwin_frame_proc,     159,    70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,     70,   147,  132,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_ctext_proc,     22+31,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
-    { jwin_ctext_proc,     167+31, 76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
+    // (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3)
+    { jwin_win_proc,       8,    44,   304,  228,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick Buttons", NULL,  NULL },
+    { d_stringloader,      0,    0,    2,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     158,  70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,  171,   292,  67,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_text_proc,      30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Standard", NULL,  NULL },
+    { jwin_text_proc,      175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Extended", NULL,  NULL },
     
-    { jwin_ctext_proc,     100+20, 96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
-    { jwin_ctext_proc,     100+20, 124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
-    { jwin_ctext_proc,     100+20, 152,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
-    { jwin_ctext_proc,     100+20, 180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_m, NULL,  NULL },
-    { jwin_ctext_proc,     245+20, 96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
-    { jwin_ctext_proc,     245+20, 124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
-    { jwin_ctext_proc,     245+20, 152,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_p, NULL,  NULL },
-    // 13
-    { d_jbutton_proc,      22,     90,   61,   21,   vc(14),  vc(11),  0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
-    { d_jbutton_proc,      22,     118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
-    { d_jbutton_proc,      22,     146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
-    { d_jbutton_proc,      22,     174,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
-    { d_jbutton_proc,      167,    90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
-    { d_jbutton_proc,      167,    118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
-    { d_jbutton_proc,      167,    146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
-    // 20
-    { jwin_button_proc,    170,    184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK",        NULL, NULL },
-    { jwin_button_proc,    240,    184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel",    NULL, NULL },
-    { jwin_ctext_proc,     100+20, 76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL, NULL },
-    { jwin_ctext_proc,     245+20, 76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL, NULL },
-    { d_timer_proc,        0,      0,    0,    0,    0,       0,       0,       0,         0,        0,       NULL,                 NULL, NULL },
-    { NULL,                0,      0,    0,    0,    0,       0,       0,       0,         0,        0,       NULL,                 NULL, NULL }
+    { jwin_ctext_proc,      92,   92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
+    { jwin_ctext_proc,      92,   120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
+    { jwin_ctext_proc,      92,   148,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
+    { jwin_ctext_proc,      92,   180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex1, NULL,  NULL },
+    { jwin_ctext_proc,      92,   212,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex3, NULL,  NULL },
+    { jwin_ctext_proc,      237,  92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
+    { jwin_ctext_proc,      237,  120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
+    { jwin_ctext_proc,      237,  148,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_p, NULL,  NULL },
+    { jwin_ctext_proc,      237,  180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
+    { jwin_ctext_proc,      237,  212,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
+    
+    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
+    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
+    { d_jbutton_proc,      22,   146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
+    { d_jbutton_proc,      22,   178,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
+    { d_jbutton_proc,      22,   210,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exbtn3},
+    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
+    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
+    { d_jbutton_proc,      167,  146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
+    { d_jbutton_proc,      167,  178,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
+    { d_jbutton_proc,      167,  210,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
+    
+    { jwin_button_proc,    90,   240,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
+    { jwin_button_proc,    170,  240,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG exbtn_dlg[] =
+static DIALOG btndir_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
-    { jwin_win_proc,       8,    44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Extra Joystick/Gamepad Buttons", NULL,  NULL },
+    { jwin_win_proc,       8,    44,   304,  172,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick Directions", NULL,  NULL },
     { d_stringloader,      0,    0,    4,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL, NULL },
-    { jwin_frame_proc,     159,  70,   147,  104,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,   70,   147,  132,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_ctext_proc,     22+31,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
-    { jwin_ctext_proc,     167+31,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Button", NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   147,  80,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     159,  70,   147,  80,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_text_proc,         30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Vertical", NULL,  NULL },
+    { jwin_text_proc,         175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Horizontal", NULL,  NULL },
     
-    { jwin_ctext_proc,         100+20,  96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex1, NULL,  NULL },
-    { jwin_ctext_proc,         100+20,  124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex3, NULL,  NULL },
-    { jwin_ctext_proc,         245+20,  96,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
-    { jwin_ctext_proc,         245+20,  124,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
-    // 13
-    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(11),  0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
-    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3",     NULL, &Exbtn3},
-    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
-    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",     NULL, &Exbtn4},
-    // 20
-    { jwin_button_proc,    170,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_button_proc,    240,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
-    { jwin_ctext_proc,     100+20,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL,  NULL },
-    { jwin_ctext_proc,     245+20,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Stick/Pad", NULL,  NULL },
+    { jwin_text_proc,      92,   92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
+    { jwin_text_proc,      92,   120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
+    { jwin_text_proc,      237,  92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
+    { jwin_text_proc,      237,  120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
+    
+    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(11),  0,       0,         0,        0, (void *) "Up",     NULL, &DUbtn },
+    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Down",   NULL, &DDbtn },
+    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Left",   NULL, &DLbtn },
+    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Right",  NULL, &DRbtn },
+    { jwin_check_proc,     22,   154,  147,  8,    vc(14),  vc(1),   0,       0,         1,        0, (void *) "Use Analog Stick Instead Of Buttons", NULL, NULL },
+    
+    // 16
+    { jwin_button_proc,    90,   184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
+    { jwin_button_proc,    170,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -6029,16 +6076,20 @@ int onJoystick()
     int r = Rbtn;
     int m = Mbtn;
     int p = Pbtn;
+    int ex1 = Exbtn1;
+    int ex2 = Exbtn2;
+    int ex3 = Exbtn3;
+    int ex4 = Exbtn4;
     
     btn_dlg[0].dp2=lfont;
     
     if(is_large)
         large_dialog(btn_dlg);
         
-    int ret = zc_popup_dialog(btn_dlg,20);
+    int ret = zc_popup_dialog(btn_dlg,27);
     
     // not OK'd
-    if(ret != 20)
+    if(ret != 27)
     {
         Abtn = a;
         Bbtn = b;
@@ -6047,33 +6098,42 @@ int onJoystick()
         Rbtn = r;
         Mbtn = m;
         Pbtn = p;
+        Exbtn1 = ex1;
+        Exbtn2 = ex2;
+        Exbtn3 = ex3;
+        Exbtn4 = ex4;
     }
     
     save_game_configs();
     return D_O_K;
 }
 
-int onEXJoystick()
+int onJoystickDir()
 {
-    int ex1 = Exbtn1;
-    int ex2 = Exbtn2;
-    int ex3 = Exbtn3;
-    int ex4 = Exbtn4;
+    int up = DUbtn;
+    int down = DDbtn;
+    int left = DLbtn;
+    int right = DRbtn;
     
-    exbtn_dlg[0].dp2=lfont;
+    btndir_dlg[0].dp2=lfont;
+    if(analog_movement)
+        btndir_dlg[14].flags|=D_SELECTED;
+    else
+        btndir_dlg[14].flags&=~D_SELECTED;
     
     if(is_large)
-        large_dialog(exbtn_dlg);
+        large_dialog(btndir_dlg);
         
-    int ret = zc_popup_dialog(exbtn_dlg,14);
+    int ret = zc_popup_dialog(btndir_dlg,15);
     
-    // not OK'd
-    if(ret != 14)
+    if(ret==15) // OK
+        analog_movement = btndir_dlg[14].flags&D_SELECTED;
+    else // Cancel
     {
-        Exbtn1 = ex1;
-        Exbtn2 = ex2;
-        Exbtn3 = ex3;
-        Exbtn4 = ex4;
+        DUbtn = up;
+        DDbtn = down;
+        DLbtn = left;
+        DRbtn = right;
     }
     
     save_game_configs();
@@ -6601,8 +6661,8 @@ static MENU controls_menu[] =
 {
     { (char *)"Key &Buttons...",            onKeyboard,              NULL,                      0, NULL },
     { (char *)"Key &Directions...",         onKeyboardDir,           NULL,                      0, NULL },
-    { (char *)"&Joystick/Gamepad...",       onJoystick,              NULL,                      0, NULL },
-    { (char *)"&Extra Joystick/Gamepad...", onEXJoystick,            NULL,                      0, NULL },
+    { (char *)"&Joystick Buttons...",       onJoystick,              NULL,                      0, NULL },
+    { (char *)"Joy&stick Directions...",    onJoystickDir,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -7708,7 +7768,7 @@ void fix_dialogs()
     
     jwin_center_dialog(about_dlg);
     jwin_center_dialog(btn_dlg);
-    jwin_center_dialog(exbtn_dlg);
+    jwin_center_dialog(btndir_dlg);
     jwin_center_dialog(cheat_dlg);
     jwin_center_dialog(credits_dlg);
     jwin_center_dialog(gamemode_dlg);
@@ -8185,8 +8245,6 @@ int pan(int x)
 /******* Input Handlers ********/
 /*******************************/
 
-#define MAX_BUTTONS_CHK		13 // button range 0 - 12
-
 bool joybtn(int b)
 {
     if(b == 0)
@@ -8215,9 +8273,9 @@ int next_press_key()
 int next_press_btn()
 {
     clear_keybuf();
-    bool b[MAX_BUTTONS_CHK];
+    bool b[joy[joystick_index].num_buttons+1];
     
-    for(int i=1; i<MAX_BUTTONS_CHK; i++)
+    for(int i=1; i<=joy[joystick_index].num_buttons; i++)
         b[i]=joybtn(i);
         
     //first, we need to wait until they're pressing no buttons
@@ -8238,7 +8296,7 @@ int next_press_btn()
         poll_joystick();
         bool done = true;
         
-        for(int i=1; i<MAX_BUTTONS_CHK; i++)
+        for(int i=1; i<=joy[joystick_index].num_buttons; i++)
         {
             if(joybtn(i)) done = false;
         }
@@ -8263,7 +8321,7 @@ int next_press_btn()
         
         poll_joystick();
         
-        for(int i=1; i<MAX_BUTTONS_CHK; i++)
+        for(int i=1; i<=joy[joystick_index].num_buttons; i++)
         {
             if(joybtn(i)) return i;
         }
@@ -8293,18 +8351,18 @@ bool control_state[18]=
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-// Used to check if accelerators and controller buttons are mapped to the same key
-//static const int& inputKeys[]={ DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
-//bool is
+#define STICK_1_X joy[joystick_index].stick[js_stick_1_x_stick].axis[js_stick_1_x_axis]
+#define STICK_1_Y joy[joystick_index].stick[js_stick_1_y_stick].axis[js_stick_1_y_axis]
+#define STICK_2_X joy[joystick_index].stick[js_stick_2_x_stick].axis[js_stick_2_x_axis]
+#define STICK_2_Y joy[joystick_index].stick[js_stick_2_y_stick].axis[js_stick_2_y_axis]
+#define STICK_PRECISION   56 //define your own sensitivity
 
 void load_control_state()
 {
-#define STICK_PRECISION   56 //define your own sensitivity
-
-    control_state[0]=key[DUkey]||joy[joystick_index].stick[0].axis[1].d1||joy[joystick_index].stick[0].axis[1].pos< -STICK_PRECISION;
-    control_state[1]=key[DDkey]||joy[joystick_index].stick[0].axis[1].d2||joy[joystick_index].stick[0].axis[1].pos > STICK_PRECISION;
-    control_state[2]=key[DLkey]||joy[joystick_index].stick[0].axis[0].d1||joy[joystick_index].stick[0].axis[0].pos< -STICK_PRECISION;
-    control_state[3]=key[DRkey]||joy[joystick_index].stick[0].axis[0].d2||joy[joystick_index].stick[0].axis[0].pos > STICK_PRECISION;
+    control_state[0]=key[DUkey]||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
+    control_state[1]=key[DDkey]||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
+    control_state[2]=key[DLkey]||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
+    control_state[3]=key[DRkey]||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
     control_state[4]=key[Akey]||joybtn(Abtn);
     control_state[5]=key[Bkey]||joybtn(Bbtn);
     control_state[6]=key[Skey]||joybtn(Sbtn);
@@ -8318,11 +8376,10 @@ void load_control_state()
     
     if(num_joysticks != 0)
     {
-        //this is a workaround to a really stupid allegro bug.
-        control_state[14]= joy[joystick_index].stick[1].axis[0].pos - 128 < -STICK_PRECISION;
-        control_state[15]= joy[joystick_index].stick[1].axis[0].pos - 128 > STICK_PRECISION;
-        control_state[16]= joy[joystick_index].stick[0].axis[2].pos < -STICK_PRECISION;
-        control_state[17]= joy[joystick_index].stick[0].axis[2].pos > STICK_PRECISION;
+        control_state[14]= STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
+        control_state[15]= STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
+        control_state[16]= STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
+        control_state[17]= STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
     }
     
     button_press[0]=rButton(Up,button_hold[0]);
@@ -8349,10 +8406,10 @@ void load_control_state()
 // doesn't detect modifier keys and control_state[] can be modified by scripts.
 bool zc_key_pressed()
 {
-    if((key[DUkey]||joy[joystick_index].stick[0].axis[1].d1||joy[joystick_index].stick[0].axis[1].pos< -STICK_PRECISION) ||
-       (key[DDkey]||joy[joystick_index].stick[0].axis[1].d2||joy[joystick_index].stick[0].axis[1].pos > STICK_PRECISION) ||
-       (key[DLkey]||joy[joystick_index].stick[0].axis[0].d1||joy[joystick_index].stick[0].axis[0].pos< -STICK_PRECISION) ||
-       (key[DRkey]||joy[joystick_index].stick[0].axis[0].d2||joy[joystick_index].stick[0].axis[0].pos > STICK_PRECISION) ||
+    if((key[DUkey]||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
+       (key[DDkey]||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
+       (key[DLkey]||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
+       (key[DRkey]||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
        (key[Akey]||joybtn(Abtn)) ||
        (key[Bkey]||joybtn(Bbtn)) ||
        (key[Skey]||joybtn(Sbtn)) ||

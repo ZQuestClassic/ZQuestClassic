@@ -10153,6 +10153,8 @@ int advpaste(int tile, int tile2, int copy)
         {
             combobuf[i].tile=combo.tile;
             combobuf[i].flip=combo.flip;
+            setup_combo_animations();
+            setup_combo_animations2();
         }
         
         if(advpaste_dlg[4].flags & D_SELECTED)   // cset2
