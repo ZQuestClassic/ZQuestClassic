@@ -3997,7 +3997,7 @@ void guy::draw(BITMAP *dest)
 eFire::eFire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
-    shield=(bool)(flags&(inv_left | inv_right | inv_back |inv_front));
+    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
     
     // Spawn type
     if(flags & guy_fadeflicker)
@@ -4088,7 +4088,7 @@ void eFire::break_shield()
 eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
-    shield=(bool)(flags&(inv_left | inv_right | inv_back |inv_front));
+    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
     
     // Spawn type
     if(flags & guy_fadeflicker)
@@ -6004,37 +6004,40 @@ void eSpinTile::facelink()
 {
     if(Link.x-x==0)
     {
-        dir=(Link.y+8<y)?up:down;
+		if (Link.y + 8 < y)
+			dir = up;
+		else
+			dir = down;
     }
     else
     {
         double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
         
-        if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+        if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
         {
             dir=l_down;
         }
-        else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+        else if ((ddir <= -3.0*PI / 8.0) && (ddir > -5.0*PI / 8.0))
         {
             dir=down;
         }
-        else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+        else if ((ddir <= -1.0*PI / 8.0) && (ddir > -3.0*PI / 8.0))
         {
             dir=r_down;
         }
-        else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+        else if ((ddir <= 1.0*PI / 8.0) && (ddir > -1.0*PI / 8.0))
         {
             dir=right;
         }
-        else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+        else if ((ddir <= 3.0*PI / 8.0) && (ddir > 1.0*PI / 8.0))
         {
             dir=r_up;
         }
-        else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+        else if ((ddir <= 5.0*PI / 8.0) && (ddir > 3.0*PI / 8.0))
         {
             dir=up;
         }
-        else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+        else if ((ddir <= 7.0*PI / 8.0) && (ddir > 5.0*PI / 8.0))
         {
             dir=l_up;
         }
@@ -6044,6 +6047,7 @@ void eSpinTile::facelink()
         }
     }
 }
+
 
 bool eSpinTile::animate(int index)
 {
@@ -6249,7 +6253,7 @@ eStalfos::eStalfos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     multishot= timer = fired = dashing = 0;
     haslink = false;
     dummy_bool[0]=false;
-    shield=(bool)(flags&(inv_left | inv_right | inv_back |inv_front));
+    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
     
     if(dmisc9==e9tARMOS && rand()&1)
     {

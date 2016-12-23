@@ -1,0 +1,198 @@
+cmake_minimum_required(VERSION 3.6)
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+project (ZeldaClassic)
+
+include_directories(./allegro)
+include_directories(./include/lpng1212)
+include_directories(./include/zlib123)
+include_directories(./include/loadpng)
+include_directories(./include/jpgalleg-2.5)
+include_directories(./include/dumb)
+include_directories(./include/alogg)
+include_directories(./include/almp3)
+include_directories(./include/gme)
+
+if(UNIX AND NOT APPLE)
+        set(LINUX TRUE)
+endif()
+
+if(WIN32)	
+	if(MSVC)
+		link_directories(./libs/win32)
+		set(ALLEGROLIB alleg_crt)	
+		add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
+		add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
+		
+		# REQUIRED or else MSVC throws compiler error(!)
+		add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
+		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS")
+	endif()
+elseif(LINUX)
+	link_directories(./libs/linux)
+	set(ALLEGROLIB alleg)
+endif()
+
+set(IMAGELIBS libpng zlib loadpng libjpgal)
+set(SOUNDLIBS aldmb almp3 alogg dumb gme)
+
+add_definitions(-DALLEGRO_HAVE_STDINT_H)
+
+set(ZCSOUNDSOURCES
+	src/zcmusic.cpp 
+	src/zcmusicd.cpp
+)
+
+set(ROMVIEWSOURCES
+	src/editbox.cpp 
+	src/EditboxModel.cpp 
+	src/EditboxView.cpp 
+	src/gui.cpp src/jwin.cpp 
+	src/jwinfsel.cpp 
+	src/load_gif.cpp 
+	src/romview.cpp 
+	src/save_gif.cpp 
+	src/tab_ctl.cpp 
+	src/zqscale.cpp 
+	src/zsys.cpp
+)
+
+set(ZELDASOURCES
+	src/aglogo.cpp
+	src/colors.cpp
+	src/debug.cpp
+	src/decorations.cpp
+	src/defdata.cpp
+	src/editbox.cpp 
+	src/EditboxModel.cpp 
+	src/EditboxView.cpp 
+	src/ending.cpp 
+	src/ffscript.cpp 
+	src/gamedata.cpp 
+	src/gui.cpp 
+	src/guys.cpp 
+	src/init.cpp 
+	src/items.cpp 
+	src/jwin.cpp 
+	src/jwinfsel.cpp 
+	src/link.cpp 
+	src/load_gif.cpp 
+	src/maps.cpp 
+	src/matrix.cpp 
+	src/md5.cpp 
+	src/midi.cpp 
+	src/pal.cpp 
+	src/particles.cpp 
+	src/qst.cpp 
+	src/save_gif.cpp 
+	src/script_drawing.cpp 
+	src/sprite.cpp 
+	src/subscr.cpp 
+	src/tab_ctl.cpp 
+	src/tiles.cpp 
+	src/title.cpp 
+	src/weapons.cpp 
+	src/win32.cpp 
+	src/zc_custom.cpp 
+	src/zc_init.cpp 
+	src/zc_items.cpp 
+	src/zc_sprite.cpp 
+	src/zc_subscr.cpp 
+	src/zc_sys.cpp 
+	src/zelda.cpp 
+	src/zscriptversion.cpp 
+	src/zsys.cpp
+)
+
+set(ZQUESTSOURCES
+	src/zquest.cpp 
+	src/colors.cpp 
+	src/defdata.cpp 
+	src/editbox.cpp 
+	src/EditboxModel.cpp 
+	src/EditboxView.cpp 
+	src/gamedata.cpp 
+	src/gui.cpp 
+	src/init.cpp 
+	src/items.cpp 
+	src/jwin.cpp 
+	src/jwinfsel.cpp 
+	src/load_gif.cpp 
+	src/md5.cpp 
+	src/midi.cpp 
+	src/particles.cpp 
+	src/qst.cpp 
+	src/questReport.cpp 
+	src/save_gif.cpp 
+	src/sprite.cpp 
+	src/subscr.cpp 
+	src/tab_ctl.cpp 
+	src/tiles.cpp 
+	src/win32.cpp 
+	src/zc_custom.cpp 
+	src/zq_class.cpp 
+	src/zq_cset.cpp 
+	src/zq_custom.cpp 
+	src/zq_doors.cpp 
+	src/zq_files.cpp 
+	src/zq_items.cpp 
+	src/zq_init.cpp 
+	src/zq_misc.cpp 
+	src/zq_rules.cpp 
+	src/zq_sprite.cpp 
+	src/zq_strings.cpp 
+	src/zq_subscr.cpp 
+	src/zq_tiles.cpp 
+	src/zqscale.cpp 
+	src/zsys.cpp 
+	src/ffasm.cpp 
+	src/parser/AST.cpp 
+	src/parser/BuildVisitors.cpp 
+	src/parser/ByteCode.cpp 
+	src/parser/DataStructs.cpp 
+	src/parser/GlobalSymbols.cpp 
+	src/parser/lex.yy.cpp 
+	src/parser/ParseError.cpp 
+	src/parser/ScriptParser.cpp 
+	src/parser/SymbolVisitors.cpp 
+	src/parser/TypeChecker.cpp 
+	src/parser/UtilVisitors.cpp 
+	src/parser/y.tab.cpp
+)
+
+if(WIN32)
+	if(MSVC)
+		set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
+	endif()
+endif()
+add_library(zcsound SHARED ${ZCSOUNDSOURCES})
+target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_compile_definitions(zcsound PRIVATE ZCM_DLL)
+
+
+if(WIN32)
+	set(ROMVIEWEXTRASOURCES rv_icon.rc)
+elseif(LINUX)
+	set(ROMVIEWEXTRASOURCES rv_icon.c)
+endif()
+add_executable(romview ${ROMVIEWSOURCES} ${ROMVIEWEXTRASOURCES})
+target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS})
+
+
+if(WIN32)
+	set(ZELDAEXTRASOURCES zc_icon.rc)
+elseif(LINUX)
+	set(ZELDAEXTRASOURCES zc_icon.c)
+endif()
+add_executable(zelda ${ZELDASOURCES} ${ZELDAEXTRASOURCES})
+target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS})
+target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+
+if(WIN32)
+	set(ZQUESTEXTRASOURCES zq_icon.rc)
+elseif(LINUX)
+	set(ZQUESTEXTRASOURCES zq_icon.c)
+endif()
+add_executable(zquest ${ZQUESTSOURCES} ${ZQUESTEXTRASOURCES})
+target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS})
+target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
