@@ -20,6 +20,8 @@ if(WIN32)
 	if(MSVC)
 		link_directories(./libs/win32)
 		set(ALLEGROLIB alleg_crt)	
+		add_definitions(-DALLEGRO_MSVC)
+		
 		add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 		add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 		
@@ -31,6 +33,7 @@ if(WIN32)
 elseif(LINUX)
 	link_directories(./libs/linux)
 	set(ALLEGROLIB alleg)
+	add_definitions(-DALLEGRO_UNIX)
 endif()
 
 set(IMAGELIBS libpng zlib loadpng libjpgal)
