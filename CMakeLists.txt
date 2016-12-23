@@ -170,7 +170,7 @@ if(WIN32)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
-target_compile_definitions(zcsound PRIVATE ZCM_DLL)
+
 
 
 if(WIN32)
@@ -189,7 +189,7 @@ elseif(LINUX)
 endif()
 add_executable(zelda ${ZELDASOURCES} ${ZELDAEXTRASOURCES})
 target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS})
-target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+
 
 if(WIN32)
 	set(ZQUESTEXTRASOURCES zq_icon.rc)
@@ -198,4 +198,9 @@ elseif(LINUX)
 endif()
 add_executable(zquest ${ZQUESTSOURCES} ${ZQUESTEXTRASOURCES})
 target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS})
-target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+
+if(MSVC)
+	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
+	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+endif()
