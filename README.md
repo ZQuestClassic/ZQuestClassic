@@ -21,7 +21,7 @@ Because of Zelda Classic's extended development history and dependency on legacy
 - **Windows 10 with MSVC 2016**
 - **Ubuntu 16.04 with g++ 5.4**
 
-You may not to tweak the configuration settings for other platforms.
+You may need to tweak the configuration settings for other platforms.
 
 **2))** Included in this repository are pre-built libraries for many of ZC's depencies, including Allegro and several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.
 
