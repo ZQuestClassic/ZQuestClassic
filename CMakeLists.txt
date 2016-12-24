@@ -22,6 +22,10 @@ if(WIN32)
 		set(ALLEGROLIB alleg_crt)	
 		add_definitions(-DALLEGRO_MSVC)
 		
+		set(IMAGELIBS libpng zlib loadpng libjpgal)
+		set(SOUNDLIBS aldmb almp3 alogg dumb gme)
+
+		
 		add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 		add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 		
@@ -31,14 +35,19 @@ if(WIN32)
 		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
 	endif()
 elseif(LINUX)
+	find_package(X11 REQUIRED)
 	link_directories(./libs/linux)
 	set(ALLEGROLIB alleg)
 	add_definitions(-DALLEGRO_UNIX)
-	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
+	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
+	
+	set(IMAGELIBS ldpng jpgal png z)
+	set(SOUNDLIBS aldmb almp3 alogg dumb gme)
+	
+	add_compile_options("-m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
 endif()
-
-set(IMAGELIBS libpng zlib loadpng libjpgal)
-set(SOUNDLIBS aldmb almp3 alogg dumb gme)
 
 add_definitions(-DALLEGRO_HAVE_STDINT_H)
 
@@ -178,27 +187,30 @@ if(WIN32)
 	set(ROMVIEWEXTRASOURCES rv_icon.rc)
 elseif(LINUX)
 	set(ROMVIEWEXTRASOURCES rv_icon.c)
+	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
 endif()
 add_executable(romview ${ROMVIEWSOURCES} ${ROMVIEWEXTRASOURCES})
-target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS})
+target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${ROMVIEWLIBSEXTRA})
 
 
 if(WIN32)
 	set(ZELDAEXTRASOURCES zc_icon.rc)
 elseif(LINUX)
 	set(ZELDAEXTRASOURCES zc_icon.c)
+	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
 endif()
 add_executable(zelda ${ZELDASOURCES} ${ZELDAEXTRASOURCES})
-target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS})
+target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZELDALIBSEXTRA})
 
 
 if(WIN32)
 	set(ZQUESTEXTRASOURCES zq_icon.rc)
 elseif(LINUX)
 	set(ZQUESTEXTRASOURCES zq_icon.c)
+	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 add_executable(zquest ${ZQUESTSOURCES} ${ZQUESTEXTRASOURCES})
-target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS})
+target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 
 if(MSVC)
 	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
