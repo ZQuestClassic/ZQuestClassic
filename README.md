@@ -1,5 +1,5 @@
-# ZeldaClassic
-Zelda Classic is a game and editing tool that let you create custom Legend of Zelda quests.
+# Zelda Classic
+Zelda Classic is a game and editing tool that lets you create custom Legend of Zelda quests.
 
 Homepage:
 http://zeldaclassic.com
@@ -23,7 +23,7 @@ Because of Zelda Classic's extended development history and dependency on legacy
 
 You may need to tweak the configuration settings for other platforms.
 
-**2))** Included in this repository are pre-built libraries for many of ZC's depencies, including Allegro and several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.
+**2))** Included in this repository are pre-built libraries for many of ZC's dependencies, including Allegro and several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.
 
 Zelda Classic requires a modified version of the Allegro 4.2.2 library. Again, pre-built library binaries are available in `/libs`, and if you need to rebuild the library from source, it is contained in `./allegro/fixed/all422-fixed.zip`. A stripped-down version of the fixed library, containing only the header files needed to compile ZC, is in `./allegro`. **Do not try to link Zelda Classic against the standard 4.2.2 Allegro library. You must use the pre-built binaries, or the modified source.**
 
