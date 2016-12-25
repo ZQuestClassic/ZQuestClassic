@@ -42,6 +42,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+[Bb]uild/
 
 # Debug based files.
 *.dSYM/

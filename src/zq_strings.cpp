@@ -1514,6 +1514,8 @@ const char *stringcatlist(int index, int *list_size)
 // Dialog procs
  //
 
+extern int zqwin_scale;
+
 
 int d_msg_preview_proc(int msg,DIALOG *d,int c)
 {

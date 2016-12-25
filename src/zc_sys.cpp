@@ -8273,10 +8273,10 @@ int next_press_key()
 int next_press_btn()
 {
     clear_keybuf();
-    bool b[joy[joystick_index].num_buttons+1];
+    /*bool b[joy[joystick_index].num_buttons+1];
     
     for(int i=1; i<=joy[joystick_index].num_buttons; i++)
-        b[i]=joybtn(i);
+        b[i]=joybtn(i);*/
         
     //first, we need to wait until they're pressing no buttons
     for(;;)
