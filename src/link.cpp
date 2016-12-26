@@ -12072,8 +12072,10 @@ int LinkClass::lookahead(int destscr, int d2)                       // Helper fo
     // but assumes currmap is correct.
     
     int s = currscr;
-    int cx = x;
+	int cx = x;
     int cy = y + 8;
+	bound(cx, 0, 240);
+	bound(cy, 0, 160);
     
     switch(d2)
     {
