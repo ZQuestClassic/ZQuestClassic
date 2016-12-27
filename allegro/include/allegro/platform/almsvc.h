@@ -78,9 +78,9 @@
 #define LONG_LONG    __int64
 
 // MSVC now has these built in
-#if _MSC_VER < 1900
-#define int64_t      signed __int64
-#define uint64_t     unsigned __int64
+#if _MSC_VER < 1500
+//#define int64_t      signed __int64
+//#define uint64_t     unsigned __int64
 #endif
 
 #define AL_CONST     const

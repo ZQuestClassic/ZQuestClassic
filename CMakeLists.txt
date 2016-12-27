@@ -209,7 +209,7 @@ else()
 endif()
 
 if(WIN32)
-	if(MSVC AND (MSVC_VERSION GREATER 1500))
+	if(MSVC AND (MSVC_VERSION GREATER 1600))
 		set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 	endif()
 endif()
