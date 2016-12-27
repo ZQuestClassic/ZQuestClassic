@@ -8,6 +8,7 @@ command: bison -b y -v -d ffscript.ypp
 
 /* declarations */
 %{
+#include "../precompiled.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
@@ -39,16 +40,16 @@ extern YYLTYPE noloc;
 %start Init
 
 %token SCRIPT
-%token FLOAT
+%token ZFLOAT
 %token FOR
-%token BOOL
-%token VOID
+%token ZBOOL
+%token ZVOID
 %token IF
 %token ELSE
 %token RETURN
 %token IMPORT
-%token TRUE
-%token FALSE
+%token ZTRUE
+%token ZFALSE
 %token WHILE
 %token FFC
 %token ITEM
@@ -56,7 +57,7 @@ extern YYLTYPE noloc;
 %token GLOBAL
 %token BREAK
 %token CONTINUE
-%token CONST
+%token ZCONST
 %token DO
 %token NPC
 %token LWEAPON
@@ -126,11 +127,11 @@ GlobalStmt : Script {$$ = $1;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	;
 
-ConstDecl : CONST FLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 															ASTFloat *val = (ASTFloat *)$5;
 															$$ = new ASTConstDecl(name->getValue(), val,@1);
 															delete name;}
-          | CONST FLOAT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+          | ZCONST ZFLOAT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 																  ASTFloat *val = (ASTFloat *)$6;
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
@@ -249,9 +250,9 @@ VarDecl : Type IDENTIFIER {ASTType *type = (ASTType *)$1;
 				   delete name;}
 	;
 
-Type : FLOAT {$$ = new ASTTypeFloat(@1);}
-	| BOOL {$$ = new ASTTypeBool(@1);}
-	| VOID {$$ = new ASTTypeVoid(@1);}
+Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
+	| ZBOOL {$$ = new ASTTypeBool(@1);}
+	| ZVOID {$$ = new ASTTypeVoid(@1);}
 	| FFC {$$ = new ASTTypeFFC(@1);}
 	| ITEM {$$ = new ASTTypeItem(@1);}
 	| ITEMCLASS {$$ = new ASTTypeItemclass(@1);}
@@ -534,8 +535,8 @@ Factor : LPAREN Expr RPAREN {$$=$2;}
 	| FuncCall {$$=$1;}
 	;
 
-BoolConstant : TRUE {$$ = new ASTBoolConstant(true,@1);}
-		 | FALSE {$$ = new ASTBoolConstant(false,@1);}
+BoolConstant : ZTRUE {$$ = new ASTBoolConstant(true,@1);}
+		 | ZFALSE {$$ = new ASTBoolConstant(false,@1);}
 		 ;
 
 FuncCall : DotExpr LPAREN ExprList RPAREN {ASTFuncCall *fc = (ASTFuncCall *)$3;

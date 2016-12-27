@@ -2,53 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 project (ZeldaClassic)
 
-#############################################################
-# Global settings for the different platforms
-#############################################################
-
 if(UNIX AND NOT APPLE)
-        set(LINUX TRUE)
-endif()
-
-if(WIN32)	
-	if(MSVC)
-		set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alld_crt.lib>" 
-					   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg_crt.lib>")
-		
-		add_definitions(-DALLEGRO_MSVC)
-		
-		set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
-		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
-		
-		set(SOUNDLIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/aldmd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/dumbd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/gme.lib>"
-		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
-
-		if(MSVC_VERSION GREATER 1500) 
-			add_definitions(-DALLEGRO_HAVE_STDINT_H)
-		endif()
-		
-		add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
-		add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
-		
-		# REQUIRED or else MSVC throws compiler error(!)
-		add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
-		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
-	endif()
-elseif(LINUX)
-	link_directories(/usr/lib/i386-linux-gnu)
-	link_directories(./libs/linux)
-	set(ALLEGROLIB alleg)
-	add_definitions(-DALLEGRO_UNIX)
-	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
-	
-	set(IMAGELIBS ldpng jpgal png z)
-	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
-	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm)
-	
-	add_compile_options("-m32")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
+	set(LINUX TRUE)
 endif()
 
 #############################################################
@@ -199,53 +154,107 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 		src/parser/ScriptParser.cpp 
 		src/parser/SymbolVisitors.cpp 
 		src/parser/TypeChecker.cpp 
-		src/parser/UtilVisitors.cpp 
-		${BISON_ZScriptParser_OUTPUTS} 
-		${FLEX_ZScriptLexer_OUTPUTS}
+		src/parser/UtilVisitors.cpp 		
 	)
 else()
 	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
 	set(ZSCRIPTSOURCES src/parser/NoScriptParser.cpp)
 endif()
 
-if(WIN32)
-	if(MSVC AND (MSVC_VERSION GREATER 1600))
-		set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
+
+#############################################################
+# Global settings for the different platforms
+#############################################################
+
+if(MSVC)
+	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alld_crt.lib>" 
+				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg_crt.lib>")
+	
+	add_definitions(-DALLEGRO_MSVC)
+	
+	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
+	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
+	
+	set(SOUNDLIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/aldmd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/dumbd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/gme.lib>"
+	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
+
+	if(MSVC_VERSION GREATER 1500) 
+		add_definitions(-DALLEGRO_HAVE_STDINT_H)
 	endif()
+		
+	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
+	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
+		
+	# REQUIRED or else MSVC throws compiler error(!)
+	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
+		
+	set(ZCPrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/zcprecompiled.pch")
+	set(ZQPrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/zqprecompiled.pch")
+	set_source_files_properties(src/precompiledzc.cpp PROPERTIES COMPILE_FLAGS "/Ycprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_OUTPUTS "${ZCPrecompiledBinary}")
+	set_source_files_properties(src/precompiledzq.cpp PROPERTIES COMPILE_FLAGS "/Ycprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_OUTPUTS "${ZQPrecompiledBinary}")
+	list(APPEND ZELDASOURCES src/precompiledzc.cpp)
+	list(APPEND ZQUESTSOURCES src/precompiledzq.cpp)
+elseif(LINUX)
+	link_directories(/usr/lib/i386-linux-gnu)
+	link_directories(./libs/linux)
+	set(ALLEGROLIB alleg)
+	add_definitions(-DALLEGRO_UNIX)
+	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
+	
+	set(IMAGELIBS ldpng jpgal png z)
+	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
+	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm)
+	
+	add_compile_options("-m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
+endif()
+
+if(MSVC AND (MSVC_VERSION GREATER 1600))
+	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 
 
-if(WIN32)
-	set(ROMVIEWEXTRASOURCES rv_icon.rc)
+if(MSVC)
+	list(APPEND ROMVIEWSOURCES rv_icon.rc)
 elseif(LINUX)
-	set(ROMVIEWEXTRASOURCES rv_icon.c)
+	list(APPEND ROMVIEWSOURCES rv_icon.c)
 	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
 endif()
-add_executable(romview ${ROMVIEWSOURCES} ${ROMVIEWEXTRASOURCES})
+add_executable(romview ${ROMVIEWSOURCES})
 target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 
-if(WIN32)
-	set(ZELDAEXTRASOURCES zc_icon.rc)
+if(MSVC)
+	list(APPEND ZELDASOURCES zc_icon.rc)
 elseif(LINUX)
-	set(ZELDAEXTRASOURCES zc_icon.c src/single_instance_unix.cpp)
+	list(APPEND ZELDASOURCES zc_icon.c src/single_instance_unix.cpp)
 	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
 endif()
-add_executable(zelda ${ZELDASOURCES} ${ZELDAEXTRASOURCES})
+add_executable(zelda ${ZELDASOURCES})
 target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZELDALIBSEXTRA})
+if(MSVC)
+	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
+	target_compile_definitions(zelda PRIVATE ZC_PCH)
+endif()
 
-
-if(WIN32)
-	set(ZQUESTEXTRASOURCES zq_icon.rc)
+if(MSVC)
+	list(APPEND ZQUESTSOURCES zq_icon.rc)
 elseif(LINUX)
-	set(ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
+	list(ZQUESTSOURCES zq_icon.c src/single_instance_unix.cpp)
 	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
-add_executable(zquest ${ZQUESTSOURCES} ${ZSCRIPTSOURCES} ${ZQUESTEXTRASOURCES})
+add_executable(zquest ${ZQUESTSOURCES} ${ZSCRIPTSOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
 target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+if(MSVC)
+	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
+	target_compile_definitions(zquest PRIVATE ZC_PCH)
+endif()
 
 if(MSVC)
 	target_compile_definitions(zcsound PRIVATE ZCM_DLL)

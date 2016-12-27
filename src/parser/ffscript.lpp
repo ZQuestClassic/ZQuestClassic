@@ -20,17 +20,17 @@ void doLines();
 %%
 
 script                    { doLines();return SCRIPT; }
-float				  { doLines(); return FLOAT; }
-int					  { doLines(); return FLOAT; }
+float				  { doLines(); return ZFLOAT; }
+int					  { doLines(); return ZFLOAT; }
 for				  { doLines(); return FOR; }
-bool				  { doLines();return BOOL; }
-void				  { doLines();return VOID; }
+bool				  { doLines();return ZBOOL; }
+void				  { doLines();return ZVOID; }
 if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
 return			  { doLines();return RETURN; }
 import			  { doLines();return IMPORT; }
-true				  { doLines();return TRUE; }
-false				  { doLines();return FALSE; }
+true				  { doLines();return ZTRUE; }
+false				  { doLines();return ZFALSE; }
 while				{doLines(); return WHILE;}
 ffc					{doLines(); return FFC;}
 itemdata			{doLines(); return ITEMCLASS;}
@@ -38,7 +38,7 @@ item				{doLines(); return ITEM;}
 global				{doLines(); return GLOBAL;}
 break				{doLines(); return BREAK;}
 continue			{doLines(); return CONTINUE;}
-const				{doLines(); return CONST;}
+const				{doLines(); return ZCONST;}
 do					{doLines(); return DO;}
 npc					{doLines(); return NPC;}
 lweapon					{doLines(); return LWEAPON;}

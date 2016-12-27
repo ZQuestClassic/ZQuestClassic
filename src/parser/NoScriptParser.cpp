@@ -1,3 +1,4 @@
+#include "../precompiled.h"
 #include "../zsys.h"
 #include "Compiler.h"
 
