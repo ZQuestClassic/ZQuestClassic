@@ -22,7 +22,7 @@ using namespace std;
 
 AST *resAST;
 
-ScriptsData * compile(char *filename);
+ScriptsData * compile(const char *filename);
 
 #ifdef PARSER_DEBUG
 int main(int argc, char *argv[])

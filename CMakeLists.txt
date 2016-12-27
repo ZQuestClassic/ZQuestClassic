@@ -2,15 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 project (ZeldaClassic)
 
-include_directories(./allegro/include)
-include_directories(./include/lpng1212)
-include_directories(./include/zlib123)
-include_directories(./include/loadpng)
-include_directories(./include/jpgalleg-2.5)
-include_directories(./include/dumb)
-include_directories(./include/alogg)
-include_directories(./include/almp3)
-include_directories(./include/gme)
+#############################################################
+# Global settings for the different platforms
+#############################################################
 
 if(UNIX AND NOT APPLE)
         set(LINUX TRUE)
@@ -56,6 +50,20 @@ elseif(LINUX)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
 endif()
+
+#############################################################
+# Header and source file lists
+#############################################################
+
+include_directories(./allegro/include)
+include_directories(./include/lpng1212)
+include_directories(./include/zlib123)
+include_directories(./include/loadpng)
+include_directories(./include/jpgalleg-2.5)
+include_directories(./include/dumb)
+include_directories(./include/alogg)
+include_directories(./include/almp3)
+include_directories(./include/gme)
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp 
@@ -164,20 +172,41 @@ set(ZQUESTSOURCES
 	src/zq_tiles.cpp 
 	src/zqscale.cpp 
 	src/zsys.cpp 
-	src/ffasm.cpp 
-	src/parser/AST.cpp 
-	src/parser/BuildVisitors.cpp 
-	src/parser/ByteCode.cpp 
-	src/parser/DataStructs.cpp 
-	src/parser/GlobalSymbols.cpp 
-	src/parser/lex.yy.cpp 
-	src/parser/ParseError.cpp 
-	src/parser/ScriptParser.cpp 
-	src/parser/SymbolVisitors.cpp 
-	src/parser/TypeChecker.cpp 
-	src/parser/UtilVisitors.cpp 
-	src/parser/y.tab.cpp
+	src/ffasm.cpp 	
 )
+
+#############################################################
+# Build the ZScript parser
+#############################################################
+
+find_package(BISON QUIET)
+find_package(FLEX QUIET)
+
+if(${BISON_FOUND} AND ${FLEX_FOUND})
+	if(MSVC)
+		set(FLEXFLAGS "--wincompat")
+	endif()
+	FLEX_TARGET(ZScriptLexer ${CMAKE_SOURCE_DIR}/src/parser/ffscript.lpp ${CMAKE_SOURCE_DIR}/src/parser/lex.yy.cpp COMPILE_FLAGS ${FLEXFLAGS})
+	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp)
+	add_flex_bison_dependency(ZScriptLexer ZScriptParser)	
+	set(ZSCRIPTSOURCES
+		src/parser/AST.cpp 
+		src/parser/BuildVisitors.cpp 
+		src/parser/ByteCode.cpp 
+		src/parser/DataStructs.cpp 
+		src/parser/GlobalSymbols.cpp 
+		src/parser/ParseError.cpp 
+		src/parser/ScriptParser.cpp 
+		src/parser/SymbolVisitors.cpp 
+		src/parser/TypeChecker.cpp 
+		src/parser/UtilVisitors.cpp 
+		${BISON_ZScriptParser_OUTPUTS} 
+		${FLEX_ZScriptLexer_OUTPUTS}
+	)
+else()
+	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
+	set(ZSCRIPTSOURCES src/parser/NoScriptParser.cpp)
+endif()
 
 if(WIN32)
 	if(MSVC AND (MSVC_VERSION GREATER 1500))
@@ -215,7 +244,7 @@ elseif(LINUX)
 	set(ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
 	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
-add_executable(zquest ${ZQUESTSOURCES} ${ZQUESTEXTRASOURCES})
+add_executable(zquest ${ZQUESTSOURCES} ${ZSCRIPTSOURCES} ${ZQUESTEXTRASOURCES})
 target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 
 if(MSVC)
