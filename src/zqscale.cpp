@@ -6,6 +6,7 @@
 #include "precompiled.h" //always first
 
 #include "allegro.h"
+#include "zqscale.h"
 
 extern int zq_screen_w, zq_screen_h;
 extern void Z_message(char *format,...);
@@ -17,7 +18,6 @@ GFX_VTABLE *orig_vtable = NULL;
 GFX_VTABLE *proxy_vtable = NULL;
 int zqwin_scale = 1;
 
-bool zqwin_set_scale(int scale, bool defer = false);
 
 void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool masked=false)
 {

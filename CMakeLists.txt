@@ -25,6 +25,9 @@ if(WIN32)
 		set(IMAGELIBS libpng zlib loadpng libjpgal)
 		set(SOUNDLIBS aldmb almp3 alogg dumb gme)
 
+		if(MSVC_VERSION GREATER 1700) 
+			add_definitions(-DALLEGRO_HAVE_STDINT_H)
+		endif()
 		
 		add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 		add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
@@ -49,8 +52,6 @@ elseif(LINUX)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
 endif()
-
-add_definitions(-DALLEGRO_HAVE_STDINT_H)
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp 

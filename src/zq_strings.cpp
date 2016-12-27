@@ -162,7 +162,7 @@ static MENU strlist_rclick_menu[] =
     { NULL,                       NULL,  NULL, 0, NULL }
 };
 
-static int propCopySrc=-1;
+static int zqstr_propCopySrc=-1;
 void strlist_rclick_func(int index, int x, int y)
 {
     // Don't do anything on (none) or <New String>
@@ -170,7 +170,7 @@ void strlist_rclick_func(int index, int x, int y)
         return;
     
     // Disable "Paste Properties" if the copy source is invalid
-    if(propCopySrc<=0 || propCopySrc>=msg_count)
+    if(zqstr_propCopySrc<=0 || zqstr_propCopySrc>=msg_count)
         strlist_rclick_menu[1].flags|=D_DISABLED;
     else
         strlist_rclick_menu[1].flags&=~D_DISABLED;
@@ -180,11 +180,11 @@ void strlist_rclick_func(int index, int x, int y)
     switch(ret)
     {
     case 0: // Copy properties
-        propCopySrc=msg_at_pos(index);
+        zqstr_propCopySrc=msg_at_pos(index);
         break;
         
     case 1: // Paste properties
-        MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[propCopySrc]);
+        MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[zqstr_propCopySrc]);
         break;
 
     case 2: // Set as template
