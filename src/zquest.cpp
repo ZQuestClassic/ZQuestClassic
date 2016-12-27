@@ -119,6 +119,7 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #include <crtdbg.h>
 #define stricmp _stricmp
 #define unlink _unlink
+#define snprintf _snprintf
 
 #endif
 

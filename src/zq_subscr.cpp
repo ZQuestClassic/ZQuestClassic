@@ -47,7 +47,7 @@ int curr_subscreen_object;
 char *str_oname;
 subscreen_group *css;
 bool sso_selection[MAXSUBSCREENITEMS];
-static int propCopySrc=-1;
+static int ss_propCopySrc=-1;
 
 void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
@@ -4075,10 +4075,10 @@ int onDeleteSubscreenObject()
     css->objects[objs-1].type=ssoNULL;
     sso_selection[objs-1]=false;
     
-    if(propCopySrc==curr_subscreen_object)
-        propCopySrc=-1;
-    else if(propCopySrc>curr_subscreen_object)
-        propCopySrc--;
+    if(ss_propCopySrc==curr_subscreen_object)
+        ss_propCopySrc=-1;
+    else if(ss_propCopySrc>curr_subscreen_object)
+        ss_propCopySrc--;
     
     if(curr_subscreen_object==objs-1)
     {
@@ -4264,7 +4264,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             object_message(d,MSG_DRAW,0);
             
             // Disable "Paste Properties" if the copy source is invalid
-            if(propCopySrc<0 || css->objects[propCopySrc].type==ssoNULL)
+            if(ss_propCopySrc<0 || css->objects[ss_propCopySrc].type==ssoNULL)
                 subscreen_rc_menu[3].flags|=D_DISABLED;
             else
                 subscreen_rc_menu[3].flags&=~D_DISABLED;
@@ -4282,19 +4282,19 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
                 break;
             
             case 2: // Copy Properties
-                propCopySrc=curr_subscreen_object;
+                ss_propCopySrc=curr_subscreen_object;
                 break;
                 
             case 3: // Paste Properties
-                if(propCopySrc>=0) // Hopefully unnecessary)
+                if(ss_propCopySrc>=0) // Hopefully unnecessary)
                 {
-                    copySSOProperties(css->objects[propCopySrc], css->objects[curr_subscreen_object]);
+                    copySSOProperties(css->objects[ss_propCopySrc], css->objects[curr_subscreen_object]);
                     for(int i=0; i<MAXSUBSCREENITEMS; i++)
                     {
                         if(!sso_selection[i])
                             continue;
                         
-                        copySSOProperties(css->objects[propCopySrc], css->objects[i]);
+                        copySSOProperties(css->objects[ss_propCopySrc], css->objects[i]);
                     }
                 }
                 break;
@@ -6606,7 +6606,7 @@ void edit_subscreen()
     subscreen_dlg[0].dp2=lfont;
     load_Sitems(&misc);
     curr_subscreen_object=0;
-    propCopySrc=-1;
+    ss_propCopySrc=-1;
     subscreen_group tempss;
     memset(&tempss, 0, sizeof(subscreen_group));
     int i;

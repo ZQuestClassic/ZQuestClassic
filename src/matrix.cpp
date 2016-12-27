@@ -31,22 +31,22 @@ extern FONT *deffont, *mfont;
 
 typedef unsigned char byte;
 
-typedef struct TRACER
+typedef struct zcMatrixTRACER
 {
     byte x, y;
     byte speed;
     byte cnt;
-} TRACER;
+} zcMatrixTRACER;
 
-typedef struct COLUMN
+typedef struct zcMatrixCOLUMN
 {
     short speed, cnt;
-} COLUMN;
+} zcMatrixCOLUMN;
 
 static BITMAP *linebmp = NULL;
-static TRACER tracer[MAX_TRACERS];
-static TRACER eraser[MAX_TRACERS];
-static COLUMN column[MAX_COLS];
+static zcMatrixTRACER tracer[MAX_TRACERS];
+static zcMatrixTRACER eraser[MAX_TRACERS];
+static zcMatrixCOLUMN column[MAX_COLS];
 static byte   activecol[MAX_COLS];
 static int cols, rows, maxtracers, _speed, _density;
 
