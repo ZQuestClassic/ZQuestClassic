@@ -18,14 +18,18 @@ endif()
 
 if(WIN32)	
 	if(MSVC)
-		link_directories(./libs/win32)
-		set(ALLEGROLIB alleg_crt)	
+		set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alld_crt.lib>" 
+					   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg_crt.lib>")
+		
 		add_definitions(-DALLEGRO_MSVC)
 		
-		set(IMAGELIBS libpng zlib loadpng libjpgal)
-		set(SOUNDLIBS aldmb almp3 alogg dumb gme)
+		set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
+		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
+		
+		set(SOUNDLIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/aldmd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/dumbd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/gme.lib>"
+		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
 
-		if(MSVC_VERSION GREATER 1700) 
+		if(MSVC_VERSION GREATER 1500) 
 			add_definitions(-DALLEGRO_HAVE_STDINT_H)
 		endif()
 		
@@ -35,7 +39,7 @@ if(WIN32)
 		# REQUIRED or else MSVC throws compiler error(!)
 		add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /DEBUG")
 	endif()
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
@@ -176,7 +180,7 @@ set(ZQUESTSOURCES
 )
 
 if(WIN32)
-	if(MSVC)
+	if(MSVC AND (MSVC_VERSION GREATER 1500))
 		set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 	endif()
 endif()
