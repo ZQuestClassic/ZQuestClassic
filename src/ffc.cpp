@@ -51,8 +51,8 @@ void FFC::clear()
     link=0;
     lastChangerX=-1000;
     lastChangerY=-1000;
-    prevX=-10000000;
-    prevY=-10000000;
+    prevX=-100000000;
+    prevY=-100000000;
     
     script=0;
     scriptData.Clear();
