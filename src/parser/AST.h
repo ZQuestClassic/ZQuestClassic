@@ -5,7 +5,7 @@ class AST;
 // for flex and bison
 #define YYSTYPE AST*
 
-#ifdef _MSC_VER
+#if _MSC_VER <= 1600
 #define snprintf _snprintf
 #endif
 
