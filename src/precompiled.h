@@ -1,6 +1,11 @@
 
 #pragma once
 
+// todo: this needs to go in a zc_config.h file but the 2.50 branch doesn't have one yet.
+#ifdef _MSC_VER
+	#define ALLEGRO_MSVC
+#endif
+
 #if defined(ZC_PCH)
 
 //globally remove extraneous bullshit

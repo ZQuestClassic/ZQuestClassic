@@ -32,7 +32,7 @@ PACKFILE *f;
 int gif_empty_string, curr_bit_size, bit_overflow;
 int bit_pos, data_pos, data_len, entire, code;
 int cc, string_length, i, bit_size;
-unsigned char string[4096];
+unsigned char lg_string[4096];
 struct LZW_STRING str[4096];
 BITMAP *bmp;
 int image_x, image_y, image_w, image_h, x, y;
@@ -99,7 +99,7 @@ void get_string(int num)
     if(num < cc)
     {
         string_length = 1;
-        string[0] = str[num].new_char;
+        lg_string[0] = str[num].new_char;
     }
     else
     {
@@ -109,7 +109,7 @@ void get_string(int num)
         while(i > 0)
         {
             i --;
-            string[i] = str[num].new_char;
+            lg_string[i] = str[num].new_char;
             num = str[num].base;
         }
         
@@ -121,7 +121,7 @@ void output_string(void)
 {
     for(i = 0; i < string_length; i ++)
     {
-        putpixel(bmp, x, y, string[i]);
+        putpixel(bmp, x, y, lg_string[i]);
         x ++;
         
         if(x >= image_x + image_w)
@@ -313,7 +313,7 @@ BITMAP *load_gif(const char *filename, RGB *pal)
                     if(bit_overflow == 0)
                     {
                         str[gif_empty_string].base = old;
-                        str[gif_empty_string].new_char = string[0];
+                        str[gif_empty_string].new_char = lg_string[0];
                         str[gif_empty_string].length = str[old].length + 1;
                         gif_empty_string ++;
                         
@@ -332,13 +332,13 @@ BITMAP *load_gif(const char *filename, RGB *pal)
                 else
                 {
                     get_string(old);
-                    string[str[old].length] = string[0];
+                    lg_string[str[old].length] = lg_string[0];
                     string_length ++;
                     
                     if(bit_overflow == 0)
                     {
                         str[gif_empty_string].base = old;
-                        str[gif_empty_string].new_char = string[0];
+                        str[gif_empty_string].new_char = lg_string[0];
                         str[gif_empty_string].length = str[old].length + 1;
                         gif_empty_string ++;
                         

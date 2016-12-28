@@ -5,6 +5,10 @@ class AST;
 // for flex and bison
 #define YYSTYPE AST*
 
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
+
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include <list>
@@ -12,7 +16,11 @@ class AST;
 #include <map>
 #include <string>
 
-using namespace std;
+using std::string;
+using std::pair;
+using std::map;
+using std::vector;
+using std::list;
 
 #define RECURSIONLIMIT 30
 

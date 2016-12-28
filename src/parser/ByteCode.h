@@ -10,7 +10,7 @@
 
 #include <string>
 
-using namespace std;
+//using namespace std;
 
 /*
  I will reserve the registers in the following scheme:

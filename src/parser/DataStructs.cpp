@@ -6,6 +6,9 @@
 #include <assert.h>
 #include <iostream>
 
+using std::cout;
+using std::endl;
+
 int StackFrame::getOffset(int vid)
 {
     map<int, int>::iterator it = stackoffset.find(vid);
