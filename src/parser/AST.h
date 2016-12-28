@@ -5,8 +5,10 @@ class AST;
 // for flex and bison
 #define YYSTYPE AST*
 
-#if _MSC_VER <= 1600
+#ifdef _MSC_VER
+#if (_MSC_VER <= 1600)
 #define snprintf _snprintf
+#endif
 #endif
 
 #include "y.tab.hpp"

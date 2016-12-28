@@ -209,6 +209,9 @@ endif()
 # Global settings for the different platforms
 #############################################################
 
+
+# Windows
+
 if(MSVC)
 	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alld_crt.lib>" 
 				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg_crt.lib>")
@@ -241,6 +244,9 @@ if(MSVC)
 		list(APPEND ZELDAEXTRASOURCES src/precompiledzc.cpp)
 		list(APPEND ZQUESTEXTRASOURCES src/precompiledzq.cpp)
 	endif()
+
+# Linux
+
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
@@ -248,7 +254,7 @@ elseif(LINUX)
 	add_definitions(-DALLEGRO_UNIX)
 	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
 	
-	set(IMAGELIBS ldpng jpgal png z)
+	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm)
 	
@@ -257,13 +263,20 @@ elseif(LINUX)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
 endif()
 
+
+#############################################################
+# Sound Library
+#############################################################
+
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
-
+#############################################################
+# Romview
+#############################################################
 
 if(MSVC)
 	list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
@@ -280,6 +293,9 @@ add_executable(romview ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES})
 
 target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
+#############################################################
+# Zelda
+#############################################################
 
 if(MSVC)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.rc)
@@ -303,10 +319,14 @@ if(MSVC AND USE_PCH)
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
 endif()
 
+#############################################################
+# ZQuest
+#############################################################
+
 if(MSVC)
 	list(APPEND ZQUESTEXTRASOURCES zq_icon.rc)
 elseif(LINUX)
-	list(ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
+	list(APPEND ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
 	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
