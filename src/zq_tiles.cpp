@@ -6971,7 +6971,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     bool darknut=false;
                     int gleeok=0;
                     
-                    if(enemy.family==eeWALK && enemy.flags&(inv_back|inv_front|inv_left|inv_right)!=0)
+                    if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
                         darknut=true;
                     else if(enemy.family==eeGLEEOK)
                     {
