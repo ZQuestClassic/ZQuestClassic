@@ -8,8 +8,6 @@ The homepage contains information about the latest release, links to the latest 
 
 This repository contains the Zelda Classic source code, for use by the Zelda Classic developers and advanced users wanting to port ZC to new platforms. You do not need to download or compile the source if you want to play Zelda Classic or make quests on Windows, OS X, or (Debian) Linux.
 
-================
-
 ## Building the Source
 
 Because of Zelda Classic's extended development history and dependency on legacy libraries, the build process is somewhat involved. The instructions here are not comprehensive, but are intended to help you get started.
@@ -61,14 +59,13 @@ make
 
 Binaries will be created in the `build` folder.
 
-================
-
 ## Running the Compiled Binaries
 
 The compiled binaries **will not run** on their own without support files. These files are not (currently) included in this repository, due to copyright concerns. To run the compiled source, download the latest binary package from the project homepage, and copy the binaries from `build` into a folder also containing all of the data files from the binary package.
 
-================
+## Contributing to Zelda Classic
 
+We encourage third-party submission of patches and new features! If you're interesting in contributing to Zelda Classic's development, please read the CONTRIBUTE file.
 
 ## License
 
