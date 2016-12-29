@@ -822,7 +822,7 @@ static MENU etc_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU the_menu[] =
+static MENU zquest_menu[] =
 {
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
@@ -991,7 +991,7 @@ static DIALOG dialogs[] =
 {
     // still unused:  jm
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-    { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
+    { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) zquest_menu, NULL, NULL },
     
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
