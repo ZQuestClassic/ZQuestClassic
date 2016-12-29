@@ -14,8 +14,6 @@
 
 #include "precompiled.h" //always first
 
-#include <map>
-
 #include "gui.h"
 #include "subscr.h"
 #include "zq_subscr.h"
@@ -40,8 +38,6 @@
 
 extern void large_dialog(DIALOG *d);
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
-
-using namespace std;
 
 int curr_subscreen_object;
 char *str_oname;
