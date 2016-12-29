@@ -1,3 +1,9 @@
+## Source list for ZQuest Core module
+set(ZQUEST_CORE_SOURCES
+
+################################
+# Add or remove files here
+################################
 src/colors.cpp
 src/defdata.cpp
 src/editbox.cpp
@@ -13,3 +19,7 @@ src/sprite.cpp
 src/subscr.cpp
 src/zc_custom.cpp
 src/init.cpp
+
+## End of ZQuest Core module
+)
+

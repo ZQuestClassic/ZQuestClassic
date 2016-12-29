@@ -12,7 +12,7 @@ endif()
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit
-  set(unit_build_file ${CMAKE_CURRENT_BINARY_DIR}/${UB_SUFFIX}.cpp)
+  set(unit_build_file ${CMAKE_CURRENT_BINARY_DIR}/UB_${UB_SUFFIX}.cpp)
   # Exclude all translation units from compilation
   set_source_files_properties(${files} PROPERTIES HEADER_FILE_ONLY true)
   # Open the ub file
@@ -25,20 +25,6 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   # Complement list of translation units with the name of ub
   set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)    
 endfunction(enable_unity_build)
-
-function(read_module_directory DIR_NAME TXTFILES SOURCE_VARIABLE_NAME)
-	file(GLOB files "${DIR_NAME}/*.txt")
-	set_source_files_properties(${FILES} PROPERTIES HEADER_FILE_ONLY true)
-	foreach(file ${files})
-		get_filename_component(BASEFILE ${file} NAME_WE)
-		file(READ ${file} FILECONTENTS)
-		string(REPLACE "\n" ";" CONTENTSSEMI ${FILECONTENTS})
-		set(${SOURCE_VARIABLE_NAME}_${BASEFILE} ${CONTENTSSEMI} PARENT_SCOPE)
-		list(APPEND MODULE_CONTENTS "${SOURCE_VARIABLE_NAME}_${BASEFILE}")
-	endforeach()
-	set(${SOURCE_VARIABLE_NAME} ${MODULE_CONTENTS}  PARENT_SCOPE)
-	set(${TXTFILES} ${files} PARENT_SCOPE)
-endfunction(read_module_directory)
 
 #############################################################
 # Header and source file lists
@@ -59,133 +45,30 @@ set(ZCSOUNDSOURCES
 	src/zcmusicd.cpp
 )
 
-set(ROMVIEW_GUI_SOURCES
-	src/editbox.cpp 
-	src/EditboxModel.cpp 
-	src/EditboxView.cpp 
-	src/gui.cpp 
-	src/jwinfsel.cpp 
-#	src/load_gif.cpp 	
-	src/tab_ctl.cpp 
-	src/zqscale.cpp 
-	src/zsys.cpp
+set(ROMVIEW_MODULES
+	${CMAKE_SOURCE_DIR}/modules/romview/RomviewCore.txt
+	${CMAKE_SOURCE_DIR}/modules/romview/RomviewGUI.txt
 )
 
-set(ROMVIEWEXTRASOURCES
-#	src/save_gif.cpp 
-	src/jwin.cpp 
-	src/romview.cpp 	
+set(ZELDA_MODULES
+	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
+	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaGUI.txt
+	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaSprite.txt
+	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaSubscreen.txt
 )
 
-set(ZC_GUI_SOURCES
-	src/zsys.cpp
-	src/aglogo.cpp
-	src/colors.cpp
-	src/debug.cpp
-	src/decorations.cpp
-	src/editbox.cpp
-	src/EditboxModel.cpp
-	src/EditboxView.cpp
-	src/ending.cpp
-	src/matrix.cpp
-	src/pal.cpp
-	src/jwinfsel.cpp
-	src/tab_ctl.cpp
-	src/title.cpp
-	src/zc_custom.cpp
+set(ZQUEST_MODULES
+	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestCore.txt
+	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestGUI.txt
+	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestMisc.txt
+	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
+	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
-set(ZELDAEXTRASOURCES
- 	src/jwin.cpp
-)
-
-set(ZC_CORE_SOURCES
-	src/zscriptversion.cpp
-	src/ffscript.cpp
-	src/gamedata.cpp
-	src/zelda.cpp
-	src/defdata.cpp
-	src/qst.cpp
-	src/zc_init.cpp
-	src/zc_items.cpp
-	src/init.cpp
-	src/win32.cpp
-)
-
-set(ZC_SPRITE_SOURCES
-	src/zc_sprite.cpp
-	src/guys.cpp
-	src/weapons.cpp
-	src/link.cpp
-	src/particles.cpp
-	src/items.cpp
-	src/sprite.cpp
-	src/tiles.cpp
-	src/maps.cpp
-	src/script_drawing.cpp
-)
-
-set(ZC_SUBSCREEN_SOURCES
-	src/subscr.cpp
-	src/zc_subscr.cpp
-	src/md5.cpp
-	src/midi.cpp
-	src/gui.cpp
-	src/zc_sys.cpp
-)
-
-set(ZQ_CORE_SOURCES
-	src/colors.cpp
-	src/defdata.cpp
-	src/editbox.cpp
-	src/EditboxModel.cpp
-	src/EditboxView.cpp
-	src/gamedata.cpp
-	src/midi.cpp
-	src/md5.cpp
-	src/particles.cpp
-	src/qst.cpp
-	src/save_gif.cpp
-	src/sprite.cpp
-	src/subscr.cpp
-	src/zc_custom.cpp
-	src/init.cpp
-)
-
-set(ZQ_GUI_SOURCES
-	src/zq_class.cpp
-	src/zq_cset.cpp
-	src/zq_custom.cpp
-	src/zq_doors.cpp
-	src/zq_files.cpp
-	src/zq_init.cpp
-	src/zq_items.cpp
-	src/zq_misc.cpp	
-	src/zq_sprite.cpp
-	src/zq_subscr.cpp
-	src/zq_strings.cpp
-	src/zq_tiles.cpp
-	src/zqscale.cpp
-	src/zsys.cpp
-)
-
-set(ZQ_MISC_SOURCES
-	src/items.cpp
-	src/questReport.cpp
-	src/ffasm.cpp
-	src/zquest.cpp
-	src/gui.cpp
-	src/jwinfsel.cpp
-	src/tab_ctl.cpp
-	src/tiles.cpp
-	src/load_gif.cpp
-	src/win32.cpp
-)
-
-set(ZQUESTEXTRASOURCES
-	src/zq_rules.cpp
-	src/jwin.cpp
-)
+foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
+	include(${module})
+	set_source_files_properties(${module} PROPERTIES HEADER_FILE_ONLY true)
+endforeach()
 
 #############################################################
 # Build the ZScript parser
@@ -200,11 +83,10 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	endif()
 	FLEX_TARGET(ZScriptLexer ${CMAKE_SOURCE_DIR}/src/parser/ffscript.lpp ${CMAKE_SOURCE_DIR}/src/parser/lex.yy.cpp COMPILE_FLAGS ${FLEXFLAGS})
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp)
-	add_flex_bison_dependency(ZScriptLexer ZScriptParser)	
-	set(COMPILEPARSER TRUE)		
+	add_flex_bison_dependency(ZScriptLexer ZScriptParser)		
 else()
 	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
-	set(COMPILEPARSER FALSE)
+	set(ZQUEST_ZSCRIPT_SOURCES ${ZQUEST_ZSCRIPT_SOURCES_NOPARSER})
 endif()
 
 
@@ -288,20 +170,12 @@ elseif(LINUX)
 	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-read_module_directory("${CMAKE_SOURCE_DIR}/modules/romview" ROMVIEW_MODULES RM)
-
-list(APPEND ROMVIEWEXTRASOURCES ${RM_RomviewExtra})
-list(REMOVE_ITEM RM "RM_RomviewExtra")
-
-foreach(module ${RM})
-	if(UNITY_BUILD)
-		enable_unity_build(${module} ${module})
-	endif()
+if(UNITY_BUILD)
+	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
+	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
+endif()
 	
-	list(APPEND ROMVIEW_SOURCES ${${module}})
-endforeach()
-	
-add_executable(romview ${ROMVIEW_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
+add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
 target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
@@ -316,20 +190,14 @@ elseif(LINUX)
 	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-read_module_directory("${CMAKE_SOURCE_DIR}/modules/zelda" ZELDA_MODULES ZM)
-
-list(APPEND ZELDAEXTRASOURCES ${ZM_ZeldaExtra})
-list(REMOVE_ITEM ZM "ZM_ZeldaExtra")
-
-foreach(module ${ZM})
-	if(UNITY_BUILD)
-		enable_unity_build(${module} ${module})
-	endif()
+if(UNITY_BUILD)
+	enable_unity_build(ZeldaCore ZELDA_CORE_SOURCES)
+	enable_unity_build(ZeldaGUI ZELDA_GUI_SOURCES)
+	enable_unity_build(ZeldaSprite ZELDA_SPRITE_SOURCES)
+	enable_unity_build(ZeldaSubscreen ZELDA_SUBSCREEN_SOURCES)
+endif()
 	
-	list(APPEND ZELDA_SOURCES ${${module}})
-endforeach()
-
-add_executable(zelda ${ZELDA_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
+add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
 target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZELDALIBSEXTRA})
 if(MSVC AND USE_PCH)
@@ -348,25 +216,14 @@ elseif(LINUX)
 	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-read_module_directory("${CMAKE_SOURCE_DIR}/modules/zquest" ZQUEST_MODULES ZQM)
-
-list(APPEND ZQUESTEXTRASOURCES ${ZQM_ZQuestExtra})
-list(REMOVE_ITEM ZQM "ZQM_ZQuestExtra")
-if(COMPILEPARSER)
-	list(REMOVE_ITEM ZQM "ZQM_ZQuestZScriptNoParser")
-else()
-	list(REMOVE_ITEM ZQM "ZQM_ZQuestZScript")
+if(UNITY_BUILD)
+	enable_unity_build(ZQuestCore ZQUEST_CORE_SOURCES)
+	enable_unity_build(ZQuestGUI ZQUEST_GUI_SOURCES)
+	enable_unity_build(ZQuestMisc ZQUEST_MISC_SOURCES)
+	enable_unity_build(ZQuestZScript ZQUEST_ZSCRIPT_SOURCES)
 endif()
-
-foreach(module ${ZQM})
-	if(UNITY_BUILD)
-		enable_unity_build(${module} ${module})
-	endif()
 	
-	list(APPEND ZQUEST_SOURCES ${${module}})
-endforeach()
-
-add_executable(zquest ${ZQUEST_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
 
 target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 if(MSVC AND USE_PCH)
@@ -379,12 +236,3 @@ if(MSVC)
 	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
 	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 endif()
-
-# Crazy hack to force CMake to rerun if source modules change
-
-include(${CMAKE_SOURCE_DIR}/modules/romview.touch)
-add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/romview.touch" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/romview.touch" DEPENDS ${ROMVIEW_MODULES})
-include(${CMAKE_SOURCE_DIR}/modules/zelda.touch)
-add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/zelda.touch" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/zelda.touch" DEPENDS ${ZELDA_MODULES})
-include(${CMAKE_SOURCE_DIR}/modules/zquest.touch)
-add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/zquest.touch" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/zquest.touch" DEPENDS ${ZQUEST_MODULES})

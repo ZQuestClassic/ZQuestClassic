@@ -1,3 +1,9 @@
+## Source list for ZQuest ZScript module, when Flex and Bison are available
+set(ZQUEST_ZSCRIPT_SOURCES
+
+################################
+# Add or remove files here
+################################
 src/parser/AST.cpp
 src/parser/BuildVisitors.cpp
 src/parser/ByteCode.cpp
@@ -8,3 +14,8 @@ src/parser/ScriptParser.cpp
 src/parser/SymbolVisitors.cpp
 src/parser/TypeChecker.cpp
 src/parser/UtilVisitors.cpp
+
+
+## End of ZQuest ZScript module
+)
+

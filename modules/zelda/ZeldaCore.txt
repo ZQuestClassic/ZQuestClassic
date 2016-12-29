@@ -1,3 +1,9 @@
+## Source list for Zelda Core module
+set(ZELDA_CORE_SOURCES
+
+################################
+# Add or remove files here
+################################
 src/zscriptversion.cpp
 src/ffscript.cpp
 src/gamedata.cpp
@@ -8,3 +14,7 @@ src/zc_init.cpp
 src/zc_items.cpp
 src/init.cpp
 src/win32.cpp
+
+## End of Zelda Core module
+)
+

@@ -1,9 +1,12 @@
-src/editbox.cpp 
-src/EditboxModel.cpp 
-src/EditboxView.cpp 
-src/gui.cpp 
-src/jwin.cpp
-src/jwinfsel.cpp 
-src/tab_ctl.cpp 
-src/zqscale.cpp 
+## Source list for Romview Core module
+set(ROMVIEW_CORE_SOURCES
+
+################################
+# Add or remove files here
+################################
+
 src/zsys.cpp
+src/romview.cpp
+
+## End of Romview Core module
+)

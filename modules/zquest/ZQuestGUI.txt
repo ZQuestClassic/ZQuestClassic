@@ -1,3 +1,9 @@
+## Source list for ZQuest GUI module
+set(ZQUEST_GUI_SOURCES
+
+################################
+# Add or remove files here
+################################
 src/zq_class.cpp
 src/zq_cset.cpp
 src/zq_custom.cpp
@@ -14,3 +20,8 @@ src/zqscale.cpp
 src/zsys.cpp
 src/zq_rules.cpp
 src/jwin.cpp
+
+
+## End of ZQuest GUI module
+)
+
