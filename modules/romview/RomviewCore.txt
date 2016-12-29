@@ -2,6 +2,7 @@ src/editbox.cpp
 src/EditboxModel.cpp 
 src/EditboxView.cpp 
 src/gui.cpp 
+src/jwin.cpp
 src/jwinfsel.cpp 
 src/tab_ctl.cpp 
 src/zqscale.cpp 

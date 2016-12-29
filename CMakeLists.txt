@@ -382,6 +382,9 @@ endif()
 
 # Crazy hack to force CMake to rerun if source modules change
 
-include(${CMAKE_SOURCE_DIR}/modules/README.txt)
-
-add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/README.txt" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/README.txt" DEPENDS ${ROMVIEW_MODULES} ${ZQUEST_MODULES} ${ZELDA_MODULES})
+include(${CMAKE_SOURCE_DIR}/modules/romview.touch)
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/romview.touch" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/romview.touch" DEPENDS ${ROMVIEW_MODULES})
+include(${CMAKE_SOURCE_DIR}/modules/zelda.touch)
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/zelda.touch" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/zelda.touch" DEPENDS ${ZELDA_MODULES})
+include(${CMAKE_SOURCE_DIR}/modules/zquest.touch)
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/zquest.touch" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/zquest.touch" DEPENDS ${ZQUEST_MODULES})
