@@ -20,7 +20,7 @@ From its inception Zelda Classic has been a collaborative effort. The official d
 
 Almost all pull requests should be posted to the **master branch** of the official repository. The master branch contains the latest development code that will become the next version of Zelda Classic. We also maintain branches for each version of Zelda Classic that we have previously released. Some bugfixes are back-ported to these branches.
 
-Please use the following as a guide or where to submit your patch:
+Please use the following as a guide for where to submit your patch:
 
  - If you are adding a **new feature**, submit your patch to the master branch only.
  - If you are fixing a bug that affects the latest version of the code, submit it to the master branch. 
@@ -36,7 +36,7 @@ All patches to the ZC source will be reviewed by the ZC developers. Please submi
 
 In addition, the following types of submissions will receive heightened scrutiny. You are strongly encouraged to discuss your intentions, and seek pre-approval from the developers, before starting work on any patch that
  - adds a major new feature (rather than fixing a bug)
- - substantially changes how to project is configured or built
+ - substantially changes how the project is configured or built
  - changes the quest file format or otherwise risks breaking old quests
  - significantly increases the executable memory footprint or degrades performance
  - requires new external libraries
