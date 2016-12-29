@@ -410,7 +410,7 @@ int mouse_in_rect(int x,int y,int w,int h)
             (gui_mouse_x() < x + w) && (gui_mouse_y() < y + h));
 }
 
-static int do_x_button(BITMAP *dest, int x, int y)
+static int jwin_do_x_button(BITMAP *dest, int x, int y)
 {
     int down=0, last_draw = 0;
     
@@ -638,7 +638,7 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
     case MSG_CLICK:
         if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
         {
-            if(do_x_button(screen, d->x+d->w-21, d->y+5))
+            if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
                 return D_CLOSE;
         }
         

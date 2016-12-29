@@ -13,3 +13,4 @@ src/jwinfsel.cpp
 src/tab_ctl.cpp
 src/title.cpp
 src/zc_custom.cpp
+src/jwin.cpp
