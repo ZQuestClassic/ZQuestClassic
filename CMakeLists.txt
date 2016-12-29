@@ -12,7 +12,7 @@ endif()
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit
-  set(unit_build_file ${CMAKE_CURRENT_BINARY_DIR}/ub_${UB_SUFFIX}.cpp)
+  set(unit_build_file ${CMAKE_CURRENT_BINARY_DIR}/${UB_SUFFIX}.cpp)
   # Exclude all translation units from compilation
   set_source_files_properties(${files} PROPERTIES HEADER_FILE_ONLY true)
   # Open the ub file
@@ -25,6 +25,20 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   # Complement list of translation units with the name of ub
   set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)    
 endfunction(enable_unity_build)
+
+function(read_module_directory DIR_NAME TXTFILES SOURCE_VARIABLE_NAME)
+	file(GLOB files "${DIR_NAME}/*.txt")
+	set_source_files_properties(${FILES} PROPERTIES HEADER_FILE_ONLY true)
+	foreach(file ${files})
+		get_filename_component(BASEFILE ${file} NAME_WE)
+		file(READ ${file} FILECONTENTS)
+		string(REPLACE "\n" ";" CONTENTSSEMI ${FILECONTENTS})
+		set(${SOURCE_VARIABLE_NAME}_${BASEFILE} ${CONTENTSSEMI} PARENT_SCOPE)
+		list(APPEND MODULE_CONTENTS "${SOURCE_VARIABLE_NAME}_${BASEFILE}")
+	endforeach()
+	set(${SOURCE_VARIABLE_NAME} ${MODULE_CONTENTS}  PARENT_SCOPE)
+	set(${TXTFILES} ${files} PARENT_SCOPE)
+endfunction(read_module_directory)
 
 #############################################################
 # Header and source file lists
@@ -187,21 +201,10 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	FLEX_TARGET(ZScriptLexer ${CMAKE_SOURCE_DIR}/src/parser/ffscript.lpp ${CMAKE_SOURCE_DIR}/src/parser/lex.yy.cpp COMPILE_FLAGS ${FLEXFLAGS})
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp)
 	add_flex_bison_dependency(ZScriptLexer ZScriptParser)	
-	set(ZSCRIPTSOURCES
-		src/parser/AST.cpp 
-		src/parser/BuildVisitors.cpp 
-		src/parser/ByteCode.cpp 
-		src/parser/DataStructs.cpp 
-		src/parser/GlobalSymbols.cpp 
-		src/parser/ParseError.cpp 
-		src/parser/ScriptParser.cpp 
-		src/parser/SymbolVisitors.cpp 
-		src/parser/TypeChecker.cpp 
-		src/parser/UtilVisitors.cpp 		
-	)
+	set(COMPILEPARSER TRUE)		
 else()
 	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
-	set(ZSCRIPTSOURCES src/parser/NoScriptParser.cpp)
+	set(COMPILEPARSER FALSE)
 endif()
 
 
@@ -285,11 +288,20 @@ elseif(LINUX)
 	set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(RomviewGuiModule ROMVIEW_GUI_SOURCES)
-endif()
+read_module_directory("${CMAKE_SOURCE_DIR}/modules/romview" ROMVIEW_MODULES RM)
+
+list(APPEND ROMVIEWEXTRASOURCES ${RM_RomviewExtra})
+list(REMOVE_ITEM RM "RM_RomviewExtra")
+
+foreach(module ${RM})
+	if(UNITY_BUILD)
+		enable_unity_build(${module} ${module})
+	endif()
 	
-add_executable(romview ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES})
+	list(APPEND ROMVIEW_SOURCES ${${module}})
+endforeach()
+	
+add_executable(romview ${ROMVIEW_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
 target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
@@ -304,14 +316,20 @@ elseif(LINUX)
 	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(ZCGuiModule ZC_GUI_SOURCES)
-	enable_unity_build(ZCCoreModule ZC_CORE_SOURCES)
-	enable_unity_build(ZCSpriteModule ZC_SPRITE_SOURCES)
-	enable_unity_build(ZCSubscreenModule ZC_SUBSCREEN_SOURCES)
-endif()
+read_module_directory("${CMAKE_SOURCE_DIR}/modules/zelda" ZELDA_MODULES ZM)
 
-add_executable(zelda ${ZC_GUI_SOURCES} ${ZC_CORE_SOURCES} ${ZC_SPRITE_SOURCES} ${ZC_SUBSCREEN_SOURCES} ${ZELDAEXTRASOURCES})
+list(APPEND ZELDAEXTRASOURCES ${ZM_ZeldaExtra})
+list(REMOVE_ITEM ZM "ZM_ZeldaExtra")
+
+foreach(module ${ZM})
+	if(UNITY_BUILD)
+		enable_unity_build(${module} ${module})
+	endif()
+	
+	list(APPEND ZELDA_SOURCES ${${module}})
+endforeach()
+
+add_executable(zelda ${ZELDA_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
 target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZELDALIBSEXTRA})
 if(MSVC AND USE_PCH)
@@ -330,14 +348,25 @@ elseif(LINUX)
 	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-if(UNITY_BUILD)
-	enable_unity_build(ZQCoreModule, ZQ_CORE_SOURCES)
-	enable_unity_build(ZQGuiModule, ZQ_GUI_SOURCES)
-	enable_unity_build(ZQMiscModule, ZQ_MISC_SOURCES)
-	enable_unity_build(ZScriptModule, ZSCRIPTSOURCES)
+read_module_directory("${CMAKE_SOURCE_DIR}/modules/zquest" ZQUEST_MODULES ZQM)
+
+list(APPEND ZQUESTEXTRASOURCES ${ZQM_ZQuestExtra})
+list(REMOVE_ITEM ZQM "ZQM_ZQuestExtra")
+if(COMPILEPARSER)
+	list(REMOVE_ITEM ZQM "ZQM_ZQuestZScriptNoParser")
+else()
+	list(REMOVE_ITEM ZQM "ZQM_ZQuestZScript")
 endif()
 
-add_executable(zquest ${ZQ_CORE_SOURCES} ${ZQ_GUI_SOURCES} ${ZQ_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZSCRIPTSOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+foreach(module ${ZQM})
+	if(UNITY_BUILD)
+		enable_unity_build(${module} ${module})
+	endif()
+	
+	list(APPEND ZQUEST_SOURCES ${${module}})
+endforeach()
+
+add_executable(zquest ${ZQUEST_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
 
 target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 if(MSVC AND USE_PCH)
@@ -350,3 +379,9 @@ if(MSVC)
 	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
 	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 endif()
+
+# Crazy hack to force CMake to rerun if source modules change
+
+include(${CMAKE_SOURCE_DIR}/modules/README.txt)
+
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/modules/README.txt" COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/modules/README.txt" DEPENDS ${ROMVIEW_MODULES} ${ZQUEST_MODULES} ${ZELDA_MODULES})

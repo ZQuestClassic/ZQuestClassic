@@ -1,0 +1,6 @@
+src/subscr.cpp
+src/zc_subscr.cpp
+src/md5.cpp
+src/midi.cpp
+src/gui.cpp
+src/zc_sys.cpp

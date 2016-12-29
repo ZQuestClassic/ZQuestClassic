@@ -1,0 +1,10 @@
+src/zscriptversion.cpp
+src/ffscript.cpp
+src/gamedata.cpp
+src/zelda.cpp
+src/defdata.cpp
+src/qst.cpp
+src/zc_init.cpp
+src/zc_items.cpp
+src/init.cpp
+src/win32.cpp

@@ -1,0 +1,15 @@
+src/zsys.cpp
+src/aglogo.cpp
+src/colors.cpp
+src/debug.cpp
+src/decorations.cpp
+src/editbox.cpp
+src/EditboxModel.cpp
+src/EditboxView.cpp
+src/ending.cpp
+src/matrix.cpp
+src/pal.cpp
+src/jwinfsel.cpp
+src/tab_ctl.cpp
+src/title.cpp
+src/zc_custom.cpp

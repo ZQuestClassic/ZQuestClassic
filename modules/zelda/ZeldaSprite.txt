@@ -1,0 +1,10 @@
+src/zc_sprite.cpp
+src/guys.cpp
+src/weapons.cpp
+src/link.cpp
+src/particles.cpp
+src/items.cpp
+src/sprite.cpp
+src/tiles.cpp
+src/maps.cpp
+src/script_drawing.cpp
