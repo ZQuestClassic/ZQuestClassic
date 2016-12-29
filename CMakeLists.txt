@@ -273,7 +273,7 @@ elseif(LINUX)
 endif()
 
 if(UNITY_BUILD)
-	enable_unity_build(RomviewGuiModule, ROMVIEW_GUI_SOURCES)
+	enable_unity_build(RomviewGuiModule ROMVIEW_GUI_SOURCES)
 endif()
 	
 add_executable(romview ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES})
@@ -289,10 +289,10 @@ elseif(LINUX)
 endif()
 
 if(UNITY_BUILD)
-	enable_unity_build(ZCGuiModule, ZC_GUI_SOURCES)
-	enable_unity_build(ZCCoreModule, ZC_CORE_SOURCES)
-	enable_unity_build(ZCSpriteModule, ZC_SPRITE_SOURCES)
-	enable_unity_build(ZCSubscreenModule, ZC_SUBSCREEN_SOURCES)
+	enable_unity_build(ZCGuiModule ZC_GUI_SOURCES)
+	enable_unity_build(ZCCoreModule ZC_CORE_SOURCES)
+	enable_unity_build(ZCSpriteModule ZC_SPRITE_SOURCES)
+	enable_unity_build(ZCSubscreenModule ZC_SUBSCREEN_SOURCES)
 endif()
 
 add_executable(zelda ${ZC_GUI_SOURCES} ${ZC_CORE_SOURCES} ${ZC_SPRITE_SOURCES} ${ZC_SUBSCREEN_SOURCES} ${ZELDAEXTRASOURCES})
