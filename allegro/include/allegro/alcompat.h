@@ -24,7 +24,7 @@
 #endif
 
 
-#ifndef ALLEGRO_LIB_BUILD
+#ifndef ALLEGRO_SRC
 
    #ifndef ALLEGRO_NO_CLEAR_BITMAP_ALIAS
       #if (defined ALLEGRO_GCC)
@@ -58,7 +58,7 @@
       AL_ALIAS(fixed fhypot(fixed x, fixed y), fixhypot(x, y))
    #endif
 
-#endif  /* !defined ALLEGRO_LIB_BUILD */
+#endif  /* !defined ALLEGRO_SRC */
 
 
 #define KB_NORMAL       1
@@ -220,7 +220,21 @@ AL_INLINE_DEPRECATED(void, yield_timeslice, (void),
 /* DOS-ish monitor retrace ideas that don't work elsewhere */
 AL_FUNCPTR(void, retrace_proc, (void));
 
-#ifdef ALLEGRO_LIB_BUILD
+
+/* Those were never documented, but we need to keep them for DLL compatibility,
+ * and to be on the safe side also let's keep them work regardless.
+ */
+AL_INLINE_DEPRECATED(void, set_file_encoding, (int encoding),
+{
+   set_filename_encoding(encoding);
+})
+AL_INLINE_DEPRECATED(int, get_file_encoding, (void),
+{
+   return get_filename_encoding();
+})
+
+
+#ifdef ALLEGRO_SRC
    AL_FUNC(int,  timer_can_simulate_retrace, (void));
    AL_FUNC(void, timer_simulate_retrace, (int enable));
 #else

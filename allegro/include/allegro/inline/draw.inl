@@ -249,6 +249,25 @@ AL_INLINE(void, draw_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y),
    }
 })
 
+AL_INLINE(void, draw_sprite_ex, (BITMAP *bmp, BITMAP *sprite, int x, int y,
+                                 int mode, int flip),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   if (mode == DRAW_SPRITE_TRANS) {
+      ASSERT((bmp->vtable->color_depth == sprite->vtable->color_depth) ||
+             (sprite->vtable->color_depth == 32) ||
+            ((sprite->vtable->color_depth == 8) &&
+             (bmp->vtable->color_depth == 32)));
+      bmp->vtable->draw_sprite_ex(bmp, sprite, x, y, mode, flip);
+   }
+   else {
+      ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
+      bmp->vtable->draw_sprite_ex(bmp, sprite, x, y, mode, flip);
+   }
+})
+
 
 AL_INLINE(void, draw_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),{
    ASSERT(bmp);
@@ -258,7 +277,6 @@ AL_INLINE(void, draw_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),
    bmp->vtable->draw_sprite_v_flip(bmp, sprite, x, y);
 })
 
-
 AL_INLINE(void, draw_sprite_h_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),{
    ASSERT(bmp);
    ASSERT(sprite);
@@ -266,7 +284,6 @@ AL_INLINE(void, draw_sprite_h_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),
 
    bmp->vtable->draw_sprite_h_flip(bmp, sprite, x, y);
 })
-
 
 AL_INLINE(void, draw_sprite_vh_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y),
 {
@@ -276,7 +293,6 @@ AL_INLINE(void, draw_sprite_vh_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y)
 
    bmp->vtable->draw_sprite_vh_flip(bmp, sprite, x, y);
 })
-
 
 AL_INLINE(void, draw_trans_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y),
 {

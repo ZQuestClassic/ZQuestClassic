@@ -47,6 +47,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_WINXP       AL_ID('W','X','P',' ')
 #define OSTYPE_WIN2003     AL_ID('W','2','K','3')
 #define OSTYPE_WINVISTA    AL_ID('W','V','S','T')
+#define OSTYPE_WIN7        AL_ID('W','I','N','7')
 #define OSTYPE_OS2         AL_ID('O','S','2',' ')
 #define OSTYPE_WARP        AL_ID('W','A','R','P')
 #define OSTYPE_DOSEMU      AL_ID('D','E','M','U')
@@ -61,8 +62,10 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_QNX         AL_ID('Q','N','X',' ')
 #define OSTYPE_UNIX        AL_ID('U','N','I','X')
 #define OSTYPE_BEOS        AL_ID('B','E','O','S')
+#define OSTYPE_HAIKU       AL_ID('H','A','I','K')
 #define OSTYPE_MACOS       AL_ID('M','A','C',' ')
 #define OSTYPE_MACOSX      AL_ID('M','A','C','X')
+#define OSTYPE_PSP         AL_ID('K','P','S','P')
 
 AL_VAR(int, os_type);
 AL_VAR(int, os_version);
@@ -110,6 +113,9 @@ AL_FUNC(void, check_cpu, (void));
 #define CPU_AMD64    0x0200
 #define CPU_IA64     0x0400
 #define CPU_SSE3     0x0800
+#define CPU_SSSE3    0x1000
+#define CPU_SSE41    0x2000
+#define CPU_SSE42    0x4000
 
 /* CPU families - PC */
 #define CPU_FAMILY_UNKNOWN  0

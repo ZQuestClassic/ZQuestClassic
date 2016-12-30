@@ -40,15 +40,6 @@ AL_VAR(int, _allegro_count);
 AL_VAR(int, _allegro_in_exit);
 
 
-/* These functions are referenced by 4.2.0 binaries, but should no longer be
- * used by newer versions directly.
- * _get_allegro_version would be marked deprecated except that misc/fixdll.*
- * would complain about it being missing.
- */
-AL_FUNC(int, _get_allegro_version, (void));
-AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
-
-
 /* flag to decide whether to disable the screensaver */
 enum {
   NEVER_DISABLED,
@@ -75,6 +66,8 @@ AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
 AL_FUNC(void *, _al_malloc, (size_t size));
 AL_FUNC(void, _al_free, (void *mem));
 AL_FUNC(void *, _al_realloc, (void *mem, size_t size));
+AL_FUNC(char *, _al_strdup, (AL_CONST char *string));
+AL_FUNC(char *, _al_ustrdup, (AL_CONST char *string));
 
 
 
@@ -126,6 +119,8 @@ AL_FUNC(int, _al_drive_exists, (int drive));
 AL_FUNC(int, _al_getdrive, (void));
 AL_FUNC(void, _al_getdcwd, (int drive, char *buf, int size));
 
+AL_FUNC(void, _al_detect_filename_encoding, (void));
+
 /* obsolete; only exists for binary compatibility with 4.2.0 */
 AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
 
@@ -134,7 +129,7 @@ AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
 AL_VAR(int, _packfile_filesize);
 AL_VAR(int, _packfile_datasize);
 AL_VAR(int, _packfile_type);
-AL_FUNC(PACKFILE *, _pack_fdopen, (int fd, AL_CONST char *mode, AL_CONST char *password));
+AL_FUNC(PACKFILE *, _pack_fdopen, (int fd, AL_CONST char *mode));
 
 AL_FUNC(int, _al_lzss_incomplete_state, (AL_CONST LZSS_UNPACK_DATA *dat));
 
@@ -196,7 +191,7 @@ AL_VAR(volatile int, _key_shifts);
 
 
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_DJGPP) || (defined ALLEGRO_WATCOM) || \
-    (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
+    (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)  || (defined ALLEGRO_HAIKU)
 
 AL_ARRAY(char *, _pckeys_names);
 
@@ -539,6 +534,7 @@ AL_FUNC(void, _linear_putpixel8, (BITMAP *bmp, int x, int y, int color));
 AL_FUNC(void, _linear_vline8, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline8, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite8, (BITMAP *bmp, BITMAP *sprite, int x, int y));
+AL_FUNC(void, _linear_draw_sprite_ex8, (BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip));
 AL_FUNC(void, _linear_draw_sprite_v_flip8, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_h_flip8, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_vh_flip8, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -574,6 +570,7 @@ AL_FUNC(void, _linear_putpixel16, (BITMAP *bmp, int x, int y, int color));
 AL_FUNC(void, _linear_vline16, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline16, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite16, (BITMAP *bmp, BITMAP *sprite, int x, int y));
+AL_FUNC(void, _linear_draw_sprite_ex16, (BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip));
 AL_FUNC(void, _linear_draw_256_sprite16, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_v_flip16, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_h_flip16, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -601,6 +598,7 @@ AL_FUNC(void, _linear_putpixel24, (BITMAP *bmp, int x, int y, int color));
 AL_FUNC(void, _linear_vline24, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline24, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite24, (BITMAP *bmp, BITMAP *sprite, int x, int y));
+AL_FUNC(void, _linear_draw_sprite_ex24, (BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip));
 AL_FUNC(void, _linear_draw_256_sprite24, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_v_flip24, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_h_flip24, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -628,6 +626,7 @@ AL_FUNC(void, _linear_putpixel32, (BITMAP *bmp, int x, int y, int color));
 AL_FUNC(void, _linear_vline32, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline32, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite32, (BITMAP *bmp, BITMAP *sprite, int x, int y));
+AL_FUNC(void, _linear_draw_sprite_ex32, (BITMAP *bmp, BITMAP *sprite, int x, int y, int mode, int flip));
 AL_FUNC(void, _linear_draw_256_sprite32, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_v_flip32, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_h_flip32, (BITMAP *bmp, BITMAP *sprite, int x, int y));

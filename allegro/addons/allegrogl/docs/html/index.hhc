@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML><HEAD></HEAD><BODY>
+<OBJECT type="text/site properties">
+<param name="FrameName" value="right">
+</OBJECT>
+<UL>
+<LI><OBJECT type="text/sitemap"><param name="Name" value="AllegroGL"><param name="Local" value="index.html"><param name="ImageNumber" value="11"></OBJECT>
+<LI><OBJECT type="text/sitemap"><param name="Name" value="Related Pages"><param name="Local" value="pages.html"><param name="ImageNumber" value="1"></OBJECT>
+  <UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Deprecated List"><param name="Local" value="deprecated.html"><param name="ImageNumber" value="11"></OBJECT>
+    <UL>
+    </UL>
+  </UL>
+<LI><OBJECT type="text/sitemap"><param name="Name" value="Modules"><param name="Local" value="modules.html"><param name="ImageNumber" value="1"></OBJECT>
+  <UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Version information"><param name="Local" value="group__version.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Core routines"><param name="Local" value="group__core.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Defines"><param name="Local" value="group__core.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_begin"><param name="Local" value="group__core.html#ga59b02f9584f81789449a7fcc2018bfc5"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_end"><param name="Local" value="group__core.html#gac1303e0363f3adfc33c8812e9b8e30b0"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__core.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="install_allegro_gl"><param name="Local" value="group__core.html#gaa0cbb82fa1e2bae6788eb7bd06673bd3"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="remove_allegro_gl"><param name="Local" value="group__core.html#gaeff6abbb1d1071a01f4cd694ef504298"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_flip"><param name="Local" value="group__core.html#gaf5aad043e99b766393fa4a7ec034a0f1"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_opengl_version"><param name="Local" value="group__core.html#ga444d507eaeb5ba800787f6a81827615d"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Graphics drivers"><param name="Local" value="group__gfxdrv.html"><param name="ImageNumber" value="11"></OBJECT>
+    <UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Bitmap Routines"><param name="Local" value="group__bitmap.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__bitmap.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_set_video_bitmap_color_depth"><param name="Local" value="group__bitmap.html#ga92d58cf7b4bebf34aa27112efba1020e"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Texture Routines"><param name="Local" value="group__texture.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Defines"><param name="Local" value="group__texture.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_TEXTURE_FLIP"><param name="Local" value="group__texture.html#gadeffe4feb290278035beacedb284a010"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_TEXTURE_MASKED"><param name="Local" value="group__texture.html#gaba184d573c65f33b35d1d57936607d08"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_TEXTURE_RESCALE"><param name="Local" value="group__texture.html#gaa8b7246edc7ec019ec3b434eb0cacdf2"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__texture.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_use_mipmapping"><param name="Local" value="group__texture.html#gab5393ecc10a2a31da7eb80c889af89ac"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_use_alpha_channel"><param name="Local" value="group__texture.html#ga1d88f4ebc7ed1ecd65640b72ea46a71e"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_flip_texture"><param name="Local" value="group__texture.html#ga3ec0a1c4c6656f13c8398bab7a1293f2"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_check_texture"><param name="Local" value="group__texture.html#ga6996c14538e18b1614f91d34b2d4d691"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_check_texture_ex"><param name="Local" value="group__texture.html#gab0cf4dc0ddcb45f5b067d08aed1c88e6"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_get_texture_format"><param name="Local" value="group__texture.html#ga2392fe7a8dd6db65532160821804aa68"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_set_texture_format"><param name="Local" value="group__texture.html#ga5d535e8af776dd449cc4755b9e3585b1"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_make_texture"><param name="Local" value="group__texture.html#gae071354f76bc28e1bafbd90bdecbc0c9"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_make_masked_texture"><param name="Local" value="group__texture.html#gaeb33dfbbc1725f5132c10ac32ef6800d"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_make_texture_ex"><param name="Local" value="group__texture.html#gaf3a48c555068e7051171255c1011150a"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Math conversion routines"><param name="Local" value="group__math.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__math.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_MATRIX_to_GLfloat"><param name="Local" value="group__math.html#ga4cf4f453cb3f95a1e7e861a7401b4a8d"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_MATRIX_to_GLdouble"><param name="Local" value="group__math.html#gaee6cb48f8e3e70abecc6c282a8ea1edc"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_MATRIX_f_to_GLfloat"><param name="Local" value="group__math.html#gae8e0ee18b9aeca955402be16de6ca79d"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_MATRIX_f_to_GLdouble"><param name="Local" value="group__math.html#gab93f3588ea08b048f418023aa76cb3fc"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_GLfloat_to_MATRIX"><param name="Local" value="group__math.html#ga468e83ca4de52ed839978d48f5dbe111"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_GLdouble_to_MATRIX"><param name="Local" value="group__math.html#ga68e2e0e9dcdba42004070a5f8f547994"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_GLfloat_to_MATRIX_f"><param name="Local" value="group__math.html#ga08692466ae37d7888bbd5f5ee5aa9268"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_GLdouble_to_MATRIX_f"><param name="Local" value="group__math.html#gaa6b729a9e93e249a8a76e078e94a2b44"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Text drawing and fonts."><param name="Local" value="group__Text.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Defines"><param name="Local" value="group__Text.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_TYPE_DONT_CARE"><param name="Local" value="group__Text.html#gad2ebae17d2548a5befb888f8618f2206"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_TYPE_BITMAP"><param name="Local" value="group__Text.html#ga7ed8fdc1b0065d2fe584b15d69108b1a"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_TYPE_OUTLINE"><param name="Local" value="group__Text.html#gaba7b8c941356029687ff4b4340e8b841"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_TYPE_TEXTURED"><param name="Local" value="group__Text.html#ga92bf039bc7b06568273ee17f15cf6671"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_STYLE_BOLD"><param name="Local" value="group__Text.html#gab77d7d2c6ec6d1786472943f7cd814ca"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_STYLE_BLACK"><param name="Local" value="group__Text.html#ga27874c1fb7fdc1e00115bd853c973fc3"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_STYLE_ITALIC"><param name="Local" value="group__Text.html#ga67c48bf08c2b6cd6cc1a08dec2c7c5ef"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_STYLE_UNDERLINE"><param name="Local" value="group__Text.html#gae9e4682339d264429ee601c632231c9f"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_STYLE_STRIKEOUT"><param name="Local" value="group__Text.html#ga6ba31b9c7866d28b5494fad2577569db"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_STYLE_ANTI_ALIASED"><param name="Local" value="group__Text.html#ga91cc859278878dd4bf200bed7eab4359"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_POLYGONS"><param name="Local" value="group__Text.html#ga4b45ef558e7934ceaaff146f450ab23f"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FONT_LINES"><param name="Local" value="group__Text.html#ga0b426eb30e7203eb094a7adfbb04cb6d"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__Text.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_printf"><param name="Local" value="group__Text.html#ga84ecf6d5f5b363d7715e15eca8ebafeb"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_printf_ex"><param name="Local" value="group__Text.html#gab93317445f8a566f8b5632e04fbf8e5b"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_convert_allegro_font"><param name="Local" value="group__Text.html#gad01388c5188ae09628284aa2425acae9"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_convert_allegro_font_ex"><param name="Local" value="group__Text.html#ga4986ec80f1a3362e47f7669461fef414"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_set_font_generation_mode"><param name="Local" value="group__Text.html#ga62e79ccec5062f1cdadbc225319e9b44"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_load_system_font"><param name="Local" value="group__Text.html#ga5bddcc6c1954665140083928117519de"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_load_system_font_ex"><param name="Local" value="group__Text.html#ga4ad68c54b0183c60cdbf2c7a02dc3157"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_destroy_font"><param name="Local" value="group__Text.html#gabcbdd9810f7254cdb105f987ae1e557f"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_list_font_textures"><param name="Local" value="group__Text.html#ga70b78c3a523dc9977c222d466edc6a5a"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="OpenGL Extensions"><param name="Local" value="group__extensions.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Defines"><param name="Local" value="group__extensions.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_DEFINE_PROC_TYPE"><param name="Local" value="group__extensions.html#gac45f9222ac965c8d0d756f513cebf0d1"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__extensions.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_is_extension_supported"><param name="Local" value="group__extensions.html#ga7351f56ea1c4f4665193fc3bf547ff0a"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_get_proc_address"><param name="Local" value="group__extensions.html#gaa0c2cd7c4b4a94e8801af42a58356cc4"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Variables"><param name="Local" value="group__extensions.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_extensions_GL"><param name="Local" value="group__extensions.html#ga7492f6f6acc608789210560ee63e5436"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="agl_extension_table"><param name="Local" value="group__extensions.html#ga2d6ebb26eec58470e4242b750656268b"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Allegro-compatible GUI routines"><param name="Local" value="group__gui.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__gui.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="algl_do_dialog"><param name="Local" value="group__gui.html#ga30c12b20a701f84f994ebcbea14afc99"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="algl_popup_dialog"><param name="Local" value="group__gui.html#ga4c6641a5fe463ca062b90bcc3bb5677d"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="algl_draw_mouse"><param name="Local" value="group__gui.html#ga4418d38b8585ab443ba7f41a476765c6"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="algl_set_mouse_drawer"><param name="Local" value="group__gui.html#ga428394c0ae4d4a1e96fe2b27fb13f745"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="algl_alert"><param name="Local" value="group__gui.html#gad6be783b911635769fcb54d188a77107"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="algl_alert3"><param name="Local" value="group__gui.html#gadc8b61d7a682b7be11f0f1cc864b30be"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="d_algl_viewport_proc"><param name="Local" value="group__gui.html#gae41d96ae1ebefffdf60391e632915fd3"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Allegro Graphics Driver"><param name="Local" value="group__glvtable.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Defines"><param name="Local" value="group__glvtable.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="SET_TEX_COORDS"><param name="Local" value="group__glvtable.html#ga397c41b7c07794b6edce960693361a83"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__glvtable.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_screen_acquire"><param name="Local" value="group__glvtable.html#ga702812e50246c61eb9f01fd8aba69325"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_screen_release"><param name="Local" value="group__glvtable.html#ga6c2b0685587a0feafcb194a9a67d6aa9"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_video_acquire"><param name="Local" value="group__glvtable.html#ga7002daa2a3e02adf79bed09039469595"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_video_release"><param name="Local" value="group__glvtable.html#ga6fe7f8e5d64ab6b6e85643adefe8b0d5"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Option settings"><param name="Local" value="group__settings.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Defines"><param name="Local" value="group__settings.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_ALLEGRO_FORMAT"><param name="Local" value="group__settings.html#gab34e1290cbeb5fe252642f3bd59f0a52"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_RED_DEPTH"><param name="Local" value="group__settings.html#gabe75eb7c907fedeef4763ad6c3ffd8f0"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_GREEN_DEPTH"><param name="Local" value="group__settings.html#gada8f8e9bb4e0ccf1bf7f7353d1e6032d"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_BLUE_DEPTH"><param name="Local" value="group__settings.html#ga8efacc076a3d6523dd989211833c1ca8"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_ALPHA_DEPTH"><param name="Local" value="group__settings.html#gad37b2a655ca53a34bb41bc629c8aa51e"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_COLOR_DEPTH"><param name="Local" value="group__settings.html#ga71846e567336fe02f8f063af1282ddc5"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_ACC_RED_DEPTH"><param name="Local" value="group__settings.html#ga317622005a4a2956a0d1659d3c47822a"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_ACC_GREEN_DEPTH"><param name="Local" value="group__settings.html#ga00f4cfb4cb19b60d677b6941fec903ba"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_ACC_BLUE_DEPTH"><param name="Local" value="group__settings.html#gaf80c6da60114ac3962aabcfd8745b97e"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_ACC_ALPHA_DEPTH"><param name="Local" value="group__settings.html#gab8eba4f52cdb3d333b237c0ab0b3594a"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_DOUBLEBUFFER"><param name="Local" value="group__settings.html#gaa1150ae35d6ff9b33d5771f29f9770dd"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_STEREO"><param name="Local" value="group__settings.html#ga47be892718fa4b2c6166caf51da67489"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_AUX_BUFFERS"><param name="Local" value="group__settings.html#ga6267cbe7841d12c35d59032f66b7b871"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_Z_DEPTH"><param name="Local" value="group__settings.html#gabef24a727709a823e8fc900fdb72892e"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_STENCIL_DEPTH"><param name="Local" value="group__settings.html#ga7b34772508e08edb0436e85d2d696fb9"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_WINDOW_X"><param name="Local" value="group__settings.html#gafea8132efd1fcac7a7f997ef0fe34cfa"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_RENDERMETHOD"><param name="Local" value="group__settings.html#ga3cd047a464c8f8d928f9529226a4cf12"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_FULLSCREEN"><param name="Local" value="group__settings.html#ga1baffefcedaffebf7ca47724a0441e60"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_WINDOWED"><param name="Local" value="group__settings.html#ga6fcfd5d01183e704595b05fa9812b94f"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_VIDEO_MEMORY_POLICY"><param name="Local" value="group__settings.html#gab78a9c8ca24294b008d706a409c4fa37"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_SAMPLE_BUFFERS"><param name="Local" value="group__settings.html#gae1836cab58a366c122ace31160fe0e06"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="AGL_SAMPLES"><param name="Local" value="group__settings.html#ga92d9751c38774297013087e89a25749d"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__settings.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_clear_settings"><param name="Local" value="group__settings.html#gadd1249980001c22cb3eba880561a7e19"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_set"><param name="Local" value="group__settings.html#ga025e79a4394803a0e15aaf07b1a8a656"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_get"><param name="Local" value="group__settings.html#ga2179291ddb3cb528c3c0cf84af5c51a9"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_save_settings"><param name="Local" value="group__settings.html#gaa461b9459f56c9274d2d49accf201ee1"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_load_settings"><param name="Local" value="group__settings.html#ga60a577d2fed019cdae83c648f1ff74ec"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Allegro Interfacing"><param name="Local" value="group__allegro.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__allegro.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_set_allegro_mode"><param name="Local" value="group__allegro.html#ga7ea7ffd9b72d0d0722cbf982b729efdb"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_unset_allegro_mode"><param name="Local" value="group__allegro.html#ga00fbbee541046767114bf9746ceb6f8b"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_set_projection"><param name="Local" value="group__allegro.html#gabaf6024e9d196da357aad02c5dc7589f"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="allegro_gl_unset_projection"><param name="Local" value="group__allegro.html#ga603f8f3719d02816acdf3dbdcaa1f447"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
+  </UL>
+<LI><OBJECT type="text/sitemap"><param name="Name" value="File List"><param name="Local" value="files.html"><param name="ImageNumber" value="1"></OBJECT>
+  <UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="aglf.c"><param name="Local" value="aglf_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="alleggl.c"><param name="Local" value="alleggl_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="alleggl.h"><param name="Local" value="alleggl_8h.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="allglint.h"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="djgpp.c"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="fontconv.c"><param name="Local" value="fontconv_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="glext.c"><param name="Local" value="glext_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="glvtable.c"><param name="Local" value="glvtable_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="glvtable.h"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="gui.c"><param name="Local" value="gui_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="mainpage.foo"><param name="Local" value="mainpage_8foo.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="math.c"><param name="Local" value="math_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="scorer.c"><param name="Local" value="scorer_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="texture.c"><param name="Local" value="texture_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="videovtb.c"><param name="Local" value="videovtb_8c.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="win.c"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="x.c"><param name="ImageNumber" value="11"></OBJECT>
+  </UL>
+<LI><OBJECT type="text/sitemap"><param name="Name" value="Globals"><param name="Local" value="globals.html"><param name="ImageNumber" value="11"></OBJECT>
+</UL>
+</BODY>
+</HTML>

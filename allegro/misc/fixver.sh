@@ -113,6 +113,7 @@ sed -f fixver.sed fixver.tmp > misc/pkgreadme._tx
 echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2/" > fixver.sed
 echo "s/shared_version = .*/shared_version = $1.$2.$3/" >> fixver.sed
 echo "s/shared_major_minor = .*/shared_major_minor = $1.$2/" >> fixver.sed
+echo "s/compatibility_version = .*/compatibility_version = $1.$2.0/" >> fixver.sed
 
 echo "Patching makefile.ver..."
 cp makefile.ver fixver.tmp
@@ -133,6 +134,11 @@ sed -f fixver.sed fixver.tmp > misc/allegro-config-qnx.sh
 echo "Patching misc/allegro.spec..."
 cp misc/allegro.spec fixver.tmp
 sed -e "s/^Version: .*/Version: $1.$2.$3/" fixver.tmp > misc/allegro.spec
+
+# patch CMakeLists.txt
+echo "Patching CMakeLists.txt..."
+cp CMakeLists.txt fixver.tmp
+sed -e "s/set(ALLEGRO_VERSION [^)]*)/set(ALLEGRO_VERSION $1.$2.$3)/" fixver.tmp > CMakeLists.txt
 
 # clean up after ourselves
 rm fixver.sed fixver.tmp
