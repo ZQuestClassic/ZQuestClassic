@@ -40,10 +40,8 @@ include_directories(./include/alogg)
 include_directories(./include/almp3)
 include_directories(./include/gme)
 
-set(ZCSOUNDSOURCES
-	src/zcmusic.cpp 
-	src/zcmusicd.cpp
-	src/alleg_compat.cpp
+set(SOUNDLIB_MODULES
+	${CMAKE_SOURCE_DIR}/modules/soundlib/SoundlibCore.txt
 )
 
 set(ROMVIEW_MODULES
@@ -66,7 +64,7 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScriptNP.txt
 )
 
-foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
+foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES} ${SOUNDLIB_MODULES})
 	include(${module})
 	set_source_files_properties(${module} PROPERTIES HEADER_FILE_ONLY true)
 endforeach()
@@ -157,7 +155,13 @@ endif()
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
-add_library(zcsound SHARED ${ZCSOUNDSOURCES})
+
+if(UNITY_BUILD)
+	enable_unity_build(SoundLibCore SOUNDLIB_CORE_SOURCES)
+endif()
+
+add_library(zcsound SHARED ${SOUNDLIB_CORE_SOURCES} ${SOUNDLIB_MODULES})
+
 target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 #############################################################

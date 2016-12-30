@@ -1,0 +1,14 @@
+## Source list for sound library core module
+set(SOUNDLIB_CORE_SOURCES
+
+################################
+# Add or remove files here
+################################
+src/zcmusic.cpp 
+src/zcmusicd.cpp
+src/alleg_compat.cpp
+
+## End of sound library core module
+)
+
+
