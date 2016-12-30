@@ -6,7 +6,7 @@
 
 if(MSVC)
     find_library(DXGUID_LIBRARY NAMES dxguid
-        PATHS "C:/Program Files/Microsoft DirectX SDK (August 2008)/Lib"
+        PATHS "C:/Program Files/Microsoft DirectX SDK (August 2008)/Lib" "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Lib"
         PATH_SUFFIXES x86 x64
         )
 else()

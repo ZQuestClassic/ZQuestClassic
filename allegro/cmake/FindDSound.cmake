@@ -12,8 +12,8 @@ endif(DSOUND_INCLUDE_DIR)
 
 # Makes my life easier.
 if(MSVC)
-    set(HINT_INCLUDE "C:/Program Files/Microsoft DirectX SDK (August 2008)/Include")
-    set(HINT_LIB "C:/Program Files/Microsoft DirectX SDK (August 2008)/Lib")
+    set(HINT_INCLUDE "C:/Program Files/Microsoft DirectX SDK (August 2008)/Include" "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include")
+    set(HINT_LIB "C:/Program Files/Microsoft DirectX SDK (August 2008)/Lib" "C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Lib")
 endif(MSVC)
 
 find_path(DSOUND_INCLUDE_DIR dsound.h

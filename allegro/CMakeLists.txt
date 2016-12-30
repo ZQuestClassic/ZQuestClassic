@@ -592,7 +592,7 @@ if(WIN32)
     find_package(DSound)
     find_package(DXGuid)
 
-    if(NOT DDRAW_FOUND OR NOT DINPUT_FOUND OR NOT DSOUND_FOUND OR NOT DXGUID_FOUND)
+    if(NOT DINPUT_FOUND OR NOT DSOUND_FOUND OR NOT DXGUID_FOUND)
         if(MSVC)
             message(FATAL_ERROR
                 "DirectX required for Windows port. You might need to add DirectX include and lib directories to your INCLUDE and LIB environment variables.
@@ -606,7 +606,6 @@ if(WIN32)
     endif()
 
     include_directories(SYSTEM
-        ${DDRAW_INCLUDE_DIR}
         ${DINPUT_INCLUDE_DIR}
         ${DSOUND_INCLUDE_DIR}
         ${DXGUID_INCLUDE_DIR}
