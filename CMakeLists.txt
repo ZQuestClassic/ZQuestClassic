@@ -160,7 +160,7 @@ if(UNITY_BUILD)
 	enable_unity_build(SoundLibCore SOUNDLIB_CORE_SOURCES)
 endif()
 
-add_library(zcsound SHARED ${SOUNDLIB_CORE_SOURCES} ${SOUNDLIB_MODULES})
+add_library(zcsound STATIC ${SOUNDLIB_CORE_SOURCES} ${SOUNDLIB_MODULES})
 
 target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
@@ -234,10 +234,4 @@ target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTR
 if(MSVC AND USE_PCH)
 	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
 	target_compile_definitions(zquest PRIVATE ZC_PCH)
-endif()
-
-if(MSVC)
-	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
-	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
-	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 endif()
