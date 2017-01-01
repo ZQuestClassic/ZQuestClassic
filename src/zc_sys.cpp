@@ -72,12 +72,12 @@ static const char *ZC_str = "Zelda Classic";
 static  const char *qst_dir_name = "dos_qst_dir";
 #elif defined(ALLEGRO_WINDOWS)
 static  const char *qst_dir_name = "win_qst_dir";
-#elif defined(ALLEGRO_LINUX)
+#elif defined(ALLEGRO_UNIX)
 static  const char *qst_dir_name = "linux_qst_dir";
 #elif defined(ALLEGRO_MACOSX)
 static  const char *qst_dir_name = "macosx_qst_dir";
 #endif
-#ifdef ALLEGRO_LINUX
+#ifdef ALLEGRO_UNIX
 static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
 
@@ -479,7 +479,7 @@ void save_game_configs()
 	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
 #endif
     
-#ifdef ALLEGRO_LINUX
+#ifdef ALLEGRO_UNIX
     set_config_string("sound","patches",samplepath); // set to sample sound path set for DIGMIDI driver in Linux ~ Takuya
 #endif
     

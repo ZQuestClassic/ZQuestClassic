@@ -140,11 +140,11 @@ elseif(LINUX)
 	
 	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
-	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm)
+	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 	
 	add_compile_options("-m32")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
 
 
@@ -160,7 +160,7 @@ if(UNITY_BUILD)
 	enable_unity_build(SoundLibCore SOUNDLIB_CORE_SOURCES)
 endif()
 
-add_library(zcsound SHARED ${SOUNDLIB_CORE_SOURCES} ${SOUNDLIB_MODULES})
+add_library(zcsound STATIC ${SOUNDLIB_CORE_SOURCES} ${SOUNDLIB_MODULES})
 
 target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
@@ -182,7 +182,7 @@ endif()
 	
 add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
@@ -204,7 +204,7 @@ endif()
 	
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
-target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZELDALIBSEXTRA})
+target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)

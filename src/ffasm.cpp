@@ -21,7 +21,7 @@
 #define strnicmp strncasecmp
 #endif
 
-#ifdef ALLEGRO_LINUX
+#ifdef ALLEGRO_UNIX
 #define strnicmp strncasecmp
 #endif
 

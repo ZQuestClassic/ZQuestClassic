@@ -530,7 +530,7 @@ bool is_windowed_mode(int mode)
     case GFX_DIRECTX_OVL:
     case GFX_GDI:
         return true;
-#elif defined ALLEGRO_LINUX
+#elif defined ALLEGRO_UNIX
         
     case GFX_AUTODETECT_WINDOWED:
     case GFX_XWINDOWS:
