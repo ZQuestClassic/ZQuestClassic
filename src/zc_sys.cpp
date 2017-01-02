@@ -379,6 +379,8 @@ void load_game_configs()
 
 void save_game_configs()
 {
+	packfile_password("");
+
     set_config_int(cfg_sect,"joystick_index",joystick_index);
     set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
     set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
