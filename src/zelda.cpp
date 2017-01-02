@@ -3325,9 +3325,9 @@ int main(int argc, char* argv[])
     }
     else
     {
-        if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
+	if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
         {
-            //      Z_error(allegro_error);
+            //Z_error(allegro_error);
             Z_message("Sound driver not available.  Sound disabled.\n");
         }
         else

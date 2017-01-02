@@ -90,7 +90,7 @@ static const char *tmusic_path_name = "win_tmusic_path";
 static const char *last_quest_name  = "win_last_quest";
 static const char *qtname_name      = "win_qtname%d";
 static const char *qtpath_name      = "win_qtpath%d";
-#elif defined(ALLEGRO_LINUX)
+#elif defined(ALLEGRO_UNIX)
 static const char *data_path_name   = "linux_data_path";
 static const char *midi_path_name   = "linux_midi_path";
 static const char *image_path_name  = "linux_image_path";
@@ -23658,7 +23658,7 @@ int onZQVidMode()
         break;
     }
     
-#elif defined(ALLEGRO_LINUX)
+#elif defined(ALLEGRO_UNIX)
     
     switch(mode)
     {

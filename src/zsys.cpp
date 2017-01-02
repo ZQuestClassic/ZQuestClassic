@@ -186,7 +186,7 @@ const char *snapshotformatlist(int index, int *list_size)
 //Allegro's make_relative_filename doesn't handle uppercase/lowercase too well for drive letters
 char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int size)
 {
-#ifdef ALLEGRO_LINUX
+#ifdef ALLEGRO_UNIX
     return make_relative_filename(dest, path, filename, size);
 #elif defined(ALLEGRO_MACOSX)
     return make_relative_filename(dest, path, filename, size);

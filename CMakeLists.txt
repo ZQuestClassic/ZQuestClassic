@@ -135,16 +135,15 @@ elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
 	set(ALLEGROLIB alleg)
-	add_definitions(-DALLEGRO_UNIX)
-	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
+	execute_process(COMMAND "${CMAKE_COMMAND}" "-H${CMAKE_SOURCE_DIR}/allegro" "-B${CMAKE_SOURCE_DIR}/allegro" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
 	
 	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
-	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm)
+	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 	
 	add_compile_options("-m32")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
 
 
@@ -182,7 +181,7 @@ endif()
 	
 add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
-target_link_libraries(romview ${ALLEGROLIB} ${IMAGELIBS} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
+target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda
@@ -204,7 +203,7 @@ endif()
 	
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
-target_link_libraries(zelda zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZELDALIBSEXTRA})
+target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
