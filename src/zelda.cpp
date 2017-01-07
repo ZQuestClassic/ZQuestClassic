@@ -2712,7 +2712,7 @@ int onFullscreen()
     set_palette(oldpal);
     gui_mouse_focus=0;
     show_mouse(screen);
-    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
+    set_display_switch_mode(is_windowed_mode() ? SWITCH_BACKGROUND : SWITCH_BACKAMNESIA);
 //	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
 //	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 

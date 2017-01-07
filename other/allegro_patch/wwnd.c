@@ -528,6 +528,9 @@ int init_directx_window(void)
    msg_call_proc = RegisterWindowMessage("Allegro call proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
+   /* initialize gfx critical section */
+   InitializeCriticalSection(&gfx_crit_sect);
+
    if (user_wnd) {
       /* initializes input module and requests dedicated thread */
       _win_input_init(TRUE);
@@ -569,9 +572,6 @@ int init_directx_window(void)
 	    return -1;
       } 
    }
-
-   /* initialize gfx critical section */
-   InitializeCriticalSection(&gfx_crit_sect);
 
    /* save window style */
    old_style = GetWindowLong(allegro_wnd, GWL_STYLE);
