@@ -136,7 +136,7 @@ void edit_qt(int index)
         strcpy(temppath, QuestTemplates[index].path);
         bool gotname;
         
-        if(is_large)
+        if(is_large())
             large_dialog(editqt_dlg);
             
         ret=zc_popup_dialog(editqt_dlg,6);
@@ -254,15 +254,15 @@ int ListQTs(bool edit)
             }
         }
         
-        if(is_large)
+        if(is_large())
             large_dialog(qtlist_dlg);
             
-        qtlist_dlg[2].x=int(qtlist_dlg[0].x+(edit?5:15)*(is_large?1.5:1));
+        qtlist_dlg[2].x=int(qtlist_dlg[0].x+(edit?5:15)*(is_large()?1.5:1));
         qtlist_dlg[3].proc=edit?jwin_button_proc:d_dummy_proc;
         qtlist_dlg[4].proc=edit?jwin_button_proc:d_dummy_proc;
         qtlist_dlg[5].proc=edit?jwin_button_proc:d_dummy_proc;
-        qtlist_dlg[6].x=int(qtlist_dlg[0].x+(edit?110:80)*(is_large?1.5:1));
-        qtlist_dlg[7].x=int(qtlist_dlg[0].x+(edit?190:160)*(is_large?1.5:1));
+        qtlist_dlg[6].x=int(qtlist_dlg[0].x+(edit?110:80)*(is_large()?1.5:1));
+        qtlist_dlg[7].x=int(qtlist_dlg[0].x+(edit?190:160)*(is_large()?1.5:1));
         qtlist_dlg[8].proc=edit?d_keyboard_proc:d_dummy_proc;
         
         int ret=zc_popup_dialog(qtlist_dlg,2);
@@ -500,11 +500,11 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
         break;
     }
     
-    FONT *f = is_large ? font : sfont2;
+    FONT *f = is_large() ? font : sfont2;
     textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
-    textprintf_ex(screen,f,d->x,d->y+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
+    textprintf_ex(screen,f,d->x,d->y+(is_large()?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
+    textprintf_ex(screen,f,d->x,d->y+(is_large()?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
+    textprintf_ex(screen,f,d->x,d->y+(is_large()?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
     return D_O_K;
 }
 
@@ -513,18 +513,18 @@ int PickRuleset()
     ruleset_dlg[0].dp2=lfont;
     
     // Large Mode conversion
-    if(!is_large)
+    if(!is_large())
         ruleset_dlg[2].proc = d_dummy_proc;
         
-    int start = (is_large?14:9);
-    int end = (is_large?17:13);
+    int start = (is_large()?14:9);
+    int end = (is_large()?17:13);
     
     for(int i = start; i <= end; i++)
     {
         ruleset_dlg[i].proc = d_dummy_proc;
     }
     
-    if(is_large)
+    if(is_large())
         large_dialog(ruleset_dlg);
         
     int ret = zc_popup_dialog(ruleset_dlg,1);
@@ -884,7 +884,7 @@ int get_import_map_bias()
     
     import_map_bias_dlg[ImportMapBias+4].flags=D_SELECTED;
     
-    if(is_large)
+    if(is_large())
         large_dialog(import_map_bias_dlg);
         
     if(zc_popup_dialog(import_map_bias_dlg,2)==2)

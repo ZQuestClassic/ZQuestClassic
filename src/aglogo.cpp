@@ -17,12 +17,13 @@
 #include "zdefs.h"
 #include "zeldadat.h"
 #include "zc_malloc.h"
+#include "GraphicsBackend.h"
 
 extern DATAFILE* data;
-
-extern bool sbig;
-extern int screen_scale;
+extern GraphicsBackend *graphics;
 extern int joystick_index;
+
+int virtualScreenScale();
 
 
 static void SetCols(RGB* pal)
@@ -146,12 +147,13 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
         CopyAvg(firebuf);
         blit(firebuf,frame,8,0,0,0,320,198);
         draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
-        vsync();
         
-        if(sbig)
-            stretch_blit(frame,screen, 0,0,320,198, (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
-        else
-            blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+
+		graphics->waitTick();
+		graphics->showBackBuffer();
+        
+        
+        stretch_blit(frame,screen, 0,0,320,198, (resx-(320*virtualScreenScale() ))>>1, (resy-(198* virtualScreenScale()))>>1, 320* virtualScreenScale(),198* virtualScreenScale());
             
         poll_joystick();
         

@@ -51,6 +51,7 @@
 #include "title.h"
 #include "particles.h"
 #include "mem_debug.h"
+#include "GraphicsBackend.h"
 
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
@@ -59,13 +60,13 @@ extern FONT *lfont;
 extern LinkClass Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
-byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
-//extern movingblock mblock2; //mblock[4]?
-//extern int db;
+extern GraphicsBackend *graphics;
+
+int virtualScreenScale();
 
 static const char *ZC_str = "Zelda Classic";
 #ifdef ALLEGRO_DOS
@@ -119,6 +120,12 @@ void do_DwmFlush()
 }
 
 #endif // _WIN32
+
+
+bool is_large()
+{
+	return graphics->getVirtualMode() == 0;
+}
 
 // Dialogue largening
 void large_dialog(DIALOG *d)
@@ -244,7 +251,7 @@ void load_game_configs()
     js_stick_2_y_stick = get_config_int(cfg_sect,"js_stick_2_y_stick",1);
     js_stick_2_y_axis = get_config_int(cfg_sect,"js_stick_2_y_axis",1);
     js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-    analog_movement = get_config_int(cfg_sect,"analog_movement",1);
+	analog_movement = get_config_int(cfg_sect, "analog_movement", 1) != 0;
     
     if((unsigned int)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
@@ -300,28 +307,12 @@ void load_game_configs()
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
     
-    //default - scale x2, 640 x 480
-    resx = get_config_int(cfg_sect,"resx",640);
-    resy = get_config_int(cfg_sect,"resy",480);
     //screen_scale = get_config_int(cfg_sect,"screen_scale",2);
     
     scanlines = get_config_int(cfg_sect,"scanlines",0)!=0;
     loadlast = get_config_int(cfg_sect,"load_last",0);
-    
-// Fullscreen, page flipping may be problematic on newer windows systems.
-#ifdef _WIN32
-    fullscreen = get_config_int(cfg_sect,"fullscreen",0);
-    disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",1);
-    can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
-#else
-    fullscreen = get_config_int(cfg_sect,"fullscreen",1);
-    disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",0);
-    can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
-#endif
-    
-    zc_color_depth = (byte) get_config_int(cfg_sect,"color_depth",8);
-    
-    //workaround for the 100% CPU bug. -Gleeok
+
+	//workaround for the 100% CPU bug. -Gleeok
 #ifdef ALLEGRO_MACOSX //IIRC rest(0) was a mac issue fix.
     frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",0);
 #else
@@ -335,9 +326,6 @@ void load_game_configs()
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
     use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
-    
-    // This seems to fix some problems on Windows 7
-    disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
     
     // This one's for Aero
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
@@ -373,8 +361,9 @@ void load_game_configs()
     heart_beep = get_config_int(cfg_sect,"heart_beep",1)!=0;
     gui_colorset = get_config_int(cfg_sect,"gui_colorset",0);
     sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
-    fullscreen = get_config_int(cfg_sect,"fullscreen",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
+
+	graphics->readConfigurationOptions();
 }
 
 void save_game_configs()
@@ -446,14 +435,6 @@ void save_game_configs()
     set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
     set_config_int(cfg_sect,"title",title_version);
     
-    set_config_int(cfg_sect,"resx",resx);
-    set_config_int(cfg_sect,"resy",resy);
-    
-    //sbig depricated as of 2.5 RC3. handled exclusively by resx, resy now.
-    //set_config_int(cfg_sect,"screen_scale",screen_scale);
-    //set_config_int(cfg_sect,"sbig",sbig);
-    //set_config_int(cfg_sect,"sbig2",sbig2);
-    
     set_config_int(cfg_sect,"scanlines",scanlines);
     set_config_int(cfg_sect,"load_last",loadlast);
     chop_path(qstdir);
@@ -465,10 +446,6 @@ void save_game_configs()
     set_config_int(cfg_sect,"heart_beep",heart_beep);
     set_config_int(cfg_sect,"gui_colorset",gui_colorset);
     set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
-    set_config_int(cfg_sect,"fullscreen",fullscreen);
-    set_config_int(cfg_sect,"doublebuffer",disable_triplebuffer);
-    set_config_int(cfg_sect,"triplebuffer",can_triplebuffer_in_windowed_mode);
-    set_config_int(cfg_sect,"color_depth",zc_color_depth);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
     set_config_int(cfg_sect,"force_exit",forceExit);
     
@@ -476,7 +453,6 @@ void save_game_configs()
     set_config_int(cfg_sect,"debug_console",use_debug_console);
     //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
     set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
-    set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
 	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
 #endif
@@ -486,68 +462,13 @@ void save_game_configs()
 #endif
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
+
+	graphics->writeConfigurationOptions();
     
     flush_config_file();
 }
 
 //----------------------------------------------------------------
-
-// Timers
-
-void fps_callback()
-{
-    lastfps=framecnt;
-    dword tempsecs = fps_secs;
-    ++tempsecs;
-    //avgfps=((long double)avgfps*fps_secs+lastfps)/(++fps_secs); // DJGPP doesn't like this
-    avgfps=((long double)avgfps*fps_secs+lastfps)/(tempsecs);
-    ++fps_secs;
-    framecnt=0;
-}
-
-END_OF_FUNCTION(fps_callback)
-
-int Z_init_timers()
-{
-    static bool didit = false;
-    const static char *err_str = "Couldn't allocate timer";
-    err_str = err_str; //Unused variable warning
-    
-    if(didit)
-        return 1;
-        
-    didit = true;
-    
-    LOCK_VARIABLE(lastfps);
-    LOCK_VARIABLE(framecnt);
-    LOCK_FUNCTION(fps_callback);
-    
-    if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
-        return 0;
-        
-    return 1;
-}
-
-void Z_remove_timers()
-{
-    remove_int(fps_callback);
-}
-
-//----------------------------------------------------------------
-
-void go()
-{
-    scare_mouse();
-    blit(screen,tmp_scr,scrx,scry,0,0,screen->w,screen->h);
-    unscare_mouse();
-}
-
-void comeback()
-{
-    scare_mouse();
-    blit(tmp_scr,screen,0,0,scrx,scry,screen->w,screen->h);
-    unscare_mouse();
-}
 
 void dump_pal(BITMAP *dest)
 {
@@ -564,14 +485,9 @@ void show_paused(BITMAP *target)
         buf[i]+=0x60;
         
     //  text_mode(-1);
-    if(sbig)
-    {
-        int x = scrx+40-((screen_scale-1)*120);
-        int y = scry+224+((screen_scale-1)*104);
-        textout_ex(target,zfont,buf,x,y,-1,-1);
-    }
-    else
-        textout_ex(target,zfont,buf,scrx+40,scry+224,-1,-1);
+    int x = graphics->miniscreenX()+40-((virtualScreenScale()-1)*120);
+    int y = graphics->miniscreenY() +224+((virtualScreenScale() -1)*104);
+    textout_ex(target,zfont,buf,x,y,-1,-1);
 }
 
 void show_fps(BITMAP *target)
@@ -579,24 +495,17 @@ void show_fps(BITMAP *target)
     char buf[50];
     
     //  text_mode(-1);
-    sprintf(buf,"%2d/60",lastfps);
+    sprintf(buf,"%2d/60",graphics->getLastFPS());
     
     //  sprintf(buf,"%d/%u/%f/%u",lastfps,int(avgfps),avgfps,fps_secs);
     for(int i=0; buf[i]!=0; i++)
         if(buf[i]!=' ')
             buf[i]+=0x60;
             
-    if(sbig)
-    {
-        int x = scrx+40-((screen_scale-1)*120);
-        int y = scry+216+((screen_scale-1)*104);
-        textout_ex(target,zfont,buf,x,y,-1,-1);
-        // textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
-    }
-    else
-    {
-        textout_ex(target,zfont,buf,scrx+40,scry+216,-1,-1);
-    }
+    int x = graphics->miniscreenX() +40-((virtualScreenScale()-1)*120);
+    int y = graphics->miniscreenY() +216+((virtualScreenScale()-1)*104);
+    textout_ex(target,zfont,buf,x,y,-1,-1);
+    // textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
 }
 
 void show_saving(BITMAP *target)
@@ -609,40 +518,12 @@ void show_saving(BITMAP *target)
     for(int i=0; buf[i]!=0; i++)
         buf[i]+=0x60;
         
-    if(sbig)
-    {
-        int x = scrx+200+((screen_scale-1)*120);
-        int y = scry+224+((screen_scale-1)*104);
-        textout_ex(target,zfont,buf,x,y,-1,-1);
-    }
-    else
-        textout_ex(target,zfont,buf,scrx+200,scry+224,-1,-1);
+    int x = graphics->miniscreenX() +200+((virtualScreenScale() -1)*120);
+    int y = graphics->miniscreenY() +224+((virtualScreenScale() -1)*104);
+    textout_ex(target,zfont,buf,x,y,-1,-1);
 }
 
 //----------------------------------------------------------------
-
-// sets the video mode and initializes the palette and mouse sprite
-bool game_vid_mode(int mode,int wait)
-{
-    if(set_gfx_mode(mode,resx,resy,0,0)!=0)
-    {
-        return false;
-    }
-    
-    scrx = (resx-320)>>1;
-    scry = (resy-240)>>1;
-    
-    set_mouse_sprite((BITMAP*)data[BMP_MOUSE].dat);
-    
-    for(int i=240; i<256; i++)
-        RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
-        
-    set_palette(RAMpal);
-    clear_to_color(screen,BLACK);
-    
-    rest(wait);
-    return true;
-}
 
 void init_NES_mode()
 {
@@ -3439,97 +3320,50 @@ void updatescr(bool allowwavy)
     
     //TODO: Optimize blit 'overcalls' -Gleeok
     BITMAP *source = nosubscr ? panorama : wavybuf;
-    BITMAP *target = NULL;
     
-    bool dontusetb = triplebuffer_not_available ||
-                     !(Throttlefps ^ (true && key[KEY_TILDE]));
-                     
-    if(dontusetb)
-        target=screen;
-    else
-        target=tb_page[curr_tb_page];
-        
-//  static BITMAP *tempscreen=NULL;
     static BITMAP *scanlinesbmp=NULL;
-    
-    if(resx != SCREEN_W || resy != SCREEN_H)
-    {
-        Z_message("Conflicting variables warning: screen_scale %i, resx %i, resy %i, w %i, h %i\n", screen_scale, resx, resy, SCREEN_W, SCREEN_H);
-        resx = SCREEN_W;
-        resy = SCREEN_H;
-        screen_scale = zc_max(zc_min(resx / 320, resy / 240), 1);
-    }
-    
-    if(!sbig && screen_scale > 1)
-        sbig = true;
-        
-    const int sx = 256 * screen_scale;
-    const int sy = 224 * screen_scale;
-    const int scale_mul = screen_scale - 1;
+         
+    const int sx = 256 * virtualScreenScale();
+    const int sy = 224 * virtualScreenScale();
+    const int scale_mul = virtualScreenScale() - 1;
     const int mx = scale_mul * 128;
     const int my = scale_mul * 112;
     
-    if(sbig)
+    if(scanlines)
     {
-        if(scanlines)
-        {
-            if(!scanlinesbmp)
-                scanlinesbmp = create_bitmap_ex(8, sx, sy);
+        if(!scanlinesbmp)
+            scanlinesbmp = create_bitmap_ex(8, sx, sy);
                 
-            stretch_blit(source, scanlinesbmp, 0, 0, 256, 224, 0, 0, sx, sy);
+        stretch_blit(source, scanlinesbmp, 0, 0, 256, 224, 0, 0, sx, sy);
             
-            for(int i=0; i<224; ++i)
-                _allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
+        for(int i=0; i<224; ++i)
+            _allegro_hline(scanlinesbmp, 0, (i*virtualScreenScale())+1, sx, BLACK);
                 
-            blit(scanlinesbmp, target, 0, 0, scrx+32-mx, scry+8-my, sx, sy);
-        }
-        else
-        {
-            stretch_blit(source, target, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
-        }
-        
-        if(quakeclk>0)
-            rectfill(target, // I don't know if these are right...
-                     scrx+32 - mx, //x1
-                     scry+8 - my + sy, //y1
-                     scrx+32 - mx + sx, //x2
-                     scry+8 - my + sy + (16 * scale_mul), //y2
-                     BLACK);
-                     
-        //stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-128,scry+8-112,512,448);
-        //if(quakeclk>0) rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
+        blit(scanlinesbmp, screen, 0, 0, graphics->miniscreenX()+32-mx, graphics->miniscreenY()+8-my, sx, sy);
     }
     else
     {
-        blit(source,target,0,0,scrx+32,scry+8,256,224);
-        
-        if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
+        stretch_blit(source, screen, 0, 0, 256, 224, graphics->miniscreenX()+32-mx, graphics->miniscreenY()+8-my, sx, sy);
     }
-    
+        
+    if(quakeclk>0)
+        rectfill(screen, // I don't know if these are right...
+			graphics->miniscreenX()+32 - mx, //x1
+			graphics->miniscreenY()+8 - my + sy, //y1
+			graphics->miniscreenX()+32 - mx + sx, //x2
+			graphics->miniscreenY()+8 - my + sy + (16 * scale_mul), //y2
+                    BLACK);
+                     
     if(ShowFPS)
-        show_fps(target);
+        show_fps(screen);
         
     if(Paused)
-        show_paused(target);
+        show_paused(screen);
         
     if(details)
     {
-        textprintf_ex(target,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
+        textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
     }
-    
-    if(!dontusetb)
-    {
-        if(!poll_scroll())
-        {
-            request_video_bitmap(tb_page[curr_tb_page]);
-            curr_tb_page=(curr_tb_page+1)%3;
-            clear_to_color(tb_page[curr_tb_page],BLACK);
-        }
-    }
-    
-    //if(panorama!=NULL) destroy_bitmap(panorama);
-    
-    ++framecnt;
 }
 
 //----------------------------------------------------------------
@@ -3551,11 +3385,11 @@ int onGUISnapshot()
     }
     while(num<999 && exists(buf));
     
-    BITMAP *b = create_bitmap_ex(8,resx,resy);
+    BITMAP *b = create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
     
     if(b)
     {
-        blit(screen,b,0,0,0,0,resx,resy);
+        blit(screen,b,0,0,0,0, graphics->virtualScreenW(), graphics->virtualScreenH());
         save_bmp(buf,b,sys_pal);
         destroy_bitmap(b);
     }
@@ -4012,7 +3846,6 @@ void syskeys()
         else
         {
             Throttlefps=!Throttlefps;
-            logic_counter=0;
         }
     }
     
@@ -4307,7 +4140,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
         syskeys();
         // to keep fps constant
         updatescr(allowwavy);
-        throttleFPS();
+		graphics->waitTick();
+		graphics->showBackBuffer();
         
 #ifdef _WIN32
         
@@ -4334,10 +4168,11 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     Advance=false;
     ++frame;
     
-    syskeys();
-    // Someday... maybe install a Turbo button here?
+    syskeys();    
     updatescr(allowwavy);
-    throttleFPS();
+	if (Throttlefps ^ (key[KEY_TILDE] != 0))
+		graphics->waitTick();
+	graphics->showBackBuffer();
     
 #ifdef _WIN32
     
@@ -4688,10 +4523,7 @@ int onShowFPS()
     if(ShowFPS)
         show_fps(screen);
         
-    if(sbig)
-        stretch_blit(fps_undo,screen,0,0,64,16,scrx+40-120,scry+216+96,128,32);
-    else
-        blit(fps_undo,screen,0,0,scrx+40,scry+216,64,16);
+    stretch_blit(fps_undo,screen,0,0,64,16,graphics->miniscreenX()+40-120, graphics->miniscreenY() +216+96,128,32);
         
     if(Paused)
         show_paused(screen);
@@ -4728,10 +4560,13 @@ void kb_getkey(DIALOG *d)
     
     scare_mouse();
     jwin_button_proc(MSG_DRAW,d,0);
+	int resx = graphics->virtualScreenW();
+	int resy = graphics->virtualScreenH();
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
     textout_centre_ex(screen, font, "Press a key", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	graphics->showBackBuffer();
     unscare_mouse();
     
     clear_keybuf();
@@ -4771,12 +4606,12 @@ void j_getbtn(DIALOG *d)
     d->flags|=D_SELECTED;
     scare_mouse();
     jwin_button_proc(MSG_DRAW,d,0);
-    jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
+    jwin_draw_win(screen, (graphics->virtualScreenW()-160)/2, (graphics->virtualScreenH() -48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
-    int y = resy/2 - 12;
-    textout_centre_ex(screen, font, "Press a button", resx/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "ESC to cancel", resx/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "SPACE to disable", resx/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    int y = graphics->virtualScreenH()/2 - 12;
+    textout_centre_ex(screen, font, "Press a button", graphics->virtualScreenW()/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_centre_ex(screen, font, "ESC to cancel", graphics->virtualScreenW()/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_centre_ex(screen, font, "SPACE to disable", graphics->virtualScreenW()/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
     int b = next_press_btn();
@@ -4938,7 +4773,7 @@ int set_vol(void *dp3, int d2)
     
     scare_mouse();
     // text_mode(vc(11));
-    textprintf_right_ex(screen,is_large ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+    textprintf_right_ex(screen,is_large() ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
     unscare_mouse();
     return D_O_K;
 }
@@ -4948,7 +4783,7 @@ int set_pan(void *dp3, int d2)
     pan_style = vbound(d2,0,3);
     scare_mouse();
     // text_mode(vc(11));
-    textout_right_ex(screen,is_large ? lfont_l : font, pan_str[pan_style],((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_right_ex(screen,is_large() ? lfont_l : font, pan_str[pan_style],((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     return D_O_K;
 }
@@ -4958,7 +4793,7 @@ int set_buf(void *dp3, int d2)
     scare_mouse();
     // text_mode(vc(11));
     zcmusic_bufsz = d2 + 1;
-    textprintf_right_ex(screen,is_large ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
+    textprintf_right_ex(screen,is_large() ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
     unscare_mouse();
     return D_O_K;
 }
@@ -5386,7 +5221,7 @@ int onGoTo()
     
     clear_keybuf();
     
-    if(is_large)
+    if(is_large())
         large_dialog(goto_dlg);
         
     if(zc_popup_dialog(goto_dlg,4)==1)
@@ -5425,7 +5260,7 @@ int onGoToComplete()
 
 int onCredits()
 {
-    go();
+	saveMiniscreen();
     
     BITMAP *win = create_bitmap_ex(8,222,110);
     
@@ -5450,7 +5285,8 @@ int onCredits()
     
     while(update_dialog(p))
     {
-        throttleFPS();
+		graphics->waitTick();
+		graphics->showBackBuffer();
         ++c;
         l = zc_max((c>>1)-30,0);
         
@@ -5480,7 +5316,7 @@ int onCredits()
     
     shutdown_dialog(p);
     destroy_bitmap(win);
-    comeback();
+	restoreMiniscreen();
     return D_O_K;
 }
 
@@ -5700,7 +5536,7 @@ int onMIDICredits()
     
     dialog_running=true;
     
-    if(is_large)
+    if(is_large())
         large_dialog(midi_dlg);
         
     zc_popup_dialog(midi_dlg,0);
@@ -5735,7 +5571,7 @@ int onAbout()
     //  sprintf(str_s,"%s",VerStr(ZELDA_VERSION));
     about_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(about_dlg);
         
     zc_popup_dialog(about_dlg,1);
@@ -5759,7 +5595,7 @@ int onQuest()
     quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
     quest_dlg[11].d2 = quest_dlg[9].d2 = 0;
     
-    if(is_large)
+    if(is_large())
         large_dialog(quest_dlg);
         
     zc_popup_dialog(quest_dlg, 0);
@@ -5863,7 +5699,7 @@ int onVidMode()
     
 #endif
     
-    sprintf(str_b,"%dx%d 8-bit",resx,resy);
+    sprintf(str_b,"%dx%d 8-bit", graphics->screenW(), graphics->screenH());
     jwin_alert("Video Mode",str_a,str_b,NULL,"OK",NULL,13,27,lfont);
     return D_O_K;
 }
@@ -5888,7 +5724,7 @@ int onKeyboard()
     
     key_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(key_dlg);
         
     while(!done)
@@ -5982,7 +5818,7 @@ int onKeyboardDir()
     
     keydir_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(keydir_dlg);
         
     bool done=false;
@@ -5990,7 +5826,7 @@ int onKeyboardDir()
     
     key_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(key_dlg);
         
     while(!done)
@@ -6085,7 +5921,7 @@ int onJoystick()
     
     btn_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(btn_dlg);
         
     int ret = zc_popup_dialog(btn_dlg,27);
@@ -6123,13 +5959,13 @@ int onJoystickDir()
     else
         btndir_dlg[14].flags&=~D_SELECTED;
     
-    if(is_large)
+    if(is_large())
         large_dialog(btndir_dlg);
         
     int ret = zc_popup_dialog(btndir_dlg,15);
     
     if(ret==15) // OK
-        analog_movement = btndir_dlg[14].flags&D_SELECTED;
+        analog_movement = (btndir_dlg[14].flags&D_SELECTED) != 0;
     else // Cancel
     {
         DUbtn = up;
@@ -6154,7 +5990,7 @@ int onSound()
     
     sound_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(sound_dlg);
         
     midi_dp[1] = sound_dlg[6].x;
@@ -6377,7 +6213,7 @@ int getnumber(const char *prompt,int initialval)
     getnum_dlg[0].dp2=lfont;
     getnum_dlg[2].dp=buf;
     
-    if(is_large)
+    if(is_large())
         large_dialog(getnum_dlg);
         
     if(zc_popup_dialog(getnum_dlg,2)==3)
@@ -6443,7 +6279,7 @@ int onQstPath()
     chop_path(qstdir);
     strcpy(path,qstdir);
     
-    go();
+	saveMiniscreen();
     
     if(jwin_dfile_select_ex("Quest File Directory", path, "qst", 2048, -1, -1, lfont))
     {
@@ -6454,7 +6290,7 @@ int onQstPath()
         strcpy(qstpath,qstdir);
     }
     
-    comeback();
+	restoreMiniscreen();
     return D_O_K;
 }
 
@@ -6477,7 +6313,7 @@ int onCheat()
     cheat_dlg[0].dp2=lfont;
     cheat_dlg[1].dp=str_a;
     
-    if(is_large)
+    if(is_large())
         large_dialog(cheat_dlg);
         
     int ret=zc_popup_dialog(cheat_dlg,1);
@@ -6596,7 +6432,7 @@ int onScreenSaver()
     scrsaver_dlg[6].d2 = ss_speed;
     scrsaver_dlg[7].d2 = ss_density;
     
-    if(is_large)
+    if(is_large())
         large_dialog(scrsaver_dlg);
         
     int ret = zc_popup_dialog(scrsaver_dlg,-1);
@@ -6698,12 +6534,21 @@ static MENU settings_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
+static MENU video_mode_menu[] =
+{
+	{ (char *)"&Fullscreen",				onFullscreenMenu,		 NULL,                      0, NULL },
+	{ (char *)"Windowed 320x240",		    onWindowed1Menu,		 NULL,                      0, NULL },
+	{ (char *)"&Windowed 640x480",		    onWindowed2Menu,		 NULL,                      0, NULL },
+	{ (char *)"Windowed 1280x960",		    onWindowed4Menu,		 NULL,                      0, NULL },
+	{ NULL,                                 NULL,                    NULL,                      0, NULL }
+};
+
 static MENU misc_menu[] =
 {
     { (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
     { (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
-    { (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
-    { (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
+    { (char *)"&Set Video Mode",            NULL,			         video_mode_menu,           0, NULL },
+    { (char *)"&About Video Mode...",       onVidMode,               NULL,                      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"&Quest Info...",             onQuest,                 NULL,                      0, NULL },
     { (char *)"Quest &MIDI Info...",        onMIDICredits,           NULL,                      0, NULL },
@@ -6803,11 +6648,44 @@ int onExtLetterGridEntry()
     return D_O_K;
 }
 
+void setVideoModeMenuFlags()
+{
+	video_mode_menu[0].flags = (graphics->isFullscreen() ? D_SELECTED : 0);
+	video_mode_menu[1].flags = (!graphics->isFullscreen() && graphics->screenW() == 320 && graphics->screenH() == 240) ? D_SELECTED : 0;
+	video_mode_menu[2].flags = (!graphics->isFullscreen() && graphics->screenW() == 640 && graphics->screenH() == 480) ? D_SELECTED : 0;
+	video_mode_menu[3].flags = (!graphics->isFullscreen() && graphics->screenW() == 1280 && graphics->screenH() == 960) ? D_SELECTED : 0;
+}
+
+
 int onFullscreenMenu()
 {
-    onFullscreen();
-    misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
-    return D_O_K;
+	graphics->setFullscreen(true);
+	setVideoModeMenuFlags(); 
+    return D_REDRAW;
+}
+
+int onWindowed1Menu()
+{
+	graphics->setScreenResolution(320, 240);
+	graphics->setFullscreen(false);
+	setVideoModeMenuFlags();
+	return D_REDRAW;
+}
+
+int onWindowed2Menu()
+{
+	graphics->setScreenResolution(640, 480);
+	graphics->setFullscreen(false);
+	setVideoModeMenuFlags();
+	return D_REDRAW;
+}
+
+int onWindowed4Menu()
+{
+	graphics->setScreenResolution(1280, 960);
+	graphics->setFullscreen(false);
+	setVideoModeMenuFlags();
+	return D_REDRAW;
 }
 
 void fix_menu()
@@ -7185,8 +7063,8 @@ void system_pal()
     
     jwin_set_colors(jwin_pal);
     
-    color_layer(pal, pal, 24,16,16, 28, 128,191);
-    
+	color_layer(pal, pal, 24,16,16, 28, 128,191);
+
     for(int i=0; i<256; i+=2)
     {
         int v = (i>>3)+2;
@@ -7253,254 +7131,29 @@ void system_pal()
     blit(tmp_scr,fps_undo,40,216,0,0,64,16);
     
     // display everything
-    vsync();
-    set_palette_range(pal,0,255,false);
-    
-    if(sbig)
-        stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
-    else
-        blit(tmp_scr,screen,0,0,scrx,scry,320,240);
+	clear_to_color(screen, BLACK);
+	graphics->showBackBuffer();
+	set_palette_range(pal, 0, 255, false);
+	stretch_blit(tmp_scr,screen,0,0,320,240,graphics->miniscreenX()-(160*(virtualScreenScale()-1)),
+		graphics->miniscreenY()-(120*(virtualScreenScale()-1)), virtualScreenScale() *320, virtualScreenScale() *240);
         
     if(ShowFPS)
         show_fps(screen);
         
     if(Paused)
         show_paused(screen);
+	
+	graphics->showBackBuffer();
         
     //  sys_pal = pal;
     memcpy(sys_pal,pal,sizeof(pal));
 }
 
 
-void system_pal2()
-{
-    PALETTE RAMpal2;
-    copy_pal((RGB*)data[PAL_GUI].dat, RAMpal2);
-    
-    /* Windows 2000 colors
-      RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-      RAMpal2[dvc(2)] = _RGB( 66*63/255,  65*63/255,  66*63/255);
-      RAMpal2[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
-      RAMpal2[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-      RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-      RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-      RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-      RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-    
-      byte palrstart= 10*63/255, palrend=166*63/255,
-      palgstart= 36*63/255, palgend=202*63/255,
-      palbstart=106*63/255, palbend=240*63/255,
-      paldivs=7;
-      for(int i=0; i<paldivs; i++)
-      {
-      RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    
-    /* Windows 98 colors
-      RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-      RAMpal2[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-      RAMpal2[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-      RAMpal2[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-      RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-      RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-      RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-      RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-    
-      byte palrstart=  0*63/255, palrend=166*63/255,
-      palgstart=  0*63/255, palgend=202*63/255,
-      palbstart=128*63/255, palbend=240*63/255,
-      paldivs=7;
-      for(int i=0; i<paldivs; i++)
-      {
-      RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    
-    /* Windows 99 colors
-      RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-      RAMpal2[dvc(2)] = _RGB( 64*63/255,  64*63/255,  64*63/255);
-      RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-      RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-      RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-      RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-      RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-      RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-      RAMpal2[dvc(9)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-    
-      byte palrstart=  0*63/255, palrend=166*63/255,
-      palgstart=  0*63/255, palgend=202*63/255,
-    
-      palbstart=128*63/255, palbend=240*63/255,
-      paldivs=6;
-      for(int i=0; i<paldivs; i++)
-      {
-      RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    
-    
-    
-    RAMpal2[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-    RAMpal2[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-    RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-    RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-    RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-    RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-    RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-    RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-    RAMpal2[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-    
-    byte palrstart=  0*63/255, palrend=166*63/255,
-         palgstart=  0*63/255, palgend=202*63/255,
-         palbstart=128*63/255, palbend=240*63/255,
-         paldivs=6;
-         
-    for(int i=0; i<paldivs; i++)
-    {
-        RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-        RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-        RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-    }
-    
-    gui_bg_color=jwin_pal[jcBOX];
-    gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
-    
-    jwin_set_colors(jwin_pal);
-    
-    
-    // set up the new palette
-    for(int i=128; i<192; i++)
-    {
-        RAMpal2[i].r = i-128;
-        RAMpal2[i].g = i-128;
-        RAMpal2[i].b = i-128;
-    }
-    
-    /*
-      for(int i=0; i<64; i++)
-      {
-      RAMpal2[128+i] = _RGB(i,i,i)1));
-      }
-      */
-    
-    /*
-    
-      pal[vc(1)]  = _RGB(0x00,0x00,0x14);
-      pal[vc(4)]  = _RGB(0x36,0x36,0x36);
-      pal[vc(6)]  = _RGB(0x10,0x10,0x10);
-      pal[vc(7)]  = _RGB(0x20,0x20,0x20);
-      pal[vc(9)]  = _RGB(0x20,0x20,0x24);
-      pal[vc(11)] = _RGB(0x30,0x30,0x30);
-      pal[vc(14)] = _RGB(0x3F,0x38,0x28);
-    
-      gui_fg_color=vc(14);
-      gui_bg_color=vc(1);
-      gui_mg_color=vc(9);
-    
-      jwin_set_colors(jwin_pal);
-      */
-    
-    //  color_layer(RAMpal2, RAMpal2, 24,16,16, 28, 128,191);
-    
-    // set up the colors for the vertical screen gradient
-    for(int i=0; i<256; i+=2)
-    {
-        int v = (i>>3)+2;
-        int c = (i>>3)+192;
-        RAMpal2[c] = _RGB(v,v,v+(v>>1));
-        
-        /*
-          if(i<240)
-          {
-          _allegro_hline(tmp_scr,0,i,319,c);
-          _allegro_hline(tmp_scr,0,i+1,319,c);
-          }
-          */
-    }
-    
-    set_palette(RAMpal2);
-    
-    for(int i=0; i<240; ++i)
-    {
-        _allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
-    }
-    
-    /*
-      byte palrstart= 10*63/255, palrend=166*63/255,
-      palgstart= 36*63/255, palgend=202*63/255,
-      palbstart=106*63/255, palbend=240*63/255,
-      paldivs=32;
-      for(int i=0; i<paldivs; i++)
-      {
-      pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    BITMAP *panorama = create_bitmap_ex(8,256,224);
-    int ts_height, ts_start;
-    
-    if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
-    {
-        clear_to_color(panorama,0);
-        blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
-        ts_height=224-passive_subscreen_height;
-        ts_start=28;
-    }
-    else
-    {
-        blit(framebuf,panorama,0,0,0,0,256,224);
-        ts_height=224;
-        ts_start=0;
-    }
-    
-    // gray scale the current frame
-    for(int y=0; y<ts_height; y++)
-    {
-        for(int x=0; x<256; x++)
-        {
-            int c = panorama->line[y+ts_start][x];
-            int gray = zc_min((RAMpal2[c].r*42 + RAMpal2[c].g*75 + RAMpal2[c].b*14) >> 7, 63);
-            tmp_scr->line[y+8+ts_start][x+32] = gray+128;
-        }
-    }
-    
-    destroy_bitmap(panorama);
-    
-    // save the fps_undo section
-    blit(tmp_scr,fps_undo,40,216,0,0,64,16);
-    
-    // display everything
-    vsync();
-    set_palette_range(RAMpal2,0,255,false);
-    
-    if(sbig)
-        //stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
-        stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
-    else
-        blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-        
-    if(ShowFPS)
-        show_fps(screen);
-        
-    if(Paused)
-        show_paused(screen);
-        
-    //  sys_pal = pal;
-    memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
-}
 
+void switch_out_callback()
+{
 #ifdef _WIN32
-void switch_out_callback()
-{
 	if(midi_patch_fix==0 || currmidi==0)
         return;
         
@@ -7519,43 +7172,41 @@ void switch_out_callback()
         midi_pause();
         midi_paused=true;
     }
-}
-
-void switch_in_callback()
-{
-	if(midi_patch_fix==0 || currmidi==0)
-        return;
-        
-    bool was_paused=midi_paused;
-    long pos=midi_pos;
-    int digi_vol, midi_vol;
-	
-	get_volume(&digi_vol, &midi_vol);
-    stop_midi();
-    jukebox(currmidi);
-	set_volume(digi_vol, midi_vol);
-    midi_seek(pos);
-    
-    if(was_paused)
-    {
-        midi_pause();
-        midi_paused=true;
-    }
-}
-#else // Not Windows
-void switch_out_callback()
-{
-}
-
-void switch_in_callback()
-{
-}
 #endif
+}
+
+void switch_in_callback()
+{
+#ifdef _WIN32
+	graphics->onSwitchIn();
+
+	if(midi_patch_fix==0 || currmidi==0)
+        return;
+        
+    bool was_paused=midi_paused;
+    long pos=midi_pos;
+    int digi_vol, midi_vol;
+	
+	get_volume(&digi_vol, &midi_vol);
+    stop_midi();
+    jukebox(currmidi);
+	set_volume(digi_vol, midi_vol);
+    midi_seek(pos);
+    
+    if(was_paused)
+    {
+        midi_pause();
+        midi_paused=true;
+    }
+#endif
+}
 
 void game_pal()
 {
     clear_to_color(screen,BLACK);
+	graphics->showBackBuffer();
     set_palette_range(RAMpal,0,255,false);
+	graphics->showBackBuffer();
 }
 
 static char bar_str[] = "";
@@ -7599,7 +7250,7 @@ void System()
     //  FONT *oldfont=font;
     //  font=tfont;
     
-    misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
+	setVideoModeMenuFlags();
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
     game_menu[3].flags =
@@ -7626,7 +7277,8 @@ void System()
         
     do
     {
-        rest(17);
+		graphics->waitTick();
+		graphics->showBackBuffer();
         
         if(mouse_down && !gui_mouse_b())
             mouse_down=0;
@@ -7747,8 +7399,8 @@ void fix_dialog(DIALOG *d)
 {
     for(; d->proc != NULL; d++)
     {
-        d->x += scrx;
-        d->y += scry;
+        d->x += graphics->miniscreenX();
+        d->y += graphics->miniscreenY();
     }
 }
 
@@ -7785,6 +7437,8 @@ void fix_dialogs()
     jwin_center_dialog(sound_dlg);
     jwin_center_dialog(triforce_dlg);
     
+	int scrx = graphics->miniscreenX();
+	int scry = graphics->miniscreenY();
     digi_dp[1] += scrx;
     digi_dp[2] += scry;
     midi_dp[1] += scrx;

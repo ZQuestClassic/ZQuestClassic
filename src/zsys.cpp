@@ -28,19 +28,17 @@ using std::string;
 #include "zc_sys.h"
 #include "jwin.h"
 #include "mem_debug.h"
+#include "GraphicsBackend.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
 
-//#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
-extern BITMAP *hw_screen;
-//#endif
-
 extern bool is_zquest();
+extern GraphicsBackend *graphics;
 bool zconsole = false;
+
+int virtualScreenScale();
 
 char *time_str_long(dword time)
 {
@@ -968,14 +966,8 @@ int onSnapshot2()
 
 void set_default_box_size()
 {
-    int screen_w=SCREEN_W;
-    int screen_h=SCREEN_H;
-    
-    if(zqwin_scale>1)
-    {
-        screen_w/=zqwin_scale;
-        screen_h/=zqwin_scale;
-    }
+    int screen_w= graphics->virtualScreenW() / virtualScreenScale();
+    int screen_h= graphics->virtualScreenH() / virtualScreenScale();
     
     box_w=MIN(512, screen_w-16);
     box_h=MIN(256, (screen_h-64)&0xFFF0);
@@ -1077,26 +1069,9 @@ void box_out(const char *msg)
         box_out(remainder.c_str());
         box_log = oldlog;
     }
-    
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        //if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+
+	graphics->waitTick();
+	graphics->showBackBuffer();
 }
 
 /* remembers the current x position */
@@ -1147,26 +1122,9 @@ void box_eol()
         al_trace("\n");
         memset(box_log_msg, 0, 480);
     }
-    
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        //if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+
+	graphics->waitTick();
+	graphics->showBackBuffer();
 }
 
 /* ends output of a progress message */

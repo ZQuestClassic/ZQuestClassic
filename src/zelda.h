@@ -187,7 +187,6 @@ INLINE void sfx(int index,int pan)
 
 extern ZCMUSIC *zcmusic;
 
-extern int colordepth;
 extern int db;
 extern int detail_int[10];                                  //temporary holder for things you want to detail
 extern zinitdata  zinit;
@@ -199,7 +198,7 @@ extern int strike_hint;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
@@ -217,8 +216,6 @@ extern ZCHEATS  zcheats;
 extern byte     use_cheats;
 extern byte     use_tiles;
 extern char     palnames[MAXLEVELS][17];
-
-extern bool is_large;
 
 extern bool standalone_mode;
 extern char *standalone_quest;
@@ -263,10 +260,7 @@ extern bool screenscrolling;
 extern bool close_button_quit;
 extern int jwin_pal[jcMAX];
 extern int gui_colorset;
-extern int fullscreen;
-extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
-extern byte zc_color_depth;
 extern byte use_debug_console, use_win32_proc; //windows only
 
 #ifdef _SCRIPT_COUNTER
@@ -346,11 +340,6 @@ extern byte arrayOwner[MAX_ZCARRAY_SIZE];
 
 dword getNumGlobalArrays();
 
-extern int  resx,resy,scrx,scry;
-extern bool sbig;                                           // big screen
-extern bool sbig2;	//BIGGER SCREEN!!!!
-extern int screen_scale; //user adjustable screen size.
-
 extern bool scanlines;                                      //do scanlines if sbig==1
 extern bool toogam;
 extern bool ignoreSideview;
@@ -363,10 +352,6 @@ extern char *qstpath;
 extern char *qstdir;
 extern gamedata *saves;
 extern gamedata *game;
-
-extern volatile int lastfps;
-extern volatile int framecnt;
-extern void throttleFPS();
 
 // quest file data
 extern zquestheader QHeader;

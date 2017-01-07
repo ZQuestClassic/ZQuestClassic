@@ -895,7 +895,7 @@ void enlarge_file_selector(int width, int height)
     jwin_center_dialog(file_selector);
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(file_selector);
         int bottom =

@@ -37,10 +37,27 @@
 #include "jwinfsel.h"
 #include "gui.h"
 #include "mem_debug.h"
+#include "GraphicsBackend.h"
+
+extern GraphicsBackend *graphics;
 
 /****************************/
 /**********  GUI  ***********/
 /****************************/
+
+void saveMiniscreen()
+{
+	scare_mouse();
+	blit(screen, tmp_scr, graphics->miniscreenX(), graphics->miniscreenY(), 0, 0, 320, 240);
+	unscare_mouse();
+}
+
+void restoreMiniscreen()
+{
+	scare_mouse();
+	blit(tmp_scr, screen, 0, 0, graphics->miniscreenX(), graphics->miniscreenY(), 320, 240);
+	unscare_mouse();
+}
 
 
 // make it global so the joystick button routine can set joy_on=TRUE
@@ -91,16 +108,17 @@ int zc_popup_dialog_dbuf(DIALOG *dialog, int focus_obj)
 int PopUp_dialog(DIALOG *d,int f)
 {
     // uses the bitmap that's already allocated
-    go();
+	saveMiniscreen();
     player = init_dialog(d,f);
     
     while(update_dialog(player))
     {
-        /* do nothing */
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     int ret = shutdown_dialog(player);
-    comeback();
+	restoreMiniscreen();
     position_mouse_z(0);
     return ret;
 }
@@ -142,16 +160,17 @@ int popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
 int PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f)
 {
     // uses the bitmap that's already allocated
-    go();
+	saveMiniscreen();
     player = init_dialog(d,f);
     
     while(update_dialog_through_bitmap(buffer,player))
     {
-        /* do nothing */
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     int ret = shutdown_dialog(player);
-    comeback();
+	restoreMiniscreen();
     position_mouse_z(0);
     return ret;
 }
@@ -190,22 +209,8 @@ int do_zqdialog(DIALOG *dialog, int focus_obj)
         /* If a menu is active, we yield here, since the dialog
         * engine is shut down so no user code can be running.
         */
-        if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-        
-        //if (active_menu_player2)
-        //rest(1);
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     if(_gfx_mode_set_count == screen_count && !(gfx_capabilities&GFX_HW_CURSOR))
@@ -253,6 +258,7 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
         blit(bmp, gui_bmp, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
         unscare_mouse();
         destroy_bitmap(bmp);
+		graphics->showBackBuffer();
     }
     
     return ret;

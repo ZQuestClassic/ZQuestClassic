@@ -39,7 +39,6 @@ extern int midi_strict; //L
 #endif
 extern bool cancelgetnum;
 
-extern bool is_large;
 extern int RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
@@ -67,41 +66,16 @@ bool layers_valid(mapscr *tempscr);
 void fix_layers(mapscr *tempscr, bool showwarning);
 
 extern int coord_timer, coord_frame;
-extern int blackout_color, zq_screen_w, zq_screen_h;
+extern int blackout_color();
 extern int jwin_pal[jcMAX];
 
-extern size_and_pos minimap;
-
-extern size_and_pos combolist1;
-extern size_and_pos combolist1scrollers;
-extern size_and_pos combolist2;
-extern size_and_pos combolist2scrollers;
-extern size_and_pos combolist3;
-extern size_and_pos combolist3scrollers;
-
-extern size_and_pos comboaliaslist1;
-extern size_and_pos comboalias_preview1;
-extern size_and_pos comboaliaslist2;
-extern size_and_pos comboalias_preview2;
-extern size_and_pos comboaliaslist3;
-extern size_and_pos comboalias_preview3;
-
-extern size_and_pos combo_preview;
-extern size_and_pos combolist_window;
-extern size_and_pos panel[9];
 extern size_and_pos panel_button[9];
-extern size_and_pos favorites_window;
-extern size_and_pos favorites_list;
 
-extern size_and_pos commands_window;
-extern size_and_pos commands_list;
 extern size_and_pos dummy_panel;
 
 extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
-extern int mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
-extern int mouse_scroll_h;
 extern int tooltip_timer, tooltip_maxtimer;
 
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
@@ -178,9 +152,6 @@ extern int memrequested;
 extern byte Color;
 
 extern ZCMUSIC *zcmusic;
-extern volatile int myvsync;
-extern BITMAP *hw_screen;
-
 extern int fill_type;
 
 extern bool first_save;
@@ -546,7 +517,6 @@ enum
     cmdFlags,
     cmdPasteFFCombos,
     cmdSelectFFCombo,
-    cmdFullScreen,
     cmdIcons,
     cmdGotoMap,
     cmdGuy,
@@ -1050,22 +1020,10 @@ void autolayer(mapscr* tempscr, int layer, int al[6][3]);
 int findblankcombo();
 int onLayers();
 
-// **** Timers ****
-
-//volatile int lastfps=0;
-//volatile int framecnt=0;
-extern volatile int myvsync;
-
-void myvsync_callback();
-void fps_callback();
-
-extern BITMAP *hw_screen;
-
 /********************/
 /******  MAIN  ******/
 /********************/
 
-void custom_vsync();
 void switch_out();
 void switch_in();
 void Z_eventlog(const char *format,...);

@@ -29,10 +29,10 @@
 #include "qst.h"
 #include "jwin.h"
 #include "jwinfsel.h"
-#include "zqscale.h"
 #include "zc_custom.h"
 #include "questReport.h"
 #include "mem_debug.h"
+#include "GraphicsBackend.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -58,6 +58,8 @@ byte selection_anchor=0;
 enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, selection_mode_exclude};
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
+
+extern GraphicsBackend *graphics;
 
 
 BITMAP *intersection_pattern;
@@ -680,8 +682,6 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool 
     
     while(gui_mouse_b())
     {
-        custom_vsync();
-        
         if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
         {
             if(!over)
@@ -702,6 +702,8 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool 
                 over=false;
             }
         }
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     return over;
@@ -713,8 +715,6 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
     
     while(gui_mouse_b())
     {
-        custom_vsync();
-        
         if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
         {
             if(!over)
@@ -735,14 +735,17 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
                 over=false;
             }
         }
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     if(over)
     {
-        custom_vsync();
         scare_mouse();
         draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
         unscare_mouse();
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     return over;
@@ -783,8 +786,6 @@ bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,
     
     while(gui_mouse_b())
     {
-        custom_vsync();
-        
         if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
         {
             if(!over)
@@ -805,6 +806,8 @@ bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,
                 over=false;
             }
         }
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     return over;
@@ -816,8 +819,7 @@ bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,i
     
     while(gui_mouse_b())
     {
-        custom_vsync();
-        
+       
         if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
         {
             if(!over)
@@ -838,14 +840,17 @@ bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,i
                 over=false;
             }
         }
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     if(over)
     {
-        custom_vsync();
         scare_mouse();
         draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,0,jwin,overlay);
         unscare_mouse();
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     return over;
@@ -893,8 +898,6 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
 {
     while(gui_mouse_b())
     {
-        custom_vsync();
-        
         for(int k=0; k<7; k++)
         {
             if((k==0)||(Map.CurrScr()->layermap[k-1]))
@@ -910,6 +913,8 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
                 }
             }
         }
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
 }
 
@@ -942,8 +947,6 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
     
     while(gui_mouse_b())
     {
-        custom_vsync();
-        
         if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+8,y+8))               //if on checkbox
         {
             if(!over)                                             //if wasn't here before
@@ -968,6 +971,8 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
                 over=false;
             }
         }
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     return over;
@@ -1087,7 +1092,7 @@ void update_tool_cursor()
     }
     
 //  if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
-    if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+    if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large() ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large() ? 14 : 7) : 0))) //inside the zoomed tile window
     {
         if(tool_cur==-1)
         {
@@ -1120,7 +1125,7 @@ void update_tool_cursor()
 
 void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
 {
-    if(is_large)
+    if(is_large())
     {
         ok_button_x=268;
         ok_button_y=562;
@@ -1153,11 +1158,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     }
     
     PALETTE tpal;
-    static BITMAP *tbar = create_bitmap_ex(8,zq_screen_w-6, 18);
+    static BITMAP *tbar = create_bitmap_ex(8,graphics->virtualScreenW()-6, 18);
     static BITMAP *preview_bmp = create_bitmap_ex(8, 64, 64);
 //  int screen_xofs=(zq_screen_w-320)>>1;
 //  int screen_yofs=(zq_screen_h-240)>>1;
-    jwin_draw_win(screen2, 0, 0, zq_screen_w, zq_screen_h, FR_WIN);
+    jwin_draw_win(screen2, 0, 0, graphics->virtualScreenW(), graphics->virtualScreenH(), FR_WIN);
     
     /*
       FONT *oldfont = font;
@@ -1177,12 +1182,12 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     */
     if(!create_tbar)
     {
-        blit(tbar, screen2, 0, 0, 3, 3, zq_screen_w-6, 18);
+        blit(tbar, screen2, 0, 0, 3, 3, graphics->virtualScreenW()-6, 18);
     }
     else
     {
-        jwin_draw_titlebar(tbar, 0, 0, zq_screen_w-6, 18, "", true);
-        blit(tbar, screen2, 0, 0, 3, 3, zq_screen_w-6, 18);
+        jwin_draw_titlebar(tbar, 0, 0, graphics->virtualScreenW()-6, 18, "", true);
+        blit(tbar, screen2, 0, 0, 3, 3, graphics->virtualScreenW()-6, 18);
     }
     
     textprintf_ex(screen2,lfont,5,5,jwin_pal[jcTITLEFG],-1,"Tile Editor (%d)",tile);
@@ -1343,13 +1348,14 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
         }
     }
     
-    custom_vsync();
     scare_mouse();
 //  blit(screen2,screen,0,0,screen_xofs,screen_yofs,zq_screen_w,zq_screen_w);
-    blit(screen2,screen,0,0,0,0,zq_screen_w,zq_screen_w);
+    blit(screen2,screen,0,0,0,0,graphics->virtualScreenW(),graphics->virtualScreenH());
     update_tool_cursor();
     unscare_mouse();
     SCRFIX();
+	graphics->waitTick();
+	graphics->showBackBuffer();
 }
 
 void normalize(int tile,int tile2, bool rect_sel, int flip)
@@ -1586,13 +1592,13 @@ void edit_tile(int tile,int flip,int &cs)
         invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
     }
     
-    custom_vsync();
     set_palette(tpal);
     draw_edit_scr(tile,flip,cs,oldtile, true);
     
     while(gui_mouse_b())
     {
-        /* do nothing */
+		graphics->waitTick();
+		graphics->showBackBuffer();
     }
     
     int move_origin_x=-1, move_origin_y=-1;
@@ -2055,7 +2061,7 @@ void edit_tile(int tile,int flip,int &cs)
                     select_mode=type;
                     
 //          if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
-                    if(isinRect(temp_mouse_x,temp_mouse_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+                    if(isinRect(temp_mouse_x,temp_mouse_y-(tool==t_fill ? (is_large() ? 14 : 7) : 0),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large() ? 14 : 7) : 0))) //inside the zoomed tile window
                     {
                         set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
                     }
@@ -2094,7 +2100,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(gui_mouse_b()==1 && !bdown) //pressed the left mouse button
         {
 //      if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large() ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large() ? 14 : 7) : 0))) //inside the zoomed tile window
             {
                 if(tool==t_move || tool==t_fill)
                 {
@@ -2214,10 +2220,10 @@ void edit_tile(int tile,int flip,int &cs)
                 }
             }
             
-            if(isinRect(temp_mouse_x,temp_mouse_y,zq_screen_w - 21, 5, zq_screen_w - 21 + 15, 5 + 13))
+            if(isinRect(temp_mouse_x,temp_mouse_y,graphics->virtualScreenW() - 21, 5, graphics->virtualScreenW() - 21 + 15, 5 + 13))
             {
 //        if(do_x_button(screen, 320+screen_xofs - 21, 5+screen_yofs))
-                if(do_x_button(screen, zq_screen_w - 21, 5))
+                if(do_x_button(screen, graphics->virtualScreenW() - 21, 5))
                 {
                     done=1;
                 }
@@ -2229,7 +2235,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(gui_mouse_b()&2 && !bdown) //pressed the left mouse button
         {
 //      if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large() ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large() ? 14 : 7) : 0))) //inside the zoomed tile window
             {
                 if(tool==t_move || tool==t_fill)
                 {
@@ -2300,7 +2306,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(bdown&&!gui_mouse_b())  //released the buttons
         {
 //      if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+            if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large() ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large() ? 14 : 7) : 0))) //inside the zoomed tile window
             {
                 if(tool==t_move || tool==t_fill)
                 {
@@ -2322,7 +2328,7 @@ void edit_tile(int tile,int flip,int &cs)
         }
         
 //    if(drawing && isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
-        if(drawing && isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
+        if(drawing && isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large() ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large() ? 14 : 7) : 0))) //inside the zoomed tile window
         {
         
             int mx = gui_mouse_x();
@@ -2331,7 +2337,7 @@ void edit_tile(int tile,int flip,int &cs)
             if(tool==t_fill)  //&& is_windowed_mode()) // Sigh... -L
             {
                 mx += 1;
-                my += is_large ? 14 : 7;
+                my += is_large() ? 14 : 7;
             }
             
             int x=(mx-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
@@ -2522,7 +2528,6 @@ void edit_tile(int tile,int flip,int &cs)
                 tpal[210]=invRGB(tpal[0]);
             }
             
-            custom_vsync();
             set_palette(tpal);
             draw_edit_scr(tile,flip,cs,oldtile, false);
             
@@ -2530,6 +2535,8 @@ void edit_tile(int tile,int flip,int &cs)
             {
                 masked_blit(tooltipbmp, screen, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
             }
+			graphics->waitTick();
+			graphics->showBackBuffer();
         }
         else
         {
@@ -2541,18 +2548,18 @@ void edit_tile(int tile,int flip,int &cs)
                 zoomtile16(screen2,tile,zoom_tile_x-1,zoom_tile_y-1,cs,flip,zoom_tile_scale);
             }
             
-            custom_vsync();
             scare_mouse();
             
             if(hs)
             {
-//        blit(screen2, screen, 79, 31, 79, 31, 129, 129);
                 blit(screen2, screen, zoom_tile_x-1,zoom_tile_y-1, zoom_tile_x-1,zoom_tile_y-1, (16*zoom_tile_scale/zoom_tile_size)+1, (16*zoom_tile_scale/zoom_tile_size)+1);
             }
             
             update_tool_cursor();
             unscare_mouse();
             SCRFIX();
+			graphics->waitTick();
+			graphics->showBackBuffer();
         }
         
     }
@@ -2639,7 +2646,6 @@ int bestfit_cset_color(int cs, int r, int g, int b)
     for(int i = 0; i < CSET_SIZE; i++)
     {
         byte *rgbByte;
-        RGB rgb;
         
         // This seems to be right...
         if(cs==2 || cs==3 || cs==4)
@@ -2687,7 +2693,6 @@ int bestfit_cset_color_8bit(int r, int g, int b)
     for(int i = 0; i < 192; i++) // 192 colors in CSets 0-11
     {
         byte *rgbByte;
-        RGB rgb;
         
         int cs=i>>4;
         if(cs==2 || cs==3 || cs==4)
@@ -2857,13 +2862,13 @@ const char *file_type[ftMAX]=
 
 void draw_grab_window()
 {
-    int w = is_large?640:320;
-    int h = is_large?480:240;
-    int window_xofs=(zq_screen_w-w-12)>>1;
-    int window_yofs=(zq_screen_h-h-25-6)>>1;
+    int w = is_large()?640:320;
+    int h = is_large()?480:240;
+    int window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+    int window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
-    jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*(is_large+1)),  FR_DEEP);
+    jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*(is_large() ? 2 :1)),  FR_DEEP);
     
     FONT *oldfont = font;
     font = lfont;
@@ -2884,7 +2889,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     rectfill(screen2, 0, 0, 319, 159, black);
     //jwin_draw_win(screen2, 0, 160, 320, 80, FR_WIN);
     
-    if(is_large)
+    if(is_large())
     {
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
         rectfill(screen2,0,160,319,239,jwin_pal[jcBOX]);
@@ -3180,27 +3185,26 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     int screen_yofs=0;
     int mul = 1;
     
-    if(is_large)
+    if(is_large())
     {
         mul = 2;
         yofs=16;
-        window_xofs=(zq_screen_w-640-12)>>1;
-        window_yofs=(zq_screen_h-480-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-640-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-480-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
     
-    custom_vsync();
     scare_mouse();
     
-    if(is_large)
+    if(is_large())
         stretch_blit(screen2,screen,0,0,320,240,screen_xofs,screen_yofs,640,480);
     else blit(screen2,screen,0,0,screen_xofs,screen_yofs,320,240);
     
     // Suspend the current font while draw_text_button does its work
     FONT* oldfont = font;
     
-    if(is_large)
+    if(is_large())
         font = lfont_l;
         
     // Interface
@@ -3213,7 +3217,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     case ftBMP:
     {
         textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
-        draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
+        draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int(61*(is_large()?1.5:1)),int(20*(is_large()?1.5:1)),"Recolor",vc(1),vc(14),0,true);
         break;
     }
     
@@ -3223,7 +3227,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     case ftQSU:
     case ftTIL:
     case ftBIN:
-        textprintf_ex(screen,is_large? lfont_l : font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %ld KB",imgstr[imagetype],imagesize>>10);
+        textprintf_ex(screen,is_large()? lfont_l : font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %ld KB",imgstr[imagetype],imagesize>>10);
         break;
     }
     
@@ -3245,15 +3249,17 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     
     textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(224+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imagepath);
 //  rectfill(screen2,256,224,319,231,black);
-    draw_text_button(screen,window_xofs+255*mul,window_yofs+(168+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"OK",vc(1),vc(14),0,true);
-    draw_text_button(screen,window_xofs+255*mul,window_yofs+(192+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"Cancel",vc(1),vc(14),0,true);
-    draw_text_button(screen,window_xofs+255*mul,window_yofs+(216+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"File",vc(1),vc(14),0,true);
-    draw_text_button(screen,window_xofs+117*mul,window_yofs+(166+yofs)*mul,int(61*(is_large?1.5:1)),int(20*(is_large?1.5:1)),"Leech",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+255*mul,window_yofs+(168+yofs)*mul,int(61*(is_large()?1.5:1)),int(20*(is_large()?1.5:1)),"OK",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+255*mul,window_yofs+(192+yofs)*mul,int(61*(is_large()?1.5:1)),int(20*(is_large()?1.5:1)),"Cancel",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+255*mul,window_yofs+(216+yofs)*mul,int(61*(is_large()?1.5:1)),int(20*(is_large()?1.5:1)),"File",vc(1),vc(14),0,true);
+    draw_text_button(screen,window_xofs+117*mul,window_yofs+(166+yofs)*mul,int(61*(is_large()?1.5:1)),int(20*(is_large()?1.5:1)),"Leech",vc(1),vc(14),0,true);
     
     //int rectw = 16*mul;
     //rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
     unscare_mouse();
     SCRFIX();
+	graphics->waitTick();
+	graphics->showBackBuffer();
     font = oldfont;
 }
 
@@ -3588,7 +3594,7 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     
     leech_dlg[31].d1=0;
     
-    if(is_large)
+    if(is_large())
         large_dialog(leech_dlg);
         
     int ret = zc_popup_dialog(leech_dlg,3);
@@ -4192,10 +4198,10 @@ void grab_tile(int tile,int &cs)
     int rec_button_x = 141;
     int rec_button_y = 192;
     
-    if(is_large)
+    if(is_large())
     {
-        window_xofs=(zq_screen_w-640-12)>>1;
-        window_yofs=(zq_screen_h-480-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-640-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-480-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         mul=2;
@@ -4213,7 +4219,7 @@ void grab_tile(int tile,int &cs)
     }
     
     byte newtile[200][256];
-    BITMAP *screen3=create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+    BITMAP *screen3=create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
     clear_bitmap(screen3);
     byte newformat[200];
     
@@ -4482,7 +4488,7 @@ void grab_tile(int tile,int &cs)
         //boogie!
         if(gui_mouse_b()==1 && !bdown)
         {
-            if(is_large)
+            if(is_large())
             {
                 if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + 320 + 12 - 21, window_yofs + 5, window_xofs + 320 +12 - 21 + 15, window_yofs + 5 + 13))
                 {
@@ -4502,7 +4508,7 @@ void grab_tile(int tile,int &cs)
                 // Large Mode: change font temporarily
                 FONT* oldfont = font;
                 
-                if(is_large)
+                if(is_large())
                     font = lfont_l;
                     
                 if(y>=0 && y<=160*mul)
@@ -4564,31 +4570,31 @@ void grab_tile(int tile,int &cs)
                 }
                 else if(isinRect(x,y,button_x,grab_ok_button_y,button_x+bwidth,grab_ok_button_y+bheight))
                 {
-                    if(do_text_button(button_x+window_xofs,grab_ok_button_y+(is_large?76:0),bwidth,bheight,"OK",vc(1),vc(14),true))
+                    if(do_text_button(button_x+window_xofs,grab_ok_button_y+(is_large()?76:0),bwidth,bheight,"OK",vc(1),vc(14),true))
                         done=2;
                 }
                 else if(isinRect(x,y,leech_button_x,leech_button_y,leech_button_x+bwidth,leech_button_y+bheight))
                 {
-                    if(do_text_button(leech_button_x +window_xofs,leech_button_y +(is_large?76:0),bwidth,bheight,"Leech",vc(1),vc(14),true))
+                    if(do_text_button(leech_button_x +window_xofs,leech_button_y +(is_large()?76:0),bwidth,bheight,"Leech",vc(1),vc(14),true))
                     {
                         doleech=true;
                     }
                 }
                 else if(isinRect(x,y,button_x,grab_cancel_button_y,button_x+bwidth,grab_cancel_button_y+bheight))
                 {
-                    if(do_text_button(button_x +window_xofs,grab_cancel_button_y +(is_large?76:0),bwidth,bheight,"Cancel",vc(1),vc(14),true))
+                    if(do_text_button(button_x +window_xofs,grab_cancel_button_y +(is_large()?76:0),bwidth,bheight,"Cancel",vc(1),vc(14),true))
                         done=1;
                 }
                 else if(isinRect(x,y,button_x,file_button_y,button_x+bwidth,file_button_y+bheight))
                 {
-                    if(do_text_button(button_x +window_xofs,file_button_y+(is_large?76:0),bwidth,bheight,"File",vc(1),vc(14),true))
+                    if(do_text_button(button_x +window_xofs,file_button_y+(is_large()?76:0),bwidth,bheight,"File",vc(1),vc(14),true))
                     {
                         dofile=true;
                     }
                 }
                 else if(isinRect(x,y,rec_button_x, rec_button_y, rec_button_x+bwidth, rec_button_y+bheight))
                 {
-                    if(do_text_button(rec_button_x+window_xofs,rec_button_y+(is_large?76:0),bwidth,bheight,"Recolor",vc(1),vc(14),true))
+                    if(do_text_button(rec_button_x+window_xofs,rec_button_y+(is_large()?76:0),bwidth,bheight,"Recolor",vc(1),vc(14),true))
                     {
                         if(pal)
                         {
@@ -4613,22 +4619,22 @@ void grab_tile(int tile,int &cs)
                         redraw=true;
                     }
                 }
-                else if(isinRect(x,y+panel_yofs,184+(is_large?190:0),168*(is_large?2:1),190+(is_large?200:0),176*(is_large?2:1)-1))
+                else if(isinRect(x,y+panel_yofs,184+(is_large()?190:0),168*(is_large()?2:1),190+(is_large()?200:0),176*(is_large()?2:1)-1))
                 {
                     regrab=true;
                     grabmask^=1;
                 }
-                else if(isinRect(x,y+panel_yofs,192+(is_large?198:0),168*(is_large?2:1),198+(is_large?208:0)-1,176*(is_large?2:1)-1))
+                else if(isinRect(x,y+panel_yofs,192+(is_large()?198:0),168*(is_large()?2:1),198+(is_large()?208:0)-1,176*(is_large()?2:1)-1))
                 {
                     regrab=true;
                     grabmask^=2;
                 }
-                else if(isinRect(x,y+panel_yofs,184+(is_large?190:0),176*(is_large?2:1),190+(is_large?200:0)-1,184*(is_large?2:1)-1))
+                else if(isinRect(x,y+panel_yofs,184+(is_large()?190:0),176*(is_large()?2:1),190+(is_large()?200:0)-1,184*(is_large()?2:1)-1))
                 {
                     regrab=true;
                     grabmask^=4;
                 }
-                else if(isinRect(x,y+panel_yofs,192+(is_large?198:0),176*(is_large?2:1),198+(is_large?208:0)-1,184*(is_large?2:1)-1))
+                else if(isinRect(x,y+panel_yofs,192+(is_large()?198:0),176*(is_large()?2:1),198+(is_large()?208:0)-1,184*(is_large()?2:1)-1))
                 {
                     regrab=true;
                     grabmask^=8;
@@ -4746,15 +4752,16 @@ void grab_tile(int tile,int &cs)
         }
         else
         {
-            custom_vsync();
+			graphics->waitTick();
+			graphics->showBackBuffer();
         }
         
         if((f%8)==0)
         {
-            if(is_large)
-                stretch_blit(screen2,screen3,0, 0, zq_screen_w, zq_screen_h, 0, 0, zq_screen_w*2, zq_screen_h*2);
+            if(is_large())
+                stretch_blit(screen2,screen3,0, 0, graphics->virtualScreenW(), graphics->virtualScreenH(), 0, 0, graphics->virtualScreenW() *2, graphics->virtualScreenH() *2);
             else
-                blit(screen2,screen3,0, 0, 0, 0, zq_screen_w, zq_screen_h);
+                blit(screen2,screen3,0, 0, 0, 0, graphics->virtualScreenW(), graphics->virtualScreenH());
                 
             int selxl = selx* mul;
             int selyl = sely* mul;
@@ -4843,7 +4850,7 @@ void draw_tiles(int first,int cs, int f)
     int w = 16;
     int h = 16;
     
-    if(is_large)
+    if(is_large())
     {
         w *=2;
         h *=2;
@@ -4855,7 +4862,7 @@ void draw_tiles(int first,int cs, int f)
         int y = (i/TILES_PER_ROW)<<4;
         int l = 16;
         
-        if(is_large)
+        if(is_large())
         {
             x*=2;
             y*=2;
@@ -4891,7 +4898,7 @@ void draw_tiles(int first,int cs, int f)
             stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
         }
         
-        if((f%32)<=16 && is_large && newtilebuf[first+i].format==tf8Bit)
+        if((f%32)<=16 && is_large() && newtilebuf[first+i].format==tf8Bit)
         {
             textprintf_ex(screen2,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
         }
@@ -4904,10 +4911,10 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
 {
     int yofs=0;
     BITMAP *buf = create_bitmap_ex(8,16,16);
-    int mul = is_large + 1;
+    int mul = is_large() ? 2 : 1;
     FONT *tfont = pfont;
     
-    if(is_large)
+    if(is_large())
     {
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
         rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
@@ -5011,18 +5018,19 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     int w = 320*mul;
     int h = 240*mul;
     
-    if(is_large)
+    if(is_large())
     {
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
     
-    custom_vsync();
     scare_mouse();
     blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
     unscare_mouse();
+	graphics->waitTick();
+	graphics->showBackBuffer();
     SCRFIX();
     destroy_bitmap(buf);
 }
@@ -5031,10 +5039,10 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
 {
     int yofs=0;
     BITMAP *buf = create_bitmap_ex(8,16,16);
-    int mul = is_large + 1;
+    int mul = is_large() ? 2 : 1;
     FONT *tfont = pfont;
     
-    if(is_large)
+    if(is_large())
     {
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
         rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
@@ -5121,21 +5129,22 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     int w = 320;
     int h = 240;
     
-    if(is_large)
+    if(is_large())
     {
         w*=2;
         h*=2;
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
     
-    custom_vsync();
     scare_mouse();
     blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
     unscare_mouse();
     SCRFIX();
+	graphics->waitTick();
+	graphics->showBackBuffer();
     destroy_bitmap(buf);
 }
 /*
@@ -6233,7 +6242,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -6320,7 +6329,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -6524,7 +6533,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -6611,7 +6620,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -6724,7 +6733,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -6843,7 +6852,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -6940,7 +6949,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -7285,7 +7294,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large)
+                        if(is_large())
                             large_dialog(tile_move_list_dlg);
                             
                         int ret=zc_popup_dialog(tile_move_list_dlg,2);
@@ -8104,14 +8113,14 @@ void draw_tile_list_window()
     int w = 320;
     int h = 240;
     
-    if(is_large)
+    if(is_large())
     {
         w *= 2;
         h *= 2;
     }
     
-    int window_xofs=(zq_screen_w-w-12)>>1;
-    int window_yofs=(zq_screen_h-h-25-6)>>1;
+    int window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+    int window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
@@ -8200,13 +8209,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
     int mul = 1;
     FONT *tfont = pfont;
     
-    if(is_large)
+    if(is_large())
     {
         w *= 2;
         h *= 2;
         mul = 2; // multiply dimensions by 2
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         panel_yofs=3;
@@ -9004,7 +9013,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 create_relational_tiles_dlg[0].dp2=lfont;
                 create_relational_tiles_dlg[2].dp=buf;
                 
-                if(is_large)
+                if(is_large())
                     large_dialog(create_relational_tiles_dlg);
                     
                 int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
@@ -9083,7 +9092,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
         
         if(gui_mouse_b()&1)
         {
-            if(is_large)
+            if(is_large())
             {
                 if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
                 {
@@ -9100,7 +9109,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             if(y>=0 && y<208*mul)
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
+                int t = (y>>(is_large() ? 5 : 4))*TILES_PER_ROW + (x>>(is_large() ? 5 : 4)) + first;
                 
                 if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
                 {
@@ -9122,7 +9131,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         /* do nothing */
                     }
                     
-                    if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
+                    if(((y>>(is_large() ? 5 : 4))*TILES_PER_ROW + (x>>(is_large() ? 5 :4)) + first)!=t)
                     {
                         dclick_status=DCLICK_NOT;
                     }
@@ -9217,7 +9226,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         PALETTE temppal;
                         get_palette(temppal);
                         BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-                        stretch_blit(screen2,tempbmp,0,0,16*(is_large+1)*TILES_PER_ROW,16*(is_large+1)*TILE_ROWS_PER_PAGE,0,0,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+                        stretch_blit(screen2,tempbmp,0,0,16*(is_large() ? 2 : 1)*TILES_PER_ROW,16*(is_large() ? 2 :1)*TILE_ROWS_PER_PAGE,0,0,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
                         save_bitmap(temppath, tempbmp, temppal);
                         destroy_bitmap(tempbmp);
                     }
@@ -9272,7 +9281,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             if(y>=0 && y<208*mul)
             {
                 x=zc_min(zc_max(x,0),(320*mul)-1);
-                int t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
+                int t = ((y)>>(is_large() ? 5 : 4))*TILES_PER_ROW + ((x)>>(is_large() ? 5 : 4)) + first;
                 
                 if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
                     tile=tile2=t;
@@ -9308,8 +9317,8 @@ REDRAW:
                             tile_col(i)>=zc_min(tile_col(tile),tile_col(tile2)) &&
                             tile_col(i)<=zc_max(tile_col(tile),tile_col(tile2)))
                     {
-                        int x=(i%TILES_PER_ROW)<<(4+is_large);
-                        int y=((i-first)/TILES_PER_ROW)<<(4+is_large);
+                        int x=(i%TILES_PER_ROW)<<(is_large() ? 5 : 4);
+                        int y=((i-first)/TILES_PER_ROW)<<(is_large() ? 5 : 4);
                         rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
                     }
                 }
@@ -9320,8 +9329,8 @@ REDRAW:
                 {
                     if(i>=first && i<first+TILES_PER_PAGE)
                     {
-                        int x=tile_col(i)<<(4+is_large);
-                        int y=tile_row(i-first)<<(4+is_large);
+                        int x=tile_col(i)<<(is_large() ? 5 : 4);
+                        int y=tile_row(i-first)<<(is_large() ? 5 : 4);
                         rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
                     }
                 }
@@ -9337,7 +9346,7 @@ REDRAW:
         {
             char cbuf[16];
             sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-            gui_textout_ln(screen, is_large?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+            gui_textout_ln(screen, is_large()?lfont_l:pfont, (unsigned char *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
         }
         
         ++f;
@@ -9439,7 +9448,7 @@ void draw_combo(BITMAP *dest, int x,int y,int c,int cs)
     }
     else
     {
-        rectfill(dest,x,y,x+16*(is_large+1)-1,y+16*(is_large+1)-1,0);
+        rectfill(dest,x,y,x+16*(is_large() ? 2 : 1)-1,y+16*(is_large() ? 2 : 1)-1,0);
     }
 }
 
@@ -9452,7 +9461,7 @@ void draw_combos(int page,int cs,bool cols)
     int h = 16;
     int mul = 1;
     
-    if(is_large)
+    if(is_large())
     {
         w *=2;
         h *=2;
@@ -9464,10 +9473,10 @@ void draw_combos(int page,int cs,bool cols)
         for(int i=0; i<256; i++)                                // 13 rows, leaving 32 pixels from y=208 to y=239
         {
 //      draw_combo((i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,i+(page<<8),cs);
-            int x = (i%COMBOS_PER_ROW)<<(4+is_large);
-            int y = (i/COMBOS_PER_ROW)<<(4+is_large);
+            int x = (i%COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
+            int y = (i/COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
             
-            if(is_large)
+            if(is_large())
             {
                 //x*=2;
                 //y*=2;
@@ -9483,8 +9492,8 @@ void draw_combos(int page,int cs,bool cols)
         
         for(int i=0; i<256; i++)
         {
-            int x = (i%COMBOS_PER_ROW)<<(4+is_large);
-            int y = (i/COMBOS_PER_ROW)<<(4+is_large);
+            int x = (i%COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
+            int y = (i/COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
             draw_combo(buf,0,0,c+(page<<8),cs);
             stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
             ++c;
@@ -9509,10 +9518,10 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
 {
     int yofs=0;
     static BITMAP *buf = create_bitmap_ex(8,16,16);
-    int mul = is_large + 1;
+    int mul = is_large() ? 2 : 1;
     FONT *tfont = pfont;
     
-    if(is_large)
+    if(is_large())
     {
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
         rectfill(screen2,0,210*2,(320*2)-1,(240*2)-1,jwin_pal[jcBOX]);
@@ -9648,18 +9657,19 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     int w = 320*mul;
     int h = 240*mul;
     
-    if(is_large)
+    if(is_large())
     {
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
-    
-    custom_vsync();
+        
     scare_mouse();
     blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
     unscare_mouse();
+	graphics->waitTick();
+	graphics->showBackBuffer();
     SCRFIX();
     //destroy_bitmap(buf);
 }
@@ -9719,14 +9729,14 @@ void draw_combo_list_window()
     int w = 320;
     int h = 240;
     
-    if(is_large)
+    if(is_large())
     {
         w *= 2;
         h *= 2;
     }
     
-    window_xofs=(zq_screen_w-w-12)>>1;
-    window_yofs=(zq_screen_h-h-25-6)>>1;
+    window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+    window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
@@ -9770,13 +9780,13 @@ int select_combo_2(int &tile,int &cs)
     int mul = 1;
     FONT *tfont = pfont;
     
-    if(is_large)
+    if(is_large())
     {
         w *= 2;
         h *= 2;
         mul = 2;
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         panel_yofs=3;
@@ -9921,7 +9931,7 @@ int select_combo_2(int &tile,int &cs)
         
         if(gui_mouse_b()&1)
         {
-            if(is_large)
+            if(is_large())
             {
                 if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
                 {
@@ -9942,11 +9952,11 @@ int select_combo_2(int &tile,int &cs)
                 
                 if(!combo_cols)
                 {
-                    t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
+                    t = (y>>(is_large() ? 5 : 4))*COMBOS_PER_ROW + (x>>(is_large() ? 5 : 4));
                 }
                 else
                 {
-                    t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
+                    t = ((x>>(is_large() ? 7 : 6))*52) + ((x>>(is_large() ? 5 : 4))&3) + ((y>>(is_large() ? 5 : 4))<<2);
                 }
                 
                 bound(t,0,255);
@@ -9966,11 +9976,11 @@ int select_combo_2(int &tile,int &cs)
                     
                     if(!combo_cols)
                     {
-                        t2 = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
+                        t2 = (y>>(is_large() ? 5 : 4))*COMBOS_PER_ROW + (x>>(is_large() ? 5 : 4));
                     }
                     else
                     {
-                        t2 = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
+                        t2 = ((x>>(is_large() ? 7 : 6))*52) + ((x>>(is_large() ? 5 : 4))&3) + ((y>>(is_large() ? 5 : 4))<<2);
                     }
                     
                     if(t2!=t)
@@ -10031,9 +10041,9 @@ int select_combo_2(int &tile,int &cs)
                 int t;
                 
                 if(!combo_cols)
-                    t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
+                    t = (y>>(is_large() ? 5 : 4))*COMBOS_PER_ROW + (x>>(is_large() ? 5 : 4));
                 else
-                    t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
+                    t = ((x>>(is_large() ? 7 : 6))*52) + ((x>>(is_large() ? 5 : 4))&3) + ((y>>(is_large() ? 5 : 4))<<2);
                     
                 bound(t,0,255);
                 t+=page<<8;
@@ -10067,13 +10077,13 @@ int select_combo_2(int &tile,int &cs)
                     
                     if(!combo_cols)
                     {
-                        x=(t%COMBOS_PER_ROW)<<(4+is_large);
-                        y=(t/COMBOS_PER_ROW)<<(4+is_large);
+                        x=(t%COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
+                        y=(t/COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
                     }
                     else
                     {
-                        x=((t&3) + ((t/52)<<2)) << (4+is_large);
-                        y=((t%52)>>2) << (4+is_large);
+                        x=((t&3) + ((t/52)<<2)) << (is_large() ? 5 : 4);
+                        y=((t%52)>>2) << (is_large() ? 5 : 4);
                     }
                     
                     rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
@@ -10232,13 +10242,13 @@ int combo_screen(int pg, int tl)
     int mul = 1;
     FONT *tfont = pfont;
     
-    if(is_large)
+    if(is_large())
     {
         w *= 2;
         h *= 2;
         mul = 2;
-        window_xofs=(zq_screen_w-w-12)>>1;
-        window_yofs=(zq_screen_h-h-25-6)>>1;
+        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         panel_yofs=3;
@@ -10612,7 +10622,7 @@ int combo_screen(int pg, int tl)
         
         if(gui_mouse_b()&1)
         {
-            if(is_large)
+            if(is_large())
             {
                 if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + w + 12 - 21, window_yofs + 5, window_xofs + w +12 - 21 + 15, window_yofs + 5 + 13))
                 {
@@ -10633,11 +10643,11 @@ int combo_screen(int pg, int tl)
                 
                 if(!combo_cols)
                 {
-                    t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
+                    t = (y>>(is_large() ? 5 : 4))*COMBOS_PER_ROW + (x>>(is_large() ? 5 : 4));
                 }
                 else
                 {
-                    t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
+                    t = ((x>>(is_large() ? 7 : 6))*52) + ((x>>(is_large() ? 5 : 4))&3) + ((y>>(is_large() ? 5 : 4))<<2);
                 }
                 
                 bound(t,0,255);
@@ -10752,11 +10762,11 @@ int combo_screen(int pg, int tl)
                 
                 if(!combo_cols)
                 {
-                    t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
+                    t = (y>>(is_large() ? 5 : 4))*COMBOS_PER_ROW + (x>>(is_large() ? 5 : 4));
                 }
                 else
                 {
-                    t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
+                    t = ((x>>(is_large() ? 7 : 6))*52) + ((x>>(is_large() ? 5 : 4))&3) + ((y>>(is_large() ? 5 : 4))<<2);
                 }
                 
                 bound(t,0,255);
@@ -10799,13 +10809,13 @@ REDRAW:
                     
                     if(!combo_cols)
                     {
-                        x=(t%COMBOS_PER_ROW)<<(4+is_large);
-                        y=(t/COMBOS_PER_ROW)<<(4+is_large);
+                        x=(t%COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
+                        y=(t/COMBOS_PER_ROW)<<(is_large() ? 5 : 4);
                     }
                     else
                     {
-                        x=((t&3) + ((t/52)<<2)) << (4+is_large);
-                        y=((t%52)>>2) << (4+is_large);
+                        x=((t&3) + ((t/52)<<2)) << (is_large() ? 5 : 4);
+						y = ((t % 52) >> 2) << (is_large() ? 5 : 4);
                     }
                     
                     rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
@@ -11033,12 +11043,12 @@ int d_combo_loader(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW)
     {
-        FONT *f = is_large ? lfont_l : font;
+        FONT *f = is_large() ? lfont_l : font;
         textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.tile);
-        textprintf_ex(screen,f,d->x,d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
-        textprintf_ex(screen,f,d->x+(!is_large ? 50 : 75),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
-        textprintf_ex(screen,f,d->x,d->y+(!is_large ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
+        textprintf_ex(screen,f,d->x+(!is_large() ? 50 : 75),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.tile);
+        textprintf_ex(screen,f,d->x,d->y+(!is_large() ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
+        textprintf_ex(screen,f,d->x+(!is_large() ? 50 : 75),d->y+(!is_large() ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
+        textprintf_ex(screen,f,d->x,d->y+(!is_large() ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
     }
     
     return D_O_K;
@@ -11321,7 +11331,7 @@ bool edit_combo(int c,bool freshen,int cs)
     //  combo_dlg[1].fg = cs;
     edit_combo_cset = cs;
     
-    if(is_large)
+    if(is_large())
     {
         // Fix the wflag_procs
         if(!combo_dlg[0].d1)
@@ -11462,7 +11472,7 @@ int d_itile_proc(int msg,DIALOG *d,int)
     break;
     
     case MSG_DRAW:
-        if(is_large)
+        if(is_large())
         {
             d->w = 32+4;
             d->h = 32+4;
@@ -11478,7 +11488,7 @@ int d_itile_proc(int msg,DIALOG *d,int)
             stretch_blit(buf, bigbmp, 0,0, 16, 16, 2, 2, d->w-4, d->h-4);
             destroy_bitmap(buf);
             jwin_draw_frame(bigbmp,0, 0, d->w,d->h, FR_DEEP);
-            blit(bigbmp,screen,0,0,d->x-is_large,d->y-is_large,d->w,d->h);
+            blit(bigbmp,screen,0,0,d->x-(is_large() ? 1 : 0),d->y-(is_large() ? 1 : 0),d->w,d->h);
             destroy_bitmap(bigbmp);
         }
         
@@ -11523,7 +11533,7 @@ int onIcons()
     
     set_palette(pal);
     
-    if(is_large)
+    if(is_large())
         large_dialog(icon_dlg);
         
     int ret = zc_popup_dialog(icon_dlg,7);
@@ -11652,7 +11662,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
     break;
     
     case MSG_DRAW:
-        if(is_large)
+        if(is_large())
         {
             d->w = 32;
             d->h = 32;
@@ -11679,7 +11689,7 @@ int d_combo_proc(int msg,DIALOG *d,int c)
             
             stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, d->w, d->h);
             destroy_bitmap(buf);
-            blit(bigbmp,screen,0,0,d->x-is_large,d->y-is_large,d->w,d->h);
+            blit(bigbmp,screen,0,0,d->x-(is_large() ? 1 : 0),d->y- (is_large() ? 1 : 0),d->w,d->h);
             destroy_bitmap(bigbmp);
         }
     }
@@ -11901,7 +11911,7 @@ static void massRecolorInit(int cset)
         recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&=~D_SELECTED;
     }
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(recolor_4bit_dlg);
         large_dialog(recolor_8bit_dlg);

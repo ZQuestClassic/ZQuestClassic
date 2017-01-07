@@ -32,6 +32,7 @@
 #include "gamedata.h"
 #include "link.h"
 #include "mem_debug.h"
+#include "GraphicsBackend.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -42,6 +43,8 @@
 extern int loadlast;
 extern int skipcont;
 extern int skipicon;
+
+extern GraphicsBackend *graphics;
 
 bool load_custom_game(int file);
 
@@ -2859,13 +2862,13 @@ int custom_game(int file)
     
     clear_keybuf();
     
-    if(is_large)
+    if(is_large())
         large_dialog(gamemode_dlg);
         
     while((ret=zc_popup_dialog(gamemode_dlg,1))==1)
     {
         scare_mouse();
-        blit(screen,tmp_scr,scrx,scry,0,0,320,240);
+        blit(screen,tmp_scr,graphics->miniscreenX(), graphics->miniscreenY(),0,0,320,240);
         unscare_mouse();
         
         int  sel=0;
@@ -2899,7 +2902,9 @@ int custom_game(int file)
         }
         
         scare_mouse();
-        blit(tmp_scr,screen,0,0,scrx,scry,320,240);
+        blit(tmp_scr,screen,0,0, graphics->miniscreenX(), graphics->miniscreenY(),320,240);
+		graphics->waitTick();
+		graphics->showBackBuffer();
         unscare_mouse();
     }
     

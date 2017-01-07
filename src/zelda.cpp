@@ -58,6 +58,7 @@
 #include "win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
+#include "GraphicsBackend.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -70,9 +71,9 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+
 ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
-int colordepth;
 int db=0;
 //zinitdata  zinit;
 int detail_int[10];                                         //temporary holder for things you want to detail
@@ -90,7 +91,6 @@ using std::string;
 using std::pair;
 extern std::map<int, pair<string,string> > ffcmap;
 
-int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
 int original_playing_field_offset=56;
 int playing_field_offset=original_playing_field_offset;
@@ -98,8 +98,6 @@ int passive_subscreen_offset=0;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
-
-bool is_large=false;
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
@@ -110,13 +108,7 @@ int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
 void playLevelMusic();
 
-volatile int logic_counter=0;
 bool trip=false;
-void update_logic_counter()
-{
-    ++logic_counter;
-}
-END_OF_FUNCTION(update_logic_counter)
 
 #ifdef _SCRIPT_COUNTER
 volatile int script_counter=0;
@@ -126,31 +118,6 @@ void update_script_counter()
 }
 END_OF_FUNCTION(update_script_counter)
 #endif
-
-void throttleFPS()
-{
-    if(Throttlefps ^ (key[KEY_TILDE]!=0))
-    {
-        if(zc_vsync == FALSE)
-        {
-			int t = 0;
-            while(logic_counter < 1)
-			{
-				// bugfix: win xp/7/8 have incompatible timers.
-				// preserve 60 fps and CPU based on user settings. -Gleeok
-				int ms = t >= 16 ? 0 : frame_rest_suggest;
-                rest(ms);
-				t += frame_rest_suggest;
-			}
-        }
-        else
-        {
-            vsync();
-        }
-    }
-    
-    logic_counter = 0;
-}
 
 int onHelp()
 {
@@ -192,7 +159,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *temp_buf, *prim_bmp;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
@@ -258,15 +225,10 @@ combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compil
 SAMPLE customsfxdata[WAV_COUNT];
 unsigned char customsfxflag[WAV_COUNT>>3];
 int sfxdat=1;
-BITMAP *hw_screen;
-int zqwin_scale;
 
 int jwin_pal[jcMAX];
 int gui_colorset=0;
-int fullscreen;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
-byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
-byte zc_color_depth=8;
 byte use_debug_console=0, use_win32_proc=1; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
@@ -284,8 +246,6 @@ int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
 int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
 int nets=1580, magicitem=-1,nayruitem=-1, title_version, magiccastclk, quakeclk=0, wavy=0, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
-float avgfps=0;
-dword fps_secs=0;
 bool do_cheat_goto=false, do_cheat_light=false;
 int checkx, checky;
 int loadlast=0;
@@ -310,6 +270,15 @@ bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down
      cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
      is_on_conveyor, activated_timed_warp=false;
+
+GraphicsBackend *graphics = NULL;
+void switch_in_callback();
+void switch_out_callback();
+
+int virtualScreenScale()
+{
+	return 2 - graphics->getVirtualMode();
+}
 
 byte COOLSCROLL;
 
@@ -426,10 +395,6 @@ dword getNumGlobalArrays()
 //movingblock mblock2; //mblock[4]?
 //LinkClass   Link;
 
-int resx,resy,scrx,scry;
-bool sbig;                                                  // big screen
-bool sbig2;													// bigger screen
-int screen_scale = 2; //default = 2 (640x480)
 bool scanlines;                                             //do scanlines if sbig==1
 bool toogam=false;
 bool ignoreSideview=false;
@@ -460,10 +425,6 @@ dword               quest_map_pos[MAPSCRS*MAXMAPS2];
 char     *qstpath=NULL;
 char     *qstdir=NULL;
 gamedata *saves=NULL;
-
-volatile int lastfps=0;
-volatile int framecnt=0;
-volatile int myvsync=0;
 
 /**********************************/
 /*********** Misc Data ************/
@@ -715,6 +676,22 @@ void Z_eventlog(const char *format,...)
         if(zconsole)
             printf("%s",buf);
     }
+}
+
+int Z_gui_mouse_x()
+{
+	int x = mouse_x;
+	int y = mouse_y;
+	graphics->physicalToVirtual(x, y);
+	return x;
+}
+
+int Z_gui_mouse_y()
+{
+	int x = mouse_x;
+	int y = mouse_y;
+	graphics->physicalToVirtual(x, y);
+	return y;
 }
 
 // Yay, more extern globals.
@@ -1097,11 +1074,7 @@ int load_quest(gamedata *g, bool report)
 					{
 						char cwdbuf[260];
 						memset(cwdbuf,0,260*sizeof(char));
-#ifdef _ALLEGRO_WINDOWS
 						_getcwd(cwdbuf, 260);
-#else
-                        getcwd(cwdbuf, 260);
-#endif
 
 						std::string path = cwdbuf;
 						std::string fn;
@@ -2590,131 +2563,13 @@ bool screenIsScrolling()
     return screenscrolling;
 }
 
-int isFullScreen()
-{
-    return !is_windowed_mode();
-}
-
-class TB_Handler //Dear Santa: please kill Easter bunny. I've been a good boy.
-{
-public:
-
-    TB_Handler() {}
-    ~TB_Handler() {}
-    
-    bool CanEnable() const
-    {
-        if(is_windowed_mode() && can_triplebuffer_in_windowed_mode == FALSE)
-        {
-            triplebuffer_not_available = true;
-            return false;
-        }
-        
-        return (disable_triplebuffer == FALSE);
-    }
-    bool GFX_can_triple_buffer() const
-    {
-        if(!CanEnable())
-        {
-            triplebuffer_not_available = true;
-            return false;
-        }
-        
-        triplebuffer_not_available = false;
-        
-        if(!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) enable_triple_buffer();
-        
-        if(!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) triplebuffer_not_available = true;
-        
-        return !triplebuffer_not_available;
-    }
-    void Destroy() const
-    {
-        if(disable_triplebuffer != FALSE || triplebuffer_not_available) return;
-        
-        for(int i=0; i<3; i++)
-            if(tb_page[i])
-                destroy_bitmap(tb_page[i]);
-    }
-    void Create() const
-    {
-        if(!CanEnable())
-        {
-            triplebuffer_not_available = true;
-            return;
-        }
-        
-        for(int i=0; i<3; ++i)
-        {
-            tb_page[i]=create_video_bitmap(SCREEN_W, SCREEN_H);
-            
-            if(!tb_page[i])
-            {
-                triplebuffer_not_available = true;
-                break;
-            }
-        }
-        
-        Clear();
-    }
-    void Clear() const
-    {
-        for(int i=0; i<3; i++)
-            clear_bitmap(tb_page[i]);
-    }
-}
-static Triplebuffer;
-
-bool setGraphicsMode(bool windowed)
-{
-    int type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
-    return set_gfx_mode(type, resx, resy, 0, 0)==0;
-}
-
 int onFullscreen()
 {
-    PALETTE oldpal;
-    get_palette(oldpal);
-    
-    show_mouse(NULL);
-    bool windowed=is_windowed_mode()!=0;
-    
-    // these will become ultra corrupted no matter what.
-    Triplebuffer.Destroy();
-    
-    bool success=setGraphicsMode(!windowed);
-    if(success)
-        fullscreen=!fullscreen;
-    else
-    {
-        // Try to restore the previous mode, then...
-        success=setGraphicsMode(windowed);
-        if(!success)
-        {
-            Z_message("Failed to set video mode.\n");
-            Z_message(allegro_error);
-            exit(1);
-        }
-    }
-    
-    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
-    if(Triplebuffer.GFX_can_triple_buffer())
-    {
-        Triplebuffer.Create();
-        Z_message("Triplebuffer enabled \n");
-    }
-    else
-        Z_message("Triplebuffer disabled \n");
-    
-    //Everything set?
-    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
-    
-    set_palette(oldpal);
-    gui_mouse_focus=0;
-    show_mouse(screen);
-    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
-//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
-//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
+	graphics->setFullscreen(!graphics->isFullscreen());
+
+	gui_mouse_focus = 0;
+	show_mouse(screen);
+	graphics->showBackBuffer();
 
     return D_REDRAW;
 }
@@ -2732,8 +2587,8 @@ int main(int argc, char* argv[])
             exit(1);
     }
 #endif
-    
-    switch(IS_BETA)
+
+	switch(IS_BETA)
     {
     
     case -1:
@@ -2864,6 +2719,7 @@ int main(int argc, char* argv[])
     register_bitmap_file_type("GIF",  load_gif, save_gif);
     jpgalleg_init();
     loadpng_init();
+	graphics = new GraphicsBackend;
     
     // set and load game configurations
     set_config_file("ag.cfg");
@@ -2914,11 +2770,7 @@ int main(int argc, char* argv[])
         quit_game();
     }
     
-    //set_keyboard_rate(1000,160);
     
-    LOCK_VARIABLE(logic_counter);
-    LOCK_FUNCTION(update_logic_counter);
-    install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
     
 #ifdef _SCRIPT_COUNTER
     LOCK_VARIABLE(script_counter);
@@ -2926,14 +2778,7 @@ int main(int argc, char* argv[])
     install_int_ex(update_script_counter, 1);
 #endif
     
-    if(!Z_init_timers())
-    {
-        Z_error("Couldn't Allocate Timers");
-        quit_game();
-    }
-    
-    Z_message("OK\n");
-    
+ 
     // check for the included quest files
     if(!standalone_mode)
     {
@@ -2987,49 +2832,6 @@ int main(int argc, char* argv[])
     // allocate bitmap buffers
     Z_message("Allocating bitmap buffers... ");
     
-    //Turns out color depth can be critical. -Gleeok
-    if(used_switch(argc,argv,"-0bit")) set_color_depth(desktop_color_depth());
-    else if(used_switch(argc,argv,"-15bit")) set_color_depth(15);
-    else if(used_switch(argc,argv,"-16bit")) set_color_depth(16);
-    else if(used_switch(argc,argv,"-24bit")) set_color_depth(24);
-    else if(used_switch(argc,argv,"-32bit")) set_color_depth(32);
-    else
-    {
-        //command-line switches takes priority
-        switch(zc_color_depth)
-        {
-        case 0:
-            set_color_depth(desktop_color_depth());
-            break;
-            
-        case 8:
-            set_color_depth(8);
-            break;
-            
-        case 15:
-            set_color_depth(15);
-            break;
-            
-        case 16:
-            set_color_depth(16);
-            break;
-            
-        case 24:
-            set_color_depth(24);
-            break;
-            
-        case 32:
-            set_color_depth(32);
-            break;
-            
-        default:
-            zc_color_depth = 8; //invalid configuration, set to default in config file.
-            set_color_depth(8);
-            break;
-        }
-    }
-    
-    
     framebuf  = create_bitmap_ex(8,256,224);
     temp_buf  = create_bitmap_ex(8,256,224);
     scrollbuf = create_bitmap_ex(8,512,406);
@@ -3061,7 +2863,6 @@ int main(int argc, char* argv[])
     zcmusic_init();
     
     //  int mode = VidMode;                                       // from config file
-    int tempmode=GFX_AUTODETECT;
     int res_arg = used_switch(argc,argv,"-res");
     
     if(used_switch(argc,argv,"-v0")) Throttlefps=false;
@@ -3337,36 +3138,12 @@ int main(int argc, char* argv[])
     }
     
     Z_init_sound();
-    
-    
-    // CD player
-    
-    /*
-      if(used_switch(argc,argv,"-cd"))
-      {
-      printf("Initializing CD player... ");
-      if(cd_init())
-      Z_error("Error");
-      printf("OK\n");
-      useCD = true;
-      }
-      */
-    
-    //use only page flipping
-    if(used_switch(argc,argv,"-doublebuffer"))
-    {
-        disable_triplebuffer = 1;
-        Z_message("used switch: -doublebuffer\n");
-    }
-    
-    //allow video bitmaps in windowed mode
-    if(used_switch(argc,argv,"-triplebuffer"))
-    {
-        can_triplebuffer_in_windowed_mode = 1;
-        Z_message("used switch: -triplebuffer\n");
-    }
-    
+   
     const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
+
+	std::vector<std::pair<int, int> > desiredModes;
+	desiredModes.push_back(std::pair<int, int>(640, 480));
+	desiredModes.push_back(std::pair<int, int>(320, 240));
     
     // quick quit
     if(used_switch(argc,argv,"-q"))
@@ -3379,115 +3156,48 @@ int main(int argc, char* argv[])
     
     if(res_arg && (argc>(res_arg+2)))
     {
-        resx = atoi(argv[res_arg+1]);
-        resy = atoi(argv[res_arg+2]);
-        bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
-        bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
-        
-//    mode = GFX_AUTODETECT;
-    }
+        int resx = atoi(argv[res_arg+1]);
+        int resy = atoi(argv[res_arg+2]);
+		graphics->setScreenResolution(resx, resy);
+	}
     
-    if(resx>=640 && resy>=480)
-    {
-        is_large=true;
-    }
-    
-    //request_refresh_rate(60);
-    
-    if(used_switch(argc,argv,"-fullscreen") ||
-            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",1)==1))
+    if(used_switch(argc,argv,"-fullscreen"))
     {
         al_trace("Used switch: -fullscreen\n");
-        tempmode = GFX_AUTODETECT_FULLSCREEN;
+		graphics->setFullscreen(true);
     }
-    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",1)==0)
+    else if(used_switch(argc,argv,"-windowed"))
     {
         al_trace("Used switch: -windowed\n");
-        tempmode=GFX_AUTODETECT_WINDOWED;
+		graphics->setFullscreen(false);
     }
+
+	graphics->setVideoModeSwitchDelay(wait_ms_on_set_graphics);
+	graphics->registerVirtualModes(desiredModes);
+
+	if (graphics->initialize())
+	{
+		Z_message("Initialized gfx succsessfully using fullscreen=%d, %dbpp bit, %d x %d \n", graphics->isFullscreen(), 8, graphics->screenW(), graphics->screenH());
+	}
+	else
+		goto quick_quit;	
     
-    //set scale
-    if(resx < 320) resx = 320;
-    
-    if(resy < 240) resy = 240;
-    
-    screen_scale = zc_max(zc_min(resx / 320, resy / 240), 1);
-    
-    if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-    {
-        //what we need here is not rightousness but madness!!!
-        
-#define TRY_SET_VID_MODE(scale) \
-	Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy); \
-	screen_scale=scale; \
-	resx=320*scale; \
-	resy=240*scale
-        
-        TRY_SET_VID_MODE(2);
-        
-        if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-        {
-            TRY_SET_VID_MODE(1);
-            
-            if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-            {
-                if(tempmode != GFX_AUTODETECT_WINDOWED)
-                {
-                    tempmode=GFX_AUTODETECT_WINDOWED;
-                    al_trace("-fullscreen not supported by your video driver! setting -windowed switch\n");
-                    TRY_SET_VID_MODE(2);
-                    
-                    if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-                    {
-                        TRY_SET_VID_MODE(1);
-                        
-                        if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-                        {
-                            Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-                            al_trace("Fatal Error...Zelda Classic could not be initialized. Have a nice day :) \n");
-                            Z_error(allegro_error);
-                            quit_game();
-                        }
-                        else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-                    }
-                    else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-                }
-                else
-                {
-                    al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
-                    Z_error(allegro_error);
-                    quit_game();
-                }
-            }
-            else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-        }
-        else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-    }
-    else
-    {
-        Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-    }
-    
-    sbig = (screen_scale > 1);
-    set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
-    zq_screen_w = resx;
-    zq_screen_h = resy;
-    
-    real_screen = screen;
-    
-    if(Triplebuffer.GFX_can_triple_buffer())
-    {
-        Triplebuffer.Create();
-    }
-    
-    Z_message("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
-    
+	set_mouse_sprite((BITMAP*)data[BMP_MOUSE].dat);
+	gui_mouse_x = &Z_gui_mouse_x;
+	gui_mouse_y = &Z_gui_mouse_y;
+
+	for (int i = 240; i<256; i++)
+		RAMpal[i] = ((RGB*)data[PAL_GUI].dat)[i];
+
+	set_palette(RAMpal);
+	clear_to_color(screen, BLACK);
+     
     set_close_button_callback((void (*)()) hit_close_button);
     set_window_title("Zelda Classic");
     
     fix_dialogs();
     gui_mouse_focus = FALSE;
-    position_mouse(resx-16,resy-16);
+    position_mouse(graphics->screenW()-16,graphics->screenH()-16);
     
     if(!onlyInstance)
     {
@@ -3519,17 +3229,14 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
-#ifdef _WIN32
-    // Nothing for them to do on other platforms
     set_display_switch_callback(SWITCH_IN,switch_in_callback);
     set_display_switch_callback(SWITCH_OUT,switch_out_callback);
-#endif
     
     // AG logo
     if(!fast_start)
     {
         set_volume(240,-1);
-        aglogo(tmp_scr, scrollbuf, resx, resy);
+        aglogo(tmp_scr, scrollbuf, graphics->virtualScreenW(), graphics->virtualScreenH());
         master_volume(digi_volume,midi_volume);
     }
     
@@ -3642,9 +3349,7 @@ quick_quit:
     show_saving(screen);
     save_savedgames();
     save_game_configs();
-    Triplebuffer.Destroy();
-    set_gfx_mode(GFX_TEXT,80,25,0,0);
-    //rest(250); // ???
+	//rest(250); // ???
     //  if(useCD)
     //    cd_exit();
     quit_game();
@@ -3666,8 +3371,6 @@ END_OF_MAIN()
 void remove_installed_timers()
 {
     al_trace("Removing timers. \n");
-    remove_int(update_logic_counter);
-    Z_remove_timers();
 #ifdef _SCRIPT_COUNTER
     remove_int(update_script_counter);
 #endif
@@ -3687,8 +3390,12 @@ void delete_everything_else() //blarg.
 void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
-    
-    remove_installed_timers();
+	show_mouse(NULL);
+	if(graphics)
+		delete graphics;
+	set_gfx_mode(GFX_TEXT, 80, 25, 0, 0);
+
+	remove_installed_timers();
     delete_everything_else();
     
     al_trace("Freeing Data: \n");
@@ -3958,6 +3665,4 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
     }
 }
 
-
 /*** end of zelda.cc ***/
-

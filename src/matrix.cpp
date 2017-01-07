@@ -11,9 +11,11 @@
 #include "precompiled.h" //always first
 
 #include "matrix.h"
+#include "GraphicsBackend.h"
 
 // external FONTs
 extern FONT *deffont, *mfont;
+extern GraphicsBackend *graphics;
 
 
 #define MAX_COLS      256
@@ -59,9 +61,6 @@ static void UpdateColumns();
 static void DrawLetter(int x, int y, int color);
 static void DrawEraser(int x, int y, int type);
 
-extern void throttleFPS();
-
-
 void Matrix(int speed, int density, int mousedelay)
 {
     // speed 0-6, density 0-6
@@ -73,7 +72,8 @@ void Matrix(int speed, int density, int mousedelay)
     for(;;)
     {
         //vsync();
-		throttleFPS();
+		graphics->waitTick();
+		graphics->showBackBuffer();
 
         AddTracer();
         AddEraser(-1);

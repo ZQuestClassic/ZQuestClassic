@@ -29,6 +29,7 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
+#include "GraphicsBackend.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -49,6 +50,7 @@ extern dmap *DMaps;
 extern itemdata *itemsbuf;
 extern byte quest_rules[20];
 extern char *item_string[];
+extern GraphicsBackend *graphics;
 
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
@@ -1733,7 +1735,7 @@ int doInit(zinitdata *local_zinit)
     init_dlg[1704].dp=terminalvstring;
     init_dlg[1705].dp=thresholdstring;
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(init_dlg);
         init_dlg[0].d1 = 1;
@@ -1863,7 +1865,7 @@ void doFamily(int biicindx, zinitdata *local_zinit)
     for(i=7; i < endEquipField && it != f.end(); i++, it++)
     {
         init_dlg[i].proc = jwin_checkfont_proc;
-        init_dlg[i].dp2 = is_large? lfont_l : pfont;
+        init_dlg[i].dp2 = is_large() ? lfont_l : pfont;
         init_dlg[i].dp = (void *)item_string[it->itemid];
         init_dlg[i].flags = local_zinit->items[it->itemid] ? D_SELECTED : 0;
     }
