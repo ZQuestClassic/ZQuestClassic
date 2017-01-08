@@ -21472,7 +21472,6 @@ void switch_out()
 
 void switch_in()
 {
-	graphics->onSwitchIn();
     if(quit)
         return;
         
@@ -22111,10 +22110,7 @@ int main(int argc, char **argv)
     
     set_close_button_callback((void (*)()) hit_close_button);
     
-    
-    
-	set_display_switch_callback(SWITCH_OUT, switch_out);
-	set_display_switch_callback(SWITCH_IN, switch_in);
+	graphics->registerSwitchCallbacks(switch_in, switch_out);
 
     position_mouse(graphics->screenW()/2,graphics->screenH()/2);
 	gui_mouse_x = &Z_gui_mouse_x;

@@ -2,6 +2,7 @@
 #define GRAPHICSBACKEND_H
 
 #include <vector>
+#include "allegro/palette.h"
 
 struct BITMAP;
 
@@ -40,9 +41,11 @@ public:
 	void physicalToVirtual(int &x, int &y);
 	void virtualToPhysical(int &x, int &y);	
 
-	void onSwitchIn();
-	
+	void registerSwitchCallbacks(void(*switchin)(), void(*switchout)());
+
 	friend void update_frame_counter();
+	friend void onSwitchIn();
+	friend void onSwitchOut();
 
 private:
 	bool trySettingVideoMode();
@@ -60,6 +63,11 @@ private:
 
 	int switchdelay_;
 	int fps_;
+
+	static void(*switch_in_func_)();
+	static void(*switch_out_func_)();
+
+	static bool windowsFullscreenFix_;
 
 	static volatile int frame_counter;
 	static volatile int frames_this_second;

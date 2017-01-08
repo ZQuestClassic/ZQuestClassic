@@ -3229,8 +3229,7 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
-    set_display_switch_callback(SWITCH_IN,switch_in_callback);
-    set_display_switch_callback(SWITCH_OUT,switch_out_callback);
+	graphics->registerSwitchCallbacks(switch_in_callback, switch_out_callback);
     
     // AG logo
     if(!fast_start)

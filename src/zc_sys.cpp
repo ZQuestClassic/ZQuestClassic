@@ -363,7 +363,7 @@ void load_game_configs()
     sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
 
-	graphics->readConfigurationOptions();
+	graphics->readConfigurationOptions("zelda");
 }
 
 void save_game_configs()
@@ -463,7 +463,7 @@ void save_game_configs()
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
 
-	graphics->writeConfigurationOptions();
+	graphics->writeConfigurationOptions("zelda");
     
     flush_config_file();
 }
@@ -7153,6 +7153,7 @@ void system_pal()
 
 void switch_out_callback()
 {
+	Paused = true;
 #ifdef _WIN32
 	if(midi_patch_fix==0 || currmidi==0)
         return;
@@ -7178,8 +7179,6 @@ void switch_out_callback()
 void switch_in_callback()
 {
 #ifdef _WIN32
-	graphics->onSwitchIn();
-
 	if(midi_patch_fix==0 || currmidi==0)
         return;
         

@@ -4,9 +4,14 @@
 
 void Z_message(const char *format, ...);
 
+void (*GraphicsBackend::switch_in_func_)() = NULL;
+void (*GraphicsBackend::switch_out_func_)() = NULL;
+
 volatile int GraphicsBackend::frame_counter = 0;
 volatile int GraphicsBackend::frames_this_second = 0;
 volatile int GraphicsBackend::prev_frames_this_second = 0;
+
+bool GraphicsBackend::windowsFullscreenFix_ = false;
 
 void update_frame_counter()
 {
@@ -21,6 +26,24 @@ void update_frame_counter()
 	}
 }
 END_OF_FUNCTION(update_frame_counter)
+
+void onSwitchOut()
+{
+	if (GraphicsBackend::switch_out_func_)
+		GraphicsBackend::switch_out_func_();
+}
+END_OF_FUNCTION(onSwitchOut);
+
+void onSwitchIn()
+{
+#ifdef _WINDOWS
+	GraphicsBackend::windowsFullscreenFix_ = true;
+#endif
+	if (GraphicsBackend::switch_in_func_)
+		GraphicsBackend::switch_in_func_();
+}
+END_OF_FUNCTION(onSwitchIn);
+
 
 GraphicsBackend::GraphicsBackend() :
 	hw_screen_(NULL),
@@ -92,6 +115,15 @@ void GraphicsBackend::waitTick()
 
 void GraphicsBackend::showBackBuffer()
 {
+#ifdef _WINDOWS
+	if (windowsFullscreenFix_)
+	{
+		windowsFullscreenFix_ = false;
+		if(fullscreen_)
+			trySettingVideoMode();
+	}
+#endif
+
 	stretch_blit(backbuffer_, hw_screen_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
 	frames_this_second++;
 }
@@ -236,6 +268,8 @@ bool GraphicsBackend::trySettingVideoMode()
 	hw_screen_ = screen;
 		
 	set_display_switch_mode(fullscreen_ ? SWITCH_BACKAMNESIA : SWITCH_BACKGROUND);
+	set_display_switch_callback(SWITCH_IN, &onSwitchIn);
+	set_display_switch_callback(SWITCH_OUT, &onSwitchOut);
 
 	int nmodes = (int)virtualmodes_.size();
 	int newmode = -1;
@@ -289,7 +323,8 @@ void GraphicsBackend::virtualToPhysical(int &x, int &y)
 	y = y*screenH()/virtualScreenH();
 }
 
-void GraphicsBackend::onSwitchIn()
+void GraphicsBackend::registerSwitchCallbacks(void(*switchin)(), void(*switchout)())
 {
-	trySettingVideoMode();
+	switch_in_func_ = switchin;
+	switch_out_func_ = switchout;
 }
