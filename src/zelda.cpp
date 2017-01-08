@@ -58,7 +58,7 @@
 #include "win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
-#include "Backend/AllBackends.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -679,18 +679,12 @@ void Z_eventlog(const char *format,...)
 
 int Z_gui_mouse_x()
 {
-	int x = mouse_x;
-	int y = mouse_y;
-	Backend::graphics->physicalToVirtual(x, y);
-	return x;
+	return mouse_x;
 }
 
 int Z_gui_mouse_y()
 {
-	int x = mouse_x;
-	int y = mouse_y;
-	Backend::graphics->physicalToVirtual(x, y);
-	return y;
+	return mouse_y;
 }
 
 // Yay, more extern globals.
@@ -1073,7 +1067,11 @@ int load_quest(gamedata *g, bool report)
 					{
 						char cwdbuf[260];
 						memset(cwdbuf,0,260*sizeof(char));
+#ifdef _WIN32
 						_getcwd(cwdbuf, 260);
+#else
+						getcwd(cwdbuf, 260);
+#endif
 
 						std::string path = cwdbuf;
 						std::string fn;

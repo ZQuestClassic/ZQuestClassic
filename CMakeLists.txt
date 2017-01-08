@@ -31,6 +31,7 @@ endfunction(enable_unity_build)
 #############################################################
 
 include_directories(./allegro/include)
+include_directories(./allegro/extra)
 include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)

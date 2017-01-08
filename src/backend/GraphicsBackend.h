@@ -2,6 +2,7 @@
 #define GRAPHICSBACKEND_H
 
 #include <vector>
+#include <string>
 #include "allegro/palette.h"
 
 struct BITMAP;

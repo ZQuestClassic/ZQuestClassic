@@ -6662,7 +6662,11 @@ int onFullscreenMenu()
 {
 	Backend::graphics->setFullscreen(true);
 	setVideoModeMenuFlags(); 
-    return D_REDRAW;
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
+	position_mouse(x, y);
+	show_mouse(screen);
+	return D_REDRAW;
 }
 
 int onWindowed1Menu()
@@ -6670,6 +6674,10 @@ int onWindowed1Menu()
 	Backend::graphics->setScreenResolution(320, 240);
 	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
+	position_mouse(x, y);
+	show_mouse(screen);
 	return D_REDRAW;
 }
 
@@ -6678,6 +6686,10 @@ int onWindowed2Menu()
 	Backend::graphics->setScreenResolution(640, 480);
 	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
+	position_mouse(x, y);
+	show_mouse(screen);
 	return D_REDRAW;
 }
 
@@ -6686,6 +6698,10 @@ int onWindowed4Menu()
 	Backend::graphics->setScreenResolution(1280, 960);
 	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
+	position_mouse(x, y);
+	show_mouse(screen);
 	return D_REDRAW;
 }
 

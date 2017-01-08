@@ -191,18 +191,12 @@ int virtualScreenScale()
 
 int Z_gui_mouse_x()
 {
-	int x = mouse_x;
-	int y = mouse_y;
-	Backend::graphics->physicalToVirtual(x, y);
-	return x;
+	return mouse_x;
 }
 
 int Z_gui_mouse_y()
 {
-	int x = mouse_x;
-	int y = mouse_y;
-	Backend::graphics->physicalToVirtual(x, y);
-	return y;
+	return mouse_y;
 }
 
 int blackout_color()
@@ -6353,8 +6347,6 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
 			int by = startyint;
 			int tx = int(startxint + (256 * mapscreensize()) - 1);
 			int ty = int(startyint + (176 * mapscreensize()) - 1);
-			Backend::graphics->virtualToPhysical(bx, by);
-			Backend::graphics->virtualToPhysical(tx, ty);
 			set_mouse_range(bx, by, tx, ty);
             
             while(gui_mouse_b()==1)
@@ -6393,8 +6385,6 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
 			int mby = 0;
 			int mtx = Backend::graphics->virtualScreenW() - 1;
 			int mty = Backend::graphics->virtualScreenH() - 1;
-			Backend::graphics->virtualToPhysical(mbx, mby);
-			Backend::graphics->virtualToPhysical(mtx, mty);
 			set_mouse_range(mbx, mby, mtx, mty);
             unscare_mouse();
             done=true;
@@ -14549,8 +14539,6 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
 					int by = d->y + 2;
 					int tx = d->x + 256 + 1;
 					int ty = d->y + 176 + 1;
-					Backend::graphics->virtualToPhysical(bx, by);
-					Backend::graphics->virtualToPhysical(tx, ty);
 					set_mouse_range(bx, by, tx, ty);
                 }
                 
@@ -14567,8 +14555,6 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
 					int by = 0;
 					int tx = Backend::graphics->virtualScreenW() - 1;
 					int ty = Backend::graphics->virtualScreenH() - 1;
-					Backend::graphics->virtualToPhysical(bx, by);
-					Backend::graphics->virtualToPhysical(tx, ty);
 					set_mouse_range(bx, by, tx, ty);
                     set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
                 }
@@ -22010,6 +21996,14 @@ int main(int argc, char **argv)
 	{
 		Backend::graphics->setFullscreen(false);
 	}
+
+    int res_arg = used_switch(argc,argv,"-res");
+    if(res_arg && (argc>(res_arg+2)))
+    {
+        int resx = atoi(argv[res_arg+1]);
+        int resy = atoi(argv[res_arg+2]);
+	Backend::graphics->setScreenResolution(resx, resy);
+    }
     
     tooltip_box.x=-1;
     tooltip_box.y=-1;
