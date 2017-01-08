@@ -22,7 +22,7 @@
 #include "zq_class.h"
 #include <string.h>
 #include <stdio.h>
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -31,7 +31,6 @@
 
 extern int prv_mode;
 extern void dopreview();
-extern GraphicsBackend *graphics;
 
 
 const char *imgstr[ftMAX] =
@@ -1229,7 +1228,7 @@ int onSnapshot()
     }
     while(num<999 && exists(buf));
     
-    blit(screen,screen2,0,0,0,0,graphics->virtualScreenW(),graphics->virtualScreenH());
+    blit(screen,screen2,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
     PALETTE RAMpal2;
     get_palette(RAMpal2);
     save_bitmap(buf,screen2,RAMpal2);
@@ -1244,13 +1243,13 @@ void go()
     {
     case 0:
         scare_mouse();
-        blit(screen,menu1,0,0,0,0,graphics->virtualScreenW(),graphics->virtualScreenH());
+        blit(screen,menu1,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
         unscare_mouse();
         break;
         
     case 1:
         scare_mouse();
-        blit(screen,menu3,0,0,0,0, graphics->virtualScreenW(), graphics->virtualScreenH());
+        blit(screen,menu3,0,0,0,0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
         unscare_mouse();
         break;
         
@@ -1267,13 +1266,13 @@ void comeback()
     {
     case 1:
         scare_mouse();
-        blit(menu1,screen,0,0,0,0,graphics->virtualScreenW(), graphics->virtualScreenH());
+        blit(menu1,screen,0,0,0,0,Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
         unscare_mouse();
         break;
         
     case 2:
         scare_mouse();
-        blit(menu3,screen,0,0,0,0, graphics->virtualScreenW(), graphics->virtualScreenH());
+        blit(menu3,screen,0,0,0,0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
         unscare_mouse();
         break;
         

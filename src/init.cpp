@@ -29,7 +29,7 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -50,7 +50,6 @@ extern dmap *DMaps;
 extern itemdata *itemsbuf;
 extern byte quest_rules[20];
 extern char *item_string[];
-extern GraphicsBackend *graphics;
 
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);

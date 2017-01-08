@@ -29,7 +29,7 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -43,7 +43,6 @@ extern bool dmap_list_zero;
 extern zinitdata zinit;
 extern int startdmapxy[6];
 extern PALETTE RAMpal;
-extern GraphicsBackend *graphics;
 
 #include "gfxpal.h"
 
@@ -72,8 +71,8 @@ void draw_edit_dataset_specs(int index,int copy)
     
     if(is_large())
     {
-        window_xofs=(graphics->virtualScreenW()-480)>>1;
-        window_yofs=(graphics->virtualScreenH()-360)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-480)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-360)>>1;
     }
     
     jwin_draw_frame(screen, cset_x-2, cset_y+cset_h+cset_spacing-2, int(128*(is_large()?1.5:1)+4), cset_h+4, FR_DEEP);
@@ -127,8 +126,8 @@ void colormixer(int color,int gray,int ratio)
     
     if(is_large())
     {
-        window_xofs=int(graphics->virtualScreenW()-320*(is_large()?1.5:1))>>1;
-        window_yofs=int(graphics->virtualScreenH()-240*(is_large()?1.5:1))>>1;
+        window_xofs=int(Backend::graphics->virtualScreenW()-320*(is_large()?1.5:1))>>1;
+        window_yofs=int(Backend::graphics->virtualScreenH()-240*(is_large()?1.5:1))>>1;
         color /= 1.5;
         ratio /= 1.5;
         gray /= 1.5;
@@ -164,11 +163,11 @@ void colormixer(int color,int gray,int ratio)
     _allegro_vline(screen,color+color_x,color_y,color_y+color_h-1,edi);
     _allegro_hline(screen,sat_x,ratio+sat_y,sat_x+sat_w-1,edi);
     //  text_mode(ed1);
-    textprintf_centre_ex(screen,font,graphics->virtualScreenW()/2,int(color_y+color_h+10*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
+    textprintf_centre_ex(screen,font,Backend::graphics->virtualScreenW()/2,int(color_y+color_h+10*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
     unscare_mouse();
     SCRFIX();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 int color = 0;
@@ -209,8 +208,8 @@ void edit_dataset(int dataset)
     
     if(is_large())
     {
-        window_xofs=(graphics->virtualScreenW()-480)>>1;
-        window_yofs=(graphics->virtualScreenH()-360)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-480)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-360)>>1;
         hue_x = int(hue_x*1.5);
         hue_y = int(hue_y*1.5);
         hue_h = int(hue_h*1.5);
@@ -290,13 +289,13 @@ void edit_dataset(int dataset)
     draw_text_button(screen,insert_button_x,insert_button_y,insert_button_w,insert_button_h,"Insert",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
     
     unscare_mouse();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     
     while(gui_mouse_b())
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     bool bdown=false;
@@ -613,8 +612,8 @@ void edit_dataset(int dataset)
             draw_edit_dataset_specs(index,copy);
             unscare_mouse();
             SCRFIX();
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         //if(zqwin_scale > 1)
@@ -853,12 +852,12 @@ void grab_dataset(int dataset)
                     
                 for(int i=0; i<12; i++)
                 {
-					graphics->waitTick();
+					Backend::graphics->waitTick();
 					if(i&2)
                         set_palette(picpal);
                     else
                         set_palette(tmp);
-					graphics->showBackBuffer();
+					Backend::graphics->showBackBuffer();
                 }
                 
                 break;
@@ -880,8 +879,8 @@ void grab_dataset(int dataset)
         blit(screen2, screen, 0, 0, 0, 0, screen->w, screen->h);
         unscare_mouse();
         SCRFIX();
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         //if(zqwin_scale > 1)
         {
@@ -1113,8 +1112,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             unscare_mouse();
             ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[rand()%14+dvc(1)];
             set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         while(gui_mouse_b());
         
@@ -1239,8 +1238,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         scare_mouse();
         draw_cset_proc(d);
         unscare_mouse();
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
 
         return D_USED_CHAR;
     }
@@ -1449,8 +1448,8 @@ int EditColors(const char *caption,int first,int count,byte *label)
                 enable = en;
             }
             
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         ret = shutdown_dialog(p);

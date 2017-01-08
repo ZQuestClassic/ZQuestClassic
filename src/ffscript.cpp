@@ -24,7 +24,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "rendertarget.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -47,7 +47,6 @@ extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
-extern GraphicsBackend *graphics;
 
 int virtualScreenScale();
 
@@ -1299,14 +1298,14 @@ long get_register(const long arg)
         
     case INPUTMOUSEX:
     {
-        int leftOffset=(graphics->virtualScreenW()/2)-(128* virtualScreenScale());
+        int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128* virtualScreenScale());
         ret=((gui_mouse_x()-leftOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEY:
     {
-        int topOffset=(graphics->virtualScreenH()/2)-((112-playing_field_offset)*virtualScreenScale());
+        int topOffset=(Backend::graphics->virtualScreenH()/2)-((112-playing_field_offset)*virtualScreenScale());
         ret=((gui_mouse_y()-topOffset)/ virtualScreenScale())*10000;
         break;
     }
@@ -3267,14 +3266,14 @@ void set_register(const long arg, const long value)
         
     case INPUTMOUSEX:
     {
-        int leftOffset=(graphics->virtualScreenW()/2)-(128*virtualScreenScale());
+        int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128*virtualScreenScale());
         position_mouse((value/10000)*virtualScreenScale() +leftOffset, gui_mouse_y());
         break;
     }
     
     case INPUTMOUSEY:
     {
-        int topOffset=(graphics->virtualScreenH() /2)-((112-playing_field_offset)*virtualScreenScale());
+        int topOffset=(Backend::graphics->virtualScreenH() /2)-((112-playing_field_offset)*virtualScreenScale());
         position_mouse(gui_mouse_x(), (value/10000)*virtualScreenScale() +topOffset);
         break;
     }

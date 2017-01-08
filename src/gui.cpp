@@ -43,17 +43,20 @@
 /**********  GUI  ***********/
 /****************************/
 
+int miniscreenX() { return (Backend::graphics->virtualScreenW() - 320) / 2; }
+int miniscreenY() { return (Backend::graphics->virtualScreenH() - 240) / 2; }
+
 void saveMiniscreen()
 {
 	scare_mouse();
-	blit(screen, tmp_scr, Backend::graphics->miniscreenX(), Backend::graphics->miniscreenY(), 0, 0, 320, 240);
+	blit(screen, tmp_scr, miniscreenX(),miniscreenY(), 0, 0, 320, 240);
 	unscare_mouse();
 }
 
 void restoreMiniscreen()
 {
 	scare_mouse();
-	blit(tmp_scr, screen, 0, 0, Backend::graphics->miniscreenX(), Backend::graphics->miniscreenY(), 320, 240);
+	blit(tmp_scr, screen, 0, 0, miniscreenX(), miniscreenY(), 320, 240);
 	unscare_mouse();
 }
 

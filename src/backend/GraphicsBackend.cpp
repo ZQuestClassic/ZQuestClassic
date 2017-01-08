@@ -6,6 +6,7 @@ void Z_message(const char *format, ...);
 
 void (*GraphicsBackend::switch_in_func_)() = NULL;
 void (*GraphicsBackend::switch_out_func_)() = NULL;
+int GraphicsBackend::fps_ = 60;
 
 volatile int GraphicsBackend::frame_counter = 0;
 volatile int GraphicsBackend::frames_this_second = 0;
@@ -18,7 +19,7 @@ void update_frame_counter()
 	static int cnt;
 	GraphicsBackend::frame_counter++;
 	cnt++;
-	if (cnt == 60)
+	if (cnt == GraphicsBackend::fps_)
 	{
 		GraphicsBackend::prev_frames_this_second = GraphicsBackend::frames_this_second;
 		GraphicsBackend::frames_this_second = 0;
@@ -72,7 +73,7 @@ GraphicsBackend::~GraphicsBackend()
 
 void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
 {
-	std::string section = prefix + "-Backend::graphics";
+	std::string section = prefix + "-graphics";
 	const char *secname = section.c_str();
 
 	screenw_ = get_config_int(secname, "resx", 320);
@@ -83,7 +84,7 @@ void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
 
 void GraphicsBackend::writeConfigurationOptions(const std::string &prefix)
 {
-	std::string section = prefix + "-Backend::graphics";
+	std::string section = prefix + "-graphics";
 	const char *secname = section.c_str();
 
 	set_config_int(secname, "resx", screenw_);
@@ -94,6 +95,9 @@ void GraphicsBackend::writeConfigurationOptions(const std::string &prefix)
 
 bool GraphicsBackend::initialize()
 {
+	if (initialized_)
+		return true;
+
 	LOCK_VARIABLE(frame_counter);
 	LOCK_FUNCTION(update_frame_counter);
 	install_int_ex(update_frame_counter, BPS_TO_TIMER(fps_));
@@ -108,27 +112,32 @@ bool GraphicsBackend::initialize()
 
 void GraphicsBackend::waitTick()
 {
+	if (!initialized_)
+		return;
+
 	while (frame_counter == 0)
 		rest(1);
 	frame_counter = 0;
 }
 
-void GraphicsBackend::showBackBuffer()
+bool GraphicsBackend::showBackBuffer()
 {
 #ifdef _WINDOWS
 	if (windowsFullscreenFix_)
 	{
 		windowsFullscreenFix_ = false;
-		if(fullscreen_)
-			trySettingVideoMode();
+		if (fullscreen_)
+			if (!trySettingVideoMode())
+				return false;
 	}
 #endif
 
 	stretch_blit(backbuffer_, hw_screen_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
 	frames_this_second++;
+	return true;
 }
 
-void GraphicsBackend::setScreenResolution(int w, int h)
+bool GraphicsBackend::setScreenResolution(int w, int h)
 {
 	if (w != screenw_ || h != screenh_)
 	{
@@ -136,21 +145,23 @@ void GraphicsBackend::setScreenResolution(int w, int h)
 		screenh_ = h;
 		if (initialized_ && !fullscreen_)
 		{
-			trySettingVideoMode();
+			return trySettingVideoMode();
 		}
 	}
+	return true;
 }
 
-void GraphicsBackend::setFullscreen(bool fullscreen)
+bool GraphicsBackend::setFullscreen(bool fullscreen)
 {
 	if (fullscreen != fullscreen_)
 	{
 		fullscreen_ = fullscreen;
 		if (initialized_)
 		{
-			trySettingVideoMode();
+			return trySettingVideoMode();
 		}
 	}
+	return true;
 }
 
 int GraphicsBackend::getLastFPS()
@@ -313,18 +324,29 @@ int GraphicsBackend::screenH()
 
 void GraphicsBackend::physicalToVirtual(int &x, int &y)
 {
-	x = x*virtualScreenW() / screenW();
-	y = y*virtualScreenH() / screenH();
+	if (initialized_)
+	{
+		x = x*virtualScreenW() / screenW();
+		y = y*virtualScreenH() / screenH();
+	}
 }
 
 void GraphicsBackend::virtualToPhysical(int &x, int &y)
 {
-	x = x*screenW()/virtualScreenW();
-	y = y*screenH()/virtualScreenH();
+	if (initialized_)
+	{
+		x = x*screenW() / virtualScreenW();
+		y = y*screenH() / virtualScreenH();
+	}
 }
 
 void GraphicsBackend::registerSwitchCallbacks(void(*switchin)(), void(*switchout)())
 {
 	switch_in_func_ = switchin;
 	switch_out_func_ = switchout;
+	if (initialized_)
+	{
+		set_display_switch_callback(SWITCH_IN, &onSwitchIn);
+		set_display_switch_callback(SWITCH_OUT, &onSwitchOut);
+	}
 }

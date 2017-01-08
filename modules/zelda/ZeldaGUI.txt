@@ -20,7 +20,8 @@ src/tab_ctl.cpp
 src/title.cpp
 src/zc_custom.cpp
 src/jwin.cpp
-src/GraphicsBackend.cpp
+src/backend/Backend.cpp
+src/backend/GraphicsBackend.cpp
 
 ## End of Zelda GUI module
 )

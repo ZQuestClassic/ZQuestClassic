@@ -32,7 +32,7 @@
 #include "zc_custom.h"
 #include "questReport.h"
 #include "mem_debug.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -58,8 +58,6 @@ byte selection_anchor=0;
 enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, selection_mode_exclude};
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
-
-extern GraphicsBackend *graphics;
 
 
 BITMAP *intersection_pattern;
@@ -702,8 +700,8 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool 
                 over=false;
             }
         }
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -735,8 +733,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
                 over=false;
             }
         }
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(over)
@@ -744,8 +742,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
         scare_mouse();
         draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
         unscare_mouse();
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -806,8 +804,8 @@ bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,
                 over=false;
             }
         }
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -840,8 +838,8 @@ bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,i
                 over=false;
             }
         }
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(over)
@@ -849,8 +847,8 @@ bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,i
         scare_mouse();
         draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,0,jwin,overlay);
         unscare_mouse();
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -913,8 +911,8 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
                 }
             }
         }
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
 }
 
@@ -971,8 +969,8 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
                 over=false;
             }
         }
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -1158,11 +1156,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     }
     
     PALETTE tpal;
-    static BITMAP *tbar = create_bitmap_ex(8,graphics->virtualScreenW()-6, 18);
+    static BITMAP *tbar = create_bitmap_ex(8,Backend::graphics->virtualScreenW()-6, 18);
     static BITMAP *preview_bmp = create_bitmap_ex(8, 64, 64);
 //  int screen_xofs=(zq_screen_w-320)>>1;
 //  int screen_yofs=(zq_screen_h-240)>>1;
-    jwin_draw_win(screen2, 0, 0, graphics->virtualScreenW(), graphics->virtualScreenH(), FR_WIN);
+    jwin_draw_win(screen2, 0, 0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH(), FR_WIN);
     
     /*
       FONT *oldfont = font;
@@ -1182,12 +1180,12 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     */
     if(!create_tbar)
     {
-        blit(tbar, screen2, 0, 0, 3, 3, graphics->virtualScreenW()-6, 18);
+        blit(tbar, screen2, 0, 0, 3, 3, Backend::graphics->virtualScreenW()-6, 18);
     }
     else
     {
-        jwin_draw_titlebar(tbar, 0, 0, graphics->virtualScreenW()-6, 18, "", true);
-        blit(tbar, screen2, 0, 0, 3, 3, graphics->virtualScreenW()-6, 18);
+        jwin_draw_titlebar(tbar, 0, 0, Backend::graphics->virtualScreenW()-6, 18, "", true);
+        blit(tbar, screen2, 0, 0, 3, 3, Backend::graphics->virtualScreenW()-6, 18);
     }
     
     textprintf_ex(screen2,lfont,5,5,jwin_pal[jcTITLEFG],-1,"Tile Editor (%d)",tile);
@@ -1350,12 +1348,12 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     
     scare_mouse();
 //  blit(screen2,screen,0,0,screen_xofs,screen_yofs,zq_screen_w,zq_screen_w);
-    blit(screen2,screen,0,0,0,0,graphics->virtualScreenW(),graphics->virtualScreenH());
+    blit(screen2,screen,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
     update_tool_cursor();
     unscare_mouse();
     SCRFIX();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 void normalize(int tile,int tile2, bool rect_sel, int flip)
@@ -1597,8 +1595,8 @@ void edit_tile(int tile,int flip,int &cs)
     
     while(gui_mouse_b())
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     int move_origin_x=-1, move_origin_y=-1;
@@ -2220,10 +2218,10 @@ void edit_tile(int tile,int flip,int &cs)
                 }
             }
             
-            if(isinRect(temp_mouse_x,temp_mouse_y,graphics->virtualScreenW() - 21, 5, graphics->virtualScreenW() - 21 + 15, 5 + 13))
+            if(isinRect(temp_mouse_x,temp_mouse_y,Backend::graphics->virtualScreenW() - 21, 5, Backend::graphics->virtualScreenW() - 21 + 15, 5 + 13))
             {
 //        if(do_x_button(screen, 320+screen_xofs - 21, 5+screen_yofs))
-                if(do_x_button(screen, graphics->virtualScreenW() - 21, 5))
+                if(do_x_button(screen, Backend::graphics->virtualScreenW() - 21, 5))
                 {
                     done=1;
                 }
@@ -2535,8 +2533,8 @@ void edit_tile(int tile,int flip,int &cs)
             {
                 masked_blit(tooltipbmp, screen, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
             }
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         else
         {
@@ -2558,8 +2556,8 @@ void edit_tile(int tile,int flip,int &cs)
             update_tool_cursor();
             unscare_mouse();
             SCRFIX();
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
     }
@@ -2864,8 +2862,8 @@ void draw_grab_window()
 {
     int w = is_large()?640:320;
     int h = is_large()?480:240;
-    int window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-    int window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+    int window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+    int window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*(is_large() ? 2 :1)),  FR_DEEP);
@@ -3189,8 +3187,8 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     {
         mul = 2;
         yofs=16;
-        window_xofs=(graphics->virtualScreenW()-640-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-480-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-640-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-480-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
@@ -3258,8 +3256,8 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     //rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
     unscare_mouse();
     SCRFIX();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     font = oldfont;
 }
 
@@ -4200,8 +4198,8 @@ void grab_tile(int tile,int &cs)
     
     if(is_large())
     {
-        window_xofs=(graphics->virtualScreenW()-640-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-480-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-640-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-480-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         mul=2;
@@ -4219,7 +4217,7 @@ void grab_tile(int tile,int &cs)
     }
     
     byte newtile[200][256];
-    BITMAP *screen3=create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
+    BITMAP *screen3=create_bitmap_ex(8, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
     clear_bitmap(screen3);
     byte newformat[200];
     
@@ -4752,16 +4750,16 @@ void grab_tile(int tile,int &cs)
         }
         else
         {
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         if((f%8)==0)
         {
             if(is_large())
-                stretch_blit(screen2,screen3,0, 0, graphics->virtualScreenW(), graphics->virtualScreenH(), 0, 0, graphics->virtualScreenW() *2, graphics->virtualScreenH() *2);
+                stretch_blit(screen2,screen3,0, 0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH(), 0, 0, Backend::graphics->virtualScreenW() *2, Backend::graphics->virtualScreenH() *2);
             else
-                blit(screen2,screen3,0, 0, 0, 0, graphics->virtualScreenW(), graphics->virtualScreenH());
+                blit(screen2,screen3,0, 0, 0, 0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
                 
             int selxl = selx* mul;
             int selyl = sely* mul;
@@ -5020,8 +5018,8 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     
     if(is_large())
     {
-        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
@@ -5029,8 +5027,8 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
     scare_mouse();
     blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
     unscare_mouse();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     SCRFIX();
     destroy_bitmap(buf);
 }
@@ -5133,8 +5131,8 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     {
         w*=2;
         h*=2;
-        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
@@ -5143,8 +5141,8 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
     unscare_mouse();
     SCRFIX();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     destroy_bitmap(buf);
 }
 /*
@@ -8119,8 +8117,8 @@ void draw_tile_list_window()
         h *= 2;
     }
     
-    int window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-    int window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+    int window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+    int window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
@@ -8214,8 +8212,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
         w *= 2;
         h *= 2;
         mul = 2; // multiply dimensions by 2
-        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         panel_yofs=3;
@@ -9659,8 +9657,8 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     
     if(is_large())
     {
-        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
     }
@@ -9668,8 +9666,8 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
     scare_mouse();
     blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
     unscare_mouse();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     SCRFIX();
     //destroy_bitmap(buf);
 }
@@ -9735,8 +9733,8 @@ void draw_combo_list_window()
         h *= 2;
     }
     
-    window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-    window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+    window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+    window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
     scare_mouse();
     jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
     jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
@@ -9785,8 +9783,8 @@ int select_combo_2(int &tile,int &cs)
         w *= 2;
         h *= 2;
         mul = 2;
-        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         panel_yofs=3;
@@ -10247,8 +10245,8 @@ int combo_screen(int pg, int tl)
         w *= 2;
         h *= 2;
         mul = 2;
-        window_xofs=(graphics->virtualScreenW()-w-12)>>1;
-        window_yofs=(graphics->virtualScreenH()-h-25-6)>>1;
+        window_xofs=(Backend::graphics->virtualScreenW()-w-12)>>1;
+        window_yofs=(Backend::graphics->virtualScreenH()-h-25-6)>>1;
         screen_xofs=window_xofs+6;
         screen_yofs=window_yofs+25;
         panel_yofs=3;

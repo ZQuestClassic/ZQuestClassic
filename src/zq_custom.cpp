@@ -33,7 +33,7 @@
 #include "ffasm.h"
 #include "defdata.h"
 #include "zc_malloc.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 extern int ex;
 extern void reset_itembuf(itemdata *item, int id);
@@ -53,8 +53,6 @@ extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
 
 extern int biw_cnt;
 extern int biic_cnt;
-
-extern GraphicsBackend *graphics;
 
 
 
@@ -1138,8 +1136,8 @@ void test_item(itemdata test, int x, int y)
         }
         
         unscare_mouse();
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         //if(zqwin_scale > 1)
         {

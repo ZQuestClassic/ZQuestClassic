@@ -58,7 +58,7 @@
 #include "win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
-#include "GraphicsBackend.h"
+#include "Backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -271,13 +271,12 @@ bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down
      pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
      is_on_conveyor, activated_timed_warp=false;
 
-GraphicsBackend *graphics = NULL;
 void switch_in_callback();
 void switch_out_callback();
 
 int virtualScreenScale()
 {
-	return 2 - graphics->getVirtualMode();
+	return 2 - Backend::graphics->getVirtualMode();
 }
 
 byte COOLSCROLL;
@@ -682,7 +681,7 @@ int Z_gui_mouse_x()
 {
 	int x = mouse_x;
 	int y = mouse_y;
-	graphics->physicalToVirtual(x, y);
+	Backend::graphics->physicalToVirtual(x, y);
 	return x;
 }
 
@@ -690,7 +689,7 @@ int Z_gui_mouse_y()
 {
 	int x = mouse_x;
 	int y = mouse_y;
-	graphics->physicalToVirtual(x, y);
+	Backend::graphics->physicalToVirtual(x, y);
 	return y;
 }
 
@@ -2565,11 +2564,11 @@ bool screenIsScrolling()
 
 int onFullscreen()
 {
-	graphics->setFullscreen(!graphics->isFullscreen());
+	Backend::graphics->setFullscreen(!Backend::graphics->isFullscreen());
 
 	gui_mouse_focus = 0;
 	show_mouse(screen);
-	graphics->showBackBuffer();
+	Backend::graphics->showBackBuffer();
 
     return D_REDRAW;
 }
@@ -2719,7 +2718,7 @@ int main(int argc, char* argv[])
     register_bitmap_file_type("GIF",  load_gif, save_gif);
     jpgalleg_init();
     loadpng_init();
-	graphics = new GraphicsBackend;
+	Backend::initializeBackend();
     
     // set and load game configurations
     set_config_file("ag.cfg");
@@ -3158,26 +3157,26 @@ int main(int argc, char* argv[])
     {
         int resx = atoi(argv[res_arg+1]);
         int resy = atoi(argv[res_arg+2]);
-		graphics->setScreenResolution(resx, resy);
+		Backend::graphics->setScreenResolution(resx, resy);
 	}
     
     if(used_switch(argc,argv,"-fullscreen"))
     {
         al_trace("Used switch: -fullscreen\n");
-		graphics->setFullscreen(true);
+		Backend::graphics->setFullscreen(true);
     }
     else if(used_switch(argc,argv,"-windowed"))
     {
         al_trace("Used switch: -windowed\n");
-		graphics->setFullscreen(false);
+		Backend::graphics->setFullscreen(false);
     }
 
-	graphics->setVideoModeSwitchDelay(wait_ms_on_set_graphics);
-	graphics->registerVirtualModes(desiredModes);
+	Backend::graphics->setVideoModeSwitchDelay(wait_ms_on_set_graphics);
+	Backend::graphics->registerVirtualModes(desiredModes);
 
-	if (graphics->initialize())
+	if (Backend::graphics->initialize())
 	{
-		Z_message("Initialized gfx succsessfully using fullscreen=%d, %dbpp bit, %d x %d \n", graphics->isFullscreen(), 8, graphics->screenW(), graphics->screenH());
+		Z_message("Initialized gfx succsessfully using fullscreen=%d, %dbpp bit, %d x %d \n", Backend::graphics->isFullscreen(), 8, Backend::graphics->screenW(), Backend::graphics->screenH());
 	}
 	else
 		goto quick_quit;	
@@ -3197,7 +3196,7 @@ int main(int argc, char* argv[])
     
     fix_dialogs();
     gui_mouse_focus = FALSE;
-    position_mouse(graphics->screenW()-16,graphics->screenH()-16);
+    position_mouse(Backend::graphics->screenW()-16,Backend::graphics->screenH()-16);
     
     if(!onlyInstance)
     {
@@ -3229,13 +3228,13 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
-	graphics->registerSwitchCallbacks(switch_in_callback, switch_out_callback);
+	Backend::graphics->registerSwitchCallbacks(switch_in_callback, switch_out_callback);
     
     // AG logo
     if(!fast_start)
     {
         set_volume(240,-1);
-        aglogo(tmp_scr, scrollbuf, graphics->virtualScreenW(), graphics->virtualScreenH());
+        aglogo(tmp_scr, scrollbuf, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
         master_volume(digi_volume,midi_volume);
     }
     
@@ -3390,8 +3389,7 @@ void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
 	show_mouse(NULL);
-	if(graphics)
-		delete graphics;
+	Backend::shutdownBackend();
 	set_gfx_mode(GFX_TEXT, 80, 25, 0, 0);
 
 	remove_installed_timers();

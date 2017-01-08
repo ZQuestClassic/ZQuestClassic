@@ -69,7 +69,7 @@ void setZScriptVersion(int) { } //bleh...
 #include "zq_strings.h"
 
 #include "questReport.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #ifdef ALLEGRO_DOS
 static const char *data_path_name   = "dos_data_path";
@@ -149,8 +149,6 @@ bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 
-GraphicsBackend *graphics;
-
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
 std::vector<string> asffcscripts;
@@ -183,19 +181,19 @@ int coord_timer=0, coord_frame=0;
 
 bool is_large()
 {
-	return graphics->getVirtualMode() == 0;
+	return Backend::graphics->getVirtualMode() == 0;
 }
 
 int virtualScreenScale()
 {
-	return graphics->getVirtualMode() == 0 ? 3 : 1;
+	return Backend::graphics->getVirtualMode() == 0 ? 3 : 1;
 }
 
 int Z_gui_mouse_x()
 {
 	int x = mouse_x;
 	int y = mouse_y;
-	graphics->physicalToVirtual(x, y);
+	Backend::graphics->physicalToVirtual(x, y);
 	return x;
 }
 
@@ -203,7 +201,7 @@ int Z_gui_mouse_y()
 {
 	int x = mouse_x;
 	int y = mouse_y;
-	graphics->physicalToVirtual(x, y);
+	Backend::graphics->physicalToVirtual(x, y);
 	return y;
 }
 
@@ -543,7 +541,7 @@ size_and_pos commands_window()
 	if (is_large())
 	{
 		result.w = 576 - (panel(0).x + panel(0).w);
-		result.h = graphics->virtualScreenH() - panel(0).y;
+		result.h = Backend::graphics->virtualScreenH() - panel(0).y;
 		result.x = favorites_window().x - result.w;
 		result.y = panel(0).y;
 	}
@@ -1214,15 +1212,15 @@ int onResetTransparency()
     
 void setVideoModeMenuFlags()
 {
-	video_mode_menu[0].flags = (graphics->isFullscreen() ? D_SELECTED : 0);
-	video_mode_menu[1].flags = (!graphics->isFullscreen() && graphics->screenW() == 320 && graphics->screenH() == 240) ? D_SELECTED : 0;
-	video_mode_menu[2].flags = (!graphics->isFullscreen() && graphics->screenW() == 800 && graphics->screenH() == 600) ? D_SELECTED : 0;	
+	video_mode_menu[0].flags = (Backend::graphics->isFullscreen() ? D_SELECTED : 0);
+	video_mode_menu[1].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 320 && Backend::graphics->screenH() == 240) ? D_SELECTED : 0;
+	video_mode_menu[2].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 800 && Backend::graphics->screenH() == 600) ? D_SELECTED : 0;	
 }
 
 
 int onFullscreenMenu()
 {
-	graphics->setFullscreen(true);
+	Backend::graphics->setFullscreen(true);
 	setVideoModeMenuFlags();
 	gui_mouse_focus = 0;
 	gui_bg_color = jwin_pal[jcBOX];
@@ -1230,8 +1228,8 @@ int onFullscreenMenu()
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	set_palette(RAMpal);
-	int x = graphics->screenW() / 2;
-	int y = graphics->screenH() / 2;
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
 	position_mouse(x, y);
 	show_mouse(screen);
 	return D_REDRAW;
@@ -1239,8 +1237,8 @@ int onFullscreenMenu()
 
 int onWindowed1Menu()
 {
-	graphics->setScreenResolution(320, 240);
-	graphics->setFullscreen(false);
+	Backend::graphics->setScreenResolution(320, 240);
+	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
 	gui_mouse_focus = 0;
 	gui_bg_color = jwin_pal[jcBOX];
@@ -1248,8 +1246,8 @@ int onWindowed1Menu()
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	set_palette(RAMpal);
-	int x = graphics->screenW() / 2;
-	int y = graphics->screenH() / 2;
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
 	position_mouse(x, y);
 	show_mouse(screen);
 	return D_REDRAW;
@@ -1257,8 +1255,8 @@ int onWindowed1Menu()
 
 int onWindowed2Menu()
 {
-	graphics->setScreenResolution(800, 600);
-	graphics->setFullscreen(false);
+	Backend::graphics->setScreenResolution(800, 600);
+	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
 	gui_mouse_focus = 0;
 	gui_bg_color = jwin_pal[jcBOX];
@@ -1266,8 +1264,8 @@ int onWindowed2Menu()
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	set_palette(RAMpal);
-	int x = graphics->screenW() / 2;
-	int y = graphics->screenH() / 2;
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
 	position_mouse(x, y);
 	show_mouse(screen);
 	return D_REDRAW;
@@ -3204,8 +3202,8 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
     }
     else
     {
-        picx=(*dst)->w- graphics->virtualScreenW();
-        picy=(*dst)->h- graphics->virtualScreenH();
+        picx=(*dst)->w- Backend::graphics->virtualScreenW();
+        picy=(*dst)->h- Backend::graphics->virtualScreenH();
     }
     
     return 0;
@@ -3261,7 +3259,7 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     int oldfgcolor = gui_fg_color;
     int oldbgcolor = gui_bg_color;
     
-    buf = create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
+    buf = create_bitmap_ex(8, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
     
     if(!buf)
     {
@@ -3280,25 +3278,25 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
         {
             clear_to_color(buf,pblack);
             stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
-                         int(graphics->virtualScreenW() +(*px2-(*pictoview)->w)* *scale2)/2,int(graphics->virtualScreenH() +(*py2-(*pictoview)->h)* *scale2)/2,
+                         int(Backend::graphics->virtualScreenW() +(*px2-(*pictoview)->w)* *scale2)/2,int(Backend::graphics->virtualScreenH() +(*py2-(*pictoview)->h)* *scale2)/2,
                          int((*pictoview)->w* *scale2),int((*pictoview)->h* *scale2));
                          
             if(vp_showpal)
                 for(int i=0; i<256; i++)
-                    rectfill(buf,((i&15)<<2)+ graphics->virtualScreenW() -64,((i>>4)<<2)+ graphics->virtualScreenH() -64,((i&15)<<2)+ graphics->virtualScreenW() -64+3,((i>>4)<<2)+ graphics->virtualScreenH() -64+3,i);
+                    rectfill(buf,((i&15)<<2)+ Backend::graphics->virtualScreenW() -64,((i>>4)<<2)+ Backend::graphics->virtualScreenH() -64,((i&15)<<2)+ Backend::graphics->virtualScreenW() -64+3,((i>>4)<<2)+ Backend::graphics->virtualScreenH() -64+3,i);
                     
             if(vp_showsize)
             {
                 //        text_mode(pblack);
-                textprintf_ex(buf,font,0, graphics->virtualScreenH() -8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
+                textprintf_ex(buf,font,0, Backend::graphics->virtualScreenH() -8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
             }
             
-            blit(buf,screen,0,0,0,0, graphics->virtualScreenW(), graphics->virtualScreenH());            
+            blit(buf,screen,0,0,0,0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());            
             redraw=false;
         }
 
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         int step = 4;
         
@@ -3376,8 +3374,8 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
                 break;
                 
             case KEY_Z:
-                *px2=(*pictoview)->w-graphics->virtualScreenW();
-                *py2=(*pictoview)->h-graphics->virtualScreenH();
+                *px2=(*pictoview)->w-Backend::graphics->virtualScreenW();
+                *py2=(*pictoview)->h-Backend::graphics->virtualScreenH();
                 vp_center=false;
                 redraw=true;
                 break;
@@ -4851,7 +4849,7 @@ void refresh(int flags)
     if(flags&rMENU)
     {
         drawpanel(is_large()?-1:menutype);
-        set_clip_rect(menu1,0,0,graphics->virtualScreenW()-1,graphics->virtualScreenH()-1);
+        set_clip_rect(menu1,0,0,Backend::graphics->virtualScreenW()-1,Backend::graphics->virtualScreenH()-1);
     }
     
     if(flags&rFAVORITES)
@@ -5025,7 +5023,7 @@ void refresh(int flags)
     
     if(ShowFPS)
     {
-        textprintf_shadowed_ex(menu1,is_large()?lfont:sfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",graphics->getLastFPS());
+        textprintf_shadowed_ex(menu1,is_large()?lfont:sfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",Backend::graphics->getLastFPS());
     }
     
     if(prv_mode)
@@ -5468,11 +5466,11 @@ void refresh(int flags)
     
     if(flags&rCLEAR)
     {
-        blit(menu1,screen,0,0,0,0,graphics->virtualScreenW(),graphics->virtualScreenH());
+        blit(menu1,screen,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
     }
     else
     {
-        blit(menu1,screen,0,16,0,16,graphics->virtualScreenW(),graphics->virtualScreenH()-16);
+        blit(menu1,screen,0,16,0,16,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH()-16);
         blit(menu1,screen,combolist_window().x-64,0,combolist_window().x-64,0,combolist_window().w+64,16);
         
         if(flags&rCOMBO)
@@ -5485,8 +5483,8 @@ void refresh(int flags)
     
     unscare_mouse();
     SCRFIX();
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 void select_scr()
@@ -6355,8 +6353,8 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
 			int by = startyint;
 			int tx = int(startxint + (256 * mapscreensize()) - 1);
 			int ty = int(startyint + (176 * mapscreensize()) - 1);
-			graphics->virtualToPhysical(bx, by);
-			graphics->virtualToPhysical(tx, ty);
+			Backend::graphics->virtualToPhysical(bx, by);
+			Backend::graphics->virtualToPhysical(tx, ty);
 			set_mouse_range(bx, by, tx, ty);
             
             while(gui_mouse_b()==1)
@@ -6393,10 +6391,10 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
             
 			int mbx = 0;
 			int mby = 0;
-			int mtx = graphics->virtualScreenW() - 1;
-			int mty = graphics->virtualScreenH() - 1;
-			graphics->virtualToPhysical(mbx, mby);
-			graphics->virtualToPhysical(mtx, mty);
+			int mtx = Backend::graphics->virtualScreenW() - 1;
+			int mty = Backend::graphics->virtualScreenH() - 1;
+			Backend::graphics->virtualToPhysical(mbx, mby);
+			Backend::graphics->virtualToPhysical(mtx, mty);
 			set_mouse_range(mbx, mby, mtx, mty);
             unscare_mouse();
             done=true;
@@ -9010,8 +9008,8 @@ int d_sel_scombo_proc(int msg, DIALOG *d, int c)
                 scare_mouse();
                 d_sel_scombo_proc(MSG_DRAW,d,0);
                 unscare_mouse();
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         
@@ -12484,8 +12482,8 @@ int col_width=(is_large() ? d->d1 ? 22:11:(d->d1?14:7));
             scare_mouse();
             object_message(d, MSG_DRAW, 0);
             unscare_mouse();
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
     }
     break;
@@ -13605,8 +13603,8 @@ void edit_tune(int i)
             //      text_mode(vc(1));
             textprintf_ex(screen,is_large()? lfont_l : font,editmidi_dlg[0].x+int(193*(is_large()?1.5:1)),editmidi_dlg[0].y+int(58*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
             unscare_mouse();
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         ret = shutdown_dialog(p);
@@ -14079,8 +14077,8 @@ int d_warpdestscrsel_proc(int msg,DIALOG *d,int)
                 sprintf((char *)td[d->d1+1].dp, "%02X", y+x);
                 object_message(&td[d->d1+1], MSG_DRAW, 0);
                 unscare_mouse();
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
     }
@@ -14551,8 +14549,8 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
 					int by = d->y + 2;
 					int tx = d->x + 256 + 1;
 					int ty = d->y + 176 + 1;
-					graphics->virtualToPhysical(bx, by);
-					graphics->virtualToPhysical(tx, ty);
+					Backend::graphics->virtualToPhysical(bx, by);
+					Backend::graphics->virtualToPhysical(tx, ty);
 					set_mouse_range(bx, by, tx, ty);
                 }
                 
@@ -14567,10 +14565,10 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
                 {
 					int bx = 0;
 					int by = 0;
-					int tx = graphics->virtualScreenW() - 1;
-					int ty = graphics->virtualScreenH() - 1;
-					graphics->virtualToPhysical(bx, by);
-					graphics->virtualToPhysical(tx, ty);
+					int tx = Backend::graphics->virtualScreenW() - 1;
+					int ty = Backend::graphics->virtualScreenH() - 1;
+					Backend::graphics->virtualToPhysical(bx, by);
+					Backend::graphics->virtualToPhysical(tx, ty);
 					set_mouse_range(bx, by, tx, ty);
                     set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
                 }
@@ -16923,7 +16921,7 @@ int onEnemies()
     {
         if(copy==-1)
         {
-            enemy_dlg[13].y=graphics->virtualScreenH();
+            enemy_dlg[13].y=Backend::graphics->virtualScreenH();
         }
         else
         {
@@ -17335,8 +17333,8 @@ bool do_x_button(BITMAP *dest, int x, int y)
             }
         }
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -21728,7 +21726,7 @@ int main(int argc, char **argv)
     
     //set_gfx_mode(GFX_TEXT,80,50,0,0);
 	set_color_conversion(COLORCONV_NONE);
-	graphics = new GraphicsBackend;
+	Backend::initializeBackend();
     
     Z_message("OK\n");                                      // Initializing Allegro...
     
@@ -22002,15 +22000,15 @@ int main(int argc, char **argv)
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
 
-	graphics->readConfigurationOptions("zquest");
+	Backend::graphics->readConfigurationOptions("zquest");
 
 	if (used_switch(argc, argv, "-fullscreen"))
 	{
-		graphics->setFullscreen(true);
+		Backend::graphics->setFullscreen(true);
 	}
 	else if (used_switch(argc, argv, "-windowed"))
 	{
-		graphics->setFullscreen(false);
+		Backend::graphics->setFullscreen(false);
 	}
     
     tooltip_box.x=-1;
@@ -22097,8 +22095,8 @@ int main(int argc, char **argv)
 	std::vector<std::pair<int, int> > desiredModes;
 	desiredModes.push_back(std::pair<int, int>(800, 600));
 	desiredModes.push_back(std::pair<int, int>(320, 240));
-	graphics->registerVirtualModes(desiredModes);
-	if (!graphics->initialize())
+	Backend::graphics->registerVirtualModes(desiredModes);
+	if (!Backend::graphics->initialize())
 	{
 		quit_game();
 	}
@@ -22107,9 +22105,9 @@ int main(int argc, char **argv)
     
     set_close_button_callback((void (*)()) hit_close_button);
     
-	graphics->registerSwitchCallbacks(switch_in, switch_out);
+	Backend::graphics->registerSwitchCallbacks(switch_in, switch_out);
 
-    position_mouse(graphics->screenW()/2,graphics->screenH()/2);
+    position_mouse(Backend::graphics->screenW()/2,Backend::graphics->screenH()/2);
 	gui_mouse_x = &Z_gui_mouse_x;
 	gui_mouse_y = &Z_gui_mouse_y;
     
@@ -22123,14 +22121,14 @@ int main(int argc, char **argv)
 	//create these conservatively sized for large mode
 	//could be (re)allocated on the fly if memory usage is a concern (in small mode)
 	//but this is simpler for now -DD
-    //screen2 = create_bitmap_ex(8,graphics->virtualScreenW(), graphics->virtualScreenH());
+    //screen2 = create_bitmap_ex(8,Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
 	screen2 = create_bitmap_ex(8, 800, 600);
-    //tmp_scr = create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
+    //tmp_scr = create_bitmap_ex(8, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
 	tmp_scr = create_bitmap_ex(8, 800, 600);
-    //menu1 = create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
+    //menu1 = create_bitmap_ex(8, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
 	menu1 = create_bitmap_ex(8, 800, 600);
     clear_bitmap(menu1);
-    //menu3 = create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
+    //menu3 = create_bitmap_ex(8, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
 	menu3 = create_bitmap_ex(8, 800, 600);
     //mapscreenbmp = create_bitmap_ex(8,16*(showedges()?18:16),16*(showedges()?13:11));
 	mapscreenbmp = create_bitmap_ex(8, 16 * 18, 16 * 13);
@@ -22773,6 +22771,8 @@ int main(int argc, char **argv)
     }
    
     quit_game();
+	show_mouse(NULL);
+	Backend::shutdownBackend();
     
     if(ForceExit) //last resort fix to the allegro process hanging bug.
         exit(0);
@@ -23161,8 +23161,8 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
         clear_tooltip();
     }
     
-    graphics->waitTick();
-	graphics->showBackBuffer();
+    Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     ret = jwin_menu_proc(msg,d,c);
     
     /*
@@ -23582,7 +23582,7 @@ int onZQVidMode()
     }
     
 #endif
-    sprintf(str_c,"%dx%d 8-bit",graphics->screenW(),graphics->screenH());
+    sprintf(str_c,"%dx%d 8-bit",Backend::graphics->screenW(),Backend::graphics->screenH());
     jwin_alert("Video Mode",str_a,str_b,str_c,"OK",NULL,13,27,lfont);
     return D_O_K;
 }
@@ -23715,7 +23715,7 @@ int save_config_file()
 #ifdef _WIN32
     set_config_int("zquest","zq_win_proc_fix",zqUseWin32Proc);
 #endif
-	graphics->writeConfigurationOptions("zquest");
+	Backend::graphics->writeConfigurationOptions("zquest");
     
     
     flush_config_file();
@@ -24097,14 +24097,14 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
         tooltip_box.w=get_longest_line_length(font, tipmsg)+8+1;
         tooltip_box.h=(lines*text_height(font))+8+1;
         
-        if(tooltip_box.x+tooltip_box.w>=graphics->virtualScreenW())
+        if(tooltip_box.x+tooltip_box.w>=Backend::graphics->virtualScreenW())
         {
-            tooltip_box.x=(graphics->virtualScreenW() - tooltip_box.w);
+            tooltip_box.x=(Backend::graphics->virtualScreenW() - tooltip_box.w);
         }
         
-        if(tooltip_box.y+tooltip_box.h>=graphics->virtualScreenH())
+        if(tooltip_box.y+tooltip_box.h>=Backend::graphics->virtualScreenH())
         {
-            tooltip_box.y=(graphics->virtualScreenH() - tooltip_box.h);
+            tooltip_box.y=(Backend::graphics->virtualScreenH() - tooltip_box.h);
         }
         
         rectfill(tooltipbmp, 1, 1, tooltip_box.w-3, tooltip_box.h-3, jwin_pal[jcTEXTBG]);

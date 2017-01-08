@@ -11,11 +11,10 @@
 #include "precompiled.h" //always first
 
 #include "matrix.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 // external FONTs
 extern FONT *deffont, *mfont;
-extern GraphicsBackend *graphics;
 
 
 #define MAX_COLS      256
@@ -72,8 +71,8 @@ void Matrix(int speed, int density, int mousedelay)
     for(;;)
     {
         //vsync();
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
 
         AddTracer();
         AddEraser(-1);

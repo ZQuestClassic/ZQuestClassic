@@ -17,10 +17,9 @@
 #include "zdefs.h"
 #include "zeldadat.h"
 #include "zc_malloc.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 extern DATAFILE* data;
-extern GraphicsBackend *graphics;
 extern int joystick_index;
 
 int virtualScreenScale();
@@ -149,8 +148,8 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
         draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
         
 
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         
         stretch_blit(frame,screen, 0,0,320,198, (resx-(320*virtualScreenScale() ))>>1, (resy-(198* virtualScreenScale()))>>1, 320* virtualScreenScale(),198* virtualScreenScale());

@@ -51,7 +51,7 @@
 #include "title.h"
 #include "particles.h"
 #include "mem_debug.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
@@ -64,9 +64,10 @@ byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
-extern GraphicsBackend *graphics;
 
 int virtualScreenScale();
+int miniscreenX();
+int miniscreenY();
 
 static const char *ZC_str = "Zelda Classic";
 #ifdef ALLEGRO_DOS
@@ -124,7 +125,7 @@ void do_DwmFlush()
 
 bool is_large()
 {
-	return graphics->getVirtualMode() == 0;
+	return Backend::graphics->getVirtualMode() == 0;
 }
 
 // Dialogue largening
@@ -363,7 +364,7 @@ void load_game_configs()
     sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
 
-	graphics->readConfigurationOptions("zelda");
+	Backend::graphics->readConfigurationOptions("zelda");
 }
 
 void save_game_configs()
@@ -463,7 +464,7 @@ void save_game_configs()
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
 
-	graphics->writeConfigurationOptions("zelda");
+	Backend::graphics->writeConfigurationOptions("zelda");
     
     flush_config_file();
 }
@@ -485,8 +486,8 @@ void show_paused(BITMAP *target)
         buf[i]+=0x60;
         
     //  text_mode(-1);
-    int x = graphics->miniscreenX()+40-((virtualScreenScale()-1)*120);
-    int y = graphics->miniscreenY() +224+((virtualScreenScale() -1)*104);
+    int x = miniscreenX()+40-((virtualScreenScale()-1)*120);
+    int y = miniscreenY() +224+((virtualScreenScale() -1)*104);
     textout_ex(target,zfont,buf,x,y,-1,-1);
 }
 
@@ -495,15 +496,15 @@ void show_fps(BITMAP *target)
     char buf[50];
     
     //  text_mode(-1);
-    sprintf(buf,"%2d/60",graphics->getLastFPS());
+    sprintf(buf,"%2d/60",Backend::graphics->getLastFPS());
     
     //  sprintf(buf,"%d/%u/%f/%u",lastfps,int(avgfps),avgfps,fps_secs);
     for(int i=0; buf[i]!=0; i++)
         if(buf[i]!=' ')
             buf[i]+=0x60;
             
-    int x = graphics->miniscreenX() +40-((virtualScreenScale()-1)*120);
-    int y = graphics->miniscreenY() +216+((virtualScreenScale()-1)*104);
+    int x = miniscreenX() +40-((virtualScreenScale()-1)*120);
+    int y = miniscreenY() +216+((virtualScreenScale()-1)*104);
     textout_ex(target,zfont,buf,x,y,-1,-1);
     // textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
 }
@@ -518,8 +519,8 @@ void show_saving(BITMAP *target)
     for(int i=0; buf[i]!=0; i++)
         buf[i]+=0x60;
         
-    int x = graphics->miniscreenX() +200+((virtualScreenScale() -1)*120);
-    int y = graphics->miniscreenY() +224+((virtualScreenScale() -1)*104);
+    int x = miniscreenX() +200+((virtualScreenScale() -1)*120);
+    int y = miniscreenY() +224+((virtualScreenScale() -1)*104);
     textout_ex(target,zfont,buf,x,y,-1,-1);
 }
 
@@ -3339,19 +3340,19 @@ void updatescr(bool allowwavy)
         for(int i=0; i<224; ++i)
             _allegro_hline(scanlinesbmp, 0, (i*virtualScreenScale())+1, sx, BLACK);
                 
-        blit(scanlinesbmp, screen, 0, 0, graphics->miniscreenX()+32-mx, graphics->miniscreenY()+8-my, sx, sy);
+        blit(scanlinesbmp, screen, 0, 0, miniscreenX()+32-mx, miniscreenY()+8-my, sx, sy);
     }
     else
     {
-        stretch_blit(source, screen, 0, 0, 256, 224, graphics->miniscreenX()+32-mx, graphics->miniscreenY()+8-my, sx, sy);
+        stretch_blit(source, screen, 0, 0, 256, 224, miniscreenX()+32-mx, miniscreenY()+8-my, sx, sy);
     }
         
     if(quakeclk>0)
         rectfill(screen, // I don't know if these are right...
-			graphics->miniscreenX()+32 - mx, //x1
-			graphics->miniscreenY()+8 - my + sy, //y1
-			graphics->miniscreenX()+32 - mx + sx, //x2
-			graphics->miniscreenY()+8 - my + sy + (16 * scale_mul), //y2
+			miniscreenX()+32 - mx, //x1
+			miniscreenY()+8 - my + sy, //y1
+			miniscreenX()+32 - mx + sx, //x2
+			miniscreenY()+8 - my + sy + (16 * scale_mul), //y2
                     BLACK);
                      
     if(ShowFPS)
@@ -3385,11 +3386,11 @@ int onGUISnapshot()
     }
     while(num<999 && exists(buf));
     
-    BITMAP *b = create_bitmap_ex(8, graphics->virtualScreenW(), graphics->virtualScreenH());
+    BITMAP *b = create_bitmap_ex(8, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
     
     if(b)
     {
-        blit(screen,b,0,0,0,0, graphics->virtualScreenW(), graphics->virtualScreenH());
+        blit(screen,b,0,0,0,0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
         save_bmp(buf,b,sys_pal);
         destroy_bitmap(b);
     }
@@ -4140,8 +4141,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
         syskeys();
         // to keep fps constant
         updatescr(allowwavy);
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
 #ifdef _WIN32
         
@@ -4171,8 +4172,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     syskeys();    
     updatescr(allowwavy);
 	if (Throttlefps ^ (key[KEY_TILDE] != 0))
-		graphics->waitTick();
-	graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
     
 #ifdef _WIN32
     
@@ -4523,7 +4524,7 @@ int onShowFPS()
     if(ShowFPS)
         show_fps(screen);
         
-    stretch_blit(fps_undo,screen,0,0,64,16,graphics->miniscreenX()+40-120, graphics->miniscreenY() +216+96,128,32);
+    stretch_blit(fps_undo,screen,0,0,64,16,miniscreenX()+40-120, miniscreenY() +216+96,128,32);
         
     if(Paused)
         show_paused(screen);
@@ -4560,13 +4561,13 @@ void kb_getkey(DIALOG *d)
     
     scare_mouse();
     jwin_button_proc(MSG_DRAW,d,0);
-	int resx = graphics->virtualScreenW();
-	int resy = graphics->virtualScreenH();
+	int resx = Backend::graphics->virtualScreenW();
+	int resy = Backend::graphics->virtualScreenH();
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
     textout_centre_ex(screen, font, "Press a key", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	graphics->showBackBuffer();
+	Backend::graphics->showBackBuffer();
     unscare_mouse();
     
     clear_keybuf();
@@ -4606,12 +4607,12 @@ void j_getbtn(DIALOG *d)
     d->flags|=D_SELECTED;
     scare_mouse();
     jwin_button_proc(MSG_DRAW,d,0);
-    jwin_draw_win(screen, (graphics->virtualScreenW()-160)/2, (graphics->virtualScreenH() -48)/2, 160, 48, FR_WIN);
+    jwin_draw_win(screen, (Backend::graphics->virtualScreenW()-160)/2, (Backend::graphics->virtualScreenH() -48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
-    int y = graphics->virtualScreenH()/2 - 12;
-    textout_centre_ex(screen, font, "Press a button", graphics->virtualScreenW()/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "ESC to cancel", graphics->virtualScreenW()/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "SPACE to disable", graphics->virtualScreenW()/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    int y = Backend::graphics->virtualScreenH()/2 - 12;
+    textout_centre_ex(screen, font, "Press a button", Backend::graphics->virtualScreenW()/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_centre_ex(screen, font, "ESC to cancel", Backend::graphics->virtualScreenW()/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_centre_ex(screen, font, "SPACE to disable", Backend::graphics->virtualScreenW()/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
     int b = next_press_btn();
@@ -5285,8 +5286,8 @@ int onCredits()
     
     while(update_dialog(p))
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         ++c;
         l = zc_max((c>>1)-30,0);
         
@@ -5699,7 +5700,7 @@ int onVidMode()
     
 #endif
     
-    sprintf(str_b,"%dx%d 8-bit", graphics->screenW(), graphics->screenH());
+    sprintf(str_b,"%dx%d 8-bit", Backend::graphics->screenW(), Backend::graphics->screenH());
     jwin_alert("Video Mode",str_a,str_b,NULL,"OK",NULL,13,27,lfont);
     return D_O_K;
 }
@@ -6650,40 +6651,40 @@ int onExtLetterGridEntry()
 
 void setVideoModeMenuFlags()
 {
-	video_mode_menu[0].flags = (graphics->isFullscreen() ? D_SELECTED : 0);
-	video_mode_menu[1].flags = (!graphics->isFullscreen() && graphics->screenW() == 320 && graphics->screenH() == 240) ? D_SELECTED : 0;
-	video_mode_menu[2].flags = (!graphics->isFullscreen() && graphics->screenW() == 640 && graphics->screenH() == 480) ? D_SELECTED : 0;
-	video_mode_menu[3].flags = (!graphics->isFullscreen() && graphics->screenW() == 1280 && graphics->screenH() == 960) ? D_SELECTED : 0;
+	video_mode_menu[0].flags = (Backend::graphics->isFullscreen() ? D_SELECTED : 0);
+	video_mode_menu[1].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 320 && Backend::graphics->screenH() == 240) ? D_SELECTED : 0;
+	video_mode_menu[2].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 640 && Backend::graphics->screenH() == 480) ? D_SELECTED : 0;
+	video_mode_menu[3].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 1280 && Backend::graphics->screenH() == 960) ? D_SELECTED : 0;
 }
 
 
 int onFullscreenMenu()
 {
-	graphics->setFullscreen(true);
+	Backend::graphics->setFullscreen(true);
 	setVideoModeMenuFlags(); 
     return D_REDRAW;
 }
 
 int onWindowed1Menu()
 {
-	graphics->setScreenResolution(320, 240);
-	graphics->setFullscreen(false);
+	Backend::graphics->setScreenResolution(320, 240);
+	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
 	return D_REDRAW;
 }
 
 int onWindowed2Menu()
 {
-	graphics->setScreenResolution(640, 480);
-	graphics->setFullscreen(false);
+	Backend::graphics->setScreenResolution(640, 480);
+	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
 	return D_REDRAW;
 }
 
 int onWindowed4Menu()
 {
-	graphics->setScreenResolution(1280, 960);
-	graphics->setFullscreen(false);
+	Backend::graphics->setScreenResolution(1280, 960);
+	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
 	return D_REDRAW;
 }
@@ -7132,10 +7133,10 @@ void system_pal()
     
     // display everything
 	clear_to_color(screen, BLACK);
-	graphics->showBackBuffer();
+	Backend::graphics->showBackBuffer();
 	set_palette_range(pal, 0, 255, false);
-	stretch_blit(tmp_scr,screen,0,0,320,240,graphics->miniscreenX()-(160*(virtualScreenScale()-1)),
-		graphics->miniscreenY()-(120*(virtualScreenScale()-1)), virtualScreenScale() *320, virtualScreenScale() *240);
+	stretch_blit(tmp_scr,screen,0,0,320,240,miniscreenX()-(160*(virtualScreenScale()-1)),
+		miniscreenY()-(120*(virtualScreenScale()-1)), virtualScreenScale() *320, virtualScreenScale() *240);
         
     if(ShowFPS)
         show_fps(screen);
@@ -7143,7 +7144,7 @@ void system_pal()
     if(Paused)
         show_paused(screen);
 	
-	graphics->showBackBuffer();
+	Backend::graphics->showBackBuffer();
         
     //  sys_pal = pal;
     memcpy(sys_pal,pal,sizeof(pal));
@@ -7153,7 +7154,6 @@ void system_pal()
 
 void switch_out_callback()
 {
-	Paused = true;
 #ifdef _WIN32
 	if(midi_patch_fix==0 || currmidi==0)
         return;
@@ -7203,9 +7203,9 @@ void switch_in_callback()
 void game_pal()
 {
     clear_to_color(screen,BLACK);
-	graphics->showBackBuffer();
+	Backend::graphics->showBackBuffer();
     set_palette_range(RAMpal,0,255,false);
-	graphics->showBackBuffer();
+	Backend::graphics->showBackBuffer();
 }
 
 static char bar_str[] = "";
@@ -7276,8 +7276,8 @@ void System()
         
     do
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         if(mouse_down && !gui_mouse_b())
             mouse_down=0;
@@ -7398,8 +7398,8 @@ void fix_dialog(DIALOG *d)
 {
     for(; d->proc != NULL; d++)
     {
-        d->x += graphics->miniscreenX();
-        d->y += graphics->miniscreenY();
+        d->x += miniscreenX();
+        d->y += miniscreenY();
     }
 }
 
@@ -7436,8 +7436,8 @@ void fix_dialogs()
     jwin_center_dialog(sound_dlg);
     jwin_center_dialog(triforce_dlg);
     
-	int scrx = graphics->miniscreenX();
-	int scry = graphics->miniscreenY();
+	int scrx = miniscreenX();
+	int scry = miniscreenY();
     digi_dp[1] += scrx;
     digi_dp[2] += scry;
     midi_dp[1] += scrx;
