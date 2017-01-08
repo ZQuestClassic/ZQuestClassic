@@ -966,8 +966,8 @@ int onSnapshot2()
 
 void set_default_box_size()
 {
-    int screen_w= graphics->virtualScreenW() / virtualScreenScale();
-    int screen_h= graphics->virtualScreenH() / virtualScreenScale();
+    int screen_w= graphics->virtualScreenW();
+    int screen_h= graphics->virtualScreenH();
     
     box_w=MIN(512, screen_w-16);
     box_h=MIN(256, (screen_h-64)&0xFFF0);
