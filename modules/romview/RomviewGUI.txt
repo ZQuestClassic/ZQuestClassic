@@ -12,7 +12,7 @@ src/gui.cpp
 src/jwin.cpp
 src/jwinfsel.cpp 
 src/tab_ctl.cpp
-src/zqscale.cpp 
+src/GraphicsBackend.cpp
 
 ## End of Romview GUI module
 )

@@ -37,14 +37,16 @@
 #include "zsys.h"
 #include "fontsdat.h"
 #include "zdefs.h"
-#include "zqscale.h"
 #include "zc_malloc.h"
+#include "GraphicsBackend.h"
 
 // MSVC fix
 #if _MSC_VER >= 1900
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
+
+GraphicsBackend *graphics;
 
 //Yeah, not really zquest.
 //Just here for scaling purposes.
@@ -53,10 +55,19 @@ bool is_zquest()
     return true;
 }
 
-int tempmode=GFX_AUTODETECT_FULLSCREEN;
+bool is_large()
+{
+	return false;
+}
+
+int virtualScreenScale()
+{
+	return 1;
+}
+
+
 int palbmpx=0;
 int palbmpy=0;
-bool is_large=false;
 int joystick_index=0;
 
 char *VerStr(int version)
@@ -1779,7 +1790,7 @@ void redraw_screen(int type)
     //cset indicator
     rectfill(scr_buf,226+88-14,76-74+(cset*3)+16,229+88-14-1,79-74+(cset*3)-1+16,white);
     
-    blit(scr_buf, screen, 0, 16, 0, 16, zq_screen_w, zq_screen_h-16);
+    blit(scr_buf, screen, 0, 16, 0, 16, graphics->virtualScreenW(), graphics->virtualScreenH()-16);
     unscare_mouse();
     
     redraw=0;
@@ -1827,70 +1838,22 @@ int main(int argc, char **argv)
     memset(temppath, 0, 2048);
     
     gui_mouse_focus = 0;
-    
-    set_color_depth(8);
+
+	graphics = new GraphicsBackend();
+	std::vector<std::pair<int, int> > mode;
+
+	graphics->readConfigurationOptions("romview");
+
+	//only "small" mode in Romview
+	mode.push_back(std::pair<int, int>(320, 240));
+	graphics->registerVirtualModes(mode);    	
+
     set_close_button_callback((void (*)()) hit_close_button);
     
-#ifndef ALLEGRO_DOS
-    zq_scale = get_config_int("romview","scale",1);
-    scale_arg = used_switch(argc,argv,"-scale");
-    scale_arg = false; // What!?
-    
-    if(scale_arg && (argc>(scale_arg+1)))
-    {
-        scale_arg = atoi(argv[scale_arg+1]);
-        
-        if(scale_arg == 0)
-        {
-            scale_arg = 1;
-        }
-        
-        zq_scale=scale_arg;
-    }
-    else
-    {
-        scale_arg = zq_scale;
-    }
-    
-    // Ho hum...Romview has some problems so just disable scaling altogether...for now. -Gleeok
-    //zqwin_set_scale(scale_arg);
-    zqwin_set_scale(0,false);
-#endif
-    
-    if(used_switch(argc,argv,"-fullscreen"))
-    {
-        tempmode = GFX_AUTODETECT_FULLSCREEN;
-    }
-    else if(used_switch(argc,argv,"-windowed"))
-    {
-        tempmode=GFX_AUTODETECT_WINDOWED;
-    }
-    
-    if(tempmode==GFX_AUTODETECT_FULLSCREEN)
-    {
-#ifdef ALLEGRO_MACOSX
-        scale_arg=2;
-#else
-        
-        if(scale_arg>2)
-        {
-            scale_arg=1;
-        }
-        
-#endif
-        zqwin_set_scale(scale_arg);
-    }
-    
-    /* No -fullscreen while debugging */
-#if defined _MSC_VER && defined _DEBUG
-    tempmode=GFX_AUTODETECT_WINDOWED;
-#endif
-    
-    if(set_gfx_mode(tempmode,320,240,0,0) != 0)
+    if(!graphics->initialize())
     {
         allegro_exit();
         byebye();
-        printf("Error setting video mode: %s\n", allegro_error);
         return 2;
     }
     
@@ -2166,10 +2129,17 @@ int main(int argc, char **argv)
                 break;
             }
         }
+
+		graphics->waitTick();
+		graphics->showBackBuffer();
     } // while(update_dialog(player))
     
+	graphics->writeConfigurationOptions("romview");
+
     shutdown_dialog(player);
-    
+
+	show_mouse(NULL);
+	delete graphics;
     zc_free(rombuf);
     zc_free(sel);
     destroy_bitmap(tmp_scr);

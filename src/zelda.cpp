@@ -3284,7 +3284,7 @@ int main(int argc, char* argv[])
         
             if(use_win32_proc != FALSE)
             {
-                win32data.Update(0);
+                win32data.Update();
             }
             
 #endif

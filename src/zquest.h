@@ -112,8 +112,8 @@ extern int alignment_arrow_timer;
 extern int  Flip,Combo,CSet,First[3];
 extern int  Flags,Flag,menutype;
 extern int MouseScroll, SavePaths, CycleOn, InvalidStatic;
-extern int Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
-extern bool Vsync, ShowFPS;
+extern int zqUseWin32Proc;
+extern bool ShowFPS;
 extern int ComboBrush;                                      //show the brush instead of the normal mouse
 extern int ComboBrushPause;                                 //temporarily disable the combo brush
 extern int BrushPosition;                                   //top left, middle, bottom right, etc.

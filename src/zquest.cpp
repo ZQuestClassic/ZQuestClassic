@@ -752,8 +752,7 @@ int prv_warp = 0;
 int prv_twon = 0;
 int ff_combo = 0;
 
-int Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
-int zqColorDepth = 8;
+int zqUseWin32Proc = 1, ForceExit = 0;
 int joystick_index=0;
 
 char *getBetaControlString();
@@ -21970,19 +21969,13 @@ int main(int argc, char **argv)
     KeyboardRepeatDelay           = get_config_int("zquest","keyboard_repeat_delay",300);
     KeyboardRepeatRate            = get_config_int("zquest","keyboard_repeat_rate",80);
     
-//  Frameskip                     = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
-    RequestedFPS                  = get_config_int("zquest","fps",60);
     ForceExit                     = get_config_int("zquest","force_exit",0);
    
 #ifdef _WIN32
     zqUseWin32Proc                 = get_config_int("zquest","zq_win_proc_fix",0);
 #endif
     
-    if(RequestedFPS < 12) RequestedFPS = 12;
-    
-    if(RequestedFPS > 60) RequestedFPS = 60;
-    
-    // 1 <= zcmusic_bufsz <= 128
+   // 1 <= zcmusic_bufsz <= 128
     zcmusic_bufsz = vbound(get_config_int("zquest","zqmusic_bufsz",64),1,128);
     int tempvalue                  = get_config_int("zquest","layer_mask",-1);
     
@@ -22105,7 +22098,11 @@ int main(int argc, char **argv)
 	desiredModes.push_back(std::pair<int, int>(800, 600));
 	desiredModes.push_back(std::pair<int, int>(320, 240));
 	graphics->registerVirtualModes(desiredModes);
-	graphics->initialize();
+	if (!graphics->initialize())
+	{
+		quit_game();
+	}
+
 	Z_message("done graphics\n");
     
     set_close_button_callback((void (*)()) hit_close_button);
@@ -22654,7 +22651,7 @@ int main(int argc, char **argv)
         try   // I *think* it might throw here.
         {
             if(zqUseWin32Proc != FALSE)
-                win32data.Update(Frameskip); //experimental win32 fixes
+                win32data.Update(); //experimental win32 fixes
         }
         catch(...)
         {
@@ -23713,9 +23710,6 @@ int save_config_file()
         set_config_string("zquest", "beta_warning", "");
     }
     
-    set_config_int("zquest","fps",RequestedFPS);
-    set_config_int("zquest","frameskip",Frameskip);
-// set_config_int("zquest","zq_color_depth",zqColorDepth);
     set_config_int("zquest","force_exit",ForceExit);
     
 #ifdef _WIN32
@@ -23743,7 +23737,7 @@ int d_timer_proc(int msg, DIALOG *d, int c)
     case MSG_IDLE:
 #ifdef _WIN32
         if(zqUseWin32Proc != FALSE)
-            win32data.Update(Frameskip); //experimental win32 fixes
+            win32data.Update(); //experimental win32 fixes
             
 #endif
             
