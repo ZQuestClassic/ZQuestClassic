@@ -355,3 +355,104 @@ void GraphicsBackend::registerSwitchCallbacks(void(*switchin)(), void(*switchout
 		set_display_switch_callback(SWITCH_OUT, &onSwitchOut);
 	}
 }
+
+const char *GraphicsBackend::videoModeString()
+{
+	if (!initialized_)
+		return "Uninitialized";
+
+	int VidMode = gfx_driver->id;
+#ifdef ALLEGRO_DOS
+
+	switch (VidMode)
+	{
+	case GFX_MODEX:
+		return "VGA Mode X";
+		break;
+
+	case GFX_VESA1:
+		return "VESA 1.x";
+		break;
+
+	case GFX_VESA2B:
+		return "VESA2 Banked";
+		break;
+
+	case GFX_VESA2L:
+		return "VESA2 Linear";
+		break;
+
+	case GFX_VESA3:
+		return "VESA3";
+		break;
+
+	default:
+		return "Unknown... ?";
+		break;
+	}
+
+#elif defined(ALLEGRO_WINDOWS)
+
+	switch (VidMode)
+	{
+	case GFX_DIRECTX:
+		return "DirectX Hardware Accelerated";
+		break;
+
+	case GFX_DIRECTX_SOFT:
+		return "DirectX Software Accelerated";
+		break;
+
+	case GFX_DIRECTX_SAFE:
+		return "DirectX Safe";
+		break;
+
+	case GFX_DIRECTX_WIN:
+		return "DirectX Windowed";
+		break;
+
+	case GFX_GDI:
+		return "GDI";
+		break;
+
+	default:
+		return "Unknown... ?";
+		break;
+	}
+
+#elif defined(ALLEGRO_MACOSX)
+
+	switch (VidMode)
+	{
+	case GFX_SAFE:
+		return "MacOS X Safe";
+		break;
+
+	case GFX_QUARTZ_FULLSCREEN:
+		return "MacOS X Fullscreen Quartz";
+		break;
+
+	case GFX_QUARTZ_WINDOW:
+		return "MacOS X Windowed Quartz";
+		break;
+
+	default:
+		return "Unknown... ?";
+		break;
+	}
+
+#elif defined(ALLEGRO_UNIX)
+
+	switch (VidMode)
+	{
+	case GFX_AUTODETECT_WINDOWED:
+		return "Autodetect Windowed";
+		break;
+
+	default:
+		return "Unknown... ?";
+		break;
+	}
+#endif
+	return "Unknown... ?";
+}

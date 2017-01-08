@@ -225,6 +225,13 @@ public:
 	int getLastFPS();
 
 	/*
+	* Returns a text description of the video driver and mode currently
+	* being used by the graphics backend.
+	* Returns "Uninitialized" if the backend is not yet initialized.
+	*/
+	const char *videoModeString();
+
+	/*
 	* When the graphics backend fails at setting a video mode, and falls
 	* back to another video mode, there is a pause. This function sets
 	* the length of that pause, in milliseconds.
