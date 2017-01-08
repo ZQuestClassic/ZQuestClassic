@@ -22,6 +22,7 @@ src/zc_custom.cpp
 src/jwin.cpp
 src/backend/Backend.cpp
 src/backend/GraphicsBackend.cpp
+src/backend/MouseBackend.cpp
 
 ## End of Zelda GUI module
 )

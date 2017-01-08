@@ -400,7 +400,7 @@ bool ignoreSideview=false;
 
 int cheat=0;                                                // 0 = none; 1,2,3,4 = cheat level
 
-int mouse_down;                                             // used to hold the last reading of 'gui_mouse_b()' status
+bool mouse_down;                                             // used to hold the last reading of 'gui_mouse_b()' status
 int idle_count, active_count;
 
 
@@ -675,16 +675,6 @@ void Z_eventlog(const char *format,...)
         if(zconsole)
             printf("%s",buf);
     }
-}
-
-int Z_gui_mouse_x()
-{
-	return mouse_x;
-}
-
-int Z_gui_mouse_y()
-{
-	return mouse_y;
 }
 
 // Yay, more extern globals.
@@ -2565,7 +2555,7 @@ int onFullscreen()
 	Backend::graphics->setFullscreen(!Backend::graphics->isFullscreen());
 
 	gui_mouse_focus = 0;
-	show_mouse(screen);
+	Backend::mouse->setCursorVisibility(true);
 	Backend::graphics->showBackBuffer();
 
     return D_REDRAW;
@@ -3179,9 +3169,7 @@ int main(int argc, char* argv[])
 	else
 		goto quick_quit;	
     
-	set_mouse_sprite((BITMAP*)data[BMP_MOUSE].dat);
-	gui_mouse_x = &Z_gui_mouse_x;
-	gui_mouse_y = &Z_gui_mouse_y;
+	Backend::mouse->setCursorSprite((BITMAP*)data[BMP_MOUSE].dat);
 
 	for (int i = 240; i<256; i++)
 		RAMpal[i] = ((RGB*)data[PAL_GUI].dat)[i];
@@ -3386,7 +3374,7 @@ void delete_everything_else() //blarg.
 void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
-	show_mouse(NULL);
+	Backend::mouse->setCursorVisibility(false);
 	Backend::shutdownBackend();
 	set_gfx_mode(GFX_TEXT, 80, 25, 0, 0);
 

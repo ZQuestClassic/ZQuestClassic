@@ -1104,7 +1104,6 @@ void test_item(itemdata test, int x, int y)
     item temp((fix)0,(fix)0,(fix)0,0,0,0);
     temp.yofs = 0;
     go();
-    scare_mouse();
     itemdata_dlg[0].flags=0;
     jwin_win_proc(MSG_DRAW, itemdata_dlg, 0);
     itemdata_dlg[0].flags=D_EXIT;
@@ -1113,7 +1112,6 @@ void test_item(itemdata test, int x, int y)
     frame=0;
 //  jwin_draw_frame(screen,itemdata_dlg[0].x+(itemdata_dlg[0].w/2)-32,itemdata_dlg[0].y+(itemdata_dlg[0].h/2)-32, is_large?68:20,is_large?68:20,FR_DEEP);
     jwin_draw_frame(screen, x, y, is_large()?68:20, is_large() ?68:20,FR_DEEP);
-    unscare_mouse();
     
     for(;;)
     {
@@ -1122,7 +1120,6 @@ void test_item(itemdata test, int x, int y)
         clear_bitmap(buf);
         temp.animate(0);
         temp.draw(buf);
-        scare_mouse();
         
         if(is_large())
         {
@@ -1135,7 +1132,6 @@ void test_item(itemdata test, int x, int y)
             blit(buf,screen,0,0,x+2,y+2,16,16);
         }
         
-        unscare_mouse();
 		Backend::graphics->waitTick();
 		Backend::graphics->showBackBuffer();
         
@@ -1154,14 +1150,16 @@ void test_item(itemdata test, int x, int y)
             break;
         }
         
-        if(gui_mouse_b())
+        if(Backend::mouse->anyButtonClicked())
             break;
     }
     
     comeback();
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
     
@@ -3325,7 +3323,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
         switch(extend)
         {
         case 0:
-            if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large() ? 2 : 1))+8+2, d->y+(16+16*(is_large() ? 2 : 1))+2))
+            if(!isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+2+8, d->y+2+4, d->x+(16*(is_large() ? 2 : 1))+8+2, d->y+(16+16*(is_large() ? 2 : 1))+2))
             {
                 return D_O_K;
             }
@@ -3333,7 +3331,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
             break;
             
         case 1:
-            if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large() ? 2 : 1))+8+2, d->y+(4+32*(is_large() ? 2 : 1))+2))
+            if(!isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+2+8, d->y+2+4, d->x+(16*(is_large() ? 2 : 1))+8+2, d->y+(4+32*(is_large() ? 2 : 1))+2))
             {
                 return D_O_K;
             }
@@ -3341,7 +3339,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
             break;
             
         case 2:
-            if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+4, d->x+(32*(is_large() ? 2 : 1))+8+2, d->y+(4+32*(is_large() ? 2 : 1))+2))
+            if(!isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+2+8, d->y+4, d->x+(32*(is_large() ? 2 : 1))+8+2, d->y+(4+32*(is_large() ? 2 : 1))+2))
             {
                 return D_O_K;
             }

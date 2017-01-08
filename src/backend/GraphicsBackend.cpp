@@ -1,4 +1,6 @@
 #include "GraphicsBackend.h"
+#include "MouseBackend.h"
+#include "Backend.h"
 #include "../zc_alleg.h"
 #include <cassert>
 
@@ -131,8 +133,9 @@ bool GraphicsBackend::showBackBuffer()
 				return false;
 	}
 #endif
-
+	Backend::mouse->renderCursor(backbuffer_);
 	stretch_blit(backbuffer_, hw_screen_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
+	Backend::mouse->unrenderCursor(backbuffer_);
 	frames_this_second++;
 	return true;
 }
@@ -186,6 +189,8 @@ bool GraphicsBackend::trySettingVideoMode()
 {
 	if (!initialized_)
 		return false;
+
+	Backend::mouse->setCursorVisibility(false);
 
 	screen = hw_screen_;
 	PALETTE oldpal;

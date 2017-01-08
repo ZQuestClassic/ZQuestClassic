@@ -813,7 +813,6 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int div = atoi((char*)((d+1589)->dp));
         
         if(div == 0)
@@ -821,7 +820,6 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c)
             
         sprintf((char*)((d+6)->dp), "%d", atoi((char*)(d->dp))/div);
         (d+6)->proc(MSG_DRAW,d+6,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -842,10 +840,8 @@ int d_bombratioedit_proc(int msg,DIALOG *d,int c)
         if(atoi((char*)(d->dp)))
             sbombmax = atoi((char*)((d-1589)->dp))/div;
             
-        scare_mouse();
         sprintf((char*)((d-1583)->dp), "%d", sbombmax);
         (d-1583)->proc(MSG_DRAW,d-1583,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -1916,10 +1912,8 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
         *(p->first) = d->d1;
         doFamily(listidx2biic[d->d1], p->second);
         acquire_screen();
-        scare_mouse();
         init_dlg[4].proc(MSG_DRAW, &init_dlg[4], 0);
         //	broadcast_dialog_message(MSG_DRAW, 0);
-        unscare_mouse();
         release_screen();
     }
     

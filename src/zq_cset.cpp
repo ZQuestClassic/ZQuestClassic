@@ -133,8 +133,6 @@ void colormixer(int color,int gray,int ratio)
         gray /= 1.5;
     }
     
-    scare_mouse();
-    
     jwin_draw_frame(screen, sat_x-2, sat_y-2, sat_w+4, int(64*(is_large()?1.5:1)+4), FR_DEEP);
     
     for(int i=0; i<32; i++)
@@ -164,7 +162,6 @@ void colormixer(int color,int gray,int ratio)
     _allegro_hline(screen,sat_x,ratio+sat_y,sat_x+sat_w-1,edi);
     //  text_mode(ed1);
     textprintf_centre_ex(screen,font,Backend::graphics->virtualScreenW()/2,int(color_y+color_h+10*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
-    unscare_mouse();
     SCRFIX();
 	Backend::graphics->waitTick();
 	Backend::graphics->showBackBuffer();
@@ -257,8 +254,6 @@ void edit_dataset(int dataset)
         insert_button_h = int(insert_button_h*1.5);
     }
     
-    scare_mouse();
-    
     if(is_large())
         rectfill(screen, 0, 0, screen->w, screen->h, 128);
         
@@ -288,11 +283,10 @@ void edit_dataset(int dataset)
     draw_text_button(screen,cancel_button_x,cancel_button_y,cancel_button_w,cancel_button_h,"Cancel",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
     draw_text_button(screen,insert_button_x,insert_button_y,insert_button_w,insert_button_h,"Insert",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
     
-    unscare_mouse();
 	Backend::graphics->waitTick();
 	Backend::graphics->showBackBuffer();
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
 		Backend::graphics->waitTick();
 		Backend::graphics->showBackBuffer();
@@ -313,10 +307,10 @@ void edit_dataset(int dataset)
     {
         rest(4);
         bool setpal=false;
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int x= Backend::mouse->getVirtualScreenX();
+        int y= Backend::mouse->getVirtualScreenY();
         
-        if(gui_mouse_b()==1 && !bdown)
+        if(Backend::mouse->leftButtonClicked() && !bdown)
         {
             just_clicked=true;
             
@@ -371,7 +365,7 @@ void edit_dataset(int dataset)
             bdown=true;
         }
         
-        if(gui_mouse_b()==1)
+        if(Backend::mouse->leftButtonClicked())
         {
             switch(doing)
             {
@@ -412,7 +406,7 @@ void edit_dataset(int dataset)
         
         just_clicked=false;
         
-        if(gui_mouse_b()==0)
+        if(!Backend::mouse->anyButtonClicked())
         {
             bdown=false;
             doing=0;
@@ -598,19 +592,16 @@ void edit_dataset(int dataset)
             }
         }
         
-        if(gui_mouse_b() && (doing==1 || doing==3))
+        if(Backend::mouse->anyButtonClicked() && (doing==1 || doing==3))
         {
             colormixer(color,gray,ratio);
         }
         else
         {
-            scare_mouse();
-            
             if(setpal)
                 set_palette_range(RAMpal,14*16,15*16,false);
                 
             draw_edit_dataset_specs(index,copy);
-            unscare_mouse();
             SCRFIX();
 			Backend::graphics->waitTick();
 			Backend::graphics->showBackBuffer();
@@ -642,8 +633,10 @@ void edit_dataset(int dataset)
     
     set_palette(RAMpal);
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
 }
@@ -723,10 +716,8 @@ void grab_dataset(int dataset)
     extract_name(imagepath,fname,FILENAME8_3);
     
     draw_bw_mouse(pwhite, MOUSE_BMP_NORMAL, MOUSE_BMP_BLANK);
-    scare_mouse();
     clear_bitmap(screen2);
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-    unscare_mouse();
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
     set_palette(picpal);
     
     bool redraw=true;
@@ -740,8 +731,8 @@ void grab_dataset(int dataset)
         
     do
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int x= Backend::mouse->getVirtualScreenX();
+        int y= Backend::mouse->getVirtualScreenY();
         
         if(reload)
         {
@@ -760,7 +751,6 @@ void grab_dataset(int dataset)
         if(redraw)
         {
             redraw=false;
-            scare_mouse();
             clear_to_color(screen2,is_large()?jwin_pal[jcBOX]:pblack);
             
             if(is_large())
@@ -777,15 +767,14 @@ void grab_dataset(int dataset)
                              (is_large()?90:60),(is_large()?31:21),"OK",pblack,pwhite,0,true);
             draw_text_button(screen2,buttonx+(is_large()?114:76),buttony+(is_large()?36:24),
                              (is_large()?90:60),(is_large()?31:21),"Cancel",pblack,pwhite,0,true);
-            unscare_mouse();
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,palx,paly,palx+127,paly+127))
+        if(Backend::mouse->leftButtonClicked() && isinRect(x,y,palx,paly,palx+127,paly+127))
         {
             row=((y-paly)>>3);
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+(is_large()?36:24),buttonx+(is_large()?90:60),buttony+(is_large()?36+31:24+21)))
+        if(Backend::mouse->leftButtonClicked() && isinRect(x,y,buttonx,buttony+(is_large()?36:24),buttonx+(is_large()?90:60),buttony+(is_large()?36+31:24+21)))
         {
             if(do_text_button(buttonx,buttony+(is_large()?36:24),(is_large()?90:60),(is_large()?31:21),"File",pblack,pwhite,true))
             {
@@ -793,7 +782,7 @@ void grab_dataset(int dataset)
             }
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(is_large()?114:76),buttony,buttonx+(is_large()?114+90:76+60),buttony+(is_large()?31:21)))
+        if(Backend::mouse->leftButtonClicked() && isinRect(x,y,buttonx+(is_large()?114:76),buttony,buttonx+(is_large()?114+90:76+60),buttony+(is_large()?31:21)))
         {
             if(do_text_button(buttonx+(is_large()?114:76),buttony,(is_large()?90:60),(is_large()?31:21),"OK",pblack,pwhite,true))
             {
@@ -801,7 +790,7 @@ void grab_dataset(int dataset)
             }
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(is_large()?114:76),buttony+(is_large()?36:24),buttonx+(is_large()?114+90:76+60),buttony+(is_large()?36+31:24+21)))
+        if(Backend::mouse->leftButtonClicked() && isinRect(x,y,buttonx+(is_large()?114:76),buttony+(is_large()?36:24),buttonx+(is_large()?114+90:76+60),buttony+(is_large()?36+31:24+21)))
         {
             if(do_text_button(buttonx+(is_large()?114:76),buttony+(is_large()?36:24),(is_large()?90:60),(is_large()?31:21),"Cancel",pblack,pwhite,true))
             {
@@ -864,7 +853,6 @@ void grab_dataset(int dataset)
             }
         }
         
-        scare_mouse();
         
         for(int i=0; i<256; i++)
         {
@@ -877,7 +865,6 @@ void grab_dataset(int dataset)
         rect(screen2,palx-1,paly-1,palx+128,paly+128,is_large()?pblack:pwhite);
         rect(screen2,palx-1,(row<<3)+paly-1,palx+128,(row<<3)+paly+8,(f&2)?pwhite:pblack);
         blit(screen2, screen, 0, 0, 0, 0, screen->w, screen->h);
-        unscare_mouse();
         SCRFIX();
 		Backend::graphics->waitTick();
 		Backend::graphics->showBackBuffer();
@@ -901,14 +888,14 @@ void grab_dataset(int dataset)
     gui_bg_color = bg;
     gui_fg_color = fg;
     
-    while(gui_mouse_b())
+	while (Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
     
-    scare_mouse();
-    
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     clear_to_color(mouse_bmp[MOUSE_BMP_BLANK][0],0);
     memcpy(jwin_pal, jwin_pal2, sizeof(int)*jcMAX);
     
@@ -918,7 +905,6 @@ void grab_dataset(int dataset)
     jwin_set_colors(jwin_pal);
     
     rgb_map = &zq_rgb_table;
-    unscare_mouse();
 }
 
 byte cset_hold[15][16*3];
@@ -1083,8 +1069,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         // Start dragging?
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
-            x=gui_mouse_x();
-            y=gui_mouse_y();
+            x= Backend::mouse->getVirtualScreenX();
+            y= Backend::mouse->getVirtualScreenY();
             
             if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
             {
@@ -1096,8 +1082,8 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         
         do
         {
-            x=gui_mouse_x();
-            y=gui_mouse_y();
+            x= Backend::mouse->getVirtualScreenX();
+            y= Backend::mouse->getVirtualScreenY();
             
             if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
             {
@@ -1107,15 +1093,13 @@ int d_cset_proc(int msg,DIALOG *d,int c)
                     d->d1 = d->d2;
             }
             
-            scare_mouse();
             draw_cset_proc(d);
-            unscare_mouse();
             ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[rand()%14+dvc(1)];
             set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
 			Backend::graphics->waitTick();
 			Backend::graphics->showBackBuffer();
         }
-        while(gui_mouse_b());
+        while(Backend::mouse->anyButtonClicked());
         
         if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
         {
@@ -1235,9 +1219,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         }
         
         
-        scare_mouse();
         draw_cset_proc(d);
-        unscare_mouse();
 		Backend::graphics->waitTick();
 		Backend::graphics->showBackBuffer();
 
@@ -1408,10 +1390,8 @@ int EditColors(const char *caption,int first,int count,byte *label)
             load_cset(pal,i,i+first);
         }
         
-        scare_mouse();
         clear_to_color(screen,0);
         set_palette(pal);
-        unscare_mouse();
         colors_dlg[19].flags =
             colors_dlg[20].flags =
                 colors_dlg[23].flags = D_EXIT;
@@ -1485,8 +1465,10 @@ int EditColors(const char *caption,int first,int count,byte *label)
     }
     while(ret<23&&ret!=0);
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
     

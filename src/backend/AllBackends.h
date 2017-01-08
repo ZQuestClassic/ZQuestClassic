@@ -3,5 +3,6 @@
 
 #include "Backend.h"
 #include "GraphicsBackend.h"
+#include "MouseBackend.h"
 
 #endif

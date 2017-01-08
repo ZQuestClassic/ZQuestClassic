@@ -3641,10 +3641,16 @@ int onIgnoreSideview()
 
 int input_idle(bool checkmouse)
 {
-    static int mx, my, mz, mb;
-    
+    static int mx, my, mz;
+	static bool ml, mr, mm;
     if(keypressed() || zc_key_pressed() ||
-       (checkmouse && (mx != gui_mouse_x() || my != gui_mouse_y() || mz != gui_mouse_z() || mb != gui_mouse_b())))
+       (checkmouse && (mx != Backend::mouse->getVirtualScreenX() 
+		   || my != Backend::mouse->getVirtualScreenY() 
+		   || mz != Backend::mouse->getWheelPosition() 
+		   || ml != Backend::mouse->leftButtonClicked()
+		   || mr != Backend::mouse->rightButtonClicked()
+		   || mm != Backend::mouse->middleButtonClicked()
+		   )))
     {
         idle_count = 0;
         
@@ -3659,10 +3665,12 @@ int input_idle(bool checkmouse)
         active_count = 0;
     }
     
-    mx = gui_mouse_x();
-    my = gui_mouse_y();
-    mz = gui_mouse_z();
-    mb = gui_mouse_b();
+    mx = Backend::mouse->getVirtualScreenX();
+    my = Backend::mouse->getVirtualScreenY();
+    mz = Backend::mouse->getWheelPosition();
+	ml = Backend::mouse->leftButtonClicked();
+	mr = Backend::mouse->rightButtonClicked();
+	mm = Backend::mouse->middleButtonClicked();
     
     return idle_count;
 }
@@ -3829,13 +3837,13 @@ void syskeys()
     
     poll_joystick();
     
-    if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
+    if(rMbtn() || (Backend::mouse->anyButtonClicked() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
     {
         oldtitle_version=title_version;
         System();
     }
     
-    mouse_down=gui_mouse_b();
+    mouse_down= Backend::mouse->anyButtonClicked();
     
     if(ReadKey(KEY_F1))
     {
@@ -4519,7 +4527,6 @@ int onVolKeys()
 int onShowFPS()
 {
     ShowFPS = !ShowFPS;
-    scare_mouse();
     
     if(ShowFPS)
         show_fps(screen);
@@ -4529,7 +4536,6 @@ int onShowFPS()
     if(Paused)
         show_paused(screen);
         
-    unscare_mouse();
     return D_O_K;
 }
 
@@ -4559,7 +4565,6 @@ void kb_getkey(DIALOG *d)
 {
     d->flags|=D_SELECTED;
     
-    scare_mouse();
     jwin_button_proc(MSG_DRAW,d,0);
 	int resx = Backend::graphics->virtualScreenW();
 	int resy = Backend::graphics->virtualScreenH();
@@ -4568,7 +4573,6 @@ void kb_getkey(DIALOG *d)
     textout_centre_ex(screen, font, "Press a key", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	Backend::graphics->showBackBuffer();
-    unscare_mouse();
     
     clear_keybuf();
     int k = next_press_key();
@@ -4593,8 +4597,12 @@ int d_kbutton_proc(int msg,DIALOG *d,int c)
     
         kb_getkey(d);
         
-        while(gui_mouse_b())
-            clear_keybuf();
+		while (Backend::mouse->anyButtonClicked())
+		{
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
+			clear_keybuf();
+		}
             
         return D_REDRAW;
     }
@@ -4605,7 +4613,6 @@ int d_kbutton_proc(int msg,DIALOG *d,int c)
 void j_getbtn(DIALOG *d)
 {
     d->flags|=D_SELECTED;
-    scare_mouse();
     jwin_button_proc(MSG_DRAW,d,0);
     jwin_draw_win(screen, (Backend::graphics->virtualScreenW()-160)/2, (Backend::graphics->virtualScreenH() -48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
@@ -4613,7 +4620,6 @@ void j_getbtn(DIALOG *d)
     textout_centre_ex(screen, font, "Press a button", Backend::graphics->virtualScreenW()/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", Backend::graphics->virtualScreenW()/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "SPACE to disable", Backend::graphics->virtualScreenW()/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    unscare_mouse();
     
     int b = next_press_btn();
     
@@ -4637,7 +4643,7 @@ int d_jbutton_proc(int msg,DIALOG *d,int c)
     
         j_getbtn(d);
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
             clear_keybuf();
             
         return D_REDRAW;
@@ -4772,30 +4778,24 @@ int set_vol(void *dp3, int d2)
         break;
     }
     
-    scare_mouse();
     // text_mode(vc(11));
     textprintf_right_ex(screen,is_large() ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
-    unscare_mouse();
     return D_O_K;
 }
 
 int set_pan(void *dp3, int d2)
 {
     pan_style = vbound(d2,0,3);
-    scare_mouse();
     // text_mode(vc(11));
     textout_right_ex(screen,is_large() ? lfont_l : font, pan_str[pan_style],((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    unscare_mouse();
     return D_O_K;
 }
 
 int set_buf(void *dp3, int d2)
 {
-    scare_mouse();
     // text_mode(vc(11));
     zcmusic_bufsz = d2 + 1;
     textprintf_right_ex(screen,is_large() ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
-    unscare_mouse();
     return D_O_K;
 }
 
@@ -5245,14 +5245,14 @@ int onGoToComplete()
     system_pal();
     music_pause();
     pause_all_sfx();
-    show_mouse(screen);
+	Backend::mouse->setCursorVisibility(true);
     onGoTo();
     eat_buttons();
     
     if(key[KEY_ESC])
         key[KEY_ESC]=0;
         
-    show_mouse(NULL);
+	Backend::mouse->setCursorVisibility(false);
     game_pal();
     music_resume();
     resume_all_sfx();
@@ -5307,9 +5307,7 @@ int onCredits()
         
         if(l!=ol)
         {
-            scare_mouse();
             d_bitmap_proc(MSG_DRAW,credits_dlg+2,0);
-            unscare_mouse();
             SCRFIX();
             ol=l;
         }
@@ -5507,10 +5505,8 @@ void get_info(int index)
     
     if(dialog_running)
     {
-        scare_mouse();
         jwin_textbox_proc(MSG_DRAW,midi_dlg+3,0);
         d_savemidi_proc(MSG_DRAW,midi_dlg+5,0);
-        unscare_mouse();
     }
 }
 
@@ -6449,10 +6445,8 @@ int onScreenSaver()
         // preview Screen Saver
     {
         clear_keybuf();
-        scare_mouse();
         Matrix(ss_speed, ss_density, 30);
         system_pal();
-        unscare_mouse();
     }
     
     return D_O_K;
@@ -6664,8 +6658,8 @@ int onFullscreenMenu()
 	setVideoModeMenuFlags(); 
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -6676,8 +6670,8 @@ int onWindowed1Menu()
 	setVideoModeMenuFlags();
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -6688,8 +6682,8 @@ int onWindowed2Menu()
 	setVideoModeMenuFlags();
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -6700,8 +6694,8 @@ int onWindowed4Menu()
 	setVideoModeMenuFlags();
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -7257,7 +7251,7 @@ void music_stop()
 
 void System()
 {
-    mouse_down=gui_mouse_b();
+    mouse_down= Backend::mouse->anyButtonClicked();
     music_pause();
     pause_all_sfx();
     
@@ -7273,7 +7267,7 @@ void System()
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     
     clear_keybuf();
-    show_mouse(screen);
+	Backend::mouse->setCursorVisibility(true);
     
     DIALOG_PLAYER *p;
     
@@ -7295,8 +7289,8 @@ void System()
 		Backend::graphics->waitTick();
 		Backend::graphics->showBackBuffer();
         
-        if(mouse_down && !gui_mouse_b())
-            mouse_down=0;
+        if(mouse_down && !Backend::mouse->anyButtonClicked())
+            mouse_down=false;
             
         title_menu[0].flags = (title_version==0) ? D_SELECTED : 0;
         title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
@@ -7358,7 +7352,7 @@ void System()
             settings_menu[16].flags = get_debug() ? D_SELECTED : 0;
         }
         
-        if(gui_mouse_b() && !mouse_down)
+        if(Backend::mouse->anyButtonClicked() && !mouse_down)
             break;
             
         // press menu to drop the menu
@@ -7371,10 +7365,8 @@ void System()
             {
 				// Screen saver enabled for now.
 				clear_keybuf();
-                scare_mouse();
                 Matrix(ss_speed, ss_density, 0);
                 system_pal();
-                unscare_mouse();
                 broadcast_dialog_message(MSG_DRAW, 0);
             }
         }
@@ -7383,9 +7375,9 @@ void System()
     while(update_dialog(p));
     
     //  font=oldfont;
-    mouse_down=gui_mouse_b();
+    mouse_down= Backend::mouse->anyButtonClicked();
     shutdown_dialog(p);
-    show_mouse(NULL);
+	Backend::mouse->setCursorVisibility(false);
     
     if(Quit)
     {

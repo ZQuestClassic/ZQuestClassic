@@ -15,6 +15,7 @@
 #include "zsys.h"
 #include <map>
 #include <string>
+#include "backend/AllBackends.h"
 
 void editmsg(int index, int addAfter);
 int strlist_del();
@@ -1573,42 +1574,25 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
     {
     case MSG_CLICK:
     {
-        /*{
-         int pos = (((gui_mouse_x())-(d->x+8))>>3)+(((gui_mouse_y())-(d->y+16))>>3)*24;
-         int i = 0;
-         while (pos>0 && i<(int)strlen(msgbuf)) {
-           while (msgbuf[i] == '\\') {
-             do {
-               i++;
-             }
-             while(i<(int)strlen(msgbuf) && msgbuf[i] >= '0' && msgbuf[i] <= '9');
-           }
-           pos--;
-           i++;
-         }
-         editmsg_dlg[3].d2 = i;
-         (void)jwin_edit_proc(MSG_DRAW,&editmsg_dlg[3],c);*/
-        int ox = gui_mouse_x();
-        int oy = gui_mouse_y();
+        int ox = Backend::mouse->getVirtualScreenX();
+        int oy = Backend::mouse->getVirtualScreenY();
         int cmx = msg_x;
         int cmy = msg_y;
         int omx = cmx;
         int omy = cmy;
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
             if(cmx != msg_x || cmy != msg_y)
             {
                 cmx = msg_x;
                 cmy = msg_y;
                 
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
             
-            msg_x = vbound(omx+(ox-gui_mouse_x()),0,zc_max(0,w-256));
-            msg_y = vbound(omy+(oy-gui_mouse_y()),0,zc_max(0,h-32));
+            msg_x = vbound(omx+(ox- Backend::mouse->getVirtualScreenX()),0,zc_max(0,w-256));
+            msg_y = vbound(omy+(oy- Backend::mouse->getVirtualScreenY()),0,zc_max(0,h-32));
             
             broadcast_dialog_message(MSG_IDLE, 0);
 #ifdef _ZQUEST_SCALE_

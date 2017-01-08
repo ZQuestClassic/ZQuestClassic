@@ -1242,15 +1242,11 @@ void go()
     switch(gocnt)
     {
     case 0:
-        scare_mouse();
         blit(screen,menu1,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
-        unscare_mouse();
         break;
         
     case 1:
-        scare_mouse();
         blit(screen,menu3,0,0,0,0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
-        unscare_mouse();
         break;
         
     default:
@@ -1265,15 +1261,11 @@ void comeback()
     switch(gocnt)
     {
     case 1:
-        scare_mouse();
         blit(menu1,screen,0,0,0,0,Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
-        unscare_mouse();
         break;
         
     case 2:
-        scare_mouse();
         blit(menu3,screen,0,0,0,0, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH());
-        unscare_mouse();
         break;
         
     default:

@@ -26,6 +26,7 @@
 #include "init.h"
 #include <assert.h>
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -103,7 +104,7 @@ int d_cs_color_proc(int msg,DIALOG *d,int c)
         break;
         
     case MSG_CLICK:
-        d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,15);
+        d->d1=vbound((Backend::mouse->getVirtualScreenX()-d->x-2)/w,0,15);
         d->flags|=D_DIRTY;
         break;
     }
@@ -145,7 +146,7 @@ int d_sys_color_proc(int msg,DIALOG *d,int c)
         break;
         
     case MSG_CLICK:
-        d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,16)-1;
+        d->d1=vbound((Backend::mouse->getVirtualScreenX()-d->x-2)/w,0,16)-1;
         d->flags|=D_DIRTY;
         break;
     }
@@ -647,11 +648,11 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
     {
         int old_fg=d->fg;
         
-        if(gui_mouse_b()&2)  //right mouse button
+        if(Backend::mouse->rightButtonClicked())  //right mouse button
         {
             int old_bg=d->bg;
-            int mx=vbound(gui_mouse_x()-d->x,0,d->w-1);
-            int my=vbound(gui_mouse_y()-d->y,0,d->h-1);
+            int mx=vbound(Backend::mouse->getVirtualScreenX()-d->x,0,d->w-1);
+            int my=vbound(Backend::mouse->getVirtualScreenY()-d->y,0,d->h-1);
             
             if(is_large())
             {
@@ -4227,7 +4228,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
                 break;
             }
             
-            if(isinRect(gui_mouse_x(),gui_mouse_y(),d->x+x, d->y+y, d->x+x+w-1, d->y+y+h-1))
+            if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+x, d->y+y, d->x+x+w-1, d->y+y+h-1))
             {
                 if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
                 {
@@ -4255,7 +4256,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             }
         }
         
-        if(gui_mouse_b()&2) //right mouse button
+        if(Backend::mouse->rightButtonClicked()) //right mouse button
         {
             object_message(d,MSG_DRAW,0);
             
@@ -4265,7 +4266,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             else
                 subscreen_rc_menu[3].flags&=~D_DISABLED;
             
-            int m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
+            int m = popup_menu(subscreen_rc_menu, Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY());
             
             switch(m)
             {
@@ -7132,7 +7133,7 @@ int onEditSubscreens()
         }
     }
     
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return D_O_K;
 }
 

@@ -1299,23 +1299,27 @@ long get_register(const long arg)
     case INPUTMOUSEX:
     {
         int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128* virtualScreenScale());
-        ret=((gui_mouse_x()-leftOffset)/ virtualScreenScale())*10000;
+        ret=((Backend::mouse->getVirtualScreenX()-leftOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEY:
     {
         int topOffset=(Backend::graphics->virtualScreenH()/2)-((112-playing_field_offset)*virtualScreenScale());
-        ret=((gui_mouse_y()-topOffset)/ virtualScreenScale())*10000;
+        ret=((Backend::mouse->getVirtualScreenY()-topOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEZ:
-        ret=(gui_mouse_z())*10000;
+        ret=(Backend::mouse->getWheelPosition())*10000;
         break;
         
     case INPUTMOUSEB:
-        ret=(gui_mouse_b())*10000;
+        ret=(
+			(Backend::mouse->leftButtonClicked() ? 1 : 0)
+			+ (Backend::mouse->rightButtonClicked() ? 2 : 0)
+			+ (Backend::mouse->middleButtonClicked() ? 4 : 0)
+			)*10000;
         break;
         
     case INPUTPRESSSTART:
@@ -3267,19 +3271,19 @@ void set_register(const long arg, const long value)
     case INPUTMOUSEX:
     {
         int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128*virtualScreenScale());
-        position_mouse((value/10000)*virtualScreenScale() +leftOffset, gui_mouse_y());
+        position_mouse((value/10000)*virtualScreenScale() +leftOffset, Backend::mouse->getVirtualScreenY());
         break;
     }
     
     case INPUTMOUSEY:
     {
         int topOffset=(Backend::graphics->virtualScreenH() /2)-((112-playing_field_offset)*virtualScreenScale());
-        position_mouse(gui_mouse_x(), (value/10000)*virtualScreenScale() +topOffset);
+        position_mouse(Backend::mouse->getVirtualScreenX(), (value/10000)*virtualScreenScale() +topOffset);
         break;
     }
     
     case INPUTMOUSEZ:
-        position_mouse_z(value/10000);
+		Backend::mouse->setWheelPosition(value/10000);
         break;
         
 ///----------------------------------------------------------------------------------------------------//

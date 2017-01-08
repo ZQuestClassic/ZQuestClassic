@@ -189,16 +189,6 @@ int virtualScreenScale()
 	return Backend::graphics->getVirtualMode() == 0 ? 3 : 1;
 }
 
-int Z_gui_mouse_x()
-{
-	return mouse_x;
-}
-
-int Z_gui_mouse_y()
-{
-	return mouse_y;
-}
-
 int blackout_color()
 {
 	return is_large() ? 8 : 0;
@@ -809,11 +799,11 @@ fix LinkModifiedX()
 {
     if(resize_mouse_pos)
     {
-        return (fix)((gui_mouse_x()/mapscreensize())-((8*mapscreensize())-1)+(showedges()?8:0));
+        return (fix)((Backend::mouse->getVirtualScreenX()/mapscreensize())-((8*mapscreensize())-1)+(showedges()?8:0));
     }
     else
     {
-        return (fix)(gui_mouse_x()-7);
+        return (fix)(Backend::mouse->getVirtualScreenX()-7);
     }
 }
 
@@ -821,11 +811,11 @@ fix LinkModifiedY()
 {
     if(resize_mouse_pos)
     {
-        return (fix)((gui_mouse_y()/mapscreensize())-((8*mapscreensize())-1)-16+(showedges()?16:0));
+        return (fix)((Backend::mouse->getVirtualScreenY()/mapscreensize())-((8*mapscreensize())-1)-16+(showedges()?16:0));
     }
     else
     {
-        return (fix)(gui_mouse_y()-7);
+        return (fix)(Backend::mouse->getVirtualScreenY() -7);
     }
 }
 
@@ -1216,16 +1206,15 @@ int onFullscreenMenu()
 {
 	Backend::graphics->setFullscreen(true);
 	setVideoModeMenuFlags();
-	gui_mouse_focus = 0;
 	gui_bg_color = jwin_pal[jcBOX];
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	set_palette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -1234,16 +1223,15 @@ int onWindowed1Menu()
 	Backend::graphics->setScreenResolution(320, 240);
 	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
-	gui_mouse_focus = 0;
 	gui_bg_color = jwin_pal[jcBOX];
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	set_palette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -1252,16 +1240,15 @@ int onWindowed2Menu()
 	Backend::graphics->setScreenResolution(800, 600);
 	Backend::graphics->setFullscreen(false);
 	setVideoModeMenuFlags();
-	gui_mouse_focus = 0;
 	gui_bg_color = jwin_pal[jcBOX];
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	set_palette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
-	position_mouse(x, y);
-	show_mouse(screen);
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
 	return D_REDRAW;
 }
 
@@ -3236,14 +3223,12 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     bool done=false, redraw=true;
     
     go();
-    scare_mouse();
     clear_bitmap(screen);
     
     // Always call load_the_map() when viewing the map.
     if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
     {
         set_palette(RAMpal);
-        unscare_mouse();
         comeback();
         return D_O_K;
     }
@@ -3262,7 +3247,6 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     }
     
     //  go();
-    //  scare_mouse();
     //  clear_bitmap(screen);
     set_palette(pal);
     
@@ -3443,12 +3427,11 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     
     destroy_bitmap(buf);
     set_palette(RAMpal);
-    unscare_mouse();
     gui_fg_color = oldfgcolor;
     gui_bg_color = oldbgcolor;
     
     comeback();
-    position_mouse_z(0);
+    Backend::mouse->setWheelPosition(0);
     return D_O_K;
 }
 
@@ -4345,15 +4328,15 @@ void refresh(int flags)
         double starty=mapscreen_y()+(showedges()?(16*mapscreensize()):0);
         int startxint=mapscreen_x()+(showedges()?int(16*mapscreensize()):0);
         int startyint=mapscreen_y()+(showedges()?int(16*mapscreensize()):0);
-        bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1));
+        bool inrect = isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1));
         
         if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect)
         {
             arrowcursor = false;
             int mgridscale=16*mapscreensize();
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-            int mx=(gui_mouse_x()-(showedges()?mgridscale:0))/mgridscale*mgridscale;
-            int my=(gui_mouse_y()-16-(showedges()?mgridscale:0))/mgridscale*mgridscale;
+            Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+            int mx=(Backend::mouse->getVirtualScreenX()-(showedges()?mgridscale:0))/mgridscale*mgridscale;
+            int my=(Backend::mouse->getVirtualScreenY()-16-(showedges()?mgridscale:0))/mgridscale*mgridscale;
             clear_bitmap(brushscreen);
             int tempbw=BrushWidth;
             int tempbh=BrushHeight;
@@ -4468,7 +4451,7 @@ void refresh(int flags)
         {
             if(!arrowcursor)
             {
-                set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+				Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
                 arrowcursor = true;
             }
         }
@@ -5456,8 +5439,7 @@ void refresh(int flags)
     
 //  textprintf_ex(menu1,font,16, 200,vc(15),-1,"%d %d %d %d %d",tooltip_timer,tooltip_box.x,tooltip_box.y,tooltip_box.w,tooltip_box.h);
 
-    scare_mouse();
-    
+   
     if(flags&rCLEAR)
     {
         blit(menu1,screen,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
@@ -5475,7 +5457,6 @@ void refresh(int flags)
     
     ComboBrushPause=0;
     
-    unscare_mouse();
     SCRFIX();
 	Backend::graphics->waitTick();
 	Backend::graphics->showBackBuffer();
@@ -5490,10 +5471,10 @@ void select_scr()
     ComboBrush=0;
     
     //scooby
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {   
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int x= Backend::mouse->getVirtualScreenX();
+        int y= Backend::mouse->getVirtualScreenY();
         int s=(vbound(((y-(minimap().y+9+3))/(3*BMM())),0,8)  <<4)+ vbound(((x-(minimap().x+3))/(3*BMM())),0,15);
         
         if(s>=MAPSCRS)
@@ -5519,16 +5500,16 @@ bool select_favorite()
     ComboBrush=0;
     bool valid=false;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
         valid=false;
-        int x=gui_mouse_x();
+        int x= Backend::mouse->getVirtualScreenX();
         
         if(x<favorites_list().x) x=favorites_list().x;
         
         if(x>favorites_list().x+(favorites_list().w*16)-1) x=favorites_list().x+(favorites_list().w*16)-1;
         
-        int y=gui_mouse_y();
+        int y= Backend::mouse->getVirtualScreenY();
         
         if(y<favorites_list().y) y=favorites_list().y;
         
@@ -5567,15 +5548,15 @@ void select_combo(int clist)
     int tempcb=ComboBrush;
     ComboBrush=0;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        int x=gui_mouse_x();
+		int x = Backend::mouse->getVirtualScreenX();
         
         if(x<combolist(current_combolist).x) x=combolist(current_combolist).x;
         
         if(x>combolist(current_combolist).x+(combolist(current_combolist).w*16)-1) x=combolist(current_combolist).x+(combolist(current_combolist).w*16)-1;
         
-        int y=gui_mouse_y();
+        int y= Backend::mouse->getVirtualScreenY();
         
         if(y<combolist(current_combolist).y) y=combolist(current_combolist).y;
         
@@ -5596,15 +5577,15 @@ void select_comboa(int clist)
     ComboBrush=0;
     alias_cset_mod=0;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        int x=gui_mouse_x();
+        int x= Backend::mouse->getVirtualScreenX();
         
         if(x<comboaliaslist(current_comboalist).x) x=comboaliaslist(current_comboalist).x;
         
         if(x>comboaliaslist(current_comboalist).x+(comboaliaslist(current_comboalist).w*16)-1) x=comboaliaslist(current_comboalist).x+(comboaliaslist(current_comboalist).w*16)-1;
         
-        int y=gui_mouse_y();
+        int y= Backend::mouse->getVirtualScreenY();
         
         if(y<comboaliaslist(current_comboalist).y) y=comboaliaslist(current_comboalist).y;
         
@@ -5758,10 +5739,10 @@ void draw(bool justcset)
     
     refresh(rMAP+rSCRMAP);
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int x= Backend::mouse->getVirtualScreenX();
+        int y= Backend::mouse->getVirtualScreenY();
         double startx=mapscreen_x()+(showedges()?(16*mapscreensize()):0);
         double starty=mapscreen_y()+(showedges()?(16*mapscreensize()):0);
         int startxint=mapscreen_x()+(showedges()?int(16*mapscreensize()):0);
@@ -6312,9 +6293,7 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
 {
     int tempcb=ComboBrush;
     ComboBrush=0;
-    scare_mouse();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
-    unscare_mouse();
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
     
     int oldpx=px2, oldpy=py2;
     double startx=mapscreen_x()+(showedges()?(16*mapscreensize()):0);
@@ -6330,29 +6309,28 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
     bool canedit=false;
     bool done=false;
     
-    while(!done && (!(gui_mouse_b()&2) || immediately))
+    while(!done && (!(Backend::mouse->rightButtonClicked() || immediately)))
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int x= Backend::mouse->getVirtualScreenX();
+        int y= Backend::mouse->getVirtualScreenY();
         
-        if(!gui_mouse_b() || immediately)
+        if(!Backend::mouse->anyButtonClicked() || immediately)
         {
             canedit=true;
         }
         
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1)))
+        if(canedit && Backend::mouse->leftButtonClicked() && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1)))
         {
-            scare_mouse();
 			int bx = startxint;
 			int by = startyint;
 			int tx = int(startxint + (256 * mapscreensize()) - 1);
 			int ty = int(startyint + (176 * mapscreensize()) - 1);
-			set_mouse_range(bx, by, tx, ty);
+			Backend::mouse->setVirtualScreenMouseBounds(bx, by, tx, ty);
             
-            while(gui_mouse_b()==1)
+            while(Backend::mouse->leftButtonClicked())
             {
-                x=int((gui_mouse_x()-(showedges()?int(16*mapscreensize()):0))/mapscreensize())-cursoroffx;
-                y=int((gui_mouse_y()-16-(showedges()?int(16*mapscreensize()):0))/mapscreensize())-cursoroffy;
+                x=int((Backend::mouse->getVirtualScreenX()-(showedges()?int(16*mapscreensize()):0))/mapscreensize())-cursoroffx;
+                y=int((Backend::mouse->getVirtualScreenY()-16-(showedges()?int(16*mapscreensize()):0))/mapscreensize())-cursoroffy;
                 showxypos_cursor_icon=true;
                 showxypos_cursor_x=x&mask;
                 showxypos_cursor_y=y&mask;
@@ -6372,10 +6350,10 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
                 }
                 
                 textprintf_ex(screen,font,xpos,ypos,vc(15),vc(0),"%d %d %d %d",startxint,startyint,int(startxint+(256*mapscreensize())-1),int(startyint+(176*mapscreensize())-1));
-                textprintf_ex(screen,font,xpos,ypos+10,vc(15),vc(0),"%d %d %d %d %d %d",x,y,gui_mouse_x(),gui_mouse_y(),showxypos_cursor_x,showxypos_cursor_y);
+                textprintf_ex(screen,font,xpos,ypos+10,vc(15),vc(0),"%d %d %d %d %d %d",x,y, Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),showxypos_cursor_x,showxypos_cursor_y);
             }
             
-            if(gui_mouse_b()==0)
+            if(!Backend::mouse->anyButtonClicked())
             {
                 px2=byte(x&mask);
                 py2=byte(y&mask);
@@ -6385,8 +6363,7 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
 			int mby = 0;
 			int mtx = Backend::graphics->virtualScreenW() - 1;
 			int mty = Backend::graphics->virtualScreenH() - 1;
-			set_mouse_range(mbx, mby, mtx, mty);
-            unscare_mouse();
+			Backend::mouse->setVirtualScreenMouseBounds(mbx, mby, mtx, mty);
             done=true;
         }
         
@@ -6413,11 +6390,13 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
     }
     
 finished:
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     refresh(rMAP+rMENU);
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
     
@@ -6440,17 +6419,17 @@ finished:
 
 void doflags()
 {
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
     int of=Flags;
     Flags=cFLAGS;
     refresh(rMAP | rNOCURSOR);
     
     bool canedit=false;
     
-    while(!(gui_mouse_b()&2))
+    while(!(Backend::mouse->rightButtonClicked()))
     {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
+        int x= Backend::mouse->getVirtualScreenX();
+        int y= Backend::mouse->getVirtualScreenY();
         double startx=mapscreen_x()+(showedges()?(16*mapscreensize()):0);
         double starty=mapscreen_y()+(showedges()?(16*mapscreensize()):0);
         int startxint=mapscreen_x()+(showedges()?int(16*mapscreensize()):0);
@@ -6459,10 +6438,10 @@ void doflags()
         int cy=(y-startyint)/int(16*mapscreensize());
         int c=(cy*16)+cx;
         
-        if(!gui_mouse_b())
+        if(!Backend::mouse->anyButtonClicked())
             canedit=true;
             
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1)))
+        if(canedit && Backend::mouse->leftButtonClicked() && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1)))
         {
             saved=false;
             
@@ -6490,11 +6469,11 @@ void doflags()
             refresh(rMAP | rNOCURSOR);
         }
         
-        if(mouse_z)
+        if(Backend::mouse->getWheelPosition() != 0)
         {
-            for(int i=0; i<abs(mouse_z); ++i)
+            for(int i=0; i<abs(Backend::mouse->getWheelPosition()); ++i)
             {
-                if(mouse_z>0)
+                if(Backend::mouse->getWheelPosition()>0)
                 {
                     onIncreaseFlag();
                 }
@@ -6504,7 +6483,7 @@ void doflags()
                 }
             }
             
-            position_mouse_z(0);
+			Backend::mouse->setWheelPosition(0);
         }
         
         if(keypressed())
@@ -6559,7 +6538,7 @@ void doflags()
             }
             
             // The cursor could've been overwritten by the Combo Brush?
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+			Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
         }
         
         do_animations();
@@ -6576,11 +6555,13 @@ void doflags()
     
 finished:
     Flags=of;
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     refresh(rMAP+rMENU);
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
 }
@@ -6855,8 +6836,8 @@ void fill_4()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
-    int y=gui_mouse_y()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);
+    int x= Backend::mouse->getVirtualScreenX()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
+    int y= Backend::mouse->getVirtualScreenY()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);
     int by= (y>>4)/(mapscreensize());
     int bx= (x>>4)/(mapscreensize());
     
@@ -6901,8 +6882,8 @@ void fill_8()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
-    int y=gui_mouse_y()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);
+    int x= Backend::mouse->getVirtualScreenX()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
+    int y= Backend::mouse->getVirtualScreenY()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);
     int by= (y>>4)/(mapscreensize());
     int bx= (x>>4)/(mapscreensize());
     
@@ -6948,8 +6929,8 @@ void fill2_4()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
-    int y=gui_mouse_y()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);;
+    int x= Backend::mouse->getVirtualScreenX()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
+    int y= Backend::mouse->getVirtualScreenY()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);;
     int by= (((y&0xF0))>>4)/(mapscreensize());
     int bx= (x>>4)/(mapscreensize());
     
@@ -6987,8 +6968,8 @@ void fill2_8()
         }
     }
     
-    int x=gui_mouse_x()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
-    int y=gui_mouse_y()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);;
+    int x= Backend::mouse->getVirtualScreenX()-mapscreen_x()-(showedges()?(16*mapscreensize()):0);
+    int y= Backend::mouse->getVirtualScreenY()-mapscreen_y()-(showedges()?(16*mapscreensize()):0);;
     int by= (((y&0xF0))>>4)/(mapscreensize());
     int bx= (x>>4)/(mapscreensize());
     
@@ -7205,9 +7186,7 @@ void set_brush_height(int height)
 void restore_mouse()
 {
     ComboBrushPause=1;
-    scare_mouse();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    unscare_mouse();
+    Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 }
 
 static int comboa_cnt=0;
@@ -7293,12 +7272,12 @@ int select_command(const char *prompt,int cmd)
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+        Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
     index = clist_dlg[2].d1;
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return bic[index].i;
 }
 
@@ -7333,8 +7312,8 @@ void domouse()
 {
     static bool mouse_down = false;
     static int scrolldelay = 0;
-    int x=gui_mouse_x();
-    int y=gui_mouse_y();
+    int x= Backend::mouse->getVirtualScreenX();
+	int y = Backend::mouse->getVirtualScreenY();
     double startx=mapscreen_x()+(showedges()?(16*mapscreensize()):0);
     double starty=mapscreen_y()+(showedges()?(16*mapscreensize()):0);
     int startxint=mapscreen_x()+(showedges()?int(16*mapscreensize()):0);
@@ -7583,12 +7562,12 @@ void domouse()
     }
     
     // Mouse clicking stuff
-    if(gui_mouse_b()==0)
+    if(!Backend::mouse->anyButtonClicked())
     {
         mouse_down = false;
         canfill=true;
     }
-    else if(gui_mouse_b()&1)
+    else if(Backend::mouse->leftButtonClicked())
     {
         //on the map screen
         if(isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize())-1),int(starty+(176*mapscreensize())-1)))
@@ -7992,10 +7971,10 @@ void domouse()
                 int tempcb=ComboBrush;
                 ComboBrush=0;
                 
-                while(gui_mouse_b())
+                while(Backend::mouse->anyButtonClicked())
                 {
-                    x=gui_mouse_x();
-                    y=gui_mouse_y();
+                    x= Backend::mouse->getVirtualScreenX();
+                    y= Backend::mouse->getVirtualScreenY();
                     
                     if(draw_mode != dm_alias)
                     {
@@ -8015,15 +7994,7 @@ void domouse()
                     }
                     
                     do_animations();
-                    refresh(rALL | rFAVORITES);
-                    //if(zqwin_scale > 1)
-                    {
-                        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    //else
-                    {
-                        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
+                    refresh(rALL | rFAVORITES);                    
                 }
                 
                 ComboBrush=tempcb;
@@ -8033,10 +8004,10 @@ void domouse()
                 int tempcb=ComboBrush;
                 ComboBrush=0;
                 
-                while(gui_mouse_b())
+                while(Backend::mouse->anyButtonClicked())
                 {
-                    x=gui_mouse_x();
-                    y=gui_mouse_y();
+                    x= Backend::mouse->getVirtualScreenX();
+                    y= Backend::mouse->getVirtualScreenY();
                     
                     if(draw_mode != dm_alias)
                     {
@@ -8150,7 +8121,7 @@ void domouse()
         
         mouse_down = true;
     }
-    else if(gui_mouse_b()&2)
+    else if(Backend::mouse->rightButtonClicked())
     {
         if(isinRect(x,y,startxint,startyint, int(startx+(256*mapscreensize())-1), int(starty+(176*mapscreensize())-1)))
         {
@@ -8420,7 +8391,7 @@ void domouse()
                     {
                         select_combo(j);
                         
-                        if(isinRect(gui_mouse_x(),gui_mouse_y(),combolist(j).x,combolist(j).y,combolist(j).x+(combolist(j).w*16)-1,combolist(j).y+(combolist(j).h*16)-1))
+                        if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),combolist(j).x,combolist(j).y,combolist(j).x+(combolist(j).w*16)-1,combolist(j).y+(combolist(j).h*16)-1))
                         {
                             int m = popup_menu(combosel_rc_menu,x,y);
                             
@@ -8470,7 +8441,7 @@ void domouse()
                     {
                         select_comboa(j);
                         
-                        if(isinRect(gui_mouse_x(),gui_mouse_y(),combolist(j).x,combolist(j).y,combolist(j).x+(combolist(j).w*16)-1,combolist(j).y+(combolist(j).h*16)-1))
+                        if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),combolist(j).x,combolist(j).y,combolist(j).x+(combolist(j).w*16)-1,combolist(j).y+(combolist(j).h*16)-1))
                         {
                             comboa_cnt = combo_apos;
                             onEditComboAlias();
@@ -8552,7 +8523,7 @@ void domouse()
             
             if(valid)
             {
-                if(isinRect(gui_mouse_x(),gui_mouse_y(),favorites_list().x,favorites_list().y,favorites_list().x+(favorites_list().w*16)-1,favorites_list().y+(favorites_list().h*16)-1))
+                if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),favorites_list().x,favorites_list().y,favorites_list().x+(favorites_list().w*16)-1,favorites_list().y+(favorites_list().h*16)-1))
                 {
                     int m = popup_menu(fav_rc_menu,x,y);
                     int row=vbound(((y-favorites_list().y)>>4),0,favorites_list().h-1);
@@ -8601,17 +8572,17 @@ void domouse()
         
         mouse_down = true;
     }
-    else if(gui_mouse_b()&4)  //not sure what to do here yet
+    else if(Backend::mouse->middleButtonClicked())  //not sure what to do here yet
     {
     }
     
-    if(mouse_z!=0)
+    if(Backend::mouse->getWheelPosition() !=0)
     {
         int z=0;
         
         for(int j=0; j<3; ++j)
         {
-            z=abs(mouse_z);
+            z=abs(Backend::mouse->getWheelPosition());
             
             if(key[KEY_ALT]||key[KEY_ALTGR])
             {
@@ -8624,7 +8595,7 @@ void domouse()
                 {
                     if(isinRect(x,y,combolist(j).x,combolist(j).y,combolist(j).x+(combolist(j).w*16)-1,combolist(j).y+(combolist(j).h*16)-1))
                     {
-                        if(mouse_z<0)  //scroll down
+                        if(Backend::mouse->getWheelPosition()<0)  //scroll down
                         {
                             First[current_combolist] = zc_min(MAXCOMBOS-combolist(j).w*combolist(j).h,
                                                               First[current_combolist] + combolist(j).w*z);
@@ -8645,7 +8616,7 @@ void domouse()
                 {
                     if(isinRect(x,y,comboaliaslist(j).x,comboaliaslist(j).y,comboaliaslist(j).x+(comboaliaslist(j).w*16)-1,comboaliaslist(j).y+(comboaliaslist(j).h*16)-1))
                     {
-                        if(mouse_z<0)  //scroll down
+                        if(Backend::mouse->getWheelPosition()<0)  //scroll down
                         {
                             combo_alistpos[current_comboalist] = zc_min(MAXCOMBOALIASES - comboaliaslist(j).w*comboaliaslist(j).h,
                                                                  combo_alistpos[current_comboalist]+comboaliaslist(j).w*z);
@@ -8665,14 +8636,14 @@ void domouse()
             }
         }
         
-        z=abs(mouse_z);
+        z=abs(Backend::mouse->getWheelPosition());
         
         if((!is_large() && isinRect(x,y,minimap().x,minimap().y+8,minimap().x+63,minimap().y+8+35)) ||
                 (is_large() && isinRect(x,y,minimap().x,minimap().y+8,minimap().x+145,minimap().y+8+85)))
         {
             for(int i=0; i<z; ++i)
             {
-                if(mouse_z>0) onIncMap();
+                if(Backend::mouse->getWheelPosition()>0) onIncMap();
                 else onDecMap();
             }
         }
@@ -8681,7 +8652,7 @@ void domouse()
         {
             for(int i=0; i<z; ++i)
             {
-                if(mouse_z>0)
+                if(Backend::mouse->getWheelPosition()>0)
                 {
                     onPgUp();
                 }
@@ -8692,7 +8663,7 @@ void domouse()
             }
         }
         
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
     }
 }
 
@@ -8987,17 +8958,15 @@ int d_sel_scombo_proc(int msg, DIALOG *d, int c)
     switch(msg)
     {
     case MSG_CLICK:
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
-            int x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>4, 15);
-            int y = zc_min(zc_max(gui_mouse_y() - d->y,0)&0xF0, 160);
+            int x = zc_min(zc_max(Backend::mouse->getVirtualScreenX() - d->x,0)>>4, 15);
+            int y = zc_min(zc_max(Backend::mouse->getVirtualScreenY() - d->y,0)&0xF0, 160);
             
             if(x+y != d->d1)
             {
                 d->d1 = x+y;
-                scare_mouse();
                 d_sel_scombo_proc(MSG_DRAW,d,0);
-                unscare_mouse();
 				Backend::graphics->waitTick();
 				Backend::graphics->showBackBuffer();
             }
@@ -9017,36 +8986,6 @@ int d_sel_scombo_proc(int msg, DIALOG *d, int c)
     
     return D_O_K;
 }
-
-/*
-static DIALOG sel_scombo_dlg[] =
-{
-  // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc, 24,   16,   272+1,  216+1,  vc(14),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-  { d_sel_scombo_proc, 32,   24,   256,  176,  0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-  { jwin_button_proc,     90,   208,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
-  { jwin_button_proc,     170,  208,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
-  { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void select_scombo(int &pos)
-{
-  go();
-  Map.draw_template2(screen2,0,0);
-  sel_scombo_dlg[1].dp = screen2;
-  sel_scombo_dlg[1].d1 = pos;
-
-  while (gui_mouse_b()) {
-    //nothing
-  }
-
-  if(zc_do_dialog(sel_scombo_dlg,3)==2)
-    pos = sel_scombo_dlg[1].d1;
-
-  comeback();
-}
-*/
 
 static DIALOG cflag_dlg[] =
 {
@@ -9166,7 +9105,7 @@ int select_cflag(const char *prompt,int index)
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
@@ -9201,8 +9140,10 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
         
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
-            while(gui_mouse_b())
+            while(Backend::mouse->anyButtonClicked())
             {
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
                 /* do nothing */
             }
             
@@ -9214,13 +9155,13 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
         }
         else if(key[KEY_LSHIFT])
         {
-            if(gui_mouse_b()&1)
+            if(Backend::mouse->leftButtonClicked())
             {
                 d->d1++;
                 
                 if(d->d1>=MAXCOMBOS) d->d1=0;
             }
-            else if(gui_mouse_b()&2)
+            else if(Backend::mouse->rightButtonClicked())
             {
                 d->d1--;
                 
@@ -9229,13 +9170,13 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
         }
         else if(key[KEY_RSHIFT])
         {
-            if(gui_mouse_b()&1)
+            if(Backend::mouse->leftButtonClicked())
             {
                 d->fg++;
                 
                 if(d->fg>11) d->fg=0;
             }
-            else if(gui_mouse_b()&2)
+            else if(Backend::mouse->rightButtonClicked())
             {
                 d->fg--;
                 
@@ -9244,7 +9185,7 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
         }
         else if(key[KEY_ALT])
         {
-            if(gui_mouse_b()&1)
+            if(Backend::mouse->leftButtonClicked())
             {
                 d->d1 = Combo;
                 d->fg = CSet;
@@ -9307,43 +9248,6 @@ int d_scombo_proc(int msg,DIALOG *d,int c)
     
     return D_O_K;
 }
-
-/*int d_scombo2_proc(int msg, DIALOG *d, int c)
-{
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
-  switch(msg)
-  {
-    case MSG_CLICK:
-    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-    {
-      select_scombo(d->d1);
-    }
-    else
-    {
-      select_scombo(d->d1);
-    }
-    scare_mouse();
-    d_scombo_proc(MSG_DRAW,d,0);
-    unscare_mouse();
-    break;
-
-
-    case MSG_DRAW:
-    BITMAP *buf = create_bitmap_ex(8,16,16);
-    if(buf)
-    {
-      clear_bitmap(buf);
-      Map.draw_secret2(buf,d->d1);
-      blit(buf,screen,0,0,d->x,d->y,16,16);
-      destroy_bitmap(buf);
-    }
-    break;
-  }
-
-  return D_O_K;
-}*/
 
 int onSecretF();
 
@@ -10042,12 +9946,12 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
     
     if(exit_status==0||exit_status==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
     index = ilist_dlg[2].d1;
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return bii[index].i;
 }
 
@@ -10112,12 +10016,12 @@ int select_weapon(const char *prompt,int weapon)
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
     index = wlist_dlg[2].d1;
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return biw[index].i;
 }
 
@@ -10290,13 +10194,13 @@ int select_room(const char *prompt,int room)
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     else
         index = rlist_dlg[2].d1;
         
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return bir[index].i;
 }
 
@@ -10359,7 +10263,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT 
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
@@ -10401,11 +10305,11 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return list_dlg[2].d1;
 }
 
@@ -11338,7 +11242,7 @@ int onFlags()
 {
     restore_mouse();
     int ret=select_cflag("Select Combo Flag",Flag);
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     
     if(ret>=0)
     {
@@ -11482,7 +11386,7 @@ int onUsedCombos()
         large_dialog(usedcombo_list_dlg);
         
     zc_popup_dialog(usedcombo_list_dlg,2);
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return D_O_K;
 }
 
@@ -11758,9 +11662,7 @@ int d_ndroplist_proc(int msg,DIALOG *d,int c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",msgID);
-        unscare_mouse();
     }
     
     return ret;
@@ -11770,45 +11672,43 @@ int d_idroplist_proc(int msg,DIALOG *d,int c)
 {
     int ret = jwin_droplist_proc(msg,d,c);
     
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        scare_mouse();
-        int tile = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].tile : 0;
-        int cset = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].csets&15 : 0;
-        int x = d->x + d->w + 4;
-        int y = d->y - 2;
-        int w = 16;
-        int h = 16;
-        
-        if(is_large())
-        {
-            w = 32;
-            h = 32;
-            y -= 6;
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile,0,0,cset,0);
-                
-            stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-            destroy_bitmap(buf);
-            jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-            blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-            destroy_bitmap(bigbmp);
-        }
-        
-        unscare_mouse();
-    }
+	switch (msg)
+	{
+	case MSG_DRAW:
+	case MSG_CHAR:
+	case MSG_CLICK:
+		int tile = bii[d->d1].i >= 0 ? itemsbuf[bii[d->d1].i].tile : 0;
+		int cset = bii[d->d1].i >= 0 ? itemsbuf[bii[d->d1].i].csets & 15 : 0;
+		int x = d->x + d->w + 4;
+		int y = d->y - 2;
+		int w = 16;
+		int h = 16;
+
+		if (is_large())
+		{
+			w = 32;
+			h = 32;
+			y -= 6;
+		}
+
+		BITMAP *buf = create_bitmap_ex(8, 16, 16);
+		BITMAP *bigbmp = create_bitmap_ex(8, w, h);
+
+		if (buf && bigbmp)
+		{
+			clear_bitmap(buf);
+
+			if (tile)
+				overtile16(buf, tile, 0, 0, cset, 0);
+
+			stretch_blit(buf, bigbmp, 0, 0, 16, 16, 0, 0, w, h);
+			destroy_bitmap(buf);
+			jwin_draw_frame(screen, x, y, w + 4, h + 4, FR_DEEP);
+			blit(bigbmp, screen, 0, 0, x + 2, y + 2, w, h);
+			destroy_bitmap(bigbmp);
+		}
+
+	}
     
     return ret;
 }
@@ -11822,9 +11722,7 @@ int d_nidroplist_proc(int msg,DIALOG *d,int c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii[d->d1].i);
-        unscare_mouse();
     }
     
     return ret;
@@ -11839,7 +11737,6 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         
         int tile = 0;
         int cset = 0;
@@ -11889,7 +11786,6 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
         /*textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Cost:   ");
         textprintf_ex(screen,is_large?font:spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
         
-        unscare_mouse();
     }
     
     return ret;
@@ -11904,7 +11800,6 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         
         int tile = 0;
         int cset = 0;
@@ -11938,7 +11833,6 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
             destroy_bitmap(bigbmp);
         }
         
-        unscare_mouse();
     }
     
     return ret;
@@ -11992,7 +11886,6 @@ int d_tri_edit_proc(int msg,DIALOG *d,int c)
     if(msg==MSG_CLICK)
     {
         int v = getnumber("Piece Number",d->d1);
-        scare_mouse();
         
         if(v>=0)
         {
@@ -12021,7 +11914,6 @@ int d_tri_edit_proc(int msg,DIALOG *d,int c)
         
         d->flags = 0;
         jwin_button_proc(MSG_DRAW,d,0);
-        unscare_mouse();
     }
     
     return D_O_K;
@@ -12367,15 +12259,13 @@ int d_dropdmaptypelist_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW || d->d1!=d1)
     {
-        scare_mouse();
         small_dmap=(d->d1!=dmOVERW);
         object_message(d-3, MSG_DRAW, 0);
         (d-2)->flags&=~D_DISABLED;
         (d-2)->flags|=small_dmap?0:D_DISABLED;
         object_message(d-2, MSG_DRAW, 0);
         (d+35)->d1=small_dmap;
-        object_message(d+35, MSG_DRAW, 0);
-        unscare_mouse();
+        object_message(d+35, MSG_DRAW, 0);        
     }
     
     return ret;
@@ -12435,10 +12325,10 @@ int col_width=(is_large() ? d->d1 ? 22:11:(d->d1?14:7));
         int yy = -1;
         int set = -1; // Set or unset
         
-        while(gui_mouse_b())  // Drag across to select multiple
+        while(Backend::mouse->anyButtonClicked())  // Drag across to select multiple
         {
-            int x=(gui_mouse_x()-(d->x)-frame_thickness-header_width)/col_width;
-            int y=(gui_mouse_y()-(d->y)-frame_thickness-header_height)/l;
+            int x=(Backend::mouse->getVirtualScreenX()-(d->x)-frame_thickness-header_width)/col_width;
+            int y=(Backend::mouse->getVirtualScreenY()-(d->y)-frame_thickness-header_height)/l;
             
             if(xx != x || yy != y)
             {
@@ -12469,9 +12359,7 @@ int col_width=(is_large() ? d->d1 ? 22:11:(d->d1?14:7));
                 }
             }
             
-            scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
 			Backend::graphics->waitTick();
 			Backend::graphics->showBackBuffer();
         }
@@ -12516,7 +12404,6 @@ int d_xmaplist_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW || d->d1!=d1)
     {
-        scare_mouse();
         int *xy = (int*)(d->dp3);
         xy[0]=d->d1;
         drawxmap(xy[0],xy[1],small_dmap);
@@ -12551,7 +12438,6 @@ int col_width=(is_large() ? small_dmap ? 22:11:(small_dmap?14:7));
         (d+1)->flags&=~D_DISABLED;
         (d+1)->flags|=small_dmap?0:D_DISABLED;
         object_message(d+1, MSG_DRAW, 0);
-        unscare_mouse();
     }
     
     return ret;
@@ -12566,10 +12452,8 @@ int onXslider(void *dp3,int d2)
     xmapspecs[1]=d2-7;
     bound(xmapspecs[1],-7,15);
     drawxmap(xmapspecs[0],xmapspecs[1],small_dmap);
-    scare_mouse();
     blit(dmapbmp_large,screen,0,0,(*x)+xmapspecs[2],(*y)+xmapspecs[3], (is_large() ? 177 : 113), (is_large() ? 81 : 57));
-    unscare_mouse();
-    return D_O_K;
+	return D_O_K;
 }
 
 const char *dmaptype_str[dmMAX] = { "NES Dungeon","Overworld","Interior","BS-Overworld" };
@@ -12627,14 +12511,14 @@ int d_title_edit_proc(int msg,DIALOG *d,int c)
         return D_WANTFOCUS;
         
     case MSG_CLICK:
-        d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*10;
+        d->d2=((Backend::mouse->getVirtualScreenX()-d->x)>>3)+((Backend::mouse->getVirtualScreenY()-d->y)>>3)*10;
         bound(d->d2,0,19);
-        scare_mouse();
         put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
-        unscare_mouse();
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
             /* do nothing */
         }
         
@@ -12724,9 +12608,7 @@ int d_title_edit_proc(int msg,DIALOG *d,int c)
             }
         }
         
-        scare_mouse();
         put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
-        unscare_mouse();
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -12771,14 +12653,14 @@ int d_intro_edit_proc(int msg,DIALOG *d,int c)
         return D_WANTFOCUS;
         
     case MSG_CLICK:
-        d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*24;
+        d->d2=((Backend::mouse->getVirtualScreenX()-d->x)>>3)+((Backend::mouse->getVirtualScreenY()-d->y)>>3)*24;
         bound(d->d2,0,71);
-        scare_mouse();
         put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
-        unscare_mouse();
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
             /* do nothing */
         }
         
@@ -12870,9 +12752,7 @@ int d_intro_edit_proc(int msg,DIALOG *d,int c)
             }
         }
         
-        scare_mouse();
         put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
-        unscare_mouse();
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -13589,10 +13469,8 @@ void edit_tune(int i)
         
         while(update_dialog(p))
         {
-            scare_mouse();
             //      text_mode(vc(1));
             textprintf_ex(screen,is_large()? lfont_l : font,editmidi_dlg[0].x+int(193*(is_large()?1.5:1)),editmidi_dlg[0].y+int(58*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
-            unscare_mouse();
 			Backend::graphics->waitTick();
 			Backend::graphics->showBackBuffer();
         }
@@ -14057,16 +13935,14 @@ int d_warpdestscrsel_proc(int msg,DIALOG *d,int)
         int x_clip  = is_overworld?0x0F:0x07;
         int x_scale = is_overworld?2:3;
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
-            int x = zc_min(zc_max(gui_mouse_x() - d->x,0)>>x_scale, x_clip);
-            int y = zc_min((zc_max(gui_mouse_y() - d->y,0)<<2)&0xF0, 0x70);
+            int x = zc_min(zc_max(Backend::mouse->getVirtualScreenX() - d->x,0)>>x_scale, x_clip);
+            int y = zc_min((zc_max(Backend::mouse->getVirtualScreenY() - d->y,0)<<2)&0xF0, 0x70);
 //      if(x+y != d->d1)
             {
-                scare_mouse();
                 sprintf((char *)td[d->d1+1].dp, "%02X", y+x);
                 object_message(&td[d->d1+1], MSG_DRAW, 0);
-                unscare_mouse();
 				Backend::graphics->waitTick();
 				Backend::graphics->showBackBuffer();
             }
@@ -14310,7 +14186,6 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
         }
         
         int c2=(d->flags&D_SELECTED)?d->fg:d->bg;
-        scare_mouse();
         
         if(d->d1==1)
         {
@@ -14332,10 +14207,11 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
             rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
         }
         
-        unscare_mouse();
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
             /* do nothing */
         }
     }
@@ -14474,7 +14350,7 @@ int d_dmapscrsel_proc(int msg,DIALOG *d,int c)
     switch(msg)
     {
     case MSG_CLICK:
-        sprintf((char*)((d+2)->dp),"%X%X",vbound((gui_mouse_y()-d->y)/4,0,7),vbound((gui_mouse_x()-d->x)/(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?4:8),0,(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?15:7)));
+        sprintf((char*)((d+2)->dp),"%X%X",vbound((Backend::mouse->getVirtualScreenY()-d->y)/4,0,7),vbound((Backend::mouse->getVirtualScreenX()-d->x)/(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?4:8),0,(((DMaps[(d-1)->d1].type&dmfTYPE)==1)?15:7)));
         object_message(d+2, MSG_DRAW, 0);
         break;
     }
@@ -14506,7 +14382,6 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
         
     case MSG_DRAW:
     {
-        scare_mouse();
         jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
         
         if(AnimationOn||CycleOn)
@@ -14525,21 +14400,21 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
         animate_coords();
         Map.draw(bmp, 0, 0, 0, warpdestmap, warpdestscr);
         blit(icon_bmp[ICON_BMP_WARPDEST][coord_frame], bmp, 0, 0, Map.AbsoluteScr(warpdestmap,warpdestscr)->warparrivalx, Map.AbsoluteScr(warpdestmap,warpdestscr)->warparrivaly, 16, 16);
-        int px2=((gui_mouse_x()-d->x-2)&0xF8);
-        int py2=((gui_mouse_y()-d->y-2)&0xF8);
+        int px2=((Backend::mouse->getVirtualScreenX()-d->x-2)&0xF8);
+        int py2=((Backend::mouse->getVirtualScreenY()-d->y-2)&0xF8);
         
-        if(isinRect(gui_mouse_x(), gui_mouse_y(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
+        if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
         {
-            if(gui_mouse_b())
+            if(Backend::mouse->anyButtonClicked())
             {
                 if(!mousedown||!inrect)
                 {
-                    set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+					Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
 					int bx = d->x + 2;
 					int by = d->y + 2;
 					int tx = d->x + 256 + 1;
 					int ty = d->y + 176 + 1;
-					set_mouse_range(bx, by, tx, ty);
+					Backend::mouse->setVirtualScreenMouseBounds(bx, by, tx, ty);
                 }
                 
                 rect(bmp, px2, py2, px2+15, py2+15, vc(15));
@@ -14555,8 +14430,8 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
 					int by = 0;
 					int tx = Backend::graphics->virtualScreenW() - 1;
 					int ty = Backend::graphics->virtualScreenH() - 1;
-					set_mouse_range(bx, by, tx, ty);
-                    set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
+					Backend::mouse->setVirtualScreenMouseBounds(bx, by, tx, ty);
+					Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
                 }
                 
                 mousedown=false;
@@ -14566,12 +14441,11 @@ int d_warpdestsel_proc(int msg,DIALOG *d,int c)
         }
         else
         {
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+			Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
             inrect=false;
         }
         
         blit(bmp, screen, 0, 0, d->x+2, d->y+2, 256, 176);
-        unscare_mouse();
     }
     break;
     
@@ -14740,11 +14614,9 @@ int d_ticsedit_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int tics=vbound(atoi((char*)d->dp),0,65535);
         sprintf((char*)(d+1)->dp,"%s %s",ticksstr(tics),tics==0?"(No Timed Warp)":"               ");
         object_message(d+1,MSG_DRAW,c);
-        unscare_mouse();
     }
     
     return ret;
@@ -15885,7 +15757,6 @@ int d_itemdropedit_proc(int msg,DIALOG *d,int c)
             t += atoi((char*)edititemdropset_dlg[14+(i*3)].dp);
         }
         
-        scare_mouse();
         {
             int t2 = (int)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
             sprintf((char*)edititemdropset_dlg[9].dp,"%d%%%s",t2, is_large() && t2 <= 11 ? " ":"");
@@ -15899,7 +15770,6 @@ int d_itemdropedit_proc(int msg,DIALOG *d,int c)
             object_message(&edititemdropset_dlg[16+(i*3)],MSG_DRAW,c);
         }
         
-        unscare_mouse();
     }
     
     return ret;
@@ -17030,9 +16900,7 @@ int d_showedit_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         (d+1)->proc(MSG_DRAW,d+1,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -17296,15 +17164,13 @@ bool do_x_button(BITMAP *dest, int x, int y)
 {
     bool over=false;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+15,y+13))
+        if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),x,y,x+15,y+13))
         {
             if(!over)
             {
-                scare_mouse();
                 draw_x_button(dest, x, y, D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -17312,9 +17178,7 @@ bool do_x_button(BITMAP *dest, int x, int y)
         {
             if(over)
             {
-                scare_mouse();
                 draw_x_button(dest, x, y, 0);
-                unscare_mouse();
                 over=false;
             }
         }
@@ -17427,8 +17291,8 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
     int lay_count=0;
     int size = is_large()? 2 : 1;
     
-    int cx1=(gui_mouse_x()-d->x-(120-(combo->width*8)));
-    int cy1=(gui_mouse_y()-d->y-(80-(combo->height*8)));
+    int cx1=(Backend::mouse->getVirtualScreenX()-d->x-(120-(combo->width*8)));
+    int cy1=(Backend::mouse->getVirtualScreenY()-d->y-(80-(combo->height*8)));
     int cx=cx1/(16*size);
     int cy=cy1/(16*size);
     
@@ -17460,8 +17324,10 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
             combo->combos[position] = 0;
             combo->csets[position] = 0;
             
-            while(gui_mouse_b())
+            while(Backend::mouse->anyButtonClicked())
             {
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
                 /* do nothing */
             }
             
@@ -17667,9 +17533,9 @@ int d_comboat_proc(int msg,DIALOG *d,int)
         c2=temp_aliases[comboa_cnt].combo;
         cs=temp_aliases[comboa_cnt].cset;
         
-        if(gui_mouse_b()&2)  //right mouse button
+        if(Backend::mouse->rightButtonClicked())  //right mouse button
         {
-            if(c2==0&&cs==0&&!(gui_mouse_b()&1))
+            if(c2==0&&cs==0&&!(Backend::mouse->leftButtonClicked()))
             {
                 return D_O_K;
             }
@@ -17678,7 +17544,7 @@ int d_comboat_proc(int msg,DIALOG *d,int)
             temp_aliases[comboa_cnt].cset=0;
         }
         
-        if(gui_mouse_b()&1)  //left mouse button
+        if(Backend::mouse->leftButtonClicked())  //left mouse button
         {
             if(select_combo_2(c2, cs))
             {
@@ -18167,19 +18033,12 @@ int d_orgcomboa_proc(int msg, DIALOG *d, int c)
         /* close dialog? */
         onOrgComboAliases();
         return D_REDRAW;
-        
-        /* or just toggle */
-        /*d->flags ^= D_SELECTED;
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        break;*/
-        
+       
     case MSG_CLICK:
         last_draw = 0;
         
         /* track the mouse until it is released */
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
             
@@ -18191,9 +18050,7 @@ int d_orgcomboa_proc(int msg, DIALOG *d, int c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -18207,9 +18064,7 @@ int d_orgcomboa_proc(int msg, DIALOG *d, int c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -18255,18 +18110,12 @@ int d_comboabutton_proc(int msg, DIALOG *d, int c)
         onNewComboAlias();
         return D_REDRAW;
         
-        /* or just toggle */
-        /*d->flags ^= D_SELECTED;
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        break;*/
         
     case MSG_CLICK:
         last_draw = 0;
         
         /* track the mouse until it is released */
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
             
@@ -18278,9 +18127,7 @@ int d_comboabutton_proc(int msg, DIALOG *d, int c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -18294,9 +18141,7 @@ int d_comboabutton_proc(int msg, DIALOG *d, int c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -20066,12 +19911,12 @@ int select_sfx(const char *prompt,int index)
     
     if(ret==0||ret==4)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return -1;
     }
     
     index = sfxlist_dlg[2].d1;
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return index;
 }
 
@@ -20719,8 +20564,8 @@ int d_misccolors_proc(int msg,DIALOG *d,int c)
     case MSG_CLICK:
         if(hexclicked!=-1)
         {
-            int color_col=vbound(((gui_mouse_x()-d->x-8)/mul),0,15);
-            int color_row=vbound(((gui_mouse_y()-d->y-10)/mul),0,11);
+            int color_col=vbound(((Backend::mouse->getVirtualScreenX()-d->x-8)/mul),0,15);
+            int color_row=vbound(((Backend::mouse->getVirtualScreenY()-d->y-10)/mul),0,11);
             sprintf((char*)misccolors_dlg[hexclicked].dp,"%X%X",color_row,color_col);
             object_message(misccolors_dlg+hexclicked,MSG_DRAW,0);
         }
@@ -21703,7 +21548,6 @@ int main(int argc, char **argv)
         quit_game();
     }
     
-    //enable_hardware_cursor();
             
     LOCK_VARIABLE(dclick_status);
     LOCK_VARIABLE(dclick_time);
@@ -22102,8 +21946,6 @@ int main(int argc, char **argv)
 	Backend::graphics->registerSwitchCallbacks(switch_in, switch_out);
 
     position_mouse(Backend::graphics->screenW()/2,Backend::graphics->screenH()/2);
-	gui_mouse_x = &Z_gui_mouse_x;
-	gui_mouse_y = &Z_gui_mouse_y;
     
     center_zq_class_dialogs();
     center_zq_custom_dialogs();
@@ -22479,9 +22321,8 @@ int main(int argc, char **argv)
     strcpy(zScriptBytes, "0 Bytes in Buffer");
     
     load_mice();
-    gui_mouse_focus=0;
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    show_mouse(screen);
+    Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	Backend::mouse->setCursorVisibility(true);
     //Display annoying beta warning message
 #if IS_BETA
     char *curcontrol = getBetaControlString();
@@ -22765,7 +22606,6 @@ int main(int argc, char **argv)
     }
    
     quit_game();
-	show_mouse(NULL);
 	Backend::shutdownBackend();
     
     if(ForceExit) //last resort fix to the allegro process hanging bug.
@@ -22813,7 +22653,7 @@ void destroy_bitmaps_on_exit()
     destroy_bitmap(brushscreen);
     destroy_bitmap(tooltipbmp);
     al_trace("...");
-    show_mouse(NULL);
+	Backend::mouse->setCursorVisibility(false);
     
     for(int i=0; i<MOUSE_BMP_MAX*4; i++)
         destroy_bitmap(mouse_bmp[i/4][i%4]);
@@ -23216,10 +23056,10 @@ bool prv_press=false;
 
 void dopreview()
 {
-    //set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+    
     refresh(rMAP);
     
-    while(!(gui_mouse_b()))
+    while(!(Backend::mouse->anyButtonClicked()))
     {
         //ret = jwin_menu_proc(msg,d,c);
         if(keypressed())
@@ -23372,29 +23212,13 @@ void dopreview()
             if(Map.get_prvadvance())
             {
                 do_animations();
-                Map.set_prvadvance(0);
-                //if(zqwin_scale > 1)
-                {
-                    //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                // else
-                {
-                    //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
+                Map.set_prvadvance(0);                
             }
         }
         else
         {
             do_animations();
             Map.set_prvadvance(0);
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            //else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
         }
         
         refresh(rALL);
@@ -23413,7 +23237,7 @@ finished:
     //Flags=of;
     reset_combo_animations();
     reset_combo_animations2();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+    Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     prv_mode=0;
     Map.set_prvcmb(0);
     Map.set_prvadvance(0);
@@ -23424,8 +23248,10 @@ finished:
     rebuild_trans_table();
     refresh(rMAP+rMENU);
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
 }
@@ -23752,7 +23578,7 @@ void check_autosave()
         
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+			Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
             if(first_save)
                 replace_extension(last_timed_save, filepath, "qt0", 2047);
             else

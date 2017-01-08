@@ -346,7 +346,7 @@ extern bool ignoreSideview;
 
 extern int cheat;                                           // 0 = none; 1,2,3,4 = cheat level
 
-extern int  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
+extern bool  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
 extern int idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
