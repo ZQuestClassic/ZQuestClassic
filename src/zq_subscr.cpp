@@ -26,6 +26,7 @@
 #include "init.h"
 #include <assert.h>
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -103,7 +104,7 @@ int d_cs_color_proc(int msg,DIALOG *d,int c)
         break;
         
     case MSG_CLICK:
-        d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,15);
+        d->d1=vbound((Backend::mouse->getVirtualScreenX()-d->x-2)/w,0,15);
         d->flags|=D_DIRTY;
         break;
     }
@@ -145,7 +146,7 @@ int d_sys_color_proc(int msg,DIALOG *d,int c)
         break;
         
     case MSG_CLICK:
-        d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,16)-1;
+        d->d1=vbound((Backend::mouse->getVirtualScreenX()-d->x-2)/w,0,16)-1;
         d->flags|=D_DIRTY;
         break;
     }
@@ -479,7 +480,7 @@ int d_stilelist_proc(int msg,DIALOG *d,int c)
     
     if(d->d1!=old_d1)
     {
-        (d-14)->h=is_large?32:16;
+        (d-14)->h= is_large() ?32:16;
         (d-15)->h=(d-14)->h+4;
         
         switch(d->d1-1)
@@ -503,7 +504,7 @@ int d_stilelist_proc(int msg,DIALOG *d,int c)
             break;
         }
         
-        (d-14)->w*=is_large?2:1;
+        (d-14)->w*= is_large() ?2:1;
         (d-15)->w=(d-14)->w+4;
         (d-14)->bg=vbound((d-14)->bg,0,((d-14)->w-1)>>2);
         (d-17)->flags|=D_DIRTY;
@@ -550,18 +551,18 @@ DIALOG *sso_properties_dlg;
 int jwin_tflpcheck_proc(int msg,DIALOG *d,int c)
 {
     bool selected=(d->flags&D_SELECTED)!=0;
-    int ret= is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
+    int ret= is_large() ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
     bool new_selected=(d->flags&D_SELECTED)!=0;
     
     if(new_selected!=selected)
     {
-        (d-3)->w=(new_selected?32:16)*(is_large+1);
-        (d-3)->h=(new_selected?48:16)*(is_large+1);
+        (d-3)->w=(new_selected?32:16)*(is_large() +1);
+        (d-3)->h=(new_selected?48:16)*(is_large() +1);
         (d-4)->w=(d-3)->w+4;
         (d-4)->h=(d-3)->h+4;
 //    (d-5)->x=((d-4)->x)+(((d-4)->w)/2);
-        (d-6)->w=(new_selected?112:96)*(is_large+1);
-        (d-6)->h=(new_selected?112:48)*(is_large+1);
+        (d-6)->w=(new_selected?112:96)*(is_large() +1);
+        (d-6)->h=(new_selected?112:48)*(is_large() +1);
         (d-7)->w=(d-6)->w+4;
         (d-7)->h=(d-6)->h+4;
 //    (d-8)->x=((d-7)->x)+(((d-7)->w)/2);
@@ -580,13 +581,13 @@ int jwin_tflpcheck_proc(int msg,DIALOG *d,int c)
 int jwin_lscheck_proc(int msg,DIALOG *d,int c)
 {
     bool selected=(d->flags&D_SELECTED)!=0;
-    int ret=is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
+    int ret=is_large() ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
     bool new_selected=(d->flags&D_SELECTED)!=0;
     
     if(new_selected!=selected || msg==MSG_START)
     {
-        (d-6)->w=(new_selected?32:16)*(is_large+1);
-        (d-6)->h=(new_selected?48:16)*(is_large+1);
+        (d-6)->w=(new_selected?32:16)*(is_large() ? 2 : 1);
+        (d-6)->h=(new_selected?48:16)*(is_large() ? 2 : 1);
         (d-7)->w=(d-6)->w+4;
         (d-7)->h=(d-6)->h+4;
         (d-6)->flags|=D_DIRTY;
@@ -607,7 +608,7 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
         int dw = d->w;
         int dh = d->h;
         
-        if(is_large)
+        if(is_large())
         {
             dw /= 2;
             dh /= 2;
@@ -634,7 +635,7 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
                  ((t2&2)<<2),
                  (t<<4)+((t2&1)<<3)+7,
                  ((t2&2)<<2)+7, jwin_pal[jcTITLER]);
-            stretch_blit(buf,screen,0,0,dw,dh,d->x-is_large,d->y-is_large,dw*(is_large?2:1),dh*(is_large?2:1));
+            stretch_blit(buf,screen,0,0,dw,dh,d->x-(is_large() ? 1 : 0),d->y- (is_large() ? 1 : 0),dw*(is_large()?2:1),dh*(is_large()?2:1));
             destroy_bitmap(buf);
         }
         
@@ -647,13 +648,13 @@ int d_qtile_proc(int msg,DIALOG *d,int c)
     {
         int old_fg=d->fg;
         
-        if(gui_mouse_b()&2)  //right mouse button
+        if(Backend::mouse->rightButtonClicked())  //right mouse button
         {
             int old_bg=d->bg;
-            int mx=vbound(gui_mouse_x()-d->x,0,d->w-1);
-            int my=vbound(gui_mouse_y()-d->y,0,d->h-1);
+            int mx=vbound(Backend::mouse->getVirtualScreenX()-d->x,0,d->w-1);
+            int my=vbound(Backend::mouse->getVirtualScreenY()-d->y,0,d->h-1);
             
-            if(is_large)
+            if(is_large())
             {
                 mx/=2;
                 my/=2;
@@ -693,12 +694,12 @@ int d_spectile_proc(int msg,DIALOG *d,int c)
     int d1=d->d1;
     int ret=d_qtile_proc(msg,d,c);
     
-    if(d1!=d->d1)
-    {
-        (d+14)->d1=0;
-        (d+14)->d2=0;
-        (d+14)->flags|=D_DIRTY;
-        d->w=16*(is_large+1);
+	if (d1 != d->d1)
+	{
+		(d + 14)->d1 = 0;
+		(d + 14)->d2 = 0;
+		(d + 14)->flags |= D_DIRTY;
+		d->w = 16 * (is_large() ? 2 : 1);
         (d-1)->w=d->w+4;
         d->flags|=D_DIRTY;
         (d-1)->flags|=D_DIRTY;
@@ -1012,7 +1013,7 @@ int sso_raw_data(subscreen_object *tempsso)
     sso_raw_data_dlg[2].dp=raw_text;
     sso_raw_data_dlg[2].d2=0;
     
-    if(is_large)
+    if(is_large())
         large_dialog(sso_raw_data_dlg);
         
     zc_popup_dialog(sso_raw_data_dlg,2);
@@ -1446,7 +1447,7 @@ int sso_properties(subscreen_object *tempsso)
     if(biic_cnt==-1)
         build_biic_list();
         
-    if(is_large && !sso_properties_dlg[0].d1)
+    if(is_large() && !sso_properties_dlg[0].d1)
     {
         sso_properties_dlg[126].proc = sso_properties_dlg[136].proc = sso_properties_dlg[137].proc =
                                            sso_properties_dlg[138].proc = jwin_droplist_proc; // jwin_edit_proc, but sometimes jwin_droplist_proc
@@ -1531,7 +1532,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[36],cset_caption1);
         replacedp(sso_properties_dlg[37],cset_caption2);
         
-        ListData csettype_list(csettypelist, is_large ? &lfont_l : &font);
+        ListData csettype_list(csettypelist, is_large() ? &lfont_l : &font);
         sso_properties_dlg[38].proc=d_csl_proc;
         //A dubious cast, but I think correct -DD
         replacedp(sso_properties_dlg[38],(char *)&csettype_list);
@@ -1540,7 +1541,7 @@ int sso_properties(subscreen_object *tempsso)
         
         extract_cset(sso_properties_dlg+38, tempsso, 1);
         sso_properties_dlg[40].proc=d_csl2_proc;
-        ListData misccset_list(misccsetlist, is_large? &lfont_l : &font);
+        ListData misccset_list(misccsetlist, is_large()? &lfont_l : &font);
         replacedp(sso_properties_dlg[40],(char *)&misccset_list);
         sso_properties_dlg[40].d1=tempsso->color1;
         update_csl_proc(sso_properties_dlg+39, sso_properties_dlg[38].d1);
@@ -1550,8 +1551,8 @@ int sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[98].d1=tempsso->d1;
         sso_properties_dlg[98].d2=tempsso->d2;
         sso_properties_dlg[98].proc=d_tileblock_proc;
-        sso_properties_dlg[98].w=is_large?64:32;
-        sso_properties_dlg[98].h=is_large?64:32;
+        sso_properties_dlg[98].w=is_large()?64:32;
+        sso_properties_dlg[98].h=is_large()?64:32;
         sso_properties_dlg[97].w=sso_properties_dlg[98].w+4;
         sso_properties_dlg[97].h=sso_properties_dlg[98].h+4;
         sso_properties_dlg[102].flags=tempsso->d3?D_SELECTED:0;
@@ -2016,7 +2017,7 @@ int sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[103].flags|=(tempsso->d2)?D_SELECTED:0;
         
         replacedp(sso_properties_dlg[115],button_caption);
-        ListData button_list(buttonlist, is_large? &lfont_l : &font);
+        ListData button_list(buttonlist, is_large()? &lfont_l : &font);
         replacedp(sso_properties_dlg[119],(char *)&button_list);
         
         sso_properties_dlg[119].d1=tempsso->d1;
@@ -2163,7 +2164,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[131],item_2_caption);
         replacedp(sso_properties_dlg[132],item_3_caption);
         sso_properties_dlg[136].proc=jwin_droplist_proc;
-        ListData icounter_list(icounterlist, is_large ? &lfont_l : &font);
+        ListData icounter_list(icounterlist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[136],(char *)&icounter_list);
         sso_properties_dlg[136].d1=tempsso->d7;
         sso_properties_dlg[136].x-=13;
@@ -2631,14 +2632,14 @@ int sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[46].d1=tempsso->color2;
         update_ctl_proc(sso_properties_dlg+46, sso_properties_dlg[44].d1);
         
-        sso_properties_dlg[98].w=(tempsso->d7?112:96)*(is_large+1);
-        sso_properties_dlg[98].h=(tempsso->d7?112:48)*(is_large+1);
+        sso_properties_dlg[98].w=(tempsso->d7?112:96)*(is_large() ? 2 : 1);
+        sso_properties_dlg[98].h=(tempsso->d7?112:48)*(is_large() ? 2 : 1);
         sso_properties_dlg[97].w=sso_properties_dlg[98].w+4;
         sso_properties_dlg[97].h=sso_properties_dlg[98].h+4;
         sso_properties_dlg[98].d1=tempsso->d1;
         sso_properties_dlg[98].fg=tempsso->d2;
-        sso_properties_dlg[101].w=(tempsso->d7?32:16)*(is_large+1);
-        sso_properties_dlg[101].h=(tempsso->d7?48:16)*(is_large+1);
+        sso_properties_dlg[101].w=(tempsso->d7?32:16)*(is_large() ? 2 : 1);
+        sso_properties_dlg[101].h=(tempsso->d7?48:16)*(is_large() ? 2 : 1);
         sso_properties_dlg[100].w=sso_properties_dlg[101].w+4;
         sso_properties_dlg[100].h=sso_properties_dlg[101].h+4;
         sso_properties_dlg[101].d1=tempsso->d3;
@@ -2703,13 +2704,13 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[36],cset_caption1);
         replacedp(sso_properties_dlg[37],cset_caption2);
         sso_properties_dlg[38].proc=d_csl_proc;
-        ListData csettype_list(csettypelist, is_large ? &lfont_l : &font);
+        ListData csettype_list(csettypelist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[38],(char *)&csettype_list);
         replacedp(sso_properties_dlg[39],scset_caption);
         
         extract_cset(sso_properties_dlg+38, tempsso, 1);
         sso_properties_dlg[40].proc=d_csl2_proc;
-        ListData misccset_list(misccsetlist, is_large ? &lfont_l : &font);
+        ListData misccset_list(misccsetlist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[40],(char *)&misccset_list);
         sso_properties_dlg[40].d1=tempsso->color1;
         update_csl_proc(sso_properties_dlg+39, sso_properties_dlg[38].d1);
@@ -2718,8 +2719,8 @@ int sso_properties(subscreen_object *tempsso)
         
         sso_properties_dlg[98].d1=tempsso->d1;
         sso_properties_dlg[98].d2=tempsso->d2;
-        sso_properties_dlg[98].w=is_large?32:16;
-        sso_properties_dlg[98].h=is_large?32:16;
+        sso_properties_dlg[98].w=is_large()?32:16;
+        sso_properties_dlg[98].h=is_large()?32:16;
         sso_properties_dlg[97].w=sso_properties_dlg[98].w+4;
         sso_properties_dlg[97].h=sso_properties_dlg[98].h+4;
         sso_properties_dlg[98].proc=d_tileblock_proc;
@@ -2774,7 +2775,7 @@ int sso_properties(subscreen_object *tempsso)
         h_stri=14;
         
         sso_properties_dlg[38].proc=d_csl_proc;
-        ListData csettype_list(csettypelist, is_large ? &lfont_l : &font);
+        ListData csettype_list(csettypelist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[36],cset_caption1);
         replacedp(sso_properties_dlg[37],cset_caption2);
         replacedp(sso_properties_dlg[38],(char *)&csettype_list);
@@ -2782,7 +2783,7 @@ int sso_properties(subscreen_object *tempsso)
         
         extract_cset(sso_properties_dlg+38, tempsso, 1);
         sso_properties_dlg[40].proc=d_csl2_proc;
-        ListData misccset_list(misccsetlist, is_large ? &lfont_l : &font);
+        ListData misccset_list(misccsetlist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[40],(char *)&misccset_list);
         sso_properties_dlg[40].d1=tempsso->color1;
         update_csl_proc(sso_properties_dlg+39, sso_properties_dlg[38].d1);
@@ -2790,8 +2791,8 @@ int sso_properties(subscreen_object *tempsso)
         
         sso_properties_dlg[98].d1=tempsso->d1;
         sso_properties_dlg[98].d2=tempsso->d2;
-        sso_properties_dlg[98].w=is_large?32:16;
-        sso_properties_dlg[98].h=is_large?32:16;
+        sso_properties_dlg[98].w=is_large()?32:16;
+        sso_properties_dlg[98].h=is_large()?32:16;
         sso_properties_dlg[97].w=sso_properties_dlg[98].w+4;
         sso_properties_dlg[97].h=sso_properties_dlg[98].h+4;
         sso_properties_dlg[98].proc=d_tileblock_proc;
@@ -2848,7 +2849,7 @@ int sso_properties(subscreen_object *tempsso)
         h_stri=14;
         
         sso_properties_dlg[38].proc=d_csl_proc;
-        ListData csettype_list(csettypelist, is_large ? &lfont_l : &font);
+        ListData csettype_list(csettypelist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[36],cset_caption1);
         replacedp(sso_properties_dlg[37],cset_caption2);
         replacedp(sso_properties_dlg[38],(char *)&csettype_list);
@@ -2857,7 +2858,7 @@ int sso_properties(subscreen_object *tempsso)
         
         extract_cset(sso_properties_dlg+38, tempsso, 1);
         sso_properties_dlg[40].proc=d_csl2_proc;
-        ListData misccset_list(misccsetlist, is_large ? &lfont_l : &font);
+        ListData misccset_list(misccsetlist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_dlg[40],(char *)&misccset_list);
         sso_properties_dlg[40].d1=tempsso->color1;
         update_csl_proc(sso_properties_dlg+39, sso_properties_dlg[38].d1);
@@ -2899,9 +2900,9 @@ int sso_properties(subscreen_object *tempsso)
             sso_properties_dlg[112].d2=sso_properties_dlg[112].d1;
         }
         
-        sso_properties_dlg[98].w*=(is_large?2:1);
+        sso_properties_dlg[98].w*=(is_large()?2:1);
         sso_properties_dlg[97].w=sso_properties_dlg[98].w+4;
-        sso_properties_dlg[98].h=is_large?32:16;
+        sso_properties_dlg[98].h=is_large()?32:16;
         sso_properties_dlg[97].h=sso_properties_dlg[98].h+4;
         sso_properties_dlg[98].d2=tempsso->d4;
         sso_properties_dlg[98].proc=d_spectile_proc;
@@ -2949,7 +2950,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[10],y_str);
         y_stri=10;
         
-        ListData csettype_list(csettypelist, is_large ? &lfont_l : &font);
+        ListData csettype_list(csettypelist, is_large() ? &lfont_l : &font);
         sso_properties_dlg[38].proc=d_csl_proc;
         replacedp(sso_properties_dlg[36],cset_caption1);
         replacedp(sso_properties_dlg[37],cset_caption2);
@@ -2957,7 +2958,7 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_dlg[39],scset_caption);
         
         extract_cset(sso_properties_dlg+38, tempsso, 1);
-        ListData misccset_list(misccsetlist,is_large ? &lfont_l : &font);
+        ListData misccset_list(misccsetlist,is_large() ? &lfont_l : &font);
         sso_properties_dlg[40].proc=d_csl2_proc;
         replacedp(sso_properties_dlg[40],(char *)&misccset_list);
         sso_properties_dlg[40].d1=tempsso->color1;
@@ -2968,8 +2969,8 @@ int sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[98].d1=tempsso->d1;
         sso_properties_dlg[98].d2=tempsso->d2;
         sso_properties_dlg[98].proc=d_tileblock_proc;
-        sso_properties_dlg[98].w=is_large?64:32;
-        sso_properties_dlg[98].h=is_large?64:32;
+        sso_properties_dlg[98].w=is_large()?64:32;
+        sso_properties_dlg[98].h=is_large()?64:32;
         sso_properties_dlg[97].w=sso_properties_dlg[98].w+4;
         sso_properties_dlg[97].h=sso_properties_dlg[98].h+4;
         sso_properties_dlg[102].flags=tempsso->d3?D_SELECTED:0;
@@ -4207,10 +4208,10 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
     {
         for(int i=ss_objects(css)-1; i>=0; --i)
         {
-            int x=sso_x(&css->objects[i])*(1+is_large);
-            int y=sso_y(&css->objects[i])*(1+is_large);
-            int w=sso_w(&css->objects[i])*(1+is_large);
-            int h=sso_h(&css->objects[i])*(1+is_large);
+			int x = sso_x(&css->objects[i])*(is_large() ? 2 : 1);
+            int y=sso_y(&css->objects[i])*(is_large() ? 2 : 1);
+            int w=sso_w(&css->objects[i])*(is_large() ? 2 : 1);
+            int h=sso_h(&css->objects[i])*(is_large() ? 2 : 1);
             
             switch(get_alignment(&css->objects[i]))
             {
@@ -4227,7 +4228,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
                 break;
             }
             
-            if(isinRect(gui_mouse_x(),gui_mouse_y(),d->x+x, d->y+y, d->x+x+w-1, d->y+y+h-1))
+            if(isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+x, d->y+y, d->x+x+w-1, d->y+y+h-1))
             {
                 if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
                 {
@@ -4255,7 +4256,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             }
         }
         
-        if(gui_mouse_b()&2) //right mouse button
+        if(Backend::mouse->rightButtonClicked()) //right mouse button
         {
             object_message(d,MSG_DRAW,0);
             
@@ -4265,7 +4266,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             else
                 subscreen_rc_menu[3].flags&=~D_DISABLED;
             
-            int m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
+            int m = popup_menu(subscreen_rc_menu, Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY());
             
             switch(m)
             {
@@ -4336,9 +4337,9 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
                 }
             }
             
-            if(is_large)
+            if(is_large())
             {
-                stretch_blit(buf,screen,0,0,d->w/(1+is_large),d->h/(1+is_large),d->x,d->y,d->w,d->h);
+                stretch_blit(buf,screen,0,0,d->w/(is_large() ? 2 : 1),d->h/(is_large() ? 2 : 1),d->x,d->y,d->w,d->h);
             }
             else
             {
@@ -5608,13 +5609,13 @@ int onActivePassive()
     if(css->ss_type == sstACTIVE)
     {
         css->ss_type = sstPASSIVE;
-        subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
+        subscreen_dlg[3].h=60*(is_large() ? 2 : 1)-(is_large()?4:0);
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
     }
     else if(css->ss_type == sstPASSIVE)
     {
         css->ss_type = sstACTIVE;
-        subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
+        subscreen_dlg[3].h=172*(is_large() ? 2 : 1)-(is_large()?4:0);
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
     }
     
@@ -5772,7 +5773,7 @@ int onNewSubscreenObject()
     ssolist_dlg[0].dp2=lfont;
     build_bisso_list();
     
-    if(is_large)
+    if(is_large())
         large_dialog(ssolist_dlg);
         
     ret=zc_popup_dialog(ssolist_dlg,2);
@@ -6340,7 +6341,7 @@ static int onEditGrid()
     grid_dlg[10].dp=yoffset;
     grid_dlg[12].d1=zinit.ss_grid_color;
     
-    if(is_large)
+    if(is_large())
         large_dialog(grid_dlg);
         
     int ret = zc_popup_dialog(grid_dlg,2);
@@ -6372,7 +6373,7 @@ int onSelectionOptions()
     sel_options_dlg[6].d1=zinit.ss_bbox_1_color;
     sel_options_dlg[8].d1=zinit.ss_bbox_2_color;
     
-    if(is_large)
+    if(is_large())
         large_dialog(sel_options_dlg);
         
     int ret = zc_popup_dialog(sel_options_dlg,2);
@@ -6670,7 +6671,7 @@ void edit_subscreen()
     
     selectBwpn(0, 0);
     
-    if(is_large)
+    if(is_large())
     {
         bool enlarge = subscreen_dlg[0].d1==0;
         
@@ -6682,9 +6683,9 @@ void edit_subscreen()
             subscreen_dlg[3].x+=1;
             
             if(css->ss_type == sstPASSIVE)
-                subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
+                subscreen_dlg[3].h=60*(is_large() ? 2 : 1)-(is_large() ?4:0);
             else if(css->ss_type == sstACTIVE)
-                subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
+                subscreen_dlg[3].h=172*(is_large() ? 2 : 1)-(is_large() ?4:0);
                 
             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
         }
@@ -6962,7 +6963,7 @@ int onEditSubscreens()
     sslist_dlg[0].dp2=lfont;
     sstemplatelist_dlg[0].dp2=lfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(sslist_dlg);
         
     while(ret!=0&&ret!=5)
@@ -6983,18 +6984,18 @@ int onEditSubscreens()
         {
             if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstACTIVE)
             {
-                subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
+                subscreen_dlg[3].h=172*(is_large() ? 2 :1)-(is_large() ?4:0);
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
             }
             else if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstPASSIVE)
             {
-                subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
+                subscreen_dlg[3].h=60*(is_large() ? 2 : 1)-(is_large() ?4:0);
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                 //iu;hukl;kh;
             }
             else
             {
-                subscreen_dlg[3].h=20*(1+is_large);
+                subscreen_dlg[3].h=20*(is_large() ? 2 : 1);
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
             }
             
@@ -7003,7 +7004,7 @@ int onEditSubscreens()
             
             if(css->objects[0].type==ssoNULL)
             {
-                if(is_large)
+                if(is_large())
                     large_dialog(sstemplatelist_dlg);
                     
                 ret=zc_popup_dialog(sstemplatelist_dlg,4);
@@ -7054,14 +7055,14 @@ int onEditSubscreens()
                         {
                             css->ss_type=sstACTIVE;
                             sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=172*(1+is_large);
+                            subscreen_dlg[3].h=172*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                         else
                         {
                             css->ss_type=sstPASSIVE;
                             sprintf(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=60*(1+is_large);
+                            subscreen_dlg[3].h=60*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                     }
@@ -7106,7 +7107,7 @@ int onEditSubscreens()
                         {
                             css->ss_type=sstACTIVE;
                             sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=172*(1+is_large);
+                            subscreen_dlg[3].h=172*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                             
                         }
@@ -7114,7 +7115,7 @@ int onEditSubscreens()
                         {
                             css->ss_type=sstPASSIVE;
                             sprintf(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=60*(1+is_large);
+                            subscreen_dlg[3].h=60*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                     }
@@ -7132,7 +7133,7 @@ int onEditSubscreens()
         }
     }
     
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return D_O_K;
 }
 

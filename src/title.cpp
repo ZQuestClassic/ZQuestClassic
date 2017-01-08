@@ -32,6 +32,7 @@
 #include "gamedata.h"
 #include "link.h"
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -42,6 +43,9 @@
 extern int loadlast;
 extern int skipcont;
 extern int skipicon;
+
+int miniscreenX(); 
+int miniscreenY(); 
 
 bool load_custom_game(int file);
 
@@ -2855,18 +2859,16 @@ int custom_game(int file)
     gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
     gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
     system_pal();
-    show_mouse(screen);
+	Backend::mouse->setCursorVisibility(true);
     
     clear_keybuf();
     
-    if(is_large)
+    if(is_large())
         large_dialog(gamemode_dlg);
         
     while((ret=zc_popup_dialog(gamemode_dlg,1))==1)
     {
-        scare_mouse();
-        blit(screen,tmp_scr,scrx,scry,0,0,320,240);
-        unscare_mouse();
+        blit(screen,tmp_scr,miniscreenX(), miniscreenY(),0,0,320,240);
         
         int  sel=0;
         static EXT_LIST list[] =
@@ -2898,12 +2900,12 @@ int custom_game(int file)
             gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
         }
         
-        scare_mouse();
-        blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-        unscare_mouse();
+        blit(tmp_scr,screen,0,0, miniscreenX(), miniscreenY(),320,240);
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
-    show_mouse(NULL);
+	Backend::mouse->setCursorVisibility(false);
     game_pal();
     key[KEY_ESC]=0;
     chosecustomquest = (ret==5);

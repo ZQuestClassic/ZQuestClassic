@@ -36,17 +36,11 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
-//#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
-//#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
-extern BITMAP *hw_screen;
-//#endif
-extern int zq_screen_w, zq_screen_h;
+
 extern int joystick_index;
 
 extern bool is_zquest();
@@ -406,23 +400,21 @@ void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, i
 
 int mouse_in_rect(int x,int y,int w,int h)
 {
-    return ((gui_mouse_x() >= x) && (gui_mouse_y() >= y) &&
-            (gui_mouse_x() < x + w) && (gui_mouse_y() < y + h));
+    return ((Backend::mouse->getVirtualScreenX() >= x) && (Backend::mouse->getVirtualScreenY() >= y) &&
+            (Backend::mouse->getVirtualScreenX() < x + w) && (Backend::mouse->getVirtualScreenY() < y + h));
 }
 
 static int jwin_do_x_button(BITMAP *dest, int x, int y)
 {
     int down=0, last_draw = 0;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
         down = mouse_in_rect(x,y,16,14);
         
         if(down!=last_draw)
         {
-            scare_mouse();
             draw_x_button(dest,x,y,down);
-            unscare_mouse();
             last_draw = down;
         }
         
@@ -432,9 +424,7 @@ static int jwin_do_x_button(BITMAP *dest, int x, int y)
     
     if(down)
     {
-        scare_mouse();
         draw_x_button(dest,x,y,0);
-        unscare_mouse();
     }
     
     return down;
@@ -897,16 +887,14 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
         
         /* or just toggle */
         d->flags ^= D_SELECTED;
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         break;
         
     case MSG_CLICK:
         last_draw = 0;
         
         /* track the mouse until it is released */
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
             
@@ -918,31 +906,15 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         /* redraw in normal state */
@@ -951,9 +923,7 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -983,7 +953,7 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c)
         last_draw = 0;
         
         /* track the mouse until it is released */
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
             
@@ -995,31 +965,15 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         /* redraw in normal state */
@@ -1028,9 +982,7 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -1195,14 +1147,12 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
             buf[0] = s[p];
             x += text_length((d->dp2) ? (FONT*)d->dp2 : font, buf);
             
-            if(x > gui_mouse_x())
+            if(x > Backend::mouse->getVirtualScreenX())
                 break;
         }
         
         d->d2 = MID(0, p, l);
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         break;
         
     case MSG_WANTFOCUS:
@@ -1247,9 +1197,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         {
             if(d->flags & D_EXIT)
             {
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 return D_CLOSE;
             }
             else
@@ -1282,9 +1230,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         }
         
         /* if we changed something, better redraw... */
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         return D_USED_CHAR;
     }
     
@@ -1351,7 +1297,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
     
     // find out which object is being clicked
     
-    yy = gui_mouse_y();
+    yy = Backend::mouse->getVirtualScreenY();
     
     if(yy <= d->y+2+bh)
     {
@@ -1371,7 +1317,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
             obj = bottom_bar;
     }
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
         _calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
         
@@ -1406,10 +1352,8 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
             if(down!=last_draw || redraw)
             {
                 vsync();
-                scare_mouse();
                 d->proc(MSG_DRAW, d, 0);
                 draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, down*3);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -1421,12 +1365,12 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
             {
                 if(obj==top_bar)
                 {
-                    if(gui_mouse_y() < d->y+2+bh+pos)
+                    if(Backend::mouse->getVirtualScreenY() < d->y+2+bh+pos)
                         yy = *offset - height;
                 }
                 else
                 {
-                    if(gui_mouse_y() >= d->y+2+bh+pos+len)
+                    if(Backend::mouse->getVirtualScreenY() >= d->y+2+bh+pos+len)
                         yy = *offset + height;
                 }
                 
@@ -1440,9 +1384,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
                 {
                     *offset = yy;
                     vsync();
-                    scare_mouse();
                     d->proc(MSG_DRAW, d, 0);
-                    unscare_mouse();
                 }
             }
             
@@ -1455,11 +1397,11 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
             
         case bar:
         default:
-            xx = gui_mouse_y() - pos;
+            xx = Backend::mouse->getVirtualScreenY() - pos;
             
-            while(gui_mouse_b())
+            while(Backend::mouse->anyButtonClicked())
             {
-                yy = (listsize * (gui_mouse_y() - xx) + hh/2) / hh;
+                yy = (listsize * (Backend::mouse->getVirtualScreenY() - xx) + hh/2) / hh;
                 
                 if(yy > listsize-height)
                     yy = listsize-height;
@@ -1470,33 +1412,14 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
                 if(yy != *offset)
                 {
                     *offset = yy;
-                    scare_mouse();
                     d->proc(MSG_DRAW, d, 0);
-                    unscare_mouse();
                 }
                 
                 // let other objects continue to animate
                 broadcast_dialog_message(MSG_IDLE, 0);
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
             
             break;
@@ -1505,23 +1428,8 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
         
         redraw = 0;
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         //	#endif
         // let other objects continue to animate
@@ -1530,9 +1438,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
     
     if(last_draw==1)
     {
-        scare_mouse();
         draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, 0);
-        unscare_mouse();
     }
 }
 
@@ -1602,7 +1508,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
         
     height = (d->h-3) / text_height(*data->font);
     
-    i = MID(0, ((gui_mouse_y() - d->y - 4) / text_height(*data->font)),
+    i = MID(0, ((Backend::mouse->getVirtualScreenY() - d->y - 4) / text_height(*data->font)),
             ((d->h-3) / text_height(*data->font) - 1));
     i += d->d2;
     
@@ -1617,9 +1523,9 @@ static void _handle_jwin_listbox_click(DIALOG *d)
             i = listsize-1;
     }
     
-    if(gui_mouse_y() <= d->y)
+    if(Backend::mouse->getVirtualScreenY() <= d->y)
         i = MAX(i-1, 0);
-    else if(gui_mouse_y() >= d->y+d->h)
+    else if(Backend::mouse->getVirtualScreenY() >= d->y+d->h)
         i = MIN(i+1, listsize-1);
         
     if(i != d->d1)
@@ -1642,9 +1548,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
         i = d->d2;
         _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
         
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         
         if(i != d->d2)
             rest_callback(MID(10, text_height(font)*16-d->h, 100), idle_cb);
@@ -1825,7 +1729,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         height = (d->h-3) / text_height(*data->font);
         bar = (listsize > height);
         
-        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        if((!bar) || (Backend::mouse->getVirtualScreenX() < d->x+d->w-18))
         {
             if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
             {
@@ -1840,48 +1744,29 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 
                 if(redraw)
                 {
-                    scare_mouse();
                     object_message(d, MSG_DRAW, 0);
-                    unscare_mouse();
                 }
             }
             
             _handle_jwin_listbox_click(d);
             
-            bool rightClicked=(gui_mouse_b()&2)!=0;
-            while(gui_mouse_b())
+            bool rightClicked=(Backend::mouse->rightButtonClicked())!=0;
+            while(Backend::mouse->anyButtonClicked())
             {
                 broadcast_dialog_message(MSG_IDLE, 0);
                 d->flags |= D_INTERNAL;
                 _handle_jwin_listbox_click(d);
                 d->flags &= ~D_INTERNAL;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
             
             if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
             {
                 typedef void (*funcType)(int /* index */, int /* x */, int /* y */);
                 funcType func=reinterpret_cast<funcType>(d->dp3);
-                func(d->d1, gui_mouse_x(), gui_mouse_y());
+                func(d->d1, Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY());
             }
             
             if(d->flags & D_USER)
@@ -1902,14 +1787,14 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         
     case MSG_DCLICK:
         // Ignore double right-click
-        if((gui_mouse_b()&2)!=0)
+        if((Backend::mouse->rightButtonClicked())!=0)
             break;
         
         (*data->listFunc)(-1, &listsize);
         height = (d->h-3) / text_height(*data->font);
         bar = (listsize > height);
         
-        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        if((!bar) || (Backend::mouse->getVirtualScreenX() < d->x+d->w-18))
         {
             if(d->flags & D_EXIT)
             {
@@ -2023,9 +1908,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
             
             /* if we changed something, better redraw... */
             _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
-            scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
             return D_USED_CHAR;
         }
         
@@ -2326,7 +2209,7 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
         /* figure out if it's on the text or the scrollbar */
         bar = (d->d1 > height);
         
-        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        if((!bar) || (Backend::mouse->getVirtualScreenX() < d->x+d->w-18))
         {
             /* clicked on the text area */
             ret = D_O_K;
@@ -2404,9 +2287,7 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
         /* if we changed something, better redraw... */
         if(d->d2 != start)
         {
-            scare_mouse();
             d->proc(MSG_DRAW, d, 0);
-            unscare_mouse();
         }
         
         ret = used;
@@ -2737,8 +2618,8 @@ static int menu_mouse_object(MENU_INFO *m)
     {
         get_menu_pos(m, c, &x, &y, &w);
         
-        if((gui_mouse_x() >= x) && (gui_mouse_x() < x+w) &&
-                (gui_mouse_y() >= y) && (gui_mouse_y() < y+(text_height(font)+4)))
+		if((Backend::mouse->getVirtualScreenX() >= x) && (Backend::mouse->getVirtualScreenX() < x+w) &&
+                (Backend::mouse->getVirtualScreenY() >= y) && (Backend::mouse->getVirtualScreenY() < y+(text_height(font)+4)))
             return (m->menu[c].text[0]) ? c : -1;
     }
     
@@ -2927,7 +2808,7 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
     MENU_INFO *i;
     int c, c2;
     int ret = -1;
-    int mouse_on = gui_mouse_b();
+    int mouse_on = Backend::mouse->anyButtonClicked();
     int joy_on = joy[joystick_index].stick[0].axis[0].d1 + joy[joystick_index].stick[0].axis[0].d2 +
                  joy[joystick_index].stick[0].axis[1].d1 + joy[joystick_index].stick[0].axis[1].d2 +
                  joy[joystick_index].button[0].b + joy[joystick_index].button[1].b;
@@ -2937,14 +2818,12 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
     int _x, _y;
     int redraw = TRUE;
     
-    scare_mouse();
-    
     fill_menu_info(&m, menu, parent, bar, x, y, minw, minh);
     
     if(repos)
     {
-        m.x = MID(0, m.x, zq_screen_w-m.w-1);
-        m.y = MID(0, m.y, zq_screen_h-m.h-1);
+        m.x = MID(0, m.x, Backend::graphics->virtualScreenW()-m.w-1);
+        m.y = MID(0, m.y, Backend::graphics->virtualScreenH()-m.h-1);
     }
     
     /* save screen under the menu */
@@ -2962,8 +2841,6 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
         
     if((m.sel < 0) && (!mouse_on) && (!bar))
         m.sel = 0;
-        
-    unscare_mouse();
     
     do
     {
@@ -2972,13 +2849,13 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
         
         c = menu_mouse_object(&m);
         
-        if((gui_mouse_b()) || (c != mouse_sel))
+        if((Backend::mouse->anyButtonClicked()) || (c != mouse_sel))
             m.sel = mouse_sel = c;
             
-        if(gui_mouse_b())                                       /* if button pressed */
+        if(Backend::mouse->anyButtonClicked())                                       /* if button pressed */
         {
-            if((gui_mouse_x() < m.x) || (gui_mouse_x() > m.x+m.w) ||
-                    (gui_mouse_y() < m.y) || (gui_mouse_y() > m.y+m.h))
+            if((Backend::mouse->getVirtualScreenX() < m.x) || (Backend::mouse->getVirtualScreenX() > m.x+m.w) ||
+                    (Backend::mouse->getVirtualScreenY() < m.y) || (Backend::mouse->getVirtualScreenY() > m.y+m.h))
             {
                 if(!mouse_on)                                       /* dismiss menu? */
                     break;
@@ -3180,8 +3057,6 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
         
         if((redraw) || (m.sel != old_sel))                      /* selection changed? */
         {
-            scare_mouse();
-            
             if(redraw)
             {
                 draw_menu(&m);
@@ -3195,8 +3070,6 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
                 if(m.sel >= 0)
                     draw_menu_item(&m, m.sel);
             }
-            
-            unscare_mouse();
         }
         
         if((ret >= 0) && (m.menu[ret].flags & D_DISABLED))
@@ -3211,9 +3084,7 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
                     if(m.hover)
                     {
                         m.hover = 0;
-                        scare_mouse();
                         draw_menu(&m);
-                        unscare_mouse();
                     }
                     
                     get_menu_pos(&m, ret, &_x, &_y, &c);
@@ -3236,32 +3107,15 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
                 }
             }
         }
+
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
-        if((m.bar) && (!gui_mouse_b()) && (!keypressed()) &&
-                ((gui_mouse_x() < m.x) || (gui_mouse_x() > m.x+m.w) ||
-                 (gui_mouse_y() < m.y) || (gui_mouse_y() > m.y+m.h)))
+        if((m.bar) && (!Backend::mouse->anyButtonClicked()) && (!keypressed()) &&
+                ((Backend::mouse->getVirtualScreenX() < m.x) || (Backend::mouse->getVirtualScreenX() > m.x+m.w) ||
+                 (Backend::mouse->getVirtualScreenY() < m.y) || (Backend::mouse->getVirtualScreenY() > m.y+m.h)))
             break;
-            
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
-        
+     
     }
     while(ret < 0);
     
@@ -3298,9 +3152,7 @@ getout:
     /* restore screen */
     if(m.saved)
     {
-        scare_mouse();
         blit(m.saved, screen, 0, 0, m.x, m.y, m.w+1, m.h+1);
-        unscare_mouse();
         destroy_bitmap(m.saved);
     }
     
@@ -3318,8 +3170,10 @@ int jwin_do_menu(MENU *menu, int x, int y)
     
     do
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
-    while(gui_mouse_b());
+    while(Backend::mouse->anyButtonClicked());
     
     return ret;
 }
@@ -3377,8 +3231,10 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
         
         do
         {
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
-        while(gui_mouse_b());
+        while(Backend::mouse->anyButtonClicked());
         
         break;
     }
@@ -3418,7 +3274,7 @@ int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s
     int maxlen = 0;
     int len1, len2, len3;
     int avg_w = text_length(font, " ");
-    int avg_h = text_height(font)+is_large;
+    int avg_h = text_height(font)+is_large();
     int buttons = 0;
     int yofs = (title ? 22 : 0);
     int b[3];
@@ -3524,10 +3380,12 @@ int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s
     
     do
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
-    while(gui_mouse_b());
+    while(Backend::mouse->anyButtonClicked());
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(alert_dialog);
         alert_dialog[0].d1 = 0;
@@ -3596,21 +3454,21 @@ static int droplist(DIALOG *d)
     y = d->y + d->h;
     h = zc_min(listsize,8) * text_height(*data->font) + 8;
     
-    if(y+h >= zq_screen_h)
+    if(y+h >= Backend::graphics->virtualScreenH())
     {
         y = d->y - h;
     }
     
     x = d->x;
     w = d->w;
-    max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
+    max_w = zc_max(d->x+d->w, Backend::graphics->virtualScreenW()-d->x);
     
     for(int i=0; i<listsize; ++i)
     {
         w=zc_min(max_w,zc_max(w,text_length(*data->font,(*data->listFunc)(i, NULL))+39));
     }
     
-    if(x+w >= zq_screen_w)
+    if(x+w >= Backend::graphics->virtualScreenW())
     {
         x = d->x + d->w - w;
     }
@@ -3627,21 +3485,16 @@ static int droplist(DIALOG *d)
     // cancel
     droplist_dlg[0].x = 0;
     droplist_dlg[0].y = 0;
-    droplist_dlg[0].w = zq_screen_w;
-    droplist_dlg[0].h = zq_screen_h;
+    droplist_dlg[0].w = Backend::graphics->virtualScreenW();
+    droplist_dlg[0].h = Backend::graphics->virtualScreenH();
     
-    /*if (is_large)
-    {
-      large_dialog(droplist_dlg);
-    alert_dialog[0].d1 = 0;
-    }*/
     if(popup_zqdialog(droplist_dlg,1)==1)
     {
-        position_mouse_z(0);
+		Backend::mouse->setWheelPosition(0);
         return droplist_dlg[1].d1;
     }
     
-    position_mouse_z(0);
+	Backend::mouse->setWheelPosition(0);
     return d1;
 }
 
@@ -3673,9 +3526,7 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
     if(d->d1!=d->d2)
     {
         d->d1=d->d2;
-        scare_mouse();
         jwin_droplist_proc(MSG_DRAW, d, 0);
-        unscare_mouse();
     }
     
     if((d1 != d->d1) && (d->flags&D_EXIT))
@@ -3691,39 +3542,20 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
 dropit:
     last_draw = 0;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
         down = mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h);
         
         if(down!=last_draw)
         {
-            scare_mouse();
             draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
-            unscare_mouse();
             last_draw = down;
         }
         
         clear_keybuf();
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(!down)
@@ -3731,19 +3563,19 @@ dropit:
         return D_O_K;
     }
     
-    scare_mouse();
     draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-    unscare_mouse();
     
     d1 = d->d1;
     d->d2 = d->d1 = droplist(d);
     
-    scare_mouse();
     object_message(d, MSG_DRAW, 0);
-    unscare_mouse();
     
-    while(gui_mouse_b())
-        clear_keybuf();
+	while (Backend::mouse->anyButtonClicked())
+	{
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
+		clear_keybuf();
+	}
         
     return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
@@ -3776,9 +3608,7 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
         }
         
 gotit:
-        scare_mouse();
         jwin_list_proc(MSG_DRAW,d,0);
-        unscare_mouse();
         return D_USED_CHAR;
     }
     
@@ -4528,69 +4358,29 @@ bool do_text_button(int x,int y,int w,int h,const char *text)
 {
     bool over=false;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        //vsync();
         if(mouse_in_rect(x,y,w,h))
         {
             if(!over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
-                unscare_mouse();
                 over=true;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         else
         {
             if(over)
             {
-                vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
-                unscare_mouse();
                 over=false;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
     }
@@ -4602,38 +4392,18 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text)
 {
     bool over=false;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        //vsync();
         if(mouse_in_rect(x,y,w,h))
         {
             if(!over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
-                unscare_mouse();
                 over=true;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         else
@@ -4641,30 +4411,11 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text)
             if(over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
-                unscare_mouse();
                 over=false;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         
@@ -4673,29 +4424,10 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text)
     if(over)
     {
         vsync();
-        scare_mouse();
         jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
-        unscare_mouse();
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -4756,7 +4488,7 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
     {
         FONT *oldfont = font;
         
-        if(d->x<zq_screen_w&&d->y<zq_screen_h)
+        if(d->x<Backend::graphics->virtualScreenW() && d->y < Backend::graphics->virtualScreenH())
         {
             if(d->dp2)
             {
@@ -4866,8 +4598,8 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
                     //          //remember the x and y positions of the control
                     //          panel[d->d1].xy[counter*2]=current_object->x;
                     //          panel[d->d1].xy[counter*2+1]=current_object->y;
-                    current_object->x=zq_screen_w*3;
-                    current_object->y=zq_screen_h*3;
+                    current_object->x=Backend::graphics->virtualScreenW()*3;
+                    current_object->y=Backend::graphics->virtualScreenH()*3;
                 }
             }
         }
@@ -4936,8 +4668,8 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
             for(counter=0; counter<panel[i].objects; counter++)
             {
                 current_object=panel_dialog+(panel[i].dialog[counter]);
-                current_object->x=zq_screen_w*3;
-                current_object->y=zq_screen_h*3;
+                current_object->x=Backend::graphics->virtualScreenW()*3;
+                current_object->y=Backend::graphics->virtualScreenH()*3;
             }
         }
         
@@ -5011,8 +4743,8 @@ void jwin_center_dialog(DIALOG *dialog)
     ASSERT(dialog);
     
     /* how much to move by? */
-    xc = (zq_screen_w - dialog[0].w) / 2 - dialog[0].x;
-    yc = (zq_screen_h - dialog[0].h) / 2 - dialog[0].y;
+    xc = (Backend::graphics->virtualScreenW() - dialog[0].w) / 2 - dialog[0].x;
+    yc = (Backend::graphics->virtualScreenH() - dialog[0].h) / 2 - dialog[0].y;
     
     /* move it */
     for(c=0; dialog[c].proc; c++)
@@ -5249,10 +4981,10 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
         /* track the mouse until it is released */
         mp = slp;
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
-            msx = gui_mouse_x();
-            msy = gui_mouse_y();
+            msx = Backend::mouse->getVirtualScreenX();
+            msy = Backend::mouse->getVirtualScreenY();
             oldval = d->d2;
             
             if(vert)
@@ -5283,25 +5015,8 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
                 
                 object_message(d, MSG_DRAW, 0);
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
             
             /* let other objects continue to animate */
@@ -5390,10 +5105,10 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
             swap = state1;
             
         /* track the mouse until it is released */
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
-            state2 = ((gui_mouse_x() >= d->x) && (gui_mouse_y() >= d->y) &&
-                      (gui_mouse_x() < d->x + d->w) && (gui_mouse_y() < d->y + d->h));
+            state2 = ((Backend::mouse->getVirtualScreenX() >= d->x) && (Backend::mouse->getVirtualScreenY() >= d->y) &&
+                      (Backend::mouse->getVirtualScreenX() < d->x + d->w) && (Backend::mouse->getVirtualScreenY() < d->y + d->h));
                       
             if(swap)
                 state2 = !state2;
@@ -5409,25 +5124,8 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-            //	#ifdef _ZQUEST_SCALE_
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
-            
-            //	#endif
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         /* should we close the dialog? */

@@ -30,12 +30,7 @@
 #include <allegro.h>
 #include "tab_ctl.h"
 #include "zc_malloc.h"
-
-//#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
-extern BITMAP *hw_screen;
-//#endif
+#include "backend/AllBackends.h"
 
 extern bool is_zquest();
 
@@ -138,17 +133,13 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg)
 {
     bool over=false;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
-        vsync();
-        
-        if(is_in_rect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
+        if(is_in_rect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),x,y,x+w-1,y+h-1))
         {
             if(!over)
             {
-                scare_mouse();
                 draw_button(screen,x,y,w,h,text,bg,fg,D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -156,32 +147,14 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg)
         {
             if(over)
             {
-                scare_mouse();
                 draw_button(screen,x,y,w,h,text,bg,fg,0);
-                unscare_mouse();
                 over=false;
             }
         }
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
         
-        //	#endif
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -191,17 +164,15 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
 {
     bool over=false;
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
         vsync();
         
-        if(is_in_rect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
+        if(is_in_rect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),x,y,x+w-1,y+h-1))
         {
             if(!over)
             {
-                scare_mouse();
                 draw_button(screen,x,y,w,h,text,bg,fg,D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -209,60 +180,21 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
         {
             if(over)
             {
-                scare_mouse();
                 draw_button(screen,x,y,w,h,text,bg,fg,0);
-                unscare_mouse();
                 over=false;
             }
         }
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(over)
     {
-        vsync();
-        scare_mouse();
         draw_button(screen,x,y,w,h,text,bg,fg,0);
-        unscare_mouse();
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -635,9 +567,9 @@ int d_tab_proc(int msg, DIALOG *d, int c)
         d->d1|=0x00FF;
         
         // is the mouse on one of the tab arrows (if visible) or in the tab area?
-        if(uses_tab_arrows(panel, d->w)&&(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+d->w-28, d->y+2, d->x+d->w-1, d->y+15)))
+        if(uses_tab_arrows(panel, d->w)&&(is_in_rect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(), d->x+d->w-28, d->y+2, d->x+d->w-1, d->y+15)))
         {
-            if(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+d->w-28, d->y+2, d->x+d->w-15, d->y+15))
+            if(is_in_rect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(), d->x+d->w-28, d->y+2, d->x+d->w-15, d->y+15))
             {
                 if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A",d->bg,d->fg))
                 {
@@ -653,7 +585,7 @@ int d_tab_proc(int msg, DIALOG *d, int c)
                     d->flags|=D_DIRTY;
                 }
             }
-            else if(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+d->w-14, d->y+2, d->x+d->w-1, d->y+15))
+            else if(is_in_rect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(), d->x+d->w-14, d->y+2, d->x+d->w-1, d->y+15))
             {
                 if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B",d->bg,d->fg))
                 {
@@ -670,7 +602,7 @@ int d_tab_proc(int msg, DIALOG *d, int c)
                 }
             }
         }
-        else if(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+2, d->y+2, d->x+displayed_tabs_width(panel,((d->d1&0xFF00)>>8),d->w), d->y+text_height(font)+9))
+        else if(is_in_rect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(), d->x+2, d->y+2, d->x+displayed_tabs_width(panel,((d->d1&0xFF00)>>8),d->w), d->y+text_height(font)+9))
         {
             // for each tab...
             for(i=0; panel[i].text; i++)
@@ -684,7 +616,7 @@ int d_tab_proc(int msg, DIALOG *d, int c)
             }
             
             // find out what the new tab (tb) will be (where the mouse is)
-            selected=discern_tab(panel, ((d->d1&0xFF00)>>8), gui_mouse_x()-d->x-2);
+            selected=discern_tab(panel, ((d->d1&0xFF00)>>8), Backend::mouse->getVirtualScreenX()-d->x-2);
             
             if(selected!=-1&&selected!=(d->d1&0x00FF))
             {

@@ -11,18 +11,13 @@
 #include "jwin.h"
 #include <map>
 #include <stdio.h>
+#include "backend/AllBackends.h"
 
 extern int scheme[];
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
-
-//#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
-extern BITMAP *hw_screen;
 //#endif
 
 extern bool is_zquest();
@@ -367,25 +362,8 @@ void BasicEditboxView::draw()
     blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
     set_clip_rect(screen, 0, 0,SCREEN_W,SCREEN_H);
     
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 bool BasicEditboxView::mouseClick(int x, int y)

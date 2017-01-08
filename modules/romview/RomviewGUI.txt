@@ -5,6 +5,9 @@ set(ROMVIEW_GUI_SOURCES
 # Add or remove files here
 ################################
 
+src/backend/Backend.cpp
+src/backend/GraphicsBackend.cpp
+src/backend/MouseBackend.cpp
 src/editbox.cpp 
 src/EditboxModel.cpp 
 src/EditboxView.cpp 
@@ -12,7 +15,6 @@ src/gui.cpp
 src/jwin.cpp
 src/jwinfsel.cpp 
 src/tab_ctl.cpp
-src/zqscale.cpp 
 
 ## End of Romview GUI module
 )

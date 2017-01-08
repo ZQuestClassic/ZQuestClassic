@@ -51,6 +51,7 @@
 #include "jwinfsel.h"
 #include "zsys.h"
 #include "zc_malloc.h"
+#include "backend/AllBackends.h"
 
 extern FONT *lfont_l;
 
@@ -895,7 +896,7 @@ void enlarge_file_selector(int width, int height)
     jwin_center_dialog(file_selector);
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(file_selector);
         int bottom =
@@ -1000,8 +1001,10 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
     
     do
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
-    while(gui_mouse_b());
+    while(Backend::mouse->anyButtonClicked());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
     enlarge_file_selector(width, height);
@@ -1116,12 +1119,10 @@ static int fs_elist_proc(int msg, DIALOG *d, int c)
                 replace_filename(s, flist->dir, "", 256);
         }
         
-        scare_mouse();
         SEND_MESSAGE(file_selector+FS_FILES, MSG_START, 0);
         SEND_MESSAGE(file_selector+FS_FILES, MSG_DRAW, 0);
         SEND_MESSAGE(file_selector+FS_EDIT, MSG_START, 0);
         SEND_MESSAGE(file_selector+FS_EDIT, MSG_DRAW, 0);
-        unscare_mouse();
         
         if(ret & D_CLOSE)
             return (ret | SEND_MESSAGE(file_selector+FS_EDIT, MSG_KEY, 0)) & ~D_CLOSE;
@@ -1205,8 +1206,10 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
     
     do
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
-    while(gui_mouse_b());
+    while(Backend::mouse->anyButtonClicked());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
     enlarge_file_selector(width, height);
@@ -1324,8 +1327,10 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
     
     do
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
-    while(gui_mouse_b());
+    while(Backend::mouse->anyButtonClicked());
     
     file_selector[FS_TYPES].proc = fs_elist_proc;
     enlarge_file_selector(width,height);

@@ -29,6 +29,7 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -812,7 +813,6 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int div = atoi((char*)((d+1589)->dp));
         
         if(div == 0)
@@ -820,7 +820,6 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c)
             
         sprintf((char*)((d+6)->dp), "%d", atoi((char*)(d->dp))/div);
         (d+6)->proc(MSG_DRAW,d+6,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -841,10 +840,8 @@ int d_bombratioedit_proc(int msg,DIALOG *d,int c)
         if(atoi((char*)(d->dp)))
             sbombmax = atoi((char*)((d-1589)->dp))/div;
             
-        scare_mouse();
         sprintf((char*)((d-1583)->dp), "%d", sbombmax);
         (d-1583)->proc(MSG_DRAW,d-1583,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -1733,7 +1730,7 @@ int doInit(zinitdata *local_zinit)
     init_dlg[1704].dp=terminalvstring;
     init_dlg[1705].dp=thresholdstring;
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(init_dlg);
         init_dlg[0].d1 = 1;
@@ -1863,7 +1860,7 @@ void doFamily(int biicindx, zinitdata *local_zinit)
     for(i=7; i < endEquipField && it != f.end(); i++, it++)
     {
         init_dlg[i].proc = jwin_checkfont_proc;
-        init_dlg[i].dp2 = is_large? lfont_l : pfont;
+        init_dlg[i].dp2 = is_large() ? lfont_l : pfont;
         init_dlg[i].dp = (void *)item_string[it->itemid];
         init_dlg[i].flags = local_zinit->items[it->itemid] ? D_SELECTED : 0;
     }
@@ -1915,10 +1912,8 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
         *(p->first) = d->d1;
         doFamily(listidx2biic[d->d1], p->second);
         acquire_screen();
-        scare_mouse();
         init_dlg[4].proc(MSG_DRAW, &init_dlg[4], 0);
         //	broadcast_dialog_message(MSG_DRAW, 0);
-        unscare_mouse();
         release_screen();
     }
     

@@ -17,10 +17,8 @@ extern MENU the_menu[];
 
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
+bool is_large();
 
-bool game_vid_mode(int mode,int wait);
-int Z_init_timers();
-void Z_remove_timers();
 void Z_init_sound();
 
 void load_game_configs();
@@ -30,6 +28,9 @@ void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
 int onFullscreenMenu();
+int onWindowed1Menu();
+int onWindowed2Menu();
+int onWindowed4Menu();
 void f_Quit(int type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true);
 void updatescr(bool allowwavy);
@@ -37,8 +38,6 @@ void syskeys();
 void checkQuitKeys();
 void System();
 void system_pal();
-void switch_out_callback();
-void switch_in_callback();
 void game_pal();
 int  onSave();
 int  onQuit();
@@ -128,8 +127,8 @@ int after_time();
 
 enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
 
-void go();
-void comeback();
+void saveMiniscreen();
+void restoreMiniscreen();
 void dump_pal(BITMAP *dest);
 void show_paused(BITMAP *target);
 void show_fps(BITMAP *target);

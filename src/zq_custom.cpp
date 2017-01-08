@@ -33,6 +33,7 @@
 #include "ffasm.h"
 #include "defdata.h"
 #include "zc_malloc.h"
+#include "backend/AllBackends.h"
 
 extern int ex;
 extern void reset_itembuf(itemdata *item, int id);
@@ -87,7 +88,7 @@ int d_cstile_proc(int msg,DIALOG *d,int c)
     break;
     
     case MSG_DRAW:
-        if(is_large)
+        if(is_large())
         {
             d->w = 36;
             d->h = 36;
@@ -111,7 +112,7 @@ int d_cstile_proc(int msg,DIALOG *d,int c)
         }
         
         //    text_mode(d->bg);
-        FONT *fonty = is_large ? font : pfont;
+        FONT *fonty = is_large() ? font : pfont;
         textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile: %d",d->d1);
         textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
         break;
@@ -460,7 +461,7 @@ int jwin_nbutton_proc(int msg, DIALOG *d, int c)
     {
     case MSG_DRAW:
         tfont=font;
-        font=is_large?lfont_l:nfont;
+        font=is_large()?lfont_l:nfont;
         jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
         font=tfont;
         return D_O_K;
@@ -1103,7 +1104,6 @@ void test_item(itemdata test, int x, int y)
     item temp((fix)0,(fix)0,(fix)0,0,0,0);
     temp.yofs = 0;
     go();
-    scare_mouse();
     itemdata_dlg[0].flags=0;
     jwin_win_proc(MSG_DRAW, itemdata_dlg, 0);
     itemdata_dlg[0].flags=D_EXIT;
@@ -1111,8 +1111,7 @@ void test_item(itemdata test, int x, int y)
     
     frame=0;
 //  jwin_draw_frame(screen,itemdata_dlg[0].x+(itemdata_dlg[0].w/2)-32,itemdata_dlg[0].y+(itemdata_dlg[0].h/2)-32, is_large?68:20,is_large?68:20,FR_DEEP);
-    jwin_draw_frame(screen, x, y, is_large?68:20,is_large?68:20,FR_DEEP);
-    unscare_mouse();
+    jwin_draw_frame(screen, x, y, is_large()?68:20, is_large() ?68:20,FR_DEEP);
     
     for(;;)
     {
@@ -1121,10 +1120,8 @@ void test_item(itemdata test, int x, int y)
         clear_bitmap(buf);
         temp.animate(0);
         temp.draw(buf);
-        custom_vsync();
-        scare_mouse();
         
-        if(is_large)
+        if(is_large())
         {
             stretch_blit(buf,buf2,0,0,16,16,0,0,64,64);
 //      blit(buf2,screen,0,0,64,64,itemdata_dlg[0].x+(itemdata_dlg[0].w/2)-30,itemdata_dlg[0].y+(itemdata_dlg[0].h/2)-30);
@@ -1135,7 +1132,8 @@ void test_item(itemdata test, int x, int y)
             blit(buf,screen,0,0,x+2,y+2,16,16);
         }
         
-        unscare_mouse();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         //if(zqwin_scale > 1)
         {
@@ -1152,14 +1150,16 @@ void test_item(itemdata test, int x, int y)
             break;
         }
         
-        if(gui_mouse_b())
+        if(Backend::mouse->anyButtonClicked())
             break;
     }
     
     comeback();
     
-    while(gui_mouse_b())
+    while(Backend::mouse->anyButtonClicked())
     {
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         /* do nothing */
     }
     
@@ -1283,7 +1283,7 @@ void edit_itemdata(int index)
     for(int i=0; i<10; ++i)
     {
 //    itemdata_dlg[140+(i*2)].dp3 = is_large ? sfont3 : pfont;
-        itemdata_dlg[140+(i*2)].dp3 = is_large ? lfont_l : pfont;
+        itemdata_dlg[140+(i*2)].dp3 = is_large() ? lfont_l : pfont;
     }
     
     for(int j=0; j<biw_cnt; j++)
@@ -1349,7 +1349,7 @@ void edit_itemdata(int index)
     FONT *tfont=font;
     font=pfont;
     
-    if(is_large)
+    if(is_large())
         large_dialog(itemdata_dlg);
         
     do
@@ -1460,7 +1460,7 @@ void edit_itemdata(int index)
         
         if(ret==71)
         {
-            test_item(test,itemdata_dlg[0].x+itemdata_dlg[0].w/2-(is_large?34:10),itemdata_dlg[0].y+itemdata_dlg[0].h/2-(is_large?34:10));
+            test_item(test,itemdata_dlg[0].x+itemdata_dlg[0].w/2-(is_large()?34:10),itemdata_dlg[0].y+itemdata_dlg[0].h/2-(is_large()?34:10));
             sprintf(fcs,"%d",test.csets>>4);
             sprintf(frm,"%d",test.frames);
             sprintf(spd,"%d",test.speed);
@@ -1761,7 +1761,7 @@ void edit_weapondata(int index)
     sprintf(name,"%s",weapon_string[index]);
     wpndata_dlg[18].dp = name;
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(wpndata_dlg);
     }
@@ -2341,38 +2341,38 @@ const char *noyesmisclist(int index, int *list_size)
     return NULL;
 }
 
-static ListData walkmisc1_list(walkmisc1list, is_large? &lfont_l : &font);
-static ListData walkmisc2_list(walkmisc2list, is_large? &lfont_l : &font);
-static ListData walkmisc7_list(walkmisc7list, is_large? &lfont_l : &font);
-static ListData walkmisc9_list(walkmisc9list, is_large? &lfont_l : &font);
+static ListData walkmisc1_list(walkmisc1list, &font);
+static ListData walkmisc2_list(walkmisc2list, &font);
+static ListData walkmisc7_list(walkmisc7list, &font);
+static ListData walkmisc9_list(walkmisc9list, &font);
 
-static ListData gleeokmisc3_list(gleeokmisc3list, is_large? &lfont_l : &font);
-static ListData gohmamisc1_list(gohmamisc1list, is_large? &lfont_l : &font);
-static ListData manhandlamisc2_list(manhandlamisc2list, is_large? &lfont_l : &font);
-static ListData aquamisc1_list(aquamisc1list, is_large? &lfont_l : &font);
+static ListData gleeokmisc3_list(gleeokmisc3list, &font);
+static ListData gohmamisc1_list(gohmamisc1list, &font);
+static ListData manhandlamisc2_list(manhandlamisc2list, &font);
+static ListData aquamisc1_list(aquamisc1list, &font);
 
-static ListData patramisc4_list(patramisc4list, is_large? &lfont_l : &font);
-static ListData patramisc5_list(patramisc5list, is_large? &lfont_l : &font);
-static ListData patramisc10_list(patramisc10list, is_large? &lfont_l : &font);
+static ListData patramisc4_list(patramisc4list, &font);
+static ListData patramisc5_list(patramisc5list, &font);
+static ListData patramisc10_list(patramisc10list, &font);
 
-static ListData dodongomisc10_list(dodongomisc10list, is_large? &lfont_l : &font);
+static ListData dodongomisc10_list(dodongomisc10list, &font);
 
-static ListData keesemisc1_list(keesemisc1list, is_large? &lfont_l : &font);
-static ListData keesemisc2_list(keesemisc2list, is_large? &lfont_l : &font);
+static ListData keesemisc1_list(keesemisc1list, &font);
+static ListData keesemisc2_list(keesemisc2list, &font);
 
-static ListData digdoggermisc10_list(digdoggermisc10list, is_large? &lfont_l : &font);
+static ListData digdoggermisc10_list(digdoggermisc10list, &font);
 
-static ListData wizzrobemisc1_list(wizzrobemisc1list, is_large? &lfont_l : &font);
-static ListData wizzrobemisc2_list(wizzrobemisc2list, is_large? &lfont_l : &font);
+static ListData wizzrobemisc1_list(wizzrobemisc1list, &font);
+static ListData wizzrobemisc2_list(wizzrobemisc2list, &font);
 
-static ListData trapmisc1_list(trapmisc1list, is_large? &lfont_l : &font);
-static ListData trapmisc2_list(trapmisc2list, is_large? &lfont_l : &font);
+static ListData trapmisc1_list(trapmisc1list, &font);
+static ListData trapmisc2_list(trapmisc2list, &font);
 
-static ListData leevermisc1_list(leevermisc1list, is_large? &lfont_l : &font);
-static ListData rockmisc1_list(rockmisc1list, is_large? &lfont_l : &font);
+static ListData leevermisc1_list(leevermisc1list, &font);
+static ListData rockmisc1_list(rockmisc1list, &font);
 
-static ListData yesnomisc_list(yesnomisclist, is_large? &lfont_l : &font);
-static ListData noyesmisc_list(noyesmisclist, is_large? &lfont_l : &font);
+static ListData yesnomisc_list(yesnomisclist, &font);
+static ListData noyesmisc_list(noyesmisclist, &font);
 
 static EnemyNameInfo enameinf[]=
 {
@@ -2480,6 +2480,39 @@ std::map<int, EnemyNameInfo *> *getEnemyNameMap()
             (*enamemap)[inf->family] = inf;
         }
     }
+
+	walkmisc1_list.font = is_large() ? &lfont_l : &font;
+	walkmisc2_list.font = is_large() ? &lfont_l : &font;
+	walkmisc7_list.font = is_large() ? &lfont_l : &font;
+	walkmisc9_list.font = is_large() ? &lfont_l : &font;
+
+	gleeokmisc3_list.font = is_large() ? &lfont_l : &font;
+	gohmamisc1_list.font = is_large() ? &lfont_l : &font;
+	manhandlamisc2_list.font = is_large() ? &lfont_l : &font;
+	aquamisc1_list.font = is_large() ? &lfont_l : &font;
+	
+	patramisc4_list.font = is_large() ? &lfont_l : &font;
+	patramisc5_list.font = is_large() ? &lfont_l : &font;
+	patramisc10_list.font = is_large() ? &lfont_l : &font;
+	
+	dodongomisc10_list.font = is_large() ? &lfont_l : &font;
+
+	keesemisc1_list.font = is_large() ? &lfont_l : &font;
+	keesemisc2_list.font = is_large() ? &lfont_l : &font;
+
+	digdoggermisc10_list.font = is_large() ? &lfont_l : &font;
+
+	wizzrobemisc1_list.font = is_large() ? &lfont_l : &font;
+	wizzrobemisc2_list.font = is_large() ? &lfont_l : &font;
+
+	trapmisc1_list.font = is_large() ? &lfont_l : &font;
+	trapmisc2_list.font = is_large() ? &lfont_l : &font;
+	
+	leevermisc1_list.font = is_large() ? &lfont_l : &font;
+	rockmisc1_list.font = is_large() ? &lfont_l : &font;
+
+	yesnomisc_list.font = is_large() ? &lfont_l : &font;
+	noyesmisc_list.font = is_large() ? &lfont_l : &font;
     
     return enamemap;
 }
@@ -2769,10 +2802,10 @@ void setEnemyLabels(int family)
             enedata_dlg[64+i].proc = jwin_droplist_proc;
             enedata_dlg[64+i].fg = jwin_pal[jcTEXTFG];
             enedata_dlg[64+i].bg = jwin_pal[jcTEXTBG];
-            ((ListData*)inf->list[i])->font = (is_large ? &lfont_l : &font);
+            ((ListData*)inf->list[i])->font = (is_large() ? &lfont_l : &font);
             enedata_dlg[64+i].dp = inf->list[i];
             enedata_dlg[64+i].dp2 = NULL;
-            enedata_dlg[64+i].h = (is_large ? 22 : 16);
+            enedata_dlg[64+i].h = (is_large() ? 22 : 16);
         }
         else
         {
@@ -2781,8 +2814,8 @@ void setEnemyLabels(int family)
             enedata_dlg[64+i].bg = vc(1);
             enedata_dlg[64+i].dp = NULL;
             enedata_dlg[64+i].d1 = 6;
-            enedata_dlg[64+i].h = int(16 * (is_large ? 1.5 : 1));
-            enedata_dlg[64+i].dp2 = (is_large ? lfont_l : font);
+            enedata_dlg[64+i].h = int(16 * (is_large() ? 1.5 : 1));
+            enedata_dlg[64+i].dp2 = (is_large() ? lfont_l : font);
         }
     }
     
@@ -2852,7 +2885,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
     break;
     
     case MSG_DRAW:
-        if(is_large)
+        if(is_large())
         {
             d->w = 36;
             d->h = 36;
@@ -3052,7 +3085,7 @@ void edit_enemydata(int index)
     guydata test;
     memset(&test, 0, sizeof(guydata));
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(enedata_dlg);
     }
@@ -3290,7 +3323,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
         switch(extend)
         {
         case 0:
-            if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(16+16*(is_large+1))+2))
+            if(!isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+2+8, d->y+2+4, d->x+(16*(is_large() ? 2 : 1))+8+2, d->y+(16+16*(is_large() ? 2 : 1))+2))
             {
                 return D_O_K;
             }
@@ -3298,7 +3331,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
             break;
             
         case 1:
-            if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
+            if(!isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+2+8, d->y+2+4, d->x+(16*(is_large() ? 2 : 1))+8+2, d->y+(4+32*(is_large() ? 2 : 1))+2))
             {
                 return D_O_K;
             }
@@ -3306,7 +3339,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
             break;
             
         case 2:
-            if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+4, d->x+(32*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
+            if(!isinRect(Backend::mouse->getVirtualScreenX(), Backend::mouse->getVirtualScreenY(),d->x+2+8, d->y+4, d->x+(32*(is_large() ? 2 : 1))+8+2, d->y+(4+32*(is_large() ? 2 : 1))+2))
             {
                 return D_O_K;
             }
@@ -3923,7 +3956,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
         
         buf = create_bitmap_ex(8,w,h);
         
-        if(is_large)
+        if(is_large())
         {
             w *= 2;
             h *= 2;
@@ -4302,7 +4335,7 @@ int onCustomLink()
     linktile_dlg[95].d1=(zinit.link_swim_speed<60)?0:1;
     linktile_dlg[7].d1=zinit.linkanimationstyle;
     
-    if(is_large)
+    if(is_large())
         large_dialog(linktile_dlg, 2.0);
         
     int oldWalkSpr[4][3];

@@ -665,8 +665,6 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     // the ellipse, but it shouldn't be used anyway.
     if(color==0)
     {
-        int x;
-        int y;
         
         // This is very slow, so check the smallest possible square
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));

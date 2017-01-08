@@ -28,19 +28,16 @@ using std::string;
 #include "zc_sys.h"
 #include "jwin.h"
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
 
-//#ifdef _ZQUEST_SCALE_
-extern volatile int myvsync;
-extern int zqwin_scale;
-extern BITMAP *hw_screen;
-//#endif
-
 extern bool is_zquest();
 bool zconsole = false;
+
+int virtualScreenScale();
 
 char *time_str_long(dword time)
 {
@@ -968,14 +965,8 @@ int onSnapshot2()
 
 void set_default_box_size()
 {
-    int screen_w=SCREEN_W;
-    int screen_h=SCREEN_H;
-    
-    if(zqwin_scale>1)
-    {
-        screen_w/=zqwin_scale;
-        screen_h/=zqwin_scale;
-    }
+    int screen_w= Backend::graphics->virtualScreenW();
+    int screen_h= Backend::graphics->virtualScreenH();
     
     box_w=MIN(512, screen_w-16);
     box_h=MIN(256, (screen_h-64)&0xFFF0);
@@ -1007,7 +998,6 @@ void box_start(int style, const char *title, FONT *title_font, FONT *message_fon
     memset(box_log_msg, 0, 480);
     box_msg_pos=0;
     box_store_pos=0;
-    scare_mouse();
     
     jwin_draw_win(screen, box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
     
@@ -1018,8 +1008,6 @@ void box_start(int style, const char *title, FONT *title_font, FONT *message_fon
         zc_swap(font,box_title_font);
         box_titlebar_height=18;
     }
-    
-    unscare_mouse();
     
     box_store_x = box_x = box_y = 0;
     box_active = true;
@@ -1039,7 +1027,6 @@ void box_out(const char *msg)
     
     if(box_active)
     {
-        scare_mouse();
         //do primitive text wrapping
         unsigned int i;
         
@@ -1057,7 +1044,6 @@ void box_out(const char *msg)
         set_clip_rect(screen, box_l+8, box_t+1, box_r-8, box_b-1);
         textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
         set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-        unscare_mouse();
         remainder = temp.substr(i,temp.size()-i);
     }
     
@@ -1077,26 +1063,9 @@ void box_out(const char *msg)
         box_out(remainder.c_str());
         box_log = oldlog;
     }
-    
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        //if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 /* remembers the current x position */
@@ -1131,10 +1100,8 @@ void box_eol()
         
         if((box_y+2)*box_message_height >= box_h)
         {
-            scare_mouse();
             blit(screen, screen, box_l+8, box_t+(box_message_height*2), box_l+8, box_t+(box_message_height), box_w-16, box_y*box_message_height);
             rectfill(screen, box_l+8, box_t+box_y*box_message_height, box_l+box_w-8, box_t+(box_y+1)*box_message_height, gui_bg_color);
-            unscare_mouse();
             box_y--;
         }
     }
@@ -1147,26 +1114,9 @@ void box_eol()
         al_trace("\n");
         memset(box_log_msg, 0, 480);
     }
-    
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        //if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 /* ends output of a progress message */
@@ -1181,21 +1131,24 @@ void box_end(bool pause)
             
             do
             {
-                //        poll_mouse();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
-            while(gui_mouse_b());
+            while(Backend::mouse->anyButtonClicked());
             
             do
             {
-                //        poll_mouse();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
-            while((!keypressed()) && (!gui_mouse_b()));
+            while((!keypressed()) && (!Backend::mouse->anyButtonClicked()));
             
             do
             {
-                //        poll_mouse();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
-            while(gui_mouse_b());
+            while(Backend::mouse->anyButtonClicked());
             
             clear_keybuf();
         }
@@ -1214,21 +1167,26 @@ void box_pause()
         
         do
         {
-            //        poll_mouse();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
-        while(gui_mouse_b());
+        while(Backend::mouse->anyButtonClicked());
         
         do
         {
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
             //        poll_mouse();
         }
-        while((!keypressed()) && (!gui_mouse_b()));
+        while((!keypressed()) && (!Backend::mouse->anyButtonClicked()));
         
         do
         {
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
             //        poll_mouse();
         }
-        while(gui_mouse_b());
+        while(Backend::mouse->anyButtonClicked());
         
         clear_keybuf();
         box_load_x();
@@ -1250,7 +1208,7 @@ void dclick_check(void)
 {
     if(dclick_status==DCLICK_NOT)
     {
-        if(gui_mouse_b())
+        if(Backend::mouse->anyButtonClicked())
         {
             dclick_status = DCLICK_START;           // let's go!
             dclick_time = 0;
@@ -1259,7 +1217,7 @@ void dclick_check(void)
     }
     else if(dclick_status==DCLICK_START)                 // first click...
     {
-        if(!gui_mouse_b())
+        if(!Backend::mouse->anyButtonClicked())
         {
             dclick_status = DCLICK_RELEASE;           // aah! released first
             dclick_time = 0;
@@ -1268,7 +1226,7 @@ void dclick_check(void)
     }
     else if(dclick_status==DCLICK_RELEASE)          // wait for second click
     {
-        if(gui_mouse_b())
+        if(Backend::mouse->anyButtonClicked())
         {
             dclick_status = DCLICK_AGAIN;             // yes! the second click
             dclick_time = 0;
@@ -1966,35 +1924,6 @@ void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int x, int y, in
     
     textout_shadowed_x_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
 }
-/*
-  void dclick_check(void)
-  {
-  if (dclick_status==DCLICK_START) {              // first click...
-  if (!gui_mouse_b()) {
-  dclick_status = DCLICK_RELEASE;           // aah! released first
-  dclick_time = 0;
-  return;
-  }
-  }
-  else if (dclick_status==DCLICK_RELEASE) {       // wait for second click
-  if (gui_mouse_b()) {
-  dclick_status = DCLICK_AGAIN;             // yes! the second click
-  dclick_time = 0;
-  return;
-  }
-  }
-  else
-  {
-  return;
-  }
-
-  // timeout?
-  if (dclick_time++ > 10)
-  {
-  dclick_status = DCLICK_NOT;
-  }
-  }
-  */
 
 
 extern int d_alltriggerbutton_proc(int msg,DIALOG *d,int c);

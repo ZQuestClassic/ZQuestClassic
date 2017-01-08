@@ -51,31 +51,48 @@ DIALOG integrity_report_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-
-void enlargeIntegrityReportDialog()
-{
-    integrity_report_dlg[0].w=800;
-    integrity_report_dlg[0].h=600;
-    integrity_report_dlg[1].w=800-8;
-    integrity_report_dlg[1].h=(600-27)-40;
-    integrity_report_dlg[2].w=800-8-4;
-    integrity_report_dlg[2].h=((600-27)-40)-4;
-    integrity_report_dlg[5].x=200-48;
-    integrity_report_dlg[5].y=600-38;
-    integrity_report_dlg[5].w=61*1.5;
-    integrity_report_dlg[5].h=21*1.5;
-    integrity_report_dlg[5].dp2 = lfont_l;
-    integrity_report_dlg[6].x=600-48;
-    integrity_report_dlg[6].y=600-38;
-    integrity_report_dlg[6].w=61*1.5;
-    integrity_report_dlg[6].h=21*1.5;
-    integrity_report_dlg[6].dp2 = lfont_l;
-}
-
 void showQuestReport(int bg,int fg)
 {
+	if (is_large())
+	{
+		integrity_report_dlg[0].w = 800;
+		integrity_report_dlg[0].h = 600;
+		integrity_report_dlg[1].w = 800 - 8;
+		integrity_report_dlg[1].h = (600 - 27) - 40;
+		integrity_report_dlg[2].w = 800 - 8 - 4;
+		integrity_report_dlg[2].h = ((600 - 27) - 40) - 4;
+		integrity_report_dlg[5].x = 200 - 48;
+		integrity_report_dlg[5].y = 600 - 38;
+		integrity_report_dlg[5].w = 61 * 1.5;
+		integrity_report_dlg[5].h = 21 * 1.5;
+		integrity_report_dlg[5].dp2 = lfont_l;
+		integrity_report_dlg[6].x = 600 - 48;
+		integrity_report_dlg[6].y = 600 - 38;
+		integrity_report_dlg[6].w = 61 * 1.5;
+		integrity_report_dlg[6].h = 21 * 1.5;
+		integrity_report_dlg[6].dp2 = lfont_l;
+	}
+	else
+	{
+		integrity_report_dlg[0].w = 320;
+		integrity_report_dlg[0].h = 240;
+		integrity_report_dlg[1].w = 320 - 8;
+		integrity_report_dlg[1].h = (240 - 27) - 24;
+		integrity_report_dlg[2].w = 320 - 8 - 4;
+		integrity_report_dlg[2].h = ((240 - 27) - 24) - 4;
+		integrity_report_dlg[5].x = 64;
+		integrity_report_dlg[5].y = 240 - 25;
+		integrity_report_dlg[5].w = 61;
+		integrity_report_dlg[5].h = 21;
+		integrity_report_dlg[5].dp2 = NULL;
+		integrity_report_dlg[6].x = 192;
+		integrity_report_dlg[6].y = 240 - 25;
+		integrity_report_dlg[6].w = 61;
+		integrity_report_dlg[6].h = 21;
+		integrity_report_dlg[6].dp2 = NULL;
+	}
     integrity_report_dlg[0].dp2= lfont;
-    integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], is_large? sfont3 : sfont2, fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], is_large()? sfont3 : sfont2, fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     integrity_report_dlg[2].bg = bg;
     int ret=zc_popup_dialog(integrity_report_dlg,2);
     delete(EditboxModel*)(integrity_report_dlg[2].dp);

@@ -6,7 +6,6 @@ set(SOUNDLIB_CORE_SOURCES
 ################################
 src/zcmusic.cpp 
 src/zcmusicd.cpp
-src/alleg_compat.cpp
 
 ## End of sound library core module
 )

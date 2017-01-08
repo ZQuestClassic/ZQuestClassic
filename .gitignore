@@ -5,6 +5,7 @@
 *.obj
 *.elf
 *.ko
+*.pdb
 
 # Generated precompiled headers
 *.gch

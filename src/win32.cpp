@@ -44,15 +44,12 @@ WNDPROC hAllegroProc = 0;
 #define Z_WIN32NOUPDATE
 
 
-void Win32Data::Update(int frameskip)
+void Win32Data::Update()
 {
     if(!win32data.isValid)
         return;
         
-    if(frameskip > 0)
-    {
-    }
-    
+   
     while(!win32data.hasFocus)
     {
         rest(17);

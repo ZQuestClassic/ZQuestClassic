@@ -996,7 +996,7 @@ bool zmap::ishookshottable(int bx, int by, int i)
 bool zmap::isstepable(int combo)
 {
     // This is kind of odd but it's true to the engine (see maps.cpp)
-    return (combo_class_buf[combobuf[combo].type].ladder_pass);
+    return (combo_class_buf[combobuf[combo].type].ladder_pass != 0);
 }
 
 // Returns the letter of the warp combo.
@@ -2638,7 +2638,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
             {
                 if(((i^j)&1)==0)
                 {
-                    putpixel(dest,x+i,y+j,vc(blackout_color));
+                    putpixel(dest,x+i,y+j,vc(blackout_color()));
                 }
             }
         }
@@ -5910,7 +5910,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     
     pwd_dlg[6].dp=prompt;
     
-    if(is_large)
+    if(is_large())
         large_dialog(pwd_dlg);
         
     int cancel = zc_popup_dialog(pwd_dlg,6);
@@ -7914,7 +7914,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -7929,7 +7929,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }
@@ -7944,7 +7944,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range& )
         {
             return qe_invalid;
         }

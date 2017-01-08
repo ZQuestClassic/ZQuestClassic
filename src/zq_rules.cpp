@@ -86,7 +86,7 @@ static int animationrules[] =
 
 int onAnimationRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(animationrules_dlg);
         
     animationrules_dlg[0].dp2=lfont;
@@ -160,7 +160,7 @@ static int comborules[] =
 
 int onComboRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(comborules_dlg);
         
     comborules_dlg[0].dp2=lfont;
@@ -255,7 +255,7 @@ static int itemrules[] =
 
 int onItemRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(itemrules_dlg);
         
     itemrules_dlg[0].dp2=lfont;
@@ -344,7 +344,7 @@ static int enemyrules[] =
 
 int onEnemyRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(enemyrules_dlg);
         
     enemyrules_dlg[0].dp2=lfont;
@@ -438,7 +438,7 @@ static int fixesrules[] =
 
 int onFixesRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(fixesrules_dlg);
         
     fixesrules_dlg[0].dp2=lfont;
@@ -525,7 +525,7 @@ static int miscrules[] =
 
 int onMiscRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(miscrules_dlg);
         
     miscrules_dlg[0].dp2=lfont;
@@ -589,7 +589,7 @@ static DIALOG compatrules_dlg[] =
 
 int onCompatRules()
 {
-    if(is_large)
+    if(is_large())
         large_dialog(compatrules_dlg);
         
     compatrules_dlg[0].dp2=lfont;

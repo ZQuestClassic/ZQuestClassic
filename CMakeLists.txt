@@ -31,6 +31,7 @@ endfunction(enable_unity_build)
 #############################################################
 
 include_directories(./allegro/include)
+include_directories(./allegro/extra)
 include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
@@ -229,7 +230,7 @@ endif()
 	
 add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
 
-target_link_libraries(zquest zcsound ${ALLEGROLIB} ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
 if(MSVC AND USE_PCH)
 	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
 	target_compile_definitions(zquest PRIVATE ZC_PCH)

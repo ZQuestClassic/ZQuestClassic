@@ -11,11 +11,11 @@
 #include "zq_custom.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"
-#include "zqscale.h"
 #include "zquest.h"
 #include "zsys.h"
 #include <map>
 #include <string>
+#include "backend/AllBackends.h"
 
 void editmsg(int index, int addAfter);
 int strlist_del();
@@ -145,9 +145,9 @@ DIALOG editmsg_help_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
 //  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "String Control Codes", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+    { jwin_win_proc,        0,   0,   0,  0,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "String Control Codes", NULL, NULL },
+    { jwin_frame_proc,   4,   23,   0,  0,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+    { d_editbox_proc,    6,   25,   0,  0,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
@@ -241,7 +241,7 @@ char *MsgString(int index, bool show_number, bool pad_number)
 {
     bound(index,0,msg_strings_size-1);
     static char u[80];
-    bool indent = is_large && index>0 && MsgStrings[addtomsglist(MsgStrings[index].listpos-1)].nextstring==index;
+    bool indent = is_large() && index>0 && MsgStrings[addtomsglist(MsgStrings[index].listpos-1)].nextstring==index;
     sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
     char *s=strcat(u,": ");
     
@@ -448,7 +448,7 @@ int strlist_del()
 
 int onStrings()
 {
-    if(is_large && !strlist_dlg[0].d1)
+    if(is_large() && !strlist_dlg[0].d1)
     {
         large_dialog(strlist_dlg,2);
     }
@@ -845,7 +845,7 @@ void editmsg(int index, int addAfter)
     msg_y = 0;
     curmsgstr = &MsgStrings[index];
     
-    if(is_large)
+    if(is_large())
     {
         large_dialog(editmsg_dlg,2);
         
@@ -881,8 +881,27 @@ void editmsg(int index, int addAfter)
         {
             ret = -1;
             // Show string help
+			if (is_large())
+			{
+				editmsg_help_dlg[0].w = 800;
+				editmsg_help_dlg[0].h = 600;
+				editmsg_help_dlg[1].w = 800 - 8;
+				editmsg_help_dlg[1].h = 600 - 27;
+				editmsg_help_dlg[2].w = 800 - 8 - 4;
+				editmsg_help_dlg[2].h = 600 - 27 - 4;
+			}
+			else
+			{
+				editmsg_help_dlg[0].w = 320;
+				editmsg_help_dlg[0].h = 240;
+				editmsg_help_dlg[1].w = 320 - 8;
+				editmsg_help_dlg[1].h = 240 - 27;
+				editmsg_help_dlg[2].w = 320 - 8 - 4;
+				editmsg_help_dlg[2].h = 240 - 27 - 4;
+			}
+
             editmsg_help_dlg[0].dp2= lfont;
-            editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
+            editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large()?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
             editmsg_help_dlg[2].bg = vc(15);
             ((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
         }
@@ -1249,7 +1268,7 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
             }
         }
         
-        stretch_blit(buf,screen,start_x,start_y,256+16,32+16,x,y,(256+16)*(is_large?2:1),(32+16)*(is_large?2:1));
+        stretch_blit(buf,screen,start_x,start_y,256+16,32+16,x,y,(256+16)*(is_large()?2:1),(32+16)*(is_large()?2:1));
         destroy_bitmap(buf);
     }
     
@@ -1555,42 +1574,25 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
     {
     case MSG_CLICK:
     {
-        /*{
-         int pos = (((gui_mouse_x())-(d->x+8))>>3)+(((gui_mouse_y())-(d->y+16))>>3)*24;
-         int i = 0;
-         while (pos>0 && i<(int)strlen(msgbuf)) {
-           while (msgbuf[i] == '\\') {
-             do {
-               i++;
-             }
-             while(i<(int)strlen(msgbuf) && msgbuf[i] >= '0' && msgbuf[i] <= '9');
-           }
-           pos--;
-           i++;
-         }
-         editmsg_dlg[3].d2 = i;
-         (void)jwin_edit_proc(MSG_DRAW,&editmsg_dlg[3],c);*/
-        int ox = gui_mouse_x();
-        int oy = gui_mouse_y();
+        int ox = Backend::mouse->getVirtualScreenX();
+        int oy = Backend::mouse->getVirtualScreenY();
         int cmx = msg_x;
         int cmy = msg_y;
         int omx = cmx;
         int omy = cmy;
         
-        while(gui_mouse_b())
+        while(Backend::mouse->anyButtonClicked())
         {
             if(cmx != msg_x || cmy != msg_y)
             {
                 cmx = msg_x;
                 cmy = msg_y;
                 
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
             
-            msg_x = vbound(omx+(ox-gui_mouse_x()),0,zc_max(0,w-256));
-            msg_y = vbound(omy+(oy-gui_mouse_y()),0,zc_max(0,h-32));
+            msg_x = vbound(omx+(ox- Backend::mouse->getVirtualScreenX()),0,zc_max(0,w-256));
+            msg_y = vbound(omy+(oy- Backend::mouse->getVirtualScreenY()),0,zc_max(0,h-32));
             
             broadcast_dialog_message(MSG_IDLE, 0);
 #ifdef _ZQUEST_SCALE_
@@ -1666,7 +1668,7 @@ int d_msgtile_proc(int msg,DIALOG *d,int c)
         int dw = d->w;
         int dh = d->h;
         
-        if(is_large)
+        if(is_large())
         {
             dw /= 2;
             dh /= 2;
@@ -1681,7 +1683,7 @@ int d_msgtile_proc(int msg,DIALOG *d,int c)
             if(d->d1)
                 puttile16(buf,d->d1,0,0,d->fg,0);
                 
-            stretch_blit(buf,screen,0,0,dw,dh,d->x-is_large,d->y-is_large,dw*(is_large?2:1),dh*(is_large?2:1));
+            stretch_blit(buf,screen,0,0,dw,dh,d->x-(is_large() ? 1 : 0),d->y- (is_large() ? 1 : 0),dw*(is_large()?2:1),dh*(is_large()?2:1));
             destroy_bitmap(buf);
         }
     }

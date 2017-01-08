@@ -24,6 +24,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "rendertarget.h"
+#include "backend/AllBackends.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -32,12 +33,6 @@
 #include "debug.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
-/*template <typename T>
-T zc_max(T a, T b)
-{
-	return (a > b) ? a : b;
-}*/
-
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 
 #ifdef _MSC_VER
@@ -52,6 +47,8 @@ extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
+
+int virtualScreenScale();
 
 //We gain some speed by not passing as arguments
 long sarg1 = 0;
@@ -1301,24 +1298,28 @@ long get_register(const long arg)
         
     case INPUTMOUSEX:
     {
-        int leftOffset=(resx/2)-(128*screen_scale);
-        ret=((gui_mouse_x()-leftOffset)/screen_scale)*10000;
+        int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128* virtualScreenScale());
+        ret=((Backend::mouse->getVirtualScreenX()-leftOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
-        ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
+        int topOffset=(Backend::graphics->virtualScreenH()/2)-((112-playing_field_offset)*virtualScreenScale());
+        ret=((Backend::mouse->getVirtualScreenY()-topOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEZ:
-        ret=(gui_mouse_z())*10000;
+        ret=(Backend::mouse->getWheelPosition())*10000;
         break;
         
     case INPUTMOUSEB:
-        ret=(gui_mouse_b())*10000;
+        ret=(
+			(Backend::mouse->leftButtonClicked() ? 1 : 0)
+			+ (Backend::mouse->rightButtonClicked() ? 2 : 0)
+			+ (Backend::mouse->middleButtonClicked() ? 4 : 0)
+			)*10000;
         break;
         
     case INPUTPRESSSTART:
@@ -3269,20 +3270,20 @@ void set_register(const long arg, const long value)
         
     case INPUTMOUSEX:
     {
-        int leftOffset=(resx/2)-(128*screen_scale);
-        position_mouse((value/10000)*screen_scale+leftOffset, gui_mouse_y());
+        int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128*virtualScreenScale());
+        position_mouse((value/10000)*virtualScreenScale() +leftOffset, Backend::mouse->getVirtualScreenY());
         break;
     }
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
-        position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
+        int topOffset=(Backend::graphics->virtualScreenH() /2)-((112-playing_field_offset)*virtualScreenScale());
+        position_mouse(Backend::mouse->getVirtualScreenX(), (value/10000)*virtualScreenScale() +topOffset);
         break;
     }
     
     case INPUTMOUSEZ:
-        position_mouse_z(value/10000);
+		Backend::mouse->setWheelPosition(value/10000);
         break;
         
 ///----------------------------------------------------------------------------------------------------//
@@ -5356,7 +5357,7 @@ void do_warp(bool v)
     if(screen<0 || screen>=MAPSCRS) // Should this be MAPSCRSNORMAL?
         return;
     // A shifted DMap can still go past the end of the maps, so check that
-    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>=TheMaps.size())
+    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>= (int)TheMaps.size())
         return;
     
     tmpscr->sidewarpdmap[0] = dmap;
@@ -5373,7 +5374,7 @@ void do_pitwarp(bool v)
     int screen=SH::get_arg(sarg2, v) / 10000;
     if(screen<0 || screen>=MAPSCRS)
         return;
-    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>=TheMaps.size())
+    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>= (int)TheMaps.size())
         return;
     tmpscr->sidewarpdmap[0] = dmap;
     tmpscr->sidewarpscr[0]  = screen;
