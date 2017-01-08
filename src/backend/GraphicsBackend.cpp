@@ -1,5 +1,5 @@
 #include "GraphicsBackend.h"
-#include "zc_alleg.h"
+#include "../zc_alleg.h"
 #include <cassert>
 
 void Z_message(const char *format, ...);
@@ -72,7 +72,7 @@ GraphicsBackend::~GraphicsBackend()
 
 void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
 {
-	std::string section = prefix + "-graphics";
+	std::string section = prefix + "-Backend::graphics";
 	const char *secname = section.c_str();
 
 	screenw_ = get_config_int(secname, "resx", 320);
@@ -83,7 +83,7 @@ void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
 
 void GraphicsBackend::writeConfigurationOptions(const std::string &prefix)
 {
-	std::string section = prefix + "-graphics";
+	std::string section = prefix + "-Backend::graphics";
 	const char *secname = section.c_str();
 
 	set_config_int(secname, "resx", screenw_);

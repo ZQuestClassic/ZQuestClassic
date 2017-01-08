@@ -30,10 +30,9 @@
 #include <allegro.h>
 #include "tab_ctl.h"
 #include "zc_malloc.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 extern bool is_zquest();
-extern GraphicsBackend *graphics;
 
 int vc2(int x)
 {
@@ -160,8 +159,8 @@ bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg)
         }
         
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -196,8 +195,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
             }
         }
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(over)
@@ -207,8 +206,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg
         draw_button(screen,x,y,w,h,text,bg,fg,0);
         unscare_mouse();
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;

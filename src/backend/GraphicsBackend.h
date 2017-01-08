@@ -8,8 +8,7 @@ struct BITMAP;
 
 class GraphicsBackend
 {
-public:
-	GraphicsBackend();
+public:	
 	~GraphicsBackend();
 	
 	void readConfigurationOptions(const std::string &prefix);
@@ -46,8 +45,11 @@ public:
 	friend void update_frame_counter();
 	friend void onSwitchIn();
 	friend void onSwitchOut();
+	friend class Backend;
 
 private:
+	GraphicsBackend();
+
 	bool trySettingVideoMode();
 
 	BITMAP *hw_screen_;

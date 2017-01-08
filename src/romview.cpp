@@ -38,15 +38,13 @@
 #include "fontsdat.h"
 #include "zdefs.h"
 #include "zc_malloc.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 // MSVC fix
 #if _MSC_VER >= 1900
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
-
-GraphicsBackend *graphics;
 
 //Yeah, not really zquest.
 //Just here for scaling purposes.
@@ -1790,7 +1788,7 @@ void redraw_screen(int type)
     //cset indicator
     rectfill(scr_buf,226+88-14,76-74+(cset*3)+16,229+88-14-1,79-74+(cset*3)-1+16,white);
     
-    blit(scr_buf, screen, 0, 16, 0, 16, graphics->virtualScreenW(), graphics->virtualScreenH()-16);
+    blit(scr_buf, screen, 0, 16, 0, 16, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH()-16);
     unscare_mouse();
     
     redraw=0;
@@ -1839,18 +1837,18 @@ int main(int argc, char **argv)
     
     gui_mouse_focus = 0;
 
-	graphics = new GraphicsBackend();
+	Backend::initializeBackend();
 	std::vector<std::pair<int, int> > mode;
 
-	graphics->readConfigurationOptions("romview");
+	Backend::graphics->readConfigurationOptions("romview");
 
 	//only "small" mode in Romview
 	mode.push_back(std::pair<int, int>(320, 240));
-	graphics->registerVirtualModes(mode);    	
+	Backend::graphics->registerVirtualModes(mode);    	
 
     set_close_button_callback((void (*)()) hit_close_button);
     
-    if(!graphics->initialize())
+    if(!Backend::graphics->initialize())
     {
         allegro_exit();
         byebye();
@@ -2130,16 +2128,16 @@ int main(int argc, char **argv)
             }
         }
 
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     } // while(update_dialog(player))
     
-	graphics->writeConfigurationOptions("romview");
+	Backend::graphics->writeConfigurationOptions("romview");
 
     shutdown_dialog(player);
 
 	show_mouse(NULL);
-	delete graphics;
+	Backend::shutdownBackend();
     zc_free(rombuf);
     zc_free(sel);
     destroy_bitmap(tmp_scr);

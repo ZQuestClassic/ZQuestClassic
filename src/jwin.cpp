@@ -36,7 +36,7 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
@@ -44,8 +44,6 @@
 extern int joystick_index;
 
 extern bool is_zquest();
-
-extern GraphicsBackend *graphics;
 
 /* ... Included in jwin.h ...
 
@@ -923,8 +921,8 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         /* redraw in normal state */
@@ -986,8 +984,8 @@ int jwin_func_button_proc(int msg, DIALOG *d, int c)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         /* redraw in normal state */
@@ -1446,8 +1444,8 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
                 // let other objects continue to animate
                 broadcast_dialog_message(MSG_IDLE, 0);
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
             
             break;
@@ -1456,8 +1454,8 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, 
         
         redraw = 0;
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         //	#endif
         // let other objects continue to animate
@@ -1792,8 +1790,8 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 _handle_jwin_listbox_click(d);
                 d->flags &= ~D_INTERNAL;
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
             
             if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
@@ -2862,8 +2860,8 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
     
     if(repos)
     {
-        m.x = MID(0, m.x, graphics->virtualScreenW()-m.w-1);
-        m.y = MID(0, m.y, graphics->virtualScreenH()-m.h-1);
+        m.x = MID(0, m.x, Backend::graphics->virtualScreenW()-m.w-1);
+        m.y = MID(0, m.y, Backend::graphics->virtualScreenH()-m.h-1);
     }
     
     /* save screen under the menu */
@@ -3156,8 +3154,8 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
             }
         }
 
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
         
         if((m.bar) && (!gui_mouse_b()) && (!keypressed()) &&
                 ((gui_mouse_x() < m.x) || (gui_mouse_x() > m.x+m.w) ||
@@ -3220,8 +3218,8 @@ int jwin_do_menu(MENU *menu, int x, int y)
     
     do
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     while(gui_mouse_b());
     
@@ -3281,8 +3279,8 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
         
         do
         {
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         while(gui_mouse_b());
         
@@ -3502,21 +3500,21 @@ static int droplist(DIALOG *d)
     y = d->y + d->h;
     h = zc_min(listsize,8) * text_height(*data->font) + 8;
     
-    if(y+h >= graphics->virtualScreenH())
+    if(y+h >= Backend::graphics->virtualScreenH())
     {
         y = d->y - h;
     }
     
     x = d->x;
     w = d->w;
-    max_w = zc_max(d->x+d->w, graphics->virtualScreenW()-d->x);
+    max_w = zc_max(d->x+d->w, Backend::graphics->virtualScreenW()-d->x);
     
     for(int i=0; i<listsize; ++i)
     {
         w=zc_min(max_w,zc_max(w,text_length(*data->font,(*data->listFunc)(i, NULL))+39));
     }
     
-    if(x+w >= graphics->virtualScreenW())
+    if(x+w >= Backend::graphics->virtualScreenW())
     {
         x = d->x + d->w - w;
     }
@@ -3533,8 +3531,8 @@ static int droplist(DIALOG *d)
     // cancel
     droplist_dlg[0].x = 0;
     droplist_dlg[0].y = 0;
-    droplist_dlg[0].w = graphics->virtualScreenW();
-    droplist_dlg[0].h = graphics->virtualScreenH();
+    droplist_dlg[0].w = Backend::graphics->virtualScreenW();
+    droplist_dlg[0].h = Backend::graphics->virtualScreenH();
     
     if(popup_zqdialog(droplist_dlg,1)==1)
     {
@@ -3606,8 +3604,8 @@ dropit:
         
         clear_keybuf();
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(!down)
@@ -4425,8 +4423,8 @@ bool do_text_button(int x,int y,int w,int h,const char *text)
                 unscare_mouse();
                 over=true;
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         else
@@ -4439,8 +4437,8 @@ bool do_text_button(int x,int y,int w,int h,const char *text)
                 unscare_mouse();
                 over=false;
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
     }
@@ -4465,8 +4463,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text)
                 unscare_mouse();
                 over=true;
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         else
@@ -4479,8 +4477,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text)
                 unscare_mouse();
                 over=false;
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
         }
         
@@ -4493,8 +4491,8 @@ bool do_text_button_reset(int x,int y,int w,int h,const char *text)
         jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
         unscare_mouse();
         
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     return over;
@@ -4555,7 +4553,7 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
     {
         FONT *oldfont = font;
         
-        if(d->x<graphics->virtualScreenW() && d->y < graphics->virtualScreenH())
+        if(d->x<Backend::graphics->virtualScreenW() && d->y < Backend::graphics->virtualScreenH())
         {
             if(d->dp2)
             {
@@ -4665,8 +4663,8 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
                     //          //remember the x and y positions of the control
                     //          panel[d->d1].xy[counter*2]=current_object->x;
                     //          panel[d->d1].xy[counter*2+1]=current_object->y;
-                    current_object->x=graphics->virtualScreenW()*3;
-                    current_object->y=graphics->virtualScreenH()*3;
+                    current_object->x=Backend::graphics->virtualScreenW()*3;
+                    current_object->y=Backend::graphics->virtualScreenH()*3;
                 }
             }
         }
@@ -4735,8 +4733,8 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
             for(counter=0; counter<panel[i].objects; counter++)
             {
                 current_object=panel_dialog+(panel[i].dialog[counter]);
-                current_object->x=graphics->virtualScreenW()*3;
-                current_object->y=graphics->virtualScreenH()*3;
+                current_object->x=Backend::graphics->virtualScreenW()*3;
+                current_object->y=Backend::graphics->virtualScreenH()*3;
             }
         }
         
@@ -4810,8 +4808,8 @@ void jwin_center_dialog(DIALOG *dialog)
     ASSERT(dialog);
     
     /* how much to move by? */
-    xc = (graphics->virtualScreenW() - dialog[0].w) / 2 - dialog[0].x;
-    yc = (graphics->virtualScreenH() - dialog[0].h) / 2 - dialog[0].y;
+    xc = (Backend::graphics->virtualScreenW() - dialog[0].w) / 2 - dialog[0].x;
+    yc = (Backend::graphics->virtualScreenH() - dialog[0].h) / 2 - dialog[0].y;
     
     /* move it */
     for(c=0; dialog[c].proc; c++)
@@ -5082,8 +5080,8 @@ int d_jslider_proc(int msg, DIALOG *d, int c)
                 
                 object_message(d, MSG_DRAW, 0);
                 
-				graphics->waitTick();
-				graphics->showBackBuffer();
+				Backend::graphics->waitTick();
+				Backend::graphics->showBackBuffer();
             }
             
             /* let other objects continue to animate */
@@ -5191,8 +5189,8 @@ int d_jwinbutton_proc(int msg, DIALOG *d, int)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-			graphics->waitTick();
-			graphics->showBackBuffer();
+			Backend::graphics->waitTick();
+			Backend::graphics->showBackBuffer();
         }
         
         /* should we close the dialog? */

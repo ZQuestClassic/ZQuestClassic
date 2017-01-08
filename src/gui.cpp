@@ -37,9 +37,7 @@
 #include "jwinfsel.h"
 #include "gui.h"
 #include "mem_debug.h"
-#include "GraphicsBackend.h"
-
-extern GraphicsBackend *graphics;
+#include "backend/AllBackends.h"
 
 /****************************/
 /**********  GUI  ***********/
@@ -48,14 +46,14 @@ extern GraphicsBackend *graphics;
 void saveMiniscreen()
 {
 	scare_mouse();
-	blit(screen, tmp_scr, graphics->miniscreenX(), graphics->miniscreenY(), 0, 0, 320, 240);
+	blit(screen, tmp_scr, Backend::graphics->miniscreenX(), Backend::graphics->miniscreenY(), 0, 0, 320, 240);
 	unscare_mouse();
 }
 
 void restoreMiniscreen()
 {
 	scare_mouse();
-	blit(tmp_scr, screen, 0, 0, graphics->miniscreenX(), graphics->miniscreenY(), 320, 240);
+	blit(tmp_scr, screen, 0, 0, Backend::graphics->miniscreenX(), Backend::graphics->miniscreenY(), 320, 240);
 	unscare_mouse();
 }
 
@@ -113,8 +111,8 @@ int PopUp_dialog(DIALOG *d,int f)
     
     while(update_dialog(player))
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     int ret = shutdown_dialog(player);
@@ -165,8 +163,8 @@ int PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f)
     
     while(update_dialog_through_bitmap(buffer,player))
     {
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     int ret = shutdown_dialog(player);
@@ -209,8 +207,8 @@ int do_zqdialog(DIALOG *dialog, int focus_obj)
         /* If a menu is active, we yield here, since the dialog
         * engine is shut down so no user code can be running.
         */
-		graphics->waitTick();
-		graphics->showBackBuffer();
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
     }
     
     if(_gfx_mode_set_count == screen_count && !(gfx_capabilities&GFX_HW_CURSOR))
@@ -258,7 +256,7 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
         blit(bmp, gui_bmp, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
         unscare_mouse();
         destroy_bitmap(bmp);
-		graphics->showBackBuffer();
+		Backend::graphics->showBackBuffer();
     }
     
     return ret;

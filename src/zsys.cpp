@@ -28,14 +28,13 @@ using std::string;
 #include "zc_sys.h"
 #include "jwin.h"
 #include "mem_debug.h"
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
 
 extern bool is_zquest();
-extern GraphicsBackend *graphics;
 bool zconsole = false;
 
 int virtualScreenScale();
@@ -966,8 +965,8 @@ int onSnapshot2()
 
 void set_default_box_size()
 {
-    int screen_w= graphics->virtualScreenW();
-    int screen_h= graphics->virtualScreenH();
+    int screen_w= Backend::graphics->virtualScreenW();
+    int screen_h= Backend::graphics->virtualScreenH();
     
     box_w=MIN(512, screen_w-16);
     box_h=MIN(256, (screen_h-64)&0xFFF0);
@@ -1070,8 +1069,8 @@ void box_out(const char *msg)
         box_log = oldlog;
     }
 
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 /* remembers the current x position */
@@ -1123,8 +1122,8 @@ void box_eol()
         memset(box_log_msg, 0, 480);
     }
 
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 /* ends output of a progress message */

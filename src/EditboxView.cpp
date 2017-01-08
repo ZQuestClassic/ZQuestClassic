@@ -11,7 +11,7 @@
 #include "jwin.h"
 #include <map>
 #include <stdio.h>
-#include "GraphicsBackend.h"
+#include "backend/AllBackends.h"
 
 extern int scheme[];
 
@@ -19,8 +19,6 @@ extern int scheme[];
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
-
-extern GraphicsBackend *graphics;
 
 extern bool is_zquest();
 
@@ -364,8 +362,8 @@ void BasicEditboxView::draw()
     blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
     set_clip_rect(screen, 0, 0,SCREEN_W,SCREEN_H);
     
-	graphics->waitTick();
-	graphics->showBackBuffer();
+	Backend::graphics->waitTick();
+	Backend::graphics->showBackBuffer();
 }
 
 bool BasicEditboxView::mouseClick(int x, int y)
