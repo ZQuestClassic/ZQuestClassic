@@ -200,6 +200,9 @@ public:
 	* This function is the *ONLY* time that the screen is refreshed! This function
 	* must thus be called at least once within any even loop where the user
 	* expects to see changing graphics, a moving mouse pointer, etc.
+	* This function will draw the current mouse pointer, at the current
+	* location, on top of whatever is in the current framebuffer. Hide the
+	* mouse before calling this function if you do not want to see the cursor.
 	*
 	* There is some chance that this call can fail (due to the graphics mode
 	* no longer being valid, and the failure of the graphics backend to fall
