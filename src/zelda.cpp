@@ -3182,12 +3182,13 @@ int main(int argc, char* argv[])
     
     fix_dialogs();
     gui_mouse_focus = FALSE;
-    position_mouse(Backend::graphics->screenW()-16,Backend::graphics->screenH()-16);
+    position_mouse(Backend::graphics->virtualScreenW()-16,Backend::graphics->virtualScreenH()-16);
     
     if(!onlyInstance)
     {
         clear_to_color(screen,BLACK);
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
         int ret=jwin_alert3("Multiple Instances",
                             "Another instance of ZC is already running.",
                             "Running multiple instances may cause your",
@@ -3201,6 +3202,7 @@ int main(int argc, char* argv[])
             allegro_exit();
             return 0;
         }
+		Backend::mouse->setCursorVisibility(false);
     }
     
 // load saved games

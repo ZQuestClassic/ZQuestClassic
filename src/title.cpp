@@ -1532,7 +1532,7 @@ newdata:
     
     if(standalone_mode)
         goto init;
-        
+	Backend::mouse->setCursorVisibility(true);
     if(jwin_alert("Can't Find Saved Game File",
                   "The save file could not be found.",
                   "Create a new file from scratch?",
@@ -1549,6 +1549,7 @@ newdata:
 cantopen:
     {
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
         char buf[256];
         snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", SAVE_FILE);
         jwin_alert("Can't Open Saved Game File",
@@ -1561,7 +1562,7 @@ cantopen:
     
 reset:
     system_pal();
-    
+	Backend::mouse->setCursorVisibility(true);
     if(jwin_alert3("Can't Open Saved Game File",
                    "Unable to read the save file.",
                    "Create a new file from scratch?",
@@ -1580,7 +1581,7 @@ reset:
     Z_message("Format error.  Resetting game data... ");
     
 init:
-
+	Backend::mouse->setCursorVisibility(false);
     for(int i=0; i<MAXSAVES; i++)
         saves[i].Clear();
         
