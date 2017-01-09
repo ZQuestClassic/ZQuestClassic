@@ -9867,7 +9867,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         writesize=0;
         
-        for(int i=0; i<512; i++)
+        for(int i=0; i<NUMSCRIPTFFC; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -9878,7 +9878,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<256; i++)
+        for(int i=0; i<NUMSCRIPTITEM; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -9889,7 +9889,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<256; i++)
+        for(int i=0; i<NUMSCRIPTGUYS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -9900,7 +9900,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<256; i++)
+        for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -9911,7 +9911,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<256; i++)
+        for(int i=0; i<NUMSCRIPTSCREEN; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -9933,7 +9933,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<3; i++)
+        for(int i=0; i<NUMSCRIPTLINK; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
             fake_pack_writing=(writecycle==0);

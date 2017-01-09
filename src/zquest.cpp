@@ -22275,43 +22275,43 @@ int main(int argc, char **argv)
         memset(guy_string[i], 0, 64);
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         wpnscripts[i] = new ffscript[1];
         wpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         globalscripts[i] = new ffscript[1];
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
