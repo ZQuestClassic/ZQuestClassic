@@ -118,7 +118,7 @@ void GraphicsBackend::waitTick()
 		return;
 
 	while (frame_counter == 0)
-		rest(1);
+		rest(0);
 	frame_counter = 0;
 }
 
