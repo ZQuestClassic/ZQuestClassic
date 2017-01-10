@@ -100,15 +100,17 @@ public:
         int vid = st->getID(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
-		highWaterOffset = std::max(highWaterOffset, curoffset);
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;		
     }
     virtual void caseArrayDecl(ASTArrayDecl &host, void *)
     {        
         int vid = st->getID(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
-		highWaterOffset = std::max(highWaterOffset, curoffset);
-    }
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;
+	}
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
     {
         caseVarDecl(host, param);
