@@ -3469,8 +3469,10 @@ int onSaveMapPic()
     if(!mappic)
     {
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
         jwin_alert("Save Map Picture","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
         return D_O_K;
     }
     
@@ -3579,6 +3581,7 @@ void f_Quit(int type)
     music_pause();
     pause_all_sfx();
     system_pal();
+	Backend::mouse->setCursorVisibility(true);
     clear_keybuf();
     
     switch(type)
@@ -3605,6 +3608,7 @@ void f_Quit(int type)
     else
     {
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
         music_resume();
         resume_all_sfx();
     }
@@ -4019,6 +4023,7 @@ void syskeys()
     {
         Matrix(ss_speed, ss_density, 0);
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
     }
 #else
     // The reason these are different on Mac in the first place is that
@@ -4029,6 +4034,7 @@ void syskeys()
     {
         Matrix(ss_speed, ss_density, 0);
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
     }
 #endif
     if(ReadKey(KEY_PLUS_PAD) || ReadKey(KEY_EQUALS))
@@ -4110,6 +4116,7 @@ bottom:
     {
         Matrix(ss_speed, ss_density, 0);
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
     }
     
     restoreInput();
@@ -5243,10 +5250,10 @@ int onGoToComplete()
     }
     
     system_pal();
+	Backend::mouse->setCursorVisibility(true);
     music_pause();
     pause_all_sfx();
-	Backend::mouse->setCursorVisibility(true);
-    onGoTo();
+	onGoTo();
     eat_buttons();
     
     if(key[KEY_ESC])
@@ -5942,14 +5949,17 @@ int onSound()
 
 int queding(const char *s1,char *s2,char *s3)
 {
-    return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',lfont);
+	Backend::mouse->setCursorVisibility(true);
+    int ret = jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',lfont);
+	Backend::mouse->setCursorVisibility(false);
+	return ret;
 }
 
 int onQuit()
 {
     if(Playing)
     {
-        int ret=0;
+		int ret=0;
         
         if(get_bit(quest_rules, qr_NOCONTINUE))
         {
@@ -5968,8 +5978,8 @@ int onQuit()
         }
         else
             ret=queding("End current game?",NULL,NULL);
-            
-        if(ret==1)
+
+		if(ret==1)
         {
             disableClickToFreeze=false;
             Quit=qQUIT;
@@ -6352,6 +6362,7 @@ int onScreenSaver()
         clear_keybuf();
         Matrix(ss_speed, ss_density, 30);
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
     }
     
     return D_O_K;
@@ -7161,6 +7172,7 @@ void System()
     pause_all_sfx();
     
     system_pal();
+	Backend::mouse->setCursorVisibility(true);
     //  FONT *oldfont=font;
     //  font=tfont;
     
@@ -7172,7 +7184,6 @@ void System()
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     
     clear_keybuf();
-	Backend::mouse->setCursorVisibility(true);
     
     DIALOG_PLAYER *p;
     
@@ -7272,6 +7283,7 @@ void System()
 				clear_keybuf();
                 Matrix(ss_speed, ss_density, 0);
                 system_pal();
+				Backend::mouse->setCursorVisibility(true);
                 broadcast_dialog_message(MSG_DRAW, 0);
             }
         }
@@ -7282,8 +7294,7 @@ void System()
     //  font=oldfont;
     mouse_down= Backend::mouse->anyButtonClicked();
     shutdown_dialog(p);
-	Backend::mouse->setCursorVisibility(false);
-    
+	
     if(Quit)
     {
         kill_sfx();
@@ -7293,6 +7304,7 @@ void System()
     else
     {
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
         music_resume();
         resume_all_sfx();
         

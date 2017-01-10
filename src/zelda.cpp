@@ -1122,6 +1122,7 @@ int load_quest(gamedata *g, bool report)
     if(ret && report)
     {
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
         char buf1[80],buf2[80];
         sprintf(buf1,"Error loading %s:",get_filename(qstpath));
         sprintf(buf2,"%s",qst_error[ret]);
@@ -1133,6 +1134,7 @@ int load_quest(gamedata *g, bool report)
         }
         
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
     }
     
     return ret;

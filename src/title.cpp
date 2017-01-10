@@ -857,6 +857,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
     if(standalone_mode && save_count>1)
     {
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
         jwin_alert("Invalid save file",
                    "This save file cannot be",
                    "used in standalone mode.",
@@ -867,7 +868,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
     else if(!standalone_mode && save_count==1)
     {
         system_pal();
-        
+		Backend::mouse->setCursorVisibility(true);
         if(jwin_alert3("Standalone save file",
                        "This save file was created in standalone mode.",
                        "If you continue, you will no longer be able",
@@ -1180,6 +1181,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         if(standalone_mode && strcmp(savedata[i].qstpath, standalone_quest)!=0)
         {
             system_pal();
+			Backend::mouse->setCursorVisibility(true);
             jwin_alert("Invalid save file",
                        "This save file is for",
                        "a different quest.",
@@ -1529,11 +1531,11 @@ int load_savedgames()
     
 newdata:
     system_pal();
-    
+	Backend::mouse->setCursorVisibility(true);
     if(standalone_mode)
         goto init;
-	Backend::mouse->setCursorVisibility(true);
-    if(jwin_alert("Can't Find Saved Game File",
+	
+	if(jwin_alert("Can't Find Saved Game File",
                   "The save file could not be found.",
                   "Create a new file from scratch?",
                   "Warning: Doing so will erase any previous saved games!",
@@ -1543,6 +1545,7 @@ newdata:
     }
     
     game_pal();
+	Backend::mouse->setCursorVisibility(false);
     Z_message("Save file not found.  Creating new save file.");
     goto init;
     
@@ -1573,7 +1576,7 @@ reset:
     }
     
     game_pal();
-    
+	Backend::mouse->setCursorVisibility(false);
     if(f)
         pack_fclose(f);
         
@@ -2907,7 +2910,7 @@ int custom_game(int file)
     }
     
 	Backend::mouse->setCursorVisibility(false);
-    game_pal();
+    game_pal();	
     key[KEY_ESC]=0;
     chosecustomquest = (ret==5);
     return (int)chosecustomquest;
