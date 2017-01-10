@@ -198,8 +198,6 @@ bool GraphicsBackend::trySettingVideoMode()
 
 	bool ok = false;
 
-	set_color_depth(8);
-
 	if (fullscreen_)
 	{
 		// Try each registered mode, in decreasing succession
@@ -209,6 +207,7 @@ bool GraphicsBackend::trySettingVideoMode()
 		{
 			int w = virtualmodes_[i].first;
 			int h = virtualmodes_[i].second;
+			set_color_depth(8);
 			if (set_gfx_mode(GFX_AUTODETECT_FULLSCREEN, w, h, 0, 0) != 0)
 			{
 				Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", GFX_AUTODETECT_FULLSCREEN, 8, w, h);
@@ -232,6 +231,7 @@ bool GraphicsBackend::trySettingVideoMode()
 	if(!ok)
 	{
 		// Try the prescribed resolution
+		set_color_depth(8);
 		if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, screenw_, screenh_, 0, 0) != 0)
 		{
 			Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", GFX_AUTODETECT_WINDOWED, 8, screenw_, screenh_);
@@ -257,6 +257,8 @@ bool GraphicsBackend::trySettingVideoMode()
 				// we already tried this combo, don't waste the user's time
 				continue;
 			}
+
+			set_color_depth(8);
 			if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0)
 			{
 				Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", GFX_AUTODETECT_WINDOWED, 8, w, h);

@@ -35,6 +35,7 @@
 #include "ffscript.h"
 #include "particles.h"
 #include "mem_debug.h"
+#include "backend\AllBackends.h"
 
 
 #define EPSILON 0.01 // Define your own tolerance
@@ -4541,8 +4542,10 @@ void ViewMap()
     if(!mappic)
     {
         system_pal();
+		Backend::mouse->setCursorVisibility(true);
         jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
         game_pal();
+		Backend::mouse->setCursorVisibility(false);
         return;
     }
     
