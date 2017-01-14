@@ -7,10 +7,12 @@
 #include "ParseError.h"
 #include <assert.h>
 
+////////////////////////////////////////////////////////////////
+// BuildScriptSymbols
 
-void BuildScriptSymbols::caseDefault(void *)
-{
-}
+void BuildScriptSymbols::caseDefault(void *) {}
+
+// Declarations
 
 void BuildScriptSymbols::caseScript(ASTScript &host,void *param)
 {
@@ -60,49 +62,6 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     p->second->putFuncDecl(id, params);
 }
 
-void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
-{
-    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-    string name = host.getName();
-    int type;
-    ExtractType temp;
-    host.getType()->execute(temp, &type);
-    
-    if(type == ScriptParser::TYPE_VOID)
-    {
-        failure = true;
-        printErrorMsg(&host, VOIDVAR, name);
-    }
-    
-    
-    //This code stops declaring special types t a global scope. -Z
-    if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
-            || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
-            || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
-    {
-        failure = false;
-        printErrorMsg(&host, REFVAR, name);
-    }
-    
-    //var is always visible
-    int id = p->first->getVarSymbols().addVariable(name, type);
-    
-    if(id == -1)
-    {
-        failure = true;
-        printErrorMsg(&host, VARREDEF, name);
-        return;
-    }
-    
-    p->second->putAST(&host, id);
-    p->second->putVar(id, type);
-    
-    if(this->deprecateGlobals)
-    {
-        printErrorMsg(&host, DEPRECATEDGLOBAL, name);
-    }
-}
-
 void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
@@ -117,12 +76,13 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         printErrorMsg(&host, VOIDARR, name);
     }
     
-    //This code prevents global arrays from being typed to special types. -Z
+    
+    //This code stops declaring special types t a global scope. -Z
     if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
             || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
             || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
     {
-        failure = false;
+        failure = true;
         printErrorMsg(&host, REFARR, name);
     }
     
@@ -156,11 +116,55 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     }
 }
 
+void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
+{
+    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
+    string name = host.getName();
+    int type;
+    ExtractType temp;
+    host.getType()->execute(temp, &type);
+    
+    if(type == ScriptParser::TYPE_VOID)
+    {
+        failure = true;
+        printErrorMsg(&host, VOIDVAR, name);
+    }
+    
+    //This code prevents global arrays from being typed to special types. -Z
+    if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
+            || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
+            || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
+    {
+        failure = true;
+        printErrorMsg(&host, REFVAR, name);
+    }
+    
+    //var is always visible
+    int id = p->first->getVarSymbols().addVariable(name, type);
+    
+    if(id == -1)
+    {
+        failure = true;
+        printErrorMsg(&host, VARREDEF, name);
+        return;
+    }
+    
+    p->second->putAST(&host, id);
+    p->second->putVar(id, type);
+    
+    if(this->deprecateGlobals)
+    {
+        printErrorMsg(&host, DEPRECATEDGLOBAL, name);
+    }
+}
+
 void BuildScriptSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
 {
     host.getInitializer()->execute(*this,param);
     caseVarDecl(host, param);
 }
+
+// Expressions
 
 void BuildScriptSymbols::caseExprDot(ASTExprDot &host, void *param)
 {
@@ -203,6 +207,43 @@ void BuildScriptSymbols::caseFuncCall(ASTFuncCall &host, void *)
 }
 
 //////////////////////////////////////////////////////////////
+// BuildFunctionSymbols
+
+// Statements
+
+void BuildFunctionSymbols::caseBlock(ASTBlock &host, void *param)
+{
+    //push in  a new scope
+    BFSParam *p = (BFSParam *)param;
+    Scope *newscope = new Scope(p->scope);
+    BFSParam newparam = {newscope, p->table,p->type};
+    list<ASTStmt *> stmts = host.getStatements();
+    
+    for(list<ASTStmt *>::iterator it = stmts.begin(); it != stmts.end(); it++)
+    {
+        (*it)->execute(*this, &newparam);
+    }
+    
+    delete newscope;
+}
+
+void BuildFunctionSymbols::caseStmtFor(ASTStmtFor &host, void *param)
+{
+    //push in new scope
+    //in accordance with C++ scoping
+    BFSParam *p = (BFSParam *)param;
+    Scope *newscope = new Scope(p->scope);
+    BFSParam newparam = {newscope, p->table, p->type};
+    host.getPrecondition()->execute(*this, &newparam);
+    host.getTerminationCondition()->execute(*this, &newparam);
+    host.getIncrement()->execute(*this, &newparam);
+    ASTStmt * stmt = host.getStmt();
+    
+    stmt->execute(*this,&newparam);
+    delete newscope;
+}
+
+// Declarations
 
 void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
@@ -256,26 +297,6 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     delete subscope;
 }
 
-void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
-{
-    BFSParam *p = (BFSParam *)param;
-    string name = host.getName();
-    int type;
-    ExtractType temp;
-    host.getType()->execute(temp, &type);
-    int id = p->scope->getVarSymbols().addVariable(name, type);
-    
-    if(id == -1)
-    {
-        printErrorMsg(&host, VARREDEF, name);
-        failure = true;
-        return;
-    }
-    
-    p->table->putAST(&host, id);
-    p->table->putVar(id, type);
-}
-
 void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
     BFSParam *p = (BFSParam *)param;
@@ -307,37 +328,33 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     }
 }
 
-void BuildFunctionSymbols::caseBlock(ASTBlock &host, void *param)
+void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 {
-    //push in  a new scope
     BFSParam *p = (BFSParam *)param;
-    Scope *newscope = new Scope(p->scope);
-    BFSParam newparam = {newscope, p->table,p->type};
-    list<ASTStmt *> stmts = host.getStatements();
+    string name = host.getName();
+    int type;
+    ExtractType temp;
+    host.getType()->execute(temp, &type);
+    int id = p->scope->getVarSymbols().addVariable(name, type);
     
-    for(list<ASTStmt *>::iterator it = stmts.begin(); it != stmts.end(); it++)
+    if(id == -1)
     {
-        (*it)->execute(*this, &newparam);
+        printErrorMsg(&host, VARREDEF, name);
+        failure = true;
+        return;
     }
     
-    delete newscope;
+    p->table->putAST(&host, id);
+    p->table->putVar(id, type);
 }
 
-void BuildFunctionSymbols::caseStmtFor(ASTStmtFor &host, void *param)
+void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
 {
-    //push in new scope
-    //in accordance with C++ scoping
-    BFSParam *p = (BFSParam *)param;
-    Scope *newscope = new Scope(p->scope);
-    BFSParam newparam = {newscope, p->table, p->type};
-    host.getPrecondition()->execute(*this, &newparam);
-    host.getTerminationCondition()->execute(*this, &newparam);
-    host.getIncrement()->execute(*this, &newparam);
-    ASTStmt * stmt = host.getStmt();
-    
-    stmt->execute(*this,&newparam);
-    delete newscope;
+	host.getInitializer()->execute(*this,param);
+	caseVarDecl(host, param);
 }
+
+// Expressions
 
 void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
 {
