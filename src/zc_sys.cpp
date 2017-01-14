@@ -6451,6 +6451,7 @@ static MENU video_mode_menu[] =
 	{ (char *)"Windowed 320x240",		    onWindowed1Menu,		 NULL,                      0, NULL },
 	{ (char *)"&Windowed 640x480",		    onWindowed2Menu,		 NULL,                      0, NULL },
 	{ (char *)"Windowed 1280x960",		    onWindowed4Menu,		 NULL,                      0, NULL },
+	{ (char *)"Native Color &Depth",        onNativeDepthMenu,       NULL,                      0, NULL },
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -6565,6 +6566,18 @@ void setVideoModeMenuFlags()
 	video_mode_menu[1].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 320 && Backend::graphics->screenH() == 240) ? D_SELECTED : 0;
 	video_mode_menu[2].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 640 && Backend::graphics->screenH() == 480) ? D_SELECTED : 0;
 	video_mode_menu[3].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 1280 && Backend::graphics->screenH() == 960) ? D_SELECTED : 0;
+	video_mode_menu[4].flags = (Backend::graphics->isNativeColorDepth() ? D_SELECTED : 0);
+}
+
+int onNativeDepthMenu()
+{
+	Backend::graphics->setUseNativeColorDepth(!Backend::graphics->isNativeColorDepth());
+	setVideoModeMenuFlags();
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
+	return D_REDRAW;
 }
 
 

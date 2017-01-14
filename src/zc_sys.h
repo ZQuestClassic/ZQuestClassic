@@ -27,6 +27,7 @@ void save_game_configs();
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
+int onNativeDepthMenu();
 int onFullscreenMenu();
 int onWindowed1Menu();
 int onWindowed2Menu();

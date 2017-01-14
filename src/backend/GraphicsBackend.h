@@ -159,7 +159,34 @@ public:
 	* values are undefined otherwise.
 	*/
 	int screenW();
-	int screenH();	
+	int screenH();
+
+	/*
+	* Requests that the physical window should use the desktop native cp;pr
+	* depth, or 8-bit color depth.
+	* This function can be called after the graphics backend has been
+	* initialized, in which case the screen mode will immediately change
+	* to the desired setting (if it's not already).
+	*
+	* The screen resolution and mode will be set according to the procedure
+	* described for initialize(), and in particular, the window may not
+	* switch color depth if this mode is not supported by the video card.
+	* Returns false if the graphics backend cannot fall back to any working
+	* video mode (in which case the graphics backend is no longer in a
+	* consistent state and the caller should probably terminate.)
+	* Returns true otherwise (even if the graphics backend was not able to
+	* switch to the requested mode.)
+	*/
+	bool setUseNativeColorDepth(bool native);
+
+	/*
+	* Queries whether the physical window is currently using the native
+	* desktop color depth, or 8-bit color depth. Note that the native
+	* desktop color depth might *also* be 8-bit depth.
+	* Can only be called after the graphics backend is initialized. The return
+	* value is undefined otherwise.
+	*/
+	bool isNativeColorDepth() { return native_; }
 	
 	/*
 	* Requests that the physical window should be fullscreen or windowed.
@@ -271,10 +298,12 @@ private:
 
 	BITMAP *hw_screen_;
 	BITMAP *backbuffer_;
+	BITMAP *nativebuffer_;
 
 	bool initialized_;
 	int screenw_, screenh_;
 	bool fullscreen_;	
+	bool native_;
 	
 	std::vector<std::pair<int, int> > virtualmodes_;
 	int curmode_;

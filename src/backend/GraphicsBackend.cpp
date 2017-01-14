@@ -51,10 +51,12 @@ END_OF_FUNCTION(onSwitchIn);
 GraphicsBackend::GraphicsBackend() :
 	hw_screen_(NULL),
 	backbuffer_(NULL),
+	nativebuffer_(NULL),
 	initialized_(false),
 	screenw_(320),
 	screenh_(240),
 	fullscreen_(false),
+	native_(true),
 	curmode_(-1),
 	virtualw_(1),
 	virtualh_(1),
@@ -68,9 +70,11 @@ GraphicsBackend::~GraphicsBackend()
 	{
 		remove_int(update_frame_counter);
 		screen = hw_screen_;
-		destroy_bitmap(backbuffer_);
+		destroy_bitmap(backbuffer_);		
 		clear_to_color(screen, 0);
 	}
+	if(nativebuffer_)
+		destroy_bitmap(nativebuffer_);
 }
 
 void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
@@ -81,6 +85,7 @@ void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
 	screenw_ = get_config_int(secname, "resx", 320);
 	screenh_ = get_config_int(secname, "resy", 240);
 	fullscreen_ = get_config_int(secname, "fullscreen", 0) != 0;
+	native_ = get_config_int(secname, "native", 1) != 0;
 	fps_ = get_config_int(secname, "fps", 60);
 }
 
@@ -92,6 +97,7 @@ void GraphicsBackend::writeConfigurationOptions(const std::string &prefix)
 	set_config_int(secname, "resx", screenw_);
 	set_config_int(secname, "resy", screenh_);
 	set_config_int(secname,"fullscreen", isFullscreen() ? 1 : 0 );
+	set_config_int(secname, "native", native_ ? 1 : 0);
 	set_config_int(secname, "fps", fps_);
 }
 
@@ -134,7 +140,16 @@ bool GraphicsBackend::showBackBuffer()
 	}
 #endif
 	Backend::mouse->renderCursor(backbuffer_);
-	stretch_blit(backbuffer_, hw_screen_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
+	if (native_)
+	{
+		stretch_blit(backbuffer_, nativebuffer_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
+		set_color_conversion(COLORCONV_TOTAL);
+		blit(nativebuffer_, hw_screen_, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+	}
+	else
+	{
+		stretch_blit(backbuffer_, hw_screen_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
+	}
 	Backend::mouse->unrenderCursor(backbuffer_);
 	frames_this_second++;
 	return true;
@@ -159,6 +174,19 @@ bool GraphicsBackend::setFullscreen(bool fullscreen)
 	if (fullscreen != fullscreen_)
 	{
 		fullscreen_ = fullscreen;
+		if (initialized_)
+		{
+			return trySettingVideoMode();
+		}
+	}
+	return true;
+}
+
+bool GraphicsBackend::setUseNativeColorDepth(bool native)
+{
+	if (native_ != native)
+	{
+		native_ = native;
 		if (initialized_)
 		{
 			return trySettingVideoMode();
@@ -196,6 +224,8 @@ bool GraphicsBackend::trySettingVideoMode()
 	PALETTE oldpal;
 	get_palette(oldpal);
 
+	int depth = native_ ? desktop_color_depth() : 8;
+
 	bool ok = false;
 
 	if (fullscreen_)
@@ -207,7 +237,7 @@ bool GraphicsBackend::trySettingVideoMode()
 		{
 			int w = virtualmodes_[i].first;
 			int h = virtualmodes_[i].second;
-			set_color_depth(8);
+			set_color_depth(depth);
 			if (set_gfx_mode(GFX_AUTODETECT_FULLSCREEN, w, h, 0, 0) != 0)
 			{
 				Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", GFX_AUTODETECT_FULLSCREEN, 8, w, h);
@@ -231,7 +261,7 @@ bool GraphicsBackend::trySettingVideoMode()
 	if(!ok)
 	{
 		// Try the prescribed resolution
-		set_color_depth(8);
+		set_color_depth(depth);
 		if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, screenw_, screenh_, 0, 0) != 0)
 		{
 			Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", GFX_AUTODETECT_WINDOWED, 8, screenw_, screenh_);
@@ -258,7 +288,7 @@ bool GraphicsBackend::trySettingVideoMode()
 				continue;
 			}
 
-			set_color_depth(8);
+			set_color_depth(depth);
 			if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0)
 			{
 				Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", GFX_AUTODETECT_WINDOWED, 8, w, h);
@@ -311,6 +341,13 @@ bool GraphicsBackend::trySettingVideoMode()
 		destroy_bitmap(backbuffer_);
 		backbuffer_ = create_bitmap_ex(8, virtualw_, virtualh_);
 		clear_to_color(backbuffer_, 0);
+	}
+	if (native_)
+	{
+		if (nativebuffer_)
+			destroy_bitmap(nativebuffer_);
+
+		nativebuffer_ = create_bitmap_ex(8, SCREEN_W, SCREEN_H);
 	}
 
 	screen = backbuffer_;

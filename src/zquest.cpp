@@ -1146,6 +1146,7 @@ static MENU video_mode_menu[] =
 	{ (char *)"&Fullscreen",				onFullscreenMenu,		 NULL,                      0, NULL },
 	{ (char *)"Windowed 320x240",		    onWindowed1Menu,		 NULL,                      0, NULL },
 	{ (char *)"&Windowed 800x640",		    onWindowed2Menu,		 NULL,                      0, NULL },
+	{ (char *)"Native Color &Depth",        onNativeDepthMenu,       NULL,                      0, NULL },
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -1199,6 +1200,23 @@ void setVideoModeMenuFlags()
 	video_mode_menu[0].flags = (Backend::graphics->isFullscreen() ? D_SELECTED : 0);
 	video_mode_menu[1].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 320 && Backend::graphics->screenH() == 240) ? D_SELECTED : 0;
 	video_mode_menu[2].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 800 && Backend::graphics->screenH() == 600) ? D_SELECTED : 0;	
+	video_mode_menu[3].flags = (Backend::graphics->isNativeColorDepth() ? D_SELECTED : 0);
+}
+
+int onNativeDepthMenu()
+{
+	Backend::graphics->setUseNativeColorDepth(!Backend::graphics->isNativeColorDepth());
+	setVideoModeMenuFlags();
+	gui_bg_color = jwin_pal[jcBOX];
+	gui_fg_color = jwin_pal[jcBOXFG];
+	gui_mg_color = jwin_pal[jcMEDDARK];
+	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	set_palette(RAMpal);
+	int x = Backend::graphics->screenW() / 2;
+	int y = Backend::graphics->screenH() / 2;
+	Backend::mouse->setVirtualScreenPos(x, y);
+	Backend::mouse->setCursorVisibility(true);
+	return D_REDRAW;
 }
 
 
