@@ -817,7 +817,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     
     if(!f)
     {
-        return false;
+        return NULL;
     }
     
     if(validate)
@@ -833,7 +833,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
                 delete_file(deletefilename);
             }
             
-            return false;
+            return NULL;
         }
     }
     
