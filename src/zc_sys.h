@@ -31,6 +31,7 @@ int onNativeDepthMenu();
 int onFullscreenMenu();
 int onWindowed1Menu();
 int onWindowed2Menu();
+int onWindowed3Menu();
 int onWindowed4Menu();
 void f_Quit(int type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true);

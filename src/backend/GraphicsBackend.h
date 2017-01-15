@@ -25,6 +25,9 @@ public:
 	*               by registerVirtualModes()) is not recommend, as there will
 	*               be pixel scaling artifacts.
 	* - fullscreen: Whether the program starts off in full screen, or windowed.
+	* - native:     Whether the program should use the native desktop
+	*               color depth, or 8-bit color depth, for the screen color
+	*               depth.
 	* - fps:        The frame rate of the program, in frames per second. The
 	*               waitTick() function will synchronize the program with this
 	*               frame rate.
@@ -50,9 +53,14 @@ public:
 	* screen resolutions. When the backend is initialized, the virtual screen
 	* will be created at one of these resolutions.
 	* Resolutions should be listed in order of most favorable, to least
-	* favorable. The first resolution encountered in the list, whose width and
-	* height is at most the width and height of the physical screen, will be
-	* used.
+	* favorable. 
+	* Once the physical screen resolution has been set, a virtual screen
+	* resolution is selected using the following scheme:
+	* - the first resolution encountered in the list, such that the screen
+	*   resolution is an integer multiple of that resolution, is selected;
+	* - if no registered resolution satisfies that criterion, the first 
+	*   resolution encountered in the list, whose width and height is at 
+	*   most the width and height of the physical screen, will be used.
 	*
 	* This function *must* be called before calling initialize(). Subsequent
 	* calls to registerVirtualModes() overwrite the modes registered earlier.
@@ -99,9 +107,8 @@ public:
 	*
 	* If the physical screen is initialized successfully, this function next
 	* creates a virtual screen at one of the resolutions requested using
-	* registerVirtualModes(). Each registered resolution is checked and the
-	* first, in order, that fits within the physical screen (has width and
-	* height at most that of the physical screen) is chosen.
+	* registerVirtualModes(), selecting one of these resolution as per
+	* the scheme desribed in the registerVirtualModes() documentation.
 	*
 	* If the physical video mode could not be set, or if no registered
 	* virtual screen fits within the physical screen width and height,

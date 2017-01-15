@@ -327,12 +327,31 @@ bool GraphicsBackend::trySettingVideoMode()
 
 	int nmodes = (int)virtualmodes_.size();
 	int newmode = -1;
+
+	// first check for an exact integer match
 	for (int i = 0; i < nmodes; i++)
 	{
-		if (virtualmodes_[i].first <= screenw_ && virtualmodes_[i].second <= screenh_)
+		if (screenw_ % virtualmodes_[i].first == 0)
 		{
-			newmode = i;
-			break;
+			int quot = screenw_ / virtualmodes_[i].first;
+			if (screenh_ == quot * virtualmodes_[i].second)
+			{
+				newmode = i;
+				break;
+			}
+		}
+	}
+
+	// fall back to the closest resolution that fits
+	if (newmode == -1)
+	{
+		for (int i = 0; i < nmodes; i++)
+		{
+			if (virtualmodes_[i].first <= screenw_ && virtualmodes_[i].second <= screenh_)
+			{
+				newmode = i;
+				break;
+			}
 		}
 	}
 
