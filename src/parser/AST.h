@@ -61,6 +61,7 @@ class ASTVarDecl;
 class ASTVarDeclInitializer;
 // Expressions
 class ASTExpr; // virtual
+class ASTExprConst;
 class ASTNumConstant;
 class ASTBoolConstant;
 class ASTExprDot;
@@ -147,6 +148,7 @@ public:
     virtual void caseVarDecl(ASTVarDecl &, void *param) {caseDefault(param);}
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &, void *param) {caseDefault(param);}
 	// Expressions
+    virtual void caseExprConst(ASTExprConst &, void *param) {caseDefault(param);}
     virtual void caseNumConstant(ASTNumConstant &, void *param) {caseDefault(param);}
     virtual void caseBoolConstant(ASTBoolConstant &, void *param) {caseDefault(param);}
     virtual void caseExprDot(ASTExprDot &, void *param) {caseDefault(param);}
@@ -591,24 +593,21 @@ private:
 class ASTArrayDecl : public ASTDecl
 {
 public:
-    ASTArrayDecl(ASTType *Type, string Name, AST *Size, bool isReg, ASTArrayList *List, LocationData Loc);
+    ASTArrayDecl(ASTType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc);
     ~ASTArrayDecl();
 	ASTArrayDecl* clone() const;
 
     ASTType *getType() const {return type;}
     string getName() const {return name;}
 
-    // If reg, size is an ASTExpr. If not, it's an ASTFloat
-    AST *getSize() const {return size;}
-    bool isRegister() const {return reg;}
+    ASTExpr *getSize() const {return size;}
     ASTArrayList *getList() const {return list;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseArrayDecl(*this, param);}
 private:
     string name;
     ASTArrayList *list;
-    AST *size;
+    ASTExpr *size;
     ASTType *type;
-    bool reg;
     //NOT IMPLEMENTED; DO NOT USE
     ASTArrayDecl(ASTArrayDecl &);
     ASTArrayDecl &operator=(ASTArrayDecl &);
@@ -678,27 +677,13 @@ public:
     ASTExpr(LocationData Loc) : ASTStmt(Loc), hasval(false), intval(0), type(-1) {}
     virtual ~ASTExpr() {}
 	virtual ASTExpr* clone() const = 0;
-    long getIntValue() const
-    {
-        return intval;
-    }
-    bool hasIntValue() const
-    {
-        return hasval;
-    }
-    int getType() const
-    {
-        return type;
-    }
-    void setIntValue(long val)
-    {
-        hasval = true;
-        intval=val;
-    }
-    void setType(int t)
-    {
-        type=t;
-    }
+
+    long getIntValue() const {return intval;}
+    bool hasIntValue() const {return hasval;}
+    int getType() const {return type;}
+    void setIntValue(long val);
+    void setType(int t) {type = t;}
+	virtual bool isConstant() const = 0;
 private:
     bool hasval;
     long intval;
@@ -706,6 +691,22 @@ private:
     //NOT IMPLEMENTED; DO NOT USE
     ASTExpr(ASTExpr &);
     ASTExpr &operator=(ASTExpr &);
+};
+
+// Wrap around an expression to type it as constant.
+class ASTExprConst : public ASTExpr
+{
+public:
+    ASTExprConst(ASTExpr *Content) : ASTExpr(Content->getLocation()), content(Content) {}
+	ASTExprConst(ASTExpr *Content, LocationData Loc) : ASTExpr(Loc), content(Content) {}
+	~ASTExprConst() {delete content;}
+	ASTExprConst* clone() const {return new ASTExprConst(content->clone(), getLocation());}
+
+	ASTExpr* getContent() const {return content;}
+	bool isConstant() const {return true;}
+    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprConst(*this, param);}
+private:
+	ASTExpr *content;
 };
 
 class ASTNumConstant : public ASTExpr
@@ -716,6 +717,7 @@ public:
 	ASTNumConstant* clone() const;
     
     ASTFloat *getValue() const {return val;}
+	bool isConstant() const {return true;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseNumConstant(*this, param);}
 private:
     ASTFloat *val;
@@ -728,6 +730,7 @@ public:
 	ASTBoolConstant* clone() const;
 
     bool getValue() const {return value;}
+	bool isConstant() const {return true;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseBoolConstant(*this, param);}
 private:
     bool value;
@@ -736,15 +739,18 @@ private:
 class ASTExprDot : public ASTExpr
 {
 public:
-    ASTExprDot(string Nspace, string Name, LocationData Loc) : ASTExpr(Loc), name(Name), nspace(Nspace) {}
+    ASTExprDot(string Nspace, string Name, LocationData Loc) : ASTExpr(Loc), name(Name), nspace(Nspace), _isConstant(false) {}
 	ASTExprDot* clone() const;
 
     string getName() const {return name;}
     string getNamespace() const {return nspace;}
+	bool isConstant() const {return _isConstant;}
+	void markConstant() {_isConstant = true;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprDot(*this, param);}
 private:
     string name;
     string nspace;
+	bool _isConstant;
 };
 
 class ASTExprArrow : public ASTExpr
@@ -758,6 +764,7 @@ public:
     ASTExpr *getLVal() const {return lval;}
     ASTExpr *getIndex() const {return index;}
     void setIndex(ASTExpr *e) {index = e;}
+	bool isConstant() const {return false;}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArrow(*this, param);}
 private:
@@ -777,6 +784,7 @@ public:
     string getNamespace() const {return nspace;}
     ASTExpr *getIndex() const {return index;}
     void setIndex(ASTExpr *e) {index = e;}
+	bool isConstant() const {return false;}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArray(*this, param);}
 private:
@@ -798,6 +806,7 @@ public:
     void setName(ASTExpr *n) {name = n;}
     ASTExpr * getName() const {return name;}
     void addParam(ASTExpr *param) {params.push_front(param);}
+	bool isConstant() const {return false;}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseFuncCall(*this, param);}
 private:
@@ -814,6 +823,7 @@ public:
 
     ASTExpr *getOperand() const {return operand;}
     void setOperand(ASTExpr *e) {operand = e;}
+	virtual bool isConstant() const {return operand->isConstant();}
 private:
     ASTExpr *operand;
     //NOT IMPLEMENTED; DO NOT USE
@@ -855,6 +865,7 @@ public:
 	ASTExprIncrement* clone() const;
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprIncrement(*this, param);}
+	bool isConstant() const {return false;}
 };
 
 class ASTExprPreIncrement : public ASTUnaryExpr
@@ -864,6 +875,7 @@ public:
 	ASTExprPreIncrement* clone() const;
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprPreIncrement(*this, param);}
+	bool isConstant() const {return false;}
 };
 
 class ASTExprDecrement : public ASTUnaryExpr
@@ -873,6 +885,7 @@ public:
 	ASTExprDecrement* clone() const;
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprDecrement(*this, param);}
+	bool isConstant() const {return false;}
 };
 
 class ASTExprPreDecrement : public ASTUnaryExpr
@@ -882,6 +895,7 @@ public:
 	ASTExprPreDecrement* clone() const;
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprPreDecrement(*this, param);}
+	bool isConstant() const {return false;}
 };
 
 class ASTBinaryExpr : public ASTExpr
@@ -895,6 +909,7 @@ public:
     void setFirstOperand(ASTExpr *e) {first = e;}
     ASTExpr *getSecondOperand() const {return second;}
     void setSecondOperand(ASTExpr *e) {second = e;}
+	bool isConstant() const {return first->isConstant() && second->isConstant();}
 private:
     ASTExpr *first;
     ASTExpr *second;
@@ -1120,6 +1135,8 @@ public:
         visitor.caseExprBitXor(*this,param);
     }
 };
+
+// Types
 
 class ASTType : public AST
 {

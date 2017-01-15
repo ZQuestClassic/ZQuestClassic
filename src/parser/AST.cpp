@@ -19,11 +19,11 @@ ASTProgram* ASTProgram::clone() const
 ASTFloat::ASTFloat(char *Value, int Type, LocationData Loc)
 		: AST(Loc), type(Type), negative(false), val((string)Value)
 {}
-    
+
 ASTFloat::ASTFloat(const char *Value, int Type, LocationData Loc)
 		: AST(Loc), type(Type), negative(false), val((string)Value)
 {}
-    
+
 ASTFloat::ASTFloat(string Value, int Type, LocationData Loc)
 		: AST(Loc), type(Type), negative(false), val(Value)
 {}
@@ -157,12 +157,12 @@ ASTString* ASTString::clone() const
 ASTBlock::~ASTBlock()
 {
     list<ASTStmt *>::iterator it;
-    
+
     for (it = statements.begin(); it != statements.end(); it++)
     {
         delete *it;
     }
-    
+
     statements.clear();
 }
 
@@ -212,9 +212,9 @@ ASTStmtIf* ASTStmtIf::clone() const
 			stmt != NULL ? stmt->clone() : NULL,
 			getLocation());
 }
-    
+
 // ASTStmtIfElse
-    
+
 ASTStmtIfElse::ASTStmtIfElse(ASTExpr *Cond, ASTStmt *Ifstmt, ASTStmt *Elsestmt, LocationData Loc)
 		: ASTStmtIf(Cond, Ifstmt, Loc), elsestmt(Elsestmt)
 {}
@@ -440,8 +440,8 @@ void ASTFuncDecl::addParam(ASTVarDecl *param)
 
 // ASTArrayDecl
 
-ASTArrayDecl::ASTArrayDecl(ASTType *Type, string Name, AST *Size, bool isReg, ASTArrayList *List, LocationData Loc)
-		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type), reg(isReg)
+ASTArrayDecl::ASTArrayDecl(ASTType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc)
+		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type)
 {}
 
 ASTArrayDecl::~ASTArrayDecl()
@@ -455,7 +455,7 @@ ASTArrayDecl* ASTArrayDecl::clone() const
 {
 	ASTArrayList* c_list = NULL;
 	if (list != NULL) c_list = list->clone();
-	return new ASTArrayDecl(type->clone(), name, size->clone(), reg, c_list, getLocation());
+	return new ASTArrayDecl(type->clone(), name, size->clone(), c_list, getLocation());
 }
 
 // ASTArrayList
@@ -519,6 +519,14 @@ ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 
 // ASTExpr
 
+void ASTExpr::setIntValue(long val)
+{
+	hasval = true;
+	intval=val;
+}
+
+// ASTExprConst
+
 // ASTNumConstant
 
 ASTNumConstant* ASTNumConstant::clone() const
@@ -546,6 +554,7 @@ ASTExprDot* ASTExprDot::clone() const
 	ASTExprDot* c = new ASTExprDot(nspace, name, getLocation());
 	if (hasIntValue()) c->setIntValue(getIntValue());
 	c->setType(getType());
+	if (isConstant()) {c->markConstant();}
 	return c;
 }
 
@@ -861,7 +870,7 @@ ASTExprTimes* ASTExprTimes::clone() const
 }
 
 // ASTExprDivide
-    
+
 ASTExprDivide* ASTExprDivide::clone() const
 {
 	ASTExprDivide* c = new ASTExprDivide(getLocation());
@@ -1008,30 +1017,30 @@ ASTTypeItem* ASTTypeItem::clone() const
 {
 	return new ASTTypeItem(getLocation());
 }
-            
+
 // ASTTypeItemclass
-        
+
 ASTTypeItemclass* ASTTypeItemclass::clone() const
 {
 	return new ASTTypeItemclass(getLocation());
 }
-        
+
 // ASTTypeNPC
-    
+
 ASTTypeNPC* ASTTypeNPC::clone() const
 {
 	return new ASTTypeNPC(getLocation());
 }
-        
+
 // ASTTypeLWpn
-        
+
 ASTTypeLWpn* ASTTypeLWpn::clone() const
 {
 	return new ASTTypeLWpn(getLocation());
 }
-        
+
 // ASTTypeEWpn
-    
+
 ASTTypeEWpn* ASTTypeEWpn::clone() const
 {
 	return new ASTTypeEWpn(getLocation());
