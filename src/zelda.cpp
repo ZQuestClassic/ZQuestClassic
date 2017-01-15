@@ -3161,6 +3161,17 @@ int main(int argc, char* argv[])
 		Backend::graphics->setFullscreen(false);
     }
 
+	if (used_switch(argc, argv, "-0bit"))
+	{
+		al_trace("Used switch: -0bit\n");
+		Backend::graphics->setUseNativeColorDepth(true);
+	}
+	else if (used_switch(argc, argv, "-8bit"))
+	{
+		al_trace("Used switch: -8bit\n");
+		Backend::graphics->setUseNativeColorDepth(false);
+	}
+
 	Backend::graphics->setVideoModeSwitchDelay(wait_ms_on_set_graphics);
 	Backend::graphics->registerVirtualModes(desiredModes);
 

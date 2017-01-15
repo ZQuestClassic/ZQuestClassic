@@ -21860,6 +21860,16 @@ int main(int argc, char **argv)
 		Backend::graphics->setFullscreen(false);
 	}
 
+	if (used_switch(argc, argv, "-0bit"))
+	{
+		Backend::graphics->setUseNativeColorDepth(true);
+	}
+	else if (used_switch(argc, argv, "-8bit"))
+	{
+		Backend::graphics->setUseNativeColorDepth(false);
+	}
+	
+
     int res_arg = used_switch(argc,argv,"-res");
     if(res_arg && (argc>(res_arg+2)))
     {
