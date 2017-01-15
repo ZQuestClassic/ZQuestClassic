@@ -3176,7 +3176,7 @@ int main(int argc, char* argv[])
 	for (int i = 240; i<256; i++)
 		RAMpal[i] = ((RGB*)data[PAL_GUI].dat)[i];
 
-	set_palette(RAMpal);
+	Backend::palette->setPalette(RAMpal);
 	clear_to_color(screen, BLACK);
      
     set_close_button_callback((void (*)()) hit_close_button);

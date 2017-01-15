@@ -1216,7 +1216,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
     {
     case tf4Bit:
         jwin_draw_win(screen2, palette_x-2, palette_y-2, (palette_scale*16)+4, (palette_scale*16)+4, FR_DEEP);
-        get_palette(temppal);
+        Backend::palette->getPalette(temppal);
         
         for(int i=0; i<16; i++)
         {
@@ -1296,7 +1296,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
             unpack_tile(newtilebuf, tile, 0, false);
             byte *si = unpackbuf;
             si+=(temp_y*16+temp_x);
-            get_palette(tpal);
+            Backend::palette->getPalette(tpal);
             
             if(newtilebuf[tile].format<=tf4Bit)
             {
@@ -1510,18 +1510,7 @@ void edit_tile(int tile,int flip,int &cs)
     clear_selection_grid();
     selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
     
-    //PALETTE opal;
     PALETTE tpal;
-    //get_palette(opal);
-    /*
-    //This causes a bug. Why? -L
-    get_palette(tpal);
-    for(int i=0; i<15; i++)
-    {
-      load_cset(tpal,i,i);
-    }
-    set_palette(tpal);
-    */
     byte oldtile[256];
     
     memset(&tpal, 0, sizeof(PALETTE));
@@ -1539,7 +1528,7 @@ void edit_tile(int tile,int flip,int &cs)
     drawing=0;
     tool_cur = -1;
     
-    get_palette(tpal);
+    Backend::palette->getPalette(tpal);
     
     if(newtilebuf[tile].format==tf4Bit)
     {
@@ -1550,7 +1539,7 @@ void edit_tile(int tile,int flip,int &cs)
         invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
     }
     
-    set_palette(tpal);
+    Backend::palette->setPalette(tpal);
     draw_edit_scr(tile,flip,cs,oldtile, true);
     
     while(Backend::mouse->anyButtonClicked())
@@ -2107,7 +2096,7 @@ void edit_tile(int tile,int flip,int &cs)
                 {
 //          popup_menu(colors_menu,26+screen_xofs,144+screen_yofs);
                     popup_menu(colors_menu,edit_button_x+2,edit_button_y-40);
-                    get_palette(tpal);
+                    Backend::palette->getPalette(tpal);
                     
                     if(newtilebuf[tile].format==tf4Bit)
                     {
@@ -2459,7 +2448,7 @@ void edit_tile(int tile,int flip,int &cs)
         
         if(redraw)
         {
-            get_palette(tpal);
+            Backend::palette->getPalette(tpal);
             
             if(newtilebuf[tile].format==tf4Bit)
             {
@@ -2474,7 +2463,7 @@ void edit_tile(int tile,int flip,int &cs)
                 tpal[210]=invRGB(tpal[0]);
             }
             
-            set_palette(tpal);
+            Backend::palette->setPalette(tpal);
             draw_edit_scr(tile,flip,cs,oldtile, false);
             
             if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
@@ -2557,7 +2546,6 @@ void edit_tile(int tile,int flip,int &cs)
 	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     register_blank_tiles();
     register_used_tiles();
-    //set_palette(opal);
     clear_tooltip();
     comeback();
     destroy_bitmap(selection_pattern);
@@ -4600,7 +4588,7 @@ void grab_tile(int tile,int &cs)
         
             if(getname_nogo("Load File",NULL,list,imagepath,true))
             {
-                set_palette(RAMpal);
+                Backend::palette->setPalette(RAMpal);
                 pal=0;
                 white=vc(15);
                 black=vc(0);
@@ -4681,7 +4669,7 @@ void grab_tile(int tile,int &cs)
                 jwin_set_colors(jwin_pal);
             }
             
-            set_palette_range(pal?imagepal:RAMpal,0,255,false);
+            Backend::palette->setPalette(pal?imagepal:RAMpal);
             
             dopal=false;
             redraw=true;
@@ -4768,7 +4756,7 @@ void grab_tile(int tile,int &cs)
     destroy_bitmap(screen3);
     
     if(pal)
-        set_palette(RAMpal);
+        Backend::palette->setPalette(RAMpal);
     
     recolor=rcNone;
     calc_cset_reduce_table(imagepal, cs);
@@ -9161,7 +9149,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
                     {
                         PALETTE temppal;
-                        get_palette(temppal);
+                        Backend::palette->getPalette(temppal);
                         BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
                         stretch_blit(screen2,tempbmp,0,0,16*(is_large() ? 2 : 1)*TILES_PER_ROW,16*(is_large() ? 2 :1)*TILE_ROWS_PER_PAGE,0,0,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
                         save_bitmap(temppath, tempbmp, temppal);
@@ -11472,7 +11460,7 @@ int onIcons()
         load_cset(pal, i+6, pSprite(i+spICON1));
     }
     
-    set_palette(pal);
+    Backend::palette->setPalette(pal);
     
     if(is_large())
         large_dialog(icon_dlg);
@@ -11491,7 +11479,7 @@ int onIcons()
         }
     }
     
-    set_palette(RAMpal);
+    Backend::palette->setPalette(RAMpal);
     return D_O_K;
 }
 

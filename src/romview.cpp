@@ -842,7 +842,7 @@ void load_pal(char *path)
 {
     if(!path)
     {
-        get_palette(pal[0]);
+        Backend::palette->getPalette(pal[0]);
         
         for(int i=0; i<16; i++)
         {
@@ -1651,7 +1651,7 @@ void setup_colors()
 {
     static BITMAP *mouse = NULL;
     
-    set_palette(pal[currpal]);
+    Backend::palette->setPalette(pal[currpal]);
     get_bw(pal[currpal]);
     gui_bg_color = black;
     gui_fg_color = white;

@@ -31,6 +31,7 @@
 #include "ffscript.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "backend/AllBackends.h"
 
 using std::set;
 
@@ -14367,7 +14368,7 @@ void LinkClass::getTriforce(int id2)
             {
                 if((f&3)==0)
                 {
-                    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
+                    Backend::palette->interpolatePalettes(RAMpal,flash_pal,42,0,CSET(6)-1, RAMpal);
                     refreshpal=true;
                 }
                 
@@ -14777,7 +14778,7 @@ void LinkClass::gameover()
                     
                     if(f>=139 && f<=169)//fade from red to black
                     {
-                        fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
+                        Backend::palette->interpolatePalettes(RAMpal,black_palette,(f-138)<<1, 224, 255, RAMpal);
                         create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
                         create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
                         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
@@ -14795,7 +14796,7 @@ void LinkClass::gameover()
                 {
                     if(f==170)//make Link grayish
                     {
-                        fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
+                        Backend::palette->interpolatePalettes(RAMpal,black_palette,64, 224, 255, RAMpal);
                         
                         for(int i=CSET(6); i < CSET(7); i++)
                         {

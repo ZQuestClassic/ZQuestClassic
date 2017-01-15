@@ -1140,6 +1140,7 @@ static MENU tunes_menu[] =
 int onFullscreenMenu();
 int onWindowed1Menu();
 int onWindowed2Menu();
+int onNativeDepthMenu();
 
 static MENU video_mode_menu[] =
 {
@@ -1211,7 +1212,7 @@ int onNativeDepthMenu()
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	set_palette(RAMpal);
+	Backend::palette->setPalette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
 	Backend::mouse->setVirtualScreenPos(x, y);
@@ -1228,7 +1229,7 @@ int onFullscreenMenu()
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	set_palette(RAMpal);
+	Backend::palette->setPalette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
 	Backend::mouse->setVirtualScreenPos(x, y);
@@ -1245,7 +1246,7 @@ int onWindowed1Menu()
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	set_palette(RAMpal);
+	Backend::palette->setPalette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
 	Backend::mouse->setVirtualScreenPos(x, y);
@@ -1262,7 +1263,7 @@ int onWindowed2Menu()
 	gui_fg_color = jwin_pal[jcBOXFG];
 	gui_mg_color = jwin_pal[jcMEDDARK];
 	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	set_palette(RAMpal);
+	Backend::palette->setPalette(RAMpal);
 	int x = Backend::graphics->screenW() / 2;
 	int y = Backend::graphics->screenH() / 2;
 	Backend::mouse->setVirtualScreenPos(x, y);
@@ -3126,7 +3127,7 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
         dstpal[i].b = i;
     }
     
-    set_palette(dstpal);
+    Backend::palette->setPalette(dstpal);
     
     BITMAP *graypic = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
     int _w = screen->w-1;
@@ -3163,8 +3164,8 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     if(!gotit)
     {
-        set_palette(temppal);
-        get_palette(dstpal);
+        Backend::palette->setPalette(temppal);
+        Backend::palette->getPalette(dstpal);
         return 1;
     }
     
@@ -3246,7 +3247,7 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     // Always call load_the_map() when viewing the map.
     if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
     {
-        set_palette(RAMpal);
+        Backend::palette->setPalette(RAMpal);
         comeback();
         return D_O_K;
     }
@@ -3266,7 +3267,7 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     
     //  go();
     //  clear_bitmap(screen);
-    set_palette(pal);
+    Backend::palette->setPalette(pal);
     
     do
     {
@@ -3434,7 +3435,7 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
                     gui_bg_color = pblack;
                     gui_fg_color = pwhite;
                     *scale2=1.0;
-                    set_palette(pal);
+                    Backend::palette->setPalette(pal);
                 }
                 
                 get_bw(pal,pblack,pwhite);
@@ -3444,7 +3445,7 @@ int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px2, int *py2, double 
     while(!done);
     
     destroy_bitmap(buf);
-    set_palette(RAMpal);
+    Backend::palette->setPalette(RAMpal);
     gui_fg_color = oldfgcolor;
     gui_bg_color = oldbgcolor;
     
@@ -20711,7 +20712,7 @@ void cycle_palette()
     if(refreshpal)
     {
         rebuild_trans_table();
-        set_palette_range(RAMpal,0,192,false);
+        Backend::palette->setPaletteRange(RAMpal,0,192);
     }
 }
 
@@ -22004,8 +22005,8 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
-    get_palette(RAMpal);
+    Backend::palette->setPalette((RGB*)zcdata[PAL_ZQUEST].dat);
+    Backend::palette->getPalette(RAMpal);
     
     switch(gui_colorset)
     {
@@ -22259,7 +22260,7 @@ int main(int argc, char **argv)
     gui_mg_color=jwin_pal[jcMEDDARK];
     
     jwin_set_colors(jwin_pal);
-    set_palette(RAMpal);
+    Backend::palette->setPalette(RAMpal);
     clear_to_color(screen,vc(0));
     
     //clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
@@ -22457,7 +22458,7 @@ int main(int argc, char **argv)
     refresh(rALL);
     DIALOG_PLAYER *player2=init_dialog(dialogs,-1);
     
-    get_palette(RAMpal);
+    Backend::palette->getPalette(RAMpal);
     
     rgb_map = &zq_rgb_table;
     
@@ -22696,7 +22697,7 @@ void quit_game()
     
     last_timed_save[0]=0;
     save_config_file();
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     stop_midi();
     //if(scrtmp) {destroy_bitmap(screen); screen = hw_screen;}
     
@@ -23017,56 +23018,7 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
 	Backend::graphics->showBackBuffer();
     ret = jwin_menu_proc(msg,d,c);
     
-    /*
-        static int counter=0;
-        // Copy allegro_screen to sdl_screen
     
-        if ( SDL_LockSurface(sdl_screen) == 0 )
-        {
-          al_trace("Locking SDL surface! (%d)\n", counter);
-    //      Uint32 black;
-          Uint8 *pixels;
-    
-    //      black = SDL_MapRGB(sdl_screen->format, 0, 0, 0);
-          pixels = (Uint8 *)sdl_screen->pixels;
-          for ( int y=0; y<sdl_screen->h; ++y )
-          {
-    //        memset(pixels, black, sdl_screen->w*sdl_screen->format->BytesPerPixel);
-            memcpy(pixels, screen->line[y], sdl_screen->w*sdl_screen->format->BytesPerPixel);
-            pixels += sdl_screen->pitch;
-          }
-          SDL_UnlockSurface(sdl_screen);
-          SDL_UpdateRect(sdl_screen, 0, 0, 0, 0);
-        }
-        else
-        {
-          al_trace("Unable to lock SDL surface! (%d)\n", counter);
-        }
-    
-        ++counter;
-        // Create a display surface with a grayscale palette
-        SDL_Color colors[256];
-        PALETTE tp;
-        get_palette(tp);
-        int i;
-        // Fill colors with color information
-        for(i=0;i<256;i++){
-          colors[i].r=tp[i].r;
-          colors[i].g=tp[i].g;
-          colors[i].b=tp[i].b;
-        }
-    
-        // Set palette
-        SDL_SetColors(sdl_screen, colors, 0, 256);
-    */
-    //if(zqwin_scale > 1)
-    {
-        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-    }
-    //else
-    {
-        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-    }
     return ret;
 }
 

@@ -955,7 +955,7 @@ int onSnapshot2()
     while(num<999 && exists(buf));
     
     PALETTE temppal;
-    get_palette(temppal);
+    Backend::palette->getPalette(temppal);
     BITMAP *tempbmp=create_bitmap_ex(8,screen->w, screen->h);
     blit(screen,tempbmp,0,0,0,0,screen->w,screen->h);
     save_bitmap(buf,screen,temppal);

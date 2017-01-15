@@ -8,6 +8,7 @@ set(ROMVIEW_GUI_SOURCES
 src/backend/Backend.cpp
 src/backend/GraphicsBackend.cpp
 src/backend/MouseBackend.cpp
+src/backend/PaletteBackend.cpp
 src/editbox.cpp 
 src/EditboxModel.cpp 
 src/EditboxView.cpp 

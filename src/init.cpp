@@ -95,7 +95,7 @@ int d_line_proc(int msg, DIALOG *d, int c)
     if(msg==MSG_DRAW)
     {
         int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-        line(screen, d->x, d->y, d->x+d->w, d->y+d->h, palette_color[fg]);
+        line(screen, d->x, d->y, d->x+d->w, d->y+d->h, Backend::palette->virtualColorOfEntry(fg));
     }
     
     return D_O_K;

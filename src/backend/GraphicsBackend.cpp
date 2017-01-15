@@ -1,5 +1,6 @@
 #include "GraphicsBackend.h"
 #include "MouseBackend.h"
+#include "PaletteBackend.h"
 #include "Backend.h"
 #include "../zc_alleg.h"
 #include <cassert>
@@ -140,6 +141,12 @@ bool GraphicsBackend::showBackBuffer()
 	}
 #endif
 	Backend::mouse->renderCursor(backbuffer_);
+
+	// Allegro crashes if you call set_palette and screen does not point to the hardware buffer
+	screen = hw_screen_;
+	Backend::palette->applyPaletteToScreen();
+	screen = backbuffer_;
+
 	if (native_)
 	{
 		stretch_blit(backbuffer_, nativebuffer_, 0, 0, virtualScreenW(), virtualScreenH(), 0, 0, SCREEN_W, SCREEN_H);
@@ -221,8 +228,6 @@ bool GraphicsBackend::trySettingVideoMode()
 	Backend::mouse->setCursorVisibility(false);
 
 	screen = hw_screen_;
-	PALETTE oldpal;
-	get_palette(oldpal);
 
 	int depth = native_ ? desktop_color_depth() : 8;
 
@@ -312,7 +317,8 @@ bool GraphicsBackend::trySettingVideoMode()
 	screenw_ = SCREEN_W;
 	screenh_ = SCREEN_H;
 
-	set_palette(oldpal); 
+	Backend::palette->applyPaletteToScreen();
+
 	hw_screen_ = screen;
 		
 	set_display_switch_mode(fullscreen_ ? SWITCH_BACKAMNESIA : SWITCH_BACKGROUND);

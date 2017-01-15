@@ -187,7 +187,7 @@ public:
 	* value is undefined otherwise.
 	*/
 	bool isNativeColorDepth() { return native_; }
-	
+
 	/*
 	* Requests that the physical window should be fullscreen or windowed.
 	* This function can be called after the graphics backend has been

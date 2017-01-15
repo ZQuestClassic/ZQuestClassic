@@ -23,6 +23,7 @@ src/jwin.cpp
 src/backend/Backend.cpp
 src/backend/GraphicsBackend.cpp
 src/backend/MouseBackend.cpp
+src/backend/PaletteBackend.cpp
 
 ## End of Zelda GUI module
 )

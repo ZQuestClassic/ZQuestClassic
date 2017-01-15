@@ -116,7 +116,7 @@ void init_colormixer()
     
     //  rect(screen,95,31,224,96,ed15);
     //  rect(screen,224,31,240,96,ed15);
-    set_palette_range(RAMpal,0,255,false);
+    Backend::palette->setPalette(RAMpal);
 }
 
 void colormixer(int color,int gray,int ratio)
@@ -145,7 +145,7 @@ void colormixer(int color,int gray,int ratio)
     
     RAMpal[edc] = mixRGB(gfx_pal[color*3],gfx_pal[color*3+1],gfx_pal[color*3+2],gray,gray,gray,ratio);
     RAMpal[edi] = invRGB(RAMpal[edc]);
-    set_palette_range(RAMpal,160,255,false);
+    Backend::palette->setPaletteRange(RAMpal,160,255);
     
     jwin_draw_frame(screen, color_x-2, color_y-2, color_w+4, color_h+4, FR_DEEP);
     rectfill(screen,color_x,color_y,color_x+color_w-1,color_y+color_h-1,edc);
@@ -265,7 +265,7 @@ void edit_dataset(int dataset)
     //draw_x_button(screen, 320 - 21, 5, 0);
     load_cset(RAMpal,12,dataset);
     load_cset(RAMpal,14,dataset);
-    set_palette_range(RAMpal,0,255,false);
+    Backend::palette->setPalette(RAMpal);
     
     init_colormixer();
     colormixer(color,gray,ratio);
@@ -599,7 +599,7 @@ void edit_dataset(int dataset)
         else
         {
             if(setpal)
-                set_palette_range(RAMpal,14*16,15*16,false);
+                Backend::palette->setPaletteRange(RAMpal,14*16,15*16);
                 
             draw_edit_dataset_specs(index,copy);
             SCRFIX();
@@ -631,7 +631,7 @@ void edit_dataset(int dataset)
     
     memcpy(RAMpal, holdpal, sizeof(holdpal));
     
-    set_palette(RAMpal);
+    Backend::palette->setPalette(RAMpal);
     
     while(Backend::mouse->anyButtonClicked())
     {
@@ -679,7 +679,7 @@ void grab_dataset(int dataset)
     if(!pic && load_the_pic(&pic,picpal))
         return;
         
-    get_palette(imagepal);
+    Backend::palette->getPalette(imagepal);
     
     create_rgb_table(&rgb_table, imagepal, NULL);
     rgb_map = &rgb_table;
@@ -718,7 +718,7 @@ void grab_dataset(int dataset)
     draw_bw_mouse(pwhite, MOUSE_BMP_NORMAL, MOUSE_BMP_BLANK);
     clear_bitmap(screen2);
 	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-    set_palette(picpal);
+    Backend::palette->setPalette(picpal);
     
     bool redraw=true;
     bool reload=false;
@@ -743,7 +743,7 @@ void grab_dataset(int dataset)
             else
             {
                 clear_bitmap(screen2);
-                set_palette(picpal);
+                Backend::palette->setPalette(picpal);
                 redraw=true;
             }
         }
@@ -843,9 +843,9 @@ void grab_dataset(int dataset)
                 {
 					Backend::graphics->waitTick();
 					if(i&2)
-                        set_palette(picpal);
+                        Backend::palette->setPalette(picpal);
                     else
-                        set_palette(tmp);
+                        Backend::palette->setPalette(tmp);
 					Backend::graphics->showBackBuffer();
                 }
                 
@@ -934,12 +934,12 @@ void calc_dark(int first)
     //  tmp = black_palette;
     memcpy(tmp,black_palette,sizeof(black_palette));
     
-    fade_interpolate(pal,black_palette,tmp,16,0,47);
+    Backend::palette->interpolatePalettes(pal,black_palette,16,0,47, tmp);
     
     for(int i=0; i<48; i++)
         tmp[i+64] = tmp[i];
         
-    fade_interpolate(pal,black_palette,tmp,32,0,47);
+    Backend::palette->interpolatePalettes(pal,black_palette,32,0,47, tmp);
     
     for(int i=0; i<48; i++)
         tmp[i+112] = tmp[i];
@@ -1095,7 +1095,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             
             draw_cset_proc(d);
             ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[rand()%14+dvc(1)];
-            set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
+            Backend::palette->setPaletteRange(((RGB*)d->dp3),dvc(0),dvc(0));
 			Backend::graphics->waitTick();
 			Backend::graphics->showBackBuffer();
         }
@@ -1124,7 +1124,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
                 for(int i=0; i<cset_count; i++)
                     load_cset(pal,i,cset_first+i);
                     
-                set_palette(pal);
+                Backend::palette->setPalette(pal);
                 saved=false;
             }
         }
@@ -1199,7 +1199,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
                 for(int i=0; i<cset_count; i++)
                     load_cset(pal,i,cset_first+i);
                     
-                set_palette(pal);
+                Backend::palette->setPalette(pal);
                 saved=false;
             }
             
@@ -1211,7 +1211,7 @@ int d_cset_proc(int msg,DIALOG *d,int c)
             for(int i=0; i<cset_count; i++)
                 load_cset(pal,i,cset_first+i);
                 
-            set_palette(pal);
+            Backend::palette->setPalette(pal);
             break;
             
         default:
@@ -1391,7 +1391,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
         }
         
         clear_to_color(screen,0);
-        set_palette(pal);
+        Backend::palette->setPalette(pal);
         colors_dlg[19].flags =
             colors_dlg[20].flags =
                 colors_dlg[23].flags = D_EXIT;
@@ -1415,7 +1415,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
             //sniggles
             //      pal[FLASH]=pal[rc[(fc++)&15]];
             pal[dvc(0)]=pal[rand()%14+dvc(1)];
-            set_palette_range(pal,dvc(0),dvc(0),false);
+            Backend::palette->setPaletteRange(pal,dvc(0),dvc(0));
             
             bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
             
@@ -1473,7 +1473,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
     }
     
     clear_to_color(screen,vc(0));
-    set_palette(RAMpal);
+    Backend::palette->setPalette(RAMpal);
     
     loadlvlpal(Color);
     

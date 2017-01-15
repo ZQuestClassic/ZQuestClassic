@@ -519,7 +519,7 @@ static void NES_titlescreen()
     tri=0;
     fcnt=0;
     trstr=0;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_bitmap(screen);
     clear_bitmap(framebuf);
@@ -612,8 +612,8 @@ static void DX_mainscreen(int f)
     
     if(f>=680 && f<680+256 && (f%3)==0)
     {
-        fade_interpolate((RGB*)dat[TITLE_DX_PAL_1].dat,black_palette,RAMpal,
-                         (f-680)>>2,0,255);
+        Backend::palette->interpolatePalettes((RGB*)dat[TITLE_DX_PAL_1].dat,black_palette,
+                         (f-680)>>2,0,255, RAMpal);
         refreshpal=true;
     }
     
@@ -633,7 +633,7 @@ static void DX_titlescreen()
     int f=0;
     bool done=false;
     trstr=0;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
@@ -723,8 +723,8 @@ static void v25_mainscreen(int f)
     
     if(f>=680 && f<680+256 && (f%3)==0)
     {
-        fade_interpolate((RGB*)dat[TITLE_25_PAL_1].dat,black_palette,RAMpal,
-                         (f-680)>>2,0,255);
+        Backend::palette->interpolatePalettes((RGB*)dat[TITLE_25_PAL_1].dat,black_palette,
+                         (f-680)>>2,0,255, RAMpal);
         refreshpal=true;
     }
     
@@ -744,7 +744,7 @@ static void v25_titlescreen()
     int f=0;
     bool done=false;
     trstr=0;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);

@@ -153,7 +153,7 @@ void EditboxView::invertRectangle(int x1, int y1, int x2, int y2)
                 
                 if(it == invmap.end())
                 {
-                    get_color(c, &color);
+                    Backend::palette->getPaletteEntry(c, color);
                     unsigned char r = 4*(((~color.r)&0x3F)+1)-1;
                     unsigned char g = 4*(((~color.g)&0x3F)+1)-1;
                     unsigned char b = 4*(((~color.b)&0x3F)+1)-1;

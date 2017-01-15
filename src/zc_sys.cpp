@@ -3267,7 +3267,7 @@ void updatescr(bool allowwavy)
         refreshpal=false;
         RAMpal[253] = _RGB(0,0,0);
         RAMpal[254] = _RGB(63,63,63);
-        set_palette_range(RAMpal,0,255,false);
+        Backend::palette->setPalette(RAMpal);
         
         create_rgb_table(&rgb_table, RAMpal, NULL);
         create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
@@ -3401,7 +3401,7 @@ int onGUISnapshot()
 int onNonGUISnapshot()
 {
     PALETTE temppal;
-    get_palette(temppal);
+    Backend::palette->getPalette(temppal);
     bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     
     char buf[20];
@@ -4277,11 +4277,11 @@ void wavyout(bool showlink)
         
         if(palpos>=0)
         {
-            set_palette(wavepal);
+            Backend::palette->setPalette(wavepal);
         }
         else
         {
-            set_palette(RAMpal);
+            Backend::palette->setPalette(RAMpal);
         }
         
         for(int j=0; j+playing_field_offset<224; j++)
@@ -4347,11 +4347,11 @@ void wavyin()
         
         if(palpos>=0)
         {
-            set_palette(wavepal);
+            Backend::palette->setPalette(wavepal);
         }
         else
         {
-            set_palette(RAMpal);
+            Backend::palette->setPalette(RAMpal);
         }
         
         for(int j=0; j+playing_field_offset<224; j++)
@@ -5287,7 +5287,7 @@ int onCredits()
     credits_dlg[0].dp2=lfont;
     credits_dlg[1].fg = gui_mg_color;
     credits_dlg[2].dp = win;
-    set_palette_range(black_palette,0,127,false);
+    Backend::palette->setPaletteRange(black_palette,0,127);
     
     DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
     
@@ -5308,9 +5308,9 @@ int onCredits()
         draw_rle_sprite(win,rle,0,0-l);
         
         if(c<=64)
-            fade_interpolate(black_palette,pal,tmppal,c,0,127);
+            Backend::palette->interpolatePalettes(black_palette,pal,c,0,127, tmppal);
             
-        set_palette_range(tmppal,0,127,false);
+        Backend::palette->setPaletteRange(tmppal,0,127);
         
         if(l!=ol)
         {
@@ -6731,7 +6731,7 @@ void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int t
         tmp[i].b=b;
     }
     
-    fade_interpolate(src,tmp,dest,pos,from,to);
+    Backend::palette->interpolatePalettes(src,tmp,pos,from,to, dest);
 }
 
 
@@ -7073,7 +7073,7 @@ void system_pal()
     // display everything
 	clear_to_color(screen, BLACK);
 	Backend::graphics->showBackBuffer();
-	set_palette_range(pal, 0, 255, false);
+	Backend::palette->setPalette(pal);
 	stretch_blit(tmp_scr,screen,0,0,320,240,miniscreenX()-(160*(virtualScreenScale()-1)),
 		miniscreenY()-(120*(virtualScreenScale()-1)), virtualScreenScale() *320, virtualScreenScale() *240);
         
@@ -7143,7 +7143,7 @@ void game_pal()
 {
     clear_to_color(screen,BLACK);
 	Backend::graphics->showBackBuffer();
-    set_palette_range(RAMpal,0,255,false);
+    Backend::palette->setPalette(RAMpal);
 	Backend::graphics->showBackBuffer();
 }
 

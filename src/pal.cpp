@@ -20,6 +20,7 @@
 #include "zsys.h"
 #include "pal.h"
 #include "subscr.h"
+#include "backend/AllBackends.h"
 
 extern LinkClass Link;
 
@@ -185,10 +186,10 @@ void interpolatedfade()
     {
         int light = si[0]+si[1]+si[2];
         si+=3;
-        fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
+        Backend::palette->interpolatePalettes(RAMpal,black_palette,light?lpos:dpos,CSET(2)+i,CSET(2)+i, RAMpal);
     }
     
-    fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
+    Backend::palette->interpolatePalettes(RAMpal,black_palette,dpos,CSET(3),last, RAMpal);
     refreshpal=true;
 }
 
@@ -217,10 +218,10 @@ void fade(int level,bool blackall,bool fromblack)
             {
                 int light = si[0]+si[1]+si[2];
                 si+=3;
-                fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+j,CSET(2)+j);
+                Backend::palette->interpolatePalettes(RAMpal,black_palette,light?lpos:dpos,CSET(2)+j,CSET(2)+j, RAMpal);
             }
             
-            fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
+            Backend::palette->interpolatePalettes(RAMpal,black_palette,dpos,CSET(3),last, RAMpal);
             refreshpal=true;
         }
         else
@@ -328,10 +329,10 @@ int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 
                 {
                     light = si[0]+si[1]+si[2];
                     si+=3;
-                    fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+j,CSET(2)+j);
+                    Backend::palette->interpolatePalettes(RAMpal,black_palette,light?32:64,CSET(2)+j,CSET(2)+j, RAMpal);
                 }
                 
-                fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
+                Backend::palette->interpolatePalettes(RAMpal,black_palette,64,CSET(3),last, RAMpal);
             }
             else // No interpolated fading
                 loadfadepal(level*pdLEVEL+poFADE3);
