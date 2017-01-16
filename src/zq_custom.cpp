@@ -125,6 +125,10 @@ extern int d_msg_preview_proc(int msg, DIALOG *d, int c);
 extern int d_msg_edit_proc(int msg, DIALOG *d, int c);
 extern int d_itemdropedit_proc(int msg, DIALOG *d, int c);
 extern int d_misccolors_tab_proc(int msg, DIALOG *d, int c);
+extern int fs_edit_proc(int msg, DIALOG *d, int c);
+extern int fs_elist_proc(int msg, DIALOG *d, int c);
+extern int fs_flist_proc(int msg, DIALOG *d, int c);
+extern int fs_dlist_proc(int msg, DIALOG *d, int c);
 
 DIALOG *resizeDialog(DIALOG *d, float largeSize)
 {
@@ -144,6 +148,10 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 			|| newd[i].proc == d_itemdropedit_proc
 			|| newd[i].proc == d_misccolors_tab_proc
 			|| newd[i].proc == d_ffcombolist_proc
+			|| newd[i].proc == fs_edit_proc
+			|| newd[i].proc == fs_elist_proc
+			|| newd[i].proc == fs_flist_proc
+			|| newd[i].proc == fs_dlist_proc			
 			|| newd[i].proc == d_msg_edit_proc)			
 			&& newd[i].dp3 == d)
 			newd[i].dp3 = newd;
