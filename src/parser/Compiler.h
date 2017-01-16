@@ -73,6 +73,8 @@ struct IntermediateData;
 
 class AST;
 
+enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
+
 class ScriptParser
 {
 public:

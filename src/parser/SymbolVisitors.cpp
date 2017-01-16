@@ -167,7 +167,7 @@ void BuildScriptSymbols::caseExprDot(ASTExprDot &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
     BuildFunctionSymbols bfs;
-    BFSParam newp = {p->first,p->second,ScriptParser::TYPE_VOID};
+    BFSParam newp = {p->first, p->second, SCRIPTTYPE_VOID};
     host.execute(bfs, &newp);
     
     if(!bfs.isOK())
@@ -180,7 +180,7 @@ void BuildScriptSymbols::caseExprArray(ASTExprArray &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
     BuildFunctionSymbols bfs;
-    BFSParam newp = {p->first,p->second,ScriptParser::TYPE_VOID};
+    BFSParam newp = {p->first, p->second, SCRIPTTYPE_VOID};
     host.execute(bfs, &newp);
     
     if(!bfs.isOK())
