@@ -36,6 +36,7 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
+#include "gui.h"
 #include "backend/AllBackends.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -3385,13 +3386,11 @@ int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s
     }
     while(Backend::mouse->anyButtonClicked());
     
-    if(is_large())
-    {
-        large_dialog(alert_dialog);
-        alert_dialog[0].d1 = 0;
-    }
+	DIALOG *alert_cpy = resizeDialog(alert_dialog, 1.5);
     
-    c = popup_zqdialog(alert_dialog, A_B1);
+    c = popup_zqdialog(alert_cpy, A_B1);
+
+	delete[] alert_cpy;
     
     if(c == A_B1)
         return 1;

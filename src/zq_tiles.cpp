@@ -38,7 +38,6 @@
 #define stricmp _stricmp
 #endif
 
-extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
 static void massRecolorReset8Bit();
 static bool massRecolorSetup(int cset);
@@ -3522,11 +3521,10 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     }
     
     leech_dlg[31].d1=0;
+
+	DIALOG *leech_cpy = resizeDialog(leech_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(leech_dlg);
-        
-    int ret = zc_popup_dialog(leech_dlg,3);
+    int ret = zc_popup_dialog(leech_cpy,3);
     
     if(ret==2)
     {
@@ -3534,23 +3532,25 @@ bool leech_tiles(tiledata *dest,int start,int cs)
         return false;
     }
     
-    int cdepth=leech_dlg[31].d1+1;
+    int cdepth= leech_cpy[31].d1+1;
     int newformat=0;
     LeechUpdate=atoi(updatestring);
-    LeechUpdateTiles=(leech_dlg[7].flags&D_SELECTED)?1:0;
+    LeechUpdateTiles=(leech_cpy[7].flags&D_SELECTED)?1:0;
     
     for(int j=0; j<4; j++)
     {
         for(int i=0; i<3; i++)
         {
-            if(leech_dlg[i+16+(j*3)].flags&D_SELECTED)
+            if(leech_cpy[i+16+(j*3)].flags&D_SELECTED)
             {
                 DuplicateAction[j]=i;
             }
         }
     }
     
-    OnlyCheckNewTilesForDuplicates=leech_dlg[10].flags&D_SELECTED?1:0;
+    OnlyCheckNewTilesForDuplicates= leech_cpy[10].flags&D_SELECTED?1:0;
+
+	delete[] leech_cpy;
     
     leeching_from_tiles=false;
     
@@ -6165,10 +6165,13 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
-                            
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
+                           
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+
+						delete[] tile_move_list_cpy;
+
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -6252,10 +6255,12 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+
+						delete[] tile_move_list_cpy;
+
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -6456,10 +6461,12 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+
+						delete[] tile_move_list_cpy;
+
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -6543,10 +6550,10 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+						delete[] tile_move_list_cpy;
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -6656,10 +6663,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);                        
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+						delete[] tile_move_list_cpy;
+
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -6775,10 +6783,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+						delete[] tile_move_list_cpy;
+
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -6872,10 +6881,10 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+						delete[] tile_move_list_cpy;
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -7217,10 +7226,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(TileProtection)
                     {
-                        if(is_large())
-                            large_dialog(tile_move_list_dlg);
+						DIALOG *tile_move_list_cpy = resizeDialog(tile_move_list_dlg, 1.5);
                             
-                        int ret=zc_popup_dialog(tile_move_list_dlg,2);
+                        int ret=zc_popup_dialog(tile_move_list_cpy,2);
+						delete[] tile_move_list_cpy;
+
 						Backend::mouse->setWheelPosition(0);
                         
                         if(ret!=5)
@@ -8935,11 +8945,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 sprintf(buf, "%d", frames);
                 create_relational_tiles_dlg[0].dp2=lfont;
                 create_relational_tiles_dlg[2].dp=buf;
+
+				DIALOG *create_relational_tiles_cpy = resizeDialog(create_relational_tiles_dlg, 1.5);
                 
-                if(is_large())
-                    large_dialog(create_relational_tiles_dlg);
-                    
-                int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+                int ret=zc_popup_dialog(create_relational_tiles_cpy,2);
                 
                 if(ret==5)
                 {
@@ -8947,7 +8956,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     bool same = true;
                     int bitcheck=newtilebuf[tile].format;
                     
-                    for(int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
+                    for(int t=1; t<frames*(create_relational_tiles_cpy[3].flags&D_SELECTED?6:19); ++t)
                     {
                         if(newtilebuf[tile+t].format!=bitcheck) same = false;
                     }
@@ -8958,20 +8967,20 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         break;
                     }
                     
-                    if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
+                    if(tile+(frames*(create_relational_tiles_cpy[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
                     {
                         jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
                         break;
                     }
                     
-                    for(int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
+                    for(int i=frames*(create_relational_tiles_cpy[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_cpy[3].flags&D_SELECTED?48:96)); ++i)
                     {
                         reset_tile(newtilebuf, tile+i, bitcheck);
                     }
                     
-                    if(create_relational_tiles_dlg[3].flags&D_SELECTED)
+                    if(create_relational_tiles_cpy[3].flags&D_SELECTED)
                     {
-                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+                        for(int i= create_relational_tiles_cpy[3].flags&D_SELECTED?47:95; i>0; --i)
                         {
                             for(int j=0; j<frames; ++j)
                             {
@@ -8981,7 +8990,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     }
                     else
                     {
-                        for(int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+                        for(int i= create_relational_tiles_cpy[3].flags&D_SELECTED?47:95; i>0; --i)
                         {
                             for(int j=0; j<frames; ++j)
                             {
@@ -8990,6 +8999,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         }
                     }
                 }
+
+				delete[] create_relational_tiles_cpy;
             }
             
             register_blank_tiles();
@@ -11260,44 +11271,42 @@ bool edit_combo(int c,bool freshen,int cs)
     //  combo_dlg[1].fg = cs;
     edit_combo_cset = cs;
     
+	DIALOG *combo_cpy = resizeDialog(combo_dlg, 1.5);
+
     if(is_large())
     {
         // Fix the wflag_procs
-        if(!combo_dlg[0].d1)
-        {
-            large_dialog(combo_dlg);
-            combo_dlg[11].w=32;
-            combo_dlg[11].h=32;
-            combo_dlg[14].x-=1;
-            combo_dlg[14].y-=1;
-            combo_dlg[15].x-=1;
-            combo_dlg[15].y+=3;
-            combo_dlg[16].x+=3;
-            combo_dlg[16].y-=1;
-            combo_dlg[17].x+=3;
-            combo_dlg[17].y+=3;
+		combo_cpy[11].w=32;
+		combo_cpy[11].h=32;
+		combo_cpy[14].x-=1;
+		combo_cpy[14].y-=1;
+		combo_cpy[15].x-=1;
+		combo_cpy[15].y+=3;
+		combo_cpy[16].x+=3;
+		combo_cpy[16].y-=1;
+		combo_cpy[17].x+=3;
+		combo_cpy[17].y+=3;
             
-            combo_dlg[19].x-=1;
-            combo_dlg[19].y-=1;
-            combo_dlg[21].x-=1;
-            combo_dlg[21].y+=3;
-            combo_dlg[20].x+=3;
-            combo_dlg[20].y-=1;
-            combo_dlg[22].x+=3;
-            combo_dlg[22].y+=3;
-        }
+		combo_cpy[19].x-=1;
+		combo_cpy[19].y-=1;
+		combo_cpy[21].x-=1;
+		combo_cpy[21].y+=3;
+		combo_cpy[20].x+=3;
+		combo_cpy[20].y-=1;
+		combo_cpy[22].x+=3;
+		combo_cpy[22].y+=3;
     }
     
     int ret;
     
     do
     {
-        ret=zc_popup_dialog(combo_dlg,4);
+        ret=zc_popup_dialog(combo_cpy,4);
         
         if(ret==42)
-            ctype_help(bict[combo_dlg[24].d1].i);
+            ctype_help(bict[combo_cpy[24].d1].i);
         else if(ret==43)
-            cflag_help(combo_dlg[33].d1);
+            cflag_help(combo_cpy[33].d1);
     }
     while(ret == 42 || ret == 43);
     
@@ -11317,7 +11326,7 @@ bool edit_combo(int c,bool freshen,int cs)
         
         for(int i=0; i<4; i++)
         {
-            if(combo_dlg[i+14].flags & D_SELECTED)
+            if(combo_cpy[i+14].flags & D_SELECTED)
             {
                 curr_combo.walk |= 1<<i;
             }
@@ -11331,7 +11340,7 @@ bool edit_combo(int c,bool freshen,int cs)
         
         for(int i=0; i<4; i++)
         {
-            if(combo_dlg[i+19].flags & D_SELECTED)
+            if(combo_cpy[i+19].flags & D_SELECTED)
             {
                 curr_combo.csets |= 16<<i;
             }
@@ -11354,14 +11363,14 @@ bool edit_combo(int c,bool freshen,int cs)
         curr_combo.frames = vbound(atoi(frm),0,zc_min(bound,255));
         
         curr_combo.speed = atoi(spd);
-        curr_combo.type = bict[combo_dlg[24].d1].i;
-        curr_combo.nextcombo = combo_dlg[31].d1;
-        curr_combo.nextcset = combo_dlg[31].fg;
-        curr_combo.flag = combo_dlg[33].d1;
+        curr_combo.type = bict[combo_cpy[24].d1].i;
+        curr_combo.nextcombo = combo_cpy[31].d1;
+        curr_combo.nextcset = combo_cpy[31].fg;
+        curr_combo.flag = combo_cpy[33].d1;
         
         curr_combo.animflags = 0;
-        curr_combo.animflags |= (combo_dlg[39].flags & D_SELECTED) ? AF_FRESH : 0;
-        curr_combo.animflags |= (combo_dlg[41].flags & D_SELECTED) ? AF_CYCLE : 0;
+        curr_combo.animflags |= (combo_cpy[39].flags & D_SELECTED) ? AF_FRESH : 0;
+        curr_combo.animflags |= (combo_cpy[41].flags & D_SELECTED) ? AF_CYCLE : 0;
         combobuf[c] = curr_combo;
     }
     
@@ -11369,6 +11378,8 @@ bool edit_combo(int c,bool freshen,int cs)
     {
         refresh(rALL);
     }
+
+	delete[] combo_cpy;
     
     setup_combo_animations();
     setup_combo_animations2();
@@ -11461,23 +11472,24 @@ int onIcons()
     }
     
     Backend::palette->setPalette(pal);
-    
-    if(is_large())
-        large_dialog(icon_dlg);
-        
-    int ret = zc_popup_dialog(icon_dlg,7);
+
+	DIALOG *icon_cpy = resizeDialog(icon_dlg, 1.5);
+       
+    int ret = zc_popup_dialog(icon_cpy,7);
     
     if(ret==6)
     {
         for(int i=0; i<4; i++)
         {
-            if(misc.icons[i] != icon_dlg[i+2].d1)
+            if(misc.icons[i] != icon_cpy[i+2].d1)
             {
-                misc.icons[i] = icon_dlg[i+2].d1;
+                misc.icons[i] = icon_cpy[i+2].d1;
                 saved=false;
             }
         }
     }
+
+	delete[] icon_cpy;
     
     Backend::palette->setPalette(RAMpal);
     return D_O_K;
@@ -11813,76 +11825,76 @@ static DIALOG recolor_8bit_dlg[] =
 #define MR8_OK 9
 #define MR8_CANCEL 10
 
-static void massRecolorInit(int cset)
+static void massRecolorInit(int cset, DIALOG *dlg_4bit, DIALOG *dlg_8bit)
 {
     massRecolorDraggedColor=-1;
     massRecolorCSet=cset;
     
-    recolor_4bit_dlg[0].dp2=lfont;
-    recolor_8bit_dlg[0].dp2=lfont;
+	dlg_4bit[0].dp2=lfont;
+	dlg_8bit[0].dp2=lfont;
     
     for(int i=0; i<=11; i++)
     {
         if((massRecolor8BitCSets&(1<<i))!=0)
-            recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags|=D_SELECTED;
+			dlg_4bit[MR4_8BIT_EFFECT_START+i].flags|=D_SELECTED;
         else
-            recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&=~D_SELECTED;
+			dlg_4bit[MR4_8BIT_EFFECT_START+i].flags&=~D_SELECTED;
     }
     
     if(massRecolorIgnoreBlank)
     {
-        recolor_4bit_dlg[MR4_IGNORE_BLANK].flags|=D_SELECTED;
-        recolor_8bit_dlg[MR8_IGNORE_BLANK].flags|=D_SELECTED;
+		dlg_4bit[MR4_IGNORE_BLANK].flags|=D_SELECTED;
+		dlg_8bit[MR8_IGNORE_BLANK].flags|=D_SELECTED;
     }
     else
     {
-        recolor_4bit_dlg[MR4_IGNORE_BLANK].flags&=~D_SELECTED;
-        recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&=~D_SELECTED;
+		dlg_4bit[MR4_IGNORE_BLANK].flags&=~D_SELECTED;
+		dlg_8bit[MR8_IGNORE_BLANK].flags&=~D_SELECTED;
     }
     
     if(is_large())
     {
-        large_dialog(recolor_4bit_dlg);
-        large_dialog(recolor_8bit_dlg);
-        
         // Quick fix for large_dialog() screwing these up. It's ugly. Whatever.
-        if((recolor_4bit_dlg[MR4_DEST_COLORS].w-4)%4!=0)
+        if((dlg_4bit[MR4_DEST_COLORS].w-4)%4!=0)
         {
-            recolor_4bit_dlg[MR4_SRC_COLORS].x++;
-            recolor_4bit_dlg[MR4_SRC_COLORS].w-=2;
-            recolor_4bit_dlg[MR4_DEST_COLORS].x++;
-            recolor_4bit_dlg[MR4_DEST_COLORS].w-=2;
+			dlg_4bit[MR4_SRC_COLORS].x++;
+			dlg_4bit[MR4_SRC_COLORS].w-=2;
+			dlg_4bit[MR4_DEST_COLORS].x++;
+			dlg_4bit[MR4_DEST_COLORS].w-=2;
             
-            recolor_8bit_dlg[MR8_SRC_COLORS].x++;
-            recolor_8bit_dlg[MR8_SRC_COLORS].w-=2;
-            recolor_8bit_dlg[MR8_DEST_COLORS].x++;
-            recolor_8bit_dlg[MR8_DEST_COLORS].w-=2;
-            recolor_8bit_dlg[MR8_PALETTE].x++;
-            recolor_8bit_dlg[MR8_PALETTE].w-=2;
-            recolor_8bit_dlg[MR8_PALETTE].y++;
-            recolor_8bit_dlg[MR8_PALETTE].h-=2;
+			dlg_8bit[MR8_SRC_COLORS].x++;
+			dlg_8bit[MR8_SRC_COLORS].w-=2;
+			dlg_8bit[MR8_DEST_COLORS].x++;
+			dlg_8bit[MR8_DEST_COLORS].w-=2;
+			dlg_8bit[MR8_PALETTE].x++;
+			dlg_8bit[MR8_PALETTE].w-=2;
+			dlg_8bit[MR8_PALETTE].y++;
+			dlg_8bit[MR8_PALETTE].h-=2;
         }
     }
 }
 
-static void massRecolorApplyChanges()
+static void massRecolorApplyChanges(DIALOG *dlg_4bit, DIALOG *dlg_8bit)
 {
     massRecolor8BitCSets=0;
     for(int i=0; i<=11; i++)
     {
-        if((recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&D_SELECTED)!=0)
+        if((dlg_4bit[MR4_8BIT_EFFECT_START+i].flags&D_SELECTED)!=0)
             massRecolor8BitCSets|=1<<i;
     }
     
     if(massRecolorType==MR_4BIT)
-        massRecolorIgnoreBlank=(recolor_4bit_dlg[MR4_IGNORE_BLANK].flags&D_SELECTED)!=0;
+        massRecolorIgnoreBlank=(dlg_4bit[MR4_IGNORE_BLANK].flags&D_SELECTED)!=0;
     else
-        massRecolorIgnoreBlank=(recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&D_SELECTED)!=0;
+        massRecolorIgnoreBlank=(dlg_8bit[MR8_IGNORE_BLANK].flags&D_SELECTED)!=0;
 }
 
 static bool massRecolorSetup(int cset)
 {
-    massRecolorInit(cset);
+	DIALOG *copy_4bit = resizeDialog(recolor_4bit_dlg, 1.5);
+	DIALOG *copy_8bit = resizeDialog(recolor_8bit_dlg, 1.5);
+
+    massRecolorInit(cset, copy_4bit, copy_8bit);
     
     // Remember the current colors in case the user cancels.
     int oldDest4Bit[16], oldSrc8Bit[16], oldDest8Bit[16];
@@ -11899,13 +11911,13 @@ static bool massRecolorSetup(int cset)
     {
         if(type==MR_4BIT)
         {
-            ret=zc_popup_dialog(recolor_4bit_dlg, MR4_OK);
+            ret=zc_popup_dialog(copy_4bit, MR4_OK);
             if(ret==MR4_SWITCH)
                 type=MR_8BIT;
         }
         else
         {
-            ret=zc_popup_dialog(recolor_8bit_dlg, MR8_OK);
+            ret=zc_popup_dialog(copy_8bit, MR8_OK);
             if(ret==MR8_SWITCH)
                 type=MR_4BIT;
         }
@@ -11924,7 +11936,10 @@ static bool massRecolorSetup(int cset)
     
     // OK
     massRecolorType=type;
-    massRecolorApplyChanges();
+    massRecolorApplyChanges(copy_4bit, copy_8bit);
+
+	delete[] copy_4bit;
+	delete[] copy_8bit;
     return true;
 }
 

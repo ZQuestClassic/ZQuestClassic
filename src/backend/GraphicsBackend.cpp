@@ -520,3 +520,17 @@ const char *GraphicsBackend::videoModeString()
 #endif
 	return "Unknown... ?";
 }
+
+int GraphicsBackend::desktopW()
+{
+	int w, h;
+	get_desktop_resolution(&w, &h);
+	return w;
+}
+
+int GraphicsBackend::desktopH()
+{
+	int w, h;
+	get_desktop_resolution(&w, &h);
+	return h;
+}

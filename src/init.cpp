@@ -1730,13 +1730,9 @@ int doInit(zinitdata *local_zinit)
     init_dlg[1704].dp=terminalvstring;
     init_dlg[1705].dp=thresholdstring;
     
-    if(is_large())
-    {
-        large_dialog(init_dlg);
-        init_dlg[0].d1 = 1;
-    }
+	DIALOG *init_cpy = resizeDialog(init_dlg, 1.5);
     
-    int ret = zc_popup_dialog(init_dlg,1);
+    int ret = zc_popup_dialog(init_cpy,1);
     
     if(ret==2)
     {
@@ -1753,7 +1749,7 @@ int doInit(zinitdata *local_zinit)
                 
                 for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
-                    tempdata.items[it2->itemid] = 0 != (init_dlg[j].flags & D_SELECTED);
+                    tempdata.items[it2->itemid] = 0 != (init_cpy[j].flags & D_SELECTED);
                 }
             }
         }
@@ -1768,27 +1764,27 @@ int doInit(zinitdata *local_zinit)
         // dmap items
         for(int i=0; i<256; i++)
         {
-            set_bit(local_zinit->map,i,init_dlg[i+631].flags & D_SELECTED);
-            set_bit(local_zinit->compass,i,init_dlg[i+887].flags & D_SELECTED);
-            set_bit(local_zinit->boss_key,i,init_dlg[i+1143].flags & D_SELECTED);
+            set_bit(local_zinit->map,i, init_cpy[i+631].flags & D_SELECTED);
+            set_bit(local_zinit->compass,i, init_cpy[i+887].flags & D_SELECTED);
+            set_bit(local_zinit->boss_key,i, init_cpy[i+1143].flags & D_SELECTED);
             local_zinit->level_keys[i]=vbound(atoi(key_list[i]),0,255);
         }
         
         for(int i=256; i<512; i++)
         {
-            set_bit(local_zinit->map,i,init_dlg[i+2240-256].flags & D_SELECTED);
-            set_bit(local_zinit->compass,i,init_dlg[i+2496-256].flags & D_SELECTED);
-            set_bit(local_zinit->boss_key,i,init_dlg[i+2752-256].flags & D_SELECTED);
+            set_bit(local_zinit->map,i, init_cpy[i+2240-256].flags & D_SELECTED);
+            set_bit(local_zinit->compass,i, init_cpy[i+2496-256].flags & D_SELECTED);
+            set_bit(local_zinit->boss_key,i, init_cpy[i+2752-256].flags & D_SELECTED);
             local_zinit->level_keys[i]=vbound(atoi(key_list[i]),0,255);
         }
         
         // misc
-        local_zinit->start_dmap = init_dlg[1656].d1;
+        local_zinit->start_dmap = init_cpy[1656].d1;
         local_zinit->hc = zc_max(atoi(hcstring),0);
         local_zinit->start_heart = vbound(atoi(sheartstring),0,local_zinit->hc);
         local_zinit->hcp_per_hc = vbound(atoi(hcpperstring),0,255);
         local_zinit->hcp = vbound(atoi(hcpstring),0,local_zinit->hcp_per_hc-1);
-        set_bit(local_zinit->misc,idM_CONTPERCENT,((init_dlg[1667].flags & D_SELECTED) != 0 ? 1 : 0));
+        set_bit(local_zinit->misc,idM_CONTPERCENT,((init_cpy[1667].flags & D_SELECTED) != 0 ? 1 : 0));
         
         if(get_bit(local_zinit->misc,idM_CONTPERCENT))
         {
@@ -1805,14 +1801,14 @@ int doInit(zinitdata *local_zinit)
         // triforce
         for(int i=0; i<8; i++)
         {
-            set_bit(&local_zinit->triforce,i,init_dlg[1676+i].flags & D_SELECTED);
+            set_bit(&local_zinit->triforce,i, init_cpy[1676+i].flags & D_SELECTED);
         }
         
         
-        set_bit(local_zinit->misc,idM_CANSLASH,init_dlg[1684].flags & D_SELECTED);
+        set_bit(local_zinit->misc,idM_CANSLASH, init_cpy[1684].flags & D_SELECTED);
         local_zinit->max_magic = atoi(maxmagicstring);
         local_zinit->magic = zc_min(atoi(magicstring),local_zinit->max_magic);
-        set_bit(local_zinit->misc,idM_DOUBLEMAGIC,init_dlg[1691].flags & D_SELECTED);
+        set_bit(local_zinit->misc,idM_DOUBLEMAGIC, init_cpy[1691].flags & D_SELECTED);
         local_zinit->max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
         local_zinit->max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
         local_zinit->bomb_ratio = vbound(atoi(bombratiostring),0,255);
@@ -1821,6 +1817,8 @@ int doInit(zinitdata *local_zinit)
         local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
         onInitOK();
     }
+
+	delete[] init_cpy;
     
     //for(map<int, char *>::iterator it = famnames.begin(); it != famnames.end(); it++)
     //  delete[] it->second;

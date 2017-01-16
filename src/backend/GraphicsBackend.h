@@ -169,6 +169,12 @@ public:
 	int screenH();
 
 	/*
+	* Queries the current desktop width and height.
+	*/
+	int desktopW();
+	int desktopH();
+
+	/*
 	* Requests that the physical window should use the desktop native cp;pr
 	* depth, or 8-bit color depth.
 	* This function can be called after the graphics backend has been

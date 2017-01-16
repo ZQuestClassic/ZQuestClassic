@@ -1428,11 +1428,11 @@ int getnumber(const char *prompt,int initialval)
     getnum_dlg[0].dp=(void *)prompt;
     getnum_dlg[0].dp2=lfont;
     getnum_dlg[2].dp=(void *)buf;
+
+	DIALOG *getnum_cpy = resizeDialog(getnum_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(getnum_dlg);
-        
-    int ret=zc_popup_dialog(getnum_dlg,2);
+    int ret=zc_popup_dialog(getnum_cpy,2);
+	delete[] getnum_cpy;
     
     if(ret!=0&&ret!=4)
     {
@@ -1452,11 +1452,12 @@ int gettilepagenumber(const char *prompt, int initialval)
     getnum_dlg[0].dp=(void *)prompt;
     getnum_dlg[0].dp2=lfont;
     getnum_dlg[2].dp=buf;
+
+	DIALOG *getnum_cpy = resizeDialog(getnum_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(getnum_dlg);
-        
-    int ret = zc_popup_dialog(getnum_dlg,2);
+    int ret = zc_popup_dialog(getnum_cpy,2);
+
+	delete[] getnum_cpy;
     
     if(ret==3)
         return atoi(buf);
@@ -1472,11 +1473,12 @@ int gethexnumber(const char *prompt,int initialval)
     getnum_dlg[0].dp=(void *)prompt;
     getnum_dlg[0].dp2=lfont;
     getnum_dlg[2].dp=(void *)buf;
+
+	DIALOG *getnum_cpy = resizeDialog(getnum_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(getnum_dlg);
-        
-    int ret=zc_popup_dialog(getnum_dlg,2);
+    int ret=zc_popup_dialog(getnum_cpy,2);
+
+	delete[] getnum_cpy;
     
     if(ret!=0&&ret!=4)
     {
@@ -1771,37 +1773,38 @@ int onOptions()
     options_dlg[41].d1 = SnapshotFormat;
     options_dlg[43].dp = kbdelay;
     options_dlg[45].dp = kbrate;
+
+	DIALOG *options_cpy = resizeDialog(options_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(options_dlg);
-        
-    if(zc_popup_dialog(options_dlg,-1) == 2)
+    if(zc_popup_dialog(options_cpy,-1) == 2)
     {
-        MouseScroll                = options_dlg[4].flags & D_SELECTED ? 1 : 0;
-        SavePaths                  = options_dlg[5].flags & D_SELECTED ? 1 : 0;
-        CycleOn                    = options_dlg[6].flags & D_SELECTED ? 1 : 0;
-        ShowFPS                    = options_dlg[7].flags & D_SELECTED ? 1 : 0;
-        ComboBrush                 = options_dlg[8].flags & D_SELECTED ? 1 : 0;
-        FloatBrush                 = options_dlg[9].flags & D_SELECTED ? 1 : 0;
-        OpenLastQuest              = options_dlg[10].flags & D_SELECTED ? 1 : 0;
-        ShowMisalignments          = options_dlg[11].flags & D_SELECTED ? 1 : 0;
-        AnimationOn                = options_dlg[12].flags & D_SELECTED ? 1 : 0;
-        OverwriteProtection        = options_dlg[13].flags & D_SELECTED ? 1 : 0;
-        TileProtection             = options_dlg[14].flags & D_SELECTED ? 1 : 0;
-        InvalidStatic              = options_dlg[15].flags & D_SELECTED ? 1 : 0;
-        RulesetDialog              = options_dlg[16].flags & D_SELECTED ? 1 : 0;
-        EnableTooltips             = options_dlg[17].flags & D_SELECTED ? 1 : 0;
-        AutoBackupRetention        = options_dlg[32].d1;
-        AutoSaveInterval           = autosaveListToMinutes(options_dlg[34].d1);
-        AutoSaveRetention          = options_dlg[36].d1;
-        UncompressedAutoSaves      = options_dlg[37].flags & D_SELECTED ? 1 : 0;
-        GridColor                  = options_dlg[39].d1;
-        SnapshotFormat             = options_dlg[41].d1;
+        MouseScroll                = options_cpy[4].flags & D_SELECTED ? 1 : 0;
+        SavePaths                  = options_cpy[5].flags & D_SELECTED ? 1 : 0;
+        CycleOn                    = options_cpy[6].flags & D_SELECTED ? 1 : 0;
+        ShowFPS                    = options_cpy[7].flags & D_SELECTED ? 1 : 0;
+        ComboBrush                 = options_cpy[8].flags & D_SELECTED ? 1 : 0;
+        FloatBrush                 = options_cpy[9].flags & D_SELECTED ? 1 : 0;
+        OpenLastQuest              = options_cpy[10].flags & D_SELECTED ? 1 : 0;
+        ShowMisalignments          = options_cpy[11].flags & D_SELECTED ? 1 : 0;
+        AnimationOn                = options_cpy[12].flags & D_SELECTED ? 1 : 0;
+        OverwriteProtection        = options_cpy[13].flags & D_SELECTED ? 1 : 0;
+        TileProtection             = options_cpy[14].flags & D_SELECTED ? 1 : 0;
+        InvalidStatic              = options_cpy[15].flags & D_SELECTED ? 1 : 0;
+        RulesetDialog              = options_cpy[16].flags & D_SELECTED ? 1 : 0;
+        EnableTooltips             = options_cpy[17].flags & D_SELECTED ? 1 : 0;
+        AutoBackupRetention        = options_cpy[32].d1;
+        AutoSaveInterval           = autosaveListToMinutes(options_cpy[34].d1);
+        AutoSaveRetention          = options_cpy[36].d1;
+        UncompressedAutoSaves      = options_cpy[37].flags & D_SELECTED ? 1 : 0;
+        GridColor                  = options_cpy[39].d1;
+        SnapshotFormat             = options_cpy[41].d1;
         KeyboardRepeatDelay        = atoi(kbdelay);
         KeyboardRepeatRate         = atoi(kbrate);
         
         set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     }
+
+	delete[] options_cpy;
     
     if(AutoSaveInterval!=OldAutoSaveInterval)
     {
@@ -2824,14 +2827,16 @@ int changeTrack()
     restore_mouse();
     change_track_dlg[0].dp2=lfont;
     change_track_dlg[2].d1=gme_track;
+
+	DIALOG *change_track_cpy = resizeDialog(change_track_dlg, 1.5);
     
-    if(is_large()) large_dialog(change_track_dlg);
-    
-    if(zc_popup_dialog(change_track_dlg,2)==3)
+    if(zc_popup_dialog(change_track_cpy,2)==3)
     {
-        gme_track=change_track_dlg[2].d1;
+        gme_track= change_track_cpy[2].d1;
         zcmusic_change_track(zcmusic, gme_track);
     }
+
+	delete[] change_track_cpy;
     
     return D_O_K;
 }
@@ -3491,30 +3496,29 @@ int load_the_map()
     loadmap_dlg[9].flags  = (flags&cNODARK) ? 0 : D_SELECTED;
     loadmap_dlg[10].flags = (flags&cNOITEM) ? 0 : D_SELECTED;
     loadmap_dlg[13].flags = 0;
+
+	DIALOG *loadmap_cpy = resizeDialog(loadmap_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(loadmap_dlg);
-        
-    if(zc_popup_dialog(loadmap_dlg,11) != 11)
+    if(zc_popup_dialog(loadmap_cpy,11) != 11)
     {
         return 1;
     }
     
     flags = cDEBUG;
     
-    if(loadmap_dlg[3].flags&D_SELECTED)  res=2;
+    if(loadmap_cpy[3].flags&D_SELECTED)  res=2;
     
-    if(loadmap_dlg[4].flags&D_SELECTED)  res=1;
+    if(loadmap_cpy[4].flags&D_SELECTED)  res=1;
     
-    if(loadmap_dlg[5].flags&D_SELECTED)  res=0;
+    if(loadmap_cpy[5].flags&D_SELECTED)  res=0;
     
-    if(loadmap_dlg[7].flags&D_SELECTED)  flags|=cWALK;
+    if(loadmap_cpy[7].flags&D_SELECTED)  flags|=cWALK;
     
-    if(loadmap_dlg[8].flags&D_SELECTED)  flags|=cFLAGS;
+    if(loadmap_cpy[8].flags&D_SELECTED)  flags|=cFLAGS;
     
-    if(!(loadmap_dlg[9].flags&D_SELECTED))  flags|=cNODARK;
+    if(!(loadmap_cpy[9].flags&D_SELECTED))  flags|=cNODARK;
     
-    if(!(loadmap_dlg[10].flags&D_SELECTED)) flags|=cNOITEM;
+    if(!(loadmap_cpy[10].flags&D_SELECTED)) flags|=cNOITEM;
     
     if(bmap)
     {
@@ -3546,7 +3550,9 @@ int load_the_map()
     mapscale = 1;
     imagepath[0] = 0;
     
-    if(loadmap_dlg[13].flags & D_SELECTED) mapMaker(bmap, mappal);
+    if(loadmap_cpy[13].flags & D_SELECTED) mapMaker(bmap, mappal);
+
+	delete[] loadmap_cpy;
     
     return 0;
 }
@@ -7283,11 +7289,10 @@ int select_command(const char *prompt,int cmd)
     clist_dlg[2].d1=index;
     static ListData command_list(commandlist, &font);
     clist_dlg[2].dp=(void *) &command_list;
+
+	DIALOG *clist_cpy = resizeDialog(clist_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(clist_dlg);
-        
-    int ret=zc_popup_dialog(clist_dlg,2);
+    int ret=zc_popup_dialog(clist_cpy,2);
     
     if(ret==0||ret==4)
     {
@@ -7295,8 +7300,11 @@ int select_command(const char *prompt,int cmd)
         return -1;
     }
     
-    index = clist_dlg[2].d1;
+    index = clist_cpy[2].d1;
 	Backend::mouse->setWheelPosition(0);
+
+	delete[] clist_cpy;
+
     return bic[index].i;
 }
 
@@ -8711,10 +8719,11 @@ int onShowPal()
     for(int i=0; i<256; i++)
         rectfill(palbmp,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale),i);
     showpal_dlg[2].dp=(void *)palbmp;
+
+	DIALOG *showpal_cpy = resizeDialog(showpal_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(showpal_dlg);
-    zc_popup_dialog(showpal_dlg,2);
+    zc_popup_dialog(showpal_cpy,2);
+	delete[] showpal_cpy;
     destroy_bitmap(palbmp);
     return D_O_K;
 }
@@ -8738,22 +8747,21 @@ int onCSetFix()
     restore_mouse();
     csetfix_dlg[0].dp2=lfont;
     int s=2,x2=14,y2=9;
-    
-    if(is_large())
-        large_dialog(csetfix_dlg);
+
+	DIALOG *csetfix_cpy = resizeDialog(csetfix_dlg, 1.5);
         
-    if(zc_popup_dialog(csetfix_dlg,-1)==6)
+    if(zc_popup_dialog(csetfix_cpy,-1)==6)
     {
         Map.Ugo();
         
-        if(csetfix_dlg[2].flags&D_SELECTED)
+        if(csetfix_cpy[2].flags&D_SELECTED)
         {
             s=0;
             x2=16;
             y2=11;
         }
         
-        if(csetfix_dlg[5].flags&D_SELECTED)
+        if(csetfix_cpy[5].flags&D_SELECTED)
         {
             /*
               int drawmap, drawscr;
@@ -8801,6 +8809,8 @@ int onCSetFix()
         refresh(rMAP);
         saved = false;
     }
+
+	delete[] csetfix_cpy;
     
     return D_O_K;
 }
@@ -8843,17 +8853,18 @@ int onTemplate()
     template_dlg[0].dp2=lfont;
     //  put_combo(floor_bmp,0,0,Combo,CSet,0,0);
     //  template_dlg[2].dp=floor_bmp;
+
+	DIALOG *template_cpy = resizeDialog(template_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(template_dlg);
-        
-    if(zc_popup_dialog(template_dlg,-1)==5)
+    if(zc_popup_dialog(template_cpy,-1)==5)
     {
         saved=false;
         Map.Ugo();
-        Map.Template((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg);
+        Map.Template((template_cpy[3].flags==D_SELECTED) ? template_cpy[2].d1 : -1, template_cpy[2].fg);
         refresh(rMAP+rSCRMAP);
     }
+
+	delete[] template_cpy;
     
     //  destroy_bitmap(floor_bmp);
     return D_O_K;
@@ -9104,19 +9115,18 @@ int select_cflag(const char *prompt,int index)
     cflag_dlg[2].d1=index;
     ListData select_cflag_list(flaglist, &font);
     cflag_dlg[2].dp=(void *) &select_cflag_list;
+
+	DIALOG *cflag_cpy = resizeDialog(cflag_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(cflag_dlg);
-        
     int ret;
     
     do
     {
-        ret=zc_popup_dialog(cflag_dlg,2);
+        ret=zc_popup_dialog(cflag_cpy,2);
         
         if(ret==5)
         {
-            int id = cflag_dlg[2].d1;
+            int id = cflag_cpy[2].d1;
             cflag_help(id);
         }
     }
@@ -9127,8 +9137,12 @@ int select_cflag(const char *prompt,int index)
 		Backend::mouse->setWheelPosition(0);
         return -1;
     }
+
+	int retval = cflag_cpy[2].d1;
+
+	delete[] cflag_cpy;
     
-    return cflag_dlg[2].d1;
+	return retval;
 }
 
 int select_flag(int &f)
@@ -9603,104 +9617,105 @@ int onSecretCombo()
         secret_dlg[120+i].fg = s->secretcset[sSECRET01+i];
         secret_dlg[120+i].d2 = s->secretflag[sSECRET01+i];
     }
+
+	DIALOG *secret_cpy = resizeDialog(secret_dlg, 1.5);
     
     if(is_large())
     {
-        large_dialog(secret_dlg,1.75);
-        
         for(int i=48; i<92; i++)
         {
-            secret_dlg[i].w = secret_dlg[i].h = 36;
+			secret_cpy[i].w = secret_cpy[i].h = 36;
         }
     }
     
     go();
     
-    if(zc_do_dialog(secret_dlg,3) == 2)
+    if(zc_do_dialog(secret_cpy,3) == 2)
     {
         saved = false;
-        s->secretcombo[sBCANDLE] = secret_dlg[92].d1;
-        s->secretcset[sBCANDLE] = secret_dlg[92].fg;
-        s->secretflag[sBCANDLE] = secret_dlg[92].d2;
+        s->secretcombo[sBCANDLE] = secret_cpy[92].d1;
+        s->secretcset[sBCANDLE] = secret_cpy[92].fg;
+        s->secretflag[sBCANDLE] = secret_cpy[92].d2;
         
-        s->secretcombo[sRCANDLE] = secret_dlg[93].d1;
-        s->secretcset[sRCANDLE] = secret_dlg[93].fg;
-        s->secretflag[sRCANDLE] = secret_dlg[93].d2;
+        s->secretcombo[sRCANDLE] = secret_cpy[93].d1;
+        s->secretcset[sRCANDLE] = secret_cpy[93].fg;
+        s->secretflag[sRCANDLE] = secret_cpy[93].d2;
         
-        s->secretcombo[sWANDFIRE] = secret_dlg[94].d1;
-        s->secretcset[sWANDFIRE] = secret_dlg[94].fg;
-        s->secretflag[sWANDFIRE] = secret_dlg[94].d2;
+        s->secretcombo[sWANDFIRE] = secret_cpy[94].d1;
+        s->secretcset[sWANDFIRE] = secret_cpy[94].fg;
+        s->secretflag[sWANDFIRE] = secret_cpy[94].d2;
         
-        s->secretcombo[sDINSFIRE] = secret_dlg[95].d1;
-        s->secretcset[sDINSFIRE] = secret_dlg[95].fg;
-        s->secretflag[sDINSFIRE] = secret_dlg[95].d2;
+        s->secretcombo[sDINSFIRE] = secret_cpy[95].d1;
+        s->secretcset[sDINSFIRE] = secret_cpy[95].fg;
+        s->secretflag[sDINSFIRE] = secret_cpy[95].d2;
         
-        s->secretcombo[sARROW] = secret_dlg[96].d1;
-        s->secretcset[sARROW] = secret_dlg[96].fg;
-        s->secretflag[sARROW] = secret_dlg[96].d2;
+        s->secretcombo[sARROW] = secret_cpy[96].d1;
+        s->secretcset[sARROW] = secret_cpy[96].fg;
+        s->secretflag[sARROW] = secret_cpy[96].d2;
         
-        s->secretcombo[sSARROW] = secret_dlg[97].d1;
-        s->secretcset[sSARROW] = secret_dlg[97].fg;
-        s->secretflag[sSARROW] = secret_dlg[97].d2;
+        s->secretcombo[sSARROW] = secret_cpy[97].d1;
+        s->secretcset[sSARROW] = secret_cpy[97].fg;
+        s->secretflag[sSARROW] = secret_cpy[97].d2;
         
-        s->secretcombo[sGARROW] = secret_dlg[98].d1;
-        s->secretcset[sGARROW] = secret_dlg[98].fg;
-        s->secretflag[sGARROW] = secret_dlg[98].d2;
+        s->secretcombo[sGARROW] = secret_cpy[98].d1;
+        s->secretcset[sGARROW] = secret_cpy[98].fg;
+        s->secretflag[sGARROW] = secret_cpy[98].d2;
         
-        s->secretcombo[sBOMB] = secret_dlg[99].d1;
-        s->secretcset[sBOMB] = secret_dlg[99].fg;
-        s->secretflag[sBOMB] = secret_dlg[99].d2;
+        s->secretcombo[sBOMB] = secret_cpy[99].d1;
+        s->secretcset[sBOMB] = secret_cpy[99].fg;
+        s->secretflag[sBOMB] = secret_cpy[99].d2;
         
-        s->secretcombo[sSBOMB] = secret_dlg[100].d1;
-        s->secretcset[sSBOMB] = secret_dlg[100].fg;
-        s->secretflag[sSBOMB] = secret_dlg[100].d2;
+        s->secretcombo[sSBOMB] = secret_cpy[100].d1;
+        s->secretcset[sSBOMB] = secret_cpy[100].fg;
+        s->secretflag[sSBOMB] = secret_cpy[100].d2;
         
         for(int i=0; i<3; i++)
         {
-            s->secretcombo[sBRANG+i] = secret_dlg[101+i].d1;
-            s->secretcset[sBRANG+i] = secret_dlg[101+i].fg;
-            s->secretflag[sBRANG+i] = secret_dlg[101+i].d2;
+            s->secretcombo[sBRANG+i] = secret_cpy[101+i].d1;
+            s->secretcset[sBRANG+i] = secret_cpy[101+i].fg;
+            s->secretflag[sBRANG+i] = secret_cpy[101+i].d2;
         }
         
         for(int i=0; i<2; i++)
         {
-            s->secretcombo[sWANDMAGIC+i] = secret_dlg[104+i].d1;
-            s->secretcset[sWANDMAGIC+i] = secret_dlg[104+i].fg;
-            s->secretflag[sWANDMAGIC+i] = secret_dlg[104+i].d2;
+            s->secretcombo[sWANDMAGIC+i] = secret_cpy[104+i].d1;
+            s->secretcset[sWANDMAGIC+i] = secret_cpy[104+i].fg;
+            s->secretflag[sWANDMAGIC+i] = secret_cpy[104+i].d2;
         }
         
         for(int i=0; i<8; i++)
         {
-            s->secretcombo[sSWORD+i] = secret_dlg[106+i].d1;
-            s->secretcset[sSWORD+i] = secret_dlg[106+i].fg;
-            s->secretflag[sSWORD+i] = secret_dlg[106+i].d2;
+            s->secretcombo[sSWORD+i] = secret_cpy[106+i].d1;
+            s->secretcset[sSWORD+i] = secret_cpy[106+i].fg;
+            s->secretflag[sSWORD+i] = secret_cpy[106+i].d2;
         }
         
-        s->secretcombo[sSTAIRS] = secret_dlg[114].d1;
-        s->secretcset[sSTAIRS] = secret_dlg[114].fg;
-        s->secretflag[sSTAIRS] = secret_dlg[114].d2;
+        s->secretcombo[sSTAIRS] = secret_cpy[114].d1;
+        s->secretcset[sSTAIRS] = secret_cpy[114].fg;
+        s->secretflag[sSTAIRS] = secret_cpy[114].d2;
         
-        s->secretcombo[sREFFIREBALL] = secret_dlg[115].d1;
-        s->secretcset[sREFFIREBALL] = secret_dlg[115].fg;
-        s->secretflag[sREFFIREBALL] = secret_dlg[115].d2;
+        s->secretcombo[sREFFIREBALL] = secret_cpy[115].d1;
+        s->secretcset[sREFFIREBALL] = secret_cpy[115].fg;
+        s->secretflag[sREFFIREBALL] = secret_cpy[115].d2;
         
         for(int i=0; i<4; i++)
         {
-            s->secretcombo[sHOOKSHOT+i] = secret_dlg[116+i].d1;
-            s->secretcset[sHOOKSHOT+i] = secret_dlg[116+i].fg;
-            s->secretflag[sHOOKSHOT+i] = secret_dlg[116+i].d2;
+            s->secretcombo[sHOOKSHOT+i] = secret_cpy[116+i].d1;
+            s->secretcset[sHOOKSHOT+i] = secret_cpy[116+i].fg;
+            s->secretflag[sHOOKSHOT+i] = secret_cpy[116+i].d2;
         }
         
         for(int i=0; i<16; i++)
         {
-            s->secretcombo[sSECRET01+i] = secret_dlg[120+i].d1;
-            s->secretcset[sSECRET01+i] = secret_dlg[120+i].fg;
-            s->secretflag[sSECRET01+i] = secret_dlg[120+i].d2;
+            s->secretcombo[sSECRET01+i] = secret_cpy[120+i].d1;
+            s->secretcset[sSECRET01+i] = secret_cpy[120+i].fg;
+            s->secretflag[sSECRET01+i] = secret_cpy[120+i].d2;
         }
         
     }
     
     comeback();
+	delete[] secret_cpy;
     return D_O_K;
 }
 
@@ -9731,22 +9746,23 @@ int onUnderCombo()
     
     under_dlg[6].d1=Combo;
     under_dlg[6].fg=CSet;
+
+	DIALOG *under_cpy = resizeDialog(under_dlg, 1.5);
     
     if(is_large())
     {
-        large_dialog(under_dlg);
         // Doesn't place "New" and "Current" text too well
-        under_dlg[1].x=342;
-        under_dlg[4].x=438;
+		under_cpy[1].x=342;
+		under_cpy[4].x=438;
     }
     
-    int ret = zc_popup_dialog(under_dlg,-1);
+    int ret = zc_popup_dialog(under_cpy,-1);
     
     if(ret==7)
     {
         saved=false;
-        Map.CurrScr()->undercombo = under_dlg[6].d1;
-        Map.CurrScr()->undercset = under_dlg[6].fg;
+        Map.CurrScr()->undercombo = under_cpy[6].d1;
+        Map.CurrScr()->undercset = under_cpy[6].fg;
     }
     
     if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
@@ -9755,11 +9771,12 @@ int onUnderCombo()
         
         for(int i=0; i<128; i++)
         {
-            Map.Scr(i)->undercombo = under_dlg[6].d1;
-            Map.Scr(i)->undercset = under_dlg[6].fg;
+            Map.Scr(i)->undercombo = under_cpy[6].d1;
+            Map.Scr(i)->undercset = under_cpy[6].fg;
         }
     }
     
+	delete[] under_cpy;
     return D_O_K;
 }
 
@@ -9936,40 +9953,41 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
     ilist_dlg[2].d1=index;
     ListData item_list(itemlist, &font);
     ilist_dlg[2].dp=(void *) &item_list;
-    
-    if(is_large())
-        large_dialog(ilist_dlg);
+
+	DIALOG *ilist_cpy = resizeDialog(ilist_dlg, 1.5);
         
     if(is_editor)
     {
-        ilist_dlg[2].dp3 = (void *)&ilist_rclick_func;
-        ilist_dlg[2].flags|=(D_USER<<1);
-        ilist_dlg[3].dp = (void *)"Edit";
-        ilist_dlg[4].dp = (void *)"Done";
-        ilist_dlg[3].x = is_large()?285:90;
-        ilist_dlg[4].x = is_large()?405:170;
-        ilist_dlg[5].flags |= D_HIDDEN;
+		ilist_cpy[2].dp3 = (void *)&ilist_rclick_func;
+		ilist_cpy[2].flags|=(D_USER<<1);
+		ilist_cpy[3].dp = (void *)"Edit";
+		ilist_cpy[4].dp = (void *)"Done";
+		ilist_cpy[3].x = is_large()?285:90;
+		ilist_cpy[4].x = is_large()?405:170;
+		ilist_cpy[5].flags |= D_HIDDEN;
     }
     else
     {
-        ilist_dlg[2].dp3 = NULL;
-        ilist_dlg[2].flags&=~(D_USER<<1);
-        ilist_dlg[3].dp = (void *)"OK";
-        ilist_dlg[4].dp = (void *)"Cancel";
-        ilist_dlg[3].x = is_large()?240:60;
-        ilist_dlg[4].x = is_large()?350:135;
-        ilist_dlg[5].flags &= ~D_HIDDEN;
+		ilist_cpy[2].dp3 = NULL;
+		ilist_cpy[2].flags&=~(D_USER<<1);
+		ilist_cpy[3].dp = (void *)"OK";
+		ilist_cpy[4].dp = (void *)"Cancel";
+		ilist_cpy[3].x = is_large()?240:60;
+		ilist_cpy[4].x = is_large()?350:135;
+		ilist_cpy[5].flags &= ~D_HIDDEN;
     }
     
-    exit_status=zc_popup_dialog(ilist_dlg,2);
+    exit_status=zc_popup_dialog(ilist_cpy,2);
     
     if(exit_status==0||exit_status==4)
     {
 		Backend::mouse->setWheelPosition(0);
+		delete[] ilist_cpy;
         return -1;
     }
     
-    index = ilist_dlg[2].d1;
+    index = ilist_cpy[2].d1;
+	delete[] ilist_cpy;
 	Backend::mouse->setWheelPosition(0);
     return bii[index].i;
 }
@@ -10027,19 +10045,20 @@ int select_weapon(const char *prompt,int weapon)
     wlist_dlg[2].d1=index;
     ListData weapon_list(weaponlist, &font);
     wlist_dlg[2].dp=(void *) &weapon_list;
-    
-    if(is_large())
-        large_dialog(wlist_dlg);
+
+	DIALOG *wlist_cpy = resizeDialog(wlist_dlg, 1.5);
         
-    int ret=zc_popup_dialog(wlist_dlg,2);
+    int ret=zc_popup_dialog(wlist_cpy,2);
     
     if(ret==0||ret==4)
     {
 		Backend::mouse->setWheelPosition(0);
+		delete[] wlist_cpy;
         return -1;
     }
     
-    index = wlist_dlg[2].d1;
+    index = wlist_cpy[2].d1;
+	delete[] wlist_cpy;
 	Backend::mouse->setWheelPosition(0);
     return biw[index].i;
 }
@@ -10107,19 +10126,18 @@ int select_room(const char *prompt,int room)
     rlist_dlg[2].d1=index;
     ListData room_list(roomlist, &font);
     rlist_dlg[2].dp=(void *) &room_list;
+
+	DIALOG *rlist_cpy = resizeDialog(rlist_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(rlist_dlg);
-        
     int ret;
     
     do
     {
-        ret=zc_popup_dialog(rlist_dlg,2);
+        ret=zc_popup_dialog(rlist_cpy,2);
         
         if(ret==5)
         {
-            int id = bir[rlist_dlg[2].d1].i;
+            int id = bir[rlist_cpy[2].d1].i;
             
             switch(id)
             {
@@ -10214,10 +10232,13 @@ int select_room(const char *prompt,int room)
     if(ret==0||ret==4)
     {
 		Backend::mouse->setWheelPosition(0);
+		delete[] rlist_cpy;
         return -1;
     }
     else
-        index = rlist_dlg[2].d1;
+        index = rlist_cpy[2].d1;
+
+	delete[] rlist_cpy;
         
 	Backend::mouse->setWheelPosition(0);
     return bir[index].i;
@@ -10261,32 +10282,34 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT 
     list_dlg[2].d1=index;
     ListData select_list(proc, &font);
     list_dlg[2].dp=(void *) &select_list;
-    
-    if(is_large())
-        large_dialog(list_dlg);
+
+	DIALOG *list_cpy = resizeDialog(list_dlg, 1.5);
     
     seldata_copy=-1;
     seldata_paste_func=copyFunc;
     if(copyFunc)
     {
-        list_dlg[2].flags|=D_USER<<1;
-        list_dlg[2].dp3=(void*)seldata_rclick_func;
+		list_cpy[2].flags|=D_USER<<1;
+		list_cpy[2].dp3=(void*)seldata_rclick_func;
     }
     else
     {
-        list_dlg[2].flags&=~(D_USER<<1);
-        list_dlg[2].dp3=0;
+		list_cpy[2].flags&=~(D_USER<<1);
+		list_cpy[2].dp3=0;
     }
     
-    int ret=zc_popup_dialog(list_dlg,2);
+    int ret=zc_popup_dialog(list_cpy,2);
     
     if(ret==0||ret==4)
     {
 		Backend::mouse->setWheelPosition(0);
+		delete[] list_cpy;
         return -1;
     }
     
-    return list_dlg[2].d1;
+	int retval = list_cpy[2].d1;
+	delete[] list_cpy;
+	return retval;
 }
 
 int select_data(const char *prompt,int index,const char *(proc)(int,int*), const char *b1, const char *b2, FONT *title_font, void (*copyFunc)(int, int))
@@ -10301,35 +10324,37 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
     list_dlg[2].dp=(void *) &select_data_list;
     list_dlg[3].dp=(void *)b1;
     list_dlg[4].dp=(void *)b2;
-    
-    if(is_large())
-        large_dialog(list_dlg);
+
+	DIALOG *list_cpy = resizeDialog(list_dlg, 1.5);
     
     seldata_copy=-1;
     seldata_paste_func=copyFunc;
     if(copyFunc)
     {
-        list_dlg[2].flags|=D_USER<<1;
-        list_dlg[2].dp3=(void*)seldata_rclick_func;
+		list_cpy[2].flags|=D_USER<<1;
+		list_cpy[2].dp3=(void*)seldata_rclick_func;
     }
     else
     {
-        list_dlg[2].flags&=~(D_USER<<1);
-        list_dlg[2].dp3=0;
+		list_cpy[2].flags&=~(D_USER<<1);
+		list_cpy[2].dp3=0;
     }
     
-    int ret = zc_popup_dialog(list_dlg,2);
-    list_dlg[3].dp=(void *) "OK";
-    list_dlg[4].dp=(void *) "Cancel";
+    int ret = zc_popup_dialog(list_cpy,2);
+	list_cpy[3].dp=(void *) "OK";
+	list_cpy[4].dp=(void *) "Cancel";
     
     if(ret==0||ret==4)
     {
 		Backend::mouse->setWheelPosition(0);
+		delete[] list_cpy;
         return -1;
     }
     
 	Backend::mouse->setWheelPosition(0);
-    return list_dlg[2].d1;
+	int retval = list_dlg[2].d1;
+	delete[] list_cpy;
+	return retval;
 }
 
 static int edit_scrdata1[] = // Flags 1
@@ -10802,18 +10827,17 @@ int onScrData()
         scrdata_dlg[i+107].flags = (h&1)?D_SELECTED:0;
         h>>=1;
     }
+
+	DIALOG *scrdata_cpy = resizeDialog(scrdata_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(scrdata_dlg);
-        
-    if(zc_popup_dialog(scrdata_dlg,-1)==2)
+	if(zc_popup_dialog(scrdata_cpy,-1)==2)
     {
         f=0;
         
         for(int i=7; i>=0; i--)
         {
             f<<=1;
-            f |= scrdata_dlg[i+6].flags & D_SELECTED ? 1:0;
+            f |= scrdata_cpy[i+6].flags & D_SELECTED ? 1:0;
         }
         
         Map.CurrScr()->flags = f;
@@ -10823,7 +10847,7 @@ int onScrData()
         for(int i=3; i>=0; i--)
         {
             f<<=1;
-            f |= scrdata_dlg[i+14].flags & D_SELECTED ? 1:0;
+            f |= scrdata_cpy[i+14].flags & D_SELECTED ? 1:0;
         }
         
         Map.CurrScr()->flags2 &= 0x0F;
@@ -10834,111 +10858,113 @@ int onScrData()
         for(int i=7; i>=0; i--)
         {
             f<<=1;
-            f |= scrdata_dlg[i+18].flags & D_SELECTED ? 1:0;
+            f |= scrdata_cpy[i+18].flags & D_SELECTED ? 1:0;
         }
         
         Map.CurrScr()->flags3 = f;
         
         f=0;
-        f |= scrdata_dlg[26].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[27].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[36].flags & D_SELECTED ? 16:0;
+        f |= scrdata_cpy[26].flags & D_SELECTED ? 4:0;
+        f |= scrdata_cpy[27].flags & D_SELECTED ? 8:0;
+        f |= scrdata_cpy[36].flags & D_SELECTED ? 16:0;
         //f |= scrdata_dlg[37].flags & D_SELECTED ? 32:0;
-        f |= scrdata_dlg[38].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[39].flags & D_SELECTED ? 128:0;
+        f |= scrdata_cpy[38].flags & D_SELECTED ? 64:0;
+        f |= scrdata_cpy[39].flags & D_SELECTED ? 128:0;
         Map.CurrScr()->flags4 = f;
         
         f=0;
-        f |= scrdata_dlg[40].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[41].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[37].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[42].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[43].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[44].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[53].flags & D_SELECTED ? 128:0;
+        f |= scrdata_cpy[40].flags & D_SELECTED ? 1:0;
+        f |= scrdata_cpy[41].flags & D_SELECTED ? 2:0;
+        f |= scrdata_cpy[37].flags & D_SELECTED ? 4:0;
+        f |= scrdata_cpy[42].flags & D_SELECTED ? 8:0;
+        f |= scrdata_cpy[43].flags & D_SELECTED ? 16:0;
+        f |= scrdata_cpy[44].flags & D_SELECTED ? 64:0;
+        f |= scrdata_cpy[53].flags & D_SELECTED ? 128:0;
         Map.CurrScr()->flags5 = f;
         
         f=0;
-        f |= scrdata_dlg[45].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[46].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[47].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[48].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[49].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[50].flags & D_SELECTED ? 32:0;
-        f |= scrdata_dlg[51].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[52].flags & D_SELECTED ? 128:0;
+        f |= scrdata_cpy[45].flags & D_SELECTED ? 1:0;
+        f |= scrdata_cpy[46].flags & D_SELECTED ? 2:0;
+        f |= scrdata_cpy[47].flags & D_SELECTED ? 4:0;
+        f |= scrdata_cpy[48].flags & D_SELECTED ? 8:0;
+        f |= scrdata_cpy[49].flags & D_SELECTED ? 16:0;
+        f |= scrdata_cpy[50].flags & D_SELECTED ? 32:0;
+        f |= scrdata_cpy[51].flags & D_SELECTED ? 64:0;
+        f |= scrdata_cpy[52].flags & D_SELECTED ? 128:0;
         Map.CurrScr()->flags6 = f;
         
         f=0;
-        f |= scrdata_dlg[54].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[55].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[56].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[57].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[58].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[59].flags & D_SELECTED ? 64:0;
-        f |= scrdata_dlg[60].flags & D_SELECTED ? 128:0;
+        f |= scrdata_cpy[54].flags & D_SELECTED ? 1:0;
+        f |= scrdata_cpy[55].flags & D_SELECTED ? 2:0;
+        f |= scrdata_cpy[56].flags & D_SELECTED ? 4:0;
+        f |= scrdata_cpy[57].flags & D_SELECTED ? 8:0;
+        f |= scrdata_cpy[58].flags & D_SELECTED ? 16:0;
+        f |= scrdata_cpy[59].flags & D_SELECTED ? 64:0;
+        f |= scrdata_cpy[60].flags & D_SELECTED ? 128:0;
         Map.CurrScr()->flags7 = f;
         
         f=0;
-        f |= scrdata_dlg[128].flags & D_SELECTED ? 1:0;
-        f |= scrdata_dlg[129].flags & D_SELECTED ? 2:0;
-        f |= scrdata_dlg[130].flags & D_SELECTED ? 4:0;
-        f |= scrdata_dlg[131].flags & D_SELECTED ? 8:0;
-        f |= scrdata_dlg[132].flags & D_SELECTED ? 16:0;
-        f |= scrdata_dlg[135].flags & D_SELECTED ? 32:0;
+        f |= scrdata_cpy[128].flags & D_SELECTED ? 1:0;
+        f |= scrdata_cpy[129].flags & D_SELECTED ? 2:0;
+        f |= scrdata_cpy[130].flags & D_SELECTED ? 4:0;
+        f |= scrdata_cpy[131].flags & D_SELECTED ? 8:0;
+        f |= scrdata_cpy[132].flags & D_SELECTED ? 16:0;
+        f |= scrdata_cpy[135].flags & D_SELECTED ? 32:0;
         Map.CurrScr()->flags8 = f;
         
         g=0;
-        g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
-        g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
-        g |= scrdata_dlg[76].flags & D_SELECTED ? mBELOW:0;
-        g |= scrdata_dlg[77].flags & D_SELECTED ? mLOCKBLOCK:0;
-        g |= scrdata_dlg[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
-        g |= scrdata_dlg[79].flags & D_SELECTED ? mCHEST:0;
-        g |= scrdata_dlg[80].flags & D_SELECTED ? mLOCKEDCHEST:0;
-        g |= scrdata_dlg[81].flags & D_SELECTED ? mBOSSCHEST:0;
-        g |= scrdata_dlg[82].flags & D_SELECTED ? mDOOR_DOWN:0;
-        g |= scrdata_dlg[83].flags & D_SELECTED ? mDOOR_LEFT:0;
-        g |= scrdata_dlg[84].flags & D_SELECTED ? mDOOR_RIGHT:0;
-        g |= scrdata_dlg[98].flags & D_SELECTED ? mDOOR_UP:0;
+        g |= scrdata_cpy[74].flags & D_SELECTED ? mSECRET:0;
+        g |= scrdata_cpy[75].flags & D_SELECTED ? mITEM:0;
+        g |= scrdata_cpy[76].flags & D_SELECTED ? mBELOW:0;
+        g |= scrdata_cpy[77].flags & D_SELECTED ? mLOCKBLOCK:0;
+        g |= scrdata_cpy[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
+        g |= scrdata_cpy[79].flags & D_SELECTED ? mCHEST:0;
+        g |= scrdata_cpy[80].flags & D_SELECTED ? mLOCKEDCHEST:0;
+        g |= scrdata_cpy[81].flags & D_SELECTED ? mBOSSCHEST:0;
+        g |= scrdata_cpy[82].flags & D_SELECTED ? mDOOR_DOWN:0;
+        g |= scrdata_cpy[83].flags & D_SELECTED ? mDOOR_LEFT:0;
+        g |= scrdata_cpy[84].flags & D_SELECTED ? mDOOR_RIGHT:0;
+        g |= scrdata_cpy[98].flags & D_SELECTED ? mDOOR_UP:0;
         Map.CurrScr()->noreset = g;
         
         g=0;
-        g |= scrdata_dlg[85].flags & D_SELECTED ? mSECRET:0;
-        g |= scrdata_dlg[86].flags & D_SELECTED ? mITEM:0;
-        g |= scrdata_dlg[87].flags & D_SELECTED ? mBELOW:0;
-        g |= scrdata_dlg[88].flags & D_SELECTED ? mLOCKBLOCK:0;
-        g |= scrdata_dlg[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
-        g |= scrdata_dlg[90].flags & D_SELECTED ? mCHEST:0;
-        g |= scrdata_dlg[91].flags & D_SELECTED ? mLOCKEDCHEST:0;
-        g |= scrdata_dlg[92].flags & D_SELECTED ? mBOSSCHEST:0;
+        g |= scrdata_cpy[85].flags & D_SELECTED ? mSECRET:0;
+        g |= scrdata_cpy[86].flags & D_SELECTED ? mITEM:0;
+        g |= scrdata_cpy[87].flags & D_SELECTED ? mBELOW:0;
+        g |= scrdata_cpy[88].flags & D_SELECTED ? mLOCKBLOCK:0;
+        g |= scrdata_cpy[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
+        g |= scrdata_cpy[90].flags & D_SELECTED ? mCHEST:0;
+        g |= scrdata_cpy[91].flags & D_SELECTED ? mLOCKEDCHEST:0;
+        g |= scrdata_cpy[92].flags & D_SELECTED ? mBOSSCHEST:0;
         Map.CurrScr()->nocarry = g;
         
-        Map.CurrScr()->screen_midi = (scrdata_dlg[94].d1>1)?(scrdata_dlg[94].d1-1):(-(scrdata_dlg[94].d1+1));
-        Map.CurrScr()->lens_layer = scrdata_dlg[134].d1==0?0:(scrdata_dlg[134].d1>=7?(llLENSSHOWS|(scrdata_dlg[134].d1-7)):(llLENSHIDES|(scrdata_dlg[134].d1-1)));
-        Map.CurrScr()->nextmap = scrdata_dlg[34].d1;
-        Map.CurrScr()->nextscr = scrdata_dlg[35].d1;
+        Map.CurrScr()->screen_midi = (scrdata_cpy[94].d1>1)?(scrdata_cpy[94].d1-1):(-(scrdata_cpy[94].d1+1));
+        Map.CurrScr()->lens_layer = scrdata_cpy[134].d1==0?0:(scrdata_cpy[134].d1>=7?(llLENSSHOWS|(scrdata_cpy[134].d1-7)):(llLENSHIDES|(scrdata_cpy[134].d1-1)));
+        Map.CurrScr()->nextmap = scrdata_cpy[34].d1;
+        Map.CurrScr()->nextscr = scrdata_cpy[35].d1;
         
         refresh(rMAP+rSCRMAP+rMENU);
         Map.CurrScr()->timedwarptics=atoi(timedstring);
         Map.CurrScr()->csensitive=(atoi(csensstring)<=8?zc_max(1,atoi(csensstring)):Map.CurrScr()->csensitive);
-        Map.CurrScr()->oceansfx=scrdata_dlg[100].d1;
-        Map.CurrScr()->bosssfx=scrdata_dlg[102].d1;
-        Map.CurrScr()->secretsfx=scrdata_dlg[104].d1;
-        Map.CurrScr()->holdupsfx=scrdata_dlg[106].d1;
+        Map.CurrScr()->oceansfx= scrdata_cpy[100].d1;
+        Map.CurrScr()->bosssfx= scrdata_cpy[102].d1;
+        Map.CurrScr()->secretsfx= scrdata_cpy[104].d1;
+        Map.CurrScr()->holdupsfx= scrdata_cpy[106].d1;
         
         h=0;
         
         for(int i=7; i>=0; i--)
         {
             h<<=1;
-            h |= scrdata_dlg[107+i].flags & D_SELECTED ? 1:0;
+            h |= scrdata_cpy[107+i].flags & D_SELECTED ? 1:0;
         }
         
         Map.CurrScr()->enemyflags=h;
         
         saved=false;
     }
+
+	delete[] scrdata_cpy;
     
     return D_O_K;
 }
@@ -11400,11 +11426,11 @@ int onUsedCombos()
     strcat(combolist_text, "\n");
     usedcombo_list_dlg[2].dp=combolist_text;
     usedcombo_list_dlg[2].d2=0;
+
+	DIALOG *usedcombo_list_cpy = resizeDialog(usedcombo_list_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(usedcombo_list_dlg);
-        
-    zc_popup_dialog(usedcombo_list_dlg,2);
+    zc_popup_dialog(usedcombo_list_cpy,2);
+	delete[] usedcombo_list_cpy;
 	Backend::mouse->setWheelPosition(0);
     return D_O_K;
 }
@@ -11631,16 +11657,17 @@ int onScreenPalette()
     restore_mouse();
     screen_pal_dlg[0].dp2=lfont;
     screen_pal_dlg[2].d1=Map.getcolor();
+
+	DIALOG *screen_pal_cpy = resizeDialog(screen_pal_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(screen_pal_dlg);
-        
-    if(zc_popup_dialog(screen_pal_dlg,2)==3)
+    if(zc_popup_dialog(screen_pal_cpy,2)==3)
     {
         saved=false;
-        Map.setcolor(screen_pal_dlg[2].d1);
+        Map.setcolor(screen_pal_cpy[2].d1);
         refresh(rALL);
     }
+
+	delete[] screen_pal_cpy;
     
     return D_O_K;
 }
@@ -11972,18 +11999,19 @@ int onTriPieces()
         sprintf(temptext[i], "%d", misc.triforce[i]);
         tp_dlg[i+3].dp=temptext[i];
     }
+
+	DIALOG *tp_cpy = resizeDialog(tp_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(tp_dlg);
-        
-    if(zc_popup_dialog(tp_dlg,-1) == 11)
+    if(zc_popup_dialog(tp_cpy,-1) == 11)
     {
         saved=false;
         
         for(int i=0; i<8; i++)
-            misc.triforce[i] = tp_dlg[i+3].d1;
+            misc.triforce[i] = tp_cpy[i+3].d1;
     }
     
+	delete[] tp_cpy;
+
     return D_O_K;
 }
 
@@ -12468,6 +12496,7 @@ int onXslider(void *dp3,int d2)
 {
     int *x=(int *)dp3;
     int *y=x+1;
+
     xmapspecs[1]=d2-7;
     bound(xmapspecs[1],-7,15);
     drawxmap(xmapspecs[0],xmapspecs[1],small_dmap);
@@ -13141,41 +13170,44 @@ void editdmap(int index)
     editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
     editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
     editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
+
+	DIALOG *editdmap_cpy = resizeDialog(editdmap_dlg, 1.5);
     
     if(is_large())
     {
-        if(!editdmap_dlg[0].d1)
-        {
-            xmapspecs[2]=int(xmapspecs[2]*1.5);
-            xmapspecs[3]=int(xmapspecs[3]*1.5);
-            editdmap_dlg[7].x+=4;
-            editdmap_dlg[13].x+=4;
-            editdmap_dlg[26].y-=12;
-            editdmap_dlg[27].y-=12;
-            editdmap_dlg[59].x+=10;
-            editdmap_dlg[61].x+=10;
-        }
+		editdmap_cpy[7].x+=4;
+		editdmap_cpy[13].x+=4;
+		editdmap_cpy[26].y-=12;
+		editdmap_cpy[27].y-=12;
+		editdmap_cpy[59].x+=10;
+		editdmap_cpy[61].x+=10;
         
-        large_dialog(editdmap_dlg);
-        xy[0]=editdmap_dlg[20].x;
-        xy[1]=editdmap_dlg[20].y;
         int dest[6] = { 11, 17, 14, 8, 67, 70 };
         int src[6] = { 12, 12, 9, 9, 68, 71 };
         
         for(int i=0; i<6; i++)
         {
-            editdmap_dlg[dest[i]].w = editdmap_dlg[src[i]].w+4;
-            editdmap_dlg[dest[i]].h = editdmap_dlg[src[i]].h+4;
-            editdmap_dlg[dest[i]].x = editdmap_dlg[src[i]].x-2;
-            editdmap_dlg[dest[i]].y = editdmap_dlg[src[i]].y-2;
+			editdmap_cpy[dest[i]].w = editdmap_cpy[src[i]].w+4;
+			editdmap_cpy[dest[i]].h = editdmap_cpy[src[i]].h+4;
+			editdmap_cpy[dest[i]].x = editdmap_cpy[src[i]].x-2;
+			editdmap_cpy[dest[i]].y = editdmap_cpy[src[i]].y-2;
         }
+		xmapspecs[2] = 3;
+		xmapspecs[3] = 36;
     }
-    
+	else
+	{
+		xmapspecs[2] = 2;
+		xmapspecs[3] = 24;
+	}
+	xy[0] = editdmap_cpy[20].x;
+	xy[1] = editdmap_cpy[20].y;
+
     int ret=-1;
     
     while(ret!=0&&ret!=1&&ret!=2)
     {
-        ret=zc_popup_dialog(editdmap_dlg,-1);
+        ret=zc_popup_dialog(editdmap_cpy,-1);
         
         switch(ret)
         {
@@ -13194,7 +13226,7 @@ void editdmap(int index)
                 else
                 {
                     sprintf(tmusicstr,"%s",tmfname);
-                    editdmap_dlg[87].dp=tmusicstr;
+					editdmap_cpy[87].dp=tmusicstr;
                     dmap_tracks=0;
                     tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
                     
@@ -13213,8 +13245,8 @@ void editdmap(int index)
                     }
                     
                     zcmusic_unload_file(tempdmapzcmusic);
-                    editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
-                    editdmap_dlg[89].d1=0;
+					editdmap_cpy[89].flags=(dmap_tracks<2)?D_DISABLED:0;
+					editdmap_cpy[89].d1=0;
                 }
             }
         }
@@ -13222,18 +13254,18 @@ void editdmap(int index)
         
         case 91:                                              //clear tracker music
             memset(tmusicstr, 0, 56);
-            editdmap_dlg[89].flags=D_DISABLED;
-            editdmap_dlg[89].d1=0;
+			editdmap_cpy[89].flags=D_DISABLED;
+			editdmap_cpy[89].d1=0;
             break;
             
         case 104: 											// item disable "->"
-            deleteDI(editdmap_dlg[101].d1, index);
+            deleteDI(editdmap_cpy[101].d1, index);
             break;
             
         case 105: 											// item disable "<-"
         {
             // 101 is the disabled list, 102 the item list
-            insertDI(editdmap_dlg[102].d1, index);
+            insertDI(editdmap_cpy[102].d1, index);
         }
         break;
         }
@@ -13243,17 +13275,17 @@ void editdmap(int index)
     {
         saved=false;
         sprintf(DMaps[index].name,"%s",dmap_name);
-        DMaps[index].minimap_1_tile = editdmap_dlg[9].d1;
-        DMaps[index].minimap_1_cset = editdmap_dlg[9].fg;
-        DMaps[index].largemap_1_tile = editdmap_dlg[12].d1;
-        DMaps[index].largemap_1_cset = editdmap_dlg[12].fg;
-        DMaps[index].minimap_2_tile = editdmap_dlg[15].d1;
-        DMaps[index].minimap_2_cset = editdmap_dlg[15].fg;
-        DMaps[index].largemap_2_tile = editdmap_dlg[18].d1;
-        DMaps[index].largemap_2_cset = editdmap_dlg[18].fg;
-        DMaps[index].map = (editdmap_dlg[20].d1>(map_count-1))?0:editdmap_dlg[20].d1;
+        DMaps[index].minimap_1_tile = editdmap_cpy[9].d1;
+        DMaps[index].minimap_1_cset = editdmap_cpy[9].fg;
+        DMaps[index].largemap_1_tile = editdmap_cpy[12].d1;
+        DMaps[index].largemap_1_cset = editdmap_cpy[12].fg;
+        DMaps[index].minimap_2_tile = editdmap_cpy[15].d1;
+        DMaps[index].minimap_2_cset = editdmap_cpy[15].fg;
+        DMaps[index].largemap_2_tile = editdmap_cpy[18].d1;
+        DMaps[index].largemap_2_cset = editdmap_cpy[18].fg;
+        DMaps[index].map = (editdmap_cpy[20].d1>(map_count-1))?0: editdmap_cpy[20].d1;
         DMaps[index].xoff = xmapspecs[1];
-        DMaps[index].type=editdmap_dlg[23].d1|((editdmap_dlg[63].flags & D_SELECTED)?dmfCONTINUE:0);
+        DMaps[index].type= editdmap_cpy[23].d1|((editdmap_cpy[63].flags & D_SELECTED)?dmfCONTINUE:0);
         
         if((DMaps[index].type & dmfTYPE) == dmOVERW)
             DMaps[index].xoff = 0;
@@ -13270,35 +13302,36 @@ void editdmap(int index)
         
         DMaps[index].compass = xtoi(compassstr);
         DMaps[index].cont = vbound(xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
-        DMaps[index].color = editdmap_dlg[65].d1;
-        DMaps[index].active_subscreen=editdmap_dlg[75].d1;
-        DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
-        DMaps[index].midi = editdmap_dlg[83].d1;
+        DMaps[index].color = editdmap_cpy[65].d1;
+        DMaps[index].active_subscreen= editdmap_cpy[75].d1;
+        DMaps[index].passive_subscreen= editdmap_cpy[77].d1;
+        DMaps[index].midi = editdmap_cpy[83].d1;
         sprintf(DMaps[index].tmusic, "%s", tmusicstr);
         sprintf(DMaps[index].title,"%s",dmap_title);
         sprintf(DMaps[index].intro,"%s",dmap_intro);
-        DMaps[index].tmusictrack = editdmap_dlg[89].d1;
+        DMaps[index].tmusictrack = editdmap_cpy[89].d1;
         
         int f=0;
-        f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
-        f |= editdmap_dlg[111].flags & D_SELECTED ? dmf3STAIR:0;
-        f |= editdmap_dlg[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
-        f |= editdmap_dlg[113].flags & D_SELECTED ? dmfGUYCAVES:0;
-        f |= editdmap_dlg[114].flags & D_SELECTED ? dmfNOCOMPASS:0;
-        f |= editdmap_dlg[115].flags & D_SELECTED ? dmfWAVY:0;
-        f |= editdmap_dlg[116].flags & D_SELECTED ? dmfWHIRLWINDRET:0;
-        f |= editdmap_dlg[117].flags & D_SELECTED ? dmfALWAYSMSG:0;
-        f |= editdmap_dlg[118].flags & D_SELECTED ? dmfVIEWMAP:0;
-        f |= editdmap_dlg[119].flags & D_SELECTED ? dmfDMAPMAP:0;
-        f |= editdmap_dlg[120].flags & D_SELECTED ? dmfMINIMAPCOLORFIX:0;
+        f |= editdmap_cpy[110].flags & D_SELECTED ? dmfCAVES:0;
+        f |= editdmap_cpy[111].flags & D_SELECTED ? dmf3STAIR:0;
+        f |= editdmap_cpy[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
+        f |= editdmap_cpy[113].flags & D_SELECTED ? dmfGUYCAVES:0;
+        f |= editdmap_cpy[114].flags & D_SELECTED ? dmfNOCOMPASS:0;
+        f |= editdmap_cpy[115].flags & D_SELECTED ? dmfWAVY:0;
+        f |= editdmap_cpy[116].flags & D_SELECTED ? dmfWHIRLWINDRET:0;
+        f |= editdmap_cpy[117].flags & D_SELECTED ? dmfALWAYSMSG:0;
+        f |= editdmap_cpy[118].flags & D_SELECTED ? dmfVIEWMAP:0;
+        f |= editdmap_cpy[119].flags & D_SELECTED ? dmfDMAPMAP:0;
+        f |= editdmap_cpy[120].flags & D_SELECTED ? dmfMINIMAPCOLORFIX:0;
         
-        f |= editdmap_dlg[121].flags & D_SELECTED ? dmfSCRIPT1:0;
-        f |= editdmap_dlg[122].flags & D_SELECTED ? dmfSCRIPT2:0;
-        f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
-        f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
-        f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
+        f |= editdmap_cpy[121].flags & D_SELECTED ? dmfSCRIPT1:0;
+        f |= editdmap_cpy[122].flags & D_SELECTED ? dmfSCRIPT2:0;
+        f |= editdmap_cpy[123].flags & D_SELECTED ? dmfSCRIPT3:0;
+        f |= editdmap_cpy[124].flags & D_SELECTED ? dmfSCRIPT4:0;
+        f |= editdmap_cpy[125].flags & D_SELECTED ? dmfSCRIPT5:0;
         DMaps[index].flags = f;
     }
+	delete[] editdmap_cpy;
 }
 
 //int selectdmapxy[6] = {90,142,164,150,164,160};
@@ -13327,16 +13360,15 @@ int onDmaps()
     dmap_list_size=MAXDMAPS;
     number_list_zero=true;
     selectdmap_dlg[0].dp2=lfont;
-    
-    if(is_large())
-        large_dialog(selectdmap_dlg);
+
+	DIALOG *selectdmap_cpy = resizeDialog(selectdmap_dlg, 1.5);
         
-    ret=zc_popup_dialog(selectdmap_dlg,2);
+    ret=zc_popup_dialog(selectdmap_cpy,2);
     dmap* pSelectedDmap = 0;
     
     while(ret!=4&&ret!=0)
     {
-        int d=selectdmap_dlg[2].d1;
+        int d= selectdmap_cpy[2].d1;
         
         if(ret==6) //copy
 		{
@@ -13365,8 +13397,10 @@ int onDmaps()
             editdmap(d);
         }
         
-        ret=zc_popup_dialog(selectdmap_dlg,2);
+        ret=zc_popup_dialog(selectdmap_cpy,2);
     }
+
+	delete[] selectdmap_cpy;
     
     return D_O_K;
 }
@@ -13449,14 +13483,15 @@ void edit_tune(int i)
     strcpy(title,customtunes[i].title);
     
     editmidi_dlg[0].dp2=lfont;
+
+	DIALOG *editmidi_cpy = resizeDialog(editmidi_dlg, 1.5);
     
     if(is_large())
     {
-        large_dialog(editmidi_dlg);
-        editmidi_dlg[13].dp2 = font;
-        editmidi_dlg[12].dp2 = font;
-        editmidi_dlg[11].dp2 = font;
-        editmidi_dlg[10].dp2 = font;
+		editmidi_cpy[13].dp2 = font;
+		editmidi_cpy[12].dp2 = font;
+		editmidi_cpy[11].dp2 = font;
+		editmidi_cpy[10].dp2 = font;
     }
     
     do
@@ -13468,35 +13503,35 @@ void edit_tune(int i)
         sprintf(len_str,"%d",Midi_Info.len_beats);
         sprintf(pos_str,"%ld",midi_pos);
         
-        editmidi_dlg[3].dp = data?(void *) "Loaded":(void *) "Empty";
-        editmidi_dlg[5].dp = title;
-        editmidi_dlg[7].dp = volume_str;
-        editmidi_dlg[8].flags = loop?D_SELECTED:0;
-        editmidi_dlg[10].flags =
-            editmidi_dlg[11].flags =
-                editmidi_dlg[12].flags =
-                    editmidi_dlg[13].flags = (data==NULL)?D_DISABLED:D_EXIT;
-        editmidi_dlg[15].dp = start_str;
-        editmidi_dlg[17].dp = loop_start_str;
-        editmidi_dlg[19].dp = loop_end_str;
-        editmidi_dlg[21].dp = pos_str;
-        editmidi_dlg[23].dp = len_str;
-        editmidi_dlg[25].dp = timestr(Midi_Info.len_sec);
-        editmidi_dlg[26].flags = (flags&tfDISABLESAVE)?D_SELECTED:0;
+		editmidi_cpy[3].dp = data?(void *) "Loaded":(void *) "Empty";
+		editmidi_cpy[5].dp = title;
+		editmidi_cpy[7].dp = volume_str;
+		editmidi_cpy[8].flags = loop?D_SELECTED:0;
+		editmidi_cpy[10].flags =
+			editmidi_cpy[11].flags =
+			editmidi_cpy[12].flags =
+			editmidi_cpy[13].flags = (data==NULL)?D_DISABLED:D_EXIT;
+		editmidi_cpy[15].dp = start_str;
+		editmidi_cpy[17].dp = loop_start_str;
+		editmidi_cpy[19].dp = loop_end_str;
+		editmidi_cpy[21].dp = pos_str;
+		editmidi_cpy[23].dp = len_str;
+		editmidi_cpy[25].dp = timestr(Midi_Info.len_sec);
+		editmidi_cpy[26].flags = (flags&tfDISABLESAVE)?D_SELECTED:0;
         
-        DIALOG_PLAYER *p = init_dialog(editmidi_dlg,-1);
+        DIALOG_PLAYER *p = init_dialog(editmidi_cpy,-1);
         
         while(update_dialog(p))
         {
             //      text_mode(vc(1));
-            textprintf_ex(screen,is_large()? lfont_l : font,editmidi_dlg[0].x+int(193*(is_large()?1.5:1)),editmidi_dlg[0].y+int(58*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
+            textprintf_ex(screen,is_large()? lfont_l : font, editmidi_cpy[0].x+int(193*(is_large()?1.5:1)), editmidi_cpy[0].y+int(58*(is_large()?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
 			Backend::graphics->waitTick();
 			Backend::graphics->showBackBuffer();
         }
         
         ret = shutdown_dialog(p);
         
-        loop = editmidi_dlg[8].flags?1:0;
+        loop = editmidi_cpy[8].flags?1:0;
         volume = vbound(atoi(volume_str),0,255); // Allegro can't play louder than 255.
         
         start = vbound(atol(start_str),0,zc_max(Midi_Info.len_beats-4,0));
@@ -13509,7 +13544,7 @@ void edit_tune(int i)
         }
         
         flags = 0;
-        flags |= editmidi_dlg[26].flags&D_SELECTED?tfDISABLESAVE:0;
+        flags |= editmidi_cpy[26].flags&D_SELECTED?tfDISABLESAVE:0;
         
         switch(ret)
         {
@@ -13660,6 +13695,8 @@ void edit_tune(int i)
             destroy_midi((MIDI*)data);
         }
     }
+
+	delete[] editmidi_cpy;
 }
 
 int d_midilist_proc(int msg,DIALOG *d,int c)
@@ -13712,18 +13749,17 @@ int onMidis()
     strcpy(temppath,midipath);
     selectmidi_dlg[0].dp2=lfont;
 	custommidi_list.font = is_large() ? &lfont_l : &font;
+
+	DIALOG *selectmidi_cpy = resizeDialog(selectmidi_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(selectmidi_dlg);
-        
-    selectmidi_dlg[2].dp2 = 0;
+	selectmidi_cpy[2].dp2 = 0;
     
     go();
-    ret=zc_do_dialog(selectmidi_dlg,2);
+    ret=zc_do_dialog(selectmidi_cpy,2);
     
     while(ret!=4&&ret!=0)
     {
-        int d=selectmidi_dlg[2].d1;
+        int d= selectmidi_cpy[2].d1;
         
         if(ret==5)
         {
@@ -13740,8 +13776,10 @@ int onMidis()
             edit_tune(d);
         }
         
-        ret=zc_do_dialog(selectmidi_dlg,2);
+        ret=zc_do_dialog(selectmidi_cpy,2);
     }
+
+	delete[] selectmidi_cpy;
     
     comeback();
     return D_O_K;
@@ -14878,105 +14916,102 @@ int onTileWarp()
     //warp_dlg[10+i].d2 = 0;
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
+
+	DIALOG *warp_cpy = resizeDialog(warp_dlg, 1.5);
     
     if(is_large())
     {
-        large_dialog(warp_dlg);
-        
-        if(warp_dlg[0].d1<2)
-        {
-            warp_dlg[0].d1=2;
-            warp_dlg[6].x += 2;
-            warp_dlg[10].w -= 8;
-            warp_dlg[10].y -= 4;
-            warp_dlg[11].w -= 8;
-            warp_dlg[11].y -= 2;
-            warp_dlg[12].h -= 8;
-            warp_dlg[12].x -= 2;
-            warp_dlg[12].y -= 2;
-            warp_dlg[13].h -= 8;
-            warp_dlg[13].x += 1;
-            warp_dlg[13].y -= 2;
+		warp_cpy[0].d1=2;
+		warp_cpy[6].x += 2;
+		warp_cpy[10].w -= 8;
+		warp_cpy[10].y -= 4;
+		warp_cpy[11].w -= 8;
+		warp_cpy[11].y -= 2;
+		warp_cpy[12].h -= 8;
+		warp_cpy[12].x -= 2;
+		warp_cpy[12].y -= 2;
+		warp_cpy[13].h -= 8;
+		warp_cpy[13].x += 1;
+		warp_cpy[13].y -= 2;
             
-            warp_dlg[21].x += 2;
-            warp_dlg[25].w -= 8;
-            warp_dlg[25].y -= 4;
-            warp_dlg[26].w -= 8;
-            warp_dlg[26].y -= 2;
-            warp_dlg[27].h -= 8;
-            warp_dlg[27].x -= 2;
-            warp_dlg[27].y -= 2;
-            warp_dlg[28].h -= 8;
-            warp_dlg[28].x += 1;
-            warp_dlg[28].y -= 2;
+		warp_cpy[21].x += 2;
+		warp_cpy[25].w -= 8;
+		warp_cpy[25].y -= 4;
+		warp_cpy[26].w -= 8;
+		warp_cpy[26].y -= 2;
+		warp_cpy[27].h -= 8;
+		warp_cpy[27].x -= 2;
+		warp_cpy[27].y -= 2;
+		warp_cpy[28].h -= 8;
+		warp_cpy[28].x += 1;
+		warp_cpy[28].y -= 2;
             
-            warp_dlg[33].x += 2;
-            warp_dlg[37].w -= 8;
-            warp_dlg[37].y -= 4;
-            warp_dlg[38].w -= 8;
-            warp_dlg[38].y -= 2;
-            warp_dlg[39].h -= 8;
-            warp_dlg[39].x -= 2;
-            warp_dlg[39].y -= 2;
-            warp_dlg[40].h -= 8;
-            warp_dlg[40].x += 1;
-            warp_dlg[40].y -= 2;
+		warp_cpy[33].x += 2;
+		warp_cpy[37].w -= 8;
+		warp_cpy[37].y -= 4;
+		warp_cpy[38].w -= 8;
+		warp_cpy[38].y -= 2;
+		warp_cpy[39].h -= 8;
+		warp_cpy[39].x -= 2;
+		warp_cpy[39].y -= 2;
+		warp_cpy[40].h -= 8;
+		warp_cpy[40].x += 1;
+		warp_cpy[40].y -= 2;
             
-            warp_dlg[45].x += 2;
-            warp_dlg[49].w -= 8;
-            warp_dlg[49].y -= 4;
-            warp_dlg[50].w -= 8;
-            warp_dlg[50].y -= 2;
-            warp_dlg[51].h -= 8;
-            warp_dlg[51].x -= 2;
-            warp_dlg[51].y -= 2;
-            warp_dlg[52].h -= 8;
-            warp_dlg[52].x += 1;
-            warp_dlg[52].y -= 2;
-        }
+		warp_cpy[45].x += 2;
+		warp_cpy[49].w -= 8;
+		warp_cpy[49].y -= 4;
+		warp_cpy[50].w -= 8;
+		warp_cpy[50].y -= 2;
+		warp_cpy[51].h -= 8;
+		warp_cpy[51].x -= 2;
+		warp_cpy[51].y -= 2;
+		warp_cpy[52].h -= 8;
+		warp_cpy[52].x += 1;
+		warp_cpy[52].y -= 2;
         
         for(int i=0; i<4; i++)
         {
-            warp_dlg[i+67].x=493;
-            warp_dlg[i+67].y=329;
-            warp_dlg[i+67].w=64;
-            warp_dlg[i+67].h=32;
+			warp_cpy[i+67].x=493;
+			warp_cpy[i+67].y=329;
+			warp_cpy[i+67].w=64;
+			warp_cpy[i+67].h=32;
         }
     }
     
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int ret=zc_popup_dialog(warp_cpy,-1);
     
     if(ret==14 || ret==15)
     {
         saved=false;
         Map.CurrScr()->tilewarpscr[0] = xtoi(buf);
-        Map.CurrScr()->tilewarptype[0] = warp_dlg[7].d1;
-        Map.CurrScr()->tilewarpdmap[0] = warp_dlg[8].d1;
+        Map.CurrScr()->tilewarptype[0] = warp_cpy[7].d1;
+        Map.CurrScr()->tilewarpdmap[0] = warp_cpy[8].d1;
         Map.CurrScr()->tilewarpscr[1] = xtoi(buf2);
-        Map.CurrScr()->tilewarptype[1] = warp_dlg[22].d1;
-        Map.CurrScr()->tilewarpdmap[1] = warp_dlg[23].d1;
+        Map.CurrScr()->tilewarptype[1] = warp_cpy[22].d1;
+        Map.CurrScr()->tilewarpdmap[1] = warp_cpy[23].d1;
         Map.CurrScr()->tilewarpscr[2] = xtoi(buf3);
-        Map.CurrScr()->tilewarptype[2] = warp_dlg[34].d1;
-        Map.CurrScr()->tilewarpdmap[2] = warp_dlg[35].d1;
+        Map.CurrScr()->tilewarptype[2] = warp_cpy[34].d1;
+        Map.CurrScr()->tilewarpdmap[2] = warp_cpy[35].d1;
         Map.CurrScr()->tilewarpscr[3] = xtoi(buf4);
-        Map.CurrScr()->tilewarptype[3] = warp_dlg[46].d1;
-        Map.CurrScr()->tilewarpdmap[3] = warp_dlg[47].d1;
+        Map.CurrScr()->tilewarptype[3] = warp_cpy[46].d1;
+        Map.CurrScr()->tilewarpdmap[3] = warp_cpy[47].d1;
         
         Map.CurrScr()->tilewarpoverlayflags=0;
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,0,(warp_dlg[63].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,1,(warp_dlg[64].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,2,(warp_dlg[65].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->tilewarpoverlayflags,3,(warp_dlg[66].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->tilewarpoverlayflags,0,(warp_cpy[63].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->tilewarpoverlayflags,1,(warp_cpy[64].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->tilewarpoverlayflags,2,(warp_cpy[65].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->tilewarpoverlayflags,3,(warp_cpy[66].flags & D_SELECTED)?1:0);
         
         j=Map.CurrScr()->warpreturnc&0xFF00;
         word newWarpReturns=0;
-        newWarpReturns|=warp_dlg[60].d1;
+        newWarpReturns|= warp_cpy[60].d1;
         newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[58].d1;
+        newWarpReturns|= warp_cpy[58].d1;
         newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[56].d1;
+        newWarpReturns|= warp_cpy[56].d1;
         newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[54].d1;
+        newWarpReturns|= warp_cpy[54].d1;
         j|=newWarpReturns;
         Map.CurrScr()->warpreturnc = j;
         refresh(rMENU);
@@ -15009,6 +15044,8 @@ int onTileWarp()
         
         refresh(rALL);
     }
+
+	delete[] warp_cpy;
     
     warp_dlg[5].x = tempx5;
     warp_dlg[6].x = tempx6;
@@ -15134,87 +15171,84 @@ int onSideWarp()
     
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
+
+	DIALOG *warp_cpy = resizeDialog(warp_dlg, 1.5);
     
     if(is_large())
     {
-        large_dialog(warp_dlg);
-        
-        if(warp_dlg[0].d1<2)
-        {
-            warp_dlg[0].d1=2;
-            warp_dlg[6].x += 2;
-            warp_dlg[10].w -= 8;
-            warp_dlg[10].y -= 4;
-            warp_dlg[11].w -= 8;
-            warp_dlg[11].y -= 2;
-            warp_dlg[12].h -= 8;
-            warp_dlg[12].x -= 2;
-            warp_dlg[12].y -= 2;
-            warp_dlg[13].h -= 8;
-            warp_dlg[13].x += 1;
-            warp_dlg[13].y -= 2;
+		warp_cpy[0].d1=2;
+		warp_cpy[6].x += 2;
+		warp_cpy[10].w -= 8;
+		warp_cpy[10].y -= 4;
+		warp_cpy[11].w -= 8;
+		warp_cpy[11].y -= 2;
+		warp_cpy[12].h -= 8;
+		warp_cpy[12].x -= 2;
+		warp_cpy[12].y -= 2;
+		warp_cpy[13].h -= 8;
+		warp_cpy[13].x += 1;
+		warp_cpy[13].y -= 2;
             
-            warp_dlg[21].x += 2;
-            warp_dlg[25].w -= 8;
-            warp_dlg[25].y -= 4;
-            warp_dlg[26].w -= 8;
-            warp_dlg[26].y -= 2;
-            warp_dlg[27].h -= 8;
-            warp_dlg[27].x -= 2;
-            warp_dlg[27].y -= 2;
-            warp_dlg[28].h -= 8;
-            warp_dlg[28].x += 1;
-            warp_dlg[28].y -= 2;
+		warp_cpy[21].x += 2;
+		warp_cpy[25].w -= 8;
+		warp_cpy[25].y -= 4;
+		warp_cpy[26].w -= 8;
+		warp_cpy[26].y -= 2;
+		warp_cpy[27].h -= 8;
+		warp_cpy[27].x -= 2;
+		warp_cpy[27].y -= 2;
+		warp_cpy[28].h -= 8;
+		warp_cpy[28].x += 1;
+		warp_cpy[28].y -= 2;
             
-            warp_dlg[33].x += 2;
-            warp_dlg[37].w -= 8;
-            warp_dlg[37].y -= 4;
-            warp_dlg[38].w -= 8;
-            warp_dlg[38].y -= 2;
-            warp_dlg[39].h -= 8;
-            warp_dlg[39].x -= 2;
-            warp_dlg[39].y -= 2;
-            warp_dlg[40].h -= 8;
-            warp_dlg[40].x += 1;
-            warp_dlg[40].y -= 2;
+		warp_cpy[33].x += 2;
+		warp_cpy[37].w -= 8;
+		warp_cpy[37].y -= 4;
+		warp_cpy[38].w -= 8;
+		warp_cpy[38].y -= 2;
+		warp_cpy[39].h -= 8;
+		warp_cpy[39].x -= 2;
+		warp_cpy[39].y -= 2;
+		warp_cpy[40].h -= 8;
+		warp_cpy[40].x += 1;
+		warp_cpy[40].y -= 2;
             
-            warp_dlg[45].x += 2;
-            warp_dlg[49].w -= 8;
-            warp_dlg[49].y -= 4;
-            warp_dlg[50].w -= 8;
-            warp_dlg[50].y -= 2;
-            warp_dlg[51].h -= 8;
-            warp_dlg[51].x -= 2;
-            warp_dlg[51].y -= 2;
-            warp_dlg[52].h -= 8;
-            warp_dlg[52].x += 1;
-            warp_dlg[52].y -= 2;
-        }
+		warp_cpy[45].x += 2;
+		warp_cpy[49].w -= 8;
+		warp_cpy[49].y -= 4;
+		warp_cpy[50].w -= 8;
+		warp_cpy[50].y -= 2;
+		warp_cpy[51].h -= 8;
+		warp_cpy[51].x -= 2;
+		warp_cpy[51].y -= 2;
+		warp_cpy[52].h -= 8;
+		warp_cpy[52].x += 1;
+		warp_cpy[52].y -= 2;
     }
     
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int ret=zc_popup_dialog(warp_cpy,-1);
     
     if(ret==14 || ret==15)
     {
         saved=false;
         Map.CurrScr()->sidewarpscr[0] = xtoi(buf);
-        Map.CurrScr()->sidewarptype[0] = warp_dlg[7].d1;
-        Map.CurrScr()->sidewarpdmap[0] = warp_dlg[8].d1;
+        Map.CurrScr()->sidewarptype[0] = warp_cpy[7].d1;
+        Map.CurrScr()->sidewarpdmap[0] = warp_cpy[8].d1;
         Map.CurrScr()->sidewarpscr[1] = xtoi(buf2);
-        Map.CurrScr()->sidewarptype[1] = warp_dlg[22].d1;
-        Map.CurrScr()->sidewarpdmap[1] = warp_dlg[23].d1;
+        Map.CurrScr()->sidewarptype[1] = warp_cpy[22].d1;
+        Map.CurrScr()->sidewarpdmap[1] = warp_cpy[23].d1;
         Map.CurrScr()->sidewarpscr[2] = xtoi(buf3);
-        Map.CurrScr()->sidewarptype[2] = warp_dlg[34].d1;
-        Map.CurrScr()->sidewarpdmap[2] = warp_dlg[35].d1;
+        Map.CurrScr()->sidewarptype[2] = warp_cpy[34].d1;
+        Map.CurrScr()->sidewarpdmap[2] = warp_cpy[35].d1;
         Map.CurrScr()->sidewarpscr[3] = xtoi(buf4);
-        Map.CurrScr()->sidewarptype[3] = warp_dlg[46].d1;
-        Map.CurrScr()->sidewarpdmap[3] = warp_dlg[47].d1;
+        Map.CurrScr()->sidewarptype[3] = warp_cpy[46].d1;
+        Map.CurrScr()->sidewarpdmap[3] = warp_cpy[47].d1;
         
         Map.CurrScr()->sidewarpoverlayflags=0;
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,0,(warp_dlg[63].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,1,(warp_dlg[64].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,2,(warp_dlg[65].flags & D_SELECTED)?1:0);
-        set_bit(&Map.CurrScr()->sidewarpoverlayflags,3,(warp_dlg[66].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->sidewarpoverlayflags,0,(warp_cpy[63].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->sidewarpoverlayflags,1,(warp_cpy[64].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->sidewarpoverlayflags,2,(warp_cpy[65].flags & D_SELECTED)?1:0);
+        set_bit(&Map.CurrScr()->sidewarpoverlayflags,3,(warp_cpy[66].flags & D_SELECTED)?1:0);
         
         f=0;
         h=0;
@@ -15226,13 +15260,13 @@ int onSideWarp()
             //f |= warp_dlg[49+i].flags&D_SELECTED ? 1 : 0;
             //f |= warp_dlg[37+i].flags&D_SELECTED ? 1 : 0;
             //f |= warp_dlg[25+i].flags&D_SELECTED ? 1 : 0;
-            f |= warp_dlg[10+i].flags&D_SELECTED ? 1 : 0;
+            f |= warp_cpy[10+i].flags&D_SELECTED ? 1 : 0;
             int t=0;
             /*if(warp_dlg[10+i].flags&D_SELECTED) t=0;
               else if(warp_dlg[25+i].flags&D_SELECTED) t=1;
               else if(warp_dlg[37+i].flags&D_SELECTED) t=2;
               else if(warp_dlg[49+i].flags&D_SELECTED) t=3;*/
-            t=warp_dlg[10+i].d2&3;
+            t= warp_cpy[10+i].d2&3;
             h|=t;
         }
         
@@ -15242,13 +15276,13 @@ int onSideWarp()
         
         j=Map.CurrScr()->warpreturnc&0x00FF;
         word newWarpReturns=0;
-        newWarpReturns|=warp_dlg[60].d1;
+        newWarpReturns|= warp_cpy[60].d1;
         newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[58].d1;
+        newWarpReturns|= warp_cpy[58].d1;
         newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[56].d1;
+        newWarpReturns|= warp_cpy[56].d1;
         newWarpReturns<<=2;
-        newWarpReturns|=warp_dlg[54].d1;
+        newWarpReturns|= warp_cpy[54].d1;
         newWarpReturns<<=8;
         j|=newWarpReturns;
         Map.CurrScr()->warpreturnc = j;
@@ -15281,6 +15315,8 @@ int onSideWarp()
         
         refresh(rALL);
     }
+
+	delete[] warp_cpy;
     
     return D_O_K;
 }
@@ -15337,19 +15373,18 @@ int onPath()
         path_dlg[i+7].d1 = Map.CurrScr()->path[i];
         
     path_dlg[11].d1 = Map.CurrScr()->exitdir;
+
+	DIALOG *path_cpy = resizeDialog(path_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(path_dlg);
-        
     int ret;
     
     do
     {
-        ret=zc_popup_dialog(path_dlg,7);
+        ret=zc_popup_dialog(path_cpy,7);
         
         if(ret==12) for(int i=0; i<4; i++)
             {
-                if(path_dlg[i+7].d1 == path_dlg[11].d1)
+                if(path_cpy[i+7].d1 == path_cpy[11].d1)
                 {
                     if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
                         ret = -1;
@@ -15365,14 +15400,16 @@ int onPath()
         saved=false;
         
         for(int i=0; i<4; i++)
-            Map.CurrScr()->path[i] = path_dlg[i+7].d1;
+            Map.CurrScr()->path[i] = path_cpy[i+7].d1;
             
-        Map.CurrScr()->exitdir = path_dlg[11].d1;
+        Map.CurrScr()->exitdir = path_cpy[11].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
             if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',lfont)==1)
                 Map.CurrScr()->flags |= fMAZE;
     }
+	
+	delete[] path_cpy;
     
     refresh(rMAP+rMENU);
     return D_O_K;
@@ -15439,11 +15476,10 @@ void EditInfoType(int index)
     editinfo_dlg[9].dp  =
         editinfo_dlg[11].dp =
             editinfo_dlg[13].dp = (void *) &msgs_list;
+
+	DIALOG *editinfo_cpy = resizeDialog(editinfo_dlg, 1.5);
             
-    if(is_large())
-        large_dialog(editinfo_dlg);
-        
-    int ret = zc_popup_dialog(editinfo_dlg,-1);
+    int ret = zc_popup_dialog(editinfo_cpy,-1);
     
     if(ret==16)
     {
@@ -15452,9 +15488,9 @@ void EditInfoType(int index)
         misc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
         misc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
         snprintf(misc.info[index].name,32,"%s",infoname);
-        str1 = editinfo_dlg[9].d1;
-        str2 = editinfo_dlg[11].d1;
-        str3 = editinfo_dlg[13].d1;
+        str1 = editinfo_cpy[9].d1;
+        str2 = editinfo_cpy[11].d1;
+        str3 = editinfo_cpy[13].d1;
         misc.info[index].str[0] = msg_at_pos(str1);
         misc.info[index].str[1] = msg_at_pos(str2);
         misc.info[index].str[2] = msg_at_pos(str3);
@@ -15500,6 +15536,8 @@ void EditInfoType(int index)
             misc.info[index].price[2] = swaptmp;
         }
     }
+
+	delete[] editinfo_cpy;
 }
 
 int onInfoTypes()
@@ -15594,11 +15632,10 @@ void EditShopType(int index)
             editshop_dlg[9+(i<<1)].d1 = -2;
         }
     }
+
+	DIALOG *editshop_cpy = resizeDialog(editshop_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(editshop_dlg);
-        
-    int ret = zc_popup_dialog(editshop_dlg,-1);
+    int ret = zc_popup_dialog(editshop_cpy,-1);
     
     if(ret==16)
     {
@@ -15610,7 +15647,7 @@ void EditShopType(int index)
         
         for(int i=0; i<3; ++i)
         {
-            if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
+            if(bii[editshop_cpy[9+(i<<1)].d1].i == -2)
             {
                 misc.shop[index].hasitem[i] = 0;
                 misc.shop[index].item[i] = 0;
@@ -15619,7 +15656,7 @@ void EditShopType(int index)
             else
             {
                 misc.shop[index].hasitem[i] = 1;
-                misc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
+                misc.shop[index].item[i] = bii[editshop_cpy[9+(i<<1)].d1].i;
             }
         }
         
@@ -15645,6 +15682,8 @@ void EditShopType(int index)
             }
         }
     }
+
+	delete[] editshop_cpy;
 }
 
 int onShopTypes()
@@ -15718,7 +15757,7 @@ static DIALOG edititemdropset_dlg[] =
     { jwin_text_proc,      9,   29,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
     { jwin_edit_proc,     39,   25,  275,   16,  vc(12),              vc(1),                  0,           0,    32,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      9,   47,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Nothing Chance:", NULL, NULL },
-    { d_itemdropedit_proc,     84,   43,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,     84,   43,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     
     { jwin_tab_proc,       4,   65,  312,   143, vc(0),               vc(15),                 0,           0,     0,             0, (void *) edititemdropset_tabs,                    NULL, (void *)edititemdropset_dlg },
     { jwin_text_proc,     114,   43+4,   26,   16,   vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
@@ -15729,35 +15768,35 @@ static DIALOG edititemdropset_dlg[] =
     { jwin_text_proc,     56,   87,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Item:", NULL, NULL },
     
     // 14
-    { d_itemdropedit_proc,      9,   96,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,   96,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,   96,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,   96+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  118,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  118,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  118,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,  118+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  140,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  140,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  140,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,  140+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  162,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  162,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  162,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       37,  162+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       37,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
 // 29
-    { d_itemdropedit_proc,      9,   96,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,   96,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,   96,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,   96+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  118,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  118,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  118,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  118+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  140,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  140,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  140,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  140+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  162,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  162,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  162,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  162+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
     { d_idroplist_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL, NULL,  NULL }
@@ -15766,27 +15805,28 @@ static DIALOG edititemdropset_dlg[] =
 int d_itemdropedit_proc(int msg,DIALOG *d,int c)
 {
     int ret = jwin_edit_proc(msg,d,c);
+	DIALOG *parent = (DIALOG *)d->dp3;
     
     if(msg==MSG_DRAW)
     {
-        int t = atoi((char*)edititemdropset_dlg[7].dp);
+        int t = atoi((char*)parent[7].dp);
         
         for(int i=0; i<10; ++i)
         {
-            t += atoi((char*)edititemdropset_dlg[14+(i*3)].dp);
+            t += atoi((char*)parent[14+(i*3)].dp);
         }
         
         {
-            int t2 = (int)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
-            sprintf((char*)edititemdropset_dlg[9].dp,"%d%%%s",t2, is_large() && t2 <= 11 ? " ":"");
-            object_message(&edititemdropset_dlg[9],MSG_DRAW,c);
+            int t2 = (int)(100*atoi((char*)parent[7].dp) / zc_max(t,1));
+            sprintf((char*)parent[9].dp,"%d%%%s",t2, is_large() && t2 <= 11 ? " ":"");
+            object_message(&parent[9],MSG_DRAW,c);
         }
         
         for(int i=0; i<10; ++i)
         {
-            int t2 = (int)(100*atoi((char*)edititemdropset_dlg[14+(i*3)].dp) / zc_max(t,1));
-            sprintf((char*)edititemdropset_dlg[16+(i*3)].dp,"%d%%%s",t2, is_large() && t2 <= 11 ? " ":"");
-            object_message(&edititemdropset_dlg[16+(i*3)],MSG_DRAW,c);
+            int t2 = (int)(100*atoi((char*)parent[14+(i*3)].dp) / zc_max(t,1));
+            sprintf((char*)parent[16+(i*3)].dp,"%d%%%s",t2, is_large() && t2 <= 11 ? " ":"");
+            object_message(&parent[16+(i*3)],MSG_DRAW,c);
         }
         
     }
@@ -15839,11 +15879,10 @@ void EditItemDropSet(int index)
             }
         }
     }
+
+	DIALOG *edititemdropset_cpy = resizeDialog(edititemdropset_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(edititemdropset_dlg);
-        
-    int ret = zc_popup_dialog(edititemdropset_dlg,-1);
+    int ret = zc_popup_dialog(edititemdropset_cpy,-1);
     
     if(ret==2)
     {
@@ -15857,13 +15896,13 @@ void EditItemDropSet(int index)
         {
             item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
             
-            if(bii[edititemdropset_dlg[15+(i*3)].d1].i == -2)
+            if(bii[edititemdropset_cpy[15+(i*3)].d1].i == -2)
             {
                 item_drop_sets[index].chance[i+1]=0;
             }
             else
             {
-                item_drop_sets[index].item[i] = bii[edititemdropset_dlg[15+(i*3)].d1].i;
+                item_drop_sets[index].item[i] = bii[edititemdropset_cpy[15+(i*3)].d1].i;
             }
             
             if(item_drop_sets[index].chance[i+1]==0)
@@ -15872,6 +15911,8 @@ void EditItemDropSet(int index)
             }
         }
     }
+
+	delete[] edititemdropset_cpy;
 }
 
 int count_item_drop_sets()
@@ -16027,16 +16068,15 @@ void EditWarpRingScr(int ring,int index)
         
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
+
+	DIALOG *warp_cpy = resizeDialog(warp_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(warp_dlg);
-        
-    int ret=zc_popup_dialog(warp_dlg,-1);
+    int ret=zc_popup_dialog(warp_cpy,-1);
     
     if(ret==14 || ret==15)
     {
         saved=false;
-        misc.warp[ring].dmap[index] = warp_dlg[8].d1;
+        misc.warp[ring].dmap[index] = warp_cpy[8].d1;
         misc.warp[ring].scr[index] = xtoi(buf);
     }
     
@@ -16045,6 +16085,8 @@ void EditWarpRingScr(int ring,int index)
         Map.dowarp2(ring,index);
         refresh(rALL);
     }
+
+	delete[] warp_cpy;
     
     warp_dlg[5].x = tempx5;
     warp_dlg[6].x = tempx6;
@@ -16057,27 +16099,7 @@ void EditWarpRingScr(int ring,int index)
     {
         warp_dlg[m].x=tempx[m-17];
     }
-    
-    /*warp_dlg[20].x = tempx20;
-      warp_dlg[21].x = tempx21;
-      warp_dlg[25].x = tempx25;
-      warp_dlg[26].x = tempx26;
-      warp_dlg[27].x = tempx27;
-      warp_dlg[28].x = tempx28;
-    
-      warp_dlg[32].x = tempx32;
-      warp_dlg[33].x = tempx33;
-      warp_dlg[37].x = tempx37;
-      warp_dlg[38].x = tempx38;
-      warp_dlg[39].x = tempx39;
-      warp_dlg[40].x = tempx40;
-    
-      warp_dlg[44].x = tempx44;
-      warp_dlg[45].x = tempx45;
-      warp_dlg[49].x = tempx49;
-      warp_dlg[50].x = tempx50;
-      warp_dlg[51].x = tempx51;
-      warp_dlg[52].x = tempx52;*/
+        
     for(int i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0x80;
@@ -16194,24 +16216,27 @@ int select_warp()
     number_list_zero = false;
     
     int ret=4;
+
+	DIALOG *warpring_cpy = resizeDialog(warpring_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(warpring_dlg);
-        
     do
     {
         number_list_size = misc.warp[curr_ring].size;
-        warpring_dlg[3].d1 = misc.warp[curr_ring].size-3;
-        ret = zc_popup_dialog(warpring_dlg,ret);
+		warpring_cpy[3].d1 = misc.warp[curr_ring].size-3;
+        ret = zc_popup_dialog(warpring_cpy,ret);
     }
     while(ret==3);
     
     if(ret==6 || ret==0)
     {
+		delete[] warpring_cpy;
         return -1;
     }
-    
-    return warpring_dlg[4].d1;
+
+	int retval = warpring_cpy[4].d1;
+	delete[] warpring_cpy;
+
+    return retval;
 }
 
 void EditWarpRing(int ring)
@@ -16289,15 +16314,16 @@ int onPattern()
     byte p=Map.CurrScr()->pattern;
     pattern_dlg[0].dp2 = lfont;
     pattern_dlg[2].d1  = p;
+
+	DIALOG *pattern_cpy = resizeDialog(pattern_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(pattern_dlg);
-        
-    if(zc_popup_dialog(pattern_dlg,2) < 4)
+    if(zc_popup_dialog(pattern_cpy,2) < 4)
     {
         saved=false;
-        Map.CurrScr()->pattern = pattern_dlg[2].d1;
+        Map.CurrScr()->pattern = pattern_cpy[2].d1;
     }
+
+	delete[] pattern_cpy;
     
     refresh(rMENU);
     return D_O_K;
@@ -16610,38 +16636,40 @@ int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit
     elist_dlg[2].d1=index;
     ListData enemy_list(enemylist, &font);
     elist_dlg[2].dp=(void *) &enemy_list;
+
+	DIALOG *elist_cpy = resizeDialog(elist_dlg, 1.5);
     
-    if(is_large()) large_dialog(elist_dlg);
-    
-    if(is_editor)
+	if(is_editor)
     {
-        elist_dlg[2].dp3 = (void *)&elist_rclick_func;
-        elist_dlg[2].flags|=(D_USER<<1);
-        elist_dlg[3].dp = (void *)"Edit";
-        elist_dlg[4].dp = (void *)"Done";
-        elist_dlg[3].x = is_large()?285:90;
-        elist_dlg[4].x = is_large()?405:170;
-        elist_dlg[5].flags |= D_HIDDEN;
+		elist_cpy[2].dp3 = (void *)&elist_rclick_func;
+		elist_cpy[2].flags|=(D_USER<<1);
+		elist_cpy[3].dp = (void *)"Edit";
+		elist_cpy[4].dp = (void *)"Done";
+		elist_cpy[3].x = is_large()?285:90;
+		elist_cpy[4].x = is_large()?405:170;
+		elist_cpy[5].flags |= D_HIDDEN;
     }
     else
     {
-        elist_dlg[2].dp3 = NULL;
-        elist_dlg[2].flags&=~(D_USER<<1);
-        elist_dlg[3].dp = (void *)"OK";
-        elist_dlg[4].dp = (void *)"Cancel";
-        elist_dlg[3].x = is_large()?240:60;
-        elist_dlg[4].x = is_large()?350:135;
-        elist_dlg[5].flags &= ~D_HIDDEN;
+		elist_cpy[2].dp3 = NULL;
+		elist_cpy[2].flags&=~(D_USER<<1);
+		elist_cpy[3].dp = (void *)"OK";
+		elist_cpy[4].dp = (void *)"Cancel";
+		elist_cpy[3].x = is_large()?240:60;
+		elist_cpy[4].x = is_large()?350:135;
+		elist_cpy[5].flags &= ~D_HIDDEN;
     }
     
-    exit_status=zc_popup_dialog(elist_dlg,2);
+    exit_status=zc_popup_dialog(elist_cpy,2);
     
     if(exit_status==0||exit_status==4)
     {
+		delete[] elist_cpy;
         return -1;
     }
     
-    index = elist_dlg[2].d1;
+    index = elist_cpy[2].d1;
+	delete[] elist_cpy;
     return bie[index].i;
 }
 
@@ -16667,19 +16695,18 @@ int select_guy(const char *prompt,int guy)
     glist_dlg[2].d1=index;
     ListData guy_list(guylist, &font);
     glist_dlg[2].dp=(void *) &guy_list;
+
+	DIALOG *glist_cpy = resizeDialog(glist_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(glist_dlg);
-        
     int ret;
     
     do
     {
-        ret=zc_popup_dialog(glist_dlg,2);
+        ret=zc_popup_dialog(glist_cpy,2);
         
         if(ret==5)
         {
-            int id = big[glist_dlg[2].d1].i;
+            int id = big[glist_cpy[2].d1].i;
             
             switch(id)
             {
@@ -16733,11 +16760,13 @@ int select_guy(const char *prompt,int guy)
     
     if(ret==0||ret==4)
     {
+		delete[] glist_cpy;
         return -1;
     }
     
     
-    index = glist_dlg[2].d1;
+    index = glist_cpy[2].d1;
+	delete[] glist_cpy;
     return big[index].i;
 }
 
@@ -16791,35 +16820,35 @@ int onEnemies()
     
     enemy_dlg[3].dp=buf;
     enemy_dlg[2].d1=0;
+
+	DIALOG *enemy_cpy = resizeDialog(enemy_dlg, 1.5);
     
     do
     {
         if(copy==-1)
         {
-            enemy_dlg[13].y=Backend::graphics->virtualScreenH();
+			enemy_cpy[13].y=Backend::graphics->virtualScreenH();
         }
         else
         {
-            enemy_dlg[13].y=(int)((copy<<3)*(is_large()?1.6:1))+enemy_dlg[2].y+4;
+			enemy_cpy[13].y=(int)((copy<<3)*(is_large()?1.6:1))+ enemy_cpy[2].y+4;
         }
         
         if(is_large())
         {
-            large_dialog(enemy_dlg);
             // Fix d_enelist_proc
-            enemy_dlg[2].dp2 = 0;
-            //((ListData *)enemy_dlg[2].dp)->font = &sfont3;
-            ((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
+			enemy_cpy[2].dp2 = 0;
+            ((ListData *)enemy_cpy[2].dp)->font = &lfont_l;
         }
         
-        ret = zc_do_dialog(enemy_dlg,2);
+        ret = zc_do_dialog(enemy_cpy,2);
         
         switch(ret)
         {
         case 2:
         {
             int exit_status;
-            int i = enemy_dlg[2].d1;
+            int i = enemy_cpy[2].d1;
             
             do
             {
@@ -16857,7 +16886,7 @@ int onEnemies()
             break;
             
         case 7:
-            copy = enemy_dlg[2].d1;
+            copy = enemy_cpy[2].d1;
             break;
             
         case 8:
@@ -16865,14 +16894,14 @@ int onEnemies()
             
             if(copy>=0)
             {
-                Map.CurrScr()->enemy[enemy_dlg[2].d1] = Map.CurrScr()->enemy[copy];
+                Map.CurrScr()->enemy[enemy_cpy[2].d1] = Map.CurrScr()->enemy[copy];
             }
             
             break;
             
         case 9:
             saved=false;
-            Map.CurrScr()->enemy[enemy_dlg[2].d1] = 0;
+            Map.CurrScr()->enemy[enemy_cpy[2].d1] = 0;
             break;
             
         case 0:
@@ -16902,6 +16931,8 @@ int onEnemies()
         }
     }
     while(ret<10&&ret!=0);
+	
+	delete[] enemy_cpy;
     
     refresh(rALL);
     return D_O_K;
@@ -17007,26 +17038,23 @@ int onHeader()
     memset(pwd,0,256);
     password_dlg[3].dp=pwd;
     password_dlg[4].flags=header.use_keyfile?D_SELECTED:0;
-    
-    if(is_large())
-    {
-        large_dialog(header_dlg);
-        large_dialog(password_dlg);
-    }
+
+	DIALOG *header_cpy = resizeDialog(header_dlg, 1.5);
+	DIALOG *password_cpy = resizeDialog(password_dlg, 1.5);
     
     int ret;
     
     do
     {
-        ret=zc_popup_dialog(header_dlg,-1);
+        ret=zc_popup_dialog(header_cpy,-1);
         
         if(ret==16)
         {
-            ret=zc_popup_dialog(password_dlg,-1);
+            ret=zc_popup_dialog(password_cpy,-1);
             
             if(ret==5)
             {
-                header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
+                header.use_keyfile= password_cpy[4].flags&D_SELECTED?1:0;
                 set_questpwd(pwd,header.use_keyfile!=0);
             }
             
@@ -17051,16 +17079,18 @@ int onHeader()
     {
         for(int i=6; i<19; ++i)
         {
-            header_dlg[i].y+=18;
+			header_dlg[i].y+=18;
         }
         
-        header_dlg[0].h+=18;
-        header_dlg[4].proc=jwin_text_proc;
-        header_dlg[5].proc=jwin_edit_proc;
+		header_dlg[0].h+=18;
+		header_dlg[4].proc=jwin_text_proc;
+		header_dlg[5].proc=jwin_edit_proc;
     }
     
-    jwin_center_dialog(header_dlg);
+    jwin_center_dialog(header_cpy);
     
+	delete[] header_cpy;
+	delete[] password_cpy;
     return D_O_K;
 }
 
@@ -17097,19 +17127,18 @@ int onCheats()
     cheats_dlg[0].dp2=lfont;
     tmpcheats = zcheats;
     cheats_dlg[5].flags = zcheats.flags ? D_SELECTED : 0;
-    
-    if(is_large())
-        large_dialog(cheats_dlg);
+
+	DIALOG *cheats_cpy = resizeDialog(cheats_dlg, 1.5);
         
-    int ret = zc_popup_dialog(cheats_dlg, 3);
+    int ret = zc_popup_dialog(cheats_cpy, 3);
     
     if(ret == 2)
     {
         saved = false;
         zcheats = tmpcheats;
-        zcheats.flags = (cheats_dlg[5].flags & D_SELECTED) ? 1 : 0;
+        zcheats.flags = (cheats_cpy[5].flags & D_SELECTED) ? 1 : 0;
     }
-    
+	delete[] cheats_cpy;
     return D_O_K;
 }
 
@@ -17145,17 +17174,16 @@ int onSubscreen()
     int tempsubscreen=zinit.subscreen;
     subscreen_type_dlg[0].dp2=lfont;
     subscreen_type_dlg[3].d1=zinit.subscreen;
+
+	DIALOG *subscreen_type_cpy = resizeDialog(subscreen_type_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(subscreen_type_dlg);
-        
-    int ret = zc_popup_dialog(subscreen_type_dlg,2);
+    int ret = zc_popup_dialog(subscreen_type_cpy,2);
     
     if(ret==1)
     {
-        if(subscreen_type_dlg[3].d1!=tempsubscreen)
+        if(subscreen_type_cpy[3].d1!=tempsubscreen)
         {
-            zinit.subscreen=subscreen_type_dlg[3].d1;
+            zinit.subscreen= subscreen_type_cpy[3].d1;
             
             if(zinit.subscreen!=ssdtMAX)  //custom
             {
@@ -17164,6 +17192,7 @@ int onSubscreen()
                     if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,lfont)==2)
                     {
                         zinit.subscreen=ssdtMAX;
+						delete[] subscreen_type_cpy;
                         return D_O_K;
                     }
                 }
@@ -17176,6 +17205,7 @@ int onSubscreen()
         }
     }
     
+	delete[] subscreen_type_cpy;
     return D_O_K;
 }
 
@@ -17731,16 +17761,19 @@ int onOrgComboAliases()
     orgcomboa_dlg[0].dp2=lfont;
     orgcomboa_dlg[6].dp= cSrc;
     orgcomboa_dlg[7].dp= cDest;
+
+	DIALOG *orgcomboa_cpy = resizeDialog(orgcomboa_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(orgcomboa_dlg);
-        
-    int ret = zc_popup_dialog(orgcomboa_dlg,-1);
+    int ret = zc_popup_dialog(orgcomboa_cpy,-1);
     
-    if(ret!=1) return ret;
+	if (ret != 1)
+	{
+		delete[] orgcomboa_cpy;
+		return ret;
+	}
     
-    iSrc=atoi((char*) orgcomboa_dlg[6].dp);
-    iDest=atoi((char*) orgcomboa_dlg[7].dp);
+    iSrc=atoi((char*)orgcomboa_cpy[6].dp);
+    iDest=atoi((char*)orgcomboa_cpy[7].dp);
     
     if(iSrc<0 || iSrc > MAXCOMBOALIASES-1)
     {
@@ -17748,27 +17781,29 @@ int onOrgComboAliases()
         snprintf(buf, 60, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
         buf[59]='\0';
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		delete[] orgcomboa_cpy;
         return ret;
     }
     
     // 10,11=ins, del
-    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
+    if(orgcomboa_cpy[10].flags & D_SELECTED)  //insert
     {
         for(int j=MAXCOMBOALIASES-1; j>iSrc; --j)  copyComboAlias(j-1,j);
-        
+		delete[] orgcomboa_cpy;
         return ret;
     }
     
-    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
+    if(orgcomboa_cpy[11].flags & D_SELECTED)  //delete
     {
         for(int j=iSrc; j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
-        
+		delete[] orgcomboa_cpy;
         return ret;
     }
     
     if(iSrc == iDest)
     {
         jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		delete[] orgcomboa_cpy;
         return ret;
     }
     
@@ -17779,19 +17814,21 @@ int onOrgComboAliases()
         buf[59]='\0';
         
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		delete[] orgcomboa_cpy;
         return ret;
     }
     
-    if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
+    if(orgcomboa_cpy[3].flags & D_SELECTED)  //copy
     {
         copyComboAlias(iSrc,iDest);
     }
     
-    if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
+    if(orgcomboa_cpy[5].flags & D_SELECTED)  //swap
     {
         swapComboAlias(iSrc,iDest);
     }
     
+	delete[] orgcomboa_cpy;
     
     return ret;
 }
@@ -17829,22 +17866,22 @@ int onNewComboAlias()
     newcomboa_dlg[11].flags = (combo->layermask&8)? D_SELECTED : 0;
     newcomboa_dlg[12].flags = (combo->layermask&16)? D_SELECTED : 0;
     newcomboa_dlg[13].flags = (combo->layermask&32)? D_SELECTED : 0;
+
+	DIALOG *newcomboa_cpy = resizeDialog(newcomboa_dlg, 1.5);
     
-    if(is_large()) large_dialog(newcomboa_dlg);
-    
-    int ret = zc_popup_dialog(newcomboa_dlg,-1);
+    int ret = zc_popup_dialog(newcomboa_cpy,-1);
     
     if(ret==1)
     {
         combo->width = ((atoi(cwidth)-1)<16)?zc_max(0,(atoi(cwidth)-1)):15;
         combo->height = ((atoi(cheight)-1)<11)?zc_max(0,(atoi(cheight)-1)):10;
         combo->layermask=0;
-        combo->layermask |= (newcomboa_dlg[8].flags&D_SELECTED)?1:0;
-        combo->layermask |= (newcomboa_dlg[9].flags&D_SELECTED)?2:0;
-        combo->layermask |= (newcomboa_dlg[10].flags&D_SELECTED)?4:0;
-        combo->layermask |= (newcomboa_dlg[11].flags&D_SELECTED)?8:0;
-        combo->layermask |= (newcomboa_dlg[12].flags&D_SELECTED)?16:0;
-        combo->layermask |= (newcomboa_dlg[13].flags&D_SELECTED)?32:0;
+        combo->layermask |= (newcomboa_cpy[8].flags&D_SELECTED)?1:0;
+        combo->layermask |= (newcomboa_cpy[9].flags&D_SELECTED)?2:0;
+        combo->layermask |= (newcomboa_cpy[10].flags&D_SELECTED)?4:0;
+        combo->layermask |= (newcomboa_cpy[11].flags&D_SELECTED)?8:0;
+        combo->layermask |= (newcomboa_cpy[12].flags&D_SELECTED)?16:0;
+        combo->layermask |= (newcomboa_cpy[13].flags&D_SELECTED)?32:0;
         
         int new_count = (comboa_lmasktotal(combo->layermask)+1)*(combo->width+1)*(combo->height+1);
         
@@ -18020,6 +18057,8 @@ int onNewComboAlias()
           al_trace("src: %i, dest: %i\n", getcurrentcomboalias(),atoi((char*) newcomboa_dlg[15].dp));
         }*/
     }
+
+	delete[] newcomboa_cpy;
     
     return ret;
 }
@@ -18326,32 +18365,28 @@ int onEditComboAlias()
     editcomboa_dlg[0].dp2 = lfont;
     set_comboaradio(temp_aliases[comboa_cnt].layermask);
     editcomboa_dlg[5].d1 = comboa_cnt;
+
+	DIALOG *editcomboa_cpy = resizeDialog(editcomboa_dlg, 2.0);
     
     if(is_large())
     {
-        bool small_d1 = editcomboa_dlg[0].d1==0;
-        large_dialog(editcomboa_dlg,2);
-        
-        if(small_d1)
+        for(int i=6; i<=12; i++)
         {
-            for(int i=6; i<=12; i++)
-            {
-                editcomboa_dlg[i].w=30*1.5;
-                editcomboa_dlg[i].h=9*1.5;
-            }
-            
-            editcomboa_dlg[13].w=17*1.5;
-            editcomboa_dlg[13].h=9*1.5;
-            editcomboa_dlg[4].w=81*1.5;
-            editcomboa_dlg[4].h=21*1.5;
-            editcomboa_dlg[4].dp2=lfont_l;
-            editcomboa_dlg[21].w=21*1.5;
-            editcomboa_dlg[21].h=21*1.5;
-            editcomboa_dlg[21].dp2=lfont_l;
+			editcomboa_cpy[i].w=30*1.5;
+			editcomboa_cpy[i].h=9*1.5;
         }
+            
+		editcomboa_cpy[13].w=17*1.5;
+		editcomboa_cpy[13].h=9*1.5;
+		editcomboa_cpy[4].w=81*1.5;
+		editcomboa_cpy[4].h=21*1.5;
+		editcomboa_cpy[4].dp2=lfont_l;
+		editcomboa_cpy[21].w=21*1.5;
+		editcomboa_cpy[21].h=21*1.5;
+		editcomboa_cpy[21].dp2=lfont_l;
     }
     
-    int ret=zc_popup_dialog(editcomboa_dlg,-1);
+    int ret=zc_popup_dialog(editcomboa_cpy,-1);
     
     if(ret==1)
     {
@@ -18388,6 +18423,8 @@ int onEditComboAlias()
             //memcpy(combo_aliases[i].csets,temp_aliases[i].csets,sizeof(byte)*tcount);
         }
     }
+
+	delete[] editcomboa_cpy;
     
     setup_combo_animations();
     setup_combo_animations2();
@@ -18436,7 +18473,7 @@ static DIALOG ffcombo_sel_dlg[] =
     { jwin_win_proc,        0,    0,  200,   179,  vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Freeform Combo", NULL, NULL },
     { jwin_button_proc,     35,   152,   61,   21,  vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { jwin_button_proc,    104,   152,   61,   21,  vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { d_ffcombolist_proc,  11,   24,   49,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &ffcombo_list, NULL, NULL },
+    { d_ffcombolist_proc,  11,   24,   49,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &ffcombo_list, NULL, (void *)ffcombo_sel_dlg },
     { d_comboframe_proc,   68,  23,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_bitmap_proc,     70,  25,   16,   16,   0,       0,      0,       0,             0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
@@ -18445,10 +18482,11 @@ static DIALOG ffcombo_sel_dlg[] =
 
 int d_ffcombolist_proc(int msg,DIALOG *d,int c)
 {
+	DIALOG *parent = (DIALOG *)d->dp3;
     int ret = jwin_droplist_proc(msg,d,c);
     int d1 = d->d1;
-    int x=ffcombo_sel_dlg[0].x;
-    int y=ffcombo_sel_dlg[0].y;
+    int x= parent[0].x;
+    int y= parent[0].y;
     FONT *tempfont=(is_large()?font:spfont);
     int x2=text_length(tempfont, "Move Delay:")+4;
     
@@ -18467,7 +18505,7 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
             destroy_bitmap(buf);
         }
         
-        object_message(&ffcombo_sel_dlg[5],MSG_DRAW,0);
+        object_message(&parent[5],MSG_DRAW,0);
         
         int xd = x+int(68*(is_large()?1.5:1));
         int y2 = y+int(55*(is_large()?1.5:1));
@@ -18532,28 +18570,24 @@ int onSelectFFCombo()
     
     putcombo(ffcur,0,0,Map.CurrScr()->ffdata[ff_combo],Map.CurrScr()->ffcset[ff_combo]);
     ffcombo_sel_dlg[5].dp = ffcur;
+
+	DIALOG *ffcombo_sel_cpy = resizeDialog(ffcombo_sel_dlg, 1.5);
     
     if(is_large())
     {
-        bool resize = !(ffcombo_sel_dlg[0].d1);
-        large_dialog(ffcombo_sel_dlg);
-        
-        if(resize)
-        {
-            ffcombo_sel_dlg[5].x--;
-            ffcombo_sel_dlg[5].y--;
-        }
+		ffcombo_sel_cpy[5].x--;
+		ffcombo_sel_cpy[5].y--;
     }
     
-    int ret=zc_popup_dialog(ffcombo_sel_dlg,0);
+    int ret=zc_popup_dialog(ffcombo_sel_cpy,0);
     
     while(ret==1)
     {
-        ff_combo = ffcombo_sel_dlg[3].d1;
+        ff_combo = ffcombo_sel_cpy[3].d1;
         onEditFFCombo(ff_combo);
-        ret=zc_popup_dialog(ffcombo_sel_dlg,0);
+        ret=zc_popup_dialog(ffcombo_sel_cpy,0);
     }
-    
+	delete[] ffcombo_sel_cpy;
     destroy_bitmap(ffcur);
     return D_O_K;
 }
@@ -19205,14 +19239,13 @@ static DIALOG gscript_sel_dlg[] =
 int onCompileScript()
 {
     compile_dlg[0].dp2 = lfont;
+
+	DIALOG *compile_cpy = resizeDialog(compile_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(compile_dlg);
-        
     for(;;) //while(true)
     {
         sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
-        int ret = zc_popup_dialog(compile_dlg,5);
+        int ret = zc_popup_dialog(compile_cpy,5);
         
         switch(ret)
         {
@@ -19409,10 +19442,9 @@ int onCompileScript()
                     itemmap[i].first = temp;
                 }
                 
-                if(is_large())
-                    large_dialog(assignscript_dlg);
+				DIALOG *assignscript_cpy = resizeDialog(assignscript_dlg, 1.5);
                     
-                int ret2 = zc_popup_dialog(assignscript_dlg,3);
+                int ret2 = zc_popup_dialog(assignscript_cpy,3);
                 
                 switch(ret2)
                 {
@@ -19425,7 +19457,7 @@ int onCompileScript()
                 {
                 
                     //OK
-                    bool output = (assignscript_dlg[13].flags == D_SELECTED);
+                    bool output = (assignscript_cpy[13].flags == D_SELECTED);
                     
                     for(std::map<int, pair<string,string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
                     {
@@ -19569,8 +19601,8 @@ int onCompileScript()
                 case 6:
                     //<<, FFC
                 {
-                    int lind = assignscript_dlg[4].d1;
-                    int rind = assignscript_dlg[5].d1;
+                    int lind = assignscript_cpy[4].d1;
+                    int rind = assignscript_cpy[5].d1;
                     
                     if(lind < 0 || rind < 0)
                         break;
@@ -19590,8 +19622,8 @@ int onCompileScript()
                 case 9:
                     //<<, Global
                 {
-                    int lind = assignscript_dlg[7].d1;
-                    int rind = assignscript_dlg[8].d1;
+                    int lind = assignscript_cpy[7].d1;
+                    int rind = assignscript_cpy[8].d1;
                     
                     if(lind < 0 || rind < 0)
                         break;
@@ -19617,8 +19649,8 @@ int onCompileScript()
                 case 12:
                     //<<, ITEM
                 {
-                    int lind = assignscript_dlg[10].d1;
-                    int rind = assignscript_dlg[11].d1;
+                    int lind = assignscript_cpy[10].d1;
+                    int rind = assignscript_cpy[11].d1;
                     
                     if(lind < 0 || rind < 0)
                         break;
@@ -19635,11 +19667,15 @@ int onCompileScript()
                     break;
                 }
                 }
+
+				delete[] assignscript_cpy;
             }
             
             break;
         }
     }
+
+	delete[] compile_cpy;
     
 // return D_O_K;//unreachable
 }
@@ -19651,24 +19687,25 @@ int onImportFFScript()
     ffscript_sel_dlg[0].dp2 = lfont;
     ffscript_sel_dlg[2].dp = name;
     ffscript_sel_dlg[5].d1 = 0;
+
+	DIALOG *ffscript_sel_cpy = resizeDialog(ffscript_sel_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(ffscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(ffscript_sel_dlg,0);
+	int ret=zc_popup_dialog(ffscript_sel_cpy,0);
     
     if(ret==3)
     {
-        if(parse_script(&ffscripts[ffscript_sel_dlg[5].d1+1])==D_O_K)
+        if(parse_script(&ffscripts[ffscript_sel_cpy[5].d1+1])==D_O_K)
         {
-            if(strlen((char *)ffscript_sel_dlg[2].dp)>0)
-                ffcmap[ffscript_sel_dlg[5].d1].second=(char *)ffscript_sel_dlg[2].dp;
+            if(strlen((char *)ffscript_sel_cpy[2].dp)>0)
+                ffcmap[ffscript_sel_cpy[5].d1].second=(char *)ffscript_sel_cpy[2].dp;
             else
-                ffcmap[ffscript_sel_dlg[5].d1].second="ASM script";
+                ffcmap[ffscript_sel_cpy[5].d1].second="ASM script";
                 
             build_biffs_list();
         }
     }
+
+	delete[] ffscript_sel_cpy;
     
     return D_O_K;
 }
@@ -19680,24 +19717,25 @@ int onImportItemScript()
     itemscript_sel_dlg[0].dp2 = lfont;
     itemscript_sel_dlg[2].dp = name;
     itemscript_sel_dlg[5].d1 = 0;
+
+	DIALOG *itemscript_sel_cpy = resizeDialog(itemscript_sel_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(itemscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(itemscript_sel_dlg,0);
+    int ret=zc_popup_dialog(itemscript_sel_cpy,0);
     
     if(ret==3)
     {
-        if(parse_script(&itemscripts[itemscript_sel_dlg[5].d1+1])==D_O_K)
+        if(parse_script(&itemscripts[itemscript_sel_cpy[5].d1+1])==D_O_K)
         {
-            if(strlen((char *)itemscript_sel_dlg[2].dp)>0)
-                itemmap[itemscript_sel_dlg[5].d1].second=(char *)itemscript_sel_dlg[2].dp;
+            if(strlen((char *)itemscript_sel_cpy[2].dp)>0)
+                itemmap[itemscript_sel_cpy[5].d1].second=(char *)itemscript_sel_cpy[2].dp;
             else
-                itemmap[itemscript_sel_dlg[5].d1].second="ASM script";
+                itemmap[itemscript_sel_cpy[5].d1].second="ASM script";
                 
             build_biitems_list();
         }
     }
+
+	delete[] itemscript_sel_cpy;
     
     return D_O_K;
 }
@@ -19709,22 +19747,23 @@ int onImportGScript()
     gscript_sel_dlg[0].dp2 = lfont;
     gscript_sel_dlg[2].dp = name;
     gscript_sel_dlg[5].d1 = 0;
+
+	DIALOG *gscript_sel_cpy = resizeDialog(gscript_sel_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(gscript_sel_dlg);
-        
-    int ret=zc_popup_dialog(gscript_sel_dlg,0);
+    int ret=zc_popup_dialog(gscript_sel_cpy,0);
     
     if(ret==3)
     {
-        if(parse_script(&globalscripts[gscript_sel_dlg[5].d1])==D_O_K)
+        if(parse_script(&globalscripts[gscript_sel_cpy[5].d1])==D_O_K)
         {
-            if(strlen((char *)gscript_sel_dlg[2].dp)>0)
-                globalmap[gscript_sel_dlg[5].d1].second=(char *)gscript_sel_dlg[2].dp;
+            if(strlen((char *)gscript_sel_cpy[2].dp)>0)
+                globalmap[gscript_sel_cpy[5].d1].second=(char *)gscript_sel_cpy[2].dp;
             else
-                globalmap[gscript_sel_dlg[5].d1].second="ASM script";
+                globalmap[gscript_sel_cpy[5].d1].second="ASM script";
         }
     }
+
+	delete[] gscript_sel_cpy;
     
     return D_O_K;
 }
@@ -19822,18 +19861,17 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[51].flags = (f&ffCHANGENEXT) ? D_SELECTED : 0;
     ffcombo_dlg[52].flags = (f&ffCHANGEPREV) ? D_SELECTED : 0;
     ffcombo_dlg[53].flags = (f&ffCHANGETHIS) ? D_SELECTED : 0;
-    
-    if(is_large())
-        large_dialog(ffcombo_dlg);
+
+	DIALOG *ffcombo_cpy = resizeDialog(ffcombo_dlg, 1.5);
         
     int ret = -1;
     
     do
     {
-        ret=zc_popup_dialog(ffcombo_dlg,0);
+        ret=zc_popup_dialog(ffcombo_cpy,0);
         
         // A polite warning about FFC 0 and scripts
-        if(ret==2 && !ffcombo_dlg[6].d1 && ffcombo_dlg[55].d1>0)
+        if(ret==2 && !ffcombo_cpy[6].d1 && ffcombo_cpy[55].d1>0)
             if(jwin_alert("Inactive FFC","FFCs that use Combo 0 cannot run scripts! Continue?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
                 ret=-1;
     }
@@ -19842,9 +19880,9 @@ int onEditFFCombo(int ffcombo)
     if(ret==2)
     {
         saved=false;
-        Map.CurrScr()->ffdata[ffcombo] = ffcombo_dlg[6].d1;
-        Map.CurrScr()->ffcset[ffcombo] = ffcombo_dlg[6].fg;
-        Map.CurrScr()->fflink[ffcombo] = ffcombo_dlg[15].d1;
+        Map.CurrScr()->ffdata[ffcombo] = ffcombo_cpy[6].d1;
+        Map.CurrScr()->ffcset[ffcombo] = ffcombo_cpy[6].fg;
+        Map.CurrScr()->fflink[ffcombo] = ffcombo_cpy[15].d1;
         Map.CurrScr()->ffx[ffcombo] = vbound(ffparse(xystring[0]),-320000, 2880000);
         Map.CurrScr()->ffy[ffcombo] = vbound(ffparse(xystring[1]),-320000, 2080000);
         Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse(xystring[2]),-1280000, 1280000);
@@ -19852,7 +19890,7 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse(xystring[4]),-1280000, 1280000);
         Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse(xystring[5]),-1280000, 1280000);
         Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
-        Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
+        Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_cpy[55].d1].second + 1;
         
         int cw = atoi(wstring[0])<65?zc_max(1,atoi(wstring[0])):64;
         int ch = atoi(wstring[1])<65?zc_max(1,atoi(wstring[1])):64;
@@ -19874,22 +19912,22 @@ int onEditFFCombo(int ffcombo)
         Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
         
         f=0;
-        f |= (ffcombo_dlg[33].flags&D_SELECTED) ? ffOVERLAY : 0;
-        f |= (ffcombo_dlg[34].flags&D_SELECTED) ? ffTRANS : 0;
-        f |= (ffcombo_dlg[35].flags&D_SELECTED) ? ffCARRYOVER : 0;
-        f |= (ffcombo_dlg[36].flags&D_SELECTED) ? ffSTATIONARY : 0;
-        f |= (ffcombo_dlg[37].flags&D_SELECTED) ? ffCHANGER : 0;
-        f |= (ffcombo_dlg[38].flags&D_SELECTED) ? ffPRELOAD : 0;
-        f |= (ffcombo_dlg[39].flags&D_SELECTED) ? ffLENSVIS : 0;
-        f |= (ffcombo_dlg[40].flags&D_SELECTED) ? ffSCRIPTRESET : 0;
-        f |= (ffcombo_dlg[41].flags&D_SELECTED) ? ffETHEREAL : 0;
-        f |= (ffcombo_dlg[42].flags&D_SELECTED) ? ffIGNOREHOLDUP : 0;
+        f |= (ffcombo_cpy[33].flags&D_SELECTED) ? ffOVERLAY : 0;
+        f |= (ffcombo_cpy[34].flags&D_SELECTED) ? ffTRANS : 0;
+        f |= (ffcombo_cpy[35].flags&D_SELECTED) ? ffCARRYOVER : 0;
+        f |= (ffcombo_cpy[36].flags&D_SELECTED) ? ffSTATIONARY : 0;
+        f |= (ffcombo_cpy[37].flags&D_SELECTED) ? ffCHANGER : 0;
+        f |= (ffcombo_cpy[38].flags&D_SELECTED) ? ffPRELOAD : 0;
+        f |= (ffcombo_cpy[39].flags&D_SELECTED) ? ffLENSVIS : 0;
+        f |= (ffcombo_cpy[40].flags&D_SELECTED) ? ffSCRIPTRESET : 0;
+        f |= (ffcombo_cpy[41].flags&D_SELECTED) ? ffETHEREAL : 0;
+        f |= (ffcombo_cpy[42].flags&D_SELECTED) ? ffIGNOREHOLDUP : 0;
         
-        f |= (ffcombo_dlg[49].flags&D_SELECTED) ? ffSWAPNEXT : 0;
-        f |= (ffcombo_dlg[50].flags&D_SELECTED) ? ffSWAPPREV : 0;
-        f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
-        f |= (ffcombo_dlg[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
-        f |= (ffcombo_dlg[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
+        f |= (ffcombo_cpy[49].flags&D_SELECTED) ? ffSWAPNEXT : 0;
+        f |= (ffcombo_cpy[50].flags&D_SELECTED) ? ffSWAPPREV : 0;
+        f |= (ffcombo_cpy[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
+        f |= (ffcombo_cpy[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
+        f |= (ffcombo_cpy[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
         Map.CurrScr()->ffflags[ffcombo] = f;
         
         if(Map.CurrScr()->ffdata[ffcombo]!=0)
@@ -19901,6 +19939,8 @@ int onEditFFCombo(int ffcombo)
             Map.CurrScr()->numff&=~(1<<ffcombo);
         }
     }
+
+	delete[] ffcombo_cpy;
     
     return D_O_K;
 }
@@ -19922,19 +19962,20 @@ int select_sfx(const char *prompt,int index)
     sfxlist_dlg[0].dp2=lfont;
     sfxlist_dlg[2].d1=index;
     sfxlist_dlg[2].dp=(void *) & sfx_list;
+
+	DIALOG *sfxlist_cpy = resizeDialog(sfxlist_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(sfxlist_dlg);
-        
-    int ret=zc_popup_dialog(sfxlist_dlg,2);
+    int ret=zc_popup_dialog(sfxlist_cpy,2);
     
     if(ret==0||ret==4)
     {
 		Backend::mouse->setWheelPosition(0);
+		delete[] sfxlist_cpy;
         return -1;
     }
     
-    index = sfxlist_dlg[2].d1;
+    index = sfxlist_cpy[2].d1;
+	delete[] sfxlist_cpy;
 	Backend::mouse->setWheelPosition(0);
     return index;
 }
@@ -20196,13 +20237,12 @@ int onEditSFX(int index)
     char name[36];
     strcpy(name,sfx_string[index]);
     sfx_edit_dlg[7].dp = name;
+
+	DIALOG *sfx_edit_cpy = resizeDialog(sfx_edit_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(sfx_edit_dlg);
-        
     do
     {
-        ret=zc_popup_dialog(sfx_edit_dlg,1);
+        ret=zc_popup_dialog(sfx_edit_cpy,1);
         
         switch(ret)
         {
@@ -20295,6 +20335,8 @@ int onEditSFX(int index)
         }
     }
     while(ret>2);
+
+	delete[] sfx_edit_cpy;
     
     return D_O_K;
 }
@@ -20370,30 +20412,31 @@ int onMapStyles()
     mapstyles_dlg[21].fg = misc.colors.HCpieces_cset;
     mapstyles_dlg[22].d1  = misc.colors.dungeon_map_tile;
     mapstyles_dlg[22].fg  = misc.colors.dungeon_map_cset;
-    
-    if(is_large())
-        large_dialog(mapstyles_dlg,2);
+
+	DIALOG *mapstyles_cpy = resizeDialog(mapstyles_dlg, 2.0);
         
     go();
-    int ret = zc_do_dialog(mapstyles_dlg,-1);
+    int ret = zc_do_dialog(mapstyles_cpy,-1);
     comeback();
     
     if(ret==23)
     {
-        misc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
-        misc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        misc.colors.triforce_tile      = mapstyles_dlg[18].d1;
-        misc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        misc.colors.triframe_tile      = mapstyles_dlg[19].d1;
-        misc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        misc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
-        misc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        misc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
-        misc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        misc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
-        misc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
+        misc.colors.blueframe_tile     = mapstyles_cpy[17].d1;
+        misc.colors.blueframe_cset     = mapstyles_cpy[17].fg;
+        misc.colors.triforce_tile      = mapstyles_cpy[18].d1;
+        misc.colors.triforce_cset      = mapstyles_cpy[18].fg;
+        misc.colors.triframe_tile      = mapstyles_cpy[19].d1;
+        misc.colors.triframe_cset      = mapstyles_cpy[19].fg;
+        misc.colors.overworld_map_tile = mapstyles_cpy[20].d1;
+        misc.colors.overworld_map_cset = mapstyles_cpy[20].fg;
+        misc.colors.HCpieces_tile      = mapstyles_cpy[21].d1;
+        misc.colors.HCpieces_cset      = mapstyles_cpy[21].fg;
+        misc.colors.dungeon_map_tile   = mapstyles_cpy[22].d1;
+        misc.colors.dungeon_map_cset   = mapstyles_cpy[22].fg;
         saved=false;
     }
+
+	delete[] mapstyles_cpy;
     
     return D_O_K;
 }
@@ -20641,11 +20684,10 @@ int onMiscColors()
         misccolors_dlg[i+20].dp = buf[i];
         misccolors_dlg[55].dp = buf[16];
     }
+
+	DIALOG *misccolors_cpy = resizeDialog(misccolors_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(misccolors_dlg);
-        
-    if(zc_popup_dialog(misccolors_dlg,0)==52)
+    if(zc_popup_dialog(misccolors_cpy,0)==52)
     {
         saved=false;
         si = &(misc.colors.text);
@@ -20658,6 +20700,8 @@ int onMiscColors()
         
         misc.colors.msgtext = xtoi(buf[16]);
     }
+
+	delete[] misccolors_cpy;
     
     return D_O_K;
 }
@@ -20745,6 +20789,7 @@ void doHelp(int bg,int fg)
     help_dlg[0].dp2= lfont;
     help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],is_large()?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     help_dlg[2].bg = bg;
+	jwin_center_dialog(help_dlg);
     zc_popup_dialog(help_dlg,2);
     delete(EditboxModel*)(help_dlg[2].dp);
 }
@@ -20834,11 +20879,10 @@ int edit_layers(mapscr* tempscr)
     {
         layerdata_dlg[(x*3)+2+12].flags = (tempscr->layeropacity[x]<255) ? D_SELECTED : 0;
     }
-    
-    if(is_large())
-        large_dialog(layerdata_dlg);
+
+	DIALOG *layerdata_cpy = resizeDialog(layerdata_dlg, 1.5);
         
-    int ret=zc_popup_dialog(layerdata_dlg,0);
+    int ret=zc_popup_dialog(layerdata_cpy,0);
     
     if(ret>=2)
     {
@@ -20860,12 +20904,14 @@ int edit_layers(mapscr* tempscr)
             }
             
             //      tempscr->layeropacity[x]=layerdata_dlg[(x*9)+8+19].flags & D_SELECTED ? 128:255;
-            tempscr->layeropacity[x]=layerdata_dlg[(x*3)+2+12].flags & D_SELECTED ? 128:255;
+            tempscr->layeropacity[x]= layerdata_cpy[(x*3)+2+12].flags & D_SELECTED ? 128:255;
         }
         
         //  } else if (ret>72&&ret<79) {
         //    return (ret-72);
     }
+
+	delete[] layerdata_cpy;
     
     return ret;
 }
@@ -20894,11 +20940,10 @@ void autolayer(mapscr* tempscr, int layer, int al[6][3])
     autolayer_dlg[1].dp=tbuf;
     sprintf(mlayer, "%d", tempscr->layermap[layer]);
     autolayer_dlg[2].dp=mlayer;
+
+	DIALOG *autolayer_cpy = resizeDialog(autolayer_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(autolayer_dlg);
-        
-    int ret=zc_popup_dialog(autolayer_dlg,0);
+    int ret=zc_popup_dialog(autolayer_cpy,0);
     
     if(ret==4)
     {
@@ -20906,9 +20951,11 @@ void autolayer(mapscr* tempscr, int layer, int al[6][3])
         al[layer][0]=lmap;
         tempscr->layermap[layer]=lmap;
         tempscr->layerscreen[layer]=Map.getCurrScr();
-        al[layer][1]=autolayer_dlg[3].flags & D_SELECTED?1:0;
+        al[layer][1]= autolayer_cpy[3].flags & D_SELECTED?1:0;
         al[layer][2]=1;
     }
+
+	delete[] autolayer_cpy;
 }
 
 int findblankcombo()

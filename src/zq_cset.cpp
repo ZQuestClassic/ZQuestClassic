@@ -1002,10 +1002,9 @@ void edit_cycles(int level)
     for(int i=0; i<15; i++)
         cycle_dlg[i+10].dp = buf[i];
         
-    if(is_large())
-        large_dialog(cycle_dlg);
+	DIALOG *cycle_cpy = resizeDialog(cycle_dlg, 1.5);
         
-    if(zc_popup_dialog(cycle_dlg,3)==2)
+    if(zc_popup_dialog(cycle_cpy,3)==2)
     {
         saved=false;
         reset_pal_cycling();
@@ -1021,6 +1020,8 @@ void edit_cycles(int level)
             misc.cycles[level][i] = c;
         }
     }
+
+	delete[] cycle_cpy;
 }
 
 void draw_cset_proc(DIALOG *d)
@@ -1380,6 +1381,17 @@ int EditColors(const char *caption,int first,int count,byte *label)
     
     memcpy(undopal,pal,sizeof(pal));
     int ret=0;
+
+	DIALOG *colors_cpy = resizeDialog(colors_dlg, 1.5);
+
+	if (is_large())
+	{
+		if (!colors_cpy[0].d1)
+		{
+			colors_cpy[2].x += 0;
+			colors_cpy[2].y -= 1;
+		}
+	}
     
     do
     {
@@ -1392,22 +1404,13 @@ int EditColors(const char *caption,int first,int count,byte *label)
         
         clear_to_color(screen,0);
         Backend::palette->setPalette(pal);
-        colors_dlg[19].flags =
-            colors_dlg[20].flags =
-                colors_dlg[23].flags = D_EXIT;
-                
-        if(is_large())
-        {
-            if(!colors_dlg[0].d1)
-            {
-                colors_dlg[2].x  += 0;
-                colors_dlg[2].y  -= 1;
-            }
-            
-            large_dialog(colors_dlg);
-        }
+		colors_cpy[19].flags =
+			colors_cpy[20].flags =
+			colors_cpy[23].flags = D_EXIT;
+
+		
         
-        DIALOG_PLAYER *p = init_dialog(colors_dlg,2);
+        DIALOG_PLAYER *p = init_dialog(colors_cpy,2);
         bool enable = true;
         
         while(update_dialog(p))
@@ -1417,13 +1420,13 @@ int EditColors(const char *caption,int first,int count,byte *label)
             pal[dvc(0)]=pal[rand()%14+dvc(1)];
             Backend::palette->setPaletteRange(pal,dvc(0),dvc(0));
             
-            bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
+            bool en = (colors_cpy[2].d1 == colors_cpy[2].d2);
             
             if(en!=enable)
             {
-                colors_dlg[19].flags =
-                    colors_dlg[20].flags =
-                        colors_dlg[23].flags = en  ? D_EXIT : D_DISABLED;
+				colors_cpy[19].flags =
+					colors_cpy[20].flags =
+					colors_cpy[23].flags = en  ? D_EXIT : D_DISABLED;
                 broadcast_dialog_message(MSG_DRAW,0);
                 enable = en;
             }
@@ -1437,13 +1440,13 @@ int EditColors(const char *caption,int first,int count,byte *label)
         if(ret==19)
         {
             memcpy(undopal,pal,sizeof(pal));
-            edit_dataset(first+colors_dlg[2].d2);
+            edit_dataset(first+ colors_cpy[2].d2);
         }
         
         if(ret==20)
         {
             memcpy(undopal,pal,sizeof(pal));
-            grab_dataset(first+colors_dlg[2].d2);
+            grab_dataset(first+ colors_cpy[2].d2);
         }
         
         if(ret==21)
@@ -1479,9 +1482,11 @@ int EditColors(const char *caption,int first,int count,byte *label)
     
     if(ret==23)
     {
-        load_cset(RAMpal,9,first+colors_dlg[2].d2);
+        load_cset(RAMpal,9,first+ colors_cpy[2].d2);
         set_pal();
     }
+
+	delete[] colors_cpy;
     
     saved=false; //It's just easier this way :)
     //  gui_fg_color = vc(14);

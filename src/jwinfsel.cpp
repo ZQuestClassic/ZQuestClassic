@@ -51,6 +51,7 @@
 #include "jwinfsel.h"
 #include "zsys.h"
 #include "zc_malloc.h"
+#include "gui.h"
 #include "backend/AllBackends.h"
 
 extern FONT *lfont_l;
@@ -886,40 +887,39 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
 /* enlarge_file_selector:
  * Enlarges the dialog for Large Mode. -L
  */
-void enlarge_file_selector(int width, int height)
+DIALOG *enlarge_file_selector(int width, int height)
 {
-    if(file_selector[0].d1==0)
-    {
-        stretch_dialog(file_selector, width, height, 1);
-    }
-    
-    jwin_center_dialog(file_selector);
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
-    
+	stretch_dialog(file_selector, width, height, 1);
+
+	DIALOG *newd = resizeDialog(file_selector, 1.5);
+	
+	jwin_center_dialog(newd);
     if(is_large())
     {
-        large_dialog(file_selector);
         int bottom =
 #ifndef HAVE_DIR_LIST
-            file_selector[FS_OK].y;
+			newd[FS_OK].y;
 #else
-            file_selector[FS_WIN].y+file_selector[FS_WIN].h-8;
+			newd[FS_WIN].y+ newd[FS_WIN].h-8;
 #endif
-        file_selector[FS_FILES].dp2=NULL;
-        file_selector[FS_TYPES].y = bottom-file_selector[FS_TYPES].h-5;
-        file_selector[FS_FILES].h=show_extlist ? 152 : 168;
-        file_selector[FS_FILES].y = (show_extlist ? file_selector[FS_TYPES].y:bottom)-(file_selector[FS_FILES].h+5);
-        file_selector[FS_EDIT].y = file_selector[FS_FILES].y-26;
-        ((ListData *)file_selector[FS_FILES].dp)->font = &lfont_l;
-        file_selector[FS_TYPES].dp2=NULL;
-        file_selector[FS_TYPES].h=20;
-        ((ListData *)file_selector[FS_TYPES].dp)->font = &lfont_l;
+		newd[FS_FILES].dp2=NULL;
+		newd[FS_TYPES].y = bottom- newd[FS_TYPES].h-5;
+		newd[FS_FILES].h=show_extlist ? 152 : 168;
+		newd[FS_FILES].y = (show_extlist ? newd[FS_TYPES].y:bottom)-(newd[FS_FILES].h+5);
+		newd[FS_EDIT].y = newd[FS_FILES].y-26;
+        ((ListData *)newd[FS_FILES].dp)->font = &lfont_l;
+		newd[FS_TYPES].dp2=NULL;
+		newd[FS_TYPES].h=20;
+        ((ListData *)newd[FS_TYPES].dp)->font = &lfont_l;
 #ifdef HAVE_DIR_LIST
-        file_selector[FS_DISKS].dp2=NULL;
-        file_selector[FS_DISKS].h=20;
-        ((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
+		newd[FS_DISKS].dp2=NULL;
+		newd[FS_DISKS].h=20;
+        ((ListData *)newd[FS_DISKS].dp)->font = &lfont_l;
 #endif
     }
+
+	return newd;
 }
 
 /* jwin_file_select_ex:
@@ -1007,9 +1007,10 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
     while(Backend::mouse->anyButtonClicked());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
-    enlarge_file_selector(width, height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
-    
+    DIALOG *selector_cpy = enlarge_file_selector(width, height);
+    ret = popup_zqdialog(selector_cpy, FS_EDIT);
+	delete[] selector_cpy;
+
     if(fext)
     {
         zc_free(fext);
@@ -1212,8 +1213,11 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
     while(Backend::mouse->anyButtonClicked());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
-    enlarge_file_selector(width, height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    DIALOG *file_selector_cpy = enlarge_file_selector(width, height);
+
+    ret = popup_zqdialog(file_selector_cpy, FS_EDIT);
+
+	delete[] file_selector_cpy;
     
     if(fext)
     {
@@ -1333,9 +1337,14 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
     while(Backend::mouse->anyButtonClicked());
     
     file_selector[FS_TYPES].proc = fs_elist_proc;
-    enlarge_file_selector(width,height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
-    
+    DIALOG *file_selector_cpy = enlarge_file_selector(width,height);
+
+	ret = popup_zqdialog(file_selector_cpy, FS_EDIT);
+	int sel = file_selector_cpy[FS_TYPES].d1;
+
+	delete[] file_selector_cpy;
+
+
     if(fext)
     {
         zc_free(fext);
@@ -1351,7 +1360,7 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
         return FALSE;
         
-    *list_sel = file_selector[FS_TYPES].d1;
+    *list_sel = sel;
     
     p = get_extension(path);
     

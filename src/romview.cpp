@@ -2280,9 +2280,16 @@ int d_timer_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
-void large_dialog(DIALOG *d)
+DIALOG *resizeDialog(DIALOG *d, float )
 {
-    d=d;
+	int len = 0;
+	while (d[len].proc != NULL)
+		len++;
+	len++;
+
+	DIALOG *newd = new DIALOG[len];
+	memcpy(newd, d, len * sizeof(DIALOG));
+	return newd;
 }
 
 /* That's all folks */

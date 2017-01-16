@@ -128,99 +128,100 @@ bool is_large()
 	return Backend::graphics->getVirtualMode() == 0;
 }
 
-// Dialogue largening
-void large_dialog(DIALOG *d)
+DIALOG *resizeDialog(DIALOG *d, float largeSize)
 {
-    large_dialog(d, 1.5);
-}
+	int len = 0;
+	while (d[len].proc != NULL)
+		len++;
 
-void large_dialog(DIALOG *d, float RESIZE_AMT)
-{
-    if(!d[0].d1)
-    {
-        d[0].d1 = 1;
-        int oldwidth = d[0].w;
-        int oldheight = d[0].h;
-        int oldx = d[0].x;
-        int oldy = d[0].y;
-        d[0].x -= int(d[0].w/RESIZE_AMT);
-        d[0].y -= int(d[0].h/RESIZE_AMT);
-        d[0].w = int(d[0].w*RESIZE_AMT);
-        d[0].h = int(d[0].h*RESIZE_AMT);
-        
-        for(int i=1; d[i].proc !=NULL; i++)
-        {
-            // Place elements horizontally
-            double xpc = ((double)(d[i].x - oldx) / (double)oldwidth);
-            d[i].x = int(d[0].x + (xpc*d[0].w));
-            
-            if(d[i].proc != d_stringloader)
-            {
-                if(d[i].proc==d_bitmap_proc)
-                {
-                    d[i].w *= 2;
-                }
-                else d[i].w = int(d[i].w*RESIZE_AMT);
-            }
-            
-            // Place elements vertically
-            double ypc = ((double)(d[i].y - oldy) / (double)oldheight);
-            d[i].y = int(d[0].y + (ypc*d[0].h));
-            
-            // Vertically resize elements
-            if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc)
-            {
-                d[i].h = int((double)d[i].h*1.5);
-            }
-            else if(d[i].proc == jwin_droplist_proc)
-            {
-                d[i].y += int((double)d[i].h*0.25);
-                d[i].h = int((double)d[i].h*1.25);
-            }
-            else if(d[i].proc==d_bitmap_proc)
-            {
-                d[i].h *= 2;
-            }
-            else d[i].h = int(d[i].h*RESIZE_AMT);
-            
-            // Fix frames
-            if(d[i].proc == jwin_frame_proc)
-            {
-                d[i].x++;
-                d[i].y++;
-                d[i].w-=4;
-                d[i].h-=4;
-            }
-        }
-    }
+	len++;
+
+	DIALOG *newd = new DIALOG[len];
+	memcpy(newd, d, len * sizeof(DIALOG));
+
+	if (is_large())
+	{
+		int oldwidth = newd[0].w;
+		int oldheight = newd[0].h;
+		int oldx = newd[0].x;
+		int oldy = newd[0].y;
+		newd[0].x -= int(newd[0].w / largeSize);
+		newd[0].y -= int(newd[0].h / largeSize);
+		newd[0].w = int(newd[0].w*largeSize);
+		newd[0].h = int(newd[0].h*largeSize);
+
+		for (int i = 1; newd[i].proc != NULL; i++)
+		{
+			// Place elements horizontally
+			double xpc = ((double)(newd[i].x - oldx) / (double)oldwidth);
+			newd[i].x = int(newd[0].x + (xpc*newd[0].w));
+
+			if (newd[i].proc != d_stringloader)
+			{
+				if (newd[i].proc == d_bitmap_proc)
+				{
+					newd[i].w *= 2;
+				}
+				else newd[i].w = int(newd[i].w*largeSize);
+			}
+
+			// Place elements vertically
+			double ypc = ((double)(newd[i].y - oldy) / (double)oldheight);
+			newd[i].y = int(newd[0].y + (ypc*newd[0].h));
+
+			// Vertically resize elements
+			if (newd[i].proc == jwin_edit_proc || newd[i].proc == jwin_check_proc || newd[i].proc == jwin_checkfont_proc)
+			{
+				newd[i].h = int((double)newd[i].h*1.5);
+			}
+			else if (newd[i].proc == jwin_droplist_proc)
+			{
+				newd[i].y += int((double)newd[i].h*0.25);
+				newd[i].h = int((double)newd[i].h*1.25);
+			}
+			else if (newd[i].proc == d_bitmap_proc)
+			{
+				newd[i].h *= 2;
+			}
+			else newd[i].h = int(newd[i].h*largeSize);
+
+			// Fix frames
+			if (newd[i].proc == jwin_frame_proc)
+			{
+				newd[i].x++;
+				newd[i].y++;
+				newd[i].w -= 4;
+				newd[i].h -= 4;
+			}
+		}
+
+		for (int i = 1; newd[i].proc != NULL; i++)
+		{
+			if (newd[i].proc == jwin_slider_proc)
+				continue;
+
+			// Bigger font
+			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != d_midilist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != jwin_list_proc);
+
+			if (!newd[i].dp2 && bigfontproc)
+			{
+				newd[i].dp2 = lfont_l;
+			}
+			else if (!bigfontproc)
+			{
+				((ListData *)newd[i].dp)->font = &lfont_l;
+			}
+
+			// Make checkboxes work
+			if (newd[i].proc == jwin_check_proc)
+				newd[i].proc = jwin_checkfont_proc;
+			else if (newd[i].proc == jwin_radio_proc)
+				newd[i].proc = jwin_radiofont_proc;
+		}
+	}
     
-    for(int i=1; d[i].proc!=NULL; i++)
-    {
-        if(d[i].proc==jwin_slider_proc)
-            continue;
-            
-        // Bigger font
-        bool bigfontproc = (d[i].proc != jwin_initlist_proc && d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
-        
-        if(!d[i].dp2 && bigfontproc)
-        {
-            //d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
-            d[i].dp2 = lfont_l;
-        }
-        else if(!bigfontproc)
-        {
-//      ((ListData *)d[i].dp)->font = &sfont3;
-            ((ListData *)d[i].dp)->font = &lfont_l;
-        }
-        
-        // Make checkboxes work
-        if(d[i].proc == jwin_check_proc)
-            d[i].proc = jwin_checkfont_proc;
-        else if(d[i].proc == jwin_radio_proc)
-            d[i].proc = jwin_radiofont_proc;
-    }
-    
-    jwin_center_dialog(d);
+    jwin_center_dialog(newd);
+	return newd;
 }
 
 
@@ -5229,15 +5230,16 @@ int onGoTo()
     
     clear_keybuf();
     
-    if(is_large())
-        large_dialog(goto_dlg);
+	DIALOG *goto_cpy = resizeDialog(goto_dlg, 1.5);
         
-    if(zc_popup_dialog(goto_dlg,4)==1)
+    if(zc_popup_dialog(goto_cpy,4)==1)
     {
-        cheat_goto_dmap=goto_dlg[4].d2;
+        cheat_goto_dmap= goto_cpy[4].d2;
         cheat_goto_screen=zc_min(xtoi(cheat_goto_screen_str),0x7F);
         do_cheat_goto=true;
     };
+
+	delete[] goto_cpy;
     
     return D_O_K;
 }
@@ -5290,6 +5292,8 @@ int onCredits()
     Backend::palette->setPaletteRange(black_palette,0,127);
     
     DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
+
+	jwin_center_dialog(p->dialog);
     
     while(update_dialog(p))
     {
@@ -5540,10 +5544,12 @@ int onMIDICredits()
     
     dialog_running=true;
     
-    if(is_large())
-        large_dialog(midi_dlg);
+	DIALOG *midi_cpy = resizeDialog(midi_dlg, 1.5);
         
-    zc_popup_dialog(midi_dlg,0);
+    zc_popup_dialog(midi_cpy,0);
+
+	delete[] midi_cpy;
+
     dialog_running=false;
     
     if(listening)
@@ -5575,10 +5581,12 @@ int onAbout()
     //  sprintf(str_s,"%s",VerStr(ZELDA_VERSION));
     about_dlg[0].dp2=lfont;
     
-    if(is_large())
-        large_dialog(about_dlg);
-        
-    zc_popup_dialog(about_dlg,1);
+	DIALOG *about_cpy = resizeDialog(about_dlg, 1.5);
+
+    zc_popup_dialog(about_cpy,1);
+
+	delete[] about_cpy;
+
     return D_O_K;
 }
 
@@ -5598,11 +5606,11 @@ int onQuest()
     
     quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
     quest_dlg[11].d2 = quest_dlg[9].d2 = 0;
+
+	DIALOG *quest_cpy = resizeDialog(quest_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(quest_dlg);
-        
-    zc_popup_dialog(quest_dlg, 0);
+    zc_popup_dialog(quest_cpy, 0);
+	delete[] quest_cpy;
     return D_O_K;
 }
 
@@ -5632,13 +5640,12 @@ int onKeyboard()
     int ret;
     
     key_dlg[0].dp2=lfont;
-    
-    if(is_large())
-        large_dialog(key_dlg);
-        
+
+	DIALOG *key_cpy = resizeDialog(key_dlg, 1.5);
+     
     while(!done)
     {
-        ret = zc_popup_dialog(key_dlg,27);
+        ret = zc_popup_dialog(key_cpy,27);
         
         if(ret==27) // OK
         {
@@ -5713,6 +5720,8 @@ int onKeyboard()
             done=true;
         }
     }
+
+	delete[] key_cpy;
     
     save_game_configs();
     return D_O_K;
@@ -5726,21 +5735,15 @@ int onKeyboardDir()
     int r = DRkey;
     
     keydir_dlg[0].dp2=lfont;
+
+	DIALOG *keydir_cpy = resizeDialog(keydir_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(keydir_dlg);
-        
     bool done=false;
     int ret;
-    
-    key_dlg[0].dp2=lfont;
-    
-    if(is_large())
-        large_dialog(key_dlg);
         
     while(!done)
     {
-        ret = zc_popup_dialog(keydir_dlg,14);
+        ret = zc_popup_dialog(keydir_cpy,14);
         
         if(ret==14) // OK
         {
@@ -5810,6 +5813,7 @@ int onKeyboardDir()
         }
     }
     
+	delete[] keydir_cpy;
     save_game_configs();
     return D_O_K;
 }
@@ -5829,11 +5833,12 @@ int onJoystick()
     int ex4 = Exbtn4;
     
     btn_dlg[0].dp2=lfont;
-    
-    if(is_large())
-        large_dialog(btn_dlg);
+
+	DIALOG *btn_cpy = resizeDialog(btn_dlg, 1.5);
         
-    int ret = zc_popup_dialog(btn_dlg,27);
+    int ret = zc_popup_dialog(btn_cpy,27);
+
+	delete[] btn_cpy;
     
     // not OK'd
     if(ret != 27)
@@ -5867,14 +5872,13 @@ int onJoystickDir()
         btndir_dlg[14].flags|=D_SELECTED;
     else
         btndir_dlg[14].flags&=~D_SELECTED;
+
+	DIALOG *btndir_cpy = resizeDialog(btndir_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(btndir_dlg);
-        
-    int ret = zc_popup_dialog(btndir_dlg,15);
+    int ret = zc_popup_dialog(btndir_cpy,15);
     
     if(ret==15) // OK
-        analog_movement = (btndir_dlg[14].flags&D_SELECTED) != 0;
+        analog_movement = (btndir_cpy[14].flags&D_SELECTED) != 0;
     else // Cancel
     {
         DUbtn = up;
@@ -5882,6 +5886,8 @@ int onJoystickDir()
         DLbtn = left;
         DRbtn = right;
     }
+
+	delete[] btndir_cpy;
     
     save_game_configs();
     return D_O_K;
@@ -5898,30 +5904,31 @@ int onSound()
     pan_style = vbound(pan_style,0,3);
     
     sound_dlg[0].dp2=lfont;
-    
-    if(is_large())
-        large_dialog(sound_dlg);
+
+	DIALOG *sound_cpy = resizeDialog(sound_dlg, 1.5);
         
-    midi_dp[1] = sound_dlg[6].x;
-    midi_dp[2] = sound_dlg[6].y;
-    digi_dp[1] = sound_dlg[7].x;
-    digi_dp[2] = sound_dlg[7].y;
-    emus_dp[1] = sound_dlg[8].x;
-    emus_dp[2] = sound_dlg[8].y;
-    buf_dp[1]  = sound_dlg[9].x;
-    buf_dp[2]  = sound_dlg[9].y;
-    sfx_dp[1]  = sound_dlg[10].x;
-    sfx_dp[2]  = sound_dlg[10].y;
-    pan_dp[1]  = sound_dlg[11].x;
-    pan_dp[2]  = sound_dlg[11].y;
-    sound_dlg[15].d2 = (midi_volume==255) ? 32 : midi_volume>>3;
-    sound_dlg[16].d2 = (digi_volume==255) ? 32 : digi_volume>>3;
-    sound_dlg[17].d2 = (emusic_volume==255) ? 32 : emusic_volume>>3;
-    sound_dlg[18].d2 = zcmusic_bufsz;
-    sound_dlg[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
-    sound_dlg[20].d2 = pan_style;
+    midi_dp[1] = sound_cpy[6].x;
+    midi_dp[2] = sound_cpy[6].y;
+    digi_dp[1] = sound_cpy[7].x;
+    digi_dp[2] = sound_cpy[7].y;
+    emus_dp[1] = sound_cpy[8].x;
+    emus_dp[2] = sound_cpy[8].y;
+    buf_dp[1]  = sound_cpy[9].x;
+    buf_dp[2]  = sound_cpy[9].y;
+    sfx_dp[1]  = sound_cpy[10].x;
+    sfx_dp[2]  = sound_cpy[10].y;
+    pan_dp[1]  = sound_cpy[11].x;
+    pan_dp[2]  = sound_cpy[11].y;
+	sound_cpy[15].d2 = (midi_volume==255) ? 32 : midi_volume>>3;
+	sound_cpy[16].d2 = (digi_volume==255) ? 32 : digi_volume>>3;
+	sound_cpy[17].d2 = (emusic_volume==255) ? 32 : emusic_volume>>3;
+	sound_cpy[18].d2 = zcmusic_bufsz;
+	sound_cpy[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
+	sound_cpy[20].d2 = pan_style;
     
-    int ret = zc_popup_dialog(sound_dlg,1);
+    int ret = zc_popup_dialog(sound_cpy,1);
+
+	delete[] sound_cpy;
     
     if(ret==2)
     {
@@ -6124,11 +6131,14 @@ int getnumber(const char *prompt,int initialval)
     getnum_dlg[0].dp=(void *)prompt;
     getnum_dlg[0].dp2=lfont;
     getnum_dlg[2].dp=buf;
+
+	DIALOG *getnum_cpy = resizeDialog(getnum_dlg, 1.5);
     
-    if(is_large())
-        large_dialog(getnum_dlg);
-        
-    if(zc_popup_dialog(getnum_dlg,2)==3)
+	bool ret = (zc_popup_dialog(getnum_cpy, 2) == 3);
+
+	delete[] getnum_cpy;
+
+	if(ret)
         return atoi(buf);
         
     return initialval;
@@ -6224,11 +6234,12 @@ int onCheat()
     str_a[0]=0;
     cheat_dlg[0].dp2=lfont;
     cheat_dlg[1].dp=str_a;
-    
-    if(is_large())
-        large_dialog(cheat_dlg);
+
+	DIALOG *cheat_cpy = resizeDialog(cheat_dlg, 1.5);
         
-    int ret=zc_popup_dialog(cheat_dlg,1);
+    int ret=zc_popup_dialog(cheat_cpy,1);
+
+	delete[] cheat_cpy;
     
     if((ret==2) && strlen(str_a))
     {
@@ -6344,16 +6355,15 @@ int onScreenSaver()
     scrsaver_dlg[6].d2 = ss_speed;
     scrsaver_dlg[7].d2 = ss_density;
     
-    if(is_large())
-        large_dialog(scrsaver_dlg);
+	DIALOG *scrsave_cpy = resizeDialog(scrsaver_dlg, 1.5);
         
-    int ret = zc_popup_dialog(scrsaver_dlg,-1);
+    int ret = zc_popup_dialog(scrsave_cpy,-1);
     
     if(ret == 8 || ret == 9)
     {
-        ss_after   = scrsaver_dlg[5].d1;
-        ss_speed   = scrsaver_dlg[6].d2;
-        ss_density = scrsaver_dlg[7].d2;
+        ss_after   = scrsave_cpy[5].d1;
+        ss_speed   = scrsave_cpy[6].d2;
+        ss_density = scrsave_cpy[7].d2;
     }
     
     if(ret == 9)
@@ -6364,6 +6374,8 @@ int onScreenSaver()
         system_pal();
 		Backend::mouse->setCursorVisibility(true);
     }
+
+	delete[] scrsave_cpy;
     
     return D_O_K;
 }
@@ -6606,39 +6618,57 @@ int onWindowed1Menu()
 	return D_REDRAW;
 }
 
+bool checkResolutionFits(int width, int height)
+{
+	if (Backend::graphics->desktopW() < width || Backend::graphics->desktopH() < height)
+	{
+		return (jwin_alert("Resolution Warning", "The chosen resolution is too", "big to fit the screen.", "Use it anyway?", "&Yes", "&No", 'y', 'n', is_large() ? lfont_l : font) == 1);
+	}
+	return true;
+}
+
 int onWindowed2Menu()
 {
-	Backend::graphics->setScreenResolution(640, 480);
-	Backend::graphics->setFullscreen(false);
-	setVideoModeMenuFlags();
-	int x = Backend::graphics->virtualScreenW() / 2;
-	int y = Backend::graphics->virtualScreenH() / 2;
-	Backend::mouse->setVirtualScreenPos(x, y);
-	Backend::mouse->setCursorVisibility(true);
+	if (checkResolutionFits(640,480))
+	{
+		Backend::graphics->setScreenResolution(640, 480);
+		Backend::graphics->setFullscreen(false);
+		setVideoModeMenuFlags();
+		int x = Backend::graphics->virtualScreenW() / 2;
+		int y = Backend::graphics->virtualScreenH() / 2;
+		Backend::mouse->setVirtualScreenPos(x, y);
+		Backend::mouse->setCursorVisibility(true);
+	}
 	return D_REDRAW;
 }
 
 int onWindowed3Menu()
 {
-	Backend::graphics->setScreenResolution(960, 720);
-	Backend::graphics->setFullscreen(false);
-	setVideoModeMenuFlags();
-	int x = Backend::graphics->virtualScreenW() / 2;
-	int y = Backend::graphics->virtualScreenH() / 2;
-	Backend::mouse->setVirtualScreenPos(x, y);
-	Backend::mouse->setCursorVisibility(true);
+	if (checkResolutionFits(960, 720))
+	{
+		Backend::graphics->setScreenResolution(960, 720);
+		Backend::graphics->setFullscreen(false);
+		setVideoModeMenuFlags();
+		int x = Backend::graphics->virtualScreenW() / 2;
+		int y = Backend::graphics->virtualScreenH() / 2;
+		Backend::mouse->setVirtualScreenPos(x, y);
+		Backend::mouse->setCursorVisibility(true);
+	}
 	return D_REDRAW;
 }
 
 int onWindowed4Menu()
 {
-	Backend::graphics->setScreenResolution(1280, 960);
-	Backend::graphics->setFullscreen(false);
-	setVideoModeMenuFlags();
-	int x = Backend::graphics->virtualScreenW() / 2;
-	int y = Backend::graphics->virtualScreenH() / 2;
-	Backend::mouse->setVirtualScreenPos(x, y);
-	Backend::mouse->setCursorVisibility(true);
+	if (checkResolutionFits(1280, 960))
+	{
+		Backend::graphics->setScreenResolution(1280, 960);
+		Backend::graphics->setFullscreen(false);
+		setVideoModeMenuFlags();
+		int x = Backend::graphics->virtualScreenW() / 2;
+		int y = Backend::graphics->virtualScreenH() / 2;
+		Backend::mouse->setVirtualScreenPos(x, y);
+		Backend::mouse->setCursorVisibility(true);
+	}
 	return D_REDRAW;
 }
 

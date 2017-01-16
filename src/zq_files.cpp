@@ -128,18 +128,17 @@ void edit_qt(int index)
     char tpath2[2048];
     tqt=QuestTemplates[index];
     editqt_dlg[0].dp2=lfont;
+
+	DIALOG *editqt_cpy = resizeDialog(editqt_dlg, 1.5);
     
     do
     {
-        editqt_dlg[6].dp=QuestTemplates[index].name;
-        editqt_dlg[8].dp=QuestTemplates[index].path;
+		editqt_cpy[6].dp=QuestTemplates[index].name;
+		editqt_cpy[8].dp=QuestTemplates[index].path;
         strcpy(temppath, QuestTemplates[index].path);
         bool gotname;
         
-        if(is_large())
-            large_dialog(editqt_dlg);
-            
-        ret=zc_popup_dialog(editqt_dlg,6);
+        ret=zc_popup_dialog(editqt_cpy,6);
         
         switch(ret)
         {
@@ -189,6 +188,8 @@ void edit_qt(int index)
         }
     }
     while(ret==2);
+
+	delete[] editqt_cpy;
 }
 
 const char *qtlist(int index, int *list_size)
@@ -239,6 +240,8 @@ int ListQTs(bool edit)
     memcpy(BackupQTs,QuestTemplates,sizeof(quest_template)*qt_count);
     
     int backup_qt_count=qt_count;
+
+	DIALOG *qtlist_cpy = resizeDialog(qtlist_dlg, 1.5);
     
     while(index>-1)
     {
@@ -254,20 +257,17 @@ int ListQTs(bool edit)
             }
         }
         
-        if(is_large())
-            large_dialog(qtlist_dlg);
-            
-        qtlist_dlg[2].x=int(qtlist_dlg[0].x+(edit?5:15)*(is_large()?1.5:1));
-        qtlist_dlg[3].proc=edit?jwin_button_proc:d_dummy_proc;
-        qtlist_dlg[4].proc=edit?jwin_button_proc:d_dummy_proc;
-        qtlist_dlg[5].proc=edit?jwin_button_proc:d_dummy_proc;
-        qtlist_dlg[6].x=int(qtlist_dlg[0].x+(edit?110:80)*(is_large()?1.5:1));
-        qtlist_dlg[7].x=int(qtlist_dlg[0].x+(edit?190:160)*(is_large()?1.5:1));
-        qtlist_dlg[8].proc=edit?d_keyboard_proc:d_dummy_proc;
+		qtlist_cpy[2].x=int(qtlist_cpy[0].x+(edit?5:15)*(is_large()?1.5:1));
+		qtlist_cpy[3].proc=edit?jwin_button_proc:d_dummy_proc;
+		qtlist_cpy[4].proc=edit?jwin_button_proc:d_dummy_proc;
+		qtlist_cpy[5].proc=edit?jwin_button_proc:d_dummy_proc;
+		qtlist_cpy[6].x=int(qtlist_cpy[0].x+(edit?110:80)*(is_large()?1.5:1));
+		qtlist_cpy[7].x=int(qtlist_cpy[0].x+(edit?190:160)*(is_large()?1.5:1));
+		qtlist_cpy[8].proc=edit?d_keyboard_proc:d_dummy_proc;
         
-        int ret=zc_popup_dialog(qtlist_dlg,2);
+        int ret=zc_popup_dialog(qtlist_cpy,2);
         
-        index=qtlist_dlg[2].d1;
+        index= qtlist_cpy[2].d1;
         
         int doedit=false;
         
@@ -301,8 +301,8 @@ int ListQTs(bool edit)
             if(index>1&&index<qt_count-1)
             {
                 zc_swap(QuestTemplates[index],QuestTemplates[index-1]);
-                --qtlist_dlg[2].d1;
-                index=qtlist_dlg[2].d1;
+                --qtlist_cpy[2].d1;
+                index= qtlist_cpy[2].d1;
             }
             
             break;
@@ -311,8 +311,8 @@ int ListQTs(bool edit)
             if(index>0&&index<qt_count-2)
             {
                 zc_swap(QuestTemplates[index],QuestTemplates[index+1]);
-                ++qtlist_dlg[2].d1;
-                index=qtlist_dlg[2].d1;
+                ++qtlist_cpy[2].d1;
+                index= qtlist_cpy[2].d1;
             }
             
             break;
@@ -374,6 +374,7 @@ int ListQTs(bool edit)
         }
     }
     
+	delete[] qtlist_cpy;
     zc_free(BackupQTs);
     return index;
 }
@@ -524,10 +525,11 @@ int PickRuleset()
         ruleset_dlg[i].proc = d_dummy_proc;
     }
     
-    if(is_large())
-        large_dialog(ruleset_dlg);
-        
-    int ret = zc_popup_dialog(ruleset_dlg,1);
+	DIALOG *ruleset_cpy = resizeDialog(ruleset_dlg, 1.5);
+
+    int ret = zc_popup_dialog(ruleset_cpy,1);
+
+	delete[] ruleset_cpy;
     
     if(ret==1)
     {
@@ -883,25 +885,28 @@ int get_import_map_bias()
     }
     
     import_map_bias_dlg[ImportMapBias+4].flags=D_SELECTED;
+
+	DIALOG *import_map_bias_cpy = resizeDialog(import_map_bias_dlg, 1.5);
+
+	int ret = -1;
     
-    if(is_large())
-        large_dialog(import_map_bias_dlg);
-        
-    if(zc_popup_dialog(import_map_bias_dlg,2)==2)
+    if(zc_popup_dialog(import_map_bias_cpy,2)==2)
     {
         for(int i=0; i<3; i++)
         {
-            if(import_map_bias_dlg[i+4].flags&D_SELECTED)
+            if(import_map_bias_cpy[i+4].flags&D_SELECTED)
             {
                 ImportMapBias=i;
                 break;
             }
         }
         
-        return 0;
+		ret = 0;
     }
+
+	delete[] import_map_bias_cpy;
     
-    return -1;
+	return ret;
 }
 
 int onImport_Map()

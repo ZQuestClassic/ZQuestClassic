@@ -15,8 +15,6 @@
 #include "zdefs.h"
 extern MENU the_menu[];
 
-void large_dialog(DIALOG *d);
-void large_dialog(DIALOG *d, float RESIZE_AMT);
 bool is_large();
 
 void Z_init_sound();
