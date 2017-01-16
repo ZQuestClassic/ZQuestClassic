@@ -214,24 +214,17 @@ ArrayList : ArrayList COMMA Expr {	ASTArrayList *al = (ASTArrayList *)$1;
 				$$=al;}
 	;
 
-Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {ASTType *type = (ASTType *)$1;
-												   int scripttype; //Itemdata pointer instead of item pointer
-												   ExtractType temp;
-												   type->execute(temp, &scripttype);
-												   if(scripttype == ScriptParser::TYPE_ITEM)
-												   {
-													  ASTType *t = type; //so we can keep the locationdata before deleting
-													  type = new ASTTypeItemclass(type->getLocation());
-													  delete t;
-												   }
+Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {
+			ASTScriptType *type = (ASTScriptType*)$1;
 												   ASTString *name = (ASTString *)$3;
 												   ASTDeclList *sblock = (ASTDeclList *)$4;
 												   $$ = new ASTScript(type, name->getValue(), sblock,@1);
 												   delete name;}
 	;
 
-ScriptType : Type {$$ = $1;}
-		   | GLOBAL {$$ = new ASTTypeGlobal(@1);}
+ScriptType : GLOBAL {$$ = new ASTScriptType(SCRIPTTYPE_GLOBAL, @1);}
+	| FFC {$$ = new ASTScriptType(SCRIPTTYPE_FFC, @1);}
+	| ITEM {$$ = new ASTScriptType(SCRIPTTYPE_ITEM, @1);}
 		   ;
 
 Import : IMPORT QUOTEDSTRING	{ASTString *str = (ASTString *)$2;

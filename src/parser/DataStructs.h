@@ -116,6 +116,7 @@ private:
     VariableSymbols vars;
     FunctionSymbols funcs;
 };
+
 struct SymbolData
 {
     SymbolTable *symbols;
@@ -125,7 +126,7 @@ struct SymbolData
     vector<ASTScript *> scripts;
     map<ASTScript *, int> runsymbols;
     map<ASTScript *, int> numParams;
-    map<ASTScript *, int> scriptTypes;
+    map<ASTScript *, ScriptType> scriptTypes;
     map<ASTScript *, int> thisPtr;
 };
 
@@ -139,7 +140,7 @@ struct FunctionData
     vector<ASTArrayDecl *> newGlobalArrays;
     map<string, int> scriptRunSymbols;
     map<string, int> numParams;
-    map<string, int> scriptTypes;
+    map<string, ScriptType> scriptTypes;
     map<string, int> thisPtr;
 };
 
@@ -150,7 +151,7 @@ struct IntermediateData
     vector<Opcode *> globalasInit;
     map<string, int> scriptRunLabels;
     map<string, int> numParams;
-    map<string, int> scriptTypes;
+    map<string, ScriptType> scriptTypes;
     map<string, int> thisPtr;
 };
 
@@ -192,7 +193,7 @@ struct BFSParam
 {
     Scope *scope;
     SymbolTable *table;
-    int type;
+    ScriptType type;
 };
 
 #endif
