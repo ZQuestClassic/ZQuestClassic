@@ -1085,6 +1085,9 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         funccode.push_back(first);
         //push on the 0s
         int numtoallocate = totvars-(unsigned int)symbols->getFuncParams(symbols->getID(*it)).size();
+		//also don't count the "this"
+		if (isarun)
+			numtoallocate--;
         
         for(int i = 0; i < numtoallocate; i++)
         {
