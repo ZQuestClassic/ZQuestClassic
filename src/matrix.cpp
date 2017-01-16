@@ -113,10 +113,10 @@ static void InitMatrix()
     RGB c_mgrn = {0,170,0,0};
     RGB c_dgrn = {0,85,0,0};
     
-    set_color(BLACK, &c_blck);
-    set_color(LIGHT_GREEN, &c_lgrn);
-    set_color(MED_GREEN, &c_mgrn);
-    set_color(DARK_GREEN, &c_dgrn);
+    Backend::palette->setPaletteEntry(BLACK, c_blck);
+    Backend::palette->setPaletteEntry(LIGHT_GREEN, c_lgrn);
+    Backend::palette->setPaletteEntry(MED_GREEN, c_mgrn);
+    Backend::palette->setPaletteEntry(DARK_GREEN, c_dgrn);
     
     cols = zc_max(zc_min(SCREEN_W / 8, MAX_COLS), 1);
     rows = zc_max(zc_min(SCREEN_H / 8, MAX_COLS), 1);

@@ -121,129 +121,149 @@ int d_cstile_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-void large_dialog(DIALOG *d)
-{
-    large_dialog(d, 1.5f);
-}
+extern int d_msg_preview_proc(int msg, DIALOG *d, int c);
+extern int d_msg_edit_proc(int msg, DIALOG *d, int c);
+extern int d_itemdropedit_proc(int msg, DIALOG *d, int c);
+extern int d_misccolors_tab_proc(int msg, DIALOG *d, int c);
 
-void large_dialog(DIALOG *d, float RESIZE_AMT)
+DIALOG *resizeDialog(DIALOG *d, float largeSize)
 {
-    if(d[0].d1 == 0)
-    {
-        d[0].d1 = 1;
-        int oldwidth = d[0].w;
-        int oldheight = d[0].h;
-        int oldx = d[0].x;
-        int oldy = d[0].y;
-        d[0].x -= int(float(d[0].w)/RESIZE_AMT);
-        d[0].y -= int(float(d[0].h)/RESIZE_AMT);
-        d[0].w = int(float(d[0].w)*RESIZE_AMT);
-        d[0].h = int(float(d[0].h)*RESIZE_AMT);
-        
-        for(int i=1; d[i].proc!=NULL; i++)
-        {
-            // Place elements horizontally
-            double xpc = ((double)(d[i].x - oldx) / (double)oldwidth);
-            d[i].x = int(d[0].x + (xpc*double(d[0].w)));
-            
-            // Horizontally resize elements
-            if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
-            {
-                d[i].x += (int)(float(d[i].w)/4.f);
-            }
-            else if(d[i].proc == d_comboframe_proc)
-            {
-                d[i].w *= 2;
-                d[i].w -= 4;
-            }
-            else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc || d[i].proc==d_qtile_proc ||  d[i].proc==d_tileblock_proc)
-            {
-                d[i].w *= 2;
-            }
-            else if(d[i].proc == jwin_button_proc)
-                d[i].w = int(d[i].w*1.5);
-            else d[i].w = int(float(d[i].w)*RESIZE_AMT);
-            
-            // Place elements vertically
-            double ypc = ((double)(d[i].y - oldy) / (double)oldheight);
-            d[i].y = int(d[0].y + (ypc*double(d[0].h)));
-            
-            // Vertically resize elements
-            if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
-            {
-            }
-            else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)
-            {
-                d[i].h = int((double)d[i].h*1.5);
-            }
-            else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_ndroplist_proc || d[i].proc == d_idroplist_proc || d[i].proc == d_nidroplist_proc || d[i].proc == d_dropdmaplist_proc
-                    || d[i].proc == d_dropdmaptypelist_proc || d[i].proc == jwin_as_droplist_proc  || d[i].proc == d_ffcombolist_proc || d[i].proc == sstype_drop_proc || d[i].proc == d_ctl_proc
-                    || d[i].proc == jwin_fontdrop_proc || d[i].proc == d_csl_proc || d[i].proc == d_csl2_proc || d[i].proc == d_stilelist_proc || d[i].proc == d_comboalist_proc)
-            {
-                d[i].y += int((double)d[i].h*0.25);
-                d[i].h = int((double)d[i].h*1.25);
-            }
-            else if(d[i].proc == d_comboframe_proc)
-            {
-                d[i].h *= 2;
-                d[i].h -= 4;
-            }
-            else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc || d[i].proc==d_qtile_proc || d[i].proc==d_tileblock_proc)
-            {
-                d[i].h *= 2;
-            }
-            else if(d[i].proc == jwin_button_proc)
-                d[i].h = int(d[i].h*1.5);
-            else d[i].h = int(float(d[i].h)*RESIZE_AMT);
-            
-            // Fix frames
-            if(d[i].proc == jwin_frame_proc)
-            {
-                d[i].x++;
-                d[i].y++;
-                d[i].w-=4;
-                d[i].h-=4;
-            }
-            
-            // Fix menus
-            if(d[i].proc == jwin_menu_proc)
-            {
-                d[i].y=d[0].y+23;
-                d[i].h=13;
-            }
-        }
-    }
+	int len = 0;
+	while (d[len].proc != NULL)
+		len++;
+
+	len++;
+
+	DIALOG *newd = new DIALOG[len];
+	memcpy(newd, d, len * sizeof(DIALOG));
+
+	for (int i = 0; i < len; i++)
+	{
+		if ( (newd[i].proc == jwin_tab_proc 
+			|| newd[i].proc == d_msg_preview_proc
+			|| newd[i].proc == d_itemdropedit_proc
+			|| newd[i].proc == d_misccolors_tab_proc
+			|| newd[i].proc == d_ffcombolist_proc
+			|| newd[i].proc == d_msg_edit_proc)			
+			&& newd[i].dp3 == d)
+			newd[i].dp3 = newd;
+	}
+
+	if (is_large())
+	{
+		int oldwidth = newd[0].w;
+		int oldheight = newd[0].h;
+		int oldx = newd[0].x;
+		int oldy = newd[0].y;
+		newd[0].x -= int(float(newd[0].w) / largeSize);
+		newd[0].y -= int(float(newd[0].h) / largeSize);
+		newd[0].w = int(float(newd[0].w)*largeSize);
+		newd[0].h = int(float(newd[0].h)*largeSize);
+
+		for (int i = 1; newd[i].proc != NULL; i++)
+		{
+			// Place elements horizontally
+			double xpc = ((double)(newd[i].x - oldx) / (double)oldwidth);
+			newd[i].x = int(newd[0].x + (xpc*double(newd[0].w)));
+
+			// Horizontally resize elements
+			if ((newd[i].proc == d_maptile_proc && newd[i].dp2 != (void*)1) || newd[i].proc == d_intro_edit_proc || newd[i].proc == d_title_edit_proc)
+			{
+				newd[i].x += (int)(float(newd[i].w) / 4.f);
+			}
+			else if (newd[i].proc == d_comboframe_proc)
+			{
+				newd[i].w *= 2;
+				newd[i].w -= 4;
+			}
+			else if (newd[i].proc == d_wflag_proc || newd[i].proc == d_bitmap_proc || newd[i].proc == d_maptile_proc || newd[i].proc == d_qtile_proc || newd[i].proc == d_tileblock_proc)
+			{
+				newd[i].w *= 2;
+			}
+			else if (newd[i].proc == jwin_button_proc)
+				newd[i].w = int(newd[i].w*1.5);
+			else newd[i].w = int(float(newd[i].w)*largeSize);
+
+			// Place elements vertically
+			double ypc = ((double)(newd[i].y - oldy) / (double)oldheight);
+			newd[i].y = int(newd[0].y + (ypc*double(newd[0].h)));
+
+			// Vertically resize elements
+			if ((newd[i].proc == d_maptile_proc && newd[i].dp2 != (void*)1) || newd[i].proc == d_intro_edit_proc || newd[i].proc == d_title_edit_proc)
+			{
+			}
+			else if (newd[i].proc == jwin_edit_proc || newd[i].proc == jwin_check_proc || newd[i].proc == jwin_checkfont_proc || newd[i].proc == jwin_tflpcheck_proc || newd[i].proc == jwin_lscheck_proc)
+			{
+				newd[i].h = int((double)newd[i].h*1.5);
+			}
+			else if (newd[i].proc == jwin_droplist_proc || newd[i].proc == d_ndroplist_proc || newd[i].proc == d_idroplist_proc || newd[i].proc == d_nidroplist_proc || newd[i].proc == d_dropdmaplist_proc
+				|| newd[i].proc == d_dropdmaptypelist_proc || newd[i].proc == jwin_as_droplist_proc || newd[i].proc == d_ffcombolist_proc || newd[i].proc == sstype_drop_proc || newd[i].proc == d_ctl_proc
+				|| newd[i].proc == jwin_fontdrop_proc || newd[i].proc == d_csl_proc || newd[i].proc == d_csl2_proc || newd[i].proc == d_stilelist_proc || newd[i].proc == d_comboalist_proc)
+			{
+				newd[i].y += int((double)newd[i].h*0.25);
+				newd[i].h = int((double)newd[i].h*1.25);
+			}
+			else if (newd[i].proc == d_comboframe_proc)
+			{
+				newd[i].h *= 2;
+				newd[i].h -= 4;
+			}
+			else if (newd[i].proc == d_wflag_proc || newd[i].proc == d_bitmap_proc || newd[i].proc == d_maptile_proc || newd[i].proc == d_qtile_proc || newd[i].proc == d_tileblock_proc)
+			{
+				newd[i].h *= 2;
+			}
+			else if (newd[i].proc == jwin_button_proc)
+				newd[i].h = int(newd[i].h*1.5);
+			else newd[i].h = int(float(newd[i].h)*largeSize);
+
+			// Fix frames
+			if (newd[i].proc == jwin_frame_proc)
+			{
+				newd[i].x++;
+				newd[i].y++;
+				newd[i].w -= 4;
+				newd[i].h -= 4;
+			}
+
+			// Fix menus
+			if (newd[i].proc == jwin_menu_proc)
+			{
+				newd[i].y = newd[0].y + 23;
+				newd[i].h = 13;
+			}
+		}
+
+
+		for (int i = 1; newd[i].proc != NULL; i++)
+		{
+			if (newd[i].proc == jwin_slider_proc)
+				continue;
+
+			// Bigger font
+			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != d_ilist_proc && newd[i].proc != d_wlist_proc && newd[i].proc != jwin_list_proc && newd[i].proc != d_dmaplist_proc
+				&& newd[i].proc != d_dropdmaplist_proc && newd[i].proc != d_xmaplist_proc && newd[i].proc != d_dropdmaptypelist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_wclist_proc && newd[i].proc != d_ndroplist_proc
+				&& newd[i].proc != d_idroplist_proc && newd[i].proc != d_nidroplist_proc && newd[i].proc != jwin_as_droplist_proc && newd[i].proc != d_ffcombolist_proc && newd[i].proc != d_enelist_proc && newd[i].proc != sstype_drop_proc && newd[i].proc != d_ctl_proc
+				&& newd[i].proc != jwin_fontdrop_proc && newd[i].proc != d_csl_proc && newd[i].proc != d_csl2_proc && newd[i].proc != d_stilelist_proc && newd[i].proc != d_comboalist_proc);
+
+			if (bigfontproc && !newd[i].dp2)
+			{
+				newd[i].dp2 = lfont_l;
+			}
+			else if (!bigfontproc)
+			{
+				((ListData *)newd[i].dp)->font = &lfont_l;
+			}
+
+			// Make checkboxes work
+			if (newd[i].proc == jwin_check_proc)
+				newd[i].proc = jwin_checkfont_proc;
+			else if (newd[i].proc == jwin_radio_proc)
+				newd[i].proc = jwin_radiofont_proc;
+		}
+	}
     
-    for(int i=1; d[i].proc != NULL; i++)
-    {
-        if(d[i].proc==jwin_slider_proc)
-            continue;
-            
-        // Bigger font
-        bool bigfontproc = (d[i].proc != jwin_initlist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_ilist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
-                            && d[i].proc != d_dropdmaplist_proc && d[i].proc != d_xmaplist_proc && d[i].proc != d_dropdmaptypelist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
-                            && d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc && d[i].proc !=  d_ctl_proc
-                            && d[i].proc != jwin_fontdrop_proc && d[i].proc != d_csl_proc && d[i].proc != d_csl2_proc && d[i].proc != d_stilelist_proc && d[i].proc != d_comboalist_proc);
-                            
-        if(bigfontproc && !d[i].dp2)
-        {
-            //d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
-            d[i].dp2 = lfont_l;
-        }
-        else if(!bigfontproc)
-        {
-//      ((ListData *)d[i].dp)->font = &sfont3;
-            ((ListData *) d[i].dp)->font = &lfont_l;
-        }
-        
-        // Make checkboxes work
-        if(d[i].proc == jwin_check_proc)
-            d[i].proc = jwin_checkfont_proc;
-        else if(d[i].proc == jwin_radio_proc)
-            d[i].proc = jwin_radiofont_proc;
-    }
-    
-    jwin_center_dialog(d);
+    jwin_center_dialog(newd);
+	return newd;
 }
 
 /*****************************/
@@ -1348,25 +1368,24 @@ void edit_itemdata(int index)
     setLabels(itemsbuf[index].family);
     FONT *tfont=font;
     font=pfont;
-    
-    if(is_large())
-        large_dialog(itemdata_dlg);
-        
+
+	DIALOG *itemdata_cpy = resizeDialog(itemdata_dlg, 1.5);
+            
     do
     {
-        ret = zc_popup_dialog(itemdata_dlg,3);
+        ret = zc_popup_dialog(itemdata_cpy,3);
         
         test.misc  = 0;
         test.flags = 0;
         
         test.fam_type = vbound(atoi(cll), 1, 255);
-        test.count = itemdata_dlg[96].d1-1;
+        test.count = itemdata_cpy[96].d1-1;
         test.amount = atoi(amt)<0?-(vbound(atoi(amt), -0x3FFF, 0))|0x4000:vbound(atoi(amt), 0, 0x3FFF);
         test.setmax = atoi(max);
         test.max = atoi(fmx);
-        test.script = biitems[itemdata_dlg[132].d1].second + 1;
+        test.script = biitems[itemdata_cpy[132].d1].second + 1;
         test.playsound = vbound(atoi(snd), 0, 127);
-        test.collect_script = biitems[itemdata_dlg[102].d1].second + 1;
+        test.collect_script = biitems[itemdata_cpy[102].d1].second + 1;
         test.misc1  = atoi(ms1);
         test.misc2  = atoi(ms2);
         test.misc3  = atoi(ms3);
@@ -1382,53 +1401,53 @@ void edit_itemdata(int index)
         test.power = vbound(atoi(pow), 0, 255);
         test.usesound = vbound(atoi(asn), 0, 127);
         
-        test.family = vbound(biic[itemdata_dlg[9].d1].i, 0, 255);
+        test.family = vbound(biic[itemdata_cpy[9].d1].i, 0, 255);
         
-        if(itemdata_dlg[14].flags & D_SELECTED)
+        if(itemdata_cpy[14].flags & D_SELECTED)
             test.flags |= ITEM_GAMEDATA;
             
-        if(itemdata_dlg[15].flags & D_SELECTED)
+        if(itemdata_cpy[15].flags & D_SELECTED)
             test.flags |= ITEM_FLAG1;
             
-        if(itemdata_dlg[16].flags & D_SELECTED)
+        if(itemdata_cpy[16].flags & D_SELECTED)
             test.flags |= ITEM_FLAG2;
             
-        if(itemdata_dlg[17].flags & D_SELECTED)
+        if(itemdata_cpy[17].flags & D_SELECTED)
             test.flags |= ITEM_FLAG3;
             
-        if(itemdata_dlg[18].flags & D_SELECTED)
+        if(itemdata_cpy[18].flags & D_SELECTED)
             test.flags |= ITEM_FLAG4;
             
-        if(itemdata_dlg[19].flags & D_SELECTED)
+        if(itemdata_cpy[19].flags & D_SELECTED)
             test.flags |= ITEM_FLAG5;
             
-        test.tile  = itemdata_dlg[68].d1;
-        test.csets = itemdata_dlg[68].d2;
+        test.tile  = itemdata_cpy[68].d1;
+        test.csets = itemdata_cpy[68].d2;
         
-        if(itemdata_dlg[69].flags & D_SELECTED)
+        if(itemdata_cpy[69].flags & D_SELECTED)
             test.misc |= 1;
             
-        if(itemdata_dlg[70].flags & D_SELECTED)
+        if(itemdata_cpy[70].flags & D_SELECTED)
             test.misc |= 2;
             
-        test.amount |= (itemdata_dlg[94].flags & D_SELECTED) ? 0x8000 : 0;
+        test.amount |= (itemdata_cpy[94].flags & D_SELECTED) ? 0x8000 : 0;
         
-        if(itemdata_dlg[107].flags & D_SELECTED)
+        if(itemdata_cpy[107].flags & D_SELECTED)
             test.flags |= ITEM_KEEPOLD;
             
-        if(itemdata_dlg[108].flags & D_SELECTED)
+        if(itemdata_cpy[108].flags & D_SELECTED)
             test.flags |= ITEM_GAINOLD;
             
-        if(itemdata_dlg[109].flags & D_SELECTED)
+        if(itemdata_cpy[109].flags & D_SELECTED)
             test.flags |= ITEM_EDIBLE;
             
-        if(itemdata_dlg[110].flags & D_SELECTED)
+        if(itemdata_cpy[110].flags & D_SELECTED)
             test.flags |= ITEM_COMBINE;
             
-        if(itemdata_dlg[137].flags & D_SELECTED)
+        if(itemdata_cpy[137].flags & D_SELECTED)
             test.flags |= ITEM_DOWNGRADE;
             
-        if(itemdata_dlg[138].flags & D_SELECTED)
+        if(itemdata_cpy[138].flags & D_SELECTED)
             test.flags |= ITEM_RUPEE_MAGIC;
             
         test.csets  |= (atoi(fcs)&15)<<4;
@@ -1436,16 +1455,16 @@ void edit_itemdata(int index)
         test.speed  = zc_min(atoi(spd),255);
         test.delay  = zc_min(atoi(dly),255);
         test.ltm    = zc_max(zc_min(atol(ltm),NEWMAXTILES-1),0-(NEWMAXTILES-1));
-        test.wpn   = biw[itemdata_dlg[140].d1].i;
-        test.wpn2  = biw[itemdata_dlg[142].d1].i;
-        test.wpn3  = biw[itemdata_dlg[144].d1].i;
-        test.wpn4  = biw[itemdata_dlg[146].d1].i;
-        test.wpn5  = biw[itemdata_dlg[148].d1].i;
-        test.wpn6  = biw[itemdata_dlg[150].d1].i;
-        test.wpn7  = biw[itemdata_dlg[152].d1].i;
-        test.wpn8  = biw[itemdata_dlg[154].d1].i;
-        test.wpn9  = biw[itemdata_dlg[156].d1].i;
-        test.wpn10 = biw[itemdata_dlg[158].d1].i;
+        test.wpn   = biw[itemdata_cpy[140].d1].i;
+        test.wpn2  = biw[itemdata_cpy[142].d1].i;
+        test.wpn3  = biw[itemdata_cpy[144].d1].i;
+        test.wpn4  = biw[itemdata_cpy[146].d1].i;
+        test.wpn5  = biw[itemdata_cpy[148].d1].i;
+        test.wpn6  = biw[itemdata_cpy[150].d1].i;
+        test.wpn7  = biw[itemdata_cpy[152].d1].i;
+        test.wpn8  = biw[itemdata_cpy[154].d1].i;
+        test.wpn9  = biw[itemdata_cpy[156].d1].i;
+        test.wpn10 = biw[itemdata_cpy[158].d1].i;
         
         for(int j=0; j<8; j++)
             test.initiald[j] = vbound(ffparse(da[j]),-327680000, 327680000);
@@ -1460,7 +1479,7 @@ void edit_itemdata(int index)
         
         if(ret==71)
         {
-            test_item(test,itemdata_dlg[0].x+itemdata_dlg[0].w/2-(is_large()?34:10),itemdata_dlg[0].y+itemdata_dlg[0].h/2-(is_large()?34:10));
+            test_item(test, itemdata_cpy[0].x+ itemdata_cpy[0].w/2-(is_large()?34:10), itemdata_cpy[0].y+ itemdata_cpy[0].h/2-(is_large()?34:10));
             sprintf(fcs,"%d",test.csets>>4);
             sprintf(frm,"%d",test.frames);
             sprintf(spd,"%d",test.speed);
@@ -1517,8 +1536,8 @@ void edit_itemdata(int index)
             sprintf(da[9],"%d",test.initiala[1]/10000);
             sprintf(itemnumstr,"Item %d: %s", index, name);
             
-            itemdata_dlg[0].dp = itemnumstr;
-            itemdata_dlg[0].dp2 = lfont;
+			itemdata_cpy[0].dp = itemnumstr;
+			itemdata_cpy[0].dp2 = lfont;
             
             if(biic_cnt==-1)
             {
@@ -1530,101 +1549,101 @@ void edit_itemdata(int index)
                 build_biw_list();
             }
             
-            itemdata_dlg[7].dp = name;
+			itemdata_cpy[7].dp = name;
             
             for(int j=0; j<biic_cnt; j++)
             {
                 if(biic[j].i == test.family)
-                    itemdata_dlg[9].d1 = j;
+					itemdata_cpy[9].d1 = j;
             }
             
-            itemdata_dlg[11].dp = cll;
-            itemdata_dlg[13].dp = pow;
-            itemdata_dlg[14].flags = (itemsbuf[index].flags&ITEM_GAMEDATA) ? D_SELECTED : 0;
-            itemdata_dlg[15].flags = (itemsbuf[index].flags&ITEM_FLAG1) ? D_SELECTED : 0;
-            itemdata_dlg[16].flags = (itemsbuf[index].flags&ITEM_FLAG2) ? D_SELECTED : 0;
-            itemdata_dlg[17].flags = (itemsbuf[index].flags&ITEM_FLAG3) ? D_SELECTED : 0;
-            itemdata_dlg[18].flags = (itemsbuf[index].flags&ITEM_FLAG4) ? D_SELECTED : 0;
-            itemdata_dlg[19].flags = (itemsbuf[index].flags&ITEM_FLAG5) ? D_SELECTED : 0;
-            itemdata_dlg[21].dp = ms1;
-            itemdata_dlg[23].dp = ms2;
-            itemdata_dlg[25].dp = ms3;
-            itemdata_dlg[27].dp = ms4;
-            itemdata_dlg[29].dp = ms5;
-            itemdata_dlg[31].dp = ms6;
-            itemdata_dlg[33].dp = ms7;
-            itemdata_dlg[35].dp = ms8;
-            itemdata_dlg[37].dp = ms9;
-            itemdata_dlg[39].dp = ms10;
+			itemdata_cpy[11].dp = cll;
+			itemdata_cpy[13].dp = pow;
+			itemdata_cpy[14].flags = (itemsbuf[index].flags&ITEM_GAMEDATA) ? D_SELECTED : 0;
+			itemdata_cpy[15].flags = (itemsbuf[index].flags&ITEM_FLAG1) ? D_SELECTED : 0;
+			itemdata_cpy[16].flags = (itemsbuf[index].flags&ITEM_FLAG2) ? D_SELECTED : 0;
+			itemdata_cpy[17].flags = (itemsbuf[index].flags&ITEM_FLAG3) ? D_SELECTED : 0;
+			itemdata_cpy[18].flags = (itemsbuf[index].flags&ITEM_FLAG4) ? D_SELECTED : 0;
+			itemdata_cpy[19].flags = (itemsbuf[index].flags&ITEM_FLAG5) ? D_SELECTED : 0;
+			itemdata_cpy[21].dp = ms1;
+			itemdata_cpy[23].dp = ms2;
+			itemdata_cpy[25].dp = ms3;
+			itemdata_cpy[27].dp = ms4;
+			itemdata_cpy[29].dp = ms5;
+			itemdata_cpy[31].dp = ms6;
+			itemdata_cpy[33].dp = ms7;
+			itemdata_cpy[35].dp = ms8;
+			itemdata_cpy[37].dp = ms9;
+			itemdata_cpy[39].dp = ms10;
             
-            itemdata_dlg[58].dp = fcs;
-            itemdata_dlg[60].dp = frm;
-            itemdata_dlg[62].dp = spd;
-            itemdata_dlg[64].dp = dly;
-            itemdata_dlg[66].dp = ltm;
-            itemdata_dlg[68].d1 = test.tile;
-            itemdata_dlg[68].d2 = test.csets&15;
-            itemdata_dlg[69].flags = (test.misc&1) ? D_SELECTED : 0;
-            itemdata_dlg[70].flags = (test.misc&2) ? D_SELECTED : 0;
+			itemdata_cpy[58].dp = fcs;
+			itemdata_cpy[60].dp = frm;
+			itemdata_cpy[62].dp = spd;
+			itemdata_cpy[64].dp = dly;
+			itemdata_cpy[66].dp = ltm;
+			itemdata_cpy[68].d1 = test.tile;
+			itemdata_cpy[68].d2 = test.csets&15;
+			itemdata_cpy[69].flags = (test.misc&1) ? D_SELECTED : 0;
+			itemdata_cpy[70].flags = (test.misc&2) ? D_SELECTED : 0;
             
-            itemdata_dlg[93].dp = amt;
-            itemdata_dlg[94].flags = (test.amount & 0x8000)  ? D_SELECTED : 0;
-            itemdata_dlg[96].d1 = itemsbuf[index].count+1;
-            itemdata_dlg[98].dp = fmx;
-            itemdata_dlg[100].dp = max;
-            itemdata_dlg[102].d1 = pickupscript;
-            itemdata_dlg[104].dp = snd;
-            itemdata_dlg[106].dp = hrt;
+			itemdata_cpy[93].dp = amt;
+			itemdata_cpy[94].flags = (test.amount & 0x8000)  ? D_SELECTED : 0;
+			itemdata_cpy[96].d1 = itemsbuf[index].count+1;
+			itemdata_cpy[98].dp = fmx;
+			itemdata_cpy[100].dp = max;
+			itemdata_cpy[102].d1 = pickupscript;
+			itemdata_cpy[104].dp = snd;
+			itemdata_cpy[106].dp = hrt;
             
-            itemdata_dlg[107].flags = (test.flags&ITEM_KEEPOLD) ? D_SELECTED : 0;
-            itemdata_dlg[108].flags = (test.flags&ITEM_GAINOLD) ? D_SELECTED : 0;
-            itemdata_dlg[109].flags = (test.flags&ITEM_EDIBLE) ? D_SELECTED : 0;
-            itemdata_dlg[110].flags = (test.flags&ITEM_COMBINE) ? D_SELECTED : 0;
+			itemdata_cpy[107].flags = (test.flags&ITEM_KEEPOLD) ? D_SELECTED : 0;
+			itemdata_cpy[108].flags = (test.flags&ITEM_GAINOLD) ? D_SELECTED : 0;
+			itemdata_cpy[109].flags = (test.flags&ITEM_EDIBLE) ? D_SELECTED : 0;
+			itemdata_cpy[110].flags = (test.flags&ITEM_COMBINE) ? D_SELECTED : 0;
             
-            itemdata_dlg[132].d1 = script;
-            itemdata_dlg[134].dp = mgc;
-            itemdata_dlg[136].dp = asn;
-            itemdata_dlg[137].flags = (test.flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
-            itemdata_dlg[138].flags = (test.flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
+			itemdata_cpy[132].d1 = script;
+			itemdata_cpy[134].dp = mgc;
+			itemdata_cpy[136].dp = asn;
+			itemdata_cpy[137].flags = (test.flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
+			itemdata_cpy[138].flags = (test.flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
             
             for(int j=0; j<biw_cnt; j++)
             {
                 if(biw[j].i == test.wpn)
-                    itemdata_dlg[140].d1 = j;
+					itemdata_cpy[140].d1 = j;
                     
                 if(biw[j].i == test.wpn2)
-                    itemdata_dlg[142].d1 = j;
+					itemdata_cpy[142].d1 = j;
                     
                 if(biw[j].i == test.wpn3)
-                    itemdata_dlg[144].d1 = j;
+					itemdata_cpy[144].d1 = j;
                     
                 if(biw[j].i == test.wpn4)
-                    itemdata_dlg[146].d1 = j;
+					itemdata_cpy[146].d1 = j;
                     
                 if(biw[j].i == test.wpn5)
-                    itemdata_dlg[148].d1 = j;
+					itemdata_cpy[148].d1 = j;
                     
                 if(biw[j].i == test.wpn6)
-                    itemdata_dlg[150].d1 = j;
+					itemdata_cpy[150].d1 = j;
                     
                 if(biw[j].i == test.wpn7)
-                    itemdata_dlg[152].d1 = j;
+					itemdata_cpy[152].d1 = j;
                     
                 if(biw[j].i == test.wpn8)
-                    itemdata_dlg[154].d1 = j;
+					itemdata_cpy[154].d1 = j;
                     
                 if(biw[j].i == test.wpn9)
-                    itemdata_dlg[156].d1 = j;
+					itemdata_cpy[156].d1 = j;
                     
                 if(biw[j].i == test.wpn10)
-                    itemdata_dlg[158].d1 = j;
+					itemdata_cpy[158].d1 = j;
             }
             
             for(int j=0; j<8; j++)
-                itemdata_dlg[187+j].dp = da[j];
+				itemdata_cpy[187+j].dp = da[j];
                 
-            itemdata_dlg[197].dp = da[8];
-            itemdata_dlg[198].dp = da[9];
+			itemdata_cpy[197].dp = da[8];
+			itemdata_cpy[198].dp = da[9];
             
             setLabels(test.family);
         }
@@ -1634,6 +1653,7 @@ void edit_itemdata(int index)
     }
     while(ret==5 || ret==9 || ret==71 || ret==40);
     
+	delete[] itemdata_cpy;
     font=tfont;
     
     if(ret==3)
@@ -1760,29 +1780,26 @@ void edit_weapondata(int index)
     wpndata_dlg[16].dp = typ;
     sprintf(name,"%s",weapon_string[index]);
     wpndata_dlg[18].dp = name;
-    
-    if(is_large())
-    {
-        large_dialog(wpndata_dlg);
-    }
+
+	DIALOG *wpndata_cpy = resizeDialog(wpndata_dlg, 1.5);
     
     int ret;
     wpndata test;
     
     do
     {
-        ret = zc_popup_dialog(wpndata_dlg,3);
+        ret = zc_popup_dialog(wpndata_cpy,3);
         
-        test.tile  = wpndata_dlg[2].d1;
-        test.csets = wpndata_dlg[2].d2;
+        test.tile  = wpndata_cpy[2].d1;
+        test.csets = wpndata_cpy[2].d2;
         
         test.misc  = 0;
         
         for(int i=0; i<4; i++)
-            if(wpndata_dlg[i+5].flags & D_SELECTED)
+            if(wpndata_cpy[i+5].flags & D_SELECTED)
                 test.misc |= 1<<i;
                 
-        test.misc |= (wpndata_dlg[17].flags & D_SELECTED) ? WF_BEHIND : 0;
+        test.misc |= (wpndata_cpy[17].flags & D_SELECTED) ? WF_BEHIND : 0;
         
         test.csets  |= (atoi(fcs)&15)<<4;
         test.frames = atoi(frm);
@@ -1798,6 +1815,8 @@ void edit_weapondata(int index)
         wpnsbuf[index] = test;
         saved = false;
     }
+
+	delete[] wpndata_cpy;
 }
 
 int onCustomWpns()
@@ -3084,11 +3103,8 @@ void edit_enemydata(int index)
     int ret;
     guydata test;
     memset(&test, 0, sizeof(guydata));
-    
-    if(is_large())
-    {
-        large_dialog(enedata_dlg);
-    }
+
+	DIALOG *enedata_cpy = resizeDialog(enedata_dlg, 1.5);
     
     setEnemyLabels(guysbuf[index].family);
     
@@ -3096,27 +3112,27 @@ void edit_enemydata(int index)
     {
         for(int i=0; i<10; i++)
         {
-            if(enedata_dlg[64+i].proc==jwin_droplist_proc)
+            if(enedata_cpy[64+i].proc==jwin_droplist_proc)
             {
                 int size = 0;
-                ((ListData*)enedata_dlg[64+i].dp)->listFunc(-1,&size);
+                ((ListData*)enedata_cpy[64+i].dp)->listFunc(-1,&size);
                 // Bound ms[i] as well as enedata_dlg[64+i].d1
                 sprintf(ms[i],"%d",vbound(atoi(ms[i]), 0, size));
-                enedata_dlg[64+i].d1 = atoi(ms[i]);
+				enedata_cpy[64+i].d1 = atoi(ms[i]);
             }
             else
-                enedata_dlg[64+i].dp = ms[i];
+				enedata_cpy[64+i].dp = ms[i];
         }
         
-        enedata_dlg[189].dp = ms[10];
-        enedata_dlg[190].dp = ms[11];
+		enedata_cpy[189].dp = ms[10];
+		enedata_cpy[190].dp = ms[11];
         
-        ret = zc_popup_dialog(enedata_dlg,3);
+        ret = zc_popup_dialog(enedata_cpy,3);
         
-        test.tile  = enedata_dlg[2].d1;
-        test.cset = enedata_dlg[2].d2;
-        test.s_tile  = enedata_dlg[3].d1;
-        test.e_tile  = enedata_dlg[4].d1;
+        test.tile  = enedata_cpy[2].d1;
+        test.cset = enedata_cpy[2].d2;
+        test.s_tile  = enedata_cpy[3].d1;
+        test.e_tile  = enedata_cpy[4].d1;
         
         test.width = vbound(atoi(w),0,20);
         test.height = vbound(atoi(h),0,20);
@@ -3125,11 +3141,11 @@ void edit_enemydata(int index)
         test.e_width = vbound(atoi(ew),0,20);
         test.e_height = vbound(atoi(eh),0,20);
         
-        test.weapon = enedata_dlg[45].d1 != 0 ? biew[enedata_dlg[45].d1].i + wEnemyWeapons : wNone;
-        test.family = bief[enedata_dlg[46].d1].i;
-        test.anim = biea[enedata_dlg[47].d1].i;
-        test.e_anim = biea[enedata_dlg[48].d1].i;
-        test.item_set = enedata_dlg[49].d1;
+        test.weapon = enedata_cpy[45].d1 != 0 ? biew[enedata_cpy[45].d1].i + wEnemyWeapons : wNone;
+        test.family = bief[enedata_cpy[46].d1].i;
+        test.anim = biea[enedata_cpy[47].d1].i;
+        test.e_anim = biea[enedata_cpy[48].d1].i;
+        test.item_set = enedata_cpy[49].d1;
         
         test.hp = vbound(atoi(hp), 0, 32767); //0x7FFF, not 0xFFFF?
         test.dp = vbound(atoi(dp), 0, 32767);
@@ -3144,41 +3160,41 @@ void edit_enemydata(int index)
         test.frate = vbound(atoi(frt),0,256);
         test.e_frate = vbound(atoi(efr),0,256);
         test.bosspal = vbound(atoi(bsp),-1,29);
-        test.bgsfx = enedata_dlg[182].d1;
-        test.hitsfx = enedata_dlg[183].d1;
-        test.deadsfx = enedata_dlg[184].d1;
+        test.bgsfx = enedata_cpy[182].d1;
+        test.hitsfx = enedata_cpy[183].d1;
+        test.deadsfx = enedata_cpy[184].d1;
         
-        test.misc1 = (enedata_dlg[64].proc==jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(ms[0]);
-        test.misc2 = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(ms[1]);
-        test.misc3 = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(ms[2]);
-        test.misc4 = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : atol(ms[3]);
-        test.misc5 = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : atol(ms[4]);
-        test.misc6 = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : atol(ms[5]);
-        test.misc7 = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : atol(ms[6]);
-        test.misc8 = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(ms[7]);
-        test.misc9 = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(ms[8]);
-        test.misc10 = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(ms[9]);
+        test.misc1 = (enedata_cpy[64].proc==jwin_droplist_proc) ? enedata_cpy[64].d1 : atol(ms[0]);
+        test.misc2 = (enedata_cpy[65].proc==jwin_droplist_proc) ? enedata_cpy[65].d1 : atol(ms[1]);
+        test.misc3 = (enedata_cpy[66].proc==jwin_droplist_proc) ? enedata_cpy[66].d1 : atol(ms[2]);
+        test.misc4 = (enedata_cpy[67].proc==jwin_droplist_proc) ? enedata_cpy[67].d1 : atol(ms[3]);
+        test.misc5 = (enedata_cpy[68].proc==jwin_droplist_proc) ? enedata_cpy[68].d1 : atol(ms[4]);
+        test.misc6 = (enedata_cpy[69].proc==jwin_droplist_proc) ? enedata_cpy[69].d1 : atol(ms[5]);
+        test.misc7 = (enedata_cpy[70].proc==jwin_droplist_proc) ? enedata_cpy[70].d1 : atol(ms[6]);
+        test.misc8 = (enedata_cpy[71].proc==jwin_droplist_proc) ? enedata_cpy[71].d1 : atol(ms[7]);
+        test.misc9 = (enedata_cpy[72].proc==jwin_droplist_proc) ? enedata_cpy[72].d1 : atol(ms[8]);
+        test.misc10 = (enedata_cpy[73].proc==jwin_droplist_proc) ? enedata_cpy[73].d1 : atol(ms[9]);
         test.misc11 = atol(ms[10]);
         test.misc12 = atol(ms[11]);
         
         for(int j=0; j <= edefBYRNA; j++)
         {
-            test.defense[j] = enedata_dlg[j+161].d1;
+            test.defense[j] = enedata_cpy[j+161].d1;
         }
         
-        test.defense[edefSCRIPT] = enedata_dlg[192].d1;
+        test.defense[edefSCRIPT] = enedata_cpy[192].d1;
         
         
         for(int i=0; i<32; i++)
-            test.flags |= (enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0;
+            test.flags |= (enedata_cpy[74+i].flags & D_SELECTED) ? (1<<i) : 0;
             
         test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
-        test.flags |= (enedata_dlg[186].d1==2 ? guy_fadeinstant : enedata_dlg[186].d1==1 ? guy_fadeflicker : 0);
+        test.flags |= (enedata_cpy[186].d1==2 ? guy_fadeinstant : enedata_cpy[186].d1==1 ? guy_fadeflicker : 0);
         
         for(int i=0; i<16; i++)
-            test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
+            test.flags2 |= (enedata_cpy[106+i].flags & D_SELECTED) ? (1<<i) : 0;
             
-        if(enedata_dlg[143].flags & D_SELECTED)
+        if(enedata_cpy[143].flags & D_SELECTED)
             test.cset = 14;
             
         if(ret==5)
@@ -3189,20 +3205,21 @@ void edit_enemydata(int index)
         }
         else if(ret==46)
         {
-            setEnemyLabels(bief[enedata_dlg[46].d1].i);
+            setEnemyLabels(bief[enedata_cpy[46].d1].i);
         }
         else if(ret==178)
         {
             for(int j=1; j <= edefBYRNA; j++)
             {
-                enedata_dlg[j+161].d1 = enedata_dlg[161].d1;
+				enedata_cpy[j+161].d1 = enedata_cpy[161].d1;
             }
             
-            enedata_dlg[192].d1 = enedata_dlg[161].d1;
+			enedata_cpy[192].d1 = enedata_cpy[161].d1;
         }
     }
     while(ret != 5 && ret != 6 && ret != 0);
     
+	delete[] enedata_cpy;
 }
 
 extern DIALOG elist_dlg[];
@@ -4335,8 +4352,7 @@ int onCustomLink()
     linktile_dlg[95].d1=(zinit.link_swim_speed<60)?0:1;
     linktile_dlg[7].d1=zinit.linkanimationstyle;
     
-    if(is_large())
-        large_dialog(linktile_dlg, 2.0);
+	DIALOG *linktile_cpy = resizeDialog(linktile_dlg, 2.0);
         
     int oldWalkSpr[4][3];
     int oldStabSpr[4][3];
@@ -4362,14 +4378,14 @@ int onCustomLink()
     memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int));
     
     
-    int ret = popup_dialog_through_bitmap(screen2,linktile_dlg,3);
+    int ret = popup_dialog_through_bitmap(screen2, linktile_cpy,3);
     
     if(ret==3)
     {
         saved=false;
-        set_bit(quest_rules, qr_LTTPCOLLISION, (linktile_dlg[5].flags&D_SELECTED)?1:0);
-        set_bit(quest_rules, qr_LTTPWALK, (linktile_dlg[76].flags&D_SELECTED)?1:0);
-        zinit.link_swim_speed=(linktile_dlg[95].d1==0)?50:67;
+        set_bit(quest_rules, qr_LTTPCOLLISION, (linktile_cpy[5].flags&D_SELECTED)?1:0);
+        set_bit(quest_rules, qr_LTTPWALK, (linktile_cpy[76].flags&D_SELECTED)?1:0);
+        zinit.link_swim_speed=(linktile_cpy[95].d1==0)?50:67;
     }
     else
     {
@@ -4385,6 +4401,8 @@ int onCustomLink()
         memcpy(castingspr, oldCastSpr, 3*sizeof(int));
         memcpy(holdspr, oldHoldSpr, 2*2*3*sizeof(int));
     }
+
+	delete[] linktile_cpy;
     
     ret=ret;
     return D_O_K;

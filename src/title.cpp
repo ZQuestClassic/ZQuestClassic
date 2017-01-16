@@ -519,7 +519,7 @@ static void NES_titlescreen()
     tri=0;
     fcnt=0;
     trstr=0;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_bitmap(screen);
     clear_bitmap(framebuf);
@@ -612,8 +612,8 @@ static void DX_mainscreen(int f)
     
     if(f>=680 && f<680+256 && (f%3)==0)
     {
-        fade_interpolate((RGB*)dat[TITLE_DX_PAL_1].dat,black_palette,RAMpal,
-                         (f-680)>>2,0,255);
+        Backend::palette->interpolatePalettes((RGB*)dat[TITLE_DX_PAL_1].dat,black_palette,
+                         (f-680)>>2,0,255, RAMpal);
         refreshpal=true;
     }
     
@@ -633,7 +633,7 @@ static void DX_titlescreen()
     int f=0;
     bool done=false;
     trstr=0;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
@@ -723,8 +723,8 @@ static void v25_mainscreen(int f)
     
     if(f>=680 && f<680+256 && (f%3)==0)
     {
-        fade_interpolate((RGB*)dat[TITLE_25_PAL_1].dat,black_palette,RAMpal,
-                         (f-680)>>2,0,255);
+        Backend::palette->interpolatePalettes((RGB*)dat[TITLE_25_PAL_1].dat,black_palette,
+                         (f-680)>>2,0,255, RAMpal);
         refreshpal=true;
     }
     
@@ -744,7 +744,7 @@ static void v25_titlescreen()
     int f=0;
     bool done=false;
     trstr=0;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
@@ -2867,10 +2867,9 @@ int custom_game(int file)
     
     clear_keybuf();
     
-    if(is_large())
-        large_dialog(gamemode_dlg);
+	DIALOG *gamemode_cpy = resizeDialog(gamemode_dlg, 1.5);        
         
-    while((ret=zc_popup_dialog(gamemode_dlg,1))==1)
+    while((ret=zc_popup_dialog(gamemode_cpy,1))==1)
     {
         blit(screen,tmp_scr,miniscreenX(), miniscreenY(),0,0,320,240);
         
@@ -2887,27 +2886,29 @@ int custom_game(int file)
         {
             //      strcpy(qstpath, path);
             replace_extension(qstpath,path,"qst",2047);
-            gamemode_dlg[2].dp = get_filename(qstpath);
+			gamemode_cpy[2].dp = get_filename(qstpath);
             
             if(get_quest_info(&h,infostr)==0)
             {
-                gamemode_dlg[4].dp = infostr;
-                gamemode_dlg[5].flags = D_DISABLED;
+				gamemode_cpy[4].dp = infostr;
+				gamemode_cpy[5].flags = D_DISABLED;
             }
             else
             {
-                gamemode_dlg[4].dp = infostr;
-                gamemode_dlg[5].flags = D_EXIT;
+				gamemode_cpy[4].dp = infostr;
+				gamemode_cpy[5].flags = D_EXIT;
             }
             
-            gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
-            gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
+			gamemode_cpy[2].d1 = gamemode_cpy[4].d1 = 0;
+			gamemode_cpy[2].d2 = gamemode_cpy[4].d2 = 0;
         }
         
         blit(tmp_scr,screen,0,0, miniscreenX(), miniscreenY(),320,240);
 		Backend::graphics->waitTick();
 		Backend::graphics->showBackBuffer();
     }
+
+	delete[] gamemode_cpy;
     
 	Backend::mouse->setCursorVisibility(false);
     game_pal();	

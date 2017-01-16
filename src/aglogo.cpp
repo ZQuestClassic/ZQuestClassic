@@ -125,7 +125,7 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     PALETTE pal;
     SetCols(pal);
     PALETTE workpal;
-    set_palette(black_palette);
+    Backend::palette->setPalette(black_palette);
     clear_bitmap(frame);
     clear_bitmap(firebuf);
     clear_bitmap(screen);
@@ -164,17 +164,17 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
             if(fadecnt<64) //I get some problems here when fade_interpolate takes invalid parameters.
             {
                 if(!(++fadecnt < 0))
-                    fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
+                    Backend::palette->interpolatePalettes(black_palette,pal,fadecnt,0,255, workpal);
                     
-                set_palette_range(workpal,0,255,false);
+                Backend::palette->setPalette(workpal);
             }
         }
         else
         {
             if(!(--fadecnt < 0))
-                fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
+                Backend::palette->interpolatePalettes(black_palette,pal,fadecnt,0,255, workpal);
                 
-            set_palette_range(workpal,0,255,false);
+            Backend::palette->setPalette(workpal);
         }
     }
     while(fadecnt>0);

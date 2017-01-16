@@ -15,8 +15,6 @@
 #include "zdefs.h"
 extern MENU the_menu[];
 
-void large_dialog(DIALOG *d);
-void large_dialog(DIALOG *d, float RESIZE_AMT);
 bool is_large();
 
 void Z_init_sound();
@@ -27,9 +25,11 @@ void save_game_configs();
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
+int onNativeDepthMenu();
 int onFullscreenMenu();
 int onWindowed1Menu();
 int onWindowed2Menu();
+int onWindowed3Menu();
 int onWindowed4Menu();
 void f_Quit(int type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true);

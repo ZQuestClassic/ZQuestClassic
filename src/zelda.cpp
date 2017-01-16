@@ -3161,6 +3161,17 @@ int main(int argc, char* argv[])
 		Backend::graphics->setFullscreen(false);
     }
 
+	if (used_switch(argc, argv, "-0bit"))
+	{
+		al_trace("Used switch: -0bit\n");
+		Backend::graphics->setUseNativeColorDepth(true);
+	}
+	else if (used_switch(argc, argv, "-8bit"))
+	{
+		al_trace("Used switch: -8bit\n");
+		Backend::graphics->setUseNativeColorDepth(false);
+	}
+
 	Backend::graphics->setVideoModeSwitchDelay(wait_ms_on_set_graphics);
 	Backend::graphics->registerVirtualModes(desiredModes);
 
@@ -3176,7 +3187,7 @@ int main(int argc, char* argv[])
 	for (int i = 240; i<256; i++)
 		RAMpal[i] = ((RGB*)data[PAL_GUI].dat)[i];
 
-	set_palette(RAMpal);
+	Backend::palette->setPalette(RAMpal);
 	clear_to_color(screen, BLACK);
      
     set_close_button_callback((void (*)()) hit_close_button);

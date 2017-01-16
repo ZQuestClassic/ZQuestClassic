@@ -25,6 +25,9 @@ public:
 	*               by registerVirtualModes()) is not recommend, as there will
 	*               be pixel scaling artifacts.
 	* - fullscreen: Whether the program starts off in full screen, or windowed.
+	* - native:     Whether the program should use the native desktop
+	*               color depth, or 8-bit color depth, for the screen color
+	*               depth.
 	* - fps:        The frame rate of the program, in frames per second. The
 	*               waitTick() function will synchronize the program with this
 	*               frame rate.
@@ -50,9 +53,14 @@ public:
 	* screen resolutions. When the backend is initialized, the virtual screen
 	* will be created at one of these resolutions.
 	* Resolutions should be listed in order of most favorable, to least
-	* favorable. The first resolution encountered in the list, whose width and
-	* height is at most the width and height of the physical screen, will be
-	* used.
+	* favorable. 
+	* Once the physical screen resolution has been set, a virtual screen
+	* resolution is selected using the following scheme:
+	* - the first resolution encountered in the list, such that the screen
+	*   resolution is an integer multiple of that resolution, is selected;
+	* - if no registered resolution satisfies that criterion, the first 
+	*   resolution encountered in the list, whose width and height is at 
+	*   most the width and height of the physical screen, will be used.
 	*
 	* This function *must* be called before calling initialize(). Subsequent
 	* calls to registerVirtualModes() overwrite the modes registered earlier.
@@ -99,9 +107,8 @@ public:
 	*
 	* If the physical screen is initialized successfully, this function next
 	* creates a virtual screen at one of the resolutions requested using
-	* registerVirtualModes(). Each registered resolution is checked and the
-	* first, in order, that fits within the physical screen (has width and
-	* height at most that of the physical screen) is chosen.
+	* registerVirtualModes(), selecting one of these resolution as per
+	* the scheme desribed in the registerVirtualModes() documentation.
 	*
 	* If the physical video mode could not be set, or if no registered
 	* virtual screen fits within the physical screen width and height,
@@ -159,8 +166,41 @@ public:
 	* values are undefined otherwise.
 	*/
 	int screenW();
-	int screenH();	
-	
+	int screenH();
+
+	/*
+	* Queries the current desktop width and height.
+	*/
+	int desktopW();
+	int desktopH();
+
+	/*
+	* Requests that the physical window should use the desktop native cp;pr
+	* depth, or 8-bit color depth.
+	* This function can be called after the graphics backend has been
+	* initialized, in which case the screen mode will immediately change
+	* to the desired setting (if it's not already).
+	*
+	* The screen resolution and mode will be set according to the procedure
+	* described for initialize(), and in particular, the window may not
+	* switch color depth if this mode is not supported by the video card.
+	* Returns false if the graphics backend cannot fall back to any working
+	* video mode (in which case the graphics backend is no longer in a
+	* consistent state and the caller should probably terminate.)
+	* Returns true otherwise (even if the graphics backend was not able to
+	* switch to the requested mode.)
+	*/
+	bool setUseNativeColorDepth(bool native);
+
+	/*
+	* Queries whether the physical window is currently using the native
+	* desktop color depth, or 8-bit color depth. Note that the native
+	* desktop color depth might *also* be 8-bit depth.
+	* Can only be called after the graphics backend is initialized. The return
+	* value is undefined otherwise.
+	*/
+	bool isNativeColorDepth() { return native_; }
+
 	/*
 	* Requests that the physical window should be fullscreen or windowed.
 	* This function can be called after the graphics backend has been
@@ -271,10 +311,12 @@ private:
 
 	BITMAP *hw_screen_;
 	BITMAP *backbuffer_;
+	BITMAP *nativebuffer_;
 
 	bool initialized_;
 	int screenw_, screenh_;
 	bool fullscreen_;	
+	bool native_;
 	
 	std::vector<std::pair<int, int> > virtualmodes_;
 	int curmode_;

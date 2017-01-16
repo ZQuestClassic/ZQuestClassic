@@ -36,6 +36,7 @@
 #include "zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
+#include "gui.h"
 #include "backend/AllBackends.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -181,17 +182,17 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
         break;
     }
     
-    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), palette_color[scheme[c1]]);
-    _allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), palette_color[scheme[c1]]);
+    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), Backend::palette->virtualColorOfEntry(scheme[c1]));
+    _allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), Backend::palette->virtualColorOfEntry(scheme[c1]));
     
-    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), palette_color[scheme[c2]]);
-    _allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c2]]);
+    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), Backend::palette->virtualColorOfEntry(scheme[c2]));
+    _allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), Backend::palette->virtualColorOfEntry(scheme[c2]));
     
-    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), palette_color[scheme[c3]]);
-    _allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c3]]);
+    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), Backend::palette->virtualColorOfEntry(scheme[c3]));
+    _allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), Backend::palette->virtualColorOfEntry(scheme[c3]));
     
-    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), palette_color[scheme[c4]]);
-    _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), palette_color[scheme[c4]]);
+    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), Backend::palette->virtualColorOfEntry(scheme[c4]));
+    _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), Backend::palette->virtualColorOfEntry(scheme[c4]));
 }
 
 /*  jwin_draw_win:
@@ -199,7 +200,7 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
   */
 void jwin_draw_win(BITMAP *dest,int x,int y,int w,int h,int frame)
 {
-    rectfill(dest,zc_max(x+2,0),zc_max(y+2,0),zc_min(x+w-3, dest->w-1),zc_min(y+h-3, dest->h-1),palette_color[scheme[jcBOX]]);
+    rectfill(dest,zc_max(x+2,0),zc_max(y+2,0),zc_min(x+w-3, dest->w-1),zc_min(y+h-3, dest->h-1), Backend::palette->virtualColorOfEntry(scheme[jcBOX]));
     jwin_draw_frame(dest, x, y, w, h, frame);
 }
 
@@ -311,7 +312,7 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *st
       _allegro_vline(dest,x+i,y,y+h-1,c);
       }
       */
-    get_palette(temp_pal);
+    Backend::palette->getPalette(temp_pal);
     dither_rect(dest, &temp_pal, x, y, x+w-1, y+h-1,
                 makecol15(temp_pal[scheme[jcTITLEL]].r*255/63,
                           temp_pal[scheme[jcTITLEL]].g*255/63,
@@ -343,7 +344,7 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *st
         }
     }
     
-    textout_ex(dest,font,buf,tx,ty,palette_color[scheme[jcTITLEFG]],-1);
+    textout_ex(dest,font,buf,tx,ty, Backend::palette->virtualColorOfEntry(scheme[jcTITLEFG]),-1);
     
     if(draw_button)
     {
@@ -360,10 +361,10 @@ void draw_x_button(BITMAP *dest, int x, int y, int state)
     x += 4 + (state?1:0);
     y += 3 + (state?1:0);
     
-    line(dest,x,  y,  x+6,y+6,palette_color[c]);
-    line(dest,x+1,y,  x+7,y+6,palette_color[c]);
-    line(dest,x,  y+6,x+6,y,  palette_color[c]);
-    line(dest,x+1,y+6,x+7,y,  palette_color[c]);
+    line(dest,x,  y,  x+6,y+6, Backend::palette->virtualColorOfEntry(c));
+    line(dest,x+1,y,  x+7,y+6, Backend::palette->virtualColorOfEntry(c));
+    line(dest,x,  y+6,x+6,y, Backend::palette->virtualColorOfEntry(c));
+    line(dest,x+1,y+6,x+7,y, Backend::palette->virtualColorOfEntry(c));
 }
 
 void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state)
@@ -459,7 +460,7 @@ void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
 
 static void _dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
-    dotted_rect(screen, x1, y1, x2, y2, palette_color[fg], palette_color[bg]);
+    dotted_rect(screen, x1, y1, x2, y2, Backend::palette->virtualColorOfEntry(fg), Backend::palette->virtualColorOfEntry(bg));
 }
 
 /* gui_textout_ln:
@@ -667,12 +668,12 @@ int jwin_text_proc(int msg, DIALOG *d, int c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 0);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, Backend::palette->virtualColorOfEntry(scheme[jcLIGHT]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]), 0);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, Backend::palette->virtualColorOfEntry(scheme[jcMEDDARK]), -1, 0);
         }
         else
         {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, Backend::palette->virtualColorOfEntry(scheme[jcBOXFG]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]), 0);
         }
         
         font = oldfont;
@@ -706,12 +707,12 @@ int jwin_ctext_proc(int msg, DIALOG *d, int c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 1);
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 1);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, Backend::palette->virtualColorOfEntry(scheme[jcLIGHT]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]), 1);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, Backend::palette->virtualColorOfEntry(scheme[jcMEDDARK]), -1, 1);
         }
         else
         {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, Backend::palette->virtualColorOfEntry(scheme[jcBOXFG]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]), 1);
         }
         
         font = oldfont;
@@ -745,12 +746,12 @@ int jwin_rtext_proc(int msg, DIALOG *d, int c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 2);
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 2);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, Backend::palette->virtualColorOfEntry(scheme[jcLIGHT]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]), 2);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, Backend::palette->virtualColorOfEntry(scheme[jcMEDDARK]), -1, 2);
         }
         else
         {
-            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
+            gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, Backend::palette->virtualColorOfEntry(scheme[jcBOXFG]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]), 2);
         }
         
         font = oldfont;
@@ -773,20 +774,20 @@ void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, const char 
         jwin_draw_button(dest, x, y, w, h, 0, 0);
     else
     {
-        rect(dest, x, y, x+w-1, y+h-1, palette_color[scheme[jcDARK]]);
+        rect(dest, x, y, x+w-1, y+h-1, Backend::palette->virtualColorOfEntry(scheme[jcDARK]));
         jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
     }
     
     if(!(flags & D_DISABLED))
-        gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, Backend::palette->virtualColorOfEntry(scheme[jcBOXFG]), -1, TRUE);
     else
     {
-        gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
-        gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, palette_color[scheme[jcMEDDARK]], -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, Backend::palette->virtualColorOfEntry(scheme[jcLIGHT]), -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, Backend::palette->virtualColorOfEntry(scheme[jcMEDDARK]), -1, TRUE);
     }
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
-        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
+        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, Backend::palette->virtualColorOfEntry(scheme[jcDARK]), Backend::palette->virtualColorOfEntry(scheme[jcBOX]));
 }
 
 /* draw_graphics_button:
@@ -3385,13 +3386,11 @@ int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s
     }
     while(Backend::mouse->anyButtonClicked());
     
-    if(is_large())
-    {
-        large_dialog(alert_dialog);
-        alert_dialog[0].d1 = 0;
-    }
+	DIALOG *alert_cpy = resizeDialog(alert_dialog, 1.5);
     
-    c = popup_zqdialog(alert_dialog, A_B1);
+    c = popup_zqdialog(alert_cpy, A_B1);
+
+	delete[] alert_cpy;
     
     if(c == A_B1)
         return 1;

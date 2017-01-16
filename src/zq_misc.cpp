@@ -249,7 +249,7 @@ void load_cset(RGB *pal,int cset_index,int dataset)
 
 void set_pal()
 {
-    set_palette_range(RAMpal,0,192,true);
+    Backend::palette->setPaletteRange(RAMpal,0,192);
 }
 
 void loadlvlpal(int level)
@@ -300,7 +300,7 @@ void setup_lcolors()
         RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
     }
     
-    set_palette(RAMpal);
+    Backend::palette->setPalette(RAMpal);
 }
 
 void refresh_pal()
@@ -1230,7 +1230,7 @@ int onSnapshot()
     
     blit(screen,screen2,0,0,0,0,Backend::graphics->virtualScreenW(),Backend::graphics->virtualScreenH());
     PALETTE RAMpal2;
-    get_palette(RAMpal2);
+    Backend::palette->getPalette(RAMpal2);
     save_bitmap(buf,screen2,RAMpal2);
     return D_O_K;
 }
@@ -1453,11 +1453,11 @@ int onShowDarkness()
         {
             int light = si[0]+si[1]+si[2];
             si+=3;
-            fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+i,CSET(2)+i);
+            Backend::palette->interpolatePalettes(RAMpal,black_palette,light?32:64,CSET(2)+i,CSET(2)+i, RAMpal);
         }
         
-        fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-        set_palette(RAMpal);
+        Backend::palette->interpolatePalettes(RAMpal,black_palette,64,CSET(3),last, RAMpal);
+        Backend::palette->setPalette(RAMpal);
         
         readkey();
         
@@ -1487,7 +1487,7 @@ int onJ()
 void setFlagColor()
 {
     RAMpal[dvc(0)]=RAMpal[vc(Flag%16)];
-    set_palette_range(RAMpal,dvc(0),dvc(0),false);
+    Backend::palette->setPaletteRange(RAMpal,dvc(0),dvc(0));
 }
 
 int onIncreaseFlag()

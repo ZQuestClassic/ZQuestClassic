@@ -17,7 +17,7 @@
 #include <string>
 #include "backend/AllBackends.h"
 
-void editmsg(int index, int addAfter);
+void editmsg(int index, int addAfter, DIALOG *strlist);
 int strlist_del();
 int addtomsglist(int index);
 void build_bistringcat_list();
@@ -101,13 +101,13 @@ DIALOG editmsg_dlg[] =
     { jwin_win_proc, 44,   0,   296,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { jwin_tab_proc,    50,     24,   284,  164,  jwin_pal[jcBOXFG], jwin_pal[jcBOX],  0,  0,    0,    0, (void *) editmsg_tabs,  NULL, (void *)editmsg_dlg  },
     { jwin_frame_proc,        53,  89-9,   278,  54,   vc(14),  vc(1),  0,       0,          FR_DEEP,             0,       NULL, NULL, NULL },
-    { d_msg_edit_proc,       61,   48,   240,  16,    vc(12),  vc(1),  0,       0,          MSGSIZE*3,            0,       NULL, NULL, NULL },
+    { d_msg_edit_proc,       61,   48,   240,  16,    vc(12),  vc(1),  0,       0,          MSGSIZE*3,            0,       NULL, NULL, (void *)editmsg_dlg },
     { jwin_text_proc,       52,   158,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Next string:", NULL, NULL },
     // 5
     { jwin_droplist_proc,      110,  154,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_button_proc,     90,   187+6,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     170,  187+6,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_msg_preview_proc,   56,   92-9,   272,  48,   jwin_pal[jcTEXTBG],  jwin_pal[jcTEXTFG],  0,       0,          0,             0,       msgbuf, NULL, NULL },
+    { d_msg_preview_proc,   56,   92-9,   272,  48,   jwin_pal[jcTEXTBG],  jwin_pal[jcTEXTFG],  0,       0,          0,             0,       msgbuf, NULL, (void *)editmsg_dlg },
     { jwin_edit_proc,      80,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
     // 10
     { jwin_ctext_proc,     64,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Y:", NULL, NULL },
@@ -448,12 +448,9 @@ int strlist_del()
 
 int onStrings()
 {
-    if(is_large() && !strlist_dlg[0].d1)
-    {
-        large_dialog(strlist_dlg,2);
-    }
-    
-    strlist_dlg[0].dp2=lfont;
+	DIALOG *strlist_cpy = resizeDialog(strlist_dlg, 2.0);
+
+	strlist_cpy[0].dp2=lfont;
     int index=0;
     char msgmore_xstring[5], msgmore_ystring[5], msgspeed_string[3], template_string[6];
     int morex=zinit.msg_more_x;
@@ -468,11 +465,11 @@ int onStrings()
     char tempbuf[50];
     sprintf(tempbuf, "0");
     
-    strlist_dlg[17].d1=0;
+	strlist_cpy[17].d1=0;
     build_bistringcat_list();
     
     //Message more is offset
-    strlist_dlg[15].flags=(zinit.msg_more_is_offset!=0)?D_SELECTED:0;
+	strlist_cpy[15].flags=(zinit.msg_more_is_offset!=0)?D_SELECTED:0;
     
     while(index!=-1)
     {
@@ -506,13 +503,13 @@ int onStrings()
             MsgStrings[msg_count].listpos=msg_count;
         }
         
-        strlist_dlg[7].dp=msgmore_xstring;
-        strlist_dlg[8].dp=msgmore_ystring;
-        strlist_dlg[10].dp=msgspeed_string;
-        strlist_dlg[22].dp=template_string;
+		strlist_cpy[7].dp=msgmore_xstring;
+		strlist_cpy[8].dp=msgmore_ystring;
+		strlist_cpy[10].dp=msgspeed_string;
+		strlist_cpy[22].dp=template_string;
         
-        int ret=zc_popup_dialog(strlist_dlg,2);
-        index=msglistcache[strlist_dlg[2].d1];
+        int ret=zc_popup_dialog(strlist_cpy,2);
+        index=msglistcache[strlist_cpy[2].d1];
         
         bool doedit=false;
         int addAfter = -1;
@@ -527,7 +524,7 @@ int onStrings()
             
         case 17: // Go to category
         {
-            strlist_dlg[2].d1 = MsgStrings[bistringcat[strlist_dlg[17].d1]].listpos;
+			strlist_cpy[2].d1 = MsgStrings[bistringcat[strlist_cpy[17].d1]].listpos;
             break;
         }
         
@@ -559,7 +556,7 @@ int onStrings()
             (void)addtomsglist(MsgStrings[index].listpos);
             (void)addtomsglist(MsgStrings[index].listpos+1);
             
-            strlist_dlg[2].d1--;
+			strlist_cpy[2].d1--;
             saved=false;
             break;
         }
@@ -592,7 +589,7 @@ int onStrings()
             (void)addtomsglist(MsgStrings[index].listpos);
             (void)addtomsglist(MsgStrings[index].listpos-1);
             
-            strlist_dlg[2].d1++;
+			strlist_cpy[2].d1++;
             saved=false;
             break;
         }
@@ -643,7 +640,7 @@ int onStrings()
             
             //MsgStrings[index].listpos=diff;
             //(void)addtomsglist(MsgStrings[index].listpos);
-            strlist_dlg[2].d1=diff;
+			strlist_cpy[2].d1=diff;
             saved=false;
             break;
         }
@@ -651,7 +648,7 @@ int onStrings()
         case 16:
             addAfter=zc_min(index, msg_count-2);
             index=msg_count-1;
-            strlist_dlg[2].d1 = index;
+			strlist_cpy[2].d1 = index;
             
         case 2:
         case 3:
@@ -665,7 +662,7 @@ int onStrings()
             zinit.msg_more_x=atoi(msgmore_xstring);
             zinit.msg_more_y=atoi(msgmore_ystring);
             zinit.msg_speed=atoi(msgspeed_string);
-            zinit.msg_more_is_offset=(strlist_dlg[15].flags&D_SELECTED)?1:0;
+            zinit.msg_more_is_offset=(strlist_cpy[15].flags&D_SELECTED)?1:0;
             
             if(morex!=zinit.msg_more_x||morey!=zinit.msg_more_y||msgspeed!=zinit.msg_speed)
             {
@@ -721,7 +718,7 @@ int onStrings()
                 }
                 fix_string(misc.endstring, index);              //ending string */
                 // Fix the quick-category menu
-                strlist_dlg[17].d1=0;
+				strlist_cpy[17].d1=0;
                 build_bistringcat_list();
                 
                 refresh(rMENU);
@@ -757,12 +754,12 @@ int onStrings()
         if(index>0 && doedit)
         {
             int lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
-            editmsg(index, addAfter);
+            editmsg(index, addAfter, strlist_cpy);
             
             if(MsgStrings[index].listpos!=msg_count) // Created new string
             {
                 // Select the new message
-                strlist_dlg[2].d1 = MsgStrings[index].listpos;
+				strlist_cpy[2].d1 = MsgStrings[index].listpos;
                 if((editmsg_dlg[32].flags&D_SELECTED)!=0)
                 {
                     int prev=msg_at_pos(MsgStrings[index].listpos-1);
@@ -771,20 +768,22 @@ int onStrings()
                 editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
             }
             else if(lp>=0)              // Canceled or edited an existing string
-                strlist_dlg[2].d1 = lp; // Select previously selected message
+				strlist_cpy[2].d1 = lp; // Select previously selected message
             
             // Fix the quick-category menu
-            strlist_dlg[17].d1=0;
+			strlist_cpy[17].d1=0;
             build_bistringcat_list();
             refresh(rMENU);
         }
     }
+
+	delete[] strlist_cpy;
     
     //if(smsg!=NULL) delete [] smsg;
     return D_O_K;
 }
 
-void editmsg(int index, int addAfter)
+void editmsg(int index, int addAfter, DIALOG *strlist)
 {
     char setitle[80];
     sprintf(setitle, "String Editor (%d)", index);
@@ -793,7 +792,7 @@ void editmsg(int index, int addAfter)
     
     if(index==msg_count) // Adding a new message
     {
-        int templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
+        int templateID=atoi(static_cast<char*>(strlist[22].dp));
         if(templateID>0 && templateID<msg_count)
             MsgStrings[index].copyStyle(MsgStrings[templateID]);
     }
@@ -844,37 +843,34 @@ void editmsg(int index, int addAfter)
     msg_x = 0;
     msg_y = 0;
     curmsgstr = &MsgStrings[index];
+
+	DIALOG *editmsg_cpy = resizeDialog(editmsg_dlg, 2.0);
     
     if(is_large())
     {
-        large_dialog(editmsg_dlg,2);
-        
-        if(editmsg_dlg[0].d1<2)
-        {
-            editmsg_dlg[0].d1 = 2;
-            editmsg_dlg[3].h = 24;
-            editmsg_dlg[2].x+=3;
-            editmsg_dlg[2].y+=3;
-            editmsg_dlg[2].w-=3;
-            editmsg_dlg[2].h-=3;
-        }
+		editmsg_cpy[0].d1 = 2;
+		editmsg_cpy[3].h = 24;
+		editmsg_cpy[2].x+=3;
+		editmsg_cpy[2].y+=3;
+		editmsg_cpy[2].w-=3;
+		editmsg_cpy[2].h-=3;
     }
     
     if(addAfter<=0) // Not <0 - wouldn't want to set message 0's next string
-        editmsg_dlg[32].proc=d_dummy_proc;
+		editmsg_cpy[32].proc=d_dummy_proc;
     
     int ret = -1;
     
     do
     {
-        ret = zc_popup_dialog(editmsg_dlg,3);
+        ret = zc_popup_dialog(editmsg_cpy,3);
         
         if(ret==29)
         {
             ret = -1;
             
             if(MsgStrings[index].listpos < msg_count)
-                editmsg_dlg[5].d1 = MsgStrings[index].listpos+1;
+				editmsg_cpy[5].d1 = MsgStrings[index].listpos+1;
         }
         
         if(ret==30)
@@ -915,11 +911,11 @@ void editmsg(int index, int addAfter)
         sprintf(MsgStrings[index].s, "%s", tempstr_);
         delete [] tempstr_;
         
-        MsgStrings[index].nextstring = addtomsglist(editmsg_dlg[5].d1);
-        MsgStrings[index].font = editmsg_dlg[18].d1;
-        MsgStrings[index].trans = editmsg_dlg[9].flags != 0;
-        MsgStrings[index].tile = editmsg_dlg[12].d1;
-        MsgStrings[index].cset = editmsg_dlg[12].fg;
+        MsgStrings[index].nextstring = addtomsglist(editmsg_cpy[5].d1);
+        MsgStrings[index].font = editmsg_cpy[18].d1;
+        MsgStrings[index].trans = editmsg_cpy[9].flags != 0;
+        MsgStrings[index].tile = editmsg_cpy[12].d1;
+        MsgStrings[index].cset = editmsg_cpy[12].fg;
         MsgStrings[index].x = vbound((int)strtol(msg_xbuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].y = vbound((int)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
         MsgStrings[index].w = vbound((int)strtol(msg_wbuf, (char **)NULL, 10),8,512);
@@ -927,8 +923,8 @@ void editmsg(int index, int addAfter)
         MsgStrings[index].hspace = vbound((int)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].vspace = vbound((int)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
         MsgStrings[index].sfx = (int)strtol(msg_sfxbuf, (char **)NULL, 10);
-        MsgStrings[index].stringflags = editmsg_dlg[27].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_CONT : MsgStrings[index].stringflags & ~STRINGFLAG_CONT;
-        MsgStrings[index].stringflags = editmsg_dlg[28].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_WRAP : MsgStrings[index].stringflags & ~STRINGFLAG_WRAP;
+        MsgStrings[index].stringflags = editmsg_cpy[27].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_CONT : MsgStrings[index].stringflags & ~STRINGFLAG_CONT;
+        MsgStrings[index].stringflags = editmsg_cpy[28].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_WRAP : MsgStrings[index].stringflags & ~STRINGFLAG_WRAP;
         
         if(index==msg_count)
         {
@@ -954,6 +950,8 @@ void editmsg(int index, int addAfter)
     {
         MsgStrings[index].listpos = msg_count;
     }
+
+	delete[] editmsg_cpy;
 }
 
 // Returns the actual string of a given listpos
@@ -1083,19 +1081,19 @@ char *parse_msg_str(char *s)
 }
 
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
-void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
+void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y, DIALOG *parent)
 {
     int cursor_x = 0;
     int cursor_y = 0;
-    int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
-    int h = vbound((int)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
-    int fonta = editmsg_dlg[18].d1;
+    int w = vbound((int)strtol((char*)parent[19].dp, (char **)NULL, 10),0,512);
+    int h = vbound((int)strtol((char*)parent[21].dp, (char **)NULL, 10),0,512);
+    int fonta = parent[18].d1;
     int flags = 0;
-    flags |= (int)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
-    flags |= (int)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
-    int vspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-    int hspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
-    int nextstring = addtomsglist(editmsg_dlg[5].d1);
+    flags |= (int)parent[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
+    flags |= (int)parent[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
+    int vspace = vbound((int)strtol((char*)parent[25].dp, (char **)NULL, 10),0,128);
+    int hspace = vbound((int)strtol((char*)parent[23].dp, (char **)NULL, 10),0,128);
+    int nextstring = addtomsglist(parent[5].d1);
     
     int i=0;
     int msgcolour=misc.colors.msgtext;
@@ -1540,31 +1538,32 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
 {
     c=c;
     char *s=(char*)(d->dp);
-    int w = vbound((int)strtol((char *)editmsg_dlg[19].dp, (char **) NULL, 10),8,512);
-    int h = vbound((int)strtol((char *)editmsg_dlg[21].dp, (char **) NULL, 10),8,512);
+	DIALOG *parent = (DIALOG *)(d->dp3);
+    int w = vbound((int)strtol((char *)parent[19].dp, (char **) NULL, 10),8,512);
+    int h = vbound((int)strtol((char *)parent[21].dp, (char **) NULL, 10),8,512);
     
     if(msg_x > zc_max(w-256,0)) msg_x = zc_max(w-256,0);
     
     if(msg_y > zc_max(h-32,0)) msg_y = zc_max(h-32,0);
     
-    if(mprvfont != editmsg_dlg[18].d1 ||
-            mprvflags != ((editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0) | (editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0)) ||
-            mprvvspace != vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
-            mprvhspace != vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128) ||
-            mprvnextstring != addtomsglist(editmsg_dlg[5].d1) ||
-            mprvw != vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
-            mprvh != vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128))
+    if(mprvfont != parent[18].d1 ||
+            mprvflags != ((parent[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0) | (parent[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0)) ||
+            mprvvspace != vbound((int)strtol((char*)parent[25].dp, (char **)NULL, 10),0,128) ||
+            mprvhspace != vbound((int)strtol((char*)parent[23].dp, (char **)NULL, 10),0,128) ||
+            mprvnextstring != addtomsglist(parent[5].d1) ||
+            mprvw != vbound((int)strtol((char*)parent[25].dp, (char **)NULL, 10),0,128) ||
+            mprvh != vbound((int)strtol((char*)parent[23].dp, (char **)NULL, 10),0,128))
     {
     
-        mprvfont = editmsg_dlg[18].d1;
+        mprvfont = parent[18].d1;
         mprvflags = 0;
-        mprvflags |= (int)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
-        mprvflags |= (int)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
-        mprvvspace = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-        mprvhspace = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
-        mprvnextstring = addtomsglist(editmsg_dlg[5].d1);
-        mprvw = vbound((int)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-        mprvh = vbound((int)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
+        mprvflags |= (int)parent[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
+        mprvflags |= (int)parent[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
+        mprvvspace = vbound((int)strtol((char*)parent[25].dp, (char **)NULL, 10),0,128);
+        mprvhspace = vbound((int)strtol((char*)parent[23].dp, (char **)NULL, 10),0,128);
+        mprvnextstring = addtomsglist(parent[5].d1);
+        mprvw = vbound((int)strtol((char*)parent[25].dp, (char **)NULL, 10),0,128);
+        mprvh = vbound((int)strtol((char*)parent[23].dp, (char **)NULL, 10),0,128);
         
         msg = MSG_DRAW;
     }
@@ -1595,23 +1594,6 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
             msg_y = vbound(omy+(oy- Backend::mouse->getVirtualScreenY()),0,zc_max(0,h-32));
             
             broadcast_dialog_message(MSG_IDLE, 0);
-#ifdef _ZQUEST_SCALE_
-            
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-            
-#endif
         }
         
         break;
@@ -1624,7 +1606,7 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
         }
         
         rectfill(screen, d->x, d->y, d->x+d->w, d->y+d->h, 0);
-        put_msg_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,msg_x,msg_y);
+        put_msg_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,msg_x,msg_y, parent);
         break;
     }
     
@@ -1634,9 +1616,10 @@ int d_msg_preview_proc(int msg,DIALOG *d,int c)
 int d_msg_edit_proc(int msg,DIALOG *d,int c)
 {
     int ret = jwin_edit_proc(msg,d,c);
+	DIALOG *parent = (DIALOG *)d->dp3;
     
     if(msg==MSG_CHAR)
-        (void)d_msg_preview_proc(MSG_DRAW,&editmsg_dlg[8],c);
+        (void)d_msg_preview_proc(MSG_DRAW,&parent[8],c);
     else if(msg==MSG_START)
     {
         //hack to counteract jwin_edit_proc's automatic setting of the cursor to the far right

@@ -5910,10 +5910,11 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     
     pwd_dlg[6].dp=prompt;
     
-    if(is_large())
-        large_dialog(pwd_dlg);
+	DIALOG *pwd_cpy = resizeDialog(pwd_dlg, 1.5);
         
-    int cancel = zc_popup_dialog(pwd_dlg,6);
+    int cancel = zc_popup_dialog(pwd_cpy,6);
+
+	delete[] pwd_cpy;
     
     if(cancel == 8)
         return 2;

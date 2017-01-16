@@ -86,17 +86,16 @@ static int animationrules[] =
 
 int onAnimationRules()
 {
-    if(is_large())
-        large_dialog(animationrules_dlg);
-        
-    animationrules_dlg[0].dp2=lfont;
+	DIALOG *animationrules_cpy = resizeDialog(animationrules_dlg, 1.5);
+
+	animationrules_cpy[0].dp2=lfont;
     
     for(int i=0; animationrules[i]!=-1; i++)
     {
-        animationrules_dlg[i+6].flags = get_bit(quest_rules,animationrules[i]) ? D_SELECTED : 0;
+		animationrules_cpy[i+6].flags = get_bit(quest_rules,animationrules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(animationrules_dlg,4);
+    int ret = zc_popup_dialog(animationrules_cpy,4);
     
     if(ret==4)
     {
@@ -104,7 +103,7 @@ int onAnimationRules()
         
         for(int i=0; animationrules[i]!=-1; i++)
         {
-            set_bit(quest_rules,animationrules[i],animationrules_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules,animationrules[i], animationrules_cpy[i+6].flags & D_SELECTED);
         }
         
         // For 2.50.0 and 2.50.1
@@ -114,6 +113,8 @@ int onAnimationRules()
         //this is only here until the subscreen style is selectable by itself
         zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
     }
+
+	delete[] animationrules_cpy;
     
     return D_O_K;
 }
@@ -160,17 +161,16 @@ static int comborules[] =
 
 int onComboRules()
 {
-    if(is_large())
-        large_dialog(comborules_dlg);
+	DIALOG *comborules_cpy = resizeDialog(comborules_dlg, 1.5);
         
-    comborules_dlg[0].dp2=lfont;
+	comborules_cpy[0].dp2=lfont;
     
     for(int i=0; comborules[i]!=-1; i++)
     {
-        comborules_dlg[i+6].flags = get_bit(quest_rules,comborules[i]) ? D_SELECTED : 0;
+		comborules_cpy[i+6].flags = get_bit(quest_rules,comborules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(comborules_dlg,4);
+    int ret = zc_popup_dialog(comborules_cpy,4);
     
     if(ret==4)
     {
@@ -178,9 +178,11 @@ int onComboRules()
         
         for(int i=0; comborules[i]!=-1; i++)
         {
-            set_bit(quest_rules, comborules[i], comborules_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules, comborules[i], comborules_cpy[i+6].flags & D_SELECTED);
         }
     }
+
+	delete[] comborules_cpy;
     
     return D_O_K;
 }
@@ -255,17 +257,16 @@ static int itemrules[] =
 
 int onItemRules()
 {
-    if(is_large())
-        large_dialog(itemrules_dlg);
-        
-    itemrules_dlg[0].dp2=lfont;
+	DIALOG *itemrules_cpy = resizeDialog(itemrules_dlg, 1.5);
+    
+	itemrules_cpy[0].dp2=lfont;
     
     for(int i=0; itemrules[i]!=-1; i++)
     {
-        itemrules_dlg[i+6].flags = get_bit(quest_rules,itemrules[i]) ? D_SELECTED : 0;
+		itemrules_cpy[i+6].flags = get_bit(quest_rules,itemrules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(itemrules_dlg,4);
+    int ret = zc_popup_dialog(itemrules_cpy,4);
     
     if(ret==4)
     {
@@ -273,10 +274,12 @@ int onItemRules()
         
         for(int i=0; itemrules[i]!=-1; i++)
         {
-            set_bit(quest_rules, itemrules[i], itemrules_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules, itemrules[i], itemrules_cpy[i+6].flags & D_SELECTED);
         }
     }
     
+	delete[] itemrules_cpy;
+
     return D_O_K;
 }
 
@@ -344,17 +347,16 @@ static int enemyrules[] =
 
 int onEnemyRules()
 {
-    if(is_large())
-        large_dialog(enemyrules_dlg);
-        
-    enemyrules_dlg[0].dp2=lfont;
+	DIALOG *enemyrules_cpy = resizeDialog(enemyrules_dlg, 1.5);
+    
+	enemyrules_cpy[0].dp2=lfont;
     
     for(int i=0; enemyrules[i]!=-1; i++)
     {
-        enemyrules_dlg[i+6].flags = get_bit(quest_rules,enemyrules[i]) ? D_SELECTED : 0;
+		enemyrules_cpy[i+6].flags = get_bit(quest_rules,enemyrules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(enemyrules_dlg,4);
+    int ret = zc_popup_dialog(enemyrules_cpy,4);
     
     if(ret==4)
     {
@@ -362,9 +364,11 @@ int onEnemyRules()
         
         for(int i=0; enemyrules[i]!=-1; i++)
         {
-            set_bit(quest_rules, enemyrules[i], enemyrules_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules, enemyrules[i], enemyrules_cpy[i+6].flags & D_SELECTED);
         }
     }
+
+	delete[] enemyrules_cpy;
     
     return D_O_K;
 }
@@ -438,17 +442,16 @@ static int fixesrules[] =
 
 int onFixesRules()
 {
-    if(is_large())
-        large_dialog(fixesrules_dlg);
+	DIALOG *fixesrules_cpy = resizeDialog(fixesrules_dlg, 1.5);
         
-    fixesrules_dlg[0].dp2=lfont;
+	fixesrules_cpy[0].dp2=lfont;
     
     for(int i=0; fixesrules[i]!=-1; i++)
     {
-        fixesrules_dlg[i+6].flags = get_bit(quest_rules,fixesrules[i]) ? D_SELECTED : 0;
+		fixesrules_cpy[i+6].flags = get_bit(quest_rules,fixesrules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(fixesrules_dlg,4);
+    int ret = zc_popup_dialog(fixesrules_cpy,4);
     
     if(ret==4)
     {
@@ -456,9 +459,11 @@ int onFixesRules()
         
         for(int i=0; fixesrules[i]!=-1; i++)
         {
-            set_bit(quest_rules, fixesrules[i], fixesrules_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules, fixesrules[i], fixesrules_cpy[i+6].flags & D_SELECTED);
         }
     }
+
+	delete[] fixesrules_cpy;
     
     return D_O_K;
 }
@@ -525,17 +530,16 @@ static int miscrules[] =
 
 int onMiscRules()
 {
-    if(is_large())
-        large_dialog(miscrules_dlg);
-        
-    miscrules_dlg[0].dp2=lfont;
+	DIALOG *miscrules_cpy = resizeDialog(miscrules_dlg, 1.5);
+    
+	miscrules_cpy[0].dp2=lfont;
     
     for(int i=0; miscrules[i]!=-1; i++)
     {
-        miscrules_dlg[i+6].flags = get_bit(quest_rules,miscrules[i]) ? D_SELECTED : 0;
+		miscrules_cpy[i+6].flags = get_bit(quest_rules,miscrules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(miscrules_dlg,4);
+    int ret = zc_popup_dialog(miscrules_cpy,4);
     
     if(ret==4)
     {
@@ -543,10 +547,11 @@ int onMiscRules()
         
         for(int i=0; miscrules[i]!=-1; i++)
         {
-            set_bit(quest_rules, miscrules[i], miscrules_dlg[i+6].flags & D_SELECTED);
+            set_bit(quest_rules, miscrules[i], miscrules_cpy[i+6].flags & D_SELECTED);
         }
     }
-    
+
+	delete[] miscrules_cpy;
     return D_O_K;
 }
 
@@ -589,17 +594,16 @@ static DIALOG compatrules_dlg[] =
 
 int onCompatRules()
 {
-    if(is_large())
-        large_dialog(compatrules_dlg);
-        
-    compatrules_dlg[0].dp2=lfont;
+	DIALOG *compatrules_cpy = resizeDialog(compatrules_dlg, 1.5);
+    
+	compatrules_cpy[0].dp2=lfont;
     
     for(int i=0; compatrules[i]!=-1; i++)
     {
-        compatrules_dlg[i+8].flags = get_bit(quest_rules,compatrules[i]) ? D_SELECTED : 0;
+		compatrules_cpy[i+8].flags = get_bit(quest_rules,compatrules[i]) ? D_SELECTED : 0;
     }
     
-    int ret = zc_popup_dialog(compatrules_dlg,4);
+    int ret = zc_popup_dialog(compatrules_cpy,4);
     
     if(ret==4)
     {
@@ -607,9 +611,11 @@ int onCompatRules()
         
         for(int i=0; compatrules[i]!=-1; i++)
         {
-            set_bit(quest_rules, compatrules[i], compatrules_dlg[i+8].flags & D_SELECTED);
+            set_bit(quest_rules, compatrules[i], compatrules_cpy[i+8].flags & D_SELECTED);
         }
     }
+
+	delete[] compatrules_cpy;
     
     return D_O_K;
 }

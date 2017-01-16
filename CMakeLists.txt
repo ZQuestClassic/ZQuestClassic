@@ -136,7 +136,7 @@ elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
 	set(ALLEGROLIB alleg)
-	add_definitions(-DALLEGRO_LINUX)
+	add_definitions(-DALLEGRO_UNIX)
 	execute_process(COMMAND "${CMAKE_COMMAND}" "-H${CMAKE_SOURCE_DIR}/allegro" "-B${CMAKE_SOURCE_DIR}/allegro" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
 	
 	set(IMAGELIBS algif ldpng jpgal png z)
