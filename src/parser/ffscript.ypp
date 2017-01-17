@@ -28,10 +28,8 @@ string curfilename;
 extern YYLTYPE noloc;
 
 #define SHORTCUT(x,d1,d3,dd,l1,l2) ASTExpr *lval = (ASTExpr *)d1; \
-					Clone c; \
-					lval->execute(c,NULL); \
 					x *rhs = new x(l2); \
-					rhs->setFirstOperand((ASTExpr *)c.getResult()); \
+					rhs->setFirstOperand(lval->clone()); \
 					rhs->setSecondOperand((ASTExpr *)d3); \
 					dd = new ASTStmtAssign(lval, rhs, l1);
 %}
@@ -120,9 +118,7 @@ GlobalStmt : Script {$$ = $1;}
 	| ConstDecl {$$ = $1;}
 	| VarDecl SEMICOLON {$$ = $1;}
 	| VarDecl ASSIGN Expr SEMICOLON {ASTVarDecl *vd = (ASTVarDecl *)$1;
-									Clone c;
-									vd->getType()->execute(c,NULL);
-									$$ = new ASTVarDeclInitializer((ASTType *)c.getResult(), vd->getName(), (ASTExpr *)$3,@1);
+									$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr *)$3,@1);
 									delete vd;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	;
@@ -237,9 +233,7 @@ ScriptStmtList : ScriptStmt ScriptStmtList {ASTDeclList *dl = (ASTDeclList *)$2;
 ScriptStmt : VarDecl SEMICOLON {$$ = $1;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	| VarDecl ASSIGN Expr SEMICOLON {ASTVarDecl *vd = (ASTVarDecl *)$1;
-						   Clone c;
-						   vd->getType()->execute(c,NULL);
-						   $$ = new ASTVarDeclInitializer((ASTType *)c.getResult(), vd->getName(), (ASTExpr *)$3,@1);
+						   $$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr *)$3,@1);
 						   delete vd;}
 	| FuncDecl {$$ = $1;}
 	;
