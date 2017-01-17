@@ -1140,6 +1140,7 @@ static MENU tunes_menu[] =
 int onFullscreenMenu();
 int onWindowed1Menu();
 int onWindowed2Menu();
+int onWindowed4Menu();
 int onNativeDepthMenu();
 
 static MENU video_mode_menu[] =
