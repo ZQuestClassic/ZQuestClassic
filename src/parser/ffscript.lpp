@@ -8,6 +8,8 @@ command: flex -B -olex.yy.cpp ffscript.lpp
 %option never-interactive
 WS	[ \t\n\r]
 
+%x COMMENT
+
 %{
 #include <stdlib.h>
 #include "AST.h"
@@ -78,7 +80,6 @@ eweapon					{doLines(); return EWEAPON;}
 \+			{ doLines();return PLUS; }
 \-                { doLines();return MINUS; }
 \*			{ doLines();return TIMES; }
-\/\/.*            { ; }
 \/                { doLines();return DIVIDE; }
 \{                { doLines();return LBRACE; }
 \}                { doLines();return RBRACE; }
@@ -91,6 +92,17 @@ eweapon					{doLines(); return EWEAPON;}
 \!			{ doLines();return NOT; }
 \%			{ doLines(); return MODULO; }
 
+"//".*            		 { ; }
+"/*"                     { doLines(); BEGIN(COMMENT); }
+<COMMENT>"*/"            { doLines(); BEGIN(INITIAL); }
+<COMMENT>([^*]|\n)+|.    { ; }
+<COMMENT><<EOF>>         {
+		char temp[512];
+		sprintf(temp, "Scanner: Unterminated comment.\n");
+		box_out(temp);
+		box_eol();
+		return 0;
+}
 
 [_a-zA-Z]([_a-zA-Z]|[0-9])*	{
 						doLines();
