@@ -284,6 +284,11 @@ int fs_dlist_proc(int msg, DIALOG *d, int c)
 
 #else
 
+int fs_dlist_proc(int msg, DIALOG *d, int c)
+{
+	return D_O_K;
+}
+
 #define FS_YIELD        6
 #endif                                                      /* HAVE_DIR_LIST */
 
