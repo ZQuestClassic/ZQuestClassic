@@ -445,6 +445,7 @@ void ending()
         
     case 3:
     case 4:
+    case 5:
         endText=quest34End;
         numEndTextLines=numQuest34EndLines;
         deathsYPos=792;
@@ -566,7 +567,7 @@ void ending()
     }
     while(!rSbtn());
     
-    if(game->get_quest()>0 && game->get_quest()<3)
+    if(game->get_quest()>0 && game->get_quest()<=5)
     {
         inc_quest();
         removeItemsOfFamily(game, itemsbuf, itype_ring);
