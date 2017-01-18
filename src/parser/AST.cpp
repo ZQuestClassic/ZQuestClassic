@@ -440,8 +440,8 @@ void ASTFuncDecl::addParam(ASTVarDecl *param)
 
 // ASTArrayDecl
 
-ASTArrayDecl::ASTArrayDecl(ASTType *Type, string Name, AST *Size, bool isReg, ASTArrayList *List, LocationData Loc)
-		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type), reg(isReg)
+ASTArrayDecl::ASTArrayDecl(ASTType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc)
+		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type)
 {}
 
 ASTArrayDecl::~ASTArrayDecl()
@@ -455,7 +455,7 @@ ASTArrayDecl* ASTArrayDecl::clone() const
 {
 	ASTArrayList* c_list = NULL;
 	if (list != NULL) c_list = list->clone();
-	return new ASTArrayDecl(type->clone(), name, size->clone(), reg, c_list, getLocation());
+	return new ASTArrayDecl(type->clone(), name, size->clone(), c_list, getLocation());
 }
 
 // ASTArrayList
@@ -519,6 +519,14 @@ ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 
 // ASTExpr
 
+void ASTExpr::setIntValue(long val)
+{
+	hasval = true;
+	intval=val;
+}
+
+// ASTExprConst
+
 // ASTNumConstant
 
 ASTNumConstant* ASTNumConstant::clone() const
@@ -546,6 +554,7 @@ ASTExprDot* ASTExprDot::clone() const
 	ASTExprDot* c = new ASTExprDot(nspace, name, getLocation());
 	if (hasIntValue()) c->setIntValue(getIntValue());
 	c->setType(getType());
+	if (isConstant()) {c->markConstant();}
 	return c;
 }
 

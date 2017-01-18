@@ -21,6 +21,7 @@ public:
     void caseArrayDecl(ASTArrayDecl &host, void *param);
     void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
 	// Expressions
+	void caseExprConst(ASTExprConst &host, void *param);
     void caseNumConstant(ASTNumConstant &host, void *param);
     void caseBoolConstant(ASTBoolConstant &host, void *param);
     void caseExprDot(ASTExprDot &host, void *param);

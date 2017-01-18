@@ -103,7 +103,6 @@ void RecursiveVisitor::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
 	host.getType()->execute(*this, param);
 
-	if(host.isRegister())
 		((ASTExpr *) host.getSize())->execute(*this, param);
 
 	if(host.getList() != NULL)
@@ -127,6 +126,11 @@ void RecursiveVisitor::caseVarDeclInitializer(ASTVarDeclInitializer &host, void 
 }
 
 // Expressions
+
+void RecursiveVisitor::caseExprConst(ASTExprConst &host, void *param)
+{
+	host.getContent()->execute(*this, param);
+}
 
 void RecursiveVisitor::caseNumConstant(ASTNumConstant &host, void *param)
 {
