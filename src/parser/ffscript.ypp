@@ -133,30 +133,30 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
 
-ArrayDecl : Type IDENTIFIER LBRACKET NUMBER RBRACKET {	ASTType *type = (ASTType *)$1;
+ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTType *)$1;
 														ASTString *name = (ASTString *)$2;
-														ASTExpr *size = (ASTExpr *)$4;
-														$$ = new ASTArrayDecl(type, name->getValue(), size, false, NULL, @1);
+														ASTExprConst *size = (ASTExprConst *)$4;
+														$$ = new ASTArrayDecl(type, name->getValue(), size, NULL, @1);
 														delete name;}
 
-	| Type IDENTIFIER LBRACKET NUMBER RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
+	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
 																				ASTString *name = (ASTString *)$2;
-																				ASTFloat *size = (ASTFloat *)$4;
+																				ASTExprConst *size = (ASTExprConst *)$4;
 																				ASTArrayList *list = (ASTArrayList *)$8;
-																				$$ = new ASTArrayDecl(type, name->getValue(), size, false, list, @1);
+																				$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																				delete name;}
  	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
 																			ASTString *name = (ASTString *)$2;
 																			ASTArrayList *list = (ASTArrayList *)$7;
 																			char val[15];
 																			sprintf(val, "%d", list->getList().size());
-																			ASTFloat *size = new ASTFloat(val, 0, @1);
-																			$$ = new ASTArrayDecl(type, name->getValue(), size, false, list, @1);
+																			ASTExpr *size = new ASTNumConstant(new ASTFloat(val, 0, @1), @1);
+																			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																			delete name;}
 
-	| Type IDENTIFIER LBRACKET NUMBER RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
+	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
 																		ASTString *name = (ASTString *)$2;
-																		ASTFloat *size = (ASTFloat *)$4;
+																		ASTExprConst *size = (ASTExprConst *)$4;
 																		ASTArrayList *list = new ASTArrayList(@1);
 																		list->makeString();
 																		ASTString *string = (ASTString *)$7;
@@ -165,7 +165,7 @@ ArrayDecl : Type IDENTIFIER LBRACKET NUMBER RBRACKET {	ASTType *type = (ASTType 
 																			list->addParam(new ASTNumConstant(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
 
 																		list->addParam(new ASTNumConstant(new ASTFloat(0L, 0, @1), @1));
-																		$$ = new ASTArrayDecl(type, name->getValue(), size, false, list, @1);
+																		$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																		delete name;}
 
  	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
@@ -173,13 +173,13 @@ ArrayDecl : Type IDENTIFIER LBRACKET NUMBER RBRACKET {	ASTType *type = (ASTType 
 																ASTArrayList *list = new ASTArrayList(@1);
 																list->makeString();
 																ASTString *string = (ASTString *)$6;
-																ASTFloat *size = new ASTFloat(string->getValue().length()-1, 0, @1);
+																ASTExpr *size = new ASTNumConstant(new ASTFloat(string->getValue().length()-1, 0, @1), @1);
 
 																for(unsigned int i=1; i < string->getValue().length()-1; i++)
 																	list->addParam(new ASTNumConstant(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
 
 																list->addParam(new ASTNumConstant(new ASTFloat(0L, 0, @1), @1));
-																$$ = new ASTArrayDecl(type, name->getValue(), size, false, list, @1);
+																$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																delete name;}
 	;
 
@@ -375,6 +375,11 @@ DotExpr : IDENTIFIER DOT IDENTIFIER {ASTString *lval = (ASTString *)$1;
 													   ASTExprArrow *res = new ASTExprArrow(id, rval->getValue(), @1);
 													   res->setIndex(num);
 													   $$ = res;}
+	;
+
+ConstExpr : Expr {
+		ASTExpr *content = (ASTExpr*)$1;
+		$$ = new ASTExprConst(content, @1);}
 	;
 
 Expr : Expr OR Expr15 {ASTLogExpr *e = new ASTExprOr(@2);
