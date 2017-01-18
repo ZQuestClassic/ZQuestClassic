@@ -128,6 +128,12 @@ bool is_large()
 	return Backend::graphics->getVirtualMode() == 0;
 }
 
+
+extern int fs_edit_proc(int msg, DIALOG *d, int c);
+extern int fs_elist_proc(int msg, DIALOG *d, int c);
+extern int fs_flist_proc(int msg, DIALOG *d, int c);
+extern int fs_dlist_proc(int msg, DIALOG *d, int c);
+
 DIALOG *resizeDialog(DIALOG *d, float largeSize)
 {
 	int len = 0;
@@ -138,6 +144,17 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 
 	DIALOG *newd = new DIALOG[len];
 	memcpy(newd, d, len * sizeof(DIALOG));
+
+	for (int i = 0; i < len; i++)
+	{
+		if ((newd[i].proc == jwin_tab_proc
+			|| newd[i].proc == fs_edit_proc
+			|| newd[i].proc == fs_elist_proc
+			|| newd[i].proc == fs_flist_proc
+			|| newd[i].proc == fs_dlist_proc)
+			&& newd[i].dp3 == d)
+			newd[i].dp3 = newd;
+	}
 
 	if (is_large())
 	{

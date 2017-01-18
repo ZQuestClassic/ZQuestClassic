@@ -1140,13 +1140,15 @@ static MENU tunes_menu[] =
 int onFullscreenMenu();
 int onWindowed1Menu();
 int onWindowed2Menu();
+int onWindowed4Menu();
 int onNativeDepthMenu();
 
 static MENU video_mode_menu[] =
 {
 	{ (char *)"&Fullscreen",				onFullscreenMenu,		 NULL,                      0, NULL },
 	{ (char *)"Windowed 320x240",		    onWindowed1Menu,		 NULL,                      0, NULL },
-	{ (char *)"&Windowed 800x640",		    onWindowed2Menu,		 NULL,                      0, NULL },
+	{ (char *)"&Windowed 800x600",		    onWindowed2Menu,		 NULL,                      0, NULL },
+	{ (char *)"&Windowed 1600x1200",		onWindowed4Menu,		 NULL,                      0, NULL },
 	{ (char *)"Native Color &Depth",        onNativeDepthMenu,       NULL,                      0, NULL },
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -1195,13 +1197,23 @@ int onResetTransparency()
     refresh(rALL);
     return D_O_K;
 }
+
+bool checkResolutionFits(int width, int height)
+{
+	if (Backend::graphics->desktopW() < width || Backend::graphics->desktopH() < height)
+	{
+		return (jwin_alert("Resolution Warning", "The chosen resolution is too", "big to fit the screen.", "Use it anyway?", "&Yes", "&No", 'y', 'n', is_large() ? lfont_l : font) == 1);
+	}
+	return true;
+}
     
 void setVideoModeMenuFlags()
 {
 	video_mode_menu[0].flags = (Backend::graphics->isFullscreen() ? D_SELECTED : 0);
 	video_mode_menu[1].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 320 && Backend::graphics->screenH() == 240) ? D_SELECTED : 0;
 	video_mode_menu[2].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 800 && Backend::graphics->screenH() == 600) ? D_SELECTED : 0;	
-	video_mode_menu[3].flags = (Backend::graphics->isNativeColorDepth() ? D_SELECTED : 0);
+	video_mode_menu[3].flags = (!Backend::graphics->isFullscreen() && Backend::graphics->screenW() == 1600 && Backend::graphics->screenH() == 1200) ? D_SELECTED : 0;
+	video_mode_menu[4].flags = (Backend::graphics->isNativeColorDepth() ? D_SELECTED : 0);
 }
 
 int onNativeDepthMenu()
@@ -1256,18 +1268,41 @@ int onWindowed1Menu()
 
 int onWindowed2Menu()
 {
-	Backend::graphics->setScreenResolution(800, 600);
-	Backend::graphics->setFullscreen(false);
-	setVideoModeMenuFlags();
-	gui_bg_color = jwin_pal[jcBOX];
-	gui_fg_color = jwin_pal[jcBOXFG];
-	gui_mg_color = jwin_pal[jcMEDDARK];
-	Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	Backend::palette->setPalette(RAMpal);
-	int x = Backend::graphics->screenW() / 2;
-	int y = Backend::graphics->screenH() / 2;
-	Backend::mouse->setVirtualScreenPos(x, y);
-	Backend::mouse->setCursorVisibility(true);
+	if (checkResolutionFits(800, 600))
+	{
+		Backend::graphics->setScreenResolution(800, 600);
+		Backend::graphics->setFullscreen(false);
+		setVideoModeMenuFlags();
+		gui_bg_color = jwin_pal[jcBOX];
+		gui_fg_color = jwin_pal[jcBOXFG];
+		gui_mg_color = jwin_pal[jcMEDDARK];
+		Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+		Backend::palette->setPalette(RAMpal);
+		int x = Backend::graphics->screenW() / 2;
+		int y = Backend::graphics->screenH() / 2;
+		Backend::mouse->setVirtualScreenPos(x, y);
+		Backend::mouse->setCursorVisibility(true);
+	}
+	return D_REDRAW;
+}
+
+int onWindowed4Menu()
+{
+	if (checkResolutionFits(1600, 1200))
+	{
+		Backend::graphics->setScreenResolution(1600, 1200);
+		Backend::graphics->setFullscreen(false);
+		setVideoModeMenuFlags();
+		gui_bg_color = jwin_pal[jcBOX];
+		gui_fg_color = jwin_pal[jcBOXFG];
+		gui_mg_color = jwin_pal[jcMEDDARK];
+		Backend::mouse->setCursorSprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+		Backend::palette->setPalette(RAMpal);
+		int x = Backend::graphics->screenW() / 2;
+		int y = Backend::graphics->screenH() / 2;
+		Backend::mouse->setVirtualScreenPos(x, y);
+		Backend::mouse->setCursorVisibility(true);
+	}
 	return D_REDRAW;
 }
 
