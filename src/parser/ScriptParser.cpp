@@ -508,12 +508,11 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
         
         for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
         {
-            int scripttype;
-            ExtractType et;
-            (*it)->getType()->execute(et, &scripttype);
+            ScriptType scripttype = (*it)->getType()->getType();
             
-            if(!(scripttype == ScriptParser::TYPE_FFC || scripttype == ScriptParser::TYPE_ITEMCLASS
-                    || scripttype == ScriptParser::TYPE_GLOBAL))
+            if (scripttype != SCRIPTTYPE_GLOBAL
+				&& scripttype != SCRIPTTYPE_ITEM
+				&& scripttype != SCRIPTTYPE_FFC)
             {
                 printErrorMsg(*it, SCRIPTBADTYPE, (*it)->getName());
                 failure = true;
@@ -562,7 +561,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                     {
                         int type = t->getFuncType(runid);
                         
-                        if(type != ScriptParser::TYPE_VOID)
+                        if (type != ScriptParser::TYPE_VOID)
                         {
                             printErrorMsg(*it, SCRIPTRUNNOTVOID, (*it)->getName());
                             failure = true;
@@ -589,7 +588,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
         for(vector<ASTFuncDecl *>::iterator it = fds.begin(); it != fds.end(); it++)
         {
             Scope *subscope = new Scope(globalScope);
-            BFSParam param = {subscope, t,ScriptParser::TYPE_VOID};
+            BFSParam param = {subscope, t, SCRIPTTYPE_VOID};
             BuildFunctionSymbols bfs;
             (*it)->execute(bfs, &param);
             
@@ -600,14 +599,14 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
         }
     }
     
-    //now do script function
+    // Now do script function.
     if(!failure)
     {
         for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
         {
             Scope *subscope = globalScope->getNamedChild((*it)->getName());
             Scope *newscope = new Scope(subscope);
-            BFSParam param = {newscope, t,rval->scriptTypes[*it]};
+            BFSParam param = {newscope, t, rval->scriptTypes[*it]};
             list<ASTDecl *> decls = (*it)->getScriptBlock()->getDeclarations();
             
             for(list<ASTDecl *>::iterator it2 = decls.begin(); it2 != decls.end(); it2++)
@@ -681,14 +680,14 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
     vector<ASTFuncDecl *> funcs = sdata->globalFuncs;
     map<ASTScript *, int> runsymbols = sdata->runsymbols;
     map<ASTScript *, int> numparams = sdata->numParams;
-    map<ASTScript *, int> scripttypes = sdata->scriptTypes;
+    map<ASTScript *, ScriptType> scripttypes = sdata->scriptTypes;
     map<ASTScript *, int> thisptr = sdata->thisPtr;
     delete sdata;
     bool failure = false;
     map<int, bool> usednums;
     
     //strip var and func decls from the scripts
-    for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
+    for (vector<ASTScript*>::iterator it = scripts.begin(); it != scripts.end(); it++)
     {
         fd->scriptRunSymbols[(*it)->getName()] = runsymbols[*it];
         fd->numParams[(*it)->getName()] = numparams[*it];
@@ -726,12 +725,12 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
         }
     }
     
-    for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
+    for (vector<ASTScript*>::iterator it = scripts.begin(); it != scripts.end(); it++)
     {
         delete *it;
     }
     
-    for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
+    for (vector<ASTFuncDecl*>::iterator it = funcs.begin(); it != funcs.end(); it++)
     {
         fd->functions.push_back(*it);
     }
@@ -858,7 +857,7 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
 
 IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 {
-    //Z_message("yes");
+    // Z_message("yes");
     bool failure = false;
     vector<ASTFuncDecl *> funcs = fdata->functions;
     vector<ASTVarDecl *> globals = fdata->globalVars;
@@ -874,7 +873,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     map<string, int> runsymbols = fdata->scriptRunSymbols;
     SymbolTable *symbols = fdata->symbols;
     map<string, int> numparams = fdata->numParams;
-    map<string, int> scripttypes = fdata->scriptTypes;
+    map<string, ScriptType> scripttypes = fdata->scriptTypes;
     map<string, int> thisptr = fdata->thisPtr;
     delete fdata;
     LinkTable lt;
@@ -1097,17 +1096,17 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         //push on the this, if a script
         if(isarun)
         {
-            switch(scripttypes[scriptname])
+            switch (scripttypes[scriptname])
             {
-            case ScriptParser::TYPE_FFC:
+            case SCRIPTTYPE_FFC:
                 funccode.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(REFFFC)));
                 break;
                 
-            case ScriptParser::TYPE_ITEMCLASS:
+            case SCRIPTTYPE_ITEM:
                 funccode.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(REFITEMCLASS)));
                 break;
                 
-            case ScriptParser::TYPE_GLOBAL:
+            case SCRIPTTYPE_GLOBAL:
                 //don't care, we don't have a valid this pointer
                 break;
             }
@@ -1227,14 +1226,14 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     }
     map<string, int> scripts = id->scriptRunLabels;
     map<string, int> numparams = id->numParams;
-    map<string, int> scripttypes = id->scriptTypes;
+    map<string, ScriptType> scripttypes = id->scriptTypes;
     delete id;
     
     //do the global inits
     //if there's a global script called "Init", append it to ~Init:
     map<string, int>::iterator it = scripts.find("Init");
     
-    if(it != scripts.end() && scripttypes["Init"] == ScriptParser::TYPE_GLOBAL)
+    if (it != scripts.end() && scripttypes["Init"] == SCRIPTTYPE_GLOBAL)
     {
         //append
         //get label
@@ -1243,7 +1242,7 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     }
     
     rval->theScripts["~Init"] = assembleOne(ginit, funcs, 0);
-    rval->scriptTypes["~Init"] = ScriptParser::TYPE_GLOBAL;
+    rval->scriptTypes["~Init"] = SCRIPTTYPE_GLOBAL;
     
     for(map<string, int>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
     {

@@ -346,7 +346,7 @@ ASTStmtEmpty* ASTStmtEmpty::clone() const
 
 // ASTScript
 
-ASTScript::ASTScript(ASTType *Type, string Name, ASTDeclList *Sblock, LocationData Loc)
+ASTScript::ASTScript(ASTScriptType *Type, string Name, ASTDeclList *Sblock, LocationData Loc)
 		: ASTDecl(Loc), type(Type), name(Name), sblock(Sblock)
 {}
 
@@ -973,6 +973,8 @@ ASTExprRShift* ASTExprRShift::clone() const
 
 ////////////////////////////////////////////////////////////////
 // Types
+
+// ASTScriptType
 
 // ASTType
 

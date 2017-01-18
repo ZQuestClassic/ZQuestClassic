@@ -102,6 +102,7 @@ class ASTShiftExpr; // virtual
 class ASTExprLShift;
 class ASTExprRShift;
 // Types
+class ASTScriptType;
 class ASTType; // virtual
 class ASTTypeVoid;
 class ASTTypeGlobal;
@@ -113,7 +114,6 @@ class ASTTypeItemclass;
 class ASTTypeNPC;
 class ASTTypeLWpn;
 class ASTTypeEWpn;
-
 
 class ASTVisitor
 {
@@ -180,6 +180,8 @@ public:
     virtual void caseExprBitXor(ASTExprBitXor &, void *param) {caseDefault(param);}
     virtual void caseExprLShift(ASTExprLShift &, void *param) {caseDefault(param);}
     virtual void caseExprRShift(ASTExprRShift &, void *param) {caseDefault(param);}
+	// Types
+	virtual void caseScriptType(ASTScriptType &, void* param) {caseDefault(param);}
     virtual void caseTypeVoid(ASTTypeVoid &, void *param) {caseDefault(param);}
     virtual void caseTypeGlobal(ASTTypeGlobal &, void *param) {caseDefault(param);}
     virtual void caseTypeFloat(ASTTypeFloat &, void *param) {caseDefault(param);}
@@ -504,15 +506,15 @@ private:
 class ASTScript : public ASTDecl
 {
 public:
-    ASTScript(ASTType *Type, string Name, ASTDeclList *Sblock, LocationData Loc);
+    ASTScript(ASTScriptType *Type, string Name, ASTDeclList *Sblock, LocationData Loc);
 	virtual ~ASTScript();
 	ASTScript* clone() const;
     ASTDeclList *getScriptBlock() const {return sblock;}
-    ASTType *getType() const {return type;}
+    ASTScriptType *getType() const {return type;}
     string getName() const {return name;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseScript(*this, param);}
 private:
-    ASTType *type;
+    ASTScriptType *type;
     string name;
     ASTDeclList *sblock;
 };
@@ -1137,6 +1139,17 @@ public:
 };
 
 // Types
+
+class ASTScriptType : public AST
+{
+public:
+	ASTScriptType(ScriptType Type, LocationData Loc) : AST(Loc), type(Type) {}
+	ASTScriptType* clone() const {return new ASTScriptType(type, getLocation());}
+	ScriptType getType() const {return type;}
+    void execute(ASTVisitor &visitor, void *param) {visitor.caseScriptType(*this, param);}
+private:
+	ScriptType type;
+};
 
 class ASTType : public AST
 {
