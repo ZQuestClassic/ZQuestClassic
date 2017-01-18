@@ -10,12 +10,41 @@
 class BuildOpcodes : public RecursiveVisitor
 {
 public:
+    BuildOpcodes() : continuelabelid(-1), breaklabelid(-1), failure(false) {}
+
     virtual void caseDefault(void *param);
+	// Statements
+    virtual void caseBlock(ASTBlock &host, void *param);
+    virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
+    virtual void caseStmtIf(ASTStmtIf &host, void *param);
+    virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
+    virtual void caseStmtFor(ASTStmtFor &host, void *param);
+    virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
+    virtual void caseStmtDo(ASTStmtDo &host, void *param);
+    virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
+    virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
+    virtual void caseStmtBreak(ASTStmtBreak &host, void *param);
+    virtual void caseStmtContinue(ASTStmtContinue &host, void *param);
+    virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
+	// Declarations
     virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
+    virtual void caseArrayDecl(ASTArrayDecl &host, void *param);
     virtual void caseVarDecl(ASTVarDecl &host, void *param);
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
-    virtual void caseArrayDecl(ASTArrayDecl &host, void *param);
-    virtual void caseBlock(ASTBlock &host, void *param);
+	// Expressions
+    virtual void caseNumConstant(ASTNumConstant &host, void *param);
+    virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
+    virtual void caseExprDot(ASTExprDot &host, void *param);
+    virtual void caseExprArrow(ASTExprArrow &host, void *param);
+    virtual void caseExprArray(ASTExprArray &host, void *param);
+    virtual void caseFuncCall(ASTFuncCall &host, void *param);
+    virtual void caseExprNegate(ASTExprNegate &host, void *param);
+    virtual void caseExprNot(ASTExprNot &host, void *param);
+    virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
+    virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
+    virtual void caseExprPreIncrement(ASTExprPreIncrement &host, void *param);
+    virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
+    virtual void caseExprPreDecrement(ASTExprPreDecrement &host, void *param);
     virtual void caseExprAnd(ASTExprAnd &host, void *param);
     virtual void caseExprOr(ASTExprOr &host, void *param);
     virtual void caseExprGT(ASTExprGT &host, void *param);
@@ -28,53 +57,18 @@ public:
     virtual void caseExprMinus(ASTExprMinus &host, void *param);
     virtual void caseExprTimes(ASTExprTimes &host, void *param);
     virtual void caseExprDivide(ASTExprDivide &host, void *param);
-    virtual void caseExprNot(ASTExprNot &host, void *param);
-    virtual void caseExprNegate(ASTExprNegate &host, void *param);
-    virtual void caseFuncCall(ASTFuncCall &host, void *param);
-    virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
-    virtual void caseExprDot(ASTExprDot &host, void *param);
-    virtual void caseExprArrow(ASTExprArrow &host, void *param);
-    virtual void caseExprArray(ASTExprArray &host, void *param);
-    virtual void caseStmtFor(ASTStmtFor &host, void *param);
-    virtual void caseStmtIf(ASTStmtIf &host, void *param);
-    virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
-    virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
-    virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
-    virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
-    virtual void caseNumConstant(ASTNumConstant &host, void *param);
-    virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
-    virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
-    virtual void caseStmtDo(ASTStmtDo &host, void *param);
+    virtual void caseExprModulo(ASTExprModulo &host, void *param);
+    virtual void caseExprBitAnd(ASTExprBitAnd &host, void *param);
     virtual void caseExprBitOr(ASTExprBitOr &host, void *param);
     virtual void caseExprBitXor(ASTExprBitXor &host, void *param);
-    virtual void caseExprBitAnd(ASTExprBitAnd &host, void *param);
     virtual void caseExprLShift(ASTExprLShift &host, void *param);
     virtual void caseExprRShift(ASTExprRShift &host, void *param);
-    virtual void caseExprModulo(ASTExprModulo &host, void *param);
-    virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
-    virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
-    virtual void caseExprPreIncrement(ASTExprPreIncrement &host, void *param);
-    virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
-    virtual void caseExprPreDecrement(ASTExprPreDecrement &host, void *param);
-    virtual void caseStmtBreak(ASTStmtBreak &host, void *param);
-    virtual void caseStmtContinue(ASTStmtContinue &host, void *param);
-    vector<Opcode *> getResult()
-    {
-        return result;
-    }
-    int getReturnLabelID()
-    {
-        return returnlabelid;
-    }
-    list<long> *getArrayRefs()
-    {
-        return &arrayRefs;
-    }
-    BuildOpcodes() : continuelabelid(-1), breaklabelid(-1), failure(false) {}
-    bool isOK()
-    {
-        return !failure;
-    }
+
+    vector<Opcode *> getResult() const {return result;}
+    int getReturnLabelID() const {return returnlabelid;}
+    list<long> *getArrayRefs() {return &arrayRefs;}
+    list<long> const *getArrayRefs() const {return &arrayRefs;}
+    bool isOK() const {return !failure;}
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
     vector<Opcode *> result;
@@ -94,15 +88,6 @@ public:
 	}
 
     virtual void caseDefault(void *) { }
-    virtual void caseVarDecl(ASTVarDecl &host, void *)
-    {
-
-        int vid = st->getID(&host);
-		sf->addToFrame(vid, curoffset);
-		curoffset += 10000;
-		if (highWaterOffset < curoffset)
-			highWaterOffset = curoffset;		
-    }
     virtual void caseArrayDecl(ASTArrayDecl &host, void *)
     {        
         int vid = st->getID(&host);
@@ -111,7 +96,16 @@ public:
 		if (highWaterOffset < curoffset)
 			highWaterOffset = curoffset;
 	}
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
+	virtual void caseVarDecl(ASTVarDecl &host, void *)
+	{
+
+		int vid = st->getID(&host);
+		sf->addToFrame(vid, curoffset);
+		curoffset += 10000;
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;
+	}
+	virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
     {
         caseVarDecl(host, param);
     }
@@ -155,14 +149,11 @@ class LValBOHelper : public ASTVisitor
 {
 public:
     virtual void caseDefault(void *param);
+    virtual void caseVarDecl(ASTVarDecl &host, void *param);
     virtual void caseExprDot(ASTExprDot &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprArray(ASTExprArray &host, void *param);
-    virtual void caseVarDecl(ASTVarDecl &host, void *param);
-    vector<Opcode *> getResult()
-    {
-        return result;
-    }
+    vector<Opcode *> getResult() {return result;}
 private:
     vector<Opcode *> result;
 };
