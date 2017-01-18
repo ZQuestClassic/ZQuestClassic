@@ -25,6 +25,7 @@ public:
     virtual void caseVarDecl(ASTVarDecl &host, void *param);
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
 	// Expressions
+	virtual void caseExprConst(ASTExprConst &host, void *param);
     virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprArray(ASTExprArray &host, void *param);

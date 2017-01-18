@@ -69,13 +69,13 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     int type;
     ExtractType temp;
     host.getType()->execute(temp, &type);
-    
+
     if(type == ScriptParser::TYPE_VOID)
     {
         failure = true;
         printErrorMsg(&host, VOIDARR, name);
     }
-    
+
     if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
             || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
             || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
@@ -83,28 +83,27 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         failure = true;
         printErrorMsg(&host, REFARR, name);
     }
-    
-    //var is always visible
+
+    // var is always visible
     int id = p->first->getVarSymbols().addVariable(name, type);
-    
+
     if(id == -1)
     {
         failure = true;
         printErrorMsg(&host, ARRREDEF, name);
         return;
     }
-    
+
     p->second->putAST(&host, id);
     p->second->putVar(id, type);
-    
+
     if(this->deprecateGlobals)
     {
         printErrorMsg(&host, DEPRECATEDGLOBAL, name);
     }
-    
-    if(host.isRegister())
-        ((ASTExpr *) host.getSize())->execute(*this, param);
-        
+
+	((ASTExpr *) host.getSize())->execute(*this, param);
+
     if(host.getList() != NULL)
     {
         for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
@@ -302,20 +301,19 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     ExtractType temp;
     host.getType()->execute(temp, &type);
     int id = p->scope->getVarSymbols().addVariable(name, type);
-    
+
     if(id == -1)
     {
         printErrorMsg(&host, ARRREDEF, name);
         failure = true;
         return;
     }
-    
+
     p->table->putAST(&host, id);
     p->table->putVar(id, type);
-    
-    if(host.isRegister())
-        ((ASTExpr *) host.getSize())->execute(*this, param);
-        
+
+	((ASTExpr *) host.getSize())->execute(*this, param);
+
     if(host.getList() != NULL)
     {
         for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
