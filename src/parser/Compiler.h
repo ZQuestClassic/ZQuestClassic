@@ -133,6 +133,19 @@ public:
         lid=0;
     }
     static pair<long,bool> parseLong(pair<string,string> parts);
+		static int getThisType(ScriptType type)
+		{
+				switch (type)
+				{
+				case SCRIPTTYPE_FFC:
+						return TYPE_FFC;
+				case SCRIPTTYPE_ITEM:
+						return TYPE_ITEMCLASS;
+				case SCRIPTTYPE_GLOBAL:
+				case SCRIPTTYPE_VOID:
+						return TYPE_VOID;
+				}
+		}
     static string printType(int type)
     {
         switch(type)
