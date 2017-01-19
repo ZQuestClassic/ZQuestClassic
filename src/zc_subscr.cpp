@@ -20,7 +20,6 @@
 #include "subscr.h"
 #include "zc_subscr.h"
 #include "link.h"
-#include "gamedata.h"
 #include "guys.h"
 
 extern LinkClass   Link;

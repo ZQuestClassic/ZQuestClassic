@@ -17,7 +17,6 @@
 #include "zelda.h"
 #include "link.h"
 #include "guys.h"
-#include "gamedata.h"
 #include "zc_init.h"
 #include "zsys.h"
 #include "title.h"
@@ -47,6 +46,7 @@ extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
+extern GameScripts scripts;
 
 int virtualScreenScale();
 
@@ -54,7 +54,7 @@ int virtualScreenScale();
 long sarg1 = 0;
 long sarg2 = 0;
 refInfo *ri = NULL;
-ffscript *curscript = NULL;
+ZAsmScript *curscript = NULL;
 
 static int numInstructions; // Used to detect hangs
 static bool scriptCanSave = true;
@@ -2885,7 +2885,7 @@ void set_register(const long arg, const long value)
                 deallocateArray(i);
         }
         
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, scripts.ffscripts.size()-1);
         
         for(int i=0; i<16; i++)
             ffmisc[ri->ffcref][i] = 0;
@@ -6521,7 +6521,7 @@ int run_script(const byte type, const word script, const byte i)
     {
         ri = &(ffcScriptData[i]);
         
-        curscript = ffscripts[script];
+        curscript = &scripts.ffscripts[script];
         stack = &(ffc_stack[i]);
         
         if(!tmpscr->initialized[i])
@@ -6539,7 +6539,7 @@ int run_script(const byte type, const word script, const byte i)
         ri = &itemScriptData;
         ri->Clear(); //Only runs for one frame so we just zero it out
         
-        curscript = itemscripts[script];
+        curscript = &scripts.itemscripts[script];
         stack = &item_stack;
         memset(stack, 0, 256 * sizeof(long)); //zero here too
         
@@ -6555,7 +6555,7 @@ int run_script(const byte type, const word script, const byte i)
     {
         ri = &globalScriptData;
         
-        curscript = globalscripts[script];
+        curscript = &scripts.globalscripts[script];
         stack = &global_stack;
     }
     break;
@@ -6567,9 +6567,9 @@ int run_script(const byte type, const word script, const byte i)
     }
     
     dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
-    word scommand = curscript[pc].command;
-    sarg1 = curscript[pc].arg1;
-    sarg2 = curscript[pc].arg2;
+    word scommand = curscript->commands[pc].command;
+    sarg1 = curscript->commands[pc].arg1;
+    sarg2 = curscript->commands[pc].arg2;
     
     
 #ifdef _FFDISSASSEMBLY
@@ -7505,9 +7505,9 @@ int run_script(const byte type, const word script, const byte i)
         
         if(scommand != 0xFFFF)
         {
-            scommand = curscript[pc].command;
-            sarg1 = curscript[pc].arg1;
-            sarg2 = curscript[pc].arg2;
+            scommand = curscript->commands[pc].command;
+            sarg1 = curscript->commands[pc].arg1;
+            sarg2 = curscript->commands[pc].arg2;
         }
     }
     

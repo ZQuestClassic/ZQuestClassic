@@ -74,6 +74,7 @@ string				             zScript;
 std::map<int, pair<string,string> > ffcmap;
 std::map<int, pair<string,string> > globalmap;
 std::map<int, pair<string,string> > itemmap;
+GameScripts scripts;
 
 bool combosread=false;
 bool mapsread=false;
@@ -7688,21 +7689,13 @@ int setupsubscreens()
     return 0;
 }
 
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
-
-int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
+int readscripts(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     int dummy;
     word s_version=0, s_cversion=0;
-    byte numscripts=0;
-    numscripts=numscripts; //to avoid unused variables warnings
     int ret;
+
+	GameScripts tmpscripts;
     
     //section version info
     if(!p_igetw(&s_version,f,true))
@@ -7715,7 +7708,6 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    //al_trace("Scripts version %d\n", s_version);
     //section size
     if(!p_igetl(&dummy,f,true))
     {
@@ -7724,77 +7716,154 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
     setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
-    
-    //finally...  section data
-    for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
-    {
-        ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ffscripts[i]);
-        
-        if(ret != 0) return qe_invalid;
-    }
-    
-    if(s_version > 1)
-    {
-        for(int i = 0; i < NUMSCRIPTITEM; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
-        for(int i = 0; i < NUMSCRIPTGUYS; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &guyscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
-        for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
-        for(int i = 0; i < NUMSCRIPTSCREEN; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
-        if(s_version > 4)
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
-                
-                if(ret != 0) return qe_invalid;
-            }
-        }
-        else
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBALOLD; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
-                
-                if(ret != 0) return qe_invalid;
-            }
-            
-            if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_CONTINUE];
-                
-            globalscripts[GLOBAL_SCRIPT_CONTINUE] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
-        }
-        
-        for(int i = 0; i < NUMSCRIPTLINK; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-    }
+
+	scripts = GameScripts();
+
+	// read the scripts
+
+	int numffcscripts = 0;
+	if(s_version < 7)
+		numffcscripts = (s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC;
+	else
+	{
+		p_igetw(&numffcscripts, f, true);
+	}
+	
+	tmpscripts.ffscripts.resize(numffcscripts);
+
+	for (int i = 0; i < numffcscripts; i++)
+	{
+		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_FFC, tmpscripts.ffscripts[i]);
+		if (ret != 0) return qe_invalid;
+	}
+
+	int numitemscripts = 0;
+	if (s_version < 7)
+	{
+		if (s_version > 1)
+		{
+			numitemscripts = NUMSCRIPTITEM;
+		}
+	}
+	else
+	{
+		p_igetw(&numitemscripts, f, true);
+	}
+
+	tmpscripts.itemscripts.resize(numitemscripts);
+	for (int i = 0; i < numitemscripts; i++)
+	{
+		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_ITEM, tmpscripts.itemscripts[i]);
+		if (ret != 0) return qe_invalid;
+	}
+
+	int numguyscripts = 0;
+	if (s_version < 7)
+	{
+		if (s_version > 1)
+		{
+			numguyscripts = NUMSCRIPTGUYS;
+		}
+	}
+	else
+	{
+		p_igetw(&numguyscripts, f, true);
+	}
+
+	tmpscripts.guyscripts.resize(numguyscripts);
+	for (int i = 0; i < numguyscripts; i++)
+	{
+		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_NPC, tmpscripts.guyscripts[i]);
+		if (ret != 0) return qe_invalid;
+	}
+
+	int numweaponscripts = 0;
+	if (s_version < 7)
+	{
+		if (s_version > 1)
+		{
+			numweaponscripts = NUMSCRIPTWEAPONS;
+		}
+	}
+	else
+	{
+		p_igetw(&numweaponscripts, f, true);
+	}
+
+	tmpscripts.wpnscripts.resize(numweaponscripts);
+	for (int i = 0; i < numweaponscripts; i++)
+	{
+		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_LWPN, tmpscripts.wpnscripts[i]);
+		if (ret != 0) return qe_invalid;
+	}
+
+	int numscreenscripts = 0;
+	if (s_version < 7)
+	{
+		if (s_version > 1)
+		{
+			numscreenscripts = NUMSCRIPTSCREEN;
+		}
+	}
+	else
+	{
+		p_igetw(&numscreenscripts, f, true);
+	}
+
+	tmpscripts.screenscripts.resize(numscreenscripts);
+	for (int i = 0; i < numscreenscripts; i++)
+	{
+		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_SCREEN, tmpscripts.screenscripts[i]);
+		if (ret != 0) return qe_invalid;
+	}
+
+	if (s_version > 4)
+	{
+		for (int i = 0; i < NUMSCRIPTGLOBAL; i++)
+		{
+			ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_GLOBAL, tmpscripts.globalscripts[i]);
+			if (ret != 0) return qe_invalid;
+		}
+	}
+	else if(s_version > 1)
+	{
+		for (int i = 0; i < NUMSCRIPTGLOBALOLD; i++)
+		{
+			ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_GLOBAL, tmpscripts.globalscripts[i]);
+			if (ret != 0) return qe_invalid;
+		}
+
+		if (tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands != NULL)
+		delete[] tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands;
+		
+		tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands = new zasm[1];
+		tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands[0].command = 0xFFFF;
+		tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands_len = 1;
+	}
+
+	int numlinkscripts = 0;
+	if (s_version < 7)
+	{
+		if (s_version > 1)
+		{
+			numlinkscripts = NUMSCRIPTLINK;
+		}
+	}
+	else
+	{
+		p_igetw(&numlinkscripts, f, true);
+	}
+	
+	tmpscripts.linkscripts.resize(numlinkscripts);
+	for (int i = 0; i < numlinkscripts; i++)
+	{
+		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_LINK, tmpscripts.linkscripts[i]);
+
+		if (ret != 0) return qe_invalid;
+	}
+
+	if (keepdata)
+		scripts = tmpscripts;
     
     if(s_version > 2)
     {
@@ -7849,8 +7918,8 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 {
                     globalmap[id].second = "";
                     
-                    if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                        globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+                    if(tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands != NULL)
+						tmpscripts.globalscripts[GLOBAL_SCRIPT_CONTINUE].commands[0].command = 0xFFFF;
                 }
                 else
                 {
@@ -7887,102 +7956,35 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-//Eh?
-bool is_string_command(int command)
-{
-    command = command;
-    return false;
-}
-
-void reset_scripts()
-{
-    //OK, who spaced this? ;)
-    for(int i=0; i<NUMSCRIPTFFC; i++)
-    {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTITEM; i++)
-    {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
-    {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
-    {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTLINK; i++)
-    {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
-    }
-    
-    
-    for(int i=0; i<NUMSCRIPTFFC; i++)
-    {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTITEM; i++)
-    {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTGUYS; i++)
-    {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTSCREEN; i++)
-    {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTLINK; i++)
-    {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
-    }
-}
-
-int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_version, word , ffscript **script)
+int read_one_script(PACKFILE *f, zquestheader *, int , word s_version, word , int type, ZAsmScript &script)
 {
 
     //Please also update loadquest() when modifying this method -DD
-    ffscript temp_script;
-    temp_script.ptr=NULL;
-    long num_commands=1000;
+
+	if (s_version < 7)
+	{
+		script.version = 1;
+		script.type = type;
+		delete[] script.name;
+		script.name_len = 16;
+		script.name = new char[16];
+		strcpy(script.name, "Nameless Script");
+	}
+	else
+	{
+		p_igetw(&script.version, f, true);
+		p_igetw(&script.type, f, true);
+		if (script.type != type)
+			return qe_invalid;
+		p_igetw(&script.name_len, f, true);
+		delete[] script.name;
+		script.name = new char[script.name_len];
+		pfread(&script.name, script.name_len, f, true);
+		if (script.name[script.name_len - 1] != '\0')
+			return qe_invalid;
+	}
+    
+	long num_commands=1000;
     
     if(s_version>=2)
     {
@@ -7992,61 +7994,40 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
         }
     }
     
-    if(keepdata)
-    {
-        //FIXME:
-        if((*script) != NULL) //Surely we want to do this regardless of keepdata?
-            delete [](*script);
-            
-        (*script) = new ffscript[num_commands]; //memory leak
-    }
+	script.commands_len = num_commands;
+	delete[] script.commands;
+
+	// some old quests have no commands, not even 0xFFFF
+	if (script.commands_len == 0)
+		script.commands_len++;
+
+	script.commands = new zasm[script.commands_len];
     
     for(int j=0; j<num_commands; j++)
     {
-        if(!p_igetw(&(temp_script.command),f,true))
+        if(!p_igetw(&(script.commands[j].command),f,true))
         {
             return qe_invalid;
         }
         
-        if(temp_script.command == 0xFFFF)
+		if (script.commands[j].command == 0xFFFF)
+		{
+			break;
+		}
+
+		if(!p_igetl(&(script.commands[j].arg1),f,true))
         {
-            if(keepdata)
-                (*script)[j].command = 0xFFFF;
-                
-            break;
+            return qe_invalid;
         }
-        else
-        {
-            if(is_string_command(temp_script.command))
-            {
-            }
-            else
-            {
-                if(!p_igetl(&(temp_script.arg1),f,keepdata))
-                {
-                    return qe_invalid;
-                }
                 
-                if(!p_igetl(&(temp_script.arg2),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(keepdata)
-            {
-                (*script)[j].command = temp_script.command;
-                (*script)[j].arg1 = temp_script.arg1;
-                (*script)[j].arg2 = temp_script.arg2;
-                // I'll comment this out until the whole routine is finished using ptr
-                //if(is_string_command(temp_script.command))
-                //{
-                //( *script)[j].ptr=(char *)zc_malloc(256);
-                //memcpy((*script)[j].ptr, temp_script.ptr, 256);
-                //}
-            }
+        if(!p_igetl(&(script.commands[j].arg2),f,true))
+        {
+            return qe_invalid;
         }
     }
+
+	if (num_commands == 0)
+		script.commands[0].command = 0xFFFF;
     
     return 0;
 }
@@ -13549,7 +13530,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
             itemmap[i] = pair<string,string>("","");
         }
         
-        reset_scripts();
+		scripts = GameScripts();
     }
     
     zquestheader tempheader;
@@ -13938,8 +13919,8 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                     catchup=false;
                 }
                 
-                box_out("Reading FF Script Data...");
-                ret=readffscript(f, &tempheader, keepall&&!get_bit(skip_flags, skip_ffscript));
+                box_out("Reading Script Data...");
+                ret=readscripts(f, &tempheader, keepall&&!get_bit(skip_flags, skip_ffscript));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
