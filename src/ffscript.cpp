@@ -2885,7 +2885,7 @@ void set_register(const long arg, const long value)
                 deallocateArray(i);
         }
         
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, scripts.ffscripts.size()-1);
         
         for(int i=0; i<16; i++)
             ffmisc[ri->ffcref][i] = 0;

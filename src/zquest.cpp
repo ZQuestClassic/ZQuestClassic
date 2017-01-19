@@ -19520,6 +19520,8 @@ int onCompileScript()
                             
                             fclose(tempfile);
 							int scriptid = it->first + 1;
+							if(scriptid+1 > scripts.ffscripts.size())
+								scripts.ffscripts.resize(scriptid + 1);
 							scripts.ffscripts[scriptid].version = ZASM_VERSION;
 							scripts.ffscripts[scriptid].type = SCRIPT_FFC;
 							scripts.ffscripts[scriptid].name_len = (int16_t)it->second.second.length() + 1;
@@ -19570,6 +19572,8 @@ int onCompileScript()
                             fclose(tempfile);
 
 							int scriptid = it->first;
+							if(scriptid +1 > scripts.globalscripts.size())
+								scripts.globalscripts.resize(scriptid + 1);
 							scripts.globalscripts[scriptid].version = ZASM_VERSION;
 							scripts.globalscripts[scriptid].type = SCRIPT_GLOBAL;
 							scripts.globalscripts[scriptid].name_len = int16_t(it->second.second.length()) + 1;
@@ -19620,6 +19624,8 @@ int onCompileScript()
 							fclose(tempfile);
 
 							int scriptid = it->first+1;
+							if (scriptid + 1 > scripts.itemscripts.size())
+								scripts.itemscripts.resize(scriptid + 1);
 							scripts.itemscripts[scriptid].version = ZASM_VERSION;
 							scripts.itemscripts[scriptid].type = SCRIPT_ITEM;
 							scripts.itemscripts[scriptid].name_len = (int16_t)it->second.second.length() + 1;
