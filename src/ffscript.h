@@ -776,18 +776,6 @@ enum ASM_DEFINE
 
 #define NUMVARIABLES         0x10B9
 
-// Script types
-
-#define SCRIPT_GLOBAL          0
-#define SCRIPT_FFC             1
-#define SCRIPT_SCREEN          2
-#define SCRIPT_LINK            3
-#define SCRIPT_ITEM            4
-#define SCRIPT_LWPN            5
-#define SCRIPT_NPC             6
-#define SCRIPT_SUBSCREEN       7
-#define SCRIPT_EWPN            8
-
 struct quad3Dstruct
 {
     int index;

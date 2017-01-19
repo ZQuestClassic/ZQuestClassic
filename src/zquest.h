@@ -8,7 +8,6 @@
 #include "jwinfsel.h"
 #include "zcmusic.h"
 #include "sprite.h"
-#include "gamedata.h"
 
 #define  INTERNAL_VERSION  0xA721
 

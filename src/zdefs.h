@@ -91,7 +91,6 @@
 #include <set>
 #include <assert.h>
 #include "zc_alleg.h"
-#include "gamedata.h"
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
@@ -1538,14 +1537,95 @@ struct mapscr
     
 };
 
-struct ffscript
+struct zasm
 {
-    word command;
-    long arg1;
-    long arg2;
-    char *ptr;
+	uint16_t command;
+	int32_t arg1;
+	int32_t arg2;
 };
 
+// The version of the ZASM engine a script was compiled for
+// NOT the same as V_FFSCRIPT, which is the version of the packfile format
+// where the scripts are serialized
+#define ZASM_VERSION        1
+
+// Script types
+
+#define SCRIPT_NONE            -1
+#define SCRIPT_GLOBAL          0
+#define SCRIPT_FFC             1
+#define SCRIPT_SCREEN          2
+#define SCRIPT_LINK            3
+#define SCRIPT_ITEM            4
+#define SCRIPT_LWPN            5
+#define SCRIPT_NPC             6
+#define SCRIPT_SUBSCREEN       7
+#define SCRIPT_EWPN            8
+
+struct ZAsmScript
+{
+	ZAsmScript() : version(ZASM_VERSION), type(SCRIPT_NONE)
+	{
+		name_len = 21;
+		name = new char[21];
+		strcpy(name, "Uninitialized Script");
+		commands_len = 1;
+		commands = new zasm[1];
+		commands[0].command = 0xFFFF;
+	}
+
+	~ZAsmScript()
+	{
+		delete[] name;
+		delete[] commands;
+	}
+
+	ZAsmScript &operator=(const ZAsmScript &other)
+	{
+		version = other.version;
+		type = other.type;
+		name_len = other.name_len;
+		delete[] name;
+		name = new char[name_len];
+		strcpy(name, other.name);
+		commands_len = other.commands_len;
+		delete[] commands;
+		commands = new zasm[commands_len];
+		for (int i = 0; i < commands_len; i++)
+			commands[i] = other.commands[i];
+
+		return *this;
+	}
+
+	ZAsmScript(const ZAsmScript &other)
+	{
+		version = other.version;
+		type = other.type;
+		name_len = other.name_len;
+		name = new char[name_len];
+		strcpy(name, other.name);
+		commands_len = other.commands_len;
+		commands = new zasm[commands_len];
+		for (int i = 0; i < commands_len; i++)
+			commands[i] = other.commands[i];
+	}
+
+	// Version of ZASM this script was compiled for
+	int16_t version;
+
+	// Type of the script (SCRIPT_GLOBAL, e.g.)
+	int16_t type;
+
+	// Name of the script, if the script was compiled from ZScript
+	// For debugging and logging errors, etc.
+	int16_t name_len;
+	char *name;
+
+	// The ZASM itself
+	int32_t commands_len;
+	zasm *commands;
+
+};
 
 enum
 {
@@ -3066,6 +3146,7 @@ int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
 
 extern void flushItemCache();
 extern void removeFromItemCache(int itemid);
+
 #define NUMSCRIPTFFC		512
 #define NUMSCRIPTFFCOLD		256
 #define NUMSCRIPTITEM		256

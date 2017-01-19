@@ -48,7 +48,6 @@
 #include "load_gif.h" // not really needed; we're just saving GIF files in ZC.
 #include "fontsdat.h"
 #include "particles.h"
-#include "gamedata.h"
 #include "ffscript.h"
 #include "init.h"
 #include <assert.h>
@@ -295,15 +294,6 @@ mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
-ffscript *ffscripts[NUMSCRIPTFFC];
-ffscript *itemscripts[NUMSCRIPTITEM];
-ffscript *globalscripts[NUMSCRIPTGLOBAL];
-
-//If only...
-ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
-ffscript *linkscripts[NUMSCRIPTLINK];
-ffscript *screenscripts[NUMSCRIPTSCREEN];
 
 extern refInfo globalScriptData;
 extern word g_doscript;
@@ -373,13 +363,15 @@ void initZScriptGlobalRAM()
     clear_global_stack();
 }
 
+extern GameScripts scripts;
+
 dword getNumGlobalArrays()
 {
     word scommand, pc = 0, ret = 0;
     
     do
     {
-        scommand = globalscripts[GLOBAL_SCRIPT_INIT][pc].command;
+        scommand = scripts.globalscripts[GLOBAL_SCRIPT_INIT].commands[pc].command;
         
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
             ret++;
@@ -3059,49 +3051,7 @@ int main(int argc, char* argv[])
         guy_string[i] = new char[64];
     }
     
-    for(int i=0; i<512; i++)
-    {
-        ffscripts[i] = new ffscript[1];
-        ffscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        itemscripts[i] = new ffscript[1];
-        itemscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        guyscripts[i] = new ffscript[1];
-        guyscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        screenscripts[i] = new ffscript[1];
-        screenscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        globalscripts[i] = new ffscript[1];
-        globalscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<3; i++)
-    {
-        linkscripts[i] = new ffscript[1];
-        linkscripts[i][0].command = 0xFFFF;
-    }
-    
-    //script drawing bitmap allocation
+	//script drawing bitmap allocation
     zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
     
     
@@ -3473,40 +3423,8 @@ void quit_game()
     
     al_trace("Script buffers... \n");
     
-    for(int i=0; i<512; i++)
-    {
-        if(ffscripts[i]!=NULL) delete [] ffscripts[i];
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        if(itemscripts[i]!=NULL) delete [] itemscripts[i];
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        if(guyscripts[i]!=NULL) delete [] guyscripts[i];
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
-    }
-    
-    for(int i=0; i<256; i++)
-    {
-        if(screenscripts[i]!=NULL) delete [] screenscripts[i];
-    }
-    
-    for(int i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        if(globalscripts[i]!=NULL) delete [] globalscripts[i];
-    }
-    
-    for(int i=0; i<3; i++)
-    {
-        if(linkscripts[i]!=NULL) delete [] linkscripts[i];
-    }
+	// In case this doesn't clear out later... -DD
+	scripts = GameScripts();
     
     delete zscriptDrawingRenderTarget;
     

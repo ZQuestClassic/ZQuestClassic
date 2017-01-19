@@ -28,7 +28,6 @@
 #include "title.h"
 #include "subscr.h"
 #include "init.h"
-#include "gamedata.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;

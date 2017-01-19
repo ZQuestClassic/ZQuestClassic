@@ -29,7 +29,6 @@
 //#include "jwin.h"
 #include "jwinfsel.h"
 #include "title.h"
-#include "gamedata.h"
 #include "link.h"
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
