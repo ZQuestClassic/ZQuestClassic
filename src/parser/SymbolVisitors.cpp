@@ -254,7 +254,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     if(host.getName() == "run" && rtype == ScriptParser::TYPE_VOID)
     {
         int vid = subscope->getVarSymbols().addVariable("this", p->type);
-        newparam.table->putVar(vid, p->type);
+        newparam.table->putVar(vid, ScriptParser::getThisType(p->type));
         thisvid=vid;
     }
 
