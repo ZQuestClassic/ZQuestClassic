@@ -188,7 +188,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         6
+#define V_FFSCRIPT         7
 #define V_SFX              6
 #define V_FAVORITES        1
 
@@ -1547,7 +1547,7 @@ struct zasm
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
 // where the scripts are serialized
-#define ZASM_VERSION        1
+#define ZASM_VERSION        2
 
 // Script types
 

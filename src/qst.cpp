@@ -7734,7 +7734,10 @@ int readscripts(PACKFILE *f, zquestheader *Header, bool keepdata)
 	for (int i = 0; i < numffcscripts; i++)
 	{
 		ret = read_one_script(f, Header, i, s_version, s_cversion, SCRIPT_FFC, tmpscripts.ffscripts[i]);
-		if (ret != 0) return qe_invalid;
+		if (ret != 0)
+		{
+			return qe_invalid;
+		}
 	}
 
 	int numitemscripts = 0;
@@ -7960,7 +7963,6 @@ int read_one_script(PACKFILE *f, zquestheader *, int , word s_version, word , in
 {
 
     //Please also update loadquest() when modifying this method -DD
-
 	if (s_version < 7)
 	{
 		script.version = 1;
@@ -7974,12 +7976,12 @@ int read_one_script(PACKFILE *f, zquestheader *, int , word s_version, word , in
 	{
 		p_igetw(&script.version, f, true);
 		p_igetw(&script.type, f, true);
-		if (script.type != type)
+		if (script.type != type && script.type != SCRIPT_NONE)
 			return qe_invalid;
 		p_igetw(&script.name_len, f, true);
 		delete[] script.name;
 		script.name = new char[script.name_len];
-		pfread(&script.name, script.name_len, f, true);
+		pfread(script.name, script.name_len, f, true);
 		if (script.name[script.name_len - 1] != '\0')
 			return qe_invalid;
 	}

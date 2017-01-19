@@ -2709,8 +2709,10 @@ else \
     case COMBOSDM:
     {
         int pos = (ri->d[0])/10000;
-        int sc = (ri->d[2]/10000);
+        int sc = (ri->d[2]/10000);		
         int m = (ri->d[1]/10000)-1;
+		if (curscript->version < 2)
+			m++;
         
         if(pos>=0 && pos<176 &&
           sc>=0 && sc<MAPSCRS &&
@@ -4712,7 +4714,9 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
+		int m = (ri->d[1] / 10000) - 1;
+		if (curscript->version < 2)
+			m++;        
         
         if(pos<0 || pos>=176 ||
           sc<0 || sc>=MAPSCRS ||

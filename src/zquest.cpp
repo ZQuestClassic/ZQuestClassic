@@ -19526,6 +19526,7 @@ int onCompileScript()
 							scripts.ffscripts[scriptid].type = SCRIPT_FFC;
 							scripts.ffscripts[scriptid].name_len = (int16_t)it->second.second.length() + 1;
 							delete[] scripts.ffscripts[scriptid].name;
+							scripts.ffscripts[scriptid].name = new char[scripts.ffscripts[scriptid].name_len];
 							strcpy(scripts.ffscripts[scriptid].name, it->second.second.c_str());
                             parse_script_file(&scripts.ffscripts[scriptid].commands,"tmp",false);
 							int len = 0;
@@ -19578,6 +19579,7 @@ int onCompileScript()
 							scripts.globalscripts[scriptid].type = SCRIPT_GLOBAL;
 							scripts.globalscripts[scriptid].name_len = int16_t(it->second.second.length()) + 1;
 							delete[] scripts.globalscripts[scriptid].name;
+							scripts.globalscripts[scriptid].name = new char[scripts.globalscripts[scriptid].name_len];
 							strcpy(scripts.globalscripts[scriptid].name, it->second.second.c_str());
 							parse_script_file(&scripts.globalscripts[scriptid].commands, "tmp", false);
 							int len = 0;
@@ -19630,6 +19632,7 @@ int onCompileScript()
 							scripts.itemscripts[scriptid].type = SCRIPT_ITEM;
 							scripts.itemscripts[scriptid].name_len = (int16_t)it->second.second.length() + 1;
 							delete[] scripts.itemscripts[scriptid].name;
+							scripts.itemscripts[scriptid].name = new char[scripts.itemscripts[scriptid].name_len];
 							strcpy(scripts.itemscripts[scriptid].name, it->second.second.c_str());
 							parse_script_file(&scripts.itemscripts[scriptid].commands, "tmp", false);
 							int len = 0;
