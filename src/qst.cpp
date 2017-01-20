@@ -35,6 +35,7 @@
 #include "zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include <sstream>
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -7898,6 +7899,21 @@ int readscripts(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
             delete[] buf;
         }
+
+		// Some older quests have no bindings, but do have scripts
+		for (int i = 1; i < numffcscripts; i++)
+		{
+			if (scripts.ffscripts[i].commands_len > 1)
+			{
+				// check if binding exists
+				if(ffcmap[i-1].second.length() == 0)				
+				{
+					std::stringstream ss;
+					ss << "Orphaned Script #" << i;
+					ffcmap[i-1].second = ss.str();
+				}
+			}
+		}
         
         word numglobalbindings;
         p_igetw(&numglobalbindings, f, true);
