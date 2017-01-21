@@ -55,6 +55,7 @@ extern string zScript;
 extern std::map<int, pair<string, string> > ffcmap;
 extern std::map<int, pair<string, string> > globalmap;
 extern std::map<int, pair<string, string> > itemmap;
+extern GameScripts scripts;
 zmap Map;
 int prv_mode=0;
 short ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
@@ -9822,15 +9823,7 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
     new_return(0);
 }
 
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
-
-int writeffscript(PACKFILE *f, zquestheader *Header)
+int writescripts(PACKFILE *f, zquestheader *Header)
 {
     dword section_id       = ID_FFSCRIPT;
     dword section_version  = V_FFSCRIPT;
@@ -9868,9 +9861,14 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         writesize=0;
         
-        for(int i=0; i<NUMSCRIPTFFC; i++)
+		if (!p_iputw(scripts.ffscripts.size(), f))
+		{
+			new_return(5);
+		}
+
+        for(int i=0; i<(int)scripts.ffscripts.size(); i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.ffscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -9879,9 +9877,14 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTITEM; i++)
+		if (!p_iputw(scripts.itemscripts.size(), f))
+		{
+			new_return(6);
+		}
+
+        for(int i=0; i<(int)scripts.itemscripts.size(); i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.itemscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -9890,9 +9893,13 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
+		if (!p_iputw(scripts.guyscripts.size(), f))
+		{
+			new_return(7);
+		}
         for(int i=0; i<NUMSCRIPTGUYS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.guyscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -9901,9 +9908,13 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+		if (!p_iputw(scripts.wpnscripts.size(), f))
+		{
+			new_return(8);
+		}
+        for(int i=0; i<(int)scripts.wpnscripts.size(); i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -9912,9 +9923,13 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int i=0; i<NUMSCRIPTSCREEN; i++)
+		if (!p_iputw(scripts.screenscripts.size(), f))
+		{
+			new_return(9);
+		}
+        for(int i=0; i<(int)scripts.screenscripts.size(); i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.screenscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -9925,7 +9940,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTGLOBAL; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.globalscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -9934,9 +9949,14 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
+		if (!p_iputw(scripts.linkscripts.size(), f))
+		{
+			new_return(10);
+		}
+
         for(int i=0; i<NUMSCRIPTLINK; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
+            int ret = write_one_script(f, Header, i, scripts.linkscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -10081,47 +10101,57 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
     //the irony is that it causes an "unreachable code" warning.
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script)
+int write_one_script(PACKFILE *f, zquestheader *Header, int i, const ZAsmScript &script)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     i=i;
+
+	if (!p_iputw(script.version, f))
+	{
+		new_return(1);
+	}
+
+	if (!p_iputw(script.type, f))
+	{
+		new_return(2);
+	}
+
+	if (!p_iputw(script.name_len, f))
+	{
+		new_return(3);
+	}
+
+	if (!pfwrite(script.name, script.name_len, f))
+	{
+		new_return(4);
+	}
     
-    int num_commands;
-    
-    for(int j=0;; j++)
-    {
-        if((*script)[j].command==0xFFFF)
-        {
-            num_commands = j+1;
-            break;
-        }
-    }
-    
-    if(!p_iputl(num_commands,f))
+      
+    if(!p_iputl(script.commands_len,f))
     {
         new_return(6);
     }
     
-    for(int j=0; j<num_commands; j++)
+    for(int j=0; j<script.commands_len; j++)
     {
-        if(!p_iputw((*script)[j].command,f))
+        if(!p_iputw(script.commands[j].command,f))
         {
             new_return(7);
         }
         
-        if((*script)[j].command==0xFFFF)
+        if(script.commands[j].command==0xFFFF)
         {
             break;
         }
         else
         {
-            if(!p_iputl((*script)[j].arg1,f))
+            if(!p_iputl(script.commands[j].arg1,f))
             {
                 new_return(8);
             }
             
-            if(!p_iputl((*script)[j].arg2,f))
+            if(!p_iputl(script.commands[j].arg2,f))
             {
                 new_return(9);
             }
@@ -10997,7 +11027,7 @@ int save_unencoded_quest(const char *filename, bool compressed)
     
     box_out("Writing FF Script Data...");
     
-    if(writeffscript(f,&header)!=0)
+    if(writescripts(f,&header)!=0)
     {
         new_return(23);
     }

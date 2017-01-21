@@ -691,15 +691,28 @@ char labels[65536][80];
 int lines[65536];
 int numlines;
 
-int parse_script(ffscript **script)
+int parse_script(ZAsmScript &script, int type)
 {
     if(!getname("Import Script (.txt)","txt",NULL,datapath,false))
         return D_CLOSE;
+
+	script.version = ZASM_VERSION;
+	script.type = type;
+	delete[] script.name;
+	script.name_len = 14;
+	script.name = new char[14];
+	strcpy(script.name, "Imported ZASM");
         
-    return parse_script_file(script,temppath, true);
+    int ret = parse_script_file(&script.commands,temppath, true);
+	int len = 0;
+	while (script.commands[len].command != 0xFFFF)
+		len++;
+	len++;
+	script.commands_len = len;
+	return ret;
 }
 
-int parse_script_file(ffscript **script, const char *path, bool report_success)
+int parse_script_file(zasm **script, const char *path, bool report_success)
 {
     saved=false;
     FILE *fscript = fopen(path,"rb");
@@ -795,7 +808,7 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
     
     if((*script)!=NULL) delete [](*script);
     
-    (*script) = new ffscript[num_commands];
+    (*script) = new zasm[num_commands];
     
     for(int i=0; i<num_commands; i++)
     {
@@ -946,9 +959,9 @@ int parse_script_file(ffscript **script, const char *path, bool report_success)
     return success?D_O_K:D_CLOSE;
 }
 
-int set_argument(char *argbuf, ffscript **script, int com, int argument)
+int set_argument(char *argbuf, zasm **script, int com, int argument)
 {
-    long *arg;
+    int32_t *arg;
     
     if(argument)
     {
@@ -999,7 +1012,7 @@ int set_argument(char *argbuf, ffscript **script, int com, int argument)
 #define ERR_PARAM1 1
 #define ERR_PARAM2 2
 
-int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **script, int com, int &retcode)
+int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, zasm **script, int com, int &retcode)
 {
     (*script)[com].arg1 = 0;
     (*script)[com].arg2 = 0;

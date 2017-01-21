@@ -25,7 +25,6 @@
 #include "subscr.h"
 #include "zc_subscr.h"
 #include "decorations.h"
-#include "gamedata.h"
 #include "zc_custom.h"
 #include "title.h"
 #include "ffscript.h"
@@ -696,8 +695,8 @@ void LinkClass::init()
     
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
-    bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION);
-    diagonalMovement=get_bit(quest_rules,qr_LTTPWALK);
+    bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION) != 0;
+    diagonalMovement=get_bit(quest_rules,qr_LTTPWALK) != 0;
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -10132,7 +10131,7 @@ void LinkClass::checkspecial2(int *ls)
         
         stop_sfx(WAV_ER);
         bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
-                        ? false : COOLSCROLL);
+                        ? false : (COOLSCROLL!= 0) );
                         
         draw_screen(tmpscr);
         advanceframe(true);
@@ -10650,14 +10649,14 @@ bool LinkClass::dowarp(int type, int index)
                 reset_pal_cycling();
                 putscr(scrollbuf,0,0,tmpscr);
                 putscrdoors(scrollbuf,0,0,tmpscr);
-                walkup(COOLSCROLL);
+                walkup(COOLSCROLL != 0);
             }
             else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
             {
                 reset_pal_cycling();
                 putscr(scrollbuf,0,0,tmpscr);
                 putscrdoors(scrollbuf,0,0,tmpscr);
-                walkdown2(COOLSCROLL);
+                walkdown2(COOLSCROLL != 0);
             }
             else if(COOLSCROLL)
             {
@@ -10878,14 +10877,14 @@ bool LinkClass::dowarp(int type, int index)
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
             putscrdoors(scrollbuf,0,0,tmpscr);
-            walkup(COOLSCROLL);
+            walkup(COOLSCROLL != 0);
         }
         else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
         {
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
             putscrdoors(scrollbuf,0,0,tmpscr);
-            walkdown2(COOLSCROLL);
+            walkdown2(COOLSCROLL != 0);
         }
         else if(wtype==wtIWARPZAP)
         {
@@ -11103,11 +11102,11 @@ void LinkClass::exitcave()
     
     if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
     {
-        walkup(COOLSCROLL);
+        walkup(COOLSCROLL != 0);
     }
     else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
     {
-        walkdown2(COOLSCROLL);
+        walkdown2(COOLSCROLL != 0);
     }
     
     show_subscreen_life=true;

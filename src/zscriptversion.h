@@ -9,6 +9,23 @@
 #include "zdefs.h"
 #include "ffscript.h"
 
+struct GameScripts
+{
+	GameScripts()
+	{
+		// A fixed number of these (for now?)
+		globalscripts.resize(NUMSCRIPTGLOBAL);
+	}
+	
+	std::vector<ZAsmScript> globalscripts;
+	std::vector<ZAsmScript> ffscripts;
+	std::vector<ZAsmScript> itemscripts;
+	std::vector<ZAsmScript> guyscripts;
+	std::vector<ZAsmScript> wpnscripts;
+	std::vector<ZAsmScript> linkscripts;
+	std::vector<ZAsmScript> screenscripts;
+};
+
 class ZScriptVersion
 {
 public:

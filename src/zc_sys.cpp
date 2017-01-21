@@ -21,8 +21,6 @@
 #include <map>
 #include <ctype.h>
 #include "zc_alleg.h"
-#include "gamedata.h"
-#include "zc_init.h"
 #include "zquest.h"
 #include "init.h"
 
@@ -31,6 +29,7 @@
 #endif
 
 #include "zdefs.h"
+#include "zc_init.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "colors.h"

@@ -23,7 +23,6 @@
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
-#include "gamedata.h"
 #include "zsys.h"
 #include "script_drawing.h"
 
@@ -322,14 +321,7 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
-extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int sfxdat;
 
