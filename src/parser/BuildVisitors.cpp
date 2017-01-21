@@ -101,6 +101,79 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
     result.push_back(next);
 }
 
+void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
+{
+	map<ASTSwitchCases*, int> labels;
+	vector<ASTSwitchCases*> cases = host.getCases();
+
+	int end_label = ScriptParser::getUniqueLabelID();;
+	int default_label = end_label;
+
+	// save and override break label.
+	int old_break_label = breaklabelid;
+	breaklabelid = end_label;
+
+	// Evaluate the key.
+	ASTExpr* key = host.getKey();
+	key->execute(*this, param);
+	result.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+
+	// Add the tests and jumps.
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+
+		// Make the target label.
+		int label = ScriptParser::getUniqueLabelID();
+		labels[cases] = label;
+
+		// Run the tests for these cases.
+		for (vector<ASTExprConst*>::iterator it = cases->getCases().begin();
+			 it != cases->getCases().end();
+			 ++it)
+		{
+			// Test this individual case.
+			result.push_back(new OPushRegister(new VarArgument(EXP2)));
+			(*it)->execute(*this, param);
+			result.push_back(new OPopRegister(new VarArgument(EXP2)));
+			// If the test succeeds, jump to its label.
+			result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
+		}
+
+		// If this set includes the default case, mark it.
+		if (cases->isDefaultCase())
+			default_label = label;
+	}
+
+	// Add direct jump to default case (or end if there isn't one.).
+	result.push_back(new OGotoImmediate(new LabelArgument(default_label)));
+
+	// Add the actual code branches.
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+
+		// Mark start of the block we're adding.
+		int block_start_index = result.size();
+		// Add block.
+		cases->getBlock()->execute(*this, param);
+		// If nothing was added, put in a nop to point to.
+		if (result.size() == block_start_index)
+			result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
+		// Set label to start of block.
+		result[block_start_index]->setLabel(labels[cases]);
+	}
+
+	// Add ending label.
+    Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+    next->setLabel(end_label);
+	result.push_back(next);
+
+	// Restore break label.
+	breaklabelid = old_break_label;
+}
+
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 {
     //run the precondition

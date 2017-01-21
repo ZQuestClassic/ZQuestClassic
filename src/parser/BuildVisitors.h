@@ -18,6 +18,7 @@ public:
     virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);
     virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
+	virtual void caseStmtSwitch(ASTStmtSwitch &host, void* param);
     virtual void caseStmtFor(ASTStmtFor &host, void *param);
     virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
     virtual void caseStmtDo(ASTStmtDo &host, void *param);

@@ -43,6 +43,28 @@ void RecursiveVisitor::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	host.getElseStmt()->execute(*this, param);
 }
 
+void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch & host, void* param)
+{
+	host.getKey()->execute(*this, param);
+
+	vector<ASTSwitchCases*> & cases = host.getCases();
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+		(*it)->execute(*this, param);
+}
+
+void RecursiveVisitor::caseSwitchCases(ASTSwitchCases & host, void* param)
+{
+	vector<ASTExprConst*> & cases = host.getCases();
+	for (vector<ASTExprConst*>::iterator it = cases.begin();
+		 it != cases.end();
+		 ++it)
+	{
+		(*it)->execute(*this, param);
+	}
+
+	host.getBlock()->execute(*this, param);
+}
+
 void RecursiveVisitor::caseStmtFor(ASTStmtFor &host, void *param)
 {
 	host.getPrecondition()->execute(*this, param);

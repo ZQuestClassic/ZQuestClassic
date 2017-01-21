@@ -233,6 +233,43 @@ ASTStmtIfElse* ASTStmtIfElse::clone() const
 			getLocation());
 }
 
+// ASTStmtSwitch
+
+ASTStmtSwitch::~ASTStmtSwitch()
+{
+	delete key;
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+		delete *it;
+}
+
+ASTStmtSwitch* ASTStmtSwitch::clone() const
+{
+	ASTStmtSwitch* c = new ASTStmtSwitch(getLocation());
+	for (vector<ASTSwitchCases*>::const_iterator it = cases.begin(); it != cases.end(); ++it)
+		c->addCases((*it)->clone());
+	return c;
+}
+
+// ASTSwitchCases
+
+ASTSwitchCases::~ASTSwitchCases()
+{
+	for (vector<ASTExprConst*>::iterator it = cases.begin(); it != cases.end(); ++it)
+		delete *it;
+	delete block;
+}
+
+ASTSwitchCases* ASTSwitchCases::clone() const
+{
+	ASTSwitchCases* c = new ASTSwitchCases(getLocation());
+	for (vector<ASTExprConst*>::const_iterator it = cases.begin(); it != cases.end(); ++it)
+		c->addCase((*it)->clone());
+	if (isDefault)
+		c->addDefaultCase();
+	c->setBlock(block->clone());
+	return c;
+}
+
 // ASTStmtFor
 
 ASTStmtFor::ASTStmtFor(ASTStmt *Prec, ASTExpr *Term, ASTStmt *Incr, ASTStmt *Stmt, LocationData Loc)

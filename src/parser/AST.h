@@ -40,6 +40,8 @@ class ASTBlock;
 class ASTStmtAssign;
 class ASTStmtIf;
 class ASTStmtIfElse;
+class ASTStmtSwitch;
+class ASTSwitchCases;
 class ASTStmtFor;
 class ASTStmtWhile;
 class ASTStmtDo;
@@ -129,6 +131,8 @@ public:
     virtual void caseStmtAssign(ASTStmtAssign &, void *param) {caseDefault(param);}
     virtual void caseStmtIf(ASTStmtIf &, void *param) {caseDefault(param);}
     virtual void caseStmtIfElse(ASTStmtIfElse &, void *param) {caseDefault(param);}
+	virtual void caseStmtSwitch(ASTStmtSwitch &, void* param) {caseDefault(param);}
+	virtual void caseSwitchCases(ASTSwitchCases &, void* param) {caseDefault(param);}
     virtual void caseStmtFor(ASTStmtFor &, void *param) {caseDefault(param);}
     virtual void caseStmtWhile(ASTStmtWhile &, void *param) {caseDefault(param);}
     virtual void caseStmtDo(ASTStmtDo &, void *param) {caseDefault(param);}
@@ -361,6 +365,46 @@ private:
     ASTStmtIfElse(ASTStmtIfElse &);
     ASTStmtIfElse &operator=(ASTStmtIfElse &);
 };
+
+class ASTStmtSwitch : public ASTStmt
+{
+public:
+	ASTStmtSwitch(LocationData Loc) : ASTStmt(Loc), key(NULL), cases() {}
+	~ASTStmtSwitch();
+	ASTStmtSwitch* clone() const;
+
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseStmtSwitch(*this, param);}
+	void setKey(ASTExpr* k) {key = k;}
+	ASTExpr* getKey() const {return key;}
+	void addCases(ASTSwitchCases* c) {cases.push_back(c);}
+	vector<ASTSwitchCases*> & getCases() {return cases;}
+	vector<ASTSwitchCases*> const & getCases() const {return cases;}
+private:
+	ASTExpr* key;
+	vector<ASTSwitchCases*> cases;
+};
+
+class ASTSwitchCases : public AST
+{
+public:
+	ASTSwitchCases(LocationData Loc) : AST(Loc), isDefault(false), cases() {}
+	~ASTSwitchCases();
+	ASTSwitchCases* clone() const;
+
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseSwitchCases(*this, param);}
+	void addCase(ASTExprConst* expr) {cases.push_back(expr);}
+	vector<ASTExprConst*> & getCases() {return cases;}
+	vector<ASTExprConst*> const & getCases() const {return cases;}
+	void addDefaultCase() {isDefault = true;}
+	bool isDefaultCase() const {return isDefault;}
+	void setBlock(ASTBlock* b) {block = b;}
+	ASTBlock* getBlock() const {return block;}
+private:
+	bool isDefault;
+	vector<ASTExprConst*> cases;
+	ASTBlock* block;
+};
+
 
 class ASTStmtFor : public ASTStmt
 {
