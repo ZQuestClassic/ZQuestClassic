@@ -72,6 +72,8 @@ public:
     bool isOK() const {return !failure;}
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
+	void addOpcode(Opcode* code);
+
     vector<Opcode *> result;
     int returnlabelid;
     int continuelabelid;
@@ -156,6 +158,7 @@ public:
     virtual void caseExprArray(ASTExprArray &host, void *param);
     vector<Opcode *> getResult() {return result;}
 private:
+	void addOpcode(Opcode* code);
     vector<Opcode *> result;
 };
 
