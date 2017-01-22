@@ -17,6 +17,22 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
+extern PALETTE tempgreypal; //For setting greyscale.
+
+/* FFScript Rules. If we go another route, these can be removed, 
+   but they do not harm anything by existing, for now. */
+   
+extern bool ffscriptRules[qr_MAX];
+extern bool getRuleFF(int index); //Gets the rule from the array in ffscript. Used by ZScript
+extern void setRuleFF(int index, bool val); //sets the ffscript arrasy rule. used by ZScript
+extern bool can_ffsetQR(int index); //Determines if a user may set a rule using ZScript. 
+				//Returns true and sets it if it is legal, otherwise, false. 
+extern bool setwipe(int wipe); //Sets the present wipe type. 
+extern void setRuleFF_Init(); //Will be used to copy existing rules from legacy quests to the array. 
+extern void set_ffrule(int rule, bool state); //Replacement for set_bit calls for QRs
+extern void get_ffrule(int rule); //Replacement for get_bit calls for QRs
+
+
 struct script_command
 {
     char name[16];
@@ -279,16 +295,86 @@ enum ASM_DEFINE
     GETTILEWARPSCR,       //0x00E6
     GETTILEWARPTYPE,      //0x00E7
     GETFFCSCRIPT,         //0x00E8
-    /* ..sorry, forgot about these ...for now. -Gleeok
-      CALCSPLINE,           //0x00
-      COLLISIONRECT,  ?      //0x00
-      COLLISIONBOX,   ?      //0x00
-      SETBITMAPBUFFER,
-      GETBITMAPBUFFER,
-      CLEARBITMAPBUFFER,
-      RENDERBITMAPBUFFER,
-    */
-    NUMCOMMANDS           //0x00E9
+    BITMAPEXR,	//0x00E9
+    QUAD2R, //0x00EA
+    WAVYIN, //0x00EB
+    WAVYOUT, //0x00EC
+    ZAPIN, //0x00ED
+    ZAPOUT, //0x00EF
+    OPENWIPE, //0x00F0
+    FREE0x00F1, //0x00F1 was SETLINKTILE
+    FREE0x00F2, //0x00F2 was SETLINKEXTEND
+    FREE0x00F3, //0x00F3 was GETLINKEXTEND
+    SETMESSAGE,			//0x00F4
+    SETDMAPNAME,			//0x00F5
+    SETDMAPTITLE,			//0x00F5
+    SETDMAPINTRO,			//0x00F7
+    GREYSCALEON,			//0x00F8
+    GREYSCALEOFF,			//0x00F9
+    ENDSOUNDR,           //0x00FA
+    ENDSOUNDV,           //0x00FB
+    PAUSESOUNDR, 	//0x00FC
+    PAUSESOUNDV,	//0x00FD
+    RESUMESOUNDR,	//0x00FE
+    RESUMESOUNDV,	//0x00FF
+    PAUSEMUSIC,		//0x0100
+    RESUMEMUSIC,	//0x0101
+    LWPNARRPTR,	//0x0102
+    EWPNARRPTR,	//0x0103
+    ITEMARRPTR,	//0x0104
+    IDATAARRPTR,	//0x0105
+    FFCARRPTR,	//0x0106
+    BOOLARRPTR,	//0x0107
+    NPCARRPTR,	//0x0108
+    LWPNARRPTR2,	//0x0109
+    EWPNARRPTR2,	//0x0110
+    ITEMARRPTR2,	//0x0111
+    IDATAARRPTR2,	//0x0112
+    FFCARRPTR2,	//0x0113
+    BOOLARRPTR2,	//0x0114
+    NPCARRPTR2,	//0x0115
+    ARRAYSIZEB,            //0x0116
+    ARRAYSIZEF,            //0x0117 
+    ARRAYSIZEN,            //0x0118
+    ARRAYSIZEL,            //0x0119
+    ARRAYSIZEE,            //0x011A
+    ARRAYSIZEI,            //0x011B
+    ARRAYSIZEID,            //0x011C
+    POLYGONR,		//0x011D
+    POLYGON3DR,		//0x011E
+    SETRENDERSOURCE,	//0x011F
+    CREATEBITMAP,	//0x0120
+    PIXELARRAYR,	//0x0121
+    TILEARRAYR,		//0x0122
+    COMBOARRAYR,	//0x0123
+    RES0000,		//0x0124
+    RES0001,		//0x0125
+    RES0002,		//0x0126
+    RES0003,		//0x0127
+    RES0004,		//0x0128
+    RES0005,		//0x0129
+    RES0006,		//0x012A
+    RES0007,		//0x012B
+    RES0008,		//0x012C
+    RES0009,		//0x012D
+    RES000A,		//0x012E
+    RES000B,		//0x012F
+    RES000C,		//0x0130
+    RES000D,		//0x0131
+    RES000E,		//0x0132
+    RES000F,		//0x0133
+    CREATELWPN2VV,            //0x0134
+    CREATELWPN2VR,            //0x0135
+    CREATELWPN2RV,            //0x0136
+    CREATELWPN2RR,            //0x0137
+    GETSCREENDOOR, //0x0138
+    GETSCREENENEMY, //0x0139
+    PAUSESFX,
+    RESUMESFX,
+    CONTINUESFX,
+    ADJUSTSFX,
+    //GETSCREENFLAG, //0x013A
+    NUMCOMMANDS           //0x013B
 };
 
 //ZASM registers
@@ -349,18 +435,19 @@ enum ASM_DEFINE
 #define LINKFLIP             0x0247
 #define INPUTPRESSMAP        0x0248
 //0x0249-0x0258 are reserved for future Link variables
-#define UNUSED25             0x0249
-#define UNUSED26             0x024A
-#define UNUSED27             0x024B
-#define UNUSED28             0x024C
-#define UNUSED29             0x024D
-#define UNUSED30             0x024E
-#define UNUSED31             0x024F
-#define UNUSED32             0x0250
-#define UNUSED33             0x0251
-#define UNUSED34             0x0252
-#define UNUSED35             0x0253
-#define UNUSED36             0x0254
+#define LINKDIAG             0x0249
+#define LINKBIGHITBOX             0x024A
+#define LINKRETSQUARE             0x024B
+#define LINKWARPSOUND             0x024C
+//LINKWARPMUSIC
+#define LINKUSINGITEM             0x024D
+#define LINKUSINGITEMA             0x024E
+#define LINKUSINGITEMB             0x024F
+#define PLAYWARPSOUND             0x0250
+#define WARPEFFECT             0x0251
+#define PLAYPITWARPSFX             0x0252
+#define LINKEATEN             0x0253
+#define LINKEXTEND             0x0254
 #define UNUSED37             0x0255
 #define UNUSED38             0x0256
 #define UNUSED39             0x0257
@@ -448,24 +535,24 @@ enum ASM_DEFINE
 #define IDATAPOWER           0x02A6
 
 //0x02A7-0x02B9 are reserved for future item variables
-#define UNUSED86             0x02A7
-#define UNUSED87             0x02A8
-#define UNUSED88             0x02A9
-#define UNUSED89             0x02AA
-#define UNUSED90             0x02AB
-#define UNUSED91             0x02AC
-#define UNUSED92             0x02AD
-#define UNUSED93             0x02AE
-#define UNUSED94             0x02AF
-#define UNUSED95             0x02B0
-#define UNUSED96             0x02B1
-#define UNUSED97             0x02B2
-#define UNUSED98             0x02B3
-#define UNUSED99             0x02B4
-#define UNUSED100            0x02B5
-#define UNUSED101            0x02B6
-#define UNUSED102            0x02B7
-#define UNUSED103            0x02B8
+#define IDATAID             0x02A7
+#define IDATALTM             0x02A8
+#define IDATAPSCRIPT             0x02A9
+#define IDATASCRIPT             0x02AA
+#define IDATAMAGCOST             0x02AB
+#define IDATAMINHEARTS             0x02AC
+#define IDATATILE             0x02AD
+#define IDATAMISC             0x02AE
+#define IDATACSET             0x02AF
+#define IDATAFRAMES             0x02B0
+#define IDATAASPEED             0x02B1
+#define IDATADELAY             0x02B2
+#define IDATAWPN             0x02B3
+#define IDATAFRAME             0x02B4
+#define ITEMACLK            0x02B5
+#define IDATAFLAGS            0x02B6
+#define IDATASPRITE            0x02B7
+#define IDATAATTRIB            0x02B8
 #define UNUSED104            0x02B9
 
 #define NPCX                 0x02BA
@@ -501,11 +588,11 @@ enum ASM_DEFINE
 #define NPCSTUN              0x02E1
 #define NPCHUNGER            0x02E2
 //0x02E3-0x02EB are reserved for future NPC variables
-#define UNUSED126            0x02E2
-#define UNUSED127            0x02E3
-#define UNUSED128            0x02E4
-#define UNUSED129            0x02E5
-#define UNUSED130            0x02E6
+//#define             0x02E2 //This was a duplicate define value in the old source. 
+#define NPCSUPERMAN            0x02E3
+#define NPCHASITEM            0x02E4
+#define NPCRINGLEAD            0x02E5
+#define NPCINVINC            0x02E6
 #define UNUSED131            0x02E7
 #define UNUSED132            0x02E8
 #define UNUSED133            0x02E9
@@ -774,7 +861,155 @@ enum ASM_DEFINE
 #define DMAPOFFSET           0x10B7
 #define DMAPMAP              0x10B8
 
-#define NUMVARIABLES         0x10B9
+#define GAMETHROTTLE	     0x10B9
+
+//! ItemData Misc# and Wpn#
+
+#define IDATAMISC1 0x10BA
+#define IDATAMISC2 0x10BB
+#define IDATAMISC3 0x10BC
+#define IDATAMISC4 0x10BD
+#define IDATAMISC5 0x10BE
+#define IDATAMISC6 0x10BF
+#define IDATAMISC7 0x10C0
+#define IDATAMISC8 0x10C1
+#define IDATAMISC9 0x10C2
+#define IDATAMISC10 0x10C3
+
+#define IDATAWPN1 0x10C4
+#define IDATAWPN2 0x10C5
+#define IDATAWPN3 0x10C6
+#define IDATAWPN4 0x10C7
+#define IDATAWPN5 0x10C8
+#define IDATAWPN6 0x10C9
+#define IDATAWPN7 0x10CA
+#define IDATAWPN8 0x10CB
+#define IDATAWPN9 0x10CC
+#define IDATAWPN10 0x10CD
+
+//Itemdata Flags
+#define IDATACOMBINE 0x10CE
+#define IDATADOWNGRADE 0x10CF
+#define IDATAFLAG1 0x10D0
+#define IDATAFLAG2 0x10D1
+#define IDATAKEEPOLD 0x10D2
+#define IDATARUPEECOST 0x10D3
+#define IDATAEDIBLE 0x10D4
+#define IDATAFLAGUNUSED 0x10D5
+#define IDATAGAINLOWER 0x10D6
+#define IDATAFLAG3 0x10D7
+#define IDATAFLAG4 0x10D8
+#define IDATAFLAG5 0x10D9
+
+#define NPCSCRDEFENSED 0x10DA
+
+#define SETLINKEXTEND 0x10DB
+#define SETLINKTILE 0x10DC
+#define SIDEWARPSFX 0x10DD
+#define PITWARPSFX 0x10DE
+#define SIDEWARPVISUAL 0x10DF
+#define PITWARPVISUAL 0x10F0
+#define GAMESETA 0x10F1
+#define GAMESETB 0x10F2
+#define SETITEMSLOT 0x10F3
+#define BUTTONPRESS 0x10F4
+#define BUTTONINPUT 0x10F5
+#define BUTTONHELD 0x10F6
+#define KEYPRESS 0x10F7
+#define READKEY 0x10F8
+#define JOYPADPRESS 0x10F9
+#define DISABLEDITEM 0x10FA
+#define UNUSED10FB 0x10FB
+#define UNUSED10FC 0x10FC
+#define UNUSED10FD 0x10FD
+#define UNUSED10FE 0x10FE
+#define UNUSED10FF 0x10FF
+#define UNUSED1100 0x1100
+#define UNUSED1101 0x1101
+#define UNUSED1102 0x1102
+#define UNUSED1103 0x1103
+#define LINKITEMB 0x1104
+#define LINKITEMA 0x1105
+#define LINKWALKTILE 0x1106
+#define 	LINKFLOATTILE 0x1107
+#define 	LINKSWIMTILE 0x1108
+#define 	LINKDIVETILE 0x1109
+#define 	LINKSLASHTILE 0x110A
+#define 	LINKJUMPTILE 0x110B
+#define 	LINKCHARGETILE 0x110C
+#define 	LINKSTABTILE 0x110D
+#define 	LINKCASTTILE 0x110E
+#define 	LINKHOLD1LTILE 0x110F
+#define 	LINKHOLD2LTILE 0x1110
+#define 	LINKHOLD1WTILE 0x1111
+#define 	LINKHOLD2WTILE 0x1112
+#define 	LINKPOUNDTILE 0x1113
+#define LINKSWIMSPD 0x1114
+#define LINKWALKANMSPD 0x1115
+#define LINKANIMTYPE 0x1116
+#define LINKINVFRAME 0x1117
+#define LINKCANFLICKER 0x1118
+#define LINKHURTSFX 0x1119
+#define NOACTIVESUBSC 0x111A
+#define ZELDAVERSION 0x111B
+#define ZELDABUILD 0x111C
+#define ZELDABETA 0x111D
+#define FFCID 0x111E
+#define DMAPLEVELPAL 0x111F
+#define ITEMINDEX 0x1120
+#define LWPNINDEX 0x1121
+#define EWPNINDEX 0x1122
+#define NPCINDEX 0x1123
+#define ITEMPTR 0x1124
+#define NPCPTR 0x1125
+#define LWPNPTR 0x1126
+#define EWPNPTR 0x1127
+
+
+#define SETSCREENDOOR 0x1128
+#define SETSCREENENEMY 0x1129
+#define GAMEMAXMAPS 0x112A
+#define CREATELWPNDX 0x112B
+#define SCREENFLAG 0x112C
+#define RESVD112D 0x112D
+#define RESVD112E 0x112E
+
+//Reserved values to use for cooperative editing. 
+#define RESVD112F 0x112F
+#define RESVD1130 0x1130
+#define RESVD1131 0x1131
+#define RESVD1132 0x1132
+#define RESVD1133 0x1133
+#define RESVD1134 0x1134
+#define RESVD1135 0x1135
+#define RESVD1136 0x1136
+#define RESVD1137 0x1137
+#define RESVD1138 0x1138
+#define RESVD1139 0x1139
+#define RESVD113A 0x113A
+#define RESVD113B 0x113B
+#define RESVD113C 0x113C
+#define RESVD113D 0x113D
+#define RESVD113E 0x113E
+#define RESVD113F 0x113F
+#define RESVD1140 0x1140
+#define RESVD1141 0x1141
+#define RESVD1142 0x1142
+#define RESVD1143 0x1143
+#define RESVD1144 0x1144
+#define RESVD1145 0x1145
+#define RESVD1146 0x1146
+#define RESVD1147 0x1147
+#define RESVD1148 0x1148
+#define RESVD1149 0x1149
+#define RESVD114A 0x114A
+#define RESVD114B 0x114B
+#define RESVD114C 0x114C
+#define RESVD114D 0x114D
+#define RESVD114E 0x114E
+#define RESVD114F 0x114F
+
+#define NUMVARIABLES         0x1150
 
 struct quad3Dstruct
 {
