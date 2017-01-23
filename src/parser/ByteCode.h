@@ -361,6 +361,187 @@
 #define DMAPMAP				333 //512 of these
 //#define FFDD			    309 //8 of these
 
+#define GAMETHROTTLE	334
+#define LINKDIAG	335
+#define LINKBIGHITBOX	336
+#define ITEMCLASSID 337
+#define IDATAMISC1 338
+#define IDATAMISC2 339
+#define IDATAMISC3 340
+#define IDATAMISC4 341
+#define IDATAMISC5 342
+#define IDATAMISC6 343
+#define IDATAMISC7 344
+#define IDATAMISC8 345
+#define IDATAMISC9 346
+#define IDATAMISC10 347
+#define IDATAWPN1 348
+#define IDATAWPN2 349
+#define IDATAWPN3 350
+#define IDATAWPN4 351
+#define IDATAWPN5 352
+#define IDATAWPN6 353
+#define IDATAWPN7 354
+#define IDATAWPN8 355
+#define IDATAWPN9 356
+#define IDATAWPN10 357
+#define IDATALTM 358
+#define IDATAWPN 359
+#define IDATAMISC 360
+#define IDATASCRIPT 361
+#define IDATAPSCRIPT 362
+#define IDATAMAGCOST 363
+#define IDATAMINHEARTS 364
+#define IDATATILE 365
+#define IDATAUNUSED 366
+#define IDATACSET 367
+#define IDATAFRAMES 368
+#define IDATAASPEED 369
+#define IDATADELAY 370
+#define IDATACOMBINE 371
+#define IDATADOWNGRADE 372
+#define IDATAFLAG1 373
+#define IDATAFLAG2 374
+#define IDATAKEEPOLD 375
+#define IDATARUPEECOST 376
+#define IDATAEDIBLE 377
+#define IDATAFLAGUNUSED 378
+#define IDATAGAINLOWER 379
+#define IDATAFLAG3 380
+#define IDATAFLAG4 381
+#define IDATAFLAG5 382
+
+#define LINKRETSQUARE 383
+#define LINKUSINGITEM 384
+#define LINKUSINGITEMA 385
+#define LINKUSINGITEMB 386
+#define LINKWARPSOUND 387
+#define PLAYWARPSOUND 388
+#define WARPEFFECT 389
+#define PLAYPITWARPSFX 390
+#define LINKEATEN 391
+#define LINKEXTEND 392
+#define SETLINKEXTEND 393
+#define GETLINKEXTEND 394
+#define NPCSCRDEFENSED 395
+#define SETLINKTILE 396
+#define SIDEWARPSFX 397
+#define PITWARPSFX 398
+#define SIDEWARPVISUAL 399
+#define PITWARPVISUAL 400
+#define GAMESETA 401
+#define GAMESETB 402
+#define SETITEMSLOT 403
+#define BUTTONPRESS 404
+#define BUTTONINPUT 405
+#define BUTTONHELD 406
+#define KEYPRESS 407
+#define READKEY 408
+#define JOYPADPRESS 409
+#define DISABLEDITEM 410
+#define RESERVED0007 411
+#define RESERVED0008 412
+#define RESERVED0009 413
+#define RESERVED000A 414
+#define RESERVED000B 415
+#define RESERVED000C 416
+#define RESERVED000D 417
+#define RESERVED000E 418
+#define RESERVED000F 419
+#define LINKITEMB 420 
+#define LINKITEMA 421
+#define LINKWALKTILE 422
+#define	LINKFLOATTILE 423
+#define	LINKSWIMTILE 424
+#define	LINKDIVETILE 425
+#define	LINKSLASHTILE 426
+#define	LINKJUMPTILE 427
+#define	LINKCHARGETILE 428
+#define	LINKSTABTILE 429
+#define	LINKCASTTILE 430
+#define	LINKHOLD1LTILE 431
+#define	LINKHOLD2LTILE 432
+#define	LINKHOLD1WTILE 433
+#define	LINKHOLD2WTILE 434
+#define	LINKPOUNDTILE 435
+#define LINKSWIMSPD 436
+#define LINKWALKANMSPD 437
+#define LINKANIMTYPE 438
+#define LINKINVFRAME 439
+#define LINKCANFLICKER 440
+#define LINKHURTSFX 441
+#define NOACTIVESUBSC 442
+#define LWPNRANGE 443
+#define ZELDAVERSION 444
+#define ZELDABUILD 445
+#define ZELDABETA 446
+#define NPCINVINC 447
+#define NPCSUPERMAN 448
+#define NPCHASITEM 449
+#define NPCRINGLEAD 450
+#define IDATAFRAME 451
+#define ITEMACLK 452
+#define FFCID 453
+#define IDATAFLAGS 454
+#define IDATASPRITE 455
+#define IDATAATTRIB 456
+#define DMAPLEVELPAL 457 //512 of these
+#define ITEMINDEX 458	
+#define LWPNINDEX 459
+#define EWPNINDEX 460
+#define NPCINDEX 461
+#define ITEMPTR 462
+#define NPCPTR 463
+#define LWPNPTR 464
+#define EWPNPTR 465
+
+//array pointer typecasting
+#define SETSCREENDOOR 466
+#define SETSCREENENEMY 467
+#define GAMEMAXMAPS 468
+#define CREATELWPNDX 469
+#define SCREENFLAG 470
+#define ADJUSTSFX 471
+#define RESVD112E 472
+
+//Reserved values for cooperative editing
+#define RESVD112F 473
+#define RESVD1130 474
+#define RESVD1131 475
+#define RESVD1132 476
+#define RESVD1133 477
+#define RESVD1134 478
+#define RESVD1135 479
+#define RESVD1136 480
+#define RESVD1137 481
+#define RESVD1138 482
+#define RESVD1139 483
+#define RESVD113A 484
+#define RESVD113B 485
+#define RESVD113C 486
+#define RESVD113D 487
+#define RESVD113E 488
+#define RESVD113F 489
+#define RESVD1140 490
+#define RESVD1141 491
+#define RESVD1142 492
+#define RESVD1143 493
+#define RESVD1144 494
+#define RESVD1145 495
+#define RESVD1146 496
+#define RESVD1147 497
+#define RESVD1148 498
+#define RESVD1149 499
+#define RESVD114A 500
+#define RESVD114B 501
+#define RESVD114C 502
+#define RESVD114D 503
+#define RESVD114E 504
+#define RESVD114F 505
+
+
+//END OF BYTECODE
+
 class LiteralArgument;
 class VarArgument;
 class LabelArgument;
@@ -2270,6 +2451,566 @@ public:
         return new OGetFFCScript(a->clone());
     }
 };
+
+//New, 2.54 -Z
+
+
+class OArraySizeF : public UnaryOpcode
+{
+public:
+    OArraySizeF(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeF(a->clone());
+    }
+};
+class OArraySizeN : public UnaryOpcode
+{
+public:
+    OArraySizeN(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeN(a->clone());
+    }
+};
+class OArraySizeE : public UnaryOpcode
+{
+public:
+    OArraySizeE(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeE(a->clone());
+    }
+};
+class OArraySizeL : public UnaryOpcode
+{
+public:
+    OArraySizeL(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeL(a->clone());
+    }
+};
+class OArraySizeB : public UnaryOpcode
+{
+public:
+    OArraySizeB(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeB(a->clone());
+    }
+};
+class OArraySizeI : public UnaryOpcode
+{
+public:
+    OArraySizeI(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeI(a->clone());
+    }
+};
+class OArraySizeID : public UnaryOpcode
+{
+public:
+    OArraySizeID(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeID(a->clone());
+    }
+};
+
+
+class OEndSoundRegister : public UnaryOpcode
+{
+public:
+    OEndSoundRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OEndSoundRegister(a->clone());
+    }
+};
+
+
+class OPauseSoundRegister : public UnaryOpcode
+{
+public:
+    OPauseSoundRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OPauseSoundRegister(a->clone());
+    }
+};
+
+
+class OResumeSoundRegister : public UnaryOpcode
+{
+public:
+    OResumeSoundRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OResumeSoundRegister(a->clone());
+    }
+};
+
+
+class OPauseMusic : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OPauseMusic();
+    }
+};
+
+class OResumeMusic : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OResumeMusic();
+    }
+};
+
+
+class OGetFFCPointer : public UnaryOpcode
+{
+public:
+    OGetFFCPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetFFCPointer(a->clone());
+    }
+};
+
+class OSetFFCPointer : public UnaryOpcode
+{
+public:
+    OSetFFCPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetFFCPointer(a->clone());
+    }
+};
+
+
+class OGetNPCPointer : public UnaryOpcode
+{
+public:
+    OGetNPCPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetNPCPointer(a->clone());
+    }
+};
+
+
+class OSetNPCPointer : public UnaryOpcode
+{
+public:
+    OSetNPCPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetNPCPointer(a->clone());
+    }
+};
+
+
+class OGetLWeaponPointer : public UnaryOpcode
+{
+public:
+    OGetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetLWeaponPointer(a->clone());
+    }
+};
+
+
+class OSetLWeaponPointer : public UnaryOpcode
+{
+public:
+    OSetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetLWeaponPointer(a->clone());
+    }
+};
+
+
+class OGetEWeaponPointer : public UnaryOpcode
+{
+public:
+    OGetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetEWeaponPointer(a->clone());
+    }
+};
+
+
+class OSetEWeaponPointer : public UnaryOpcode
+{
+public:
+    OSetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetEWeaponPointer(a->clone());
+    }
+};
+
+
+class OGetItemPointer : public UnaryOpcode
+{
+public:
+    OGetItemPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetItemPointer(a->clone());
+    }
+};
+
+
+class OSetItemPointer : public UnaryOpcode
+{
+public:
+    OSetItemPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetItemPointer(a->clone());
+    }
+};
+
+
+class OGetItemDataPointer : public UnaryOpcode
+{
+public:
+    OGetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetItemDataPointer(a->clone());
+    }
+};
+
+
+class OSetItemDataPointer : public UnaryOpcode
+{
+public:
+    OSetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetItemDataPointer(a->clone());
+    }
+};
+
+
+class OGetBoolPointer : public UnaryOpcode
+{
+public:
+    OGetBoolPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetBoolPointer(a->clone());
+    }
+};
+
+
+class OSetBoolPointer : public UnaryOpcode
+{
+public:
+    OSetBoolPointer(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetBoolPointer(a->clone());
+    }
+};
+
+class OSetDMapEnhancedMusic : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapEnhancedMusic();
+    }
+};
+
+class OGetSaveName : public UnaryOpcode
+{
+public:
+    OGetSaveName(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetSaveName(a->clone());
+    }
+};
+
+class OPauseSFX : public UnaryOpcode
+{
+public:
+    OPauseSFX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OPauseSFX(a->clone());
+    }
+};
+
+class OResumeSFX : public UnaryOpcode
+{
+public:
+    OResumeSFX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OResumeSFX(a->clone());
+    }
+};
+
+class OContinueSFX : public UnaryOpcode
+{
+public:
+    OContinueSFX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OContinueSFX(a->clone());
+    }
+};
+
+
+class OSetDMapName : public BinaryOpcode
+{
+public:
+    OSetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapName(a->clone(), b->clone());
+    }
+};
+
+class OSetDMapIntro : public BinaryOpcode
+{
+public:
+    OSetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapIntro(a->clone(), b->clone());
+    }
+};
+
+class OSetDMapTitle : public BinaryOpcode
+{
+public:
+    OSetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapTitle(a->clone(), b->clone());
+    }
+};
+
+
+class OSetMessage : public BinaryOpcode
+{
+public:
+    OSetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetMessage(a->clone(), b->clone());
+    }
+};
+
+
+
+class OZapIn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapIn();
+    }
+};
+
+class OZapOut : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapOut();
+    }
+};
+
+
+class OGreyscaleOn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleOn();
+    }
+};
+
+class OGreyscaleOff : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleOff();
+    }
+};
+
+
+//These need to be unary opcodes that accept bool linkvisible. 
+class OWavyIn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyIn();
+    }
+};
+
+
+class OWavyOut : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyOut();
+    }
+};
+
+class OOpenWipe : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OOpenWipe();
+    }
+};
+
+
+class OBitmapQuadRegister : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OBitmapQuadRegister();
+    }
+};
+
+
+class ODrawBitmapExRegister : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new ODrawBitmapExRegister();
+    }
+};
+
+
+class OCreateLWeapon2Register : public BinaryOpcode
+{
+public:
+    OCreateLWeapon2Register(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OCreateLWeapon2Register(a->clone(),b->clone());
+    }
+};
+
+
+class OOverlayTileRegister : public BinaryOpcode
+{
+public:
+    OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OOverlayTileRegister(a->clone(),b->clone());
+    }
+};
+
+
+
+class OGetScreenDoor : public UnaryOpcode
+{
+public:
+    OGetScreenDoor(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenDoor(a->clone());
+    }
+};
+
+
+class OGetScreenEnemy : public UnaryOpcode
+{
+public:
+    OGetScreenEnemy(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenEnemy(a->clone());
+    }
+};
+
+/*
+class OGetScreenFlag : public UnaryOpcode
+{
+public:
+    OGetScreenFlag(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenFlag(a->clone());
+    }
+};
+*/
+
+
 
 #endif
 
