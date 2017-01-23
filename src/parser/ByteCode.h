@@ -2453,7 +2453,7 @@ public:
 };
 
 //New, 2.54 -Z
-
+/* Unimplemented at present.
 
 class OArraySizeF : public UnaryOpcode
 {
@@ -2975,6 +2975,8 @@ public:
         return new OGetScreenEnemy(a->clone());
     }
 };
+
+*/
 
 /*
 class OGetScreenFlag : public UnaryOpcode
