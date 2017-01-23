@@ -171,8 +171,6 @@ ASTBlock* ASTBlock::clone() const
 	ASTBlock* c = new ASTBlock(getLocation());
 	for (list<ASTStmt*>::const_iterator it = statements.begin(); it != statements.end(); ++it)
 		c->statements.push_back((*it)->clone());
-	for (list<long>::const_iterator it = arrayRefs.begin(); it != arrayRefs.end(); ++it)
-		c->getArrayRefs()->push_back(*it);
 	return c;
 }
 
@@ -486,6 +484,14 @@ void ASTArrayList::addParam(ASTExpr *expr)
     exprs.push_back(expr);
 }
 
+void ASTArrayList::addString(string const & str)
+{
+	LocationData & loc = getLocation();
+	for (unsigned int i = 1; i < str.length() - 1; ++i)
+		this->addParam(new ASTNumConstant(new ASTFloat(long(str[i]), 0, loc), loc));
+	this->addParam(new ASTNumConstant(new ASTFloat(0L, 0, loc), loc));
+}
+
 // ASTVarDecl
 
 ASTVarDecl::~ASTVarDecl()
@@ -515,6 +521,13 @@ ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 }
 
 ////////////////////////////////////////////////////////////////
+// Generated Declarations
+
+// ASTGenDecl
+
+// ASTGenStringDecl
+
+////////////////////////////////////////////////////////////////
 // Expressions
 
 // ASTExpr
@@ -542,6 +555,20 @@ ASTNumConstant* ASTNumConstant::clone() const
 ASTBoolConstant* ASTBoolConstant::clone() const
 {
 	ASTBoolConstant* c = new ASTBoolConstant(value, getLocation());
+	if (hasIntValue()) c->setIntValue(getIntValue());
+	c->setType(getType());
+	return c;
+}
+
+// ASTStringConstant
+
+ASTStringConstant::ASTStringConstant(ASTString const & raw)
+		: ASTExpr(raw.getLocation()), str(raw.getValue().substr(1, raw.getValue().size() - 2))
+{}
+
+ASTStringConstant* ASTStringConstant::clone() const
+{
+	ASTStringConstant* c = new ASTStringConstant(str, getLocation());
 	if (hasIntValue()) c->setIntValue(getIntValue());
 	c->setType(getType());
 	return c;

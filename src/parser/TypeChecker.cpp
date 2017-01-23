@@ -217,6 +217,11 @@ void TypeCheck::caseBoolConstant(ASTBoolConstant &host, void *)
     host.setIntValue(host.getValue() ? 1 : 0);
 }
             
+void TypeCheck::caseStringConstant(ASTStringConstant& host, void*)
+{
+	host.setType(ScriptParser::TYPE_FLOAT);
+}
+
 void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
         {
     SymbolTable *st = ((pair<SymbolTable *, int> *)param)->first;

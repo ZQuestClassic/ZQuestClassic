@@ -18,6 +18,7 @@ public:
     void caseVarDecl(ASTVarDecl &host, void *param);
     void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
 	// Expressions
+	void caseStringConstant(ASTStringConstant& host, void* param);
     void caseExprDot(ASTExprDot &host, void *param);
     void caseExprArrow(ASTExprArrow &host, void *param);
     void caseExprArray(ASTExprArray &host, void *param);
@@ -45,6 +46,7 @@ public:
     void caseVarDecl(ASTVarDecl &host, void *param);
     void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
 	// Expressions
+	void caseStringConstant(ASTStringConstant& host, void* param);
     void caseFuncCall(ASTFuncCall &host, void *param);
     void caseExprDot(ASTExprDot &host, void *param);
     void caseExprArrow(ASTExprArrow &host, void *param);
