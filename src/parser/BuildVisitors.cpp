@@ -9,7 +9,9 @@
 // BuildOpcodes
 
 BuildOpcodes::BuildOpcodes()
-	: continuelabelid(-1), breaklabelid(-1), failure(false), breakRefCount(0)
+	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
+	  returnRefCount(0), continueRefCount(0), breakRefCount(0),
+	  failure(false)
 {}
 
 void BuildOpcodes::caseDefault(void *)
@@ -31,9 +33,9 @@ void BuildOpcodes::deallocateArrayRef(long arrayRef)
 	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::deallocateBreakRefs()
+void BuildOpcodes::deallocateRefsUntilCount(int count)
 {
-	int count = arrayRefs.size() - breakRefCount;
+	count = arrayRefs.size() - count;
     for (list<long>::reverse_iterator it = arrayRefs.rbegin();
 		 it != arrayRefs.rend() && count > 0;
 		 it++, count--)
@@ -59,13 +61,9 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
 	c->initCode.clear();
 
-    for (list<long>::reverse_iterator it = arrayRefs.rbegin();
-		 it != arrayRefs.rend() && arrayRefs.size() > startRefCount;
-		 it++)
-    {
-		deallocateArrayRef(*it);
-        arrayRefs.pop_back();
-    }
+	deallocateRefsUntilCount(startRefCount);
+	while (arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
 }
 
 void BuildOpcodes::caseStmtAssign(ASTStmtAssign &host, void *param)
@@ -118,6 +116,82 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
     addOpcode(next);
 }
 
+void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
+{
+	map<ASTSwitchCases*, int> labels;
+	vector<ASTSwitchCases*> cases = host.getCases();
+
+	int end_label = ScriptParser::getUniqueLabelID();;
+	int default_label = end_label;
+
+	// save and override break label.
+	int old_break_label = breaklabelid;
+	int oldBreakRefCount = breakRefCount;
+	breaklabelid = end_label;
+	breakRefCount = arrayRefs.size();
+
+	// Evaluate the key.
+	ASTExpr* key = host.getKey();
+	key->execute(*this, param);
+	result.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+
+	// Add the tests and jumps.
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+
+		// Make the target label.
+		int label = ScriptParser::getUniqueLabelID();
+		labels[cases] = label;
+
+		// Run the tests for these cases.
+		for (vector<ASTExprConst*>::iterator it = cases->getCases().begin();
+			 it != cases->getCases().end();
+			 ++it)
+		{
+			// Test this individual case.
+			result.push_back(new OPushRegister(new VarArgument(EXP2)));
+			(*it)->execute(*this, param);
+			result.push_back(new OPopRegister(new VarArgument(EXP2)));
+			// If the test succeeds, jump to its label.
+			result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+			result.push_back(new OGotoTrueImmediate(new LabelArgument(label)));
+		}
+
+		// If this set includes the default case, mark it.
+		if (cases->isDefaultCase())
+			default_label = label;
+	}
+
+	// Add direct jump to default case (or end if there isn't one.).
+	result.push_back(new OGotoImmediate(new LabelArgument(default_label)));
+
+	// Add the actual code branches.
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+	{
+		ASTSwitchCases* cases = *it;
+
+		// Mark start of the block we're adding.
+		int block_start_index = result.size();
+		// Add block.
+		cases->getBlock()->execute(*this, param);
+		// If nothing was added, put in a nop to point to.
+		if (result.size() == block_start_index)
+			result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
+		// Set label to start of block.
+		result[block_start_index]->setLabel(labels[cases]);
+	}
+
+	// Add ending label.
+    Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+    next->setLabel(end_label);
+	result.push_back(next);
+
+	// Restore break label.
+	breaklabelid = old_break_label;
+	breakRefCount = oldBreakRefCount;
+}
+
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 {
     //run the precondition
@@ -135,19 +209,22 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     addOpcode(new OGotoTrueImmediate(new LabelArgument(loopend)));
     //run the loop body
     //save the old break and continue values
-    int oldbreak = breaklabelid;
-    int oldcontinue = continuelabelid;
 
+    int oldbreak = breaklabelid;
 	int oldBreakRefCount = breakRefCount;
-	breakRefCount = arrayRefs.size();
     breaklabelid = loopend;
+	breakRefCount = arrayRefs.size();
+    int oldcontinue = continuelabelid;
+	int oldContinueRefCount = continueRefCount;
     continuelabelid = loopincr;
+	continueRefCount = arrayRefs.size();
 
     host.getStmt()->execute(*this,param);
 
     breaklabelid = oldbreak;
-    continuelabelid = oldcontinue;
     breakRefCount = oldBreakRefCount;
+    continuelabelid = oldcontinue;
+	continueRefCount = oldContinueRefCount;
 
     //run the increment
     //nop
@@ -176,16 +253,21 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
 
     int oldbreak = breaklabelid;
-    int oldcontinue = continuelabelid;
 	int oldBreakRefCount = breakRefCount;
     breaklabelid = endlabel;
+	breakRefCount = arrayRefs.size();
+    int oldcontinue = continuelabelid;
+	int oldContinueRefCount = continueRefCount;
     continuelabelid = startlabel;
+	continueRefCount = arrayRefs.size();
 
     host.getStmt()->execute(*this,param);
 
     breaklabelid = oldbreak;
-    continuelabelid = oldcontinue;
 	breakRefCount = oldBreakRefCount;
+    continuelabelid = oldcontinue;
+	continueRefCount = oldContinueRefCount;
+
     addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
     //nop to end while
     Opcode *end = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
@@ -204,16 +286,20 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     addOpcode(start);
 
     int oldbreak = breaklabelid;
-    int oldcontinue = continuelabelid;
 	int oldBreakRefCount = breakRefCount;
     breaklabelid = endlabel;
+	breakRefCount = arrayRefs.size();
+    int oldcontinue = continuelabelid;
+	int oldContinueRefCount = continueRefCount;
     continuelabelid = continuelabel;
+	continueRefCount = arrayRefs.size();
 
-    host.getStmt()->execute(*this,param);
+    host.getStmt()->execute(*this, param);
 
     breaklabelid = oldbreak;
     continuelabelid = oldcontinue;
     breakRefCount = oldBreakRefCount;
+	continueRefCount = oldContinueRefCount;
 
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
@@ -230,14 +316,14 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
-	deallocateBreakRefs();
+	deallocateRefsUntilCount(0);
     addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
     host.getReturnValue()->execute(*this, param);
-	deallocateBreakRefs();
+	deallocateRefsUntilCount(0);
     addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
@@ -250,7 +336,7 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
         return;
     }
 
-	deallocateBreakRefs();
+	deallocateRefsUntilCount(breakRefCount);
     addOpcode(new OGotoImmediate(new LabelArgument(breaklabelid)));
 }
 
@@ -263,7 +349,7 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
         return;
     }
 
-	deallocateBreakRefs();
+	deallocateRefsUntilCount(continueRefCount);
     addOpcode(new OGotoImmediate(new LabelArgument(continuelabelid)));
 }
 
@@ -276,7 +362,11 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
 
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
+	int oldreturnlabelid = returnlabelid;
+	int oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();
+	returnRefCount = arrayRefs.size();
+
     host.getBlock()->execute(*this, param);
 }
 

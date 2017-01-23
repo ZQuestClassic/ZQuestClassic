@@ -63,6 +63,21 @@ void TypeCheck::caseStmtIfElse(ASTStmtIfElse &host, void *param)
     host.getElseStmt()->execute(*this,param);
 }
 
+void TypeCheck::caseStmtSwitch(ASTStmtSwitch &host, void* param)
+{
+	RecursiveVisitor::caseStmtSwitch(host, param);
+	if (failure) return;
+
+	int key_type = host.getKey()->getType();
+	if (!standardCheck(ScriptParser::TYPE_FLOAT, key_type, &host))
+	{
+		failure = true;
+		return;
+	}
+}
+
+void caseSwitchCases(ASTSwitchCases &host, void* param);
+
 void TypeCheck::caseStmtFor(ASTStmtFor &host, void *param)
 {
     RecursiveVisitor::caseStmtFor(host, param);

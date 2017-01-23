@@ -18,6 +18,7 @@ public:
     virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);
     virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
+	virtual void caseStmtSwitch(ASTStmtSwitch &host, void* param);
     virtual void caseStmtFor(ASTStmtFor &host, void *param);
     virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
     virtual void caseStmtDo(ASTStmtDo &host, void *param);
@@ -75,14 +76,16 @@ public:
 private:
 	void addOpcode(Opcode* code);
 	void deallocateArrayRef(long arrayRef);
-	void deallocateBreakRefs();
+	void deallocateRefsUntilCount(int count);
 
     vector<Opcode*> result;
     int returnlabelid;
+	int returnRefCount;
     int continuelabelid;
+	int continueRefCount;
     int breaklabelid;
-    list<long> arrayRefs;
 	int breakRefCount;
+    list<long> arrayRefs;
     bool failure;
 };
 
