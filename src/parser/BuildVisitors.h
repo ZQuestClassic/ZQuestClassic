@@ -76,14 +76,16 @@ public:
 private:
 	void addOpcode(Opcode* code);
 	void deallocateArrayRef(long arrayRef);
-	void deallocateBreakRefs();
+	void deallocateRefsUntilCount(int count);
 
     vector<Opcode*> result;
     int returnlabelid;
+	int returnRefCount;
     int continuelabelid;
+	int continueRefCount;
     int breaklabelid;
-    list<long> arrayRefs;
 	int breakRefCount;
+    list<long> arrayRefs;
     bool failure;
 };
 
