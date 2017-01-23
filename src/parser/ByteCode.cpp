@@ -1004,7 +1004,40 @@ string VarArgument::toString()
         return "UNDERCSET";
     
     //2.54 -Z
+/* 2.54 Implemented
+    */
+    
+    
+//itemclass / itemdata
 
+    case IDATAFRAME: return "IDATAFRAME";
+    case ITEMCLASSID: return "IDATAID";
+    case IDATALTM: return "IDATALTM";
+    case IDATAPSCRIPT: return "IDATAPSCRIPT";
+    case IDATASCRIPT: return "IDATASCRIPT";
+    case IDATAMAGCOST: return "IDATAMAGCOST";
+    case IDATAMINHEARTS: return "IDATAMINHEARTS";
+    case IDATATILE: return "IDATATILE";
+    case IDATAMISC: return "IDATAMISC";    
+    case IDATACSET: return "IDATACSET";
+    case IDATAFRAMES: return "IDATAFRAMES";
+    case IDATAASPEED: return "IDATAASPEED";
+    case IDATADELAY: return "IDATADELAY"; 
+    case IDATACOMBINE: return "IDATACOMBINE";
+    case IDATADOWNGRADE: return "IDATADOWNGRADE";
+    case IDATAKEEPOLD: return "IDATAKEEPOLD";
+    case IDATARUPEECOST: return "IDATARUPEECOST";
+    case IDATAEDIBLE: return "IDATAEDIBLE";
+    case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
+    case IDATAGAINLOWER: return "IDATAGAINLOWER";
+    
+    //idata arrays
+    case IDATAATTRIB: return "IDATAATTRIB";
+    case IDATAFLAGS: return "IDATAFLAGS";
+    case IDATASPRITE: return "IDATASPRITE";
+        
+/*
+	
 //Global
 
 //Game
@@ -1114,79 +1147,21 @@ string VarArgument::toString()
     case LINKDIAG: return "LINKDIAG";
     
 
-//itemclass / itemdata
 
-    case IDATAFRAME: return "IDATAFRAME";
-    case ITEMCLASSID: return "IDATAID";
-    case IDATALTM: return "IDATALTM";
-    case IDATAPSCRIPT: return "IDATAPSCRIPT";
-    case IDATASCRIPT: return "IDATASCRIPT";
-    case IDATAMAGCOST: return "IDATAMAGCOST";
-    case IDATAMINHEARTS: return "IDATAMINHEARTS";
-    case IDATATILE: return "IDATATILE";
-    case IDATAMISC: return "IDATAMISC";    
-    case IDATACSET: return "IDATACSET";
-    case IDATAFRAMES: return "IDATAFRAMES";
-    case IDATAASPEED: return "IDATAASPEED";
-    case IDATADELAY: return "IDATADELAY"; 
-    case IDATACOMBINE: return "IDATACOMBINE";
-    case IDATADOWNGRADE: return "IDATADOWNGRADE";
-    case IDATAKEEPOLD: return "IDATAKEEPOLD";
-    case IDATARUPEECOST: return "IDATARUPEECOST";
-    case IDATAEDIBLE: return "IDATAEDIBLE";
-    case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
-    case IDATAGAINLOWER: return "IDATAGAINLOWER";
-    
-    //idata arrays
-    case IDATAATTRIB: return "IDATAATTRIB";
-    case IDATAFLAGS: return "IDATAFLAGS";
-    case IDATASPRITE: return "IDATASPRITE";
-
-    //Deprecated by IDATAFLAGS
-    case IDATAFLAG1: return "IDATAFLAG1";
-    case IDATAFLAG3: return "IDATAFLAG3";
-    case IDATAFLAG4: return "IDATAFLAG4";
-    case IDATAFLAG5: return "IDATAFLAG5";
-    case IDATAFLAG2: return "IDATAFLAG2";
-
-    //Deprecated by IDATAATTRIB
-    case IDATAMISC1: return "IDATAMISC1";
-    case IDATAMISC2: return "IDATAMISC2";
-    case IDATAMISC3: return "IDATAMISC3";
-    case IDATAMISC4: return "IDATAMISC4";
-    case IDATAMISC5: return "IDATAMISC5";
-    case IDATAMISC6: return "IDATAMISC6";
-    case IDATAMISC7: return "IDATAMISC7";
-    case IDATAMISC8: return "IDATAMISC8";
-    case IDATAMISC9: return "IDATAMISC9";
-    case IDATAMISC10: return "IDATAMISC10";
-
-    //Deprecated by IDATASPRITE
-    case IDATAWPN: return "IDATAWPN";
-    case IDATAWPN1: return "IDATAWPN1";
-    case IDATAWPN2: return "IDATAWPN2";
-    case IDATAWPN3: return "IDATAWPN3";
-    case IDATAWPN4: return "IDATAWPN4";
-    case IDATAWPN5: return "IDATAWPN5";
-    case IDATAWPN6: return "IDATAWPN6";
-    case IDATAWPN7: return "IDATAWPN7";
-    case IDATAWPN8: return "IDATAWPN8";
-    case IDATAWPN9: return "IDATAWPN9";
-    case IDATAWPN10: return "IDATAWPN10";
      
 //Item
     case ITEMACLK: return "ITEMACLK";
 
 //Weapon
-    /* 	Screen->CreatLWeaponDX(int type, int item)
-	Makes a lweapon forwarding attributes from a specified item. Extremely useful tool, that
-	also prevents some problems with setting sprites, and sounds for some weapon types.
-	I would like to add an EWeapon version too, despite eweapons not using items, as it could be fun. */
+//    	Screen->CreatLWeaponDX(int type, int item)
+//	Makes a lweapon forwarding attributes from a specified item. Extremely useful tool, that
+//	also prevents some problems with setting sprites, and sounds for some weapon types.
+//	I would like to add an EWeapon version too, despite eweapons not using items, as it could be fun. 
     case CREATELWPNDX: return "CREATELWPNDX";
     
-    /* 	The Range/Diuration/Length attribute for boomerange, arrows, and hookshots, respectively. 
-	Used only by ZScript, and can override editor settings *if* the user desires. 
-    I modified weapon handling to ensure that the proper value has precidence. */
+// 	The Range/Diuration/Length attribute for boomerange, arrows, and hookshots, respectively. 
+//	Used only by ZScript, and can override editor settings *if* the user desires. 
+//   I modified weapon handling to ensure that the proper value has precidence. 
     case LWPNRANGE: return "LWPNRANGE";
 
 //NPC
@@ -1205,6 +1180,8 @@ string VarArgument::toString()
     case NPCPTR: return "NPCPTR";
     case LWPNPTR: return "LWPNPTR";
     case EWPNPTR: return "EWPNPTR";
+    
+    */
 
         
     default:
@@ -2054,6 +2031,7 @@ string OGetFFCScript::toString()
 
 //New 2.54
 
+/* Unimplemented
 //Global
 
 string OOverlayTileRegister::toString()
@@ -2293,6 +2271,8 @@ string OOpenWipe::toString()
 {
     return "OPENWIPE";
 }
+
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////
 
