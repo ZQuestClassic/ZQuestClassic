@@ -1707,6 +1707,161 @@ long get_register(const long arg)
         ret=(itemsbuf[ri->idata].power)*10000;
         break;
         
+    //2.54
+    
+        case IDATAID:
+        ret=ri->idata*10000;
+        break;
+    
+    case IDATASCRIPT:
+        ret=(itemsbuf[ri->idata].script)*10000;
+        break;
+    
+    case IDATAATTRIB:
+    {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			ret=(itemsbuf[ri->idata].misc1)*10000;
+		    break;
+		    case 1:
+			ret=(itemsbuf[ri->idata].misc2)*10000; break;
+		    case 2:
+			ret=(itemsbuf[ri->idata].misc3)*10000; break;
+		    case 3:
+			ret=(itemsbuf[ri->idata].misc4)*10000; break;
+		    case 4:
+			ret=(itemsbuf[ri->idata].misc5)*10000; break;
+		    case 5:
+			ret=(itemsbuf[ri->idata].misc6)*10000; break;
+		    case 6:
+			ret=(itemsbuf[ri->idata].misc7)*10000; break;
+		    case 7:
+			ret=(itemsbuf[ri->idata].misc8)*10000; break;
+		    case 8:
+			ret=(itemsbuf[ri->idata].misc9)*10000; break;
+		    case 9:
+			ret=(itemsbuf[ri->idata].misc10)*10000; break;
+		    default: 
+			   ret = -10000; break;
+		}
+		   
+        break;
+	
+	}
+		
+	case IDATASPRITE: {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			ret=(itemsbuf[ri->idata].wpn)*10000;
+		    break;
+		    case 1:
+			ret=(itemsbuf[ri->idata].wpn2)*10000; break;
+		    case 2:
+			ret=(itemsbuf[ri->idata].wpn3)*10000; break;
+		    case 3:
+			ret=(itemsbuf[ri->idata].wpn4)*10000; break;
+		    case 4:
+			ret=(itemsbuf[ri->idata].wpn5)*10000; break;
+		    case 5:
+			ret=(itemsbuf[ri->idata].wpn6)*10000; break;
+		    case 6:
+			ret=(itemsbuf[ri->idata].wpn7)*10000; break;
+		    case 7:
+			ret=(itemsbuf[ri->idata].wpn8)*10000; break;
+		    case 8:
+			ret=(itemsbuf[ri->idata].wpn9)*10000; break;
+		    case 9:
+			ret=(itemsbuf[ri->idata].wpn10)*10000; break;
+		    default: 
+			   ret = -10000; break;
+		}
+		   
+		break;
+	}
+
+    case IDATALTM:
+        ret=(itemsbuf[ri->idata].ltm)*10000;
+        break;
+    case IDATAPSCRIPT:
+        ret=(itemsbuf[ri->idata].collect_script)*10000;
+        break;
+     case IDATAMAGCOST:
+        ret=(itemsbuf[ri->idata].magic)*10000;
+        break;
+     case IDATAMINHEARTS:
+        ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
+        break;
+     case IDATATILE:
+        ret=(itemsbuf[ri->idata].tile)*10000;
+        break;
+     case IDATAMISC:
+        ret=(itemsbuf[ri->idata].misc)*10000;
+        break;
+     case IDATACSET:
+        ret=(itemsbuf[ri->idata].csets)*10000;
+        break;
+     case IDATAFRAMES:
+        ret=(itemsbuf[ri->idata].frames)*10000;
+        break;
+     /*
+     case IDATAFRAME:
+        ret=(itemsbuf[ri->idata].frame)*10000;
+        break;
+    */ 
+     case IDATAASPEED:
+        ret=(itemsbuf[ri->idata].speed)*10000;
+        break;
+     case IDATADELAY:
+        ret=(itemsbuf[ri->idata].delay)*10000;
+        break;
+     
+      case IDATACOMBINE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
+        break;
+      case IDATADOWNGRADE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
+        break;
+      
+      case IDATAFLAGS: {
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0;
+		    break;
+		    case 1:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG2)?10000:0; break;
+		    case 2:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG3)?10000:0; break;
+		    case 3:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG4)?10000:0; break;
+		    case 4:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG5)?10000:0; break;
+		   
+		    default: 
+			   ret = 0; break;
+		}
+		   
+		break;
+	}
+		
+      case IDATAKEEPOLD:
+        ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+        break;
+      case IDATARUPEECOST:
+        ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+        break;
+      case IDATAEDIBLE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+        break;
+      case IDATAFLAGUNUSED:
+        ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+        break;
+      case IDATAGAINLOWER:
+        ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+        break;
+
     case IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
@@ -3666,6 +3821,171 @@ void set_register(const long arg, const long value)
     case IDATAUSESOUND:
         (itemsbuf[ri->idata].usesound)=value/10000;
         break;
+    
+    //2.54
+    
+    case IDATACOMBINE:
+		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
+		break;
+	case IDATADOWNGRADE:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
+		break;
+	case IDATAFLAG1:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
+		break;
+	
+	case IDATAFLAGS: {
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
+		    break;
+		    case 1:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:0; 
+		    case 2:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:0; 
+		    case 3:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:0; 
+		    case 4:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:0; 
+		    
+		    
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	case IDATAKEEPOLD:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
+		break;
+	case IDATARUPEECOST:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
+		break;
+	case IDATAEDIBLE:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
+		break;
+	case IDATAFLAGUNUSED:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
+		break;
+	case IDATAGAINLOWER:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
+		break;
+	
+	case IDATASCRIPT:
+        itemsbuf[ri->idata].script=value/10000;
+        break;
+    
+      /*
+      case ITEMMISCD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            int a = vbound(ri->d[0]/10000,0,31);
+            (((item*)(s))->miscellaneous[a])=value;
+        }
+        
+        break;*/
+	case IDATAATTRIB: {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			itemsbuf[ri->idata].misc1=value/10000;
+		    break;
+		    case 1:
+			itemsbuf[ri->idata].misc2=value/10000; break;
+		    case 2:
+			itemsbuf[ri->idata].misc3=value/10000; break;
+		    case 3:
+			itemsbuf[ri->idata].misc4=value/10000; break;
+		    case 4:
+			itemsbuf[ri->idata].misc5=value/10000; break;
+		    case 5:
+			itemsbuf[ri->idata].misc6=value/10000; break;
+		    case 6:
+			itemsbuf[ri->idata].misc7=value/10000; break;
+		    case 7:
+			itemsbuf[ri->idata].misc8=value/10000; break;
+		    case 8:
+			itemsbuf[ri->idata].misc9=value/10000; break;
+		    case 9:
+			itemsbuf[ri->idata].misc10=value/10000; break;
+
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	
+	case IDATASPRITE: {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			itemsbuf[ri->idata].wpn=value/10000;
+		    break;
+		    case 1:
+			itemsbuf[ri->idata].wpn2=value/10000; break;
+		    case 2:
+			itemsbuf[ri->idata].wpn3=value/10000; break;
+		    case 3:
+			itemsbuf[ri->idata].wpn4=value/10000; break;
+		    case 4:
+			itemsbuf[ri->idata].wpn5=value/10000; break;
+		    case 5:
+			itemsbuf[ri->idata].wpn6=value/10000; break;
+		    case 6:
+			itemsbuf[ri->idata].wpn7=value/10000; break;
+		    case 7:
+			itemsbuf[ri->idata].wpn8=value/10000; break;
+		    case 8:
+			itemsbuf[ri->idata].wpn9=value/10000; break;
+		    case 9:
+			itemsbuf[ri->idata].wpn10=value/10000; break;
+		    
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	
+	case IDATALTM:
+        itemsbuf[ri->idata].ltm=value/10000;
+        break;
+    case IDATAPSCRIPT:
+        itemsbuf[ri->idata].collect_script=value/10000;
+        break;
+     case IDATAMAGCOST:
+        itemsbuf[ri->idata].magic=value/10000;
+        break;
+     case IDATAMINHEARTS:
+        itemsbuf[ri->idata].pickup_hearts=value/10000;
+        break;
+     case IDATATILE:
+        itemsbuf[ri->idata].tile=value/10000;
+        break;
+     case IDATAMISC:
+        itemsbuf[ri->idata].misc=value/10000;
+        break;
+     case IDATACSET:
+        itemsbuf[ri->idata].csets=value/10000;
+        break;
+     /*
+     case IDATAFRAME:
+        itemsbuf[ri->idata].frame=value/10000;
+        break;
+     */
+     case IDATAFRAMES:
+	(itemsbuf[ri->idata].frames)=value/10000;
+        break;
+
+     case IDATAASPEED:
+        itemsbuf[ri->idata].speed=value/10000;
+        break;
+     case IDATADELAY:
+        itemsbuf[ri->idata].delay=value/10000;
+        break;
+     
         
     case IDATAINITDD:
     {
