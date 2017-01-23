@@ -48,6 +48,8 @@ extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern GameScripts scripts;
 
+PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
+
 int virtualScreenScale();
 
 //We gain some speed by not passing as arguments
@@ -77,6 +79,11 @@ long item_stack[256];
 long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
+bool ffscriptRules[qr_MAX]; //We will need to see which rules cannot be changed in a dynamic manner.
+/* I plan to move some of our existing rules into the appropriate class objects, a few to be set by 
+	script, and those that cannot, will not be set. Wipes should be set separately.
+*/
+
 void clear_ffc_stack(const byte i)
 {
     memset(ffc_stack[i], 0, 256 * sizeof(long));
@@ -85,6 +92,35 @@ void clear_ffc_stack(const byte i)
 void clear_global_stack()
 {
     memset(global_stack, 0, 256 * sizeof(long));
+}
+
+//Set or unset greyscale. Expand to 'monochrome' later, setting a white light colour.
+void do_greyscale(){
+	memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
+	if(get_bit(quest_rules,qr_FADE)) {
+		for(int i=CSET(0); i < CSET(15); i++)
+		{
+			int g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+			g = (g >> 1) + 32;
+			RAMpal[i] = _RGB(g,g,g);
+		}
+    
+	}
+	else
+	{
+		// this is awkward. NES Z1 converts colors based on the global
+		// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+		for(int i=CSET(0); i < CSET(15); i++)
+		{
+			RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
+		}
+	} 
+	refreshpal = true;
+}
+
+void undo_greyscale(){
+    memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
+    refreshpal = true;
 }
 
 //ScriptHelper
