@@ -187,6 +187,7 @@ struct OpcodeContext
     StackFrame *stackframe;
     LinkTable *linktable;
     SymbolTable *symbols;
+	vector<Opcode*> initCode;
 };
 
 struct BFSParam

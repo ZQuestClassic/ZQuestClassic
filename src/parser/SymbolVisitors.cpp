@@ -161,6 +161,17 @@ void BuildScriptSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, voi
 
 // Expressions
 
+void BuildScriptSymbols::caseStringConstant(ASTStringConstant& host, void* param)
+{
+	pair<Scope*, SymbolTable*> *p = (pair<Scope*, SymbolTable*>*)param;
+	BuildFunctionSymbols bfs;
+	BFSParam newp = {p->first, p->second, SCRIPTTYPE_VOID};
+	host.execute(bfs, &newp);
+
+	if (!bfs.isOK())
+		failure = true;
+}
+
 void BuildScriptSymbols::caseExprDot(ASTExprDot &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
@@ -349,6 +360,13 @@ void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, v
 }
 
 // Expressions
+
+void BuildFunctionSymbols::caseStringConstant(ASTStringConstant& host, void* param)
+{
+	BFSParam *p = (BFSParam*)param;
+	int id = ScriptParser::getUniqueVarID();
+	p->table->putAST(&host, id);
+}
 
 void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
 {

@@ -158,13 +158,11 @@ ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTTy
 																		ASTString *name = (ASTString *)$2;
 																		ASTExprConst *size = (ASTExprConst *)$4;
 																		ASTArrayList *list = new ASTArrayList(@1);
-																		list->makeString();
 																		ASTString *string = (ASTString *)$7;
 
-																		for(unsigned int i=1; i < string->getValue().length()-1; i++)
-																			list->addParam(new ASTNumConstant(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
+																		list->makeString();
+																		list->addString(string->getValue());
 
-																		list->addParam(new ASTNumConstant(new ASTFloat(0L, 0, @1), @1));
 																		$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																		delete name;}
 
@@ -382,7 +380,15 @@ ConstExpr : Expr {
 		$$ = new ASTExprConst(content, @1);}
 	;
 
-Expr : Expr OR Expr15 {ASTLogExpr *e = new ASTExprOr(@2);
+Expr : Expr1 {$$ = $1;}
+	| QUOTEDSTRING {
+			ASTString* rawstring = (ASTString*)$1;
+			ASTStringConstant* str = new ASTStringConstant(*rawstring);
+			delete rawstring;
+			$$ = str;}
+	;
+
+Expr1 : Expr1 OR Expr15 {ASTLogExpr *e = new ASTExprOr(@2);
 				 ASTExpr *left = (ASTExpr *)$1;
 				 ASTExpr *right = (ASTExpr *)$3;
 				 e->setFirstOperand(left);
