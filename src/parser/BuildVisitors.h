@@ -10,7 +10,7 @@
 class BuildOpcodes : public RecursiveVisitor
 {
 public:
-    BuildOpcodes() : continuelabelid(-1), breaklabelid(-1), failure(false) {}
+    BuildOpcodes();
 
     virtual void caseDefault(void *param);
 	// Statements
@@ -36,6 +36,7 @@ public:
     virtual void caseExprConst(ASTExprConst &host, void *param);
     virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
+    virtual void caseStringConstant(ASTStringConstant &host, void *param);
     virtual void caseExprDot(ASTExprDot &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprArray(ASTExprArray &host, void *param);
@@ -73,12 +74,16 @@ public:
     bool isOK() const {return !failure;}
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
-    vector<Opcode *> result;
+	void addOpcode(Opcode* code);
+	void deallocateArrayRef(long arrayRef);
+	void deallocateBreakRefs();
+
+    vector<Opcode*> result;
     int returnlabelid;
     int continuelabelid;
     int breaklabelid;
-    list<long> *breakRef;
     list<long> arrayRefs;
+	int breakRefCount;
     bool failure;
 };
 
@@ -137,6 +142,15 @@ public:
 		prevframes.pop();
 	}
 
+	virtual void caseStringConstant(ASTStringConstant& host, void* param)
+	{
+		int vid = st->getID(&host);
+		sf->addToFrame(vid, curoffset);
+		curoffset += 10000;
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;
+	}
+
 	int getHighWaterOffset() { return highWaterOffset; }
 
 private:
@@ -157,6 +171,7 @@ public:
     virtual void caseExprArray(ASTExprArray &host, void *param);
     vector<Opcode *> getResult() {return result;}
 private:
+	void addOpcode(Opcode* code);
     vector<Opcode *> result;
 };
 

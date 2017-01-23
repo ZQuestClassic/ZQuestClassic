@@ -66,6 +66,7 @@ class ASTExpr; // virtual
 class ASTExprConst;
 class ASTNumConstant;
 class ASTBoolConstant;
+class ASTStringConstant;
 class ASTExprDot;
 class ASTExprArrow;
 class ASTExprArray;
@@ -155,6 +156,7 @@ public:
     virtual void caseExprConst(ASTExprConst &, void *param) {caseDefault(param);}
     virtual void caseNumConstant(ASTNumConstant &, void *param) {caseDefault(param);}
     virtual void caseBoolConstant(ASTBoolConstant &, void *param) {caseDefault(param);}
+    virtual void caseStringConstant(ASTStringConstant &, void *param) {caseDefault(param);}
     virtual void caseExprDot(ASTExprDot &, void *param) {caseDefault(param);}
     virtual void caseExprArrow(ASTExprArrow &, void *param) {caseDefault(param);}
     virtual void caseExprArray(ASTExprArray &, void *param) {caseDefault(param);}
@@ -292,28 +294,22 @@ public:
     virtual ~ASTStmt() {}
 	virtual ASTStmt* clone() const = 0;
 };
-    
+
 class ASTBlock : public ASTStmt
 {
 public:
     ASTBlock(LocationData Loc) : ASTStmt(Loc), statements() {}
     ~ASTBlock();
 	ASTBlock* clone() const;
-    
-    list<ASTStmt *> const &getStatements() const {return statements;}
-    list<ASTStmt *> &getStatements() {return statements;}
-    list<long> const *getArrayRefs() const {return &arrayRefs;}
-    list<long> *getArrayRefs() {return &arrayRefs;}
+
+    list<ASTStmt*> const &getStatements() const {return statements;}
+    list<ASTStmt*> &getStatements() {return statements;}
     void addStatement(ASTStmt *Stmt);
     void execute(ASTVisitor &visitor, void *param) {visitor.caseBlock(*this, param);}
 private:
-    list<ASTStmt *> statements;
-    list<long> arrayRefs;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTBlock(ASTBlock &);
-    ASTBlock &operator=(ASTBlock &);
+    list<ASTStmt*> statements;
 };
-    
+
 class ASTStmtAssign : public ASTStmt
 {
 public:
@@ -670,6 +666,7 @@ public:
     list<ASTExpr *> &getList() {return exprs;}
 
     void addParam(ASTExpr *expr);
+	void addString(string const & str);
     bool isString() const {return listIsString;}
     void makeString() {listIsString = true;}
 
@@ -780,6 +777,21 @@ public:
     void execute(ASTVisitor &visitor, void *param) {visitor.caseBoolConstant(*this, param);}
 private:
     bool value;
+};
+
+class ASTStringConstant : public ASTExpr
+{
+public:
+	ASTStringConstant(char const * Str, LocationData Loc) : ASTExpr(Loc), str(Str) {}
+	ASTStringConstant(string const Str, LocationData Loc) : ASTExpr(Loc), str(Str) {}
+	ASTStringConstant(ASTString const & raw);
+	ASTStringConstant* clone() const;
+
+	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringConstant(*this, param);}
+	bool isConstant() const {return true;}
+	string getValue() const {return str;}
+private:
+	string str;
 };
 
 class ASTExprDot : public ASTExpr

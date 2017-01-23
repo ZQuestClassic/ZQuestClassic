@@ -25,6 +25,7 @@ public:
 	void caseExprConst(ASTExprConst &host, void *param);
     void caseNumConstant(ASTNumConstant &host, void *param);
     void caseBoolConstant(ASTBoolConstant &host, void *param);
+    void caseStringConstant(ASTStringConstant &host, void *param);
     void caseExprDot(ASTExprDot &host, void *param);
     void caseExprArrow(ASTExprArrow &host, void *param);
     void caseExprArray(ASTExprArray &host, void *param);
