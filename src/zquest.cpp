@@ -19123,7 +19123,7 @@ int onCompileScript()
                 break;
             }
             
-            std::map<string, int> stypes = result->scriptTypes;
+            std::map<string, ScriptType> stypes = result->scriptTypes;
             std::map<string, vector<Opcode *> > scripts = result->theScripts;
             delete result;
             asffcscripts.clear();
@@ -19133,17 +19133,17 @@ int onCompileScript()
             asitemscripts.clear();
             asitemscripts.push_back("<none>");
             
-            for(std::map<string, int>::iterator it = stypes.begin(); it != stypes.end(); it++)
+            for(std::map<string, ScriptType>::iterator it = stypes.begin(); it != stypes.end(); it++)
             {
                 switch(it->second)
                 {
-                case ScriptParser::TYPE_FFC:
+                case SCRIPTTYPE_FFC:
                 {
                     asffcscripts.push_back(it->first);
                     break;
                 }
                 
-                case ScriptParser::TYPE_GLOBAL:
+                case SCRIPTTYPE_GLOBAL:
                 {
                     if(it->first != "~Init") //Don't allow assigning the allocate memory script, bad things could happen
                         asglobalscripts.push_back(it->first);
@@ -19151,7 +19151,7 @@ int onCompileScript()
                     break;
                 }
                 
-                case ScriptParser::TYPE_ITEMCLASS: //Technically they're now itemclass scripts
+                case SCRIPTTYPE_ITEM:
                 {
                     asitemscripts.push_back(it->first);
                     break;

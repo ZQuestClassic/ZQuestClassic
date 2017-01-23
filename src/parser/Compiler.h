@@ -58,10 +58,12 @@ private:
     int label;
 };
 
+enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
+
 struct ScriptsData
 {
     std::map<string, vector<Opcode *> > theScripts;
-    std::map<string, int> scriptTypes;
+    std::map<string, ScriptType> scriptTypes;
 };
 
 ScriptsData *compile(const char *filename);
@@ -72,8 +74,6 @@ struct FunctionData;
 struct IntermediateData;
 
 class AST;
-
-enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
 
 class ScriptParser
 {
