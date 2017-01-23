@@ -29,6 +29,9 @@ bool				  { doLines();return ZBOOL; }
 void				  { doLines();return ZVOID; }
 if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
+switch				  { doLines(); return SWITCH; }
+case              	  { doLines(); return CASE; }
+default				  { doLines(); return DEFAULT; }
 return			  { doLines();return RETURN; }
 import			  { doLines();return IMPORT; }
 true				  { doLines();return ZTRUE; }
@@ -68,6 +71,7 @@ eweapon					{doLines(); return EWEAPON;}
 \|=			{ doLines();return BITORASSIGN; }
 \^=			{ doLines();return BITXORASSIGN; }
 \%=			{ doLines();return MODULOASSIGN; }
+\:			{ doLines();return COLON; }
 \;			{ doLines();return SEMICOLON; }
 \,			{ doLines();return COMMA; }
 \[			{ doLines();return LBRACKET; }

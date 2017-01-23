@@ -13,6 +13,7 @@ public:
     void caseStmtAssign(ASTStmtAssign &host, void *param);
     void caseStmtIf(ASTStmtIf &host, void *param);
     void caseStmtIfElse(ASTStmtIfElse &host, void *param);
+	void caseStmtSwitch(ASTStmtSwitch &host, void* param);
     void caseStmtFor(ASTStmtFor &host, void *param);
     void caseStmtWhile(ASTStmtWhile &host, void *param);
     void caseStmtReturn(ASTStmtReturn &host, void *param);
