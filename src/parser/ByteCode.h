@@ -2750,27 +2750,6 @@ public:
     }
 };
 
-class OSetDMapEnhancedMusic : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDMapEnhancedMusic();
-    }
-};
-
-class OGetSaveName : public UnaryOpcode
-{
-public:
-    OGetSaveName(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetSaveName(a->clone());
-    }
-};
-
 class OPauseSFX : public UnaryOpcode
 {
 public:

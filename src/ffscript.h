@@ -479,7 +479,7 @@ enum ASM_DEFINE
 #define LWPNJUMP             0x0270
 #define LWPNCOLLDET          0x0271
 //   0x0272-   0x028B are reserved for future weapon variables
-#define UNUSED47             0x0272
+#define LWPNRANGE             0x0272
 #define UNUSED48             0x0273
 #define UNUSED49             0x0274
 #define UNUSED50             0x0275

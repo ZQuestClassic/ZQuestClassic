@@ -1110,7 +1110,6 @@ string VarArgument::toString()
     case LINKHOLD2WTILE: return "LINKHOLD2WTILE";
     case LINKPOUNDTILE: return "LINKPOUNDTILE";
     case PLAYWARPSOUND: return "PLAYWARPSOUND";
-    case LINKINVINC: return "LINKINVINC";
     case LINKBIGHITBOX: return "LINKBIGHITBOX";
     case LINKDIAG: return "LINKDIAG";
     
@@ -1120,7 +1119,7 @@ string VarArgument::toString()
     case IDATAFRAME: return "IDATAFRAME";
     case ITEMCLASSID: return "IDATAID";
     case IDATALTM: return "IDATALTM";
-    case IDATAPSCRIPT: return "IDATAPSCRIPT"
+    case IDATAPSCRIPT: return "IDATAPSCRIPT";
     case IDATASCRIPT: return "IDATASCRIPT";
     case IDATAMAGCOST: return "IDATAMAGCOST";
     case IDATAMINHEARTS: return "IDATAMINHEARTS";
@@ -1197,8 +1196,7 @@ string VarArgument::toString()
     case NPCRINGLEAD: return "NPCRINGLEAD";
 
 //Pointers, arrays, UIDs
-    case REFFFC: return "REFFFC";
-    case REFITEM: return "REFITEM";
+
     case ITEMINDEX: return "ITEMINDEX";
     case LWPNINDEX: return "LWPNINDEX";
     case EWPNINDEX: return "EWPNINDEX";
