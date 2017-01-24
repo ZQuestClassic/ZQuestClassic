@@ -81,7 +81,7 @@ bool SaveMemoryToFileWithMode(const char* filename, const void* data, u32 size, 
 		}
 		else
 		{
-			printf("Error, could not create or open file \"%s\."", filename)
+			printf("Error, could not create or open file \"%s\".", filename);
 		}
 	}
 

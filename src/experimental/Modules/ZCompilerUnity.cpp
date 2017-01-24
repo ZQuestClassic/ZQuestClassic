@@ -7,12 +7,13 @@
 #pragma warning ( disable : 4275 4996 ) //clib "may be unsafe" warnings.
 #endif
 
-#include <direct.h>
 
 #include "../Array.cpp"
 #include "../Utility.cpp"
 #include "../Preprocessor.cpp"
+#include "../ScriptEngine.cpp"
 
+#include <direct.h>
 
 #ifdef _MSC_VER
 #pragma warning ( pop )

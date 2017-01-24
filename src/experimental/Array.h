@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "Config.h"
 
 
 void ArrayCopy(void* dst, const void* source, u32 objectSize, u32 arrayCount);

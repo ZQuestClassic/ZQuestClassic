@@ -32,7 +32,7 @@
 // c) do NOT exit the application in order to find control flow bugs that exist in release builds.
 #ifdef _DEBUG
 	#define StaticAssert(x) typedef int assert_##_LINE_ [(x) * 2 - 1];
-	#define Assert(x) if(!(x)) { DEBUGBREAK() }
+	#define Assert(x) if(!(x)) { DEBUGBREAK(); }
 #else
 	#define StaticAssert(x)
 	#define Assert(x)
