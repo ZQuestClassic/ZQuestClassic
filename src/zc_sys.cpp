@@ -334,16 +334,18 @@ void load_game_configs()
 #ifdef ALLEGRO_MACOSX //IIRC rest(0) was a mac issue fix.
     frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",0);
 #else
+	// TODO: This (and related) needs to be revisited for post Windows 7 OS.
+	// I get different results on Win 10 now. Very annoying. -Gleeok
     frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",1);
 #endif
     frame_rest_suggest = zc_min(2, frame_rest_suggest);
     
-    forceExit = (byte) get_config_int(cfg_sect,"force_exit",0);
+    forceExit = (byte) get_config_int(cfg_sect,"force_exit",0); //Deprecate
     
 #ifdef _WIN32
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
-    use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
+    use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy //Deprecate
     
     // This one's for Aero
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
@@ -465,12 +467,12 @@ void save_game_configs()
     set_config_int(cfg_sect,"gui_colorset",gui_colorset);
     set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
-    set_config_int(cfg_sect,"force_exit",forceExit);
+    set_config_int(cfg_sect,"force_exit",forceExit); //Deprecate
     
 #ifdef _WIN32
     set_config_int(cfg_sect,"debug_console",use_debug_console);
     //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
-    set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
+    set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc); //Deprecate
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
 	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
 #endif
