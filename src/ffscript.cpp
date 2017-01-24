@@ -1708,15 +1708,16 @@ long get_register(const long arg)
         break;
         
     //2.54
-    
+	//Get the ID of an item.
         case IDATAID:
         ret=ri->idata*10000;
         break;
     
+	//Get the script assigned to an item (active)
     case IDATASCRIPT:
         ret=(itemsbuf[ri->idata].script)*10000;
         break;
-    
+    //Get the ->Attributes[] of an item
     case IDATAATTRIB:
     {
 	    int index = vbound(ri->d[0]/10000,0,9);
@@ -1749,7 +1750,7 @@ long get_register(const long arg)
         break;
 	
 	}
-		
+		//Get the ->Sprite[] of an item.
 	case IDATASPRITE: {
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
@@ -1780,28 +1781,35 @@ long get_register(const long arg)
 		   
 		break;
 	}
-
+	//Link TIle modifier
     case IDATALTM:
         ret=(itemsbuf[ri->idata].ltm)*10000;
         break;
+    //Pickup script
     case IDATAPSCRIPT:
         ret=(itemsbuf[ri->idata].collect_script)*10000;
         break;
+    //Magic cost
      case IDATAMAGCOST:
         ret=(itemsbuf[ri->idata].magic)*10000;
         break;
+     //Min Hearts to Pick Up
      case IDATAMINHEARTS:
         ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
         break;
+     //Tile used by the item
      case IDATATILE:
         ret=(itemsbuf[ri->idata].tile)*10000;
         break;
+     //itemdata->Flash
      case IDATAMISC:
         ret=(itemsbuf[ri->idata].misc)*10000;
         break;
+     //->CSet
      case IDATACSET:
         ret=(itemsbuf[ri->idata].csets)*10000;
         break;
+     //->A.Frames
      case IDATAFRAMES:
         ret=(itemsbuf[ri->idata].frames)*10000;
         break;
@@ -1810,20 +1818,23 @@ long get_register(const long arg)
         ret=(itemsbuf[ri->idata].frame)*10000;
         break;
     */ 
+     //->A.Speed
      case IDATAASPEED:
         ret=(itemsbuf[ri->idata].speed)*10000;
         break;
+     //->Delay
      case IDATADELAY:
         ret=(itemsbuf[ri->idata].delay)*10000;
         break;
-     
+     // teo of this item upgrades
       case IDATACOMBINE:
         ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
         break;
+      //Use item, and get the lower level one
       case IDATADOWNGRADE:
         ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
         break;
-      
+      //->Flags[5]
       case IDATAFLAGS: {
 	    int index = vbound(ri->d[0]/10000,0,4);
 		switch(index){
@@ -1846,22 +1857,27 @@ long get_register(const long arg)
 		break;
 	}
 		
+	//->Keep Old
       case IDATAKEEPOLD:
         ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
         break;
+      //Use rupees instead of magic
       case IDATARUPEECOST:
         ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
         break;
+      //Can be eaten
       case IDATAEDIBLE:
         ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
         break;
+      //Not int he editor, could become flags[6], but I'm reserving this one for other item uses. 
       case IDATAFLAGUNUSED:
         ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
         break;
+      //Gain lower level items when collected
       case IDATAGAINLOWER:
         ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
         break;
-
+	//Unchanged from master
     case IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
@@ -3784,20 +3800,22 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //Itemdata Variables
+	//not mine, but let;s guard some of them all the same -Z
+	//item class
     case IDATAFAMILY:
-        (itemsbuf[ri->idata].family)=value/10000;
+        (itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
         flushItemCache();
         break;
-        
+        //item level
     case IDATALEVEL:
-        (itemsbuf[ri->idata].fam_type)=value/10000;
+        (itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
         flushItemCache();
         break;
-        
+        //bool keep
     case IDATAKEEP:
         (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
         break;
-        
+        //Need the legal range -Z
     case IDATAAMOUNT:
         (itemsbuf[ri->idata].amount)=value/10000;
         break;
@@ -3815,25 +3833,25 @@ void set_register(const long arg, const long value)
         break;
         
     case IDATACOUNTER:
-        (itemsbuf[ri->idata].count)=value/10000;
+        (itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
         break;
         
     case IDATAUSESOUND:
-        (itemsbuf[ri->idata].usesound)=value/10000;
+        (itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
         break;
     
     //2.54
-    
+    //My additions begin here. -Z
+    //Stack item to gain next level
     case IDATACOMBINE:
 		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
 		break;
+    //using a level of an item downgrades to a lower one
 	case IDATADOWNGRADE:
 	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
 		break;
-	case IDATAFLAG1:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
-		break;
-	
+
+	//Flags[5]
 	case IDATAFLAGS: {
 	    int index = vbound(ri->d[0]/10000,0,4);
 		switch(index){
@@ -3856,24 +3874,29 @@ void set_register(const long arg, const long value)
 		   
 		break;
 	}
+	//Keep Old in editor
 	case IDATAKEEPOLD:
 	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
 		break;
+	//Ruppes for magic
 	case IDATARUPEECOST:
 	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
 		break;
+	//can be eaten
 	case IDATAEDIBLE:
 	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
 		break;
+	//Reserving this for item editor stuff. 
 	case IDATAFLAGUNUSED:
 	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
 		break;
+	//gain lower level items
 	case IDATAGAINLOWER:
 	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
 		break;
-	
+	//Set the action script
 	case IDATASCRIPT:
-        itemsbuf[ri->idata].script=value/10000;
+        itemsbuf[ri->idata].script=vbound(value/10000,1,255);
         break;
     
       /*
@@ -3885,6 +3908,7 @@ void set_register(const long arg, const long value)
         }
         
         break;*/
+	//Attributes[10]
 	case IDATAATTRIB: {
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
@@ -3916,31 +3940,31 @@ void set_register(const long arg, const long value)
 		   
 		break;
 	}
-	
+	//Sprites[10]
 	case IDATASPRITE: {
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
 		    case 0:
-			itemsbuf[ri->idata].wpn=value/10000;
+			itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
 		    break;
 		    case 1:
-			itemsbuf[ri->idata].wpn2=value/10000; break;
+			itemsbuf[ri->idata].wpn2=(value/10000, 0, 255); break;
 		    case 2:
-			itemsbuf[ri->idata].wpn3=value/10000; break;
+			itemsbuf[ri->idata].wpn3=(value/10000, 0, 255); break;
 		    case 3:
-			itemsbuf[ri->idata].wpn4=value/10000; break;
+			itemsbuf[ri->idata].wpn4=(value/10000, 0, 255); break;
 		    case 4:
-			itemsbuf[ri->idata].wpn5=value/10000; break;
+			itemsbuf[ri->idata].wpn5=(value/10000, 0, 255); break;
 		    case 5:
-			itemsbuf[ri->idata].wpn6=value/10000; break;
+			itemsbuf[ri->idata].wpn6=(value/10000, 0, 255); break;
 		    case 6:
-			itemsbuf[ri->idata].wpn7=value/10000; break;
+			itemsbuf[ri->idata].wpn7=(value/10000, 0, 255); break;
 		    case 7:
-			itemsbuf[ri->idata].wpn8=value/10000; break;
+			itemsbuf[ri->idata].wpn8=(value/10000, 0, 255); break;
 		    case 8:
-			itemsbuf[ri->idata].wpn9=value/10000; break;
+			itemsbuf[ri->idata].wpn9=(value/10000, 0, 255); break;
 		    case 9:
-			itemsbuf[ri->idata].wpn10=value/10000; break;
+			itemsbuf[ri->idata].wpn10=(value/10000, 0, 255); break;
 		    
 		    default: 
 			    break;
@@ -3948,45 +3972,53 @@ void set_register(const long arg, const long value)
 		   
 		break;
 	}
-	
+	//Link tile modifier. 
 	case IDATALTM:
         itemsbuf[ri->idata].ltm=value/10000;
         break;
+	//Pickup script
     case IDATAPSCRIPT:
-        itemsbuf[ri->idata].collect_script=value/10000;
+        itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
         break;
+    //magic cost
      case IDATAMAGCOST:
         itemsbuf[ri->idata].magic=value/10000;
         break;
+     //min hearts to pick up
      case IDATAMINHEARTS:
-        itemsbuf[ri->idata].pickup_hearts=value/10000;
+        itemsbuf[ri->idata].pickup_hearts=vbound(value/10000, 0, 214748);
         break;
+     //item tile
      case IDATATILE:
-        itemsbuf[ri->idata].tile=value/10000;
+        itemsbuf[ri->idata].tile=vbound(value/10000, 0, 65519);
         break;
+     //flash
      case IDATAMISC:
         itemsbuf[ri->idata].misc=value/10000;
         break;
+     //cset
      case IDATACSET:
-        itemsbuf[ri->idata].csets=value/10000;
+        itemsbuf[ri->idata].csets=vbound(value/10000,0,13);
         break;
      /*
      case IDATAFRAME:
         itemsbuf[ri->idata].frame=value/10000;
         break;
      */
+     //A.Frames
      case IDATAFRAMES:
-	(itemsbuf[ri->idata].frames)=value/10000;
+	(itemsbuf[ri->idata].frames)=vbound(value/10000, 0, 214748);
         break;
-
+	//A.speed
      case IDATAASPEED:
-        itemsbuf[ri->idata].speed=value/10000;
+        itemsbuf[ri->idata].speed=vbound(value/10000, 0, 214748);
         break;
+     //Anim delay
      case IDATADELAY:
-        itemsbuf[ri->idata].delay=value/10000;
+        itemsbuf[ri->idata].delay=vbound(value/10000, 0, 214748);
         break;
      
-        
+        //not one of mine. 
     case IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
