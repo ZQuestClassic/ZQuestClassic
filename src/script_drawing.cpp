@@ -17,6 +17,10 @@
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
+//Bitmaps will eventually have larger sizes. Easier to det this way. -Z
+#define MAX_BITMAP_Y 512
+#define MAX_BITMAP_X 512
+
 template<class T> inline
 fixed degrees_to_fixed(T d)
 {
@@ -1657,10 +1661,11 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     bool masked = (sdci[12] != 0);
 
 	//bugfix
-	sx = vbound(sx, 0, 512);
-	sy = vbound(sy, 0, 512);
-	sw = vbound(sw, 0, 512 - sx); //keep the w/h within range as well
-	sh = vbound(sh, 0, 512 - sy);
+	//Bugfix, eh? Someone was sleeping on the job, and set bitmaps to a size of 513. Fixed. -Z
+	sx = vbound(sx, 0, MAX_BITMAP_X);
+	sy = vbound(sy, 0, MAX_BITMAP_Y);
+	sw = vbound(sw, 0, MAX_BITMAP_X - sx); //keep the w/h within range as well
+	sh = vbound(sh, 0, MAX_BITMAP_Y - sy);
 
     
     if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
