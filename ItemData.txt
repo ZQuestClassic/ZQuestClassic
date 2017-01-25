@@ -1,12 +1,21 @@
+////////////////////////////
+///  Itemdata Variables  ///
+////////////////////////////
+
+	//! New -Z	
+	
 	int ID;				ZASM Instruction: 
 					IDATAID
 	/**
 	* Returns the item number of the item in question.
 	* Can be called with this->ID in item scripts. 
 	*/ Example Use: !#!
+	
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int Modifier;			ZASM Instruction: 
 					IDATALTM
 	/**
@@ -16,6 +25,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int Tile;			ZASM Instruction: 
 					IDATATILE
 	/**
@@ -25,6 +36,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int CSet;			ZASM Instruction: 
 					IDATAID
 	/**
@@ -34,6 +47,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int Flash;			ZASM Instruction: 
 					IDATAFLASH
 	/**
@@ -43,6 +58,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int AFrames;			ZASM Instruction: 
 					IDATAFRAMES
 	/**
@@ -52,6 +69,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int ASpeed;			ZASM Instruction: 
 					IDATAASPEED
 	/**
@@ -61,6 +80,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int Delay;			ZASM Instruction: 
 					IDATADELAY
 	/**
@@ -70,6 +91,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int Script;			ZASM Instruction: 
 					IDATAID
 	/**
@@ -79,6 +102,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int PScript;			ZASM Instruction: 
 					IDATAID
 	/**
@@ -88,6 +113,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int MagicCost;			ZASM Instruction: 
 					IDATAID
 	/**
@@ -97,6 +124,8 @@
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int MinHearts;			ZASM Instruction: 
 					IDATAID
 	/**
@@ -106,7 +135,9 @@
 
 /************************************************************************************************************/
 
-bool Combine;				ZASM Instruction: 
+	//! New -Z
+	
+	bool Combine;			ZASM Instruction: 
 					IDATACOMBINE
 	/**
 	* Corresponds to 'Upgrade when collected twice'.
@@ -115,7 +146,9 @@ bool Combine;				ZASM Instruction:
 
 /************************************************************************************************************/
 
-bool Downgrade;				ZASM Instruction: 
+	//! New -Z
+	
+	bool Downgrade;			ZASM Instruction: 
 					IDATADOWNGRADE
 	/**
 	* Corresponds to the 'Remove When Used' option on the Action tab of the item editor. 
@@ -124,7 +157,9 @@ bool Downgrade;				ZASM Instruction:
 
 /************************************************************************************************************/
 
-bool KeepOld;				ZASM Instruction: 
+	//! New -Z
+	
+	bool KeepOld;			ZASM Instruction: 
 					IDATAKEEPOLD
 	/**
 	* Corresponds to 'Keep lower level items on the Pickup tab of the item editor. 
@@ -134,7 +169,9 @@ bool KeepOld;				ZASM Instruction:
 
 /************************************************************************************************************/
 
-bool RupeeCost;				ZASM Instruction: 
+	//! New -Z
+	
+	bool RupeeCost;			ZASM Instruction: 
 					IDATARUPEECOST
 	/**
 	* Corresponds to the 'Use Rupees Instead of Magic' option on the item editor 'Action' tab.
@@ -143,7 +180,9 @@ bool RupeeCost;				ZASM Instruction:
 
 /************************************************************************************************************/
 
-bool Edible;				ZASM Instruction: 
+	//! New -Z
+	
+	bool Edible;			ZASM Instruction: 
 					IDATAEDIBLE
 	/**
 	* Corresponds to the 'Can be Eaten by Enemies' box on the Pickup tab of the item editor. 
@@ -152,95 +191,12 @@ bool Edible;				ZASM Instruction:
 
 /************************************************************************************************************/
 
-bool GainLower;				ZASM Instruction: 
+	//! New -Z
+	
+	bool GainLower;			ZASM Instruction: 
 					IDATAGAINLOWER
 	/**
 	* Corresponds to the 'Gain All Lower Level Items' box on the Pickup tab of the item editor. 
-	*  
-	*/ Example Use: !#!
-
-/************************************************************************************************************/
-
-bool Flag1;				ZASM Instruction: 
-					IDATAFLAG1
-	/**
-	* Multipurpose Flag 1
-	* 
-	* The properties of this flag change based on the item class (family).
-	* This corresponds to the box directly below 'Equiment Item'.
-	* For swords, this is 'B.H. is Percent'.
-	* Scripted item classes may make use of this as a general-purpose 'Script 1' flag. 
-	* See 'zscript_itemdata.txt' for more information on what this flag does, based on the item class. 
-	*  
-	*/ Example Use: !#!
-
-/************************************************************************************************************/
-
-bool Flag2;				ZASM Instruction: 
-					IDATAFLAG2
-	/**
-	* Multipurpose Flag 2
-	* 
-	* The properties of this flag change based on the item class (family).
-	* This corresponds to the box directly below 'Flag 1, or two boxes down from 'Equiment Item'.
-	* For swords, this is 'B.D. is Percent'.
-	* Scripted item classes may make use of this as a general-purpose 'Script 2' flag. 
-	* See 'zscript_itemdata.txt' for more information on what this flag does, based on the item class. 
-	*  
-	*/ Example Use: !#!
-
-/************************************************************************************************************/
-
-bool Flag3;				ZASM Instruction: 
-					IDATAFLAG3
-	/**
-	* Multipurpose Flag 3
-	* 
-	* The properties of this flag change based on the item class (family).
-	* This corresponds to the box directly right of 'Equiment Item'.
-	* For swords, this is 'B.  Penetrates Enemies'.
-	* Scripted item classes may make use of this as a general-purpose 'Script 3' flag. 
-	* See 'zscript_itemdata.txt' for more information on what this flag does, based on the item class. 
-	*  
-	*/ Example Use: !#!
-
-/************************************************************************************************************/
-
-bool Flag4;				ZASM Instruction: 
-					IDATAFLAG4
-	/**
-	* Multipurpose Flag 4
-	* 
-	* The properties of this flag change based on the item class (family).
-	* This corresponds to the box directly right of 'Flag 2'.
-	* For swords, this is 'Can Slash'.
-	* Scripted item classes may make use of this as a general-purpose 'Script 4' flag. 
-	* See 'zscript_itemdata.txt' for more information on what this flag does, based on the item class. 
-	*  
-	*/ Example Use: !#!
-
-/************************************************************************************************************/
-
-bool Flag5;				ZASM Instruction: 
-					IDATAFLAG5
-	/**
-	* Multipurpose Flag 5
-	* 
-	* The properties of this flag change based on the item class (family).
-	* This corresponds to the box directly below 'Flag 4'.
-	* For swords, this is '<Unused>', and greyed out.
-	* Scripted item classes may make use of this as a general-purpose 'Script 5' flag. 
-	* See 'zscript_itemdata.txt' for more information on what this flag does, based on the item class. 
-	*  
-	*/ Example Use: !#!
-
-/************************************************************************************************************/
-
-bool Unused;				ZASM Instruction: 
-					IDATAFLAGUNUSED
-	/**
-	* ? - An extra script-only flag. It's a mystery to everyone.
-	* Likely best left unused in the event that we need to reserve it. 
 	*  
 	*/ Example Use: !#!
 
@@ -373,6 +329,8 @@ bool Unused;				ZASM Instruction:
 	
 /************************************************************************************************************/
 	
+	//! New -Z
+	
 	int Attributes[10];		ZASM Instruction: 
 					IDATAATTRIB
 
@@ -384,6 +342,8 @@ bool Unused;				ZASM Instruction:
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	int Sprites[10];		ZASM Instruction: 
 					IDATASPRITES
 
@@ -395,6 +355,8 @@ bool Unused;				ZASM Instruction:
 
 /************************************************************************************************************/
 
+	//! New -Z
+	
 	bool Flags[5];			ZASM Instruction: 
 					IDATAFLAGS
 	
