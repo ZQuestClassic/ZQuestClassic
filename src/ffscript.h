@@ -435,7 +435,7 @@ enum ASM_DEFINE
 #define LINKFLIP             0x0247
 #define INPUTPRESSMAP        0x0248
 //0x0249-0x0258 are reserved for future Link variables
-#define LINKDIAG             0x0249
+#define __RESERED_FOR_LINKDIAG             0x0249
 #define __RESERED_FOR_LINKBIGHITBOX             0x024A
 #define __RESERED_FOR_LINKRETSQUARE             0x024B
 #define __RESERED_FOR_LINKWARPSOUND             0x024C
