@@ -20,6 +20,8 @@
 //Bitmaps will eventually have larger sizes. Easier to det this way. -Z
 #define MAX_BITMAP_Y 512
 #define MAX_BITMAP_X 512
+#define MAX_BITMAP_WIDTH 512
+#define MAX_BITMAP_HEIGHT 512 //In the event that these need to be set, separately. -Z
 
 template<class T> inline
 fixed degrees_to_fixed(T d)
@@ -1664,8 +1666,8 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//Bugfix, eh? Someone was sleeping on the job, and set bitmaps to a size of 513. Fixed. -Z
 	sx = vbound(sx, 0, MAX_BITMAP_X);
 	sy = vbound(sy, 0, MAX_BITMAP_Y);
-	sw = vbound(sw, 0, MAX_BITMAP_X - sx); //keep the w/h within range as well
-	sh = vbound(sh, 0, MAX_BITMAP_Y - sy);
+	sw = vbound(sw, 0, MAX_BITMAP_WIDTH - sx); //keep the w/h within range as well
+	sh = vbound(sh, 0, MAX_BITMAP_HEIGHT - sy);
 
     
     if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
