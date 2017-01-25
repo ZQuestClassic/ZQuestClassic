@@ -310,6 +310,7 @@ string VarArgument::toString()
     case ITEMFRAMES:
         return "ITEMFRAMES";
         
+    //This DOES NOT DO what ZScript.txt claims that it does, and needs to be fixed. -Z
     case ITEMFRAME:
         return "ITEMFRAME";
         
@@ -1001,6 +1002,40 @@ string VarArgument::toString()
         
     case UNDERCSET:
         return "UNDERCSET";
+    
+    //2.54 -Z
+/* 2.54 Implemented
+    */
+    
+    
+//itemclass / itemdata
+
+    case IDATAFRAME: return "IDATAFRAME";
+    case ITEMCLASSID: return "IDATAID";
+    case IDATALTM: return "IDATALTM";
+    case IDATAPSCRIPT: return "IDATAPSCRIPT";
+    case IDATASCRIPT: return "IDATASCRIPT";
+    case IDATAMAGCOST: return "IDATAMAGCOST";
+    case IDATAMINHEARTS: return "IDATAMINHEARTS";
+    case IDATATILE: return "IDATATILE";
+    case IDATAMISC: return "IDATAMISC";    
+    case IDATACSET: return "IDATACSET";
+    case IDATAFRAMES: return "IDATAFRAMES";
+    case IDATAASPEED: return "IDATAASPEED";
+    case IDATADELAY: return "IDATADELAY"; 
+    case IDATACOMBINE: return "IDATACOMBINE";
+    case IDATADOWNGRADE: return "IDATADOWNGRADE";
+    case IDATAKEEPOLD: return "IDATAKEEPOLD";
+    case IDATARUPEECOST: return "IDATARUPEECOST";
+    case IDATAEDIBLE: return "IDATAEDIBLE";
+    case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
+    case IDATAGAINLOWER: return "IDATAGAINLOWER";
+    
+    //idata arrays
+    case IDATAATTRIB: return "IDATAATTRIB";
+    case IDATAFLAGS: return "IDATAFLAGS";
+    case IDATASPRITE: return "IDATASPRITE";
+        
         
     default:
     {
@@ -1124,6 +1159,7 @@ string OWaitdraw::toString()
     return "WAITDRAW";
 }
 
+//I would like to add a Jump instruction tot he parser, which would be 'GOTOLABEL' -Z
 string OGotoImmediate::toString()
 {
     return "GOTO " + getArgument()->toString();
@@ -1845,6 +1881,7 @@ string OGetFFCScript::toString()
 {
     return "GETFFCSCRIPT " + getArgument()->toString();
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 
