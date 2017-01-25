@@ -17,22 +17,6 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
-extern PALETTE tempgreypal; //For setting greyscale.
-
-/* FFScript Rules. If we go another route, these can be removed, 
-   but they do not harm anything by existing, for now. */
-   
-extern bool ffscriptRules[qr_MAX];
-extern bool getRuleFF(int index); //Gets the rule from the array in ffscript. Used by ZScript
-extern void setRuleFF(int index, bool val); //sets the ffscript arrasy rule. used by ZScript
-extern bool can_ffsetQR(int index); //Determines if a user may set a rule using ZScript. 
-				//Returns true and sets it if it is legal, otherwise, false. 
-extern bool setwipe(int wipe); //Sets the present wipe type. 
-extern void setRuleFF_Init(); //Will be used to copy existing rules from legacy quests to the array. 
-extern void set_ffrule(int rule, bool state); //Replacement for set_bit calls for QRs
-extern void get_ffrule(int rule); //Replacement for get_bit calls for QRs
-
-
 struct script_command
 {
     char name[16];
