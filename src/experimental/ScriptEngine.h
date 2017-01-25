@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Config.h"
-#include "angelscript.h"
+#include "include/angelscript.h"
 
 
 GLOBAL_PTR asIScriptEngine* asScriptEngine;
@@ -32,19 +32,16 @@ asIScriptObject* CreateScriptObjectByName(asIScriptContext* scriptContext, const
 void Waitframes(int32 frames);
 
 
-void InitScriptEngine()
-{
-	if(!asScriptEngine)
-		asScriptEngine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
+void InitScriptEngine();
+void ShutdownScriptEngine();
 
-	if(!asDefaultScriptModule)
-		asDefaultScriptModule = asScriptEngine->GetModule(NULL, asGM_CREATE_IF_NOT_EXISTS);
-}
-
- 
 void SetDefaultScriptEngineProperties(asIScriptEngine* engine);
 void LogScriptException(asIScriptContext* scriptContext);
-void ScriptCompilerMessageCallback(const asSMessageInfo *msg, void *param);
+void ScriptCompilerMessageCallback(const asSMessageInfo* msg, void* param);
+
+bool LoadAndBuildScriptFile(const char* filename, const char* moduleName = NULL, bool discardModule = true, bool buildModule = true);
+
+
 
 
 
@@ -95,3 +92,6 @@ protected:
 	asIScriptObject* m_ScriptObject;
 
 };
+
+
+

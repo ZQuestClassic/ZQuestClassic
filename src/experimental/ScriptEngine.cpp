@@ -1,6 +1,35 @@
 
 #include "ScriptEngine.h"
 
+extern void RegisterEverything(); //////////////////////////////////////////////////////////////////////////
+
+
+void InitScriptEngine()
+{
+	Assert(!asScriptEngine);
+	Assert(!asDefaultScriptModule);
+
+	asScriptEngine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
+	asDefaultScriptModule = asScriptEngine->GetModule(NULL, asGM_CREATE_IF_NOT_EXISTS);
+
+	asScriptEngine->SetMessageCallback(asFUNCTION(ScriptCompilerMessageCallback), 0, asCALL_CDECL);
+	SetDefaultScriptEngineProperties(asScriptEngine);
+
+	RegisterEverything(); //////////////////////////////////////////////////////////////////////////
+}
+
+
+void ShutdownScriptEngine()
+{
+	if(asScriptEngine)
+	{
+		//asDefaultScriptModule->Discard();
+		asScriptEngine->ShutDownAndRelease();
+
+		asScriptEngine = NULL;
+		asDefaultScriptModule = NULL;
+	}
+}
 
 
 ScriptDelegateCallback callBackList[8] = {}; //arbitrary
@@ -114,10 +143,9 @@ void Waitframes(int32 frames)
 			// The script class will be notified and resume execution on a later frame.
 			scriptContext->Suspend(); 
 		}
-		else
+		else //script-writer messed up.
 		{
 			ScriptLog("Waitframes(%i) error dummy-head!", frames);
-			//script-writer messed up.
 		}
 	}
 }
@@ -170,7 +198,6 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 	//
 	engine->SetEngineProperty(asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE, 1);
 
-
 	engine->SetEngineProperty(asEP_ALLOW_UNSAFE_REFERENCES, 0); // Great optimization, but needs testing
 	engine->SetEngineProperty(asEP_OPTIMIZE_BYTECODE, 1);
 	engine->SetEngineProperty(asEP_REQUIRE_ENUM_SCOPE, 1);
@@ -180,18 +207,6 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 	//engine->SetEngineProperty(asEP_EXPAND_DEF_ARRAY_TO_TMPL, 1);
 	//engine->SetEngineProperty(asEP_ALTER_SYNTAX_NAMED_ARGS, 1); // no idea about this.
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -246,18 +261,104 @@ void ScriptCompilerMessageCallback(const asSMessageInfo *msg, void *param)
 
 	if(msg->type == asMSGTYPE_WARNING) 
 	{
-		type = "WARN";
+		type = "WARN ";
 	}
 	else if(msg->type == asMSGTYPE_INFORMATION) 
 	{
-		type = "INFO";
+		type = "INFO ";
 	}
 
-	ScriptLog("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
+	ScriptLog("%s [line: %d, %d] : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 }
 
 
 
+bool LoadAndBuildScriptFile(const char* filename,
+							const char* moduleName,
+							bool discardModule,
+							bool buildModule
+							)
+{
+	SimpleTimer totalCompileTime;
+
+	asIScriptEngine* engine = asScriptEngine;
+
+	if(buildModule)
+	{
+		// speedup since we own the buffers.
+		engine->SetEngineProperty(asEP_COPY_SCRIPT_SECTIONS, 0);
+	}
+	else
+	{
+		// forced, else we have a memory corruption.
+		engine->SetEngineProperty(asEP_COPY_SCRIPT_SECTIONS, 1);
+	}
+
+	totalCompileTime.Start();
+
+	// Step 1: Load and generate AS compilable scripts.
+	PODArray<ScriptFileData*> scripts = GenerateScriptSectionsFromFile(filename, 1 | 2);
+
+	// Optional: Discard current module and recompile.
+	if(discardModule)
+		engine->DiscardModule(moduleName);
+
+	asIScriptModule* module = engine->GetModule(moduleName, asGM_CREATE_IF_NOT_EXISTS);
+	bool compileSuccess = true;
+
+	// Step 2: Load and scripts into AS.
+	if(!scripts.Empty())
+	{
+		for(u32 i(0); i < scripts.Size(); ++i)
+		{
+			ScriptFileData& script = *scripts[i];
+
+			int result = module->AddScriptSection(script.filename.c_str(), script.code.c_str(), script.code.size(), 0);
+			if(result < 0) 
+			{
+				compileSuccess = false;
+				ScriptLog("Failed to compile file: %s.\n", script.filename.c_str());
+			}
+		}
+
+		// Step 3: Build the damn things already!
+		if(buildModule)
+		{
+			if(compileSuccess) // Unlikely but theoretical possibility this is false.
+			{
+				int buildResult = module->Build();
+				if(buildResult < 0)
+					compileSuccess = false;
+			}
+		}
+	}
+
+	// Cleanup
+	for(u32 i(0); i < scripts.Size(); ++i)
+		delete scripts[i];
+
+	scripts.Free();
+
+	SMinuteSecondsInfo msi = totalCompileTime.GetElapsedTime();
+
+	ScriptLog("Build finished with status: %i. Elapsed time: %i minutes, %.2f seconds.\n",
+		compileSuccess ? 0 : 1,
+		msi.minutes,
+		msi.seconds
+	);
+
+	// Leftover error handling here.
+	if(compileSuccess)
+	{
+		ScriptLog("Build Succeeded.");
+	}
+	else
+	{
+		ScriptLog("Build Failed.");
+	}
+
+	return compileSuccess;
+}
 
 
 

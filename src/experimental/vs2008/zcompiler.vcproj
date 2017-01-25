@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="mcpp.lib angelscript.lib"
+				AdditionalDependencies="mcppd.lib"
 				GenerateDebugInformation="true"
 			/>
 			<Tool
@@ -233,6 +233,10 @@
 			<Filter
 				Name="Modules"
 				>
+				<File
+					RelativePath="..\Modules\AngelscriptUnity.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\Modules\ZCompilerUnity.cpp"
 					>

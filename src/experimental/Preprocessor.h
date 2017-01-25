@@ -9,8 +9,6 @@
 #include "Array.h"
 
 
-
-
 struct CppPreprocessorInputArgs
 {
 	const char** args; // Can be NULL.
@@ -33,7 +31,7 @@ struct CppPreprocessorOutput
 };
 
 
-class CppPreprocessor
+class CppPreprocessor //this may just be a procedure.
 {
 public:
 	void Init();
@@ -46,10 +44,6 @@ private:
 	static int __cdecl FPutString(const char* str, MCPP_OUTDEST od);
 	static int __cdecl FPrintF(MCPP_OUTDEST od, const char * format, ...);
 };
-
-
-
-
 
 
 struct ScriptFileData
@@ -88,4 +82,13 @@ protected:
 	std::string m_noAllocToken;
 };
 
+
+
+enum eBuildFlags
+{
+	kBuildGeneratePreprocessedFile = 1,
+	kBuildOutputScriptSectionsToFiles = 2
+};
+
+PODArray<ScriptFileData*> GenerateScriptSectionsFromFile(const char* filename, u32 buildFlags);
 

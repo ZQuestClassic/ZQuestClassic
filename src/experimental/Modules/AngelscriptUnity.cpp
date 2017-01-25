@@ -2,7 +2,7 @@
 #define AS_NO_EXCEPTIONS 1 // No rtti or exception support needed for ZC.
 #define AS_NO_THREADS 1 // Useful optimization as zc is definitely not thread-safe.
 
-#include "../angelscript.h"
+#include "../include/angelscript.h"
 
 #include "../angelscript/as_atomic.cpp"
 #include "../angelscript/as_builder.cpp"

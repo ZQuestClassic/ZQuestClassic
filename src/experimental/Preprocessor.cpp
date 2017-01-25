@@ -1,5 +1,4 @@
 
-
 #include "Utility.h"
 #include "Preprocessor.h"
 
@@ -339,3 +338,74 @@ PODArray<ScriptFileData*> Postprocessor::ProcessPreprocessedMemoryFile
 
 	return scriptSections;
 }
+
+
+// simply returns the scripts for now.
+// it's easy enough to return any additional information that may be required later, however.
+PODArray<ScriptFileData*> GenerateScriptSectionsFromFile(const char* filename, u32 buildFlags)
+{
+	PODArray<ScriptFileData*> scripts;
+
+	CppPreprocessor cppPreprocessor = {};
+	CppPreprocessorInputArgs input = {};
+	{
+		input.filename = filename;
+		input.outputErrorSringFilename = "error.log";
+
+		if(buildFlags & kBuildGeneratePreprocessedFile)
+			input.outputProcessedFilename = "output.txt";
+	}
+
+	cppPreprocessor.Init();
+
+	// Output resources are destroyed once we:
+	// a) Call Init(),
+	// b) Process another file,
+	// c) Call Shutdown().
+	CppPreprocessorOutput output = cppPreprocessor.ProcessFile(input);
+
+	if(output.returnStatus == 0)
+	{
+		Postprocessor postprocessor = Postprocessor();
+
+		// There *shouldn't* be any errors here.
+		// But it may be possible to return zero actual scripts.
+		scripts = postprocessor.ProcessPreprocessedMemoryFile(input.filename, output.code, output.codeLength);
+
+		if(!scripts.Empty())
+		{
+			if(buildFlags & kBuildOutputScriptSectionsToFiles)
+			{
+				_mkdir("OUTPUT/"); //error check?
+
+				std::string outSSFilename;
+				outSSFilename.reserve(64);
+
+				for(u32 i(0); i < scripts.Size(); ++i)
+				{
+					ScriptFileData& script = *scripts[i];
+
+					outSSFilename = "OUTPUT/";
+					outSSFilename += script.filename;
+					outSSFilename += ".txt";
+
+					SaveStringToFile(outSSFilename.c_str(), script.code.c_str(), script.code.length());
+				}
+			}
+		}
+
+		//for(u32 i(0); i < scripts.Size(); ++i)
+		//	delete scripts[i];
+
+		//scripts.Free();
+	}
+	else // There were preprocessor errors
+	{
+		//cannot compile
+	}
+
+	cppPreprocessor.Shutdown();
+
+	return scripts;
+}
+
