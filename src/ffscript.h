@@ -17,9 +17,17 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
+//Greyscale and Wipes
+extern PALETTE tempgreypal; //For setting greyscale.
+extern void do_wavyin();
+extern void do_wavyout();
+extern void do_zapin();
+extern void do_zapout();
+extern void do_openscreen();
+
 struct script_command
 {
-    char name[16];
+    char name[64]; //A size of 16 does not allow 'RESERVED_FOR_COMMAND'. -Z
     byte args;
     byte arg1_type; //0=reg, 1=val;
     byte arg2_type; //0=reg, 1=val;
@@ -28,7 +36,7 @@ struct script_command
 
 struct script_variable
 {
-    char name[16];
+    char name[64]; //A size of 16 does not allow 'RESERVED_FOR_COMMAND'. -Z
     long id;
     word maxcount;
     byte multiple;
@@ -281,20 +289,20 @@ enum ASM_DEFINE
     GETFFCSCRIPT,         //0x00E8
     __RESERVED_FOR_BITMAPEXR,	//0x00E9
     __RESERVED_FOR_QUAD2R, //0x00EA
-    __RESERVED_FOR_WAVYIN, //0x00EB
-    __RESERVED_FOR_WAVYOUT, //0x00EC
-    __RESERVED_FOR_ZAPIN, //0x00ED
-    __RESERVED_FOR_ZAPOUT, //0x00EF
-    __RESERVED_FOR_OPENWIPE, //0x00F0
+    WAVYIN, //0x00EB
+    WAVYOUT, //0x00EC
+    ZAPIN, //0x00ED
+    ZAPOUT, //0x00EF
+    OPENWIPE, //0x00F0
     FREE0x00F1, //0x00F1 was SETLINKTILE
     FREE0x00F2, //0x00F2 was SETLINKEXTEND
     FREE0x00F3, //0x00F3 was GETLINKEXTEND
-   __RESERVED_FOR_ SETMESSAGE,			//0x00F4
+   __RESERVED_FOR_SETMESSAGE,			//0x00F4
     __RESERVED_FOR_SETDMAPNAME,			//0x00F5
     __RESERVED_FOR_SETDMAPTITLE,			//0x00F5
     __RESERVED_FOR_SETDMAPINTRO,			//0x00F7
-    __RESERVED_FOR_GREYSCALEON,			//0x00F8
-    __RESERVED_FOR_GREYSCALEOFF,			//0x00F9
+    GREYSCALEON,			//0x00F8
+    GREYSCALEOFF,			//0x00F9
     __RESERVED_FOR_ENDSOUNDR,           //0x00FA
     __RESERVED_FOR_ENDSOUNDV,           //0x00FB
     __RESERVED_FOR_PAUSESOUNDR, 	//0x00FC
@@ -531,9 +539,9 @@ enum ASM_DEFINE
 #define IDATAFRAMES             0x02B0
 #define IDATAASPEED             0x02B1
 #define IDATADELAY             0x02B2
-#define IDATAWPN             0x02B3
+#define RESVD011             0x02B3
 #define IDATAFRAME             0x02B4
-#define ITEMACLK            0x02B5
+#define __RESERVED_FOR_ITEMACLK            0x02B5
 #define IDATAFLAGS            0x02B6
 #define IDATASPRITE            0x02B7
 #define IDATAATTRIB            0x02B8
@@ -849,41 +857,41 @@ enum ASM_DEFINE
 
 //! ItemData Misc# and Wpn#
 
-#define _DEPRECATED_IDATAMISC1 0x10BA
-#define _DEPRECATED_IDATAMISC2 0x10BB
-#define _DEPRECATED_IDATAMISC3 0x10BC
-#define _DEPRECATED_IDATAMISC4 0x10BD
-#define _DEPRECATED_IDATAMISC5 0x10BE
-#define _DEPRECATED_IDATAMISC6 0x10BF
-#define _DEPRECATED_IDATAMISC7 0x10C0
-#define _DEPRECATED_IDATAMISC8 0x10C1
-#define _DEPRECATED_IDATAMISC9 0x10C2
-#define _DEPRECATED_IDATAMISC10 0x10C3
+#define RESVD001 0x10BA
+#define RESVD002 0x10BB
+#define RESVD003 0x10BC
+#define RESVD004 0x10BD
+#define RESVD005 0x10BE
+#define RESVD006 0x10BF
+#define RESVD007 0x10C0
+#define RESVD008 0x10C1
+#define RESVD009 0x10C2
+#define RESVD010 0x10C3
 
-#define _DEPRECATED_IDATAWPN1 0x10C4
-#define _DEPRECATED_IDATAWPN2 0x10C5
-#define _DEPRECATED_IDATAWPN3 0x10C6
-#define _DEPRECATED_IDATAWPN4 0x10C7
-#define _DEPRECATED_IDATAWPN5 0x10C8
-#define _DEPRECATED_IDATAWPN6 0x10C9
-#define _DEPRECATED_IDATAWPN7 0x10CA
-#define _DEPRECATED_IDATAWPN8 0x10CB
-#define _DEPRECATED_IDATAWPN9 0x10CC
-#define _DEPRECATED_IDATAWPN10 0x10CD
+#define RESVD012 0x10C4
+#define RESVD013 0x10C5
+#define RESVD014 0x10C6
+#define RESVD015 0x10C7
+#define RESVD016 0x10C8
+#define RESVD017 0x10C9
+#define RESVD018 0x10CA
+#define RESVD019 0x10CB
+#define RESVD020 0x10CC
+#define RESVD021 0x10CD
 
 //Itemdata Flags
 #define IDATACOMBINE 0x10CE
 #define IDATADOWNGRADE 0x10CF
-#define _DEPRECATED_IDATAFLAG1 0x10D0
-#define _DEPRECATED_IDATAFLAG2 0x10D1
+#define RESVD022 0x10D0
+#define RESVD023 0x10D1
 #define IDATAKEEPOLD 0x10D2
 #define IDATARUPEECOST 0x10D3
 #define IDATAEDIBLE 0x10D4
 #define IDATAFLAGUNUSED 0x10D5
 #define IDATAGAINLOWER 0x10D6
-#define _DEPRECATED_IDATAFLAG3 0x10D7
-#define _DEPRECATED_IDATAFLAG4 0x10D8
-#define _DEPRECATED_IDATAFLAG5 0x10D9
+#define RESVD024 0x10D7
+#define RESVD025 0x10D8
+#define RESVD026 0x10D9
 
 #define __RESERVED_FOR_NPCSCRDEFENSED 0x10DA
 
