@@ -3295,6 +3295,8 @@ void updatescr(bool allowwavy)
             trans_table2.data[0][q] = q;
             trans_table2.data[q][q] = q;
         }
+	
+	//Do not try to set monochrome modes here. -Z
     }
     
     if(details)
