@@ -1010,7 +1010,7 @@ string VarArgument::toString()
     
 //itemclass / itemdata
 
-    case IDATAFRAME: return "IDATAFRAME";
+    //case IDATAFRAME: return "IDATAFRAME";
     case ITEMCLASSID: return "IDATAID";
     case IDATALTM: return "IDATALTM";
     case IDATAPSCRIPT: return "IDATAPSCRIPT";

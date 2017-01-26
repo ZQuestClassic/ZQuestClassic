@@ -2140,8 +2140,6 @@ static AccessorTable itemclassTable[] =
     { "getUseSound",            ScriptParser::TYPE_FLOAT,         GETTER,       ITEMCLASSUSESOUND,    1,      {  ScriptParser::TYPE_ITEMCLASS,    -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setUseSound",            ScriptParser::TYPE_VOID,          SETTER,       ITEMCLASSUSESOUND,    1,      {  ScriptParser::TYPE_ITEMCLASS,     ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getID",               ScriptParser::TYPE_FLOAT,         GETTER,       ITEMCLASSID,       1,      {  ScriptParser::TYPE_ITEMCLASS,    -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   { "GetPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_ITEMCLASS,          ScriptParser::TYPE_ITEMCLASS,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   { "SetPointer",      ScriptParser::TYPE_ITEMCLASS,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_ITEMCLASS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
    
     { "getPower",               ScriptParser::TYPE_FLOAT,         GETTER,       ITEMCLASSPOWER,       1,      {  ScriptParser::TYPE_ITEMCLASS,    -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },      
     { "setPower",               ScriptParser::TYPE_VOID,          SETTER,       ITEMCLASSPOWER,       1,      {  ScriptParser::TYPE_ITEMCLASS,     ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -2223,38 +2221,6 @@ map<int, vector<Opcode *> > ItemclassSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
-    }
-    
-     //int GetPointer(itemclass, itemclass)
-    {
-        int id = memberids["GetPointer"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetItemDataPointer(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label]=code;
-    }
-    
-    //int SetPointer(itemclass, float)
-    {
-        int id = memberids["SetPointer"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetItemDataPointer(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label]=code;
     }
     
     return rval;
