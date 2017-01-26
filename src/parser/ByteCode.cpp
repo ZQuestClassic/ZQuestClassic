@@ -1010,7 +1010,7 @@ string VarArgument::toString()
     
 //itemclass / itemdata
 
-    case IDATAFRAME: return "IDATAFRAME";
+
     case ITEMCLASSID: return "IDATAID";
     case IDATALTM: return "IDATALTM";
     case IDATAPSCRIPT: return "IDATAPSCRIPT";
@@ -1881,6 +1881,49 @@ string OGetFFCScript::toString()
 {
     return "GETFFCSCRIPT " + getArgument()->toString();
 }
+
+//2.54 New Fuctions
+
+
+//Visual Effects
+
+string OGreyscaleOn::toString()
+{
+    return "GREYSCALEON";
+}
+
+string OGreyscaleOff::toString()
+{
+    return "GREYSCALEOFF";
+}
+
+string OZapIn::toString()
+{
+    return "ZAPIN";
+}
+
+string OZapOut::toString()
+{
+    return "ZAPOUT";
+}
+
+string OOpenWipe::toString()
+{
+    return "OPENWIPE";
+}
+
+//Should I make this a unary opcode with bool vis?
+string OWavyIn::toString()
+{
+    return "WAVYIN";
+}
+
+string OWavyOut::toString()
+{
+    return "WAVYOUT";
+}
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////
