@@ -2452,6 +2452,83 @@ public:
     }
 };
 
+//2.54 Visual Effects
+
+
+
+class OZapIn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapIn();
+    }
+};
+
+class OZapOut : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapOut();
+    }
+};
+
+
+class OGreyscaleOn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleOn();
+    }
+};
+
+class OGreyscaleOff : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleOff();
+    }
+};
+
+
+//I may later convert this into a Unary opcode with bool vis. 
+class OWavyIn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyIn();
+    }
+};
+
+
+class OWavyOut : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyOut();
+    }
+};
+
+class OOpenWipe : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OOpenWipe();
+    }
+};
 
 
 #endif
