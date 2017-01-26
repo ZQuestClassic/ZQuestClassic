@@ -98,17 +98,21 @@ void loadlvlpal(int level)
     for(int i=0; i<16*3; i++)
     {
         RAMpal[CSET(2)+i] = _RGB(si);
+	    tempgreypal[CSET(2)+i] = _RGB(si); //These are for handling lpals in monochrome. -Z
         si+=3;
     }
     
     for(int i=0; i<16; i++)
     {
         RAMpal[CSET(9)+i] = _RGB(si);
+	    tempgreypal[CSET(9)+i] = _RGB(si);
         si+=3;
     }
     
-    if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3)
+    if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3) {
         RAMpal[CSET(6)+2] = NESpal(0x37);
+	tempgreypal[CSET(6)+2] = NESpal(0x37);
+    }
         
     create_rgb_table(&rgb_table, RAMpal, NULL);
     create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
@@ -119,6 +123,13 @@ void loadlvlpal(int level)
         trans_table2.data[0][q] = q;
         trans_table2.data[q][q] = q;
     }
+     
+    if ( isMonochrome () ) { 
+	//Refresh the monochrome palette to avoid gfx glitches from loading the lpal.  
+	setMonochrome(false);
+	setMonochrome(true);
+    }
+
     
     refreshpal=true;
 }
