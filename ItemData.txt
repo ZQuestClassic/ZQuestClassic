@@ -1,0 +1,335 @@
+////////////////////////////
+///  Itemdata Variables  ///
+////////////////////////////
+
+	
+	int ID;				ZASM Instruction: 
+					IDATAID
+	/**
+	* Returns the item number of the item in question.
+	* Can be called with this->ID in item scripts. 
+	*/ Example Use: !#!
+	
+
+/************************************************************************************************************/
+	
+	int Modifier;			ZASM Instruction: 
+					IDATALTM
+	/**
+	* The Link Tile Modifier
+	* 
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int Tile;			ZASM Instruction: 
+					IDATATILE
+	/**
+	* The tile used by the item.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int CSet;			ZASM Instruction: 
+					IDATAID
+	/**
+	* The CSet of the tile used by the item.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int Flash;			ZASM Instruction: 
+					IDATAFLASH
+	/**
+	* The Flash value for the CSet
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int AFrames;			ZASM Instruction: 
+					IDATAFRAMES
+	/**
+	* The number of animation frames in the item's tile animation. 
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int ASpeed;			ZASM Instruction: 
+					IDATAASPEED
+	/**
+	* The speed of the item's animation.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int Delay;			ZASM Instruction: 
+					IDATADELAY
+	/**
+	* The Delay value, before the animation begins. 
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int Script;			ZASM Instruction: 
+					IDATAID
+	/**
+	* The Action Script for the item.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int PScript;			ZASM Instruction: 
+					IDATAID
+	/**
+	* The Pickup Script for the item.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int MagicCost;			ZASM Instruction: 
+					IDATAID
+	/**
+	* The item's maic (or rupees, if this is set) cost.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	int MinHearts;			ZASM Instruction: 
+					IDATAID
+	/**
+	* The minimum number of hearts required to pick up the item.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	bool Combine;			ZASM Instruction: 
+					IDATACOMBINE
+	/**
+	* Corresponds to 'Upgrade when collected twice'.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	bool Downgrade;			ZASM Instruction: 
+					IDATADOWNGRADE
+	/**
+	* Corresponds to the 'Remove When Used' option on the Action tab of the item editor. 
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	bool KeepOld;			ZASM Instruction: 
+					IDATAKEEPOLD
+	/**
+	* Corresponds to 'Keep lower level items on the Pickup tab of the item editor. 
+	* NOTE: Not to be confused with 'Keep', which corresponds to the 'Equipment Item' box. 
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	bool RupeeCost;			ZASM Instruction: 
+					IDATARUPEECOST
+	/**
+	* Corresponds to the 'Use Rupees Instead of Magic' option on the item editor 'Action' tab.
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	bool Edible;			ZASM Instruction: 
+					IDATAEDIBLE
+	/**
+	* Corresponds to the 'Can be Eaten by Enemies' box on the Pickup tab of the item editor. 
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+	
+	bool GainLower;			ZASM Instruction: 
+					IDATAGAINLOWER
+	/**
+	* Corresponds to the 'Gain All Lower Level Items' box on the Pickup tab of the item editor. 
+	*  
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	float InitD[];			ZASM Instruction: 
+					IDATAINITDD
+	/**
+	* The original values of the item's 8 'D#' input values are they are stored in the
+	* .qst file, regardles of whether they have been modified by ZScript.
+	*/ Example Use: !#!
+	
+/************************************************************************************************************/
+	
+	void GetName(int buffer[]);	ZASM Instruction: 
+					!
+	/**
+	* Loads the item this itemdata is attributed to's name into 'buffer'
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int Family;			ZASM Instruction: 
+					IDATAFAMILY
+	/**
+	* The kind of item to which this class belongs (swords, boomerangs,
+	* potions, etc.) Use the IC_ constants in std.zh to set or compare this
+	* value.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int Level;			ZASM Instruction: 
+					IDATALEVEL
+	/**
+	* The level of this item. Higher-level items replace lower-level items
+	* when they are picked up.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int Power;			ZASM Instruction: 
+					IDATAPOWER
+	/**
+	* The item's power, for most items this is amount of damage dealt but is
+	* used for other values in some items (ie. Roc's Feather)
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int Amount;			ZASM Instruction: 
+					IDATAAMOUNT
+	/**
+	* Corresponds to the "Increase Amount" entry in the Item Editor.
+	* The value of this data member can have two meanings:
+	* If Amount & 0x8000 is 1, the drain counter for this item is set
+	* to Amount & 0x3FFF. The game then slowly fills the counter of this item
+	* (see Counter below) out of the drain counter. Gaining rupees uses the
+	* drain counter, for example.
+	* is set to Amount when the item is picked up.
+	* If Amount & 0x8000 is 0, the counter of this item is increased, if
+	* Amount & 0x4000 is 1, or decreased, if Amount & 0x4000 is 0, by
+	* Amount & 0x3FFF when the item is picked up.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int Max;			ZASM Instruction: 
+					IDATAMAX
+	/**
+	* Corresponds to the "Full Max" entry in the Item Editor.
+	* In conjunction with MaxIncrement (see below) this value controls how
+	* the maximum value of the counter of this item (see Counter below) is
+	* modified when the item is picked up. If MaxIncrement is nonzero at that
+	* time, the counter's new maximum value is at that time set to the
+	* minimum of its current value plus MaxIncrement, Max.
+	* If Max is less than the current maximum of the counter, Max is ignored
+	* and that maximum is used instead.
+	* Notice that as a special case, if Max = MaxIncrement, the counter's
+	* maximum value will be forced equal to Max.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int MaxIncrement;		ZASM Instruction: 
+					IDATASETMAX
+	/**
+	* Corresponds to the "+Max" entry in the Item Editor.
+	* In conjunction with Max (see above) this value controls how the
+	* maximum value of the counter of this item (see Counter below) is
+	* modified when the item is picked up. If MaxIncrement is nonzero at that
+	* time, the counter's new maximum value is at that time set to the
+	* minimum of its current value plus MaxIncrement, and Max.
+	* If Max is less than the current maximum of the counter, Max is ignored
+	* and that maximum is used instead.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	bool Keep;			ZASM Instruction: 
+					IDATAKEEP
+	/**
+	* Corresponds to the "Equipment Item" checkbox in the Item Editor.
+	* If true, Link will keep the item, and it will show up as an item or
+	* equipment in the subscreen. If false, it may modify the current value
+	* or maximum value of its counter (see Counter below), then disappear.
+	* The White Sword and Raft, for instance, have Keep true, and keys and
+	* rupees have Keep false.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
+
+	int Counter;			ZASM Instruction: 
+					IDATACOUNTER
+	/**
+	* Corresponds to the "Counter Reference" entry in the Item Editor.
+	* The game counter whose current and modified values might be modified
+	* when the item is picked up (see Amount, Max, and MaxIncrement above.)
+	* Use the CT_ constants in std.zh to set or compare this value.
+	*/ Example Use: !#!
+	
+/************************************************************************************************************/
+	
+	int UseSound;			ZASM Instruction: 
+					IDATAUSESOUND
+
+	/**
+	* Corresponds to the "Sound" entry on the action tab in the Item Editor.
+	*/ Example Use: !#!
+	
+/************************************************************************************************************/
+	
+	int Attributes[10];		ZASM Instruction: 
+					IDATAATTRIB
+
+	/**
+	* An array of ten integers containing the Attributes values.
+	* These correspond to the text entry fields, in the item editor 'Data' tab. 
+	*
+	*/
+
+/************************************************************************************************************/
+	
+	int Sprites[10];		ZASM Instruction: 
+					IDATASPRITES
+
+	/**
+	* An array of ten integers containing the Sprites values. 
+	* These correspond to the pull-down options in the item editor 'Action' tab.  .
+	*
+	*/
+
+/************************************************************************************************************/
+	
+	bool Flags[5];			ZASM Instruction: 
+					IDATAFLAGS
+	
+	/**
+	* An array of five multipurpose boolean flags. The properties of this flag change based on the item class (family).
+	* Flag[0] corresponds to the box directly below 'Equiment Item'. For swords, this is 'B.H. is Percent'.
+	* Flag[1] corresponds to the box directly below 'Flag 1'. For swords, this is 'B.D. is Percent'.
+	* Flag[2] corresponds to the box directly right of 'Equiment Item'. For swords, this is 'B.  Penetrates Enemies'.
+	* Flag[3] corresponds to the box directly right of 'Flag 2'. For swords, this is 'Can Slash'.
+	* Flag[4] corresponds to the box directly below 'Flag 4'.For swords, this is '<Unused>', and greyed out.
+	*
+	* Scripted item classes may make use of these as a general-purpose script flags. 
+	* See 'zscript_itemdata.txt' for more information on what this flag does, based on the item class.
+	*/
+
+/************************************************************************************************************/
+

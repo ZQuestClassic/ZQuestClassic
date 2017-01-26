@@ -17,6 +17,12 @@
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
+//Bitmaps will eventually have larger sizes. Easier to det this way. -Z
+#define MAX_BITMAP_Y 512
+#define MAX_BITMAP_X 512
+#define MAX_BITMAP_WIDTH 512
+#define MAX_BITMAP_HEIGHT 512 //In the event that these need to be set, separately. -Z
+
 template<class T> inline
 fixed degrees_to_fixed(T d)
 {
@@ -1312,9 +1318,13 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         break;
     }
     
+    //FONT* font=get_zc_font(sdci[4]/10000);
+    
     if(w>0&&h>0)//stretch
     {
-        BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
+        BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(get_zc_font(font_index), numbuf)+1, text_height(get_zc_font(font_index)));
+        clear_bitmap(pbmp);
+	    //script_drawing_commands.GetSmallTextureBitmap(1,1);
         
         if(opacity < 128)
         {
@@ -1653,10 +1663,11 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     bool masked = (sdci[12] != 0);
 
 	//bugfix
-	sx = vbound(sx, 0, 512);
-	sy = vbound(sy, 0, 512);
-	sw = vbound(sw, 0, 512 - sx); //keep the w/h within range as well
-	sh = vbound(sh, 0, 512 - sy);
+	//Bugfix, eh? Someone was sleeping on the job, and set bitmaps to a size of 513. Fixed. -Z
+	sx = vbound(sx, 0, MAX_BITMAP_X);
+	sy = vbound(sy, 0, MAX_BITMAP_Y);
+	sw = vbound(sw, 0, MAX_BITMAP_WIDTH - sx); //keep the w/h within range as well
+	sh = vbound(sh, 0, MAX_BITMAP_HEIGHT - sy);
 
     
     if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
@@ -1741,6 +1752,8 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         script_drawing_commands.ReleaseSubBitmap(subBmp);
     }
 }
+
+
 
 
 void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
@@ -2268,7 +2281,13 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawbitmapr(bmp, sdci, xoffset, yoffset);
         }
         break;
-        
+	/*
+	case BITMAPEXR:
+        {
+            do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+        */
         case DRAWLAYERR:
         {
             do_drawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);

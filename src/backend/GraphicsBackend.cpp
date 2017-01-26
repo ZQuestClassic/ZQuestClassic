@@ -83,8 +83,8 @@ void GraphicsBackend::readConfigurationOptions(const std::string &prefix)
 	std::string section = prefix + "-graphics";
 	const char *secname = section.c_str();
 
-	screenw_ = get_config_int(secname, "resx", 320);
-	screenh_ = get_config_int(secname, "resy", 240);
+	screenw_ = get_config_int(secname, "resx", 640);
+	screenh_ = get_config_int(secname, "resy", 480);
 	fullscreen_ = get_config_int(secname, "fullscreen", 0) != 0;
 	native_ = get_config_int(secname, "native", 1) != 0;
 	fps_ = get_config_int(secname, "fps", 60);
