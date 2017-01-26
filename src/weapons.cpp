@@ -205,7 +205,11 @@ weapon::weapon(weapon const & other):
     frames(other.frames),
     o_flip(other.o_flip),
     temp1(other.temp1),
-    behind(other.behind)
+    behind(other.behind),
+	minX(other.minX),
+	maxX(other.maxX),
+	minY(other.minY),
+	maxY(other.maxY)
 
 {
     for(int i=0; i<10; ++i)
@@ -294,6 +298,65 @@ weapon::~weapon()
     }
 }
 
+// This should be done elsewhere
+void setScreenLimits(weapon& w)
+{
+	bool isDgn = isdungeon();
+	int border = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+
+	if (w.id>wEnemyWeapons && w.id != ewBrang)
+	{
+		w.minY = isDgn ? 32 : (16 - border);
+		w.maxY = isDgn ? 128 : (144 + border);
+		w.minX = isDgn ? 32 : (16 - border);
+		w.maxX = isDgn ? 208 : (224 + border);
+	}
+	else if (w.id == wHookshot || w.id == wHSChain)
+	{
+		w.minY = isDgn ? 8 : 0;
+		w.maxY = isDgn ? 152 : 160;
+		w.minX = isDgn ? 8 : 0;
+		w.maxX = isDgn ? 248 : 256;
+	}
+	else
+	{
+		w.minY = isDgn ? 18 : 2;
+		w.maxY = isDgn ? 144 : 160;
+		w.minX = isDgn ? 20 : 4;
+		w.maxX = isDgn ? 220 : 236;
+	}
+
+	if (w.id == wSSparkle || w.id == wFSparkle)
+	{
+		w.minY = 0;
+		w.maxY = 176;
+		w.minX = 0;
+		w.maxX = 256;
+	}
+	else if (w.id == ewFlame)
+	{
+		w.minY = isDgn ? 32 : (16 - border);
+		w.maxY = isDgn ? 128 : (144 + border);
+		w.minX = isDgn ? 32 : (16 - border);
+		w.maxX = isDgn ? 208 : (224 + border);
+	}
+	else if (w.id == ewFireTrail)
+	{
+		w.minY = isDgn ? 32 : (16 - border);
+		w.maxY = isDgn ? 128 : (144 + border);
+		w.minX = isDgn ? 32 : (16 - border);
+		w.maxX = isDgn ? 208 : (224 + border);
+	}
+
+	else if (w.id == ewWind)
+	{
+		w.minY = isDgn ? 32 : (16 - border);
+		w.maxY = isDgn ? 128 : (144 + border);
+		w.minX = isDgn ? 32 : (16 - border);
+		w.maxX = isDgn ? 208 : (224 + border);
+	}
+}
+
 weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy) : sprite(), parentid(prntid)
 {
     x=X;
@@ -316,6 +379,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hysz=15;
     hzsz=8;
     isLit = false;
+	setScreenLimits(*this);
     
     int defaultw, itemid = parentitem;
     
@@ -1304,90 +1368,33 @@ bool weapon::Dead()
 
 bool weapon::clip()
 {
-    int c[4];
-    int d2=isdungeon();
-    int nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
-    int nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
-    
-    if(id>wEnemyWeapons && id!=ewBrang)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    else if(id==wHookshot||id==wHSChain)
-    {
-        c[0] = d2?8:0;
-        c[1] = d2?152:160;
-        c[2] = d2?8:0;
-        c[3] = d2?248:256;
-    }
-    else
-    {
-        c[0] = d2?18:2;
-        c[1] = d2?144:160;
-        c[2] = d2?20:4;
-        c[3] = d2?220:236;
-    }
-    
-    if(id==wSSparkle || id==wFSparkle)
-    {
-        c[0] = 0;
-        c[1] = 176;
-        c[2] = 0;
-        c[3] = 256;
-    }
-    
-    if(id==ewFlame)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    
-    if(id==ewFireTrail)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    
-    if(id==ewWind)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    
-    if(x < c[2])
+    if(x < minX)
         if(dir==left || dir==l_up || dir==l_down)
             return true;
             
-    if(x > c[3])
+    if(x > maxX)
         if(dir==right || dir==r_up || dir==r_down)
             return true;
             
-    if(y < c[0])
+    if(y < minY)
         if(dir==up || dir==l_up || dir==r_up)
             return true;
             
-    if(y > c[1])
+    if(y > maxY)
         if(dir==down || dir==l_down || dir==r_down)
             return true;
             
     if(id>wEnemyWeapons)
     {
-        if((x<(8-nb2) && dir==left)
-                || (y<(8-nb2) && dir==up)
-                || (x>(232+nb2) && dir==right)
-                || (y>(168+nb2) && dir==down))
+		int border = get_bit(quest_rules, qr_NOBORDER) ? 8 : 0;
+		if ((x<(8 - border) && dir == left) || // Not checking diagonals?
+			(y<(8 - border) && dir == up) ||
+			(x>(232 + border) && dir == right) ||
+			(y>(168 + border) && dir == down))
             return true;
     }
     
+	// This doesn't do anything useful, does it?
     if(x<0||y<0||x>240||y>176)
         return true;
         

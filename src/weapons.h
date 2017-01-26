@@ -31,6 +31,11 @@ private:
     void seekLink();
     void seekEnemy(int j);
     int seekEnemy2(int j);
+
+	// How close the weapon can get to the edge of the screen before
+	// being deleted (or bouncing, in the case of boomerangs)
+	int minX, maxX, minY, maxY;
+	friend void setScreenLimits(weapon&);
     
 public:
     int power,type,dead,clk2,misc2,ignorecombo;
