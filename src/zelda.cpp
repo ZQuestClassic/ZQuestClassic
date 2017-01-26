@@ -152,6 +152,7 @@ int startdmapxy[6] = {0,0,0,0,0,0};
 /******** Global Variables ********/
 /**********************************/
 
+//2.50
 int curr_tb_page=0;
 bool triplebuffer_not_available=false;
 
@@ -216,6 +217,12 @@ bool screenscrolling=false;
 bool close_button_quit=false;
 PALETTE tempbombpal;
 bool usebombpal;
+
+//2.54 Monochrome
+
+bool monochrome = false; //System state for when GFX are monochrome. 
+
+//end 2.54 monochrome
 
 int readsize, writesize;
 bool fake_pack_writing=false;
@@ -2527,6 +2534,47 @@ bool no_subscreen()
 {
     return (tmpscr->flags3&fNOSUBSCR)!=0;
 }
+
+//2.54 Monocrome functions
+
+bool isMonochrome(){
+	return monochrome;
+}
+
+void setMonochrome(bool v){
+	if ( v && !monochrome ) { 
+		
+		memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
+		if(get_bit(quest_rules,qr_FADE)) {
+		for(int i=CSET(0); i < CSET(15); i++)
+		{
+			int g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+			g = (g >> 1) + 32;
+			RAMpal[i] = _RGB(g,g,g);
+		}
+    
+		}
+		else
+		{
+			// this is awkward. NES Z1 converts colors based on the global
+			// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+			for(int i=CSET(0); i < CSET(15); i++)
+			{
+				RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
+			}
+		} 
+		refreshpal = true;
+		monochrome = true; 
+	}
+	
+	else if ( !v && monochrome ) {
+		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
+		refreshpal = true;
+		monochrome = false; 
+	}
+}
+
+//end 2.54 monpchrome functions
 
 /**************************/
 /********** Main **********/
