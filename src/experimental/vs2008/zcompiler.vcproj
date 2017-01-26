@@ -138,6 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="mcpp.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -211,6 +212,66 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ScriptContextPool.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ScriptEngine.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ScriptRegistrar.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\Utility.cpp"
 				>
 				<FileConfiguration
@@ -230,26 +291,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<Filter
-				Name="Modules"
-				>
-				<File
-					RelativePath="..\Modules\AngelscriptUnity.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Modules\ZCompilerUnity.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							DebugInformationFormat="4"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -269,6 +310,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ScriptContextPool.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ScriptEngine.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Utility.h"
 				>
 			</File>
@@ -278,6 +327,26 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="Modules"
+			>
+			<File
+				RelativePath="..\Modules\AngelscriptUnity.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Modules\ZCompilerUnity.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						DebugInformationFormat="4"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -19,7 +19,7 @@ void ScriptRegistrar::RegisterMathFunctions(asIScriptEngine* engine)
 	int r;
 	using namespace ScriptMath;
 
-	engine->SetDefaultNamespace("Math"); //testing
+	//engine->SetDefaultNamespace("Math"); //testing
 
 	//////////////////////////////////////////////////////////////////////////
 	/// Floating-Point

@@ -14,6 +14,7 @@
 #include "../Utility.cpp"
 #include "../Preprocessor.cpp"
 #include "../ScriptEngine.cpp"
+#include "../ScriptContextPool.cpp"
 #include "../ScriptRegistrar.cpp"
 
 
@@ -25,7 +26,9 @@
 int main()
 {
 	InitScriptEngine();
-	bool r = LoadAndBuildScriptFile("../Scripts/Test1.cs");
+
+	const char* filename = "../Scripts/TestCompileTime.h"; //"../Scripts/Test1.cs";
+	bool r = LoadAndBuildScriptFile(filename);
 
 	//////////////////////////////////////////////////////////////////////////
 	//Todo: All the script messin' goes here.
