@@ -1266,6 +1266,12 @@ static AccessorTable ScreenTable[] =
     { "GetTileWarpDMap",        ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "GetTileWarpScreen",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "GetTileWarpType",        ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ZapIn",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ZapOut",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "WavyIn",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "WavyOut",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "OpeningWipe",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -2021,6 +2027,87 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+    
+    //2.54 Additions
+    
+    //Visual Effects
+    
+    //void ZapIn(screen)
+    {
+        int id = memberids["ZapIn"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OZapIn());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+      
+
+    //void ZapOut(screen)
+    {
+        int id = memberids["ZapOut"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OZapOut());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+
+    //void WavyIn(screen)
+    {
+        int id = memberids["WavyIn"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OWavyIn());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+            
+    //void WavyOut(screen)
+    {
+        int id = memberids["WavyOut"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OWavyOut());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+    //void OpeningWipe(screen)
+    {
+        int id = memberids["OpeningWipe"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OOpenWipe());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+    
+
     return rval;
 }
 
@@ -2224,7 +2311,7 @@ map<int, vector<Opcode *> > ItemclassSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
     }
-    
+    /*
      //int GetPointer(itemclass, itemclass)
     {
         int id = memberids["GetPointer"];
@@ -2256,6 +2343,7 @@ map<int, vector<Opcode *> > ItemclassSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+    */
     
     return rval;
 }
@@ -2360,6 +2448,9 @@ static AccessorTable gameTable[] =
     { "getDMapMap[]",           ScriptParser::TYPE_FLOAT,         GETTER,       DMAPMAP,            512,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setDMapMap[]",           ScriptParser::TYPE_VOID,          SETTER,       DMAPMAP,            512,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "GetFFCScript",           ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GreyscaleOn",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_GAME,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GreyscaleOff",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_GAME,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
     { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -3064,6 +3155,40 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+    
+    //2.54 Additions
+    
+    //void GreyscaleOn(game)
+    {
+        int id = memberids["GreyscaleOn"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGreyscaleOn());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+            
+	//void GreyscaleOff(game)
+    {
+        int id = memberids["GreyscaleOff"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGreyscaleOff());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+    
+    
     return rval;
 }
 
