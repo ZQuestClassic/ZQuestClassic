@@ -630,6 +630,7 @@ int LinkClass::getSpecialCave()
 
 void LinkClass::init()
 {
+    setMonochrome(false); //Clear monochrome at the start of a game. 
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
