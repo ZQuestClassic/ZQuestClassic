@@ -90,7 +90,6 @@ void clear_global_stack()
     memset(global_stack, 0, 256 * sizeof(long));
 }
 
-
 //ScriptHelper
 class SH
 {
@@ -5987,6 +5986,20 @@ void do_getscreeneflags()
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
 }
 
+//New 2.54
+
+//Screen Wipes
+void do_zapout()
+{
+	zapout();
+}
+
+void do_zapin(){ zapin(); }
+
+void do_openscreen() { openscreen(); }
+void do_wavyin() { wavyin(); }
+void do_wavyout() { wavyout(false); } //Don;t show Link? I might modify the function with bool show.
+
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
 
@@ -7848,6 +7861,31 @@ int run_script(const byte type, const word script, const byte i)
         case DEQUEUE:
             do_dequeue(false);
             break;
+	
+	//New 2.54 Function Cases
+	
+	case WAVYIN:
+		do_wavyin();
+		break;
+	case WAVYOUT:
+		do_wavyout();
+		break;
+	case ZAPIN:
+		do_zapin();
+		break;
+	case ZAPOUT:
+		do_zapout();
+		break;
+	case OPENWIPE:
+		do_openscreen();
+		break;
+	
+	case GREYSCALEON:
+		setMonochrome(true);
+		break;
+	case GREYSCALEOFF:
+		setMonochrome(false);
+		break;
             
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
