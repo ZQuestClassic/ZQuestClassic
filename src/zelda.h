@@ -168,6 +168,13 @@ bool screenIsScrolling();
 //void quit_game();
 int d_timer_proc(int msg, DIALOG *d, int c);
 
+
+//New, 2.54
+
+//Used by ZScript monochromatic gfx for palette handling, preventing dmap palettes from overriding. 
+void setMonochrome(bool state); //Sets the state.
+bool isMonochrome(); //Returns if monochrome mode is enabled. 
+
 INLINE void sfx(int index)
 {
     sfx(index,128,false);
