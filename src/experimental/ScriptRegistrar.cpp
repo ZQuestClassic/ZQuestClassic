@@ -3,9 +3,11 @@
 struct ScriptRegistrar
 {
 	void RegisterMathFunctions(asIScriptEngine* engine);
-	//void RegisterRegisterVector2i(asIScriptEngine* engine);
-	//void RegisterRegisterVector2f(asIScriptEngine* engine);
-	//void RegisterMathDependencies(asIScriptEngine* engine); // Cross-dependencies between math types goes last.
+	void RegisterVector2i(asIScriptEngine* engine);
+	void RegisterVector2f(asIScriptEngine* engine);
+	void RegisterRect(asIScriptEngine* engine);
+	void RegisterMathDependencies(asIScriptEngine* engine); // Cross-dependencies between math types goes last.
+	void RegisterGlobalFunctions(asIScriptEngine* engine);
 
 }
 static ScriptRegistrar;
@@ -22,12 +24,16 @@ void RegisterEverything()
 {
 	Assert(asScriptEngine);
 	ScriptRegistrar.RegisterMathFunctions(asScriptEngine);
-	//ScriptRegistrar.RegisterRegisterVector2i(asScriptEngine);
-	//ScriptRegistrar.RegisterRegisterVector2f(asScriptEngine);
-	//ScriptRegistrar.RegisterMathDependencies(asScriptEngine);
+	ScriptRegistrar.RegisterVector2i(asScriptEngine);
+	ScriptRegistrar.RegisterVector2f(asScriptEngine);
+	ScriptRegistrar.RegisterRect(asScriptEngine);
 
 	RegisterStdString(asScriptEngine);
 	RegisterScriptArray_Native(asScriptEngine);
+
+	// Dependants
+	ScriptRegistrar.RegisterMathDependencies(asScriptEngine);
+	ScriptRegistrar.RegisterGlobalFunctions(asScriptEngine);
 
 }
 

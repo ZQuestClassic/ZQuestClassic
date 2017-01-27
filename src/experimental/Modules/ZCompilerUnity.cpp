@@ -10,6 +10,7 @@
 
 #include <direct.h>
 
+#include "../ZCMath.cpp"
 #include "../Array.cpp"
 #include "../Utility.cpp"
 #include "../Preprocessor.cpp"
@@ -27,7 +28,7 @@ int main()
 {
 	InitScriptEngine();
 
-	const char* filename = "../Scripts/TestCompileTime.h"; //"../Scripts/Test1.cs";
+	const char* filename = "../Scripts/TestSyntax.h"; //"../Scripts/Test1.cs";
 	bool r = LoadAndBuildScriptFile(filename);
 
 	//////////////////////////////////////////////////////////////////////////

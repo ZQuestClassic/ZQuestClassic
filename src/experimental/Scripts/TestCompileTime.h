@@ -1,6 +1,30 @@
 
 #include "Defines.h"
 
+int gv;
+
+namespace NS
+{
+	int globalVar;
+
+	class INSClass
+	{
+		private int b;
+		int gv;
+
+		INSClass()
+		{
+			b = 9;
+			//gv = b;
+		}
+	}
+}
+
+enum Enum1
+{
+	Value = 3
+}
+
 class IClass
 {
 	private int a;
@@ -9,6 +33,11 @@ class IClass
 	{
 		get const { return a; }
 		set { a = value; }
+	}
+
+	void SetGlobal(int val)
+	{
+		gv = Enum1::Value;
 	}
 }
 
