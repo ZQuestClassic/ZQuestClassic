@@ -5,6 +5,12 @@
 #include <math.h>
 
 
+#define ZC_EPSILON		0.00001f
+#define ZC_PI			3.141592653589f
+#define ZC_TWOPI		6.28318530f
+#define ZC_PI			3.141592653589f
+#define ZC_PI_OVER_2	1.570796326794f
+
 //todo: better clamp function
 //#define ZC_CLAMP(v, min, max) if((v) < (min)) v = (min); else if((v) > (max)) v = (max)
 
@@ -293,7 +299,7 @@ inline Vector2f Abs(const Vector2f& a) { return a.Abs(); }
 inline Vector2f Min(const Vector2f& a, const Vector2f& b) { return Vector2f(Min(a.x, b.x), Min(a.y, b.y)); }
 inline Vector2f Max(const Vector2f& a, const Vector2f& b) { return Vector2f(Max(a.x, b.x), Max(a.y, b.y)); }
 inline Vector2f Clamp(const Vector2f& a, float min, float max) { return a.Clamped(min, max); }
-inline Vector2f Clamp(const Vector2f& a, const Vector2f& floor, const Vector2f& ceil) { return a.Clamped(floor, ceil); }
+inline Vector2f Clamp(const Vector2f& a, const Vector2f& min, const Vector2f& max) { return a.Clamped(min, max); }
 inline Vector2f Clamp01(const Vector2f& a) { return a.Clamp01(); }
 inline Vector2f Lerp(const Vector2f& a, const Vector2f& b, float t) { return a.Lerp(b, t); }
 inline Vector2f SmoothStep(const Vector2f& a, const Vector2f& b, float t) { return a.SmoothStep(b, t); }
@@ -310,7 +316,7 @@ struct Rect
 
 	Rect() : position(), size() {}
 	Rect(const Vector2i& position, const Vector2i& size) : position(position), size(size) {}
-	Rect(int32 x, int32 y, int32 width, int32 height) : position(x ,y), size(width, height) {}
+	Rect(int32 x, int32 y, int32 width, int32 height) : position(x, y), size(width, height) {}
 
 	int32& operator [](int32 i) { return *(&x + i); }
 	int32 operator [](int32 i) const { return *(&x + i); }
@@ -384,6 +390,68 @@ inline Vector2i::Vector2i(const Vector2f& value)
 	: x((int32)value.x), y((int32)value.y)
 {
 }
+
+
+inline Vector2f RotatePoint(const Vector2f& p, const Vector2f& rot)
+{
+	return Vector2f((rot.x * p.x) - (rot.y * p.y),
+		(rot.y * p.x) + (rot.x * p.y));
+}
+
+inline Vector2f RotatePoint(const Vector2f& p, const Vector2f& rot, const Vector2f& center)
+{
+	const Vector2f v = (p - center);
+	return Vector2f((rot.x * v.x) - (rot.y * v.y) + center.x, (rot.y * v.x) + (rot.x * v.y) + center.y);
+}
+
+inline Vector2f ScalePoint(const Vector2f& p, const Vector2f& scale, const Vector2f& center)
+{
+	return (scale * (p - center)) + center;
+}
+
+inline Vector2f RotateScalePoint(const Vector2f& p, const Vector2f& rot, const Vector2f& scale, const Vector2f& center)
+{
+	const Vector2f v = (scale * (p - center));
+	return Vector2f((rot.x * v.x) - (rot.y * v.y) + center.x, (rot.y * v.x) + (rot.x * v.y) + center.y);
+}
+
+inline float WrapValue(float x, float min, float max, float amount)
+{
+	if(x < min) x += amount;
+	else if(x > max) x -= amount;
+	return x;
+}
+
+inline float WrapAngle(float radians) //Wraps radian value towards -PI and PI.
+{
+	return WrapValue(radians, -ZC_PI, ZC_PI, ZC_TWOPI);
+}
+
+inline float WrapDegrees(float degrees) //Wraps degree value towards 0 and 360.
+{
+	return WrapValue(degrees, 0.0f, 360.0f, 360.0f);
+}
+
+inline float ClampAngle(float radians) // Clamps radian value between -PI and PI
+{
+	radians = fmodf(radians, ZC_TWOPI);
+	return WrapAngle(radians);
+}
+
+inline float ClampDegrees(float degrees) // Clamps degree value between 0 and 360
+{
+	return fmodf(degrees, 360.f);
+}
+
+inline float FindDeltaAngle(float a, float b)
+{
+	return WrapAngle(b - a);
+}
+
+float DistancetoLineSegment(const Vector2f& a, const Vector2f& b, const Vector2f& point);
+
+
+
 
 
 

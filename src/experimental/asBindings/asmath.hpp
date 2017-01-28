@@ -1,15 +1,26 @@
 
 #include "ZCMath.h"
+#include "Utility.h"
 
 #include <angelscript.h>
 
 
 namespace ScriptMath
 {
-	float __cdecl Fractionf(float v)
+	float Fractionf(float v)
 	{
 		float intPart;
 		return modff(v, &intPart);
+	}
+
+	int32 Rand(int32 x)
+	{
+		return x ? rand() % x : 0;
+	}
+
+	int32 Rand(int low, int high)
+	{
+		return low + Rand((1 + high) - low);
 	}
 }
 
@@ -25,14 +36,18 @@ void ScriptRegistrar::RegisterMathFunctions(asIScriptEngine* engine)
 	/// Floating-Vector2i
 	//////////////////////////////////////////////////////////////////////////
 
+	// Random Functions
+	r = engine->RegisterGlobalFunction("int Rand(int)", asFUNCTIONPR(Rand, (int32), int32), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("int Rand(int, int)", asFUNCTIONPR(Rand, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
+
 	// Utility Functions
-	r = engine->RegisterGlobalFunction("float Min(float)", asFUNCTIONPR(Min, (float, float), float), asCALL_CDECL); Assert(r >= 0);
-	r = engine->RegisterGlobalFunction("float Max(float)", asFUNCTIONPR(Max, (float, float), float), asCALL_CDECL); Assert(r >= 0);
-	r = engine->RegisterGlobalFunction("int Min(int)", asFUNCTIONPR(Min, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
-	r = engine->RegisterGlobalFunction("int Max(int)", asFUNCTIONPR(Max, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("float Min(float, float)", asFUNCTIONPR(Min, (float, float), float), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("float Max(float, float)", asFUNCTIONPR(Max, (float, float), float), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("int Min(int, int)", asFUNCTIONPR(Min, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("int Max(int, int)", asFUNCTIONPR(Max, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
 
 	r = engine->RegisterGlobalFunction("int Clamp(int, int, int)", asFUNCTIONPR(Clamp, (int32, int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
-	r = engine->RegisterGlobalFunction("float Clamp(float)", asFUNCTIONPR(Clamp, (float, float, float), float), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("float Clamp(float, float, float)", asFUNCTIONPR(Clamp, (float, float, float), float), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("float Clamp01(float)", asFUNCTIONPR(Clamp01, (float), float), asCALL_CDECL); Assert(r >= 0);
 
 	r = engine->RegisterGlobalFunction("float ToDegrees(float)", asFUNCTIONPR(ToDegrees, (float), float), asCALL_CDECL); Assert(r >= 0);
@@ -73,7 +88,6 @@ void ScriptRegistrar::RegisterMathFunctions(asIScriptEngine* engine)
 	r = engine->RegisterGlobalFunction("float Fraction(float)", asFUNCTIONPR(Fractionf, (float), float), asCALL_CDECL); Assert(r >= 0);
 
 }
-
 
 
 namespace ScriptBindings
@@ -388,26 +402,87 @@ void ScriptRegistrar::RegisterMathDependencies(asIScriptEngine* engine)
 }
 
 
+//todo: not math!
 namespace ScriptBindings
 {
-	void ScriptAssert(const std::string& str)
+	void ScriptPrintCString(const char* str)
 	{
-		//todo: aseert failed. log it, etc...
-		printf(str.c_str());
+		//ScriptLog(str);
 	}
 
-	void ScriptPrint(const std::string& str)
+	void ScriptPrintString(const std::string& str)
 	{
-		printf(str.c_str());
+		ScriptPrintCString(str.c_str());
+	}
+
+	void ScriptPrintInt(int32 value)
+	{
+		char buffer[32];
+		Itoa(value, buffer);
+		ScriptPrintCString(buffer);
+	}
+
+	void ScriptPrintFloat(float value)
+	{
+		char buffer[32];
+		Ftoa(value, buffer);
+		ScriptPrintCString(buffer);
+	}
+
+	void ScriptAssert(const std::string& str)
+	{
+		ScriptPrintCString(str.c_str());
+
+		asIScriptContext* scriptContext = asGetActiveContext();
+		if(scriptContext)
+		{
+			scriptContext->SetException(str.c_str());
+			//LogScriptException(scriptContext);
+		}
+	}
+
+	// Only valid if called from a script object instance and not a callback function.
+	void Waitframes(int32 frames)
+	{
+		asIScriptContext *scriptContext = asGetActiveContext();
+		if(scriptContext)
+		{
+			Script* activeScript = (Script*)scriptContext->GetUserData();
+			if(activeScript)
+			{
+				activeScript->Suspend(frames);
+
+				// Suspend the script object.
+				// The script class will be notified and resume execution on a later frame.
+				scriptContext->Suspend(); 
+			}
+			else //script-writer messed up.
+			{
+				ScriptLog("Waitframes(%i) error dummy-head!", frames);
+			}
+		}
+	}
+
+	void CreateGlobalScript(void** p)
+	{
 	}
 }
+
 
 void ScriptRegistrar::RegisterGlobalFunctions(asIScriptEngine* engine)
 {
 	int r;
 	using namespace ScriptBindings;
 
-	r = engine->RegisterGlobalFunction("void Print(const string& in)", asFUNCTION(ScriptPrint), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("void Print(int)", asFUNCTION(ScriptPrintInt), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("void Print(float)", asFUNCTION(ScriptPrintFloat), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("void Print(const string& in)", asFUNCTION(ScriptPrintString), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("void ThrowException(const string& in)", asFUNCTION(ScriptAssert), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("void Waitframes(int)", asFUNCTION(Waitframes), asCALL_CDECL); Assert(r >= 0);
+
+
+
+	//r = engine->RegisterGlobalFunction("void CreateGlobalScript(ref @)", asFUNCTION(CreateGlobalScript), asCALL_CDECL); Assert(r >= 0);
+
 }
 

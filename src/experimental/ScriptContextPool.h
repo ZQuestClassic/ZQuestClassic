@@ -4,7 +4,7 @@
 #include "Config.h"
 
 
-#define MAX_SCRIPT_CONTEXTS 512 // should be bigger later on.
+#define MAX_SCRIPT_CONTEXTS 512 * 4 // should be bigger later on.
 
 /// @asGlobalReusableContext
 ///   Context that is always available for general use as long as the following conditions are met:

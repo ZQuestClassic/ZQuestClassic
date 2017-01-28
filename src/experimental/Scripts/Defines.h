@@ -7,6 +7,8 @@
 
 // Built-Ins...(for now)
 #define String string
+#define vec2 Vector2f
+#define vec2i Vector2i
 
 // Constants
 #define EPSILON			0.00001f
@@ -32,22 +34,28 @@
 #define M_SQRT1_2  0.707106781186547524401
 
 
+// Built-In Function Registrar. (This is my current documentation!!!)
+#define Print(s) Print(s)
+#define Waitframes(x) Waitframes(x)
+#define Waitframe() Waitframes(1)
+#define ThrowException(x) ThrowException(x)
+#define Rand Rand
+
 
 // Debugging Macros
 #ifdef DEBUG
 	#define Log(x) Print(x)
 	#define DebugPrint(x) Print(x)
-	#define Assert(x) if(!x){ ThrowException(#x); }
+	#define Assert(x) if(!x){ ThrowException(#x); } // Assert is a debug mode only macro.
 	#define throw(x) ThrowException(x);
 
 #else
 	#define Log(x)
 	#define Assert(x)
 	#define DebugPrint(x)
-	#define throw(x) ThrowException(x);
+	#define throw(x) ThrowException(x); // Throws even when not in debug mode.
 
 #endif
-
 
 
 
