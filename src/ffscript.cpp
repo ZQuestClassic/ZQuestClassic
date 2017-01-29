@@ -353,7 +353,7 @@ public:
     
     static INLINE int checkSFXID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, WAV_COUNT-1, str);
+        return checkBounds(ID, 0, Backend::sfx->numSlots()-1, str);
     }
     
     static INLINE int checkBounds(const long n, const long boundlow, const long boundup, const char * const funcvar)
@@ -4577,7 +4577,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             if(en->bgsfx != newSFX)
             {
                 en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-                cont_sfx(newSFX);
+                Backend::sfx->loop(newSFX,128);
                 en->bgsfx = newSFX;
             }
         }
@@ -6440,7 +6440,7 @@ void do_sfx(const bool v)
     if(BC::checkSFXID(ID, "Game->PlaySound") != SH::_NoError)
         return;
         
-    sfx(ID);
+    Backend::sfx->play(ID,128);
 }
 
 void do_midi(bool v)

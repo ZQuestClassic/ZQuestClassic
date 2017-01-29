@@ -36,6 +36,7 @@
 #include "sfx.h"
 #include "md5.h"
 #include <sstream>
+#include "backend/AllBackends.h"
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -8050,9 +8051,6 @@ int read_one_script(PACKFILE *f, zquestheader *, int , word s_version, word , in
     return 0;
 }
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern unsigned char customsfxflag[WAV_COUNT>>3];
-extern int sfxdat;
 extern DATAFILE *sfxdata;
 const char *old_sfx_string[Z35] =
 {
@@ -8069,7 +8067,6 @@ const char *old_sfx_string[Z35] =
     "Spell rocket up", "Sword spin attack", "Splash", "Summon magic", "Sword tapping",
     "Sword tapping (secret)", "Whistle whirlwind", "Cane of Byrna orbit"
 };
-char *sfx_string[WAV_COUNT];
 
 int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -8112,78 +8109,128 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         
     /* End highly unorthodox updating thing */
     
-    int wavcount = WAV_COUNT;
-    
-    if(s_version < 6)
-        wavcount = 128;
-        
-    unsigned char tempflag[WAV_COUNT>>3];
-    
-    if(s_version < 4)
+    int16_t wavcount = 0;    
+
+    if (s_version < 7)
+        wavcount = s_version < 6 ? 128 : 256;
+    else if (!p_igetw(&wavcount, f, true))
     {
-        memset(tempflag, 0xFF, WAV_COUNT>>3);
+        return qe_invalid;
+    }
+
+    std::vector<bool> iscustom;
+    iscustom.resize(wavcount);
+     
+    if (s_version < 7)
+    {
+        unsigned char tempflag[256 >> 3];
+
+        if (s_version < 4)
+        {
+            memset(tempflag, 0xFF, 256 >> 3);
+        }
+        else
+        {
+            if (s_version < 6)
+                memset(tempflag, 0, 256 >> 3);
+
+            for (int i = 0; i < (wavcount >> 3); i++)
+            {
+                if (!p_getc(&tempflag[i], f, true))
+                {
+                    return qe_invalid;
+                }
+            }
+        }
+
+        for (int i = 1; i < wavcount; i++)
+        {
+            iscustom[i] = get_bit(tempflag, i-1) != 0;
+        }
     }
     else
     {
-        if(s_version < 6)
-            memset(tempflag, 0, WAV_COUNT>>3);
-            
-        for(int i=0; i<(wavcount>>3); i++)
+        for (int i = 1; i < wavcount; i++)
         {
-            p_getc(&tempflag[i], f, true);
-        }
-        
-    }
-    
-    if(keepdata)
-        memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
-        
-    if(s_version>4)
-    {
-        for(int i=1; i<WAV_COUNT; i++)
-        {
-            if(keepdata)
-            {
-                sprintf(sfx_string[i],"s%03d",i);
-                
-                if((i<Z35))
-                    strcpy(sfx_string[i], old_sfx_string[i-1]);
-            }
-            
-            if((get_bit(tempflag, i-1) == 0) || i>=wavcount)
-                continue;
-                
-            char tempname[36];
-            
-            if(!pfread(tempname, 36, f, keepdata))
+            char tmpcustom;
+            if (!p_getc(&tmpcustom, f, true))
             {
                 return qe_invalid;
             }
-            
+            iscustom[i] = (tmpcustom != 0);
+        }
+    }
+    
+    std::vector<std::string> sfxnames;
+    sfxnames.resize(wavcount);
+
+    if(s_version>4)
+    {
+        for(int i=1; i<wavcount; i++)
+        {
             if(keepdata)
             {
-                strcpy(sfx_string[i], tempname);
+                char tmpn[5];
+                sprintf(tmpn,"s%03d",i);
+                
+                if ((i < Z35))
+                    sfxnames[i] = std::string(old_sfx_string[i - 1]);
+                else
+                    sfxnames[i] = std::string(tmpn);
+            }
+            
+            if(!iscustom[i])
+                continue;
+                
+            if (s_version < 7)
+            {
+                char tempname[36];
+
+                if (!pfread(tempname, 36, f, keepdata))
+                {
+                    return qe_invalid;
+                }
+                sfxnames[i] = std::string(tempname);
+            }
+            else
+            {
+                int16_t namelen;
+                if (!p_igetw(&namelen, f, true))
+                {
+                    return qe_invalid;
+                }
+                char *tempname = new char[namelen+1];
+                if (!pfread(tempname, namelen+1, f, true))
+                {
+                    delete[] tempname;
+                    return qe_invalid;
+                }
+                if (tempname[namelen] != '\0')
+                    return qe_invalid;
+
+                sfxnames[i] = std::string(tempname);
+                delete[] tempname;
             }
         }
     }
     else
     {
-        if(keepdata)
+        for(int i=1; i<wavcount; i++)
         {
-            for(int i=1; i<WAV_COUNT; i++)
-            {
-                sprintf(sfx_string[i],"s%03d",i);
+            char tempn[5];
+            sprintf(tempn,"s%03d",i);
                 
-                if(i<Z35)
-                    strcpy(sfx_string[i], old_sfx_string[i-1]);
-            }
+            if (i < Z35)
+                sfxnames[i] = std::string(old_sfx_string[i - 1]);
+            else
+                sfxnames[i] = std::string(tempn);
         }
     }
     
-    //finally...  section data
+    //finally...  sample data
     for(int i=1; i<wavcount; i++)
     {
-        if(get_bit(tempflag, i-1) == 0)
+        if (!iscustom[i])
             continue;
             
         if(!p_igetl(&dummy,f,true))
@@ -8245,6 +8292,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         //old-style, non-portable loading (Bad Allegro! Bad!!) -DD
         if(s_version < 2)
         {
+            al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n", i);
             if(!pfread(temp_sample.data, len,f,keepdata))
             {
                 return qe_invalid;
@@ -8271,84 +8319,13 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         if(keepdata)
         {
-            if(customsfxdata[i].data!=NULL)
-            {
-//        delete [] customsfxdata[i].data;
-                zc_free(customsfxdata[i].data);
-            }
-            
-//      customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-            int len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-            customsfxdata[i].data = calloc(len2,1);
-            customsfxdata[i].bits = temp_sample.bits;
-            customsfxdata[i].stereo = temp_sample.stereo;
-            customsfxdata[i].freq = temp_sample.freq;
-            customsfxdata[i].priority = temp_sample.priority;
-            customsfxdata[i].len = temp_sample.len;
-            customsfxdata[i].loop_start = temp_sample.loop_start;
-            customsfxdata[i].loop_end = temp_sample.loop_end;
-            customsfxdata[i].param = temp_sample.param;
-            int cpylen = len2;
-            
-            if(s_version<3)
-            {
-                cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
-                al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
-            }
-            
-            memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
-            
-            
+            Backend::sfx->loadSample(i, temp_sample, sfxnames[i]);            
         }
         
         zc_free(temp_sample.data);
     }
     
-    sfxdat=0;
     return 0;
-}
-
-void setupsfx()
-{
-    for(int i=1; i<WAV_COUNT; i++)
-    {
-        sprintf(sfx_string[i],"s%03d",i);
-        
-        if(i<Z35)
-        {
-            strcpy(sfx_string[i], old_sfx_string[i-1]);
-        }
-        
-        memset(customsfxflag, 0, WAV_COUNT>>3);
-        
-        int j=i;
-        
-        if(i>Z35)
-        {
-            i=Z35;
-        }
-        
-        SAMPLE *temp_sample = (SAMPLE *)sfxdata[i].dat;
-        
-        if(customsfxdata[j].data!=NULL)
-        {
-//    delete [] customsfxdata[j].data;
-            zc_free(customsfxdata[j].data);
-        }
-        
-//    customsfxdata[j].data = new byte[(temp_sample->bits==8?1:2)*temp_sample->len];
-        customsfxdata[j].data = calloc((temp_sample->bits==8?1:2)*(temp_sample->stereo == 0 ? 1 : 2)*temp_sample->len,1);
-        customsfxdata[j].bits = temp_sample->bits;
-        customsfxdata[j].stereo = temp_sample->stereo;
-        customsfxdata[j].freq = temp_sample->freq;
-        customsfxdata[j].priority = temp_sample->priority;
-        customsfxdata[j].len = temp_sample->len;
-        customsfxdata[j].loop_start = temp_sample->loop_start;
-        customsfxdata[j].loop_end = temp_sample->loop_end;
-        customsfxdata[j].param = temp_sample->param;
-        memcpy(customsfxdata[j].data, (temp_sample->data), (temp_sample->bits==8?1:2)*(temp_sample->stereo==0 ? 1 : 2)*temp_sample->len);
-        i=j;
-    }
 }
 
 extern char *guy_string[eMAXGUYS];
@@ -13861,7 +13838,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 
                 if(keepall&&!get_bit(skip_flags, skip_sfx))
                 {
-                    setupsfx();
+                    Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
                 }
                 
                 if(keepall&&!get_bit(skip_flags, skip_itemdropsets))
@@ -14189,8 +14166,8 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         box_out("Setting Up Default Sound Effects...");
         
-        if(keepall&&!get_bit(skip_flags, skip_sfx))
-            setupsfx();
+        if (keepall && !get_bit(skip_flags, skip_sfx))
+            Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
             
         box_out("okay.");
         box_eol();

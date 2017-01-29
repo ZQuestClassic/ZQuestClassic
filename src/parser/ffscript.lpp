@@ -123,7 +123,7 @@ eweapon					{doLines(); return EWEAPON;}
 
 \"[^\"]+\"				{ doLines();yylval = new ASTString(yytext, yylloc); return QUOTEDSTRING; }
 
-\'[^\']?\'				{ doLines();yylval = new ASTString(yytext, yylloc); return SINGLECHAR; }
+\'[^\']\'				{ doLines();yylval = new ASTString(yytext, yylloc); return SINGLECHAR; }
 
 {WS}					{ ; }
 

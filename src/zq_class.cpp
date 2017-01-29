@@ -42,6 +42,7 @@
 #include "zq_strings.h"
 #include "zq_subscr.h"
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 using std::string;
 using std::pair;
@@ -10161,9 +10162,6 @@ int write_one_script(PACKFILE *f, zquestheader *Header, int i, const ZAsmScript 
     new_return(0);
 }
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern unsigned char customsfxflag[WAV_COUNT>>3];
-
 int writesfx(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -10202,77 +10200,95 @@ int writesfx(PACKFILE *f, zquestheader *Header)
         }
         
         writesize=0;
-        
-        for(int i=0; i<WAV_COUNT>>3; i++)
+
+        int sfxcount = Backend::sfx->numSlots();
+        if (!p_iputw(sfxcount, f))
         {
-            if(!p_putc(customsfxflag[i],f))
+            new_return(5);
+        }
+                
+        for(int i=1; i<sfxcount; i++)
+        {
+            const SFXSample *sample = Backend::sfx->getSample(i);
+            char iscustom = 0;
+            if (sample && sample->iscustom)
+                iscustom = 1;
+            if(!p_putc(iscustom,f))
             {
-                new_return(5);
+                new_return(6);
             }
         }
         
-        for(int i=1; i<WAV_COUNT; i++)
+        for(int i=1; i<sfxcount; i++)
         {
-            if(get_bit(customsfxflag, i-1) == 0)
+            const SFXSample *sample = Backend::sfx->getSample(i);
+            if(!sample || !sample->iscustom)
                 continue;
-                
-            if(!pfwrite(sfx_string[i], 36, f))
+
+            int namelen = sample->name.length();
+            if (!p_iputw(namelen, f))
             {
-                new_return(5);
+                new_return(7);
+            }
+                
+            if(!pfwrite((void *)sample->name.c_str(), namelen+1, f))
+            {
+                new_return(8);
             }
         }
         
-        for(int i=1; i<WAV_COUNT; i++)
+        for(int i=1; i<sfxcount; i++)
         {
-            if(get_bit(customsfxflag, i-1) == 0)
+            const SFXSample *sample = Backend::sfx->getSample(i);
+            if(!sample || !sample->iscustom)
                 continue;
                 
-            if(!p_iputl(customsfxdata[i].bits,f))
+            if(!p_iputl(sample->sample.bits,f))
             {
                 new_return(5);
             }
             
-            if(!p_iputl(customsfxdata[i].stereo,f))
+            if(!p_iputl(sample->sample.stereo,f))
             {
                 new_return(6);
             }
             
-            if(!p_iputl(customsfxdata[i].freq,f))
+            if(!p_iputl(sample->sample.freq,f))
             {
                 new_return(7);
             }
             
-            if(!p_iputl(customsfxdata[i].priority,f))
+            if(!p_iputl(sample->sample.priority,f))
             {
                 new_return(8);
             }
             
-            if(!p_iputl(customsfxdata[i].len,f))
+            if(!p_iputl(sample->sample.len,f))
             {
                 new_return(9);
             }
             
-            if(!p_iputl(customsfxdata[i].loop_start,f))
+            if(!p_iputl(sample->sample.loop_start,f))
             {
                 new_return(10);
             }
             
-            if(!p_iputl(customsfxdata[i].loop_end,f))
+            if(!p_iputl(sample->sample.loop_end,f))
             {
                 new_return(11);
             }
             
-            if(!p_iputl(customsfxdata[i].param,f))
+            if(!p_iputl(sample->sample.param,f))
             {
                 new_return(12);
             }
             
             //de-endianfy the data
-            int wordstowrite = (customsfxdata[i].bits==8?1:2)*(customsfxdata[i].stereo==0?1:2)*customsfxdata[i].len/sizeof(word);
+            int wordstowrite = (sample->sample.bits==8?1:2)*(sample->sample.stereo==0?1:2)*sample->sample.len/sizeof(word);
             
             for(int j=0; j<wordstowrite; j++)
             {
-                if(!p_iputw(((word *)customsfxdata[i].data)[j],f))
+                if(!p_iputw(((word *)sample->sample.data)[j],f))
                 {
                     new_return(13);
                 }

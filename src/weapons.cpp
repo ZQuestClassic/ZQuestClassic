@@ -28,6 +28,7 @@
 #include "pal.h"
 #include "link.h"
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -271,7 +272,7 @@ weapon::~weapon()
     switch(id)
     {
     case wWind:
-        stop_sfx(WAV_ZN1WHIRLWIND);
+        Backend::sfx->stop(WAV_ZN1WHIRLWIND);
         break;
         
     case ewBrang:
@@ -282,7 +283,7 @@ weapon::~weapon()
     case wCByrna:
         if(parentitem>=0)
         {
-            stop_sfx(itemsbuf[parentitem].usesound);
+            Backend::sfx->stop(itemsbuf[parentitem].usesound);
         }
         
         break;
@@ -291,7 +292,7 @@ weapon::~weapon()
     case wFSparkle:
         if(parentitem>=0 && itemsbuf[parentitem].family==itype_cbyrna)
         {
-            stop_sfx(itemsbuf[parentitem].usesound);
+            Backend::sfx->stop(itemsbuf[parentitem].usesound);
         }
         
         break;
@@ -301,7 +302,7 @@ weapon::~weapon()
 // This should be done elsewhere
 void setScreenLimits(weapon& w)
 {
-	bool isDgn = isdungeon();
+	bool isDgn = isdungeon() != 0;
 	int border = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 
 	if (w.id>wEnemyWeapons && w.id != ewBrang)
@@ -476,7 +477,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         if(parentitem>-1)
         {
-            cont_sfx(itemsbuf[parentitem].usesound);
+            Backend::sfx->loop(itemsbuf[parentitem].usesound,128);
         }
         
         break;
@@ -503,7 +504,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(defaultw);
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
-            cont_sfx(WAV_ZN1WHIRLWIND);
+            Backend::sfx->loop(WAV_ZN1WHIRLWIND,128);
             
         clk=-14;
         step=2;
@@ -1246,7 +1247,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         {
         case pDINSFIREROCKET:
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int)x);
+                Backend::sfx->play(WAV_ZN1ROCKETUP,(int)x);
                 
             LOADGFX(itemsbuf[parentitem].wpn);
             step = 4;
@@ -1254,7 +1255,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             
         case pDINSFIREROCKETRETURN:
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int)x);
+                Backend::sfx->play(WAV_ZN1ROCKETDOWN,(int)x);
                 
             LOADGFX(itemsbuf[parentitem].wpn2);
             step = 4;
@@ -1276,7 +1277,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             LOADGFX(itemsbuf[parentitem].wpn);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int)x);
+                Backend::sfx->play(WAV_ZN1ROCKETUP,(int)x);
                 
             step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
@@ -1286,7 +1287,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             LOADGFX(itemsbuf[parentitem].wpn2);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int)x);
+                Backend::sfx->play(WAV_ZN1ROCKETDOWN,(int)x);
                 
             step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
@@ -1604,7 +1605,7 @@ bool weapon::animate(int)
         z = LinkZ();
         
         if(parentitem>-1)
-            sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
+            Backend::sfx->loop(itemsbuf[parentitem].usesound,int(x));
     }
     break;
     
@@ -1875,11 +1876,11 @@ bool weapon::animate(int)
         }
         else if(LinkAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
         {
-            stop_sfx(WAV_ZN1WHIRLWIND);
+            Backend::sfx->stop(WAV_ZN1WHIRLWIND);
             dead=1;
         }
         else if(get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true,false);
+            Backend::sfx->loop(WAV_ZN1WHIRLWIND,int(x));
             
         if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))
             goto mirrors;
@@ -1997,8 +1998,8 @@ bool weapon::animate(int)
         
         if(clk==(misc-1) && step==0)
     {
-            sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-                itemsbuf[parentitem].usesound,pan(int(x)));
+            Backend::sfx->play((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
+                itemsbuf[parentitem].usesound,int(x));
                 
             if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
             {
@@ -2199,7 +2200,7 @@ bool weapon::animate(int)
     {
         if(dead==0)  // Set by ZScript
         {
-            stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
+            Backend::sfx->stop(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
             break;
         }
         
@@ -2254,7 +2255,7 @@ bool weapon::animate(int)
         if(clk==0)                                            // delay a frame
         {
             ++clk;
-            sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true);
+            Backend::sfx->loop(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,int(x));
             return false;
         }
         
@@ -2306,8 +2307,8 @@ bool weapon::animate(int)
                     CatchBrang();
                 }
                 
-                if(Lwpns.idCount(wBrang)<=1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
-                    stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
+                if (Lwpns.idCount(wBrang) <= 1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
+                    Backend::sfx->stop(itemsbuf[parentitem > -1 ? parentitem : current_item_id(itype_brang)].usesound);
                     
                 /*if (dummy_bool[0])
                 {
@@ -2325,7 +2326,7 @@ bool weapon::animate(int)
             seekLink();
         }
         
-        sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
+        Backend::sfx->loop(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,int(x));
         
         break;
     }
@@ -2450,7 +2451,7 @@ bool weapon::animate(int)
             
             if(parentitem>-1)
             {
-                sfx(itemsbuf[parentitem].usesound,pan(int(x)),true);
+                Backend::sfx->loop(itemsbuf[parentitem].usesound,int(x));
             }
             
             return false;
@@ -2483,7 +2484,7 @@ bool weapon::animate(int)
                 
                 if(parentitem>-1)
                 {
-                    stop_sfx(itemsbuf[parentitem].usesound);
+                    Backend::sfx->stop(itemsbuf[parentitem].usesound);
                 }
                 
                 if(dragging!=-1)
@@ -2497,7 +2498,7 @@ bool weapon::animate(int)
         
         if(parentitem>-1)
         {
-            sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
+            Backend::sfx->loop(itemsbuf[parentitem].usesound,int(x));
         }
         
         if(blocked())
@@ -3039,7 +3040,7 @@ mirrors:
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
                 //if (step!=0)
-                sfx(WAV_BRANG, pan(int(x)), true);
+                Backend::sfx->loop(WAV_BRANG, int(x));
                 //else
                 ;//stop_sfx(WAV_BRANG);
             }
@@ -3103,7 +3104,7 @@ mirrors:
                 {
                     if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
                     {
-                        stop_sfx(WAV_BRANG);
+                        Backend::sfx->stop(WAV_BRANG);
                     }
                     
                     return true;
@@ -3155,7 +3156,7 @@ mirrors:
         {
             if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
             {
-                stop_sfx(WAV_BRANG);
+                Backend::sfx->stop(WAV_BRANG);
             }
             
             dead = 1;
@@ -3480,7 +3481,7 @@ offscreenCheck:
                 (itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
         {
             Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
-            sfx(WAV_FIRE,pan(x));
+            Backend::sfx->play(WAV_FIRE,x);
         }
         
         break;

@@ -52,7 +52,6 @@
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
 
-static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
 extern FONT *lfont;
@@ -309,13 +308,10 @@ void load_game_configs()
     
     digi_volume = get_config_int(cfg_sect,"digi",248);
     midi_volume = get_config_int(cfg_sect,"midi",255);
-    sfx_volume = get_config_int(cfg_sect,"sfx",248);
-    emusic_volume = get_config_int(cfg_sect,"emusic",248);
-    pan_style = get_config_int(cfg_sect,"pan",1);
+    emusic_volume = get_config_int(cfg_sect,"emusic",248);    
     // 1 <= zcmusic_bufsz <= 128
     zcmusic_bufsz = vbound(get_config_int(cfg_sect,"zcmusic_bufsz",64),1,128);
     volkeys = get_config_int(cfg_sect,"volkeys",0)!=0;
-    zc_vsync = get_config_int(cfg_sect,"vsync",0);
     Throttlefps = get_config_int(cfg_sect,"throttlefps",1)!=0;
     TransLayers = get_config_int(cfg_sect,"translayers",1)!=0;
     SnapshotFormat = get_config_int(cfg_sect,"snapshot_format",3);
@@ -380,10 +376,10 @@ void load_game_configs()
     ss_density = vbound(get_config_int(cfg_sect,"ss_density",3), 0, 6);
     heart_beep = get_config_int(cfg_sect,"heart_beep",1)!=0;
     gui_colorset = get_config_int(cfg_sect,"gui_colorset",0);
-    sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
 
 	Backend::graphics->readConfigurationOptions("zelda");
+    Backend::sfx->readConfigurationOptions("zelda");
 }
 
 void save_game_configs()
@@ -440,12 +436,9 @@ void save_game_configs()
     
     set_config_int(cfg_sect,"digi",digi_volume);
     set_config_int(cfg_sect,"midi",midi_volume);
-    set_config_int(cfg_sect,"sfx",sfx_volume);
-    set_config_int(cfg_sect,"emusic",emusic_volume);
-    set_config_int(cfg_sect,"pan",pan_style);
+    set_config_int(cfg_sect,"emusic",emusic_volume);    
     set_config_int(cfg_sect,"zcmusic_bufsz",zcmusic_bufsz);
     set_config_int(cfg_sect,"volkeys",(int)volkeys);
-    set_config_int(cfg_sect,"vsync",zc_vsync);
     set_config_int(cfg_sect,"throttlefps", (int)Throttlefps);
     set_config_int(cfg_sect,"translayers",(int)TransLayers);
     set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
@@ -465,7 +458,6 @@ void save_game_configs()
     set_config_int(cfg_sect,"ss_density",ss_density);
     set_config_int(cfg_sect,"heart_beep",heart_beep);
     set_config_int(cfg_sect,"gui_colorset",gui_colorset);
-    set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
     set_config_int(cfg_sect,"force_exit",forceExit); //Deprecate
     
@@ -484,6 +476,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
 
 	Backend::graphics->writeConfigurationOptions("zelda");
+    Backend::sfx->writeConfigurationOptions("zelda");
     
     flush_config_file();
 }
@@ -3598,7 +3591,7 @@ void f_Quit(int type)
         return;
         
     music_pause();
-    pause_all_sfx();
+    Backend::sfx->pauseAll();
     system_pal();
 	Backend::mouse->setCursorVisibility(true);
     clear_keybuf();
@@ -3620,7 +3613,7 @@ void f_Quit(int type)
     
     if(Quit)
     {
-        kill_sfx();
+        Backend::sfx->stopAll();
         music_stop();
         clear_to_color(screen,BLACK);
     }
@@ -3629,7 +3622,7 @@ void f_Quit(int type)
         game_pal();
 		Backend::mouse->setCursorVisibility(false);
         music_resume();
-        resume_all_sfx();
+        Backend::sfx->resumeAll();
     }
     
     eat_buttons();
@@ -4219,8 +4212,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
 #endif
     
     //textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
-    if(sfxcleanup)
-        sfx_cleanup();
+    if (sfxcleanup)
+        Backend::sfx->garbageCollect();
 }
 
 void zapout()
@@ -4715,7 +4708,7 @@ const char *key_str[] =
     "scroll lock",    "number lock",    "caps lock",      "MAX"
 };
 
-const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
+const char *pan_str[4] = { "MONO", "   1/2", "   3/4", "FULL" };
 //extern int zcmusic_bufsz;
 
 static char str_a[80],str_b[80],str_s[80],str_m[16],str_l[16],str_r[16],str_p[16],str_ex1[16],str_ex2[16],str_ex3[16],str_ex4[16];
@@ -4768,8 +4761,8 @@ int d_stringloader(int msg,DIALOG *d,int c)
             sprintf(str_b,"%3d",digi_volume);
             sprintf(str_l,"%3d",emusic_volume);
             sprintf(str_m,"%3dKB",zcmusic_bufsz);
-            sprintf(str_r,"%3d",sfx_volume);
-            strcpy(str_s,pan_str[pan_style]);
+            sprintf(str_r,"%3d",Backend::sfx->getVolume());
+            strcpy(str_s,pan_str[Backend::sfx->getPanStyle()]);
             break;
             
         case 4:
@@ -4800,20 +4793,20 @@ int set_vol(void *dp3, int d2)
         break;
         
     case 3:
-        sfx_volume    = zc_min(d2<<3,255);
+        Backend::sfx->setVolume(zc_min(d2<<3,255));
         break;
     }
     
     // text_mode(vc(11));
-    textprintf_right_ex(screen,is_large() ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+    textprintf_right_ex(screen,is_large() ? lfont_l : font, ((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]," %3d",zc_min(d2<<3,255));
     return D_O_K;
 }
 
 int set_pan(void *dp3, int d2)
 {
-    pan_style = vbound(d2,0,3);
+    Backend::sfx->setPanStyle(vbound(d2,0,3));
     // text_mode(vc(11));
-    textout_right_ex(screen,is_large() ? lfont_l : font, pan_str[pan_style],((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_right_ex(screen,is_large() ? lfont_l : font, pan_str[Backend::sfx->getPanStyle()],((int*)dp3)[1],((int*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     return D_O_K;
 }
 
@@ -5272,7 +5265,7 @@ int onGoToComplete()
     system_pal();
 	Backend::mouse->setCursorVisibility(true);
     music_pause();
-    pause_all_sfx();
+    Backend::sfx->pauseAll();
 	onGoTo();
     eat_buttons();
     
@@ -5282,7 +5275,7 @@ int onGoToComplete()
 	Backend::mouse->setCursorVisibility(false);
     game_pal();
     music_resume();
-    resume_all_sfx();
+    Backend::sfx->resumeAll();
     return D_O_K;
 }
 
@@ -5917,9 +5910,8 @@ int onSound()
     int d = digi_volume;
     int e = emusic_volume;
     int b = zcmusic_bufsz;
-    int s = sfx_volume;
-    int p = pan_style;
-    pan_style = vbound(pan_style,0,3);
+    int s = Backend::sfx->getVolume();
+    int p = Backend::sfx->getPanStyle();
     
     sound_dlg[0].dp2=lfont;
 
@@ -5941,8 +5933,8 @@ int onSound()
 	sound_cpy[16].d2 = (digi_volume==255) ? 32 : digi_volume>>3;
 	sound_cpy[17].d2 = (emusic_volume==255) ? 32 : emusic_volume>>3;
 	sound_cpy[18].d2 = zcmusic_bufsz;
-	sound_cpy[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
-	sound_cpy[20].d2 = pan_style;
+	sound_cpy[19].d2 = (Backend::sfx->getVolume()==255) ? 32 : Backend::sfx->getVolume() >>3;
+	sound_cpy[20].d2 = Backend::sfx->getPanStyle();
     
     int ret = zc_popup_dialog(sound_cpy,1);
 
@@ -5950,14 +5942,7 @@ int onSound()
     
     if(ret==2)
     {
-        master_volume(digi_volume,midi_volume);
-        
-        for(int i=0; i<WAV_COUNT; ++i)
-        {
-            //allegro assertion fails when passing in -1 as voice -DD
-            if(sfx_voice[i] > 0)
-                voice_set_volume(sfx_voice[i], sfx_volume);
-        }
+        master_volume(digi_volume,midi_volume);        
     }
     else
     {
@@ -5965,8 +5950,8 @@ int onSound()
         digi_volume   = d;
         emusic_volume = e;
         zcmusic_bufsz = b;
-        sfx_volume    = s;
-        pan_style     = p;
+        Backend::sfx->setVolume(s);
+        Backend::sfx->setPanStyle(p);
     }
     
     return D_O_K;
@@ -7244,7 +7229,7 @@ void System()
 {
     mouse_down= Backend::mouse->anyButtonClicked();
     music_pause();
-    pause_all_sfx();
+    Backend::sfx->pauseAll();
     
     system_pal();
 	Backend::mouse->setCursorVisibility(true);
@@ -7372,7 +7357,7 @@ void System()
 	
     if(Quit)
     {
-        kill_sfx();
+        Backend::sfx->stopAll();
         music_stop();
         clear_to_color(screen,BLACK);
     }
@@ -7381,7 +7366,7 @@ void System()
         game_pal();
 		Backend::mouse->setCursorVisibility(false);
         music_resume();
-        resume_all_sfx();
+        Backend::sfx->resumeAll();
         
         if(rc)
             ringcolor(false);
@@ -7692,9 +7677,6 @@ void master_volume(int dv,int mv)
 // -1 = voice not allocated
 void Z_init_sound()
 {
-    for(int i=0; i<WAV_COUNT; i++)
-        sfx_voice[i]=-1;
-        
     for(int i=0; i<ZC_MIDI_COUNT; i++)
         tunes[i].data = (MIDI*)mididata[i].dat;
         
@@ -7702,198 +7684,6 @@ void Z_init_sound()
         tunes[ZC_MIDI_COUNT+j].data=NULL;
         
     master_volume(digi_volume,midi_volume);
-}
-
-// returns number of voices currently allocated
-int sfx_count()
-{
-    int c=0;
-    
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            ++c;
-            
-    return c;
-}
-
-// clean up finished samples
-void sfx_cleanup()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-// allocates a voice for the sample "wav_index" (index into zelda.dat)
-// if a voice is already allocated (and/or playing), then it just returns true
-// Returns true:  voice is allocated
-//         false: unsuccessful
-bool sfx_init(int index)
-{
-    // check index
-    if(index<=0 || index>=WAV_COUNT)
-        return false;
-        
-    if(sfx_voice[index]==-1)
-    {
-        if(sfxdat)
-        {
-            if(index<Z35)
-            {
-                sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[index].dat);
-            }
-            else
-            {
-                sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[Z35].dat);
-            }
-        }
-        else
-        {
-            sfx_voice[index]=allocate_voice(&customsfxdata[index]);
-        }
-        
-        voice_set_volume(sfx_voice[index], sfx_volume);
-    }
-    
-    return sfx_voice[index] != -1;
-}
-
-// plays an sfx sample
-void sfx(int index,int pan,bool loop, bool restart)
-{
-    if(!sfx_init(index))
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-    
-    int pos = voice_get_position(sfx_voice[index]);
-    
-    if(restart) voice_set_position(sfx_voice[index],0);
-    
-    if(pos<=0)
-        voice_start(sfx_voice[index]);
-}
-
-// true if sfx is allocated
-bool sfx_allocated(int index)
-{
-    return (index>0 && index<WAV_COUNT && sfx_voice[index]!=-1);
-}
-
-// start it (in loop mode) if it's not already playing,
-// otherwise adjust it to play in loop mode -DD
-void cont_sfx(int index)
-{
-    if(!sfx_init(index))
-    {
-        return;
-    }
-    
-    if(voice_get_position(sfx_voice[index])<=0)
-    {
-        voice_set_position(sfx_voice[index],0);
-        voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
-        voice_start(sfx_voice[index]);
-    }
-    else
-    {
-        adjust_sfx(index, 128, true);
-    }
-}
-
-// adjust parameters while playing
-void adjust_sfx(int index,int pan,bool loop)
-{
-    if(index<=0 || index>=WAV_COUNT || sfx_voice[index]==-1)
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-}
-
-// pauses a voice
-void pause_sfx(int index)
-{
-    if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_stop(sfx_voice[index]);
-}
-
-// resumes a voice
-void resume_sfx(int index)
-{
-    if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_start(sfx_voice[index]);
-}
-
-// pauses all active voices
-void pause_all_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_stop(sfx_voice[i]);
-}
-
-// resumes all paused voices
-void resume_all_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_start(sfx_voice[i]);
-}
-
-// stops an sfx and deallocates the voice
-void stop_sfx(int index)
-{
-    if(index<=0 || index>=WAV_COUNT)
-        return;
-        
-    if(sfx_voice[index]!=-1)
-    {
-        deallocate_voice(sfx_voice[index]);
-        sfx_voice[index]=-1;
-    }
-}
-
-// Stops SFX played by Link's item of the given family
-void stop_item_sfx(int family)
-{
-    int id=current_item_id(family);
-    
-    if(id<0)
-        return;
-        
-    stop_sfx(itemsbuf[id].usesound);
-}
-
-void kill_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-int pan(int x)
-{
-    switch(pan_style)
-    {
-    case 0:
-        return 128;
-        
-    case 1:
-        return vbound((x>>1)+68,0,255);
-        
-    case 2:
-        return vbound(((x*3)>>2)+36,0,255);
-    }
-    
-    return vbound(x,0,255);
 }
 
 /*******************************/

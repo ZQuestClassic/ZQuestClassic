@@ -2275,7 +2275,7 @@ static bool register_name()
                     }
                 }
                 
-                sfx(WAV_CHIME);
+                Backend::sfx->play(WAV_CHIME,128);
             }
             else if(rRight())
             {
@@ -2292,7 +2292,7 @@ static bool register_name()
                     }
                 }
                 
-                sfx(WAV_CHIME);
+                Backend::sfx->play(WAV_CHIME,128);
             }
             else if(rUp())
             {
@@ -2303,7 +2303,7 @@ static bool register_name()
                     grid_y=letter_grid_height-1;
                 }
                 
-                sfx(WAV_CHIME);
+                Backend::sfx->play(WAV_CHIME,128);
             }
             else if(rDown())
             {
@@ -2314,7 +2314,7 @@ static bool register_name()
                     grid_y=0;
                 }
                 
-                sfx(WAV_CHIME);
+                Backend::sfx->play(WAV_CHIME,128);
             }
             else if(rBbtn())
             {
@@ -2335,7 +2335,7 @@ static bool register_name()
                     x=0;
                 }
                 
-                sfx(WAV_PLACE);
+                Backend::sfx->play(WAV_PLACE,128);
             }
             else if(rSbtn())
             {
@@ -2372,7 +2372,7 @@ static bool register_name()
                         ++x;
                     }
                     
-                    sfx(WAV_PLACE);
+                    Backend::sfx->play(WAV_PLACE,128);
                 }
                 else
                 {
@@ -2390,7 +2390,7 @@ static bool register_name()
                                 --x;
                             }
                             
-                            sfx(WAV_CHIME);
+                            Backend::sfx->play(WAV_CHIME,128);
                         }
                         
                         break;
@@ -2399,7 +2399,7 @@ static bool register_name()
                         if(x<8 && name[zc_min(x,7)])
                         {
                             ++x;
-                            sfx(WAV_CHIME);
+                            Backend::sfx->play(WAV_CHIME,128);
                         }
                         
                         break;
@@ -2435,7 +2435,7 @@ static bool register_name()
                                 name[i]=name[i+1];
                             }
                             
-                            sfx(WAV_OUCH);
+                            Backend::sfx->play(WAV_OUCH,128);
                         }
                         
                         break;
@@ -2446,7 +2446,7 @@ static bool register_name()
                             name[i]=name[i+1];
                         }
                         
-                        sfx(WAV_OUCH);
+                        Backend::sfx->play(WAV_OUCH,128);
                         break;
                         
                     case KEY_ESC:
@@ -2596,7 +2596,7 @@ static bool copy_file(int file)
         iconbuffer[savecnt]=iconbuffer[file];
         ++savecnt;
         listpos=((savecnt-1)/3)*3;
-        sfx(WAV_SCALE);
+        Backend::sfx->play(WAV_SCALE,128);
         select_mode();
         return true;
     }
@@ -2620,7 +2620,7 @@ static bool delete_save(int file)
         if(listpos>savecnt-1)
             listpos=zc_max(listpos-3,0);
             
-        sfx(WAV_OUCH);
+        Backend::sfx->play(WAV_OUCH,128);
         select_mode();
         return true;
     }
@@ -3046,10 +3046,11 @@ static void select_game()
     bool done=false;
     refreshpal=true;
     
+    Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
+
     do
     {
         load_control_state();
-        sfxdat=1;
         blit(scrollbuf,framebuf,0,0,0,0,256,224);
         list_saves();
         draw_cursor(pos,mode);
@@ -3131,7 +3132,7 @@ static void select_game()
             if(pos<0)
                 pos=(mode)?2:5;
                 
-            sfx(WAV_CHIME);
+            Backend::sfx->play(WAV_CHIME,128);
         }
         
         if(rDown())
@@ -3141,20 +3142,20 @@ static void select_game()
             if(pos>((mode)?2:5))
                 pos=0;
                 
-            sfx(WAV_CHIME);
+            Backend::sfx->play(WAV_CHIME,128);
         }
         
         if(rLeft() && listpos>2)
         {
             listpos-=3;
-            sfx(WAV_CHIME);
+            Backend::sfx->play(WAV_CHIME,128);
             refreshpal=true;
         }
         
         if(rRight() && listpos+3<savecnt)
         {
             listpos+=3;
-            sfx(WAV_CHIME);
+            Backend::sfx->play(WAV_CHIME,128);
             refreshpal=true;
         }
         
@@ -3279,7 +3280,7 @@ void titlescreen(int lsave)
 
 void game_over(int type)
 {
-    kill_sfx();
+    Backend::sfx->stopAll();
     music_stop();
     clear_to_color(screen,BLACK);
     loadfullpal();
@@ -3319,7 +3320,7 @@ void game_over(int type)
         {
             if(rUp())
             {
-                sfx(WAV_CHINK);
+                Backend::sfx->play(WAV_CHINK,128);
                 pos=(pos==0)?2:pos-1;
                 
                 if(type)
@@ -3330,7 +3331,7 @@ void game_over(int type)
             
             if(rDown())
             {
-                sfx(WAV_CHINK);
+                Backend::sfx->play(WAV_CHINK,128);
                 pos=(pos+1)%3;
                 
                 if(type)
@@ -3458,7 +3459,7 @@ void save_game(bool savepoint)
 
 bool save_game(bool savepoint, int type)
 {
-    kill_sfx();
+    Backend::sfx->stopAll();
     //music_stop();
     clear_to_color(screen,BLACK);
     loadfullpal();
@@ -3496,13 +3497,13 @@ bool save_game(bool savepoint, int type)
             {
                 if(rUp())
                 {
-                    sfx(WAV_CHINK);
+                    Backend::sfx->play(WAV_CHINK,128);
                     pos=(pos==0)?2:pos-1;
                 }
                 
                 if(rDown())
                 {
-                    sfx(WAV_CHINK);
+                    Backend::sfx->play(WAV_CHINK,128);
                     pos=(pos+1)%3;
                 }
                 
@@ -3610,13 +3611,13 @@ bool save_game(bool savepoint, int type)
                     {
                         if(rUp())
                         {
-                            sfx(WAV_CHINK);
+                            Backend::sfx->play(WAV_CHINK,128);
                             pos2=(pos2==0)?1:pos2-1;
                         }
                         
                         if(rDown())
                         {
-                            sfx(WAV_CHINK);
+                            Backend::sfx->play(WAV_CHINK,128);
                             pos2=(pos2+1)%2;
                         }
                         

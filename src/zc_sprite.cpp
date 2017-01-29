@@ -18,6 +18,7 @@
 #include "zelda.h"
 #include "maps.h"
 #include "tiles.h"
+#include "backend/AllBackends.h"
 
 /*
 void sprite::check_conveyor()
@@ -214,7 +215,7 @@ bool movingblock::animate(int index)
         {
             if(hiddenstair(0,true))
             {
-                sfx(tmpscr->secretsfx);
+                Backend::sfx->play(tmpscr->secretsfx,128);
             }
             else
             {
@@ -224,7 +225,7 @@ bool movingblock::animate(int index)
                         (combobuf[bcombo].type == cPUSH_HW) ||
                         (combobuf[bcombo].type == cPUSH_HW2) || trigger)
                 {
-                    sfx(tmpscr->secretsfx);
+                    Backend::sfx->play(tmpscr->secretsfx,128);
                 }
             }
             

@@ -23,6 +23,7 @@
 #include "zelda.h"
 #include "zdefs.h"
 #include "mem_debug.h"
+#include "backend/AllBackends.h"
 
 #include <queue>
 
@@ -232,7 +233,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
         misc = ++fairy_cnt;
         
         if(addfairy(x, y, itemsbuf[id].misc3, misc))
-            sfx(itemsbuf[id].usesound);
+            Backend::sfx->play(itemsbuf[id].usesound,128);
     }
     
     /*for(int j=0;j<8;j++)

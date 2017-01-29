@@ -189,7 +189,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         7
-#define V_SFX              6
+#define V_SFX              7
 #define V_FAVORITES        1
 
 /*
@@ -281,7 +281,6 @@ extern bool fake_pack_writing;
 #define ZQ_MIDIS2       1                                   //4 bytes
 #define ZQ_CHEATS2       5
 #define ZQ_MAXDATA      20
-#define WAV_COUNT       256
 
 #define MAXSCREENS 128
 #define MAXCUSTOMMIDIS192b177 32                                  // uses bit string for midi flags, so 32 bytes

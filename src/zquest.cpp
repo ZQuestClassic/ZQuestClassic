@@ -628,9 +628,6 @@ refInfo ffcScriptData[32];
 
 extern std::string zScript;
 char zScriptBytes[512];
-SAMPLE customsfxdata[WAV_COUNT];
-unsigned char customsfxflag[WAV_COUNT>>3];
-int sfxdat=1;
 
 extern void deallocate_biic_list();
 
@@ -2270,19 +2267,7 @@ int onDefault_SFX()
     if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
     {
         saved=false;
-        SAMPLE *temp_sample;
-        
-        for(int i=1; i<WAV_COUNT; i++)
-        {
-            temp_sample = (SAMPLE *)sfxdata[zc_min(i,Z35)].dat;
-            change_sfx(&customsfxdata[i], temp_sample);
-            sprintf(sfx_string[i],"s%03d",i);
-            
-            if(i<Z35)
-                strcpy(sfx_string[i], old_sfx_string[i-1]);
-                
-            memset(customsfxflag, 0, WAV_COUNT>>3);
-        }
+        Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     }
     
     return D_O_K;
@@ -5162,13 +5147,17 @@ void refresh(int flags)
         
         if(Map.CurrScr()->oceansfx != 0)
         {
-            sprintf(buf,"Ambient Sound: %s",sfx_string[Map.CurrScr()->oceansfx]);
+            const SFXSample *oceansample = Backend::sfx->getSample(Map.CurrScr()->oceansfx);
+            const char *sndname = oceansample == NULL ? "(None)" : oceansample->name.c_str();
+            sprintf(buf,"Ambient Sound: %s", sndname);
             show_screen_error(buf,i++,vc(15));
         }
         
         if(Map.CurrScr()->bosssfx != 0)
         {
-            sprintf(buf,"Boss Roar Sound: %s",sfx_string[Map.CurrScr()->bosssfx]);
+            const SFXSample *bosssample = Backend::sfx->getSample(Map.CurrScr()->bosssfx);
+            const char *sndname = bosssample == NULL ? "(None)" : bosssample->name.c_str();
+            sprintf(buf,"Boss Roar Sound: %s", sndname);
             show_screen_error(buf,i++,vc(15));
         }
         
@@ -10440,12 +10429,12 @@ const char *sfxlist(int index, int *list_size)
 {
     if(index>=0)
     {
-        bound(index,0,WAV_COUNT-1);
-        sprintf(sfx_str_buf,"%d: %s",index, index ? sfx_string[index] : "(None)");
+        const SFXSample *sample = Backend::sfx->getSample(index);
+        snprintf(sfx_str_buf, 42, "%d: %s",index, sample ? sample->name.c_str() : "(None)");
         return sfx_str_buf;
     }
     
-    *list_size=WAV_COUNT;
+    *list_size=Backend::sfx->numSlots();
     return NULL;
 }
 
@@ -19520,7 +19509,7 @@ int onCompileScript()
                             
                             fclose(tempfile);
 							int scriptid = it->first + 1;
-							if(scriptid+1 > scripts.ffscripts.size())
+							if(scriptid+1 > (int)scripts.ffscripts.size())
 								scripts.ffscripts.resize(scriptid + 1);
 							scripts.ffscripts[scriptid].version = ZASM_VERSION;
 							scripts.ffscripts[scriptid].type = SCRIPT_FFC;
@@ -19573,7 +19562,7 @@ int onCompileScript()
                             fclose(tempfile);
 
 							int scriptid = it->first;
-							if(scriptid +1 > scripts.globalscripts.size())
+							if(scriptid +1 > (int)scripts.globalscripts.size())
 								scripts.globalscripts.resize(scriptid + 1);
 							scripts.globalscripts[scriptid].version = ZASM_VERSION;
 							scripts.globalscripts[scriptid].type = SCRIPT_GLOBAL;
@@ -19626,7 +19615,7 @@ int onCompileScript()
 							fclose(tempfile);
 
 							int scriptid = it->first+1;
-							if (scriptid + 1 > scripts.itemscripts.size())
+							if (scriptid + 1 > (int)scripts.itemscripts.size())
 								scripts.itemscripts.resize(scriptid + 1);
 							scripts.itemscripts[scriptid].version = ZASM_VERSION;
 							scripts.itemscripts[scriptid].type = SCRIPT_ITEM;
@@ -20015,8 +20004,9 @@ static DIALOG sfxlist_dlg[] =
     { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     60,   163,  41,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     126,  163,  41,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     192,  163,  41,   21,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "New", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -20036,6 +20026,12 @@ int select_sfx(const char *prompt,int index)
 		Backend::mouse->setWheelPosition(0);
 		delete[] sfxlist_cpy;
         return -1;
+    }
+    if(ret==5)
+    {
+        index = Backend::sfx->numSlots();
+        delete[] sfxlist_cpy;
+        return index;
     }
     
     index = sfxlist_cpy[2].d1;
@@ -20063,210 +20059,6 @@ static DIALOG sfx_edit_dlg[] =
 /*****  SFX  *****/
 /*****************/
 
-// array of voices, one for each sfx sample in the data file
-// 0+ = voice #
-// -1 = voice not allocated
-static int sfx_voice[WAV_COUNT];
-
-void Z_init_sound()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        sfx_voice[i]=-1;
-        
-//  master_volume(digi_volume,midi_volume);
-}
-
-// returns number of voices currently allocated
-int sfx_count()
-{
-    int c=0;
-    
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            ++c;
-            
-    return c;
-}
-
-// clean up finished samples
-void sfx_cleanup()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-// allocates a voice for the sample "wav_index" (index into zelda.dat)
-// if a voice is already allocated (and/or playing), then it just returns true
-// Returns true:  voice is allocated
-//         false: unsuccessful
-SAMPLE templist[WAV_COUNT];
-
-bool sfx_init(int index)
-{
-    // check index
-    if(index<0 || index>=WAV_COUNT)
-        return false;
-        
-    if(sfx_voice[index]==-1)
-    {
-        sfx_voice[index]=allocate_voice(&templist[index]);
-    }
-    
-    return sfx_voice[index] != -1;
-}
-
-// plays an sfx sample
-void sfx(int index,int pan,bool loop,bool restart)
-{
-    if(!sfx_init(index))
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-    
-    int pos = voice_get_position(sfx_voice[index]);
-    
-    if(restart) voice_set_position(sfx_voice[index],0);
-    
-    if(pos<=0)
-        voice_start(sfx_voice[index]);
-}
-
-// start it (in loop mode) if it's not already playing,
-// otherwise just leave it in its current position
-void cont_sfx(int index)
-{
-    if(!sfx_init(index))
-        return;
-        
-    if(voice_get_position(sfx_voice[index])<=0)
-    {
-        voice_set_position(sfx_voice[index],0);
-        voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
-        voice_start(sfx_voice[index]);
-    }
-}
-
-// adjust parameters while playing
-void adjust_sfx(int index,int pan,bool loop)
-{
-    if(index<0 || index>=WAV_COUNT || sfx_voice[index]==-1)
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-}
-
-// pauses a voice
-void pause_sfx(int index)
-{
-    if(index>=0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_stop(sfx_voice[index]);
-}
-
-// resumes a voice
-void resume_sfx(int index)
-{
-    if(index>=0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_start(sfx_voice[index]);
-}
-
-// pauses all active voices
-void pause_all_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_stop(sfx_voice[i]);
-}
-
-// resumes all paused voices
-void resume_all_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_start(sfx_voice[i]);
-}
-
-// stops an sfx and deallocates the voice
-void stop_sfx(int index)
-{
-    if(index<0 || index>=WAV_COUNT)
-        return;
-        
-    if(sfx_voice[index]!=-1)
-    {
-        deallocate_voice(sfx_voice[index]);
-        sfx_voice[index]=-1;
-    }
-}
-
-void kill_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-/*int pan(int x)
-{
-  switch(pan_style)
-  {
-    case 0: return 128;
-    case 1: return vbound((x>>1)+68,0,255);
-    case 2: return vbound(((x*3)>>2)+36,0,255);
-  }
-  return vbound(x,0,255);
-}*/
-
-
-void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
-{
-    sfx1->bits = sfx2->bits;
-    sfx1->stereo = sfx2->stereo;
-    sfx1->freq = sfx2->freq;
-    sfx1->priority = sfx2->priority;
-    sfx1->len = sfx2->len;
-    sfx1->loop_start = sfx2->loop_start;
-    sfx1->loop_end = sfx2->loop_end;
-    sfx1->param = sfx2->param;
-    
-    if(sfx1->data != NULL)
-    {
-        zc_free(sfx1->data);
-    }
-    
-    if(sfx2->data == NULL)
-        sfx1->data = NULL;
-    else
-    {
-        // When quests are saved and loaded, data is written in words.
-        // If the last byte is dropped, it'll cause the sound to end with
-        // a click. It could simply be extended and padded with 0, but
-        // that causes compatibility issues... So we'll cut off
-        // the last byte and decrease the length.
-        
-        int len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
-        
-        while(len%sizeof(word))
-        {
-            // sizeof(word) should be 2, so this doesn't really need
-            // to be a loop, but what the heck.
-            sfx1->len--;
-            len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
-        }
-        
-        sfx1->data = zc_malloc(len);
-        memcpy(sfx1->data, sfx2->data, len);
-    }
-}
-
 int onSelectSFX()
 {
     int index = select_sfx("Select SFX",0);
@@ -20285,24 +20077,31 @@ int onSelectSFX()
 
 int onEditSFX(int index)
 {
-    kill_sfx();
+    Backend::sfx->stopAll();
     stop_midi();
     set_volume(255,-1);
     int ret;
     sfx_edit_dlg[0].dp2=lfont;
-    unsigned char tempflag;
-    tempflag = get_bit(customsfxflag,index-1);
-    change_sfx(&templist[index], &customsfxdata[index]);
+
+    const SFXSample *sample = Backend::sfx->getSample(index);
     
     char sfxnumstr[50];
-    sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
+    snprintf(sfxnumstr, 50, "SFX %d: %s", index, sample == NULL ? "(None)" : sample->name.c_str());
     sfx_edit_dlg[0].dp = sfxnumstr;
     
-    char name[36];
-    strcpy(name,sfx_string[index]);
+    char *name = new char[sample == NULL ? 7 : sample->name.length() + 1];
+    strcpy(name,sample==NULL ? "(None)" : sample->name.c_str());
     sfx_edit_dlg[7].dp = name;
 
 	DIALOG *sfx_edit_cpy = resizeDialog(sfx_edit_dlg, 1.5);
+
+    SFXSample *oldsample = NULL;
+    if (sample)
+    {
+        oldsample = new SFXSample(sample->sample);
+        oldsample->iscustom = sample->iscustom;
+        oldsample->name = sample->name;
+    }
     
     do
     {
@@ -20312,32 +20111,27 @@ int onEditSFX(int index)
         {
         case 1:
             saved= false;
-            kill_sfx();
-            change_sfx(&customsfxdata[index],&templist[index]);
-            set_bit(customsfxflag,index-1,tempflag);
-            strcpy(sfx_string[index], name);
+            Backend::sfx->stopAll();
+            break;
             
         case 2:
         case 0:
             // Fall Through
-            kill_sfx();
-            
-            for(int i=1; i<WAV_COUNT; i++)
+            Backend::sfx->stopAll();                                  
+            if (oldsample)
             {
-                if(templist[i].data != NULL)
-                {
-                    zc_free(templist[i].data);
-                    templist[i].data = NULL;
-                }
+                Backend::sfx->loadSample(index, oldsample->sample, oldsample->name);
+                Backend::sfx->setIsCustom(index, oldsample->iscustom);
             }
-            
+            else
+                Backend::sfx->clearSample(index);
             break;
             
         case 3:
             if(getname("Open .WAV file", "wav", NULL,temppath, true))
             {
                 SAMPLE * temp_sample;
-                
+                packfile_password("");
                 if((temp_sample = load_wav(temppath))==NULL)
                 {
                     jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
@@ -20354,11 +20148,13 @@ int onEditSFX(int index)
                     }
                     
                     sfxtitle[j]=0;
+                    delete[] name;
+                    name = new char[strlen(sfxtitle) + 1];
                     strcpy(name,sfxtitle);
-                    kill_sfx();
-                    change_sfx(&templist[index], temp_sample);
+                    sfx_edit_cpy[7].dp = name;
+                    Backend::sfx->stopAll();
+                    Backend::sfx->loadSample(index, *temp_sample, sfxtitle);
                     destroy_sample(temp_sample);
-                    tempflag = 1;
                 }
             }
             
@@ -20366,34 +20162,27 @@ int onEditSFX(int index)
             
         case 4:
         {
-            kill_sfx();
-            
-            if(templist[index].data != NULL)
-            {
-                sfx(index, 128, false,true);
-            }
+            Backend::sfx->stopAll();
+            Backend::sfx->play(index, 128);
         }
         break;
         
         case 5:
-            kill_sfx();
+            Backend::sfx->stopAll();
             break;
             
         case 6:
-            kill_sfx();
-            
-            if(index < WAV_COUNT)
-            {
-                SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-                change_sfx(&templist[index], temp_sample);
-                tempflag = 0;
-                sprintf(name,"s%03d", index);
-                
-                if(index <Z35)
-                {
-                    strcpy(name, old_sfx_string[index-1]);
-                }
-            }
+            Backend::sfx->stopAll();
+            if (index < Z35)
+                Backend::sfx->loadDefaultSample(index, sfxdata, old_sfx_string);
+            else
+                Backend::sfx->clearSample(index);
+
+            delete[] name;
+            sample = Backend::sfx->getSample(index);
+            name = new char[sample == NULL ? 7 : sample->name.length() + 1];
+            strcpy(name, sample == NULL ? "(None)" : sample->name.c_str());
+            sfx_edit_cpy[7].dp = name;
             
             break;
         }
@@ -20401,6 +20190,9 @@ int onEditSFX(int index)
     while(ret>2);
 
 	delete[] sfx_edit_cpy;
+    delete[] name;
+    if (oldsample)
+        delete oldsample;
     
     return D_O_K;
 }
@@ -22390,12 +22182,7 @@ int main(int argc, char **argv)
         customtunes[i].data=NULL;
     }
     
-    for(int i=0; i<WAV_COUNT; i++)
-    {
-        customsfxdata[i].data=NULL;
-        sfx_string[i] = new char[36];
-        memset(sfx_string[i], 0, 36);
-    }
+    Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
     for(int i=0; i<WPNCNT; i++)
     {
@@ -22830,16 +22617,7 @@ void quit_game()
     
     al_trace("Cleaning sfx. \n");
     
-    for(int i=0; i<WAV_COUNT; i++)
-    {
-        if(customsfxdata[i].data!=NULL)
-        {
-//      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
-        }
-        
-        delete [] sfx_string[i];
-    }
+    Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
     for(int i=0; i<WPNCNT; i++)
     {

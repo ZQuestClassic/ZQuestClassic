@@ -23,6 +23,7 @@
 #include "defdata.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "backend/AllBackends.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -328,7 +329,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     
     if(bgsfx>-1)
     {
-        cont_sfx(bgsfx);
+        Backend::sfx->loop(bgsfx,128);
     }
     
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
@@ -519,21 +520,15 @@ void enemy::stop_bgsfx(int index)
     if(bgsfx<=0)
         return;
         
-    // Look for other enemies with the same bgsfx
-    for(int i=0; i<guys.Count(); i++)
-    {
-        if(i!=index && ((enemy*)guys.spr(i))->bgsfx==bgsfx)
-            return;
-    }
-    
-    stop_sfx(bgsfx);
+    Backend::sfx->unloop(bgsfx);
 }
 
 
 // to allow for different sfx on defeating enemy
 void enemy::death_sfx()
 {
-    if(deadsfx > 0) sfx(deadsfx,pan(int(x)));
+    if(deadsfx > 0) 
+        Backend::sfx->play(deadsfx,x);
 }
 
 void enemy::move(fix dx,fix dy)
@@ -633,7 +628,7 @@ void enemy::FireBreath(bool seeklink)
     }
     
     addEwpn(wx,wy,z,wpn,2,wdp,seeklink ? 0xFF : wdir, getUID());
-    sfx(wpnsfx(wpn),pan(int(x)));
+    Backend::sfx->play(wpnsfx(wpn),int(x));
     
     int i=Ewpns.Count()-1;
     weapon *ew = (weapon*)(Ewpns.spr(i));
@@ -686,7 +681,7 @@ void enemy::FireWeapon()
         //fallthrough
     default:
         Ewpns.add(new weapon(x,y,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn),int(x));
         break;
         
     case e1tSLANT:
@@ -699,7 +694,7 @@ void enemy::FireWeapon()
             slant = right;
             
         Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn),int(x));
         break;
     }
     
@@ -715,7 +710,7 @@ void enemy::FireWeapon()
         Ewpns.add(new weapon(x,y,z,wpn,0,wdp,down,-1, getUID(),false));
         Ewpns.add(new weapon(x,y,z,wpn,0,wdp,left,-1, getUID(),false));
         Ewpns.add(new weapon(x,y,z,wpn,0,wdp,right,-1, getUID(),false));
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn), int(x));
         break;
         
     case e1tSUMMON: // Bat Wizzrobe
@@ -743,7 +738,7 @@ void enemy::FireWeapon()
                     ((enemy*)guys.spr(kids+i))->count_enemy = false;
             }
             
-            sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
+            Backend::sfx->play(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,int(x));
         }
         
         break;
@@ -787,7 +782,7 @@ void enemy::FireWeapon()
             
             if(summoned)
             {
-                sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
+                Backend::sfx->play(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,int(x));
             }
         }
         
@@ -866,7 +861,7 @@ int enemy::defend(int wpnId, int *power, int edef)
                 return 0;
         }
         
-        sfx(WAV_CHINK,pan(int(x)));
+        Backend::sfx->play(WAV_CHINK,int(x));
         return 1;
     }
     
@@ -875,7 +870,7 @@ int enemy::defend(int wpnId, int *power, int edef)
     case edSTUNORCHINK:
         if(*power <= 0)
         {
-            sfx(WAV_CHINK,pan(int(x)));
+            Backend::sfx->play(WAV_CHINK,int(x));
             return 1;
         }
         
@@ -888,7 +883,7 @@ int enemy::defend(int wpnId, int *power, int edef)
             return 1;
             
         stunclk=160;
-        sfx(WAV_EHIT,pan(int(x)));
+        Backend::sfx->play(WAV_EHIT,int(x));
         return 1;
         
     case edCHINKL1:
@@ -907,7 +902,7 @@ int enemy::defend(int wpnId, int *power, int edef)
         if(*power >= 8*DAMAGE_MULTIPLIER) break;
         
     case edCHINK:
-        sfx(WAV_CHINK,pan(int(x)));
+        Backend::sfx->play(WAV_CHINK,int(x));
         return 1;
         
     case edIGNOREL1:
@@ -1335,13 +1330,13 @@ hitclock:
         fading=fade_blue_poof;
     }
     
-    sfx(WAV_EHIT, pan(int(x)));
+    Backend::sfx->play(WAV_EHIT, int(x));
     
     if(hitsfx > 0)
-        sfx(hitsfx, pan(int(x)));
+        Backend::sfx->play(hitsfx, int(x));
         
     if(family==eeGUY)
-        sfx(WAV_EDEAD, pan(int(x)));
+        Backend::sfx->play(WAV_EDEAD, int(x));
         
     // Penetrating weapons
     if((wpnId==wArrow || wpnId==wBeam) && !cannotpenetrate())
@@ -4203,7 +4198,7 @@ void enemy::removearmos(int ax,int ay)
         tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
         tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
         tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
-        sfx(tmpscr->secretsfx);
+        Backend::sfx->play(tmpscr->secretsfx,128);
     }
     
     if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
@@ -4211,7 +4206,7 @@ void enemy::removearmos(int ax,int ay)
         if(!getmapflag())
         {
             additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
-            sfx(tmpscr->secretsfx);
+            Backend::sfx->play(tmpscr->secretsfx,128);
         }
     }
     
@@ -5470,7 +5465,7 @@ bool eTrap2::animate(int index)
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1TAP,pan(int(x)));
+                Backend::sfx->play(WAV_ZN1TAP,int(x));
                 
             dir=dir^1;
         }
@@ -5482,7 +5477,7 @@ bool eTrap2::animate(int index)
         if(!trapmove(dir) || clip())
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1TAP,pan(int(x)));
+                Backend::sfx->play(WAV_ZN1TAP,int(x));
                 
             dir=dir^1;
         }
@@ -6223,7 +6218,7 @@ bool eZora::animate(int index)
 //    case 35+19: addEwpn(x,y,z,ewFireball,0,d->wdp,0); break;
     case 35+19:
         addEwpn(x,y,z,wpn,2,wdp,dir,getUID());
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn),int(x));
         break;
         
     case 35+66:
@@ -6329,7 +6324,7 @@ bool eStalfos::animate(int index)
                 addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID());
                 addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID());
                 addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID());
-                sfx(wpnsfx(wpn2),pan(int(x)));
+                Backend::sfx->play(wpnsfx(wpn2),int(x));
             }
         }
         
@@ -6363,7 +6358,7 @@ bool eStalfos::animate(int index)
         }
         
         if(deadsfx > 0 && dmisc2==e2tSPLIT)
-            sfx(deadsfx,pan(int(x)));
+            Backend::sfx->play(deadsfx,int(x));
             
         return true;
     }
@@ -6634,7 +6629,7 @@ bool eStalfos::animate(int index)
     if(wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
     {
         addEwpn(x,y,z,wpn,0,wdp,dir, getUID());
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn),int(x));
         
         int i=Ewpns.Count()-1;
         weapon *ew = (weapon*)(Ewpns.spr(i));
@@ -6711,7 +6706,7 @@ bool eStalfos::animate(int index)
                 if(!fired&&(clk5>=38))
                 {
                     Ewpns.add(new weapon(x,y,z, wpn, 0, wdp, dir, -1,getUID(),false));
-                    sfx(wpnsfx(wpn),pan(int(x)));
+                    Backend::sfx->play(wpnsfx(wpn),int(x));
                     fired=true;
                 }
             }
@@ -7067,7 +7062,7 @@ void eStalfos::KillWeapon()
     
     if(wpn==ewBrang && !Ewpns.idCount(ewBrang))
     {
-        stop_sfx(WAV_BRANG);
+        Backend::sfx->stop(WAV_BRANG);
     }
 }
 
@@ -7341,7 +7336,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
     if(dmisc2 == 0)  //normal weapon
     {
         addEwpn(x,y,z,wpn,0,wdp,dir,getUID());
-        sfx(WAV_WAND,pan(int(x)));
+        Backend::sfx->play(WAV_WAND,int(x));
     }
     else if(dmisc2 == 1) // ring of fire
     {
@@ -7353,7 +7348,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
         addEwpn(x,y,z,wpn,0,wdp,r_up,getUID());
         addEwpn(x,y,z,wpn,0,wdp,l_down,getUID());
         addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
-        sfx(WAV_FIRE,pan(int(x)));
+        Backend::sfx->play(WAV_FIRE,int(x));
     }
     else if(dmisc2==2)  // summons specific enemy
     {
@@ -7379,7 +7374,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
                     ((enemy*)guys.spr(kids+i))->count_enemy = false;
             }
             
-            sfx(WAV_FIRE,pan(int(x)));
+            Backend::sfx->play(WAV_FIRE,int(x));
         }
     }
     else if(dmisc2==3)  //summon from layer
@@ -7420,7 +7415,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
             
             if(summoned)
             {
-                sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
+                Backend::sfx->play(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,int(x));
             }
         }
     }
@@ -7741,7 +7736,7 @@ int eDodongo::takehit(weapon *w)
     case wSword:
         if(stunclk)
         {
-            sfx(WAV_EHIT,pan(int(x)));
+            Backend::sfx->play(WAV_EHIT,int(x));
             hp=0;
             item_set = (misc==wSBomb) ? isSBOMB100 : isBOMB100;
             fading=0;                                           // don't flash
@@ -7749,7 +7744,7 @@ int eDodongo::takehit(weapon *w)
         }
         
     default:
-        sfx(WAV_CHINK,pan(int(x)));
+        Backend::sfx->play(WAV_CHINK,int(x));
     }
     
     return 1;
@@ -7918,7 +7913,7 @@ int eDodongo2::takehit(weapon *w)
     case wSword:
         if(stunclk)
         {
-            sfx(WAV_EHIT,pan(int(x)));
+            Backend::sfx->play(WAV_EHIT,int(x));
             hp=0;
             item_set = (misc==wSBomb) ? isSBOMB100 : isBOMB100;
             fading=0;                                           // don't flash
@@ -7926,7 +7921,7 @@ int eDodongo2::takehit(weapon *w)
         }
         
     default:
-        sfx(WAV_CHINK,pan(int(x)));
+        Backend::sfx->play(WAV_CHINK,int(x));
     }
     
     return 1;
@@ -7989,7 +7984,7 @@ bool eAquamentus::animate(int index)
         addEwpn(fbx,y,z,wpn,2,wdp,up,getUID());
         addEwpn(fbx,y,z,wpn,2,wdp,8,getUID());
         addEwpn(fbx,y,z,wpn,2,wdp,down,getUID());
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn),int(x));
     }
     
     if(clk3<-80 && !(rand()&63))
@@ -8160,15 +8155,15 @@ bool eGohma::animate(int index)
             addEwpn(x,y+2,z,wpn,3,wdp,left,getUID());
             addEwpn(x,y+2,z,wpn,3,wdp,8,getUID());
             addEwpn(x,y+2,z,wpn,3,wdp,right,getUID());
-            sfx(wpnsfx(wpn),pan(int(x)));
+            Backend::sfx->play(wpnsfx(wpn),int(x));
             break;
             
         default:
             if(dmisc1 != 1 && dmisc1 != 2)
             {
                 addEwpn(x,y+2,z,wpn,3,wdp,8,getUID());
-                sfx(wpnsfx(wpn),pan(int(x)));
-                sfx(wpnsfx(wpn),pan(int(x)));
+                Backend::sfx->play(wpnsfx(wpn),int(x));
+                Backend::sfx->play(wpnsfx(wpn),int(x));
             }
             
             break;
@@ -8288,7 +8283,7 @@ int eGohma::takehit(weapon *w)
     {
         if(!((wpnDir==up || wpnDir==l_up || wpnDir==r_up) && abs(int(x)-wpnx)<=8 && clk3>=16 && clk3<116))
         {
-            sfx(WAV_CHINK,pan(int(x)));
+            Backend::sfx->play(WAV_CHINK,int(x));
             return 1;
         }
     }
@@ -8444,7 +8439,7 @@ bool eBigDig::animate(int index)
         
         stop_bgsfx(index);
         
-        if(deadsfx > 0) sfx(deadsfx,pan(int(x)));
+        if(deadsfx > 0) Backend::sfx->play(deadsfx,int(x));
         
         return true;
     }
@@ -8571,7 +8566,7 @@ bool eGanon::animate(int index)
         if(++clk2>72 && !(rand()&3))
         {
             addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-            sfx(wpnsfx(wpn),pan(int(x)));
+            Backend::sfx->play(wpnsfx(wpn),int(x));
             clk2=0;
         }
         
@@ -8613,11 +8608,11 @@ bool eGanon::animate(int index)
         hxofs=1000;
         loadpalset(9,pSprite(spPILE));
         music_stop();
-        stop_sfx(WAV_ROAR);
+        Backend::sfx->stop(WAV_ROAR);
         
-        if(deadsfx>0) sfx(deadsfx,pan(int(x)));
+        if(deadsfx>0) Backend::sfx->play(deadsfx,int(x));
         
-        sfx(WAV_GANON);
+        Backend::sfx->play(WAV_GANON,128);
         items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
         break;
         
@@ -8634,7 +8629,7 @@ bool eGanon::animate(int index)
                 return true;
             }
             
-            sfx(WAV_CLEARED);
+            Backend::sfx->play(WAV_CLEARED,128);
             items.add(new item(x+8,y+8,(fix)0,iBigTri,ipBIGTRI,0));
             setmapflag();
         }
@@ -8674,9 +8669,9 @@ int eGanon::takehit(weapon *w)
             hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
         }
         
-        sfx(WAV_EHIT,pan(int(x)));
+        Backend::sfx->play(WAV_EHIT,int(x));
         
-        if(hitsfx>0) sfx(hitsfx,pan(int(x)));
+        if(hitsfx>0) Backend::sfx->play(hitsfx,int(x));
         
         return 1;
         
@@ -8768,7 +8763,7 @@ void getBigTri(int id2)
       200 top SHUTTER opens
       209 bottom SHUTTER opens
       */
-    sfx(itemsbuf[id2].playsound);
+    Backend::sfx->play(itemsbuf[id2].playsound,128);
     guys.clear();
     
     if(itemsbuf[id2].flags & ITEM_GAMEDATA)
@@ -9536,11 +9531,11 @@ int eManhandla::takehit(weapon *w)
         
     case wHookshot:
     case wBrang:
-        sfx(WAV_CHINK,pan(int(x)));
+        Backend::sfx->play(WAV_CHINK,int(x));
         break;
         
     default:
-        sfx(WAV_EHIT,pan(int(x)));
+        Backend::sfx->play(WAV_EHIT,int(x));
         
     }
     
@@ -9715,7 +9710,7 @@ bool esManhandla::animate(int index)
     if(!(rand()&127))
     {
         addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-        sfx(wpnsfx(wpn),pan(int(x)));
+        Backend::sfx->play(wpnsfx(wpn),int(x));
     }
     
     return enemy::animate(index);
@@ -9880,9 +9875,9 @@ bool eGleeok::animate(int index)
                 hp -= 1000 - head->hp;
                 hclk = 33;
                 
-                if(hitsfx>0) sfx(hitsfx,pan(int(head->x)));
+                if(hitsfx>0) Backend::sfx->play(hitsfx,int(head->x));
                 
-                sfx(WAV_EHIT,pan(int(head->x)));
+                Backend::sfx->play(WAV_EHIT,int(head->x));
             }
             
             head->hclk = 0;
@@ -9905,7 +9900,7 @@ bool eGleeok::animate(int index)
             int i=rand()%misc;
             enemy *head = ((enemy*)guys.spr(index+i+1));
             addEwpn(head->x,head->y,head->z,wpn,3,wdp,dir,getUID());
-            sfx(wpnsfx(wpn),pan(int(x)));
+            Backend::sfx->play(wpnsfx(wpn),int(x));
             clk2=0;
         }
     }
@@ -10474,7 +10469,7 @@ bool ePatra::animate(int index)
         if(!(rand()&127))
         {
             addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-            sfx(wpnsfx(wpn),pan(int(x)));
+            Backend::sfx->play(wpnsfx(wpn),int(x));
         }
     }
     
@@ -10537,7 +10532,7 @@ bool ePatra::animate(int index)
                     if(!(rand()&127))
                     {
                         addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
-                        sfx(wpnsfx(wpn),pan(int(x)));
+                        Backend::sfx->play(wpnsfx(wpn),int(x));
                     }
                 }
                 
@@ -11845,7 +11840,7 @@ void loadguys()
                 blockpath=true;
                 
             if(currscr<128)
-                sfx(WAV_SCALE);
+                Backend::sfx->play(WAV_SCALE,128);
                 
             addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[rand()&7], true);
             Link.Freeze();
@@ -11853,7 +11848,7 @@ void loadguys()
     }
     else if(Guy==gFAIRY)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
     {
-        sfx(WAV_SCALE);
+        Backend::sfx->play(WAV_SCALE,128);
         addguy(120,62,gFAIRY,-14,false);
     }
     
@@ -13094,7 +13089,7 @@ bool parsemsgcode()
         return true;
         
     case MSGC_SFX:
-        sfx((int)grab_next_argument(),128);
+        Backend::sfx->play((int)grab_next_argument(),128);
         return true;
         
     case MSGC_MIDI:
@@ -13417,7 +13412,7 @@ void putmsg()
                         cursor_x=0;
                     }
                     
-                    sfx(MsgStrings[msgstr].sfx);
+                    Backend::sfx->play(MsgStrings[msgstr].sfx,128);
                     textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                                   "%c",MsgStrings[msgstr].s[msgptr]);
                     cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
@@ -13503,7 +13498,7 @@ breakout:
                 //if(space) s3[0]=0;
             }
             
-            sfx(MsgStrings[msgstr].sfx);
+            Backend::sfx->play(MsgStrings[msgstr].sfx,128);
             textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
                           "%c",MsgStrings[msgstr].s[msgptr]);
             cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
@@ -13592,7 +13587,7 @@ disappear:
                     game->set_magicdrainrate(1);
                     
                 adjustmagic = false;
-                sfx(WAV_SCALE);
+                Backend::sfx->play(WAV_SCALE,128);
                 setmapflag();
             }
             
@@ -13600,7 +13595,7 @@ disappear:
             {
                 game->set_canslash(1);
                 learnslash = false;
-                sfx(WAV_SCALE);
+                Backend::sfx->play(WAV_SCALE,128);
                 setmapflag();
             }
         }

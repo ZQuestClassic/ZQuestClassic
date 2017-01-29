@@ -65,4 +65,3 @@
 #define WAV_ZN1WHIRLWIND                 59       /* SAMP */
 #define WAV_ZN2CANE                      60       /* SAMP */
 #define Z35                              61       /* SAMP */
-

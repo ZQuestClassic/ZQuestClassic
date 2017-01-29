@@ -221,18 +221,14 @@ int readsize, writesize;
 bool fake_pack_writing=false;
 combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compile. All memory from this is freed after loading the quest file.
 
-SAMPLE customsfxdata[WAV_COUNT];
-unsigned char customsfxflag[WAV_COUNT>>3];
-int sfxdat=1;
-
 int jwin_pal[jcMAX];
 int gui_colorset=0;
-byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
+byte frame_rest_suggest=0,forceExit=0;
 byte use_debug_console=0, use_win32_proc=1; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
-int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+int digi_volume,midi_volume,emusic_volume,currmidi,hasitem,whistleclk;
 bool analog_movement=true;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
 int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
@@ -796,7 +792,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     //  if(watch)
     //    Link.setClock(false);
     watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
-    stop_sfx(WAV_BRANG);
+    Backend::sfx->stop(WAV_BRANG);
     
     for(int i=0; i<176; i++)
         guygrid[i]=0;
@@ -1668,7 +1664,7 @@ void putintro()
             ++intropos;
     }
     
-    sfx(WAV_MSG);
+    Backend::sfx->play(WAV_MSG,128);
     
     
     //using the clip value to indicate the bitmap is "dirty"
@@ -1796,7 +1792,7 @@ void do_magic_casting()
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
+                Backend::sfx->play(itemsbuf[magicitem].usesound,Link.getX());
                 
             int flamemax=itemsbuf[magicitem].misc1;
             
@@ -1866,7 +1862,7 @@ void do_magic_casting()
         if(magiccastclk==96)
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
+                Backend::sfx->play(itemsbuf[magicitem].usesound,Link.getX());
                 
             Link.setDontDraw(true);
             
@@ -1993,11 +1989,11 @@ void do_magic_casting()
             {
                 if(nayruitem != -1)
                 {
-                    stop_sfx(itemsbuf[nayruitem].usesound+1);
-                    stop_sfx(itemsbuf[nayruitem].usesound);
+                    Backend::sfx->stop(itemsbuf[nayruitem].usesound+1);
+                    Backend::sfx->stop(itemsbuf[nayruitem].usesound);
                 }
                 
-                cont_sfx(itemsbuf[magicitem].usesound);
+                Backend::sfx->loop(itemsbuf[magicitem].usesound,128);
             }
             
             castnext=false;
@@ -2236,7 +2232,7 @@ void do_dcounters()
         }
         
         if((sfxon || i==1) && !lensclk && (i<2 || i==4)) // Life, Rupees and Magic
-            sfx(WAV_MSG);
+            Backend::sfx->play(WAV_MSG,128);
     }
 }
 
@@ -3025,16 +3021,7 @@ int main(int argc, char* argv[])
         }
     }
     
-    for(int i=0; i<WAV_COUNT; i++)
-    {
-        customsfxdata[i].data=NULL;
-        sfx_string[i] = new char[36];
-    }
-    
-    for(int i=0; i<WAV_COUNT>>3; i++)
-    {
-        customsfxflag[i] = 0;
-    }
+    Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
     for(int i=0; i<WPNCNT; i++)
     {
@@ -3284,7 +3271,7 @@ int main(int argc, char* argv[])
         
         }
         
-        kill_sfx();
+        Backend::sfx->stopAll();
         music_stop();
         clear_to_color(screen,BLACK);
     }
@@ -3292,7 +3279,7 @@ int main(int argc, char* argv[])
     // clean up
     
     music_stop();
-    kill_sfx();
+    Backend::sfx->stopAll();
     
 quick_quit:
     show_saving(screen);
@@ -3340,6 +3327,7 @@ void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
 	Backend::mouse->setCursorVisibility(false);
+    Backend::sfx->clearSamples();
 	Backend::shutdownBackend();
 	set_gfx_mode(GFX_TEXT, 80, 25, 0, 0);
 
@@ -3391,19 +3379,8 @@ void quit_game()
     }
     
     al_trace("SFX... \n");
-    zcmusic_exit();
-    
-    for(int i=0; i<WAV_COUNT; i++)
-    {
-        delete [] sfx_string[i];
+    zcmusic_exit();      
         
-        if(customsfxdata[i].data!=NULL)
-        {
-//      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
-        }
-    }
-    
     al_trace("Misc... \n");
     
     for(int i=0; i<WPNCNT; i++)

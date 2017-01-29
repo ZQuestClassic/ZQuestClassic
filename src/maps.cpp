@@ -1763,7 +1763,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
         hidden_entrance(0,true,single16,scombo);
     }
     
-    sfx(tmpscr->secretsfx);
+    Backend::sfx->play(tmpscr->secretsfx,128);
     
     if(tmpscr->flags6&fTRIGGERFPERM)
     {
@@ -3772,7 +3772,7 @@ void openshutters()
             tmpscr->door[i]=dOPENSHUTTER;
         }
         
-    sfx(WAV_DOOR,128);
+    Backend::sfx->play(WAV_DOOR,128);
 }
 
 void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
@@ -4463,20 +4463,20 @@ void map_bkgsfx(bool on)
 {
     if(on)
     {
-        cont_sfx(tmpscr->oceansfx);
+        Backend::sfx->loop(tmpscr->oceansfx,128);
         
         if(tmpscr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
-            cont_sfx(tmpscr->bosssfx);
+            Backend::sfx->loop(tmpscr->bosssfx,128);
     }
     else
     {
-        adjust_sfx(tmpscr->oceansfx,128,false);
-        adjust_sfx(tmpscr->bosssfx,128,false);
+        Backend::sfx->unloop(tmpscr->oceansfx);
+        Backend::sfx->unloop(tmpscr->bosssfx);
         
         for(int i=0; i<guys.Count(); i++)
         {
             if(((enemy*)guys.spr(i))->bgsfx)
-                stop_sfx(((enemy*)guys.spr(i))->bgsfx);
+                Backend::sfx->stop(((enemy*)guys.spr(i))->bgsfx);
         }
     }
 }
@@ -4623,7 +4623,7 @@ void ViewMap()
     
     
     clear_keybuf();
-    pause_all_sfx();
+    Backend::sfx->pauseAll();
     
     // view it
     int delay = 0;
@@ -4772,7 +4772,7 @@ void ViewMap()
     
     destroy_bitmap(mappic);
     
-    resume_all_sfx();
+    Backend::sfx->resumeAll();
 }
 
 int onViewMap()

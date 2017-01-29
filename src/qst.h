@@ -182,7 +182,6 @@ extern void delete_combo_aliases();
 void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int setupsubscreens();
-void setupsfx();
 void reset_itembuf(itemdata *item, int id);
 void reset_itemname(int id);
 void reset_weaponname(int i);

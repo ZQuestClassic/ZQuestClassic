@@ -5,5 +5,6 @@
 #include "GraphicsBackend.h"
 #include "MouseBackend.h"
 #include "PaletteBackend.h"
+#include "SFXBackend.h"
 
 #endif

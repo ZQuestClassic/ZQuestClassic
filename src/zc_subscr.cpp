@@ -21,6 +21,7 @@
 #include "zc_subscr.h"
 #include "link.h"
 #include "guys.h"
+#include "backend/AllBackends.h"
 
 extern LinkClass   Link;
 extern int directItem;
@@ -57,16 +58,16 @@ void dosubscr(miscQdata *misc)
     bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
     load_Sitems(misc);
     
-    pause_sfx(WAV_BRANG);
+    Backend::sfx->pause(WAV_BRANG);
     
     if(current_item_id(itype_brang)>=0)
-        pause_sfx(itemsbuf[current_item_id(itype_brang)].usesound);
+        Backend::sfx->pause(itemsbuf[current_item_id(itype_brang)].usesound);
         
     if(current_item_id(itype_hookshot)>=0)
-        pause_sfx(itemsbuf[current_item_id(itype_hookshot)].usesound);
+        Backend::sfx->pause(itemsbuf[current_item_id(itype_hookshot)].usesound);
         
-    adjust_sfx(WAV_ER,128,false);
-    adjust_sfx(WAV_MSG,128,false);
+    Backend::sfx->unloop(WAV_ER);
+    Backend::sfx->unloop(WAV_MSG);
     
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
@@ -142,7 +143,7 @@ void dosubscr(miscQdata *misc)
                 }
                 
                 Bwpn = Bweapon(Bpos);
-                sfx(WAV_PLACE);
+                Backend::sfx->play(WAV_PLACE,128);
                 
                 game->bwpn = Bpos;
                 directItemB = directItem;
@@ -157,7 +158,7 @@ void dosubscr(miscQdata *misc)
                 }
                 
                 Awpn = Bweapon(Bpos);
-                sfx(WAV_PLACE);
+                Backend::sfx->play(WAV_PLACE,128);
                 game->awpn = Bpos;
                 directItemA = directItem;
             }
@@ -170,7 +171,7 @@ void dosubscr(miscQdata *misc)
         }
         
         if(pos!=Bpos)
-            sfx(WAV_CHIME);
+            Backend::sfx->play(WAV_CHIME,128);
             
         do_dcounters();
         Link.refill();
@@ -247,7 +248,7 @@ void dosubscr(miscQdata *misc)
         memcpy(RAMpal, temppal, PAL_SIZE*sizeof(RGB));
     }
     
-    resume_sfx(WAV_BRANG);
+    Backend::sfx->resume(WAV_BRANG);
 }
 
 void markBmap(int dir, int sc)

@@ -62,7 +62,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	c->initCode.clear();
 
 	deallocateRefsUntilCount(startRefCount);
-	while (arrayRefs.size() > startRefCount)
+	while ((int)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
 }
 
@@ -573,7 +573,7 @@ void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
 
 	// Initialize.
 	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-	for (int i = 0; i < data.size(); ++i)
+	for (int i = 0; i < (int)data.size(); ++i)
 	{
 		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i * 10000L)));
 		long value = data[i] * 10000L;

@@ -83,25 +83,6 @@ enum
 /*********** Procedures **********/
 /*********************************/
 
-/*
-
-  // aglogo.cc
-  int  aglogo(BITMAP* frame);
-
-
-  // title.cc
-  void update_game_icons();
-
-  // zc_sys.cc
-  void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to);
-  void go();
-  void comeback();
-  void waitvsync(bool fast);
-  int  input_idle(bool checkmouse);
-  int  after_time();
-  void hit_close_button();
-  */
-
 bool get_debug();
 void set_debug(bool d);
 
@@ -167,15 +148,6 @@ bool is_zquest();
 bool screenIsScrolling();
 //void quit_game();
 int d_timer_proc(int msg, DIALOG *d, int c);
-
-INLINE void sfx(int index)
-{
-    sfx(index,128,false);
-}
-INLINE void sfx(int index,int pan)
-{
-    sfx(index,vbound(pan, 0, 255) ,false);
-}
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
@@ -259,7 +231,7 @@ extern bool screenscrolling;
 extern bool close_button_quit;
 extern int jwin_pal[jcMAX];
 extern int gui_colorset;
-extern byte frame_rest_suggest, forceExit, zc_vsync;
+extern byte frame_rest_suggest, forceExit;
 extern byte use_debug_console, use_win32_proc; //windows only
 
 #ifdef _SCRIPT_COUNTER
@@ -275,7 +247,7 @@ extern char *SAVE_FILE;
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
-extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+extern int digi_volume,midi_volume,emusic_volume,currmidi,hasitem,whistleclk;
 extern bool analog_movement;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
 extern int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
@@ -322,8 +294,7 @@ extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
 
-extern SAMPLE customsfxdata[WAV_COUNT];
-extern int sfxdat;
+extern const char *old_sfx_string[];
 
 #define MAX_ZCARRAY_SIZE	4096
 typedef ZCArray<long> ZScriptArray;

@@ -388,7 +388,7 @@ void dryuplake()
         {
             if(hiddenstair(0,true))
             {
-                sfx(tmpscr->secretsfx);
+                Backend::sfx->play(tmpscr->secretsfx,128);
             }
         }
     }

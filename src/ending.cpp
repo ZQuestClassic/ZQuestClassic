@@ -28,6 +28,7 @@
 #include "title.h"
 #include "subscr.h"
 #include "init.h"
+#include "backend/AllBackends.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -135,7 +136,7 @@ void putendmsg(const char *s,int x,int y,int speed,void(proc)())
         if((f%speed)==0)
         {
             if(s[i]!=' ')
-                sfx(WAV_MSG);
+                Backend::sfx->play(WAV_MSG,128);
                 
             textprintf_ex(framebuf,zfont,x+(i<<3),y,WHITE,0,"%c",s[i]);
             ++i;
@@ -209,8 +210,8 @@ void ending()
     decorations.clear();
     
     music_stop();
-    kill_sfx();
-    sfx(WAV_ZELDA);
+    Backend::sfx->stopAll();
+    Backend::sfx->play(WAV_ZELDA,128);
     Quit=0;
     
     game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
