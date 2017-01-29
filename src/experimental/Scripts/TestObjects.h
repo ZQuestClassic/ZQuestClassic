@@ -15,7 +15,7 @@ class GlobalScript1
 	//called every frame until they are defeated.
 	void OnPigeonRaid()
 	{
-		while(true){
+		//while(true){
 		vec2 v1 = 88.0f; //let's see if those bastards can do 90! :P
 		vec2 v2(0.6f, 8.46f);
 
@@ -30,13 +30,13 @@ class GlobalScript1
 		d = Max(d, v1.x);
 		d = Min(d, v1.y);
 
-		Print("Please help us! We are completely defensless against them!!! " + d + a + "\n");
-		a--;//Waitframes(a--);
+		Print("Please help us! We are completely defensless against them!!! " + a + "\n");
+		Waitframes(a--);
 		if(a == 0)
 			throw("We are doomed...\n");
 
-		Waitframe();
-		}
+		//Waitframe();
+		//}
 	}
 
 	//called once when this object is destroyed.
@@ -47,7 +47,7 @@ class GlobalScript1
 }
 
 
-void OnInit()
+void OnInit() // todo: called once on init
 {
 
 }
