@@ -407,7 +407,8 @@ namespace ScriptBindings
 {
 	void ScriptPrintCString(const char* str)
 	{
-		//ScriptLog(str);
+		//printf(str);
+		ScriptLog(str);
 	}
 
 	void ScriptPrintString(const std::string& str)

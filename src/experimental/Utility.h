@@ -50,5 +50,11 @@ inline u32 Ftoa(float value, char* bufptr) { return Dtoa((double)value, bufptr);
 
 
 
-
+//
+void VPrintf(char const* fmt, void* va);
+int VSprintf(char* buf, char const* fmt, void* va);
+int VSnprintf(char* buf, int count, char const* fmt, void* va);
+void Printf(char const* fmt, ...);
+int Sprintf(char* buf, char const* fmt, ...);
+int Snprintf(char* buf, int count, char const* fmt, ...);
 

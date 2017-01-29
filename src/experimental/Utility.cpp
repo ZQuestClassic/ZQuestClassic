@@ -255,3 +255,93 @@ u32 Dtoa(double value, char* bufptr)
 }
 
 
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+/// sprintf, snprintf, printf, vsprintf, vsnprintf, vprintf replacements
+///
+/// Maybe faster than clib versions.
+///
+/// ZC logging (including script utilities) is currently ungodly slow.
+/// *Hopefully* logging speeds in the future can get a performance boost.
+//////////////////////////////////////////////////////////////////////////
+
+#ifdef ZC_USE_STB_SPRINTF
+
+//#define STB_SPRINTF_NOUNALIGNED
+#define STB_SPRINTF_IMPLEMENTATION
+
+#include "3rdParty/stb_sprintf.h" //todo: compile this always with optimizations.
+
+void VPrintf(char const* fmt, void* va)
+{
+	char buffer[2048];
+	int n = stbsp_vsnprintf(buffer, 2048, fmt, (va_list)va);
+
+	//Todo: replace all allegro logging in zc with custom logging output at some point.
+	if(n > 0)
+		fputs(buffer, stdout); //but.. this is slow.
+}
+
+int VSprintf(char* buf, char const* fmt, void* va)
+{
+	return stbsp_vsprintf(buf, fmt, (va_list)va);
+}
+
+int VSnprintf(char* buf, int count, char const* fmt, void* va)
+{
+	return stbsp_vsnprintf(buf, count, fmt, (va_list)va);
+}
+
+#else
+
+#include <stdarg.h> //va_list
+
+void VPrintf(char const* fmt, void* va)
+{
+	vprintf(fmt, (va_list)va);
+}
+
+int VSprintf(char* buf, char const* fmt, void* va)
+{
+	return vsnprintf(buf, 2048, fmt, (va_list)va);
+}
+
+int VSnprintf(char* buf, int count, char const* fmt, void* va)
+{
+	return vsnprintf(buf, count, fmt, (va_list)va);
+}
+
+#endif //ZC_USE_STB_SPRINTF
+
+void Printf(char const* fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	VPrintf(fmt, va);
+	va_end(va);
+}
+
+int Sprintf(char* buf, char const* fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	int result = VSprintf(buf, fmt, va);
+	va_end(va);
+	return result;
+}
+
+int Snprintf(char* buf, int count, char const* fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	int result = VSnprintf(buf, count, fmt, va);
+	va_end(va);
+	return result;
+}

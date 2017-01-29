@@ -44,13 +44,13 @@ int main()
 
 		SimpleTimer timer;
 
-		const int NUM_SCRIPTS = 512 * 4;
+		const int NUM_SCRIPTS = 1;
 		Script script[NUM_SCRIPTS] = {};
 
 		for(u32 i(0); i != NUM_SCRIPTS; ++i)
 		{
 			if(!script[i].Init(&thunk))
-				ScriptLog("-----------Init failed!------------");
+				Printf("-----------Init failed!------------");
 		}
 
 		int frames=0;
@@ -72,12 +72,12 @@ int main()
 		}
 
 		SMinuteSecondsInfo msi = timer.GetElapsedTime();
-		CompileLog("Elapsed time: %i minutes, %.2f seconds.\n",
+		Printf("Elapsed time: %i minutes, %.2f seconds.\n",
 			msi.minutes,
 			msi.seconds
 		);
 
-		CompileLog("frames: %i, %.5f.\n",
+		Printf("frames: %i, %.5f.\n",
 			frames,
 			((msi.seconds + (float(msi.minutes * 60))) * 1000.0f) / float(frames)
 			);

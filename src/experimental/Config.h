@@ -96,7 +96,7 @@
 #endif
 
 //todo: log defines
-#define ScriptLog printf
-#define CompileLog printf
+#define ScriptLog Printf
+#define CompileLog Printf
 
 

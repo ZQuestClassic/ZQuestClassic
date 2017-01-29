@@ -30,6 +30,7 @@ class GlobalScript1
 		d = Max(d, v1.x);
 		d = Min(d, v1.y);
 
+		//Print(a + "\n");
 		Print("Please help us! We are completely defensless against them!!! " + a + "\n");
 		Waitframes(a--);
 		if(a == 0)

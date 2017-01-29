@@ -168,7 +168,7 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 	//
 	// TODO: This needs serious testing later on to determine the performance implications.
 	//
-	engine->SetEngineProperty(asEP_AUTO_GARBAGE_COLLECT, 1);
+	engine->SetEngineProperty(asEP_AUTO_GARBAGE_COLLECT, 0);
 
 	// asEP_BUILD_WITHOUT_LINE_CUES
 	//
@@ -218,18 +218,17 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 
 void LogScriptException(asIScriptContext* scriptContext)
 {
-	return;
 	if(scriptContext && scriptContext->GetState() == asEXECUTION_EXCEPTION)
 	{
 		asIScriptEngine* engine = scriptContext->GetEngine();
 		asIScriptFunction* scriptFunction = scriptContext->GetExceptionFunction();
 
-		ScriptLog("[Script Exception]:\n");
+		ScriptLog("[Script Exception: \"%s\"]\n", scriptContext->GetExceptionString());
 		ScriptLog("\tModule:  %s,\n", scriptFunction->GetModuleName() );
 		ScriptLog("\tFuncion: %s,\n", scriptFunction->GetDeclaration() );
 		ScriptLog("\tSection: %s,\n", scriptFunction->GetScriptSectionName() );
 		ScriptLog("\tLine:    %d,\n", scriptContext->GetExceptionLineNumber() );
-		ScriptLog("\tDesc:    %s,\n", scriptContext->GetExceptionString() );
+		//ScriptLog("\tDesc:    %s,\n", scriptContext->GetExceptionString() );
 
 		asUINT callstackSize = scriptContext->GetCallstackSize();
 		if(callstackSize > 0)

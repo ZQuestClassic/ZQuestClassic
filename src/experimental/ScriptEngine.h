@@ -110,7 +110,7 @@ struct Script
 			if(scriptObject)
 			{
 				// Set up everything else here so that update can be called without additional logic or state.
-				scriptContext->SetObject(scriptObject); //?
+	//			scriptContext->SetObject(scriptObject); //?
 
 				return true;
 			}
@@ -166,6 +166,7 @@ struct Script
 			//scriptContext->SetObject(scriptObject); //?
 			scriptStatus = ExecuteScriptContext(scriptContext); //scriptContext->Execute();
 		}
+
 		return scriptStatus;
 	}
 
