@@ -1,19 +1,13 @@
 
 #pragma once
 
-#include "Config.h"
-#include "include/angelscript.h"
+#include "ScriptCommon.h"
+#include "ScriptContextPool.h"
 
 
 GLOBAL_PTR asIScriptEngine* asScriptEngine;
 GLOBAL_PTR asIScriptModule* asDefaultScriptModule;
 
-
-struct ScriptObjectInfo
-{
-	asIScriptFunction* factoryFunction;
-	asIScriptFunction* updateFunction;
-};
 
 struct ScriptDelegateCallback
 {
@@ -23,13 +17,21 @@ struct ScriptDelegateCallback
 };
 
 
-void CallScriptFunction(asIScriptContext* scriptContext, asIScriptFunction* scriptFunction);
-void CallScriptFunctionByName(asIScriptContext* scriptContext, const char* functionDeclaration);
+//
+//struct ScriptObjectInfo
+//{
+//	asIScriptFunction* factoryFunction;
+//	asIScriptFunction* updateFunction;
+//};
+
+
+void CallGlobalScriptCallbackFunction(asIScriptFunction* scriptFunction);
+int ExecuteScriptContext(asIScriptContext* scriptContext);
+int CallScriptFunction(asIScriptContext* scriptContext, asIScriptFunction* scriptFunction);
+int CallScriptFunctionByName(asIScriptContext* scriptContext, const char* functionDeclaration);
 
 asIScriptObject* CreateScriptObject(asIScriptContext* scriptContext, asIScriptFunction* factoryFunction);
 asIScriptObject* CreateScriptObjectByName(asIScriptContext* scriptContext, const char* className, const char* factoryName);
-
-void Waitframes(int32 frames);
 
 
 void InitScriptEngine();
@@ -43,53 +45,141 @@ bool LoadAndBuildScriptFile(const char* filename, const char* moduleName = NULL,
 
 
 
+struct ScriptObjectDelcInfo
+{
+	const char* decl;
+	const char* factoryDecl;
+};
+
+struct ScriptObjectDeclAtomTable
+{
+	ScriptObjectDelcInfo entries[1024];
+
+};
+
+// Cached function pointers.
+// (This is as fast as we can get script interop, however all thunks have to be reset whenever a (re)compile happens.)
+struct ScriptClassThunk
+{
+	asIScriptFunction* factoryFunction; // Constructor. Same as "OnCreate()"
+	asIScriptFunction* logicFunction;
+	asIScriptFunction* drawFunction;
+	asIScriptFunction* collideFunction;
+	asIScriptFunction* destroyFunction;
+	asITypeInfo* objectTypeInfo;
+};
+
+
+void foo(ScriptClassThunk& thunk)
+{
+	asITypeInfo* objectTypeInfo = asDefaultScriptModule->GetTypeInfoByDecl("GlobalScript1");
+
+	if(objectTypeInfo)
+	{
+		thunk.factoryFunction = objectTypeInfo->GetFactoryByDecl("GlobalScript1 @GlobalScript1()");
+		thunk.logicFunction = objectTypeInfo->GetMethodByDecl("void OnPigeonRaid()");
+		thunk.drawFunction = objectTypeInfo->GetMethodByDecl("void OnDraw()");
+		thunk.collideFunction = objectTypeInfo->GetMethodByDecl("void OnHit()");
+		thunk.destroyFunction = objectTypeInfo->GetMethodByDecl("void OnDestroy()");
+		thunk.objectTypeInfo = objectTypeInfo;
+	}
+}
 
 
 //wip
 struct Script
 {
-	int32 waitFrames;
+	int32 wait;
 	int32 scriptStatus;
-	void* object;
 	asIScriptObject* scriptObject;
-	asIScriptFunction* updateFunction;
-	asIScriptContext* scriptContext;
-	asITypeInfo* objectType;
+	asIScriptContext* scriptContext; // this script owns the context.
+	ScriptClassThunk* pThunk; //invalidated on recompiles.
 
-
-	int32 Update()
+	/// Init returns false if no script object could be created.
+	bool Init(ScriptClassThunk* thunkPtr)
 	{
-		asScriptEngine->GetObjectTypeByIndex(777); //todo
-		updateFunction = asDefaultScriptModule->GetFunctionByDecl("void run()");
+		Assert(thunkPtr);
 
-		if(scriptStatus == asEXECUTION_SUSPENDED)
+		pThunk = thunkPtr;
+		scriptContext = scriptContextPool.AquireContext();
+		if(scriptContext)
 		{
-			if(--waitFrames > 0)
-				return asEXECUTION_SUSPENDED;
+			scriptContext->SetUserData(this);
+			scriptObject = CreateScriptObject(scriptContext, pThunk->factoryFunction);
+			if(scriptObject)
+			{
+				// Set up everything else here so that update can be called without additional logic or state.
+	//			scriptContext->SetObject(scriptObject); //?
+
+				return true;
+			}
 		}
-		else
+
+		//destroy ???
+		return false;
+	}
+
+	void Destroy()
+	{
+		if(scriptObject)
 		{
-			scriptContext->Prepare(updateFunction);
+			scriptObject->Release(); // Release the object ref so it can be garbage collected.
+			scriptObject = NULL;
 		}
 
-		scriptContext->SetObject(object);
-		scriptStatus = scriptContext->Execute();
+		if(scriptContext)
+		{
+			scriptContextPool.ReleaseContext(scriptContext);
+			scriptContext->SetUserData(NULL);
+		}
+	}
 
+	void OnDestroy()
+	{
+		if(scriptObject && pThunk->destroyFunction)
+		{
+			scriptContext->Prepare(pThunk->destroyFunction);
+			scriptContext->SetObject(scriptObject);
+
+			ExecuteScriptContext(scriptContext);
+		}
+	}
+
+	int32 OnUpdate()
+	{
+		if(scriptObject)
+		{
+			if(scriptStatus == asEXECUTION_SUSPENDED) //flag instead?
+			{
+				if(--wait > 0)
+					return asEXECUTION_SUSPENDED;
+
+				//scriptContext->Execute();
+			}
+			else
+			{
+				scriptContext->Prepare(pThunk->logicFunction);
+				scriptContext->SetObject(scriptObject); //?
+			}
+
+			//scriptContext->SetObject(scriptObject); //?
+			scriptStatus = ExecuteScriptContext(scriptContext); //scriptContext->Execute();
+		}
+
+		return scriptStatus;
 	}
 
 	// Suspend execution of this object. eg; script->Waitframes(x);
 	void Suspend(int32 frames)
 	{
-		waitFrames = uint32(frames);
+		scriptStatus = asEXECUTION_SUSPENDED;
+		wait = u32(frames); // -1 = infinite (828 days and 13 hours is accurate enough.)
 	}
 
-	void Destroy();
-
-	asIScriptObject* GetScriptObject() const { return m_ScriptObject; }
+	//asIScriptObject* GetScriptObject() const { return m_ScriptObject; }
 
 
 protected:
-	asIScriptObject* m_ScriptObject;
 
 };
 

@@ -1,12 +1,11 @@
 
 #pragma once
 
+#include "ScriptCommon.h"
+#include "Array.h"
+
 #include <string>
 #include <string.h>
-
-#include "mcpp/mcpp.h"
-#include "Array.h"
-#include "Array.h"
 
 
 struct CppPreprocessorInputArgs

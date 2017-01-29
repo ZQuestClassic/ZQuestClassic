@@ -84,3 +84,35 @@ void ArrayBaseProxy::RemoveRange(u32 position, u32 objectSize, u32 numElements)
 	count -= numElements;
 }
 
+
+void ArrayBaseProxy::EnsureCapacity(u32 objectSize, u32 numElements)
+{
+	if(!data)
+		Allocate(numElements, objectSize);
+
+	else
+	{
+		if(count + numElements > capacity)
+			Reallocate(count + numElements, objectSize);
+	}
+}
+
+
+void ArrayBaseProxy::InsertHoleOrReallocate(u32 position, u32 objectSize, u32 holeCount)
+{
+	EnsureCapacity(objectSize, holeCount);
+	InsertHole(position, objectSize, holeCount);
+}
+
+
+void ArrayBaseProxy::InsertRangeOrReallocate(u32 position, u32 objectSize, const void* p, u32 numElements)
+{
+	EnsureCapacity(objectSize, numElements);
+	InsertRange(position, objectSize, p, numElements);
+}
+
+
+
+
+
+

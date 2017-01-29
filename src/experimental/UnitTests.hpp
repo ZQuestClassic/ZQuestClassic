@@ -51,3 +51,10 @@ void UnitTest_PODArray()
 }
 
 
+void RunAllUnitTests()
+{
+	UnitTest_PODArray();
+
+}
+
+

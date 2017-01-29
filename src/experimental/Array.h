@@ -68,6 +68,11 @@ struct ArrayBaseProxy
 	void InsertHole(u32 position, u32 objectSize, u32 holeCount);
 	void InsertRange(u32 position, u32 objectSize, const void* p, u32 numElements);
 	void RemoveRange(u32 position, u32 objectSize, u32 numElements);
+
+	void EnsureCapacity(u32 objectSize, u32 numElements);
+	void InsertHoleOrReallocate(u32 position, u32 objectSize, u32 holeCount);
+	void InsertRangeOrReallocate(u32 position, u32 objectSize, const void* p, u32 numElements);
+
 };
 
 

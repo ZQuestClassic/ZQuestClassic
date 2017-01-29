@@ -16,6 +16,9 @@ void InitScriptEngine()
 	SetDefaultScriptEngineProperties(asScriptEngine);
 
 	RegisterEverything(); //////////////////////////////////////////////////////////////////////////
+
+	// todo: Optionally initialize contexts for 32 ffcs + 1 global script as per 2.50.
+	scriptContextPool.Init(0);
 }
 
 
@@ -23,12 +26,15 @@ void ShutdownScriptEngine()
 {
 	if(asScriptEngine)
 	{
+		scriptContextPool.Shutdown();
+
 		//asDefaultScriptModule->Discard();
 		asScriptEngine->ShutDownAndRelease();
 
 		asScriptEngine = NULL;
 		asDefaultScriptModule = NULL;
 	}
+
 }
 
 
@@ -66,11 +72,17 @@ void SetCallback(int32 callbackType, asIScriptFunction* callbackFunction)
 }
 
 
-void CallScriptFunction(asIScriptContext* scriptContext, asIScriptFunction* scriptFunction)
+void CallGlobalScriptFunction(asIScriptFunction* scriptFunction)
 {
-	scriptContext->Prepare(scriptFunction);
+	asIScriptContext* tempContext = AquireReusableContext();
+	CallScriptFunction(tempContext, scriptFunction);
+}
 
-	// todo: args?
+// Executes a script function of type "void f()" with error checking, exception logging, etc.
+// The script context must be fully bound and prepared before it can be executed.
+int ExecuteScriptContext(asIScriptContext* scriptContext)
+{
+	Assert(scriptContext);
 
 	int result = scriptContext->Execute();
 	switch(result)
@@ -98,13 +110,27 @@ void CallScriptFunction(asIScriptContext* scriptContext, asIScriptFunction* scri
 			break;
 		}
 	}
+
+	return result;
 }
 
 
-void CallScriptFunctionByName(asIScriptContext* scriptContext, const char* functionDeclaration)
+int CallScriptFunction(asIScriptContext* scriptContext, asIScriptFunction* scriptFunction)
+{
+	Assert(scriptFunction);
+
+	scriptContext->Prepare(scriptFunction);
+	return ExecuteScriptContext(scriptContext);
+}
+
+
+int CallScriptFunctionByName(asIScriptContext* scriptContext, const char* functionDeclaration)
 {
 	asIScriptFunction* scriptFunction = asDefaultScriptModule->GetFunctionByDecl(functionDeclaration);
-	CallScriptFunction(scriptContext, scriptFunction);
+	if(scriptFunction)
+		return CallScriptFunction(scriptContext, scriptFunction);
+
+	return -1;
 }
 
 
@@ -114,7 +140,8 @@ asIScriptObject* CreateScriptObject(asIScriptContext* scriptContext, asIScriptFu
 	scriptContext->Execute();
 
 	asIScriptObject* scriptObject = *(asIScriptObject**)scriptContext->GetAddressOfReturnValue();
-	scriptObject->AddRef();
+	if(scriptObject)
+		scriptObject->AddRef();
 
 	return scriptObject;
 }
@@ -126,28 +153,6 @@ asIScriptObject* CreateScriptObjectByName(asIScriptContext* scriptContext, const
 	asIScriptFunction* factoryFunction = typeInfo->GetFactoryByDecl(factoryName);
 
 	return CreateScriptObject(scriptContext, factoryFunction);
-}
-
-
-void Waitframes(int32 frames)
-{
-	asIScriptContext *scriptContext = asGetActiveContext();
-	if(scriptContext)
-	{
-		Script* activeScript = (Script*)scriptContext->GetUserData();
-		if(activeScript)
-		{
-			activeScript->Suspend(frames);
-
-			// Suspend the script object.
-			// The script class will be notified and resume execution on a later frame.
-			scriptContext->Suspend(); 
-		}
-		else //script-writer messed up.
-		{
-			ScriptLog("Waitframes(%i) error dummy-head!", frames);
-		}
-	}
 }
 
 
@@ -163,7 +168,7 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 	//
 	// TODO: This needs serious testing later on to determine the performance implications.
 	//
-	engine->SetEngineProperty(asEP_AUTO_GARBAGE_COLLECT, 1);
+	engine->SetEngineProperty(asEP_AUTO_GARBAGE_COLLECT, 0);
 
 	// asEP_BUILD_WITHOUT_LINE_CUES
 	//
@@ -218,37 +223,41 @@ void LogScriptException(asIScriptContext* scriptContext)
 		asIScriptEngine* engine = scriptContext->GetEngine();
 		asIScriptFunction* scriptFunction = scriptContext->GetExceptionFunction();
 
-		ScriptLog("[Script Exception]");
-		ScriptLog("\tModule:  %s,", scriptFunction->GetModuleName() );
-		ScriptLog("\tFuncion: %s,", scriptFunction->GetDeclaration() );
-		ScriptLog("\tSection: %s,", scriptFunction->GetScriptSectionName() );
-		ScriptLog("\tLine:    %d,", scriptContext->GetExceptionLineNumber() );
-		ScriptLog("\tDesc:    %s,", scriptContext->GetExceptionString() );
+		ScriptLog("[Script Exception: \"%s\"]\n", scriptContext->GetExceptionString());
+		ScriptLog("\tModule:  %s,\n", scriptFunction->GetModuleName() );
+		ScriptLog("\tFuncion: %s,\n", scriptFunction->GetDeclaration() );
+		ScriptLog("\tSection: %s,\n", scriptFunction->GetScriptSectionName() );
+		ScriptLog("\tLine:    %d,\n", scriptContext->GetExceptionLineNumber() );
+		//ScriptLog("\tDesc:    %s,\n", scriptContext->GetExceptionString() );
 
-		ScriptLog("\t[Call Stack]");
-
-		for(asUINT n = 1; n < scriptContext->GetCallstackSize(); ++n)
+		asUINT callstackSize = scriptContext->GetCallstackSize();
+		if(callstackSize > 0)
 		{
-			scriptFunction = scriptContext->GetFunction(n);
+			ScriptLog("\t[Call Stack]:\n");
 
-			if(scriptFunction)
+			for(asUINT n = 1; n < callstackSize; ++n)
 			{
-				if(scriptFunction->GetFuncType() == asFUNC_SCRIPT)
+				scriptFunction = scriptContext->GetFunction(n);
+
+				if(scriptFunction)
 				{
-					ScriptLog("\t%s, Line: %d, %s",
-						scriptFunction->GetScriptSectionName() ? scriptFunction->GetScriptSectionName() : "",
-						scriptContext->GetLineNumber(n),
-						scriptFunction->GetDeclaration()
-						);
+					if(scriptFunction->GetFuncType() == asFUNC_SCRIPT)
+					{
+						ScriptLog("\t%s, Line: %d, %s\n",
+							scriptFunction->GetScriptSectionName() ? scriptFunction->GetScriptSectionName() : "",
+							scriptContext->GetLineNumber(n),
+							scriptFunction->GetDeclaration()
+							);
+					}
+					else
+					{
+						// nested call
+					}
 				}
 				else
 				{
 					// nested call
 				}
-			}
-			else
-			{
-				// nested call
 			}
 		}
 	}
@@ -268,7 +277,7 @@ void ScriptCompilerMessageCallback(const asSMessageInfo *msg, void *param)
 		type = "INFO ";
 	}
 
-	ScriptLog("%s [line: %d, %d] : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
+	CompileLog("%s [line: %d, %d] : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 }
 
 
@@ -299,11 +308,15 @@ bool LoadAndBuildScriptFile(const char* filename,
 	// Step 1: Load and generate AS compilable scripts.
 	PODArray<ScriptFileData*> scripts = GenerateScriptSectionsFromFile(filename, 1 | 2);
 
+	// TODO ///
+	//////////////////////////////////////////////////////////////////////////
 	// Optional: Discard current module and recompile.
-	if(discardModule)
-		engine->DiscardModule(moduleName);
+	//if(discardModule)
+	//	engine->DiscardModule(moduleName);
 
-	asIScriptModule* module = engine->GetModule(moduleName, asGM_CREATE_IF_NOT_EXISTS);
+	//asIScriptModule* module = engine->GetModule(moduleName, asGM_CREATE_IF_NOT_EXISTS);
+	asIScriptModule* module = asDefaultScriptModule;
+
 	bool compileSuccess = true;
 
 	// Step 2: Load and scripts into AS.
@@ -341,7 +354,7 @@ bool LoadAndBuildScriptFile(const char* filename,
 
 	SMinuteSecondsInfo msi = totalCompileTime.GetElapsedTime();
 
-	ScriptLog("Build finished with status: %i. Elapsed time: %i minutes, %.2f seconds.\n",
+	CompileLog("Build finished with status: %i. Elapsed time: %i minutes, %.2f seconds.\n",
 		compileSuccess ? 0 : 1,
 		msi.minutes,
 		msi.seconds
@@ -350,11 +363,11 @@ bool LoadAndBuildScriptFile(const char* filename,
 	// Leftover error handling here.
 	if(compileSuccess)
 	{
-		ScriptLog("Build Succeeded.");
+		CompileLog("Build Succeeded.\n");
 	}
 	else
 	{
-		ScriptLog("Build Failed.");
+		CompileLog("Build Failed.\n");
 	}
 
 	return compileSuccess;

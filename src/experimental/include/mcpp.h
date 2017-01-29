@@ -45,21 +45,5 @@ MCPPEXTERN DLL_DECL char *  mcpp_get_mem_buffer( MCPP_OUTDEST od);
 } //extern "C"
 #endif
 
-//
-//namespace mcpp
-//{
-//
-//	inline int     lib_main( int argc, char ** argv )	{ return mcpp_lib_main( argc, argv ); }
-//	inline void    reset_def_out_func( void )			{ mcpp_reset_def_out_func(); }
-//	inline void    set_out_func(
-//                    int (* func_fputc)  ( int c, OUTDEST od ),
-//                    int (* func_fputs)  ( const char * s, OUTDEST od ),
-//                    int (* func_fprintf)( OUTDEST od, const char * format, ... )
-//					)									{ mcpp_set_out_func( func_fputc, func_fputs, func_fprintf ); }
-//	inline void    use_mem_buffers( int tf )			{ mcpp_use_mem_buffers( tf ); }
-//	inline char *  get_mem_buffer( OUTDEST od )			{ return mcpp_get_mem_buffer( od ); }
-//
-//}
-
 
 #endif  /* _MCPP_LIB_H  */

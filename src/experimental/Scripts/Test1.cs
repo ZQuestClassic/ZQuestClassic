@@ -15,11 +15,14 @@ class Test1
 {
 	int a;
 	int b;
+	int c;
+	int uninitializedVar;
 
 	Test1()
 	{
 		a = 10;
 		b = 20;
+		c = Test1Enum::A;
 	}
 
 	void run()
