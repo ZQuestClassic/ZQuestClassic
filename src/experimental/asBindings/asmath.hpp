@@ -46,6 +46,8 @@ void ScriptRegistrar::RegisterMathFunctions(asIScriptEngine* engine)
 	r = engine->RegisterGlobalFunction("int Min(int, int)", asFUNCTIONPR(Min, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("int Max(int, int)", asFUNCTIONPR(Max, (int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
 
+	r = engine->RegisterGlobalFunction("float SmoothStep(float, float, float)", asFUNCTIONPR(SmoothStep, (float, float, float), float), asCALL_CDECL); Assert(r >= 0);
+	r = engine->RegisterGlobalFunction("float Lerp(float, float, float)", asFUNCTIONPR(Lerp, (float, float, float), float), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("int Clamp(int, int, int)", asFUNCTIONPR(Clamp, (int32, int32, int32), int32), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("float Clamp(float, float, float)", asFUNCTIONPR(Clamp, (float, float, float), float), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("float Clamp01(float)", asFUNCTIONPR(Clamp01, (float), float), asCALL_CDECL); Assert(r >= 0);

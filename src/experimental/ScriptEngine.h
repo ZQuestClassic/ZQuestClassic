@@ -1,9 +1,8 @@
 
 #pragma once
 
-#include "Config.h"
+#include "ScriptCommon.h"
 #include "ScriptContextPool.h"
-#include "include/angelscript.h"
 
 
 GLOBAL_PTR asIScriptEngine* asScriptEngine;

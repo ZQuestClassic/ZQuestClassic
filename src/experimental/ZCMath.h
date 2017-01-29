@@ -20,29 +20,29 @@ struct Vector2f;
 struct Rect;
 
 
-constexpr inline float Min(float a, float b) { return (a < b) ? a : b; }
-constexpr inline float Max(float a, float b) { return (a > b) ? a : b; }
-constexpr inline int32 Min(int32 a, int32 b) { return (a < b) ? a : b; }
-constexpr inline int32 Max(int32 a, int32 b) { return (a > b) ? a : b; }
+inline float Min(float a, float b) { return (a < b) ? a : b; }
+inline float Max(float a, float b) { return (a > b) ? a : b; }
+inline int32 Min(int32 a, int32 b) { return (a < b) ? a : b; }
+inline int32 Max(int32 a, int32 b) { return (a > b) ? a : b; }
 
-constexpr inline float Clamp(float x, float min, float max) { return (x < min ? min : (x > max ? max : x)); }
-constexpr inline int32 Clamp(int32 x, int32 min, int32 max) { return (x < min ? min : (x > max ? max : x)); }
-constexpr inline float Clamp01(float x) { return (x < 0.0f ? 0.0f : (x > 1.0f ? 1.0f : x)); }
+inline float Clamp(float x, float min, float max) { return (x < min ? min : (x > max ? max : x)); }
+inline int32 Clamp(int32 x, int32 min, int32 max) { return (x < min ? min : (x > max ? max : x)); }
+inline float Clamp01(float x) { return (x < 0.0f ? 0.0f : (x > 1.0f ? 1.0f : x)); }
 
 template <class T> inline
-void Swap(T& first, T& second)
+void Swap(T& a, T& b)
 {
-	T tmp = first;
-	first = second;
-	second = tmp;
+	T tmp = a;
+	a = b;
+	b = tmp;
 }
 
-constexpr inline bool IsPowerOfTwo(int32 value)
+inline bool IsPowerOfTwo(int32 value)
 {
 	return (value && (value & (value - 1)) == 0);
 }
 
-constexpr inline int32 SnapToGrid(int32 x, int32 grid)
+inline int32 SnapToGrid(int32 x, int32 grid)
 {
 	if(grid == 0)
 		return x;
@@ -50,7 +50,7 @@ constexpr inline int32 SnapToGrid(int32 x, int32 grid)
 	return (x / grid) * grid;
 }
 
-constexpr inline float SnapToGrid(float x, float grid)
+inline float SnapToGrid(float x, float grid)
 {
 	if(grid == 0.f)
 		return x;
@@ -58,17 +58,17 @@ constexpr inline float SnapToGrid(float x, float grid)
 	return floorf(x / grid) * grid;
 }
 
-constexpr inline float ToDegrees(float radianValue)
+inline float ToDegrees(float radianValue)
 {
 	return radianValue * (180.f / 3.141592653589f);
 }
 
-constexpr inline float ToRadians(float degreeValue)
+inline float ToRadians(float degreeValue)
 {
 	return degreeValue * (3.141592653589f / 180.f);
 }
 
-constexpr inline float DistanceSquared(float x1, float y1, float x2, float y2)
+inline float DistanceSquared(float x1, float y1, float x2, float y2)
 {
 	float a = x1 - x2;
 	float b = y1 - y2;
@@ -82,6 +82,16 @@ inline float Distance(float x1, float y1, float x2, float y2)
 	return sqrtf(float((a * a) + (b * b)));
 }
 
+inline float Lerp(float x, float y, float t)
+{
+	return x + (y - x) * t;
+}
+
+inline float SmoothStep(float x, float y, float t)
+{
+	t = (t * t) * (3.0f - (2.0f * t));
+	return x + (y - x) * t;
+}
 
 
 
