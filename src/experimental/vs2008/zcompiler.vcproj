@@ -372,6 +372,58 @@
 				</FileConfiguration>
 			</File>
 		</Filter>
+		<Filter
+			Name="Bindings"
+			>
+			<File
+				RelativePath="..\asBindings\asHandle.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\asBindings\asLink.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\asBindings\asmath.hpp"
+				>
+			</File>
+			<Filter
+				Name="Legacy"
+				>
+				<File
+					RelativePath="..\asBindings\Legacy\asFFC.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\asGame.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\asItem.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\asLink.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\asNPC.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\asScreen.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\asWeapon.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\asBindings\Legacy\LegacyAddMe.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

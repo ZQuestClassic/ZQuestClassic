@@ -9,6 +9,8 @@ struct ScriptRegistrar
 	void RegisterRect(asIScriptEngine* engine);
 	void RegisterMathDependencies(asIScriptEngine* engine); // Cross-dependencies between math types goes last.
 	void RegisterGlobalFunctions(asIScriptEngine* engine); // These will need arrays and strings registered.
+
+	void RegisterLegacyLink(asIScriptEngine* engine);
 }
 static ScriptRegistrar;
 
