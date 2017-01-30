@@ -200,7 +200,6 @@ struct sWeapon
 	/// Getters
 	//////////////////////////////////////////////////////////////////////////
 
-
 	bool GetisValid()()
 	{
 		return isValid();
@@ -480,7 +479,7 @@ void ScriptRegistrar::RegisterLegacyWeapon(asIScriptEngine* engine)
 	r = engine->RegisterObjectMethod("Weapon", "int32 get_DrawXOffset()", asMETHOD(sWeapon, GetDrawXOffset), asCALL_THISCALL); Assert(r >= 0);
 	r = engine->RegisterObjectMethod("Weapon", "int32 get_DrawYOffset()", asMETHOD(sWeapon, GetDrawYOffset), asCALL_THISCALL); Assert(r >= 0);
 	r = engine->RegisterObjectMethod("Weapon", "int32 get_DrawZOffset()", asMETHOD(sWeapon, GetDrawZOffset), asCALL_THISCALL); Assert(r >= 0);
-	r = engine->RegisterObjectMethod("Weapon", "float_or_int32 get_Misc(int)", asMETHOD(sWeapon, GetMisc), asCALL_THISCALL); Assert(r >= 0);
+	r = engine->RegisterObjectMethod("Weapon", "int32 get_Misc(int)", asMETHOD(sWeapon, GetMisc), asCALL_THISCALL); Assert(r >= 0);
 
 }
 
