@@ -41,8 +41,10 @@ void ScriptContextPool::ReleaseAllUnusedContexts()
 	for(u32 i(0); i != contextCount; ++i)
 	{
 		contexts[i]->Release();
+		contexts[i] = NULL;
 	}
 
+	contextCount = 0;
 	totalAllocatedContextCount -= contextCount;
 }
 
@@ -53,10 +55,15 @@ void ScriptContextPool::Init(u32 initialCapacity)
 	Assert(!asGlobalReusableContext);
 
 	asGlobalReusableContext = asScriptEngine->CreateContext();
+	Assert(asGlobalReusableContext);
+
+	// Set this once so that every global callback can use it without extra handling.
+	asGlobalReusableContext->SetExceptionCallback(asFUNCTION(LogScriptException), NULL, asCALL_CDECL);
 
 	for(u32 i(0); i < initialCapacity; ++i)
 	{
 		contexts[i] = asScriptEngine->CreateContext();
+		Assert(contexts[i]);
 	}
 
 	contextCount = initialCapacity;
@@ -67,6 +74,8 @@ void ScriptContextPool::Init(u32 initialCapacity)
 void ScriptContextPool::Shutdown()
 {
 	asGlobalReusableContext->Release();
+	asGlobalReusableContext = NULL;
+
 	ReleaseAllUnusedContexts();
 
 	// This will trigger if any contexts were leaked or were not returned properly.

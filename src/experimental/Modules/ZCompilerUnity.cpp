@@ -20,7 +20,6 @@
 #include "../ScriptContextPool.cpp"
 #include "../ScriptRegistrar.cpp"
 
-
 #ifdef _MSC_VER
 #pragma warning ( pop )
 #endif
@@ -28,6 +27,10 @@
 
 int main()
 {
+	//lex();
+	//ConvertShit("../asBindings/LegacyBindings.cpp");
+	//return 0;
+
 	InitScriptEngine();
 
 	const char* filename = "../Scripts/TestObjects.h"; //"../Scripts/TestSyntax.h"; //"../Scripts/Test1.cs";

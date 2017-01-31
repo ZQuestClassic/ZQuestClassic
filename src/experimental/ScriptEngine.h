@@ -17,6 +17,36 @@ struct ScriptDelegateCallback
 };
 
 
+struct ScriptVariant
+{
+	enum Type
+	{
+		NONE,
+		INT,
+		FLOAT,
+		OBJECT
+	};
+
+	Type type;
+
+	union
+	{
+		int32 i;
+		float f;
+		void* obj;
+	} u;
+
+	void SetInt(int32 value) { type = INT; u.i = value; }
+	void SetFloat(float value) { type = INT; u.f = value; }
+	void SetObject(void* value) { type = INT; u.obj = value; }
+
+	int32 GetInt() const { Assert(type == INT); return u.i; }
+	float GetFloat() const { Assert(type == FLOAT); return u.f; }
+	void* GetObject() const { Assert(type == OBJECT); return u.obj; }
+
+};
+
+
 //
 //struct ScriptObjectInfo
 //{
@@ -24,6 +54,8 @@ struct ScriptDelegateCallback
 //	asIScriptFunction* updateFunction;
 //};
 
+void CallGlobalCallbackFunction(int id);
+bool CallGlobalCallbackFunctionWithArgs(u32 id, ScriptVariant* args, u32 argCount, ScriptVariant* returnValue = NULL);
 
 void CallGlobalScriptCallbackFunction(asIScriptFunction* scriptFunction);
 int ExecuteScriptContext(asIScriptContext* scriptContext);

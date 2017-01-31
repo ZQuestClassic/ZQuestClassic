@@ -38,6 +38,126 @@ void ShutdownScriptEngine()
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+
+
+
+#define MAX_SCRIPT_GLOBAL_CALLBACKS 64 //this value can be any size.
+
+asIScriptFunction* globalScriptCallbackCache[MAX_SCRIPT_GLOBAL_CALLBACKS] = {};
+//const char* globalScriptCallbackDeclarations[MAX_SCRIPT_GLOBAL_CALLBACKS] = {};
+
+// todo: Allow the quest to say whether this should be called, or not.
+// eg; scripts will dynamically set-up callbacks based on unknown factors.
+void SetupDefaultGlobalCallbackTable(const char** funcDeclarations, u32 count)
+{
+	Assert(asScriptEngine);
+	Assert(count <= MAX_SCRIPT_GLOBAL_CALLBACKS);
+
+	for(u32 i(0); i != count; ++i)
+	{
+		globalScriptCallbackCache[i] = 
+			asDefaultScriptModule->GetFunctionByDecl(funcDeclarations[i]);
+	}
+}
+
+
+void CallGlobalScriptFunction(asIScriptFunction* scriptFunction)
+{
+	asIScriptContext* tempContext = AquireReusableContext();
+	CallScriptFunction(tempContext, scriptFunction);
+}
+
+
+void CallGlobalCallbackFunction(u32 id)
+{
+	asIScriptFunction* callbackFunction = globalScriptCallbackCache[id];
+	if(callbackFunction)
+	{
+		asIScriptContext* scriptContext = AquireReusableContext();
+
+		scriptContext->Prepare(callbackFunction);
+		scriptContext->Execute(); // don't care about the result. exceptions are logged automatically.
+
+		ReleaseReusableContext(scriptContext);
+	}
+}
+
+
+bool CallGlobalCallbackFunctionWithArgs(u32 id, ScriptVariant* args, u32 argCount, ScriptVariant* returnValue)
+{
+	asIScriptFunction* callbackFunction = globalScriptCallbackCache[id];
+	if(callbackFunction)
+	{
+		asIScriptContext* scriptContext = AquireReusableContext();
+		Assert(scriptContext);
+
+		int result = scriptContext->Prepare(callbackFunction);
+		if(result == 0)
+		{
+			for(u32 i(0); i < argCount; ++i)
+			{
+				ScriptVariant& arg = args[i];
+				int setResult = -1;
+
+				if(arg.type == ScriptVariant::INT)
+					setResult = scriptContext->SetArgWord(i, arg.u.i);
+
+				if(arg.type == ScriptVariant::FLOAT)
+					setResult = scriptContext->SetArgFloat(i, arg.u.f);
+
+				if(arg.type == ScriptVariant::OBJECT)
+					setResult = scriptContext->SetArgObject(i, arg.u.obj);
+
+				if(setResult != 0)
+				{
+					const char* fs = callbackFunction->GetDeclaration();
+					if(!fs)
+						fs = "unknown";
+
+					ErrorLog("Error: CallGlobalCallbackFunction incorrect argument %d. Function signature is \"%s\"\n", i, fs);
+
+					ReleaseReusableContext(scriptContext);
+					return false;
+				}
+			}
+
+			result = scriptContext->Execute();
+			if(result == asEXECUTION_FINISHED)
+			{
+				if(returnValue)
+				{
+					if(returnValue->type == ScriptVariant::INT)
+						returnValue->u.i = scriptContext->GetReturnWord();
+
+					if(returnValue->type == ScriptVariant::FLOAT)
+						returnValue->u.f = scriptContext->GetReturnFloat();
+
+					if(returnValue->type == ScriptVariant::OBJECT)
+						returnValue->u.obj = scriptContext->GetReturnObject();
+				}
+			}
+			else
+			{
+				ReleaseReusableContext(scriptContext);
+				return false;
+			}
+
+			ReleaseReusableContext(scriptContext);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+
+
 ScriptDelegateCallback callBackList[8] = {}; //arbitrary
 
 void SetCallback(int32 callbackType, asIScriptFunction* callbackFunction)
@@ -71,12 +191,6 @@ void SetCallback(int32 callbackType, asIScriptFunction* callbackFunction)
 	}
 }
 
-
-void CallGlobalScriptFunction(asIScriptFunction* scriptFunction)
-{
-	asIScriptContext* tempContext = AquireReusableContext();
-	CallScriptFunction(tempContext, scriptFunction);
-}
 
 // Executes a script function of type "void f()" with error checking, exception logging, etc.
 // The script context must be fully bound and prepared before it can be executed.
@@ -203,7 +317,7 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 	//
 	engine->SetEngineProperty(asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE, 1);
 
-	engine->SetEngineProperty(asEP_ALLOW_UNSAFE_REFERENCES, 0); // Great optimization, but needs testing
+	engine->SetEngineProperty(asEP_ALLOW_UNSAFE_REFERENCES, 0); // Great optimization, but needs testing. Also unsafe.
 	engine->SetEngineProperty(asEP_OPTIMIZE_BYTECODE, 1);
 	engine->SetEngineProperty(asEP_REQUIRE_ENUM_SCOPE, 1);
 	engine->SetEngineProperty(asEP_ALLOW_MULTILINE_STRINGS, 1);
@@ -213,9 +327,7 @@ void SetDefaultScriptEngineProperties(asIScriptEngine* engine)
 	//engine->SetEngineProperty(asEP_ALTER_SYNTAX_NAMED_ARGS, 1); // no idea about this.
 }
 
-
-
-
+  
 void LogScriptException(asIScriptContext* scriptContext)
 {
 	if(scriptContext && scriptContext->GetState() == asEXECUTION_EXCEPTION)

@@ -98,5 +98,6 @@
 //todo: log defines
 #define ScriptLog Printf
 #define CompileLog Printf
+#define ErrorLog Printf
 
 

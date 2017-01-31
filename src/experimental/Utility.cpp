@@ -8,7 +8,17 @@
 #include <stdio.h>
 
 
+SMinuteSecondsInfo SMinuteSecondsInfo::operator +(SMinuteSecondsInfo msi)
+{
+	SMinuteSecondsInfo result = { minutes + msi.minutes, seconds + msi.seconds };
+	if(result.seconds > 60.0f)
+	{
+		result.minutes++;
+		result.seconds -= 60.0f;
+	}
 
+	return result;
+}
 void SimpleTimer::Start()
 {
 	startTime = clock();

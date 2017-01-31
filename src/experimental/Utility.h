@@ -3,18 +3,14 @@
 
 #include "Config.h"
 
+
 struct SMinuteSecondsInfo
 {
 	int32 minutes;
 	float seconds;
 
-	SMinuteSecondsInfo operator +(SMinuteSecondsInfo msi)
-	{
-		SMinuteSecondsInfo result = { minutes + msi.minutes, seconds + msi.seconds };
-		return result;
-	}
+	SMinuteSecondsInfo operator +(SMinuteSecondsInfo msi);
 };
-
 
 struct SimpleTimer
 {
