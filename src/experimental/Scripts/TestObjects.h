@@ -10,6 +10,9 @@ class GlobalScript1
 	{
 		a = Rand(60, 60); //always 60.
 		Print("Global1 standing by.\n");
+
+		SetGlobalCallback(0, @OnInit);
+		SetGlobalCallback(1, @OnRandomCallback);
 	}
 
 	//called every frame until they are defeated.
@@ -50,6 +53,11 @@ class GlobalScript1
 
 void OnInit() // todo: called once on init
 {
-
+	Print("OnInit() called.\n");
 }
 
+
+void OnRandomCallback()
+{
+	Print("OnRandomCallback() called.\n");
+}

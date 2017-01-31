@@ -26,6 +26,7 @@ void ShutdownScriptEngine()
 {
 	if(asScriptEngine)
 	{
+		ShutdownGlobalCallbackTable();
 		scriptContextPool.Shutdown();
 
 		//asDefaultScriptModule->Discard();
@@ -62,11 +63,27 @@ void SetupDefaultGlobalCallbackTable(const char** funcDeclarations, u32 count)
 }
 
 
-void CallGlobalScriptFunction(asIScriptFunction* scriptFunction)
+void ShutdownGlobalCallbackTable()
 {
-	asIScriptContext* tempContext = AquireReusableContext();
-	CallScriptFunction(tempContext, scriptFunction);
+	// Must be called before shutting down the engine.
+	Assert(asScriptEngine);
+
+	for(u32 i(0); i < MAX_SCRIPT_GLOBAL_CALLBACKS; ++i)
+	{
+		if(globalScriptCallbackCache[i])
+		{
+			globalScriptCallbackCache[i]->Release();
+			globalScriptCallbackCache[i] = NULL;
+		}
+	}
 }
+
+//
+//void CallGlobalScriptFunction(asIScriptFunction* scriptFunction)
+//{
+//	asIScriptContext* tempContext = AquireReusableContext();
+//	CallScriptFunction(tempContext, scriptFunction);
+//}
 
 
 void CallGlobalCallbackFunction(u32 id)

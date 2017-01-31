@@ -44,8 +44,8 @@ void ScriptContextPool::ReleaseAllUnusedContexts()
 		contexts[i] = NULL;
 	}
 
-	contextCount = 0;
 	totalAllocatedContextCount -= contextCount;
+	contextCount = 0;
 }
 
 

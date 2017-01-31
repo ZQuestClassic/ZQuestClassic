@@ -1,7 +1,6 @@
 
 #pragma once
 
-#define ScriptString std::string
 
 
 namespace ScreenBindings

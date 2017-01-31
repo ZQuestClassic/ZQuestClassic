@@ -12,6 +12,11 @@
 
 #include "../include/angelscript.h" //todo
 
+//////////////////////////////////////////////////////////////////////////
+#define ScriptString std::string
+
+//////////////////////////////////////////////////////////////////////////
+
 #include "../ZCMath.cpp"
 #include "../Array.cpp"
 #include "../Utility.cpp"
@@ -42,6 +47,7 @@ int main()
 
 	if(r)
 	{
+
 		ScriptClassThunk thunk = {};
 		foo(thunk);
 
@@ -59,6 +65,9 @@ int main()
 		int frames=0;
 		int nd=0;
 		timer.Start();
+
+		CallGlobalCallbackFunction(0);
+		CallGlobalCallbackFunction(1);
 
 		while(nd < NUM_SCRIPTS)
 		{

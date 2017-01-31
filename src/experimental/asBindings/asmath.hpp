@@ -413,7 +413,7 @@ namespace ScriptBindings
 		ScriptLog(str);
 	}
 
-	void ScriptPrintString(const std::string& str)
+	void ScriptPrintString(const ScriptString& str)
 	{
 		ScriptPrintCString(str.c_str());
 	}
@@ -469,6 +469,19 @@ namespace ScriptBindings
 	void CreateGlobalScript(void** p)
 	{
 	}
+
+	void SetGlobalCallback(int32 id, asIScriptFunction* callbackFunc)
+	{
+		if(id < MAX_SCRIPT_GLOBAL_CALLBACKS)
+		{
+			if(globalScriptCallbackCache[id])
+				globalScriptCallbackCache[id]->Release(); // Release the previous callback
+
+			// Store the received handle for later use
+			globalScriptCallbackCache[id] = callbackFunc; // Works also if NULL.
+		}
+	}
+
 }
 
 
@@ -483,6 +496,10 @@ void ScriptRegistrar::RegisterGlobalFunctions(asIScriptEngine* engine)
 	r = engine->RegisterGlobalFunction("void ThrowException(const string& in)", asFUNCTION(ScriptAssert), asCALL_CDECL); Assert(r >= 0);
 	r = engine->RegisterGlobalFunction("void Waitframes(int)", asFUNCTION(Waitframes), asCALL_CDECL); Assert(r >= 0);
 
+
+	// Global Callbacks ---- Game namespace?
+	engine->RegisterFuncdef("void CallbackFunc()");
+	engine->RegisterGlobalFunction("void SetGlobalCallback(int, CallbackFunc @)", asFUNCTION(SetGlobalCallback), asCALL_CDECL);
 
 
 	//r = engine->RegisterGlobalFunction("void CreateGlobalScript(ref @)", asFUNCTION(CreateGlobalScript), asCALL_CDECL); Assert(r >= 0);

@@ -37,8 +37,8 @@ struct ScriptVariant
 	} u;
 
 	void SetInt(int32 value) { type = INT; u.i = value; }
-	void SetFloat(float value) { type = INT; u.f = value; }
-	void SetObject(void* value) { type = INT; u.obj = value; }
+	void SetFloat(float value) { type = FLOAT; u.f = value; }
+	void SetObject(void* value) { type = OBJECT; u.obj = value; }
 
 	int32 GetInt() const { Assert(type == INT); return u.i; }
 	float GetFloat() const { Assert(type == FLOAT); return u.f; }
@@ -54,10 +54,10 @@ struct ScriptVariant
 //	asIScriptFunction* updateFunction;
 //};
 
-void CallGlobalCallbackFunction(int id);
+void CallGlobalCallbackFunction(u32 id);
 bool CallGlobalCallbackFunctionWithArgs(u32 id, ScriptVariant* args, u32 argCount, ScriptVariant* returnValue = NULL);
 
-void CallGlobalScriptCallbackFunction(asIScriptFunction* scriptFunction);
+//void CallGlobalScriptCallbackFunction(asIScriptFunction* scriptFunction);
 int ExecuteScriptContext(asIScriptContext* scriptContext);
 int CallScriptFunction(asIScriptContext* scriptContext, asIScriptFunction* scriptFunction);
 int CallScriptFunctionByName(asIScriptContext* scriptContext, const char* functionDeclaration);
@@ -68,6 +68,8 @@ asIScriptObject* CreateScriptObjectByName(asIScriptContext* scriptContext, const
 
 void InitScriptEngine();
 void ShutdownScriptEngine();
+
+void ShutdownGlobalCallbackTable(); //////////////////////////////////////////////////////////////////////////
 
 void SetDefaultScriptEngineProperties(asIScriptEngine* engine);
 void LogScriptException(asIScriptContext* scriptContext);
@@ -116,7 +118,6 @@ void foo(ScriptClassThunk& thunk)
 		thunk.objectTypeInfo = objectTypeInfo;
 	}
 }
-
 
 //wip
 struct Script
