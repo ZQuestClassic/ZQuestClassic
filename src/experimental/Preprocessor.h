@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ScriptCommon.h"
+#include "Utility.h"
 #include "Array.h"
 
 #include <string>

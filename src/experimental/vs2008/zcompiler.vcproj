@@ -360,6 +360,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Modules\ScriptRuntimeUnity.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Modules\ZCompilerUnity.cpp"
 				>
 				<FileConfiguration

@@ -1,5 +1,8 @@
 
+#include "Preprocessor.h"
 #include "ScriptEngine.h"
+#include "Utility.h"
+#include "Array.h"
 
 extern void RegisterEverything(); //////////////////////////////////////////////////////////////////////////
 
