@@ -2,6 +2,7 @@
 #define SFXBACKEND_H
 
 #include "../zc_alleg.h"
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
