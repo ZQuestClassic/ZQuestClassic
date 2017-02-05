@@ -49,25 +49,12 @@ void LibrarySymbols::addSymbolsToScope(Scope *scope, SymbolTable *t)
     }
 }
 
-pair<int, vector<int> > LibrarySymbols::matchFunction(string name, SymbolTable *t)
+int LibrarySymbols::matchFunction(string name)
 {
-    pair<int,vector<int> > rval;
-    int id = -1;
     map<string, int>::iterator it = memberids.find(name);
-    
-    if(it != memberids.end())
-        id = it->second;
-        
-    if(id == -1)
-    {
-        rval.first = -1;
-        return rval;
-    }
-    
-    //else we're good
-    rval.first = id;
-    rval.second = t->getFuncParams(id);
-    return rval;
+    if (it != memberids.end())
+		return it->second;
+	return -1;
 }
 
 map<int, vector<Opcode *> > LibrarySymbols::addSymbolsCode(LinkTable &lt)
