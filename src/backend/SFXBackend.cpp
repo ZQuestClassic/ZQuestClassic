@@ -1,4 +1,5 @@
 #include "SFXBackend.h"
+#include "../zdefs.h"
 
 SFXSample::SFXSample(const SAMPLE &s)
 {
@@ -256,10 +257,10 @@ int SFXBackend::adjustPan(int pan)
         return 128;
 
     case 1:
-        return min(max((pan >> 1) + 64, 0), 255);
+        return zc_min(zc_max((pan >> 1) + 64, 0), 255);
 
     case 2:
-        return min(max(((pan * 3) >> 2) + 32, 0), 255);
+        return zc_min(zc_max(((pan * 3) >> 2) + 32, 0), 255);
 
     case 3:
     default:
