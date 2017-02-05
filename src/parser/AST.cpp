@@ -572,7 +572,13 @@ ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 void ASTExpr::setIntValue(long val)
 {
 	hasval = true;
-	intval=val;
+	intval = val;
+}
+
+void ASTExpr::setIntValue(bool val)
+{
+	hasval = true;
+	intval = val ? 1 : 0;
 }
 
 // ASTExprConst

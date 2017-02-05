@@ -60,6 +60,9 @@ private:
 
 enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
 
+typedef int ZVarTypeId;
+
+
 struct ScriptsData
 {
     std::map<string, vector<Opcode *> > theScripts;
@@ -162,76 +165,48 @@ public:
 						return TYPE_VOID;
 				}
 		}
-    static string printType(int type)
+    static string printType(ZVarTypeId type)
     {
-        switch(type)
+        switch (type)
         {
-        case TYPE_FLOAT:
-            return "float";
-            
-        case TYPE_BOOL:
-            return "bool";
-            
-        case TYPE_VOID:
-            return "void";
-            
-        case TYPE_FFC:
-            return "ffc";
-            
-        case TYPE_LINK:
-            return "link";
-            
-        case TYPE_SCREEN:
-            return "screen";
-            
-        case TYPE_GLOBAL:
-            return "global";
-            
-        case TYPE_ITEM:
-            return "item";
-            
-        case TYPE_ITEMCLASS:
-            return "itemdata";
-            
-        case TYPE_GAME:
-            return "game";
-            
-        case TYPE_NPC:
-            return "npc";
-            
-        case TYPE_LWPN:
-            return "lweapon";
-            
-        case TYPE_EWPN:
-            return "eweapon";
-            
-	case  TYPE_NPCDATA: return "NPCData";
-	case  TYPE_DEBUG: return "Debug";
-	case  TYPE_AUDIO: return "Audio";
-	case  TYPE_COMBOS: return "ComboData";
-	case  TYPE_SPRITEDATA: return "SpriteData";
-	case  TYPE_GRAPHICS: return "Graphics";
-	case  TYPE_TEXT: return "Text->";
-	case  TYPE_INPUT: return "Input->";
-	case  TYPE_MAPDATA: return "MapData->";
-	case  TYPE_DMAPDATA: return "DMapData->";
-	case  TYPE_ZMESSAGE: return "MessageData->";
-	case  TYPE_SHOPDATA: return "ShopData->";
-	case  TYPE_UNTYPED: return "Untyped->";
-	
-	case  TYPE_DROPSET: return "dropdata->";
-	case  TYPE_PONDS: return "ponddata->";
-	case  TYPE_WARPRING: return "warpring->";
-	case  TYPE_DOORSET: return "doorset->";
-	case  TYPE_ZUICOLOURS: return "misccolors->";
-	case  TYPE_RGBDATA: return "rgbdata->";
-	case  TYPE_PALETTE: return "palette->";
-	case  TYPE_TUNES: return "musictrack->";
-	case  TYPE_PALCYCLE: return "palcycle->";
-	case  TYPE_GAMEDATA: return "gamedata->";
-	case  TYPE_CHEATS: return "cheats->";
-        default:
-            return "wtf";
+        case TYPE_FLOAT: return "float";
+        case TYPE_BOOL: return "bool";
+        case TYPE_VOID: return "void";
+        case TYPE_FFC: return "ffc";
+        case TYPE_LINK: return "link";
+        case TYPE_SCREEN: return "screen";
+        case TYPE_GLOBAL: return "global";
+        case TYPE_ITEM: return "item";
+        case TYPE_ITEMCLASS: return "itemdata";
+        case TYPE_GAME: return "game";
+        case TYPE_NPC: return "npc";
+        case TYPE_LWPN: return "lweapon";
+        case TYPE_EWPN: return "eweapon";
+        case TYPE_NPCDATA: return "NPCData";
+        case TYPE_DEBUG: return "Debug";
+        case TYPE_AUDIO: return "Audio";
+        case TYPE_COMBOS: return "ComboData";
+        case TYPE_SPRITEDATA: return "SpriteData";
+        case TYPE_GRAPHICS: return "Graphics";
+        case TYPE_TEXT: return "Text->";
+        case TYPE_INPUT: return "Input->";
+        case TYPE_MAPDATA: return "MapData->";
+        case TYPE_DMAPDATA: return "DMapData->";
+        case TYPE_ZMESSAGE: return "MessageData->";
+        case TYPE_SHOPDATA: return "ShopData->";
+        case TYPE_UNTYPED: return "Untyped->";
+        case TYPE_DROPSET: return "dropdata->";
+        case TYPE_PONDS: return "ponddata->";
+        case TYPE_WARPRING: return "warpring->";
+        case TYPE_DOORSET: return "doorset->";
+        case TYPE_ZUICOLOURS: return "misccolors->";
+        case TYPE_RGBDATA: return "rgbdata->";
+        case TYPE_PALETTE: return "palette->";
+        case TYPE_TUNES: return "musictrack->";
+        case TYPE_PALCYCLE: return "palcycle->";
+        case TYPE_GAMEDATA: return "gamedata->";
+        case TYPE_CHEATS: return "cheats->";
+        default: return "wtf";
         }
     }
 private:

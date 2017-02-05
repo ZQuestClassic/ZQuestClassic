@@ -60,7 +60,7 @@ public:
     }
     int getVarType(AST *obj);
     int getFuncType(AST *obj);
-    vector<int> getFuncParams(int funcID)
+    vector<ZVarTypeId> getFuncParams(int funcID)
     {
         return funcParams[funcID];
     }
@@ -84,11 +84,11 @@ public:
     bool isConstant(string name);
     long getConstantVal(string name);
 private:
-    map<int, int> varTypes;
-    map<int, int> funcTypes;
+    map<int, ZVarTypeId> varTypes;
+    map<int, ZVarTypeId> funcTypes;
     map<AST *, int> astToID;
     map<AST *, vector<int> > astToAmbiguousFuncIDs;
-    map<int, vector<int> > funcParams;
+    map<int, vector<ZVarTypeId> > funcParams;
     vector<int> globalPointers;
     map<string, long> *constants;
 };

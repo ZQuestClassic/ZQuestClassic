@@ -775,6 +775,7 @@ public:
     bool hasIntValue() const {return hasval;}
     int getType() const {return type;}
     void setIntValue(long val);
+	void setIntValue(bool val);
     void setType(int t) {type = t;}
 	virtual bool isConstant() const = 0;
 private:

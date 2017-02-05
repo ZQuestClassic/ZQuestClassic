@@ -2,6 +2,9 @@
 #define TYPECHECKER_H
 
 #include "UtilVisitors.h"
+#include "DataStructs.h"
+
+class TypeCheckParam;
 
 class TypeCheck : public RecursiveVisitor
 {
@@ -61,7 +64,17 @@ public:
     friend class GetLValType;
 private:
     bool failure;
-    bool standardCheck(int firsttype, int secondtype, AST *toblame);
+    static bool standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame);
+	bool checkExprTypes(TypeCheckParam& param, ASTUnaryExpr& expr, ZVarTypeId type);
+	bool checkExprTypes(TypeCheckParam& param, ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType);
+};
+
+class TypeCheckParam
+{
+public:
+	TypeCheckParam(SymbolTable & s, ZVarTypeId t) : symbols(s), type(t) {}
+	SymbolTable & symbols;
+	ZVarTypeId type;
 };
 
 class GetLValType : public ASTVisitor
@@ -72,6 +85,15 @@ public:
     void caseExprDot(ASTExprDot &host, void *param);
     void caseExprArrow(ASTExprArrow &host, void *param);
     void caseExprArray(ASTExprArray &host, void *param);
+};
+
+class GetLValTypeParam
+{
+public:
+	GetLValTypeParam(TypeCheck & Tc, TypeCheckParam & TcParam) : tc(Tc), tcParam(TcParam), type(-1) {}
+	TypeCheck & tc;
+	TypeCheckParam & tcParam;
+	ZVarTypeId type;
 };
 
 #endif

@@ -32,7 +32,7 @@ class LibrarySymbols
 public:
     virtual void addSymbolsToScope(Scope *scope, SymbolTable *t);
     virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
-    virtual pair<int, vector<int> > matchFunction(string name, SymbolTable *t);
+    virtual int matchFunction(string name);
     virtual ~LibrarySymbols();
 protected:
     AccessorTable *table;
@@ -45,7 +45,6 @@ protected:
     virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> getIndexedVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setIndexedVariable(LinkTable &lt, int id, int var);
-    
 };
 
 class GlobalSymbols : public LibrarySymbols
