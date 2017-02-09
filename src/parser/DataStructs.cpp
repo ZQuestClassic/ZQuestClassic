@@ -9,57 +9,8 @@
 using std::cout;
 using std::endl;
 
-int StackFrame::getOffset(int vid)
-{
-    map<int, int>::iterator it = stackoffset.find(vid);
-    
-    if(it == stackoffset.end())
-    {
-        box_out("Internal Error: Can't find stack offset for variable!");
-        box_eol();
-        return 0;
-    }
-    
-    return stackoffset[vid];
-}
-
-int SymbolTable::getVarType(AST *obj)
-{
-    map<AST *, int>::iterator it = astToID.find(obj);
-    
-    if(it == astToID.end())
-    {
-        box_out("Internal Error: Can't find the AST ID!");
-        box_eol();
-        return -1;
-    }
-    
-    return getVarType(it->second);
-}
-
-int SymbolTable::getVarType(int varID)
-{
-    map<int, int>::iterator it = varTypes.find(varID);
-    
-    if(it == varTypes.end())
-    {
-        box_out("Internal Error: Can't find the variable type!");
-        box_eol();
-        return -1;
-    }
-    
-    return it->second;
-}
-
-bool SymbolTable::isConstant(string name)
-{
-    return constants->find(name) != constants->end();
-}
-
-long SymbolTable::getConstantVal(string name)
-{
-    return (*constants)[name];
-}
+////////////////////////////////////////////////////////////////
+// VariableSymbols
 
 int VariableSymbols::addVariable(string name, int type)
 {
@@ -85,6 +36,9 @@ int VariableSymbols::getID(string name)
     assert(it != symbols.end());
     return it->second.second;
 }
+
+////////////////////////////////////////////////////////////////
+// FunctionSymbols
 
 int FunctionSymbols::addFunction(string name, int rettype, vector<int> paramtype)
 {
@@ -133,6 +87,71 @@ vector<int> FunctionSymbols::getFuncIDs(string name)
     return it->second;
 }
 
+////////////////////////////////////////////////////////////////
+// SymbolTable
+
+int SymbolTable::getVarType(AST *obj)
+{
+    map<AST *, int>::iterator it = astToID.find(obj);
+    
+    if(it == astToID.end())
+    {
+        box_out("Internal Error: Can't find the AST ID!");
+        box_eol();
+        return -1;
+    }
+    
+    return getVarType(it->second);
+}
+
+int SymbolTable::getVarType(int varID)
+{
+    map<int, int>::iterator it = varTypes.find(varID);
+    
+    if(it == varTypes.end())
+    {
+        box_out("Internal Error: Can't find the variable type!");
+        box_eol();
+        return -1;
+    }
+    
+    return it->second;
+}
+
+bool SymbolTable::isConstant(string name)
+{
+    return constants->find(name) != constants->end();
+}
+
+long SymbolTable::getConstantVal(string name)
+{
+    return (*constants)[name];
+}
+
+void SymbolTable::putFunc(int ID, int type)
+{
+    funcTypes[ID]=type;
+}
+
+void SymbolTable::putAST(AST *obj, int ID)
+{
+    astToID[obj]=ID;
+}
+
+int SymbolTable::getFuncType(AST *obj)
+{
+    return getFuncType(astToID[obj]);
+}
+
+void SymbolTable::printDiagnostics()
+{
+    cout << (unsigned int)varTypes.size() << " variable symbols" << endl;
+    cout << (unsigned int)funcTypes.size() << " function symbols" << endl;
+    cout << (unsigned int)funcParams.size() << " function declarations (should = function symbols)" << endl;
+}
+
+////////////////////////////////////////////////////////////////
+// Scope
 bool Scope::addNamedChild(string name, Scope *child)
 {
     map<string, Scope *>::iterator it = namedChildren.find(name);
@@ -221,25 +240,19 @@ Scope *Scope::getNamedChild(string name)
     return namedChildren[name];
 }
 
-void SymbolTable::putFunc(int ID, int type)
-{
-    funcTypes[ID]=type;
-}
+////////////////////////////////////////////////////////////////
 
-void SymbolTable::putAST(AST *obj, int ID)
+int StackFrame::getOffset(int vid)
 {
-    astToID[obj]=ID;
-}
-
-int SymbolTable::getFuncType(AST *obj)
-{
-    return getFuncType(astToID[obj]);
-}
-
-void SymbolTable::printDiagnostics()
-{
-    cout << (unsigned int)varTypes.size() << " variable symbols" << endl;
-    cout << (unsigned int)funcTypes.size() << " function symbols" << endl;
-    cout << (unsigned int)funcParams.size() << " function declarations (should = function symbols)" << endl;
+    map<int, int>::iterator it = stackoffset.find(vid);
+    
+    if(it == stackoffset.end())
+    {
+        box_out("Internal Error: Can't find stack offset for variable!");
+        box_eol();
+        return 0;
+    }
+    
+    return stackoffset[vid];
 }
 
