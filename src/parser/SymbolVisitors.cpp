@@ -37,7 +37,7 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
         (*it)->getType()->execute(temp, &type);
         params.push_back(type);
 
-        if(type == ScriptParser::TYPE_VOID)
+        if(type == ZVARTYPEID_VOID)
         {
             failure=true;
             printErrorMsg(&host, FUNCTIONVOIDPARAM, name);
@@ -68,15 +68,15 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     ExtractType temp;
     host.getType()->execute(temp, &type);
 
-    if(type == ScriptParser::TYPE_VOID)
+    if(type == ZVARTYPEID_VOID)
     {
         failure = true;
         printErrorMsg(&host, VOIDARR, name);
     }
 
-    if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
-            || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
-            || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
+    if(type == ZVARTYPEID_FFC || type == ZVARTYPEID_ITEM
+            || type == ZVARTYPEID_ITEMCLASS || type == ZVARTYPEID_NPC
+            || type == ZVARTYPEID_LWPN || type == ZVARTYPEID_EWPN)
     {
         failure = true;
         printErrorMsg(&host, REFARR, name);
@@ -119,15 +119,15 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
     ExtractType temp;
     host.getType()->execute(temp, &type);
     
-    if(type == ScriptParser::TYPE_VOID)
+    if(type == ZVARTYPEID_VOID)
     {
         failure = true;
         printErrorMsg(&host, VOIDVAR, name);
     }
     
-    if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
-            || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
-            || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
+    if(type == ZVARTYPEID_FFC || type == ZVARTYPEID_ITEM
+            || type == ZVARTYPEID_ITEMCLASS || type == ZVARTYPEID_NPC
+            || type == ZVARTYPEID_LWPN || type == ZVARTYPEID_EWPN)
     {
         failure = true;
         printErrorMsg(&host, REFVAR, name);
@@ -261,7 +261,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     int rtype;
     host.getReturnType()->execute(et, &rtype);
 
-    if(host.getName() == "run" && rtype == ScriptParser::TYPE_VOID)
+    if(host.getName() == "run" && rtype == ZVARTYPEID_VOID)
     {
         int vid = subscope->getVarSymbols().addVariable("this", p->type);
         newparam.table->putVarTypeId(vid, ScriptParser::getThisType(p->type));

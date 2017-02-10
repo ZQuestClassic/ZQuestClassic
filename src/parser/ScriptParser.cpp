@@ -237,24 +237,6 @@ int ScriptParser::fid = 0;
 int ScriptParser::gid = 1;
 int ScriptParser::lid = 0;
 
-// The following is NOT AT ALL compliant with the C++ standard
-// but apparently required by the MingW gcc...
-#ifndef _MSC_VER
-const int ScriptParser::TYPE_FLOAT;
-const int ScriptParser::TYPE_BOOL;
-const int ScriptParser::TYPE_VOID;
-const int ScriptParser::TYPE_LINK;
-const int ScriptParser::TYPE_FFC;
-const int ScriptParser::TYPE_ITEM;
-const int ScriptParser::TYPE_ITEMCLASS;
-const int ScriptParser::TYPE_SCREEN;
-const int ScriptParser::TYPE_GLOBAL;
-const int ScriptParser::TYPE_GAME;
-const int ScriptParser::TYPE_NPC;
-const int ScriptParser::TYPE_LWPN;
-const int ScriptParser::TYPE_EWPN;
-#endif
-
 string ScriptParser::trimQuotes(string quoteds)
 {
     string rval = quoteds.substr(1,quoteds.size()-2);
@@ -410,7 +392,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             ExtractType temp;
             (*it2)->getType()->execute(temp, &type);
             
-            if(type == ScriptParser::TYPE_VOID)
+            if(type == ZVARTYPEID_VOID)
             {
                 printErrorMsg(*it2, FUNCTIONVOIDPARAM, (*it2)->getName());
                 failure=true;
@@ -457,16 +439,16 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     int vid2;
     
     //add a Link global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_LINK);
+    vid2 = globalScope->getVarSymbols().addVariable("Link", ZVARTYPEID_LINK);
+    t->putVarTypeId(vid2, ZVARTYPEID_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_SCREEN);
+    vid2 = globalScope->getVarSymbols().addVariable("Screen", ZVARTYPEID_SCREEN);
+    t->putVarTypeId(vid2, ZVARTYPEID_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_GAME);
+    vid2 = globalScope->getVarSymbols().addVariable("Game", ZVARTYPEID_GAME);
+    t->putVarTypeId(vid2, ZVARTYPEID_GAME);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST
@@ -560,7 +542,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                     {
                         int type = t->getFuncReturnTypeId(runid);
                         
-                        if (type != ScriptParser::TYPE_VOID)
+                        if (type != ZVARTYPEID_VOID)
                         {
                             printErrorMsg(*it, SCRIPTRUNNOTVOID, (*it)->getName());
                             failure = true;

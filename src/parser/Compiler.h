@@ -60,6 +60,13 @@ private:
 
 enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
 
+enum ZVarTypeIdSimple
+{
+    ZVARTYPEID_VOID, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL,
+    ZVARTYPEID_FFC, ZVARTYPEID_ITEM, ZVARTYPEID_ITEMCLASS, ZVARTYPEID_NPC, ZVARTYPEID_LWPN, ZVARTYPEID_EWPN,
+    ZVARTYPEID_GAME, ZVARTYPEID_LINK, ZVARTYPEID_SCREEN
+};
+
 typedef int ZVarTypeId;
 
 struct ScriptsData
@@ -96,19 +103,6 @@ public:
     {
         return gid++;
     }
-    static const int TYPE_FLOAT = 0;
-    static const int TYPE_BOOL = 1;
-    static const int TYPE_VOID = 2;
-    static const int TYPE_FFC = 3;
-    static const int TYPE_LINK = 4;
-    static const int TYPE_SCREEN = 5;
-    static const int TYPE_GLOBAL = 6;
-    static const int TYPE_ITEM = 7;
-    static const int TYPE_ITEMCLASS = 8;
-    static const int TYPE_GAME = 9;
-    static const int TYPE_NPC = 10;
-    static const int TYPE_LWPN = 11;
-    static const int TYPE_EWPN = 12;
     static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
     static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
     static FunctionData *typeCheck(SymbolData *sdata);
@@ -122,60 +116,57 @@ public:
         lid=0;
     }
     static pair<long,bool> parseLong(pair<string,string> parts);
-		static int getThisType(ScriptType type)
+	static int getThisType(ScriptType type)
+	{
+		switch (type)
 		{
-				switch (type)
-				{
-				case SCRIPTTYPE_FFC:
-						return TYPE_FFC;
-				case SCRIPTTYPE_ITEM:
-						return TYPE_ITEMCLASS;
-				case SCRIPTTYPE_GLOBAL:
-				case SCRIPTTYPE_VOID:
-						return TYPE_VOID;
-				}
+		case SCRIPTTYPE_FFC:
+			return ZVARTYPEID_FFC;
+		case SCRIPTTYPE_ITEM:
+			return ZVARTYPEID_ITEMCLASS;
+		case SCRIPTTYPE_GLOBAL:
+		case SCRIPTTYPE_VOID:
+			return ZVARTYPEID_VOID;
 		}
+	}
     static string printType(ZVarTypeId type)
     {
         switch(type)
         {
-        case TYPE_FLOAT:
+        case ZVARTYPEID_FLOAT:
             return "float";
             
-        case TYPE_BOOL:
+        case ZVARTYPEID_BOOL:
             return "bool";
             
-        case TYPE_VOID:
+        case ZVARTYPEID_VOID:
             return "void";
             
-        case TYPE_FFC:
+        case ZVARTYPEID_FFC:
             return "ffc";
             
-        case TYPE_LINK:
+        case ZVARTYPEID_LINK:
             return "link";
             
-        case TYPE_SCREEN:
+        case ZVARTYPEID_SCREEN:
             return "screen";
             
-        case TYPE_GLOBAL:
-            return "global";
-            
-        case TYPE_ITEM:
+        case ZVARTYPEID_ITEM:
             return "item";
             
-        case TYPE_ITEMCLASS:
+        case ZVARTYPEID_ITEMCLASS:
             return "itemdata";
             
-        case TYPE_GAME:
+        case ZVARTYPEID_GAME:
             return "game";
             
-        case TYPE_NPC:
+        case ZVARTYPEID_NPC:
             return "npc";
             
-        case TYPE_LWPN:
+        case ZVARTYPEID_LWPN:
             return "lweapon";
             
-        case TYPE_EWPN:
+        case ZVARTYPEID_EWPN:
             return "eweapon";
             
         default:

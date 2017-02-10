@@ -37,7 +37,7 @@ void TypeCheck::caseStmtIf(ASTStmtIf &host, void *param)
 
     ZVarTypeId type = host.getCondition()->getType();
 
-    if (!standardCheck(ScriptParser::TYPE_BOOL, type, &host))
+    if (!standardCheck(ZVARTYPEID_BOOL, type, &host))
         failure = true;
 }
 
@@ -53,7 +53,7 @@ void TypeCheck::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	if (failure) return;
 
 	ZVarTypeId type = host.getKey()->getType();
-	if (!standardCheck(ScriptParser::TYPE_FLOAT, type, &host))
+	if (!standardCheck(ZVARTYPEID_FLOAT, type, &host))
 		failure = true;
 }
 
@@ -63,7 +63,7 @@ void TypeCheck::caseStmtFor(ASTStmtFor &host, void *param)
     if (failure) return;
 
     ZVarTypeId type = host.getTerminationCondition()->getType();
-    if (!standardCheck(ScriptParser::TYPE_BOOL, type, &host))
+    if (!standardCheck(ZVARTYPEID_BOOL, type, &host))
         failure = true;
 }
 
@@ -73,7 +73,7 @@ void TypeCheck::caseStmtWhile(ASTStmtWhile &host, void *param)
     if (failure) return;
 
     ZVarTypeId type = host.getCond()->getType();
-    if (!standardCheck(ScriptParser::TYPE_BOOL, type, &host))
+    if (!standardCheck(ZVARTYPEID_BOOL, type, &host))
         failure = true;
 }
 
@@ -81,7 +81,7 @@ void TypeCheck::caseStmtReturn(ASTStmtReturn &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
 
-    if (p.type != ScriptParser::TYPE_VOID)
+    if (p.type != ZVARTYPEID_VOID)
     {
         printErrorMsg(&host, FUNCBADRETURN, ScriptParser::printType(p.type));
         failure = true;
@@ -107,7 +107,7 @@ void TypeCheck::caseArrayDecl(ASTArrayDecl &host, void *param)
 	ASTExpr *size = host.getSize();
 	size->execute(*this, param);
 
-	if (size->getType() != ScriptParser::TYPE_FLOAT)
+	if (size->getType() != ZVARTYPEID_FLOAT)
 	{
 		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
 		failure = true;
@@ -169,7 +169,7 @@ void TypeCheck::caseExprConst(ASTExprConst &host, void *param)
 
 void TypeCheck::caseNumConstant(ASTNumConstant &host, void *)
 {
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
     pair<string,string> parts = host.getValue()->parseValue();
     pair<long, bool> val = ScriptParser::parseLong(parts);
 
@@ -181,13 +181,13 @@ void TypeCheck::caseNumConstant(ASTNumConstant &host, void *)
 
 void TypeCheck::caseBoolConstant(ASTBoolConstant &host, void *)
 {
-    host.setType(ScriptParser::TYPE_BOOL);
+    host.setType(ZVARTYPEID_BOOL);
     host.setIntValue(host.getValue() ? 1L : 0L);
 }
 
 void TypeCheck::caseStringConstant(ASTStringConstant& host, void*)
 {
-	host.setType(ScriptParser::TYPE_FLOAT);
+	host.setType(ZVARTYPEID_FLOAT);
 }
 
 void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
@@ -196,7 +196,7 @@ void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
 
     if (p.symbols.isConstant(host.getName()))
 	{
-        host.setType(ScriptParser::TYPE_FLOAT);
+        host.setType(ZVARTYPEID_FLOAT);
 		host.setIntValue(p.symbols.getConstantVal(host.getName()));
 	}
     else
@@ -221,7 +221,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
         host.getIndex()->execute(*this, param);
         if (failure) return;
 
-        if (!standardCheck(ScriptParser::TYPE_FLOAT, host.getIndex()->getType(), host.getIndex()))
+        if (!standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
         {
             failure = true;
             return;
@@ -236,47 +236,47 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
 	int functionId;
     switch (type)
     {
-    case ScriptParser::TYPE_FFC:
+    case ZVARTYPEID_FFC:
     {
         functionId = FFCSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_LINK:
+    case ZVARTYPEID_LINK:
     {
         functionId = LinkSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_SCREEN:
+    case ZVARTYPEID_SCREEN:
     {
         functionId = ScreenSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_GAME:
+    case ZVARTYPEID_GAME:
     {
         functionId = GameSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_ITEM:
+    case ZVARTYPEID_ITEM:
     {
         functionId = ItemSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_ITEMCLASS:
+    case ZVARTYPEID_ITEMCLASS:
     {
         functionId = ItemclassSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_NPC:
+    case ZVARTYPEID_NPC:
     {
         functionId = NPCSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_LWPN:
+    case ZVARTYPEID_LWPN:
     {
         functionId = LinkWeaponSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_EWPN:
+    case ZVARTYPEID_EWPN:
     {
         functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
         break;
@@ -311,7 +311,7 @@ void TypeCheck::caseExprArray(ASTExprArray &host, void *param)
         host.getIndex()->execute(*this, param);
         if (failure) return;
 
-        if (!standardCheck(ScriptParser::TYPE_FLOAT, host.getIndex()->getType(), host.getIndex()))
+        if (!standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
         {
             failure = true;
             return;
@@ -343,10 +343,10 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         if (failure) return;
         ZVarTypeId lvaltype = lval->getLVal()->getType();
 
-        if (!(lvaltype == ScriptParser::TYPE_FFC || lvaltype == ScriptParser::TYPE_LINK
-			  || lvaltype == ScriptParser::TYPE_SCREEN || lvaltype == ScriptParser::TYPE_ITEM
-			  || lvaltype == ScriptParser::TYPE_ITEMCLASS || lvaltype == ScriptParser::TYPE_GAME || lvaltype == ScriptParser::TYPE_NPC
-			  || lvaltype == ScriptParser::TYPE_LWPN || lvaltype == ScriptParser::TYPE_EWPN))
+        if (!(lvaltype == ZVARTYPEID_FFC || lvaltype == ZVARTYPEID_LINK
+			  || lvaltype == ZVARTYPEID_SCREEN || lvaltype == ZVARTYPEID_ITEM
+			  || lvaltype == ZVARTYPEID_ITEMCLASS || lvaltype == ZVARTYPEID_GAME || lvaltype == ZVARTYPEID_NPC
+			  || lvaltype == ZVARTYPEID_LWPN || lvaltype == ZVARTYPEID_EWPN))
         {
             printErrorMsg(lval, ARROWNOTPOINTER);
             failure = true;
@@ -467,47 +467,47 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 		int functionId;
 		switch(type)
 		{
-		case ScriptParser::TYPE_FFC:
+		case ZVARTYPEID_FFC:
 		{
 			functionId = FFCSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_LINK:
+		case ZVARTYPEID_LINK:
 		{
 			functionId = LinkSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_SCREEN:
+		case ZVARTYPEID_SCREEN:
 		{
 			functionId = ScreenSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_GAME:
+		case ZVARTYPEID_GAME:
 		{
 			functionId = GameSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_ITEM:
+		case ZVARTYPEID_ITEM:
 		{
 			functionId = ItemSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_ITEMCLASS:
+		case ZVARTYPEID_ITEMCLASS:
 		{
 			functionId = ItemclassSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_NPC:
+		case ZVARTYPEID_NPC:
 		{
 			functionId = NPCSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_LWPN:
+		case ZVARTYPEID_LWPN:
 		{
 			functionId = LinkWeaponSymbols::getInst().matchFunction(name);
 			break;
 		}
-		case ScriptParser::TYPE_EWPN:
+		case ZVARTYPEID_EWPN:
 		{
 			functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
 			break;
@@ -550,8 +550,8 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 void TypeCheck::caseExprNegate(ASTExprNegate &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getOperand()->hasIntValue())
     {
@@ -563,8 +563,8 @@ void TypeCheck::caseExprNegate(ASTExprNegate &host, void *param)
 void TypeCheck::caseExprNot(ASTExprNot &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_BOOL)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_BOOL)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getOperand()->hasIntValue())
     {
@@ -576,8 +576,8 @@ void TypeCheck::caseExprNot(ASTExprNot &host, void *param)
 void TypeCheck::caseExprBitNot(ASTExprBitNot &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getOperand()->hasIntValue())
     {
@@ -608,13 +608,13 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement &host, void *param)
     host.getOperand()->execute(glvt, &lparam);
     if (failure) return;
 
-    if (!standardCheck(ScriptParser::TYPE_FLOAT, lparam.type, &host))
+    if (!standardCheck(ZVARTYPEID_FLOAT, lparam.type, &host))
     {
         failure = true;
         return;
     }
 
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
 }
 
 void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement &host, void *param)
@@ -645,13 +645,13 @@ void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement &host, void *param)
     host.getOperand()->execute(glvt, &lparam);
     if (failure) return;
 
-    if (!standardCheck(ScriptParser::TYPE_FLOAT, lparam.type, &host))
+    if (!standardCheck(ZVARTYPEID_FLOAT, lparam.type, &host))
     {
         failure = true;
         return;
     }
 
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
 }
 
 void TypeCheck::caseExprDecrement(ASTExprDecrement &host, void *param)
@@ -676,13 +676,13 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host, void *param)
     host.getOperand()->execute(glvt, &lparam);
     if (failure) return;
 
-    if (!standardCheck(ScriptParser::TYPE_FLOAT, lparam.type, &host))
+    if (!standardCheck(ZVARTYPEID_FLOAT, lparam.type, &host))
     {
         failure = true;
         return;
     }
 
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
 }
 
 void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
@@ -707,20 +707,20 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
     host.getOperand()->execute(glvt, &lparam);
     if (failure) return;
 
-    if (!standardCheck(ScriptParser::TYPE_FLOAT, lparam.type, &host))
+    if (!standardCheck(ZVARTYPEID_FLOAT, lparam.type, &host))
     {
         failure = true;
         return;
     }
 
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
 }
 
 void TypeCheck::caseExprAnd(ASTExprAnd &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_BOOL, ScriptParser::TYPE_BOOL)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -733,8 +733,8 @@ void TypeCheck::caseExprAnd(ASTExprAnd &host, void *param)
 void TypeCheck::caseExprOr(ASTExprOr &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_BOOL, ScriptParser::TYPE_BOOL)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -747,8 +747,8 @@ void TypeCheck::caseExprOr(ASTExprOr &host, void *param)
 void TypeCheck::caseExprGT(ASTExprGT &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -761,8 +761,8 @@ void TypeCheck::caseExprGT(ASTExprGT &host, void *param)
 void TypeCheck::caseExprGE(ASTExprGE &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -775,8 +775,8 @@ void TypeCheck::caseExprGE(ASTExprGE &host, void *param)
 void TypeCheck::caseExprLT(ASTExprLT &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -789,8 +789,8 @@ void TypeCheck::caseExprLT(ASTExprLT &host, void *param)
 void TypeCheck::caseExprLE(ASTExprLE &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_BOOL);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -815,7 +815,7 @@ void TypeCheck::caseExprEQ(ASTExprEQ &host, void *param)
 		return;
 	}
 
-    host.setType(ScriptParser::TYPE_BOOL);
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -840,7 +840,7 @@ void TypeCheck::caseExprNE(ASTExprNE &host, void *param)
 		return;
 	}
 
-    host.setType(ScriptParser::TYPE_BOOL);
+    host.setType(ZVARTYPEID_BOOL);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -853,8 +853,8 @@ void TypeCheck::caseExprNE(ASTExprNE &host, void *param)
 void TypeCheck::caseExprPlus(ASTExprPlus &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -867,8 +867,8 @@ void TypeCheck::caseExprPlus(ASTExprPlus &host, void *param)
 void TypeCheck::caseExprMinus(ASTExprMinus &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -881,8 +881,8 @@ void TypeCheck::caseExprMinus(ASTExprMinus &host, void *param)
 void TypeCheck::caseExprTimes(ASTExprTimes &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -896,8 +896,8 @@ void TypeCheck::caseExprTimes(ASTExprTimes &host, void *param)
 void TypeCheck::caseExprDivide(ASTExprDivide &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -918,8 +918,8 @@ void TypeCheck::caseExprDivide(ASTExprDivide &host, void *param)
 void TypeCheck::caseExprModulo(ASTExprModulo &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -940,8 +940,8 @@ void TypeCheck::caseExprModulo(ASTExprModulo &host, void *param)
 void TypeCheck::caseExprBitAnd(ASTExprBitAnd &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -954,8 +954,8 @@ void TypeCheck::caseExprBitAnd(ASTExprBitAnd &host, void *param)
 void TypeCheck::caseExprBitOr(ASTExprBitOr &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -968,8 +968,8 @@ void TypeCheck::caseExprBitOr(ASTExprBitOr &host, void *param)
 void TypeCheck::caseExprBitXor(ASTExprBitXor &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
-    host.setType(ScriptParser::TYPE_FLOAT);
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -981,7 +981,7 @@ void TypeCheck::caseExprBitXor(ASTExprBitXor &host, void *param)
 void TypeCheck::caseExprLShift(ASTExprLShift &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
 
     if (host.getSecondOperand()->hasIntValue())
     {
@@ -991,7 +991,7 @@ void TypeCheck::caseExprLShift(ASTExprLShift &host, void *param)
             host.getSecondOperand()->setIntValue(10000*(host.getSecondOperand()->getIntValue()/10000));
         }
     }
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -1003,7 +1003,7 @@ void TypeCheck::caseExprLShift(ASTExprLShift &host, void *param)
 void TypeCheck::caseExprRShift(ASTExprRShift &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
-	if (!checkExprTypes(p, host, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT)) return;
+	if (!checkExprTypes(p, host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
 
     if (host.getSecondOperand()->hasIntValue())
     {
@@ -1013,7 +1013,7 @@ void TypeCheck::caseExprRShift(ASTExprRShift &host, void *param)
             host.getSecondOperand()->setIntValue(10000*(host.getSecondOperand()->getIntValue()/10000));
         }
     }
-    host.setType(ScriptParser::TYPE_FLOAT);
+    host.setType(ZVARTYPEID_FLOAT);
 
     if (host.getFirstOperand()->hasIntValue() && host.getSecondOperand()->hasIntValue())
     {
@@ -1027,8 +1027,8 @@ void TypeCheck::caseExprRShift(ASTExprRShift &host, void *param)
 
 bool TypeCheck::standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame)
 {
-	if (targetType == sourceType && targetType != ScriptParser::TYPE_VOID) return true;
-	if (targetType == ScriptParser::TYPE_BOOL && sourceType == ScriptParser::TYPE_FLOAT) return true;
+	if (targetType == sourceType && targetType != ZVARTYPEID_VOID) return true;
+	if (targetType == ZVARTYPEID_BOOL && sourceType == ZVARTYPEID_FLOAT) return true;
 
 	if (toBlame)
 	{
@@ -1088,7 +1088,7 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
         host.getIndex()->execute(p.tc, &p.tcParam);
         if (!p.tc.isOK()) return;
 
-        if (!TypeCheck::standardCheck(ScriptParser::TYPE_FLOAT, host.getIndex()->getType(), host.getIndex()))
+        if (!TypeCheck::standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
         {
             p.tc.fail();
             return;
@@ -1101,47 +1101,47 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
 	int functionId;
     switch (type)
     {
-    case ScriptParser::TYPE_FFC:
+    case ZVARTYPEID_FFC:
     {
         functionId = FFCSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_LINK:
+    case ZVARTYPEID_LINK:
     {
         functionId = LinkSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_SCREEN:
+    case ZVARTYPEID_SCREEN:
     {
         functionId = ScreenSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_GAME:
+    case ZVARTYPEID_GAME:
     {
         functionId = GameSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_ITEM:
+    case ZVARTYPEID_ITEM:
     {
         functionId = ItemSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_ITEMCLASS:
+    case ZVARTYPEID_ITEMCLASS:
     {
         functionId = ItemclassSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_NPC:
+    case ZVARTYPEID_NPC:
     {
         functionId = NPCSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_LWPN:
+    case ZVARTYPEID_LWPN:
     {
         functionId = LinkWeaponSymbols::getInst().matchFunction(name);
         break;
     }
-    case ScriptParser::TYPE_EWPN:
+    case ZVARTYPEID_EWPN:
     {
         functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
         break;
@@ -1201,7 +1201,7 @@ void GetLValType::caseExprArray(ASTExprArray &host, void *param)
 
         if (!p.tc.isOK()) return;
 
-        if (!TypeCheck::standardCheck(ScriptParser::TYPE_FLOAT, host.getIndex()->getType(), host.getIndex()))
+        if (!TypeCheck::standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
         {
             p.tc.fail();
             return;

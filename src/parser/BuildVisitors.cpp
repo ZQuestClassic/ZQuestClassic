@@ -1052,7 +1052,7 @@ void BuildOpcodes::caseExprLE(ASTExprLE &host, void *param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
 {
     //special case for booleans
-    bool isBoolean = (host.getFirstOperand()->getType() == ScriptParser::TYPE_BOOL);
+    bool isBoolean = (host.getFirstOperand()->getType() == ZVARTYPEID_BOOL);
     
     if(host.hasIntValue())
     {
@@ -1079,7 +1079,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
 void BuildOpcodes::caseExprNE(ASTExprNE &host, void *param)
 {
     //special case for booleans
-    bool isBoolean = (host.getFirstOperand()->getType() == ScriptParser::TYPE_BOOL);
+    bool isBoolean = (host.getFirstOperand()->getType() == ZVARTYPEID_BOOL);
     
     if(host.hasIntValue())
     {

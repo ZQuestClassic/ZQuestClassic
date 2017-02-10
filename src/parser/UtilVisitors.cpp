@@ -580,51 +580,51 @@ void ExtractType::caseDefault(void *)
 
 void ExtractType::caseTypeVoid(ASTTypeVoid &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_VOID;
+    *(int *)param = ZVARTYPEID_VOID;
 }
 
 void ExtractType::caseTypeGlobal(ASTTypeGlobal &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_GLOBAL;
+	assert(false);
 }
 
 void ExtractType::caseTypeFloat(ASTTypeFloat &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_FLOAT;
+    *(int *)param = ZVARTYPEID_FLOAT;
 }
 
 void ExtractType::caseTypeBool(ASTTypeBool &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_BOOL;
+    *(int *)param = ZVARTYPEID_BOOL;
 }
 
 void ExtractType::caseTypeFFC(ASTTypeFFC &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_FFC;
+    *(int *)param = ZVARTYPEID_FFC;
 }
 
 void ExtractType::caseTypeItem(ASTTypeItem &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_ITEM;
+    *(int *)param = ZVARTYPEID_ITEM;
 }
 
 void ExtractType::caseTypeItemclass(ASTTypeItemclass &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_ITEMCLASS;
+    *(int *)param = ZVARTYPEID_ITEMCLASS;
 }
 
 void ExtractType::caseTypeNPC(ASTTypeNPC &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_NPC;
+    *(int *)param = ZVARTYPEID_NPC;
 }
 
 void ExtractType::caseTypeLWpn(ASTTypeLWpn &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_LWPN;
+    *(int *)param = ZVARTYPEID_LWPN;
 }
 
 void ExtractType::caseTypeEWpn(ASTTypeEWpn &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_EWPN;
+    *(int *)param = ZVARTYPEID_EWPN;
 }
 
