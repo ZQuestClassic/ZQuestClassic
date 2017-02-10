@@ -56,9 +56,8 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
         return;
     }
 
-    p->second->putAST(&host, id);
-    p->second->putFunc(id, rettype);
-    p->second->putFuncDecl(id, params);
+    p->second->putNodeId(&host, id);
+    p->second->putFuncTypeIds(id, rettype, params);
 }
 
 void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
@@ -93,8 +92,8 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         return;
     }
 
-    p->second->putAST(&host, id);
-    p->second->putVar(id, type);
+    p->second->putNodeId(&host, id);
+    p->second->putVarTypeId(id, type);
 
     if(this->deprecateGlobals)
     {
@@ -144,8 +143,8 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
         return;
     }
     
-    p->second->putAST(&host, id);
-    p->second->putVar(id, type);
+    p->second->putNodeId(&host, id);
+    p->second->putVarTypeId(id, type);
     
     if(this->deprecateGlobals)
     {
@@ -265,7 +264,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     if(host.getName() == "run" && rtype == ScriptParser::TYPE_VOID)
     {
         int vid = subscope->getVarSymbols().addVariable("this", p->type);
-        newparam.table->putVar(vid, ScriptParser::getThisType(p->type));
+        newparam.table->putVarTypeId(vid, ScriptParser::getThisType(p->type));
         thisvid=vid;
     }
 
@@ -288,8 +287,8 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
             return;
         }
 
-        p->table->putVar(id, type);
-        p->table->putAST(*it, id);
+        p->table->putVarTypeId(id, type);
+        p->table->putNodeId(*it, id);
     }
 
     //shortcut the block
@@ -319,8 +318,8 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         return;
     }
 
-    p->table->putAST(&host, id);
-    p->table->putVar(id, type);
+    p->table->putNodeId(&host, id);
+    p->table->putVarTypeId(id, type);
 
 	((ASTExpr *) host.getSize())->execute(*this, param);
 
@@ -349,8 +348,8 @@ void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
         return;
     }
     
-    p->table->putAST(&host, id);
-    p->table->putVar(id, type);
+    p->table->putNodeId(&host, id);
+    p->table->putVarTypeId(id, type);
 }
 
 void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
@@ -365,7 +364,7 @@ void BuildFunctionSymbols::caseStringConstant(ASTStringConstant& host, void* par
 {
 	BFSParam *p = (BFSParam*)param;
 	int id = ScriptParser::getUniqueVarID();
-	p->table->putAST(&host, id);
+	p->table->putNodeId(&host, id);
 }
 
 void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
@@ -405,7 +404,7 @@ void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
             return;
         }
         
-        p->table->putAmbiguousFunc(&host, possibleFuncs);
+        p->table->putPossibleNodeFuncIds(&host, possibleFuncs);
     }
     
     for(list<ASTExpr *>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
@@ -435,7 +434,7 @@ void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
         return;
     }
     
-    p->table->putAST(&host, id);
+    p->table->putNodeId(&host, id);
 }
 
 void BuildFunctionSymbols::caseExprArrow(ASTExprArrow &host, void *param)
@@ -471,7 +470,7 @@ void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
         return;
     }
     
-    p->table->putAST(&host, id);
+    p->table->putNodeId(&host, id);
     
     if(host.getIndex())
         host.getIndex()->execute(*this,param);

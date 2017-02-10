@@ -444,9 +444,8 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             return NULL;
         }
         
-        t->putAST(*it, id);
-        t->putFunc(id, rettype);
-        t->putFuncDecl(id, params);
+        t->putNodeId(*it, id);
+        t->putFuncTypeIds(id, rettype, params);
         
     }
     
@@ -459,15 +458,15 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     
     //add a Link global variable
     vid2 = globalScope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-    t->putVar(vid2, ScriptParser::TYPE_LINK);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
     vid2 = globalScope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-    t->putVar(vid2, ScriptParser::TYPE_SCREEN);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
     vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-    t->putVar(vid2, ScriptParser::TYPE_GAME);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_GAME);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST
@@ -559,7 +558,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                     }
                     else
                     {
-                        int type = t->getFuncType(runid);
+                        int type = t->getFuncReturnTypeId(runid);
                         
                         if (type != ScriptParser::TYPE_VOID)
                         {
@@ -569,7 +568,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                         else
                         {
                             rval->runsymbols[*it] = runid;
-                            rval->numParams[*it] = (int)t->getFuncParams(runid).size();
+                            rval->numParams[*it] = (int)t->getFuncParamTypeIds(runid).size();
                             rval->scriptTypes[*it] = scripttype;
                         }
                     }
@@ -808,7 +807,7 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
     
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
     {
-        int rettype = fd->symbols->getFuncType(*it);
+        int rettype = fd->symbols->getFuncReturnTypeId(*it);
         pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, rettype);
         TypeCheck tc;
         (*it)->execute(tc, &param);
@@ -880,13 +879,13 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     
     for(vector<ASTVarDecl *>::iterator it = globals.begin(); it != globals.end(); it++)
     {
-        int vid2 = symbols->getID(*it);
+        int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);
     }
     
     for(vector<ASTArrayDecl *>::iterator it = globalas.begin(); it != globalas.end(); it++)
     {
-        int vid2 = symbols->getID(*it);
+        int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);
     }
     
@@ -899,7 +898,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     
     for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
     {
-        int fid2 = symbols->getID(*it);
+        int fid2 = symbols->getNodeId(*it);
         lt.functionToLabel(fid2);
     }
     
@@ -1041,7 +1040,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         
         for(map<string,int>::iterator it2 = runsymbols.begin(); it2 != runsymbols.end(); it2++)
         {
-            if(it2->second == symbols->getID(*it))
+            if(it2->second == symbols->getNodeId(*it))
             {
                 isarun=true;
                 scriptname = it2->first;
@@ -1071,7 +1070,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         //finally, assign the parameters, in reverse order
 		for (list<ASTVarDecl *>::reverse_iterator paramit = (*it)->getParams().rbegin(); paramit != (*it)->getParams().rend(); ++paramit)
 		{
-			int vid = symbols->getID(*paramit);
+			int vid = symbols->getNodeId(*paramit);
 			sf.addToFrame(vid, offset);
 			offset += 10000;
 		}
@@ -1080,10 +1079,10 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(lt.functionToLabel(symbols->getID(*it)));
+        first->setLabel(lt.functionToLabel(symbols->getNodeId(*it)));
         funccode.push_back(first);
         //push on the 0s
-        int numtoallocate = totvars-(unsigned int)symbols->getFuncParams(symbols->getID(*it)).size();
+        int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(symbols->getNodeId(*it)).size();
 		//also don't count the "this"
 		if (isarun)
 			numtoallocate--;
@@ -1164,7 +1163,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
             funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
         }
         
-        rval->funcs[lt.functionToLabel(symbols->getID(*it))]=funccode;
+        rval->funcs[lt.functionToLabel(symbols->getNodeId(*it))]=funccode;
         delete *it;
     }
     

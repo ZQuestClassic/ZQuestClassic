@@ -11,6 +11,30 @@ using std::map;
 using std::vector;
 using std::pair;
 
+class FunctionSignature
+{
+public:
+	FunctionSignature(string const& name, vector<ZVarTypeId> const& paramTypeIds);
+	int compare(FunctionSignature const& other) const;
+	bool operator==(FunctionSignature const& other) const {return compare(other) == 0;}
+	bool operator<(FunctionSignature const& other) const {return compare(other) < 0;}
+	string name;
+	vector<ZVarTypeId> paramTypeIds;
+};
+
+class FunctionTypeIds
+{
+public:
+	FunctionTypeIds() : returnTypeId(-1), paramTypeIds() {}
+	FunctionTypeIds(ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+	int compare(FunctionTypeIds const& other) const;
+	bool operator==(FunctionTypeIds const& other) const {return compare(other) == 0;}
+	bool operator<(FunctionTypeIds const& other) const {return compare(other) < 0;}
+	ZVarTypeId returnTypeId;
+	vector<ZVarTypeId> paramTypeIds;
+	static FunctionTypeIds const null;
+};
+
 class VariableSymbols
 {
 public:
@@ -38,57 +62,34 @@ private:
 class SymbolTable
 {
 public:
-    SymbolTable(map<string, long> *consts) : varTypes(), funcTypes(), astToID(), funcParams(), constants(consts) {}
-    int getVarType(int varID);
-    int getFuncType(int funcID)
-    {
-        return funcTypes[funcID];
-    }
-    void putVar(int ID, int type)
-    {
-        varTypes[ID]=type;
-    }
-    void putFunc(int ID, int type);
-    void putFuncDecl(int ID, vector<int> params)
-    {
-        funcParams[ID]=params;
-    }
-    void putAST(AST *obj, int ID);
-    void putAmbiguousFunc(AST *func, vector<int> possibleIDs)
-    {
-        astToAmbiguousFuncIDs[func]=possibleIDs;
-    }
-    int getVarType(AST *obj);
-    int getFuncType(AST *obj);
-    vector<ZVarTypeId> getFuncParams(int funcID)
-    {
-        return funcParams[funcID];
-    }
-    vector<int> getAmbiguousFuncs(AST *func)
-    {
-        return astToAmbiguousFuncIDs[func];
-    }
-    int getID(AST *obj)
-    {
-        return astToID[obj];
-    }
+    SymbolTable(map<string, long> *consts);
+	// Nodes
+    int getNodeId(AST* node) const;
+    void putNodeId(AST* node, int id);
+    vector<int> getPossibleNodeFuncIds(AST* node) const;
+    void putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds);
+	// Variables
+    ZVarTypeId getVarTypeId(int varId) const;
+    ZVarTypeId getVarTypeId(AST* node) const;
+    void putVarTypeId(int ID, int type);
+	// Functions
+    ZVarTypeId getFuncReturnTypeId(int funcId) const;
+    ZVarTypeId getFuncReturnTypeId(AST *node) const;
+    vector<ZVarTypeId> getFuncParamTypeIds(int funcId) const;
+    void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+	// Global Pointers
+    vector<int> const& getGlobalPointers() const {return globalPointers;}
+    vector<int>& getGlobalPointers() {return globalPointers;}
+    void addGlobalPointer(int varId) {globalPointers.push_back(varId);}
+	// Other
+    bool isConstant(string name) const;
+    long getConstantVal(string name) const;
     void printDiagnostics();
-    vector<int> &getGlobalPointers(void)
-    {
-        return globalPointers;
-    }
-    void addGlobalPointer(int vid)
-    {
-        globalPointers.push_back(vid);
-    }
-    bool isConstant(string name);
-    long getConstantVal(string name);
 private:
+    map<AST*, int> nodeIds;
+    map<AST*, vector<int> > possibleNodeFuncIds;
     map<int, ZVarTypeId> varTypes;
-    map<int, ZVarTypeId> funcTypes;
-    map<AST *, int> astToID;
-    map<AST *, vector<int> > astToAmbiguousFuncIDs;
-    map<int, vector<ZVarTypeId> > funcParams;
+    map<int, FunctionTypeIds> funcTypes;
     vector<int> globalPointers;
     map<string, long> *constants;
 };
