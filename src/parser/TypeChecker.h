@@ -8,92 +8,85 @@ class TypeCheckParam;
 
 class TypeCheck : public RecursiveVisitor
 {
+    friend class GetLValType;
 public:
-    TypeCheck() : failure(false) {}
+	TypeCheck(SymbolTable& symbolTable);
+	TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId);
 
-    void caseDefault(void *) {}
+    void caseDefault(void*) {}
 	// Statements
-    void caseStmtAssign(ASTStmtAssign &host, void *param);
-    void caseStmtIf(ASTStmtIf &host, void *param);
-    void caseStmtIfElse(ASTStmtIfElse &host, void *param);
-	void caseStmtSwitch(ASTStmtSwitch &host, void* param);
-    void caseStmtFor(ASTStmtFor &host, void *param);
-    void caseStmtWhile(ASTStmtWhile &host, void *param);
-    void caseStmtReturn(ASTStmtReturn &host, void *param);
-    void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
+    void caseStmtAssign(ASTStmtAssign &host);
+    void caseStmtIf(ASTStmtIf &host);
+    void caseStmtIfElse(ASTStmtIfElse &host);
+	void caseStmtSwitch(ASTStmtSwitch &host);
+    void caseStmtFor(ASTStmtFor &host);
+    void caseStmtWhile(ASTStmtWhile &host);
+    void caseStmtReturn(ASTStmtReturn &host);
+    void caseStmtReturnVal(ASTStmtReturnVal &host);
 	// Declarations
-    void caseArrayDecl(ASTArrayDecl &host, void *param);
-    void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
+    void caseArrayDecl(ASTArrayDecl &host);
+    void caseVarDeclInitializer(ASTVarDeclInitializer &host);
 	// Expressions
-	void caseExprConst(ASTExprConst &host, void *param);
-    void caseNumConstant(ASTNumConstant &host, void *param);
-    void caseBoolConstant(ASTBoolConstant &host, void *param);
-    void caseStringConstant(ASTStringConstant &host, void *param);
-    void caseExprDot(ASTExprDot &host, void *param);
-    void caseExprArrow(ASTExprArrow &host, void *param);
-    void caseExprArray(ASTExprArray &host, void *param);
-    void caseFuncCall(ASTFuncCall &host, void *param);
-    void caseExprNegate(ASTExprNegate &host, void *param);
-    void caseExprNot(ASTExprNot &host, void *param);
-    void caseExprBitNot(ASTExprBitNot &host, void *param);
-    void caseExprIncrement(ASTExprIncrement &host, void *param);
-    void caseExprPreIncrement(ASTExprPreIncrement &host, void *param);
-    void caseExprDecrement(ASTExprDecrement &host, void *param);
-    void caseExprPreDecrement(ASTExprPreDecrement &host, void *param);
-    void caseExprAnd(ASTExprAnd &host, void *param);
-    void caseExprOr(ASTExprOr &host, void *param);
-    void caseExprGT(ASTExprGT &host, void *param);
-    void caseExprGE(ASTExprGE &host, void *param);
-    void caseExprLT(ASTExprLT &host, void *param);
-    void caseExprLE(ASTExprLE &host, void *param);
-    void caseExprEQ(ASTExprEQ &host, void *param);
-    void caseExprNE(ASTExprNE &host, void *param);
-    void caseExprPlus(ASTExprPlus &host, void *param);
-    void caseExprMinus(ASTExprMinus &host, void *param);
-    void caseExprTimes(ASTExprTimes &host, void *param);
-    void caseExprDivide(ASTExprDivide &host, void *param);
-    void caseExprModulo(ASTExprModulo &host, void *param);
-    void caseExprBitAnd(ASTExprBitAnd &host, void *param);
-    void caseExprBitOr(ASTExprBitOr &host, void *param);
-    void caseExprBitXor(ASTExprBitXor &host, void *param);
-    void caseExprLShift(ASTExprLShift &host, void *param);
-    void caseExprRShift(ASTExprRShift &host, void *param);
+	void caseExprConst(ASTExprConst &host);
+    void caseNumConstant(ASTNumConstant &host);
+    void caseBoolConstant(ASTBoolConstant &host);
+    void caseStringConstant(ASTStringConstant &host);
+    void caseExprDot(ASTExprDot &host);
+    void caseExprArrow(ASTExprArrow &host);
+    void caseExprArray(ASTExprArray &host);
+    void caseFuncCall(ASTFuncCall &host);
+    void caseExprNegate(ASTExprNegate &host);
+    void caseExprNot(ASTExprNot &host);
+    void caseExprBitNot(ASTExprBitNot &host);
+    void caseExprIncrement(ASTExprIncrement &host);
+    void caseExprPreIncrement(ASTExprPreIncrement &host);
+    void caseExprDecrement(ASTExprDecrement &host);
+    void caseExprPreDecrement(ASTExprPreDecrement &host);
+    void caseExprAnd(ASTExprAnd &host);
+    void caseExprOr(ASTExprOr &host);
+    void caseExprGT(ASTExprGT &host);
+    void caseExprGE(ASTExprGE &host);
+    void caseExprLT(ASTExprLT &host);
+    void caseExprLE(ASTExprLE &host);
+    void caseExprEQ(ASTExprEQ &host);
+    void caseExprNE(ASTExprNE &host);
+    void caseExprPlus(ASTExprPlus &host);
+    void caseExprMinus(ASTExprMinus &host);
+    void caseExprTimes(ASTExprTimes &host);
+    void caseExprDivide(ASTExprDivide &host);
+    void caseExprModulo(ASTExprModulo &host);
+    void caseExprBitAnd(ASTExprBitAnd &host);
+    void caseExprBitOr(ASTExprBitOr &host);
+    void caseExprBitXor(ASTExprBitXor &host);
+    void caseExprLShift(ASTExprLShift &host);
+    void caseExprRShift(ASTExprRShift &host);
 
     bool isOK() {return !failure;}
     void fail() {failure = true;}
-    friend class GetLValType;
+	static bool check(SymbolTable& symbolTable, ZVarTypeId returnTypeId, AST& node);
+	static bool check(SymbolTable& symbolTable, AST& node);
 private:
+	SymbolTable& symbolTable;
+	ZVarTypeId returnTypeId;
     bool failure;
     static bool standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame);
-	bool checkExprTypes(TypeCheckParam& param, ASTUnaryExpr& expr, ZVarTypeId type);
-	bool checkExprTypes(TypeCheckParam& param, ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType);
-};
-
-class TypeCheckParam
-{
-public:
-	TypeCheckParam(SymbolTable & s, ZVarTypeId t) : symbols(s), type(t) {}
-	SymbolTable & symbols;
-	ZVarTypeId type;
+	bool checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type);
+	bool checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType);
+	ZVarTypeId getLValTypeId(AST& lval);
 };
 
 class GetLValType : public ASTVisitor
 {
 public:
-    void caseDefault(void *param);
-    void caseVarDecl(ASTVarDecl &host, void *param);
-    void caseExprDot(ASTExprDot &host, void *param);
-    void caseExprArrow(ASTExprArrow &host, void *param);
-    void caseExprArray(ASTExprArray &host, void *param);
-};
-
-class GetLValTypeParam
-{
-public:
-	GetLValTypeParam(TypeCheck & Tc, TypeCheckParam & TcParam) : tc(Tc), tcParam(TcParam), type(-1) {}
-	TypeCheck & tc;
-	TypeCheckParam & tcParam;
-	ZVarTypeId type;
+	GetLValType(TypeCheck& typeCheck);
+    void caseDefault(void* param);
+    void caseVarDecl(ASTVarDecl& host);
+    void caseExprDot(ASTExprDot& host);
+    void caseExprArrow(ASTExprArrow& host);
+    void caseExprArray(ASTExprArray& host);
+	ZVarTypeId typeId;
+private:
+	TypeCheck& typeCheck;
 };
 
 #endif

@@ -744,67 +744,30 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
         delete fd;
         return NULL;
     }
-    
-    //fd is now loaded with all the info
-    //so run type-checker visitor
-    for(vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    for(vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    for(vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    for(vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
+
+    // fd is now loaded with all the info so run type-checker visitor.
+    for (vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
+    for (vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
+    for (vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
+    for (vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-    {
-        int rettype = fd->symbols->getFuncReturnTypeId(*it);
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, rettype);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    if(fd->globalVars.size() + fd->newGlobalVars.size() > 256)
+		failure = failure || !TypeCheck::check(*fd->symbols, fd->symbols->getFuncReturnTypeId(*it), **it);
+
+    if (fd->globalVars.size() + fd->newGlobalVars.size() > 256)
     {
         printErrorMsg(NULL, TOOMANYGLOBAL);
         failure = true;
     }
     
-    if(failure)
+    if (failure)
     {
         //delete stuff
         for(vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
