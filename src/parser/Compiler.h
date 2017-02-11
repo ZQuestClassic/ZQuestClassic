@@ -60,6 +60,8 @@ private:
 
 enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
 
+typedef int ZVarTypeId;
+
 struct ScriptsData
 {
     std::map<string, vector<Opcode *> > theScripts;
@@ -133,7 +135,7 @@ public:
 						return TYPE_VOID;
 				}
 		}
-    static string printType(int type)
+    static string printType(ZVarTypeId type)
     {
         switch(type)
         {
