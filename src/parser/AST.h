@@ -106,17 +106,7 @@ class ASTExprLShift;
 class ASTExprRShift;
 // Types
 class ASTScriptType;
-class ASTType; // virtual
-class ASTTypeVoid;
-class ASTTypeGlobal;
-class ASTTypeFloat;
-class ASTTypeBool;
-class ASTTypeFFC;
-class ASTTypeItem;
-class ASTTypeItemclass;
-class ASTTypeNPC;
-class ASTTypeLWpn;
-class ASTTypeEWpn;
+class ASTVarType;
 
 class ASTVisitor
 {
@@ -248,26 +238,8 @@ public:
 	// Types
 	virtual void caseScriptType(ASTScriptType&, void* param) {caseDefault(param);}
 	virtual void caseScriptType(ASTScriptType& node) {caseScriptType(node, NULL);}
-    virtual void caseTypeVoid(ASTTypeVoid&, void* param) {caseDefault(param);}
-    virtual void caseTypeVoid(ASTTypeVoid& node) {caseTypeVoid(node, NULL);}
-    virtual void caseTypeGlobal(ASTTypeGlobal&, void* param) {caseDefault(param);}
-    virtual void caseTypeGlobal(ASTTypeGlobal& node) {caseTypeGlobal(node, NULL);}
-    virtual void caseTypeFloat(ASTTypeFloat&, void* param) {caseDefault(param);}
-    virtual void caseTypeFloat(ASTTypeFloat& node) {caseTypeFloat(node, NULL);}
-    virtual void caseTypeBool(ASTTypeBool&, void* param) {caseDefault(param);}
-    virtual void caseTypeBool(ASTTypeBool& node) {caseTypeBool(node, NULL);}
-    virtual void caseTypeFFC(ASTTypeFFC&, void* param) {caseDefault(param);}
-    virtual void caseTypeFFC(ASTTypeFFC& node) {caseTypeFFC(node, NULL);}
-    virtual void caseTypeItem(ASTTypeItem&, void* param) {caseDefault(param);}
-    virtual void caseTypeItem(ASTTypeItem& node) {caseTypeItem(node, NULL);}
-    virtual void caseTypeItemclass(ASTTypeItemclass&, void* param) {caseDefault(param);}
-    virtual void caseTypeItemclass(ASTTypeItemclass& node) {caseTypeItemclass(node, NULL);}
-    virtual void caseTypeNPC(ASTTypeNPC&, void* param) {caseDefault(param);}
-    virtual void caseTypeNPC(ASTTypeNPC& node) {caseTypeNPC(node, NULL);}
-    virtual void caseTypeLWpn(ASTTypeLWpn&, void* param) {caseDefault(param);}
-    virtual void caseTypeLWpn(ASTTypeLWpn& node) {caseTypeLWpn(node, NULL);}
-    virtual void caseTypeEWpn(ASTTypeEWpn&, void* param) {caseDefault(param);}
-    virtual void caseTypeEWpn(ASTTypeEWpn& node) {caseTypeEWpn(node, NULL);}
+    virtual void caseVarType(ASTVarType&, void* param) {caseDefault(param);}
+    virtual void caseVarType(ASTVarType& node) {caseVarType(node, NULL);}
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -706,13 +678,13 @@ public:
 	ASTFuncDecl* clone() const;
     
     void setName(string n) {name = n;}
-    void setReturnType(ASTType *type) {rettype = type;}
+    void setReturnType(ASTVarType *type) {rettype = type;}
     void setBlock(ASTBlock *b) {block = b;}
     
     void addParam(ASTVarDecl *param);
     list<ASTVarDecl *> const &getParams() const {return params;}
     list<ASTVarDecl *> &getParams() {return params;}
-    ASTType *getReturnType() const {return rettype;}
+    ASTVarType *getReturnType() const {return rettype;}
     ASTBlock *getBlock() const {return block;}
     string getName() const {return name;}
     
@@ -721,18 +693,18 @@ public:
 private:
     string name;
     list<ASTVarDecl *> params;
-    ASTType *rettype;
+    ASTVarType *rettype;
     ASTBlock *block;
 };
 
 class ASTArrayDecl : public ASTDecl
 {
 public:
-    ASTArrayDecl(ASTType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc);
+    ASTArrayDecl(ASTVarType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc);
     ~ASTArrayDecl();
 	ASTArrayDecl* clone() const;
 
-    ASTType *getType() const {return type;}
+    ASTVarType *getType() const {return type;}
     string getName() const {return name;}
 
     ASTExpr *getSize() const {return size;}
@@ -743,7 +715,7 @@ private:
     string name;
     ASTArrayList *list;
     ASTExpr *size;
-    ASTType *type;
+    ASTVarType *type;
     //NOT IMPLEMENTED; DO NOT USE
     ASTArrayDecl(ASTArrayDecl &);
     ASTArrayDecl &operator=(ASTArrayDecl &);
@@ -778,23 +750,23 @@ private:
 class ASTVarDecl : public ASTDecl
 {
 public:
-    ASTVarDecl(ASTType *Type, string Name, LocationData Loc) : ASTDecl(Loc), type(Type), name(Name) {}
+    ASTVarDecl(ASTVarType *Type, string Name, LocationData Loc) : ASTDecl(Loc), type(Type), name(Name) {}
     virtual ~ASTVarDecl();
 	virtual ASTVarDecl* clone() const;
 
-    ASTType *getType() const {return type;}
+    ASTVarType *getType() const {return type;}
     string getName() const {return name;}
     void execute(ASTVisitor &visitor, void* param) {visitor.caseVarDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseVarDecl(*this);}
 private:
-    ASTType *type;
+    ASTVarType *type;
     string name;
 };
 
 class ASTVarDeclInitializer : public ASTVarDecl
 {
 public:
-    ASTVarDeclInitializer(ASTType *Type, string Name, ASTExpr *Initial, LocationData Loc);
+    ASTVarDeclInitializer(ASTVarType *Type, string Name, ASTExpr *Initial, LocationData Loc);
     ~ASTVarDeclInitializer();
 	ASTVarDeclInitializer* clone() const;
     
@@ -1316,168 +1288,6 @@ public:
 
 };
 
-// Types
-
-class ASTScriptType : public AST
-{
-public:
-	ASTScriptType(ScriptType Type, LocationData Loc) : AST(Loc), type(Type) {}
-	ASTScriptType* clone() const {return new ASTScriptType(type, getLocation());}
-	ScriptType getType() const {return type;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseScriptType(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseScriptType(*this);}
-private:
-	ScriptType type;
-};
-
-class ASTType : public AST
-{
-public:
-    ASTType(LocationData Loc) : AST(Loc) {}
-	virtual ASTType* clone() const = 0;
-    virtual void execute(ASTVisitor &visitor, void *param) = 0;
-    virtual void execute(ASTVisitor &visitor) = 0;
-};
-
-class ASTTypeVoid : public ASTType
-{
-public:
-    ASTTypeVoid(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeVoid* clone() const;
-    
-    void execute(ASTVisitor &visitor, void* param) {visitor.caseTypeVoid(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeVoid(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeVoid(ASTTypeVoid &);
-    ASTTypeVoid &operator=(ASTTypeVoid &);
-};
-
-class ASTTypeGlobal : public ASTType
-{
-public:
-    ASTTypeGlobal(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeGlobal* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeGlobal(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeGlobal(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeGlobal(ASTTypeGlobal &);
-    ASTTypeGlobal &operator=(ASTTypeGlobal &);
-};
-
-class ASTTypeFloat : public ASTType
-{
-public:
-    ASTTypeFloat(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeFloat* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeFloat(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeFloat(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeFloat(ASTTypeFloat &);
-    ASTTypeFloat &operator=(ASTTypeFloat &);
-};
-
-class ASTTypeBool : public ASTType
-{
-public:
-    ASTTypeBool(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeBool* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeBool(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeBool(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeBool(ASTTypeBool &);
-    ASTTypeBool &operator =(ASTTypeBool &);
-};
-
-class ASTTypeFFC : public ASTType
-{
-public:
-    ASTTypeFFC(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeFFC* clone() const;
-    
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeFFC(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeFFC(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeFFC(ASTTypeFFC &);
-    ASTTypeFFC &operator=(ASTTypeFFC &);
-};
-
-class ASTTypeItem : public ASTType
-{
-public:
-    ASTTypeItem(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeItem* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeItem(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeItem(*this);}
-private:
-    ASTTypeItem(ASTTypeItem &);
-    ASTTypeItem &operator=(ASTTypeItem &);
-};
-
-class ASTTypeItemclass : public ASTType
-{
-public:
-    ASTTypeItemclass(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeItemclass* clone() const;
-        
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeItemclass(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeItemclass(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeItemclass(ASTTypeItemclass &);
-    ASTTypeItemclass &operator=(ASTTypeItemclass &);
-};
-
-class ASTTypeNPC : public ASTType
-{
-public:
-    ASTTypeNPC(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeNPC* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeNPC(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeNPC(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeNPC(ASTTypeNPC &);
-    ASTTypeNPC &operator=(ASTTypeNPC &);
-};
-
-class ASTTypeLWpn : public ASTType
-{
-public:
-    ASTTypeLWpn(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeLWpn* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeLWpn(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeLWpn(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeLWpn(ASTTypeLWpn &);
-    ASTTypeLWpn &operator=(ASTTypeLWpn &);
-};
-
-class ASTTypeEWpn : public ASTType
-{
-public:
-    ASTTypeEWpn(LocationData Loc) : ASTType(Loc) {}
-	ASTTypeEWpn* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeEWpn(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeEWpn(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTTypeEWpn(ASTTypeEWpn &);
-    ASTTypeEWpn &operator=(ASTTypeEWpn &);
-};
-
 class ASTShiftExpr : public ASTBinaryExpr
 {
 public:
@@ -1507,6 +1317,38 @@ public:
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprRShift(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprRShift(*this);}
+};
+// Types
+
+class ASTScriptType : public AST
+{
+public:
+	ASTScriptType(ScriptType Type, LocationData Loc) : AST(Loc), type(Type) {}
+	ASTScriptType* clone() const {return new ASTScriptType(type, getLocation());}
+	ScriptType getType() const {return type;}
+    void execute(ASTVisitor &visitor, void *param) {visitor.caseScriptType(*this, param);}
+    void execute(ASTVisitor &visitor) {visitor.caseScriptType(*this);}
+private:
+	ScriptType type;
+};
+
+class ASTVarType : public AST
+{
+public:
+    ASTVarType(ZVarType const& type, LocationData Loc) : AST(Loc), type(type.clone()) {}
+	ASTVarType(ASTVarType const& base) : AST(base.getLocation()), type(base.type->clone()) {}
+	~ASTVarType() {delete type;}
+	ASTVarType* clone() const {return new ASTVarType(*this);}
+	ASTVarType& operator=(ASTVarType const& base)
+	{
+		getLocation() = base.getLocation();
+		type = base.type->clone();
+	}
+    void execute(ASTVisitor &visitor, void* param) {visitor.caseVarType(*this, param);}
+    void execute(ASTVisitor &visitor) {visitor.caseVarType(*this);}
+	ZVarType const& getType() const {return *type;}
+private:
+	ZVarType* type;
 };
 
 #endif

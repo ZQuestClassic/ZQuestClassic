@@ -210,22 +210,6 @@ private:
     bool ok;
 };
 
-class ExtractType : public ASTVisitor
-{
-public:
-    void caseDefault(void *param);
-    void caseTypeVoid(ASTTypeVoid &host, void *param);
-    void caseTypeGlobal(ASTTypeGlobal &host, void *param);
-    void caseTypeFloat(ASTTypeFloat &host, void *param);
-    void caseTypeBool(ASTTypeBool &host, void *param);
-    void caseTypeFFC(ASTTypeFFC &host, void *param);
-    void caseTypeItem(ASTTypeItem &host, void *param);
-    void caseTypeItemclass(ASTTypeItemclass &host, void *param);
-    void caseTypeNPC(ASTTypeNPC &host, void *param);
-    void caseTypeLWpn(ASTTypeLWpn &host, void *param);
-    void caseTypeEWpn(ASTTypeEWpn &host, void *param);
-};
-
 class IsDotExpr : public ASTVisitor
 {
 public:

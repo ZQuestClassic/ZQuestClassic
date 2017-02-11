@@ -26,87 +26,85 @@ void BuildScriptSymbols::caseScript(ASTScript &host,void *param)
 void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
+	SymbolTable& symbolTable = *p->second;
     string name = host.getName();
     vector<int> params;
     list<ASTVarDecl *> vds = host.getParams();
 
-    for(list<ASTVarDecl *>::iterator it = vds.begin(); it != vds.end(); it++)
+    for (list<ASTVarDecl*>::iterator it = vds.begin(); it != vds.end(); it++)
     {
-        int type;
-        ExtractType temp;
-        (*it)->getType()->execute(temp, &type);
-        params.push_back(type);
+		ZVarType const& type = (*it)->getType()->getType();
+        params.push_back(symbolTable.getOrAssignTypeId(type));
 
-        if(type == ZVARTYPEID_VOID)
+        if (type == ZVarType::VOID)
         {
-            failure=true;
+            failure = true;
             printErrorMsg(&host, FUNCTIONVOIDPARAM, name);
         }
     }
 
-    int rettype;
-    ExtractType temp;
-    host.getReturnType()->execute(temp, &rettype);
-    int id = p->first->getFuncSymbols().addFunction(name,rettype,params);
+	ZVarType const& returnType = host.getReturnType()->getType();
+	ZVarTypeId returnTypeId = symbolTable.getTypeId(returnType);
+    int id = p->first->getFuncSymbols().addFunction(name, symbolTable.getOrAssignTypeId(returnType), params);
 
-    if(id == -1)
+    if (id == -1)
     {
         failure = true;
         printErrorMsg(&host, FUNCTIONREDEF, name);
         return;
     }
 
-    p->second->putNodeId(&host, id);
-    p->second->putFuncTypeIds(id, rettype, params);
+    symbolTable.putNodeId(&host, id);
+    symbolTable.putFuncTypeIds(id, returnTypeId, params);
 }
 
 void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
+	SymbolTable& symbolTable = *p->second;
     string name = host.getName();
-    int type;
-    ExtractType temp;
-    host.getType()->execute(temp, &type);
 
-    if(type == ZVARTYPEID_VOID)
+    ZVarType const& type = host.getType()->getType();
+
+    if (type == ZVarType::VOID)
     {
         failure = true;
         printErrorMsg(&host, VOIDARR, name);
     }
 
-    if(type == ZVARTYPEID_FFC || type == ZVARTYPEID_ITEM
-            || type == ZVARTYPEID_ITEMCLASS || type == ZVARTYPEID_NPC
-            || type == ZVARTYPEID_LWPN || type == ZVARTYPEID_EWPN)
+    if (type == ZVarType::FFC || type == ZVarType::ITEM || type == ZVarType::ITEMCLASS
+		|| type == ZVarType::NPC || type == ZVarType::LWPN || type == ZVarType::EWPN)
     {
         failure = true;
         printErrorMsg(&host, REFARR, name);
     }
 
     // var is always visible
-    int id = p->first->getVarSymbols().addVariable(name, type);
+	ZVarTypeId typeId = symbolTable.getOrAssignTypeId(type);
+    int id = p->first->getVarSymbols().addVariable(name, typeId);
 
-    if(id == -1)
+    if (id == -1)
     {
         failure = true;
         printErrorMsg(&host, ARRREDEF, name);
         return;
     }
 
-    p->second->putNodeId(&host, id);
-    p->second->putVarTypeId(id, type);
+    symbolTable.putNodeId(&host, id);
+    symbolTable.putVarTypeId(id, typeId);
 
-    if(this->deprecateGlobals)
+    if (this->deprecateGlobals)
     {
         printErrorMsg(&host, DEPRECATEDGLOBAL, name);
     }
 
-	((ASTExpr *) host.getSize())->execute(*this, param);
+	((ASTExpr *)host.getSize())->execute(*this, param);
 
     if(host.getList() != NULL)
     {
         for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
         {
-            (*it)->execute(*this,param);
+            (*it)->execute(*this, param);
         }
     }
 }
@@ -114,39 +112,39 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 {
     pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
+	SymbolTable& symbolTable = *p->second;
     string name = host.getName();
-    int type;
-    ExtractType temp;
-    host.getType()->execute(temp, &type);
-    
-    if(type == ZVARTYPEID_VOID)
+
+	ZVarType const& type = host.getType()->getType();
+	ZVarTypeId typeId = symbolTable.getOrAssignTypeId(type);
+
+    if (type == ZVarType::VOID)
     {
         failure = true;
         printErrorMsg(&host, VOIDVAR, name);
     }
-    
-    if(type == ZVARTYPEID_FFC || type == ZVARTYPEID_ITEM
-            || type == ZVARTYPEID_ITEMCLASS || type == ZVARTYPEID_NPC
-            || type == ZVARTYPEID_LWPN || type == ZVARTYPEID_EWPN)
+
+    if (type == ZVarType::FFC || type == ZVarType::ITEM || type == ZVarType::ITEMCLASS
+		|| type == ZVarType::NPC || type == ZVarType::LWPN || type == ZVarType::EWPN)
     {
         failure = true;
         printErrorMsg(&host, REFVAR, name);
     }
-    
-    //var is always visible
-    int id = p->first->getVarSymbols().addVariable(name, type);
-    
-    if(id == -1)
+
+    // Var is always visible.
+    int id = p->first->getVarSymbols().addVariable(name, typeId);
+
+    if (id == -1)
     {
         failure = true;
         printErrorMsg(&host, VARREDEF, name);
         return;
     }
-    
-    p->second->putNodeId(&host, id);
-    p->second->putVarTypeId(id, type);
-    
-    if(this->deprecateGlobals)
+
+    symbolTable.putNodeId(&host, id);
+    symbolTable.putVarTypeId(id, typeId);
+
+    if (this->deprecateGlobals)
     {
         printErrorMsg(&host, DEPRECATEDGLOBAL, name);
     }
@@ -154,7 +152,7 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 
 void BuildScriptSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
 {
-    host.getInitializer()->execute(*this,param);
+    host.getInitializer()->execute(*this, param);
     caseVarDecl(host, param);
 }
 
@@ -253,33 +251,31 @@ void BuildFunctionSymbols::caseStmtFor(ASTStmtFor &host, void *param)
 void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
     BFSParam *p = (BFSParam *)param;
-    //push in the scope
+    // Push in the scope.
     Scope *subscope = new Scope(p->scope);
     BFSParam newparam = {subscope,p->table,p->type};
-    //if it's a run method, add this
-    ExtractType et;
-    int rtype;
-    host.getReturnType()->execute(et, &rtype);
 
-    if(host.getName() == "run" && rtype == ZVARTYPEID_VOID)
+    // If it's a run method, add this
+	ZVarType const& returnType = host.getReturnType()->getType();
+
+    if (host.getName() == "run" && returnType == ZVarType::VOID)
     {
         int vid = subscope->getVarSymbols().addVariable("this", p->type);
         newparam.table->putVarTypeId(vid, ScriptParser::getThisType(p->type));
         thisvid=vid;
     }
 
-    //add the params
-    list<ASTVarDecl *> vars = host.getParams();
+    // Add the params.
+    list<ASTVarDecl*> vars = host.getParams();
 
-    for(list<ASTVarDecl *>::iterator it = vars.begin(); it != vars.end(); it++)
+    for (list<ASTVarDecl*>::iterator it = vars.begin(); it != vars.end(); it++)
     {
         string name = (*it)->getName();
-        int type;
-        ExtractType temp;
-        (*it)->getType()->execute(temp, &type);
-        int id = subscope->getVarSymbols().addVariable(name,type);
+		ZVarType const& type = (*it)->getType()->getType();
+		ZVarTypeId typeId = p->table->getOrAssignTypeId(type);
+        int id = subscope->getVarSymbols().addVariable(name, typeId);
 
-        if(id == -1)
+        if (id == -1)
         {
             printErrorMsg(*it, VARREDEF, name);
             failure = true;
@@ -287,7 +283,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
             return;
         }
 
-        p->table->putVarTypeId(id, type);
+        p->table->putVarTypeId(id, typeId);
         p->table->putNodeId(*it, id);
     }
 
@@ -306,12 +302,11 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
     BFSParam *p = (BFSParam *)param;
     string name = host.getName();
-    int type;
-    ExtractType temp;
-    host.getType()->execute(temp, &type);
-    int id = p->scope->getVarSymbols().addVariable(name, type);
+	ZVarType const& type = host.getType()->getType();
+	ZVarTypeId typeId = p->table->getOrAssignTypeId(type);
+    int id = p->scope->getVarSymbols().addVariable(name, typeId);
 
-    if(id == -1)
+    if (id == -1)
     {
         printErrorMsg(&host, ARRREDEF, name);
         failure = true;
@@ -319,15 +314,15 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     }
 
     p->table->putNodeId(&host, id);
-    p->table->putVarTypeId(id, type);
+    p->table->putVarTypeId(id, typeId);
 
-	((ASTExpr *) host.getSize())->execute(*this, param);
+	((ASTExpr*)host.getSize())->execute(*this, param);
 
-    if(host.getList() != NULL)
+    if (host.getList() != NULL)
     {
-        for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
+        for (list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
         {
-            (*it)->execute(*this,param);
+            (*it)->execute(*this, param);
         }
     }
 }
@@ -336,20 +331,19 @@ void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 {
     BFSParam *p = (BFSParam *)param;
     string name = host.getName();
-    int type;
-    ExtractType temp;
-    host.getType()->execute(temp, &type);
-    int id = p->scope->getVarSymbols().addVariable(name, type);
-    
-    if(id == -1)
+	ZVarType const& type = host.getType()->getType();
+	ZVarTypeId typeId = p->table->getOrAssignTypeId(type);
+    int id = p->scope->getVarSymbols().addVariable(name, typeId);
+
+    if (id == -1)
     {
         printErrorMsg(&host, VARREDEF, name);
         failure = true;
         return;
     }
-    
+
     p->table->putNodeId(&host, id);
-    p->table->putVarTypeId(id, type);
+    p->table->putVarTypeId(id, typeId);
 }
 
 void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)

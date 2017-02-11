@@ -475,7 +475,7 @@ void ASTFuncDecl::addParam(ASTVarDecl *param)
 
 // ASTArrayDecl
 
-ASTArrayDecl::ASTArrayDecl(ASTType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc)
+ASTArrayDecl::ASTArrayDecl(ASTVarType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc)
 		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type)
 {}
 
@@ -543,7 +543,7 @@ ASTVarDecl* ASTVarDecl::clone() const
 
 // ASTVarDeclInitializer
 
-ASTVarDeclInitializer::ASTVarDeclInitializer(ASTType *Type, string Name, ASTExpr *Initial, LocationData Loc)
+ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarType *Type, string Name, ASTExpr *Initial, LocationData Loc)
 		: ASTVarDecl(Type,Name,Loc), initial(Initial)
 {}
 
@@ -1046,75 +1046,4 @@ ASTExprRShift* ASTExprRShift::clone() const
 
 // ASTScriptType
 
-// ASTType
-
-// ASTTypeVoid
-
-ASTTypeVoid* ASTTypeVoid::clone() const
-{
-	return new ASTTypeVoid(getLocation());
-}
-
-// ASTTypeGlobal
-
-ASTTypeGlobal* ASTTypeGlobal::clone() const
-{
-	return new ASTTypeGlobal(getLocation());
-}
-
-// ASTTypeFloat
-
-ASTTypeFloat* ASTTypeFloat::clone() const
-{
-	return new ASTTypeFloat(getLocation());
-}
-
-// ASTTypeBool
-
-ASTTypeBool* ASTTypeBool::clone() const
-{
-	return new ASTTypeBool(getLocation());
-}
-
-// ASTTypeFFC
-
-ASTTypeFFC* ASTTypeFFC::clone() const
-{
-	return new ASTTypeFFC(getLocation());
-}
-
-// ASTTypeItem
-
-ASTTypeItem* ASTTypeItem::clone() const
-{
-	return new ASTTypeItem(getLocation());
-}
-
-// ASTTypeItemclass
-
-ASTTypeItemclass* ASTTypeItemclass::clone() const
-{
-	return new ASTTypeItemclass(getLocation());
-}
-
-// ASTTypeNPC
-
-ASTTypeNPC* ASTTypeNPC::clone() const
-{
-	return new ASTTypeNPC(getLocation());
-}
-
-// ASTTypeLWpn
-
-ASTTypeLWpn* ASTTypeLWpn::clone() const
-{
-	return new ASTTypeLWpn(getLocation());
-}
-
-// ASTTypeEWpn
-
-ASTTypeEWpn* ASTTypeEWpn::clone() const
-{
-	return new ASTTypeEWpn(getLocation());
-}
-
+// ASTVarType

@@ -136,55 +136,57 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
 
-ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTType *)$1;
-														ASTString *name = (ASTString *)$2;
-														ASTExprConst *size = (ASTExprConst *)$4;
-														$$ = new ASTArrayDecl(type, name->getValue(), size, NULL, @1);
-														delete name;}
+ArrayDecl :
+	Type IDENTIFIER LBRACKET ConstExpr RBRACKET {
+			ASTVarType *type = (ASTVarType*)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTExprConst *size = (ASTExprConst *)$4;
+			$$ = new ASTArrayDecl(type, name->getValue(), size, NULL, @1);
+			delete name;}
+	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN LBRACE ArrayList RBRACE {
+			ASTVarType *type = (ASTVarType*)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTExprConst *size = (ASTExprConst *)$4;
+			ASTArrayList *list = (ASTArrayList *)$8;
+			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
+			delete name;}
+ 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN LBRACE ArrayList RBRACE {
+			ASTVarType *type = (ASTVarType*)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTArrayList *list = (ASTArrayList *)$7;
+			char val[15];
+			sprintf(val, "%d", list->getList().size());
+			ASTExpr *size = new ASTNumConstant(new ASTFloat(val, 0, @1), @1);
+			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
+			delete name;}
+	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN QUOTEDSTRING {
+			ASTVarType *type = (ASTVarType*)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTExprConst *size = (ASTExprConst *)$4;
+			ASTArrayList *list = new ASTArrayList(@1);
+			ASTString *string = (ASTString *)$7;
 
-	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
-																				ASTString *name = (ASTString *)$2;
-																				ASTExprConst *size = (ASTExprConst *)$4;
-																				ASTArrayList *list = (ASTArrayList *)$8;
-																				$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
-																				delete name;}
- 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
-																			ASTString *name = (ASTString *)$2;
-																			ASTArrayList *list = (ASTArrayList *)$7;
-																			char val[15];
-																			sprintf(val, "%d", list->getList().size());
-																			ASTExpr *size = new ASTNumConstant(new ASTFloat(val, 0, @1), @1);
-																			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
-																			delete name;}
+			list->makeString();
+			list->addString(string->getValue());
 
-	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
-																		ASTString *name = (ASTString *)$2;
-																		ASTExprConst *size = (ASTExprConst *)$4;
-																		ASTArrayList *list = new ASTArrayList(@1);
-																		ASTString *string = (ASTString *)$7;
+			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
+			delete name;}
 
-																		list->makeString();
-																		list->addString(string->getValue());
+ 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN QUOTEDSTRING {
+			ASTVarType *type = (ASTVarType*)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTArrayList *list = new ASTArrayList(@1);
+			list->makeString();
+			ASTString *string = (ASTString *)$6;
+			ASTExpr *size = new ASTNumConstant(new ASTFloat(string->getValue().length()-1, 0, @1), @1);
 
-																		$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
-																		delete name;}
+			for(unsigned int i=1; i < string->getValue().length()-1; i++)
+				list->addParam(new ASTNumConstant(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
 
- 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
-																ASTString *name = (ASTString *)$2;
-																ASTArrayList *list = new ASTArrayList(@1);
-																list->makeString();
-																ASTString *string = (ASTString *)$6;
-																ASTExpr *size = new ASTNumConstant(new ASTFloat(string->getValue().length()-1, 0, @1), @1);
-
-																for(unsigned int i=1; i < string->getValue().length()-1; i++)
-																	list->addParam(new ASTNumConstant(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
-
-																list->addParam(new ASTNumConstant(new ASTFloat(0L, 0, @1), @1));
-																$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
-																delete name;}
+			list->addParam(new ASTNumConstant(new ASTFloat(0L, 0, @1), @1));
+			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
+			delete name;}
 	;
-
-
 
 ArrayList : ArrayList COMMA Expr {	ASTArrayList *al = (ASTArrayList *)$1;
 									al->addParam((ASTExpr*)$3);
@@ -232,41 +234,45 @@ ScriptStmt : VarDecl SEMICOLON {$$ = $1;}
 	| FuncDecl {$$ = $1;}
 	;
 
-VarDecl : Type IDENTIFIER {ASTType *type = (ASTType *)$1;
-				   ASTString *name = (ASTString *)$2;
-				   $$ = new ASTVarDecl(type, name->getValue(),@1);
-				   delete name;}
+VarDecl : Type IDENTIFIER {
+		ASTVarType *type = (ASTVarType*)$1;
+		ASTString *name = (ASTString*)$2;
+		$$ = new ASTVarDecl(type, name->getValue(), @1);
+		delete name;}
 	;
 
-Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
-	| ZBOOL {$$ = new ASTTypeBool(@1);}
-	| ZVOID {$$ = new ASTTypeVoid(@1);}
-	| FFC {$$ = new ASTTypeFFC(@1);}
-	| ITEM {$$ = new ASTTypeItem(@1);}
-	| ITEMCLASS {$$ = new ASTTypeItemclass(@1);}
-	| NPC		{$$ = new ASTTypeNPC(@1);}
-	| LWEAPON	{$$ = new ASTTypeLWpn(@1);}
-	| EWEAPON	{$$ = new ASTTypeEWpn(@1);}
+Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::VOID, @1);}
+	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @1);}
+	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @1);}
+	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @1);}
+	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @1);}
+	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @1);}
+	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @1);}
+	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @1);}
+	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @1);}
 	;
 
-FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {ASTFuncDecl *fd = (ASTFuncDecl *)$4;
-									    ASTType *rettype = (ASTType *)$1;
-									    ASTString *name = (ASTString *)$2;
-									    ASTBlock *block = (ASTBlock *)$6;
-									    fd->setName(name->getValue());
-									    delete name;
-									    fd->setReturnType(rettype);
-									    fd->setBlock(block);
-									    $$=fd;}
-	| Type IDENTIFIER LPAREN RPAREN Block {ASTFuncDecl *fd = new ASTFuncDecl(@1);
-							   ASTType *rettype = (ASTType *)$1;
-							   ASTString *name = (ASTString *)$2;
-							   ASTBlock *block = (ASTBlock *)$5;
-							   fd->setName(name->getValue());
-							   delete name;
-							   fd->setReturnType(rettype);
-							   fd->setBlock(block);
-							   $$=fd;}
+FuncDecl :
+	Type IDENTIFIER LPAREN ParamList RPAREN Block {
+			ASTFuncDecl *fd = (ASTFuncDecl *)$4;
+			ASTVarType *rettype = (ASTVarType *)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTBlock *block = (ASTBlock *)$6;
+			fd->setName(name->getValue());
+			delete name;
+			fd->setReturnType(rettype);
+			fd->setBlock(block);
+			$$ = fd;}
+	| Type IDENTIFIER LPAREN RPAREN Block {
+			ASTFuncDecl *fd = new ASTFuncDecl(@1);
+			ASTVarType *rettype = (ASTVarType*)$1;
+			ASTString *name = (ASTString *)$2;
+			ASTBlock *block = (ASTBlock *)$5;
+			fd->setName(name->getValue());
+			delete name;
+			fd->setReturnType(rettype);
+			fd->setBlock(block);
+			$$ = fd;}
 	;
 
 ParamList : VarDecl COMMA ParamList {ASTFuncDecl *fd = (ASTFuncDecl *)$3;
