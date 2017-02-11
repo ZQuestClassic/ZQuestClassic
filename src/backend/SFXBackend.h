@@ -271,6 +271,13 @@ public:
     * and unload them from the hardware, freeing room for future sound effects.
     */
     void garbageCollect();
+
+    /*
+    * Writes the sample in the given slot to the given file name. Returns
+    * true on success, and false on failure (either due to no sample existing
+    * in the designated slot, or file IO problems writing the sample to disk.)
+    */
+    bool saveWAV(int slot, const char *filename);
 	
 	friend class Backend;
 

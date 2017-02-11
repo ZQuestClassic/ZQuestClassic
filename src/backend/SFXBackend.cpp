@@ -1,5 +1,6 @@
 #include "SFXBackend.h"
 #include "../zdefs.h"
+#include <fstream>
 
 SFXSample::SFXSample(const SAMPLE &s)
 {
@@ -346,4 +347,57 @@ void SFXBackend::setPanStyle(int style)
     if (style < 0 || style > 3)
         return;
     pan_style_ = style;
+}
+
+bool SFXBackend::saveWAV(int slot, const char *filename)
+{
+    if (slot < 0 || slot >= (int)samples_.size() || !samples_[slot])
+        return false;
+
+    std::ofstream ofs(filename, std::ios::binary);
+    if (!ofs)
+        return false;
+    ofs.write("RIFF",4);
+    int32_t samplerate = samples_[slot]->sample.freq;
+    int16_t channels = samples_[slot]->sample.stereo ? 2 : 1;
+    int32_t datalen = samples_[slot]->sample.len*channels*samples_[slot]->sample.bits / 8;
+    int32_t size = 36 + datalen;
+    ofs.write((char *)&size, 4);
+    ofs.write("WAVE", 4);
+    ofs.write("fmt ", 4);
+    int32_t fmtlen = 16;
+    ofs.write((char *)&fmtlen, 4);
+    int16_t type = 1;
+    ofs.write((char *)&type, 2);
+    ofs.write((char *)&channels, 2);
+    ofs.write((char *)&samplerate, 4);
+    int32_t bytespersec = samplerate*channels*samples_[slot]->sample.bits / 8; 
+    ofs.write((char *)&bytespersec, 4);
+    int16_t blockalign = channels*samples_[slot]->sample.bits / 8;
+    ofs.write((char *)&blockalign, 2);
+    int16_t bitspersample = samples_[slot]->sample.bits;
+    ofs.write((char *)&bitspersample, 2);
+    ofs.write("data", 4);
+    ofs.write((char *)&datalen, 4);
+    if (bitspersample == 8)
+    {
+        for (int i = 0; i < (int)samples_[slot]->sample.len*channels; i++)
+        {
+            char data = ((char *)samples_[slot]->sample.data)[i];
+            data ^= 0x80;
+            ofs.write(&data, 1);
+        }
+    }
+    else if (bitspersample == 16)
+    {
+        for (int i = 0; i < (int)samples_[slot]->sample.len*channels; i++)
+        {
+            int16_t data = ((int16_t *)samples_[slot]->sample.data)[i];
+            data ^= 0x8000;
+            ofs.write((char *)&data, 2);
+        }
+    }
+    else
+        return false;
+    return !!ofs;
 }
