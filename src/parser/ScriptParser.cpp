@@ -20,6 +20,40 @@
 using namespace std;
 //#define PARSER_DEBUG
 
+// Standard Type definitions.
+ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void");
+ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float");
+ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool");
+ZVarTypeSimple const ZVarType::FFC(ZVARTYPEID_FFC, "ffc");
+ZVarTypeSimple const ZVarType::ITEM(ZVARTYPEID_ITEM, "item");
+ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemclass");
+ZVarTypeSimple const ZVarType::NPC(ZVARTYPEID_NPC, "npc");
+ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lwpn");
+ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "ewpn");
+ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game");
+ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link");
+ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen");
+
+ZVarType const* ZVarType::get(ZVarTypeId id)
+{
+	switch (id)
+	{
+		case ZVARTYPEID_VOID: return &VOID;
+		case ZVARTYPEID_FLOAT: return &FLOAT;
+		case ZVARTYPEID_BOOL: return &BOOL;
+		case ZVARTYPEID_FFC: return &FFC;
+		case ZVARTYPEID_ITEM: return &ITEM;
+		case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
+		case ZVARTYPEID_NPC: return &NPC;
+		case ZVARTYPEID_LWPN: return &LWPN;
+		case ZVARTYPEID_EWPN: return &EWPN;
+		case ZVARTYPEID_GAME: return &GAME;
+		case ZVARTYPEID_LINK: return &LINK;
+		case ZVARTYPEID_SCREEN: return &SCREEN;
+		default: return NULL;
+	}
+}
+
 AST *resAST;
 
 ScriptsData * compile(const char *filename);
@@ -237,24 +271,6 @@ int ScriptParser::fid = 0;
 int ScriptParser::gid = 1;
 int ScriptParser::lid = 0;
 
-// The following is NOT AT ALL compliant with the C++ standard
-// but apparently required by the MingW gcc...
-#ifndef _MSC_VER
-const int ScriptParser::TYPE_FLOAT;
-const int ScriptParser::TYPE_BOOL;
-const int ScriptParser::TYPE_VOID;
-const int ScriptParser::TYPE_LINK;
-const int ScriptParser::TYPE_FFC;
-const int ScriptParser::TYPE_ITEM;
-const int ScriptParser::TYPE_ITEMCLASS;
-const int ScriptParser::TYPE_SCREEN;
-const int ScriptParser::TYPE_GLOBAL;
-const int ScriptParser::TYPE_GAME;
-const int ScriptParser::TYPE_NPC;
-const int ScriptParser::TYPE_LWPN;
-const int ScriptParser::TYPE_EWPN;
-#endif
-
 string ScriptParser::trimQuotes(string quoteds)
 {
     string rval = quoteds.substr(1,quoteds.size()-2);
@@ -406,23 +422,18 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
         for(list<ASTVarDecl *>::iterator it2 = (*it)->getParams().begin();
                 it2 != (*it)->getParams().end(); it2++)
         {
-            int type;
-            ExtractType temp;
-            (*it2)->getType()->execute(temp, &type);
-            
-            if(type == ScriptParser::TYPE_VOID)
+            ZVarType const& type = (*it2)->getType()->getType();
+            if (type == ZVarType::VOID)
             {
                 printErrorMsg(*it2, FUNCTIONVOIDPARAM, (*it2)->getName());
-                failure=true;
+                failure = true;
             }
             
-            params.push_back(type);
+            params.push_back(t->getTypeId(type));
         }
         
-        int rettype;
-        ExtractType temp;
-        (*it)->getReturnType()->execute(temp, &rettype);
-        int id = globalScope->getFuncSymbols().addFunction((*it)->getName(), rettype, params);
+        ZVarType const& returnType = (*it)->getReturnType()->getType();
+        int id = globalScope->getFuncSymbols().addFunction((*it)->getName(), t->getTypeId(returnType), params);
         
         if(id == -1)
         {
@@ -444,9 +455,8 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             return NULL;
         }
         
-        t->putAST(*it, id);
-        t->putFunc(id, rettype);
-        t->putFuncDecl(id, params);
+        t->putNodeId(*it, id);
+        t->putFuncTypeIds(id, t->getTypeId(returnType), params);
         
     }
     
@@ -458,16 +468,16 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     int vid2;
     
     //add a Link global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-    t->putVar(vid2, ScriptParser::TYPE_LINK);
+    vid2 = globalScope->getVarSymbols().addVariable("Link", ZVARTYPEID_LINK);
+    t->putVarTypeId(vid2, ZVARTYPEID_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-    t->putVar(vid2, ScriptParser::TYPE_SCREEN);
+    vid2 = globalScope->getVarSymbols().addVariable("Screen", ZVARTYPEID_SCREEN);
+    t->putVarTypeId(vid2, ZVARTYPEID_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-    t->putVar(vid2, ScriptParser::TYPE_GAME);
+    vid2 = globalScope->getVarSymbols().addVariable("Game", ZVARTYPEID_GAME);
+    t->putVarTypeId(vid2, ZVARTYPEID_GAME);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST
@@ -559,9 +569,9 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                     }
                     else
                     {
-                        int type = t->getFuncType(runid);
+                        int type = t->getFuncReturnTypeId(runid);
                         
-                        if (type != ScriptParser::TYPE_VOID)
+                        if (type != ZVARTYPEID_VOID)
                         {
                             printErrorMsg(*it, SCRIPTRUNNOTVOID, (*it)->getName());
                             failure = true;
@@ -569,7 +579,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                         else
                         {
                             rval->runsymbols[*it] = runid;
-                            rval->numParams[*it] = (int)t->getFuncParams(runid).size();
+                            rval->numParams[*it] = (int)t->getFuncParamTypeIds(runid).size();
                             rval->scriptTypes[*it] = scripttype;
                         }
                     }
@@ -763,67 +773,30 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
         delete fd;
         return NULL;
     }
-    
-    //fd is now loaded with all the info
-    //so run type-checker visitor
-    for(vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    for(vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    for(vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    for(vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
-    {
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, -1);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
+
+    // fd is now loaded with all the info so run type-checker visitor.
+    for (vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
+    for (vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
+    for (vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
+    for (vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
+		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-    {
-        int rettype = fd->symbols->getFuncType(*it);
-        pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, rettype);
-        TypeCheck tc;
-        (*it)->execute(tc, &param);
-        
-        if(!tc.isOK())
-            failure = true;
-    }
-    
-    if(fd->globalVars.size() + fd->newGlobalVars.size() > 256)
+		failure = failure || !TypeCheck::check(*fd->symbols, fd->symbols->getFuncReturnTypeId(*it), **it);
+
+    if (fd->globalVars.size() + fd->newGlobalVars.size() > 256)
     {
         printErrorMsg(NULL, TOOMANYGLOBAL);
         failure = true;
     }
     
-    if(failure)
+    if (failure)
     {
         //delete stuff
         for(vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
@@ -880,13 +853,13 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     
     for(vector<ASTVarDecl *>::iterator it = globals.begin(); it != globals.end(); it++)
     {
-        int vid2 = symbols->getID(*it);
+        int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);
     }
     
     for(vector<ASTArrayDecl *>::iterator it = globalas.begin(); it != globalas.end(); it++)
     {
-        int vid2 = symbols->getID(*it);
+        int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);
     }
     
@@ -899,7 +872,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     
     for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
     {
-        int fid2 = symbols->getID(*it);
+        int fid2 = symbols->getNodeId(*it);
         lt.functionToLabel(fid2);
     }
     
@@ -1041,7 +1014,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         
         for(map<string,int>::iterator it2 = runsymbols.begin(); it2 != runsymbols.end(); it2++)
         {
-            if(it2->second == symbols->getID(*it))
+            if(it2->second == symbols->getNodeId(*it))
             {
                 isarun=true;
                 scriptname = it2->first;
@@ -1071,7 +1044,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         //finally, assign the parameters, in reverse order
 		for (list<ASTVarDecl *>::reverse_iterator paramit = (*it)->getParams().rbegin(); paramit != (*it)->getParams().rend(); ++paramit)
 		{
-			int vid = symbols->getID(*paramit);
+			int vid = symbols->getNodeId(*paramit);
 			sf.addToFrame(vid, offset);
 			offset += 10000;
 		}
@@ -1080,10 +1053,10 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(lt.functionToLabel(symbols->getID(*it)));
+        first->setLabel(lt.functionToLabel(symbols->getNodeId(*it)));
         funccode.push_back(first);
         //push on the 0s
-        int numtoallocate = totvars-(unsigned int)symbols->getFuncParams(symbols->getID(*it)).size();
+        int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(symbols->getNodeId(*it)).size();
 		//also don't count the "this"
 		if (isarun)
 			numtoallocate--;
@@ -1164,7 +1137,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
             funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
         }
         
-        rval->funcs[lt.functionToLabel(symbols->getID(*it))]=funccode;
+        rval->funcs[lt.functionToLabel(symbols->getNodeId(*it))]=funccode;
         delete *it;
     }
     
