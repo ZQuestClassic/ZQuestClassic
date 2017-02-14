@@ -55,56 +55,6 @@ int FunctionTypeIds::compare(FunctionTypeIds const& other) const
 FunctionTypeIds const FunctionTypeIds::null;
 
 ////////////////////////////////////////////////////////////////
-// FunctionSymbols
-
-int FunctionSymbols::addFunction(string name, int rettype, vector<int> paramtype)
-{
-    map<pair<string, vector<int> >, pair<int, int> >::iterator it = symbols.find(pair<string, vector<int> >(name, paramtype));
-    
-    if(it != symbols.end())
-        return -1;
-        
-    int id = ScriptParser::getUniqueFuncID();
-    symbols[pair<string, vector<int> >(name, paramtype)] = pair<int, int>(rettype, id);
-    map<string, vector<int> >::iterator it2 = ambiguous.find(name);
-    
-    if(it2 == ambiguous.end())
-    {
-        vector<int> newv;
-        newv.push_back(id);
-        ambiguous[name] = newv;
-    }
-    else
-    {
-        (*it2).second.push_back(id);
-    }
-    
-    return id;
-}
-
-bool FunctionSymbols::containsFunction(string name, vector<int> &params)
-{
-    return symbols.find(pair<string, vector<int> >(name,params)) != symbols.end();
-}
-
-int FunctionSymbols::getID(string name, vector<int> &params)
-{
-    map<pair<string, vector<int> >, pair<int, int> >::iterator it = symbols.find(pair<string, vector<int> >(name, params));
-    assert(it != symbols.end());
-    return it->second.second;
-}
-
-vector<int> FunctionSymbols::getFuncIDs(string name)
-{
-    map<string, vector<int> >::iterator it = ambiguous.find(name);
-    
-    if(it == ambiguous.end())
-        return vector<int>();
-        
-    return it->second;
-}
-
-////////////////////////////////////////////////////////////////
 // SymbolTable
 
 SymbolTable::SymbolTable(map<string, long> *consts)
@@ -270,6 +220,14 @@ void SymbolTable::printDiagnostics()
 ////////////////////////////////////////////////////////////////
 // Scope
 
+Scope::Scope(SymbolTable& table)
+	: table(table), children(), parent(NULL), variables(), functionsBySignature(), functionsByName()
+{}
+
+Scope::Scope(Scope* parent)
+	: table(parent->table), children(), parent(parent), variables(), functionsBySignature(), functionsByName()
+{}
+
 Scope::~Scope()
 {
 	for (map<string, Scope*>::iterator it = children.begin(); it != children.end(); ++it)
@@ -364,41 +322,123 @@ int Scope::addVar(string const& name, ZVarType const& type)
 	return addVar(name, table.getTypeId(type), NULL);
 }
 
-////////////////////////////////////////////////////////////////
+// Functions
 
-vector<int> Scope::getFuncsInScope(string nspace, string name)
+vector<int> Scope::getFuncIds(string const& nspace, string const& name) const
 {
-    vector<int> rval;
+	if (nspace == "") return getFuncIds(name);
 
-    if (nspace == "")
-    {
-        vector<int> thisscope = getFuncSymbols().getFuncIDs(name);
-        for (vector<int>::iterator it = thisscope.begin(); it != thisscope.end(); it++)
-        {
-            rval.push_back(*it);
-        }
-    }
+	vector<string> names;
+	names.push_back(nspace);
+	names.push_back(name);
+	return getFuncIds(names);
+}
 
-	Scope* child = getChild(nspace);
-    if (child)
-    {
-        vector<int> childscope = child->getFuncsInScope("", name);
-        for (vector<int>::iterator it2 = childscope.begin(); it2 != childscope.end(); it2++)
-        {
-            rval.push_back(*it2);
-        }
-    }
+vector<int> Scope::getFuncIds(vector<string> const& names) const
+{
+	vector<int> ids;
+	getFuncIds(ids, names);
+	return ids;
+}
 
-    if (parent != NULL)
-    {
-        vector<int> abovescope = parent->getFuncsInScope(nspace, name);
-        for (vector<int>::iterator it2 = abovescope.begin(); it2 != abovescope.end(); it2++)
-        {
-            rval.push_back(*it2);
-        }
-    }
+void Scope::getFuncIds(vector<int>& ids, vector<string> const& names) const
+{
+	if (names.size() < 1) return;
+	if (names.size() == 1)
+	{
+		getFuncIds(ids, names[0]);
+		return;
+	}
 
-    return rval;
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		child->getFuncIds(ids, childNames);
+	}
+
+	if (parent) parent->getFuncIds(ids, names);
+}
+
+vector<int> Scope::getFuncIds(string const& name) const
+{
+	vector<int> ids;
+	getFuncIds(ids, name);
+	return ids;
+}
+
+void Scope::getFuncIds(vector<int>& ids, string const& name) const
+{
+	map<string, vector<int> >::const_iterator it = functionsByName.find(name);
+	if (it != functionsByName.end())
+		ids.insert(ids.end(), it->second.begin(), it->second.end());
+
+	if (parent) parent->getFuncIds(ids, name);
+}
+
+int Scope::getFuncId(string const& nspace, FunctionSignature const& signature) const
+{
+	if (nspace == "") return getFuncId(signature);
+
+	vector<string> names;
+	names.push_back(nspace);
+	return getFuncId(names, signature);
+}
+
+int Scope::getFuncId(vector<string> const& names, FunctionSignature const& signature) const
+{
+	if (names.size() == 0) return getFuncId(signature);
+
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		int funcId = child->getFuncId(childNames, signature);
+		if (funcId != -1) return funcId;
+	}
+
+	if (parent) return parent->getFuncId(names, signature);
+	return -1;
+}
+
+int Scope::getFuncId(FunctionSignature const& signature) const
+{
+	map<FunctionSignature, int>::const_iterator it = functionsBySignature.find(signature);
+	if (it != functionsBySignature.end()) return it->second;
+	if (parent) return parent->getFuncId(signature);
+	return -1;
+}
+
+int Scope::addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+{
+	FunctionSignature signature(name, paramTypeIds);
+	map<FunctionSignature, int>::const_iterator it = functionsBySignature.find(signature);
+	if (it != functionsBySignature.end()) return -1;
+
+	int funcId = ScriptParser::getUniqueFuncID();
+	functionsByName[name].push_back(funcId);
+	functionsBySignature[signature] = funcId;
+	table.putFuncTypeIds(funcId, returnTypeId, paramTypeIds);
+	if (node) table.putNodeId(node, funcId);
+	return funcId;
+}
+
+int Scope::addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
+{
+	vector<ZVarTypeId> paramTypeIds;
+	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
+		paramTypeIds.push_back(table.getTypeId(**it));
+	return addFunc(name, table.getTypeId(returnType), paramTypeIds, node);
+}
+
+int Scope::addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
+{
+	return addFunc(name, returnTypeId, paramTypeIds, NULL);
+}
+
+int Scope::addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes)
+{
+	return addFunc(name, returnType, paramTypes, NULL);
 }
 
 ////////////////////////////////////////////////////////////////

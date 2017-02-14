@@ -44,8 +44,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
             param.push_back(table[i].params[k]);
 
         string& name = table[i].name;
-        scope.getFuncSymbols().addFunction(name, table[i].rettype, param);
-        symbolTable.putFuncTypeIds(id, table[i].rettype, param);
+        scope.addFunc(name, table[i].rettype, param);
         memberids[name] = id;
     }
 }

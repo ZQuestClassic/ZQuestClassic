@@ -383,7 +383,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     //add these functions to the global scope
     for(vector<ASTFuncDecl *>::iterator it = fds.begin(); it != fds.end(); it++)
     {
-        vector<int> params;
+        vector<ZVarTypeId> paramTypeIds;
         
         for(list<ASTVarDecl *>::iterator it2 = (*it)->getParams().begin();
                 it2 != (*it)->getParams().end(); it2++)
@@ -395,11 +395,11 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                 failure = true;
             }
             
-            params.push_back(t->getTypeId(type));
+            paramTypeIds.push_back(t->getOrAssignTypeId(type));
         }
         
         ZVarType const& returnType = (*it)->getReturnType()->getType();
-        int id = globalScope->getFuncSymbols().addFunction((*it)->getName(), t->getTypeId(returnType), params);
+        int id = globalScope->addFunc((*it)->getName(), t->getOrAssignTypeId(returnType), paramTypeIds, *it);
         
         if(id == -1)
         {
@@ -421,8 +421,6 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             return NULL;
         }
         
-        t->putNodeId(*it, id);
-        t->putFuncTypeIds(id, t->getTypeId(returnType), params);
         
     }
     
@@ -508,7 +506,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             else
             {
                 //find the start symbol
-                vector<int> possibleruns = subScope->getFuncsInScope((*it)->getName(), "run");
+                vector<int> possibleruns = subScope->getFuncIds((*it)->getName(), "run");
                 int runid = -1;
                 
                 if(possibleruns.size() > 1)
