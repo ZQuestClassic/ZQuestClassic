@@ -1,3 +1,4 @@
+#include <typeinfo>
 #include "Types.h"
 #include "DataStructs.h"
 
@@ -20,7 +21,7 @@ ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen");
 
 int ZVarType::compare(ZVarType const& other) const
 {
-	int c = classCompareId() - other.classCompareId();
+	int c = classId() - other.classId();
 	if (c) return c;
 	return selfCompare(other);
 }
@@ -57,6 +58,16 @@ int ZVarTypeSimple::selfCompare(ZVarType const& other) const
 bool ZVarTypeSimple::canBeGlobal() const
 {
 	return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
+}
+
+bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
+{
+	if (target.classId() != ZVARTYPE_CLASSID_SIMPLE) return false;
+	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
+	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID) return false;
+	if (simpleId == t.simpleId) return true;
+	if (simpleId == ZVARTYPEID_FLOAT && t.simpleId == ZVARTYPEID_BOOL) return true;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////

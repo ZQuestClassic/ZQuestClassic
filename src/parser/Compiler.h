@@ -119,50 +119,6 @@ public:
 			return ZVARTYPEID_VOID;
 		}
 	}
-    static string printType(ZVarTypeId type)
-    {
-        switch(type)
-        {
-        case ZVARTYPEID_FLOAT:
-            return "float";
-            
-        case ZVARTYPEID_BOOL:
-            return "bool";
-            
-        case ZVARTYPEID_VOID:
-            return "void";
-            
-        case ZVARTYPEID_FFC:
-            return "ffc";
-            
-        case ZVARTYPEID_LINK:
-            return "link";
-            
-        case ZVARTYPEID_SCREEN:
-            return "screen";
-            
-        case ZVARTYPEID_ITEM:
-            return "item";
-            
-        case ZVARTYPEID_ITEMCLASS:
-            return "itemdata";
-            
-        case ZVARTYPEID_GAME:
-            return "game";
-            
-        case ZVARTYPEID_NPC:
-            return "npc";
-            
-        case ZVARTYPEID_LWPN:
-            return "lweapon";
-            
-        case ZVARTYPEID_EWPN:
-            return "eweapon";
-            
-        default:
-            return "wtf";
-        }
-    }
 private:
     static string trimQuotes(string quoteds);
     static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);
