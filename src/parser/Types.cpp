@@ -1,4 +1,5 @@
 #include "Types.h"
+#include "DataStructs.h"
 
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void");
@@ -6,10 +7,10 @@ ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float");
 ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool");
 ZVarTypeSimple const ZVarType::FFC(ZVARTYPEID_FFC, "ffc");
 ZVarTypeSimple const ZVarType::ITEM(ZVARTYPEID_ITEM, "item");
-ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemclass");
+ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemdata");
 ZVarTypeSimple const ZVarType::NPC(ZVARTYPEID_NPC, "npc");
-ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lwpn");
-ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "ewpn");
+ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lweapon");
+ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "eweapon");
 ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game");
 ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link");
 ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen");
@@ -51,4 +52,20 @@ int ZVarTypeSimple::selfCompare(ZVarType const& other) const
 {
 	ZVarTypeSimple const& o = (ZVarTypeSimple const&)other;
 	return simpleId - o.simpleId;
+}
+
+////////////////////////////////////////////////////////////////
+// ZVarTypeUnresolved
+
+ZVarType* ZVarTypeUnresolved::resolve(Scope& scope)
+{
+	ZVarTypeId id = scope.getTypeId(name);
+	if (id == -1) return this;
+	return scope.getTable().getType(id)->clone();
+}
+
+int ZVarTypeUnresolved::selfCompare(ZVarType const& other) const
+{
+	ZVarTypeUnresolved const& o = (ZVarTypeUnresolved const&)other;
+	return name.compare(o.name);
 }

@@ -55,5 +55,6 @@ void printErrorMsg(AST *offender, int errorID, string param=string());
 #define ARRAYLISTSTRINGTOOLARGE 44
 #define NONINTEGERARRAYSIZE 45
 #define EXPRNOTCONSTANT 46
+#define UNRESOLVEDTYPE 47
 #endif
 

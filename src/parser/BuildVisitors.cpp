@@ -521,6 +521,8 @@ void BuildOpcodes::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *par
     addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
 }
 
+void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
+
 // Expressions
 
 void BuildOpcodes::caseNumConstant(ASTNumConstant &host, void *)

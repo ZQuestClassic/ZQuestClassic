@@ -43,6 +43,8 @@ public:
     virtual void caseVarDecl(ASTVarDecl &host);
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host);
+    virtual void caseTypeDef(ASTTypeDef&, void* param);
+    virtual void caseTypeDef(ASTTypeDef& node);
 	// Expressions
 	virtual void caseExprConst(ASTExprConst &host, void *param);
 	virtual void caseExprConst(ASTExprConst &host);
@@ -174,6 +176,21 @@ private:
     vector<ASTFuncDecl *> result;
 };
 
+class GetGlobalTypes : public ASTVisitor
+{
+public:
+	GetGlobalTypes() : result() {}
+
+	void caseDefault(void* param);
+	void caseProgram(ASTProgram& host, void* param);
+	void caseDeclList(ASTDeclList& host, void* param);
+	void caseTypeDef(ASTTypeDef& host, void* param);
+
+	vector<ASTTypeDef*> getResult() {return result;}
+private:
+	vector<ASTTypeDef*> result;
+};
+
 class GetScripts : public ASTVisitor
 {
 public:
@@ -236,6 +253,13 @@ class IsFuncDecl : public ASTVisitor
 public:
     void caseDefault(void *param) {*(bool *)param = false;}
     virtual void caseFuncDecl(ASTFuncDecl &, void *param) {*(bool *)param = true;}
+};
+
+class IsTypeDef : public ASTVisitor
+{
+public:
+    void caseDefault(void *param) {*(bool*)param = false;}
+    void caseTypeDef(ASTTypeDef &, void *param) {*(bool*)param = true;}
 };
 
 #endif

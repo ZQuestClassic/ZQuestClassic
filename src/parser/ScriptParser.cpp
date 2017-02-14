@@ -363,6 +363,20 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     Scope *globalScope = new Scope(*t);
     bool failure = false;
 
+	// Strip the global typedefs from the AST.
+	GetGlobalTypes gt;
+	theAST->execute(gt, NULL);
+	vector<ASTTypeDef*> gts = gt.getResult();
+
+	// Add the types to the global scope.
+	for (vector<ASTTypeDef*>::iterator it = gts.begin(); it != gts.end(); ++it)
+	{
+		BuildScriptSymbols bss;
+		(*it)->execute(bss, globalScope);
+
+		if (!bss.isOK()) failure = true;
+	}
+	
     //ADD LIBRARY FUNCTIONS TO THE GLOBAL SCOPE HERE
     GlobalSymbols::getInst().addSymbolsToScope(*globalScope);
     FFCSymbols::getInst().addSymbolsToScope(*globalScope);
@@ -388,7 +402,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
         for(list<ASTVarDecl *>::iterator it2 = (*it)->getParams().begin();
                 it2 != (*it)->getParams().end(); it2++)
         {
-            ZVarType const& type = (*it2)->getType()->getType();
+            ZVarType const& type = (*it2)->getType()->resolve(*globalScope);
             if (type == ZVarType::VOID)
             {
                 printErrorMsg(*it2, FUNCTIONVOIDPARAM, (*it2)->getName());
@@ -398,7 +412,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             paramTypeIds.push_back(t->getOrAssignTypeId(type));
         }
         
-        ZVarType const& returnType = (*it)->getReturnType()->getType();
+        ZVarType const& returnType = (*it)->getReturnType()->resolve(*globalScope);
         int id = globalScope->addFunc((*it)->getName(), t->getOrAssignTypeId(returnType), paramTypeIds, *it);
         
         if(id == -1)
@@ -465,7 +479,6 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
         if(!bss.isOK())
             failure = true;
     }
-    
     vector<ASTScript *> scripts;
     
     if(!failure)

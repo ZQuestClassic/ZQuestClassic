@@ -3,6 +3,7 @@
 
 #include "DataStructs.h"
 #include "Types.h"
+#include "ParseError.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -113,6 +114,12 @@ ZVarTypeId SymbolTable::getTypeId(ZVarType const& type) const
 
 ZVarTypeId SymbolTable::assignTypeId(ZVarType const& type)
 {
+	if (!type.isResolved())
+	{
+		printErrorMsg(NULL, UNRESOLVEDTYPE, type.getName());
+		return -1;
+	}
+
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess>::const_iterator it = typeIds.find((ZVarType*)&type);
 	if (it != typeIds.end()) return -1;
 	ZVarTypeId id = types.size();
@@ -124,6 +131,12 @@ ZVarTypeId SymbolTable::assignTypeId(ZVarType const& type)
 
 ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 {
+	if (!type.isResolved())
+	{
+		printErrorMsg(NULL, UNRESOLVEDTYPE, type.getName());
+		return -1;
+	}
+
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess>::const_iterator it = typeIds.find((ZVarType*)&type);
 	if (it != typeIds.end()) return it->second;
 	ZVarTypeId id = types.size();
@@ -221,11 +234,18 @@ void SymbolTable::printDiagnostics()
 // Scope
 
 Scope::Scope(SymbolTable& table)
-	: table(table), children(), parent(NULL), variables(), functionsBySignature(), functionsByName()
-{}
+	: table(table), children(), parent(NULL), types(), variables(), functionsBySignature(), functionsByName()
+{
+	// Add basic types to the top level scope.
+	for (int id = ZVARTYPEID_VOID; id <= ZVARTYPEID_EWPN; ++id)
+	{
+		ZVarType const& type = *ZVarType::get(id);
+		types[type.getName()] = id;
+	}
+}
 
 Scope::Scope(Scope* parent)
-	: table(parent->table), children(), parent(parent), variables(), functionsBySignature(), functionsByName()
+	: table(parent->table), children(), parent(parent), types(), variables(), functionsBySignature(), functionsByName()
 {}
 
 Scope::~Scope()
@@ -257,6 +277,111 @@ Scope& Scope::getOrMakeChild(string const& name)
 	if (it != children.end()) return *it->second;
 	children[name] = new Scope(this);
 	return *children[name];
+}
+
+// Types
+
+int Scope::getTypeId(string const& nspace, string const& name) const
+{
+	if (nspace == "") return getTypeId(name);
+
+	vector<string> names;
+	names.push_back(nspace);
+	names.push_back(name);
+	return getTypeId(names);
+}
+
+int Scope::getTypeId(vector<string> const& names) const
+{
+	if (names.size() < 1) return -1;
+	if (names.size() == 1) return getTypeId(names[0]);
+
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		int typeId = child->getTypeIdNoParent(childNames);
+		if (typeId != -1) return typeId;
+	}
+
+	if (parent) return parent->getTypeId(names);
+	return -1;
+}
+
+int Scope::getTypeIdNoParent(vector<string> const& names) const
+{
+	if (names.size() < 1) return -1;
+	if (names.size() == 1) return getTypeIdNoParent(names[0]);
+
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		int typeId = child->getTypeIdNoParent(childNames);
+		if (typeId != -1) return typeId;
+	}
+
+	return -1;
+}
+
+int Scope::getTypeId(string const& name) const
+{
+	map<string, int>::const_iterator it = types.find(name);
+	if (it != types.end()) return it->second;
+	if (parent) return parent->getTypeId(name);
+	return -1;
+}
+
+int Scope::getTypeIdNoParent(string const& name) const
+{
+	map<string, int>::const_iterator it = types.find(name);
+	if (it != types.end()) return it->second;
+	return -1;
+}
+
+ZVarType* Scope::getType(string const& nspace, string const& name) const
+{
+	ZVarTypeId typeId = getTypeId(nspace, name);
+	if (typeId == -1) return NULL;
+	return table.getType(typeId);
+}
+
+ZVarType* Scope::getType(vector<string> const& names) const
+{
+	ZVarTypeId typeId = getTypeId(names);
+	if (typeId == -1) return NULL;
+	return table.getType(typeId);
+}
+
+ZVarType* Scope::getType(string const& name) const
+{
+	ZVarTypeId typeId = getTypeId(name);
+	if (typeId == -1) return NULL;
+	return table.getType(typeId);
+}
+
+int Scope::addType(string const& name, ZVarTypeId typeId, AST* node)
+{
+	map<string, int>::const_iterator it = types.find(name);
+	if (it != types.end()) return -1;
+	types[name] = typeId;
+	if (node) table.putNodeId(node, typeId);
+	return typeId;
+}
+
+int Scope::addType(string const& name, ZVarType const& type, AST* node)
+{
+	return addType(name, table.getOrAssignTypeId(type), node);
+}
+
+int Scope::addType(string const& name, ZVarTypeId typeId)
+{
+	return addType(name, typeId, NULL);
+}
+
+int Scope::addType(string const& name, ZVarType const& type)
+{
+	return addType(name, table.getOrAssignTypeId(type), NULL);
 }
 
 // Variables
@@ -318,7 +443,6 @@ int Scope::getVarIdNoParent(string const& name) const
 	if (it != variables.end()) return it->second;
 	return -1;
 }
-
 
 int Scope::addVar(string const& name, ZVarTypeId typeId, AST* node)
 {
