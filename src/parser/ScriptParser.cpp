@@ -434,16 +434,13 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     int vid2;
     
     //add a Link global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Link", ZVARTYPEID_LINK);
-    t->putVarTypeId(vid2, ZVARTYPEID_LINK);
+    vid2 = globalScope->addVar("Link", ZVARTYPEID_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Screen", ZVARTYPEID_SCREEN);
-    t->putVarTypeId(vid2, ZVARTYPEID_SCREEN);
+    vid2 = globalScope->addVar("Screen", ZVARTYPEID_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Game", ZVARTYPEID_GAME);
-    t->putVarTypeId(vid2, ZVARTYPEID_GAME);
+    vid2 = globalScope->addVar("Game", ZVARTYPEID_GAME);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST

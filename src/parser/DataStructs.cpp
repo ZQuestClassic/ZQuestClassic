@@ -55,34 +55,6 @@ int FunctionTypeIds::compare(FunctionTypeIds const& other) const
 FunctionTypeIds const FunctionTypeIds::null;
 
 ////////////////////////////////////////////////////////////////
-// VariableSymbols
-
-int VariableSymbols::addVariable(string name, int type)
-{
-
-    map<string, pair<int, int> >::iterator it = symbols.find(name);
-    
-    if(it != symbols.end())
-        return -1;
-        
-    int id = ScriptParser::getUniqueVarID();
-    symbols[name] = pair<int, int>(type, id);
-    return id;
-}
-
-bool VariableSymbols::containsVariable(string name)
-{
-    return (symbols.find(name) != symbols.end());
-}
-
-int VariableSymbols::getID(string name)
-{
-    map<string, pair<int, int> >::iterator it = symbols.find(name);
-    assert(it != symbols.end());
-    return it->second.second;
-}
-
-////////////////////////////////////////////////////////////////
 // FunctionSymbols
 
 int FunctionSymbols::addFunction(string name, int rettype, vector<int> paramtype)
@@ -246,6 +218,11 @@ void SymbolTable::putVarTypeId(int varId, ZVarTypeId typeId)
 	varTypes[varId] = typeId;
 }
 
+void SymbolTable::putVarType(int varId, ZVarType const& type)
+{
+	varTypes[varId] = getTypeId(type);
+}
+
 // Functions
 
 ZVarTypeId SymbolTable::getFuncReturnTypeId(int funcId) const
@@ -299,6 +276,8 @@ Scope::~Scope()
 		delete it->second;
 }
 
+// Children
+
 Scope* Scope::makeChild(string const& name)
 {
 	map<string, Scope*>::const_iterator it = children.find(name);
@@ -322,21 +301,70 @@ Scope& Scope::getOrMakeChild(string const& name)
 	return *children[name];
 }
 
-int Scope::getVarInScope(string nspace, string name)
+// Variables
+
+int Scope::getVarId(string const& nspace, string const& name) const
 {
-    if (nspace == "" && getVarSymbols().containsVariable(name))
-        return getVarSymbols().getID(name);
+	if (nspace == "") return getVarId(name);
 
-	Scope* child = getChild(nspace);
-    if (child)
-    {
-        int id = child->getVarInScope("", name);
-        if (id != -1) return id;
-    }
-
-    if (parent == NULL) return -1;
-    return parent->getVarInScope(nspace, name);
+	vector<string> names;
+	names.push_back(nspace);
+	names.push_back(name);
+	return getVarId(names);
 }
+
+int Scope::getVarId(vector<string> const& names) const
+{
+	if (names.size() < 1) return -1;
+	if (names.size() == 1) return getVarId(names[0]);
+
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		int varId = child->getVarId(childNames);
+		if (varId != -1) return varId;
+	}
+
+	if (parent) return parent->getVarId(names);
+	return -1;
+}
+
+int Scope::getVarId(string const& name) const
+{
+	map<string, int>::const_iterator it = variables.find(name);
+	if (it != variables.end()) return it->second;
+	if (parent) return parent->getVarId(name);
+	return -1;
+}
+
+int Scope::addVar(string const& name, ZVarTypeId typeId, AST* node)
+{
+	map<string, int>::const_iterator it = variables.find(name);
+	if (it != variables.end()) return -1;
+	int varId = ScriptParser::getUniqueVarID();
+	variables[name] = varId;
+	table.putVarTypeId(varId, typeId);
+	if (node) table.putNodeId(node, varId);
+	return varId;
+}
+
+int Scope::addVar(string const& name, ZVarType const& type, AST* node)
+{
+	return addVar(name, table.getTypeId(type), node);
+}
+
+int Scope::addVar(string const& name, ZVarTypeId typeId)
+{
+	return addVar(name, typeId, NULL);
+}
+
+int Scope::addVar(string const& name, ZVarType const& type)
+{
+	return addVar(name, table.getTypeId(type), NULL);
+}
+
+////////////////////////////////////////////////////////////////
 
 vector<int> Scope::getFuncsInScope(string nspace, string name)
 {
