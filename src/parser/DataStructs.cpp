@@ -170,7 +170,7 @@ void SymbolTable::putVarTypeId(int varId, ZVarTypeId typeId)
 
 void SymbolTable::putVarType(int varId, ZVarType const& type)
 {
-	varTypes[varId] = getTypeId(type);
+	varTypes[varId] = getOrAssignTypeId(type);
 }
 
 // Functions
@@ -309,7 +309,7 @@ int Scope::addVar(string const& name, ZVarTypeId typeId, AST* node)
 
 int Scope::addVar(string const& name, ZVarType const& type, AST* node)
 {
-	return addVar(name, table.getTypeId(type), node);
+	return addVar(name, table.getOrAssignTypeId(type), node);
 }
 
 int Scope::addVar(string const& name, ZVarTypeId typeId)
@@ -319,7 +319,7 @@ int Scope::addVar(string const& name, ZVarTypeId typeId)
 
 int Scope::addVar(string const& name, ZVarType const& type)
 {
-	return addVar(name, table.getTypeId(type), NULL);
+	return addVar(name, table.getOrAssignTypeId(type), NULL);
 }
 
 // Functions
@@ -427,8 +427,8 @@ int Scope::addFunc(string const& name, ZVarType const& returnType, vector<ZVarTy
 {
 	vector<ZVarTypeId> paramTypeIds;
 	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
-		paramTypeIds.push_back(table.getTypeId(**it));
-	return addFunc(name, table.getTypeId(returnType), paramTypeIds, node);
+		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
+	return addFunc(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
 }
 
 int Scope::addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
