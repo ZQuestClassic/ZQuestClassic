@@ -105,8 +105,11 @@ private:
 class Scope
 {
 public:
-    Scope(Scope *Parent) : namedChildren(), parent(Parent), vars(), funcs() {}
+	Scope(SymbolTable& table) : table(table), namedChildren(), parent(NULL), vars(), funcs() {}
+	Scope(Scope* parent) : table(parent->table), namedChildren(), parent(parent), vars(), funcs() {}
     ~Scope();
+	SymbolTable const& getTable() const {return table;}
+	SymbolTable& getTable() {return table;}
     VariableSymbols &getVarSymbols()
     {
         return vars;
@@ -120,6 +123,7 @@ public:
     vector<int> getFuncsInScope(string nspace, string name);
     Scope *getNamedChild(string name);
 private:
+	SymbolTable& table;
     map<string, Scope *> namedChildren;
     Scope *parent;
     VariableSymbols vars;
@@ -201,8 +205,9 @@ struct OpcodeContext
 
 struct BFSParam
 {
-    Scope *scope;
-    SymbolTable *table;
+	BFSParam(Scope& scope) : scope(scope), type(SCRIPTTYPE_VOID) {}
+	BFSParam(Scope& scope, ScriptType type) : scope(scope), type(type) {}
+    Scope& scope;
     ScriptType type;
 };
 

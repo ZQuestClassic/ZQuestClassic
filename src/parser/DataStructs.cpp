@@ -2,6 +2,7 @@
 #include "../precompiled.h" //always first
 
 #include "DataStructs.h"
+#include "Types.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -183,14 +184,14 @@ ZVarType* SymbolTable::getType(ZVarTypeId typeId) const
 
 ZVarTypeId SymbolTable::getTypeId(ZVarType const& type) const
 {
-	map<ZVarType*, ZVarTypeId>::const_iterator it = typeIds.find((ZVarType*)&type);
+	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess>::const_iterator it = typeIds.find((ZVarType*)&type);
 	if (it == typeIds.end()) return -1;
 	return it->second;
 }
 
 ZVarTypeId SymbolTable::assignTypeId(ZVarType const& type)
 {
-	map<ZVarType*, ZVarTypeId>::const_iterator it = typeIds.find((ZVarType*)&type);
+	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess>::const_iterator it = typeIds.find((ZVarType*)&type);
 	if (it != typeIds.end()) return -1;
 	ZVarTypeId id = types.size();
 	ZVarType* storedType = type.clone();
@@ -201,7 +202,7 @@ ZVarTypeId SymbolTable::assignTypeId(ZVarType const& type)
 
 ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 {
-	map<ZVarType*, ZVarTypeId>::const_iterator it = typeIds.find((ZVarType*)&type);
+	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess>::const_iterator it = typeIds.find((ZVarType*)&type);
 	if (it != typeIds.end()) return it->second;
 	ZVarTypeId id = types.size();
 	ZVarType* storedType = type.clone();
@@ -298,20 +299,15 @@ bool Scope::addNamedChild(string name, Scope *child)
     if(it != namedChildren.end())
         return false;
         
-    namedChildren[name]=child;
+    namedChildren[name] = child;
     return true;
 }
 
 Scope::~Scope()
 {
     map<string, Scope *>::iterator it;
-    
-    for(it = namedChildren.begin(); it != namedChildren.end(); it++)
-    {
+    for (it = namedChildren.begin(); it != namedChildren.end(); it++)
         delete it->second;
-    }
-    
-    namedChildren.clear();
 }
 
 int Scope::getVarInScope(string nspace, string name)

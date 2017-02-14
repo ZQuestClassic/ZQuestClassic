@@ -35,10 +35,15 @@ public:
 	bool operator<(ZVarType const& other) const {return compare(other) < 0;}
 
 	struct PointerLess : public std::less<ZVarType*> {
-		bool operator() (ZVarType* const& a, ZVarType* const& b) const {return *a < *b;}
+		bool operator() (ZVarType* const& a, ZVarType* const& b) const
+		{
+			if (b == NULL) return false;
+			if (a == NULL) return true;
+			return *a < *b;
+		}
 	};
 protected:
-	virtual int classCompareId() const = 0;
+	virtual int classCompareId() const {return 0;};
 	virtual int selfCompare(ZVarType const& other) const = 0;
 
 // Standard Types.
@@ -66,7 +71,7 @@ public:
 	string getName() const {return name;}
 	ZVarTypeIdSimple getId() const {return simpleId;}
 protected:
-	int classCompareId() const {return 0;}
+	int classCompareId() const {return 1;}
 	int selfCompare(ZVarType const& other) const;
 private:
 	ZVarTypeIdSimple simpleId;
