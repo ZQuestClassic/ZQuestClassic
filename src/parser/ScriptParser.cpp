@@ -493,9 +493,8 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                 continue;
             }
 
-            Scope* subScope = new Scope(globalScope);
-
-            if (!globalScope->addNamedChild((*it)->getName(), subScope))
+            Scope* subScope = globalScope->makeChild((*it)->getName());
+            if (subScope == NULL)
             {
                 printErrorMsg(*it, SCRIPTREDEF, (*it)->getName());
                 failure = true;
@@ -506,7 +505,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             BuildScriptSymbols bss;
             bss.enableDeprecationWarnings();
             (*it)->execute(bss, subScope);
-            
+
             if(!bss.isOK())
                 failure=true;
             else
@@ -574,7 +573,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     {
         for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
         {
-            Scope subScope(globalScope->getNamedChild((*it)->getName()));
+            Scope subScope(globalScope->getChild((*it)->getName()));
             BFSParam param(subScope, rval->scriptTypes[*it]);
             list<ASTDecl*> decls = (*it)->getScriptBlock()->getDeclarations();
 
