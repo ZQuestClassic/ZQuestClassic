@@ -20,40 +20,6 @@
 using namespace std;
 //#define PARSER_DEBUG
 
-// Standard Type definitions.
-ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void");
-ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float");
-ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool");
-ZVarTypeSimple const ZVarType::FFC(ZVARTYPEID_FFC, "ffc");
-ZVarTypeSimple const ZVarType::ITEM(ZVARTYPEID_ITEM, "item");
-ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemclass");
-ZVarTypeSimple const ZVarType::NPC(ZVARTYPEID_NPC, "npc");
-ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lwpn");
-ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "ewpn");
-ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game");
-ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link");
-ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen");
-
-ZVarType const* ZVarType::get(ZVarTypeId id)
-{
-	switch (id)
-	{
-		case ZVARTYPEID_VOID: return &VOID;
-		case ZVARTYPEID_FLOAT: return &FLOAT;
-		case ZVARTYPEID_BOOL: return &BOOL;
-		case ZVARTYPEID_FFC: return &FFC;
-		case ZVARTYPEID_ITEM: return &ITEM;
-		case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
-		case ZVARTYPEID_NPC: return &NPC;
-		case ZVARTYPEID_LWPN: return &LWPN;
-		case ZVARTYPEID_EWPN: return &EWPN;
-		case ZVARTYPEID_GAME: return &GAME;
-		case ZVARTYPEID_LINK: return &LINK;
-		case ZVARTYPEID_SCREEN: return &SCREEN;
-		default: return NULL;
-	}
-}
-
 AST *resAST;
 
 ScriptsData * compile(const char *filename);
@@ -101,7 +67,7 @@ ScriptsData * compile(const char *filename)
     box_out("Pass 3: Building symbol tables");
     box_eol();
 #endif
-    SymbolData *d = ScriptParser::buildSymbolTable(theAST,consts);
+    SymbolData *d = ScriptParser::buildSymbolTable(theAST, consts);
     
     if(d==NULL)
     {
@@ -394,30 +360,30 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 {
     SymbolData *rval = new SymbolData();
     SymbolTable *t = new SymbolTable(constants);
-    Scope *globalScope = new Scope(NULL);
+    Scope *globalScope = new Scope(*t);
     bool failure = false;
-    
+
     //ADD LIBRARY FUNCTIONS TO THE GLOBAL SCOPE HERE
-    GlobalSymbols::getInst().addSymbolsToScope(globalScope, t);
-    FFCSymbols::getInst().addSymbolsToScope(globalScope,t);
-    ItemSymbols::getInst().addSymbolsToScope(globalScope,t);
-    ItemclassSymbols::getInst().addSymbolsToScope(globalScope,t);
-    LinkSymbols::getInst().addSymbolsToScope(globalScope,t);
-    ScreenSymbols::getInst().addSymbolsToScope(globalScope,t);
-    GameSymbols::getInst().addSymbolsToScope(globalScope,t);
-    NPCSymbols::getInst().addSymbolsToScope(globalScope,t);
-    LinkWeaponSymbols::getInst().addSymbolsToScope(globalScope,t);
-    EnemyWeaponSymbols::getInst().addSymbolsToScope(globalScope,t);
-    
+    GlobalSymbols::getInst().addSymbolsToScope(*globalScope);
+    FFCSymbols::getInst().addSymbolsToScope(*globalScope);
+    ItemSymbols::getInst().addSymbolsToScope(*globalScope);
+    ItemclassSymbols::getInst().addSymbolsToScope(*globalScope);
+    LinkSymbols::getInst().addSymbolsToScope(*globalScope);
+    ScreenSymbols::getInst().addSymbolsToScope(*globalScope);
+    GameSymbols::getInst().addSymbolsToScope(*globalScope);
+    NPCSymbols::getInst().addSymbolsToScope(*globalScope);
+    LinkWeaponSymbols::getInst().addSymbolsToScope(*globalScope);
+    EnemyWeaponSymbols::getInst().addSymbolsToScope(*globalScope);
+
     //strip the global functions from the AST
     GetGlobalFuncs gc;
     theAST->execute(gc, NULL);
     vector<ASTFuncDecl *> fds = gc.getResult();
-    
+
     //add these functions to the global scope
     for(vector<ASTFuncDecl *>::iterator it = fds.begin(); it != fds.end(); it++)
     {
-        vector<int> params;
+        vector<ZVarTypeId> paramTypeIds;
         
         for(list<ASTVarDecl *>::iterator it2 = (*it)->getParams().begin();
                 it2 != (*it)->getParams().end(); it2++)
@@ -429,11 +395,11 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                 failure = true;
             }
             
-            params.push_back(t->getTypeId(type));
+            paramTypeIds.push_back(t->getOrAssignTypeId(type));
         }
         
         ZVarType const& returnType = (*it)->getReturnType()->getType();
-        int id = globalScope->getFuncSymbols().addFunction((*it)->getName(), t->getTypeId(returnType), params);
+        int id = globalScope->addFunc((*it)->getName(), t->getOrAssignTypeId(returnType), paramTypeIds, *it);
         
         if(id == -1)
         {
@@ -455,8 +421,6 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             return NULL;
         }
         
-        t->putNodeId(*it, id);
-        t->putFuncTypeIds(id, t->getTypeId(returnType), params);
         
     }
     
@@ -468,16 +432,13 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     int vid2;
     
     //add a Link global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Link", ZVARTYPEID_LINK);
-    t->putVarTypeId(vid2, ZVARTYPEID_LINK);
+    vid2 = globalScope->addVar("Link", ZVARTYPEID_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Screen", ZVARTYPEID_SCREEN);
-    t->putVarTypeId(vid2, ZVARTYPEID_SCREEN);
+    vid2 = globalScope->addVar("Screen", ZVARTYPEID_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Game", ZVARTYPEID_GAME);
-    t->putVarTypeId(vid2, ZVARTYPEID_GAME);
+    vid2 = globalScope->addVar("Game", ZVARTYPEID_GAME);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST
@@ -490,8 +451,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     for(vector<ASTVarDecl *>::iterator it = gvs.begin(); it != gvs.end(); it++)
     {
         BuildScriptSymbols bss;
-        pair<Scope * ,SymbolTable *> param(globalScope, t);
-        (*it)->execute(bss, &param);
+        (*it)->execute(bss, globalScope);
         
         if(!bss.isOK())
             failure = true;
@@ -500,8 +460,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     for(vector<ASTArrayDecl *>::iterator it = gvas.begin(); it != gvas.end(); it++)
     {
         BuildScriptSymbols bss;
-        pair<Scope * , SymbolTable *> param(globalScope, t);
-        (*it)->execute(bss, &param);
+        (*it)->execute(bss, globalScope);
         
         if(!bss.isOK())
             failure = true;
@@ -528,28 +487,26 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                 failure = true;
                 continue;
             }
-            
-            Scope *subscope = new Scope(globalScope);
-            
-            if(!globalScope->addNamedChild((*it)->getName(), subscope))
+
+            Scope* subScope = globalScope->makeChild((*it)->getName());
+            if (subScope == NULL)
             {
                 printErrorMsg(*it, SCRIPTREDEF, (*it)->getName());
                 failure = true;
-                delete subscope;
+				delete subScope;
                 continue;
             }
-            
-            pair<Scope *, SymbolTable *> param(subscope, t);
+
             BuildScriptSymbols bss;
             bss.enableDeprecationWarnings();
-            (*it)->execute(bss, &param);
-            
+            (*it)->execute(bss, subScope);
+
             if(!bss.isOK())
                 failure=true;
             else
             {
                 //find the start symbol
-                vector<int> possibleruns = subscope->getFuncsInScope((*it)->getName(), "run");
+                vector<int> possibleruns = subScope->getFuncIds((*it)->getName(), "run");
                 int runid = -1;
                 
                 if(possibleruns.size() > 1)
@@ -597,77 +554,62 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     {
         for(vector<ASTFuncDecl *>::iterator it = fds.begin(); it != fds.end(); it++)
         {
-            Scope *subscope = new Scope(globalScope);
-            BFSParam param = {subscope, t, SCRIPTTYPE_VOID};
+            Scope subScope(globalScope);
+            BFSParam param(subScope);
             BuildFunctionSymbols bfs;
             (*it)->execute(bfs, &param);
-            
-            if(!bfs.isOK())
-                failure = true;
-                
-            delete subscope;
+
+            if (!bfs.isOK()) failure = true;
         }
     }
-    
+
     // Now do script function.
-    if(!failure)
+    if (!failure)
     {
         for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
         {
-            Scope *subscope = globalScope->getNamedChild((*it)->getName());
-            Scope *newscope = new Scope(subscope);
-            BFSParam param = {newscope, t, rval->scriptTypes[*it]};
-            list<ASTDecl *> decls = (*it)->getScriptBlock()->getDeclarations();
-            
-            for(list<ASTDecl *>::iterator it2 = decls.begin(); it2 != decls.end(); it2++)
+            Scope subScope(globalScope->getChild((*it)->getName()));
+            BFSParam param(subScope, rval->scriptTypes[*it]);
+            list<ASTDecl*> decls = (*it)->getScriptBlock()->getDeclarations();
+
+            for (list<ASTDecl*>::iterator it2 = decls.begin(); it2 != decls.end(); it2++)
             {
                 bool isfuncdecl;
                 IsFuncDecl temp;
                 (*it2)->execute(temp, &isfuncdecl);
-                
-                if(isfuncdecl)
+
+                if (isfuncdecl)
                 {
                     BuildFunctionSymbols bfs;
                     (*it2)->execute(bfs, &param);
-                    
-                    if(!bfs.isOK())
-                        failure = true;
-                        
-                    if(bfs.getThisVID() != -1)
-                        rval->thisPtr[*it]=bfs.getThisVID();
+
+                    if (!bfs.isOK()) failure = true;
+
+                    if (bfs.getThisVID() != -1)
+                        rval->thisPtr[*it] = bfs.getThisVID();
                 }
-                
             }
-            
-            delete newscope;
         }
     }
-    
-    if(failure)
+
+    if (failure)
     {
-        for(vector<ASTFuncDecl *>::iterator it2 = fds.begin(); it2 != fds.end(); it2++)
-        {
+        for (vector<ASTFuncDecl*>::iterator it2 = fds.begin(); it2 != fds.end(); it2++)
             delete *it2;
-        }
-        
-        for(vector<ASTScript *>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
-        {
+        for (vector<ASTScript*>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
             delete *it2;
-        }
-        
-        for(vector<ASTVarDecl *>::iterator it2 = gvs.begin(); it2 != gvs.end(); it2++)
+        for (vector<ASTVarDecl*>::iterator it2 = gvs.begin(); it2 != gvs.end(); it2++)
             delete *it2;
-            
-        for(vector<ASTArrayDecl *>::iterator it2 = gvas.begin(); it2 != gvas.end(); it2++)
+        for (vector<ASTArrayDecl *>::iterator it2 = gvas.begin(); it2 != gvas.end(); it2++)
             delete *it2;
-            
+
         delete globalScope;
         delete t;
         delete rval;
         delete theAST;
         return NULL;
     }
-    
+
     delete globalScope;
     delete theAST;
     rval->symbols = t;
@@ -675,7 +617,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     rval->globalFuncs = fds;
     rval->globalVars = gvs;
     rval->globalArrays = gvas;
-    
+
     return rval;
 }
 

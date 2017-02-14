@@ -35,30 +35,6 @@ public:
 	static FunctionTypeIds const null;
 };
 
-class VariableSymbols
-{
-public:
-    VariableSymbols() : symbols() {}
-    int addVariable(string name, int type);
-    bool containsVariable(string name);
-    int getID(string name);
-private:
-    map<string, pair<int, int> > symbols;
-};
-
-class FunctionSymbols
-{
-public:
-    FunctionSymbols() : symbols(), ambiguous() {}
-    int addFunction(string name, int rettype, vector<int> paramtype);
-    bool containsFunction(string name, vector<int> &params);
-    int getID(string name, vector<int> &params);
-    vector<int> getFuncIDs(string name);
-private:
-    map<pair<string, vector<int> >, pair<int,int> > symbols;
-    map<string, vector<int> > ambiguous;
-};
-
 class SymbolTable
 {
 public:
@@ -77,7 +53,8 @@ public:
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
-    void putVarTypeId(int ID, int type);
+    void putVarTypeId(int varId, ZVarTypeId typeId);
+    void putVarType(int varId, ZVarType const& type);
 	// Functions
     ZVarTypeId getFuncReturnTypeId(int funcId) const;
     ZVarTypeId getFuncReturnTypeId(AST *node) const;
@@ -105,25 +82,49 @@ private:
 class Scope
 {
 public:
-    Scope(Scope *Parent) : namedChildren(), parent(Parent), vars(), funcs() {}
-    ~Scope();
-    VariableSymbols &getVarSymbols()
-    {
-        return vars;
-    }
-    FunctionSymbols &getFuncSymbols()
-    {
-        return funcs;
-    }
-    bool addNamedChild(string name, Scope *child);
-    int getVarInScope(string nspace, string name);
-    vector<int> getFuncsInScope(string nspace, string name);
-    Scope *getNamedChild(string name);
+	Scope(SymbolTable& table);
+	Scope(Scope* parent);
+	~Scope();
+	// SymbolTable
+	SymbolTable const& getTable() const {return table;}
+	SymbolTable& getTable() {return table;}
+	// Children
+	Scope* makeChild(string const& name);
+	Scope* getChild(string const& name) const;
+	Scope& getOrMakeChild(string const& name);
+	// Variables
+	int getVarId(string const& nspace, string const& name) const;
+	int getVarId(vector<string> const& names) const;
+	int getVarId(string const& name) const;
+	int addVar(string const& name, ZVarTypeId typeId, AST* node);
+	int addVar(string const& name, ZVarType const& type, AST* node);
+	int addVar(string const& name, ZVarTypeId typeId);
+	int addVar(string const& name, ZVarType const& type);
+	// Functions
+	vector<int> getFuncIds(string const& nspace, string const& name) const;
+	vector<int> getFuncIds(vector<string> const& names) const;
+	vector<int> getFuncIds(string const& name) const;
+	int getFuncId(string const& nspace, FunctionSignature const& signature) const;
+	int getFuncId(vector<string> const& names, FunctionSignature const& signature) const;
+	int getFuncId(FunctionSignature const& signature) const;
+	int addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
+	int addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node);
+	int addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+	int addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes);
 private:
-    map<string, Scope *> namedChildren;
-    Scope *parent;
-    VariableSymbols vars;
-    FunctionSymbols funcs;
+	SymbolTable& table;
+    Scope* parent;
+    map<string, Scope*> children;
+	map<string, int> variables;
+	map<string, vector<int> > functionsByName;
+	map<FunctionSignature, int> functionsBySignature;
+
+	int getVarIdNoParent(vector<string> const& names) const;
+	int getVarIdNoParent(string const& name) const;
+	void getFuncIds(vector<int>& ids, vector<string> const& names) const;
+	void getFuncIds(vector<int>& ids, string const& name) const;
+	void getFuncIdsNoParent(vector<int>& ids, vector<string> const& names) const;
+	void getFuncIdsNoParent(vector<int>& ids, string const& name) const;
 };
 
 struct SymbolData
@@ -201,8 +202,9 @@ struct OpcodeContext
 
 struct BFSParam
 {
-    Scope *scope;
-    SymbolTable *table;
+	BFSParam(Scope& scope) : scope(scope), type(SCRIPTTYPE_VOID) {}
+	BFSParam(Scope& scope, ScriptType type) : scope(scope), type(type) {}
+    Scope& scope;
     ScriptType type;
 };
 

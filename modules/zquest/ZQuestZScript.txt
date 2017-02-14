@@ -13,8 +13,8 @@ src/parser/ParseError.cpp
 src/parser/ScriptParser.cpp
 src/parser/SymbolVisitors.cpp
 src/parser/TypeChecker.cpp
+src/parser/Types.cpp
 src/parser/UtilVisitors.cpp
-
 
 ## End of ZQuest ZScript module
 )
