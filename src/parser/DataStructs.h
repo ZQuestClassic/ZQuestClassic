@@ -119,8 +119,12 @@ private:
 	map<string, vector<int> > functionsByName;
 	map<FunctionSignature, int> functionsBySignature;
 
+	int getVarIdNoParent(vector<string> const& names) const;
+	int getVarIdNoParent(string const& name) const;
 	void getFuncIds(vector<int>& ids, vector<string> const& names) const;
 	void getFuncIds(vector<int>& ids, string const& name) const;
+	void getFuncIdsNoParent(vector<int>& ids, vector<string> const& names) const;
+	void getFuncIdsNoParent(vector<int>& ids, string const& name) const;
 };
 
 struct SymbolData

@@ -280,11 +280,27 @@ int Scope::getVarId(vector<string> const& names) const
 	if (child)
 	{
 		vector<string> childNames(names.begin() + 1, names.end());
-		int varId = child->getVarId(childNames);
+		int varId = child->getVarIdNoParent(childNames);
 		if (varId != -1) return varId;
 	}
 
 	if (parent) return parent->getVarId(names);
+	return -1;
+}
+
+int Scope::getVarIdNoParent(vector<string> const& names) const
+{
+	if (names.size() < 1) return -1;
+	if (names.size() == 1) return getVarIdNoParent(names[0]);
+
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		int varId = child->getVarIdNoParent(childNames);
+		if (varId != -1) return varId;
+	}
+
 	return -1;
 }
 
@@ -295,6 +311,14 @@ int Scope::getVarId(string const& name) const
 	if (parent) return parent->getVarId(name);
 	return -1;
 }
+
+int Scope::getVarIdNoParent(string const& name) const
+{
+	map<string, int>::const_iterator it = variables.find(name);
+	if (it != variables.end()) return it->second;
+	return -1;
+}
+
 
 int Scope::addVar(string const& name, ZVarTypeId typeId, AST* node)
 {
@@ -354,10 +378,27 @@ void Scope::getFuncIds(vector<int>& ids, vector<string> const& names) const
 	if (child)
 	{
 		vector<string> childNames(names.begin() + 1, names.end());
-		child->getFuncIds(ids, childNames);
+		child->getFuncIdsNoParent(ids, childNames);
 	}
 
 	if (parent) parent->getFuncIds(ids, names);
+}
+
+void Scope::getFuncIdsNoParent(vector<int>& ids, vector<string> const& names) const
+{
+	if (names.size() < 1) return;
+	if (names.size() == 1)
+	{
+		getFuncIdsNoParent(ids, names[0]);
+		return;
+	}
+
+	Scope* child = getChild(names[0]);
+	if (child)
+	{
+		vector<string> childNames(names.begin() + 1, names.end());
+		child->getFuncIdsNoParent(ids, childNames);
+	}
 }
 
 vector<int> Scope::getFuncIds(string const& name) const
@@ -375,6 +416,14 @@ void Scope::getFuncIds(vector<int>& ids, string const& name) const
 
 	if (parent) parent->getFuncIds(ids, name);
 }
+
+void Scope::getFuncIdsNoParent(vector<int>& ids, string const& name) const
+{
+	map<string, vector<int> >::const_iterator it = functionsByName.find(name);
+	if (it != functionsByName.end())
+		ids.insert(ids.end(), it->second.begin(), it->second.end());
+}
+
 
 int Scope::getFuncId(string const& nspace, FunctionSignature const& signature) const
 {
