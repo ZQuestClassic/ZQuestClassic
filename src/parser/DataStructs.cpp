@@ -4,6 +4,7 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "ParseError.h"
+#include "GlobalSymbols.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -233,8 +234,7 @@ void SymbolTable::printDiagnostics()
 ////////////////////////////////////////////////////////////////
 // Scope
 
-Scope::Scope(SymbolTable& table)
-	: table(table), children(), parent(NULL), types(), variables(), functionsBySignature(), functionsByName()
+Scope::Scope(SymbolTable& table) : table(table), parent(NULL)
 {
 	// Add basic types to the top level scope.
 	for (int id = ZVARTYPEID_VOID; id <= ZVARTYPEID_EWPN; ++id)
@@ -242,10 +242,26 @@ Scope::Scope(SymbolTable& table)
 		ZVarType const& type = *ZVarType::get(id);
 		types[type.getName()] = id;
 	}
+
+	// Add library functions to the top level scope.
+    GlobalSymbols::getInst().addSymbolsToScope(*this);
+    FFCSymbols::getInst().addSymbolsToScope(*this);
+    ItemSymbols::getInst().addSymbolsToScope(*this);
+    ItemclassSymbols::getInst().addSymbolsToScope(*this);
+    LinkSymbols::getInst().addSymbolsToScope(*this);
+    ScreenSymbols::getInst().addSymbolsToScope(*this);
+    GameSymbols::getInst().addSymbolsToScope(*this);
+    NPCSymbols::getInst().addSymbolsToScope(*this);
+    LinkWeaponSymbols::getInst().addSymbolsToScope(*this);
+    EnemyWeaponSymbols::getInst().addSymbolsToScope(*this);
+
+	// Add global pointers.
+    table.addGlobalPointer(addVar("Link", ZVARTYPEID_LINK));
+    table.addGlobalPointer(addVar("Screen", ZVARTYPEID_SCREEN));
+    table.addGlobalPointer(addVar("Game", ZVARTYPEID_GAME));
 }
 
-Scope::Scope(Scope* parent)
-	: table(parent->table), children(), parent(parent), types(), variables(), functionsBySignature(), functionsByName()
+Scope::Scope(Scope* parent) : table(parent->table), parent(parent)
 {}
 
 Scope::~Scope()

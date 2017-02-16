@@ -286,15 +286,25 @@ private:
 class ASTProgram : public AST
 {
 public:
-    ASTProgram(ASTDeclList *Decls, LocationData Loc) : AST(Loc), decls(Decls) {};
+    ASTProgram(LocationData const& location);
+	ASTProgram(ASTProgram const& base);
 	~ASTProgram();
-	ASTProgram* clone() const;
-    
-    ASTDeclList *getDeclarations() const {return decls;}
+	ASTProgram* clone() const {return new ASTProgram(*this);}
+
     void execute(ASTVisitor &visitor, void *param) {visitor.caseProgram(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseProgram(*this);}
-private:
-    ASTDeclList *decls;
+
+	void addDeclaration(ASTDecl* declaration);
+	ASTProgram& merge(ASTProgram& other);
+
+	// Public since we'll be clearing them and such.
+	vector<ASTImportDecl*> imports;
+	vector<ASTConstDecl*> constants;
+	vector<ASTVarDecl*> variables;
+	vector<ASTArrayDecl*> arrays;
+	vector<ASTFuncDecl*> functions;
+	vector<ASTTypeDef*> types;
+	vector<ASTScript*> scripts;
 };
 
 class ASTFloat : public AST
@@ -594,12 +604,25 @@ private:
 ////////////////////////////////////////////////////////////////
 // Declarations
 
+enum ASTDeclClassId
+{
+	ASTDECL_CLASSID_NONE,
+	ASTDECL_CLASSID_SCRIPT,
+	ASTDECL_CLASSID_IMPORT,
+	ASTDECL_CLASSID_CONSTANT,
+	ASTDECL_CLASSID_FUNCTION,
+	ASTDECL_CLASSID_ARRAY,
+	ASTDECL_CLASSID_VARIABLE,
+	ASTDECL_CLASSID_TYPE
+};
+
 class ASTDecl : public ASTStmt
 {
 public:
     ASTDecl(LocationData Loc) : ASTStmt(Loc) {}
     virtual ~ASTDecl() {}
 	virtual ASTDecl* clone() const = 0;
+	virtual ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_NONE;}
 private:
     //NOT IMPLEMENTED; DO NOT USE
     ASTDecl(ASTDecl &);
@@ -617,6 +640,7 @@ public:
     string getName() const {return name;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseScript(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseScript(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_SCRIPT;}
 private:
     ASTScriptType *type;
     string name;
@@ -647,6 +671,7 @@ public:
     string getFilename() const {return filename;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseImportDecl(*this,param);}
     void execute(ASTVisitor &visitor) {visitor.caseImportDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_IMPORT;}
 private:
     string filename;
     //NOT IMPLEMENTED; DO NOT USE
@@ -665,6 +690,7 @@ public:
     ASTFloat *getValue() const {return val;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseConstDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseConstDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_CONSTANT;}
 private:
     string name;
     ASTFloat *val;
@@ -693,6 +719,7 @@ public:
     
     void execute(ASTVisitor &visitor, void *param) {visitor.caseFuncDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseFuncDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_FUNCTION;}
 private:
     string name;
     list<ASTVarDecl *> params;
@@ -714,6 +741,7 @@ public:
     ASTArrayList *getList() const {return list;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseArrayDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseArrayDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_ARRAY;}
 private:
     string name;
     ASTArrayList *list;
@@ -761,6 +789,7 @@ public:
     string getName() const {return name;}
     void execute(ASTVisitor &visitor, void* param) {visitor.caseVarDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseVarDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_VARIABLE;}
 private:
     ASTVarType *type;
     string name;
@@ -795,6 +824,7 @@ public:
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeDef(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseTypeDef(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_TYPE;}
 private:
 	ASTVarType* type;
 	string name;

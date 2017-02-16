@@ -72,7 +72,7 @@ struct SymbolData;
 struct FunctionData;
 struct IntermediateData;
 
-class AST;
+class ASTProgram;
 
 class ScriptParser
 {
@@ -93,8 +93,8 @@ public:
     {
         return gid++;
     }
-    static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
-    static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
+    static bool preprocess(ASTProgram* theAST, int reclevel, std::map<string,long> *constants);
+    static SymbolData *buildSymbolTable(ASTProgram* theAST, std::map<string, long> *constants);
     static FunctionData *typeCheck(SymbolData *sdata);
     static IntermediateData *generateOCode(FunctionData *fdata);
     static ScriptsData *assemble(IntermediateData *id);
@@ -120,7 +120,7 @@ public:
 		}
 	}
 private:
-    static string trimQuotes(string quoteds);
+    static string prepareFilename(string const& filename);
     static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);
     static int vid;
     static int fid;
