@@ -67,7 +67,17 @@ bld/
 *.vspx
 *.sap
 
+# Emacs files
+.dir-locals.el
+.#*
+\#*#
+
 # Misc files
 *.gcda
 makefile.inc
 
+# Generated CMake Files.
+/allegro/CMakeCache.txt
+/allegro/CMakeFiles/
+/allegro/Makefile
+/allegro/cmake_install.cmake
