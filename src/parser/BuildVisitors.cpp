@@ -51,15 +51,15 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	OpcodeContext *c = (OpcodeContext *)param;
 	list<ASTStmt*> l = host.getStatements();
 
-	int initIndex = result.size();
 	int startRefCount = arrayRefs.size();
 
     for (list<ASTStmt*>::iterator it = l.begin(); it != l.end(); it++)
+	{
+		int initIndex = result.size();
         (*it)->execute(*this, param);
-
-	// Insert init code at start of block.
-	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
-	c->initCode.clear();
+		result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
+		c->initCode.clear();
+	}
 
 	deallocateRefsUntilCount(startRefCount);
 	while ((int)arrayRefs.size() > startRefCount)
