@@ -56,5 +56,7 @@ void printErrorMsg(AST *offender, int errorID, string param=string());
 #define NONINTEGERARRAYSIZE 45
 #define EXPRNOTCONSTANT 46
 #define UNRESOLVEDTYPE 47
+#define CONSTUNITIALIZED 48
+#define CONSTASSIGN 49
 #endif
 

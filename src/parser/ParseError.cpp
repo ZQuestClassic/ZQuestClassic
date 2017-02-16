@@ -211,6 +211,14 @@ void printErrorMsg(AST *offender, int errorID, string param)
 	case UNRESOLVEDTYPE:
 		oss << "Error T47: Type '" << param << "' is unknown.";
 		break;
+
+	case CONSTUNITIALIZED:
+		oss << "Error T48: Const types must be initialized.";
+		break;
+
+	case CONSTASSIGN:
+		oss << "Error T49: You cannot assign to a constant value.";
+		break;
 		
     default:
         oss << "FATAL FATAL ERROR I0: bad internal error code" ;

@@ -93,11 +93,11 @@ public:
     {
         return gid++;
     }
-    static bool preprocess(ASTProgram* theAST, int reclevel, std::map<string,long> *constants);
-    static SymbolData *buildSymbolTable(ASTProgram* theAST, std::map<string, long> *constants);
-    static FunctionData *typeCheck(SymbolData *sdata);
-    static IntermediateData *generateOCode(FunctionData *fdata);
-    static ScriptsData *assemble(IntermediateData *id);
+    static bool preprocess(ASTProgram* theAST, int reclevel);
+    static SymbolData* buildSymbolTable(ASTProgram* theAST);
+    static FunctionData* typeCheck(SymbolData* sdata);
+    static IntermediateData* generateOCode(FunctionData* fdata);
+    static ScriptsData* assemble(IntermediateData* id);
     static void resetState()
     {
         vid=0;

@@ -479,9 +479,13 @@ void BuildOpcodes::caseVarDecl(ASTVarDecl &host, void *param)
 {
     //initialize to 0
     OpcodeContext *c = (OpcodeContext *)param;
-    int globalid = c->linktable->getGlobalID(c->symbols->getNodeId(&host));
 
-    if(globalid != -1)
+	// Don't need to initialize a constant.
+	// (Although a constant without an initializer doesn't make sense.)
+	if (c->symbols->isInlinedConstant(&host)) return;
+
+    int globalid = c->linktable->getGlobalID(c->symbols->getNodeId(&host));
+    if (globalid != -1)
     {
         //it's a global var
         //just set it to 0
@@ -501,7 +505,11 @@ void BuildOpcodes::caseVarDecl(ASTVarDecl &host, void *param)
 void BuildOpcodes::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *) param;
-    //compute the value of the initializer
+
+	// Don't need to initialize a constant.
+	if (c->symbols->isInlinedConstant(&host)) return;
+
+	// Compute the value of the initializer
     host.getInitializer()->execute(*this,param);
     //value of expr now stored in EXP1
     int globalid = c->linktable->getGlobalID(c->symbols->getNodeId(&host));
@@ -619,16 +627,16 @@ void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
 void BuildOpcodes::caseExprDot(ASTExprDot &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int vid = c->symbols->getNodeId(&host);
 
-    if(vid == -1)
+	// If a constant, just load its value.
+    if (c->symbols->isInlinedConstant(&host))
     {
-        //constant, just load its value
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(c->symbols->getConstantVal(host.getName()))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(c->symbols->getInlinedValue(&host))));
 		host.markConstant();
         return;
     }
 
+    int vid = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(vid);
 
     if(globalid != -1)

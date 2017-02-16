@@ -13,8 +13,6 @@ void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 {
 	for (vector<ASTImportDecl*>::const_iterator it = host.imports.begin(); it != host.imports.end(); ++it)
 		(*it)->execute(*this, param);
-	for (vector<ASTConstDecl*>::const_iterator it = host.constants.begin(); it != host.constants.end(); ++it)
-		(*it)->execute(*this, param);
 	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
 		(*it)->execute(*this, param);
 	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
@@ -30,8 +28,6 @@ void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 void RecursiveVisitor::caseProgram(ASTProgram &host)
 {
 	for (vector<ASTImportDecl*>::const_iterator it = host.imports.begin(); it != host.imports.end(); ++it)
-		(*it)->execute(*this);
-	for (vector<ASTConstDecl*>::const_iterator it = host.constants.begin(); it != host.constants.end(); ++it)
 		(*it)->execute(*this);
 	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
 		(*it)->execute(*this);

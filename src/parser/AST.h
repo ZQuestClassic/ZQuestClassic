@@ -55,7 +55,6 @@ class ASTDecl; // virtual
 class ASTScript;
 class ASTDeclList;
 class ASTImportDecl;
-class ASTConstDecl;
 class ASTFuncDecl;
 class ASTArrayDecl;
 class ASTArrayList;
@@ -157,8 +156,6 @@ public:
     virtual void caseDeclList(ASTDeclList& node) {caseDeclList(node, NULL);}
     virtual void caseImportDecl(ASTImportDecl&, void* param) {caseDefault(param);}
     virtual void caseImportDecl(ASTImportDecl& node) {caseImportDecl(node, NULL);}
-    virtual void caseConstDecl(ASTConstDecl&, void* param) {caseDefault(param);}
-    virtual void caseConstDecl(ASTConstDecl& node) {caseConstDecl(node, NULL);}
     virtual void caseFuncDecl(ASTFuncDecl&, void* param) {caseDefault(param);}
     virtual void caseFuncDecl(ASTFuncDecl& node) {caseFuncDecl(node, NULL);}
     virtual void caseArrayDecl(ASTArrayDecl&, void* param) {caseDefault(param);}
@@ -299,7 +296,6 @@ public:
 
 	// Public since we'll be clearing them and such.
 	vector<ASTImportDecl*> imports;
-	vector<ASTConstDecl*> constants;
 	vector<ASTVarDecl*> variables;
 	vector<ASTArrayDecl*> arrays;
 	vector<ASTFuncDecl*> functions;
@@ -677,26 +673,6 @@ private:
     //NOT IMPLEMENTED; DO NOT USE
     ASTImportDecl(ASTImportDecl &);
     ASTImportDecl &operator=(ASTImportDecl &);
-};
-
-class ASTConstDecl : public ASTDecl
-{
-public:
-    ASTConstDecl(string Name, ASTFloat *Val, LocationData Loc) : ASTDecl(Loc), name(Name), val(Val) {}
-    ~ASTConstDecl() {delete val;}
-	ASTConstDecl* clone() const;
-
-    string getName() const {return name;}
-    ASTFloat *getValue() const {return val;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseConstDecl(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseConstDecl(*this);}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_CONSTANT;}
-private:
-    string name;
-    ASTFloat *val;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTConstDecl(ASTConstDecl &);
-    ASTConstDecl &operator=(ASTConstDecl &);
 };
 
 class ASTFuncDecl : public ASTDecl
@@ -1386,6 +1362,7 @@ class ASTVarType : public AST
 {
 public:
     ASTVarType(ZVarType const& type, LocationData Loc) : AST(Loc), type(type.clone()) {}
+    ASTVarType(ZVarType* type, LocationData Loc) : AST(Loc), type(type) {}
 	ASTVarType(ASTVarType const& base) : AST(base.getLocation()), type(base.type->clone()) {}
 	~ASTVarType() {delete type;}
 	ASTVarType* clone() const {return new ASTVarType(*this);}

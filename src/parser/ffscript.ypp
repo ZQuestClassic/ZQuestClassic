@@ -117,24 +117,14 @@ Init :
 GlobalStmt : Script {$$ = $1;}
 	| Import {$$ = $1;}
 	| FuncDecl {$$ = $1;}
-	| ConstDecl {$$ = $1;}
 	| VarDecl SEMICOLON {$$ = $1;}
-	| VarDecl ASSIGN Expr SEMICOLON {ASTVarDecl *vd = (ASTVarDecl *)$1;
-									$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr *)$3,@1);
-									delete vd;}
+	| VarDecl ASSIGN Expr SEMICOLON {
+			ASTVarDecl* vd = (ASTVarDecl*)$1;
+			$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr*)$3, @1);
+			delete vd;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	| TypeDef SEMICOLON {$$ = $1;}
 	;
-
-ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
-															ASTFloat *val = (ASTFloat *)$5;
-															$$ = new ASTConstDecl(name->getValue(), val,@1);
-															delete name;}
-          | ZCONST ZFLOAT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
-																  ASTFloat *val = (ASTFloat *)$6;
-																  val->set_negative(true);
-																  $$ = new ASTConstDecl(name->getValue(), val,@1);
-																  delete name;}
 
 ArrayDecl :
 	Type IDENTIFIER LBRACKET ConstExpr RBRACKET {
@@ -228,9 +218,10 @@ ScriptStmtList : ScriptStmt ScriptStmtList {ASTDeclList *dl = (ASTDeclList *)$2;
 
 ScriptStmt : VarDecl SEMICOLON {$$ = $1;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
-	| VarDecl ASSIGN Expr SEMICOLON {ASTVarDecl *vd = (ASTVarDecl *)$1;
-						   $$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr *)$3,@1);
-						   delete vd;}
+	| VarDecl ASSIGN Expr SEMICOLON {
+			ASTVarDecl *vd = (ASTVarDecl *)$1;
+			$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr*)$3, @1);
+			delete vd;}
 	| FuncDecl {$$ = $1;}
 	| TypeDef SEMICOLON {$$ = $1;}
 	;
@@ -252,9 +243,10 @@ Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::VOID, @1);}
 	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @1);}
 	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @1);}
 	| IDENTIFIER {
-		ASTString *name = (ASTString*)$1;
-		$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @1);
-		delete name;}
+			ASTString *name = (ASTString*)$1;
+			$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @1);
+			delete name;}
+	| ZCONST ZFLOAT {$$ = new ASTVarType(new ZVarTypeConstFloat(), @1);}
 	;
 
 FuncDecl :
@@ -305,6 +297,10 @@ StmtList : Stmt {
 	;
 
 Stmt : VarDecl SEMICOLON {$$ = $1;}
+	| VarDecl ASSIGN Expr SEMICOLON {
+			ASTVarDecl* vd = (ASTVarDecl*)$1;
+			$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr*)$3, @1);
+			delete vd;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	| AssignStmt SEMICOLON {$$ = $1;}
 	| ShortcutAssignStmt SEMICOLON {$$=$1;}
@@ -323,6 +319,10 @@ Stmt : VarDecl SEMICOLON {$$ = $1;}
 	;
 
 StmtNoSemi : VarDecl {$$ = $1;}
+	| VarDecl ASSIGN Expr {
+			ASTVarDecl* vd = (ASTVarDecl*)$1;
+			$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr*)$3, @1);
+			delete vd;}
 	| ArrayDecl {$$ = $1;}
 	| AssignStmt {$$ = $1;}
 	| ShortcutAssignStmt {$$=$1;}
@@ -362,11 +362,7 @@ ShortcutAssignStmt : DotExpr PLUSASSIGN Expr {SHORTCUT(ASTExprPlus,$1,$3,$$,@1,@
 				   ;
 
 
-AssignStmt : LVal ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt *)$1, (ASTExpr *)$3,@1);}
-	;
-
-LVal : VarDecl {$$ = $1;}
-	| DotExpr {$$ = $1;}
+AssignStmt : DotExpr ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt*)$1, (ASTExpr*)$3, @1);}
 	;
 
 DotExpr : IDENTIFIER DOT IDENTIFIER {ASTString *lval = (ASTString *)$1;

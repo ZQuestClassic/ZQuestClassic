@@ -15,6 +15,7 @@ ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "eweapon");
 ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game");
 ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link");
 ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen");
+ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////
 // ZVarType
@@ -62,6 +63,7 @@ bool ZVarTypeSimple::canBeGlobal() const
 
 bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 {
+	if (simpleId == ZVARTYPEID_FLOAT && target.classId() == ZVARTYPE_CLASSID_CONST_FLOAT) return true;
 	if (target.classId() != ZVARTYPE_CLASSID_SIMPLE) return false;
 	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
 	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID) return false;
@@ -84,4 +86,13 @@ int ZVarTypeUnresolved::selfCompare(ZVarType const& other) const
 {
 	ZVarTypeUnresolved const& o = (ZVarTypeUnresolved const&)other;
 	return name.compare(o.name);
+}
+
+////////////////////////////////////////////////////////////////
+// ZVarTypeConstFloat
+
+bool ZVarTypeConstFloat::canCastTo(ZVarType const& target) const
+{
+	if (*this == target) return true;
+	return ZVarType::FLOAT.canCastTo(target);
 }

@@ -22,7 +22,8 @@ enum ZVarTypeClassId
 {
 	ZVARTYPE_CLASSID_BASE,
 	ZVARTYPE_CLASSID_SIMPLE,
-	ZVARTYPE_CLASSID_UNRESOLVED
+	ZVARTYPE_CLASSID_UNRESOLVED,
+	ZVARTYPE_CLASSID_CONST_FLOAT
 };
 
 enum ZVarTypeIdSimple
@@ -34,6 +35,7 @@ enum ZVarTypeIdSimple
 };
 
 class ZVarTypeSimple;
+class ZVarTypeConstFloat;
 
 class ZVarType
 {
@@ -76,6 +78,7 @@ public:
 	static ZVarTypeSimple const GAME;
 	static ZVarTypeSimple const LINK;
 	static ZVarTypeSimple const SCREEN;
+	static ZVarTypeConstFloat const CONST_FLOAT;
 	static ZVarType const* get(ZVarTypeId id);
 };
 
@@ -110,6 +113,21 @@ protected:
 	int selfCompare(ZVarType const& other) const;
 private:
 	string name;
+};
+
+// Temporary while only floats can be constant.
+class ZVarTypeConstFloat : public ZVarType
+{
+public:
+	ZVarTypeConstFloat() {}
+	ZVarType* clone() const {return new ZVarTypeConstFloat(*this);}
+	string getName() const {return "const float";}
+	ZVarType* resolve(Scope& scope) {return this;}
+	bool canBeGlobal() const {return true;}
+	bool canCastTo(ZVarType const& target) const;
+	int classId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
+protected:
+	int selfCompare(ZVarType const& other) const {return 0;};
 };
 
 #endif
