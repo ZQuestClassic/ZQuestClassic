@@ -1,6 +1,7 @@
 #include <typeinfo>
 #include "Types.h"
 #include "DataStructs.h"
+#include "Scope.h"
 
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void");

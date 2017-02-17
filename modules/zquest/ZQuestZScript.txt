@@ -10,6 +10,7 @@ src/parser/ByteCode.cpp
 src/parser/DataStructs.cpp
 src/parser/GlobalSymbols.cpp
 src/parser/ParseError.cpp
+src/parser/Scope.cpp
 src/parser/ScriptParser.cpp
 src/parser/SymbolVisitors.cpp
 src/parser/TypeChecker.cpp

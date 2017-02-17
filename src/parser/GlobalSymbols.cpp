@@ -3,6 +3,7 @@
 
 #include "GlobalSymbols.h"
 #include "ByteCode.h"
+#include "Scope.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 
