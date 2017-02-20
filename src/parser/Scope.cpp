@@ -22,78 +22,46 @@ Scope* Scope::makeGlobalScope(SymbolTable& table)
     EnemyWeaponSymbols::getInst().addSymbolsToScope(*global);
 
 	// Add global pointers.
-    table.addGlobalPointer(global->addVar("Link", ZVARTYPEID_LINK));
-    table.addGlobalPointer(global->addVar("Screen", ZVARTYPEID_SCREEN));
-    table.addGlobalPointer(global->addVar("Game", ZVARTYPEID_GAME));
+    table.addGlobalPointer(global->addVariable("Link", ZVARTYPEID_LINK));
+    table.addGlobalPointer(global->addVariable("Screen", ZVARTYPEID_SCREEN));
+    table.addGlobalPointer(global->addVariable("Game", ZVARTYPEID_GAME));
 
 	return global;
 }
 
 Scope::Scope(SymbolTable& table) : table(table) {}
 
-Scope& Scope::getOrMakeChild(string const& name)
+// Inheritance
+
+Scope& Scope::getOrMakeLocalChild(string const& name)
 {
-	Scope* child = getChild(name);
+	Scope* child = getLocalChild(name);
 	if (child == NULL) child = makeChild(name);
 	return *child;
 }
 
+Scope* Scope::getNamespace(string const& name) const
+{
+	Scope* child = getLocalChild(name);
+	Scope* parent = getParent();
+	if (!child && parent) child = parent->getNamespace(name);
+	return child;
+}
+
 // Types
 
-int Scope::getTypeId(string const& nspace, string const& name) const
+int Scope::getTypeId(string const& name) const
 {
-	if (nspace == "") return getTypeId(name);
-
-	vector<string> names;
-	names.push_back(nspace);
-	names.push_back(name);
-	return getTypeId(names);
-}
-
-int Scope::getTypeId(vector<string> const& names) const
-{
-	if (names.size() < 1) return -1;
-	if (names.size() == 1) return getTypeId(names[0]);
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		int typeId = child->getTypeIdNoParent(childNames);
-		if (typeId != -1) return typeId;
-	}
-
+	int typeId = getLocalTypeId(name);
 	Scope* parent = getParent();
-	if (parent) return parent->getTypeId(names);
-	return -1;
+	if (typeId == -1 && parent)
+		typeId = parent->getTypeId(name);
+	return typeId;
 }
 
-int Scope::getTypeIdNoParent(vector<string> const& names) const
+ZVarType* Scope::getLocalType(string const& name) const
 {
-	if (names.size() < 1) return -1;
-	if (names.size() == 1) return getTypeIdNoParent(names[0]);
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		int typeId = child->getTypeIdNoParent(childNames);
-		if (typeId != -1) return typeId;
-	}
-
-	return -1;
-}
-
-ZVarType* Scope::getType(string const& nspace, string const& name) const
-{
-	ZVarTypeId typeId = getTypeId(nspace, name);
-	if (typeId == -1) return NULL;
-	return table.getType(typeId);
-}
-
-ZVarType* Scope::getType(vector<string> const& names) const
-{
-	ZVarTypeId typeId = getTypeId(names);
+	ZVarTypeId typeId = getLocalTypeId(name);
 	if (typeId == -1) return NULL;
 	return table.getType(typeId);
 }
@@ -122,170 +90,78 @@ int Scope::addType(string const& name, ZVarType const& type)
 
 // Variables
 
-int Scope::getVarId(string const& nspace, string const& name) const
+int Scope::getVariableId(string const& name) const
 {
-	if (nspace == "") return getVarId(name);
-
-	vector<string> names;
-	names.push_back(nspace);
-	names.push_back(name);
-	return getVarId(names);
-}
-
-int Scope::getVarId(vector<string> const& names) const
-{
-	if (names.size() < 1) return -1;
-	if (names.size() == 1) return getVarId(names[0]);
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		int varId = child->getVarIdNoParent(childNames);
-		if (varId != -1) return varId;
-	}
-
+	int variableId = getLocalVariableId(name);
 	Scope* parent = getParent();
-	if (parent) return parent->getVarId(names);
-	return -1;
+	if (variableId == -1 && parent)
+		variableId = parent->getVariableId(name);
+	return variableId;
 }
 
-int Scope::getVarIdNoParent(vector<string> const& names) const
+int Scope::addVariable(string const& name, ZVarType const& type, AST* node)
 {
-	if (names.size() < 1) return -1;
-	if (names.size() == 1) return getVarIdNoParent(names[0]);
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		int varId = child->getVarIdNoParent(childNames);
-		if (varId != -1) return varId;
-	}
-
-	return -1;
+	return addVariable(name, table.getOrAssignTypeId(type), node);
 }
 
-int Scope::addVar(string const& name, ZVarType const& type, AST* node)
+int Scope::addVariable(string const& name, ZVarTypeId typeId)
 {
-	return addVar(name, table.getOrAssignTypeId(type), node);
+	return addVariable(name, typeId, NULL);
 }
 
-int Scope::addVar(string const& name, ZVarTypeId typeId)
+int Scope::addVariable(string const& name, ZVarType const& type)
 {
-	return addVar(name, typeId, NULL);
-}
-
-int Scope::addVar(string const& name, ZVarType const& type)
-{
-	return addVar(name, table.getOrAssignTypeId(type), NULL);
+	return addVariable(name, table.getOrAssignTypeId(type), NULL);
 }
 
 // Functions
 
-vector<int> Scope::getFuncIds(string const& nspace, string const& name) const
-{
-	if (nspace == "") return getFuncIds(name);
-
-	vector<string> names;
-	names.push_back(nspace);
-	names.push_back(name);
-	return getFuncIds(names);
-}
-
-vector<int> Scope::getFuncIds(vector<string> const& names) const
+vector<int> Scope::getLocalFunctionIds(string const& name) const
 {
 	vector<int> ids;
-	getFuncIds(ids, names);
+	getLocalFunctionIds(ids, name);
 	return ids;
 }
 
-void Scope::getFuncIds(vector<int>& ids, vector<string> const& names) const
+void Scope::getFunctionIds(vector<int>& ids, string const& name) const
 {
-	if (names.size() < 1) return;
-	if (names.size() == 1)
-	{
-		getFuncIds(ids, names[0]);
-		return;
-	}
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		child->getFuncIdsNoParent(ids, childNames);
-	}
-
+	getLocalFunctionIds(ids, name);
 	Scope* parent = getParent();
-	if (parent) parent->getFuncIds(ids, names);
+	if (parent) parent->getFunctionIds(ids, name);
 }
 
-void Scope::getFuncIdsNoParent(vector<int>& ids, vector<string> const& names) const
-{
-	if (names.size() < 1) return;
-	if (names.size() == 1)
-	{
-		getFuncIdsNoParent(ids, names[0]);
-		return;
-	}
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		child->getFuncIdsNoParent(ids, childNames);
-	}
-}
-
-vector<int> Scope::getFuncIds(string const& name) const
+vector<int> Scope::getFunctionIds(string const& name) const
 {
 	vector<int> ids;
-	getFuncIds(ids, name);
+	getFunctionIds(ids, name);
 	return ids;
 }
 
-int Scope::getFuncId(string const& nspace, FunctionSignature const& signature) const
+int Scope::getFunctionId(FunctionSignature const& signature) const
 {
-	if (nspace == "") return getFuncId(signature);
-
-	vector<string> names;
-	names.push_back(nspace);
-	return getFuncId(names, signature);
-}
-
-int Scope::getFuncId(vector<string> const& names, FunctionSignature const& signature) const
-{
-	if (names.size() == 0) return getFuncId(signature);
-
-	Scope* child = getChild(names[0]);
-	if (child)
-	{
-		vector<string> childNames(names.begin() + 1, names.end());
-		int funcId = child->getFuncId(childNames, signature);
-		if (funcId != -1) return funcId;
-	}
-
+	int functionId = getLocalFunctionId(signature);
 	Scope* parent = getParent();
-	if (parent) return parent->getFuncId(names, signature);
-	return -1;
+	if (functionId == -1 && parent)
+		functionId = parent->getFunctionId(signature);
+	return functionId;
 }
 
-int Scope::addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
+int Scope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
 {
-	return addFunc(name, returnTypeId, paramTypeIds, NULL);
+	return addFunction(name, returnTypeId, paramTypeIds, NULL);
 }
 
-int Scope::addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes)
+int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes)
 {
-	return addFunc(name, returnType, paramTypes, NULL);
+	return addFunction(name, returnType, paramTypes, NULL);
 }
 
-int Scope::addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
+int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
 {
 	vector<ZVarTypeId> paramTypeIds;
 	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
 		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
-	return addFunc(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
+	return addFunction(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -301,7 +177,7 @@ BasicScope::~BasicScope()
 		delete it->second;
 }
 
-// Children
+// Inheritance
 
 Scope* BasicScope::getParent() const {return parent;}
 
@@ -313,7 +189,7 @@ Scope* BasicScope::makeChild(string const& name)
 	return children[name];
 }
 
-Scope* BasicScope::getChild(string const& name) const
+Scope* BasicScope::getLocalChild(string const& name) const
 {
 	map<string, Scope*>::const_iterator it = children.find(name);
 	if (it == children.end()) return NULL;
@@ -322,15 +198,7 @@ Scope* BasicScope::getChild(string const& name) const
 
 // Types
 
-int BasicScope::getTypeId(string const& name) const
-{
-	map<string, int>::const_iterator it = types.find(name);
-	if (it != types.end()) return it->second;
-	if (parent) return parent->getTypeId(name);
-	return -1;
-}
-
-int BasicScope::getTypeIdNoParent(string const& name) const
+int BasicScope::getLocalTypeId(string const& name) const
 {
 	map<string, int>::const_iterator it = types.find(name);
 	if (it != types.end()) return it->second;
@@ -348,22 +216,14 @@ int BasicScope::addType(string const& name, ZVarTypeId typeId, AST* node)
 
 // Variables
 
-int BasicScope::getVarId(string const& name) const
-{
-	map<string, int>::const_iterator it = variables.find(name);
-	if (it != variables.end()) return it->second;
-	if (parent) return parent->getVarId(name);
-	return -1;
-}
-
-int BasicScope::getVarIdNoParent(string const& name) const
+int BasicScope::getLocalVariableId(string const& name) const
 {
 	map<string, int>::const_iterator it = variables.find(name);
 	if (it != variables.end()) return it->second;
 	return -1;
 }
 
-int BasicScope::addVar(string const& name, ZVarTypeId typeId, AST* node)
+int BasicScope::addVariable(string const& name, ZVarTypeId typeId, AST* node)
 {
 	map<string, int>::const_iterator it = variables.find(name);
 	if (it != variables.end()) return -1;
@@ -376,32 +236,21 @@ int BasicScope::addVar(string const& name, ZVarTypeId typeId, AST* node)
 
 // Functions
 
-void BasicScope::getFuncIds(vector<int>& ids, string const& name) const
-{
-	map<string, vector<int> >::const_iterator it = functionsByName.find(name);
-	if (it != functionsByName.end())
-		ids.insert(ids.end(), it->second.begin(), it->second.end());
-
-	Scope* parent = getParent();
-	if (parent) parent->getFuncIds(ids, name);
-}
-
-void BasicScope::getFuncIdsNoParent(vector<int>& ids, string const& name) const
+void BasicScope::getLocalFunctionIds(vector<int>& ids, string const& name) const
 {
 	map<string, vector<int> >::const_iterator it = functionsByName.find(name);
 	if (it != functionsByName.end())
 		ids.insert(ids.end(), it->second.begin(), it->second.end());
 }
 
-int BasicScope::getFuncId(FunctionSignature const& signature) const
+int BasicScope::getLocalFunctionId(FunctionSignature const& signature) const
 {
 	map<FunctionSignature, int>::const_iterator it = functionsBySignature.find(signature);
 	if (it != functionsBySignature.end()) return it->second;
-	if (parent) return parent->getFuncId(signature);
 	return -1;
 }
 
-int BasicScope::addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+int BasicScope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
 {
 	FunctionSignature signature(name, paramTypeIds);
 	map<FunctionSignature, int>::const_iterator it = functionsBySignature.find(signature);

@@ -326,7 +326,7 @@ SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
         }
 
         ZVarType const& returnType = (*it)->getReturnType()->resolve(*globalScope);
-        int id = globalScope->addFunc((*it)->getName(), t->getOrAssignTypeId(returnType), paramTypeIds, *it);
+        int id = globalScope->addFunction((*it)->getName(), t->getOrAssignTypeId(returnType), paramTypeIds, *it);
 
         if (id == -1)
         {
@@ -399,7 +399,7 @@ SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
             else
             {
                 // Find the start symbol
-                vector<int> possibleruns = scriptScope->getFuncIds(scriptName, "run");
+                vector<int> possibleruns = scriptScope->getFunctionIds("run");
                 int runid = -1;
 
                 if (possibleruns.size() > 1)
@@ -462,7 +462,7 @@ SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
         {
 			ASTScript& scriptDecl = **it;
 			string const& scriptName = scriptDecl.getName();
-            BasicScope functionScope(globalScope->getChild(scriptName));
+            BasicScope functionScope(globalScope->getLocalChild(scriptName));
             BFSParam param(functionScope, rval->scriptTypes[*it]);
 
 			list<ASTDecl*> decls = scriptDecl.getScriptBlock()->getDeclarations();
