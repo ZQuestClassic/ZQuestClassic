@@ -4,18 +4,18 @@
 #include "Scope.h"
 
 // Standard Type definitions.
-ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void");
-ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float");
-ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool");
-ZVarTypeSimple const ZVarType::FFC(ZVARTYPEID_FFC, "ffc");
-ZVarTypeSimple const ZVarType::ITEM(ZVARTYPEID_ITEM, "item");
-ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemdata");
-ZVarTypeSimple const ZVarType::NPC(ZVARTYPEID_NPC, "npc");
-ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lweapon");
-ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "eweapon");
-ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game");
-ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link");
-ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen");
+ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void", "Void");
+ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
+ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool", "Bool");
+ZVarTypeSimple const ZVarType::FFC(ZVARTYPEID_FFC, "ffc", "FFC");
+ZVarTypeSimple const ZVarType::ITEM(ZVARTYPEID_ITEM, "item", "Item");
+ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemdata", "ItemData");
+ZVarTypeSimple const ZVarType::NPC(ZVARTYPEID_NPC, "npc", "NPC");
+ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lweapon", "LWeapon");
+ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "eweapon", "EWeapon");
+ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game", "Game");
+ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link", "Link");
+ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen", "Screen");
 ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////

@@ -248,67 +248,19 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
         }
     }
 
-    ZVarTypeId type = host.getLVal()->getType();
-
-    string name = "get" + host.getName();
-    if (isIndexed) name += "[]";
-
-	int functionId;
-    switch (type)
-    {
-    case ZVARTYPEID_FFC:
-    {
-        functionId = FFCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LINK:
-    {
-        functionId = LinkSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SCREEN:
-    {
-        functionId = ScreenSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GAME:
-    {
-        functionId = GameSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEM:
-    {
-        functionId = ItemSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEMCLASS:
-    {
-        functionId = ItemclassSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_NPC:
-    {
-        functionId = NPCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LWPN:
-    {
-        functionId = LinkWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_EWPN:
-    {
-        functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    default:
+    ZVarTypeId typeId = host.getLVal()->getType();
+	LibrarySymbols* lib = LibrarySymbols::getTypeInstance(typeId);
+	if (!lib)
+	{
         failure = true;
         printErrorMsg(&host, ARROWNOTPOINTER);
         return;
-    }
+	}
+
+	int functionId = lib->matchGetter(host.getName());
 
 	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != type)
+    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != typeId)
     {
         failure = true;
         printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
@@ -478,62 +430,12 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
         // Luckily I will here assert that each type's functions MUST be unique
 		ASTExprArrow& arrow = *(ASTExprArrow*)host.getName();
         string name = arrow.getName();
-        ZVarTypeId type = arrow.getLVal()->getType();
+        ZVarTypeId typeId = arrow.getLVal()->getType();
 
-		int functionId;
-		switch(type)
-		{
-		case ZVARTYPEID_FFC:
-		{
-			functionId = FFCSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_LINK:
-		{
-			functionId = LinkSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_SCREEN:
-		{
-			functionId = ScreenSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_GAME:
-		{
-			functionId = GameSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_ITEM:
-		{
-			functionId = ItemSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_ITEMCLASS:
-		{
-			functionId = ItemclassSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_NPC:
-		{
-			functionId = NPCSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_LWPN:
-		{
-			functionId = LinkWeaponSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_EWPN:
-		{
-			functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
-			break;
-		}
-		default:
-			assert(false);
-		}
+		LibrarySymbols* lib = LibrarySymbols::getTypeInstance(typeId);
+		assert(lib);
 
-		vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-
+		int functionId = lib->matchFunction(name);
         if (functionId == -1)
         {
             failure = true;
@@ -541,6 +443,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
             return;
         }
 
+		vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
         if (paramtypes.size() != functionParams.size())
         {
             failure = true;
@@ -1086,62 +989,15 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
         }
     }
 
-    string name = "set" + host.getName();
-    if (isIndexed) name += "[]";
-
-	int functionId;
-    switch (type)
-    {
-    case ZVARTYPEID_FFC:
-    {
-        functionId = FFCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LINK:
-    {
-        functionId = LinkSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SCREEN:
-    {
-        functionId = ScreenSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GAME:
-    {
-        functionId = GameSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEM:
-    {
-        functionId = ItemSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEMCLASS:
-    {
-        functionId = ItemclassSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_NPC:
-    {
-        functionId = NPCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LWPN:
-    {
-        functionId = LinkWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_EWPN:
-    {
-        functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    default:
-        typeCheck.fail();
+	LibrarySymbols* lib = LibrarySymbols::getTypeInstance(type);
+	if (!lib)
+	{
         printErrorMsg(&host, ARROWNOTPOINTER);
+		typeCheck.fail();
         return;
-    }
+	}
+	int functionId = lib->matchSetter(host.getName());
+
 
 	vector<ZVarTypeId> functionParams = typeCheck.symbolTable.getFuncParamTypeIds(functionId);
     if (functionId == -1 || functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != type)

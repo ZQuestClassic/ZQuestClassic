@@ -85,9 +85,11 @@ public:
 class ZVarTypeSimple : public ZVarType
 {
 public:
-	ZVarTypeSimple(ZVarTypeIdSimple simpleId, string const& name) : simpleId(simpleId), name(name) {}
+	ZVarTypeSimple(ZVarTypeIdSimple simpleId, string const& name, string const& upName)
+			: simpleId(simpleId), name(name), upName(upName) {}
 	ZVarTypeSimple* clone() const {return new ZVarTypeSimple(*this);}
 	string getName() const {return name;}
+	string getUpName() const {return upName;}
 	bool canBeGlobal() const;
 	bool canCastTo(ZVarType const& target) const;
 	ZVarTypeIdSimple getId() const {return simpleId;}
@@ -97,6 +99,7 @@ protected:
 private:
 	ZVarTypeIdSimple simpleId;
 	string name;
+	string upName;
 };
 
 class ZVarTypeUnresolved : public ZVarType

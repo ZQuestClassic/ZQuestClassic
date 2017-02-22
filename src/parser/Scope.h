@@ -6,6 +6,13 @@
 class Scope
 {
 public:
+	struct VariableAccess
+	{
+		VariableAccess() : variableId(-1), functionId(-1) {}
+		int variableId;
+		int functionId;
+	};
+
 	static Scope* makeGlobalScope(SymbolTable& table);
 
 	Scope(SymbolTable& table);
@@ -24,9 +31,17 @@ public:
 	// Types
 	virtual int getLocalTypeId(string const& name) const = 0;
 	virtual int addType(string const& name, ZVarTypeId typeId, AST* node) = 0;
+	// Classes
+	virtual int getLocalClassId(string const& name) const = 0;
+	virtual int addClass(string const& name, AST* node) = 0;
 	// Variables
 	virtual int getLocalVariableId(string const& name) const = 0;
 	virtual int addVariable(string const& name, ZVarTypeId typeId, AST* node) = 0;
+	// Properties
+	virtual int getLocalGetterId(int varId) const = 0;
+	virtual int getLocalSetterId(int varId) const = 0;
+	virtual int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
+	virtual int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
 	// Functions
 	virtual void getLocalFunctionIds(vector<int>& ids, string const& name) const = 0;
 	virtual int getLocalFunctionId(FunctionSignature const& signature) const = 0;
@@ -45,11 +60,23 @@ public:
 	int addType(string const& name, ZVarType const& type, AST* node);
 	int addType(string const& name, ZVarTypeId typeId);
 	int addType(string const& name, ZVarType const& type);
+	// Classes
+	int getClassId(string const& name) const;
+	ZClass* getLocalClass(string const& name) const;
+	ZClass* getClass(string const& name) const;
+	int addClass(string const& name);
 	// Variables
 	int getVariableId(string const& name) const;
 	int addVariable(string const& name, ZVarType const& type, AST* node);
 	int addVariable(string const& name, ZVarTypeId typeId);
 	int addVariable(string const& name, ZVarType const& type);
+	// Properties
+	int getGetterId(int varId) const;
+	int getSetterId(int varId) const;
+	VariableAccess getRead(string const& name) const;
+	VariableAccess getWrite(string const& name) const;
+	int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
+	int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
 	// Functions
 	vector<int> getLocalFunctionIds(string const& name) const;
 	void getFunctionIds(vector<int>& ids, string const& name) const;
@@ -77,10 +104,20 @@ public:
 	int getLocalTypeId(string const& name) const;
 	using Scope::addType;
 	int addType(string const& name, ZVarTypeId typeId, AST* node);
+	// Classes
+	int getLocalClassId(string const& name) const;
+	int addClass(string const& name, AST* node);
 	// Variables
 	int getLocalVariableId(string const& name) const;
 	using Scope::addVariable;
 	int addVariable(string const& name, ZVarTypeId typeId, AST* node);
+	// Properties
+	int getLocalGetterId(int varId) const;
+	int getLocalSetterId(int varId) const;
+	using Scope::addGetter;
+	int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
+	using Scope::addSetter;
+	int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
 	// Functions
 	using Scope::getLocalFunctionIds;
 	void getLocalFunctionIds(vector<int>& ids, string const& name) const;
@@ -91,9 +128,19 @@ private:
     Scope* parent;
     map<string, Scope*> children;
 	map<string, int> types;
+	map<string, int> classes;
 	map<string, int> variables;
+	map<int, int> getters;
+	map<int, int> setters;
 	map<string, vector<int> > functionsByName;
 	map<FunctionSignature, int> functionsBySignature;
+};
+
+class ZClass : public BasicScope
+{
+public:
+	ZClass(SymbolTable& table, int id);
+	int const id;
 };
 
 #endif

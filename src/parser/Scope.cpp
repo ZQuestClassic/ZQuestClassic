@@ -9,17 +9,18 @@ Scope* Scope::makeGlobalScope(SymbolTable& table)
 {
 	Scope* global = new BasicScope(table);
 
-	// Add library functions to the top level scope.
+	// Add global library functions.
     GlobalSymbols::getInst().addSymbolsToScope(*global);
-    FFCSymbols::getInst().addSymbolsToScope(*global);
-    ItemSymbols::getInst().addSymbolsToScope(*global);
-    ItemclassSymbols::getInst().addSymbolsToScope(*global);
-    LinkSymbols::getInst().addSymbolsToScope(*global);
-    ScreenSymbols::getInst().addSymbolsToScope(*global);
-    GameSymbols::getInst().addSymbolsToScope(*global);
-    NPCSymbols::getInst().addSymbolsToScope(*global);
-    LinkWeaponSymbols::getInst().addSymbolsToScope(*global);
-    EnemyWeaponSymbols::getInst().addSymbolsToScope(*global);
+
+	// Create builtin classes (skip void, float, and bool).
+	for (ZVarTypeId typeId = ZVARTYPEID_FFC; typeId < ZVARTYPEID_END; ++typeId)
+	{
+		ZVarTypeSimple const& type = *(ZVarTypeSimple const*)ZVarType::get(typeId);
+		int classId = global->addClass(type.getUpName());
+		ZClass& klass = *table.getClass(classId);
+		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
+		library.addSymbolsToScope(klass);
+	}
 
 	// Add global pointers.
     table.addGlobalPointer(global->addVariable("Link", ZVARTYPEID_LINK));
@@ -88,6 +89,36 @@ int Scope::addType(string const& name, ZVarType const& type)
 	return addType(name, table.getOrAssignTypeId(type), NULL);
 }
 
+// Classes
+
+int Scope::getClassId(string const& name) const
+{
+	int classId = getLocalClassId(name);
+	Scope* parent = getParent();
+	if (classId == -1 && parent)
+		classId = parent->getClassId(name);
+	return classId;
+}
+
+ZClass* Scope::getLocalClass(string const& name) const
+{
+	int classId = getLocalClassId(name);
+	if (classId == -1) return NULL;
+	return table.getClass(classId);
+}
+
+ZClass* Scope::getClass(string const& name) const
+{
+	int classId = getClassId(name);
+	if (classId == -1) return NULL;
+	return table.getClass(classId);
+}
+
+int Scope::addClass(string const& name)
+{
+	return addClass(name, NULL);
+}
+
 // Variables
 
 int Scope::getVariableId(string const& name) const
@@ -112,6 +143,54 @@ int Scope::addVariable(string const& name, ZVarTypeId typeId)
 int Scope::addVariable(string const& name, ZVarType const& type)
 {
 	return addVariable(name, table.getOrAssignTypeId(type), NULL);
+}
+
+// Properties
+
+int Scope::getGetterId(int varId) const
+{
+	int id = getLocalGetterId(varId);
+	Scope* parent = getParent();
+	if (id == -1 && parent)
+		id = parent->getGetterId(varId);
+	return id;
+}
+
+int Scope::getSetterId(int varId) const
+{
+	int id = getLocalSetterId(varId);
+	Scope* parent = getParent();
+	if (id == -1 && parent)
+		id = parent->getSetterId(varId);
+	return id;
+}
+
+Scope::VariableAccess Scope::getRead(string const& name) const
+{
+	VariableAccess r;
+	r.variableId = getVariableId(name);
+	if (r.variableId != -1)
+		r.functionId = getGetterId(r.variableId);
+	return r;
+}
+
+Scope::VariableAccess Scope::getWrite(string const& name) const
+{
+	VariableAccess r;
+	r.variableId = getVariableId(name);
+	if (r.variableId != -1)
+		r.functionId = getSetterId(r.variableId);
+	return r;
+}
+
+int Scope::addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds)
+{
+	return addGetter(varId, paramTypeIds, NULL);
+}
+
+int Scope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds)
+{
+	return addSetter(varId, paramTypeIds, NULL);
 }
 
 // Functions
@@ -214,6 +293,26 @@ int BasicScope::addType(string const& name, ZVarTypeId typeId, AST* node)
 	return typeId;
 }
 
+// Classes
+
+int BasicScope::getLocalClassId(string const& name) const
+{
+	map<string, int>::const_iterator it = classes.find(name);
+	if (it != classes.end()) return it->second;
+	return -1;
+}
+
+int BasicScope::addClass(string const& name, AST* node)
+{
+	map<string, int>::const_iterator it = classes.find(name);
+	if (it != classes.end()) return -1;
+
+	int classId = table.createClass()->id;
+	classes[name] = classId;
+	if (node) table.putNodeId(node, classId);
+	return classId;
+}
+
 // Variables
 
 int BasicScope::getLocalVariableId(string const& name) const
@@ -232,6 +331,45 @@ int BasicScope::addVariable(string const& name, ZVarTypeId typeId, AST* node)
 	table.putVarTypeId(varId, typeId);
 	if (node) table.putNodeId(node, varId);
 	return varId;
+}
+
+// Properties
+
+int BasicScope::getLocalGetterId(int varId) const
+{
+	map<int, int>::const_iterator it = getters.find(varId);
+	if (it != getters.end()) return it->second;
+	return -1;
+}
+
+int BasicScope::getLocalSetterId(int varId) const
+{
+	map<int, int>::const_iterator it = setters.find(varId);
+	if (it != setters.end()) return it->second;
+	return -1;
+}
+
+int BasicScope::addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+{
+	map<int, int>::const_iterator it = getters.find(varId);
+	if (it != getters.end()) return -1;
+	ZVarTypeId returnTypeId = table.getVarTypeId(varId);
+	int getterId = ScriptParser::getUniqueFuncID();
+	getters[varId] = getterId;
+	table.putFuncTypeIds(getterId, returnTypeId, paramTypeIds);
+	if (node) table.putNodeId(node, getterId);
+	return getterId;
+}
+
+int BasicScope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+{
+	map<int, int>::const_iterator it = setters.find(varId);
+	if (it != setters.end()) return -1;
+	int setterId = ScriptParser::getUniqueFuncID();
+	setters[varId] = setterId;
+	table.putFuncTypeIds(setterId, table.getTypeId(ZVarType::VOID), paramTypeIds);
+	if (node) table.putNodeId(node, setterId);
+	return setterId;
 }
 
 // Functions
@@ -264,3 +402,7 @@ int BasicScope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<
 	return funcId;
 }
 
+////////////////////////////////////////////////////////////////
+// ZClass
+
+ZClass::ZClass(SymbolTable& table, int id) : BasicScope(table), id(id) {}
