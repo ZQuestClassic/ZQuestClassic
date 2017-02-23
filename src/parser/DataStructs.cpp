@@ -60,11 +60,19 @@ FunctionTypeIds const FunctionTypeIds::null;
 ////////////////////////////////////////////////////////////////
 // SymbolTable
 
-SymbolTable::SymbolTable() : nodeIds()
+SymbolTable::SymbolTable()
 {
-	for (ZVarTypeId id = 0; id < ZVARTYPEID_END; ++id)
+	// Assign builtin types.
+	for (ZVarTypeId id = ZVARTYPEID_START; id < ZVARTYPEID_END; ++id)
 		assignTypeId(*ZVarType::get(id));
-	assignTypeId(ZVarType::CONST_FLOAT);
+
+	// Assign builtin classes.
+	for (int id = ZVARTYPEID_CLASS_START; id < ZVARTYPEID_CLASS_END; ++id)
+	{
+		ZVarTypeClass& type = *(ZVarTypeClass*)ZVarType::get(id);
+		assert(type.getClassId() == classes.size());
+		classes.push_back(new ZClass(*this, type.getClassName(), type.getClassId()));
+	}
 }
 
 SymbolTable::~SymbolTable()
@@ -163,9 +171,9 @@ ZClass* SymbolTable::getClass(int classId) const
 	return classes[classId];
 }
 
-ZClass* SymbolTable::createClass()
+ZClass* SymbolTable::createClass(string const& name)
 {
-	ZClass* klass = new ZClass(*this, classes.size());
+	ZClass* klass = new ZClass(*this, name, classes.size());
 	classes.push_back(klass);
 	return klass;
 }

@@ -72,7 +72,9 @@ public:
 	int addVariable(string const& name, ZVarType const& type);
 	// Properties
 	int getGetterId(int varId) const;
+	int getGetterId(string const& name) const;
 	int getSetterId(int varId) const;
+	int getSetterId(string const& name) const;
 	VariableAccess getRead(string const& name) const;
 	VariableAccess getWrite(string const& name) const;
 	int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
@@ -136,10 +138,19 @@ private:
 	map<FunctionSignature, int> functionsBySignature;
 };
 
+enum ZClassIdBuiltin
+{
+	ZCLASSID_START = 0,
+    ZCLASSID_GAME = 0, ZCLASSID_LINK, ZCLASSID_SCREEN,
+    ZCLASSID_FFC, ZCLASSID_ITEM, ZCLASSID_ITEMCLASS, ZCLASSID_NPC, ZCLASSID_LWPN, ZCLASSID_EWPN,
+	ZCLASSID_END
+};
+
 class ZClass : public BasicScope
 {
 public:
-	ZClass(SymbolTable& table, int id);
+	ZClass(SymbolTable& table, string const& name, int id);
+	string const name;
 	int const id;
 };
 

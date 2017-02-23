@@ -23,19 +23,31 @@ enum ZVarTypeClassId
 	ZVARTYPE_CLASSID_BASE,
 	ZVARTYPE_CLASSID_SIMPLE,
 	ZVARTYPE_CLASSID_UNRESOLVED,
-	ZVARTYPE_CLASSID_CONST_FLOAT
+	ZVARTYPE_CLASSID_CONST_FLOAT,
+	ZVARTYPE_CLASSID_CLASS
 };
 
-enum ZVarTypeIdSimple
+enum ZVarTypeIdBuiltin
 {
-    ZVARTYPEID_VOID, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL,
+	ZVARTYPEID_START = 0,
+
+	ZVARTYPEID_PRIMITIVE_START = 0,
+    ZVARTYPEID_VOID = 0, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL,
+	ZVARTYPEID_PRIMITIVE_END,
+
+	ZVARTYPEID_CONST_FLOAT = ZVARTYPEID_PRIMITIVE_END,
+
+	ZVARTYPEID_CLASS_START,
+    ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START, ZVARTYPEID_LINK, ZVARTYPEID_SCREEN,
     ZVARTYPEID_FFC, ZVARTYPEID_ITEM, ZVARTYPEID_ITEMCLASS, ZVARTYPEID_NPC, ZVARTYPEID_LWPN, ZVARTYPEID_EWPN,
-    ZVARTYPEID_GAME, ZVARTYPEID_LINK, ZVARTYPEID_SCREEN,
-	ZVARTYPEID_END
+	ZVARTYPEID_CLASS_END,
+
+	ZVARTYPEID_END = ZVARTYPEID_CLASS_END
 };
 
 class ZVarTypeSimple;
 class ZVarTypeConstFloat;
+class ZVarTypeClass;
 
 class ZVarType
 {
@@ -46,7 +58,7 @@ public:
 	virtual bool isResolved() const {return true;}
 	virtual bool canBeGlobal() const {return false;}
 	virtual bool canCastTo(ZVarType const& target) const = 0;
-	virtual int classId() const {return ZVARTYPE_CLASSID_BASE;};
+	virtual int typeClassId() const {return ZVARTYPE_CLASSID_BASE;};
 
 	int compare(ZVarType const& other) const;
 	bool operator==(ZVarType const& other) const {return compare(other) == 0;}
@@ -69,35 +81,35 @@ public:
 	static ZVarTypeSimple const VOID;
 	static ZVarTypeSimple const FLOAT;
 	static ZVarTypeSimple const BOOL;
-	static ZVarTypeSimple const FFC;
-	static ZVarTypeSimple const ITEM;
-	static ZVarTypeSimple const ITEMCLASS;
-	static ZVarTypeSimple const NPC;
-	static ZVarTypeSimple const LWPN;
-	static ZVarTypeSimple const EWPN;
-	static ZVarTypeSimple const GAME;
-	static ZVarTypeSimple const LINK;
-	static ZVarTypeSimple const SCREEN;
 	static ZVarTypeConstFloat const CONST_FLOAT;
+	static ZVarTypeClass const FFC;
+	static ZVarTypeClass const ITEM;
+	static ZVarTypeClass const ITEMCLASS;
+	static ZVarTypeClass const NPC;
+	static ZVarTypeClass const LWPN;
+	static ZVarTypeClass const EWPN;
+	static ZVarTypeClass const GAME;
+	static ZVarTypeClass const LINK;
+	static ZVarTypeClass const SCREEN;
 	static ZVarType const* get(ZVarTypeId id);
 };
 
 class ZVarTypeSimple : public ZVarType
 {
 public:
-	ZVarTypeSimple(ZVarTypeIdSimple simpleId, string const& name, string const& upName)
+	ZVarTypeSimple(int simpleId, string const& name, string const& upName)
 			: simpleId(simpleId), name(name), upName(upName) {}
 	ZVarTypeSimple* clone() const {return new ZVarTypeSimple(*this);}
 	string getName() const {return name;}
 	string getUpName() const {return upName;}
 	bool canBeGlobal() const;
 	bool canCastTo(ZVarType const& target) const;
-	ZVarTypeIdSimple getId() const {return simpleId;}
-	int classId() const {return ZVARTYPE_CLASSID_SIMPLE;}
+	int getId() const {return simpleId;}
+	int typeClassId() const {return ZVARTYPE_CLASSID_SIMPLE;}
 protected:
 	int selfCompare(ZVarType const& other) const;
 private:
-	ZVarTypeIdSimple simpleId;
+	int simpleId;
 	string name;
 	string upName;
 };
@@ -111,7 +123,7 @@ public:
 	ZVarType* resolve(Scope& scope);
 	bool isResolved() const {return false;}
 	bool canCastTo(ZVarType const& target) const {return false;}
-	int classId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
+	int typeClassId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
 protected:
 	int selfCompare(ZVarType const& other) const;
 private:
@@ -128,9 +140,29 @@ public:
 	ZVarType* resolve(Scope& scope) {return this;}
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
-	int classId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
+	int typeClassId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
 protected:
 	int selfCompare(ZVarType const& other) const {return 0;};
+};
+
+class ZVarTypeClass : public ZVarType
+{
+public:
+	ZVarTypeClass(int classId) : classId(classId), className("") {}
+	ZVarTypeClass(int classId, string const& className) : classId(classId), className(className) {}
+	ZVarTypeClass* clone() const {return new ZVarTypeClass(*this);}
+	string getName() const;
+	string getClassName() const {return className;}
+	int getClassId() const {return classId;}
+	ZVarType* resolve(Scope& scope);
+	bool canBeGlobal() const {return true;}
+	bool canCastTo(ZVarType const& target) const {return *this == target;}
+	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;};
+protected:
+	int selfCompare(ZVarType const& other) const;
+private:
+	int classId;
+	string className;
 };
 
 #endif

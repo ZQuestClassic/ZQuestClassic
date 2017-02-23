@@ -55,7 +55,7 @@ public:
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
 	// Classes
 	ZClass* getClass(int classId) const;
-	ZClass* createClass();
+	ZClass* createClass(string const& name);
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
