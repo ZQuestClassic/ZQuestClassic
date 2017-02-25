@@ -87,7 +87,7 @@ struct ArrayBaseProxy
 /// 2) To deep-copy a PODArray you must explicitly call PODArray.Copy();
 ///
 template <class T>
-struct PODArray
+struct Array
 {
 	typedef T			ElementType;
 	typedef T*			Iterator;
@@ -112,20 +112,21 @@ struct PODArray
 		((ArrayBaseProxy*)this)->Free();
 	}
 
-	inline PODArray()
+	inline Array()
 		: data(NULL), count(0), capacity(0)
 	{}
 
-	explicit PODArray(u32 numElements, const T& value = T())
+	explicit Array(u32 numElements, const T& value = T())
 	{
 		((ArrayBaseProxy*)this)->Allocate(numElements, sizeof(T));
 		Fill(0, numElements, value);
 	}
 
-	explicit PODArray(T* ptr, u32 numElements)
+	explicit Array(T* ptr, u32 numElements)
 	{
 		((ArrayBaseProxy*)this)->Allocate(numElements, sizeof(T));
 		ArrayCopy(data, ptr, sizeof(T), numElements);
+		count = numElements;
 	}
 
 	inline u32 Size() const { return count; }
@@ -142,34 +143,45 @@ struct PODArray
 	inline ElementType& operator[](u32 index) { return data[index]; }
 	inline ElementType& operator[](u32 index) const { return data[index]; }
 
+	inline void Reserve(u32 newCapacity)
+	{
+		if(newCapacity > capacity)
+			Reallocate(newCapacity);
+	}
+
 	inline void Add(const T& value)
 	{
-		Assert(count < capacity);
+		if(UNLIKELY(count == capacity))
+			Reallocate(capacity * 2);
 
-		new ((T*)data + count) T(value);
-		++count;
+		data[count++] = value;
+	}
+
+	inline void AddUnchecked(const T& value)
+	{
+		data[count++] = value;
 	}
 
 	inline void Insert(u32 position, const T& value)
 	{
-		((ArrayBaseProxy*)this)->InsertHole(position, sizeof(T), 1);
+		((ArrayBaseProxy*)this)->InsertHoleOrReallocate(position, sizeof(T), 1);
 		data[position] = value;
 	}
 
 	inline Iterator InsertHole(u32 position, u32 numElements)
 	{
-		((ArrayBaseProxy*)this)->InsertHole(position, sizeof(T), numElements);
+		((ArrayBaseProxy*)this)->InsertHoleOrReallocate(position, sizeof(T), numElements);
 		return data + position;
 	}
 
 	inline void InsertRange(u32 position, const T* p, u32 numElements)
 	{
-		((ArrayBaseProxy*)this)->InsertRange(position, sizeof(T), p, numElements);
+		((ArrayBaseProxy*)this)->InsertRangeOrReallocate(position, sizeof(T), p, numElements);
 	}
 
 	inline void RemoveFromEnd()
 	{
-		ASSERT(count != 0);
+		Assert(count != 0);
 		--count;
 	}
 
@@ -183,6 +195,7 @@ struct PODArray
 		((ArrayBaseProxy*)this)->RemoveRange(position, sizeof(T), numElements);
 	}
 
+	// Swaps position with the element at the end of the array.
 	void RemoveUnordered(u32 position)
 	{
 		ASSERT(count != 0 && position < count);
@@ -217,9 +230,9 @@ struct PODArray
 		return ArrayFind(data, count, value) != count;
 	}
 
-	inline PODArray Copy()
+	inline Array Copy()
 	{
-		return PODArray(data, count);
+		return Array(data, count);
 	}
 };
 

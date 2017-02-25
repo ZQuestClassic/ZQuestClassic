@@ -27,7 +27,7 @@ CppPreprocessorOutput CppPreprocessor::ProcessFile(const CppPreprocessorInputArg
 
 	CppPreprocessorOutput output = {};
 	SimpleTimer simpleTimer = {};
-	PODArray<const char*> args;
+	Array<const char*> args;
 
 	args.Allocate(input.argCount + kMaxStaticArgs);
 	{
@@ -233,10 +233,10 @@ void Postprocessor::ProcessLineDirective(char* code, u32 codeLength, u32& index,
 }
 
 
-PODArray<ScriptFileData*> Postprocessor::ProcessPreprocessedMemoryFile
+Array<ScriptFileData*> Postprocessor::ProcessPreprocessedMemoryFile
 					(const char* scriptFilename, char* code, u32 codeLength)
 {
-	PODArray<ScriptFileData*> scriptSections;
+	Array<ScriptFileData*> scriptSections;
 
 	ScriptFileData* currentScript = new ScriptFileData();
 	currentScript->filename = scriptFilename;
@@ -288,12 +288,7 @@ PODArray<ScriptFileData*> Postprocessor::ProcessPreprocessedMemoryFile
 				// Add new script section.
 				if(i == scriptSections.Size())
 				{
-					if(scriptSections.Full())
-					{
-						scriptSections.Reallocate(scriptSections.Capacity() * 2);
-					}
-
-					currentScript = new ScriptFileData();
+					currentScript = new ScriptFileData(); //todo
 					currentScript->filename = filename;
 
 					scriptSections.Add(currentScript);
@@ -342,9 +337,9 @@ PODArray<ScriptFileData*> Postprocessor::ProcessPreprocessedMemoryFile
 
 // simply returns the scripts for now.
 // it's easy enough to return any additional information that may be required later, however.
-PODArray<ScriptFileData*> GenerateScriptSectionsFromFile(const char* filename, u32 buildFlags)
+Array<ScriptFileData*> GenerateScriptSectionsFromFile(const char* filename, u32 buildFlags)
 {
-	PODArray<ScriptFileData*> scripts;
+	Array<ScriptFileData*> scripts;
 
 	CppPreprocessor cppPreprocessor = {};
 	CppPreprocessorInputArgs input = {};

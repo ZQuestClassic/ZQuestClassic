@@ -79,9 +79,17 @@
 #endif
 
 #if defined(_MSC_VER) //Intel also
-	#define RESTRICT __restrict
+	#define RESTRICT	__restrict
+	#define LIKELY
+	#define UNLIKELY
+	#define FORCEINLINE	__forceinline
+	#define NOINLINE	noinline
 #else
-	#define RESTRICT restrict //is this valid only in C99 in gcc? idk.
+	#define RESTRICT	restrict //is this valid only in C99 in gcc? idk.
+	#define LIKELY
+	#define UNLIKELY
+	#define FORCEINLINE	inline
+	#define NOINLINE	
 #endif
 
 #if (ZC_HAS_CPP11)

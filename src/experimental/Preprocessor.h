@@ -68,7 +68,7 @@ public:
 
 	// Only valid for code that has been run through the preprocessor, otherwise
 	// this is just an overly complicated way of returning the original code.
-	PODArray<ScriptFileData*> ProcessPreprocessedMemoryFile(const char* scriptFilename, char* code, u32 codeLength);
+	Array<ScriptFileData*> ProcessPreprocessedMemoryFile(const char* scriptFilename, char* code, u32 codeLength);
 
 protected:
 
@@ -90,5 +90,5 @@ enum eBuildFlags
 	kBuildOutputScriptSectionsToFiles = 2
 };
 
-PODArray<ScriptFileData*> GenerateScriptSectionsFromFile(const char* filename, u32 buildFlags);
+Array<ScriptFileData*> GenerateScriptSectionsFromFile(const char* filename, u32 buildFlags);
 

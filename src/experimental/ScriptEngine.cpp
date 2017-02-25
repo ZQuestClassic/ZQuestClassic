@@ -438,7 +438,7 @@ bool LoadAndBuildScriptFile(const char* filename,
 	totalCompileTime.Start();
 
 	// Step 1: Load and generate AS compilable scripts.
-	PODArray<ScriptFileData*> scripts = GenerateScriptSectionsFromFile(filename, 1 | 2);
+	Array<ScriptFileData*> scripts = GenerateScriptSectionsFromFile(filename, 1 | 2);
 
 	// TODO ///
 	//////////////////////////////////////////////////////////////////////////

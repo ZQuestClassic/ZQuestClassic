@@ -2,6 +2,10 @@
 
 struct ScriptRegistrar
 {
+	template <class T>
+	void RegisterArraySpecialization(asIScriptEngine* engine, const char* decl, const char* type, const char* paramDecl);
+	void RegisterArrayTemplateSpecializations(asIScriptEngine* engine);
+
 	void RegisterScriptHandle(asIScriptEngine* engine);
 	void RegisterMathFunctions(asIScriptEngine* engine);
 	void RegisterVector2i(asIScriptEngine* engine);
@@ -11,6 +15,10 @@ struct ScriptRegistrar
 	void RegisterGlobalFunctions(asIScriptEngine* engine); // These will need arrays and strings registered.
 
 	void RegisterLegacyLink(asIScriptEngine* engine);
+
+	//why not?
+	void RegisterEverything();
+
 }
 static ScriptRegistrar;
 
@@ -20,24 +28,34 @@ static ScriptRegistrar;
 #include "asBindings/asLink.hpp"
 #include "asBindings/AddOn/scriptstdstring.cpp"
 #include "asBindings/AddOn/scriptarray.cpp"
+#include "asBindings/asArrayTypes.hpp"
 
 
 
-void RegisterEverything()
+void ScriptRegistrar::RegisterEverything()
 {
 	Assert(asScriptEngine);
-	ScriptRegistrar.RegisterScriptHandle(asScriptEngine);
-	ScriptRegistrar.RegisterMathFunctions(asScriptEngine);
-	ScriptRegistrar.RegisterVector2i(asScriptEngine);
-	ScriptRegistrar.RegisterVector2f(asScriptEngine);
-	ScriptRegistrar.RegisterRect(asScriptEngine);
 
+	RegisterScriptHandle(asScriptEngine);
+	RegisterMathFunctions(asScriptEngine);
+	RegisterVector2i(asScriptEngine);
+	RegisterVector2f(asScriptEngine);
+	RegisterRect(asScriptEngine);
+
+	//todo:
 	RegisterStdString(asScriptEngine);
 	RegisterScriptArray_Native(asScriptEngine);
 
+	RegisterArrayTemplateSpecializations(asScriptEngine);
+
+	//todo:
 	// Dependants
-	ScriptRegistrar.RegisterMathDependencies(asScriptEngine);
-	ScriptRegistrar.RegisterGlobalFunctions(asScriptEngine);
+	RegisterMathDependencies(asScriptEngine);
+	RegisterGlobalFunctions(asScriptEngine);
 
 }
 
+void RegisterEverything()
+{
+	ScriptRegistrar.RegisterEverything();
+}

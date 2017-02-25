@@ -57,10 +57,13 @@ void ArrayBaseProxy::Free()
 void ArrayBaseProxy::InsertHole(u32 position, u32 objectSize, u32 holeCount)
 {
 	Assert(position + holeCount <= capacity);
-	Assert(position >= position);
+	Assert(position <= count);
 
-	u8* dest = data + (position * objectSize);
-	memmove(dest + (holeCount * objectSize), dest, (count - position) * objectSize);
+	if(position != count)
+	{
+		u8* dest = data + (position * objectSize);
+		memmove(dest + (holeCount * objectSize), dest, (count - position) * objectSize);
+	}
 
 	count += holeCount;
 }
@@ -77,10 +80,14 @@ void ArrayBaseProxy::RemoveRange(u32 position, u32 objectSize, u32 numElements)
 {
 	Assert(count >= (position + numElements));
 
-	u8* dest = data + (position * objectSize);
-	u32 bytesToMove = (count - (position + numElements)) * objectSize;
+	if(position + numElements < count)
+	{
+		u8* dest = data + (position * objectSize);
+		u32 bytesToMove = (count - (position + numElements)) * objectSize;
 
-	memcpy(dest, dest + (objectSize * numElements), bytesToMove);
+		memcpy(dest, dest + (objectSize * numElements), bytesToMove);
+	}
+
 	count -= numElements;
 }
 
