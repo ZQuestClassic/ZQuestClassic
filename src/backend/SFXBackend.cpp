@@ -1,6 +1,10 @@
 #include "SFXBackend.h"
-#include "../zdefs.h"
 #include <fstream>
+
+
+static int zc_min(int a, int b) { return (a < b) ? a : b; } //todo;  sort out the fucking common includes for zc..
+static int zc_max(int a, int b) { return (a > b) ? a : b; }
+
 
 SFXSample::SFXSample(const SAMPLE &s)
 {
