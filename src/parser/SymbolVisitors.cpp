@@ -448,7 +448,7 @@ void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
 void BuildFunctionSymbols::caseExprArrow(ASTExprArrow &host, void *param)
 {
     // Recur on the name.
-    host.getLVal()->execute(*this, param);
+    host.getLeft()->execute(*this, param);
 
     // Recur on the index, if it exists.
     if (host.getIndex())

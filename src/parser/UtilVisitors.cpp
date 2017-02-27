@@ -337,7 +337,7 @@ void RecursiveVisitor::caseNumConstant(ASTNumConstant &host)
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow &host, void*param)
 {
-	host.getLVal()->execute(*this, param);
+	host.getLeft()->execute(*this, param);
 
 	if(host.getIndex())
 		host.getIndex()->execute(*this, param);
@@ -345,7 +345,7 @@ void RecursiveVisitor::caseExprArrow(ASTExprArrow &host, void*param)
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow &host)
 {
-	host.getLVal()->execute(*this);
+	host.getLeft()->execute(*this);
 
 	if(host.getIndex())
 		host.getIndex()->execute(*this);

@@ -3,6 +3,14 @@
 
 ////////////////////////////////////////////////////////////////
 
+// AST
+
+AST& AST::operator=(AST const& rhs)
+{
+	loc = rhs.loc;
+	return *this;
+}
+
 // ASTProgram
 
 ASTProgram::ASTProgram(LocationData const& location) : AST(location) {}
@@ -224,6 +232,12 @@ ASTString* ASTString::clone() const
 // Statements
 
 // ASTStmt
+
+ASTStmt& ASTStmt::operator=(ASTStmt const& rhs)
+{
+	AST::operator=(rhs);
+	return *this;
+}
 
 // ASTBlock
 
@@ -638,209 +652,265 @@ ASTTypeDef* ASTTypeDef::clone() const
 ////////////////////////////////////////////////////////////////
 // Expressions
 
-// ASTExpr
+// ExprInfo
 
-void ASTExpr::setIntValue(long val)
+ExprInfo::ExprInfo(ExprInfo::Type exprType, bool hasValue, ZVarType* valType, long value, Scope* scope)
+	: exprType(exprType), hasValue_(hasValue), valType(valType), value(value), scope_(scope)
+{}
+
+ExprInfo ExprInfo::unknown(UNKNOWN, false, NULL, 0L, NULL);
+
+ExprInfo ExprInfo::data(ZVarType* dataType)
 {
-	hasval = true;
-	intval = val;
+	return ExprInfo(DATA, false, dataType, 0L, NULL);
 }
 
-void ASTExpr::setIntValue(bool val)
+ExprInfo ExprInfo::data(ZVarType* dataType, long dataValue)
 {
-	hasval = true;
-	intval = val ? 1 : 0;
+	return ExprInfo(DATA, true, dataType, dataValue, NULL);
+}
+
+ExprInfo ExprInfo::variable(ZVarType* variableType, int variableId)
+{
+	return ExprInfo(VARIABLE, false, variableType, variableId, NULL);
+}
+
+ExprInfo ExprInfo::function(ZVarType* returnType, int functionId)
+{
+	return ExprInfo(FUNCTION, false, returnType, functionId, NULL);
+}
+
+ExprInfo ExprInfo::scope(Scope* scope)
+{
+	return ExprInfo(SCOPE, false, NULL, 0L, scope);
+}
+
+// ASTExpr
+
+ASTExpr::ASTExpr(ASTExpr const& base)
+	: ASTStmt(base), info(base.info)
+{}
+
+ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
+{
+	ASTStmt::operator=(rhs);
+	info = rhs.info;
+	return *this;
 }
 
 // ASTExprConst
 
+ASTExprConst::ASTExprConst(ASTExprConst const& base) : ASTExpr(base)
+{
+	content = base.content ? base.content->clone() : NULL;
+}
+
+ASTExprConst& ASTExprConst::operator=(ASTExprConst const& rhs)
+{
+	ASTExpr::operator=(rhs);
+	content = rhs.content->clone();
+	return *this;
+}
+
 // ASTNumConstant
 
-ASTNumConstant* ASTNumConstant::clone() const
+ASTNumConstant::ASTNumConstant(ASTNumConstant const& base) : ASTExpr(base)
 {
-	ASTNumConstant* c = new ASTNumConstant(val->clone(), getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	return c;
+	val = base.val->clone();
+}
+
+ASTNumConstant& ASTNumConstant::operator=(ASTNumConstant const& rhs)
+{
+	ASTExpr::operator=(rhs);
+	val = rhs.val->clone();
+	return *this;
 }
 
 // ASTBoolConstant
 
-ASTBoolConstant* ASTBoolConstant::clone() const
+ASTBoolConstant::ASTBoolConstant(ASTBoolConstant const& base) : ASTExpr(base)
 {
-	ASTBoolConstant* c = new ASTBoolConstant(value, getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	return c;
+	value = base.value;
+}
+
+ASTBoolConstant& ASTBoolConstant::operator=(ASTBoolConstant const& base)
+{
+	ASTExpr::operator=(base);
+	value = base.value;
+	return *this;
 }
 
 // ASTStringConstant
 
-ASTStringConstant::ASTStringConstant(ASTString const & raw)
-		: ASTExpr(raw.getLocation()), str(raw.getValue().substr(1, raw.getValue().size() - 2))
+ASTStringConstant::ASTStringConstant(char const* str, LocationData const& location)
+	: ASTExpr(location), str(str)
 {}
 
-ASTStringConstant* ASTStringConstant::clone() const
+ASTStringConstant::ASTStringConstant(string const& str, LocationData const& location)
+	: ASTExpr(location), str(str)
+{}
+
+ASTStringConstant::ASTStringConstant(ASTString const & raw)
+	: ASTExpr(raw.getLocation()), str(raw.getValue().substr(1, raw.getValue().size() - 2))
+{}
+
+ASTStringConstant::ASTStringConstant(ASTStringConstant const& base) : ASTExpr(base)
 {
-	ASTStringConstant* c = new ASTStringConstant(str, getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	return c;
+	str = base.str;
+}
+
+ASTStringConstant& ASTStringConstant::operator=(ASTStringConstant const& base)
+{
+	ASTExpr::operator=(base);
+	str = base.str;
+	return *this;
 }
 
 // ASTExprDot
 
-ASTExprDot* ASTExprDot::clone() const
+ASTExprDot::ASTExprDot(string const& nspace, string const& name, LocationData const& location)
+	: ASTExpr(location), name(name), nspace(nspace), isConstant_(false)
+{}
+
+ASTExprDot::ASTExprDot(ASTExprDot const& base)
+	: ASTExpr(base), name(base.name), nspace(base.nspace), isConstant_(base.isConstant_)
+{}
+
+ASTExprDot& ASTExprDot::operator=(ASTExprDot const& base)
 {
-	ASTExprDot* c = new ASTExprDot(nspace, name, getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	if (isConstant()) {c->markConstant();}
-	return c;
+	ASTExpr::operator=(base);
+	name = base.name;
+	nspace = base.nspace;
+	isConstant_ = base.isConstant_;
+	return *this;
 }
 
 // ASTExprArrow
 
-ASTExprArrow::~ASTExprArrow()
+ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right, LocationData const& location)
+	: ASTExpr(location), left(left), right(right), index(NULL)
+{}
+
+ASTExprArrow::ASTExprArrow(ASTExprArrow const& base)
+	: ASTExpr(base), left(base.left->clone()), right(base.right),
+	  index(base.index ? base.index->clone() : NULL)
+{}
+
+ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 {
-	delete lval;
+	ASTExpr::operator=(rhs);
+	delete left;
+	left = rhs.left->clone();
+	right = rhs.right;
 	delete index;
+	index = rhs.index ? rhs.index->clone() : NULL;
+	return *this;
 }
 
-ASTExprArrow* ASTExprArrow::clone() const
+ASTExprArrow::~ASTExprArrow()
 {
-	ASTExpr* c_lval = lval != NULL ? lval->clone() : NULL;
-	ASTExprArrow* c = new ASTExprArrow(c_lval, rval, getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	c->setIndex(index != NULL ? index->clone() : NULL);
-	return c;
+	delete left;
+	delete index;
 }
 
 // ASTExprArray
 
-ASTExprArray* ASTExprArray::clone() const
+ASTExprArray::ASTExprArray(string const& nspace, string const& name, LocationData const& location)
+	: ASTExpr(location), nspace(nspace), name(name), index(NULL)
+{}
+
+ASTExprArray::ASTExprArray(ASTExprArray const& base)
+	: ASTExpr(base), nspace(base.nspace), name(base.name),
+	  index(base.index ? base.index->clone() : NULL)
+{}
+
+ASTExprArray& ASTExprArray::operator=(ASTExprArray const& rhs)
 {
-	ASTExprArray* c = new ASTExprArray(nspace, name, getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	c->setIndex(index != NULL ? index->clone() : NULL);
-	return c;
+	ASTExpr::operator=(rhs);
+	nspace = rhs.nspace;
+	name = rhs.name;
+	delete index;
+	index = rhs.index ? rhs.index->clone() : NULL;
+	return *this;
 }
 
 // ASTFuncCall
 
-ASTFuncCall::~ASTFuncCall()
+ASTFuncCall::ASTFuncCall(LocationData const& location)
+	: ASTExpr(location), name(NULL)
+{}
+
+ASTFuncCall::ASTFuncCall(ASTFuncCall const& base)
+	: ASTExpr(base), name(base.name)
 {
-    list<ASTExpr *>::iterator it;
-
-    for(it = params.begin(); it != params.end(); it++)
-    {
-        delete *it;
-    }
-
-    params.clear();
-    delete name;
+	for (list<ASTExpr*>::const_iterator it = base.params.begin(); it != base.params.end(); ++it)
+		params.push_back((*it)->clone());
 }
 
-ASTFuncCall* ASTFuncCall::clone() const
+ASTFuncCall& ASTFuncCall::operator=(ASTFuncCall const& rhs)
 {
-	ASTFuncCall* c = new ASTFuncCall(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	c->setName(name != NULL ? name->clone() : NULL);
-	for (list<ASTExpr*>::const_iterator it = params.begin(); it != params.end(); ++it)
-		c->params.push_back((*it)->clone());
-	return c;
+	ASTExpr::operator=(rhs);
+	delete name;
+	name = rhs.name;
+	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
+		delete *it;
+	for (list<ASTExpr*>::const_iterator it = rhs.params.begin(); it != rhs.params.end(); ++it)
+		params.push_back((*it)->clone());
+	return *this;
+}
+
+ASTFuncCall::~ASTFuncCall()
+{
+    delete name;
+	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
+		delete *it;
 }
 
 // ASTUnaryExpr
 
-// ASTExprNegate
+ASTUnaryExpr::ASTUnaryExpr(ASTUnaryExpr const& base)
+	: ASTExpr(base), operand(base.operand ? base.operand->clone() : NULL)
+{}
 
-ASTExprNegate* ASTExprNegate::clone() const
+ASTUnaryExpr& ASTUnaryExpr::operator=(ASTUnaryExpr const& rhs)
 {
-	ASTExprNegate* c = new ASTExprNegate(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
+	ASTExpr::operator=(rhs);
+	delete operand;
+	operand = rhs.operand ? rhs.operand->clone() : NULL;
+	return *this;
 }
+
+// ASTExprNegate
 
 // ASTExprNot
 
-ASTExprNot* ASTExprNot::clone() const
-{
-	ASTExprNot* c = new ASTExprNot(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprBitNot
-
-ASTExprBitNot* ASTExprBitNot::clone() const
-{
-	ASTExprBitNot* c = new ASTExprBitNot(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTExprIncrement
 
-ASTExprIncrement* ASTExprIncrement::clone() const
-{
-	ASTExprIncrement* c = new ASTExprIncrement(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprPreIncrement
-
-ASTExprPreIncrement* ASTExprPreIncrement::clone() const
-{
-	ASTExprPreIncrement* c = new ASTExprPreIncrement(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTExprDecrement
 
-ASTExprDecrement* ASTExprDecrement::clone() const
-{
-	ASTExprDecrement* c = new ASTExprDecrement(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprPreDecrement
 
-ASTExprPreDecrement* ASTExprPreDecrement::clone() const
-{
-	ASTExprPreDecrement* c = new ASTExprPreDecrement(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getOperand();
-	c->setOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTBinaryExpr
+
+ASTBinaryExpr::ASTBinaryExpr(ASTBinaryExpr const& base)
+	: ASTExpr(base),
+	  first(base.first ? base.first->clone() : NULL),
+	  second(base.second ? base.second->clone() : NULL)
+{}
+
+ASTBinaryExpr& ASTBinaryExpr::operator=(ASTBinaryExpr const& rhs)
+{
+	ASTExpr::operator=(rhs);
+	delete first;
+	first = rhs.first ? rhs.first->clone() : NULL;
+	delete second;
+	second = rhs.second ? rhs.second->clone() : NULL;
+	return *this;
+}
 
 ASTBinaryExpr::~ASTBinaryExpr()
 {
@@ -852,265 +922,49 @@ ASTBinaryExpr::~ASTBinaryExpr()
 
 // ASTExprAnd
 
-ASTExprAnd* ASTExprAnd::clone() const
-{
-	ASTExprAnd* c = new ASTExprAnd(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprOr
-
-ASTExprOr* ASTExprOr::clone() const
-{
-	ASTExprOr* c = new ASTExprOr(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTRelExpr
 
 // ASTExprGT
 
-ASTExprGT* ASTExprGT::clone() const
-{
-	ASTExprGT* c = new ASTExprGT(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprGE
-
-ASTExprGE* ASTExprGE::clone() const
-{
-	ASTExprGE* c = new ASTExprGE(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTExprLT
 
-ASTExprLT* ASTExprLT::clone() const
-{
-	ASTExprLT* c = new ASTExprLT(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprLE
-
-ASTExprLE* ASTExprLE::clone() const
-{
-	ASTExprLE* c = new ASTExprLE(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTExprEQ
 
-ASTExprEQ* ASTExprEQ::clone() const
-{
-	ASTExprEQ* c = new ASTExprEQ(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprNE
-
-ASTExprNE* ASTExprNE::clone() const
-{
-	ASTExprNE* c = new ASTExprNE(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTAddExpr
 
 // ASTExprPlus
 
-ASTExprPlus* ASTExprPlus::clone() const
-{
-	ASTExprPlus* c = new ASTExprPlus(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprMinus
-
-ASTExprMinus* ASTExprMinus::clone() const
-{
-	ASTExprMinus* c = new ASTExprMinus(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTMultExpr
 
 // ASTExprTimes
 
-ASTExprTimes* ASTExprTimes::clone() const
-{
-	ASTExprTimes* c = new ASTExprTimes(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprDivide
 
-ASTExprDivide* ASTExprDivide::clone() const
-{
-	ASTExprDivide* c = new ASTExprDivide(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprModulo
-
-ASTExprModulo* ASTExprModulo::clone() const
-{
-	ASTExprModulo* c = new ASTExprModulo(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTBitExpr
 
 // ASTExprBitAnd
 
-ASTExprBitAnd* ASTExprBitAnd::clone() const
-{
-	ASTExprBitAnd* c = new ASTExprBitAnd(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprBitOr
 
-ASTExprBitOr* ASTExprBitOr::clone() const
-{
-	ASTExprBitOr* c = new ASTExprBitOr(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprBitXor
-
-ASTExprBitXor* ASTExprBitXor::clone() const
-{
-	ASTExprBitXor* c = new ASTExprBitXor(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 // ASTShiftExpr
 
 // ASTExprLShift
 
-ASTExprLShift* ASTExprLShift::clone() const
-{
-	ASTExprLShift* c = new ASTExprLShift(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
-
 // ASTExprRShift
-
-ASTExprRShift* ASTExprRShift::clone() const
-{
-	ASTExprRShift* c = new ASTExprRShift(getLocation());
-	if (hasIntValue()) c->setIntValue(getIntValue());
-	c->setType(getType());
-	ASTExpr* operand = getFirstOperand();
-	c->setFirstOperand(operand != NULL ? operand->clone() : NULL);
-	operand = getSecondOperand();
-	c->setSecondOperand(operand != NULL ? operand->clone() : NULL);
-	return c;
-}
 
 ////////////////////////////////////////////////////////////////
 // Types

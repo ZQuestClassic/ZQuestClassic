@@ -266,8 +266,10 @@ public:
 class AST
 {
 public:
-    AST(LocationData Loc) : loc(Loc) {}
-    virtual ~AST() {}
+    AST(LocationData const& location) : loc(location) {}
+	AST(AST const& base) : loc(base.loc) {}
+	AST& operator=(AST const& rhs);
+
 	virtual AST* clone() const = 0;
     LocationData const &getLocation() const {return loc;}
     LocationData &getLocation() {return loc;}
@@ -275,9 +277,6 @@ public:
 	virtual void execute(ASTVisitor &visitor) {execute(visitor, NULL);}
 private:
     LocationData loc;
-    //NOT IMPLEMENTED - do not use
-    AST(AST &other);
-    AST &operator=(AST &other);
 };
 
 class ASTProgram : public AST
@@ -345,8 +344,9 @@ private:
 class ASTStmt : public AST
 {
 public:
-    ASTStmt(LocationData Loc) : AST(Loc) {}
-    virtual ~ASTStmt() {}
+    ASTStmt(LocationData const& location) : AST(location) {}
+	ASTStmt(ASTStmt const& base) : AST(base) {}
+	ASTStmt& operator=(ASTStmt const& rhs);
 	virtual ASTStmt* clone() const = 0;
 };
 
@@ -809,66 +809,119 @@ private:
 ////////////////////////////////////////////////////////////////
 // Expressions
 
+// Partial or complete information about a given ASTExpr node's type and
+// value. Gradually built up as the compilation progresses.
+class ExprInfo
+{
+public:
+	enum Type {UNKNOWN, DATA, VARIABLE, FUNCTION, SCOPE};
+
+	static ExprInfo unknown;
+	static ExprInfo data(ZVarType* dataType);
+	static ExprInfo data(ZVarType* dataType, long dataValue);
+	static ExprInfo variable(ZVarType* variableType, int variableId);
+	static ExprInfo function(ZVarType* returnType, int functionId);
+	static ExprInfo scope(Scope* scope);
+
+	ExprInfo() : exprType(UNKNOWN), hasValue_(false), value(0L), valType(NULL), scope_(NULL) {}
+
+	bool hasValue() const {return hasValue_;}
+	Type getExprType() const {return exprType;}
+	ZVarType const* getValueType() const {return valType;}
+	void setValueType(ZVarType const* type) {valType = type;}
+	void setValueType(ZVarType* type) {valType = (ZVarType const*)type;}
+
+	long getDataValue() const {return exprType == DATA ? value : 0l;}
+	void setDataValue(long v) {exprType = DATA; value = v; hasValue_ = true;}
+	int getVariableId() const {return exprType == VARIABLE ? value : -1;}
+	void setVariableId(int variableId) {exprType = VARIABLE; value = variableId; hasValue_ = true;}
+	int getFunctionId() const {return exprType == FUNCTION ? value : -1;}
+	void setFunctionId(int functionId) {exprType = FUNCTION; value = functionId; hasValue_ = true;}
+	Scope* getScope() const {return scope_;}
+	void setScope(Scope* scope) {exprType = SCOPE; scope_ = scope; hasValue_ = true;}
+
+private:
+	ExprInfo(Type type, bool hasValue, ZVarType* valType, long value, Scope* scope);
+
+	Type exprType;
+	ZVarType const* valType;
+	bool hasValue_;
+	long value;
+	Scope* scope_;
+};
+
 class ASTExpr : public ASTStmt
 {
 public:
-    ASTExpr(LocationData Loc) : ASTStmt(Loc), hasval(false), intval(0), type(-1) {}
-    virtual ~ASTExpr() {}
+    ASTExpr(LocationData const& location) : ASTStmt(location) {}
+	ASTExpr(ASTExpr const& base);
+	ASTExpr& operator=(ASTExpr const& rhs);
 	virtual ASTExpr* clone() const = 0;
 
-    long getIntValue() const {return intval;}
-    bool hasIntValue() const {return hasval;}
-    int getType() const {return type;}
-    void setIntValue(long val);
-	void setIntValue(bool val);
-    void setType(int t) {type = t;}
 	virtual bool isConstant() const = 0;
+
+	ExprInfo& getInfo() {return info;}
+	ExprInfo const& getInfo() const {return info;}
+	void setInfo(ExprInfo const& i) {info = i;}
+
+	// Convenience methods for info.
+	bool hasValue() const {return info.hasValue();}
+	long getDataValue() const {return info.getDataValue();}
+	void setDataValue(long v) {info.setDataValue(v);}
+	ZVarType const& getVarType() const {return *info.getValueType();}
+	void setVarType(ZVarType const& type) {info.setValueType(&type);}
+	void setVarType(ZVarType& type) {info.setValueType(&type);}
+	void setVarType(ZVarType const* type) {info.setValueType(type);}
+	void setVarType(ZVarType* type) {info.setValueType(type);}
+
+
 private:
-    bool hasval;
-    long intval;
-    int type;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTExpr(ASTExpr &);
-    ASTExpr &operator=(ASTExpr &);
+    ExprInfo info;
 };
 
 // Wrap around an expression to type it as constant.
 class ASTExprConst : public ASTExpr
 {
 public:
-    ASTExprConst(ASTExpr *Content) : ASTExpr(Content->getLocation()), content(Content) {}
-	ASTExprConst(ASTExpr *Content, LocationData Loc) : ASTExpr(Loc), content(Content) {}
+    ASTExprConst(ASTExpr* content) : ASTExpr(content->getLocation()), content(content) {}
+	ASTExprConst(ASTExpr* content, LocationData const& location) : ASTExpr(location), content(content) {}
+	ASTExprConst(ASTExprConst const& base);
+	ASTExprConst& operator=(ASTExprConst const& rhs);
 	~ASTExprConst() {delete content;}
-	ASTExprConst* clone() const {return new ASTExprConst(content->clone(), getLocation());}
+	ASTExprConst* clone() const {return new ASTExprConst(*this);}
 
 	ASTExpr* getContent() const {return content;}
 	bool isConstant() const {return true;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprConst(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprConst(*this);}
 private:
-	ASTExpr *content;
+	ASTExpr* content;
 };
 
 class ASTNumConstant : public ASTExpr
 {
 public:
     ASTNumConstant(ASTFloat *value, LocationData Loc) : ASTExpr(Loc), val(value) {}
+	ASTNumConstant(ASTNumConstant const& base);
+	ASTNumConstant& operator=(ASTNumConstant const& rhs);
     ~ASTNumConstant() {delete val;}
-	ASTNumConstant* clone() const;
-    
-    ASTFloat *getValue() const {return val;}
+	ASTNumConstant* clone() const {return new ASTNumConstant(*this);}
+
+    ASTFloat* getValue() const {return val;}
 	bool isConstant() const {return true;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseNumConstant(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseNumConstant(*this);}
 private:
-    ASTFloat *val;
+    ASTFloat* val;
 };
 
 class ASTBoolConstant : public ASTExpr
 {
 public:
     ASTBoolConstant(bool Value, LocationData Loc) : ASTExpr(Loc), value(Value) {}
-	ASTBoolConstant* clone() const;
+	ASTBoolConstant(ASTBoolConstant const& base);
+	ASTBoolConstant& operator=(ASTBoolConstant const& base);
+	ASTBoolConstant* clone() const {return new ASTBoolConstant(*this);}
 
     bool getValue() const {return value;}
 	bool isConstant() const {return true;}
@@ -881,10 +934,12 @@ private:
 class ASTStringConstant : public ASTExpr
 {
 public:
-	ASTStringConstant(char const * Str, LocationData Loc) : ASTExpr(Loc), str(Str) {}
-	ASTStringConstant(string const Str, LocationData Loc) : ASTExpr(Loc), str(Str) {}
-	ASTStringConstant(ASTString const & raw);
-	ASTStringConstant* clone() const;
+	ASTStringConstant(char const* str, LocationData const& location);
+	ASTStringConstant(string const& str, LocationData const& location);
+	ASTStringConstant(ASTString const& raw);
+	ASTStringConstant(ASTStringConstant const& base);
+	ASTStringConstant& operator=(ASTStringConstant const& rhs);
+	ASTStringConstant* clone() const {return new ASTStringConstant(*this);}
 
 	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringConstant(*this, param);}
 	void execute (ASTVisitor& visitor) {visitor.caseStringConstant(*this);}
@@ -897,258 +952,251 @@ private:
 class ASTExprDot : public ASTExpr
 {
 public:
-    ASTExprDot(string Nspace, string Name, LocationData Loc) : ASTExpr(Loc), name(Name), nspace(Nspace), _isConstant(false) {}
-	ASTExprDot* clone() const;
+    ASTExprDot(string const& nspace, string const& name, LocationData const& location);
+	ASTExprDot(ASTExprDot const& base);
+	ASTExprDot& operator=(ASTExprDot const& base);
+	ASTExprDot* clone() const {return new ASTExprDot(*this);}
 
     string getName() const {return name;}
     string getNamespace() const {return nspace;}
-	bool isConstant() const {return _isConstant;}
-	void markConstant() {_isConstant = true;}
+	bool isConstant() const {return isConstant_;}
+	void markConstant() {isConstant_ = true;}
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprDot(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprDot(*this);}
 private:
     string name;
     string nspace;
-	bool _isConstant;
+	bool isConstant_;
 };
 
 class ASTExprArrow : public ASTExpr
 {
 public:
-    ASTExprArrow(ASTExpr *Lval, string Rval, LocationData Loc) : ASTExpr(Loc), lval(Lval), rval(Rval), index(NULL) {}
+    ASTExprArrow(ASTExpr* left, string const& right, LocationData const& location);
+	ASTExprArrow(ASTExprArrow const& base);
+	ASTExprArrow& operator=(ASTExprArrow const& rhs);
     ~ASTExprArrow();
-	ASTExprArrow* clone() const;
+	ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
-    string getName() const {return rval;}
-    ASTExpr *getLVal() const {return lval;}
-    ASTExpr *getIndex() const {return index;}
-    void setIndex(ASTExpr *e) {index = e;}
+    ASTExpr* getLeft() const {return left;}
+    string getRight() const {return right;}
+    ASTExpr* getIndex() const {return index;}
+    void setIndex(ASTExpr* e) {index = e;}
 	bool isConstant() const {return false;}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArrow(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprArrow(*this);}
 private:
-    ASTExpr *lval;
-    string rval;
-    ASTExpr *index;
+    ASTExpr* left;
+    string right;
+    ASTExpr* index;
 };
 
 class ASTExprArray : public ASTExpr
 {
 public:
-    ASTExprArray(string Nspace, string Name, LocationData Loc) : ASTExpr(Loc), name(Name), index(NULL), nspace(Nspace) {}
+    ASTExprArray(string const& nspace, string const& name, LocationData const& location);
+	ASTExprArray(ASTExprArray const& base);
+	ASTExprArray& operator=(ASTExprArray const& rhs);
     ~ASTExprArray() {delete index;}
-	ASTExprArray* clone() const;
-    
-    string getName() const {return name;}
+	ASTExprArray* clone() const {return new ASTExprArray(*this);}
+
     string getNamespace() const {return nspace;}
-    ASTExpr *getIndex() const {return index;}
-    void setIndex(ASTExpr *e) {index = e;}
+    string getName() const {return name;}
+    ASTExpr* getIndex() const {return index;}
+    void setIndex(ASTExpr* e) {index = e;}
 	bool isConstant() const {return false;}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArray(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprArray(*this);}
 private:
     string name;
-    ASTExpr *index;
+    ASTExpr* index;
     string nspace;
 };
 
 class ASTFuncCall : public ASTExpr
 {
 public:
-    ASTFuncCall(LocationData Loc) : ASTExpr(Loc), params() {}
+    ASTFuncCall(LocationData const& location);
+	ASTFuncCall(ASTFuncCall const& base);
+	ASTFuncCall& operator=(ASTFuncCall const& rhs);
     ~ASTFuncCall();
-	ASTFuncCall* clone() const;
+	ASTFuncCall* clone() const {return new ASTFuncCall(*this);}
 
-    list<ASTExpr *> const &getParams() const {return params;}
-    list<ASTExpr *> &getParams() {return params;}
+    list<ASTExpr*> const &getParams() const {return params;}
+    list<ASTExpr*> &getParams() {return params;}
 
     void setName(ASTExpr *n) {name = n;}
-    ASTExpr * getName() const {return name;}
-    void addParam(ASTExpr *param) {params.push_front(param);}
+    ASTExpr* getName() const {return name;}
+    void addParam(ASTExpr* param) {params.push_front(param);}
 	bool isConstant() const {return false;}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseFuncCall(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseFuncCall(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseFuncCall(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseFuncCall(*this);}
 private:
-    ASTExpr *name;
-    list<ASTExpr *> params;
+    ASTExpr* name;
+    list<ASTExpr*> params;
 };
 
 class ASTUnaryExpr : public ASTExpr
 {
 public:
-    ASTUnaryExpr(LocationData Loc) : ASTExpr(Loc) {}
+    ASTUnaryExpr(LocationData const& location) : ASTExpr(location) {}
+	ASTUnaryExpr(ASTUnaryExpr const& base);
+	ASTUnaryExpr& operator=(ASTUnaryExpr const& rhs);
     virtual ~ASTUnaryExpr() {delete operand;}
 	virtual ASTUnaryExpr* clone() const = 0;
 
-    ASTExpr *getOperand() const {return operand;}
-    void setOperand(ASTExpr *e) {operand = e;}
+    ASTExpr* getOperand() const {return operand;}
+    void setOperand(ASTExpr* e) {operand = e;}
 	virtual bool isConstant() const {return operand->isConstant();}
 private:
-    ASTExpr *operand;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTUnaryExpr(ASTUnaryExpr &);
-    ASTUnaryExpr&operator=(ASTUnaryExpr&);
+    ASTExpr* operand;
 };
 
 class ASTExprNegate : public ASTUnaryExpr
 {
 public:
-    ASTExprNegate(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprNegate* clone() const;
+    ASTExprNegate(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprNegate* clone() const {return new ASTExprNegate(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprNegate(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprNegate(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprNegate(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprNegate(*this);}
 };
 
 class ASTExprNot : public ASTUnaryExpr
 {
 public:
-    ASTExprNot(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprNot* clone() const;
+    ASTExprNot(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprNot* clone() const {return new ASTExprNot(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprNot(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprNot(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprNot(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprNot(*this);}
 };
 
 class ASTExprBitNot : public ASTUnaryExpr
 {
 public:
-    ASTExprBitNot(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprBitNot* clone() const;
+    ASTExprBitNot(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprBitNot* clone() const {return new ASTExprBitNot(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprBitNot(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprBitNot(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitNot(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprBitNot(*this);}
 };
 
 class ASTExprIncrement : public ASTUnaryExpr
 {
 public:
-    ASTExprIncrement(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprIncrement* clone() const;
+    ASTExprIncrement(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprIncrement* clone() const {return new ASTExprIncrement(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprIncrement(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprIncrement(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprIncrement(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprIncrement(*this);}
 	bool isConstant() const {return false;}
 };
 
 class ASTExprPreIncrement : public ASTUnaryExpr
 {
 public:
-    ASTExprPreIncrement(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprPreIncrement* clone() const;
+    ASTExprPreIncrement(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprPreIncrement* clone() const {return new ASTExprPreIncrement(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprPreIncrement(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprPreIncrement(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprPreIncrement(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprPreIncrement(*this);}
 	bool isConstant() const {return false;}
 };
 
 class ASTExprDecrement : public ASTUnaryExpr
 {
 public:
-    ASTExprDecrement(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprDecrement* clone() const;
+    ASTExprDecrement(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprDecrement* clone() const {return new ASTExprDecrement(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprDecrement(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprDecrement(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprDecrement(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprDecrement(*this);}
 	bool isConstant() const {return false;}
 };
 
 class ASTExprPreDecrement : public ASTUnaryExpr
 {
 public:
-    ASTExprPreDecrement(LocationData Loc) : ASTUnaryExpr(Loc) {}
-	ASTExprPreDecrement* clone() const;
+    ASTExprPreDecrement(LocationData const& location) : ASTUnaryExpr(location) {}
+	ASTExprPreDecrement* clone() const {return new ASTExprPreDecrement(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprPreDecrement(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprPreDecrement(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprPreDecrement(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprPreDecrement(*this);}
 	bool isConstant() const {return false;}
 };
 
 class ASTBinaryExpr : public ASTExpr
 {
 public:
-    ASTBinaryExpr(LocationData Loc) : ASTExpr(Loc) {}
+    ASTBinaryExpr(LocationData const& location) : ASTExpr(location) {}
+	ASTBinaryExpr(ASTBinaryExpr const& base);
+	ASTBinaryExpr& operator=(ASTBinaryExpr const& rhs);
     virtual ~ASTBinaryExpr();
 	virtual ASTBinaryExpr* clone() const = 0;
 
-    ASTExpr *getFirstOperand() const {return first;}
-    void setFirstOperand(ASTExpr *e) {first = e;}
-    ASTExpr *getSecondOperand() const {return second;}
-    void setSecondOperand(ASTExpr *e) {second = e;}
+    ASTExpr* getFirstOperand() const {return first;}
+    void setFirstOperand(ASTExpr* e) {first = e;}
+    ASTExpr* getSecondOperand() const {return second;}
+    void setSecondOperand(ASTExpr* e) {second = e;}
 	bool isConstant() const {return first->isConstant() && second->isConstant();}
 private:
-    ASTExpr *first;
-    ASTExpr *second;
+    ASTExpr* first;
+    ASTExpr* second;
 };
 
 class ASTLogExpr : public ASTBinaryExpr
 {
 public:
-    ASTLogExpr(LocationData Loc) : ASTBinaryExpr(Loc) {}
+    ASTLogExpr(LocationData const& location) : ASTBinaryExpr(location) {}
 	virtual ASTLogExpr* clone() const = 0;
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTLogExpr(ASTLogExpr &);
-    ASTLogExpr &operator=(ASTLogExpr &);
 };
 
 class ASTExprAnd : public ASTLogExpr
 {
 public:
-    ASTExprAnd(LocationData Loc) : ASTLogExpr(Loc) {}
-	ASTExprAnd* clone() const;
+    ASTExprAnd(LocationData const& location) : ASTLogExpr(location) {}
+	ASTExprAnd* clone() const {return new ASTExprAnd(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprAnd(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprAnd(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTExprAnd(ASTExprAnd &);
-    ASTExprAnd &operator=(ASTExprAnd &);
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprAnd(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprAnd(*this);}
 };
 
 class ASTExprOr : public ASTLogExpr
 {
 public:
-    ASTExprOr(LocationData Loc) : ASTLogExpr(Loc) {}
-	ASTExprOr* clone() const;
-    
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprOr(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprOr(*this);}
+    ASTExprOr(LocationData const& location) : ASTLogExpr(location) {}
+	ASTExprOr* clone() const {return new ASTExprOr(*this);}
+
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprOr(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprOr(*this);}
 };
 
 class ASTRelExpr : public ASTBinaryExpr
 {
 public:
-    ASTRelExpr(LocationData Loc) : ASTBinaryExpr(Loc) {}
+    ASTRelExpr(LocationData const& location) : ASTBinaryExpr(location) {}
 	virtual ASTRelExpr* clone() const = 0;
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTRelExpr(ASTRelExpr &);
-    ASTRelExpr &operator=(ASTRelExpr&);
 };
 
 class ASTExprGT : public ASTRelExpr
 {
 public:
-    ASTExprGT(LocationData Loc) : ASTRelExpr(Loc) {}
-	ASTExprGT* clone() const;
+    ASTExprGT(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprGT* clone() const {return new ASTExprGT(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprGT(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprGT(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTExprGT(ASTExprGT &);
-    ASTExprGT &operator=(ASTExprGT &);
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprGT(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprGT(*this);}
 };
 
 class ASTExprGE : public ASTRelExpr
 {
 public:
-    ASTExprGE(LocationData Loc) : ASTRelExpr(Loc) {}
-	ASTExprGE* clone() const;
+    ASTExprGE(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprGE* clone() const {return new ASTExprGE(*this);}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprGE(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprGE(*this);}
@@ -1157,193 +1205,172 @@ public:
 class ASTExprLT : public ASTRelExpr
 {
 public:
-    ASTExprLT(LocationData Loc) : ASTRelExpr(Loc) {}
-	ASTExprLT* clone() const;
+    ASTExprLT(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprLT* clone() const {return new ASTExprLT(*this);}
 
-	void execute(ASTVisitor &visitor, void *param) {visitor.caseExprLT(*this, param);}
-	void execute(ASTVisitor &visitor) {visitor.caseExprLT(*this);}
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprLT(*this, param);}
+	void execute(ASTVisitor& visitor) {visitor.caseExprLT(*this);}
 };
 
 class ASTExprLE : public ASTRelExpr
 {
 public:
-    ASTExprLE(LocationData Loc) : ASTRelExpr(Loc) {}
-	ASTExprLE* clone() const;
+    ASTExprLE(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprLE* clone() const {return new ASTExprLE(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprLE(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprLE(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprLE(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprLE(*this);}
 };
 
 class ASTExprEQ : public ASTRelExpr
 {
 public:
-    ASTExprEQ(LocationData Loc) : ASTRelExpr(Loc) {}
-	ASTExprEQ* clone() const;
+    ASTExprEQ(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprEQ* clone() const {return new ASTExprEQ(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprEQ(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprEQ(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprEQ(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprEQ(*this);}
 };
 
 class ASTExprNE : public ASTRelExpr
 {
 public:
-    ASTExprNE(LocationData Loc) : ASTRelExpr(Loc) {}
-	ASTExprNE* clone() const;
+    ASTExprNE(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprNE* clone() const {return new ASTExprNE(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprNE(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprNE(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprNE(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprNE(*this);}
 };
 
 class ASTAddExpr : public ASTBinaryExpr
 {
 public:
-    ASTAddExpr(LocationData Loc) : ASTBinaryExpr(Loc) {}
+    ASTAddExpr(LocationData const& location) : ASTBinaryExpr(location) {}
 	virtual ASTAddExpr* clone() const = 0;
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTAddExpr(ASTAddExpr &);
-    ASTAddExpr &operator=(ASTAddExpr &);
 };
 
 class ASTExprPlus : public ASTAddExpr
 {
 public:
-    ASTExprPlus(LocationData Loc) : ASTAddExpr(Loc) {}
-	ASTExprPlus* clone() const;
+    ASTExprPlus(LocationData const& location) : ASTAddExpr(location) {}
+	ASTExprPlus* clone() const {return new ASTExprPlus(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprPlus(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprPlus(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTExprPlus(ASTExprPlus &);
-    ASTExprPlus &operator=(ASTExprPlus &);
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprPlus(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprPlus(*this);}
 };
 
 class ASTExprMinus : public ASTAddExpr
 {
 public:
-    ASTExprMinus(LocationData Loc) : ASTAddExpr(Loc) {}
-	ASTExprMinus* clone() const;
+    ASTExprMinus(LocationData const& location) : ASTAddExpr(location) {}
+	ASTExprMinus* clone() const {return new ASTExprMinus(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprMinus(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprMinus(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprMinus(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprMinus(*this);}
 };
 
 class ASTMultExpr : public ASTBinaryExpr
 {
 public:
-    ASTMultExpr(LocationData Loc) : ASTBinaryExpr(Loc) {}
+    ASTMultExpr(LocationData const& location) : ASTBinaryExpr(location) {}
 	virtual ASTMultExpr* clone() const = 0;
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTMultExpr(ASTMultExpr &);
-    ASTMultExpr &operator=(ASTMultExpr &);
 };
 
 class ASTExprTimes : public ASTMultExpr
 {
 public:
-    ASTExprTimes(LocationData Loc) : ASTMultExpr(Loc) {}
-	ASTExprTimes* clone() const;
+    ASTExprTimes(LocationData const& location) : ASTMultExpr(location) {}
+	ASTExprTimes* clone() const {return new ASTExprTimes(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprTimes(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprTimes(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTExprTimes(ASTExprTimes &);
-    ASTExprTimes &operator=(ASTExprTimes &);
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprTimes(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprTimes(*this);}
 };
 
 class ASTExprDivide : public ASTMultExpr
 {
 public:
-    ASTExprDivide(LocationData Loc) : ASTMultExpr(Loc) {}
-	ASTExprDivide* clone() const;
+    ASTExprDivide(LocationData const& location) : ASTMultExpr(location) {}
+	ASTExprDivide* clone() const {return new ASTExprDivide(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprDivide(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprDivide(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprDivide(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprDivide(*this);}
 };
 
 class ASTExprModulo : public ASTMultExpr
 {
 public:
-    ASTExprModulo(LocationData Loc) : ASTMultExpr(Loc) {}
-	ASTExprModulo* clone() const;
+    ASTExprModulo(LocationData const& location) : ASTMultExpr(location) {}
+	ASTExprModulo* clone() const {return new ASTExprModulo(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprModulo(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprModulo(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprModulo(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprModulo(*this);}
 };
 
 class ASTBitExpr : public ASTBinaryExpr
 {
 public:
-    ASTBitExpr(LocationData Loc) : ASTBinaryExpr(Loc) {}
+    ASTBitExpr(LocationData const& location) : ASTBinaryExpr(location) {}
 	virtual ASTBitExpr* clone() const = 0;
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTBitExpr &operator=(ASTBitExpr &);
-    ASTBitExpr(ASTBitExpr &);
 };
 
 class ASTExprBitAnd : public ASTBitExpr
 {
 public:
-    ASTExprBitAnd(LocationData Loc) : ASTBitExpr(Loc) {}
-	ASTExprBitAnd* clone() const;
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprBitAnd(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprBitAnd(*this);}
+    ASTExprBitAnd(LocationData const& location) : ASTBitExpr(location) {}
+	ASTExprBitAnd* clone() const {return new ASTExprBitAnd(*this);}
 
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitAnd(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprBitAnd(*this);}
 };
 
 class ASTExprBitOr : public ASTBitExpr
 {
 public:
-    ASTExprBitOr(LocationData Loc) : ASTBitExpr(Loc) {}
-	ASTExprBitOr* clone() const;
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprBitOr(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprBitOr(*this);}
+    ASTExprBitOr(LocationData const& location) : ASTBitExpr(location) {}
+	ASTExprBitOr* clone() const {return new ASTExprBitOr(*this);}
+
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitOr(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprBitOr(*this);}
 };
 
 class ASTExprBitXor : public ASTBitExpr
 {
 public:
-    ASTExprBitXor(LocationData Loc) : ASTBitExpr(Loc) {}
-	ASTExprBitXor* clone() const;
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprBitXor(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprBitXor(*this);}
+    ASTExprBitXor(LocationData const& location) : ASTBitExpr(location) {}
+	ASTExprBitXor* clone() const {return new ASTExprBitXor(*this);}
+
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitXor(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprBitXor(*this);}
 
 };
 
 class ASTShiftExpr : public ASTBinaryExpr
 {
 public:
-    ASTShiftExpr(LocationData Loc) : ASTBinaryExpr(Loc) {}
+    ASTShiftExpr(LocationData const& location) : ASTBinaryExpr(location) {}
 	virtual ASTShiftExpr* clone() const = 0;
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTShiftExpr(ASTShiftExpr &);
-    ASTShiftExpr &operator=(ASTShiftExpr &);
 };
 
 class ASTExprLShift : public ASTShiftExpr
 {
 public:
-    ASTExprLShift(LocationData Loc) : ASTShiftExpr(Loc) {}
-	ASTExprLShift* clone() const;
+    ASTExprLShift(LocationData const& location) : ASTShiftExpr(location) {}
+	ASTExprLShift* clone() const {return new ASTExprLShift(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprLShift(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprLShift(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprLShift(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprLShift(*this);}
 };
 
 class ASTExprRShift : public ASTShiftExpr
 {
 public:
-    ASTExprRShift(LocationData Loc) : ASTShiftExpr(Loc) {}
-	ASTExprRShift* clone() const;
+    ASTExprRShift(LocationData const& location) : ASTShiftExpr(location) {}
+	ASTExprRShift* clone() const {return new ASTExprRShift(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprRShift(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprRShift(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprRShift(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprRShift(*this);}
 };
+
 // Types
 
 class ASTScriptType : public AST

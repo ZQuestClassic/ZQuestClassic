@@ -405,14 +405,14 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
 
 	// Get size.
 
-	if (!host.getSize()->hasIntValue())
+	if (!host.getSize()->getInfo().hasValue())
 	{
 		failure = true;
 		printErrorMsg(&host, EXPRNOTCONSTANT);
 		return;
 	}
 
-	long size = host.getSize()->getIntValue();
+	long size = host.getSize()->getInfo().getDataValue();
 
 	if (size < 10000)
 	{
@@ -422,7 +422,7 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
 	}
 
 	// Check if we've allocated enough memory for the initialiser.
-	if(host.getList() != NULL && host.getList()->getList().size() >= size_t(size))
+	if (host.getList() != NULL && host.getList()->getList().size() >= size_t(size))
 	{
 		failure = true;
 
@@ -533,24 +533,24 @@ void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
 
 // Expressions
 
-void BuildOpcodes::caseNumConstant(ASTNumConstant &host, void *)
+void BuildOpcodes::caseNumConstant(ASTNumConstant& host, void*)
 {
-    if(host.hasIntValue())
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+    if (host.getInfo().hasValue())
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
     else
     {
         pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
 
-        if(!val.second)
+        if (!val.second)
             printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
 
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
     }
 }
 
-void BuildOpcodes::caseBoolConstant(ASTBoolConstant &host, void *)
+void BuildOpcodes::caseBoolConstant(ASTBoolConstant& host, void*)
 {
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
 }
 
 void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
@@ -653,9 +653,9 @@ void BuildOpcodes::caseExprDot(ASTExprDot &host, void *param)
     addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
 }
 
-void BuildOpcodes::caseExprArrow(ASTExprArrow &host, void *param)
+void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
-    OpcodeContext *c = (OpcodeContext *)param;
+    OpcodeContext* c = (OpcodeContext*)param;
     bool isIndexed = host.getIndex() != NULL;
     //this is actually a function call
     //to the appropriate gettor method
@@ -667,7 +667,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow &host, void *param)
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnlabel)));
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     //get the rhs of the arrow
-    host.getLVal()->execute(*this,param);
+    host.getLeft()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
     //if indexed, push the index
@@ -717,9 +717,9 @@ void BuildOpcodes::caseExprArray(ASTExprArray &host, void *param)
 
 }
 
-void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
+void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
 {
-    OpcodeContext *c = (OpcodeContext *)param;
+    OpcodeContext* c = (OpcodeContext*)param;
     int funclabel = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
     //push the stack frame pointer
     addOpcode(new OPushRegister(new VarArgument(SFRAME)));
@@ -732,10 +732,10 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
     IsDotExpr temp;
     host.getName()->execute(temp, &isdotexpr);
 
-    if(!isdotexpr)
+    if (!isdotexpr)
     {
         //load the value of the left-hand of the arrow into EXP1
-        ((ASTExprArrow *)host.getName())->getLVal()->execute(*this,param);
+        ((ASTExprArrow*)host.getName())->getLeft()->execute(*this, param);
         //host.getName()->execute(*this,param);
         //push it onto the stack
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -744,7 +744,7 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
     //push the parameters, in forward order
     for(list<ASTExpr *>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
     {
-        (*it)->execute(*this,param);
+        (*it)->execute(*this, param);
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }
 
@@ -756,49 +756,48 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
     addOpcode(next);
 }
 
-void BuildOpcodes::caseExprNegate(ASTExprNegate &host, void *param)
+void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
 
-    host.getOperand()->execute(*this,param);
+    host.getOperand()->execute(*this, param);
     addOpcode(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
     addOpcode(new OSubRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprNot(ASTExprNot &host, void *param)
+void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
 
-    host.getOperand()->execute(*this,param);
+    host.getOperand()->execute(*this, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprBitNot(ASTExprBitNot &host, void *param)
+void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
 
-    host.getOperand()->execute(*this,param);
+    host.getOperand()->execute(*this, param);
     addOpcode(new ONot(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprIncrement(ASTExprIncrement &host, void *param)
+void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 {
-    //annoying
-    OpcodeContext *c = (OpcodeContext *)param;
+    OpcodeContext* c = (OpcodeContext*)param;
     //load value of the variable into EXP1
     //except if it is an arrow expr, in which case the gettor function is stored
     //in this AST*
@@ -808,7 +807,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement &host, void *param)
 
     if(isdotexpr)
     {
-        host.getOperand()->execute(*this,param);
+        host.getOperand()->execute(*this, param);
     }
     else
     {
@@ -949,18 +948,18 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement &host, void *param)
     addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprAnd(ASTExprAnd &host, void *param)
+void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
+
     //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     castFromBool(result, EXP1);
     castFromBool(result, EXP2);
@@ -969,16 +968,16 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd &host, void *param)
     addOpcode(new OSetMore(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprOr(ASTExprOr &host, void *param)
+void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
+
     //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     host.getSecondOperand()->execute(*this,param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
@@ -987,18 +986,18 @@ void BuildOpcodes::caseExprOr(ASTExprOr &host, void *param)
     addOpcode(new OSetMore(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprGT(ASTExprGT &host, void *param)
+void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
+
     //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
@@ -1006,35 +1005,35 @@ void BuildOpcodes::caseExprGT(ASTExprGT &host, void *param)
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprGE(ASTExprGE &host, void *param)
+void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
+
     //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprLT(ASTExprLT &host, void *param)
+void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
+
     //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
@@ -1042,237 +1041,237 @@ void BuildOpcodes::caseExprLT(ASTExprLT &host, void *param)
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprLE(ASTExprLE &host, void *param)
+void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
+void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
-    //special case for booleans
-    bool isBoolean = (host.getFirstOperand()->getType() == ZVARTYPEID_BOOL);
-    
-    if(host.hasIntValue())
+    // Special case for booleans.
+    bool isBoolean = (*host.getFirstOperand()->getInfo().getValueType() == ZVarType::BOOL);
+
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    
-    if(isBoolean)
+
+    if (isBoolean)
     {
         castFromBool(result, EXP1);
         castFromBool(result, EXP2);
     }
-    
+
     addOpcode(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprNE(ASTExprNE &host, void *param)
+void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
-    //special case for booleans
-    bool isBoolean = (host.getFirstOperand()->getType() == ZVARTYPEID_BOOL);
-    
-    if(host.hasIntValue())
+    // Special case for booleans.
+    bool isBoolean = (*host.getFirstOperand()->getInfo().getValueType() == ZVarType::BOOL);
+
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    
-    if(isBoolean)
+
+    if (isBoolean)
     {
         castFromBool(result, EXP1);
         castFromBool(result, EXP2);
     }
-    
+
     addOpcode(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OSetFalse(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprPlus(ASTExprPlus &host, void *param)
+void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprMinus(ASTExprMinus &host, void *param)
+void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OSubRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprTimes(ASTExprTimes &host, void *param)
+void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OMultRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprDivide(ASTExprDivide &host, void *param)
+void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ODivRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprModulo(ASTExprModulo &host, void *param)
+void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OModuloRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd &host, void *param)
+void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprBitOr(ASTExprBitOr &host, void *param)
+void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprBitXor(ASTExprBitXor &host, void *param)
+void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprLShift(ASTExprLShift &host, void *param)
+void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
-void BuildOpcodes::caseExprRShift(ASTExprRShift &host, void *param)
+void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 {
-    if(host.hasIntValue())
+    if (host.getInfo().hasValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
         return;
     }
-    
-    //compute both sides
-    host.getFirstOperand()->execute(*this,param);
+
+    // Compute both sides.
+    host.getFirstOperand()->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.getSecondOperand()->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1280,7 +1279,7 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift &host, void *param)
 
 // Other
 
-void BuildOpcodes::castFromBool(vector<Opcode *> &res, int reg)
+void BuildOpcodes::castFromBool(vector<Opcode*>& res, int reg)
 {
     res.push_back(new OCompareImmediate(new VarArgument(reg), new LiteralArgument(0)));
     res.push_back(new OSetFalse(new VarArgument(reg)));
@@ -1350,7 +1349,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     vector<Opcode *> toadd;
     BuildOpcodes oc;
-    host.getLVal()->execute(oc, param);
+    host.getLeft()->execute(oc, param);
     toadd = oc.getResult();
     
     for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
