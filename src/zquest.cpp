@@ -17062,36 +17062,46 @@ int onHeader()
     
     int ret;
     
-    do
+    bool done = false;
+    while (!done)
     {
-        ret=zc_popup_dialog(header_cpy,-1);
-        
-        if(ret==16)
+        ret = zc_popup_dialog(header_cpy, -1);
+
+        switch (ret)
         {
-            ret=zc_popup_dialog(password_cpy,-1);
-            
-            if(ret==5)
+        case 16:
+        {
+            int subret = zc_popup_dialog(password_cpy, -1);
+
+            if (subret == 5)
             {
-                header.use_keyfile= password_cpy[4].flags&D_SELECTED?1:0;
-                set_questpwd(pwd,header.use_keyfile!=0);
+                header.use_keyfile = password_cpy[4].flags&D_SELECTED ? 1 : 0;
+                set_questpwd(pwd, header.use_keyfile != 0);
             }
-            
-            ret=16;
         }
-    }
-    while(ret==16);
-    
-    
-    
-    if(ret==17)
-    {
-        saved=false;
-        header.quest_number=atoi(q_num);
-        strcpy(header.author,author);
-        strcpy(header.title,title);
-        strcpy(header.version,version);
-        strcpy(header.minver,minver);
-    }
+        case 17:
+        {
+            if (strcmp(version, minver) < 0)
+            {
+                jwin_alert("Required Version Too Low", "Quest version must be >= required version", "or users cannot load the quest", NULL, "&OK", NULL, 13, 0, lfont);
+            }
+            else
+            {
+                saved = false;
+                header.quest_number = atoi(q_num);
+                strcpy(header.author, author);
+                strcpy(header.title, title);
+                strcpy(header.version, version);
+                strcpy(header.minver, minver);
+                done = true;
+            }
+            break;
+        }
+        default:
+            done = true;
+            break;
+        }
+    }               
     
     if(resize)
     {
