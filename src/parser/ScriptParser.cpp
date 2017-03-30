@@ -14,7 +14,7 @@
 
 #include "DataStructs.h"
 #include "Scope.h"
-#include "SymbolVisitors.h"
+#include "SemanticAnalyzer.h"
 #include "UtilVisitors.h"
 #include "AST.h"
 #include "BuildVisitors.h"
@@ -66,13 +66,24 @@ ScriptsData* compile(const char *filename)
     box_eol();
 #endif
 
-    SymbolData *d = ScriptParser::buildSymbolTable(theAST);
+	SemanticAnalyzer semanticAnalyzer;
+	theAST->execute(semanticAnalyzer);
 
-    if (d == NULL)
+    if (semanticAnalyzer.hasFailed())
     {
-        // delete theAST;
+        delete theAST;
         return NULL;
     }
+
+	SymbolData& d = semanticAnalyzer.getResults();
+
+	// Clear theAST lists so we don't delete the results in d.
+	theAST->scripts.clear();
+	theAST->functions.clear();
+	theAST->variables.clear();
+	theAST->arrays.clear();
+
+	delete theAST;
 
     //d->symbols->printDiagnostics();
 
@@ -81,7 +92,7 @@ ScriptsData* compile(const char *filename)
     box_eol();
 #endif
 
-    FunctionData *fd = ScriptParser::typeCheck(d);
+    FunctionData *fd = ScriptParser::typeCheck(&d);
 
     if (fd == NULL)
     {
@@ -292,226 +303,6 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
     return true;
 }
 
-SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
-{
-    SymbolData* rval = new SymbolData();
-    SymbolTable* t = new SymbolTable();
-    Scope* globalScope = Scope::makeGlobalScope(*t);
-    bool failure = false;
-
-	// Add the types to the global scope.
-	vector<ASTTypeDef*>& types = theAST->types;
-	for (vector<ASTTypeDef*>::iterator it = types.begin(); it != types.end(); ++it)
-	{
-		BuildScriptSymbols bss;
-		(*it)->execute(bss, globalScope);
-		if (!bss.isOK()) failure = true;
-	}
-
-    // Add functions to the global scope.
-    vector<ASTFuncDecl*>& functions = theAST->functions;
-    for (vector<ASTFuncDecl*>::iterator it = functions.begin(); it != functions.end(); it++)
-    {
-        vector<ZVarTypeId> paramTypeIds;
-		list<ASTVarDecl*>& params = (*it)->getParams();
-        for (list<ASTVarDecl*>::iterator it2 = params.begin(); it2 != params.end(); ++it2)
-        {
-            ZVarType const& type = (*it2)->getType()->resolve(*globalScope);
-            if (type == ZVarType::VOID)
-            {
-                printErrorMsg(*it2, FUNCTIONVOIDPARAM, (*it2)->getName());
-                failure = true;
-            }
-            paramTypeIds.push_back(t->getOrAssignTypeId(type));
-        }
-
-        ZVarType const& returnType = (*it)->getReturnType()->resolve(*globalScope);
-        int id = globalScope->addFunction((*it)->getName(), t->getOrAssignTypeId(returnType), paramTypeIds, *it);
-
-        if (id == -1)
-        {
-            printErrorMsg(*it, FUNCTIONREDEF, (*it)->getName());
-            failure = true;
-        }
-
-        if (failure)
-        {
-            delete globalScope;
-            delete t;
-            delete rval;
-            delete theAST;
-            return NULL;
-        }
-    }
-    rval->globalFuncs = functions;
-
-	// Add variables to the global scope.
-	vector<ASTVarDecl*>& variables = theAST->variables;
-    for (vector<ASTVarDecl*>::iterator it = variables.begin(); it != variables.end(); ++it)
-    {
-        BuildScriptSymbols bss;
-        (*it)->execute(bss, globalScope);
-        if (!bss.isOK()) failure = true;
-    }
-
-	// Add arrays to the global scope.
-    vector<ASTArrayDecl*>& arrays = theAST->arrays;
-    for (vector<ASTArrayDecl*>::iterator it = arrays.begin(); it != arrays.end(); it++)
-    {
-        BuildScriptSymbols bss;
-        (*it)->execute(bss, globalScope);
-        if (!bss.isOK()) failure = true;
-    }
-
-	vector<ASTScript*>& scripts = theAST->scripts;
-    if (!failure)
-    {
-        for (vector<ASTScript*>::iterator it = scripts.begin(); it != scripts.end(); ++it)
-        {
-			ASTScript& scriptDecl = **it;
-			string const& scriptName = scriptDecl.getName();
-            ScriptType scripttype = scriptDecl.getType()->getType();
-
-            if (scripttype != SCRIPTTYPE_GLOBAL
-				&& scripttype != SCRIPTTYPE_ITEM
-				&& scripttype != SCRIPTTYPE_FFC)
-            {
-                printErrorMsg(*it, SCRIPTBADTYPE, scriptName);
-                failure = true;
-                continue;
-            }
-
-            Scope* scriptScope = globalScope->makeChild(scriptName);
-            if (scriptScope == NULL)
-            {
-                printErrorMsg(*it, SCRIPTREDEF, scriptName);
-                failure = true;
-				delete scriptScope;
-                continue;
-            }
-
-            BuildScriptSymbols bss;
-            bss.enableDeprecationWarnings();
-            scriptDecl.execute(bss, scriptScope);
-
-            if (!bss.isOK())
-                failure = true;
-            else
-            {
-                // Find the start symbol
-                vector<int> possibleruns = scriptScope->getFunctionIds("run");
-                int runid = -1;
-
-                if (possibleruns.size() > 1)
-                {
-                    printErrorMsg(*it, TOOMANYRUN, scriptName);
-                    failure = true;
-                }
-                else if(possibleruns.size() == 1)
-                    runid = possibleruns[0];
-
-                if (!failure)
-                {
-                    if (runid == -1)
-                    {
-                        printErrorMsg(*it, SCRIPTNORUN, scriptName);
-                        failure = true;
-                    }
-                    else
-                    {
-                        ZVarTypeId typeId = t->getFuncReturnTypeId(runid);
-                        if (typeId != ZVARTYPEID_VOID)
-                        {
-                            printErrorMsg(*it, SCRIPTRUNNOTVOID, scriptName);
-                            failure = true;
-                        }
-                        else
-                        {
-                            rval->runsymbols[*it] = runid;
-                            rval->numParams[*it] = (int)t->getFuncParamTypeIds(runid).size();
-                            rval->scriptTypes[*it] = scripttype;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // All non-local variables have been added to the table, so process all
-    // function declarations and add their local variables. As well, look up
-    // the symbol id of all variables and functions accessed and called within
-    // that function.
-
-    // Starting with global functions.
-    if (!failure)
-    {
-        for (vector<ASTFuncDecl*>::iterator it = functions.begin(); it != functions.end(); it++)
-        {
-            BasicScope functionScope(globalScope);
-            BFSParam param(functionScope);
-            BuildFunctionSymbols bfs;
-            (*it)->execute(bfs, &param);
-            if (!bfs.isOK()) failure = true;
-        }
-    }
-
-    // Now do script functions.
-    if (!failure)
-    {
-        for(vector<ASTScript*>::iterator it = scripts.begin(); it != scripts.end(); it++)
-        {
-			ASTScript& scriptDecl = **it;
-			string const& scriptName = scriptDecl.getName();
-            BasicScope functionScope(globalScope->getLocalChild(scriptName));
-            BFSParam param(functionScope, rval->scriptTypes[*it]);
-
-			list<ASTDecl*> decls = scriptDecl.getScriptBlock()->getDeclarations();
-            for (list<ASTDecl*>::iterator it2 = decls.begin(); it2 != decls.end(); ++it2)
-            {
-                bool isfuncdecl;
-                IsFuncDecl temp;
-                (*it2)->execute(temp, &isfuncdecl);
-
-                if (isfuncdecl)
-                {
-                    BuildFunctionSymbols bfs;
-                    (*it2)->execute(bfs, &param);
-
-                    if (!bfs.isOK()) failure = true;
-
-                    if (bfs.getThisVID() != -1)
-                        rval->thisPtr[*it] = bfs.getThisVID();
-                }
-            }
-        }
-    }
-
-    if (failure)
-    {
-        delete globalScope;
-        delete t;
-        delete rval;
-        delete theAST;
-        return NULL;
-    }
-
-    delete globalScope;
-    rval->symbols = t;
-
-	// Copy and then clear so that it doesn't get deleted with theAST.
-	rval->scripts = scripts;
-	scripts.clear();
-    rval->globalFuncs = functions;
-	functions.clear();
-    rval->globalVars = variables;
-	variables.clear();
-    rval->globalArrays = arrays;
-	arrays.clear();
-    delete theAST;
-
-    return rval;
-}
-
 FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
 {
     //build the functiondata
@@ -525,7 +316,6 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
     map<ASTScript *, int> numparams = sdata->numParams;
     map<ASTScript *, ScriptType> scripttypes = sdata->scriptTypes;
     map<ASTScript *, int> thisptr = sdata->thisPtr;
-    delete sdata;
     bool failure = false;
     map<int, bool> usednums;
     
@@ -1016,7 +806,6 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         rval->scriptTypes[it->first] = scripttypes[it->first];
     }
     
-    delete symbols; //and so long to our beloved ;) symbol table
     //Z_message("yes");
     
     if(failure)

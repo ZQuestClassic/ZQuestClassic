@@ -13,13 +13,13 @@ void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 {
 	for (vector<ASTImportDecl*>::const_iterator it = host.imports.begin(); it != host.imports.end(); ++it)
 		(*it)->execute(*this, param);
+	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
+		(*it)->execute(*this, param);
 	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
 		(*it)->execute(*this, param);
 	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
 		(*it)->execute(*this, param);
 	for (vector<ASTFuncDecl*>::const_iterator it = host.functions.begin(); it != host.functions.end(); ++it)
-		(*it)->execute(*this, param);
-	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
 		(*it)->execute(*this, param);
 	for (vector<ASTScript*>::const_iterator it = host.scripts.begin(); it != host.scripts.end(); ++it)
 		(*it)->execute(*this, param);
@@ -29,13 +29,13 @@ void RecursiveVisitor::caseProgram(ASTProgram &host)
 {
 	for (vector<ASTImportDecl*>::const_iterator it = host.imports.begin(); it != host.imports.end(); ++it)
 		(*it)->execute(*this);
+	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
+		(*it)->execute(*this);
 	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
 		(*it)->execute(*this);
 	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
 		(*it)->execute(*this);
 	for (vector<ASTFuncDecl*>::const_iterator it = host.functions.begin(); it != host.functions.end(); ++it)
-		(*it)->execute(*this);
-	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
 		(*it)->execute(*this);
 	for (vector<ASTScript*>::const_iterator it = host.scripts.begin(); it != host.scripts.end(); ++it)
 		(*it)->execute(*this);
@@ -144,8 +144,8 @@ void RecursiveVisitor::caseSwitchCases(ASTSwitchCases & host)
 void RecursiveVisitor::caseStmtFor(ASTStmtFor &host, void *param)
 {
 	host.getPrecondition()->execute(*this, param);
-	host.getIncrement()->execute(*this, param);
 	host.getTerminationCondition()->execute(*this, param);
+	host.getIncrement()->execute(*this, param);
 	host.getStmt()->execute(*this, param);
 }
 

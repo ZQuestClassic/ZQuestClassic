@@ -5,31 +5,7 @@
 ////////////////////////////////////////////////////////////////
 // Scope
 
-Scope* Scope::makeGlobalScope(SymbolTable& table)
-{
-	Scope* global = new BasicScope(table);
-
-	// Add global library functions.
-    GlobalSymbols::getInst().addSymbolsToScope(*global);
-
-	// Create builtin classes (skip void, float, and bool).
-	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
-	{
-		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
-		ZClass& klass = *table.getClass(type.getClassId());
-		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
-		library.addSymbolsToScope(klass);
-	}
-
-	// Add global pointers.
-    table.addGlobalPointer(global->addVariable("Link", ZVARTYPEID_LINK));
-    table.addGlobalPointer(global->addVariable("Screen", ZVARTYPEID_SCREEN));
-    table.addGlobalPointer(global->addVariable("Game", ZVARTYPEID_GAME));
-
-	return global;
-}
-
-Scope::Scope(SymbolTable& table) : table(table) {}
+Scope::Scope(SymbolTable& table) : table(table), varDeclsDeprecated(false) {}
 
 // Inheritance
 
@@ -238,6 +214,14 @@ int Scope::getFunctionId(FunctionSignature const& signature) const
 	return functionId;
 }
 
+int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
+{
+	vector<ZVarTypeId> paramTypeIds;
+	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
+		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
+	return addFunction(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
+}
+
 int Scope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
 {
 	return addFunction(name, returnTypeId, paramTypeIds, NULL);
@@ -246,14 +230,6 @@ int Scope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarT
 int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes)
 {
 	return addFunction(name, returnType, paramTypes, NULL);
-}
-
-int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
-{
-	vector<ZVarTypeId> paramTypeIds;
-	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
-		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
-	return addFunction(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -413,6 +389,29 @@ int BasicScope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<
 	table.putFuncTypeIds(funcId, returnTypeId, paramTypeIds);
 	if (node) table.putNodeId(node, funcId);
 	return funcId;
+}
+
+////////////////////////////////////////////////////////////////
+// GlobalScope
+
+GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
+{
+	// Add global library functions.
+    GlobalSymbols::getInst().addSymbolsToScope(*this);
+
+	// Create builtin classes (skip void, float, and bool).
+	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
+	{
+		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
+		ZClass& klass = *table.getClass(type.getClassId());
+		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
+		library.addSymbolsToScope(klass);
+	}
+
+	// Add global pointers.
+    table.addGlobalPointer(addVariable("Link", ZVARTYPEID_LINK));
+    table.addGlobalPointer(addVariable("Screen", ZVARTYPEID_SCREEN));
+    table.addGlobalPointer(addVariable("Game", ZVARTYPEID_GAME));
 }
 
 ////////////////////////////////////////////////////////////////

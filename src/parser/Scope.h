@@ -1,7 +1,9 @@
 #ifndef ZPARSER_SCOPE_H
 #define ZPARSER_SCOPE_H
 
+#include <assert.h>
 #include "DataStructs.h"
+
 
 class Scope
 {
@@ -20,6 +22,9 @@ public:
 	// SymbolTable
 	SymbolTable const& getTable() const {return table;}
 	SymbolTable& getTable() {return table;}
+
+	// Others
+	virtual bool isGlobal() const {return false;}
 
 	////////////////
 	// Virtual Methods
@@ -88,6 +93,7 @@ public:
 	int addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
 	int addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes);
 
+	bool varDeclsDeprecated;
 protected:
 	SymbolTable& table;
 };
@@ -136,6 +142,17 @@ private:
 	map<int, int> setters;
 	map<string, vector<int> > functionsByName;
 	map<FunctionSignature, int> functionsBySignature;
+
+	// Disabled since it's easy to call by accident instead of the Scope*
+	// constructor.
+	BasicScope(BasicScope const& base) : Scope(base.table) {assert(false);}
+};
+
+class GlobalScope : public BasicScope
+{
+public:
+	GlobalScope(SymbolTable& table);
+	bool isGlobal() const {return true;}
 };
 
 enum ZClassIdBuiltin
