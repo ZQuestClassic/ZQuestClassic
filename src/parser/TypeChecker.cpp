@@ -274,10 +274,12 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
     host.setVarType(symbolTable.getType(symbolTable.getFuncReturnTypeId(functionId)));
 }
 
-void TypeCheck::caseExprArray(ASTExprArray &host)
+void TypeCheck::caseExprIndex(ASTExprIndex &host)
 {
-    ZVarTypeId type  = symbolTable.getVarTypeId(&host);
-    host.setVarType(symbolTable.getType(type));
+	host.getArray()->execute(*this);
+
+    ZVarTypeId typeId = symbolTable.getVarTypeId(host.getArray());
+    host.setVarType(symbolTable.getType(typeId));
 
     if (host.getIndex())
     {
@@ -1057,19 +1059,19 @@ void GetLValType::caseExprDot(ASTExprDot &host)
     typeId = typeCheck.symbolTable.getVarTypeId(&host);
 }
 
-void GetLValType::caseExprArray(ASTExprArray &host)
+void GetLValType::caseExprIndex(ASTExprIndex& host)
 {
     host.execute(typeCheck);
-    int vid = typeCheck.symbolTable.getNodeId(&host);
+    int variableId = typeCheck.symbolTable.getNodeId(host.getArray());
 
-    if (vid == -1)
+    if (variableId == -1)
     {
-        printErrorMsg(&host, LVALCONST, host.getName());
+        printErrorMsg(&host, LVALCONST);
         typeCheck.fail();
         return;
     }
 
-    typeId = typeCheck.symbolTable.getVarTypeId(&host);
+    typeId = typeCheck.symbolTable.getVarTypeId(host.getArray());
 
     if (host.getIndex())
     {

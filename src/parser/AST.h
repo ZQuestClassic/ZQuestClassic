@@ -69,7 +69,7 @@ class ASTBoolConstant;
 class ASTStringConstant;
 class ASTExprDot;
 class ASTExprArrow;
-class ASTExprArray;
+class ASTExprIndex;
 class ASTFuncCall;
 class ASTUnaryExpr; // virtual
 class ASTExprNegate;
@@ -181,8 +181,8 @@ public:
     virtual void caseExprDot(ASTExprDot& node) {caseExprDot(node, NULL);}
     virtual void caseExprArrow(ASTExprArrow&, void* param) {caseDefault(param);}
     virtual void caseExprArrow(ASTExprArrow& node) {caseExprArrow(node, NULL);}
-    virtual void caseExprArray(ASTExprArray&, void* param) {caseDefault(param);}
-    virtual void caseExprArray(ASTExprArray& node) {caseExprArray(node, NULL);}
+    virtual void caseExprIndex(ASTExprIndex&, void* param) {caseDefault(param);}
+    virtual void caseExprIndex(ASTExprIndex& node) {caseExprIndex(node, NULL);}
     virtual void caseFuncCall(ASTFuncCall&, void* param) {caseDefault(param);}
     virtual void caseFuncCall(ASTFuncCall& node) {caseFuncCall(node, NULL);}
     virtual void caseExprNegate(ASTExprNegate&, void* param) {caseDefault(param);}
@@ -992,27 +992,26 @@ private:
     ASTExpr* index;
 };
 
-class ASTExprArray : public ASTExpr
+class ASTExprIndex : public ASTExpr
 {
 public:
-    ASTExprArray(string const& nspace, string const& name, LocationData const& location);
-	ASTExprArray(ASTExprArray const& base);
-	ASTExprArray& operator=(ASTExprArray const& rhs);
-    ~ASTExprArray() {delete index;}
-	ASTExprArray* clone() const {return new ASTExprArray(*this);}
+    ASTExprIndex(ASTExpr* array, ASTExpr* index, LocationData const& location);
+	ASTExprIndex(ASTExprIndex const& base);
+	ASTExprIndex& operator=(ASTExprIndex const& rhs);
+    ~ASTExprIndex() {delete array; delete index;}
+	ASTExprIndex* clone() const {return new ASTExprIndex(*this);}
 
-    string getNamespace() const {return nspace;}
-    string getName() const {return name;}
+	ASTExpr* getArray()const {return array;}
     ASTExpr* getIndex() const {return index;}
+	void setArray(ASTExpr* e) {array = e;}
     void setIndex(ASTExpr* e) {index = e;}
-	bool isConstant() const {return false;}
+	bool isConstant() const;
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArray(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprArray(*this);}
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprIndex(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseExprIndex(*this);}
 private:
-    string name;
+	ASTExpr* array;
     ASTExpr* index;
-    string nspace;
 };
 
 class ASTFuncCall : public ASTExpr

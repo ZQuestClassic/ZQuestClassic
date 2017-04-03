@@ -27,8 +27,8 @@ public:
 	void caseStringConstant(ASTStringConstant& host);
 	void caseFuncCall(ASTFuncCall& host);
 	void caseExprDot(ASTExprDot& host);
-	// void caseExprArray(ASTExprArrow& host); // No need to redefine.
-	void caseExprArray(ASTExprArray& host);
+	// void caseExprArrow(ASTExprArrow& host); // No need to redefine.
+	// void caseExprIndex(ASTExprIndex& host); // No need to redefine.
 
 	////////////////
 	bool hasFailed() const {return failure;}

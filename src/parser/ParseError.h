@@ -6,7 +6,7 @@
 
 using std::string;
 
-void printErrorMsg(AST *offender, int errorID, string param=string());
+void printErrorMsg(AST *offender, int errorID, string param = string());
 
 #define CANTOPENSOURCE 0
 #define CANTOPENIMPORT 1

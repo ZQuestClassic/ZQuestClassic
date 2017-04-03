@@ -351,14 +351,16 @@ void RecursiveVisitor::caseExprArrow(ASTExprArrow &host)
 		host.getIndex()->execute(*this);
 }
 
-void RecursiveVisitor::caseExprArray(ASTExprArray &host, void *param)
+void RecursiveVisitor::caseExprIndex(ASTExprIndex &host, void *param)
 {
-	if(host.getIndex()) host.getIndex()->execute(*this, param);
+	if (host.getArray()) host.getArray()->execute(*this, param);
+	if (host.getIndex()) host.getIndex()->execute(*this, param);
 }
 
-void RecursiveVisitor::caseExprArray(ASTExprArray &host)
+void RecursiveVisitor::caseExprIndex(ASTExprIndex &host)
 {
-	if(host.getIndex()) host.getIndex()->execute(*this);
+	if (host.getArray()) host.getArray()->execute(*this);
+	if (host.getIndex()) host.getIndex()->execute(*this);
 }
 
 void RecursiveVisitor::caseFuncCall(ASTFuncCall &host, void *param)

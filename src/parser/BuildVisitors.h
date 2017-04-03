@@ -40,7 +40,7 @@ public:
     virtual void caseStringConstant(ASTStringConstant &host, void *param);
     virtual void caseExprDot(ASTExprDot &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
-    virtual void caseExprArray(ASTExprArray &host, void *param);
+    virtual void caseExprIndex(ASTExprIndex &host, void *param);
     virtual void caseFuncCall(ASTFuncCall &host, void *param);
     virtual void caseExprNegate(ASTExprNegate &host, void *param);
     virtual void caseExprNot(ASTExprNot &host, void *param);
@@ -174,7 +174,7 @@ public:
     virtual void caseVarDecl(ASTVarDecl &host, void *param);
     virtual void caseExprDot(ASTExprDot &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
-    virtual void caseExprArray(ASTExprArray &host, void *param);
+    virtual void caseExprIndex(ASTExprIndex &host, void *param);
     vector<Opcode *> getResult() {return result;}
 private:
 	void addOpcode(Opcode* code);
