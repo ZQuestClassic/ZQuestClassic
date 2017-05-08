@@ -33,7 +33,7 @@ extern YYLTYPE noloc;
 					rhs->setSecondOperand((ASTExpr *)d3); \
 					dd = new ASTStmtAssign(lval, rhs, l1);
 %}
-%expect 1
+%expect 2
 %error-verbose
 %start Init
 
@@ -367,40 +367,33 @@ AssignStmt : DotExpr ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt*)$1, (ASTExpr*
 
 DotExpr :
 	IDENTIFIER {
-			ASTString *rval = (ASTString *)$1;
-			$$ = new ASTExprDot("", rval->getValue(),@1);
-			delete rval;}
-	| IDENTIFIER DOT IDENTIFIER {
-			ASTString *lval = (ASTString *)$1;
-			ASTString *rval = (ASTString *)$3;
-			$$ = new ASTExprDot(lval->getValue(), rval->getValue(),@1);
-			delete lval; delete rval;}
-	| IDENTIFIER LBRACKET Expr RBRACKET {
-			ASTString* rval = (ASTString*)$1;
-			ASTExpr* array = new ASTExprDot("", rval->getValue(), @1);
-			ASTExpr* index = (ASTExpr*)$3;
-			$$ = new ASTExprIndex(array, index, @$);
-			delete rval;}
-	| IDENTIFIER DOT IDENTIFIER LBRACKET Expr RBRACKET {
-			ASTString* lval = (ASTString*)$1;
-			ASTString* rval = (ASTString*)$3;
-			ASTExpr* array = new ASTExprDot(lval->getValue(), rval->getValue(), @1);
-			ASTExpr* index = (ASTExpr*)$5;
-			$$ = new ASTExprIndex(array, index, @$);
-			delete lval;
-			delete rval;}
+		ASTString* rval = (ASTString*)$1;
+		$$ = new ASTExprIdentifier(rval->getValue(), @$);
+		delete rval;}
+	| DotExpr DOT IDENTIFIER {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString *)$3;
+		identifier->appendComponent(name->getValue());
+		identifier->updateLocation(@$);
+		$$ = identifier;
+		delete name;}
+	| DotExpr LBRACKET Expr RBRACKET {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTExpr* index = (ASTExpr*)$3;
+		$$ = new ASTExprIndex(identifier, index, @$);}
 	| DotExpr ARROW IDENTIFIER {
-			ASTExpr *id = (ASTExpr *)$1;
-			ASTString *rval = (ASTString *)$3;
-			$$ = new ASTExprArrow(id, rval->getValue(), @1);
-			delete rval;}
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* rval = (ASTString*)$3;
+		$$ = new ASTExprArrow(identifier, rval->getValue(), @$);
+		delete rval;}
 	| DotExpr ARROW IDENTIFIER LBRACKET Expr RBRACKET {
-			ASTExpr *id = (ASTExpr *)$1;
-			ASTString *rval = (ASTString *)$3;
-			ASTExpr *num = (ASTExpr *)$5;
-			ASTExprArrow *res = new ASTExprArrow(id, rval->getValue(), @1);
-			res->setIndex(num);
-			$$ = res;}
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* rval = (ASTString*)$3;
+		ASTExpr* index = (ASTExpr*)$5;
+		ASTExprArrow *res = new ASTExprArrow(identifier, rval->getValue(), @$);
+		res->setIndex(index);
+		$$ = res;
+		delete rval;}
 	;
 
 ConstExpr : Expr {

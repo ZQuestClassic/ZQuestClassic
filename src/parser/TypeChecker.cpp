@@ -216,7 +216,7 @@ void TypeCheck::caseStringConstant(ASTStringConstant& host)
 	host.setVarType(ZVarType::FLOAT);
 }
 
-void TypeCheck::caseExprDot(ASTExprDot &host)
+void TypeCheck::caseExprIdentifier(ASTExprIdentifier &host)
 {
     if (symbolTable.isInlinedConstant(&host))
 	{
@@ -303,15 +303,11 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
     vector<ZVarTypeId> paramtypes;
     vector<int> possibleFuncIds;
 
-    bool isdotexpr;
-    IsDotExpr temp;
-    host.getName()->execute(temp, &isdotexpr);
-
     // If this is a simple function, we already have what we need otherwise we
     // need the type of the thing being arrowed
-    if (!isdotexpr)
+    if (host.getName()->isTypeArrow())
     {
-        ASTExprArrow* lval = (ASTExprArrow *)host.getName();
+        ASTExprArrow* lval = (ASTExprArrow*)host.getName();
         lval->getLeft()->execute(*this);
         if (failure) return;
         ZVarType const& lvaltype = lval->getLeft()->getVarType();
@@ -352,7 +348,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
     }
     paramstring += ")";
 
-    if (isdotexpr)
+    if (host.getName()->isTypeIdentifier())
     {
         possibleFuncIds = symbolTable.getPossibleNodeFuncIds(&host);
 
@@ -405,12 +401,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
             }
         }
 
-        string fullname;
-
-        if (((ASTExprDot *)host.getName())->getNamespace() == "")
-            fullname = ((ASTExprDot*)host.getName())->getName();
-        else
-            fullname = ((ASTExprDot *)host.getName())->getNamespace() + "." + ((ASTExprDot *)host.getName())->getName();
+        string fullname = host.getName()->asString();
 
         if (bestmatch.size() == 0)
         {
@@ -520,17 +511,13 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    bool isexprdot;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isexprdot);
-
-    if (!isexprdot)
+    if (!host.getOperand()->isTypeIdentifier())
     {
         int fid = symbolTable.getNodeId(host.getOperand());
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+		ZVarTypeId ltype = getLValTypeId(*host.getOperand());
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
@@ -547,11 +534,7 @@ void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    bool isexprdot;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isexprdot);
-
-    if (!isexprdot)
+    if (!host.getOperand()->isTypeIdentifier())
     {
         int fid = symbolTable.getNodeId(host.getOperand());
         symbolTable.putNodeId(&host, fid);
@@ -574,17 +557,13 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    bool isexprdot;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isexprdot);
-
-    if (!isexprdot)
+    if (!host.getOperand()->isTypeIdentifier())
     {
         int fid = symbolTable.getNodeId(host.getOperand());
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+		ZVarTypeId ltype = getLValTypeId(*host.getOperand());
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
@@ -601,17 +580,13 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    bool isexprdot;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isexprdot);
-
-    if (!isexprdot)
+    if (!host.getOperand()->isTypeIdentifier())
     {
         int fid = symbolTable.getNodeId(host.getOperand());
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+		ZVarTypeId ltype = getLValTypeId(*host.getOperand());
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
@@ -626,27 +601,27 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host)
 void TypeCheck::caseExprAnd(ASTExprAnd &host)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
-    host.setVarType(ZVarType::BOOL);
+	host.setVarType(ZVarType::BOOL);
 
-    if (host.getFirstOperand()->hasValue() && host.getSecondOperand()->hasValue())
-    {
-        long firstval = host.getFirstOperand()->getDataValue();
-        long secondval = host.getSecondOperand()->getDataValue();
+	if (host.getFirstOperand()->hasValue() && host.getSecondOperand()->hasValue())
+	{
+		long firstval = host.getFirstOperand()->getDataValue();
+		long secondval = host.getSecondOperand()->getDataValue();
 		host.setDataValue(firstval && secondval);
-    }
+	}
 }
 
 void TypeCheck::caseExprOr(ASTExprOr &host)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
-    host.setVarType(ZVarType::BOOL);
+	host.setVarType(ZVarType::BOOL);
 
-    if (host.getFirstOperand()->hasValue() && host.getSecondOperand()->hasValue())
-    {
-        long firstval = host.getFirstOperand()->getDataValue();
-        long secondval = host.getSecondOperand()->getDataValue();
+	if (host.getFirstOperand()->hasValue() && host.getSecondOperand()->hasValue())
+	{
+		long firstval = host.getFirstOperand()->getDataValue();
+		long secondval = host.getSecondOperand()->getDataValue();
 		host.setDataValue(firstval || secondval);
-    }
+	}
 }
 
 void TypeCheck::caseExprGT(ASTExprGT &host)
@@ -1044,14 +1019,14 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
     typeId = functionParams[isIndexed ? 2 : 1];
 }
 
-void GetLValType::caseExprDot(ASTExprDot &host)
+void GetLValType::caseExprIdentifier(ASTExprIdentifier& host)
 {
     host.execute(typeCheck);
     int vid = typeCheck.symbolTable.getNodeId(&host);
 
     if (vid == -1)
     {
-        printErrorMsg(&host, LVALCONST, host.getName());
+        printErrorMsg(&host, LVALCONST, host.asString());
         typeCheck.fail();
         return;
     }

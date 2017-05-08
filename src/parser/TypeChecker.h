@@ -33,7 +33,7 @@ public:
     void caseNumConstant(ASTNumConstant &host);
     void caseBoolConstant(ASTBoolConstant &host);
     void caseStringConstant(ASTStringConstant &host);
-    void caseExprDot(ASTExprDot &host);
+    void caseExprIdentifier(ASTExprIdentifier &host);
     void caseExprArrow(ASTExprArrow &host);
     void caseExprIndex(ASTExprIndex &host);
     void caseFuncCall(ASTFuncCall &host);
@@ -86,7 +86,7 @@ public:
 	GetLValType(TypeCheck& typeCheck);
     void caseDefault(void* param);
     void caseVarDecl(ASTVarDecl& host);
-    void caseExprDot(ASTExprDot& host);
+    void caseExprIdentifier(ASTExprIdentifier& host);
     void caseExprArrow(ASTExprArrow& host);
     void caseExprIndex(ASTExprIndex& host);
 	ZVarTypeId typeId;

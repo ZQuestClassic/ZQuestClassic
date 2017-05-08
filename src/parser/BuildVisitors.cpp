@@ -623,10 +623,10 @@ void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
 {
 	host.getContent()->execute(*this, param);
 }
-	
-void BuildOpcodes::caseExprDot(ASTExprDot &host, void *param)
+
+void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
-    OpcodeContext *c = (OpcodeContext *)param;
+    OpcodeContext* c = (OpcodeContext*)param;
 
 	// If a constant, just load its value.
     if (c->symbols->isInlinedConstant(&host))
@@ -639,14 +639,14 @@ void BuildOpcodes::caseExprDot(ASTExprDot &host, void *param)
     int vid = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(vid);
 
-    if(globalid != -1)
+    if (globalid != -1)
     {
-        //global variable, so just get its value
+        // Global variable, so just get its value.
         addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
         return;
     }
 
-    //local variable, get its value from the stack
+    // Local variable, get its value from the stack.
     int offset = c->stackframe->getOffset(vid);
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
@@ -715,12 +715,10 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
     int returnaddr = ScriptParser::getUniqueLabelID();
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    //if the function is a pointer function (->func()) we need to push the left-hand-side
-    bool isdotexpr;
-    IsDotExpr temp;
-    host.getName()->execute(temp, &isdotexpr);
 
-    if (!isdotexpr)
+    // If the function is a pointer function (->func()) we need to push the
+    // left-hand-side.
+    if (host.getName()->isTypeArrow())
     {
         //load the value of the left-hand of the arrow into EXP1
         ((ASTExprArrow*)host.getName())->getLeft()->execute(*this, param);
@@ -786,14 +784,10 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    //load value of the variable into EXP1
-    //except if it is an arrow expr, in which case the gettor function is stored
-    //in this AST*
-    bool isdotexpr;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isdotexpr);
 
-    if(isdotexpr)
+    // Load value of the variable into EXP1.  Except if it is an arrow expr, in
+    // which case the gettor function is stored in this AST*.
+    if (host.getOperand()->isTypeIdentifier())
     {
         host.getOperand()->execute(*this, param);
     }
@@ -823,20 +817,15 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
     addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
-void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement &host, void *param)
+void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 {
-    //annoying
-    OpcodeContext *c = (OpcodeContext *)param;
-    //load value of the variable into EXP1
-    //except if it is an arrow expr, in which case the gettor function is stored
-    //in this AST*
-    bool isdotexpr;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isdotexpr);
+    OpcodeContext* c = (OpcodeContext*)param;
 
-    if(isdotexpr)
+    // Load value of the variable into EXP1.  Except if it is an arrow expr, in
+    // which case the gettor function is stored in this AST*.
+    if (host.getOperand()->isTypeIdentifier())
     {
-        host.getOperand()->execute(*this,param);
+			host.getOperand()->execute(*this,param);
     }
     else
     {
@@ -859,20 +848,14 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement &host, void *param)
     }
 }
 
-void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
+void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 {
-    //annoying
-    OpcodeContext *c = (OpcodeContext *)param;
-    //load value of the variable into EXP1
-    //except if it is an arrow expr, in which case the gettor function is stored
-    //in this AST*
-    bool isdotexpr;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isdotexpr);
-
-    if(isdotexpr)
+    OpcodeContext* c = (OpcodeContext*)param;
+    // Load value of the variable into EXP1 Except if it is an arrow expr, in
+    // which case the gettor function is stored in this AST*.
+    if (host.getOperand()->isTypeIdentifier())
     {
-        host.getOperand()->execute(*this,param);
+        host.getOperand()->execute(*this, param);
     }
     else
     {
@@ -895,18 +878,12 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
     }
 }
 
-void BuildOpcodes::caseExprDecrement(ASTExprDecrement &host, void *param)
+void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 {
-    //annoying
-    OpcodeContext *c = (OpcodeContext *)param;
-    //load value of the variable into EXP1
-    //except if it is an arrow expr, in which case the gettor function is stored
-    //in this AST*
-    bool isdotexpr;
-    IsDotExpr temp;
-    host.getOperand()->execute(temp, &isdotexpr);
-
-    if(isdotexpr)
+    OpcodeContext* c = (OpcodeContext*)param;
+    // Load value of the variable into EXP1 except if it is an arrow expr, in
+    // which case the gettor function is stored in this AST*.
+    if (host.getOperand()->isTypeIdentifier())
     {
         host.getOperand()->execute(*this,param);
     }
@@ -914,7 +891,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement &host, void *param)
     {
         int oldid = c->symbols->getNodeId(host.getOperand());
         c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
+        host.getOperand()->execute(*this, param);
         c->symbols->putNodeId(host.getOperand(), oldid);
     }
 
@@ -1299,22 +1276,22 @@ void LValBOHelper::caseVarDecl(ASTVarDecl &host, void *param)
     addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
 }
 
-void LValBOHelper::caseExprDot(ASTExprDot &host, void *param)
+void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
-    OpcodeContext *c = (OpcodeContext *)param;
+    OpcodeContext* c = (OpcodeContext*)param;
     int vid = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(vid);
-    
-    if(globalid != -1)
+
+    if (globalid != -1)
     {
-        //global variable
+        // Global variable.
         addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
         return;
     }
-    
-    //set the stack
+
+    // Set the stack.
     int offset = c->stackframe->getOffset(vid);
-    
+
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
     addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));

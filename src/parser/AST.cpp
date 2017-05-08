@@ -766,23 +766,37 @@ ASTStringConstant& ASTStringConstant::operator=(ASTStringConstant const& base)
 	return *this;
 }
 
-// ASTExprDot
+// ASTExprIdentifier
 
-ASTExprDot::ASTExprDot(string const& nspace, string const& name, LocationData const& location)
-	: ASTExpr(location), name(name), nspace(nspace), isConstant_(false)
+ASTExprIdentifier::ASTExprIdentifier(string const& name, LocationData const& location)
+	: ASTExpr(location), isConstant_(false)
+{
+	components.push_back(name);
+}
+
+ASTExprIdentifier::ASTExprIdentifier(ASTExprIdentifier const& base)
+	: ASTExpr(base), isConstant_(base.isConstant_), components(base.components)
 {}
 
-ASTExprDot::ASTExprDot(ASTExprDot const& base)
-	: ASTExpr(base), name(base.name), nspace(base.nspace), isConstant_(base.isConstant_)
-{}
-
-ASTExprDot& ASTExprDot::operator=(ASTExprDot const& base)
+ASTExprIdentifier& ASTExprIdentifier::operator=(ASTExprIdentifier const& base)
 {
 	ASTExpr::operator=(base);
-	name = base.name;
-	nspace = base.nspace;
+	components = base.components;
 	isConstant_ = base.isConstant_;
 	return *this;
+}
+
+string ASTExprIdentifier::asString() const
+{
+	string s = components.front();
+	for (vector<string>::const_iterator it = components.begin() + 1;
+	   it != components.end();
+	   ++it)
+	{
+		s = s + "." + *it;
+	}
+
+	return s;
 }
 
 // ASTExprArrow
