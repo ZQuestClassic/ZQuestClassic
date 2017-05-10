@@ -236,18 +236,9 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
     host.getLeft()->execute(*this);
     if (failure) return;
 
-    bool isIndexed = (host.getIndex() != NULL);
-    if (isIndexed)
-    {
-        host.getIndex()->execute(*this);
-        if (failure) return;
-
-        if (!standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getVarType(), host.getIndex()))
-        {
-            failure = true;
-            return;
-        }
-    }
+	// Don't need to check index here, since it'll be checked in the above
+	// ASTExprIndex.
+	bool isIndexed = host.getIndex() != NULL;
 
 	// Make sure the left side is an object.
     ZVarTypeId leftTypeId = symbolTable.getTypeId(host.getLeft()->getVarType());
@@ -277,10 +268,9 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
 void TypeCheck::caseExprIndex(ASTExprIndex &host)
 {
 	host.getArray()->execute(*this);
+	host.setVarType(host.getArray()->getVarType());
 
-    ZVarTypeId typeId = symbolTable.getVarTypeId(host.getArray());
-    host.setVarType(symbolTable.getType(typeId));
-
+	// The index must be a number.
     if (host.getIndex())
     {
         host.getIndex()->execute(*this);
@@ -304,7 +294,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
     vector<int> possibleFuncIds;
 
     // If this is a simple function, we already have what we need otherwise we
-    // need the type of the thing being arrowed
+    // need the type of the thing being arrowed.
     if (host.getName()->isTypeArrow())
     {
         ASTExprArrow* lval = (ASTExprArrow*)host.getName();
@@ -381,7 +371,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
             {
                 matchedfuncs.push_back(pair<int,int>(*it, diffs));
             }
-        }
+		}
 
         // Now find the closest match *sigh*
         vector<int> bestmatch;
@@ -980,19 +970,9 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
     host.getLeft()->execute(typeCheck);
     if (!typeCheck.isOK()) return;
 
-    bool isIndexed = (host.getIndex() != 0);
-
-    if (isIndexed)
-    {
-        host.getIndex()->execute(typeCheck);
-        if (!typeCheck.isOK()) return;
-
-        if (!typeCheck.standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getVarType(), host.getIndex()))
-        {
-            typeCheck.fail();
-            return;
-        }
-    }
+	// Don't need to check index here, since it'll be checked in the above
+	// ASTExprIndex.
+	bool isIndexed = host.getIndex() != NULL;
 
 	// Make sure the left side is an object.
     ZVarTypeId leftTypeId = symbolTable.getTypeId(host.getLeft()->getVarType());
@@ -1015,8 +995,9 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
         return;
     }
 
-    typeCheck.symbolTable.putNodeId(&host, functionId);
+    symbolTable.putNodeId(&host, functionId);
     typeId = functionParams[isIndexed ? 2 : 1];
+	host.setVarType(symbolTable.getType(typeId));
 }
 
 void GetLValType::caseExprIdentifier(ASTExprIdentifier& host)
@@ -1036,30 +1017,30 @@ void GetLValType::caseExprIdentifier(ASTExprIdentifier& host)
 
 void GetLValType::caseExprIndex(ASTExprIndex& host)
 {
-    host.execute(typeCheck);
-    int variableId = typeCheck.symbolTable.getNodeId(host.getArray());
+	// Arrows just fall back on the arrow implementation.
+	if (host.getArray()->isTypeArrow()) host.getArray()->execute(*this);
 
-    if (variableId == -1)
-    {
-        printErrorMsg(&host, LVALCONST);
-        typeCheck.fail();
-        return;
-    }
+	else
+	{
+		host.execute(typeCheck);
+		typeId = typeCheck.symbolTable.getTypeId(host.getArray()->getVarType());
+	}
 
-    typeId = typeCheck.symbolTable.getVarTypeId(host.getArray());
+	// The index must be a number.
+	if (host.getIndex())
+	{
+		host.getIndex()->execute(typeCheck);
 
-    if (host.getIndex())
-    {
-        host.getIndex()->execute(typeCheck);
+		if (!typeCheck.isOK()) return;
 
-        if (!typeCheck.isOK()) return;
+		if (!typeCheck.standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getVarType(), host.getIndex()))
+		{
+			typeCheck.fail();
+			return;
+		}
+	}
 
-        if (!typeCheck.standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getVarType(), host.getIndex()))
-        {
-            typeCheck.fail();
-            return;
-        }
-    }
+	host.setVarType(typeCheck.symbolTable.getType(typeId));
 }
 
 

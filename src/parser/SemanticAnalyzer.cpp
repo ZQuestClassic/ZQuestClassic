@@ -357,16 +357,13 @@ void SemanticAnalyzer::caseStringConstant(ASTStringConstant& host)
 
 void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
 {
-	// Find out if left hand side is an arrow or not.
 	ASTExpr* left = host.getName();
 
-	// If it's an arrow, recurse on it.
-	if (left->isTypeArrow())
-	{
-		left->execute(*this);
-	}
-	// Otherwise,
-	else
+	// If it's an arrow, recurse normally.
+	if (left->isTypeArrow()) left->execute(*this);
+
+	// If it's an identifier.
+	if (left->isTypeIdentifier())
 	{
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)left;
 		vector<int> possibleFunctionIds = scope->getFunctionIds(identifier->getComponents());
@@ -379,6 +376,8 @@ void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
 
 		scope->getTable().putPossibleNodeFuncIds(&host, possibleFunctionIds);
 	}
+
+	// NOTE Add in support for function objects around here.
 
 	// Recurse on parameters.
 	RecursiveVisitor::caseFuncCall(host);
@@ -399,4 +398,17 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
 
 // ExprArrow just recurses.
 
-// ExprIndex just recurses.
+void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
+{
+	// If the left hand side is an arrow, then pass the index over, so if it's
+	// a built-in command it has access to it.
+	if (host.getArray()->isTypeArrow())
+	{
+		ASTExprArrow* arrow = (ASTExprArrow*)host.getArray();
+		arrow->setIndex(host.getIndex());
+	}
+
+	// Standard recursing.
+	RecursiveVisitor::caseExprIndex(host);
+}
+
