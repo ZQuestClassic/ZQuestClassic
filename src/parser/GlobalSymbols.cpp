@@ -59,35 +59,36 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
             paramTypeIds.push_back(entry.params[k]);
 
+		string varName = name;
 
 		// Strip out the array at the end.
 		bool isArray = name.substr(name.size() - 2) == "[]";
 		if (isArray)
-			name = name.substr(0, name.size() - 2);
+			varName = name.substr(0, name.size() - 2);
 
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
 		{
-			name = name.substr(3); // Strip out "set".
-			int varId = scope.getLocalVariableId(name);
+			varName = varName.substr(3); // Strip out "set".
+			int varId = scope.getLocalVariableId(varName);
 			if (varId == -1)
-				varId = scope.addVariable(name, paramTypeIds[1]);
+				varId = scope.addVariable(varName, paramTypeIds[1]);
 			int functionId = scope.addSetter(varId, paramTypeIds);
 			assert(functionId != -1);
 			setters[name] = functionId;
 		}
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
 		{
-			name = name.substr(3); // Strip out "get".
-			int varId = scope.getLocalVariableId(name);
+			varName = varName.substr(3); // Strip out "get".
+			int varId = scope.getLocalVariableId(varName);
 			if (varId == -1)
-				varId = scope.addVariable(name, entry.rettype);
+				varId = scope.addVariable(varName, entry.rettype);
 			int functionId = scope.addGetter(varId, paramTypeIds);
 			assert(functionId != -1);
 			getters[name] = functionId;
 		}
 		else
 		{
-			int functionId = scope.addFunction(name, entry.rettype, paramTypeIds);
+			int functionId = scope.addFunction(varName, entry.rettype, paramTypeIds);
 			assert(functionId != -1);
 			functions[name] = functionId;
 		}
@@ -118,6 +119,18 @@ int LibrarySymbols::matchSetter(string const& name)
 	return -1;
 }
 
+int LibrarySymbols::getFunctionId(string const& name) const
+{
+	map<string, int>::const_iterator it;
+	it = functions.find(name);
+	if (it != functions.end()) {return it->second;}
+	it = getters.find(name);
+	if (it != getters.end()) {return it->second;}
+	it = setters.find(name);
+	if (it != setters.end()) {return it->second;}
+	return 0;
+}
+
 map<int, vector<Opcode *> > LibrarySymbols::addSymbolsCode(LinkTable &lt)
 {
     map<int, vector<Opcode *> > rval;
@@ -127,7 +140,7 @@ map<int, vector<Opcode *> > LibrarySymbols::addSymbolsCode(LinkTable &lt)
         int var = table[i].var;
         string name = table[i].name;
         bool isIndexed = table[i].numindex > 1;
-        int id = functions[name];
+        int id = getFunctionId(name);
         int label = lt.functionToLabel(id);
         
         switch(table[i].setorget)

@@ -46,6 +46,7 @@ protected:
     map<string, int> functions;
 	map<string, int> getters;
 	map<string, int> setters;
+	int getFunctionId(string const& name) const;
     virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
