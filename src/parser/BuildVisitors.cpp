@@ -66,21 +66,6 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 		arrayRefs.pop_back();
 }
 
-void BuildOpcodes::caseStmtAssign(ASTStmtAssign &host, void *param)
-{
-    //load the rval into EXP1
-    host.getRVal()->execute(*this,param);
-    //and store it
-    LValBOHelper helper;
-    host.getLVal()->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
-}
-
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 {
     //run the test
@@ -532,6 +517,21 @@ void BuildOpcodes::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *par
 void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
 
 // Expressions
+
+void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
+{
+    //load the rval into EXP1
+    host.getRVal()->execute(*this,param);
+    //and store it
+    LValBOHelper helper;
+    host.getLVal()->execute(helper, param);
+    vector<Opcode *> subcode = helper.getResult();
+
+    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
+    {
+        addOpcode(*it);
+    }
+}
 
 void BuildOpcodes::caseNumConstant(ASTNumConstant& host, void*)
 {
@@ -1308,10 +1308,11 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
     int isIndexed = (host.getIndex() != NULL);
-    //this is actually implemented as a settor function call
-    //so do that
-    //push the stack frame
+    // This is actually implemented as a settor function call.
+
+    // Push the stack frame.
     addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+
     int returnlabel = ScriptParser::getUniqueLabelID();
     //push the return address
     addOpcode(new OSetImmediate(new VarArgument(EXP2), new LabelArgument(returnlabel)));
@@ -1354,8 +1355,9 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //finally, goto!
     int label = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
-    //pop the stack frame
-    Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+
+    // Pop the stack frame
+    Opcode* next = new OPopRegister(new VarArgument(SFRAME));
     next->setLabel(returnlabel);
     addOpcode(next);
 }
@@ -1396,7 +1398,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	// Pop and assign the value.
 	//   (As far as I can tell, there's no difference between GLOBALRAM and
 	//    SCRIPTRAM, so I'll use GLOBALRAM here instead of checking.)
-    addOpcode(new OPopRegister(new VarArgument(EXP2))); // Pop the value
-    addOpcode(new OSetRegister(new VarArgument(GLOBALRAM), new VarArgument(EXP2)));
+    addOpcode(new OPopRegister(new VarArgument(EXP1))); // Pop the value
+    addOpcode(new OSetRegister(new VarArgument(GLOBALRAM), new VarArgument(EXP1)));
 }
 

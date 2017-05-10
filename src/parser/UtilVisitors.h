@@ -12,8 +12,6 @@ public:
 	// Statements
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseBlock(ASTBlock &host);
-    virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
-    virtual void caseStmtAssign(ASTStmtAssign &host);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host);
     virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
@@ -48,6 +46,8 @@ public:
 	// Expressions
 	virtual void caseExprConst(ASTExprConst &host, void *param);
 	virtual void caseExprConst(ASTExprConst &host);
+    virtual void caseExprAssign(ASTExprAssign &host, void *param);
+    virtual void caseExprAssign(ASTExprAssign &host);
     virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseNumConstant(ASTNumConstant &host);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);

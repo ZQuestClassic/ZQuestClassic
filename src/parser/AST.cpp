@@ -266,22 +266,6 @@ void ASTBlock::addStatement(ASTStmt *stmt)
     statements.push_back(stmt);
 }
 
-// ASTStmtAssign
-
-ASTStmtAssign::~ASTStmtAssign()
-{
-	delete lval;
-	delete rval;
-}
-
-ASTStmtAssign* ASTStmtAssign::clone() const
-{
-	return new ASTStmtAssign(
-			lval != NULL ? lval->clone() : NULL,
-			rval != NULL ? rval->clone() : NULL,
-			getLocation());
-}
-
 // ASTStmtIf
 
 ASTStmtIf::~ASTStmtIf()
@@ -710,6 +694,22 @@ ASTExprConst& ASTExprConst::operator=(ASTExprConst const& rhs)
 	ASTExpr::operator=(rhs);
 	content = rhs.content->clone();
 	return *this;
+}
+
+// ASTExprAssign
+
+ASTExprAssign::~ASTExprAssign()
+{
+	delete lval;
+	delete rval;
+}
+
+ASTExprAssign* ASTExprAssign::clone() const
+{
+	return new ASTExprAssign(
+			lval != NULL ? lval->clone() : NULL,
+			rval != NULL ? rval->clone() : NULL,
+			getLocation());
 }
 
 // ASTNumConstant

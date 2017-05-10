@@ -16,7 +16,6 @@ public:
 
     void caseDefault(void*) {}
 	// Statements
-    void caseStmtAssign(ASTStmtAssign &host);
     void caseStmtIf(ASTStmtIf &host);
     void caseStmtIfElse(ASTStmtIfElse &host);
 	void caseStmtSwitch(ASTStmtSwitch &host);
@@ -30,6 +29,7 @@ public:
     void caseVarDeclInitializer(ASTVarDeclInitializer &host);
 	// Expressions
 	void caseExprConst(ASTExprConst &host);
+    void caseExprAssign(ASTExprAssign &host);
     void caseNumConstant(ASTNumConstant &host);
     void caseBoolConstant(ASTBoolConstant &host);
     void caseStringConstant(ASTStringConstant &host);

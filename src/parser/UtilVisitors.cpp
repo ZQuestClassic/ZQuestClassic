@@ -59,18 +59,6 @@ void RecursiveVisitor::caseBlock(ASTBlock &host)
 		(*it)->execute(*this);
 }
 
-void RecursiveVisitor::caseStmtAssign(ASTStmtAssign &host, void *param)
-{
-	host.getLVal()->execute(*this, param);
-	host.getRVal()->execute(*this, param);
-}
-
-void RecursiveVisitor::caseStmtAssign(ASTStmtAssign &host)
-{
-	host.getLVal()->execute(*this);
-	host.getRVal()->execute(*this);
-}
-
 void RecursiveVisitor::caseStmtIf(ASTStmtIf &host, void *param)
 {
 	host.getCondition()->execute(*this, param);
@@ -323,6 +311,18 @@ void RecursiveVisitor::caseExprConst(ASTExprConst &host, void *param)
 void RecursiveVisitor::caseExprConst(ASTExprConst &host)
 {
 	host.getContent()->execute(*this);
+}
+
+void RecursiveVisitor::caseExprAssign(ASTExprAssign &host, void *param)
+{
+	host.getLVal()->execute(*this, param);
+	host.getRVal()->execute(*this, param);
+}
+
+void RecursiveVisitor::caseExprAssign(ASTExprAssign &host)
+{
+	host.getLVal()->execute(*this);
+	host.getRVal()->execute(*this);
 }
 
 void RecursiveVisitor::caseNumConstant(ASTNumConstant &host, void *param)
