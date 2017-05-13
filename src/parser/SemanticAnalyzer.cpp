@@ -364,9 +364,9 @@ void SemanticAnalyzer::caseStringConstant(ASTStringConstant& host)
 	scope->getTable().putNodeId(&host, variableId);
 }
 
-void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
+void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 {
-	ASTExpr* left = host.getName();
+	ASTExpr* left = host.getLeft();
 
 	// If it's an arrow, recurse normally.
 	if (left->isTypeArrow()) left->execute(*this);
@@ -389,7 +389,7 @@ void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
 	// NOTE Add in support for function objects around here.
 
 	// Recurse on parameters.
-	RecursiveVisitor::caseFuncCall(host);
+	RecursiveVisitor::caseExprCall(host);
 }
 
 void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)

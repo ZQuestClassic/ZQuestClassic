@@ -26,7 +26,7 @@ public:
 	// Expressions
 	void caseExprAssign(ASTExprAssign& host);
 	void caseStringConstant(ASTStringConstant& host);
-	void caseFuncCall(ASTFuncCall& host);
+	void caseExprCall(ASTExprCall& host);
 	void caseExprIdentifier(ASTExprIdentifier& host);
 	// void caseExprArrow(ASTExprArrow& host); // No need to redefine.
 	void caseExprIndex(ASTExprIndex& host);

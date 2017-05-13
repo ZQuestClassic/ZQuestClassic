@@ -285,7 +285,7 @@ void TypeCheck::caseExprIndex(ASTExprIndex &host)
     }
 }
 
-void TypeCheck::caseFuncCall(ASTFuncCall &host)
+void TypeCheck::caseExprCall(ASTExprCall &host)
 {
     // Yuck. Time to disambiguate these damn functions
 
@@ -296,9 +296,9 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
 
     // If this is a simple function, we already have what we need otherwise we
     // need the type of the thing being arrowed.
-    if (host.getName()->isTypeArrow())
+    if (host.getLeft()->isTypeArrow())
     {
-        ASTExprArrow* lval = (ASTExprArrow*)host.getName();
+        ASTExprArrow* lval = (ASTExprArrow*)host.getLeft();
         lval->getLeft()->execute(*this);
         if (failure) return;
         ZVarType const& lvaltype = lval->getLeft()->getVarType();
@@ -339,7 +339,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
     }
     paramstring += ")";
 
-    if (host.getName()->isTypeIdentifier())
+    if (host.getLeft()->isTypeIdentifier())
     {
         possibleFuncIds = symbolTable.getPossibleNodeFuncIds(&host);
 
@@ -392,7 +392,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
             }
         }
 
-        string fullname = host.getName()->asString();
+        string fullname = host.getLeft()->asString();
 
         if (bestmatch.size() == 0)
         {
@@ -415,7 +415,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
     {
         // Still have to deal with the (%&# arrow functions
         // Luckily I will here assert that each type's functions MUST be unique
-		ASTExprArrow& arrow = *(ASTExprArrow*)host.getName();
+		ASTExprArrow& arrow = *(ASTExprArrow*)host.getLeft();
         string name = arrow.getRight();
 
 		// Make sure the left side is an object.

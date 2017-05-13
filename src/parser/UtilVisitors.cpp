@@ -363,21 +363,23 @@ void RecursiveVisitor::caseExprIndex(ASTExprIndex &host)
 	if (host.getIndex()) host.getIndex()->execute(*this);
 }
 
-void RecursiveVisitor::caseFuncCall(ASTFuncCall &host, void *param)
+void RecursiveVisitor::caseExprCall(ASTExprCall& host, void *param)
 {
-	list<ASTExpr *> l = host.getParams();
+	//host.getLeft()->execute(*this, param);
 
-	for(list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
+	list<ASTExpr *> l = host.getParams();
+	for (list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
 	{
 		(*it)->execute(*this, param);
 	}
 }
 
-void RecursiveVisitor::caseFuncCall(ASTFuncCall &host)
+void RecursiveVisitor::caseExprCall(ASTExprCall &host)
 {
-	list<ASTExpr *> l = host.getParams();
+	//host.getLeft()->execute(*this);
 
-	for(list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
+	list<ASTExpr *> l = host.getParams();
+	for (list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
 	{
 		(*it)->execute(*this);
 	}

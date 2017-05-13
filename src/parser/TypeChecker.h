@@ -36,7 +36,7 @@ public:
     void caseExprIdentifier(ASTExprIdentifier &host);
     void caseExprArrow(ASTExprArrow &host);
     void caseExprIndex(ASTExprIndex &host);
-    void caseFuncCall(ASTFuncCall &host);
+    void caseExprCall(ASTExprCall &host);
     void caseExprNegate(ASTExprNegate &host);
     void caseExprNot(ASTExprNot &host);
     void caseExprBitNot(ASTExprBitNot &host);

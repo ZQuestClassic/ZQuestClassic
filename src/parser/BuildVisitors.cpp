@@ -712,7 +712,7 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAM)));
 }
 
-void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
+void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
     int funclabel = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
@@ -725,11 +725,11 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
 
     // If the function is a pointer function (->func()) we need to push the
     // left-hand-side.
-    if (host.getName()->isTypeArrow())
+    if (host.getLeft()->isTypeArrow())
     {
         //load the value of the left-hand of the arrow into EXP1
-        ((ASTExprArrow*)host.getName())->getLeft()->execute(*this, param);
-        //host.getName()->execute(*this,param);
+        ((ASTExprArrow*)host.getLeft())->getLeft()->execute(*this, param);
+        //host.getLeft()->execute(*this,param);
         //push it onto the stack
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }

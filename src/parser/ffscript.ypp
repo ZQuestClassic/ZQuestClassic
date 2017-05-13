@@ -384,29 +384,31 @@ Identifier :
 
 FunctionCall :
 	Expr_2 LPAREN RPAREN {
-		ASTFuncCall* fc = new ASTFuncCall(@$);
-		ASTExpr* name = (ASTExpr*)$1;
-		fc->setName(name);
-		$$ = fc;}
+		ASTExprCall* call = new ASTExprCall(@$);
+		ASTExpr* left = (ASTExpr*)$1;
+		call->setLeft(left);
+		call->updateLocation(@$);
+		$$ = call;}
 	| Expr_2 LPAREN FunctionCallArgs RPAREN {
-		ASTExpr* name = (ASTExpr*)$1;
-		ASTFuncCall* fc = (ASTFuncCall*)$3;
-		fc->setName(name);
-		$$ = fc;}
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExprCall* call = (ASTExprCall*)$3;
+		call->setLeft(left);
+		call->updateLocation(@$);
+		$$ = call;}
 	;
 
 FunctionCallArgs :
 	Expr {
-		ASTFuncCall* fc = new ASTFuncCall(@$);
+		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* e = (ASTExpr*)$1;
-		fc->addParam(e);
-		$$ = fc;}
+		call->addParam(e);
+		$$ = call;}
 	| FunctionCallArgs COMMA Expr {
-		ASTFuncCall* fc = (ASTFuncCall*)$1;
+		ASTExprCall* call = (ASTExprCall*)$1;
 		ASTExpr* e = (ASTExpr*)$3;
-		fc->addParam(e);
-		fc->updateLocation(@$);
-		$$ = fc;}
+		call->addParam(e);
+		call->updateLocation(@$);
+		$$ = call;}
 	;
 
 BoolConstant :

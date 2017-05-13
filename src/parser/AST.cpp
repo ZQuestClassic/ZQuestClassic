@@ -864,24 +864,24 @@ bool ASTExprIndex::isConstant() const
 }
 
 
-// ASTFuncCall
+// ASTExprCall
 
-ASTFuncCall::ASTFuncCall(LocationData const& location)
-	: ASTExpr(location), name(NULL)
+ASTExprCall::ASTExprCall(LocationData const& location)
+	: ASTExpr(location), left(NULL)
 {}
 
-ASTFuncCall::ASTFuncCall(ASTFuncCall const& base)
-	: ASTExpr(base), name(base.name)
+ASTExprCall::ASTExprCall(ASTExprCall const& base)
+	: ASTExpr(base), left(base.left)
 {
 	for (list<ASTExpr*>::const_iterator it = base.params.begin(); it != base.params.end(); ++it)
 		params.push_back((*it)->clone());
 }
 
-ASTFuncCall& ASTFuncCall::operator=(ASTFuncCall const& rhs)
+ASTExprCall& ASTExprCall::operator=(ASTExprCall const& rhs)
 {
 	ASTExpr::operator=(rhs);
-	delete name;
-	name = rhs.name;
+	delete left;
+	left = rhs.left;
 	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
 		delete *it;
 	for (list<ASTExpr*>::const_iterator it = rhs.params.begin(); it != rhs.params.end(); ++it)
@@ -889,9 +889,9 @@ ASTFuncCall& ASTFuncCall::operator=(ASTFuncCall const& rhs)
 	return *this;
 }
 
-ASTFuncCall::~ASTFuncCall()
+ASTExprCall::~ASTExprCall()
 {
-    delete name;
+    delete left;
 	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
 		delete *it;
 }
