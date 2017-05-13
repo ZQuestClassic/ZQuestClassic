@@ -672,15 +672,18 @@ ExprInfo ExprInfo::scope(Scope* scope)
 // ASTExpr
 
 ASTExpr::ASTExpr(ASTExpr const& base)
-	: ASTStmt(base), info(base.info)
+	: ASTStmt(base), info(base.info), lval(false)
 {}
 
 ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 {
 	ASTStmt::operator=(rhs);
+	lval = rhs.lval;
 	info = rhs.info;
 	return *this;
 }
+
+
 
 // ASTExprConst
 

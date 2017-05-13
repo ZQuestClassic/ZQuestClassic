@@ -24,6 +24,7 @@ public:
     void caseFuncDecl(ASTFuncDecl& host);
     void caseScript(ASTScript& host);
 	// Expressions
+	void caseExprAssign(ASTExprAssign& host);
 	void caseStringConstant(ASTStringConstant& host);
 	void caseFuncCall(ASTFuncCall& host);
 	void caseExprIdentifier(ASTExprIdentifier& host);

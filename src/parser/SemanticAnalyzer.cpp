@@ -351,6 +351,12 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 
 // Expressions
 
+void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host)
+{
+	host.getLVal()->markAsLVal();
+	RecursiveVisitor::caseExprAssign(host);
+}
+
 void SemanticAnalyzer::caseStringConstant(ASTStringConstant& host)
 {
 	// Assign varible id for anonymous "variable".
