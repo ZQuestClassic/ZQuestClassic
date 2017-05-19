@@ -212,25 +212,63 @@ int Scope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds)
 
 // Functions
 
+vector<Scope::Function*> Scope::getLocalFunctions(string const& name) const
+{
+	vector<Function*> functions;
+	getLocalFunctions(name, functions);
+	return functions;
+}
+
+void Scope::getLocalFunctionIds(string const& name, vector<int>& out) const
+{
+	vector<Function*> functions;
+	getLocalFunctions(name, functions);
+	for (vector<Function*>::const_iterator it = functions.begin(); it != functions.end(); ++it)
+		out.push_back((*it)->id);
+}
+
 vector<int> Scope::getLocalFunctionIds(string const& name) const
 {
 	vector<int> ids;
-	getLocalFunctionIds(ids, name);
+	getLocalFunctionIds(name, ids);
 	return ids;
 }
 
-void Scope::getFunctionIds(vector<int>& ids, string const& name) const
+void Scope::getFunctions(string const& name, vector<Function*>& out) const
 {
-	getLocalFunctionIds(ids, name);
+	getLocalFunctions(name, out);
 	Scope* parent = getParent();
-	if (parent) parent->getFunctionIds(ids, name);
+	if (parent) parent->getFunctions(name, out);
+}
+
+void Scope::getFunctionIds(string const& name, vector<int>& out) const
+{
+	getLocalFunctionIds(name, out);
+	Scope* parent = getParent();
+	if (parent) parent->getFunctionIds(name, out);
+}
+
+vector<Scope::Function*> Scope::getFunctions(string const& name) const
+{
+	vector<Function*> functions;
+	getFunctions(name, functions);
+	return functions;
 }
 
 vector<int> Scope::getFunctionIds(string const& name) const
 {
 	vector<int> ids;
-	getFunctionIds(ids, name);
+	getFunctionIds(name, ids);
 	return ids;
+}
+
+vector<Scope::Function*> Scope::getFunctions(vector<string> const& names) const
+{
+	vector<string> namespaces = names;
+	namespaces.pop_back();
+	Scope* scope = getChild(namespaces);
+	if (scope == NULL) return vector<Function*>();
+	return scope->getFunctions(names.back());
 }
 
 vector<int> Scope::getFunctionIds(vector<string> const& names)const
@@ -242,31 +280,40 @@ vector<int> Scope::getFunctionIds(vector<string> const& names)const
 	return scope->getFunctionIds(names.back());
 }
 
+Scope::Function* Scope::getFunction(FunctionSignature const& signature) const
+{
+	Function* function = getLocalFunction(signature);
+	if (!function)
+	{
+		Scope* parent = getParent();
+		if (parent) function = parent->getFunction(signature);
+	}
+	return function;
+}
+
 int Scope::getFunctionId(FunctionSignature const& signature) const
 {
-	int functionId = getLocalFunctionId(signature);
-	Scope* parent = getParent();
-	if (functionId == -1 && parent)
-		functionId = parent->getFunctionId(signature);
-	return functionId;
+	Function* function = getLocalFunction(signature);
+	if (!function)
+	{
+		Scope* parent = getParent();
+		if (parent) function = parent->getFunction(signature);
+	}
+	if (function) return function->id;
+	return -1;
 }
 
-int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
+Scope::Function* Scope::addFunction(ZVarTypeId returnTypeId, string const& name,
+									vector<ZVarTypeId> const& paramTypeIds, AST* node)
 {
-	vector<ZVarTypeId> paramTypeIds;
-	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
-		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
-	return addFunction(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
-}
-
-int Scope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
-{
-	return addFunction(name, returnTypeId, paramTypeIds, NULL);
-}
-
-int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes)
-{
-	return addFunction(name, returnType, paramTypes, NULL);
+	vector<ZVarType const*> paramTypes;
+	for (vector<ZVarTypeId>::const_iterator it = paramTypeIds.begin();
+	   it != paramTypeIds.end(); ++it)
+	{
+		paramTypes.push_back((ZVarType const*)table.getType(*it));
+	}
+	return addFunction((ZVarType const*)table.getType(returnTypeId),
+					   name, paramTypes, node);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -404,32 +451,33 @@ int BasicScope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST
 
 // Functions
 
-void BasicScope::getLocalFunctionIds(vector<int>& ids, string const& name) const
+void BasicScope::getLocalFunctions(string const& name, vector<Function*>& out) const
 {
-	map<string, vector<int> >::const_iterator it = functionsByName.find(name);
+	map<string, vector<Function*> >::const_iterator it = functionsByName.find(name);
 	if (it != functionsByName.end())
-		ids.insert(ids.end(), it->second.begin(), it->second.end());
+		out.insert(out.end(), it->second.begin(), it->second.end());
 }
 
-int BasicScope::getLocalFunctionId(FunctionSignature const& signature) const
+Scope::Function* BasicScope::getLocalFunction(FunctionSignature const& signature) const
 {
-	map<FunctionSignature, int>::const_iterator it = functionsBySignature.find(signature);
-	if (it != functionsBySignature.end()) return it->second;
-	return -1;
+	map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.find(signature);
+	if (it == functionsBySignature.end()) return NULL;
+	return it->second;
 }
 
-int BasicScope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+Scope::Function* BasicScope::addFunction(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node)
 {
-	FunctionSignature signature(name, paramTypeIds);
-	map<FunctionSignature, int>::const_iterator it = functionsBySignature.find(signature);
-	if (it != functionsBySignature.end()) return -1;
+	// Return null if function with signature already exists locally.
+	FunctionSignature signature(name, paramTypes);
+	map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.find(signature);
+	if (it != functionsBySignature.end()) return NULL;
 
-	int funcId = ScriptParser::getUniqueFuncID();
-	functionsByName[name].push_back(funcId);
-	functionsBySignature[signature] = funcId;
-	table.putFuncTypeIds(funcId, returnTypeId, paramTypeIds);
-	if (node) table.putNodeId(node, funcId);
-	return funcId;
+	Function* fun = new Function(returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+	functionsByName[name].push_back(fun);
+	functionsBySignature[signature] = fun;
+	table.putFuncTypes(fun->id, returnType, paramTypes);
+	if (node) table.putNodeId(node, fun->id);
+	return fun;
 }
 
 ////////////////////////////////////////////////////////////////

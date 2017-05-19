@@ -64,8 +64,13 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		AccessorTable& entry = table[i];
         string name = entry.name;
         vector<int> paramTypeIds;
+		vector<ZVarType const*> paramTypes;
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
-            paramTypeIds.push_back(entry.params[k]);
+		{
+			int id = entry.params[k];
+            paramTypeIds.push_back(id);
+			paramTypes.push_back(symbolTable.getType(id));
+		}
 
 		string varName = name;
 
@@ -96,9 +101,10 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		}
 		else
 		{
-			int functionId = scope.addFunction(varName, entry.rettype, paramTypeIds);
-			assert(functionId != -1);
-			functions[name] = functionId;
+			ZVarType const* returnType = symbolTable.getType(entry.rettype);
+			Scope::Function* function = scope.addFunction(returnType, varName, paramTypes);
+			assert(function != NULL);
+			functions[name] = function->id;
 		}
     }
 }
