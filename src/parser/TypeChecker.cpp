@@ -5,8 +5,11 @@
 #include "GlobalSymbols.h"
 #include "Scope.h"
 #include "../zsyssimple.h"
+#include "ZScript.h"
 #include <assert.h>
 #include <string>
+
+using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // TypeCheck
@@ -253,7 +256,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
 	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
 	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
 
-	Scope::Function* function = leftClass.getGetter(host.getRight());
+	Function* function = leftClass.getGetter(host.getRight());
 	if (!function)
 	{
 		failure = true;
@@ -1009,7 +1012,7 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
 	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
 	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
 
-	Scope::Function* function = leftClass.getSetter(host.getRight());
+	Function* function = leftClass.getSetter(host.getRight());
     if (!function)
     {
         typeCheck.fail();

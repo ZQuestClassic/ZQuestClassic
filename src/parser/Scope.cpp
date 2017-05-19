@@ -1,6 +1,9 @@
 #include "GlobalSymbols.h"
 #include "Scope.h"
 #include "Types.h"
+#include "ZScript.h"
+
+using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // Scope
@@ -119,7 +122,7 @@ int Scope::addClass(string const& name)
 
 // Variables
 
-Scope::Variable* Scope::getVariable(string const& name) const
+Variable* Scope::getVariable(string const& name) const
 {
 	Variable* var = getLocalVariable(name);
 	if (var == NULL)
@@ -131,7 +134,7 @@ Scope::Variable* Scope::getVariable(string const& name) const
 	return var;
 }
 
-Scope::Variable* Scope::getVariable(vector<string> const& names) const
+Variable* Scope::getVariable(vector<string> const& names) const
 {
 	vector<string> namespaces = names;
 	namespaces.pop_back();
@@ -142,7 +145,7 @@ Scope::Variable* Scope::getVariable(vector<string> const& names) const
 
 // Properties
 
-Scope::Function* Scope::getGetter(string const& name) const
+Function* Scope::getGetter(string const& name) const
 {
 	Function* fun = getLocalGetter(name);
 	if (!fun)
@@ -153,7 +156,7 @@ Scope::Function* Scope::getGetter(string const& name) const
 	return fun;
 }
 
-Scope::Function* Scope::getSetter(string const& name) const
+Function* Scope::getSetter(string const& name) const
 {
 	Function* fun = getLocalSetter(name);
 	if (!fun)
@@ -166,7 +169,7 @@ Scope::Function* Scope::getSetter(string const& name) const
 
 // Functions
 
-vector<Scope::Function*> Scope::getLocalFunctions(string const& name) const
+vector<Function*> Scope::getLocalFunctions(string const& name) const
 {
 	vector<Function*> functions;
 	getLocalFunctions(name, functions);
@@ -202,7 +205,7 @@ void Scope::getFunctionIds(string const& name, vector<int>& out) const
 	if (parent) parent->getFunctionIds(name, out);
 }
 
-vector<Scope::Function*> Scope::getFunctions(string const& name) const
+vector<Function*> Scope::getFunctions(string const& name) const
 {
 	vector<Function*> functions;
 	getFunctions(name, functions);
@@ -216,7 +219,7 @@ vector<int> Scope::getFunctionIds(string const& name) const
 	return ids;
 }
 
-vector<Scope::Function*> Scope::getFunctions(vector<string> const& names) const
+vector<Function*> Scope::getFunctions(vector<string> const& names) const
 {
 	vector<string> namespaces = names;
 	namespaces.pop_back();
@@ -234,7 +237,7 @@ vector<int> Scope::getFunctionIds(vector<string> const& names)const
 	return scope->getFunctionIds(names.back());
 }
 
-Scope::Function* Scope::getFunction(FunctionSignature const& signature) const
+Function* Scope::getFunction(FunctionSignature const& signature) const
 {
 	Function* function = getLocalFunction(signature);
 	if (!function)
@@ -257,7 +260,7 @@ int Scope::getFunctionId(FunctionSignature const& signature) const
 	return -1;
 }
 
-Scope::Function* Scope::addFunction(ZVarTypeId returnTypeId, string const& name,
+Function* Scope::addFunction(ZVarTypeId returnTypeId, string const& name,
 									vector<ZVarTypeId> const& paramTypeIds, AST* node)
 {
 	vector<ZVarType const*> paramTypes;
@@ -368,14 +371,14 @@ int BasicScope::addClass(string const& name, AST* node)
 
 // Variables
 
-Scope::Variable* BasicScope::getLocalVariable(string const& name) const
+Variable* BasicScope::getLocalVariable(string const& name) const
 {
 	map<string, Variable*>::const_iterator it = variables.find(name);
 	if (it == variables.end()) return NULL;
 	return it->second;
 }
 
-Scope::Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST* node)
+Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST* node)
 {
 	// Return null if variable with name already exists locally.
 	map<string, Variable*>::const_iterator it = variables.find(name);
@@ -390,21 +393,21 @@ Scope::Variable* BasicScope::addVariable(ZVarType const& type, string const& nam
 
 // Properties
 
-Scope::Function* BasicScope::getLocalGetter(string const& name) const
+Function* BasicScope::getLocalGetter(string const& name) const
 {
 	map<string, Function*>::const_iterator it = getters.find(name);
 	if (it == getters.end()) return NULL;
 	return it->second;
 }
 
-Scope::Function*  BasicScope::getLocalSetter(string const& name) const
+Function*  BasicScope::getLocalSetter(string const& name) const
 {
 	map<string, Function*>::const_iterator it = setters.find(name);
 	if (it == setters.end()) return NULL;
 	return it->second;
 }
 
-Scope::Function* BasicScope::addGetter(
+Function* BasicScope::addGetter(
 		ZVarType const* returnType, string const& name,
 		vector<ZVarType const*> const& paramTypes, AST* node)
 {
@@ -419,7 +422,7 @@ Scope::Function* BasicScope::addGetter(
 	return fun;
 }
 
-Scope::Function* BasicScope::addSetter(
+Function* BasicScope::addSetter(
 		ZVarType const* returnType, string const& name,
 		vector<ZVarType const*> const& paramTypes, AST* node)
 {
@@ -453,14 +456,14 @@ void BasicScope::getLocalFunctions(string const& name, vector<Function*>& out) c
 		out.insert(out.end(), it->second.begin(), it->second.end());
 }
 
-Scope::Function* BasicScope::getLocalFunction(FunctionSignature const& signature) const
+Function* BasicScope::getLocalFunction(FunctionSignature const& signature) const
 {
 	map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.find(signature);
 	if (it == functionsBySignature.end()) return NULL;
 	return it->second;
 }
 
-Scope::Function* BasicScope::addFunction(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node)
+Function* BasicScope::addFunction(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node)
 {
 	// Return null if function with signature already exists locally.
 	FunctionSignature signature(name, paramTypes);

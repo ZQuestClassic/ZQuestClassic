@@ -5,8 +5,11 @@
 #include "ByteCode.h"
 #include "Scope.h"
 #include "../zsyssimple.h"
+#include "ZScript.h"
 #include <assert.h>
 #include "../zdefs.h" //Needed for using defined values. -Z
+
+using namespace ZScript;
 
 const int radsperdeg = 572958;
 
@@ -79,20 +82,20 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
 		{
 			varName = varName.substr(3); // Strip out "set".
-			Scope::Function* function = scope.addSetter(returnType, varName, paramTypes);
+			Function* function = scope.addSetter(returnType, varName, paramTypes);
 			assert(function);
 			setters[name] = function->id;
 		}
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
 		{
 			varName = varName.substr(3); // Strip out "get".
-			Scope::Function* function = scope.addGetter(returnType, varName, paramTypes);
+			Function* function = scope.addGetter(returnType, varName, paramTypes);
 			assert(function);
 			getters[name] = function->id;
 		}
 		else
 		{
-			Scope::Function* function = scope.addFunction(returnType, varName, paramTypes);
+			Function* function = scope.addFunction(returnType, varName, paramTypes);
 			assert(function != NULL);
 			functions[name] = function->id;
 		}

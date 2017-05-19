@@ -2,6 +2,9 @@
 
 #include "Scope.h"
 #include "ParseError.h"
+#include "ZScript.h"
+
+using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // SemanticAnalyzer
@@ -31,7 +34,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 	{
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(scriptType);
 		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
-		Scope::Variable* thisVar = functionScope.addVariable(thisType, "this");
+		Variable* thisVar = functionScope.addVariable(thisType, "this");
 		results.thisPtr[script] = thisVar->id;
 	}
 
@@ -42,7 +45,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 		ASTVarDecl& parameter = **it;
 		string const& name = parameter.getName();
 		ZVarType const& type = parameter.getType()->resolve(functionScope);
-		Scope::Variable* var = functionScope.addVariable(type, name, &parameter);
+		Variable* var = functionScope.addVariable(type, name, &parameter);
 		if (var == NULL)
 		{
             printErrorMsg(&parameter, VARREDEF, name);
@@ -166,7 +169,7 @@ void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
 	}
 
 	// Add variable to the scope.
-	Scope::Variable* var = scope->addVariable(type, host.getName(), &host);
+	Variable* var = scope->addVariable(type, host.getName(), &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
@@ -222,7 +225,7 @@ void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
 	}
 
 	// Add array to the scope.
-	Scope::Variable* var = scope->addVariable(type, host.getName(), &host);
+	Variable* var = scope->addVariable(type, host.getName(), &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
@@ -283,7 +286,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 	}
 
 	// Add the function to the scope.
-	Scope::Function* function = scope->addFunction(&returnType, host.getName(), paramTypes, &host);
+	Function* function = scope->addFunction(&returnType, host.getName(), paramTypes, &host);
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
@@ -398,7 +401,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 
 void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
 {
-	Scope::Variable* variable = scope->getVariable(host.getComponents());
+	Variable* variable = scope->getVariable(host.getComponents());
 	if (!variable)
 	{
 		printErrorMsg(&host, VARUNDECLARED, host.asString());
