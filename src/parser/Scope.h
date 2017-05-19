@@ -41,8 +41,10 @@ public:
 
 	// Inheritance
 	virtual Scope* getParent() const = 0;
+	virtual Scope* makeChild() = 0;
 	virtual Scope* makeChild(string const& name) = 0;
 	virtual Scope* getLocalChild(string const& name) const = 0;
+	virtual vector<Scope*> getAnonymousChildren() const = 0;
 	// Types
 	virtual int getLocalTypeId(string const& name) const = 0;
 	virtual int addType(string const& name, ZVarTypeId typeId, AST* node) = 0;
@@ -119,8 +121,10 @@ public:
 	~BasicScope();
 	// Children.
 	Scope* getParent() const;
+	Scope* makeChild();
 	Scope* makeChild(string const& name);
 	Scope* getLocalChild(string const& name) const;
+	vector<Scope*> getAnonymousChildren() const;
 	// Types
 	int getLocalTypeId(string const& name) const;
 	using Scope::addType;
@@ -147,6 +151,7 @@ public:
 private:
     Scope* parent;
     map<string, Scope*> children;
+	vector<Scope*> anonymousChildren;
 	map<string, int> types;
 	map<string, int> classes;
 	map<string, Variable*> variables;

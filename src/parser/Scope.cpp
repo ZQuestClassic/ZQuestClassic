@@ -281,6 +281,8 @@ BasicScope::~BasicScope()
 {
 	for (map<string, Scope*>::iterator it = children.begin(); it != children.end(); ++it)
 		delete it->second;
+	for (vector<Scope*>::iterator it = anonymousChildren.begin(); it != anonymousChildren.end(); ++it)
+		delete *it;
 	for (map<string, Variable*>::iterator it = variables.begin(); it != variables.end(); ++it)
 		delete it->second;
 	for (map<FunctionSignature, Function*>::iterator it = functionsBySignature.begin();
@@ -298,6 +300,13 @@ BasicScope::~BasicScope()
 
 Scope* BasicScope::getParent() const {return parent;}
 
+Scope* BasicScope::makeChild()
+{
+	Scope* child = new BasicScope(this);
+	anonymousChildren.push_back(child);
+	return child;
+}
+
 Scope* BasicScope::makeChild(string const& name)
 {
 	map<string, Scope*>::const_iterator it = children.find(name);
@@ -312,6 +321,12 @@ Scope* BasicScope::getLocalChild(string const& name) const
 	if (it == children.end()) return NULL;
 	return it->second;
 }
+
+vector<Scope*> BasicScope::getAnonymousChildren() const
+{
+	return anonymousChildren;
+}
+
 
 // Types
 

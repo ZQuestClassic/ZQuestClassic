@@ -9,6 +9,7 @@ class SemanticAnalyzer : public RecursiveVisitor
 {
 public:
 	SemanticAnalyzer();
+	~SemanticAnalyzer();
 
 	////////////////
 	// Cases
