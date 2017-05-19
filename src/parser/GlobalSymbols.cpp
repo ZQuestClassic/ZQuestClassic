@@ -77,20 +77,20 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
 		{
 			varName = varName.substr(3); // Strip out "set".
-			int varId = scope.getLocalVariableId(varName);
-			if (varId == -1)
-				varId = scope.addVariable(varName, paramTypeIds[1]);
-			int functionId = scope.addSetter(varId, paramTypeIds);
+			Scope::Variable* var = scope.getLocalVariable(varName);
+			if (var == NULL)
+				var = scope.addVariable(paramTypeIds[1], varName);
+			int functionId = scope.addSetter(var->id, paramTypeIds);
 			assert(functionId != -1);
 			setters[name] = functionId;
 		}
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
 		{
 			varName = varName.substr(3); // Strip out "get".
-			int varId = scope.getLocalVariableId(varName);
-			if (varId == -1)
-				varId = scope.addVariable(varName, entry.rettype);
-			int functionId = scope.addGetter(varId, paramTypeIds);
+			Scope::Variable* var = scope.getLocalVariable(varName);
+			if (var == NULL)
+				var = scope.addVariable(entry.rettype, varName);
+			int functionId = scope.addGetter(var->id, paramTypeIds);
 			assert(functionId != -1);
 			getters[name] = functionId;
 		}

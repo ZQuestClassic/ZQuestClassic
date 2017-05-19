@@ -119,37 +119,51 @@ int Scope::addClass(string const& name)
 
 // Variables
 
-int Scope::getVariableId(string const& name) const
+int Scope::getLocalVariableId(string const& name) const
 {
-	int variableId = getLocalVariableId(name);
-	Scope* parent = getParent();
-	if (variableId == -1 && parent)
-		variableId = parent->getVariableId(name);
-	return variableId;
+	Variable* var = getLocalVariable(name);
+	if (var == NULL) return -1;
+	return var->id;
 }
 
-int Scope::getVariableId(vector<string> const& names) const
+Scope::Variable* Scope::getVariable(string const& name) const
+{
+	Variable* var = getLocalVariable(name);
+	if (var == NULL)
+	{
+		Scope* parent = getParent();
+		if (parent != NULL)
+			var = parent->getVariable(name);
+	}
+	return var;
+}
+
+int Scope::getVariableId(string const& name) const
+{
+	Variable* var = getVariable(name);
+	if (var == NULL) return -1;
+	return var->id;
+}
+
+Scope::Variable* Scope::getVariable(vector<string> const& names) const
 {
 	vector<string> namespaces = names;
 	namespaces.pop_back();
 	Scope* scope = getChild(namespaces);
-	if (scope == NULL) return -1;
-	return scope->getVariableId(names.back());
+	if (scope == NULL) return NULL;
+	return scope->getVariable(names.back());
 }
 
-int Scope::addVariable(string const& name, ZVarType const& type, AST* node)
+int Scope::getVariableId(vector<string> const& name) const
 {
-	return addVariable(name, table.getOrAssignTypeId(type), node);
+	Variable* var = getVariable(name);
+	if (var == NULL) return -1;
+	return var->id;
 }
 
-int Scope::addVariable(string const& name, ZVarTypeId typeId)
+Scope::Variable* Scope::addVariable(ZVarTypeId typeId, string const& name, AST* node)
 {
-	return addVariable(name, typeId, NULL);
-}
-
-int Scope::addVariable(string const& name, ZVarType const& type)
-{
-	return addVariable(name, table.getOrAssignTypeId(type), NULL);
+	return addVariable(*table.getType(typeId), name, node);
 }
 
 // Properties
@@ -184,24 +198,6 @@ int Scope::getSetterId(string const& name) const
 	int varId = getVariableId(name);
 	if (varId == -1) return -1;
 	return getSetterId(varId);
-}
-
-Scope::VariableAccess Scope::getRead(string const& name) const
-{
-	VariableAccess r;
-	r.variableId = getVariableId(name);
-	if (r.variableId != -1)
-		r.functionId = getGetterId(r.variableId);
-	return r;
-}
-
-Scope::VariableAccess Scope::getWrite(string const& name) const
-{
-	VariableAccess r;
-	r.variableId = getVariableId(name);
-	if (r.variableId != -1)
-		r.functionId = getSetterId(r.variableId);
-	return r;
 }
 
 int Scope::addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds)
@@ -284,6 +280,8 @@ BasicScope::~BasicScope()
 {
 	for (map<string, Scope*>::iterator it = children.begin(); it != children.end(); ++it)
 		delete it->second;
+	for (map<string, Variable*>::iterator it = variables.begin(); it != variables.end(); ++it)
+		delete it->second;
 }
 
 // Inheritance
@@ -345,22 +343,24 @@ int BasicScope::addClass(string const& name, AST* node)
 
 // Variables
 
-int BasicScope::getLocalVariableId(string const& name) const
+Scope::Variable* BasicScope::getLocalVariable(string const& name) const
 {
-	map<string, int>::const_iterator it = variables.find(name);
-	if (it != variables.end()) return it->second;
-	return -1;
+	map<string, Variable*>::const_iterator it = variables.find(name);
+	if (it == variables.end()) return NULL;
+	return it->second;
 }
 
-int BasicScope::addVariable(string const& name, ZVarTypeId typeId, AST* node)
+Scope::Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST* node)
 {
-	map<string, int>::const_iterator it = variables.find(name);
-	if (it != variables.end()) return -1;
-	int varId = ScriptParser::getUniqueVarID();
-	variables[name] = varId;
-	table.putVarTypeId(varId, typeId);
-	if (node) table.putNodeId(node, varId);
-	return varId;
+	// Return null if variable with name already exists locally.
+	map<string, Variable*>::const_iterator it = variables.find(name);
+	if (it != variables.end()) return NULL;
+
+	Variable* var = new Variable(&type, name, ScriptParser::getUniqueVarID());
+	variables[name] = var;
+	table.putVarTypeId(var->id, table.getOrAssignTypeId(type));
+	if (node) table.putNodeId(node, var->id);
+	return var;
 }
 
 // Properties
@@ -450,9 +450,9 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	}
 
 	// Add global pointers.
-    table.addGlobalPointer(addVariable("Link", ZVARTYPEID_LINK));
-    table.addGlobalPointer(addVariable("Screen", ZVARTYPEID_SCREEN));
-    table.addGlobalPointer(addVariable("Game", ZVARTYPEID_GAME));
+    table.addGlobalPointer(addVariable(ZVARTYPEID_LINK, "Link")->id);
+    table.addGlobalPointer(addVariable(ZVARTYPEID_SCREEN, "Screen")->id);
+    table.addGlobalPointer(addVariable(ZVARTYPEID_GAME, "Game")->id);
 }
 
 ////////////////////////////////////////////////////////////////
