@@ -822,7 +822,6 @@ public:
 
 	long getDataValue() const {return exprType == DATA ? value : 0l;}
 	void setDataValue(long v) {exprType = DATA; value = v; hasValue_ = true;}
-	int getVariableId() const {return exprType == VARIABLE ? value : -1;}
 	void setVariableId(int variableId) {exprType = VARIABLE; value = variableId; hasValue_ = true;}
 	int getFunctionId() const {return exprType == FUNCTION ? value : -1;}
 	void setFunctionId(int functionId) {exprType = FUNCTION; value = functionId; hasValue_ = true;}

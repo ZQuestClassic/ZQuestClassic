@@ -119,13 +119,6 @@ int Scope::addClass(string const& name)
 
 // Variables
 
-int Scope::getLocalVariableId(string const& name) const
-{
-	Variable* var = getLocalVariable(name);
-	if (var == NULL) return -1;
-	return var->id;
-}
-
 Scope::Variable* Scope::getVariable(string const& name) const
 {
 	Variable* var = getLocalVariable(name);
@@ -138,13 +131,6 @@ Scope::Variable* Scope::getVariable(string const& name) const
 	return var;
 }
 
-int Scope::getVariableId(string const& name) const
-{
-	Variable* var = getVariable(name);
-	if (var == NULL) return -1;
-	return var->id;
-}
-
 Scope::Variable* Scope::getVariable(vector<string> const& names) const
 {
 	vector<string> namespaces = names;
@@ -152,18 +138,6 @@ Scope::Variable* Scope::getVariable(vector<string> const& names) const
 	Scope* scope = getChild(namespaces);
 	if (scope == NULL) return NULL;
 	return scope->getVariable(names.back());
-}
-
-int Scope::getVariableId(vector<string> const& name) const
-{
-	Variable* var = getVariable(name);
-	if (var == NULL) return -1;
-	return var->id;
-}
-
-Scope::Variable* Scope::addVariable(ZVarTypeId typeId, string const& name, AST* node)
-{
-	return addVariable(*table.getType(typeId), name, node);
 }
 
 // Properties
@@ -504,9 +478,9 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	}
 
 	// Add global pointers.
-    table.addGlobalPointer(addVariable(ZVARTYPEID_LINK, "Link")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_SCREEN, "Screen")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_GAME, "Game")->id);
+    table.addGlobalPointer(addVariable(ZVarType::LINK, "Link")->id);
+    table.addGlobalPointer(addVariable(ZVarType::SCREEN, "Screen")->id);
+    table.addGlobalPointer(addVariable(ZVarType::GAME, "Game")->id);
 }
 
 ////////////////////////////////////////////////////////////////
