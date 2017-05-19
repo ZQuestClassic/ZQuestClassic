@@ -253,17 +253,23 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
 	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
 	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
 
-	int functionId = leftClass.getGetterId(host.getRight());
-	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != leftTypeId)
+	Scope::Function* function = leftClass.getGetter(host.getRight());
+	if (!function)
+	{
+		failure = true;
+        printErrorMsg(&host, ARROWNOVAR, host.getRight() + (isIndexed ? "[]" : ""));
+        return;
+	}
+	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(function->id);
+    if (functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != leftTypeId)
     {
         failure = true;
         printErrorMsg(&host, ARROWNOVAR, host.getRight() + (isIndexed ? "[]" : ""));
         return;
     }
 
-    symbolTable.putNodeId(&host, functionId);
-    host.setVarType(symbolTable.getType(symbolTable.getFuncReturnTypeId(functionId)));
+    symbolTable.putNodeId(&host, function->id);
+    host.setVarType(symbolTable.getType(symbolTable.getFuncReturnTypeId(function->id)));
 }
 
 void TypeCheck::caseExprIndex(ASTExprIndex &host)
@@ -1003,16 +1009,22 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
 	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
 	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
 
-	int functionId = leftClass.getSetterId(host.getRight());
-	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-    if (functionId == -1 || functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != leftTypeId)
+	Scope::Function* function = leftClass.getSetter(host.getRight());
+    if (!function)
+    {
+        typeCheck.fail();
+        printErrorMsg(&host, ARROWNOVAR, host.getRight() + (isIndexed ? "[]" : ""));
+        return;
+    }
+	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(function->id);
+    if (functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != leftTypeId)
     {
         typeCheck.fail();
         printErrorMsg(&host, ARROWNOVAR, host.getRight() + (isIndexed ? "[]" : ""));
         return;
     }
 
-    symbolTable.putNodeId(&host, functionId);
+    symbolTable.putNodeId(&host, function->id);
     typeId = functionParams[isIndexed ? 2 : 1];
 	host.setVarType(symbolTable.getType(typeId));
 }

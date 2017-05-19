@@ -53,10 +53,12 @@ public:
 	virtual Variable* getLocalVariable(string const& name) const = 0;
 	virtual Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL) = 0;
 	// Properties
-	virtual int getLocalGetterId(int varId) const = 0;
-	virtual int getLocalSetterId(int varId) const = 0;
-	virtual int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
-	virtual int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
+	virtual Function* getLocalGetter(string const& name) const = 0;
+	virtual Function* getLocalSetter(string const& name) const = 0;
+	virtual Function* addGetter(ZVarType const* returnType, string const& name,
+								vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
+	virtual Function* addSetter(ZVarType const* returnType, string const& name,
+								vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
 	// Functions
 	virtual void getLocalFunctions(string const& name, vector<Function*>& out) const = 0;
 	virtual Function* getLocalFunction(FunctionSignature const& signature) const = 0;
@@ -92,12 +94,8 @@ public:
 	int getVariableId(vector<string> const& name) const;
 	Variable* addVariable(ZVarTypeId typeId, string const& name, AST* node = NULL);
 	// Properties
-	int getGetterId(int varId) const;
-	int getGetterId(string const& name) const;
-	int getSetterId(int varId) const;
-	int getSetterId(string const& name) const;
-	int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
-	int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
+	Function* getGetter(string const& name) const;
+	Function* getSetter(string const& name) const;
 	// Functions
 	vector<Function*> getLocalFunctions(string const& name) const;
 	void getLocalFunctionIds(string const& name, vector<int>& out) const;
@@ -139,12 +137,10 @@ public:
 	using Scope::addVariable;
 	Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL);
 	// Properties
-	int getLocalGetterId(int varId) const;
-	int getLocalSetterId(int varId) const;
-	using Scope::addGetter;
-	int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
-	using Scope::addSetter;
-	int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
+	Function* getLocalGetter(string const& name) const;
+	Function* getLocalSetter(string const& name) const;
+	Function* addGetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+	Function* addSetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
 	// Functions
 	using Scope::getLocalFunctions;
 	void getLocalFunctions(string const& name, vector<Function*>& out) const;
@@ -158,8 +154,8 @@ private:
 	map<string, int> types;
 	map<string, int> classes;
 	map<string, Variable*> variables;
-	map<int, int> getters;
-	map<int, int> setters;
+	map<string, Function*> getters;
+	map<string, Function*> setters;
 	map<string, vector<Function*> > functionsByName;
 	map<FunctionSignature, Function*> functionsBySignature;
 

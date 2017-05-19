@@ -62,16 +62,12 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
     for (int i = 0; table[i].name != ""; i++)
     {
 		AccessorTable& entry = table[i];
-        string name = entry.name;
-        vector<int> paramTypeIds;
+		ZVarType const* returnType = symbolTable.getType(entry.rettype);
 		vector<ZVarType const*> paramTypes;
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
-		{
-			int id = entry.params[k];
-            paramTypeIds.push_back(id);
-			paramTypes.push_back(symbolTable.getType(id));
-		}
+			paramTypes.push_back(symbolTable.getType(entry.params[k]));
 
+        string name = entry.name;
 		string varName = name;
 
 		// Strip out the array at the end.
@@ -79,29 +75,23 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		if (isArray)
 			varName = name.substr(0, name.size() - 2);
 
+
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
 		{
 			varName = varName.substr(3); // Strip out "set".
-			Scope::Variable* var = scope.getLocalVariable(varName);
-			if (var == NULL)
-				var = scope.addVariable(paramTypeIds[1], varName);
-			int functionId = scope.addSetter(var->id, paramTypeIds);
-			assert(functionId != -1);
-			setters[name] = functionId;
+			Scope::Function* function = scope.addSetter(returnType, varName, paramTypes);
+			assert(function);
+			setters[name] = function->id;
 		}
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
 		{
 			varName = varName.substr(3); // Strip out "get".
-			Scope::Variable* var = scope.getLocalVariable(varName);
-			if (var == NULL)
-				var = scope.addVariable(entry.rettype, varName);
-			int functionId = scope.addGetter(var->id, paramTypeIds);
-			assert(functionId != -1);
-			getters[name] = functionId;
+			Scope::Function* function = scope.addGetter(returnType, varName, paramTypes);
+			assert(function);
+			getters[name] = function->id;
 		}
 		else
 		{
-			ZVarType const* returnType = symbolTable.getType(entry.rettype);
 			Scope::Function* function = scope.addFunction(returnType, varName, paramTypes);
 			assert(function != NULL);
 			functions[name] = function->id;
