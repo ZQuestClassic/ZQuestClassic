@@ -390,14 +390,14 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
 
 	// Get size.
 
-	if (!host.getSize()->getInfo().hasValue())
+	if (!host.getSize()->hasDataValue())
 	{
 		failure = true;
 		printErrorMsg(&host, EXPRNOTCONSTANT);
 		return;
 	}
 
-	long size = host.getSize()->getInfo().getDataValue();
+	long size = host.getSize()->getDataValue();
 
 	if (size < 10000)
 	{
@@ -535,8 +535,8 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 
 void BuildOpcodes::caseNumConstant(ASTNumConstant& host, void*)
 {
-    if (host.getInfo().hasValue())
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+    if (host.hasDataValue())
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
     else
     {
         pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
@@ -550,7 +550,7 @@ void BuildOpcodes::caseNumConstant(ASTNumConstant& host, void*)
 
 void BuildOpcodes::caseBoolConstant(ASTBoolConstant& host, void*)
 {
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
 }
 
 void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
@@ -751,9 +751,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -765,9 +765,9 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -778,9 +778,9 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -942,9 +942,9 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -962,9 +962,9 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -980,9 +980,9 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -999,9 +999,9 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1016,9 +1016,9 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1035,9 +1035,9 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1053,11 +1053,11 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.getFirstOperand()->getInfo().getValueType() == ZVarType::BOOL);
+    bool isBoolean = (*host.getFirstOperand()->getVarType() == ZVarType::BOOL);
 
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1080,11 +1080,11 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.getFirstOperand()->getInfo().getValueType() == ZVarType::BOOL);
+    bool isBoolean = (*host.getFirstOperand()->getVarType() == ZVarType::BOOL);
 
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1106,9 +1106,9 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1122,9 +1122,9 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 
 void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1139,9 +1139,9 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 
 void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1155,9 +1155,9 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 
 void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1172,9 +1172,9 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 
 void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1189,9 +1189,9 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 
 void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1205,9 +1205,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 
 void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1221,9 +1221,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 
 void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1237,9 +1237,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 
 void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1254,9 +1254,9 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 
 void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
