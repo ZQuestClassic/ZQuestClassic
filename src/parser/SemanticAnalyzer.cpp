@@ -9,11 +9,10 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(ZScript::Program& program)
-	: failure(false), deprecateGlobals(false), program(program)
+	: failure(false), deprecateGlobals(false), program(program), results(program)
 {
-	results.symbols = &program.table;
 	scope = &program.globalScope;
-	caseProgram(*program.ast);
+	caseProgram(*program.node);
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function)
@@ -89,7 +88,6 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 	results.globalFuncs = host.functions;
 	results.globalVars = host.variables;
 	results.globalArrays = host.arrays;
-	results.scripts = host.scripts;
 }
 
 // Statements
@@ -351,7 +349,6 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 	// Save script info.
 	results.runsymbols[&host] = runId;
 	results.numParams[&host] = (int) program.table.getFuncParamTypeIds(runId).size();
-	results.scriptTypes[&host] = scriptType;
 }
 
 // Expressions
