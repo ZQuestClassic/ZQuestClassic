@@ -18,6 +18,7 @@
 #include "UtilVisitors.h"
 #include "AST.h"
 #include "BuildVisitors.h"
+#include "ZScript.h"
 using namespace std;
 //#define PARSER_DEBUG
 
@@ -66,8 +67,8 @@ ScriptsData* compile(const char *filename)
     box_eol();
 #endif
 
-	SemanticAnalyzer semanticAnalyzer;
-	theAST->execute(semanticAnalyzer);
+	ZScript::Program program(theAST);
+	SemanticAnalyzer semanticAnalyzer(program);
 
     if (semanticAnalyzer.hasFailed())
     {
@@ -94,29 +95,7 @@ ScriptsData* compile(const char *filename)
 
     FunctionData *fd = ScriptParser::typeCheck(&d);
 
-    if (fd == NULL)
-    {
-        //delete theAST;
-        /*if(d->symbols) delete d->symbols;
-        for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
-        {
-        	delete *it2;
-        }
-        delete d;*/
-        return NULL;
-    }
+    if (fd == NULL) {return NULL;}
 
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 5: Generating object code");
@@ -125,51 +104,7 @@ ScriptsData* compile(const char *filename)
 
     IntermediateData *id = ScriptParser::generateOCode(fd);
 
-    if (id == NULL)
-    {
-        //delete theAST;
-        /*if(d->symbols) delete d->symbols;
-        for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
-        {
-        	delete *it2;
-        }
-        delete d;*/
-        /*if(fd->symbols) delete fd->symbols;
-        for(vector<ASTFuncDecl *>::iterator it2 = fd->functions.begin(); it2 != fd->functions.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTVarDecl *>::iterator it2 = fd->newGlobalVars.begin(); it2 != fd->newGlobalVars.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTVarDecl *>::iterator it2 = fd->globalVars.begin(); it2 != fd->globalVars.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTArrayDecl *>::iterator it2 = fd->newGlobalArrays.begin(); it2 != fd->newGlobalArrays.end(); it2++)
-        {
-        	delete *it2;
-        }
-        for(vector<ASTArrayDecl *>::iterator it2 = fd->globalArrays.begin(); it2 != fd->globalArrays.end(); it2++)\
-        {
-        	delete *it2;
-        }
-        delete fd;*/
-        return NULL;
-    }
+    if (id == NULL) {return NULL;}
 
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 6: Assembling");
@@ -179,64 +114,6 @@ ScriptsData* compile(const char *filename)
     ScriptsData* final = ScriptParser::assemble(id);
     box_out("Success!");
     box_eol();
-
-    //delete theAST;
-    /*if(d->symbols) delete d->symbols;
-    for(vector<ASTFuncDecl *>::iterator it2 = d->globalFuncs.begin(); it2 != d->globalFuncs.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTScript *>::iterator it2 = d->scripts.begin(); it2 != d->scripts.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTVarDecl *>::iterator it2 = d->globalVars.begin(); it2 != d->globalVars.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTArrayDecl *>::iterator it2 = d->globalArrays.begin(); it2 != d->globalArrays.end(); it2++)\
-    {
-    	delete *it2;
-    }
-    delete d;
-    if(fd->symbols) delete fd->symbols;
-    for(vector<ASTFuncDecl *>::iterator it2 = fd->functions.begin(); it2 != fd->functions.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTVarDecl *>::iterator it2 = fd->newGlobalVars.begin(); it2 != fd->newGlobalVars.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTVarDecl *>::iterator it2 = fd->globalVars.begin(); it2 != fd->globalVars.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTArrayDecl *>::iterator it2 = fd->newGlobalArrays.begin(); it2 != fd->newGlobalArrays.end(); it2++)
-    {
-    	delete *it2;
-    }
-    for(vector<ASTArrayDecl *>::iterator it2 = fd->globalArrays.begin(); it2 != fd->globalArrays.end(); it2++)\
-    {
-    	delete *it2;
-    }
-    delete fd;*/
-    /*for(map<int, vector<Opcode *> >::iterator it = id->funcs.begin(); it != id->funcs.end(); it++)
-    {
-    	for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-    	{
-    		delete *it2;
-    	}
-    }
-    for(vector<Opcode *>::iterator it = id->globalsInit.begin(); it != id->globalsInit.end(); it++)
-    {
-    	delete *it;
-    }
-    for(vector<Opcode *>::iterator it = id->globalasInit.begin(); it != id->globalasInit.end(); it++)
-    {
-    	delete *it;
-    }
-    delete id;*/
 
     return final;
 }

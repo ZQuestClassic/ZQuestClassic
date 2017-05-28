@@ -2,8 +2,13 @@
 #define ZPARSER_SCOPE_H
 
 #include <assert.h>
-#include "ZScript.h"
 #include "DataStructs.h"
+
+namespace ZScript
+{
+	class Variable;
+	class Function;
+};
 
 class Scope
 {
