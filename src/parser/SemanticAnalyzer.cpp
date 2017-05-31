@@ -8,7 +8,7 @@ using namespace ZScript;
 ////////////////////////////////////////////////////////////////
 // SemanticAnalyzer
 
-SemanticAnalyzer::SemanticAnalyzer(ZScript::Program& program)
+SemanticAnalyzer::SemanticAnalyzer(Program& program)
 	: failure(false), deprecateGlobals(false), program(program), results(program)
 {
 	scope = &program.globalScope;
@@ -291,35 +291,16 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 
 void SemanticAnalyzer::caseScript(ASTScript& host)
 {
-	string const& name = host.getName();
-
-	// Check the script's type.
-	ScriptType scriptType = host.getType()->getType();
-	if (scriptType != SCRIPTTYPE_GLOBAL
-		&& scriptType != SCRIPTTYPE_ITEM
-		&& scriptType != SCRIPTTYPE_FFC)
-	{
-		printErrorMsg(&host, SCRIPTBADTYPE, name);
-		failure = true;
-		return;
-	}
-
-	// Create script's scope.
-	Scope* scriptScope = scope->makeChild(name);
-	if (!scriptScope)
-	{
-		printErrorMsg(&host, SCRIPTREDEF, name);
-		failure = true;
-		return;
-	}
-	scriptScope->varDeclsDeprecated = true;
+	Script& script = *program.getScript(&host);
+	string name = script.getName();
 
 	// Recurse on script elements with its scope.
-	scope = scriptScope;
+	scope = script.scope;
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
 	if (failure) return;
 
+<<<<<<< HEAD
 	// Get run function.
 	vector<int> possibleRunIds = scriptScope->getLocalFunctionIds("run");
 	if (possibleRunIds.size() > 1)
@@ -340,15 +321,17 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 =======
 	if (program.table.getTypeId(ZVarType::VOID) != program.table.getFuncReturnTypeId(runId))
 >>>>>>> Added ZScript::Program to hold global scope.
+=======
+	if (script.hasError())
+>>>>>>> Added getRun() to ZScript::Script.
 	{
-		printErrorMsg(&host, SCRIPTRUNNOTVOID, name);
+		script.printErrors();
 		failure = true;
 		return;
 	}
 
 	// Save script info.
-	results.runsymbols[&host] = runId;
-	results.numParams[&host] = (int) program.table.getFuncParamTypeIds(runId).size();
+	results.numParams[&host] = (int) program.table.getFuncParamTypeIds(script.getRun()->id).size();
 }
 
 // Expressions

@@ -6,16 +6,22 @@
 
 namespace ZScript
 {
-	struct Program
+	class Program
 	{
+	public:
 		Program(ASTProgram* ast);
+		~Program();
 		ASTProgram* node;
 		SymbolTable table;
 		GlobalScope globalScope;
 
-		vector<Script> scripts;
+		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
+
+		bool hasError() const;
+		void printErrors() const;
+
 	private:
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
@@ -23,10 +29,17 @@ namespace ZScript
 
 	struct Script
 	{
-		Script(ASTScript* script);
+		Script(Program& program, ASTScript* script);
+
 		ASTScript* node;
+		Scope* scope;
+
 		string getName() const;
 		ScriptType getType() const;
+		Function* getRun() const;
+
+		bool hasError() const;
+		void printErrors() const;
 	};
 
 	struct Variable

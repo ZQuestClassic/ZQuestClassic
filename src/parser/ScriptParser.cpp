@@ -20,6 +20,7 @@
 #include "BuildVisitors.h"
 #include "ZScript.h"
 using namespace std;
+using namespace ZScript;
 //#define PARSER_DEBUG
 
 ASTProgram* resAST;
@@ -78,16 +79,6 @@ ScriptsData* compile(const char *filename)
 
 	SymbolData& d = semanticAnalyzer.getResults();
 
-	// Clear theAST lists so we don't delete the results in d.
-	theAST->scripts.clear();
-	theAST->functions.clear();
-	theAST->variables.clear();
-	theAST->arrays.clear();
-
-	delete theAST;
-
-    //d->symbols->printDiagnostics();
-
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
     box_eol();
@@ -95,7 +86,11 @@ ScriptsData* compile(const char *filename)
 
     FunctionData *fd = ScriptParser::typeCheck(&d);
 
-    if (fd == NULL) {return NULL;}
+    if (fd == NULL)
+	{
+		delete theAST;
+		return NULL;
+	}
 
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 5: Generating object code");
@@ -103,8 +98,13 @@ ScriptsData* compile(const char *filename)
 #endif
 
     IntermediateData *id = ScriptParser::generateOCode(fd);
+    delete fd;
 
-    if (id == NULL) {return NULL;}
+    if (id == NULL)
+	{
+		delete theAST;
+		return NULL;
+	}
 
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 6: Assembling");
@@ -114,6 +114,8 @@ ScriptsData* compile(const char *filename)
     ScriptsData* final = ScriptParser::assemble(id);
     box_out("Success!");
     box_eol();
+
+	delete theAST;
 
     return final;
 }
@@ -185,24 +187,19 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 	ZScript::Program& program = sdata->program;
 
     //build the functiondata
-    FunctionData *fd = new FunctionData;
-    fd->symbols = &program.table;
-    fd->newGlobalVars = sdata->globalVars;
-    fd->newGlobalArrays = sdata->globalArrays;
+    FunctionData *fd = new FunctionData(*sdata);
     vector<ASTFuncDecl *> funcs = sdata->globalFuncs;
-    map<ASTScript *, int> runsymbols = sdata->runsymbols;
     map<ASTScript *, int> numparams = sdata->numParams;
     map<ASTScript *, int> thisptr = sdata->thisPtr;
     bool failure = false;
     map<int, bool> usednums;
 
     // Strip var and func decls from the scripts.
-    for (vector<ZScript::Script>::const_iterator it = program.scripts.begin();
+    for (vector<ZScript::Script*>::const_iterator it = program.scripts.begin();
 		 it != program.scripts.end(); it++)
     {
-		ZScript::Script const& script = *it;
+		ZScript::Script const& script = **it;
 		ASTScript* node = script.node;
-        fd->scriptRunSymbols[node->getName()] = runsymbols[node];
         fd->numParams[node->getName()] = numparams[node];
         fd->scriptTypes[node->getName()] = script.getType();
         fd->thisPtr[node->getName()] = thisptr[node];
@@ -237,12 +234,7 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
             it2 = stuff.erase(it2);
         }
     }
-    
-	/* for (vector<ASTScript*>::iterator it = scripts.begin(); it != scripts.end(); it++)
-    {
-        delete *it;
-		}*/
-    
+
     for (vector<ASTFuncDecl*>::iterator it = funcs.begin(); it != funcs.end(); it++)
     {
         fd->functions.push_back(*it);
@@ -278,24 +270,24 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 
     // fd is now loaded with all the info so run type-checker visitor.
     for (vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
-		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+		failure = failure || !TypeCheck::check(fd->program.table, **it);
 
     for (vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
-		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+		failure = failure || !TypeCheck::check(fd->program.table, **it);
 
     for (vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
-		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+		failure = failure || !TypeCheck::check(fd->program.table, **it);
 
     for (vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
-		failure = failure || !TypeCheck::check(*fd->symbols, **it);
+		failure = failure || !TypeCheck::check(fd->program.table, **it);
 
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-		failure = failure || !TypeCheck::check(*fd->symbols, fd->symbols->getFuncReturnTypeId(*it), **it);
+		failure = failure || !TypeCheck::check(fd->program.table, fd->program.table.getFuncReturnTypeId(*it), **it);
 
 	// Strip out inlined constants.
 	for (vector<ASTVarDecl*>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end();)
 	{
-		if (fd->symbols->isInlinedConstant(*it))
+		if (fd->program.table.isInlinedConstant(*it))
 		{
 			//delete *it;
 			it = fd->globalVars.erase(it);
@@ -305,7 +297,7 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 	}
 	for (vector<ASTVarDecl*>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end();)
 	{
-		if (fd->symbols->isInlinedConstant(*it))
+		if (fd->program.table.isInlinedConstant(*it))
 		{
 			//delete *it;
 			it = fd->newGlobalVars.erase(it);
@@ -317,10 +309,10 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 	// Count (un-inlined) global variables.
 	fd->globalVarCount = 0;
 	for (vector<ASTVarDecl*>::const_iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); ++it)
-		if (!fd->symbols->isInlinedConstant(*it))
+		if (!fd->program.table.isInlinedConstant(*it))
 			++fd->globalVarCount;
 	for (vector<ASTVarDecl*>::const_iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); ++it)
-		if (!fd->symbols->isInlinedConstant(*it))
+		if (!fd->program.table.isInlinedConstant(*it))
 			++fd->globalVarCount;
 
     if (fd->globalVarCount > 256)
@@ -360,7 +352,7 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     return fd;
 }
 
-IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
+IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 {
     // Z_message("yes");
     bool failure = false;
@@ -375,12 +367,10 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     for(vector<ASTArrayDecl *>::iterator it = fdata->newGlobalArrays.begin(); it != fdata->newGlobalArrays.end(); it++)
         globalas.push_back(*it);
         
-    map<string, int> runsymbols = fdata->scriptRunSymbols;
-    SymbolTable *symbols = fdata->symbols;
+    SymbolTable* symbols = &fdata->program.table;
     map<string, int> numparams = fdata->numParams;
     map<string, ScriptType> scripttypes = fdata->scriptTypes;
     map<string, int> thisptr = fdata->thisPtr;
-    delete fdata;
     LinkTable lt;
     
     for(vector<ASTVarDecl*>::iterator it = globals.begin(); it != globals.end(); it++)
@@ -507,8 +497,6 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         {
             rval->globalsInit.push_back(*it2);
         }
-        
-        delete *it; //say so long to our lovely data structure the AST
     }
     
     //Z_message("yes");
@@ -532,8 +520,6 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         {
             rval->globalasInit.push_back(*it2);
         }
-        
-        delete *it; //say so long to our lovely data structure the AST
     }
     
     //Z_message("yes");
@@ -543,17 +529,20 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     {
         bool isarun = false;
         string scriptname;
-        
-        for(map<string,int>::iterator it2 = runsymbols.begin(); it2 != runsymbols.end(); it2++)
+
+		for (vector<Script*>::const_iterator it2 = fdata->program.scripts.begin();
+			 it2 != fdata->program.scripts.end();
+			 ++it2)
         {
-            if(it2->second == symbols->getNodeId(*it))
+			Function* run = (*it2)->getRun();
+            if (symbols->getNodeId(*it) == run->id)
             {
-                isarun=true;
-                scriptname = it2->first;
+                isarun = true;
+                scriptname = (*it2)->getName();
                 break;
             }
         }
-        
+
         vector<Opcode *> funccode;
 		// generate a mapping from local variables to stack offests
 		StackFrame sf;
@@ -670,18 +659,23 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         }
         
         rval->funcs[lt.functionToLabel(symbols->getNodeId(*it))]=funccode;
-        delete *it;
     }
     
     //Z_message("yes");
     
     //update the run symbols
-    for(map<string, int>::iterator it = runsymbols.begin(); it != runsymbols.end(); it++)
+	for (vector<Script*>::const_iterator it = fdata->program.scripts.begin();
+		 it != fdata->program.scripts.end();
+		 ++it)
+		//for (map<string, int>::iterator it = runsymbols.begin(); it != runsymbols.end(); it++)
     {
-        int labelid = lt.functionToLabel(it->second);
-        rval->scriptRunLabels[it->first] = labelid;
-        rval->numParams[it->first] = numparams[it->first];
-        rval->scriptTypes[it->first] = scripttypes[it->first];
+		Function* run = (*it)->getRun();
+		string name = (*it)->getName();
+		int id = run->id;
+        int labelid = lt.functionToLabel(id);
+        rval->scriptRunLabels[name] = labelid;
+        rval->numParams[name] = numparams[name];
+        rval->scriptTypes[name] = (*it)->getType();
     }
     
     //Z_message("yes");

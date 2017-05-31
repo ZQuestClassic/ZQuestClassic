@@ -108,21 +108,20 @@ struct SymbolData
     vector<ASTFuncDecl*> globalFuncs;
     vector<ASTVarDecl*> globalVars;
     vector<ASTArrayDecl*> globalArrays;
-    map<ASTScript*, int> runsymbols;
     map<ASTScript*, int> numParams;
     map<ASTScript*, int> thisPtr;
 };
 
 struct FunctionData
 {
-    SymbolTable* symbols;
+	FunctionData(SymbolData const& symbolData);
+	ZScript::Program& program;
     vector<ASTFuncDecl*> functions;
     vector<ASTVarDecl*> globalVars;
     vector<ASTVarDecl*> newGlobalVars;
     vector<ASTArrayDecl*> globalArrays;
     vector<ASTArrayDecl*> newGlobalArrays;
 	int globalVarCount;
-    map<string, int> scriptRunSymbols;
     map<string, int> numParams;
     map<string, ScriptType> scriptTypes;
     map<string, int> thisPtr;
