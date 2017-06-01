@@ -350,10 +350,10 @@ void SymbolTable::printDiagnostics()
 // FunctionData
 
 FunctionData::FunctionData(SymbolData const& symbolData)
-	: program(symbolData.program)
+	: program(symbolData.program), globalVarCount(0)
 {
-	newGlobalVars = symbolData.globalVars;
-	newGlobalArrays = symbolData.globalArrays;
+	globalVars = symbolData.globalVars;
+	globalArrays = symbolData.globalArrays;
 }
 
 ////////////////////////////////////////////////////////////////
