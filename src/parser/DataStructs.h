@@ -117,7 +117,6 @@ struct FunctionData
     vector<ASTVarDecl*> globalVars;
     vector<ASTArrayDecl*> globalArrays;
 	int globalVarCount;
-    map<string, int> numParams;
     map<string, int> thisPtr;
 };
 
