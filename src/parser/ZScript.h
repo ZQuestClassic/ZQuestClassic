@@ -32,7 +32,7 @@ namespace ZScript
 		Script(Program& program, ASTScript* script);
 
 		ASTScript* node;
-		Scope* scope;
+		ScriptScope* scope;
 
 		string getName() const;
 		ScriptType getType() const;

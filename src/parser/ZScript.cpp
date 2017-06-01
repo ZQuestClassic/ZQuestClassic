@@ -62,7 +62,7 @@ Script::Script(Program& program, ASTScript* script) : node(script)
 	assert(node);
 
 	// Create script scope.
-	scope = program.globalScope.makeChild(getName());
+	scope = program.globalScope.makeScriptChild(getName());
 	scope->varDeclsDeprecated = true;
 }
 
