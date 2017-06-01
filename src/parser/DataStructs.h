@@ -108,7 +108,6 @@ struct SymbolData
     vector<ASTFuncDecl*> globalFuncs;
     vector<ASTVarDecl*> globalVars;
     vector<ASTArrayDecl*> globalArrays;
-    map<ASTScript*, int> numParams;
     map<ASTScript*, int> thisPtr;
 };
 
@@ -129,11 +128,12 @@ struct FunctionData
 
 struct IntermediateData
 {
+	IntermediateData(FunctionData const& functionData);
+	ZScript::Program& program;
     map<int, vector<Opcode *> > funcs;
     vector<Opcode *> globalsInit;
     vector<Opcode *> globalasInit;
     map<string, int> scriptRunLabels;
-    map<string, int> numParams;
     map<string, ScriptType> scriptTypes;
     map<string, int> thisPtr;
 };

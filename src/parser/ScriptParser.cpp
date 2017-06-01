@@ -189,7 +189,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     //build the functiondata
     FunctionData *fd = new FunctionData(*sdata);
     vector<ASTFuncDecl *> funcs = sdata->globalFuncs;
-    map<ASTScript *, int> numparams = sdata->numParams;
     map<ASTScript *, int> thisptr = sdata->thisPtr;
     bool failure = false;
     map<int, bool> usednums;
@@ -200,7 +199,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     {
 		ZScript::Script const& script = **it;
 		ASTScript* node = script.node;
-        fd->numParams[node->getName()] = numparams[node];
         fd->scriptTypes[node->getName()] = script.getType();
         fd->thisPtr[node->getName()] = thisptr[node];
         //strip vars and funcs
@@ -368,7 +366,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         globalas.push_back(*it);
         
     SymbolTable* symbols = &fdata->program.table;
-    map<string, int> numparams = fdata->numParams;
     map<string, ScriptType> scripttypes = fdata->scriptTypes;
     map<string, int> thisptr = fdata->thisPtr;
     LinkTable lt;
@@ -402,7 +399,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     
     //we now have labels for the functions and ids for the global variables.
     //we can now generate the code to intialize the globals
-    IntermediateData *rval = new IntermediateData();
+    IntermediateData *rval = new IntermediateData(*fdata);
     
     //Link against the global symbols, and add their labels
     map<int, vector<Opcode *> > globalcode = GlobalSymbols::getInst().addSymbolsCode(lt);
@@ -674,7 +671,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		int id = run->id;
         int labelid = lt.functionToLabel(id);
         rval->scriptRunLabels[name] = labelid;
-        rval->numParams[name] = numparams[name];
         rval->scriptTypes[name] = (*it)->getType();
     }
     
@@ -723,7 +719,6 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
             ginit.push_back(*i);
     }
     map<string, int> scripts = id->scriptRunLabels;
-    map<string, int> numparams = id->numParams;
     map<string, ScriptType> scripttypes = id->scriptTypes;
     delete id;
     
@@ -745,7 +740,8 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     for(map<string, int>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
     {
         vector<Opcode *> code = funcs[it2->second];
-        rval->theScripts[it2->first] = assembleOne(code, funcs, numparams[it2->first]);
+		int numparams = id->program.getScript(it2->first)->getRun()->paramTypes.size();
+        rval->theScripts[it2->first] = assembleOne(code, funcs, numparams);
         rval->scriptTypes[it2->first] = scripttypes[it2->first];
     }
     

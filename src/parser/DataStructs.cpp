@@ -356,7 +356,12 @@ FunctionData::FunctionData(SymbolData const& symbolData)
 	newGlobalArrays = symbolData.globalArrays;
 }
 
+////////////////////////////////////////////////////////////////
+// IntermediateData
 
+IntermediateData::IntermediateData(FunctionData const& functionData)
+	: program(functionData.program)
+{}
 
 ////////////////////////////////////////////////////////////////
 

@@ -330,8 +330,6 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 		return;
 	}
 
-	// Save script info.
-	results.numParams[&host] = (int) program.table.getFuncParamTypeIds(script.getRun()->id).size();
 }
 
 // Expressions
