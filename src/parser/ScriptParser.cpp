@@ -112,6 +112,7 @@ ScriptsData* compile(const char *filename)
 #endif
 
     ScriptsData* final = ScriptParser::assemble(id);
+    delete id;
     box_out("Success!");
     box_eol();
 
@@ -189,7 +190,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     //build the functiondata
     FunctionData *fd = new FunctionData(*sdata);
     vector<ASTFuncDecl *> funcs = sdata->globalFuncs;
-    map<ASTScript *, int> thisptr = sdata->thisPtr;
     bool failure = false;
     map<int, bool> usednums;
 
@@ -200,7 +200,7 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 		ZScript::Script const& script = **it;
 		ASTScript* node = script.node;
         fd->scriptTypes[node->getName()] = script.getType();
-        fd->thisPtr[node->getName()] = thisptr[node];
+        fd->thisPtr[node->getName()] = script.getRun()->thisVar->id;
         //strip vars and funcs
         list<ASTDecl *> &stuff = node->getScriptBlock()->getDeclarations();
         
@@ -720,7 +720,6 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     }
     map<string, int> scripts = id->scriptRunLabels;
     map<string, ScriptType> scripttypes = id->scriptTypes;
-    delete id;
     
     //do the global inits
     //if there's a global script called "Init", append it to ~Init:

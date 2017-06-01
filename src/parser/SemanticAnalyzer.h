@@ -44,8 +44,7 @@ private:
 
 	bool deprecateGlobals;
 
-	void analyzeFunctionInternals(ASTFuncDecl& function) {analyzeFunctionInternals(NULL, function);}
-	void analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function);
+	void analyzeFunctionInternals(ZScript::Function& function);
 };
 
 #endif

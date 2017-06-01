@@ -450,6 +450,15 @@ Function* BasicScope::addSetter(
 
 // Functions
 
+vector<Function*> BasicScope::getLocalFunctions() const
+{
+	vector<Function*> functions;
+	for (map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.begin();
+		 it != functionsBySignature.end(); ++it)
+		functions.push_back(it->second);
+	return functions;
+}
+
 void BasicScope::getLocalFunctions(string const& name, vector<Function*>& out) const
 {
 	map<string, vector<Function*> >::const_iterator it = functionsByName.find(name);
@@ -502,14 +511,15 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
     table.addGlobalPointer(addVariable(ZVarType::GAME, "Game")->id);
 }
 
-ScriptScope* GlobalScope::makeScriptChild(string const& name)
+ScriptScope* GlobalScope::makeScriptChild(Script& script)
 {
+	string name = script.getName();
 	map<string, Scope*>::const_iterator it = children.find(name);
 	if (it != children.end()) return NULL;
-	children[name] = new ScriptScope(this);
-	return (ScriptScope*)children[name];
+	ScriptScope* child = new ScriptScope(this, script);
+	children[name] = child;
+	return child;
 }
-
 
 
 ////////////////////////////////////////////////////////////////

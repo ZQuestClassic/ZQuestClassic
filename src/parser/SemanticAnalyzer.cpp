@@ -15,27 +15,36 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 	caseProgram(*program.node);
 }
 
-void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function)
+void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
-	// Create function scope.
-	Scope& functionScope = *scope->makeChild();
+	ASTFuncDecl* functionDecl = function.node;
 
-	// Grab the script type.
-	ScriptType scriptType = SCRIPTTYPE_VOID;
-	if (script) scriptType = script->getType()->getType();
+	// Don't need to analyze built-in functions.
+	if (!functionDecl) return;
+
+	// Create function scope.
+	function.internalScope = scope->makeChild();
+	Scope& functionScope = *function.internalScope;
+
+	// Grab the script.
+	Script* script = NULL;
+	if (scope->isScript()) script = &((ScriptScope*)scope)->script;
 
 	// If this is the script's run method, add "this" to the scope.
+<<<<<<< HEAD
 	ZVarType const& returnType = function.getReturnType()->resolve(*scope);
 	if (function.getName() == "run" && returnType == ZVarType::ZVOID)
+=======
+	if (script && function.name == "run" && *function.returnType == ZVarType::VOID)
+>>>>>>> ScriptParser::analyzeFunctionInternals uses Function objects.
 	{
-		ZVarTypeId thisTypeId = ScriptParser::getThisType(scriptType);
+		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
 		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
-		Variable* thisVar = functionScope.addVariable(thisType, "this");
-		results.thisPtr[script] = thisVar->id;
+		function.thisVar = functionScope.addVariable(thisType, "this");
 	}
 
 	// Add the parameters to the scope.
-	list<ASTVarDecl*>& parameters = function.getParams();
+	list<ASTVarDecl*>& parameters = functionDecl->getParams();
 	for (list<ASTVarDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
 	{
 		ASTVarDecl& parameter = **it;
@@ -52,7 +61,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 
 	// Evaluate the function block under its scope.
 	scope = &functionScope;
-	list<ASTStmt*>& statements = function.getBlock()->getStatements();
+	list<ASTStmt*>& statements = functionDecl->getBlock()->getStatements();
 	for (list<ASTStmt*>::iterator it = statements.begin(); it != statements.end(); ++it)
 		(*it)->execute(*this);
 	scope = scope->getParent();
@@ -63,25 +72,21 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 	// Recurse on elements.
 	RecursiveVisitor::caseProgram(host);
 
+	vector<Function*> functions;
+
 	// Analyze function internals.
-	for (vector<ASTFuncDecl*>::iterator it = host.functions.begin(); it != host.functions.end(); ++it)
+	functions = scope->getLocalFunctions();
+	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
 		analyzeFunctionInternals(**it);
-	for (vector<ASTScript*>::iterator it = host.scripts.begin(); it != host.scripts.end(); ++it)
+	for (vector<Script*>::iterator it = program.scripts.begin();
+		 it != program.scripts.end(); ++it)
 	{
-		ASTScript& script = **it;
-		list<ASTDecl*>& decls = script.getScriptBlock()->getDeclarations();
-		for (list<ASTDecl*>::iterator it = decls.begin(); it != decls.end(); ++it)
-		{
-			// Only do function declarations.
-			bool isFuncDecl;
-			IsFuncDecl temp;
-			(*it)->execute(temp, &isFuncDecl);
-			if (!isFuncDecl) continue;
-			// Analyze.
-			scope = scope->getLocalChild(script.getName());
-			analyzeFunctionInternals(&script, (ASTFuncDecl&)**it);
-			scope = scope->getParent();
-		}
+		Script& script = **it;
+		scope = script.scope;
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		scope = scope->getParent();
 	}
 
 	// Save results.
@@ -279,6 +284,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(&returnType, host.getName(), paramTypes, &host);
+	function->node = &host;
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.

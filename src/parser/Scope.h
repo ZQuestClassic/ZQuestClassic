@@ -51,6 +51,7 @@ public:
 	virtual ZScript::Function* addSetter(ZVarType const* returnType, string const& name,
 								vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
 	// Functions
+	virtual vector<ZScript::Function*> getLocalFunctions() const = 0;
 	virtual void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const = 0;
 	virtual ZScript::Function* getLocalFunction(FunctionSignature const& signature) const = 0;
 	virtual ZScript::Function* addFunction(
@@ -132,6 +133,7 @@ public:
 	ZScript::Function* addSetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
 	// Functions
 	using Scope::getLocalFunctions;
+	vector<ZScript::Function*> getLocalFunctions() const;
 	void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const;
 	ZScript::Function* getLocalFunction(FunctionSignature const& signature) const;
 	using Scope::addFunction;
@@ -160,14 +162,15 @@ class GlobalScope : public BasicScope
 public:
 	GlobalScope(SymbolTable& table);
 	bool isGlobal() const {return true;}
-	ScriptScope* makeScriptChild(string const& name);
+	ScriptScope* makeScriptChild(ZScript::Script& script);
 };
 
 class ScriptScope : public BasicScope
 {
 public:
-	ScriptScope(GlobalScope* scope) : BasicScope(scope) {}
+	ScriptScope(GlobalScope* scope, ZScript::Script& script) : BasicScope(scope), script(script) {}
 	bool isScript() const {return true;}
+	ZScript::Script& script;
 };
 
 enum ZClassIdBuiltin
