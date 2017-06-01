@@ -19,6 +19,9 @@ namespace ZScript
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
 
+		// Gets the non-internal global functions.
+		vector<Function*> getUserGlobalFunctions() const;
+
 		bool hasError() const;
 		void printErrors() const;
 
