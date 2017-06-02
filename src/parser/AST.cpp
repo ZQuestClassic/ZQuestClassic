@@ -452,50 +452,62 @@ ASTStmtEmpty* ASTStmtEmpty::clone() const
 
 // ASTScript
 
-ASTScript::ASTScript(ASTScriptType *Type, string Name, ASTDeclList *Sblock, LocationData Loc)
-		: ASTDecl(Loc), type(Type), name(Name), sblock(Sblock)
-{}
+ASTScript::ASTScript(LocationData const& location)
+	: ASTDecl(location), type(NULL), name("") {}
+
+ASTScript::ASTScript(ASTScript const& base)
+	: ASTDecl(base.getLocation()),
+	  type(base.type ? base.type->clone() : NULL),
+	  name(base.name)
+{
+	for (vector<ASTVarDecl*>::const_iterator it = base.variables.begin();
+		 it != base.variables.end(); ++it)
+		variables.push_back((*it)->clone());
+	for (vector<ASTArrayDecl*>::const_iterator it = base.arrays.begin();
+		 it != base.arrays.end(); ++it)
+		arrays.push_back((*it)->clone());
+	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin();
+		 it != base.functions.end(); ++it)
+		functions.push_back((*it)->clone());
+	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin();
+		 it != base.types.end(); ++it)
+		types.push_back((*it)->clone());
+}
 
 ASTScript::~ASTScript()
 {
-    delete sblock;
-    delete type;
+	delete type;
+	for (vector<ASTVarDecl*>::const_iterator it = variables.begin();
+		 it != variables.end(); ++it)
+		delete *it;
+	for (vector<ASTArrayDecl*>::const_iterator it = arrays.begin();
+		 it != arrays.end(); ++it)
+		delete *it;
+	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
+		 it != functions.end(); ++it)
+		delete *it;
+	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
+		 it != types.end(); ++it)
+		delete *it;
 }
 
-ASTScript* ASTScript::clone() const
+void ASTScript::addDeclaration(ASTDecl& declaration)
 {
-	return new ASTScript(
-			type != NULL ? type->clone() : NULL,
-			name,
-			sblock != NULL ? sblock->clone() : NULL,
-			getLocation());
-}
-
-// ASTDeclList
-
-ASTDeclList::~ASTDeclList()
-{
-    list<ASTDecl *>::iterator it;
-
-    for(it = decls.begin(); it != decls.end(); it++)
-    {
-        delete *it;
-    }
-
-    decls.clear();
-}
-
-ASTDeclList* ASTDeclList::clone() const
-{
-	ASTDeclList* c = new ASTDeclList(getLocation());
-	for (list<ASTDecl*>::const_iterator it = decls.begin(); it != decls.end(); ++it)
-		c->decls.push_back((*it)->clone());
-	return c;
-}
-
-void ASTDeclList::addDeclaration(ASTDecl *newdecl)
-{
-    decls.push_front(newdecl);
+	switch (declaration.declarationClassId())
+	{
+	case ASTDECL_CLASSID_FUNCTION:
+		functions.push_back(&(ASTFuncDecl&)declaration);
+		break;
+	case ASTDECL_CLASSID_ARRAY:
+		arrays.push_back(&(ASTArrayDecl&)declaration);
+		break;
+	case ASTDECL_CLASSID_VARIABLE:
+		variables.push_back(&(ASTVarDecl&)declaration);
+		break;
+	case ASTDECL_CLASSID_TYPE:
+		types.push_back(&(ASTTypeDef&)declaration);
+		break;
+	}
 }
 
 // ASTImportDecl

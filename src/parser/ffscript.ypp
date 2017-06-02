@@ -209,10 +209,13 @@ ArrayList : ArrayList COMMA Expr {	ASTArrayList *al = (ASTArrayList *)$1;
 	;
 
 Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {
-			ASTScriptType *type = (ASTScriptType*)$1;
-			ASTString *name = (ASTString*)$3;
-			ASTDeclList *sblock = (ASTDeclList*)$4;
-			$$ = new ASTScript(type, name->getValue(), sblock, @1);
+			ASTScriptType* type = (ASTScriptType*)$1;
+			ASTString* name = (ASTString*)$3;
+			ASTScript* script = (ASTScript*)$4;
+			script->setType(type);
+			script->setName(name->getValue());
+			script->updateLocation(@$);
+			$$ = script;
 			delete name;}
 	;
 
@@ -227,15 +230,22 @@ Import : IMPORT QUOTEDSTRING	{ASTString *str = (ASTString *)$2;
 	;
 
 ScriptBlock : LBRACE ScriptStmtList RBRACE {$$ = $2;}
-	| LBRACE RBRACE {$$ = new ASTDeclList(@1);}
+	| LBRACE RBRACE {
+		$$ = new ASTScript(@$);}
 	;
 
-ScriptStmtList : ScriptStmt ScriptStmtList {ASTDeclList *dl = (ASTDeclList *)$2;
-											dl->addDeclaration((ASTDecl *)$1);
-											$$ = dl;}
-	| ScriptStmt {	ASTDeclList *dl = new ASTDeclList(@1);
-					dl->addDeclaration((ASTDecl *)$1);
-					$$ = dl;}
+ScriptStmtList :
+	ScriptStmtList ScriptStmt {
+		ASTScript* script = (ASTScript*)$1;
+		ASTDecl* declaration = (ASTDecl*)$2;
+		script->addDeclaration(*declaration);
+		script->updateLocation(@$);
+		$$ = script;}
+	| ScriptStmt {
+		ASTScript* script = new ASTScript(@$);
+		ASTDecl* declaration = (ASTDecl*)$1;
+		script->addDeclaration(*declaration);
+		$$ = script;}
 	;
 
 ScriptStmt : VarDecl SEMICOLON {$$ = $1;}

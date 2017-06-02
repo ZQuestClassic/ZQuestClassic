@@ -31,8 +31,6 @@ public:
 	// Declarations
     virtual void caseScript(ASTScript &host, void *param);
     virtual void caseScript(ASTScript &host);
-    virtual void caseDeclList(ASTDeclList &host, void *param);
-    virtual void caseDeclList(ASTDeclList &host);
     virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
     virtual void caseFuncDecl(ASTFuncDecl &host);
     virtual void caseArrayDecl(ASTArrayDecl &host, void *param);

@@ -206,36 +206,14 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 		ZScript::Script const& script = **it;
 		ASTScript* node = script.node;
         fd->thisPtr[node->getName()] = script.getRun()->thisVar->id;
-        //strip vars and funcs
-        list<ASTDecl *> &stuff = node->getScriptBlock()->getDeclarations();
-        
-        for(list<ASTDecl *>::iterator it2 = stuff.begin(); it2 != stuff.end();)
-        {
-            bool isFunc = false;
-            IsFuncDecl temp;
-            (*it2)->execute(temp, &isFunc);
-            
-            if(isFunc)
-            {
-                fd->functions.push_back((ASTFuncDecl *)*it2);
-            }
-            
-            bool IsArray = false;
-            IsArrayDecl temp2;
-            (*it2)->execute(temp2, &IsArray);
-            
-            if(IsArray)
-            {
-                fd->globalArrays.push_back((ASTArrayDecl *)*it2);
-            }
-            
-            if(!isFunc && !IsArray)
-            {
-                fd->globalVars.push_back((ASTVarDecl *)*it2);
-            }
-            
-            it2 = stuff.erase(it2);
-        }
+
+        // Strip variables and functions from the script.
+		fd->globalVars.insert(fd->globalVars.end(), node->variables.begin(), node->variables.end());
+		node->variables.clear();
+		fd->globalArrays.insert(fd->globalArrays.end(), node->arrays.begin(), node->arrays.end());
+		node->arrays.clear();
+		fd->functions.insert(fd->functions.end(), node->functions.begin(), node->functions.end());
+		node->functions.clear();
     }
 
     for (vector<ASTFuncDecl*>::iterator it = funcs.begin(); it != funcs.end(); it++)

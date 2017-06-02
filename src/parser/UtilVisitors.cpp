@@ -184,33 +184,27 @@ void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal &host)
 void RecursiveVisitor::caseScript(ASTScript &host, void *param)
 {
 	host.getType()->execute(*this, param);
-	host.getScriptBlock()->execute(*this, param);
+	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTFuncDecl*>::const_iterator it = host.functions.begin(); it != host.functions.end(); ++it)
+		(*it)->execute(*this, param);
 }
 
 void RecursiveVisitor::caseScript(ASTScript &host)
 {
 	host.getType()->execute(*this);
-	host.getScriptBlock()->execute(*this);
-}
-
-void RecursiveVisitor::caseDeclList(ASTDeclList &host, void *param)
-{
-	list<ASTDecl*> l = host.getDeclarations();
-
-	for(list<ASTDecl*>::iterator it = l.begin(); it != l.end(); it++)
-	{
-		(*it)->execute(*this, param);
-	}
-}
-
-void RecursiveVisitor::caseDeclList(ASTDeclList &host)
-{
-	list<ASTDecl*> l = host.getDeclarations();
-
-	for(list<ASTDecl*>::iterator it = l.begin(); it != l.end(); it++)
-	{
+	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
 		(*it)->execute(*this);
-	}
+	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTFuncDecl*>::const_iterator it = host.functions.begin(); it != host.functions.end(); ++it)
+		(*it)->execute(*this);
 }
 
 void RecursiveVisitor::caseFuncDecl(ASTFuncDecl &host, void *param)

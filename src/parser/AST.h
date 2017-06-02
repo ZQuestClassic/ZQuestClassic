@@ -52,7 +52,6 @@ class ASTStmtEmpty;
 // Declarations
 class ASTDecl; // virtual
 class ASTScript;
-class ASTDeclList;
 class ASTImportDecl;
 class ASTFuncDecl;
 class ASTArrayDecl;
@@ -150,8 +149,6 @@ public:
 	// Declarations
     virtual void caseScript(ASTScript&, void* param) {caseDefault(param);}
     virtual void caseScript(ASTScript& node) {caseScript(node, NULL);}
-    virtual void caseDeclList(ASTDeclList&, void* param) {caseDefault(param);}
-    virtual void caseDeclList(ASTDeclList& node) {caseDeclList(node, NULL);}
     virtual void caseImportDecl(ASTImportDecl&, void* param) {caseDefault(param);}
     virtual void caseImportDecl(ASTImportDecl& node) {caseImportDecl(node, NULL);}
     virtual void caseFuncDecl(ASTFuncDecl&, void* param) {caseDefault(param);}
@@ -607,44 +604,41 @@ public:
     ASTDecl(LocationData Loc) : ASTStmt(Loc) {}
     virtual ~ASTDecl() {}
 	virtual ASTDecl* clone() const = 0;
+
 	virtual ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_NONE;}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTDecl(ASTDecl &);
-    ASTDecl &operator=(ASTDecl &);
 };
 
 class ASTScript : public ASTDecl
 {
 public:
-    ASTScript(ASTScriptType *Type, string Name, ASTDeclList *Sblock, LocationData Loc);
+    ASTScript(LocationData const& location);
+	ASTScript(ASTScript const& base);
 	virtual ~ASTScript();
-	ASTScript* clone() const;
-    ASTDeclList *getScriptBlock() const {return sblock;}
-    ASTScriptType *getType() const {return type;}
-    string getName() const {return name;}
+	ASTScript* clone() const {return new ASTScript(*this);}
+
     void execute(ASTVisitor &visitor, void *param) {visitor.caseScript(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseScript(*this);}
+
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_SCRIPT;}
+
+	// Adds a declaration to the proper vector.
+	void addDeclaration(ASTDecl& declaration);
+
+    ASTScriptType* getType() const {return type;}
+	void setType(ASTScriptType* node) {type = node;}
+
+    string const& getName() const {return name;}
+    string getName() {return name;}
+	void setName(string const& n) {name = n;}
+
+	vector<ASTVarDecl*> variables;
+	vector<ASTArrayDecl*> arrays;
+	vector<ASTFuncDecl*> functions;
+	vector<ASTTypeDef*> types;
 private:
-    ASTScriptType *type;
+    ASTScriptType* type;
     string name;
-    ASTDeclList *sblock;
-};
 
-class ASTDeclList : public AST
-{
-public:
-    ASTDeclList(LocationData Loc) : AST(Loc), decls() {}
-    ~ASTDeclList();
-	ASTDeclList* clone() const;
-
-    void addDeclaration(ASTDecl *newdecl);
-    list<ASTDecl *> &getDeclarations() {return decls;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseDeclList(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseDeclList(*this);}
-private:
-    list<ASTDecl *> decls;
 };
 
 class ASTImportDecl : public ASTDecl
