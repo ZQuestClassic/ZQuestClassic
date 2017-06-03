@@ -2001,7 +2001,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void ZapIn(screen)
     {
-        int id = memberids["ZapIn"];
+        int id = functions["ZapIn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2017,7 +2017,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 
 	//void ZapOut(screen)
     {
-        int id = memberids["ZapOut"];
+        int id = functions["ZapOut"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2032,7 +2032,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 
 	//void WavyIn(screen)
     {
-        int id = memberids["WavyIn"];
+        int id = functions["WavyIn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2047,7 +2047,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
             
 	//void WavyOut(screen)
     {
-        int id = memberids["WavyOut"];
+        int id = functions["WavyOut"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3121,7 +3121,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void GreyscaleOn(game)
     {
-        int id = memberids["GreyscaleOn"];
+        int id = functions["GreyscaleOn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3136,7 +3136,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
             
 	//void GreyscaleOff(game)
     {
-        int id = memberids["GreyscaleOff"];
+        int id = functions["GreyscaleOff"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3200,7 +3200,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
      //int GetItemScript(game, int)
     {
-        int id = memberids["GetItemScript"];
+        int id = functions["GetItemScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
