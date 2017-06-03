@@ -2029,6 +2029,21 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+    
+     //void OpeningWipe(screen)
+    {
+        int id = functions["OpeningWipe"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OOpenWipe());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
 
 	//void WavyIn(screen)
     {
