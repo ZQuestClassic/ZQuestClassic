@@ -2452,6 +2452,18 @@ public:
     }
 };
 
+
+class OGetItemScript : public UnaryOpcode
+{
+public:
+    OGetItemScript(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetItemScript(a->clone());
+    }
+};
+
 //2,54
 
 class OZapIn : public Opcode
@@ -2529,16 +2541,6 @@ public:
 };
 
 
-class OGetItemScript : public UnaryOpcode
-{
-public:
-    OGetFFCScript(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetItemScript(a->clone());
-    }
-};
 
 
 

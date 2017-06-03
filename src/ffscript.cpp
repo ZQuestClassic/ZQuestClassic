@@ -46,6 +46,8 @@ extern LinkClass Link;
 extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
+extern std::map<int, std::pair<string,string> > itemmap;
+extern std::map<int, std::pair<string,string> > globalmap;
 extern GameScripts scripts;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
