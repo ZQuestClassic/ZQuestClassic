@@ -107,7 +107,7 @@ bool Script::hasError() const
 	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
 	if (possibleRuns.size() != 1) return true;
 	Function& run = *possibleRuns[0];
-	if (*run.returnType != ZVarType::VOID) return true;
+	if (*run.returnType != ZVarType::ZVOID) return true;
 
 	return false;
 }
@@ -134,7 +134,7 @@ void Script::printErrors() const
 		printErrorMsg(node, TOOMANYRUN, name);
 	else if (possibleRuns.size() == 0)
 		printErrorMsg(node, SCRIPTNORUN, name);
-	else if (*possibleRuns[0]->returnType != ZVarType::VOID)
+	else if (*possibleRuns[0]->returnType != ZVarType::ZVOID)
 		printErrorMsg(node, SCRIPTRUNNOTVOID, name);
 
 }

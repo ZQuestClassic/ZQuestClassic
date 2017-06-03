@@ -101,11 +101,7 @@ void TypeCheck::caseArrayDecl(ASTArrayDecl &host)
 	ASTExpr *size = host.getSize();
 	size->execute(*this);
 
-<<<<<<< HEAD
-	if (!size->getVarType().canCastTo(ZVarType::FLOAT))
-=======
-	if (*size->getVarType() != ZVarType::FLOAT)
->>>>>>> Got rid of ExprInfo.
+	if (!size->getVarType()->canCastTo(ZVarType::FLOAT))
 	{
 		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
 		failure = true;

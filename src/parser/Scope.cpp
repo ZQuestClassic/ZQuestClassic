@@ -427,15 +427,6 @@ Function* BasicScope::addSetter(
 		ZVarType const* returnType, string const& name,
 		vector<ZVarType const*> const& paramTypes, AST* node)
 {
-<<<<<<< HEAD
-	map<int, int>::const_iterator it = setters.find(varId);
-	if (it != setters.end()) return -1;
-	int setterId = ScriptParser::getUniqueFuncID();
-	setters[varId] = setterId;
-	table.putFuncTypeIds(setterId, table.getTypeId(ZVarType::ZVOID), paramTypeIds);
-	if (node) table.putNodeId(node, setterId);
-	return setterId;
-=======
 	// Return null if setter with name already exists locally.
 	map<string, Function*>::const_iterator it = setters.find(name);
 	if (it != setters.end()) return NULL;
@@ -445,7 +436,6 @@ Function* BasicScope::addSetter(
 	table.putFuncTypes(fun->id, returnType, paramTypes);
 	if (node) table.putNodeId(node, fun->id);
 	return fun;
->>>>>>> Scope retains getter/setter types.
 }
 
 // Functions

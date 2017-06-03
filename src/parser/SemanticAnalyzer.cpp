@@ -28,12 +28,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	if (scope->isScript()) script = &((ScriptScope*)scope)->script;
 
 	// If this is the script's run method, add "this" to the scope.
-<<<<<<< HEAD
-	ZVarType const& returnType = function.getReturnType()->resolve(*scope);
-	if (function.getName() == "run" && returnType == ZVarType::ZVOID)
-=======
-	if (script && function.name == "run" && *function.returnType == ZVarType::VOID)
->>>>>>> ScriptParser::analyzeFunctionInternals uses Function objects.
+	if (script && function.name == "run" && *function.returnType == ZVarType::ZVOID)
 	{
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
 		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
@@ -302,30 +297,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 	scope = scope->getParent();
 	if (failure) return;
 
-<<<<<<< HEAD
-	// Get run function.
-	vector<int> possibleRunIds = scriptScope->getLocalFunctionIds("run");
-	if (possibleRunIds.size() > 1)
-	{
-		printErrorMsg(&host, TOOMANYRUN, name);
-		failure = true;
-		return;
-	}
-	else if (possibleRunIds.size() == 0)
-	{
-		printErrorMsg(&host, SCRIPTNORUN, name);
-		failure = true;
-		return;
-	}
-	int runId = possibleRunIds[0];
-<<<<<<< HEAD
-	if (data.getTypeId(ZVarType::ZVOID) != data.getFuncReturnTypeId(runId))
-=======
-	if (program.table.getTypeId(ZVarType::VOID) != program.table.getFuncReturnTypeId(runId))
->>>>>>> Added ZScript::Program to hold global scope.
-=======
 	if (script.hasError())
->>>>>>> Added getRun() to ZScript::Script.
 	{
 		script.printErrors();
 		failure = true;
