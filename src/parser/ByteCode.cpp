@@ -1921,9 +1921,9 @@ string OOpenWipe::toString()
 }
 
 //Game->GetItemScript(int ptr[])
-string OGetFFCScript::toString()
+string OGetItemScript::toString()
 {
-    return "GETFFCSCRIPT " + getArgument()->toString();
+    return "GETITEMSCRIPT " + getArgument()->toString();
 }
 
 

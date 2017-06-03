@@ -2452,7 +2452,6 @@ public:
     }
 };
 
-
 class OGetItemScript : public UnaryOpcode
 {
 public:
@@ -2463,6 +2462,8 @@ public:
         return new OGetItemScript(a->clone());
     }
 };
+
+
 
 //2,54
 
