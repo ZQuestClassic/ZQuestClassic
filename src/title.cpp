@@ -3280,9 +3280,11 @@ void titlescreen(int lsave)
 
 void game_over(int type)
 {
+	
     Backend::sfx->stopAll();
     music_stop();
     clear_to_color(screen,BLACK);
+	setMonochrome(false); //Clear monochrome before drawing the file select. 
     loadfullpal();
     
     if(Quit==qGAMEOVER)
@@ -3404,6 +3406,7 @@ void game_over(int type)
         //Quit = pos ? ((standalone_mode && skip_title) ? qRESET : qQUIT) : qCONT;
         if(pos==1&&(!type))
         {
+		setMonochrome(false); //Clear monochrome before drawing the file select. 
             game->set_cheat(game->get_cheat() | cheat);
             
             saves[currgame]=*game;
