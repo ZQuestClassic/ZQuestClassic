@@ -2452,6 +2452,98 @@ public:
     }
 };
 
+class OGetItemScript : public UnaryOpcode
+{
+public:
+    OGetItemScript(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetItemScript(a->clone());
+    }
+};
+
+
+
+//2,54
+
+class OZapIn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapIn();
+    }
+};
+
+class OZapOut : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapOut();
+    }
+};
+
+
+class OGreyscaleOn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleOn();
+    }
+};
+
+class OGreyscaleOff : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleOff();
+    }
+};
+
+
+//These need to be unary opcodes that accept bool linkvisible. 
+class OWavyIn : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyIn();
+    }
+};
+
+
+class OWavyOut : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyOut();
+    }
+};
+
+class OOpenWipe : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OOpenWipe();
+    }
+};
+
+
+
+
 
 
 #endif

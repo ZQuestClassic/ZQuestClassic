@@ -2,6 +2,8 @@
 #define ZSPARSER_TYPES_H
 
 #include <string>
+#include <functional>
+#include <iostream>
 
 class Scope;
 
