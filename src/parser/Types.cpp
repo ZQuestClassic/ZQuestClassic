@@ -3,8 +3,6 @@
 #include "DataStructs.h"
 #include "Scope.h"
 
-using std::to_string;
-
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
@@ -107,7 +105,9 @@ bool ZVarTypeConstFloat::canCastTo(ZVarType const& target) const
 string ZVarTypeClass::getName() const
 {
 	string name = className == "" ? "anonymous" : className;
-	return name + "[class " + to_string(classId) + "]";
+	char tmp[32];
+	sprintf(tmp, "%d", classId);
+	return name + "[class " + tmp + "]";
 }
 
 ZVarType* ZVarTypeClass::resolve(Scope& scope)
