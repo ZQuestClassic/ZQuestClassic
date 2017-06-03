@@ -147,13 +147,14 @@ void loadpalset(int cset,int dataset)
     
     for(int i=0; i<16; i++,j+=3)
     {
-	    if ( isMonochrome ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites. 
-       else RAMpal[CSET(cset)+i] = _RGB(&colordata[j]); 
+	    if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
+		else 
+			RAMpal[CSET(cset)+i] = _RGB(&colordata[j]); 
     }
     
     if(cset==6 && !get_bit(quest_rules,qr_NOLEVEL3FIX) && DMaps[currdmap].color==3){
-	if ( isMonochrome ) tempgreypal[CSET(6)+2] = NESpal(0x37); //Use monochrome sprites. 
-        else RAMpal[CSET(6)+2] = NESpal(0x37);
+
+	    RAMpal[CSET(6)+2] = NESpal(0x37);
     }
     refreshpal=true;
 }
@@ -164,7 +165,7 @@ void ringcolor(bool forceDefault)
     
     if(!forceDefault && itemid>-1)
     {
-        loadpalset(6,itemsbuf[itemid].misc1 ? pSprite(zc_min(29,itemsbuf[itemid].misc1)):6);
+         loadpalset(6,itemsbuf[itemid].misc1 ? pSprite(zc_min(29,itemsbuf[itemid].misc1)):6);
     }
     else
     {
