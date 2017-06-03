@@ -3042,7 +3042,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	    for(int i=0; i<Lwpns.Count(); i++)
             {
                 if(((weapon *)Lwpns.spr(i))->behind)
-                    Lwpns.spr(i)->draw(framebuf,true);
+                    Lwpns.spr(i)->draw(framebuf);
             }
             
             if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
@@ -3063,7 +3063,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	    for(int i=0; i<Lwpns.Count(); i++)
             {
                 if(!((weapon *)Lwpns.spr(i))->behind)
-                    Lwpns.spr(i)->draw(framebuf,true);
+                    Lwpns.spr(i)->draw(framebuf);
             }
 	    
             
@@ -3080,7 +3080,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	    for(int i=0; i<Lwpns.Count(); i++)
             {
                 if(((weapon *)Lwpns.spr(i))->behind)
-                    Lwpns.spr(i)->draw(framebuf,false);
+                    Lwpns.spr(i)->draw(framebuf);
             }
             
             if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
@@ -3105,7 +3105,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
             {
                 if(!((weapon *)Lwpns.spr(i))->behind)
                 {
-                    Lwpns.spr(i)->draw(framebuf,false);
+                    Lwpns.spr(i)->draw(framebuf);
                 }
             }
         }
