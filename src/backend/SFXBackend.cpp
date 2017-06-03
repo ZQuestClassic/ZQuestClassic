@@ -2,10 +2,6 @@
 #include <fstream>
 
 
-static int zc_min(int a, int b) { return (a < b) ? a : b; } //todo;  sort out the fucking common includes for zc..
-static int zc_max(int a, int b) { return (a > b) ? a : b; }
-
-
 SFXSample::SFXSample(const SAMPLE &s)
 {
     int datalen = (s.bits == 8 ? 1 : 2)*(s.stereo == 0 ? 1 : 2)*s.len;
@@ -256,16 +252,23 @@ void SFXBackend::stopAll()
 
 int SFXBackend::adjustPan(int pan)
 {
+	int val;
     switch (pan_style_)
     {
     case 0:
         return 128;
 
     case 1:
-        return zc_min(zc_max((pan >> 1) + 64, 0), 255);
+		val = (pan >> 1) + 64;
+		if (val < 0) return 0;
+		if (val > 255) return 255;
+		return val;
 
     case 2:
-        return zc_min(zc_max(((pan * 3) >> 2) + 32, 0), 255);
+		val = ((pan * 3) >> 2) + 32;
+		if (val < 0) return 0;
+		if (val > 255) return 255;
+		return val;
 
     case 3:
     default:
