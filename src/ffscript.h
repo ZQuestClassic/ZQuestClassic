@@ -8,6 +8,8 @@
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 
+extern PALETTE tempgreypal; //script greyscale
+
 long get_register(const long arg);
 int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
 int ffscript_engine(const bool preload);
@@ -281,11 +283,11 @@ enum ASM_DEFINE
     GETFFCSCRIPT,         //0x00E8
     __RESERVED_FOR_BITMAPEXR,	//0x00E9
     __RESERVED_FOR_QUAD2R, //0x00EA
-    __RESERVED_FOR_WAVYIN, //0x00EB
-    __RESERVED_FOR_WAVYOUT, //0x00EC
-    __RESERVED_FOR_ZAPIN, //0x00ED
-    __RESERVED_FOR_ZAPOUT, //0x00EF
-    __RESERVED_FOR_OPENWIPE, //0x00F0
+    WAVYIN, //0x00EB
+    WAVYOUT, //0x00EC
+    ZAPIN, //0x00ED
+    ZAPOUT, //0x00EF
+    OPENWIPE, //0x00F0
     FREE0x00F1, //0x00F1 was SETLINKTILE
     FREE0x00F2, //0x00F2 was SETLINKEXTEND
     FREE0x00F3, //0x00F3 was GETLINKEXTEND
@@ -293,8 +295,8 @@ enum ASM_DEFINE
     __RESERVED_FOR_SETDMAPNAME,			//0x00F5
     __RESERVED_FOR_SETDMAPTITLE,			//0x00F5
     __RESERVED_FOR_SETDMAPINTRO,			//0x00F7
-    __RESERVED_FOR_GREYSCALEON,			//0x00F8
-    __RESERVED_FOR_GREYSCALEOFF,			//0x00F9
+    GREYSCALEON,			//0x00F8
+    GREYSCALEOFF,			//0x00F9
     __RESERVED_FOR_ENDSOUNDR,           //0x00FA
     __RESERVED_FOR_ENDSOUNDV,           //0x00FB
     __RESERVED_FOR_PAUSESOUNDR, 	//0x00FC
@@ -358,6 +360,7 @@ enum ASM_DEFINE
     __RESERVED_FOR_CONTINUESFX,
     __RESERVED_FOR_ADJUSTSFX,
     //__RESERVED_FOR_GETSCREENFLAG, //0x013A
+    GETITEMSCRIPT, 
     NUMCOMMANDS           //0x013B
 };
 

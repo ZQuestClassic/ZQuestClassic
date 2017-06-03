@@ -1882,6 +1882,51 @@ string OGetFFCScript::toString()
     return "GETFFCSCRIPT " + getArgument()->toString();
 }
 
+//2.54
+
+string OGreyscaleOn::toString()
+{
+    return "GREYSCALEON";
+}
+
+string OGreyscaleOff::toString()
+{
+    return "GREYSCALEOFF";
+}
+
+string OZapIn::toString()
+{
+    return "ZAPIN";
+}
+
+string OZapOut::toString()
+{
+    return "ZAPOUT";
+}
+
+//These need to be unary opcodes that accept bool linkvisible. 
+string OWavyIn::toString()
+{
+    return "WAVYIN";
+}
+
+string OWavyOut::toString()
+{
+    return "WAVYOUT";
+}
+
+string OOpenWipe::toString()
+{
+    return "OPENWIPE";
+}
+
+//Game->GetItemScript(int ptr[])
+string OGetFFCScript::toString()
+{
+    return "GETFFCSCRIPT " + getArgument()->toString();
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 

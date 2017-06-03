@@ -5959,6 +5959,18 @@ void do_triggersecrets()
     hidden_entrance(0, true, false, -4);
 }
 
+void do_zapout()
+{
+	zapout();
+}
+
+void do_zapin(){ zapin(); }
+
+void do_openscreen() { openscreen(); }
+void do_wavyin() { wavyin(); }
+void do_wavyout() { wavyout(false); }
+
+
 void do_getscreenflags()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -6750,6 +6762,26 @@ void do_getffcscript()
     set_register(sarg1, num * 10000);
 }
 
+
+void do_getitemscript()
+{
+	 long arrayptr = get_register(sarg1) / 10000;
+    string name;
+    int num=-1;
+    ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+    
+    for(int i=0; i<512; i++)
+    {
+        if(strcmp(name.c_str(), itemmap[i].second.c_str())==0)
+        {
+            num=i+1;
+            break;
+        }
+    }
+    
+    set_register(sarg1, num * 10000);
+}
+
 ///----------------------------------------------------------------------------------------------------//
 //Tile Manipulation
 
@@ -7149,6 +7181,9 @@ int run_script(const byte type, const word script, const byte i)
             
         case GETFFCSCRIPT:
             do_getffcscript();
+            break;
+	case GETITEMSCRIPT:
+            do_getitemscript();
             break;
             
             
@@ -7848,6 +7883,32 @@ int run_script(const byte type, const word script, const byte i)
         case DEQUEUE:
             do_dequeue(false);
             break;
+	
+	//Visual Effects
+	case WAVYIN:
+		do_wavyin();
+		break;
+	case WAVYOUT:
+		do_wavyout();
+		break;
+	case ZAPIN:
+		do_zapin();
+		break;
+	case ZAPOUT:
+		do_zapout();
+		break;
+	case OPENWIPE:
+		do_openscreen();
+		break;
+	
+	//Monochrome
+	case GREYSCALEON:
+		setMonochrome(true);
+		break;
+	case GREYSCALEOFF:
+		setMonochrome(false);
+		break;
+	
             
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
