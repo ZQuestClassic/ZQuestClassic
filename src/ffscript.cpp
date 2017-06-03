@@ -2728,7 +2728,7 @@ long get_register(const long arg)
         GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
     
     case DMAPLEVELPAL:
-	GET_DMAP_VAR(color,   "Game->DMapPalette")    break;
+	GET_DMAP_VAR(color,   "Game->DMapPalette")    break; 
         
     case DMAPOFFSET:
         GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
