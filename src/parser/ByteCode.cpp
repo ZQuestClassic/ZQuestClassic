@@ -469,6 +469,9 @@ string VarArgument::toString()
         
     case DMAPLEVELD:
         return "DMAPLEVELD";
+    
+    case DMAPLEVELPAL:
+	return "DMAPLEVELPAL";
         
     case DMAPCOMPASSD:
         return "DMAPCOMPASSD";
@@ -522,6 +525,8 @@ string VarArgument::toString()
         return "FFDD";*/
     case LINKITEMD:
         return "LINKITEMD";
+    
+    case DISABLEDITEM: return "DISABLEDITEM";
         
     case REFNPC:
         return "REFNPC";

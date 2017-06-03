@@ -787,7 +787,7 @@ script_variable variable_list[]=
 	{ "IDATAATTRIB",         IDATAATTRIB,            0,             0 },
 	{ "IDATASPRITE",         IDATASPRITE,            0,             0 },
 	{ "IDATAFLAGS",         IDATAFLAGS,            0,             0 },
-	{ "__RESERVED_FOR_DMAPLEVELPAL",         __RESERVED_FOR_DMAPLEVELPAL,          0,             0 },
+	{ "DMAPLEVELPAL",	DMAPLEVELPAL,          0,             0 },
 	{ "__RESERVED_FOR_ITEMPTR",         __RESERVED_FOR_ITEMPTR,          0,             0 },
 	{ "__RESERVED_FOR_NPCPTR",         __RESERVED_FOR_NPCPTR,          0,             0 },
 	{ "__RESERVED_FOR_LWPNPTR",         __RESERVED_FOR_LWPNPTR,          0,             0 },

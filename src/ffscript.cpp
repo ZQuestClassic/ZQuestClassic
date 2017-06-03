@@ -2726,6 +2726,9 @@ long get_register(const long arg)
         
     case DMAPCONTINUED:
         GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
+    
+    case DMAPLEVELPAL:
+	GET_DMAP_VAR(color,   "Game->DMapPalette")    break;
         
     case DMAPOFFSET:
         GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
@@ -4880,6 +4883,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case DMAPCONTINUED:
         SET_DMAP_VAR(cont, "Game->DMapContinue") break;
         
+     case DMAPLEVELPAL:
+   {
+	int ID = ri->d[0] / 10000; 
+	int pal = value/10000;
+	pal = vbound(pal, 0, 0x1FF);
+	   
+	if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
+        DMaps[ID].color = pal;
+
+	loadlvlpal(DMaps[(ri->d[0] / 10000)].color);
+	break;
+   }
+   
     case DMAPMIDID:
     {
         int ID = ri->d[0] / 10000;
