@@ -397,7 +397,7 @@ int BasicScope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST
 	if (it != setters.end()) return -1;
 	int setterId = ScriptParser::getUniqueFuncID();
 	setters[varId] = setterId;
-	table.putFuncTypeIds(setterId, table.getTypeId(ZVarType::VOID), paramTypeIds);
+	table.putFuncTypeIds(setterId, table.getTypeId(ZVarType::ZVOID), paramTypeIds);
 	if (node) table.putNodeId(node, setterId);
 	return setterId;
 }
