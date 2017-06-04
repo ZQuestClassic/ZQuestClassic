@@ -1333,3 +1333,93 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, zasm **scri
     return 0;
 }
 
+std::string to_string(zasm const& instruction)
+{
+	char buf[32];
+	script_command& command_def = command_list[instruction.command];
+	// Command Name.
+	std::string s = command_def.name;
+	if (command_def.args == 0) return s;
+	// First Argument.
+	s += " ";
+	if (command_def.arg1_type == 0)
+	{
+		// Find base variable.
+		script_variable* var;
+		bool found = false;
+		for (int i = 0; i < variable_list[i].id != -1; ++i)
+		{
+			var = &variable_list[i];
+			int count = var->maxcount ? var->maxcount : 1;
+			if (var->id <= instruction.arg1 && instruction.arg1 < var->id + count)
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+		{
+			// Add base variable name.
+			s += var->name;
+
+			// Add number if needed.
+			if (var->maxcount > 0)
+			{
+				sprintf(buf, "%d", instruction.arg1 - var->id);
+				s += buf;
+			}
+		}
+		else s += "<ERROR>";
+	}
+	else
+	{
+		if (instruction.arg1 % 10000 == 0)
+			sprintf(buf, "%d", instruction.arg1 * 0.0001);
+		else
+			sprintf(buf, "%.4f", instruction.arg1 * 0.0001);
+		s += buf;
+	}
+	if (command_def.args == 1) return s;
+	// Second Argument.
+	s += ", ";
+	if (command_def.arg2_type == 0)
+	{
+		// Find base variable.
+		script_variable* var;
+		bool found = false;
+		for (int i = 0; i < variable_list[i].id != -1; ++i)
+		{
+			var = &variable_list[i];
+			int count = var->maxcount ? var->maxcount : 1;
+			if (var->id <= instruction.arg2 && instruction.arg2 < var->id + count)
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+		{
+			// Add base variable name.
+			s += var->name;
+
+			// Add number if needed.
+			if (var->maxcount > 0)
+			{
+				sprintf(buf, "%d", instruction.arg2 - var->id);
+				s += buf;
+			}
+		}
+		else s += "<ERROR>";
+	}
+	else
+	{
+		if (instruction.arg2 % 10000 == 0)
+			sprintf(buf, "%d", instruction.arg2 * 0.0001);
+		else
+			sprintf(buf, "%.4f", instruction.arg2 * 0.0001);
+		s += buf;
+	}
+	return s;
+}
