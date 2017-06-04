@@ -77,14 +77,12 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
 
-	SymbolData& d = semanticAnalyzer.getResults();
-
 #ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
     box_eol();
 #endif
 
-    FunctionData *fd = ScriptParser::typeCheck(&d);
+    FunctionData* fd = ScriptParser::typeCheck(program);
 
     if (fd == NULL)
 	{
@@ -183,12 +181,12 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
     return true;
 }
 
-FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
+FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
 {
-	Program& program = sdata->program;
-
+	SymbolTable& table = program.table;
+	
     //build the functiondata
-    FunctionData *fd = new FunctionData(*sdata);
+    FunctionData *fd = new FunctionData(program);
     vector<ASTFuncDecl *> funcs;
     bool failure = false;
     map<int, bool> usednums;
@@ -199,7 +197,7 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 		 it != userGlobalFunctions.end(); ++it)
 		funcs.push_back((*it)->node);
 
-    // Strip var and func decls from the scripts.
+    // Strip func decls from the scripts.
     for (vector<ZScript::Script*>::const_iterator it = program.scripts.begin();
 		 it != program.scripts.end(); it++)
     {
@@ -207,11 +205,7 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 		ASTScript* node = script.node;
         fd->thisPtr[node->getName()] = script.getRun()->thisVar->id;
 
-        // Strip variables and functions from the script.
-		fd->globalVars.insert(fd->globalVars.end(), node->variables.begin(), node->variables.end());
-		node->variables.clear();
-		fd->globalArrays.insert(fd->globalArrays.end(), node->arrays.begin(), node->arrays.end());
-		node->arrays.clear();
+        // Strip functions from the script.
 		fd->functions.insert(fd->functions.end(), node->functions.begin(), node->functions.end());
 		node->functions.clear();
     }
@@ -220,40 +214,31 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     {
         fd->functions.push_back(*it);
     }
-    
-    if(failure)
+
+    if (failure)
     {
         delete fd;
         return NULL;
     }
 
-    // fd is now loaded with all the info so run type-checker visitor.
-    for (vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
-		failure = failure || !TypeCheck::check(fd->program.table, **it);
-
-    for (vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
-		failure = failure || !TypeCheck::check(fd->program.table, **it);
+    // Run type-checker visitor.
+	vector<Variable*> vars = program.getUserGlobalVariables();
+	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
+		failure = failure || !TypeCheck::check(table, *(*it)->node);
 
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-		failure = failure || !TypeCheck::check(fd->program.table, fd->program.table.getFuncReturnTypeId(*it), **it);
+		failure = failure || !TypeCheck::check(table, table.getFuncReturnTypeId(*it), **it);
 
-	// Strip out inlined constants.
-	for (vector<ASTVarDecl*>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end();)
+	// Sort global variables into vars and constants.
+	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
 	{
-		if (fd->program.table.isInlinedConstant(*it))
-		{
-			it = fd->globalVars.erase(it);
-		}
+		if (program.table.isInlinedConstant((*it)->node))
+			fd->globalConstants.push_back(*it);
 		else
-			++it;
+			fd->globalVariables.push_back(*it);
 	}
 
-	// Count (un-inlined) global variables.
-	for (vector<ASTVarDecl*>::const_iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); ++it)
-		if (!fd->program.table.isInlinedConstant(*it))
-			++fd->globalVarCount;
-
-    if (fd->globalVarCount > 256)
+    if (fd->globalVariables.size() > 256)
     {
         printErrorMsg(NULL, TOOMANYGLOBAL);
         failure = true;
@@ -271,13 +256,25 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 {
 	Program& program = fdata->program;
+    SymbolTable* symbols = &program.table;
+
     // Z_message("yes");
     bool failure = false;
     vector<ASTFuncDecl *> funcs = fdata->functions;
-    vector<ASTVarDecl *> globals = fdata->globalVars;
-    vector<ASTArrayDecl *> globalas = fdata->globalArrays;
 
-    SymbolTable* symbols = &fdata->program.table;
+	// Sort variables into singles and arrays.
+	vector<ASTVarDecl *> globals;
+    vector<ASTArrayDecl *> globalas;
+	for (vector<Variable*>::iterator it = fdata->globalVariables.begin();
+		 it != fdata->globalVariables.end(); ++it)
+	{
+		AST* node = (*it)->node;
+		if (node->isTypeVarDecl())
+			globals.push_back((ASTVarDecl*)node);
+		else if (node->isTypeArrayDecl())
+			globalas.push_back((ASTArrayDecl*)node);
+	}
+
     map<string, int> thisptr = fdata->thisPtr;
     LinkTable lt;
     

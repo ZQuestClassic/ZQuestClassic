@@ -9,7 +9,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: failure(false), deprecateGlobals(false), program(program), results(program)
+	: failure(false), deprecateGlobals(false), program(program)
 {
 	scope = &program.globalScope;
 	caseProgram(*program.node);
@@ -81,9 +81,6 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 		scope = scope->getParent();
 	}
 
-	// Save results.
-	results.globalVars = host.variables;
-	results.globalArrays = host.arrays;
 }
 
 // Statements

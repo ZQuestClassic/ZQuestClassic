@@ -42,6 +42,28 @@ Script* Program::getScript(ASTScript* node) const
 	return it->second;
 }
 
+vector<Variable*> Program::getUserGlobalVariables() const
+{
+	// Grab user-defined global variables.
+	vector<Variable*> variables = globalScope.getLocalVariables();
+	for (vector<Variable*>::iterator it = variables.begin(); it != variables.end();)
+	{
+		Variable& variable = **it;
+		if (!variable.node) it = variables.erase(it);
+		else ++it;
+	}
+
+	// Append all script level variables.
+	for (vector<Script*>::const_iterator it = scripts.begin();
+		 it != scripts.end(); ++it)
+	{
+		Script& script = **it;
+		vector<Variable*> scriptVariables = script.scope->getLocalVariables();
+		variables.insert(variables.end(), scriptVariables.begin(), scriptVariables.end());
+	}
+	return variables;
+}
+
 vector<Function*> Program::getUserGlobalFunctions() const
 {
 	vector<Function*> functions = globalScope.getLocalFunctions();

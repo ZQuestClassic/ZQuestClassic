@@ -6,12 +6,14 @@
 #include "ParseError.h"
 #include "GlobalSymbols.h"
 #include "Scope.h"
+#include "ZScript.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
 
 using std::cout;
 using std::endl;
+using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // FunctionSignature
@@ -349,11 +351,8 @@ void SymbolTable::printDiagnostics()
 ////////////////////////////////////////////////////////////////
 // FunctionData
 
-FunctionData::FunctionData(SymbolData const& symbolData)
-	: program(symbolData.program), globalVarCount(0)
+FunctionData::FunctionData(Program& program) : program(program)
 {
-	globalVars = symbolData.globalVars;
-	globalArrays = symbolData.globalArrays;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -19,7 +19,10 @@ namespace ZScript
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
 
-		// Gets the non-internal global functions.
+		// Gets the global user-defined and (deprecated) script level variables.
+		vector<Variable*> getUserGlobalVariables() const;
+
+		// Gets the non-internal (user-defined) global scope functions.
 		vector<Function*> getUserGlobalFunctions() const;
 
 		bool hasError() const;
@@ -47,7 +50,9 @@ namespace ZScript
 
 	struct Variable
 	{
-		Variable(ZVarType const* type, string const& name, int id) : type(type), name(name), id(id) {}
+		Variable(ASTDecl* node, ZVarType const* type, string const& name, int id)
+				: node(node), type(type), name(name), id(id) {}
+		ASTDecl* node;
 		ZVarType const* type;
 		string name;
 		int id;
