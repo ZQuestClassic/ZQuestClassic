@@ -152,7 +152,9 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 			|| newd[i].proc == fs_elist_proc
 			|| newd[i].proc == fs_flist_proc
 			|| newd[i].proc == fs_dlist_proc			
-			|| newd[i].proc == d_msg_edit_proc)			
+			|| newd[i].proc == d_msg_edit_proc
+			|| newd[i].proc == jwin_initlist_proc
+			)			
 			&& newd[i].dp3 == d)
 			newd[i].dp3 = newd;
 	}
