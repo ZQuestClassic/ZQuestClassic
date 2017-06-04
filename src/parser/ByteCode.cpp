@@ -243,6 +243,13 @@ string VarArgument::toString()
         
     case INPUTMOUSEB:
         return "INPUTMOUSEB";
+    
+    case BUTTONPRESS: return "BUTTONPRESS";
+    case BUTTONINPUT: return "BUTTONINPUT";
+    case BUTTONHELD: return "BUTTONHELD";
+    case KEYPRESS: return "KEYPRESS";
+    case READKEY: return "READKEY";
+    case JOYPADPRESS: return "JOYPADPRESS";
         
     case SDD:
         return "SDD";
