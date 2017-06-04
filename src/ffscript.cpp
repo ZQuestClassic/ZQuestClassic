@@ -10,7 +10,7 @@
 #include <sstream>
 #include <math.h>
 #include <cstdio>
-
+#include "zc_sys.h"
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
@@ -24,6 +24,7 @@
 #include "zscriptversion.h"
 #include "rendertarget.h"
 #include "backend/AllBackends.h"
+#include "pal.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -1400,6 +1401,60 @@ long get_register(const long arg)
         ret=button_press[17]?10000:0;
         break;
         
+    case BUTTONPRESS:
+		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		ret = button_press[button]?10000:0;
+		
+	}
+	break;
+
+	case BUTTONINPUT:
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		ret=control_state[button]?10000:0;
+		
+	}
+	break;
+
+	case BUTTONHELD:
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		ret = button_hold[button]?10000:0;
+	}
+	break;
+
+	case KEYPRESS:
+	{	//Game->KeyPressed[], read-only
+		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+		//hmm...no, this won;t return properly for modifier keys. 
+		int keyid = ri->d[0]/10000;
+		//key = vbound(key,0,n);
+		bool pressed = key[keyid] != 0;
+		ret = pressed?10000:0;
+	}
+	break;
+
+	case READKEY:
+	{
+		//Game->ReadKey(int key), also clears it. 
+		int keyid = ri->d[0]/10000;
+		bool pressed = ReadKey(keyid);
+		ret = pressed?10000:0;
+	}
+	break;
+
+	case JOYPADPRESS:
+	{
+		//Checks if a press is from the joypad, not keyboard. 
+		int button = ri->d[0]/10000;
+		ret = joybtn(button)?10000:0;
+	}
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
@@ -2577,6 +2632,9 @@ long get_register(const long arg)
     case GAMEITEMSD:
         ret=(game->item[(ri->d[0])/10000] ? 10000 : 0);
         break;
+    case DISABLEDITEM:
+	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
+	break;
         
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
@@ -2668,6 +2726,9 @@ long get_register(const long arg)
         
     case DMAPCONTINUED:
         GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
+    
+    case DMAPLEVELPAL:
+	GET_DMAP_VAR(color,   "Game->DMapPalette")    break; 
         
     case DMAPOFFSET:
         GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
@@ -3211,7 +3272,10 @@ void set_register(const long arg, const long value)
             if(value==0 && itemID==current_item_id(itype_cbyrna))
                 stopCaneOfByrna();
             
-            game->set_item(itemID,(value != 0));
+            bool settrue = ( value != 0 );
+		    
+	    //Sanity check to prevent setting the item if the value would be the same. -Z
+	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
@@ -4759,6 +4823,10 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMEITEMSD:
         game->set_item((ri->d[0])/10000,(value!=0));
         break;
+    
+    case DISABLEDITEM:
+	game->items_off[(ri->d[0])/10000]=value/10000;
+	break;
         
     case GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=value/10000;
@@ -4815,6 +4883,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case DMAPCONTINUED:
         SET_DMAP_VAR(cont, "Game->DMapContinue") break;
         
+     case DMAPLEVELPAL:
+   {
+	int ID = ri->d[0] / 10000; 
+	int pal = value/10000;
+	pal = vbound(pal, 0, 0x1FF);
+	   
+	if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
+        DMaps[ID].color = pal;
+
+	loadlvlpal(DMaps[(ri->d[0] / 10000)].color);
+	break;
+   }
+   
     case DMAPMIDID:
     {
         int ID = ri->d[0] / 10000;

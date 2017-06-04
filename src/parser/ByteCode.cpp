@@ -243,6 +243,13 @@ string VarArgument::toString()
         
     case INPUTMOUSEB:
         return "INPUTMOUSEB";
+    
+    case BUTTONPRESS: return "BUTTONPRESS";
+    case BUTTONINPUT: return "BUTTONINPUT";
+    case BUTTONHELD: return "BUTTONHELD";
+    case KEYPRESS: return "KEYPRESS";
+    case READKEY: return "READKEY";
+    case JOYPADPRESS: return "JOYPADPRESS";
         
     case SDD:
         return "SDD";
@@ -469,6 +476,9 @@ string VarArgument::toString()
         
     case DMAPLEVELD:
         return "DMAPLEVELD";
+    
+    case DMAPLEVELPAL:
+	return "DMAPLEVELPAL";
         
     case DMAPCOMPASSD:
         return "DMAPCOMPASSD";
@@ -522,6 +532,8 @@ string VarArgument::toString()
         return "FFDD";*/
     case LINKITEMD:
         return "LINKITEMD";
+    
+    case DISABLEDITEM: return "DISABLEDITEM";
         
     case REFNPC:
         return "REFNPC";

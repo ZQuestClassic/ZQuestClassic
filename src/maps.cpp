@@ -3029,7 +3029,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
         }
     }
     
-    if(drawguys)
+   if(drawguys)
     {
         if(get_bit(quest_rules,qr_NOFLICKER) || (frame&1))
         {
@@ -3037,6 +3037,12 @@ void draw_screen(mapscr* this_screen, bool showlink)
             {
                 if(((weapon *)Ewpns.spr(i))->behind)
                     Ewpns.spr(i)->draw(framebuf);
+            }
+	    
+	    for(int i=0; i<Lwpns.Count(); i++)
+            {
+                if(((weapon *)Lwpns.spr(i))->behind)
+                    Lwpns.spr(i)->draw(framebuf);
             }
             
             if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
@@ -3046,13 +3052,20 @@ void draw_screen(mapscr* this_screen, bool showlink)
             
             guys.draw(framebuf,true);
             chainlinks.draw(framebuf,true);
-            Lwpns.draw(framebuf,true);
+            //Lwpns.draw(framebuf,true);
             
             for(int i=0; i<Ewpns.Count(); i++)
             {
                 if(!((weapon *)Ewpns.spr(i))->behind)
                     Ewpns.spr(i)->draw(framebuf);
             }
+	    
+	    for(int i=0; i<Lwpns.Count(); i++)
+            {
+                if(!((weapon *)Lwpns.spr(i))->behind)
+                    Lwpns.spr(i)->draw(framebuf);
+            }
+	    
             
             items.draw(framebuf,true);
         }
@@ -3063,6 +3076,12 @@ void draw_screen(mapscr* this_screen, bool showlink)
                 if(((weapon *)Ewpns.spr(i))->behind)
                     Ewpns.spr(i)->draw(framebuf);
             }
+	    
+	    for(int i=0; i<Lwpns.Count(); i++)
+            {
+                if(((weapon *)Lwpns.spr(i))->behind)
+                    Lwpns.spr(i)->draw(framebuf);
+            }
             
             if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
             {
@@ -3071,7 +3090,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
             
             items.draw(framebuf,false);
             chainlinks.draw(framebuf,false);
-            Lwpns.draw(framebuf,false);
+            //Lwpns.draw(framebuf,false);
             guys.draw(framebuf,false);
             
             for(int i=0; i<Ewpns.Count(); i++)
@@ -3079,6 +3098,14 @@ void draw_screen(mapscr* this_screen, bool showlink)
                 if(!((weapon *)Ewpns.spr(i))->behind)
                 {
                     Ewpns.spr(i)->draw(framebuf);
+                }
+            }
+	    
+	    for(int i=0; i<Lwpns.Count(); i++)
+            {
+                if(!((weapon *)Lwpns.spr(i))->behind)
+                {
+                    Lwpns.spr(i)->draw(framebuf);
                 }
             }
         }

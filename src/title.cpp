@@ -98,14 +98,14 @@ static byte itemspal[24] =
 
 static void loadtitlepal(int clear,byte *dataofs,int shift)
 {
-    for(int i=0; i<4; i++)
+    for(int i=0; i<4; i++) 
     {
         RAMpal[CSET(i)+shift] = NESpal(clear);
         
         for(int c=1; c<4; c++)
             RAMpal[CSET(i)+c+shift] = NESpal(*dataofs++);
     }
-    
+
     for(int i=6; i<10; i++)
     {
         RAMpal[CSET(i)+shift] = NESpal(clear);
@@ -113,6 +113,7 @@ static void loadtitlepal(int clear,byte *dataofs,int shift)
         for(int c=1; c<4; c++)
             RAMpal[CSET(i)+c+shift] = NESpal(*dataofs++);
     }
+    
     
     refreshpal=true;
 }
@@ -1895,7 +1896,8 @@ int save_savedgames()
 
 void load_game_icon(gamedata *g, bool, int index)
 {
-    int i=iconbuffer[index].ring;
+	//We need an override that fixes the palette here to prevent monochrome overwriting it. -Z
+    int i=iconbuffer[index].ring; //
     
     byte *si = iconbuffer[index].icon[i];
     
@@ -1965,7 +1967,7 @@ void load_game_icon_to_buffer(bool forceDefault, int index)
         
         if(t)
         {
-            si = colordata + CSET(pSprite(i+spICON1))*3;
+            si = colordata + CSET(pSprite(i+spICON1))*3; //THis is probably the culprit for greyscale. -Z
         }
         else
         {
@@ -1983,7 +1985,8 @@ void load_game_icon_to_buffer(bool forceDefault, int index)
         {
             for(int j=0; j<48; j++)
             {
-                iconbuffer[index].pal[i][j] = 0;
+                iconbuffer[index].pal[i][j] = 0; //maybe use RAMpal? -Z
+		    //You know, this is possibly caused by Link.cpp calling ringcolor() before the palette is updated?
             }
         }
         else
@@ -3280,9 +3283,11 @@ void titlescreen(int lsave)
 
 void game_over(int type)
 {
+	
     Backend::sfx->stopAll();
     music_stop();
     clear_to_color(screen,BLACK);
+	setMonochrome(false); //Clear monochrome before drawing the file select. 
     loadfullpal();
     
     if(Quit==qGAMEOVER)
@@ -3404,6 +3409,7 @@ void game_over(int type)
         //Quit = pos ? ((standalone_mode && skip_title) ? qRESET : qQUIT) : qCONT;
         if(pos==1&&(!type))
         {
+		setMonochrome(false); //Clear monochrome before drawing the file select. 
             game->set_cheat(game->get_cheat() | cheat);
             
             saves[currgame]=*game;
