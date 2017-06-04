@@ -1006,7 +1006,7 @@ int onROMTypes()
     types_dlg[0].dp2 = lfont;
     types_dlg[2].dp = buf;
     
-    int ret = popup_dialog(types_dlg, 0);
+    int ret = popup_zqdialog(types_dlg, 0);
     
     if(ret==3)
         strcpy(rom_ext,buf);
@@ -1291,10 +1291,10 @@ int onSaveAs()
 
 int onPreview()
 {
-    BITMAP *bmp,*buf;
+    BITMAP *bmp;
     int  px=0,py=0;
     double scale=1.0;
-    bool done=false, refresh=true;
+    bool done=false;
     
     if(selcnt==0)
     {
@@ -1311,35 +1311,20 @@ int onPreview()
         return D_O_K;
     }
     
-    // use double buffering if possible
-    buf = create_bitmap_ex(8, 320,240);
-    
     while(!done)
     {
-        if(refresh)
-        {
-            // use double buffering if possible
-            BITMAP *b = (buf!=NULL) ? buf : screen;
-            
-            if(buf==NULL)
-                vsync();
-                
-            clear_to_color(b,black);
-            stretch_blit(bmp,b,0,0,bmp->w,bmp->h,
-                         int(320+(px-bmp->w)*scale)/2,int(240+(py-bmp->h)*scale)/2,
-                         int(bmp->w*scale),int(bmp->h*scale));
+        // use double buffering if possible
+        clear_to_color(screen,black);
+        stretch_blit(bmp,screen,0,0,bmp->w,bmp->h,
+                        int(320+(px-bmp->w)*scale)/2,int(240+(py-bmp->h)*scale)/2,
+                        int(bmp->w*scale),int(bmp->h*scale));
                          
-            //text_mode(black);
-            textprintf_ex(b,font,0,232,white,-1,"%dx%d %.0f%%",bmp->w,bmp->h,scale*100);
-            
-            if(buf)
-            {
-                vsync();
-                blit(buf,screen,0,0,0,0,320,240);
-            }
-            
-            refresh=false;
-        }
+        //text_mode(black);
+        textprintf_ex(screen,font,0,232,white,-1,"%dx%d %.0f%%",bmp->w,bmp->h,scale*100);
+                        
+		Backend::graphics->waitTick();
+		Backend::graphics->showBackBuffer();
+                        
         
         int speed = 5;
         
@@ -1349,30 +1334,25 @@ int onPreview()
         if(key[KEY_UP])
         {
             py+=speed;
-            refresh=true;
         }
         
         if(key[KEY_DOWN])
         {
             py-=speed;
-            refresh=true;
         }
         
         if(key[KEY_LEFT])
         {
             px+=speed;
-            refresh=true;
         }
         
         if(key[KEY_RIGHT])
         {
             px-=speed;
-            refresh=true;
         }
         
-        if(keypressed() && !refresh)
+        if(keypressed())
         {
-            refresh=true;
             
             switch(readkey()>>8)
             {
@@ -1424,16 +1404,15 @@ int onPreview()
                 break;
                 
             default:
-                refresh=false;
+				break;
             }
         }
     } // while(!done)
     
     destroy_bitmap(bmp);
-    destroy_bitmap(buf);
     rectfill(screen,0,0,319,15,black);
-    redraw_screen(FULL);
-    return D_REDRAW;
+	redraw = FULL;
+	return D_REDRAW;
 }
 
 
@@ -1780,7 +1759,7 @@ void redraw_screen(int type)
     //cset indicator
     rectfill(scr_buf,226+88-14,76-74+(cset*3)+16,229+88-14-1,79-74+(cset*3)-1+16,white);
     
-    blit(scr_buf, screen, 0, 16, 0, 16, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH()-16);
+    blit(scr_buf, screen, 0, 16, 0, 16, Backend::graphics->virtualScreenW(), Backend::graphics->virtualScreenH()-16);	
     redraw=0;
 }
 
@@ -2280,6 +2259,11 @@ int d_timer_proc(int msg, DIALOG *d, int c)
     return D_O_K;
 }
 
+extern int fs_edit_proc(int msg, DIALOG *d, int c);
+extern int fs_elist_proc(int msg, DIALOG *d, int c);
+extern int fs_flist_proc(int msg, DIALOG *d, int c);
+extern int fs_dlist_proc(int msg, DIALOG *d, int c);
+
 DIALOG *resizeDialog(DIALOG *d, float )
 {
 	int len = 0;
@@ -2289,9 +2273,19 @@ DIALOG *resizeDialog(DIALOG *d, float )
 
 	DIALOG *newd = new DIALOG[len];
 	memcpy(newd, d, len * sizeof(DIALOG));
+
+	for (int i = 0; i < len; i++)
+	{
+		if ((newd[i].proc == fs_edit_proc
+			|| newd[i].proc == fs_elist_proc
+			|| newd[i].proc == fs_flist_proc
+			|| newd[i].proc == fs_dlist_proc
+			)
+			&& newd[i].dp3 == d)
+			newd[i].dp3 = newd;
+	}
+
 	return newd;
 }
 
 /* That's all folks */
-
-
