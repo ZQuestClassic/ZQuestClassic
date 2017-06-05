@@ -110,7 +110,6 @@ struct FunctionData
 	ZScript::Program& program;
 	vector<ZScript::Variable*> globalVariables;
 	vector<ZScript::Variable*> globalConstants;
-    map<string, int> thisPtr;
 };
 
 struct IntermediateData
@@ -120,7 +119,6 @@ struct IntermediateData
     map<int, vector<Opcode *> > funcs;
     vector<Opcode *> globalsInit;
     map<string, int> scriptRunLabels;
-    map<string, int> thisPtr;
 };
 
 class LinkTable

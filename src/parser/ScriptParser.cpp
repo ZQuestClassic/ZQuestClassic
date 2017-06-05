@@ -191,15 +191,6 @@ FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
     bool failure = false;
     map<int, bool> usednums;
 
-    // Setup this pointers.
-    for (vector<ZScript::Script*>::const_iterator it = program.scripts.begin();
-		 it != program.scripts.end(); it++)
-    {
-		ZScript::Script const& script = **it;
-		ASTScript* node = script.node;
-        fd->thisPtr[node->getName()] = script.getRun()->thisVar->id;
-    }
-
     if (failure)
     {
         delete fd;
@@ -253,7 +244,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     // Z_message("yes");
     bool failure = false;
 
-    map<string, int> thisptr = fdata->thisPtr;
     LinkTable lt;
 
     for (vector<Variable*>::iterator it = globalVariables.begin();
@@ -396,10 +386,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		StackFrame sf;
 
 		int offset = 0;
-		//if this is a run, there is the this pointer
+
+		// If this is a run, add the this pointer to the frame.
 		if (isarun)
 		{
-			sf.addToFrame(thisptr[scriptname], offset);
+			sf.addToFrame(functionScript->getRun()->thisVar->id, offset);
 			offset += 10000;
 		}
 
