@@ -248,38 +248,22 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 {
 	Program& program = fdata->program;
     SymbolTable* symbols = &program.table;
+	vector<Variable*>& globalVariables = fdata->globalVariables;
 
     // Z_message("yes");
     bool failure = false;
 
-	// Sort variables into singles and arrays.
-	vector<ASTVarDecl *> globals;
-    vector<ASTArrayDecl *> globalas;
-	for (vector<Variable*>::iterator it = fdata->globalVariables.begin();
-		 it != fdata->globalVariables.end(); ++it)
-	{
-		AST* node = (*it)->node;
-		if (node->isTypeVarDecl())
-			globals.push_back((ASTVarDecl*)node);
-		else if (node->isTypeArrayDecl())
-			globalas.push_back((ASTArrayDecl*)node);
-	}
-
     map<string, int> thisptr = fdata->thisPtr;
     LinkTable lt;
-    
-    for(vector<ASTVarDecl*>::iterator it = globals.begin(); it != globals.end(); it++)
+
+    for (vector<Variable*>::iterator it = globalVariables.begin();
+		 it != globalVariables.end(); ++it)
     {
-        int vid2 = symbols->getNodeId(*it);
-        lt.addGlobalVar(vid2);
+		Variable& variable = **it;
+        int nodeId = symbols->getNodeId(variable.node);
+        lt.addGlobalVar(nodeId);
     }
-    
-    for(vector<ASTArrayDecl *>::iterator it = globalas.begin(); it != globalas.end(); it++)
-    {
-        int vid2 = symbols->getNodeId(*it);
-        lt.addGlobalVar(vid2);
-    }
-    
+
     //Z_message("yes");
     //and add the this pointers
     for(vector<int>::iterator it = symbols->getGlobalPointers().begin(); it != symbols->getGlobalPointers().end(); it++)
@@ -367,56 +351,30 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     {
         rval->funcs[it->first] = it->second;
     }
-    
+
     //Z_message("yes");
-    
-    for(vector<ASTVarDecl *>::iterator it = globals.begin(); it != globals.end(); it++)
+
+    for (vector<Variable*>::iterator it = globalVariables.begin();
+		 it != globalVariables.end(); ++it)
     {
+		Variable& variable = **it;
+		ASTDecl& node = *variable.node;
+
         OpcodeContext oc;
         oc.linktable = &lt;
         oc.symbols = symbols;
         oc.stackframe = NULL;
+
+		// Generate variable init code.
         BuildOpcodes bo;
-        (*it)->execute(bo, &oc);
-        
-        if(!bo.isOK())
-        {
-            failure = true;
-        }
-        
-        vector<Opcode *> code = bo.getResult();
-        
-        for(vector<Opcode *>::iterator it2 = code.begin(); it2!= code.end(); it2++)
-        {
-            rval->globalsInit.push_back(*it2);
-        }
+        node.execute(bo, &oc);
+        if (!bo.isOK()) failure = true;
+        vector<Opcode*> code = bo.getResult();
+		rval->globalsInit.insert(rval->globalsInit.end(), code.begin(), code.end());
     }
-    
+
     //Z_message("yes");
-    for(vector<ASTArrayDecl *>::iterator it = globalas.begin(); it != globalas.end(); it++)
-    {
-        OpcodeContext oc;
-        oc.linktable = &lt;
-        oc.symbols = symbols;
-        oc.stackframe = NULL;
-        BuildOpcodes bo;
-        (*it)->execute(bo, &oc);
-        
-        if(!bo.isOK())
-        {
-            failure = true;
-        }
-        
-        vector<Opcode *> code = bo.getResult();
-        
-        for(vector<Opcode *>::iterator it2 = code.begin(); it2!= code.end(); it2++)
-        {
-            rval->globalasInit.push_back(*it2);
-        }
-    }
-    
-    //Z_message("yes");
-    
+
     //globals have been initialized, now we repeat for the functions
     for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
     {
@@ -576,25 +534,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     
     if(failure)
     {
-        //delete all kinds of crap if there was a problem :-/
-        for(map<int, vector<Opcode *> >::iterator it = rval->funcs.begin(); it != rval->funcs.end(); it++)
-        {
-            for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-            {
-                delete *it2;
-            }
-        }
-        
-        for(vector<Opcode *>::iterator it = rval->globalsInit.begin(); it != rval->globalsInit.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<Opcode *>::iterator it = rval->globalasInit.begin(); it != rval->globalasInit.end(); it++)
-        {
-            delete *it;
-        }
-        
         delete rval;
         return NULL;
     }
@@ -610,14 +549,7 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     //finally, finish off this bitch
     ScriptsData *rval = new ScriptsData;
     map<int, vector<Opcode *> > funcs = id->funcs;
-    vector<Opcode *> ginit = id->globalsInit;
-    {
-        vector<Opcode *> temp = id->globalasInit;
-        
-        //push global array allocations onto the global variable allocations
-        for(vector<Opcode *>::iterator i = temp.begin(); i != temp.end(); i++)
-            ginit.push_back(*i);
-    }
+    vector<Opcode*> ginit = id->globalsInit;
     map<string, int> scripts = id->scriptRunLabels;
 
 	// Build scripttypes map.

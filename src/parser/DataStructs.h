@@ -119,7 +119,6 @@ struct IntermediateData
 	ZScript::Program& program;
     map<int, vector<Opcode *> > funcs;
     vector<Opcode *> globalsInit;
-    vector<Opcode *> globalasInit;
     map<string, int> scriptRunLabels;
     map<string, int> thisPtr;
 };
