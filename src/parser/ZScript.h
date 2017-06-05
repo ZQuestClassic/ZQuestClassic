@@ -75,6 +75,9 @@ namespace ZScript
 		ASTFuncDecl* node;
 		Scope* internalScope;
 		Variable* thisVar;
+
+		// If this is a script level function, return that script.
+		Script* getScript() const;
 	};
 }
 

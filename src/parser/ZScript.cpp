@@ -176,3 +176,13 @@ void Script::printErrors() const
 // ZScript::Variable
 
 // ZScript::Function
+
+Script* Function::getScript() const
+{
+	if (!internalScope) return NULL;
+	Scope* parentScope = internalScope->getParent();
+	if (!parentScope) return NULL;
+	if (!parentScope->isScript()) return NULL;
+	ScriptScope* scriptScope = (ScriptScope*)parentScope;
+	return &scriptScope->script;
+}

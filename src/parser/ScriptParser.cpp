@@ -382,21 +382,14 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		ASTFuncDecl& node = *function.node;
 		int nodeId = symbols->getNodeId(&node);
 
-        bool isarun = false;
-        string scriptname;
-
-		for (vector<Script*>::const_iterator it2 = fdata->program.scripts.begin();
-			 it2 != fdata->program.scripts.end();
-			 ++it2)
-        {
-			Function* run = (*it2)->getRun();
-            if (nodeId == run->id)
-            {
-                isarun = true;
-                scriptname = (*it2)->getName();
-                break;
-            }
-        }
+		bool isarun = false;
+		string scriptname;
+		Script* functionScript = function.getScript();
+		if (functionScript)
+		{
+			scriptname = functionScript->getName();
+			isarun = function.name == "run";
+		}
 
         vector<Opcode *> funccode;
 		// generate a mapping from local variables to stack offests
