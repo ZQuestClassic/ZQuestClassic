@@ -2185,6 +2185,17 @@ public:
     }
 };
 
+
+class ODrawBitmapExRegister : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new ODrawBitmapExRegister();
+    }
+};
+
 class OSetRenderTargetRegister : public Opcode
 {
 public:

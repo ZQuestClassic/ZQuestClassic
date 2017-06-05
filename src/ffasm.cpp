@@ -268,7 +268,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "GETTILEWARPSCR",      1,   0,   0,   0},
     { "GETTILEWARPTYPE",     1,   0,   0,   0},
     { "GETFFCSCRIPT",        1,   0,   0,   0},
-    { "__RESERVED_FOR_BITMAPEXR",          0,   0,   0,   0},
+    { "BITMAPEXR",          0,   0,   0,   0},
     { "__RESERVED_FOR_QUAD2R",                0,   0,   0,   0},
     { "WAVYIN",			   0,   0,   0,   0},
     { "WAVYOUT",			   0,   0,   0,   0},

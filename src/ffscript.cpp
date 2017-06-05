@@ -6459,6 +6459,10 @@ void do_drawing_command(const int script_command)
     case BITMAPR:
         set_drawing_command_args(j, 12);
         break;
+    
+    case BITMAPEXR:
+        set_drawing_command_args(j, 16);
+        break;
         
     case DRAWLAYERR:
         set_drawing_command_args(j, 8);
@@ -7809,6 +7813,7 @@ int run_script(const byte type, const word script, const byte i)
         case DRAWSTRINGR:
         case SPLINER:
         case BITMAPR:
+	case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
             do_drawing_command(scommand);
