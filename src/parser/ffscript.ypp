@@ -51,7 +51,7 @@ extern YYLTYPE noloc;
 #define SHORTCUT(klass, dd, d1, d3, ad, a3)		\
 	ASTExpr* left = (ASTExpr*)d1; \
 	ASTExpr* right = (ASTExpr*)d3; \
-	klass* rval = new klass(left, right, a3); \
+	klass* rval = new klass(left->clone(), right, a3);	\
 	dd = new ASTExprAssign(left, rval, ad);
 
 %}

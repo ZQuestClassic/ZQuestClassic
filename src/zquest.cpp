@@ -22336,6 +22336,13 @@ int main(int argc, char **argv)
 #endif
         }
     }
+
+    if (used_switch(argc, argv, "-dump_zasm"))
+	{
+		printZAsm();
+		quit_game();
+		exit(0);
+	}
     
     for(int x=0; x<MAXITEMS; x++)
     {
@@ -23671,13 +23678,56 @@ void clear_tooltip()
     update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
 
+void printZAsm()
+{
+	for (std::map<int, pair<string, string> >::iterator it = ffcmap.begin();
+		 it != ffcmap.end(); ++it)
+	{
+		if (it->second.second != "")
+		{
+			ZAsmScript& script = scripts.ffscripts[it->first];
+			int32_t commands_len = script.commands_len;
+			zasm* commands = script.commands;
+			if (commands_len == 0 || commands[0].command == 0xFFFF) continue;
+			al_trace("\n%s\n", it->second.second.c_str());
+			for (int i = 0; i < commands_len && commands[i].command != 0xFFFF; ++i)
+			{
+				al_trace("  %s  ; %d %d %d\n", to_string(commands[i]).c_str(),
+						 commands[i].command, commands[i].arg1, commands[i].arg2);
+			}
+		}
+	}
 
+	for (std::map<int, pair<string, string> >::iterator it = globalmap.begin();
+		 it != globalmap.end(); ++it)
+	{
+		if (it->second.second != "")
+		{
+			ZAsmScript& script = scripts.globalscripts[it->first];
+			int32_t commands_len = script.commands_len;
+			zasm* commands = script.commands;
+			if (commands_len == 0 || commands[0].command == 0xFFFF) continue;
+			al_trace("\n%s\n", it->second.second.c_str());
+			for (int i = 0; i < commands_len && commands[i].command != 0xFFFF; ++i)
+				al_trace("  %s\n", to_string(commands[i]).c_str());
+		}
+	}
 
-
-
-
-
-
+	for (std::map<int, pair<string, string> >::iterator it = itemmap.begin();
+		 it != itemmap.end(); ++it)
+	{
+		if (it->second.second != "")
+		{
+			ZAsmScript& script = scripts.itemscripts[it->first];
+			int32_t commands_len = script.commands_len;
+			zasm* commands = script.commands;
+			if (commands_len == 0 || commands[0].command == 0xFFFF) continue;
+			al_trace("\n%s\n", it->second.second.c_str());
+			for (int i = 0; i < commands_len && commands[i].command != 0xFFFF; ++i)
+				al_trace("  %s\n", to_string(commands[i]).c_str());
+		}
+	}
+}
 
 /////////////////////////////////////////////////
 // zc_malloc

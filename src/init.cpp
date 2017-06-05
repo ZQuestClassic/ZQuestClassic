@@ -51,13 +51,16 @@ extern itemdata *itemsbuf;
 extern byte quest_rules[20];
 extern char *item_string[];
 
+int oldselection;
+zinitdata tempdata;
+
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
 void getitem(int id, bool nosound);
 
 static const int endEquipField = 33;
 
-void doFamily(int family, zinitdata *data);
+void doFamily(int family, zinitdata *data, DIALOG *d);
 int jwin_initlist_proc(int msg,DIALOG *d,int c);
 
 class Family
@@ -895,7 +898,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_button_proc,          47,    209,     61,     21,    vc(14),                 vc(1),                  13,    D_EXIT,         0,             0, (void *) "OK",                                         NULL,   NULL);
     initPopulate(i, d_keyboard_proc,            0,      0,      0,      0,    0,                      0,                       0,    0,              KEY_F1,        0, (void *) onHelp,                                       NULL,   NULL);
     initPopulate(i, jwin_tab_proc,              6,     25,    284,    178,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_tabs,                                    NULL, (void *)init_dlg);
-    initPopulate(i, d_dummy_proc,              11,     47,    117,    152,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,              11,     47,    117,    152,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,              0,             0,  NULL,                                                  NULL, (void *)init_dlg);
     initPopulate(i, jwin_frame_proc,          130,     47,    154,    152,    vc(0),                  vc(11),                  0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     57,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "1",                                          NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     67,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "2",                                          NULL,   NULL);
@@ -1555,7 +1558,6 @@ const char *item_class_list(int index, int *list_size)
     return biic[index].s;
 }
 
-
 int doInit(zinitdata *local_zinit)
 {
     for(int i=0; i<MAXITEMS; i++)
@@ -1604,23 +1606,20 @@ int doInit(zinitdata *local_zinit)
     
     ListData family_list(familylist, &pfont);
     init_dlg[5].proc = jwin_initlist_proc;
-    init_dlg[5].dp = (void *)&family_list;
+	init_dlg[5].dp = (void *)&family_list;
     init_dlg[5].d1 = -1;
-    
-    zinitdata tempdata;
+        
     memcpy(&tempdata, local_zinit,sizeof(zinitdata));
-    int oldselection;
-    std::pair<int *, zinitdata *> p(&oldselection,&tempdata);
-    init_dlg[5].dp3 = &p;
+    
     
     if(families.size() == 0)
     {
-        doFamily(-1, &tempdata);
+        doFamily(-1, &tempdata, init_dlg);
         oldselection = -1;
     }
     else
     {
-        doFamily(listidx2biic[0],&tempdata);
+        doFamily(listidx2biic[0],&tempdata, init_dlg);
         oldselection = 0;
     }
     
@@ -1839,13 +1838,13 @@ const char *familylist(int index, int *list_size)
     return biic[listidx2biic[index]].s;
 }
 
-void doFamily(int biicindx, zinitdata *local_zinit)
+void doFamily(int biicindx, zinitdata *local_zinit, DIALOG *d)
 {
     if(biicindx == -1 || families.find(biic[biicindx].i) == families.end())
     {
         for(int i=7; i<endEquipField; i++)
         {
-            init_dlg[i].proc = d_dummy_proc;
+            d[i].proc = d_dummy_proc;
         }
         
         return;
@@ -1857,14 +1856,14 @@ void doFamily(int biicindx, zinitdata *local_zinit)
     
     for(i=7; i < endEquipField && it != f.end(); i++, it++)
     {
-        init_dlg[i].proc = jwin_checkfont_proc;
-        init_dlg[i].dp2 = is_large() ? lfont_l : pfont;
-        init_dlg[i].dp = (void *)item_string[it->itemid];
-        init_dlg[i].flags = local_zinit->items[it->itemid] ? D_SELECTED : 0;
+        d[i].proc = jwin_checkfont_proc;
+        d[i].dp2 = is_large() ? lfont_l : pfont;
+        d[i].dp = (void *)item_string[it->itemid];
+        d[i].flags = local_zinit->items[it->itemid] ? D_SELECTED : 0;
     }
     
     for(; i<endEquipField; i++)
-        init_dlg[i].proc = d_dummy_proc;
+        d[i].proc = d_dummy_proc;
 }
 
 int jwin_initlist_proc(int msg,DIALOG *d,int c)
@@ -1882,18 +1881,17 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
       case MSG_DRAW:
         font=tempfont;
         break;
-    }*/
-    std::pair<int *, zinitdata *> *p = (std::pair<int *, zinitdata *> *)(d->dp3);
-    int *oldselection = p->first;
-    static int index=-1;
+    }*/    
+    
+	static int index=-1;
     index = d->d1;
     
-    if(*oldselection != d->d1 && d->d1 != -1)
+    if(oldselection != d->d1 && d->d1 != -1)
     {
         //save old selection
-        if(*oldselection != -1)
+        if(oldselection != -1)
         {
-            std::map<int, std::vector<Family> >::iterator it = families.find(biic[listidx2biic[*oldselection]].i);
+            std::map<int, std::vector<Family> >::iterator it = families.find(biic[listidx2biic[oldselection]].i);
             
             if(it != families.end())
             {
@@ -1902,17 +1900,16 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
                 
                 for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
-                    p->second->items[it2->itemid] = 0 != (init_dlg[j].flags & D_SELECTED);
+                    tempdata.items[it2->itemid] = 0 != (init_dlg[j].flags & D_SELECTED);
                 }
             }
         }
         
-        *(p->first) = d->d1;
-        doFamily(listidx2biic[d->d1], p->second);
-        acquire_screen();
-        init_dlg[4].proc(MSG_DRAW, &init_dlg[4], 0);
-        //	broadcast_dialog_message(MSG_DRAW, 0);
-        release_screen();
+        oldselection = d->d1;
+        doFamily(listidx2biic[d->d1], &tempdata, ((DIALOG *)d->dp3));
+        //acquire_screen();
+        ((DIALOG *)d->dp3)[4].proc(MSG_DRAW, &( ((DIALOG *)d->dp3)[4]), 0);
+        //release_screen();
     }
     
     return rval;

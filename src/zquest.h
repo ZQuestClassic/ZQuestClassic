@@ -446,6 +446,8 @@ int onImportItemScript();
 int onImportGScript();
 int onCompileScript();
 
+void printZAsm();
+
 typedef struct item_struct
 {
     char *s;

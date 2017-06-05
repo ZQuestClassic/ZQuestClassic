@@ -794,16 +794,21 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 
     // Load value of the variable into EXP1.  Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-    if (host.getOperand()->isTypeIdentifier())
+	ASTExpr& operand = *host.getOperand();
+	if (operand.isTypeArrow() || operand.isTypeIndex())
+	{
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+
+        int oldid = c->symbols->getNodeId(arrow);
+        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
+        host.getOperand()->execute(*this,param);
+        c->symbols->putNodeId(arrow, oldid);
+    }
+    else if (host.getOperand()->isTypeIdentifier())
     {
         host.getOperand()->execute(*this, param);
-    }
-    else
-    {
-        int oldid = c->symbols->getNodeId(host.getOperand());
-        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
-        c->symbols->putNodeId(host.getOperand(), oldid);
     }
 
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -830,16 +835,21 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 
     // Load value of the variable into EXP1.  Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-    if (host.getOperand()->isTypeIdentifier())
-    {
-			host.getOperand()->execute(*this,param);
-    }
-    else
-    {
-        int oldid = c->symbols->getNodeId(host.getOperand());
-        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
+	ASTExpr& operand = *host.getOperand();
+	if (operand.isTypeArrow() || operand.isTypeIndex())
+	{
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+
+        int oldid = c->symbols->getNodeId(arrow);
+        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this,param);
-        c->symbols->putNodeId(host.getOperand(), oldid);
+        c->symbols->putNodeId(arrow, oldid);
+    }
+    else if (host.getOperand()->isTypeIdentifier())
+    {
+        host.getOperand()->execute(*this, param);
     }
 
     //increment EXP1
@@ -860,16 +870,21 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
     // Load value of the variable into EXP1 Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-    if (host.getOperand()->isTypeIdentifier())
+	ASTExpr& operand = *host.getOperand();
+	if (operand.isTypeArrow() || operand.isTypeIndex())
+	{
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+
+        int oldid = c->symbols->getNodeId(arrow);
+        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
+        host.getOperand()->execute(*this,param);
+        c->symbols->putNodeId(arrow, oldid);
+    }
+    else if (host.getOperand()->isTypeIdentifier())
     {
         host.getOperand()->execute(*this, param);
-    }
-    else
-    {
-        int oldid = c->symbols->getNodeId(host.getOperand());
-        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
-        c->symbols->putNodeId(host.getOperand(), oldid);
     }
 
     //dencrement EXP1
@@ -890,16 +905,21 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
     // Load value of the variable into EXP1 except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-    if (host.getOperand()->isTypeIdentifier())
-    {
+	ASTExpr& operand = *host.getOperand();
+	if (operand.isTypeArrow() || operand.isTypeIndex())
+	{
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+
+        int oldid = c->symbols->getNodeId(arrow);
+        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this,param);
+        c->symbols->putNodeId(arrow, oldid);
     }
-    else
+    else if (host.getOperand()->isTypeIdentifier())
     {
-        int oldid = c->symbols->getNodeId(host.getOperand());
-        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this, param);
-        c->symbols->putNodeId(host.getOperand(), oldid);
     }
 
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
