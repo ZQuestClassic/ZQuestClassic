@@ -79,6 +79,12 @@ enum
     fade_blue_poof
 };
 
+enum 
+{
+	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE 
+	
+}; //Obviously, the overworld, dungeon and L9 midis don;t need to be here, but we can define some user space for o
+//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow. 
 /*********************************/
 /*********** Procedures **********/
 /*********************************/
@@ -152,6 +158,9 @@ int d_timer_proc(int msg, DIALOG *d, int c);
 //2.54
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
+
+
+
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
@@ -237,6 +246,8 @@ extern int jwin_pal[jcMAX];
 extern int gui_colorset;
 extern byte frame_rest_suggest, forceExit;
 extern byte use_debug_console, use_win32_proc; //windows only
+
+extern int user_midi_ids[10]; //user MIDIs that override things such as GAME_OVER. Set by Script or in ZQuest.
 
 #ifdef _SCRIPT_COUNTER
 void update_script_counter();

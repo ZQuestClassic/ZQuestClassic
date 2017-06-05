@@ -1643,6 +1643,11 @@ string ODrawBitmapRegister::toString()
     return "DRAWBITMAP";
 }
 
+string ODrawBitmapExRegister::toString()
+{
+    return "BITMAPEXR";
+}
+
 string OSetRenderTargetRegister::toString()
 {
     return "SETRENDERTARGET";

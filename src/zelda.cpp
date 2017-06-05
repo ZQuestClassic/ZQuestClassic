@@ -109,6 +109,8 @@ void playLevelMusic();
 
 bool trip=false;
 
+int user_midi_ids[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; //user MIDIs that override things such as GAME_OVER. 
+
 #ifdef _SCRIPT_COUNTER
 volatile int script_counter=0;
 void update_script_counter()
