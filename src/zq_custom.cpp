@@ -1891,6 +1891,11 @@ static int enedata_defense2_list[] =
     153,154,155,156,157,158,159,160,170,171,172,173,174,175,176,177,191,192,-1
 };
 
+static int enedata_defense3_list[] =
+{
+    193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,-1
+};
+
 static TABPANEL enedata_tabs[] =
 {
     { (char *)"Data 1",       D_SELECTED,      enedata_data_list,     0, NULL },
@@ -1900,6 +1905,7 @@ static TABPANEL enedata_tabs[] =
     { (char *)"Defenses 1",	 0,               enedata_defense_list,   0, NULL },
     { (char *)"Defenses 2",	 0,               enedata_defense2_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
+    { (char *)"Defenses 3",	 0,               enedata_defense3_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -2041,6 +2047,7 @@ const char *defenselist(int index, int *list_size)
             
         case edQUARTDAMAGE:
             return "1/4 Damage";
+	
             
         case edSTUNONLY:
             return "Stun";
@@ -2065,6 +2072,8 @@ const char *defenselist(int index, int *list_size)
             
         case edCHINKL8:
             return "Block If < 8";
+	
+	
             
         case edCHINK:
             return "Block";
@@ -2074,9 +2083,30 @@ const char *defenselist(int index, int *list_size)
             
         case edIGNORE:
             return "Ignore";
+	
+	    
+	
             
         case ed1HKO:
             return "One-Hit-Kill";
+	
+	case edCHINKL10: //If damage is less than 10
+		return "Block if Power < 10";
+	
+	case ed2x: //Double damage
+		return "Double Damage";
+	case ed3x: //Triple Damage
+		return "Triple Damage";
+	case ed4x: //4x damage
+		return "Quadruple Damage";
+	
+	case edHEAL: //recover the weapon damage in HP
+		return "Enemy Gains HP = Damage";
+	
+	case edTRIGGERSECRETS: //Triggers screen secrets. 
+		return "Trigger Screen Secrets";
+	
+	
         }
     }
     
@@ -2556,6 +2586,7 @@ static ListData walkerspawn_list(walkerspawnlist, &font);
 
 static ListData sfx__list(sfxlist, &font);
 
+
 static DIALOG enedata_dlg[] =
 {
     {  jwin_win_proc,            0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,      0,    0,  NULL,                                                           NULL,   NULL                 },
@@ -2780,8 +2811,33 @@ static DIALOG enedata_dlg[] =
     // 191
     {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script Weapon Defense:",                              NULL,   NULL                 },
     {  jwin_droplist_proc,      126, 198-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+ //193 - sccript 1
+     	{  jwin_text_proc,           6,    51,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 1 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    67,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 2 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    83,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 3 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    99,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 4 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    115,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 5 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    131,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 6 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    147,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 7 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    163,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 8 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    179,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 9 Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    196,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 10 Weapon Defense:",                              NULL,   NULL                 },
+	//203 script 1 pulldown
+	{  jwin_droplist_proc,      126, 51-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 67-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 83-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 99-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 115-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 131-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 147-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 163-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 179-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 196-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+
+      
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
+
 
 
 void setEnemyLabels(int family)
@@ -2859,12 +2915,34 @@ void setEnemyLabels(int family)
         for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
         
         enedata_dlg[192].flags |= D_DISABLED;
+	    
+	    enedata_dlg[203].d1 |= D_DISABLED;
+     enedata_dlg[204].d1 |= D_DISABLED;
+     enedata_dlg[205].d1 |= D_DISABLED;
+     enedata_dlg[206].d1 |= D_DISABLED;
+     enedata_dlg[207].d1 |= D_DISABLED;
+     enedata_dlg[208].d1 |= D_DISABLED;
+     enedata_dlg[209].d1 |= D_DISABLED;
+     enedata_dlg[210].d1 |= D_DISABLED;
+     enedata_dlg[211].d1 |= D_DISABLED;
+     enedata_dlg[212].d1 |= D_DISABLED;
     }
     else
     {
         for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags &= ~D_DISABLED;
         
         enedata_dlg[192].flags &= ~D_DISABLED;
+	    
+	    enedata_dlg[203].d1 &= ~D_DISABLED;
+     enedata_dlg[204].d1 &= ~D_DISABLED;
+     enedata_dlg[205].d1 &= ~D_DISABLED;
+     enedata_dlg[206].d1 &= ~D_DISABLED;
+     enedata_dlg[207].d1 &= ~D_DISABLED;
+     enedata_dlg[208].d1 &= ~D_DISABLED;
+     enedata_dlg[209].d1 &= ~D_DISABLED;
+     enedata_dlg[210].d1 &= ~D_DISABLED;
+     enedata_dlg[211].d1 &= ~D_DISABLED;
+     enedata_dlg[212].d1 &= ~D_DISABLED;
     }
     
     if(!(family==eeWALK || family==eeFIRE || family==eeOTHER))
@@ -3078,6 +3156,18 @@ void edit_enemydata(int index)
     
     enedata_dlg[192].d1 = guysbuf[index].defense[edefSCRIPT];
     
+    
+    enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
+     enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
+     enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
+     enedata_dlg[206].d1 = guysbuf[index].defense[edefSCRIPT04];
+     enedata_dlg[207].d1 = guysbuf[index].defense[edefSCRIPT05];
+     enedata_dlg[208].d1 = guysbuf[index].defense[edefSCRIPT06];
+     enedata_dlg[209].d1 = guysbuf[index].defense[edefSCRIPT07];
+     enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
+     enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
+     enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
+    
     sprintf(frt,"%d",guysbuf[index].frate);
     sprintf(efr,"%d",guysbuf[index].e_frate);
     enedata_dlg[140].dp = frt;
@@ -3109,7 +3199,19 @@ void edit_enemydata(int index)
                            
     for(int i=0; i<16; i++)
         enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
-        
+
+    enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
+     enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
+     enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
+     enedata_dlg[206].d1 = guysbuf[index].defense[edefSCRIPT04];
+     enedata_dlg[207].d1 = guysbuf[index].defense[edefSCRIPT05];
+     enedata_dlg[208].d1 = guysbuf[index].defense[edefSCRIPT06];
+     enedata_dlg[209].d1 = guysbuf[index].defense[edefSCRIPT07];
+     enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
+     enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
+     enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
+    
+
     int ret;
     guydata test;
     memset(&test, 0, sizeof(guydata));
@@ -3206,7 +3308,22 @@ void edit_enemydata(int index)
             
         if(enedata_cpy[143].flags & D_SELECTED)
             test.cset = 14;
-            
+	
+	
+	test.defense[edefSCRIPT01] = enedata_cpy[203].d1;
+	test.defense[edefSCRIPT02] = enedata_cpy[204].d1;
+	test.defense[edefSCRIPT03] = enedata_cpy[205].d1;
+	test.defense[edefSCRIPT04] = enedata_cpy[206].d1;
+	test.defense[edefSCRIPT05] = enedata_cpy[207].d1;
+	test.defense[edefSCRIPT06] = enedata_cpy[208].d1;
+	test.defense[edefSCRIPT07] = enedata_cpy[209].d1;
+	test.defense[edefSCRIPT08] = enedata_cpy[210].d1;
+	test.defense[edefSCRIPT09] = enedata_cpy[211].d1;
+	test.defense[edefSCRIPT10] = enedata_cpy[212].d1;
+	
+
+	    
+	    
         if(ret==5)
         {
             strcpy(guy_string[index],name);
@@ -3225,6 +3342,17 @@ void edit_enemydata(int index)
             }
             
 			enedata_cpy[192].d1 = enedata_cpy[161].d1;
+	     //Clear to 0
+	    enedata_cpy[203].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[204].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[205].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[206].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[207].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[208].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[209].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[210].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[211].d1 = enedata_cpy[161].d1;
+	    enedata_cpy[212].d1 = enedata_cpy[161].d1;
         }
     }
     while(ret != 5 && ret != 6 && ret != 0);

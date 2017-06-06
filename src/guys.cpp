@@ -1,4 +1,5 @@
 //--------------------------------------------------------
+//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -316,7 +317,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     
     for(int i=0; i<edefLAST; i++)
         defense[i]=d->defense[i];
-        
+	
     bgsfx=d->bgsfx;
     hitsfx=d->hitsfx;
     deadsfx=d->deadsfx;
@@ -900,6 +901,9 @@ int enemy::defend(int wpnId, int *power, int edef)
         
     case edCHINKL8:
         if(*power >= 8*DAMAGE_MULTIPLIER) break;
+    
+    case edCHINKL10:
+        if(*power >= 10*DAMAGE_MULTIPLIER) break;
         
     case edCHINK:
         Backend::sfx->play(WAV_CHINK,int(x));
@@ -915,6 +919,59 @@ int enemy::defend(int wpnId, int *power, int edef)
         *power = hp;
         return -2;
         
+    case edTRIGGERSECRETS:
+	    hidden_entrance(0, true, false, -4);
+	break;
+        
+    case ed2x:
+    {
+	    *power = zc_max(1,*power*2);
+	//int pow = *power;
+        //*power = vbound((pow*2),0,214747);
+	return -1; 
+    }
+    case ed3x:
+    {
+	    *power = zc_max(1,*power*3);
+	//int pow = *power;
+        //*power = vbound((pow*3),0,214747);
+	return -1;
+    }
+    
+    case ed4x:
+    {
+	    *power = zc_max(1,*power*4);
+	//int pow = *power;
+        //*power = vbound((pow*4),0,214747);
+	return -1;
+    }
+    
+    
+    case edHEAL:
+    { //Probably needs its own function, or  routine in the damage functuon to heal if power is negative. 
+	//int pow = *power;
+        //*power = vbound((pow*-1),0,214747);
+	//break;
+	    *power = zc_min(0,*power*-1);
+	    return -1;
+    }
+    /*
+    case edLEVELDAMAGE: 
+    {
+	int pow = *power;
+	int lvl  = *level;
+        *power = vbound((pow*lvl),0,214747);
+	break;
+    }
+    case edLEVELREDUCTION:
+    {
+	int pow = *power;
+	int lvl  = *level;
+        *power = vbound((pow/lvl),0,214747);
+	break;
+    }
+    */
+    
     case edQUARTDAMAGE:
         *power = zc_max(1,*power/2);
         
@@ -926,6 +983,8 @@ int enemy::defend(int wpnId, int *power, int edef)
     
     return -1;
 }
+
+
 
 // Defend against a particular item class.
 int enemy::defenditemclass(int wpnId, int *power)
@@ -1004,11 +1063,68 @@ int enemy::defenditemclass(int wpnId, int *power)
         def = defend(wpnId, power, edefBYRNA);
         break;
         
+    case wScript1:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT01);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript2:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT02);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript3:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT03);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript4:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT04);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript5:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT05);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript6:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT06);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript7:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT07);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript8:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT08);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript9:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT09);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript10:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT10);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    
+    //!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
+    //Probably best to do this from the qest file, loading the values of Script(generic) into each
+    //of the ten if the quest version is lower than N. 
+    //Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
+    //such as bool UseSeparatedScriptDefences. hah.
     default:
-        if(wpnId>=wScript1 && wpnId<=wScript10)
-        {
-            def = defend(wpnId, power, edefSCRIPT);
-        }
+        //if(wpnId>=wScript1 && wpnId<=wScript10)
+        //{
+         //   def = defend(wpnId, power, edefSCRIPT);
+        //}
+        //}
         
         break;
     }
@@ -1020,6 +1136,7 @@ int enemy::defenditemclass(int wpnId, int *power)
 // -1: damage (if any) dealt
 // 1: blocked
 // 0: weapon passes through unhindered
+// 2: heal enemy? -ZoriaRPG
 int enemy::takehit(weapon *w)
 {
     int wpnId = w->id;

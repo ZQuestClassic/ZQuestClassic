@@ -2096,7 +2096,7 @@ long get_register(const long arg)
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") != SH::_NoError ||
-                BC::checkBounds(a, 0, edefSCRIPT, "npc->Defense") != SH::_NoError)
+                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPC()->defense[a] * 10000;
@@ -4755,7 +4755,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
-                BC::checkBounds(a, 0, edefSCRIPT, "npc->Defense") == SH::_NoError)
+                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") == SH::_NoError)
             GuyH::getNPC()->defense[a] = value / 10000;
     }
     break;

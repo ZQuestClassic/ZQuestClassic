@@ -8874,7 +8874,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(guyversion >= 16)  // November 2009 - Super Enemy Editor
+            if(guyversion >= 16 && guyversion < 25)  // November 2009 - Super Enemy Editor
             {
                 for(int j=0; j<edefLAST; j++)
                 {
@@ -8884,6 +8884,29 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     }
                 }
             }
+	    
+	    //Defences
+	    
+	    
+	    if(guyversion > 24) // Add new guyversion conditional statement 
+            {
+		for(int j=0; j<edefLAST255; j++)
+                {
+                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+                }
+            }
+	    
+	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
+            {
+		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
+                {
+                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
+                }
+            }
+	    
             
             if(guyversion >= 18)
             {
@@ -8928,7 +8951,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 tempguy.misc12=tempMisc;
             }
-            
+	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD
             if(guyversion < 7)

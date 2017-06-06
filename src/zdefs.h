@@ -180,7 +180,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            24
+#define V_GUYS            25
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -919,17 +919,34 @@ enum {  e9tMOLDORM=1, e9tVLANMOLA, e9tVMOLDORM, e9tZ3MOLDORM, //restricted to wa
 	e9tBIGTAIL //doesn't segment, only tail is vulnerable
      };
 */
+     
+     //Preparation for new defences. -Z
+     
+     
 enum
 {
-    edefBRANG, edefBOMB, edefSBOMB, edefARROW, edefFIRE, edefWAND,
-    edefMAGIC, edefHOOKSHOT, edefHAMMER, edefSWORD, edefBEAM, edefREFBEAM, edefREFMAGIC,
-    edefREFBALL, edefREFROCK, edefSTOMP, edefBYRNA, edefSCRIPT /* used to be unused edefSPIN */,
+	edefBRANG, 	edefBOMB, 	edefSBOMB, 	edefARROW, 	edefFIRE, 	//04
+	edefWAND, 	edefMAGIC, 	edefHOOKSHOT, 	edefHAMMER, 	edefSWORD, 	//09
+	edefBEAM, 	edefREFBEAM, 	edefREFMAGIC,	edefREFBALL, 	edefREFROCK,	//14
+	edefSTOMP, 	edefBYRNA, 	edefSCRIPT, 	edefLAST250, 	edefQUAKE, 	//19
+	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
+	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
+	edefICE,	edefRES001, 	edefRES002,	edefRES003,	edefRES004,	//34
+	edefRES005,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
+	edefRES010,	//x40
+	edefLAST255 //41
     // Reserved for future use.
-    edefQUAKE,
-    edefLAST
-};
+	 //edefSCRIPT used to be unused edefSPIN
+
+}; 
+
+#define edefLAST 19 
 
 
+
+//2.50.x last defense, used for filepack loading. 
+
+// New defence outcomes. 
 enum
 {
     edNORMAL, // Take damage (or stun)
@@ -947,6 +964,44 @@ enum
     edIGNOREL1, // Ignore unless damage > 1.
     edIGNORE, // Do Nothing
     ed1HKO, // One-hit knock-out
+	edCHINKL10, //If damage is less than 10 : IMPLEMENTED -Z
+	ed2x, //Double damage : IMPLEMENTED -Z
+	ed3x, //Triple Damage : IMPLEMENTED -Z
+	ed4x, //4x damage : IMPLEMENTED -Z
+	edHEAL, //recover the weapon damage in HP : IMPLEMENTED -Z
+	edTRIGGERSECRETS, //Triggers screen secrets. : IMPLEMENTED -Z
+	edMSG_NOT_ENABLED, //A message for 'The following are not yet enabled.
+	edMSG_LINE, //An entry for the hiriz line in THE zq PULLDOWN
+	edLEVELDAMAGE, //Damage * item level
+	edLEVELREDUCTION, //Damage / item level
+	edFREEZE, //Freeze solid
+	edSPLIT, //causes the enemy to split if it has a split attribute
+	edREPLACE, //replaced by next in list?
+	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
+	edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
+	edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
+	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
+	edSHOCK, //buzz blob
+	edEXPLODESMALL, //ew bombblast
+	edEXPLODELARGE, //super bomb blast
+	edSTONE, //deadrock
+	
+	edBREAKSHIELD, //break the enemy shield
+	edRESTORESHIELD, //if the enemy had a shield, reset it
+	edSPECIALDROP, //but where to define it?
+	edINCREASECOUNTER, //but where to define the counter
+	edREDUCECOUNTER, //same problem
+	edEXPLODEHARMLESS, //boss death explosion
+	edKILLNOSPLIT, //If sufficient damage to kill it, a splitting enemy just dies.
+	edTRIBBLE, //Tribbles on hit. 
+	edFIREBALL, //Makes a 1x1 fireball
+	edFIREBALLLARGE, //Makes a 3x3 fireball
+	edSUMMON, //Summons a number of enemies as defined by the summon properties of the npc. 
+	//edSAVE, edRETRY, edCRASHZC // Sanity Check Required. -Z
+	edWINGAME, //Wand of Gamelon. 
+	edJUMP, //Z3 stalfos
+	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
+	
     edLAST
 };
 #define edX edIGNORE // Shorthand
@@ -1178,7 +1233,8 @@ struct guydata
     short  rate, hrate, step, homing, grumble, item_set;
     long   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
     short  bgsfx, bosspal, extend;
-    byte defense[edefLAST];
+    byte defense[edefLAST255];
+   // byte scriptdefense[
     //  short  startx, starty;
     //  short  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;

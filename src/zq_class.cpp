@@ -9252,7 +9252,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(45);
             }
             
-            for(int j=0; j < edefLAST; j++)
+            for(int j=0; j < edefLAST255; j++)
             {
                 if(!p_putc(guysbuf[i].defense[j],f))
                 {
@@ -9279,6 +9279,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(50);
             }
+	    
         }
         
         if(writecycle==0)
