@@ -1286,7 +1286,6 @@ void test_item(itemdata test, int x, int y)
     {
     
         ++frame;
-	    setLabels(test.family);
         clear_bitmap(buf);
         temp.animate(0);
         temp.draw(buf);
@@ -1525,7 +1524,6 @@ void edit_itemdata(int index)
     do
     {
         ret = zc_popup_dialog(itemdata_cpy,3);
-        setLabels(test.family); //Update display? -Z
         test.misc  = 0;
         test.flags = 0;
         
