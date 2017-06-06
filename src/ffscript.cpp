@@ -299,6 +299,11 @@ public:
         return checkBounds(a, 0, 15, str);
     }
     
+    static INLINE int checkMisc32(const long a, const char * const str)
+    {
+        return checkBounds(a, 0, 31, str);
+    }
+    
     static INLINE int checkMessage(const long ID, const char * const str)
     {
         return checkBounds(ID, 0, msg_strings_size-1, str);
@@ -427,7 +432,7 @@ public:
         
         return -1;
     }
-    
+    //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     static long getNPCDMisc(const byte a)
     {
         switch(a)
@@ -467,6 +472,15 @@ public:
             
         case 11:
             return tempenemy->dmisc12;
+        
+	case 12:
+            return tempenemy->dmisc13;
+        
+	case 13:
+            return tempenemy->dmisc14;
+        
+	case 14:
+            return tempenemy->dmisc15;
         }
         
         return 0;
@@ -1178,7 +1192,7 @@ long get_register(const long arg)
         break;
         
     case LINKMISCD:
-        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,15)]);
+        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)]);
         break;
         
     case LINKHXOFS:
@@ -1689,7 +1703,7 @@ long get_register(const long arg)
     case ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             ret=(((item*)(s))->miscellaneous[a]);
             break;
         }
@@ -2094,19 +2108,19 @@ long get_register(const long arg)
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Misc") != SH::_NoError ||
-                BC::checkMisc(a, "npc->Misc") != SH::_NoError)
+                BC::checkMisc32(a, "npc->Misc") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPC()->miscellaneous[a];
     }
     break;
     
-    case NPCDD:
+    case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-                BC::checkBounds(a, 0, 11, "npc->Attributes") != SH::_NoError)
+                BC::checkBounds(a, 0, 15, "npc->Attributes") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPCDMisc(a) * 10000;
@@ -2327,7 +2341,7 @@ long get_register(const long arg)
     case LWPNMISCD:
         if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             ret=(((weapon*)(s))->miscellaneous[a]);
         }
         
@@ -2552,7 +2566,7 @@ long get_register(const long arg)
     case EWPNMISCD:
         if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             ret=(((weapon*)(s))->miscellaneous[a]);
         }
         
@@ -3314,7 +3328,7 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKMISCD:
-        Link.miscellaneous[vbound(ri->d[0]/10000,0,15)] = value;
+        Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
         break;
         
     case LINKHXOFS:
@@ -3826,7 +3840,7 @@ void set_register(const long arg, const long value)
     case ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             (((item*)(s))->miscellaneous[a])=value;
         }
         
@@ -4271,7 +4285,7 @@ void set_register(const long arg, const long value)
     case LWPNMISCD:
         if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             (((weapon*)(s))->miscellaneous[a])=value;
         }
         
@@ -4492,7 +4506,7 @@ void set_register(const long arg, const long value)
     case EWPNMISCD:
         if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             (((weapon*)(s))->miscellaneous[a])=value;
         }
         
@@ -4751,11 +4765,41 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError &&
-                BC::checkMisc(a, "npc->Misc") == SH::_NoError)
+                BC::checkMisc32(a, "npc->Misc") == SH::_NoError)
             GuyH::getNPC()->miscellaneous[a] = value;
             
     }
     
+    break;
+    
+    //npc->Attributes[] setter -Z
+    case NPCDD:
+    {
+        long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
+                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+	
+	switch(a){
+		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
+		case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
+		case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
+		case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
+		case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
+		case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
+		case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
+		case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
+		case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
+		case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
+		case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
+		case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
+		case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
+		case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
+		case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
+		default: break;
+	}
+
+    }
     break;
     
 ///----------------------------------------------------------------------------------------------------//
