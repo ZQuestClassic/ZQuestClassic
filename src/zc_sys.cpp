@@ -21,6 +21,7 @@
 #include <map>
 #include <ctype.h>
 #include "zc_alleg.h"
+
 #include "zquest.h"
 #include "init.h"
 
@@ -50,6 +51,7 @@
 #include "title.h"
 #include "particles.h"
 #include "mem_debug.h"
+#include "zconsole.h"
 #include "backend/AllBackends.h"
 
 int d_stringloader(int msg,DIALOG *d,int c);
@@ -4518,6 +4520,21 @@ int onClickToFreeze()
     ClickToFreeze = !ClickToFreeze;
     return D_O_K;
 }
+int onDebugConsole()
+{
+	if ( !zconsole ) {
+		DebugConsole::Open();
+
+		zconsole = true;
+		return D_O_K;
+	}
+	else { 
+		
+		zconsole = false;
+		DebugConsole::Close();
+		return D_O_K;
+	}
+}
 
 int onFrameSkip()
 {
@@ -6484,6 +6501,7 @@ static MENU misc_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+    { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
