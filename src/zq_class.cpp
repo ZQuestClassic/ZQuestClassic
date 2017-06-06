@@ -9298,6 +9298,334 @@ int writeguys(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
+int writeguys250(PACKFILE *f, zquestheader *Header)
+{
+    //these are here to bypass compiler warnings about unused arguments
+    Header=Header;
+    
+    dword section_id=ID_GUYS;
+    dword section_version=V_GUYS;
+    dword section_cversion=CV_GUYS;
+    dword section_size=0;
+    
+    //section id
+    if(!p_mputl(section_id,f))
+    {
+        new_return(1);
+    }
+    
+    //section version info
+    if(!p_iputw(section_version,f))
+    {
+        new_return(2);
+    }
+    
+    if(!p_iputw(section_cversion,f))
+    {
+        new_return(3);
+    }
+    
+    for(int writecycle=0; writecycle<2; ++writecycle)
+    {
+        fake_pack_writing=(writecycle==0);
+        
+        //section size
+        if(!p_iputl(section_size,f))
+        {
+            new_return(4);
+        }
+        
+        writesize=0;
+        
+        //finally...  section data
+        for(int i=0; i<MAXGUYS; i++)
+        {
+            if(!pfwrite((char *)guy_string[i], 64, f))
+            {
+                new_return(5);
+            }
+        }
+        
+        for(int i=0; i<MAXGUYS; i++)
+        {
+            if(!p_iputl(guysbuf[i].flags,f))
+            {
+                new_return(6);
+            }
+            
+            if(!p_iputl(guysbuf[i].flags2,f))
+            {
+                new_return(7);
+            }
+            
+            if(!p_iputw(guysbuf[i].tile,f))
+            {
+                new_return(8);
+            }
+            
+            if(!p_putc(guysbuf[i].width,f))
+            {
+                new_return(9);
+            }
+            
+            if(!p_putc(guysbuf[i].height,f))
+            {
+                new_return(10);
+            }
+            
+            if(!p_iputw(guysbuf[i].s_tile,f))
+            {
+                new_return(11);
+            }
+            
+            if(!p_putc(guysbuf[i].s_width,f))
+            {
+                new_return(12);
+            }
+            
+            if(!p_putc(guysbuf[i].s_height,f))
+            {
+                new_return(13);
+            }
+            
+            if(!p_iputw(guysbuf[i].e_tile,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_putc(guysbuf[i].e_width,f))
+            {
+                new_return(15);
+            }
+            
+            if(!p_putc(guysbuf[i].e_height,f))
+            {
+                new_return(16);
+            }
+            
+            if(!p_iputw(guysbuf[i].hp,f))
+            {
+                new_return(17);
+            }
+            
+            if(!p_iputw(guysbuf[i].family,f))
+            {
+                new_return(18);
+            }
+            
+            if(!p_iputw(guysbuf[i].cset,f))
+            {
+                new_return(19);
+            }
+            
+            if(!p_iputw(guysbuf[i].anim,f))
+            {
+                new_return(20);
+            }
+            
+            if(!p_iputw(guysbuf[i].e_anim,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputw(guysbuf[i].frate,f))
+            {
+                new_return(22);
+            }
+            
+            if(!p_iputw(guysbuf[i].e_frate,f))
+            {
+                new_return(23);
+            }
+            
+            if(!p_iputw(guysbuf[i].dp,f))
+            {
+                new_return(24);
+            }
+            
+            if(!p_iputw(guysbuf[i].wdp,f))
+            {
+                new_return(25);
+            }
+            
+            if(!p_iputw(guysbuf[i].weapon,f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_iputw(guysbuf[i].rate,f))
+            {
+                new_return(27);
+            }
+            
+            if(!p_iputw(guysbuf[i].hrate,f))
+            {
+                new_return(28);
+            }
+            
+            if(!p_iputw(guysbuf[i].step,f))
+            {
+                new_return(29);
+            }
+            
+            if(!p_iputw(guysbuf[i].homing,f))
+            {
+                new_return(30);
+            }
+            
+            if(!p_iputw(guysbuf[i].grumble,f))
+            {
+                new_return(31);
+            }
+            
+            if(!p_iputw(guysbuf[i].item_set,f))
+            {
+                new_return(32);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc1,f))
+            {
+                new_return(33);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc2,f))
+            {
+                new_return(34);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc3,f))
+            {
+                new_return(35);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc4,f))
+            {
+                new_return(36);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc5,f))
+            {
+                new_return(37);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc6,f))
+            {
+                new_return(38);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc7,f))
+            {
+                new_return(39);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc8,f))
+            {
+                new_return(40);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc9,f))
+            {
+                new_return(41);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc10,f))
+            {
+                new_return(42);
+            }
+            
+            if(!p_iputw(guysbuf[i].bgsfx,f))
+            {
+                new_return(43);
+            }
+            
+            if(!p_iputw(guysbuf[i].bosspal,f))
+            {
+                new_return(44);
+            }
+            
+            if(!p_iputw(guysbuf[i].extend,f))
+            {
+                new_return(45);
+            }
+            
+            for(int j=0; j < edefLAST; j++)
+            {
+		   // if ( j < scriptDEFLAST ) {
+		//	if(!p_putc(guysbuf[i].scriptdefense[j],f))
+		//	{
+		//		Z_message("Doing script defs\n");
+		//	    new_return(46);
+		//	}
+			    
+		   // }
+                if(!p_putc(guysbuf[i].defense[j],f))
+                {
+                    new_return(46);
+                }
+            }
+            
+            if(!p_putc(guysbuf[i].hitsfx,f))
+            {
+                new_return(47);
+            }
+            
+            if(!p_putc(guysbuf[i].deadsfx,f))
+            {
+                new_return(48);
+            }
+            
+            if(!p_iputl(guysbuf[i].misc11,f))
+            {
+                new_return(49);
+            }
+           /*
+	    for(int j=0; j < scriptDEFLAST; j++)
+            {
+                if(!p_putc(guysbuf[i].scriptdefense[j],f))
+                {
+                    new_return(50);
+                }
+            }
+	    */
+	//dISABLING THIS TO BORROW ITS RETURN FOR A TEST -!ZoriaRPG
+		
+            if(!p_iputl(guysbuf[i].misc12,f))
+            {
+                new_return(50);
+            }
+	    
+	    
+	    //The stopped npcs from spawning!?
+	    /* DIsabling this to ensure that exporting for this special build does not make a
+	    corrupt quest that 2.50.x cannot open.
+	    for(int j=0; j < scriptDEFLAST; j++)
+            {
+                if(!p_putc(guysbuf[i].scriptdefense[j],f))
+                {
+                    new_return(51);
+                }
+            }
+	    */
+	    
+        }
+        
+        if(writecycle==0)
+        {
+            section_size=writesize;
+        }
+    }
+    
+    if(writesize!=int(section_size) && save_warn)
+    {
+        char ebuf[80];
+        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        jwin_alert("Error:  writeguys()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+    }
+    
+    new_return(0);
+}
+
+
 int writelinksprites(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -10788,6 +11116,321 @@ int writefavorites(PACKFILE *f, zquestheader*)
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int(section_size));
         jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+    }
+    
+    new_return(0);
+}
+
+
+int save_unencoded_250_quest(const char *filename, bool compressed)
+{
+    reset_combo_animations();
+    reset_combo_animations2();
+    strcpy(header.id_str,QH_NEWIDSTR);
+    header.zelda_version = 0x250;
+    header.internal = INTERNAL_VERSION;
+    // header.str_count = msg_count;
+    // header.data_flags[ZQ_TILES] = usetiles;
+    header.data_flags[ZQ_TILES] = true;
+    header.data_flags[ZQ_CHEATS2] = 1;
+    header.build=VERSION_BUILD;
+    
+    for(int i=0; i<MAXCUSTOMMIDIS; i++)
+    {
+        set_bit(midi_flags,i,int(customtunes[i].data!=NULL));
+    }
+    
+    char keyfilename[2048];
+    // word combos_used;
+    // word tiles_used;
+    replace_extension(keyfilename, filepath, "key", 2047);
+    
+    
+    
+    
+    box_start(1, "Saving Quest", lfont, font, true);
+    box_out("Saving Quest...");
+    box_eol();
+    box_eol();
+    
+    PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
+    
+    if(!f)
+    {
+        fake_pack_writing = false;
+        return 1;
+    }
+    
+    box_out("Writing Header...");
+    
+    if(writeheader(f,&header)!=0)
+    {
+        new_return(2);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Rules...");
+    
+    if(writerules(f,&header)!=0)
+    {
+        new_return(3);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Strings...");
+    
+    if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
+    {
+        new_return(4);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Doors...");
+    
+    if(writedoorcombosets(f,&header)!=0)
+    {
+        new_return(5);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing DMaps...");
+    
+    if(writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
+    {
+        new_return(6);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Misc. Data...");
+    
+    if(writemisc(f,&header,&misc)!=0)
+    {
+        new_return(7);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Misc. Colors...");
+    
+    if(writemisccolors(f,&header,&misc)!=0)
+    {
+        new_return(8);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Game Icons...");
+    
+    if(writegameicons(f,&header,&misc)!=0)
+    {
+        new_return(9);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Items...");
+    
+    if(writeitems(f,&header)!=0)
+    {
+        new_return(10);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Weapons...");
+    
+    if(writeweapons(f,&header)!=0)
+    {
+        new_return(11);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Maps...");
+    
+    if(writemaps(f,&header)!=0)
+    {
+        new_return(12);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Combos...");
+    
+    if(writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
+    {
+        new_return(13);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Combo Aliases...");
+    
+    if(writecomboaliases(f,header.zelda_version,header.build)!=0)
+    {
+        new_return(14);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Color Data...");
+    
+    if(writecolordata(f,&misc,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
+    {
+        new_return(15);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Tiles...");
+    
+    if(writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
+    {
+        new_return(16);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing MIDIs...");
+    
+    if(writemidis(f)!=0)
+    {
+        new_return(17);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Cheat Codes...");
+    
+    if(writecheats(f,&header)!=0)
+    {
+        new_return(18);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Init. Data...");
+    
+    if(writeinitdata(f,&header)!=0)
+    {
+        new_return(19);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Custom Guy Data...");
+    
+    if(writeguys250(f,&header)!=0)
+    {
+        new_return(20);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Custom Link Sprite Data...");
+    
+    if(writelinksprites(f,&header)!=0)
+    {
+        new_return(21);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Custom Subscreen Data...");
+    
+    if(writesubscreens(f,&header)!=0)
+    {
+        new_return(22);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing FF Script Data...");
+    
+    if(writescripts(f,&header)!=0)
+    {
+        new_return(23);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing SFX Data...");
+    
+    if(writesfx(f,&header)!=0)
+    {
+        new_return(24);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Item Drop Sets...");
+    
+    if(writeitemdropsets(f, &header)!=0)
+    {
+        new_return(25);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    box_out("Writing Favorite Combos...");
+    
+    if(writefavorites(f, &header)!=0)
+    {
+        new_return(26);
+    }
+    
+    box_out("okay.");
+    box_eol();
+    
+    pack_fclose(f);
+    
+    replace_extension(keyfilename, get_filename(filepath), "key", 2047);
+    
+    if(header.use_keyfile&&header.dirty_password)
+    {
+        PACKFILE *fp = pack_fopen_password(keyfilename, F_WRITE, "");
+        char msg[80];
+        memset(msg,0,80);
+        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+        msg[78]=13;
+        msg[79]=10;
+        pfwrite(msg, 80, fp);
+        p_iputw(header.zelda_version,fp);
+        p_putc(header.build,fp);
+        pfwrite(header.password, 256, fp);
+        pack_fclose(fp);
     }
     
     new_return(0);

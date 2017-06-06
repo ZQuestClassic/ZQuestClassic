@@ -1286,6 +1286,7 @@ void test_item(itemdata test, int x, int y)
     {
     
         ++frame;
+	    setLabels(test.family);
         clear_bitmap(buf);
         temp.animate(0);
         temp.draw(buf);

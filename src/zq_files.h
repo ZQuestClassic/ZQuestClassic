@@ -51,6 +51,8 @@ int onImport_ZQT();
 int onExport_ZQT();
 int onImport_UnencodedQuest();
 int onExport_UnencodedQuest();
+int onExport_250Quest();
+int onExport_ZASM();
 void center_zq_files_dialogs();
 #endif
  

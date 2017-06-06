@@ -626,6 +626,8 @@ enum
     cmdItemDropSets,
     cmdPastePalette,
     cmdCompatRules,
+    cmdExportZASM,
+    cmdExport250,
     cmdMAX
 };
 
