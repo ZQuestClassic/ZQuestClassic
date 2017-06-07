@@ -429,7 +429,7 @@ static int itemdata_scriptargs_list[] =
 static int itemdata_weaponargs_list[] =
 {
     // dialog control number
-    199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, -1
+    199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,216,217,218,219,220, -1
 };
 
 /*
@@ -597,15 +597,23 @@ const char *weapon_patternlist(int index, int *list_size)
         switch(index)
         {
         case 0: return "None";
-	case 1: return "Sine Wave";
-        case 2: return "Cosine";
-        case 3: return "Circular";
-
+	case 1: return "Line";
+	case 2: return "Sine Wave";
+        case 3: return "Cosine";
+        case 4: return "Circular";
+	case 5: return "Arc";
+	case 6: return "Pattern A";
+	case 7: return "Pattern B";
+	case 8: return "Pattern C";
+	case 9: return "Pattern D";
+	case 10: return "Pattern E";
+	case 11: return "Pattern F";
+	default: return "None";
 	
         }
     }
     
-    *list_size = 3;
+    *list_size = 12;
     return NULL;
 }
 
@@ -966,26 +974,38 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      140+10,  25+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     //199
-    { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
+    { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
     //201
-    { jwin_text_proc,           8,     68,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
+    { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_type_list,						 NULL,   NULL 				   },
     //203
-    { jwin_text_proc,           8,     88,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
+    { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
     //205
-    { jwin_text_proc,           8,     108,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 1:",                              NULL,   NULL                  },
+    { jwin_text_proc,           8,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 1:",                              NULL,   NULL                  },
     { jwin_edit_proc,         107,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //207
-    { jwin_text_proc,           8,     128,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 2:",                              NULL,   NULL                  },
+    { jwin_text_proc,           8,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 2:",                              NULL,   NULL                  },
     { jwin_edit_proc,         107,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //209
-    { jwin_text_proc,           8,     148,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Range:",                              NULL,   NULL                  },
+    { jwin_text_proc,           8,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Range:",                              NULL,   NULL                  },
     { jwin_edit_proc,         107,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //211
-    { jwin_text_proc,           8,     168,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Duration:",                              NULL,   NULL                  },
+    { jwin_text_proc,           8,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Duration:",                              NULL,   NULL                  },
     { jwin_edit_proc,         107,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //213
+     { jwin_text_proc,           177,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 3:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //215
+    { jwin_text_proc,           177,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 4:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //217
+    { jwin_text_proc,           177,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 1:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //219
+    { jwin_text_proc,           177,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 2:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     
     /*
     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[0]:", NULL, NULL },
@@ -1461,7 +1481,7 @@ void edit_itemdata(int index)
     char snd[8], mgc[8], hrt[8], pow[8];
     char name[64], zname[64];
     char ms1[8], ms2[8], ms3[8], ms4[8], ms5[8], ms6[8], ms7[8], ms8[8], ms9[8], ms10[8];
-	char wrange[8], wdur[8], wdef[8], wweap[8], wptrn[8], warg1[8], warg2[8];
+	char wrange[8], wdur[8], wdef[8], wweap[8], wptrn[8], warg1[8], warg2[8], warg3[8], warg4[8], warg5[8], warg6[8];
     char itemnumstr[75];
     char da[10][13];
     
@@ -1499,6 +1519,10 @@ void edit_itemdata(int index)
     sprintf(wptrn,"%d",itemsbuf[index].weap_pattern[0]);
     sprintf(warg1,"%d",itemsbuf[index].weap_pattern[1]);
     sprintf(warg2,"%d",itemsbuf[index].weap_pattern[2]);
+    sprintf(warg3,"%d",itemsbuf[index].weap_pattern[3]);
+    sprintf(warg4,"%d",itemsbuf[index].weap_pattern[4]);
+    sprintf(warg5,"%d",itemsbuf[index].weap_pattern[5]);
+    sprintf(warg6,"%d",itemsbuf[index].weap_pattern[6]);
   
     
     sprintf(name,"%s",item_string[index]);
@@ -1670,6 +1694,11 @@ void edit_itemdata(int index)
     itemdata_dlg[210].dp = wrange; //itemsbuf[index].weaprange;
     itemdata_dlg[212].dp = wdur; //itemsbuf[index].weapduration;
     
+     itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
+    itemdata_dlg[216].dp = warg4; //itemsbuf[index].weap_pattern[2];
+    itemdata_dlg[218].dp = warg5; //itemsbuf[index].weaprange;
+    itemdata_dlg[220].dp = warg6; //itemsbuf[index].weapduration;
+    
     
     int ret;
     itemdata test;
@@ -1725,6 +1754,11 @@ void edit_itemdata(int index)
 	test.weap_pattern[0] = itemdata_cpy[204].d1;; //atoi(wptrn);
 	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
 	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
+	
+	test.weap_pattern[3] =  vbound(atoi(warg3),-214747, 214747);
+	test.weap_pattern[4] =  vbound(atoi(warg4),-214747, 214747);
+	test.weap_pattern[5] =  vbound(atoi(warg5),-214747, 214747);
+	test.weap_pattern[6] =  vbound(atoi(warg6),-214747, 214747);
         
         if(itemdata_cpy[14].flags & D_SELECTED)
             test.flags |= ITEM_GAMEDATA;
@@ -1954,6 +1988,10 @@ void edit_itemdata(int index)
 			    itemdata_cpy[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
 			    itemdata_cpy[210].dp = wrange; //test.weaprange; //atoi(wrange);
 			    itemdata_cpy[212].dp = wdur;// = test.weapduration; //atoi(wdur);
+			    itemdata_cpy[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
+			    itemdata_cpy[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
+			    itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
+			    itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
             
             for(int j=0; j<biw_cnt; j++)
             {
