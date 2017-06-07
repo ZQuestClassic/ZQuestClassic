@@ -843,7 +843,6 @@ static MENU export_menu[] =
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
     { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
-    { (char *)"&Unencoded Quest",           onExport_250Quest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -23499,8 +23498,7 @@ command_pair commands[cmdMAX]=
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
     { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
-    { "Export ZASM",             0, (intF) onExport_ZASM                          },
-    { "Export 2.50.x Quest",             0, (intF) onExport_250Quest                          }
+    { "Export ZASM",             0, (intF) onExport_ZASM                          }
 };
 
 /********************************/
