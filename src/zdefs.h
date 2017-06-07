@@ -1031,7 +1031,7 @@ struct tiledata
     byte *data;
 };
 
-#define ITEM_MOVEMENT_PATTERNS 3
+#define ITEM_MOVEMENT_PATTERNS 10
 
 struct itemdata
 {

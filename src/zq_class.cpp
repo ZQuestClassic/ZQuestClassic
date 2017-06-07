@@ -7439,17 +7439,11 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             {
                 new_return(52);
             }
-	    if(!p_iputl(itemsbuf[i].weap_pattern[0],f))
-	    {
-		new_return(53);
-	    }
-	    if(!p_iputl(itemsbuf[i].weap_pattern[1],f))
-	    {
-		new_return(54);
-	    }
-	    if(!p_iputl(itemsbuf[i].weap_pattern[2],f))
-	    {
-		new_return(55);
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+		    {
+			new_return(53);
+		    }
 	    }
 	    
         }

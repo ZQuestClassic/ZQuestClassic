@@ -4736,8 +4736,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool 
                                                             itemsbuf[i].misc2=itemsbuf[i].magic=tempitem.usesound=0;
             itemsbuf[i].count=-1;
             itemsbuf[i].playsound=WAV_SCALE;
-		itemsbuf[i].useweapon = itemsbuf[i].usedefence = itemsbuf[i].weaprange = itemsbuf[i].weapduration =
-		itemsbuf[i].weap_pattern[0] = itemsbuf[i].weap_pattern[1] = itemsbuf[i].weap_pattern[2] = 0;
+		itemsbuf[i].useweapon = itemsbuf[i].usedefence = itemsbuf[i].weaprange = itemsbuf[i].weapduration = 0;
+		for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) itemsbuf[i].weap_pattern[q] = 0;
             reset_itembuf(&itemsbuf[i],i);
         }
     }
@@ -4746,53 +4746,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool 
     {
         memset(&tempitem, 0, sizeof(itemdata));
         reset_itembuf(&tempitem,i);
-	    
-	    //! I need help with this. THis should wori, but ZQuest is crashing on reading items. -Z
-	/*
-	if ( s_version >= 26 )  //! Is this properly reading V_ITEMS ?
-	{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-		if(!p_igetl(&tempitem.useweapon,f,true))
-		{
-		    return qe_invalid;
-		}
-		if(!p_igetl(&tempitem.usedefence,f,true))
-		{
-		    return qe_invalid;
-		}
-		if(!p_igetl(&tempitem.weaprange,f,true))
-		{
-		    return qe_invalid;
-		}
-		if(!p_igetl(&tempitem.weapduration,f,true))
-		{
-		    return qe_invalid;
-		}
-		if(!p_igetl(&tempitem.weap_pattern[0],f,true))
-		{
-		    return qe_invalid;
-		}
-		if(!p_igetl(&tempitem.weap_pattern[1],f,true))
-		{
-		    return qe_invalid;
-		}
-		if(!p_igetl(&tempitem.weap_pattern[2],f,true))
-		{
-		    return qe_invalid;
-		}
 	
-	}
-	else
-	{
-		tempitem.useweapon = 0;
-		tempitem.usedefence = 0;
-		tempitem.weaprange = 0;
-		tempitem.weapduration= 0;
-		tempitem.weap_pattern[0]= 0;
-		tempitem.weap_pattern[1] = 0;
-		tempitem.weap_pattern[2] = 0;
-	
-	}
-	*/
         
         if(!p_igetw(&tempitem.tile,f,true))
         {
@@ -5172,14 +5126,16 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool 
                         return qe_invalid;
                     }
                 }
-		//if (( Header->zelda_version >= 0x250 ) && ( Header->build > 30 )) //New itemdata properties for 2.55. -Z
-		/*if ( s_version >= 26 )  //! Is this properly reading V_ITEMS ?
+		
+		
+            }
+	    if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
 		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-			if(!p_igetl(&tempitem.useweapon,f,true))
+			if(!p_getc(&tempitem.useweapon,f,true))
                         {
                             return qe_invalid;
                         }
-			if(!p_igetl(&tempitem.usedefence,f,true))
+			if(!p_getc(&tempitem.usedefence,f,true))
                         {
                             return qe_invalid;
                         }
@@ -5191,22 +5147,15 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool 
                         {
                             return qe_invalid;
                         }
-			if(!p_igetl(&tempitem.weap_pattern[0],f,true))
-			{
-			    return qe_invalid;
-			}
-			if(!p_igetl(&tempitem.weap_pattern[1],f,true))
-			{
-			    return qe_invalid;
-			}
-			if(!p_igetl(&tempitem.weap_pattern[2],f,true))
-			{
-			    return qe_invalid;
+			for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+				
+				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+				{
+				    return qe_invalid;
+				}
 			}
 		
-		}*/
-		
-            }
+		}
         }
         else
         {

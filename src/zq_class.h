@@ -211,7 +211,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
 int load_quest(const char *filename, bool compressed, bool encrypted);
 int save_unencoded_quest(const char *filename, bool compressed);
-int save_unencoded_250_quest(const char *filename, bool compressed);
+
 int save_quest(const char *filename, bool timed_save);
 
 int writemapscreen(PACKFILE *f, int i, int j);
