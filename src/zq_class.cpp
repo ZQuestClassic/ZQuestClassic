@@ -5284,7 +5284,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_ITEMS)
     {
-        if(readitems(f, ZELDA_VERSION, VERSION_BUILD, false, true)!=0)
+        if(readitems(f, ZELDA_VERSION, VERSION_BUILD, NULL, false, true)!=0)
         {
             pack_fclose(f);
             return false;
@@ -7419,6 +7419,335 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             {
                 new_return(48);
             }
+	    
+	    //New itemdata vars -Z
+	    //! I need help with this. THis should wori, but ZQuest is crashing on reading items. -Z
+	    /*
+	    if(!p_putc(itemsbuf[i].useweapon,f))
+            {
+                new_return(49);
+            }
+	    if(!p_putc(itemsbuf[i].usedefence,f))
+            {
+                new_return(50);
+            }
+	    if(!p_putc(itemsbuf[i].weaprange,f))
+            {
+                new_return(51);
+            }
+	    if(!p_putc(itemsbuf[i].weapduration,f))
+            {
+                new_return(52);
+            }
+	    if(!p_putc(itemsbuf[i].weap_pattern[0],f))
+	    {
+		new_return(53);
+	    }
+	    if(!p_putc(itemsbuf[i].weap_pattern[1],f))
+	    {
+		new_return(54);
+	    }
+	    if(!p_putc(itemsbuf[i].weap_pattern[2],f))
+	    {
+		new_return(55);
+	    }
+	    */
+        }
+        
+        if(writecycle==0)
+        {
+            section_size=writesize;
+        }
+    }
+    
+    if(writesize!=int(section_size) && save_warn)
+    {
+        char ebuf[80];
+        sprintf(ebuf, "%d != %d", writesize, int(section_size));
+        jwin_alert("Error:  writeitems()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+    }
+    
+    new_return(0);
+}
+
+int writeitems250(PACKFILE *f, zquestheader *Header)
+{
+    //these are here to bypass compiler warnings about unused arguments
+    Header=Header;
+    
+    dword section_id=ID_ITEMS;
+    dword section_version=V_ITEMS;
+    dword section_cversion=CV_ITEMS;
+    //  dword section_size=0;
+    dword section_size = 0;
+    
+    //section id
+    if(!p_mputl(section_id,f))
+    {
+        new_return(1);
+    }
+    
+    //section version info
+    if(!p_iputw(section_version,f))
+    {
+        new_return(2);
+    }
+    
+    if(!p_iputw(section_cversion,f))
+    {
+        new_return(3);
+    }
+    
+    for(int writecycle=0; writecycle<2; ++writecycle)
+    {
+        fake_pack_writing=(writecycle==0);
+        
+        //section size
+        if(!p_iputl(section_size,f))
+        {
+            new_return(4);
+        }
+        
+        writesize=0;
+        
+        //finally...  section data
+        if(!p_iputw(iMax,f))
+        {
+            new_return(5);
+        }
+        
+        for(int i=0; i<iMax; i++)
+        {
+            if(!pfwrite(item_string[i], 64, f))
+            {
+                new_return(5);
+            }
+        }
+        
+        for(int i=0; i<iMax; i++)
+        {
+            if(!p_iputw(itemsbuf[i].tile,f))
+            {
+                new_return(6);
+            }
+            
+            if(!p_putc(itemsbuf[i].misc,f))
+            {
+                new_return(7);
+            }
+            
+            if(!p_putc(itemsbuf[i].csets,f))
+            {
+                new_return(8);
+            }
+            
+            if(!p_putc(itemsbuf[i].frames,f))
+            {
+                new_return(9);
+            }
+            
+            if(!p_putc(itemsbuf[i].speed,f))
+            {
+                new_return(10);
+            }
+            
+            if(!p_putc(itemsbuf[i].delay,f))
+            {
+                new_return(11);
+            }
+            
+            if(!p_iputl(itemsbuf[i].ltm,f))
+            {
+                new_return(12);
+            }
+            
+            if(!p_putc(itemsbuf[i].family,f))
+            {
+                new_return(13);
+            }
+            
+            if(!p_putc(itemsbuf[i].fam_type,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_putc(itemsbuf[i].power,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_iputw(itemsbuf[i].flags,f))
+            {
+                new_return(15);
+            }
+            
+            if(!p_iputw(itemsbuf[i].script,f))
+            {
+                new_return(16);
+            }
+            
+            if(!p_putc(itemsbuf[i].count,f))
+            {
+                new_return(17);
+            }
+            
+            if(!p_iputw(itemsbuf[i].amount,f))
+            {
+                new_return(18);
+            }
+            
+            if(!p_iputw(itemsbuf[i].collect_script,f))
+            {
+                new_return(19);
+            }
+            
+            if(!p_iputw(itemsbuf[i].setmax,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputw(itemsbuf[i].max,f))
+            {
+                new_return(22);
+            }
+            
+            if(!p_putc(itemsbuf[i].playsound,f))
+            {
+                new_return(23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_iputl(itemsbuf[i].initiald[j],f))
+                {
+                    new_return(24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_putc(itemsbuf[i].initiala[j],f))
+                {
+                    new_return(25);
+                }
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn,f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn2,f))
+            {
+                new_return(27);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn3,f))
+            {
+                new_return(28);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn4,f))
+            {
+                new_return(29);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn5,f))
+            {
+                new_return(30);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn6,f))
+            {
+                new_return(31);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn7,f))
+            {
+                new_return(32);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn8,f))
+            {
+                new_return(33);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn9,f))
+            {
+                new_return(34);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn10,f))
+            {
+                new_return(35);
+            }
+            
+            if(!p_putc(itemsbuf[i].pickup_hearts,f))
+            {
+                new_return(36);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc1,f))
+            {
+                new_return(37);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc2,f))
+            {
+                new_return(38);
+            }
+            
+            if(!p_putc(itemsbuf[i].magic,f))
+            {
+                new_return(39);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc3,f))
+            {
+                new_return(40);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc4,f))
+            {
+                new_return(41);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc5,f))
+            {
+                new_return(42);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc6,f))
+            {
+                new_return(43);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc7,f))
+            {
+                new_return(44);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc8,f))
+            {
+                new_return(45);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc9,f))
+            {
+                new_return(46);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc10,f))
+            {
+                new_return(47);
+            }
+            
+            if(!p_putc(itemsbuf[i].usesound,f))
+            {
+                new_return(48);
+            }
+	    
+	   
         }
         
         if(writecycle==0)
@@ -11243,7 +11572,7 @@ int save_unencoded_250_quest(const char *filename, bool compressed)
     
     box_out("Writing Items...");
     
-    if(writeitems(f,&header)!=0)
+    if(writeitems250(f,&header)!=0)
     {
         new_return(10);
     }

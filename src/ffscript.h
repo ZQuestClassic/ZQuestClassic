@@ -996,7 +996,13 @@ enum ASM_DEFINE
 #define RESVD114E 0x114E
 #define RESVD114F 0x114F
 
-#define NUMVARIABLES         0x1150
+#define IDATAUSEWPN 0x1150
+#define IDATAUSEDEF 0x1151
+#define IDATAWRANGE 0x1152
+#define IDATAUSEMVT 0x1153
+#define IDATADURATION 0x1154
+
+#define NUMVARIABLES         0x1155
 
 struct quad3Dstruct
 {

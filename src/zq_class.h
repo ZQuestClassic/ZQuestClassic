@@ -254,6 +254,7 @@ bool save_zqt(const char *path);
 void center_zq_class_dialogs();
 
 int writeitems(PACKFILE *f, zquestheader *Header);
+int writeitems250(PACKFILE *f, zquestheader *Header);
 int writeweapons(PACKFILE *f, zquestheader *Header);
 int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
