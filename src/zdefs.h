@@ -1032,6 +1032,7 @@ struct tiledata
 };
 
 #define ITEM_MOVEMENT_PATTERNS 10
+//Holds the movement pattern, and its args.
 
 struct itemdata
 {
