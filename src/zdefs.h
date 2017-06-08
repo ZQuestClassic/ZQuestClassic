@@ -457,6 +457,11 @@ extern bool fake_pack_writing;
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
 
+//Common struct array element sizes-Z
+#define INITIAL_A 2
+#define INITIAL_D 8
+#define FFSCRIPT_MISC 32
+
 
 enum
 {
@@ -1031,6 +1036,48 @@ struct tiledata
     byte *data;
 };
 
+//Weapon editor
+
+//Weapon clocks
+enum
+{ 
+	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9 
+};
+
+//Movement patterns
+enum
+{
+	wmoveNONE, wmoveLINE, wmoveSINE, wmoveCOSINE, wmoveCIRCLE, wmoveARC, wmovePATTERN_A, 
+	wmovePATTERN_B, wmovePATTERN_C, wmovePATTERN_D, wmovePATTERN_E, wmovePATTERN_F
+};
+
+//Weapon Types
+enum
+{
+	weaptypeNONE, weaptypeSWORD, weaptypeSWORDBEAM, weaptypeBRANG, weaptypeBOMBBLAST,
+	weaptypeSBOMBBLAST, weaptypeBOMB, weaptypeSBOMB, weaptypeARROW, weaptypeFIRE,
+	weaptypeWHISTLE, weaptypeBAIT, weaptypeWAND, weaptypeMAGIC, weaptypeCANDLE,
+	weaptypeWIND, weaptypeREFMAGIC, weaptypeREFFIREBALL, weaptypeREFROCK, weaptypeHAMMER,
+	weaptypeHOOKSHOT, weaptype21, weaptype22, weaptypeSPARKLE, weaptype24,
+	weaptype25, weaptypeBYRNA, weaptypeREFBEAM, weaptype28, weaptype29,
+	weaptypeSCRIPT1, weaptypeSCRIPT2, weaptypeSCRIPT3, weaptypeSCRIPT4, weaptypeSCRIPT5,
+	weaptypeSCRIPT6, weaptypeSCRIPT7, weaptypeSCRIPT8, weaptypeSCRIPT9, weaptypeSCRIPT10
+};
+
+//Defence types
+enum
+{
+	weapdefNONE, weapdefSWORD, weapdefSWORDBEAM, weapdefBRANG, weapdefBOMBBLAST,
+	weapdefSBOMBBLAST, weapdefBOMB, weapdefSBOMB, weapdefARROW, weapdefFIRE,
+	weapdefWHISTLE, weapdefBAIT, weapdefWAND, weapdefMAGIC, weapdefCANDLE,
+	weapdefWIND, weapdefREFMAGIC, weapdefREFFIREBALL, weapdefREFROCK, weapdefHAMMER,
+	weapdefHOOKSHOT, weapdef21, weapdef22, weapdefSPARKLE, weapdef24,
+	weapdef25, weapdefBYRNA, weapdefREFBEAM, weapdef28, weapdef29,
+	weapdefSCRIPT1, weapdefSCRIPT2, weapdefSCRIPT3, weapdefSCRIPT4, weapdefSCRIPT5,
+	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10 
+};
+	
+
 #define ITEM_MOVEMENT_PATTERNS 10
 //Holds the movement pattern, and its args.
 
@@ -1044,7 +1091,7 @@ struct itemdata
     byte delay;                                               // extra delay factor (-1) for first frame
     long ltm;                                                 // Link Tile Modifier
     byte family;												// What family the item is in
-    byte fam_type;											// What type in this family the item is
+    byte fam_type;	//level										// What type in this family the item is
     byte power;	// Damage, height, etc.
     word flags;
 #define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
@@ -1103,7 +1150,8 @@ struct itemdata
     int weaprange; //default range -Z
     int weapduration; //default duration, 0 = infinite. 
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor. 
-    
+    int duplicates; //Number of duplicate weapons generated.
+    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
     
 };
 
