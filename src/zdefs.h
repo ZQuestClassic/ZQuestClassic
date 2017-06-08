@@ -1044,12 +1044,7 @@ enum
 	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9 
 };
 
-//Movement patterns
-enum
-{
-	wmoveNONE, wmoveLINE, wmoveSINE, wmoveCOSINE, wmoveCIRCLE, wmoveARC, wmovePATTERN_A, 
-	wmovePATTERN_B, wmovePATTERN_C, wmovePATTERN_D, wmovePATTERN_E, wmovePATTERN_F
-};
+
 
 //Weapon Types
 enum
@@ -1079,6 +1074,21 @@ enum
 	
 
 #define ITEM_MOVEMENT_PATTERNS 10
+
+	//Move pattern array indices
+enum{
+	wpnmovePATTERN, wmoveARG1, wmoveARG2, wmoveARG3, wmoveARG4, wmoveDUPLICATES, wmoveOTHER1
+};
+	
+
+//Movement patterns
+enum
+{
+	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A, 
+	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
+};
+
+
 //Holds the movement pattern, and its args.
 
 struct itemdata
