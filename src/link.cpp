@@ -3508,11 +3508,11 @@ void LinkClass::addsparkle(int wpn)
     
     if(itemtype!=itype_cbyrna && frame%4)
         return;
-        
-    int wpn2 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2;
-    int wpn3 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3;
+    
+    int wpn2 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2; //!Dimentio: let's stuff the wand in here...
+    int wpn3 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3; //!Dimentio: and here...
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (rand()&1 ? wpn2 : wpn3)));
+	int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (rand()&1 ? wpn2 : wpn3)));
     int direction=w->dir;
     
     if(sparkle_type)
@@ -3541,7 +3541,7 @@ void LinkClass::addsparkle(int wpn)
         }
         
         // Damaging boomerang sparkle?
-        if(wpn3 && itemtype==itype_brang)
+        if(wpn3 && (itemtype==itype_brang || (itemtype==itype_wand && itemsbuf[itemid].misc1 == 3))) //!Dimentio: Wand exceptions...
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.
@@ -4832,39 +4832,233 @@ bool LinkClass::startwpn(int itemid)
     break;
     
     case itype_wand:
-    {
-        if(Lwpns.idCount(wMagic))
-            return false;
-            
-        int bookid = current_item_id(itype_book);
-        bool paybook = (bookid>-1 && checkmagiccost(bookid));
-        
-        if(!(itemsbuf[itemid].flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
-            return false;
-            
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        if(Lwpns.idCount(wBeam))
-            Lwpns.del(Lwpns.idFirst(wBeam));
-            
-        int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-        int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
-        
-        for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
-            if(dir!=(i^1))
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
-                
-        paymagiccost(itemid);
-        
-        if(paybook)
-            paymagiccost(current_item_id(itype_book));
-            
-        if(bookid != -1)
-            Backend::sfx->play(itemsbuf[bookid].usesound,wx);
-        else
-            Backend::sfx->play(itemsbuf[itemid].usesound,wx);
-    }
+        {
+            //!Dimentio Edit Territory
+            //int wandfireweapon1 = current_item_id(itype_wand); //I'm doing it the long way to test this, as I have no idea if doing it the shorter way will cause problems
+           // int wandfireweapon3; //Store the weapon value in here, for use later/to prevent 27 copies of the new weapon code.
+            /*
+       
+        switch(itemsbuf[wandfireweapon1].misc1) //Okay, what weapon will the wand fire?
+            {
+                case 0: wandfireweapon3 = wMagic; //Magic is default.
+                        break;
+                case 1: wandfireweapon3 = wArrow; //Arrows?
+                        break;
+                case 2: wandfireweapon3 = wFire; //Fire?
+                        break;
+                case 3: wandfireweapon3 = wWind; //Wind?
+                        break;
+                case 4: wandfireweapon3 = wRefMagic; //Reflected Magic?
+                        break;
+                case 5: wandfireweapon3 = wRefFireball; //Reflected Fireball?
+                        break;
+                case 6: wandfireweapon3 = wRefRock; //Reflected Rock?
+                        break;
+                case 7: wandfireweapon3 = wRefBeam; //Reflected Sword Beam?
+                        break;
+                case 8: wandfireweapon3 = wBrang; //Boomerang?
+                        break;
+                case 9: wandfireweapon3 = wBeam; //Sword Beam?
+                        break;
+                //Less sure about the following ones:
+                case 10: wandfireweapon3 = wLitBomb; //Bomb?
+                        break;
+                case 11: wandfireweapon3 = wLitSBomb; //SuperBomb?
+                        break;
+                case 12: wandfireweapon3 = wBomb; //Explosion?
+                        break;
+                case 13: wandfireweapon3 = wSBomb; //Super Explosion?
+                        break;
+                case 14: wandfireweapon3 = wSSparkle; //Sparkle?
+                        break;
+                case 15: wandfireweapon3 = wFSparkle; //Fire Sparkle?
+                        break;
+                case 16: wandfireweapon3 = wHookshot; //Hookshot?
+                        break;
+                case 17: wandfireweapon3 = wBait; //Woo! BaitWand!
+                //Script weapon time!
+                case 18: wandfireweapon3 = wScript1;
+                        break;
+                case 19: wandfireweapon3 = wScript2;
+                        break;
+                case 20: wandfireweapon3 = wScript3;
+                        break;
+                case 21: wandfireweapon3 = wScript4;
+                        break;
+                case 22: wandfireweapon3 = wScript5;
+                        break;
+                case 23: wandfireweapon3 = wScript6;
+                        break;
+                case 24: wandfireweapon3 = wScript7;
+                        break;
+                case 25: wandfireweapon3 = wScript8;
+                        break;
+                case 26: wandfireweapon3 = wScript9;
+                        break;
+                case 27: wandfireweapon3 = wScript10;
+                        break;    
+               
+            }
+        */
+       
+       
+       
+            if(Lwpns.idCount(itemsbuf[itemid].misc1))
+                return false;
+               
+       
+            int bookid = current_item_id(itype_book);
+            bool paybook = (bookid>-1 && checkmagiccost(bookid));
+           
+            if(!(itemsbuf[itemid].flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
+                return false;
+               
+            if(!checkmagiccost(itemid))
+                return false;
+               
+        //Why is this here? -Z
+               
+            int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
+            int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+           
+            for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
+                if(dir!=(i^1))
+                {
+            //YOu don;t need any of those case statements until you want to do somethign special with each type.
+            //Try this, for now.
+					for (int i2 = 0; i2 <= abs(itemsbuf[itemid].misc8); i2++)
+					{
+						bool ItemCreatedThisTime = false; //!Dimentio: just a failsafe to prevent the setting of variables if a weapon was not created.
+						switch(itemsbuf[itemid].misc1) //!Dimentio: sort out the exceptions...
+						{
+							case 254:
+							case 0:
+							{
+								if (itemsbuf[itemid].misc10 == 1) 
+								{
+									switch(i)
+									{
+										case up:
+										case down: //!Dimentio: Okay, bit of complex math here. This is for multiple weapons that spawn side by side.
+										{
+											Lwpns.add(new weapon((fix)wx - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
+											break;
+										}
+										case left:
+										case right:
+										{
+											Lwpns.add(new weapon((fix)wx,(fix)wy - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wz,wMagic,type,pow,i, itemid,getUID()));
+											break;
+										}
+									}
+								}
+								else Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID())); //! Just in case/backwards compatibility
+								ItemCreatedThisTime = true;
+								break;
+							}
+							case 15: 
+							{
+								if (itemsbuf[itemid].misc10 == 1) 
+								{
+									switch(i)
+									{
+										case up:
+										case down: //!Dimentio: Okay, bit of complex math here. This is for multiple weapons that spawn side by side.
+										{
+											Ewpns.add(new weapon((fix)wx - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wy,(fix)wz,ewWind,type,itemsbuf[itemid].misc2,i, itemid,getUID()));
+											break;
+										}
+										case left:
+										case right:
+										{
+											Ewpns.add(new weapon((fix)wx,(fix)wy - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wz,ewWind,type,itemsbuf[itemid].misc2,i, itemid,getUID()));
+											break;
+										}
+									}
+								}
+								else Ewpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,ewWind,type,itemsbuf[itemid].misc2,i, itemid,getUID()));
+								ItemCreatedThisTime = true;
+								break;
+							}
+							case 20:
+							case 1:
+							case 12:
+							case 19:
+							case 27:
+							case 255:
+							break;
+							default: 
+							{
+								if (itemsbuf[itemid].misc10 == 1) 
+								{
+									switch(i)
+									{
+										case up:
+										case down: //!Dimentio: Okay, bit of complex math here. This is for multiple weapons that spawn side by side.
+										{
+											Lwpns.add(new weapon((fix)wx - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wy,(fix)wz,itemsbuf[itemid].misc1,type,pow,i, itemid,itemid));
+											break;
+										}
+										case left:
+										case right:
+										{
+											Lwpns.add(new weapon((fix)wx,(fix)wy - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wz,itemsbuf[itemid].misc1,type,pow,i, itemid,itemid));
+											break;
+										}
+									}
+								}
+								else Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,itemsbuf[itemid].misc1,type,pow,i, itemid,itemid)); //!Dimentio: wandfireweapon3 is what weapon the wand fires. Determined just above.
+								ItemCreatedThisTime = true;
+								break;
+							}
+						}
+						weapon *w;
+						if (itemsbuf[itemid].misc1 == 15) w = (weapon*)Ewpns.spr(Ewpns.Count()-1);
+						 else w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
+						 w->LOADGFX(itemsbuf[itemid].wpn3); //use Sprites[3]
+						if (itemsbuf[itemid].misc1 == 1 || itemsbuf[itemid].misc1 == 12 || itemsbuf[itemid].misc1 == 20 || itemsbuf[itemid].misc1 == 8 || 
+						 itemsbuf[itemid].misc1 == 2 || itemsbuf[itemid].misc1 == 13 || itemsbuf[itemid].misc1 == 16 || itemsbuf[itemid].misc1 == 28)
+						 {
+							switch(w->dir)
+							{
+							case down:
+								w->flip=2;
+								
+							case up:
+								w->hyofs=2;
+								w->hysz=12;
+								break;
+								
+							case left:
+								w->flip=1;
+								
+							case right: /*tile=o_tile+((frames>1)?frames:1)*/
+								w->update_weapon_frame(((w->frames>1)?w->frames:1),w->o_tile);
+								w->hxofs=2;
+								w->hxsz=12;
+								break;
+							}
+						}
+						if (itemsbuf[itemid].misc2 > 0)
+						{
+							int StepSaver = itemsbuf[itemid].misc2 / 100; //!Dimentio: Maybe this will fix the problem with Weapon Wind.
+							w->step = StepSaver; //Attributes[1]
+						}
+						else w->step = (BSZ ? 3 : 2.5);
+						
+						if (itemsbuf[itemid].misc10 != 1 && w->id != wWand) w->count2 = i2 * itemsbuf[itemid].misc9;
+					}
+				}  //!End Dimentio Edit Territory
+            paymagiccost(itemid);
+           
+            if(paybook)
+                paymagiccost(current_item_id(itype_book));
+               
+            if(bookid != -1)
+                Backend::sfx->play(itemsbuf[bookid].usesound,wx); //pan() is deprecated. -Z
+            else
+                Backend::sfx->play(itemsbuf[itemid].usesound,wx);
+        }
     /*
     //    Fireball Wand
     Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));

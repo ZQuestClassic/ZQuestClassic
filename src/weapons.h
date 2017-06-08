@@ -25,6 +25,9 @@
 extern byte boomframe[16];
 extern byte bszboomflip[4];
 
+#define WEAPON_CLOCKS 10
+
+
 class weapon : public sprite
 {
 private:
@@ -49,6 +52,35 @@ public:
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
     int temp1;
     bool behind;
+
+	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
+    int count1; 
+    int count2;
+    int count3;
+    int count4;
+    int count5;
+    void bookfirecreate();
+
+    //Weapon Editor -Z
+    byte useweapon; //lweapon id type -Z
+    byte usedefence; //default defence type -Z
+    int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
+    int weaprange; //default range -Z
+    int weapduration; //default duration, 0 = infinite. 
+    word weaponscript; //Running script. -Z
+    long initiald[8];
+    byte initiala[2];
+    long clocks[WEAPON_CLOCKS];
+    long tilemod;
+    byte drawlayer;
+    byte family_class;												
+    byte family_level;
+    word flags;
+    long collectflags; //items that this weapon can collect on contact.
+    long ffmisc[FFSCRIPT_MISC];
+    char weapname[128]; //Weapon Name, pulled from editor. 
+    //! End weapon editor. -Z
+    
     
     weapon(weapon const & other);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);

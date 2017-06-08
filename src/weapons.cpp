@@ -181,38 +181,69 @@ int weapon::seekEnemy2(int j)
 }
 
 weapon::weapon(weapon const & other):
+
+    //Struct Element			Type		Purpose
     sprite(other),
-    power(other.power),
-    type(other.type),
-    dead(other.dead),
-    clk2(other.clk2),
-    misc2(other.misc2),
-    ignorecombo(other.ignorecombo),
-    isLit(other.isLit),
-    parentid(other.parentid),
-    parentitem(other.parentitem),
-    dragging(other.dragging),
-    step(other.step),
-    bounce(other.bounce),
-    ignoreLink(other.ignoreLink),
-    flash(other.flash),
-    wid(other.wid),
-    aframe(other.aframe),
-    csclk(other.csclk),
-    o_tile(other.o_tile),
-    o_cset(other.o_cset),
-    o_speed(other.o_speed),
-    o_type(other.o_type),
-    frames(other.frames),
-    o_flip(other.o_flip),
-    temp1(other.temp1),
-    behind(other.behind),
-	minX(other.minX),
-	maxX(other.maxX),
-	minY(other.minY),
-	maxY(other.maxY)
+    power(other.power), 		//int
+    type(other.type), 			//int
+    dead(other.dead),			//int
+    clk2(other.clk2),			//int
+    misc2(other.misc2),			//int
+    ignorecombo(other.ignorecombo),	//int
+    isLit(other.isLit),			//bool		Does it light the screen?
+    parentid(other.parentid),		//int		Enemy that created it. -1 for none. 
+    parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
+    dragging(other.dragging),		//int draggong		?
+    step(other.step),			//fix		Speed of movement
+    bounce(other.bounce),		//bool		Boomerang, or hookshot bounce. 
+    ignoreLink(other.ignoreLink),	//bool		?
+    flash(other.flash),			//word		Is it flashing?
+    wid(other.wid),			//word		ID
+    aframe(other.aframe),		//word		Anim frame
+    csclk(other.csclk),			//word		CSet flash clk (?)
+    o_tile(other.o_tile),		//int		The base item tile
+    o_cset(other.o_cset),		//int		The CSet		
+    o_speed(other.o_speed),		//int		Original anim (?) speed.
+    o_type(other.o_type),		//int		The weapon ID (type)
+    frames(other.frames),		//int		Frames of the anim cycle
+    o_flip(other.o_flip),		//int		The original flip/orientationn
+    temp1(other.temp1),			//int		Misc var.
+    behind(other.behind),		//bool		Should it be drawn behind Link, NPC, and other sprites?
+    minX(other.minX),			//int		How close can the weapon get tot he edge of the screen
+    maxX(other.maxX),			//int		...before being deleted or bouncing
+    minY(other.minY),			//int		...
+    maxY(other.maxY),			//int		...
+	
+    //! Dimentio Wand
+    /*
+    //!Dimentio: These 5 exist both here and in the header file. If you remove these, don't forget to
+    remove them over there as well.
+    */
+    count1(other.count1), 		//int		Dimentio Wand 
+    count2(other.count2), 		//int		Dimentio Wand 
+    count3(other.count3), 		//int		Dimentio Wand
+    count4(other.count4), 		//int		Dimentio Wand
+    count5(other.count5), 		//int		Dimentio Wand
+	
+    //Weapon Editor -Z
+    useweapon(other.useweapon),		//byte		The weapon editor weapon type.
+    usedefence(other.usedefence),	//byte		The defence type to evaluate in do_enemy_hit()
+    weaprange(other.weaprange),		//int		The range or distance of the weapon before removing it. 
+    weapduration(other.weapduration),	//int		The number of frames that must elapse before removing it
+    weaponscript(other.weaponscript),	//word		The weapon action script. 
+    tilemod(other.tilemod),		//long		The LTM to use when the weapon is active. 
+    drawlayer(other.drawlayer),		//byte		The layer onto which we draw the weapon.
+    family_class(other.family_class),	//byte		Item Class
+    family_level(other.family_level),	//byte		Item Level
+    flags(other.flags),			//word		A misc flagset. 
+    collectflags(other.collectflags)	//long		A flagset that determines of the weapon can collect an item.
+    
+	
+	//End Weapon editor non-arrays. 
+
 
 {
+	//weapname = other.weapname;		//char[128]	The name of the weapon. 
     for(int i=0; i<10; ++i)
     {
         dummy_int[i]=other.dummy_int[i];
@@ -220,6 +251,32 @@ weapon::weapon(weapon const & other):
         dummy_float[i]=other.dummy_float[i];
         dummy_bool[i]=other.dummy_bool[i];
     }
+    
+    //Weapon Editor Arrays
+    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
+    {
+	weap_pattern[q] = other.weap_pattern[q];	//int	The movement pattern and args.
+    }
+    for ( int q = 0; q < WEAPON_CLOCKS; q++ ) 
+    {
+	clocks[q] = other.clocks[q];		//long	An array of misc clocks. 
+    }
+    for ( int q = 0; q < INITIAL_A; q++ )
+    {
+	initiala[q] = other.initiala[q];		//byte	InitA[]
+    }
+    for ( int q = 0; q < INITIAL_D; q++ ) 
+    {
+	initiald[q] = other.initiald[q];		//long	InitD[]
+    }
+    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
+    {
+	ffmisc[q] = other.ffmisc[q];		//long -The base wpn->Misc[32] set from the editor
+    }
+    
+   
+    
+	//! END Weapon Editor
     
     /*for (int i=0; i<8; ++i)
     {
@@ -399,6 +456,98 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
                 misc=-1;
         }
     }
+    
+    //! Dimentio Wand
+    
+    if (itemsbuf[parentitem].family == itype_wand && (id != wWand ||(itemsbuf[parentitem].flags & ITEM_FLAG3)))
+	{ //!Dimentio: This calculates the move effects. These are modifiers to normal wand weapon's movement. Turn on flag 3 to include the wand with it.
+		switch(itemsbuf[parentitem].misc5)
+		{
+			case 1: 
+			case 2:
+			case 3:
+			{
+				switch (dir)
+				{
+					case up: this->count1 = 90;
+					break;
+					case down: this->count1 = 270;
+					break;
+					case left: this->count1 = 180;
+					break;
+					case right: this->count1 = 0;
+					break;
+				}
+				this->count3 = dir;
+			}
+			default: break;
+		}
+	}
+	if (type == 1 && itemsbuf[parentitem].misc4 > 0 && itemsbuf[parentitem].family == itype_book)
+	{
+		switch(itemsbuf[parentitem].misc4)
+		{
+			case 5:
+			{
+				if (GuyCount() > 0) seekEnemy(-1);
+				break;
+			}
+			case 6:
+			{
+				if (GuyCount() > 0) seekEnemy(-1);
+				break;
+			}
+			case 7:
+			{
+				seekLink();
+				break;
+			}
+			case 8:
+			{
+				seekLink();
+				break;
+			}
+		}
+	}
+	
+	if (type == 1 && itemsbuf[parentitem].misc4 > 0 && itemsbuf[parentitem].family == itype_book)
+	{
+		switch(itemsbuf[parentitem].misc4)
+		{
+			case 5:
+			{
+				if (GuyCount() > 0) 
+				{
+					fix StepSaving = itemsbuf[parentitem].misc5 / (fix)100.0;
+					step = StepSaving;
+				}
+				break;
+			}
+			case 6:
+			{
+				if (GuyCount() > 0) 
+				{
+					fix StepSaving = itemsbuf[parentitem].misc5 / (fix)100.0;
+					step = StepSaving;
+				}
+				break;
+			}
+			case 7:
+			{
+				fix StepSaving = itemsbuf[parentitem].misc5 / (fix)100.0;
+				step = StepSaving;
+				seekLink();
+				break;
+			}
+			case 8:
+			{
+				fix StepSaving = itemsbuf[parentitem].misc5 / (fix)100.0;
+				step = StepSaving;
+				seekLink();
+				break;
+			}
+		}
+	}
     
     switch(id)
     {
@@ -658,13 +807,26 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         if(isDummy || itemid<0)
         {
-            itemid = getCanonicalItemID(itemsbuf, itype_bomb);
+            if (itemsbuf[parentitem].family == itype_wand || itemsbuf[parentitem].family == itype_book) itemid = parentitem; //!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
+            else itemid = getCanonicalItemID(itemsbuf, itype_bomb);
         }
         
         if(itemid >-1)
         {
-            defaultw = itemsbuf[itemid].wpn;
-            misc = (id==wBomb ? 1 : itemsbuf[itemid].misc1);
+		if (itemsbuf[parentitem].family == itype_wand) 
+		{
+			defaultw = itemsbuf[itemid].wpn3; //!Dimentio: Here too.
+			misc = (id==wBomb ? 1 : itemsbuf[itemid].misc2);
+		}
+		else if (itemsbuf[parentitem].family == itype_book) 
+		{
+			defaultw = itemsbuf[itemid].wpn2; //!Dimentio: Here too.
+			misc = (id==wBomb ? 1 : itemsbuf[itemid].misc2);
+		}
+		else {
+			defaultw = itemsbuf[itemid].wpn;
+			misc = (id==wBomb ? 1 : itemsbuf[itemid].misc1);
+		}
         }
         else
         {
@@ -683,13 +845,20 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         if(isDummy || itemid<0)
         {
-            itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
+	    if (itemsbuf[parentitem].family == itype_wand) itemid = parentitem; //!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
+            else itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
         }
         
         if(parentitem>-1)
         {
-            defaultw = itemsbuf[itemid].wpn;
-            misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc1);
+			if (itemsbuf[parentitem].family == itype_wand){ 
+				defaultw = itemsbuf[itemid].wpn3; //!Dimentio: Here too.
+				misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc2);
+			}
+            else {
+				defaultw = itemsbuf[itemid].wpn;
+				misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc1);
+			}
         }
         else
         {
@@ -735,8 +904,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         }
         
         if(itemid >-1)
+	{
             // Book Magic sprite is wpn, Wand Magic sprite is wpn3.
-            defaultw = book ? itemsbuf[itemid].wpn : itemsbuf[itemid].wpn3;
+	    if (itemsbuf[parentitem].family == itype_book && type == 1) defaultw = itemsbuf[parentitem].wpn3; //!Dimentio: Okay, is it created by the book?
+            else defaultw = book ? itemsbuf[itemid].wpn : itemsbuf[itemid].wpn3;
+	}
         else
             defaultw = wMAGIC;
             
@@ -1239,7 +1411,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		
         LOADGFX(ewWIND);
         clk=0;
-        step=3;
+	if (power > 0) step = itemsbuf[parentid].misc2; //!Dimentio: Add a check here.
+        else step=3;
         break;
         
     case wPhantom:
@@ -1555,6 +1728,90 @@ bool weapon::animate(int)
             //case l_down:y+=.354; x-=.354; break;
             //case r_down:y+=.354; x+=.354; break;
         }
+	
+	//! Dimentio Wand Stuff
+	
+	if (itemsbuf[parentitem].family == itype_wand && (id != wWand ||itemsbuf[parentitem].flags & ITEM_FLAG2))
+	{ //!Dimentio: So this handles the movement of the wand's movement effect. Uses offsets to do this, so unfortunately,
+	  //!Dimentio: no setting offsets via script while one of these is active. Could change this if need be, though it'd
+	  //!Dimentio: be a bit odd.
+		switch(itemsbuf[parentitem].misc5)
+		{
+			case 1: 
+			{
+				this->count1 += itemsbuf[parentitem].misc7;
+				this->count1 %= 360;
+				switch (this->count3)
+				{
+					case up: 
+					case down:
+					{
+						hxofs = itemsbuf[parentitem].misc6*cos(this->count1 * 0.0174);
+						xofs = itemsbuf[parentitem].misc6*cos(this->count1 * 0.0174);
+						break;
+					}
+					case left: 
+					case right: 
+					{
+						hyofs = itemsbuf[parentitem].misc6*sin(this->count1 * 0.0174);
+						yofs = (itemsbuf[parentitem].misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
+						break;
+					}
+				}
+				break;
+			}
+			case 2: 
+			{
+				this->count1 += itemsbuf[parentitem].misc7;
+				this->count1 %= 360;
+				switch (this->count3)
+				{
+					case up: 
+					case down:
+					{
+						hyofs = itemsbuf[parentitem].misc6*sin(this->count1 * 0.0174);
+						yofs = (itemsbuf[parentitem].misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
+						break;
+					}
+					case left: 
+					case right: 
+					{
+						hxofs = itemsbuf[parentitem].misc6*cos(this->count1 * 0.0174);
+						xofs = itemsbuf[parentitem].misc6*cos(this->count1 * 0.0174);
+					break;
+					}
+				}
+				break;
+			}
+			case 3: 
+			{
+				this->count1 += itemsbuf[parentitem].misc7;
+				this->count1 %= 360;
+				xofs = itemsbuf[parentitem].misc6*cos(this->count1 * 0.0174);
+				yofs = (itemsbuf[parentitem].misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
+				hxofs = itemsbuf[parentitem].misc6*cos(this->count1 * 0.0174);
+				hyofs = itemsbuf[parentitem].misc6*sin(this->count1 * 0.0174);
+				break;
+			}
+			default: break;
+		}
+	}
+	
+	if (itemsbuf[parentitem].family == itype_book && (itemsbuf[parentitem].misc4 >= 3 && itemsbuf[parentitem].misc4 <= 8) && type == 2) //Is this the weapon?
+	{
+		if ((this->count4 - 1) % 4 == 0) //If the death counter's evenly divideable by 4...
+		{
+			Lwpns.add(new weapon(x + ((rand() % 32) - 16),y + ((rand() % 32) - 16),z,itemsbuf[parentitem].misc2,1,itemsbuf[parentitem].misc1*DAMAGE_MULTIPLIER,0,parentitem,parentitem)); //Make 3 randomly placed weapons around this weapon
+			Lwpns.add(new weapon(x + ((rand() % 32) - 16),y + ((rand() % 32) - 16),z,itemsbuf[parentitem].misc2,1,itemsbuf[parentitem].misc1*DAMAGE_MULTIPLIER,0,parentitem,parentitem));
+			Lwpns.add(new weapon(x + ((rand() % 32) - 16),y + ((rand() % 32) - 16),z,itemsbuf[parentitem].misc2,1,itemsbuf[parentitem].misc1*DAMAGE_MULTIPLIER,0,parentitem,parentitem));
+			//sfx(itemsbuf[parentitem].usesound,pan(x)); //Play sound
+		}
+		if (this->count4 >= ((itemsbuf[parentitem].misc6 * 4) - 3))
+		{ 
+			dead = 0;
+		}
+		++this->count4;
+	}
         
     switch(id)
     {
@@ -1610,10 +1867,14 @@ bool weapon::animate(int)
     break;
     
     case wBeam:
-    case wRefBeam:
-        for(int i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
+    case wRefBeam: //More Dimentio Wand stuff
+		if (clk==94 && itemsbuf[parentitem].family == itype_book && (dir < 0 || step <= 0))
+		{
+			dead = 23;
+		}
+        for(int i2=0; ((i2<=zc_min(type-1,3) && itemsbuf[parentitem].family != itype_wand) || (itemsbuf[parentitem].family == itype_wand && i2 <= zc_min(itemsbuf[parentitem].fam_type - 1, 3))) && dead!=23; i2++)
         {
-            if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23;
+            if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23; //!Dimentio: Alright, now this checks to see if it's fired from a wand.
         }
         
         if(blocked())
@@ -1925,14 +2186,15 @@ bool weapon::animate(int)
             {
                 findentrance(x,y,mfBCANDLE,true);
                 
-                if(type>0)
+		    //Dimentio wand
+                if((type>0 && itemsbuf[parentitem].family!=itype_wand) || (itemsbuf[parentitem].family==itype_wand && itemsbuf[parentitem].fam_type>=2)) //!Dimentio: Blue Fire fired from wand was triggering red fire, so have to make this check more specific.
                 {
                     findentrance(x,y,mfRCANDLE,true);
                 }
                 
-                if(type>2)
+                if((type>2 && itemsbuf[parentitem].family!=itype_wand) || (itemsbuf[parentitem].family==itype_wand && itemsbuf[parentitem].fam_type>=4))   
                 {
-                    findentrance(x,y,mfDINSFIRE,true);
+                    findentrance(x,y,mfDINSFIRE,true); 
                 }
             }
         }                                                     //wand fire
@@ -2133,7 +2395,8 @@ bool weapon::animate(int)
             dead=4;
         }
         
-        if(current_item(itype_arrow)>1)
+	//Dimentio Wand stuff
+        if((current_item(itype_arrow)>1 && itemsbuf[parentitem].family != itype_wand) || (itemsbuf[parentitem].family == itype_wand && itemsbuf[parentitem].fam_type > 1)) //!Dimentio: Okay, the wand's level can also serve as the level of the arrow.
         {
             if(findentrance(x,y,mfSARROW,true))
             {
@@ -2141,7 +2404,7 @@ bool weapon::animate(int)
             }
         }
         
-        if(current_item(itype_arrow)>=3)
+        if((current_item(itype_arrow)>=3 && itemsbuf[parentitem].family != itype_wand) || (itemsbuf[parentitem].family == itype_wand && itemsbuf[parentitem].fam_type >= 3)) //!Dimentio: So now Arrows fired from the wand can trigger higher leveled arrow secrets.
         {
             if(findentrance(x,y,mfGARROW,true))
             {
@@ -2189,8 +2452,9 @@ bool weapon::animate(int)
             dead=23;
         }
         
-        if(parentitem>-1 && clk>=itemsbuf[parentitem].misc1)
-        {
+	//!Dimentio: What's this? Hardcoded bait values? Nononono, screw this. 
+        if(((parentitem>-1 && itemsbuf[parentitem].family != itype_wand) && clk>=itemsbuf[parentitem].misc1) || (itemsbuf[parentitem].family == itype_wand && clk>=itemsbuf[parentitem].power))
+        { //!Dimentio: Ah, much better.
             dead=1;
         }
         
@@ -2211,8 +2475,8 @@ bool weapon::animate(int)
         
         int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
         
-        for(int i=0; i<current_item(itype_brang); i++)
-        {
+        for(int i=0; ((i<=zc_min(current_item(itype_brang)-1,2) && itemsbuf[parentitem].family != itype_wand) || (itemsbuf[parentitem].family == itype_wand && i <= zc_min(itemsbuf[parentitem].fam_type - 1, 3))); i++)
+        { //!Dimentio: If you have a wand, use misc 4. Otherwise, use the canon boomerang.
             if(findentrance(x,y,mfBRANG+i,true)) dead=deadval;
         }
         
@@ -3475,7 +3739,14 @@ offscreenCheck:
         
     case wRefMagic:
     case wMagic:
-        dead=1; //remove the dead part to make the wand only die when clipped
+    //!Dimentio: Hey, let's add changing the book fire to other weapons, too!
+    {
+	if (itemsbuf[parentitem].family == itype_book && (x<272 && x>-17 && y<272 && y>-17)) break;
+	dead=1; //remove the dead part to make the wand only die when clipped
+		bookfirecreate();
+
+	break; //!Over already? What a shame.
+    }
         
         if(((id==wMagic && current_item(itype_book) &&
                 (itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
@@ -3656,10 +3927,15 @@ void weapon::draw(BITMAP *dest)
         {
             id2=wBOOM;
             
-            if(parentitem>-1)
+           if(parentitem>-1 && itemsbuf[parentitem].family != itype_wand) //!Dimentio: Yet another exception, for bombs.
             {
-                id2=itemsbuf[parentitem].wpn2;
+                id2=itemsbuf[parentitem].wpn2; //This sets the explosion sprite, but because it is linked to itemdata
+						//it may not work with script generated explosions. -Z
+		    //Perhaps it would be better to add a special case to createlweapon and createeweapon to 
+		    //use a usesprite value with wpns.add
             }
+	    else if (itemsbuf[parentitem].family == itype_wand) id2=itemsbuf[parentitem].wpn4;
+		
             
             break;
         }
@@ -3854,6 +4130,69 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
+}
+
+void weapon::bookfirecreate()
+{
+	int bookmagicmaxcount = 2; //!Dimentio: BOOKMAGICHANDLER
+	if (itemsbuf[current_item_id(itype_book)].misc3 > 0)
+	{
+		bookmagicmaxcount = itemsbuf[current_item_id(itype_book)].misc3;
+	}
+	else if (itemsbuf[parentitem].misc8 > 0)
+	{
+		bookmagicmaxcount = (itemsbuf[parentitem].misc8 + 1) * 2;
+	}
+	else bookmagicmaxcount = 2;
+	if(((itemsbuf[parentitem].family == itype_wand && current_item(itype_book) && (itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(itemsbuf[current_item(itype_book)].misc2)<bookmagicmaxcount)
+	{
+		switch(itemsbuf[current_item_id(itype_book)].misc4)
+		{
+			
+			case 3:
+			{
+				Lwpns.add(new weapon(x,y,z,wBomb,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
+				Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1)); //And here's the dummy info holder
+				break;
+			}
+			case 4:
+			{
+				Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1));
+				break;
+			}
+			case 5:
+			{
+				Lwpns.add(new weapon(x,y,z,wBomb,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
+				Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1)); //And here's the dummy info holder
+				break;
+			}
+			case 6:
+			{
+				Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1));
+				break;
+			}
+			case 7:
+			{
+				Lwpns.add(new weapon(x,y,z,wBomb,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
+				Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1)); //And here's the dummy info holder
+				break;
+			}
+			case 8:
+			{
+				Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1));
+				break;
+			}
+			default:
+			{
+				//!Dimentio: Making sure this isn't null
+				if (itemsbuf[current_item_id(itype_book)].misc2 <= 0 || itemsbuf[current_item_id(itype_book)].misc2 == NULL) Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+				//!Dimentio: here's the default behavior.
+				else Lwpns.add(new weapon(x,y,z,itemsbuf[current_item_id(itype_book)].misc2,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+				break;
+			}
+		}
+		Backend::sfx->play(WAV_FIRE,x); // sfx() is deprecated. -Z
+	}
 }
 
 /*** end of weapons.cpp ***/
