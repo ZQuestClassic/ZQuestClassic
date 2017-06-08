@@ -460,7 +460,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     //! Dimentio Wand
     
     if (itemsbuf[parentitem].family == itype_wand && (id != wWand ||(itemsbuf[parentitem].flags & ITEM_FLAG3)))
-	{ //!Dimentio: This calculates the move effects. These are modifiers to normal wand weapon's movement. Turn on flag 3 to include the wand with it.
+	{ //!Dimentio: This calculates the move effects. These are modifiers to normal wand weapon's movement. 
+		//Turn on flag 3 to include the wand with it.
 		switch(itemsbuf[parentitem].misc5)
 		{
 			case 1: 
@@ -807,7 +808,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         if(isDummy || itemid<0)
         {
-            if (itemsbuf[parentitem].family == itype_wand || itemsbuf[parentitem].family == itype_book) itemid = parentitem; //!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
+            if (itemsbuf[parentitem].family == itype_wand || itemsbuf[parentitem].family == itype_book) itemid = parentitem;
+		//!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
             else itemid = getCanonicalItemID(itemsbuf, itype_bomb);
         }
         
@@ -816,11 +818,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		if (itemsbuf[parentitem].family == itype_wand) 
 		{
 			defaultw = itemsbuf[itemid].wpn3; //!Dimentio: Here too.
+			//! ZoriaRPG: I need to know what value wpn3 is doing here. 
 			misc = (id==wBomb ? 1 : itemsbuf[itemid].misc2);
 		}
 		else if (itemsbuf[parentitem].family == itype_book) 
 		{
 			defaultw = itemsbuf[itemid].wpn2; //!Dimentio: Here too.
+			//! ZoriaRPG: I need to know what value wpn3 is doing here. 
 			misc = (id==wBomb ? 1 : itemsbuf[itemid].misc2);
 		}
 		else {
@@ -845,14 +849,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         if(isDummy || itemid<0)
         {
-	    if (itemsbuf[parentitem].family == itype_wand) itemid = parentitem; //!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
+	    if (itemsbuf[parentitem].family == itype_wand) itemid = parentitem; 
+		//!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
             else itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
         }
         
         if(parentitem>-1)
         {
 			if (itemsbuf[parentitem].family == itype_wand){ 
-				defaultw = itemsbuf[itemid].wpn3; //!Dimentio: Here too.
+				defaultw = itemsbuf[itemid].wpn3; 
+				//!Dimentio: Here too.
+				//! ZoriaRPG: I need to know what value wpn3 is doing here. 
 				misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc2);
 			}
             else {
@@ -906,7 +913,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         if(itemid >-1)
 	{
             // Book Magic sprite is wpn, Wand Magic sprite is wpn3.
-	    if (itemsbuf[parentitem].family == itype_book && type == 1) defaultw = itemsbuf[parentitem].wpn3; //!Dimentio: Okay, is it created by the book?
+	    if (itemsbuf[parentitem].family == itype_book && type == 1) defaultw = itemsbuf[parentitem].wpn3;
+		//!Dimentio: Okay, is it created by the book?
             else defaultw = book ? itemsbuf[itemid].wpn : itemsbuf[itemid].wpn3;
 	}
         else
@@ -1412,6 +1420,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(ewWIND);
         clk=0;
 	if (power > 0) step = itemsbuf[parentid].misc2; //!Dimentio: Add a check here.
+		//! ZoriaRPG: Explain why this is here. 
         else step=3;
         break;
         
@@ -1735,6 +1744,8 @@ bool weapon::animate(int)
 	{ //!Dimentio: So this handles the movement of the wand's movement effect. Uses offsets to do this, so unfortunately,
 	  //!Dimentio: no setting offsets via script while one of these is active. Could change this if need be, though it'd
 	  //!Dimentio: be a bit odd.
+		//! ZoriaRPG: Scripts MUST NOT conflict. Please look into this. 
+		
 		switch(itemsbuf[parentitem].misc5)
 		{
 			case 1: 
@@ -4185,6 +4196,7 @@ void weapon::bookfirecreate()
 			default:
 			{
 				//!Dimentio: Making sure this isn't null
+				//! ZoriaRPG: I need a detailed explanantion of what this is doing as a code comment. 
 				if (itemsbuf[current_item_id(itype_book)].misc2 <= 0 || itemsbuf[current_item_id(itype_book)].misc2 == NULL) Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				//!Dimentio: here's the default behavior.
 				else Lwpns.add(new weapon(x,y,z,itemsbuf[current_item_id(itype_book)].misc2,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));

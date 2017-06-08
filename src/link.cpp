@@ -3509,8 +3509,10 @@ void LinkClass::addsparkle(int wpn)
     if(itemtype!=itype_cbyrna && frame%4)
         return;
     
-    int wpn2 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2; //!Dimentio: let's stuff the wand in here...
-    int wpn3 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3; //!Dimentio: and here...
+    int wpn2 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2; 
+    //!Dimentio: let's stuff the wand in here...
+    int wpn3 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3; 
+    //!Dimentio: and here...
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
 	int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (rand()&1 ? wpn2 : wpn3)));
     int direction=w->dir;
@@ -4926,7 +4928,8 @@ bool LinkClass::startwpn(int itemid)
                 {
             //YOu don;t need any of those case statements until you want to do somethign special with each type.
             //Try this, for now.
-					for (int i2 = 0; i2 <= abs(itemsbuf[itemid].misc8); i2++)
+					//! ZoriaRPG is this the number of 'duplicates'?
+					for (int i2 = 0; i2 <= abs(itemsbuf[itemid].misc8); i2++) //Moving this to Other 1. 
 					{
 						bool ItemCreatedThisTime = false; //!Dimentio: just a failsafe to prevent the setting of variables if a weapon was not created.
 						switch(itemsbuf[itemid].misc1) //!Dimentio: sort out the exceptions...
@@ -4935,6 +4938,11 @@ bool LinkClass::startwpn(int itemid)
 							case 0:
 							{
 								if (itemsbuf[itemid].misc10 == 1) 
+									
+								//! ZoriaRPG: Go through this,and comment what each class variable is doing, and why
+								//! so that I can move them over tot he weapon editor without needing to guess. 
+								//! Make a list of all the .misc vars, and the compares (values to equal to evaluate true)
+								//! so that I can properly link this. 
 								{
 									switch(i)
 									{
