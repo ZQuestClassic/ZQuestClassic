@@ -9338,18 +9338,20 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(56);
             }
-	    if(!p_iputf(guysbuf[i].xofs,f))
+	    /* is it safe to store a fixed with iputl? -Z
+	    if(!p_iputl(guysbuf[i].xofs,f))
             {
                 new_return(57);
             }
-	    if(!p_iputf(guysbuf[i].yofs,f))
+	    if(!p_iputl(guysbuf[i].yofs,f))
             {
                 new_return(58);
             }
-	    if(!p_iputf(guysbuf[i].zofs,f))
+	    if(!p_iputl(guysbuf[i].zofs,f))
             {
                 new_return(59);
             }
+	    */
         }
         
         if(writecycle==0)

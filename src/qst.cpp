@@ -8909,7 +8909,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //! Enemy Defences
 	    
 	    //If a 2.50 quest, use only the 2.5 defences. 
-            if(guyversion >= 16 && guyversion < 25)  // November 2009 - Super Enemy Editor
+            if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
             {
                 for(int j=0; j<edefLAST; j++)
                 {
@@ -9012,18 +9012,20 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetf(&(tempguy.xofs),f,keepdata))
+		    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
+		    if(!p_igetl(&(tempguy.xofs),f,keepdata))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetf(&(tempguy.yofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.yofs),f,keepdata))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetf(&(tempguy.zofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.zofs),f,keepdata))
                     {
                         return qe_invalid;
                     }
+		    */
 	    }
 	    
             //miscellaneous other corrections

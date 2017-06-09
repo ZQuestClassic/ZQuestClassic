@@ -2360,16 +2360,22 @@ static int enedata_defense3_list[] =
     193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,-1
 };
 
+static int enedata_spritesize_list[] =
+{
+    213,214,215,216,217,218,219,220,-1
+};
+
 static TABPANEL enedata_tabs[] =
 {
     { (char *)"Data 1",       D_SELECTED,      enedata_data_list,     0, NULL },
     { (char *)"Data 2",       0,               enedata_data2_list,    0, NULL },
     { (char *)"Misc. Flags",	 0,               enedata_flags_list,    0, NULL },
 //{ (char *)"Flags 2",	    0,               enedata_flags2_list,   0, NULL },
-    { (char *)"Defenses 1",	 0,               enedata_defense_list,   0, NULL },
-    { (char *)"Defenses 2",	 0,               enedata_defense2_list,   0, NULL },
+    { (char *)"Defs 1",	 0,               enedata_defense_list,   0, NULL },
+    { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
+    { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
-    { (char *)"Defenses 3",	 0,               enedata_defense3_list,   0, NULL },
+    { (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -3214,8 +3220,16 @@ static DIALOG enedata_dlg[] =
 	{  jwin_droplist_proc,      126, 163-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 179-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 196-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
-
-      
+	//213 HitWidth and Height
+	{  jwin_text_proc,         6,      51,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "TileWidth:",                                  NULL,   NULL                 },
+	{  jwin_edit_proc,         126,    51-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+        {  jwin_text_proc,         6,      67,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "TileHeight:",                                  NULL,   NULL                 },
+	{  jwin_edit_proc,         126,    67-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0, NULL,                                                           NULL,   NULL                 },
+        {  jwin_text_proc,         6,      83,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "HitWidth:",                                  NULL,   NULL                 },
+	{  jwin_edit_proc,         126,    83-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0, NULL,                                                           NULL,   NULL                 },
+        {  jwin_text_proc,         6,      99,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "HitHeight:",                                  NULL,   NULL                 },
+	{  jwin_edit_proc,         126,    99-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
@@ -3411,6 +3425,7 @@ void edit_enemydata(int index)
     char name[64];
     char ms[12][8];
     char enemynumstr[75];
+	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8];
     
     //disable the missing dialog items!
     //else they will lurk in the background
@@ -3530,6 +3545,8 @@ void edit_enemydata(int index)
     sprintf(ms[10],"%ld",guysbuf[index].misc11);
     sprintf(ms[11],"%ld",guysbuf[index].misc12);
     
+    
+    
     for(int j=0; j <= edefBYRNA; j++)
     {
         enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
@@ -3537,7 +3554,7 @@ void edit_enemydata(int index)
     
     enedata_dlg[192].d1 = guysbuf[index].defense[edefSCRIPT];
     
-    
+    //Script Defences
     enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
      enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
      enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
@@ -3548,6 +3565,18 @@ void edit_enemydata(int index)
      enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
      enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
      enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
+    
+    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+    sprintf(tilex,"%ld",guysbuf[index].txsz);
+    sprintf(tiley,"%ld",guysbuf[index].tysz);
+    sprintf(hitx,"%ld",guysbuf[index].hxsz);
+    sprintf(hity,"%ld",guysbuf[index].hysz);
+    //sprintf(hitz,"%ld",guysbuf[index].hzsz);
+  
+    enedata_dlg[214].dp = tilex;
+    enedata_dlg[216].dp = tiley;
+    enedata_dlg[218].dp = hitx;
+    enedata_dlg[220].dp = hity;
     
     sprintf(frt,"%d",guysbuf[index].frate);
     sprintf(efr,"%d",guysbuf[index].e_frate);
@@ -3581,6 +3610,7 @@ void edit_enemydata(int index)
     for(int i=0; i<16; i++)
         enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
 
+    /*
     enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
      enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
      enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
@@ -3591,7 +3621,7 @@ void edit_enemydata(int index)
      enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
      enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
      enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
-    
+    */
 
     int ret;
     guydata test;
@@ -3618,7 +3648,7 @@ void edit_enemydata(int index)
         }
         
 		enedata_cpy[189].dp = ms[10];
-		enedata_cpy[190].dp = ms[11];
+		enedata_cpy[190].dp = ms[11]; //!
         
         ret = zc_popup_dialog(enedata_cpy,3);
         
@@ -3669,6 +3699,9 @@ void edit_enemydata(int index)
         test.misc10 = (enedata_cpy[73].proc==jwin_droplist_proc) ? enedata_cpy[73].d1 : atol(ms[9]);
         test.misc11 = atol(ms[10]);
         test.misc12 = atol(ms[11]);
+	
+	
+	
         
         for(int j=0; j <= edefBYRNA; j++)
         {
@@ -3701,6 +3734,12 @@ void edit_enemydata(int index)
 	test.defense[edefSCRIPT08] = enedata_cpy[210].d1;
 	test.defense[edefSCRIPT09] = enedata_cpy[211].d1;
 	test.defense[edefSCRIPT10] = enedata_cpy[212].d1;
+	
+	//tilewidth, tileheight, hitwidth, hitheight, 
+	test.txsz = atoi(tilex);
+	test.tysz = atoi(tiley);
+	test.hxsz = atoi(hitx);
+	test.hysz = atoi(hity);
 	
 
 	    
