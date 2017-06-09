@@ -462,14 +462,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			wpn_misc_d[q] = itemsbuf[parentitem].wpn_misc_d[q];
 			
 		}
-		hxofs = itemsbuf[parentitem].weap_hxofs; //hit x offset
-		hyofs = itemsbuf[parentitem].weap_yxofs; //hit y offset
-		hxsz = (itemsbuf[parentitem].weap_hxsz > 0 ? itemsbuf[parentitem].weap_hxsz : 15); //hitwidth
-		hysz = (itemsbuf[parentitem].weap_hysz > 0 ? itemsbuf[parentitem].weap_hysz : 15);  //hitheight
-		hzsz = (itemsbuf[parentitem].weap_hzsz > 0 ? itemsbuf[parentitem].weap_hzsz : 8);   //HitZHeight / HitDepth
-		xofs = itemsbuf[parentitem].weap_xofs; //drawxoffset
-		yofs = itemsbuf[parentitem].weap_yofs; //drawyoffset
-		weaponscript = itemsbuf[parentitem].weaponscript;
+		//hxofs = itemsbuf[parentitem].weap_hxofs; //hit x offset
+		//hyofs = itemsbuf[parentitem].weap_yxofs; //hit y offset
+		//hxsz = (itemsbuf[parentitem].weap_hxsz > 0 ? itemsbuf[parentitem].weap_hxsz : 15); //hitwidth
+		//hysz = (itemsbuf[parentitem].weap_hysz > 0 ? itemsbuf[parentitem].weap_hysz : 15);  //hitheight
+		//hzsz = (itemsbuf[parentitem].weap_hzsz > 0 ? itemsbuf[parentitem].weap_hzsz : 8);   //HitZHeight / HitDepth
+		//xofs = itemsbuf[parentitem].weap_xofs; //drawxoffset
+		//yofs = itemsbuf[parentitem].weap_yofs; //drawyoffset
+		//weaponscript = itemsbuf[parentitem].weaponscript;
 		
 		for ( int q = 0; q < INITIAL_D; q++ )
 		{
