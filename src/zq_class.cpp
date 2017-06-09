@@ -9280,7 +9280,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(45);
             }
             
-            for(int j=0; j < edefLAST255; j++)
+            for(int j=0; j < edefLAST; j++)
             {
                 if(!p_putc(guysbuf[i].defense[j],f))
                 {
@@ -9308,6 +9308,48 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(50);
             }
 	    
+	    //New 2.6 defences
+	    for(int j=edefLAST; j < edefLAST255; j++)
+            {
+                if(!p_putc(guysbuf[i].defense[j],f))
+                {
+                    new_return(51);
+                }
+            }
+	    
+	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+	    if(!p_iputl(guysbuf[i].txsz,f))
+            {
+                new_return(52);
+            }
+	    if(!p_iputl(guysbuf[i].tysz,f))
+            {
+                new_return(53);
+            }
+	    if(!p_iputl(guysbuf[i].hxsz,f))
+            {
+                new_return(54);
+            }
+	    if(!p_iputl(guysbuf[i].hysz,f))
+            {
+                new_return(55);
+            }
+	    if(!p_iputl(guysbuf[i].hzsz,f))
+            {
+                new_return(56);
+            }
+	    if(!p_iputf(guysbuf[i].xofs,f))
+            {
+                new_return(57);
+            }
+	    if(!p_iputf(guysbuf[i].yofs,f))
+            {
+                new_return(58);
+            }
+	    if(!p_iputf(guysbuf[i].zofs,f))
+            {
+                new_return(59);
+            }
         }
         
         if(writecycle==0)

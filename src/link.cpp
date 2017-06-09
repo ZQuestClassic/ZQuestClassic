@@ -807,7 +807,12 @@ void LinkClass::positionSword(weapon *w, int itemid)
     cs2 = w->o_cset;
     slashxofs=0;
     slashyofs=0;
-    
+	
+	//Weapon Editor : Forward defence and weapon properties to the sword. 
+	w->usedefence = itemsbuf[itemid].usedefence;
+	w->useweapon = itemsbuf[itemid].useweapon;
+	//Not working. -Z
+	
     switch(dir)
     {
     case up:

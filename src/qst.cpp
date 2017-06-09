@@ -8906,6 +8906,9 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
+	    //! Enemy Defences
+	    
+	    //If a 2.50 quest, use only the 2.5 defences. 
             if(guyversion >= 16 && guyversion < 25)  // November 2009 - Super Enemy Editor
             {
                 for(int j=0; j<edefLAST; j++)
@@ -8915,29 +8918,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
                 }
+		//then copy the generic script defence to all the new script defences
+		
             }
 	    
-	    //Defences
 	    
-	    
-	    if(guyversion > 24) // Add new guyversion conditional statement 
-            {
-		for(int j=0; j<edefLAST255; j++)
-                {
-                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-	    
-	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
-            {
-		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
-                {
-                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
-                }
-            }
 	    
             
             if(guyversion >= 18)
@@ -8983,6 +8968,63 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 tempguy.misc12=tempMisc;
             }
+	    
+	    //If a 2.54 or later quest, use all of the defences. 
+	    if(guyversion > 24) // Add new guyversion conditional statement 
+            {
+		for(int j=edefLAST; j<edefLAST255; j++)
+                {
+                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+                }
+            }
+	    
+	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
+            {
+		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
+                {
+                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
+                }
+            }
+	    
+	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+	    if(guyversion > 25)
+	    {
+		    if(!p_igetl(&(tempguy.txsz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.tysz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hxsz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hysz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hzsz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetf(&(tempguy.xofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetf(&(tempguy.yofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetf(&(tempguy.zofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+	    }
 	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD
@@ -9241,6 +9283,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 else if(tempguy.family==eeMOLD)
                     tempguy.misc2 = 0;
             }
+	    
+	    
             
             if(keepdata)
             {

@@ -1323,6 +1323,12 @@ struct guydata
     //  short  startx, starty;
     //  short  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
+    
+    //2.6 enemy editor tile and hit sizes. -Z
+    fix xofs,yofs,zofs;
+    // no hzofs - it's always equal to zofs.
+    int hxofs,hyofs,hxsz,hysz,hzsz;
+    int txsz,tysz;
 };
 
 class refInfo
@@ -2997,6 +3003,7 @@ INLINE bool p_iputw(int c,PACKFILE *f)
     return success;
 }
 
+//Getter for int/long
 INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 {
     dword *cp = (dword *)p;
@@ -3043,6 +3050,7 @@ INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
     return result;
 }
 
+//Getter for fix
 INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
 {
     if(!f) return false;
