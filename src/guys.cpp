@@ -370,7 +370,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     dir = rand()&3;
     
     //2.6 Enemy Editor Hit and TIle Sizes
-    if ( d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; }
+    if ( d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
     //al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
     if ( d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }

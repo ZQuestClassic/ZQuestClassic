@@ -42,6 +42,12 @@ sprite::sprite()
     id=-1;
     hxsz=hysz=16;
     hzsz=1;
+	
+	//Enemy and Weapon Editor Hit Sizing
+	//if ( txsz == 0 ) txsz = 1; 
+	//if ( tysz == 0 ) tysz = 1;
+	//if ( hxsz == 0 ) hxsz = 16; 
+	//if ( hysz == 0 ) hysz = 16;
     yofs=playing_field_offset;
     dir=down;
     angular=canfreeze=false;
@@ -158,8 +164,14 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
     uid = getNextUID();
+	
     hxsz=hysz=16;
     hxofs=hyofs=xofs=0;
+	//Enemy and Weapon Editor Hit Sizing
+	//if ( txsz == 0 ) txsz = 1; 
+	//if ( tysz == 0 ) tysz = 1;
+	//if ( hxsz == 0 ) hxsz = 16; 
+	//if ( hysz == 0 ) hysz = 16;
     txsz=1;
     tysz=1;
     id=-1;
