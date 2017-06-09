@@ -9338,20 +9338,28 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(56);
             }
-	    /* is it safe to store a fixed with iputl? -Z
-	    if(!p_iputl(guysbuf[i].xofs,f))
+	    // These are not fixed types, but ints, so they are safe to use here. 
+	    if(!p_iputl(guysbuf[i].hxofs,f))
             {
                 new_return(57);
             }
-	    if(!p_iputl(guysbuf[i].yofs,f))
+	    if(!p_iputl(guysbuf[i].hyofs,f))
             {
                 new_return(58);
             }
-	    if(!p_iputl(guysbuf[i].zofs,f))
+	    if(!p_iputl(guysbuf[i].xofs,f))
             {
                 new_return(59);
             }
-	    */
+	    if(!p_iputl(guysbuf[i].yofs,f))
+            {
+                new_return(60);
+            }
+	    if(!p_iputl(guysbuf[i].zofs,f))
+            {
+                new_return(61);
+            }
+	    
         }
         
         if(writecycle==0)

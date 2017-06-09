@@ -9013,6 +9013,20 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
 		    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
+		   
+		    */
+	    }
+	    //More Enemy Editor vars for 2.60
+	    if(guyversion > 26)
+	    {
+		    if(!p_igetl(&(tempguy.hxofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hyofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
 		    if(!p_igetl(&(tempguy.xofs),f,keepdata))
                     {
                         return qe_invalid;
@@ -9025,7 +9039,6 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     {
                         return qe_invalid;
                     }
-		    */
 	    }
 	    
             //miscellaneous other corrections

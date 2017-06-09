@@ -377,9 +377,12 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     if ( d->hxsz > 0 ) hxsz = d->hxsz;
     if ( d->hysz > 0 ) hysz = d->hysz;
     if ( d->hzsz > 0 ) hzsz = d->hzsz;
-    if ( d->xofs != 0 ) xofs = d->xofs;
-    if ( d->yofs != 0 ) yofs = d->yofs;
-    if ( d->zofs != 0 ) zofs = d->zofs;
+    if ( d->hxofs != 0 ) hxofs = d->hxofs;
+    if ( d->hyofs != 0 ) hyofs = d->hyofs;
+   
+    if ( d->xofs != 0 ) xofs = (int)d->xofs;
+    if ( d->yofs != 0 ) yofs = (int)d->yofs;
+    if ( d->zofs != 0 ) zofs = (int)d->zofs;
     
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
