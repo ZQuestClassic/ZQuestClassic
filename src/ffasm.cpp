@@ -51,10 +51,10 @@ script_command command_list[NUMCOMMANDS+1]=
     { "WARP",                2,   1,   1,   0},
     { "COMPARER",            2,   0,   0,   0},
     { "COMPAREV",            2,   0,   1,   0},
-    { "GOTOTRUE",            2,   0,   0,   0},
-    { "GOTOFALSE",           2,   0,   0,   0},
-    { "GOTOLESS",            2,   0,   0,   0},
-    { "GOTOMORE",            2,   0,   0,   0},
+    { "GOTOTRUE",            1,   1,   0,   0},
+    { "GOTOFALSE",           1,   1,   0,   0},
+    { "GOTOLESS",            1,   1,   0,   0},
+    { "GOTOMORE",            1,   1,   0,   0},
     { "LOAD1",               2,   0,   0,   0},
     { "LOAD2",               2,   0,   0,   0},
     { "SETA1",               2,   0,   0,   0},
@@ -1374,7 +1374,12 @@ std::string to_string(zasm const& instruction)
 	}
 	else
 	{
-		if (instruction.arg1 % 10000 == 0)
+		// If it's a label, don't move decimal point.
+		if (strnicmp(command_def.name, "GOTO", 4) == 0
+			|| strnicmp(command_def.name, "LOOP", 4) == 0)
+			sprintf(buf, "%d", instruction.arg1);
+		// Otherwise, do decimal adjustment.
+		else if (instruction.arg1 % 10000 == 0)
 			sprintf(buf, "%d", instruction.arg1 * 0.0001);
 		else
 			sprintf(buf, "%.4f", instruction.arg1 * 0.0001);
