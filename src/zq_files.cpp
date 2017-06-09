@@ -1314,6 +1314,39 @@ int onExport_Guys()
 }
 
 
+
+int onExport_250Quest()
+{
+    if(!getname("Export Unencoded 2.50.x Quest (.qsu)","qsu",NULL,datapath,false))
+        return D_O_K;
+        
+    char buf[80],buf2[80],name[13];
+    extract_name(temppath,name,FILENAME8_3);
+    
+    if(!save_unencoded_250_quest(temppath, false))
+    {
+        sprintf(buf,"ZQuest");
+        sprintf(buf2,"Saved %s",name);
+    }
+    else
+    {
+        sprintf(buf,"Error");
+        sprintf(buf2,"Error saving %s",name);
+    }
+    
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    return D_O_K;
+}
+
+
+
+int onExport_ZASM()
+{
+    printZAsm();
+    return D_O_K;
+}
+
+
 bool save_combo_alias(const char *path);
 bool load_combo_alias(const char *path);
 int onImport_ComboAlias()

@@ -352,7 +352,7 @@ static ItemNameInfo inameinf[]=
     { itype_bracelet, (char *)"Push Combo Level:",               NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL, (char *)"Once Per Screen",                 NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL                                       },
     { itype_book, (char *)"Damage:",                         NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL, (char *)"Fire Magic",                      NULL,                              NULL,                              NULL,                              NULL, (char *)"Magic Sprite:", (char *)"Flame Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL, (char *)"Firing Sound:"                    },
     { itype_ring, (char *)"Damage Divisor:", (char *)"Link Sprite Pal:",                  NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL                                       },
-    { itype_wand, (char *)"Damage:",                         NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL, (char *)"Allow Magic w/o Book",            NULL,                              NULL, (char *)"Can Slash",               NULL, (char *)"Stab Sprite:", (char *)"Slash Sprite:", (char *)"Magic Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL, (char *)"Firing Sound:"                    },
+    { itype_wand, (char *)"Damage:",                         (char *)"W. Type:",                                        (char *)"W. Speed:",                                      (char *)"W. Range:",                              NULL,                              (char *)"Move Effect:",                              (char *)"Mvt Arg1:",                              (char *)"Mvt Arg2:",                              (char *)"No. of Clones:",                              (char *)"Clone Pattern:",                              NULL, (char *)"Allow Magic w/o Book",            (char *)"Wand Moves",                              NULL, (char *)"Can Slash",               NULL, (char *)"Stab Sprite:", (char *)"Slash Sprite:", (char *)"Projectile Sprite:",      (char *)"Projectile Misc:",                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL, (char *)"Firing Sound:"                    },
     { itype_bait,                        NULL, (char *)"Duration:",                         NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL, (char *)"Bait Sprite:",            NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL, (char *)"Baiting Sound:"                   },
     { itype_potion,                      NULL, (char *)"HP Regained:", (char *)"MP Regained:",                    NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL, (char *)"HP R. Is Percent", (char *)"MP R. Is Percent",        NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL                                       },
     { itype_whistle,                     NULL, (char *)"Whirlwind Direction:", (char *)"Warp Ring:",                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL, (char *)"One W.Wind Per Scr.",             NULL,                              NULL,                              NULL,                              NULL, (char *)"Whirlwind Sprite:",       NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL, (char *)"Music Sound:"                     },
@@ -372,6 +372,7 @@ static std::map<int, ItemNameInfo *> *inamemap = NULL;
 std::map<int, ItemNameInfo *> *getItemNameMap()
 {
     if(inamemap == NULL)
+	    
     {
         inamemap = new std::map<int, ItemNameInfo *>();
         
@@ -395,6 +396,7 @@ static int itemdata_flags_list[] =
     6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, -1
 };
 
+ 
 static int itemdata_gfx_list[] =
 {
     // dialog control number
@@ -419,6 +421,21 @@ static int itemdata_scriptargs_list[] =
     101, 102, 131, 132, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, -1
 };
 
+static int itemdata_weaponargs_list[] =
+{
+    // dialog control number
+    199, 200, 201, 202, -1
+};
+
+/*
+static int itemdata_movementpattern_list[] =
+{
+    // dialog control number
+    101, 102, 131, 132, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, -1
+};
+*/
+
+
 static TABPANEL itemdata_tabs[] =
 {
     // (text)
@@ -427,11 +444,103 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"Pickup",       0,             itemdata_pickup_list,        0, NULL },
     { (char *)"Action",       0,             itemdata_script_list,        0, NULL },
     { (char *)"Scripts",      0,             itemdata_scriptargs_list,    0, NULL },
+    { (char *)"Special",      0,             itemdata_weaponargs_list,    0, NULL },
     { NULL,                   0,             NULL,                        0, NULL }
 };
 
 static ListData item_class__list(item_class_list, &pfont);
 static ListData weapon_list(weaponlist, &pfont);
+
+
+static char itemdata_weaponlist_str_buf[14];
+
+const char *itemdata_weaponlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,40);
+        
+        switch(index)
+        {
+
+	case 0: return "Magic";
+	case 1: return "n/a"; //"Sword"; 
+        case 2: return "Sword Beam";
+        case 3: return "Boomerang";
+        case 4: return "Bomb Blast";
+        case 5: return "S.Bomb Blast";
+        case 6: return "Bomb";
+        case 7: return "Super Bomb";
+	case 8: return "Arrow";
+	case 9: return "Fire";
+	case 10: return "Whistle";
+	case 11: return "Bait";
+	case 12: return "n/a"; //"Wand"
+	case 13: return "Magic";
+	case 14: return "n/a"; //"Candle";
+	case 15: return "Wind";	
+	case 16: return "Ref. Magic";
+	case 17: return "Ref. Fireball";
+	case 18: return "Ref. Rock";
+	case 19: //return "Hammer";
+	case 20: //return "Hookshot";
+	case 21: 
+	case 22: return "n/a";
+	case 23: return "Sparkle";
+	case 24: return "Fire Sparkle";
+	case 25: 
+	case 26: return "n/a";
+	case 27: return "Cane of Byrna";
+	case 28: return "Ref. Beam";
+	case 29: 
+	case 30: return "n/a";
+	case 31: return "Script 1";
+	case 32: return "Script 2";
+	case 33: return "Script 3";
+	case 34: return "Script 4";
+	case 35: return "Script 5";
+	case 36: return "Script 6";
+	case 37: return "Script 7";
+	case 38: return "Script 8";
+	case 39: return "Script 9";
+	case 40: return "Script 10";
+	
+        //default:
+          //  sprintf(counterlist_str_buf,"Script %d",index-7);
+          //  return counterlist_str_buf;
+        }
+    }
+    
+    *list_size = 41;
+    return NULL;
+}
+
+static ListData itemdata_weapon_list(itemdata_weaponlist, &pfont);
+
+static char weapon_pattern_list_buf[10];
+
+const char *weapon_patternlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,32);
+        
+        switch(index)
+        {
+        case 0: return "None";
+	case 1: return "Sine Wave";
+        case 2: return "Cosine";
+        case 3: return "Circular";
+
+	
+        }
+    }
+    
+    *list_size = 3;
+    return NULL;
+}
+
+static ListData weapon_pattern_llist(weapon_patternlist, &pfont);
 
 static char counterlist_str_buf[12];
 
@@ -515,6 +624,12 @@ const char *itemscriptdroplist(int index, int *list_size)
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
 
+static DIALOG itemdata_special_dlg[] =
+{
+    { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     44,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_list,						 NULL,   NULL 				   },
+};
+	
 
 static DIALOG itemdata_dlg[] =
 {
@@ -778,10 +893,15 @@ static DIALOG itemdata_dlg[] =
     //195
     { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
     { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
-    //74
+    //197
     { jwin_edit_proc,      140+10,  25+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    //200
+    //199
+    { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     44,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           8,     60,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     56,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
+
     /*
     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[0]:", NULL, NULL },
     { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[1]:", NULL, NULL },
@@ -1123,6 +1243,8 @@ void setLabels(int iclass)
     }
 }
 
+
+
 void itemdata_help(int id)
 {
     if(id < 0 || id > itype_max) return;
@@ -1397,11 +1519,11 @@ void edit_itemdata(int index)
     font=pfont;
 
 	DIALOG *itemdata_cpy = resizeDialog(itemdata_dlg, 1.5);
+
             
     do
     {
         ret = zc_popup_dialog(itemdata_cpy,3);
-        
         test.misc  = 0;
         test.flags = 0;
         
