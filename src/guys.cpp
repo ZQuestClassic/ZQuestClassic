@@ -850,9 +850,15 @@ bool enemy::candamage(int power, int edef)
 // -1: do damage
 int enemy::defend(int wpnId, int *power, int edef)
 {
+	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
+	//otherwise, use enemy editor definitions.  -Z
+	int defence;
+	if ( defense[edef] > 0 ) { defence = defense[edef]; } 
+	else defence = edef; 
+	
     if(shieldCanBlock)
     {
-        switch(defense[edef])
+        switch(defence)
         {
         case edIGNORE:
             return 0;
@@ -866,7 +872,7 @@ int enemy::defend(int wpnId, int *power, int edef)
         return 1;
     }
     
-    switch(defense[edef])
+    switch(defence)
     {
     case edSTUNORCHINK:
         if(*power <= 0)
@@ -987,149 +993,160 @@ int enemy::defend(int wpnId, int *power, int edef)
 
 
 // Defend against a particular item class.
-int enemy::defenditemclass(int wpnId, int *power)
+int enemy::defenditemclass(int wpnId, int *power, int useDefense)
 {
-    int def=-1;
+	int def=-1;
+	
+	//Weapon Editor -Z
+	if ( useDefense > 0 ) {
+		//THis would work if we want to override the defence, but we also only want to do it if
+		//the enemy defence is 'NONE' for this weapon type, so we ead that in enemy::defend()
+
+		def = defend(wpnId, power, useDefense);
+	}
+	
+    else {
     
-    switch(wpnId)
-    {
-        // These first 2 are only used by Gohma... enemy::takehit() has complicated stun-calculation code for these.
-    case wBrang:
-        def = defend(wpnId, power, edefBRANG);
-        break;
-        
-    case wHookshot:
-        def = defend(wpnId, power, edefHOOKSHOT);
-        break;
-        
-        // Anyway...
-    case wBomb:
-        def = defend(wpnId, power, edefBOMB);
-        break;
-        
-    case wSBomb:
-        def = defend(wpnId, power, edefSBOMB);
-        break;
-        
-    case wArrow:
-        def = defend(wpnId, power, edefARROW);
-        break;
-        
-    case wFire:
-        def = defend(wpnId, power, edefFIRE);
-        break;
-        
-    case wWand:
-        def = defend(wpnId, power, edefWAND);
-        break;
-        
-    case wMagic:
-        def = defend(wpnId, power, edefMAGIC);
-        break;
-        
-    case wHammer:
-        def = defend(wpnId, power, edefHAMMER);
-        break;
-        
-    case wSword:
-        def = defend(wpnId, power, edefSWORD);
-        break;
-        
-    case wBeam:
-        def = defend(wpnId, power, edefBEAM);
-        break;
-        
-    case wRefBeam:
-        def = defend(wpnId, power, edefREFBEAM);
-        break;
-        
-    case wRefMagic:
-        def = defend(wpnId, power, edefREFMAGIC);
-        break;
-        
-    case wRefFireball:
-        def = defend(wpnId, power, edefREFBALL);
-        break;
-        
-    case wRefRock:
-        def = defend(wpnId, power, edefREFROCK);
-        break;
-        
-    case wStomp:
-        def = defend(wpnId, power, edefSTOMP);
-        break;
-        
-    case wCByrna:
-        def = defend(wpnId, power, edefBYRNA);
-        break;
-        
-    case wScript1:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT01);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript2:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT02);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript3:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT03);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript4:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT04);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript5:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT05);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript6:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT06);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript7:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT07);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript8:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT08);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript9:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT09);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    case wScript10:
-	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT10);
-	    else def = defend(wpnId, power,  edefSCRIPT);
-        break;
-    
-    
-    //!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
-    //Probably best to do this from the qest file, loading the values of Script(generic) into each
-    //of the ten if the quest version is lower than N. 
-    //Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
-    //such as bool UseSeparatedScriptDefences. hah.
-    default:
-        //if(wpnId>=wScript1 && wpnId<=wScript10)
-        //{
-         //   def = defend(wpnId, power, edefSCRIPT);
-        //}
-        //}
-        
-        break;
+	    switch(wpnId)
+	    {
+		// These first 2 are only used by Gohma... enemy::takehit() has complicated stun-calculation code for these.
+	    case wBrang:
+		def = defend(wpnId, power, edefBRANG);
+		break;
+		
+	    case wHookshot:
+		def = defend(wpnId, power, edefHOOKSHOT);
+		break;
+		
+		// Anyway...
+	    case wBomb:
+		def = defend(wpnId, power, edefBOMB);
+		break;
+		
+	    case wSBomb:
+		def = defend(wpnId, power, edefSBOMB);
+		break;
+		
+	    case wArrow:
+		def = defend(wpnId, power, edefARROW);
+		break;
+		
+	    case wFire:
+		def = defend(wpnId, power, edefFIRE);
+		break;
+		
+	    case wWand:
+		def = defend(wpnId, power, edefWAND);
+		break;
+		
+	    case wMagic:
+		def = defend(wpnId, power, edefMAGIC);
+		break;
+		
+	    case wHammer:
+		def = defend(wpnId, power, edefHAMMER);
+		break;
+		
+	    case wSword:
+		def = defend(wpnId, power, edefSWORD);
+		break;
+		
+	    case wBeam:
+		def = defend(wpnId, power, edefBEAM);
+		break;
+		
+	    case wRefBeam:
+		def = defend(wpnId, power, edefREFBEAM);
+		break;
+		
+	    case wRefMagic:
+		def = defend(wpnId, power, edefREFMAGIC);
+		break;
+		
+	    case wRefFireball:
+		def = defend(wpnId, power, edefREFBALL);
+		break;
+		
+	    case wRefRock:
+		def = defend(wpnId, power, edefREFROCK);
+		break;
+		
+	    case wStomp:
+		def = defend(wpnId, power, edefSTOMP);
+		break;
+		
+	    case wCByrna:
+		def = defend(wpnId, power, edefBYRNA);
+		break;
+		
+	    case wScript1:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT01);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript2:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT02);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript3:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT03);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript4:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT04);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript5:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT05);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript6:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT06);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript7:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT07);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript8:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT08);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript9:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT09);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    case wScript10:
+		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT10);
+		    else def = defend(wpnId, power,  edefSCRIPT);
+		break;
+	    
+	    
+	    //!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
+	    //Probably best to do this from the qest file, loading the values of Script(generic) into each
+	    //of the ten if the quest version is lower than N. 
+	    //Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
+	    //such as bool UseSeparatedScriptDefences. hah.
+	    default:
+		//if(wpnId>=wScript1 && wpnId<=wScript10)
+		//{
+		 //   def = defend(wpnId, power, edefSCRIPT);
+		//}
+		//}
+		
+		break;
+	    }
+	    
+	    return def;
     }
-    
-    return def;
 }
 
 // take damage or ignore it
@@ -1139,12 +1156,26 @@ int enemy::defenditemclass(int wpnId, int *power)
 // 2: heal enemy? -ZoriaRPG
 int enemy::takehit(weapon *w)
 {
-    int wpnId = w->id;
+	
+    int wpnId;
+    int trueID = w->id; //The true ID of the weapon, based on its type. -Z
     int power = w->power;
     int wpnx = w->x;
     int wpny = w->y;
-    int enemyHitWeapon = w->parentitem;
     int wpnDir;
+    int enemyHitWeapon = w->parentitem;
+	
+	//Weapon Editor. 
+	if ( enemyHitWeapon > -1 ) {
+		
+		if ( itemsbuf[enemyHitWeapon].useweapon > 0 ) { wpnId =	itemsbuf[enemyHitWeapon].useweapon; }
+		//The defined weapon type to use for enemy and combo interaction. -Z
+		else wpnId = w->id; //if we are using s special weapon type, use the attributes from that weapon. 
+	}
+   
+	
+	//Weapon Editor -Z
+	byte def = w->usedefence;
     
     // If it's a boomerang that just bounced, use the opposite direction;
     // otherwise, it might bypass a shield. This probably won't handle
@@ -1406,7 +1437,7 @@ fsparkle:
     default:
         // Work out the defenses!
     {
-        int def = defenditemclass(wpnId, &power);
+        int def = defenditemclass(wpnId, &power, w->usedefence);
         
         if(def >= 0)
             return def;
@@ -8394,7 +8425,7 @@ int eGohma::takehit(weapon *w)
     int power = w->power;
     int wpnx = w->x;
     int wpnDir = w->dir;
-    int def = defenditemclass(wpnId, &power);
+    int def = defenditemclass(wpnId, &power, w->usedefence);
     
     if(def < 0)
     {
