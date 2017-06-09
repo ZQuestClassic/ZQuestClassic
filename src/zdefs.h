@@ -94,11 +94,11 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       30                              //build number of this version
-#define ZELDA_VERSION_STR   "2.50.3 RC1"                    //version of the program as presented in text
-#define IS_BETA             1                               //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "December 04, 2016"
-#define COPYRIGHT_YEAR      "2016"                          //shown on title screen and in ending
+#define VERSION_BUILD       31                              //build number of this version
+#define ZELDA_VERSION_STR   "2.53.0"                    //version of the program as presented in text
+#define IS_BETA             -1                               //is this a beta? (1: beta, -1: alpha)
+#define DATE_STR            "7th June, 2017"
+#define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
 
@@ -174,7 +174,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           25
+#define V_ITEMS           26
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1031,6 +1031,9 @@ struct tiledata
     byte *data;
 };
 
+#define ITEM_MOVEMENT_PATTERNS 10
+//Holds the movement pattern, and its args.
+
 struct itemdata
 {
     word tile;
@@ -1057,6 +1060,10 @@ struct itemdata
 #define ITEM_FLAG3     0x0400
 #define ITEM_FLAG4     0x0800
 #define ITEM_FLAG5     0x1000
+
+
+
+
     word script;												// Which script the item is using
     char count;
     word amount;
@@ -1090,6 +1097,14 @@ struct itemdata
     long misc10;
     byte magic; // Magic usage!
     byte usesound;
+    byte useweapon; //lweapon id type -Z
+    byte usedefence; //default defence type -Z
+    int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
+    int weaprange; //default range -Z
+    int weapduration; //default duration, 0 = infinite. 
+    //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor. 
+    
+    
 };
 
 struct wpndata

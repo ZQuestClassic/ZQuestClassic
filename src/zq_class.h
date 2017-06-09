@@ -211,7 +211,7 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
 int load_quest(const char *filename, bool compressed, bool encrypted);
 int save_unencoded_quest(const char *filename, bool compressed);
-int save_unencoded_250_quest(const char *filename, bool compressed);
+
 int save_quest(const char *filename, bool timed_save);
 
 int writemapscreen(PACKFILE *f, int i, int j);
@@ -254,6 +254,7 @@ bool save_zqt(const char *path);
 void center_zq_class_dialogs();
 
 int writeitems(PACKFILE *f, zquestheader *Header);
+int writeitems250(PACKFILE *f, zquestheader *Header);
 int writeweapons(PACKFILE *f, zquestheader *Header);
 int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);

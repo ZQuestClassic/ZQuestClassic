@@ -822,7 +822,12 @@ script_variable variable_list[]=
 	    //{ "EWPNINDEX",         EWPNINDEX,          0,             0 },
 	    //{ "NPCINDEX",         NPCINDEX,          0,             0 },
 	    //TABLE END
-
+	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 },
+	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 },
+	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 },
+	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 },
+	{ "IDATADURATION", IDATADURATION, 0, 0 },
+	  
     { " ",                       -1,             0,             0 }
 };
 

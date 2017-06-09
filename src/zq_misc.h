@@ -259,7 +259,7 @@ int onExport_Pals();
 int onExport_ZGP();
 int onExport_ZQT();
 int onExport_UnencodedQuest();
-int onExport_250Quest();
+
 int onExport_ZASM();
 
 int onGotoMap();

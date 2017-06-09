@@ -1048,7 +1048,12 @@ string VarArgument::toString()
     case IDATAFLAGS: return "IDATAFLAGS";
     case IDATASPRITE: return "IDATASPRITE";
         
-        
+    case IDATAUSEWPN: return "IDATAUSEWPN";
+    case IDATAUSEDEF: return "IDATAUSEDEF";
+    case IDATAWRANGE: return "IDATAWRANGE";
+    case IDATAUSEMVT: return "IDATAUSEMVT";
+    case IDATADURATION: return "IDATADURATION";
+    
     default:
     {
         sprintf(temp, "d%d", ID);
