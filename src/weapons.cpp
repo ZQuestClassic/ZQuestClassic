@@ -438,6 +438,50 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hzsz=8;
     isLit = false;
 	setScreenLimits(*this);
+	
+	//Weapon Editor -Z
+	if ( parentitem > -1 ) { 
+		useweapon = itemsbuf[parentitem].useweapon;
+		usedefence = itemsbuf[parentitem].usedefence;
+		weaprange = itemsbuf[parentitem].weaprange;
+		weapduration = itemsbuf[parentitem].weapduration;
+		duplicates = itemsbuf[parentitem].duplicates;
+		family_class = itemsbuf[parentitem].family;
+		family_level = itemsbuf[parentitem].fam_type;
+		//flags = 
+		collectflags = itemsbuf[parentitem].collectflags;
+		tilemod = itemsbuf[parentitem].ltm;
+		
+		for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )  
+		{
+			weap_pattern[q] = itemsbuf[parentitem].weap_pattern[q];
+		}
+		
+		for ( int q = 0; q < FFSCRIPT_MISC; q++ )
+		{
+			wpn_misc_d[q] = itemsbuf[parentitem].wpn_misc_d[q];
+			
+		}
+		hxofs = itemsbuf[parentitem].weap_hxofs; //hit x offset
+		hyofs = itemsbuf[parentitem].weap_yxofs; //hit y offset
+		hxsz = (itemsbuf[parentitem].weap_hxsz > 0 ? itemsbuf[parentitem].weap_hxsz : 15); //hitwidth
+		hysz = (itemsbuf[parentitem].weap_hysz > 0 ? itemsbuf[parentitem].weap_hysz : 15);  //hitheight
+		hzsz = (itemsbuf[parentitem].weap_hzsz > 0 ? itemsbuf[parentitem].weap_hzsz : 8);   //HitZHeight / HitDepth
+		xofs = itemsbuf[parentitem].weap_xofs; //drawxoffset
+		yofs = itemsbuf[parentitem].weap_yofs; //drawyoffset
+		weaponscript = itemsbuf[parentitem].weaponscript;
+		
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			initiald[q] = itemsbuf[parentitem].weap_initiald[q];
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			initiala[q] = itemsbuf[parentitem].weap_initiala[q];
+		}
+			
+			
+	}
     
     int defaultw, itemid = parentitem;
     

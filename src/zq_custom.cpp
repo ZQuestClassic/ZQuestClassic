@@ -469,7 +469,7 @@ const char *itemdata_weaponlist(int index, int *list_size)
         {
 
 	case 0: return "None";
-	case 1: return "n/a"; //"Sword"; 
+	case 1: return "Sword"; 
         case 2: return "Sword Beam";
         case 3: return "Boomerang";
         case 4: return "Bomb Blast";
@@ -480,15 +480,15 @@ const char *itemdata_weaponlist(int index, int *list_size)
 	case 9: return "Fire";
 	case 10: return "Whistle";
 	case 11: return "Bait";
-	case 12: return "n/a"; //"Wand"
+	case 12: return "Wand";
 	case 13: return "Magic";
-	case 14: return "n/a"; //"Candle";
+	case 14: return "Candle";
 	case 15: return "Wind";	
 	case 16: return "Ref. Magic";
 	case 17: return "Ref. Fireball";
 	case 18: return "Ref. Rock";
-	case 19: //return "Hammer";
-	case 20: //return "Hookshot";
+	case 19: return "Hammer";
+	case 20: return "Hookshot";
 	case 21: 
 	case 22: return "n/a";
 	case 23: return "Sparkle";
@@ -664,6 +664,93 @@ const char *counterlist(int index, int *list_size)
 }
 
 static ListData counter_list(counterlist, &pfont);
+
+//Moved defenselist up here so that it is also available to itemdata. -Z
+
+const char *defenselist(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        bound(index,0,edLAST-1);
+        
+        switch(index)
+        {
+        default:
+            return "(None)";
+            
+        case edHALFDAMAGE:
+            return "1/2 Damage";
+            
+        case edQUARTDAMAGE:
+            return "1/4 Damage";
+	
+            
+        case edSTUNONLY:
+            return "Stun";
+            
+        case edSTUNORCHINK:
+            return "Stun Or Block";
+            
+        case edSTUNORIGNORE:
+            return "Stun Or Ignore";
+            
+        case edCHINKL1:
+            return "Block If < 1";
+            
+        case edCHINKL2:
+            return "Block If < 2";
+            
+        case edCHINKL4:
+            return "Block If < 4";
+            
+        case edCHINKL6:
+            return "Block If < 6";
+            
+        case edCHINKL8:
+            return "Block If < 8";
+	
+	
+            
+        case edCHINK:
+            return "Block";
+            
+        case edIGNOREL1:
+            return "Ignore If < 1";
+            
+        case edIGNORE:
+            return "Ignore";
+	
+	    
+	
+            
+        case ed1HKO:
+            return "One-Hit-Kill";
+	
+	case edCHINKL10: //If damage is less than 10
+		return "Block if Power < 10";
+	
+	case ed2x: //Double damage
+		return "Double Damage";
+	case ed3x: //Triple Damage
+		return "Triple Damage";
+	case ed4x: //4x damage
+		return "Quadruple Damage";
+	
+	case edHEAL: //recover the weapon damage in HP
+		return "Enemy Gains HP = Damage";
+	
+	case edTRIGGERSECRETS: //Triggers screen secrets. 
+		return "Trigger Screen Secrets";
+	
+	
+        }
+    }
+    
+    *list_size = edLAST;
+    return NULL;
+}
+
+static ListData defense_list(defenselist, &font);
 
 int jwin_nbutton_proc(int msg, DIALOG *d, int c)
 {
@@ -978,7 +1065,7 @@ static DIALOG itemdata_dlg[] =
     { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
     //201
     { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_type_list,						 NULL,   NULL 				   },
+    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
     //203
     { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
     { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
@@ -2408,89 +2495,6 @@ const char *eweaponlist(int index, int *list_size)
     return NULL;
 }
 
-const char *defenselist(int index, int *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,edLAST-1);
-        
-        switch(index)
-        {
-        default:
-            return "(None)";
-            
-        case edHALFDAMAGE:
-            return "1/2 Damage";
-            
-        case edQUARTDAMAGE:
-            return "1/4 Damage";
-	
-            
-        case edSTUNONLY:
-            return "Stun";
-            
-        case edSTUNORCHINK:
-            return "Stun Or Block";
-            
-        case edSTUNORIGNORE:
-            return "Stun Or Ignore";
-            
-        case edCHINKL1:
-            return "Block If < 1";
-            
-        case edCHINKL2:
-            return "Block If < 2";
-            
-        case edCHINKL4:
-            return "Block If < 4";
-            
-        case edCHINKL6:
-            return "Block If < 6";
-            
-        case edCHINKL8:
-            return "Block If < 8";
-	
-	
-            
-        case edCHINK:
-            return "Block";
-            
-        case edIGNOREL1:
-            return "Ignore If < 1";
-            
-        case edIGNORE:
-            return "Ignore";
-	
-	    
-	
-            
-        case ed1HKO:
-            return "One-Hit-Kill";
-	
-	case edCHINKL10: //If damage is less than 10
-		return "Block if Power < 10";
-	
-	case ed2x: //Double damage
-		return "Double Damage";
-	case ed3x: //Triple Damage
-		return "Triple Damage";
-	case ed4x: //4x damage
-		return "Quadruple Damage";
-	
-	case edHEAL: //recover the weapon damage in HP
-		return "Enemy Gains HP = Damage";
-	
-	case edTRIGGERSECRETS: //Triggers screen secrets. 
-		return "Trigger Screen Secrets";
-	
-	
-        }
-    }
-    
-    *list_size = edLAST;
-    return NULL;
-}
-
 
 //
 // Enemy Misc. Attribute label swapping device
@@ -2958,7 +2962,7 @@ static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
 
-static ListData defense_list(defenselist, &font);
+
 static ListData walkerspawn_list(walkerspawnlist, &font);
 
 static ListData sfx__list(sfxlist, &font);

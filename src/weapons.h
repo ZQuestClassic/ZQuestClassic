@@ -79,6 +79,8 @@ public:
     long collectflags; //items that this weapon can collect on contact.
     long ffmisc[FFSCRIPT_MISC];
     char weapname[128]; //Weapon Name, pulled from editor. 
+     int duplicates; //Number of duplicate weapons generated.
+     int wpn_misc_d[FFSCRIPT_MISC];
     //! End weapon editor. -Z
     
     

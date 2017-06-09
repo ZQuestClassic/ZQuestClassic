@@ -461,7 +461,7 @@ extern bool fake_pack_writing;
 #define INITIAL_A 2
 #define INITIAL_D 8
 #define FFSCRIPT_MISC 32
-
+#define NUM_FFCS 32
 
 enum
 {
@@ -1129,8 +1129,8 @@ struct itemdata
     byte playsound;
     word collect_script;
 //  byte exp[10];                                             // not used
-    long initiald[8];
-    byte initiala[2];
+    long initiald[INITIAL_D];
+    byte initiala[INITIAL_A];
     byte wpn;
     byte wpn2;
     byte wpn3;
@@ -1159,9 +1159,21 @@ struct itemdata
     int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int weaprange; //default range -Z
     int weapduration; //default duration, 0 = infinite. 
-    //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor. 
+ 
+    
+    //To implement next;
     int duplicates; //Number of duplicate weapons generated.
     int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
+    
+    long weap_initiald[INITIAL_D];
+    byte weap_initiala[INITIAL_A];
+    
+    byte drawlayer;
+    long collectflags;
+    int hxofs, yxofs, hxsz, hysz, hzsz, xofs, yofs; //item
+    int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
+    
+    word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     
 };
 
@@ -1435,25 +1447,25 @@ struct mapscr
     
     //Why doesn't ffc get to be its own class?
     dword numff;
-    word ffdata[32];
-    byte ffcset[32];
-    word ffdelay[32];
-    long ffx[32];
-    long ffy[32];
-    long ffxdelta[32];
-    long ffydelta[32];
-    long ffxdelta2[32];
-    long ffydelta2[32];
-    dword ffflags[32];
-    byte ffwidth[32];
-    byte ffheight[32];
-    byte fflink[32];
+    word ffdata[NUM_FFCS];
+    byte ffcset[NUM_FFCS];
+    word ffdelay[NUM_FFCS];
+    long ffx[NUM_FFCS];
+    long ffy[NUM_FFCS];
+    long ffxdelta[NUM_FFCS];
+    long ffydelta[NUM_FFCS];
+    long ffxdelta2[NUM_FFCS];
+    long ffydelta2[NUM_FFCS];
+    dword ffflags[NUM_FFCS];
+    byte ffwidth[NUM_FFCS];
+    byte ffheight[NUM_FFCS];
+    byte fflink[NUM_FFCS];
     
     //ffc script attachments
-    word ffscript[32];
-    long initd[32][8];
-    long inita[32][2];
-    bool initialized[32];
+    word ffscript[NUM_FFCS];
+    long initd[NUM_FFCS][INITIAL_D];
+    long inita[NUM_FFCS][INITIAL_A];
+    bool initialized[NUM_FFCS];
     
     /*long d[32][8];
     long a[32][2];
