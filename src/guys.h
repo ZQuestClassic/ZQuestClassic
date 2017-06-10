@@ -129,7 +129,10 @@ protected:
     virtual bool hitshield(int wpnx, int wpny, int xdir);
     virtual int defend(int wpnId, int *power, int edef);
     bool candamage(int power, int edef);
-    int defenditemclass(int wpnId, int *power, int def_defence, int use_wpn);
+	//Weapon Editor Nonsense -Z
+	int resolveEnemyDefence(weapon *w);
+	int getWeaponID(weapon *w);
+    int defenditemclass(int wpnId, int *power, weapon *w);
     
     bool dont_draw();
     // base drawing function to be used by all derived classes instead of

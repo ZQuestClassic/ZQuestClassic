@@ -807,6 +807,39 @@ void enemy::FireWeapon()
     }
 }
 
+//! Weapon Editor for 2.6
+//To hell with this. I'm writing new functions to resolve weapon type and defence. -Z
+
+int enemy::getWeaponID(weapon *w){
+	int wpnID; 
+	if ( w->parentitem > -1 ) {
+		int usewpn = itemsbuf[w->parentitem].useweapon;
+		if ( usewpn > 0 ) { 
+			wpnID = usewpn; //Not forwarding to the weapon sprite?
+		}
+		else wpnID = w->id;
+		return wpnID;
+	}
+	return w->id;;
+}
+
+int enemy::resolveEnemyDefence(weapon *w){
+	int edef;
+	int wid = getWeaponID(w);
+	
+	if ( w->parentitem > -1 ) {
+		int usedef = itemsbuf[w->parentitem].usedefence;
+		if ( defense[wid] == 0 ) {
+			edef = usedef;
+		}
+		else edef = defense[wid]; //defense] is not in the same order as weapon id enum, is it?
+		return edef;
+	}
+	return defense[wid];
+}
+
+
+
 
 // Hit the shield(s)?
 // Apparently, this function is only used for hookshots...
@@ -1008,143 +1041,72 @@ int enemy::defend(int wpnId, int *power, int edef)
 
 
 // Defend against a particular item class.
-int enemy::defenditemclass(int wpnId, int *power, int useDefense, int weapon_override)
+int enemy::defenditemclass(int wpnId, int *power, weapon *w)
+//int useDefense, int weapon_override)
 {
 	int def=-1;
 	
 	//Weapon Editor -Z
-	if ( weapon_override > 0 ) wpnId = weapon_override; //Weapon editor override. 
-	
-	if ( useDefense > 0 ) {
+	//if ( weapon_override > 0 ) wpnId = weapon_override; //Weapon editor override. 
+	//int wpn = 
+	//if ( useDefense > 0 ) {
 		//THis would work if we want to override the defence, but we also only want to do it if
 		//the enemy defence is 'NONE' for this weapon type, so we ead that in enemy::defend()
 
-		def = defend(wpnId, power, useDefense);
-	}
+		//def = defend(getWeaponID(w), power, resolveEnemyDefence(w));
+	//}
 	
-	
-    else {
+	int wid = getWeaponID(w);
+    //else {
     
-	    switch(wpnId)
+	    switch(wid)
 	    {
 		// These first 2 are only used by Gohma... enemy::takehit() has complicated stun-calculation code for these.
 	    case wBrang:
-		def = defend(wpnId, power, edefBRANG);
-		break;
-		
-	    case wHookshot:
-		def = defend(wpnId, power, edefHOOKSHOT);
-		break;
-		
-		// Anyway...
 	    case wBomb:
-		def = defend(wpnId, power, edefBOMB);
-		break;
-		
+	    case wHookshot:
 	    case wSBomb:
-		def = defend(wpnId, power, edefSBOMB);
-		break;
-		
 	    case wArrow:
-		def = defend(wpnId, power, edefARROW);
-		break;
-		
 	    case wFire:
-		def = defend(wpnId, power, edefFIRE);
-		break;
-		
 	    case wWand:
-		def = defend(wpnId, power, edefWAND);
-		break;
-		
 	    case wMagic:
-		def = defend(wpnId, power, edefMAGIC);
-		break;
-		
 	    case wHammer:
-		def = defend(wpnId, power, edefHAMMER);
-		break;
-		
 	    case wSword:
-		def = defend(wpnId, power, edefSWORD);
-		break;
-		
 	    case wBeam:
-		def = defend(wpnId, power, edefBEAM);
-		break;
-		
 	    case wRefBeam:
-		def = defend(wpnId, power, edefREFBEAM);
-		break;
-		
 	    case wRefMagic:
-		def = defend(wpnId, power, edefREFMAGIC);
-		break;
-		
 	    case wRefFireball:
-		def = defend(wpnId, power, edefREFBALL);
-		break;
-		
 	    case wRefRock:
-		def = defend(wpnId, power, edefREFROCK);
-		break;
-		
 	    case wStomp:
-		def = defend(wpnId, power, edefSTOMP);
+	    case wCByrna:
+		def = defend(wid, power, resolveEnemyDefence(w));
 		break;
 		
-	    case wCByrna:
-		def = defend(wpnId, power, edefBYRNA);
-		break;
+	    
+	   
+		
 		
 	    case wScript1:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT01);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript2:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT02);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript3:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT03);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript4:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT04);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript5:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT05);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+    
 	    case wScript6:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT06);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+   
 	    case wScript7:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT07);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript8:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT08);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript9:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT09);
-		    else def = defend(wpnId, power,  edefSCRIPT);
-		break;
-	    
+
 	    case wScript10:
-		    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT10);
-		    else def = defend(wpnId, power,  edefSCRIPT);
+		    if(QHeader.zelda_version > 0x250) def = defend(wid, power,  resolveEnemyDefence(w));
+		    else def = defend(wid, power,  edefSCRIPT);
 		break;
 	    
 	    
@@ -1154,6 +1116,7 @@ int enemy::defenditemclass(int wpnId, int *power, int useDefense, int weapon_ove
 	    //Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
 	    //such as bool UseSeparatedScriptDefences. hah.
 	    default:
+		    def = defend(wid, power,  resolveEnemyDefence(w));
 		//if(wpnId>=wScript1 && wpnId<=wScript10)
 		//{
 		 //   def = defend(wpnId, power, edefSCRIPT);
@@ -1164,7 +1127,7 @@ int enemy::defenditemclass(int wpnId, int *power, int useDefense, int weapon_ove
 	    }
 	    
 	    return def;
-    }
+    //}
 }
 
 // take damage or ignore it
@@ -1456,7 +1419,7 @@ fsparkle:
     default:
         // Work out the defenses!
     {
-        int def = defenditemclass(wpnId, &power, w->usedefence, w->useweapon);
+        int def = defenditemclass(wpnId, &power, w);
         
         if(def >= 0)
             return def;
@@ -8444,7 +8407,7 @@ int eGohma::takehit(weapon *w)
     int power = w->power;
     int wpnx = w->x;
     int wpnDir = w->dir;
-    int def = defenditemclass(wpnId, &power, w->usedefence, w->useweapon);
+    int def = defenditemclass(wpnId, &power, w);
     
     if(def < 0)
     {
