@@ -522,7 +522,7 @@ const char *itemdata_weaponlist(int index, int *list_size)
 	//case 50: return "Shovel";
 
 	
-        default: return 0;
+        default: return "None";
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
@@ -598,7 +598,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
 	//case 50: return "Shovel";
 
 	
-        default: return 0;
+        default: return "None";
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
@@ -632,7 +632,7 @@ const char *weapon_patternlist(int index, int *list_size)
 	case 9: return "Pattern D";
 	case 10: return "Pattern E";
 	case 11: return "Pattern F";
-	default: return 0;
+	default: return "None";
 	
         }
     }
