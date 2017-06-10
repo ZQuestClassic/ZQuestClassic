@@ -489,17 +489,16 @@ const char *itemdata_weaponlist(int index, int *list_size)
 	case 18: return "Ref. Rock";
 	case 19: return "Hammer";
 	case 20: return "Hookshot";
-	case 21: 
-	case 22: return "n/a";
+	case 21: return "Hookshot Handle";
+	case 22: return "Hookshot Chain";
 	case 23: return "Sparkle";
 	case 24: return "Fire Sparkle";
-	case 25: 
-	case 26: return "n/a";
+	case 25: return "wSmack";
+	case 26: return "wPhantom";
 	case 27: return "Cane of Byrna";
 	case 28: return "Ref. Beam";
-	case 29: 
-	case 30: return "n/a";
-	case 31: return "Script 1";
+	case 29: return "wStomp";
+	case 30: return "n/a"; //lwMAX 2.50
 	case 32: return "Script 2";
 	case 33: return "Script 3";
 	case 34: return "Script 4";
@@ -510,7 +509,20 @@ const char *itemdata_weaponlist(int index, int *list_size)
 	case 39: return "Script 9";
 	case 40: return "Script 10";
 	
-        default: return "None";
+	//! planned additions. -Z
+	//case 41: return "Ice";
+	//case 42: return "Sonic"; //Digdogger split def. -Z
+	//case 43: return "Rock"; //thrown rock
+	//case 44: return "Pot"; //thrown pot
+	//case 45: return "Electricity";
+	//case 46: return "Z3 Sword";
+	//case 47: return "GB Sword";
+	//case 48: return "Spin Attack";
+	//case 49: return "Shield Bash";
+	//case 50: return "Shovel";
+
+	
+        default: return 0;
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
@@ -553,17 +565,16 @@ const char *itemdata_weapontypelist(int index, int *list_size)
 	case 18: return "Ref. Rock";
 	case 19: return "Hammer";
 	case 20: return "Hookshot";
-	case 21: 
-	case 22: return "n/a";
+	case 21: return "Hookshot Handle";
+	case 22: return "Hookshot Chain";
 	case 23: return "Sparkle";
 	case 24: return "Fire Sparkle";
-	case 25: 
-	case 26: return "n/a";
+	case 25: return "wSmack";
+	case 26: return "wPhantom";
 	case 27: return "Cane of Byrna";
 	case 28: return "Ref. Beam";
-	case 29: 
-	case 30: return "n/a";
-	case 31: return "Script 1";
+	case 29: return "wStomp";
+	case 30: return "n/a"; //lwMAX 2.50
 	case 32: return "Script 2";
 	case 33: return "Script 3";
 	case 34: return "Script 4";
@@ -574,7 +585,20 @@ const char *itemdata_weapontypelist(int index, int *list_size)
 	case 39: return "Script 9";
 	case 40: return "Script 10";
 	
-        default: return "None";
+	//! planned additions. -Z
+	//case 41: return "Ice";
+	//case 42: return "Sonic"; //Digdogger split def. -Z
+	//case 43: return "Rock"; //thrown rock
+	//case 44: return "Pot"; //thrown pot
+	//case 45: return "Electricity";
+	//case 46: return "Z3 Sword";
+	//case 47: return "GB Sword";
+	//case 48: return "Spin Attack";
+	//case 49: return "Shield Bash";
+	//case 50: return "Shovel";
+
+	
+        default: return 0;
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
@@ -608,7 +632,7 @@ const char *weapon_patternlist(int index, int *list_size)
 	case 9: return "Pattern D";
 	case 10: return "Pattern E";
 	case 11: return "Pattern F";
-	default: return "None";
+	default: return 0;
 	
         }
     }
