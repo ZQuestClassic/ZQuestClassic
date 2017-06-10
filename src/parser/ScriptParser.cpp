@@ -149,7 +149,8 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 
     // Repeat parsing process for each of import files
 	vector<ASTImportDecl*>& imports = theAST->imports;
-    for (vector<ASTImportDecl*>::iterator it = imports.begin(); it != imports.end(); it++)
+    for (vector<ASTImportDecl*>::iterator it = imports.begin();
+		 it != imports.end(); it = imports.erase(it))
     {
         string fn = prepareFilename((*it)->getFilename());
 
@@ -171,7 +172,6 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 
 		delete *it;
     }
-	imports.clear();
 
     // Check that there are no more stupidly placed imports in the file
     CheckForExtraneousImports c;
