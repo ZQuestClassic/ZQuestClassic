@@ -869,7 +869,7 @@ int enemy::defend(int wpnId, int *power, int edef)
 	//otherwise, use enemy editor definitions.  -Z
 	int defence;
 	if ( defense[edef] > 0 ) { defence = defense[edef]; } 
-	else defence = edef; 
+	else defence = edef; //itemsbuf[id].usedefense;
 	
     if(shieldCanBlock)
     {
@@ -1008,17 +1008,20 @@ int enemy::defend(int wpnId, int *power, int edef)
 
 
 // Defend against a particular item class.
-int enemy::defenditemclass(int wpnId, int *power, int useDefense)
+int enemy::defenditemclass(int wpnId, int *power, int useDefense, int weapon_override)
 {
 	int def=-1;
 	
 	//Weapon Editor -Z
+	if ( weapon_override > 0 ) wpnId = weapon_override; //Weapon editor override. 
+	
 	if ( useDefense > 0 ) {
 		//THis would work if we want to override the defence, but we also only want to do it if
 		//the enemy defence is 'NONE' for this weapon type, so we ead that in enemy::defend()
 
 		def = defend(wpnId, power, useDefense);
 	}
+	
 	
     else {
     
@@ -1190,7 +1193,8 @@ int enemy::takehit(weapon *w)
    
 	
 	//Weapon Editor -Z
-	byte def = w->usedefence;
+	byte def_overide = w->usedefence;
+	byte wpn_override = w->useweapon;
     
     // If it's a boomerang that just bounced, use the opposite direction;
     // otherwise, it might bypass a shield. This probably won't handle
@@ -1452,7 +1456,7 @@ fsparkle:
     default:
         // Work out the defenses!
     {
-        int def = defenditemclass(wpnId, &power, w->usedefence);
+        int def = defenditemclass(wpnId, &power, w->usedefence, w->useweapon);
         
         if(def >= 0)
             return def;
@@ -8440,7 +8444,7 @@ int eGohma::takehit(weapon *w)
     int power = w->power;
     int wpnx = w->x;
     int wpnDir = w->dir;
-    int def = defenditemclass(wpnId, &power, w->usedefence);
+    int def = defenditemclass(wpnId, &power, w->usedefence, w->useweapon);
     
     if(def < 0)
     {
