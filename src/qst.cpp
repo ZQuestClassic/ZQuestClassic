@@ -985,7 +985,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
         
     case ID_ITEMS:
         //items
-        ret=readitems(f, version, build, true);
+        ret=readitems(f, version, build, Header, true);
         break;
         
     case ID_WEAPONS:
@@ -4655,7 +4655,7 @@ extern const char *old_item_string[iLast];
 extern char *weapon_string[WPNCNT];
 extern const char *old_weapon_string[wLast];
 
-int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode)
+int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool keepdata, bool zgpmode)
 {
     byte padding;
     int  dummy;
@@ -4736,6 +4736,8 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                                                             itemsbuf[i].misc2=itemsbuf[i].magic=tempitem.usesound=0;
             itemsbuf[i].count=-1;
             itemsbuf[i].playsound=WAV_SCALE;
+		itemsbuf[i].useweapon = itemsbuf[i].usedefence = itemsbuf[i].weaprange = itemsbuf[i].weapduration = 0;
+		for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) itemsbuf[i].weap_pattern[q] = 0;
             reset_itembuf(&itemsbuf[i],i);
         }
     }
@@ -4744,6 +4746,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
     {
         memset(&tempitem, 0, sizeof(itemdata));
         reset_itembuf(&tempitem,i);
+	
         
         if(!p_igetw(&tempitem.tile,f,true))
         {
@@ -5123,7 +5126,36 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         return qe_invalid;
                     }
                 }
+		
+		
             }
+	    if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
+		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+			if(!p_getc(&tempitem.useweapon,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_getc(&tempitem.usedefence,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weaprange,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weapduration,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+				
+				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+				{
+				    return qe_invalid;
+				}
+			}
+		
+		}
         }
         else
         {
@@ -13770,7 +13802,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 }
                 
                 box_out("Reading Items...");
-                ret=readitems(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_items));
+                ret=readitems(f, tempheader.zelda_version, tempheader.build, Header, keepall&&!get_bit(skip_flags, skip_items));
                 checkstatus(ret);
                 
                 box_out("okay.");
@@ -14105,7 +14137,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         //items
         box_out("Reading Items...");
-        ret=readitems(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_items));
+        ret=readitems(f, tempheader.zelda_version, tempheader.build, Header, keepall&&!get_bit(skip_flags, skip_items));
         checkstatus(ret);
         box_out("okay.");
         box_eol();
