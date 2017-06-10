@@ -3471,7 +3471,7 @@ void edit_enemydata(int index)
     char name[64];
     char ms[12][8];
     char enemynumstr[75];
-	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8];
+	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
     
     //disable the missing dialog items!
     //else they will lurk in the background
@@ -3617,12 +3617,26 @@ void edit_enemydata(int index)
     sprintf(tiley,"%ld",guysbuf[index].tysz);
     sprintf(hitx,"%ld",guysbuf[index].hxsz);
     sprintf(hity,"%ld",guysbuf[index].hysz);
-    //sprintf(hitz,"%ld",guysbuf[index].hzsz);
+    sprintf(hitz,"%ld",guysbuf[index].hzsz);
   
     enedata_dlg[214].dp = tilex;
     enedata_dlg[216].dp = tiley;
     enedata_dlg[218].dp = hitx;
     enedata_dlg[220].dp = hity;
+    enedata_dlg[222].dp = hitz;
+    
+    //HitXOffset, HitYOFfset, hitZOffset, DrawXOffsrt, DrawYOffset
+    sprintf(hitofsx,"%ld",guysbuf[index].hxofs);
+    sprintf(hitofsy,"%ld",guysbuf[index].hyofs);
+    sprintf(hitofsz,"%ld",guysbuf[index].zofs);
+    sprintf(drawofsx,"%ld",guysbuf[index].xofs);
+    sprintf(drawofsy,"%ld",guysbuf[index].yofs);
+    
+    enedata_dlg[224].dp = hitofsx;
+    enedata_dlg[226].dp = hitofsy;
+    enedata_dlg[228].dp = hitofsz;
+    enedata_dlg[230].dp = drawofsx;
+    enedata_dlg[232].dp = drawofsy;
     
     sprintf(frt,"%d",guysbuf[index].frate);
     sprintf(efr,"%d",guysbuf[index].e_frate);
@@ -3786,6 +3800,12 @@ void edit_enemydata(int index)
 	test.tysz = atoi(tiley);
 	test.hxsz = atoi(hitx);
 	test.hysz = atoi(hity);
+	test.hzsz = atoi(hitz);
+	test.hxofs = atoi(hitofsx);
+	test.hyofs = atoi(hitofsy);
+	test.zofs = atoi(hitofsz);
+	test.xofs = atoi(drawofsx);
+	test.yofs = atoi(drawofsy);
 	
 
 	    
