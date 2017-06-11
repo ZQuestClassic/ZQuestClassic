@@ -175,6 +175,12 @@ void Script::printErrors() const
 
 // ZScript::Variable
 
+Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)
+	: node(node), type(type), name(name), id(id)
+{
+	if (node) node->variable = this;
+}
+
 // ZScript::Function
 
 Script* Function::getScript() const

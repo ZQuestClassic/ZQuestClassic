@@ -53,9 +53,8 @@ namespace ZScript
 
 	struct Variable
 	{
-		Variable(ASTDecl* node, ZVarType const* type, string const& name, int id)
-				: node(node), type(type), name(name), id(id) {}
-		ASTDecl* node;
+		Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id);
+		ASTDataDecl* node;
 		ZVarType const* type;
 		string name;
 		int id;

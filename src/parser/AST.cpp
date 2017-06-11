@@ -450,6 +450,12 @@ ASTStmtEmpty* ASTStmtEmpty::clone() const
 
 // ASTDecl
 
+ASTDecl& ASTDecl::operator=(ASTDecl const& rhs)
+{
+	ASTStmt::operator=(rhs);
+	return *this;
+}
+
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
@@ -549,24 +555,54 @@ void ASTFuncDecl::addParam(ASTVarDecl *param)
     params.push_front(param);
 }
 
+// ASTDataDecl
+
+ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
+{
+	AST::operator=(rhs);
+	variable = rhs.variable;
+	return *this;
+}
+
+
 // ASTArrayDecl
 
-ASTArrayDecl::ASTArrayDecl(ASTVarType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc)
-		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type)
+ASTArrayDecl::ASTArrayDecl(ASTVarType* type, string const& name, ASTExpr* size,
+						   ASTArrayList* list, LocationData const& location)
+	: ASTDataDecl(location), type(type), name(name), size(size), list(list)
 {}
+
+ASTArrayDecl::ASTArrayDecl(ASTArrayDecl const& base)
+	: ASTDataDecl(base),
+	  type(base.type ? base.type->clone() : NULL),
+	  name(base.name),
+	  size(base.size ? base.size->clone() : NULL),
+	  list(base.list ? base.list->clone() : NULL)
+{}
+
+ASTArrayDecl& ASTArrayDecl::operator=(ASTArrayDecl const& rhs)
+{
+	ASTDataDecl::operator=(rhs);
+	delete type;
+	delete size;
+	delete list;
+	type = rhs.type ? rhs.type->clone() : NULL;
+	name = rhs.name;
+	size = rhs.size ? rhs.size->clone() : NULL;
+	list = rhs.list ? rhs.list->clone() : NULL;
+	return *this;
+}
+
+ASTArrayDecl* ASTArrayDecl::clone() const
+{
+	return new ASTArrayDecl(*this);
+}
 
 ASTArrayDecl::~ASTArrayDecl()
 {
     delete type;
     delete list;
     delete size;
-}
-
-ASTArrayDecl* ASTArrayDecl::clone() const
-{
-	ASTArrayList* c_list = NULL;
-	if (list != NULL) c_list = list->clone();
-	return new ASTArrayDecl(type->clone(), name, size->clone(), c_list, getLocation());
 }
 
 // ASTArrayList
@@ -607,30 +643,63 @@ void ASTArrayList::addString(string const & str)
 
 // ASTVarDecl
 
+ASTVarDecl::ASTVarDecl(ASTVarType* type, string const& name, LocationData const& location)
+	: ASTDataDecl(location), type(type), name(name)
+{}
+
+ASTVarDecl::ASTVarDecl(ASTVarDecl const& base)
+	: ASTDataDecl(base),
+	  type(base.type ? base.type->clone() : NULL),
+	  name(base.name)
+{}
+
+ASTVarDecl& ASTVarDecl::operator=(ASTVarDecl const& rhs)
+{
+	ASTDataDecl::operator=(rhs);
+	delete type;
+	type = rhs.type ? rhs.type->clone() : NULL;
+	name = rhs.name;
+	return *this;
+}
+
+ASTVarDecl* ASTVarDecl::clone() const
+{
+	return new ASTVarDecl(*this);
+}
+
 ASTVarDecl::~ASTVarDecl()
 {
     delete type;
 }
 
-ASTVarDecl* ASTVarDecl::clone() const
-{
-	return new ASTVarDecl(type->clone(), name, getLocation());
-}
-
 // ASTVarDeclInitializer
 
-ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarType *Type, string Name, ASTExpr *Initial, LocationData Loc)
-		: ASTVarDecl(Type,Name,Loc), initial(Initial)
+ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarType* type, string const& name,
+											 ASTExpr* initial, LocationData const& location)
+	: ASTVarDecl(type, name, location), initial(initial)
 {}
 
-ASTVarDeclInitializer::~ASTVarDeclInitializer()
+ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarDeclInitializer const& base)
+	: ASTVarDecl(base),
+	  initial(base.initial ? base.initial->clone() : NULL)
+{}
+
+ASTVarDeclInitializer& ASTVarDeclInitializer::operator=(ASTVarDeclInitializer const& rhs)
 {
-    delete initial;
+	ASTVarDecl::operator=(rhs);
+	delete initial;
+	initial = rhs.initial ? rhs.initial->clone() : NULL;
+	return *this;
 }
 
 ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 {
-	return new ASTVarDeclInitializer(getType()->clone(), getName(), initial->clone(), getLocation());
+	return new ASTVarDeclInitializer(*this);
+}
+
+ASTVarDeclInitializer::~ASTVarDeclInitializer()
+{
+    delete initial;
 }
 
 // ASTTypeDef

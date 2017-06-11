@@ -54,6 +54,7 @@ class ASTDecl; // virtual
 class ASTScript;
 class ASTImportDecl;
 class ASTFuncDecl;
+class ASTDataDecl; // virtual
 class ASTArrayDecl;
 class ASTArrayList;
 class ASTVarDecl;
@@ -603,9 +604,11 @@ enum ASTDeclClassId
 class ASTDecl : public ASTStmt
 {
 public:
-    ASTDecl(LocationData Loc) : ASTStmt(Loc) {}
-    virtual ~ASTDecl() {}
+    ASTDecl(LocationData const& location) : ASTStmt(location) {}
+	ASTDecl(ASTDecl const& base) : ASTStmt(base) {}
+	ASTDecl& operator=(ASTDecl const& rhs);
 	virtual ASTDecl* clone() const = 0;
+    virtual ~ASTDecl() {}
 
 	virtual ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_NONE;}
 };
@@ -688,12 +691,35 @@ private:
     ASTBlock *block;
 };
 
-class ASTArrayDecl : public ASTDecl
+namespace ZScript
+{
+	class Variable;
+}
+
+class ASTDataDecl : public ASTDecl
 {
 public:
-    ASTArrayDecl(ASTVarType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc);
-    ~ASTArrayDecl();
+	ASTDataDecl(LocationData const& location) : ASTDecl(location), variable(NULL) {}
+	ASTDataDecl(ASTDataDecl const& base) : ASTDecl(base), variable(NULL) {}
+	ASTDataDecl& operator=(ASTDataDecl const& rhs);
+
+	// Reference back to the variable that is built for this node. Should be
+	// set by that Variable when it is created.
+	ZScript::Variable* variable;
+};
+
+class ASTArrayDecl : public ASTDataDecl
+{
+public:
+    ASTArrayDecl(ASTVarType* type, string const& name, ASTExpr* size,
+				 ASTArrayList* list, LocationData const& location);
+	ASTArrayDecl(ASTArrayDecl const& base);
+	ASTArrayDecl& operator=(ASTArrayDecl const& rhs);
 	ASTArrayDecl* clone() const;
+    ~ASTArrayDecl();
+
+    void execute(ASTVisitor &visitor, void *param) {visitor.caseArrayDecl(*this, param);}
+    void execute(ASTVisitor &visitor) {visitor.caseArrayDecl(*this);}
 	bool isTypeArrayDecl() const {return true;}
 
     ASTVarType *getType() const {return type;}
@@ -701,8 +727,6 @@ public:
 
     ASTExpr *getSize() const {return size;}
     ASTArrayList *getList() const {return list;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseArrayDecl(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseArrayDecl(*this);}
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_ARRAY;}
 private:
     string name;
@@ -740,39 +764,43 @@ private:
     ASTArrayList &operator=(ASTArrayList &);
 };
 
-class ASTVarDecl : public ASTDecl
+class ASTVarDecl : public ASTDataDecl
 {
 public:
-    ASTVarDecl(ASTVarType *Type, string Name, LocationData Loc) : ASTDecl(Loc), type(Type), name(Name) {}
-    virtual ~ASTVarDecl();
+    ASTVarDecl(ASTVarType* type, string const& name, LocationData const& location);
+	ASTVarDecl(ASTVarDecl const& base);
+	ASTVarDecl& operator=(ASTVarDecl const& rhs);
 	virtual ASTVarDecl* clone() const;
+    virtual ~ASTVarDecl();
+
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseVarDecl(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseVarDecl(*this);}
 	bool isTypeVarDecl() const {return true;}
 
-    ASTVarType *getType() const {return type;}
+    ASTVarType* getType() const {return type;}
     string getName() const {return name;}
-    void execute(ASTVisitor &visitor, void* param) {visitor.caseVarDecl(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseVarDecl(*this);}
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_VARIABLE;}
 private:
-    ASTVarType *type;
+    ASTVarType* type;
     string name;
 };
 
 class ASTVarDeclInitializer : public ASTVarDecl
 {
 public:
-    ASTVarDeclInitializer(ASTVarType *Type, string Name, ASTExpr *Initial, LocationData Loc);
-    ~ASTVarDeclInitializer();
+    ASTVarDeclInitializer(ASTVarType* type, string const& name,
+						  ASTExpr* initial, LocationData const& location);
+	ASTVarDeclInitializer(ASTVarDeclInitializer const& base);
+	ASTVarDeclInitializer& operator=(ASTVarDeclInitializer const& rhs);
 	ASTVarDeclInitializer* clone() const;
-    
-    ASTExpr *getInitializer() const {return initial;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseVarDeclInitializer(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseVarDeclInitializer(*this);}
+    ~ASTVarDeclInitializer();
+
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseVarDeclInitializer(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseVarDeclInitializer(*this);}
+
+    ASTExpr* getInitializer() const {return initial;}
 private:
-    ASTExpr *initial;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTVarDeclInitializer(ASTVarDeclInitializer &);
-    ASTVarDeclInitializer &operator=(ASTVarDeclInitializer &);
+    ASTExpr* initial;
 };
 
 class ASTTypeDef : public ASTDecl
