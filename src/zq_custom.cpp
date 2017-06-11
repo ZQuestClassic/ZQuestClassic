@@ -1029,7 +1029,7 @@ static DIALOG itemdata_dlg[] =
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
-void setLabels(int iclass)
+void setLabels(int iclass, DIALOG *d)
 {
     std::map<int, ItemNameInfo *> *nmap = getItemNameMap();
     std::map<int, ItemNameInfo *>::iterator it = nmap->find(iclass);
@@ -1040,16 +1040,16 @@ void setLabels(int iclass)
         
         
     if(inf == NULL)
-        itemdata_dlg[12].dp = (void *)"Power:";
+        d[12].dp = (void *)"Power:";
     else if(inf->power == NULL)
     {
-        itemdata_dlg[12].dp = (void *)"<Unused>";
-        itemdata_dlg[13].flags &= ~D_DISABLED;
+        d[12].dp = (void *)"<Unused>";
+        d[13].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[12].dp = inf->power;
-        itemdata_dlg[13].flags &= ~D_DISABLED;
+        d[12].dp = inf->power;
+        d[13].flags &= ~D_DISABLED;
     }
     
     // Disable the Equipment item checkbox
@@ -1059,293 +1059,293 @@ void setLabels(int iclass)
             iclass==itype_lkey || iclass==itype_misc ||
             iclass==itype_bowandarrow || iclass==itype_letterpotion)
     {
-        itemdata_dlg[14].dp = (void *)"<Unused>";
-        itemdata_dlg[14].flags &= ~D_DISABLED;
+        d[14].dp = (void *)"<Unused>";
+        d[14].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[14].dp = (void *)"Equipment Item";
-        itemdata_dlg[14].flags &= ~D_DISABLED;
+        d[14].dp = (void *)"Equipment Item";
+        d[14].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->flag1 == NULL))
     {
-        itemdata_dlg[15].dp = (void *)"Flags[0]";
-        itemdata_dlg[15].flags &= ~D_DISABLED;
+        d[15].dp = (void *)"Flags[0]";
+        d[15].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[15].dp = inf->flag1;
-        itemdata_dlg[15].flags &= ~D_DISABLED;
+        d[15].dp = inf->flag1;
+        d[15].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->flag2 == NULL))
     {
-        itemdata_dlg[16].dp = (void *)"Flags[1]";
-        itemdata_dlg[16].flags &= ~D_DISABLED;
+        d[16].dp = (void *)"Flags[1]";
+        d[16].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[16].dp = inf->flag2;
-        itemdata_dlg[16].flags &= ~D_DISABLED;
+        d[16].dp = inf->flag2;
+        d[16].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->flag3 == NULL))
     {
-        itemdata_dlg[17].dp = (void *)"Flags[2]";
-        itemdata_dlg[17].flags &= ~D_DISABLED;
+        d[17].dp = (void *)"Flags[2]";
+        d[17].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[17].dp = inf->flag3;
-        itemdata_dlg[17].flags &= ~D_DISABLED;
+        d[17].dp = inf->flag3;
+        d[17].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->flag4 == NULL))
     {
-        itemdata_dlg[18].dp = (void *)"Flags[3]";
-        itemdata_dlg[18].flags &= ~D_DISABLED;
+        d[18].dp = (void *)"Flags[3]";
+        d[18].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[18].dp = inf->flag4;
-        itemdata_dlg[18].flags &= ~D_DISABLED;
+        d[18].dp = inf->flag4;
+        d[18].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->flag5 == NULL))
     {
-        itemdata_dlg[19].dp = (void *)"Flags[4]";
-        itemdata_dlg[19].flags &= ~D_DISABLED;
+        d[19].dp = (void *)"Flags[4]";
+        d[19].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[19].dp = inf->flag5;
-        itemdata_dlg[19].flags &= ~D_DISABLED;
+        d[19].dp = inf->flag5;
+        d[19].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc1 == NULL))
     {
-        itemdata_dlg[20].dp = (void *)"Attributes[0]";
-        itemdata_dlg[21].flags &= ~D_DISABLED;
+        d[20].dp = (void *)"Attributes[0]";
+        d[21].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[20].dp = inf->misc1;
-        itemdata_dlg[21].flags &= ~D_DISABLED;
+        d[20].dp = inf->misc1;
+        d[21].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc2 == NULL))
     {
-        itemdata_dlg[22].dp = (void *)"Attributes[1]";
-        itemdata_dlg[23].flags &= ~D_DISABLED;
+        d[22].dp = (void *)"Attributes[1]";
+        d[23].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[22].dp = inf->misc2;
-        itemdata_dlg[23].flags &= ~D_DISABLED;
+        d[22].dp = inf->misc2;
+        d[23].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc3 == NULL))
     {
-        itemdata_dlg[24].dp = (void *)"Attributes[2]";
-        itemdata_dlg[25].flags &= ~D_DISABLED;
+        d[24].dp = (void *)"Attributes[2]";
+        d[25].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[24].dp = inf->misc3;
-        itemdata_dlg[25].flags &= ~D_DISABLED;
+        d[24].dp = inf->misc3;
+        d[25].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc4 == NULL))
     {
-        itemdata_dlg[26].dp = (void *)"Attributes[3]";
-        itemdata_dlg[27].flags &= ~D_DISABLED;
+        d[26].dp = (void *)"Attributes[3]";
+        d[27].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[26].dp = inf->misc4;
-        itemdata_dlg[27].flags &= ~D_DISABLED;
+        d[26].dp = inf->misc4;
+        d[27].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc5 == NULL))
     {
-        itemdata_dlg[28].dp = (void *)"Attributes[4]";
-        itemdata_dlg[29].flags &= ~D_DISABLED;
+        d[28].dp = (void *)"Attributes[4]";
+        d[29].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[28].dp = inf->misc5;
-        itemdata_dlg[29].flags &= ~D_DISABLED;
+        d[28].dp = inf->misc5;
+        d[29].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc6 == NULL))
     {
-        itemdata_dlg[30].dp = (void *)"Attributes[5]";
-        itemdata_dlg[31].flags &= ~D_DISABLED;
+        d[30].dp = (void *)"Attributes[5]";
+        d[31].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[30].dp = inf->misc6;
-        itemdata_dlg[31].flags &= ~D_DISABLED;
+        d[30].dp = inf->misc6;
+        d[31].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc7 == NULL))
     {
-        itemdata_dlg[32].dp = (void *)"Attributes[6]";
-        itemdata_dlg[33].flags &= ~D_DISABLED;
+        d[32].dp = (void *)"Attributes[6]";
+        d[33].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[32].dp = inf->misc7;
-        itemdata_dlg[33].flags &= ~D_DISABLED;
+        d[32].dp = inf->misc7;
+        d[33].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc8 == NULL))
     {
-        itemdata_dlg[34].dp = (void *)"Attributes[7]";
-        itemdata_dlg[35].flags &= ~D_DISABLED;
+        d[34].dp = (void *)"Attributes[7]";
+        d[35].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[34].dp = inf->misc8;
-        itemdata_dlg[35].flags &= ~D_DISABLED;
+        d[34].dp = inf->misc8;
+        d[35].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc9 == NULL))
     {
-        itemdata_dlg[36].dp = (void *)"Attributes[8]";
-        itemdata_dlg[37].flags &= ~D_DISABLED;
+        d[36].dp = (void *)"Attributes[8]";
+        d[37].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[36].dp = inf->misc9;
-        itemdata_dlg[37].flags &= ~D_DISABLED;
+        d[36].dp = inf->misc9;
+        d[37].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->misc10 == NULL))
     {
-        itemdata_dlg[38].dp = (void *)"Attributes[9]";
-        itemdata_dlg[39].flags &= ~D_DISABLED;
+        d[38].dp = (void *)"Attributes[9]";
+        d[39].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[38].dp = inf->misc10;
-        itemdata_dlg[39].flags &= ~D_DISABLED;
+        d[38].dp = inf->misc10;
+        d[39].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->actionsnd == NULL))
-        itemdata_dlg[135].dp = (void *)"UseSound";
+        d[135].dp = (void *)"UseSound";
     else
-        itemdata_dlg[135].dp = inf->actionsnd;
+        d[135].dp = inf->actionsnd;
         
     if((inf == NULL) || (inf->wpn1 == NULL))
     {
-        itemdata_dlg[139].dp = (void *)"Sprites[0]";
-        itemdata_dlg[140].flags &= ~D_DISABLED;
+        d[139].dp = (void *)"Sprites[0]";
+        d[140].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[139].dp = inf->wpn1;
-        itemdata_dlg[140].flags &= ~D_DISABLED;
+        d[139].dp = inf->wpn1;
+        d[140].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn2 == NULL))
     {
-        itemdata_dlg[141].dp = (void *)"Sprites[1]";
-        itemdata_dlg[142].flags &= ~D_DISABLED;
+        d[141].dp = (void *)"Sprites[1]";
+        d[142].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[141].dp = inf->wpn2;
-        itemdata_dlg[142].flags &= ~D_DISABLED;
+        d[141].dp = inf->wpn2;
+        d[142].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn3 == NULL))
     {
-        itemdata_dlg[143].dp = (void *)"Sprites[2]";
-        itemdata_dlg[144].flags &= ~D_DISABLED;
+        d[143].dp = (void *)"Sprites[2]";
+        d[144].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[143].dp = inf->wpn3;
-        itemdata_dlg[144].flags &= ~D_DISABLED;
+        d[143].dp = inf->wpn3;
+        d[144].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn4 == NULL))
     {
-        itemdata_dlg[145].dp = (void *)"Sprites[3]";
-        itemdata_dlg[146].flags &= ~D_DISABLED;
+        d[145].dp = (void *)"Sprites[3]";
+        d[146].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[145].dp = inf->wpn4;
-        itemdata_dlg[146].flags &= ~D_DISABLED;
+        d[145].dp = inf->wpn4;
+        d[146].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn5 == NULL))
     {
-        itemdata_dlg[147].dp = (void *)"Sprites[4]";
-        itemdata_dlg[148].flags &= ~D_DISABLED;
+        d[147].dp = (void *)"Sprites[4]";
+        d[148].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[147].dp = inf->wpn5;
-        itemdata_dlg[148].flags &= ~D_DISABLED;
+        d[147].dp = inf->wpn5;
+        d[148].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn6 == NULL))
     {
-        itemdata_dlg[149].dp = (void *)"Sprites[5]";
-        itemdata_dlg[150].flags &= ~D_DISABLED;
+        d[149].dp = (void *)"Sprites[5]";
+        d[150].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[149].dp = inf->wpn6;
-        itemdata_dlg[150].flags &= ~D_DISABLED;
+        d[149].dp = inf->wpn6;
+        d[150].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn7 == NULL))
     {
-        itemdata_dlg[151].dp = (void *)"Sprites[6]";
-        itemdata_dlg[152].flags &= ~D_DISABLED;
+        d[151].dp = (void *)"Sprites[6]";
+        d[152].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[151].dp = inf->wpn7;
-        itemdata_dlg[152].flags &= ~D_DISABLED;
+        d[151].dp = inf->wpn7;
+        d[152].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn8 == NULL))
     {
-        itemdata_dlg[153].dp = (void *)"Sprites[7]";
-        itemdata_dlg[154].flags &= ~D_DISABLED;
+        d[153].dp = (void *)"Sprites[7]";
+        d[154].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[153].dp = inf->wpn8;
-        itemdata_dlg[154].flags &= ~D_DISABLED;
+        d[153].dp = inf->wpn8;
+        d[154].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn9 == NULL))
     {
-        itemdata_dlg[155].dp = (void *)"Sprites[8]";
-        itemdata_dlg[156].flags &= ~D_DISABLED;
+        d[155].dp = (void *)"Sprites[8]";
+        d[156].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[155].dp = inf->wpn9;
-        itemdata_dlg[156].flags &= ~D_DISABLED;
+        d[155].dp = inf->wpn9;
+        d[156].flags &= ~D_DISABLED;
     }
     
     if((inf == NULL) || (inf->wpn10 == NULL))
     {
-        itemdata_dlg[157].dp = (void *)"Sprites[9]";
-        itemdata_dlg[158].flags &= ~D_DISABLED;
+        d[157].dp = (void *)"Sprites[9]";
+        d[158].flags &= ~D_DISABLED;
     }
     else
     {
-        itemdata_dlg[157].dp = inf->wpn10;
-        itemdata_dlg[158].flags &= ~D_DISABLED;
+        d[157].dp = inf->wpn10;
+        d[158].flags &= ~D_DISABLED;
     }
     /*
     //!! New itemdata values. -Z
@@ -1706,7 +1706,7 @@ void edit_itemdata(int index)
     memset(&test, 0, sizeof(itemdata));
     test.playsound = 25;
     
-    setLabels(itemsbuf[index].family);
+    setLabels(itemsbuf[index].family, itemdata_dlg);
     FONT *tfont=font;
     font=pfont;
 
@@ -2033,11 +2033,11 @@ void edit_itemdata(int index)
 			itemdata_cpy[197].dp = da[8];
 			itemdata_cpy[198].dp = da[9];
             
-            setLabels(test.family);
+            setLabels(test.family, itemdata_cpy);
         }
         
         if(ret==9)
-            setLabels(test.family);
+            setLabels(test.family, itemdata_cpy);
     }
     while(ret==5 || ret==9 || ret==71 || ret==40);
     

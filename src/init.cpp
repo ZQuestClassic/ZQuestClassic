@@ -1900,7 +1900,7 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
                 
                 for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
-                    tempdata.items[it2->itemid] = 0 != (init_dlg[j].flags & D_SELECTED);
+                    tempdata.items[it2->itemid] = 0 != (((DIALOG *)d->dp3)[j].flags & D_SELECTED);
                 }
             }
         }
