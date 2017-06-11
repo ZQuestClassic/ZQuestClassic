@@ -154,6 +154,7 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 			|| newd[i].proc == fs_dlist_proc			
 			|| newd[i].proc == d_msg_edit_proc
 			|| newd[i].proc == jwin_initlist_proc
+			|| newd[i].proc == d_ecstile_proc
 			)			
 			&& newd[i].dp3 == d)
 			newd[i].dp3 = newd;
@@ -2969,9 +2970,9 @@ static DIALOG enedata_dlg[] =
     {  jwin_win_proc,            0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,      0,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_tab_proc,            4,     24,    312,    192,    0,                      0,                       0,    0,           0,    0, (void *) enedata_tabs,                                          NULL, (void *)enedata_dlg  },
     //2
-    {  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   NULL                 },
-    {  d_ecstile_proc,          52,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   NULL                 },
-    {  d_ecstile_proc,          88,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   NULL                 },
+    {  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
+    {  d_ecstile_proc,          52,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
+    {  d_ecstile_proc,          88,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
     //5
     {  jwin_button_proc,        50,    220,     61,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void *) "OK",                                                  NULL,   NULL                 },
     {  jwin_button_proc,       130,    220,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
@@ -3133,7 +3134,7 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,         280,    176,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
     {  d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_check_proc,        165,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Use Pal CSet",                                        NULL,   NULL                 },
-    //143 - note: these are defenses 0-16, 17 is at 191
+    //144 - note: these are defenses 0-16, 17 is at 191
     {  jwin_text_proc,           6,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Boomerang Defense:",                                  NULL,   NULL                 },
     {  jwin_text_proc,           6,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Bomb Defense:",                                       NULL,   NULL                 },
     {  jwin_text_proc,           6,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Super Bomb Defense:",                                 NULL,   NULL                 },
@@ -3360,9 +3361,10 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
         if(select_tile(t,f,1,cs,true))
         {
             d->d1 = t;
-            enedata_dlg[2].d2 = cs;
-            enedata_dlg[3].d2 = cs;
-            enedata_dlg[4].d2 = cs;
+			DIALOG *parent = (DIALOG *)d->dp3;
+            parent[2].d2 = cs;
+			parent[3].d2 = cs;
+			parent[4].d2 = cs;
             return D_REDRAW;
         }
     }
