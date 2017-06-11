@@ -637,8 +637,8 @@ void ASTArrayList::addString(string const & str)
 {
 	LocationData & loc = getLocation();
 	for (unsigned int i = 1; i < str.length() - 1; ++i)
-		this->addParam(new ASTNumConstant(new ASTFloat(long(str[i]), 0, loc), loc));
-	this->addParam(new ASTNumConstant(new ASTFloat(0L, 0, loc), loc));
+		this->addParam(new ASTNumberLiteral(new ASTFloat(long(str[i]), 0, loc), loc));
+	this->addParam(new ASTNumberLiteral(new ASTFloat(0L, 0, loc), loc));
 }
 
 // ASTVarDecl
@@ -763,60 +763,6 @@ ASTExprAssign* ASTExprAssign::clone() const
 			lval != NULL ? lval->clone() : NULL,
 			rval != NULL ? rval->clone() : NULL,
 			getLocation());
-}
-
-// ASTNumConstant
-
-ASTNumConstant::ASTNumConstant(ASTNumConstant const& base) : ASTExpr(base)
-{
-	val = base.val->clone();
-}
-
-ASTNumConstant& ASTNumConstant::operator=(ASTNumConstant const& rhs)
-{
-	ASTExpr::operator=(rhs);
-	val = rhs.val->clone();
-	return *this;
-}
-
-// ASTBoolConstant
-
-ASTBoolConstant::ASTBoolConstant(ASTBoolConstant const& base) : ASTExpr(base)
-{
-	value = base.value;
-}
-
-ASTBoolConstant& ASTBoolConstant::operator=(ASTBoolConstant const& base)
-{
-	ASTExpr::operator=(base);
-	value = base.value;
-	return *this;
-}
-
-// ASTStringConstant
-
-ASTStringConstant::ASTStringConstant(char const* str, LocationData const& location)
-	: ASTExpr(location), str(str)
-{}
-
-ASTStringConstant::ASTStringConstant(string const& str, LocationData const& location)
-	: ASTExpr(location), str(str)
-{}
-
-ASTStringConstant::ASTStringConstant(ASTString const & raw)
-	: ASTExpr(raw.getLocation()), str(raw.getValue().substr(1, raw.getValue().size() - 2))
-{}
-
-ASTStringConstant::ASTStringConstant(ASTStringConstant const& base) : ASTExpr(base)
-{
-	str = base.str;
-}
-
-ASTStringConstant& ASTStringConstant::operator=(ASTStringConstant const& base)
-{
-	ASTExpr::operator=(base);
-	str = base.str;
-	return *this;
 }
 
 // ASTExprIdentifier
@@ -1045,6 +991,71 @@ ASTBinaryExpr::~ASTBinaryExpr()
 // ASTExprLShift
 
 // ASTExprRShift
+
+////////////////////////////////////////////////////////////////
+// Literals
+
+// ASTLiteral
+
+ASTLiteral& ASTLiteral::operator=(ASTLiteral const& rhs)
+{
+	ASTExpr::operator=(rhs);
+	return *this;
+}
+
+// ASTNumberLiteral
+
+ASTNumberLiteral::ASTNumberLiteral(ASTNumberLiteral const& base) : ASTLiteral(base)
+{
+	val = base.val ? base.val->clone() : NULL;
+}
+
+ASTNumberLiteral& ASTNumberLiteral::operator=(ASTNumberLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	delete val;
+	val = rhs.val ? rhs.val->clone() : NULL;
+	return *this;
+}
+
+// ASTBoolLiteral
+
+ASTBoolLiteral::ASTBoolLiteral(ASTBoolLiteral const& base)
+	: ASTLiteral(base), value(base.value)
+{}
+
+ASTBoolLiteral& ASTBoolLiteral::operator=(ASTBoolLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	value = rhs.value;
+	return *this;
+}
+
+// ASTStringLiteral
+
+ASTStringLiteral::ASTStringLiteral(char const* str, LocationData const& location)
+	: ASTLiteral(location), data(str)
+{}
+
+ASTStringLiteral::ASTStringLiteral(string const& str, LocationData const& location)
+	: ASTLiteral(location), data(str)
+{}
+
+ASTStringLiteral::ASTStringLiteral(ASTString const& raw)
+	: ASTLiteral(raw.getLocation()),
+	  data(raw.getValue().substr(1, raw.getValue().size() - 2))
+{}
+
+ASTStringLiteral::ASTStringLiteral(ASTStringLiteral const& base)
+	: ASTLiteral(base), data(base.data)
+{}
+
+ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	data = rhs.data;
+	return *this;
+}
 
 ////////////////////////////////////////////////////////////////
 // Types

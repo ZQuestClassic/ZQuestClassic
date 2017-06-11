@@ -64,9 +64,6 @@ class ASTTypeDef;
 class ASTExpr; // virtual
 class ASTExprConst;
 class ASTExprAssign;
-class ASTNumConstant;
-class ASTBoolConstant;
-class ASTStringConstant;
 class ASTExprIdentifier;
 class ASTExprArrow;
 class ASTExprIndex;
@@ -104,6 +101,11 @@ class ASTExprBitXor;
 class ASTShiftExpr; // virtual
 class ASTExprLShift;
 class ASTExprRShift;
+// Literals
+class ASTLiteral; // virtual
+class ASTNumberLiteral;
+class ASTBoolLiteral;
+class ASTStringLiteral;
 // Types
 class ASTScriptType;
 class ASTVarType;
@@ -169,12 +171,6 @@ public:
     virtual void caseExprConst(ASTExprConst& node) {caseExprConst(node, NULL);}
     virtual void caseExprAssign(ASTExprAssign&, void* param) {caseDefault(param);}
     virtual void caseExprAssign(ASTExprAssign& node) {caseExprAssign(node, NULL);}
-    virtual void caseNumConstant(ASTNumConstant&, void* param) {caseDefault(param);}
-    virtual void caseNumConstant(ASTNumConstant& node) {caseNumConstant(node, NULL);}
-    virtual void caseBoolConstant(ASTBoolConstant&, void* param) {caseDefault(param);}
-    virtual void caseBoolConstant(ASTBoolConstant& node) {caseBoolConstant(node, NULL);}
-    virtual void caseStringConstant(ASTStringConstant&, void* param) {caseDefault(param);}
-    virtual void caseStringConstant(ASTStringConstant& node) {caseStringConstant(node, NULL);}
     virtual void caseExprIdentifier(ASTExprIdentifier&, void* param) {caseDefault(param);}
     virtual void caseExprIdentifier(ASTExprIdentifier& node) {caseExprIdentifier(node, NULL);}
     virtual void caseExprArrow(ASTExprArrow&, void* param) {caseDefault(param);}
@@ -233,6 +229,13 @@ public:
     virtual void caseExprLShift(ASTExprLShift& node) {caseExprLShift(node, NULL);}
     virtual void caseExprRShift(ASTExprRShift&, void* param) {caseDefault(param);}
     virtual void caseExprRShift(ASTExprRShift& node) {caseExprRShift(node, NULL);}
+	// Literals
+    virtual void caseNumberLiteral(ASTNumberLiteral&, void* param) {caseDefault(param);}
+    virtual void caseNumberLiteral(ASTNumberLiteral& node) {caseNumberLiteral(node, NULL);}
+    virtual void caseBoolLiteral(ASTBoolLiteral&, void* param) {caseDefault(param);}
+    virtual void caseBoolLiteral(ASTBoolLiteral& node) {caseBoolLiteral(node, NULL);}
+    virtual void caseStringLiteral(ASTStringLiteral&, void* param) {caseDefault(param);}
+    virtual void caseStringLiteral(ASTStringLiteral& node) {caseStringLiteral(node, NULL);}
 	// Types
 	virtual void caseScriptType(ASTScriptType&, void* param) {caseDefault(param);}
 	virtual void caseScriptType(ASTScriptType& node) {caseScriptType(node, NULL);}
@@ -891,57 +894,6 @@ private:
 	ASTExpr* rval;
 };
 
-class ASTNumConstant : public ASTExpr
-{
-public:
-    ASTNumConstant(ASTFloat *value, LocationData Loc) : ASTExpr(Loc), val(value) {}
-	ASTNumConstant(ASTNumConstant const& base);
-	ASTNumConstant& operator=(ASTNumConstant const& rhs);
-    ~ASTNumConstant() {delete val;}
-	ASTNumConstant* clone() const {return new ASTNumConstant(*this);}
-
-    ASTFloat* getValue() const {return val;}
-	bool isConstant() const {return true;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseNumConstant(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseNumConstant(*this);}
-private:
-    ASTFloat* val;
-};
-
-class ASTBoolConstant : public ASTExpr
-{
-public:
-    ASTBoolConstant(bool Value, LocationData Loc) : ASTExpr(Loc), value(Value) {}
-	ASTBoolConstant(ASTBoolConstant const& base);
-	ASTBoolConstant& operator=(ASTBoolConstant const& base);
-	ASTBoolConstant* clone() const {return new ASTBoolConstant(*this);}
-
-    bool getValue() const {return value;}
-	bool isConstant() const {return true;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseBoolConstant(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseBoolConstant(*this);}
-private:
-    bool value;
-};
-
-class ASTStringConstant : public ASTExpr
-{
-public:
-	ASTStringConstant(char const* str, LocationData const& location);
-	ASTStringConstant(string const& str, LocationData const& location);
-	ASTStringConstant(ASTString const& raw);
-	ASTStringConstant(ASTStringConstant const& base);
-	ASTStringConstant& operator=(ASTStringConstant const& rhs);
-	ASTStringConstant* clone() const {return new ASTStringConstant(*this);}
-
-	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringConstant(*this, param);}
-	void execute (ASTVisitor& visitor) {visitor.caseStringConstant(*this);}
-	bool isConstant() const {return true;}
-	string getValue() const {return str;}
-private:
-	string str;
-};
-
 class ASTExprIdentifier : public ASTExpr
 {
 public:
@@ -1418,6 +1370,70 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprRShift(*this, param);}
 	void execute(ASTVisitor& visitor) {visitor.caseExprRShift(*this);}
+};
+
+// Literals
+
+class ASTLiteral : public ASTExpr
+{
+public:
+	ASTLiteral(LocationData const& location) : ASTExpr(location) {}
+	ASTLiteral(ASTLiteral const& base) : ASTExpr(base) {}
+	ASTLiteral& operator=(ASTLiteral const& rhs);
+};
+
+class ASTNumberLiteral : public ASTLiteral
+{
+public:
+    ASTNumberLiteral(ASTFloat* value, LocationData const& location) : ASTLiteral(location), val(value) {}
+	ASTNumberLiteral(ASTNumberLiteral const& base);
+	ASTNumberLiteral& operator=(ASTNumberLiteral const& rhs);
+    ~ASTNumberLiteral() {delete val;}
+	ASTNumberLiteral* clone() const {return new ASTNumberLiteral(*this);}
+
+    void execute(ASTVisitor& visitor, void* param) {visitor.caseNumberLiteral(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseNumberLiteral(*this);}
+
+    ASTFloat* getValue() const {return val;}
+	bool isConstant() const {return true;}
+private:
+    ASTFloat* val;
+};
+
+class ASTBoolLiteral : public ASTLiteral
+{
+public:
+    ASTBoolLiteral(bool value, LocationData const& location) : ASTLiteral(location), value(value) {}
+	ASTBoolLiteral(ASTBoolLiteral const& base);
+	ASTBoolLiteral& operator=(ASTBoolLiteral const& base);
+	ASTBoolLiteral* clone() const {return new ASTBoolLiteral(*this);}
+
+    void execute(ASTVisitor &visitor, void *param) {visitor.caseBoolLiteral(*this, param);}
+    void execute(ASTVisitor &visitor) {visitor.caseBoolLiteral(*this);}
+
+    bool getValue() const {return value;}
+	bool isConstant() const {return true;}
+private:
+    bool value;
+};
+
+class ASTStringLiteral : public ASTLiteral
+{
+public:
+	ASTStringLiteral(char const* str, LocationData const& location);
+	ASTStringLiteral(string const& str, LocationData const& location);
+	ASTStringLiteral(ASTString const& raw);
+	ASTStringLiteral(ASTStringLiteral const& base);
+	ASTStringLiteral& operator=(ASTStringLiteral const& rhs);
+	ASTStringLiteral* clone() const {return new ASTStringLiteral(*this);}
+
+	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringLiteral(*this, param);}
+	void execute (ASTVisitor& visitor) {visitor.caseStringLiteral(*this);}
+	bool isConstant() const {return true;}
+
+	string getValue() const {return data;}
+private:
+	string data;
 };
 
 // Types

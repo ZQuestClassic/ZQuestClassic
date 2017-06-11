@@ -35,9 +35,6 @@ public:
 	// Expressions
     virtual void caseExprConst(ASTExprConst &host, void *param);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
-    virtual void caseNumConstant(ASTNumConstant &host, void *param);
-    virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
-    virtual void caseStringConstant(ASTStringConstant &host, void *param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
@@ -67,6 +64,10 @@ public:
     virtual void caseExprBitXor(ASTExprBitXor &host, void *param);
     virtual void caseExprLShift(ASTExprLShift &host, void *param);
     virtual void caseExprRShift(ASTExprRShift &host, void *param);
+	// Literals
+    virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
+    virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);
+    virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
 
     vector<Opcode *> getResult() const {return result;}
     int getReturnLabelID() const {return returnlabelid;}
@@ -148,7 +149,7 @@ public:
 		prevframes.pop();
 	}
 
-	virtual void caseStringConstant(ASTStringConstant& host, void* param)
+	virtual void caseStringLiteral(ASTStringLiteral& host, void* param)
 	{
 		int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);

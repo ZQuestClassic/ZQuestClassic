@@ -311,13 +311,6 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host)
 	RecursiveVisitor::caseExprAssign(host);
 }
 
-void SemanticAnalyzer::caseStringConstant(ASTStringConstant& host)
-{
-	// Assign varible id for anonymous "variable".
-	int variableId = ScriptParser::getUniqueVarID();
-	scope->getTable().putNodeId(&host, variableId);
-}
-
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 {
 	ASTExpr* left = host.getLeft();
@@ -373,5 +366,14 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
 
 	// Standard recursing.
 	RecursiveVisitor::caseExprIndex(host);
+}
+
+// Literals
+
+void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host)
+{
+	// Assign varible id for anonymous "variable".
+	int variableId = ScriptParser::getUniqueVarID();
+	scope->getTable().putNodeId(&host, variableId);
 }
 

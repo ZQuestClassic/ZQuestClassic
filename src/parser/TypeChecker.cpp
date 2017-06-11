@@ -197,29 +197,6 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host)
 	}
 }
 
-void TypeCheck::caseNumConstant(ASTNumConstant &host)
-{
-    host.setVarType(ZVarType::FLOAT);
-    pair<string,string> parts = host.getValue()->parseValue();
-    pair<long, bool> val = ScriptParser::parseLong(parts);
-
-    if (!val.second)
-        printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
-
-    host.setDataValue(val.first);
-}
-
-void TypeCheck::caseBoolConstant(ASTBoolConstant &host)
-{
-    host.setVarType(ZVarType::BOOL);
-    host.setDataValue(host.getValue() ? 1L : 0L);
-}
-
-void TypeCheck::caseStringConstant(ASTStringConstant& host)
-{
-	host.setVarType(ZVarType::FLOAT);
-}
-
 void TypeCheck::caseExprIdentifier(ASTExprIdentifier &host)
 {
     if (symbolTable.isInlinedConstant(&host))
@@ -899,6 +876,31 @@ void TypeCheck::caseExprRShift(ASTExprRShift &host)
         int secondval = host.getSecondOperand()->getDataValue();
         host.setDataValue(((firstval/10000)>>(secondval/10000))*10000);
     }
+}
+
+// Literals
+
+void TypeCheck::caseNumberLiteral(ASTNumberLiteral& host)
+{
+    host.setVarType(ZVarType::FLOAT);
+    pair<string,string> parts = host.getValue()->parseValue();
+    pair<long, bool> val = ScriptParser::parseLong(parts);
+
+    if (!val.second)
+        printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
+
+    host.setDataValue(val.first);
+}
+
+void TypeCheck::caseBoolLiteral(ASTBoolLiteral& host)
+{
+    host.setVarType(ZVarType::BOOL);
+    host.setDataValue(host.getValue() ? 1L : 0L);
+}
+
+void TypeCheck::caseStringLiteral(ASTStringLiteral& host)
+{
+	host.setVarType(ZVarType::FLOAT);
 }
 
 // Other
