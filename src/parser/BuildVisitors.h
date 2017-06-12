@@ -90,7 +90,8 @@ private:
 	int breakRefCount;
     list<long> arrayRefs;
     bool failure;
-	vector<Opcode*>* resultOverride;
+	// Stack of opcode targets. Only the latest is used.
+	vector<vector<Opcode*>*> opcodeTargets;
 };
 
 class AssignStackSymbols : public RecursiveVisitor
