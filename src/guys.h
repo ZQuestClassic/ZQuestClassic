@@ -72,7 +72,7 @@ public:
     dword flags2;
     
     short  family, dcset, anim;
-    short  dp, wdp, wpn;
+    short  dp, wdp, wpn, wpnsprite; //wpnsprite is new for 2.6 -Z
     
     short  rate, hrate, homing;
     fix dstep;

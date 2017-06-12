@@ -1498,6 +1498,8 @@ struct guydata
     //  short  startx, starty;
     //  short  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
+    //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
+    //Adding earlier will offset defdata arrays. -Z
     
     //2.6 enemy editor tile and hit sizes. -Z
     int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions. 
@@ -1505,6 +1507,7 @@ struct guydata
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
+    short wpnsprite; //wpnsprite is new for 2.6 -Z
 };
 
 class refInfo
@@ -1740,7 +1743,7 @@ struct mapscr
         timedwarptics=0;
         nextmap=0;
         nextscr=0;
-	
+	 // new for 2.6
         entry_x = entry_y = 0; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
     
         

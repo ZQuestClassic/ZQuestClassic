@@ -3234,6 +3234,7 @@ void set_register(const long arg, const long value)
         
     case FFLINK:
         (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
+	//0 is none, setting this before made it impssible to clear it. -Z
         break;
         
     case FFMISCD:

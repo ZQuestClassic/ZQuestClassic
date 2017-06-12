@@ -294,7 +294,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     dp=d->dp;
     wdp=d->wdp;
     wpn=d->weapon;
-    
+    wpnsprite = d-> wpnsprite; //2.6 -Z
     rate=d->rate;
     hrate=d->hrate;
     dstep=d->step;
