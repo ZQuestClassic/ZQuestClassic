@@ -12,7 +12,9 @@ BuildOpcodes::BuildOpcodes()
 	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
 	  returnRefCount(0), continueRefCount(0), breakRefCount(0),
 	  failure(false)
-{}
+{
+	opcodeTargets.push_back(&result);
+}
 
 void BuildOpcodes::caseDefault(void *)
 {
@@ -22,7 +24,7 @@ void BuildOpcodes::caseDefault(void *)
 
 void BuildOpcodes::addOpcode(Opcode* code)
 {
-	result.push_back(code);
+	opcodeTargets.back()->push_back(code);
 }
 
 void BuildOpcodes::deallocateArrayRef(long arrayRef)
@@ -390,14 +392,14 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
 
 	// Get size.
 
-	if (!host.getSize()->getInfo().hasValue())
+	if (!host.getSize()->hasDataValue())
 	{
 		failure = true;
 		printErrorMsg(&host, EXPRNOTCONSTANT);
 		return;
 	}
 
-	long size = host.getSize()->getInfo().getDataValue();
+	long size = host.getSize()->getDataValue();
 
 	if (size < 10000)
 	{
@@ -533,92 +535,6 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     }
 }
 
-void BuildOpcodes::caseNumConstant(ASTNumConstant& host, void*)
-{
-    if (host.getInfo().hasValue())
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
-    else
-    {
-        pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
-
-        if (!val.second)
-            printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
-
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
-    }
-}
-
-void BuildOpcodes::caseBoolConstant(ASTBoolConstant& host, void*)
-{
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
-}
-
-void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
-{
-	OpcodeContext* c = (OpcodeContext*)param;
-	int id = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(id);
-    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
-
-	////////////////////////////////////////////////////////////////
-	// Initialization Code.
-
-	string data = host.getValue();
-	long size = (data.size() + 1) * 10000L;
-
-	// Allocate.
-	if (RAMtype == GLOBALRAM)
-	{
-		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
-		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
-	}
-	else
-	{
-		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
-		int offset = c->stackframe->getOffset(id);
-		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-	}
-
-	// Initialize.
-	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-	for (int i = 0; i < (int)data.size(); ++i)
-	{
-		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i * 10000L)));
-		long value = data[i] * 10000L;
-		c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(value)));
-	}
-	c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(data.size() * 10000L)));
-	c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(0)));
-
-	////////////////////////////////////////////////////////////////
-	// Actual Code.
-
-	if (globalid != -1)
-	{
-        // Global variable, so just get its value.
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
-	}
-	else
-	{
-		// Local variable, get its value from the stack.
-		int offset = c->stackframe->getOffset(id);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-	}
-
-	////////////////////////////////////////////////////////////////
-	// Register for cleanup.
-
-	if (globalid == -1)
-	{
-		int offset = c->stackframe->getOffset(id);
-		arrayRefs.push_back(offset);
-	}
-}
-
 void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
 {
 	host.getContent()->execute(*this, param);
@@ -712,7 +628,7 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAM)));
 }
 
-void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
+void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
     int funclabel = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
@@ -725,11 +641,11 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
 
     // If the function is a pointer function (->func()) we need to push the
     // left-hand-side.
-    if (host.getName()->isTypeArrow())
+    if (host.getLeft()->isTypeArrow())
     {
         //load the value of the left-hand of the arrow into EXP1
-        ((ASTExprArrow*)host.getName())->getLeft()->execute(*this, param);
-        //host.getName()->execute(*this,param);
+        ((ASTExprArrow*)host.getLeft())->getLeft()->execute(*this, param);
+        //host.getLeft()->execute(*this,param);
         //push it onto the stack
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }
@@ -751,9 +667,9 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -765,9 +681,9 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -778,9 +694,9 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -942,9 +858,9 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -962,9 +878,9 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -980,9 +896,9 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -999,9 +915,9 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1016,9 +932,9 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1035,9 +951,9 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1053,11 +969,11 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.getFirstOperand()->getInfo().getValueType() == ZVarType::BOOL);
+    bool isBoolean = (*host.getFirstOperand()->getVarType() == ZVarType::BOOL);
 
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1080,11 +996,11 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.getFirstOperand()->getInfo().getValueType() == ZVarType::BOOL);
+    bool isBoolean = (*host.getFirstOperand()->getVarType() == ZVarType::BOOL);
 
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1106,9 +1022,9 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1122,9 +1038,9 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 
 void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1139,9 +1055,9 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 
 void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1155,9 +1071,9 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 
 void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1172,9 +1088,9 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 
 void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1189,9 +1105,9 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 
 void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1205,9 +1121,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 
 void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1221,9 +1137,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 
 void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1237,9 +1153,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 
 void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1254,9 +1170,9 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 
 void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 {
-    if (host.getInfo().hasValue())
+    if (host.hasDataValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getInfo().getDataValue())));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
         return;
     }
 
@@ -1267,6 +1183,190 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+}
+
+// Literals
+
+void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
+{
+    if (host.hasDataValue())
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
+    else
+    {
+        pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
+
+        if (!val.second)
+            printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
+
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
+    }
+}
+
+void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
+{
+    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
+}
+
+void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
+{
+	OpcodeContext* c = (OpcodeContext*)param;
+	int id = c->symbols->getNodeId(&host);
+    int globalid = c->linktable->getGlobalID(id);
+    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+
+	////////////////////////////////////////////////////////////////
+	// Initialization Code.
+
+	string data = host.getValue();
+	long size = (data.size() + 1) * 10000L;
+
+	// Allocate.
+	if (RAMtype == GLOBALRAM)
+	{
+		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+	}
+	else
+	{
+		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		int offset = c->stackframe->getOffset(id);
+		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	// Initialize.
+	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	for (int i = 0; i < (int)data.size(); ++i)
+	{
+		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i * 10000L)));
+		long value = data[i] * 10000L;
+		c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(value)));
+	}
+	c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(data.size() * 10000L)));
+	c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(0)));
+
+	////////////////////////////////////////////////////////////////
+	// Actual Code.
+
+	if (globalid != -1)
+	{
+        // Global variable, so just get its value.
+        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+	}
+	else
+	{
+		// Local variable, get its value from the stack.
+		int offset = c->stackframe->getOffset(id);
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Register for cleanup.
+
+	if (globalid == -1)
+	{
+		int offset = c->stackframe->getOffset(id);
+		arrayRefs.push_back(offset);
+	}
+}
+
+void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
+{
+	OpcodeContext* c = (OpcodeContext*)param;
+	int id = c->symbols->getNodeId(&host);
+    int globalid = c->linktable->getGlobalID(id);
+    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+
+	int size = -1;
+
+	// If there's an explicit size, grab it.
+	if (host.getSize())
+	{
+		// Make sure the size has been resloved.
+		if (!host.getSize()->hasDataValue())
+		{
+			printErrorMsg(&host, EXPRNOTCONSTANT);
+			failure = true;
+			return;
+		}
+
+		// Grab the size.
+		size = host.getSize()->getDataValue() / 10000;
+
+		// Make sure the chosen size has enough space.
+		if (size < host.getElements().size())
+		{
+			printErrorMsg(&host, ARRAYLISTTOOLARGE);
+			failure = true;
+			return;
+		}
+	}
+	// Otherwise, grab the number of elements.
+	else size = host.getElements().size();
+
+	////////////////////////////////////////////////////////////////
+	// Initialization Code.
+
+	// Allocate.
+	if (RAMtype == GLOBALRAM)
+	{
+		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L)));
+		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+	}
+	else
+	{
+		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L)));
+		int offset = c->stackframe->getOffset(id);
+		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	// Initialize.
+	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	long i = 0;
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it, i += 10000L)
+	{
+		c->initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
+		opcodeTargets.push_back(&c->initCode);
+		(*it)->execute(*this, param);
+		opcodeTargets.pop_back();
+		c->initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
+		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i)));
+		c->initCode.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP1)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Actual Code.
+
+	if (globalid != -1)
+	{
+        // Global variable, so just get its value.
+        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+	}
+	else
+	{
+		// Local variable, get its value from the stack.
+		int offset = c->stackframe->getOffset(id);
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Register for cleanup.
+
+	if (globalid == -1)
+	{
+		int offset = c->stackframe->getOffset(id);
+		arrayRefs.push_back(offset);
+	}
+
 }
 
 // Other

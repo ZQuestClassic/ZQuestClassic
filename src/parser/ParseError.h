@@ -58,5 +58,6 @@ void printErrorMsg(AST *offender, int errorID, string param = string());
 #define UNRESOLVEDTYPE 47
 #define CONSTUNITIALIZED 48
 #define CONSTASSIGN 49
+#define EMPTYARRAYLITERAL 50
 #endif
 

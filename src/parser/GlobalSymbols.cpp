@@ -5,8 +5,11 @@
 #include "ByteCode.h"
 #include "Scope.h"
 #include "../zsyssimple.h"
+#include "ZScript.h"
 #include <assert.h>
 #include "../zdefs.h" //Needed for using defined values. -Z
+
+using namespace ZScript;
 
 const int radsperdeg = 572958;
 
@@ -62,11 +65,12 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
     for (int i = 0; table[i].name != ""; i++)
     {
 		AccessorTable& entry = table[i];
-        string name = entry.name;
-        vector<int> paramTypeIds;
+		ZVarType const* returnType = symbolTable.getType(entry.rettype);
+		vector<ZVarType const*> paramTypes;
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
-            paramTypeIds.push_back(entry.params[k]);
+			paramTypes.push_back(symbolTable.getType(entry.params[k]));
 
+        string name = entry.name;
 		string varName = name;
 
 		// Strip out the array at the end.
@@ -74,31 +78,26 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		if (isArray)
 			varName = name.substr(0, name.size() - 2);
 
+
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
 		{
 			varName = varName.substr(3); // Strip out "set".
-			int varId = scope.getLocalVariableId(varName);
-			if (varId == -1)
-				varId = scope.addVariable(varName, paramTypeIds[1]);
-			int functionId = scope.addSetter(varId, paramTypeIds);
-			assert(functionId != -1);
-			setters[name] = functionId;
+			Function* function = scope.addSetter(returnType, varName, paramTypes);
+			assert(function);
+			setters[name] = function->id;
 		}
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
 		{
 			varName = varName.substr(3); // Strip out "get".
-			int varId = scope.getLocalVariableId(varName);
-			if (varId == -1)
-				varId = scope.addVariable(varName, entry.rettype);
-			int functionId = scope.addGetter(varId, paramTypeIds);
-			assert(functionId != -1);
-			getters[name] = functionId;
+			Function* function = scope.addGetter(returnType, varName, paramTypes);
+			assert(function);
+			getters[name] = function->id;
 		}
 		else
 		{
-			int functionId = scope.addFunction(varName, entry.rettype, paramTypeIds);
-			assert(functionId != -1);
-			functions[name] = functionId;
+			Function* function = scope.addFunction(returnType, varName, paramTypes);
+			assert(function != NULL);
+			functions[name] = function->id;
 		}
     }
 }

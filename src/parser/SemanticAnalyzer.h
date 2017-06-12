@@ -4,11 +4,12 @@
 #include "AST.h"
 #include "DataStructs.h"
 #include "UtilVisitors.h"
+#include "ZScript.h"
 
 class SemanticAnalyzer : public RecursiveVisitor
 {
 public:
-	SemanticAnalyzer();
+	SemanticAnalyzer(ZScript::Program& program);
 
 	////////////////
 	// Cases
@@ -24,26 +25,26 @@ public:
     void caseFuncDecl(ASTFuncDecl& host);
     void caseScript(ASTScript& host);
 	// Expressions
-	void caseStringConstant(ASTStringConstant& host);
-	void caseFuncCall(ASTFuncCall& host);
+	void caseExprAssign(ASTExprAssign& host);
+	void caseExprCall(ASTExprCall& host);
 	void caseExprIdentifier(ASTExprIdentifier& host);
 	// void caseExprArrow(ASTExprArrow& host); // No need to redefine.
 	void caseExprIndex(ASTExprIndex& host);
+	// Literals
+	void caseStringLiteral(ASTStringLiteral& host);
+	void caseArrayLiteral(ASTArrayLiteral& host);
 
 	////////////////
 	bool hasFailed() const {return failure;}
-	SymbolData& getResults() {return results;}
 
 private:
 	bool failure;
-	SymbolTable data;
-	SymbolData results;
 	Scope* scope;
+	ZScript::Program& program;
 
 	bool deprecateGlobals;
 
-	void analyzeFunctionInternals(ASTFuncDecl& function) {analyzeFunctionInternals(NULL, function);}
-	void analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function);
+	void analyzeFunctionInternals(ZScript::Function& function);
 };
 
 #endif

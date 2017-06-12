@@ -17,6 +17,7 @@ src/parser/SemanticAnalyzer.cpp
 src/parser/TypeChecker.cpp
 src/parser/Types.cpp
 src/parser/UtilVisitors.cpp
+src/parser/ZScript.cpp
 
 ## End of ZQuest ZScript module
 )
