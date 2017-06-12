@@ -93,12 +93,12 @@
 #include "zc_alleg.h"
 #include "zc_array.h"
 
-#define ZELDA_VERSION       0x0250                          //version of the program
+#define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
 #define ZELDA_VERSION_STR   "2.53.0"                    //version of the program as presented in text
 #define ZC_VERSION 25300 //Version ID for ZScript
 #define IS_BETA             -1                               //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "7th June, 2017"
+#define DATE_STR            "12th June, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184

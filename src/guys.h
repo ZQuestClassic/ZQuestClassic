@@ -72,7 +72,7 @@ public:
     dword flags2;
     
     short  family, dcset, anim;
-    short  dp, wdp, wpn, wpnsprite; //wpnsprite is new for 2.6 -Z
+    short  dp, wdp, wpn;
     
     short  rate, hrate, homing;
     fix dstep;
@@ -111,7 +111,7 @@ public:
     {
         return false;
     }
-    
+    int wpnsprite; //wpnsprite is new for 2.6 -Z
 protected:
     int  clk2,sclk;
     int  starting_hp;
@@ -132,6 +132,7 @@ protected:
 	//Weapon Editor Nonsense -Z
 	int resolveEnemyDefence(weapon *w);
 	int getWeaponID(weapon *w);
+	int weaponToDefence(int wid);
     int defenditemclass(int wpnId, int *power, weapon *w);
     
     bool dont_draw();
