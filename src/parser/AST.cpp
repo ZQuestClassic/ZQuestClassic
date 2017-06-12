@@ -450,52 +450,70 @@ ASTStmtEmpty* ASTStmtEmpty::clone() const
 
 // ASTDecl
 
+ASTDecl& ASTDecl::operator=(ASTDecl const& rhs)
+{
+	ASTStmt::operator=(rhs);
+	return *this;
+}
+
 // ASTScript
 
-ASTScript::ASTScript(ASTScriptType *Type, string Name, ASTDeclList *Sblock, LocationData Loc)
-		: ASTDecl(Loc), type(Type), name(Name), sblock(Sblock)
-{}
+ASTScript::ASTScript(LocationData const& location)
+	: ASTDecl(location), type(NULL), name("") {}
+
+ASTScript::ASTScript(ASTScript const& base)
+	: ASTDecl(base.getLocation()),
+	  type(base.type ? base.type->clone() : NULL),
+	  name(base.name)
+{
+	for (vector<ASTVarDecl*>::const_iterator it = base.variables.begin();
+		 it != base.variables.end(); ++it)
+		variables.push_back((*it)->clone());
+	for (vector<ASTArrayDecl*>::const_iterator it = base.arrays.begin();
+		 it != base.arrays.end(); ++it)
+		arrays.push_back((*it)->clone());
+	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin();
+		 it != base.functions.end(); ++it)
+		functions.push_back((*it)->clone());
+	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin();
+		 it != base.types.end(); ++it)
+		types.push_back((*it)->clone());
+}
 
 ASTScript::~ASTScript()
 {
-    delete sblock;
-    delete type;
+	delete type;
+	for (vector<ASTVarDecl*>::const_iterator it = variables.begin();
+		 it != variables.end(); ++it)
+		delete *it;
+	for (vector<ASTArrayDecl*>::const_iterator it = arrays.begin();
+		 it != arrays.end(); ++it)
+		delete *it;
+	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
+		 it != functions.end(); ++it)
+		delete *it;
+	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
+		 it != types.end(); ++it)
+		delete *it;
 }
 
-ASTScript* ASTScript::clone() const
+void ASTScript::addDeclaration(ASTDecl& declaration)
 {
-	return new ASTScript(
-			type != NULL ? type->clone() : NULL,
-			name,
-			sblock != NULL ? sblock->clone() : NULL,
-			getLocation());
-}
-
-// ASTDeclList
-
-ASTDeclList::~ASTDeclList()
-{
-    list<ASTDecl *>::iterator it;
-
-    for(it = decls.begin(); it != decls.end(); it++)
-    {
-        delete *it;
-    }
-
-    decls.clear();
-}
-
-ASTDeclList* ASTDeclList::clone() const
-{
-	ASTDeclList* c = new ASTDeclList(getLocation());
-	for (list<ASTDecl*>::const_iterator it = decls.begin(); it != decls.end(); ++it)
-		c->decls.push_back((*it)->clone());
-	return c;
-}
-
-void ASTDeclList::addDeclaration(ASTDecl *newdecl)
-{
-    decls.push_front(newdecl);
+	switch (declaration.declarationClassId())
+	{
+	case ASTDECL_CLASSID_FUNCTION:
+		functions.push_back(&(ASTFuncDecl&)declaration);
+		break;
+	case ASTDECL_CLASSID_ARRAY:
+		arrays.push_back(&(ASTArrayDecl&)declaration);
+		break;
+	case ASTDECL_CLASSID_VARIABLE:
+		variables.push_back(&(ASTVarDecl&)declaration);
+		break;
+	case ASTDECL_CLASSID_TYPE:
+		types.push_back(&(ASTTypeDef&)declaration);
+		break;
+	}
 }
 
 // ASTImportDecl
@@ -537,24 +555,54 @@ void ASTFuncDecl::addParam(ASTVarDecl *param)
     params.push_front(param);
 }
 
+// ASTDataDecl
+
+ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
+{
+	AST::operator=(rhs);
+	variable = rhs.variable;
+	return *this;
+}
+
+
 // ASTArrayDecl
 
-ASTArrayDecl::ASTArrayDecl(ASTVarType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc)
-		: ASTDecl(Loc), name(Name), list(List), size(Size), type(Type)
+ASTArrayDecl::ASTArrayDecl(ASTVarType* type, string const& name, ASTExpr* size,
+						   ASTArrayList* list, LocationData const& location)
+	: ASTDataDecl(location), type(type), name(name), size(size), list(list)
 {}
+
+ASTArrayDecl::ASTArrayDecl(ASTArrayDecl const& base)
+	: ASTDataDecl(base),
+	  type(base.type ? base.type->clone() : NULL),
+	  name(base.name),
+	  size(base.size ? base.size->clone() : NULL),
+	  list(base.list ? base.list->clone() : NULL)
+{}
+
+ASTArrayDecl& ASTArrayDecl::operator=(ASTArrayDecl const& rhs)
+{
+	ASTDataDecl::operator=(rhs);
+	delete type;
+	delete size;
+	delete list;
+	type = rhs.type ? rhs.type->clone() : NULL;
+	name = rhs.name;
+	size = rhs.size ? rhs.size->clone() : NULL;
+	list = rhs.list ? rhs.list->clone() : NULL;
+	return *this;
+}
+
+ASTArrayDecl* ASTArrayDecl::clone() const
+{
+	return new ASTArrayDecl(*this);
+}
 
 ASTArrayDecl::~ASTArrayDecl()
 {
     delete type;
     delete list;
     delete size;
-}
-
-ASTArrayDecl* ASTArrayDecl::clone() const
-{
-	ASTArrayList* c_list = NULL;
-	if (list != NULL) c_list = list->clone();
-	return new ASTArrayDecl(type->clone(), name, size->clone(), c_list, getLocation());
 }
 
 // ASTArrayList
@@ -589,36 +637,69 @@ void ASTArrayList::addString(string const & str)
 {
 	LocationData & loc = getLocation();
 	for (unsigned int i = 1; i < str.length() - 1; ++i)
-		this->addParam(new ASTNumConstant(new ASTFloat(long(str[i]), 0, loc), loc));
-	this->addParam(new ASTNumConstant(new ASTFloat(0L, 0, loc), loc));
+		this->addParam(new ASTNumberLiteral(new ASTFloat(long(str[i]), 0, loc), loc));
+	this->addParam(new ASTNumberLiteral(new ASTFloat(0L, 0, loc), loc));
 }
 
 // ASTVarDecl
+
+ASTVarDecl::ASTVarDecl(ASTVarType* type, string const& name, LocationData const& location)
+	: ASTDataDecl(location), type(type), name(name)
+{}
+
+ASTVarDecl::ASTVarDecl(ASTVarDecl const& base)
+	: ASTDataDecl(base),
+	  type(base.type ? base.type->clone() : NULL),
+	  name(base.name)
+{}
+
+ASTVarDecl& ASTVarDecl::operator=(ASTVarDecl const& rhs)
+{
+	ASTDataDecl::operator=(rhs);
+	delete type;
+	type = rhs.type ? rhs.type->clone() : NULL;
+	name = rhs.name;
+	return *this;
+}
+
+ASTVarDecl* ASTVarDecl::clone() const
+{
+	return new ASTVarDecl(*this);
+}
 
 ASTVarDecl::~ASTVarDecl()
 {
     delete type;
 }
 
-ASTVarDecl* ASTVarDecl::clone() const
-{
-	return new ASTVarDecl(type->clone(), name, getLocation());
-}
-
 // ASTVarDeclInitializer
 
-ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarType *Type, string Name, ASTExpr *Initial, LocationData Loc)
-		: ASTVarDecl(Type,Name,Loc), initial(Initial)
+ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarType* type, string const& name,
+											 ASTExpr* initial, LocationData const& location)
+	: ASTVarDecl(type, name, location), initial(initial)
 {}
 
-ASTVarDeclInitializer::~ASTVarDeclInitializer()
+ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarDeclInitializer const& base)
+	: ASTVarDecl(base),
+	  initial(base.initial ? base.initial->clone() : NULL)
+{}
+
+ASTVarDeclInitializer& ASTVarDeclInitializer::operator=(ASTVarDeclInitializer const& rhs)
 {
-    delete initial;
+	ASTVarDecl::operator=(rhs);
+	delete initial;
+	initial = rhs.initial ? rhs.initial->clone() : NULL;
+	return *this;
 }
 
 ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 {
-	return new ASTVarDeclInitializer(getType()->clone(), getName(), initial->clone(), getLocation());
+	return new ASTVarDeclInitializer(*this);
+}
+
+ASTVarDeclInitializer::~ASTVarDeclInitializer()
+{
+    delete initial;
 }
 
 // ASTTypeDef
@@ -636,51 +717,23 @@ ASTTypeDef* ASTTypeDef::clone() const
 ////////////////////////////////////////////////////////////////
 // Expressions
 
-// ExprInfo
-
-ExprInfo::ExprInfo(ExprInfo::Type exprType, bool hasValue, ZVarType* valType, long value, Scope* scope)
-	: exprType(exprType), hasValue_(hasValue), valType(valType), value(value), scope_(scope)
-{}
-
-ExprInfo ExprInfo::unknown(UNKNOWN, false, NULL, 0L, NULL);
-
-ExprInfo ExprInfo::data(ZVarType* dataType)
-{
-	return ExprInfo(DATA, false, dataType, 0L, NULL);
-}
-
-ExprInfo ExprInfo::data(ZVarType* dataType, long dataValue)
-{
-	return ExprInfo(DATA, true, dataType, dataValue, NULL);
-}
-
-ExprInfo ExprInfo::variable(ZVarType* variableType, int variableId)
-{
-	return ExprInfo(VARIABLE, false, variableType, variableId, NULL);
-}
-
-ExprInfo ExprInfo::function(ZVarType* returnType, int functionId)
-{
-	return ExprInfo(FUNCTION, false, returnType, functionId, NULL);
-}
-
-ExprInfo ExprInfo::scope(Scope* scope)
-{
-	return ExprInfo(SCOPE, false, NULL, 0L, scope);
-}
-
 // ASTExpr
 
 ASTExpr::ASTExpr(ASTExpr const& base)
-	: ASTStmt(base), info(base.info)
+	: ASTStmt(base), hasValue(base.hasValue), value(base.value), lval(false), varType(base.varType)
 {}
 
 ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 {
 	ASTStmt::operator=(rhs);
-	info = rhs.info;
+	lval = rhs.lval;
+	hasValue = rhs.hasValue;
+	value = rhs.value;
+	varType = rhs.varType;
 	return *this;
 }
+
+
 
 // ASTExprConst
 
@@ -710,60 +763,6 @@ ASTExprAssign* ASTExprAssign::clone() const
 			lval != NULL ? lval->clone() : NULL,
 			rval != NULL ? rval->clone() : NULL,
 			getLocation());
-}
-
-// ASTNumConstant
-
-ASTNumConstant::ASTNumConstant(ASTNumConstant const& base) : ASTExpr(base)
-{
-	val = base.val->clone();
-}
-
-ASTNumConstant& ASTNumConstant::operator=(ASTNumConstant const& rhs)
-{
-	ASTExpr::operator=(rhs);
-	val = rhs.val->clone();
-	return *this;
-}
-
-// ASTBoolConstant
-
-ASTBoolConstant::ASTBoolConstant(ASTBoolConstant const& base) : ASTExpr(base)
-{
-	value = base.value;
-}
-
-ASTBoolConstant& ASTBoolConstant::operator=(ASTBoolConstant const& base)
-{
-	ASTExpr::operator=(base);
-	value = base.value;
-	return *this;
-}
-
-// ASTStringConstant
-
-ASTStringConstant::ASTStringConstant(char const* str, LocationData const& location)
-	: ASTExpr(location), str(str)
-{}
-
-ASTStringConstant::ASTStringConstant(string const& str, LocationData const& location)
-	: ASTExpr(location), str(str)
-{}
-
-ASTStringConstant::ASTStringConstant(ASTString const & raw)
-	: ASTExpr(raw.getLocation()), str(raw.getValue().substr(1, raw.getValue().size() - 2))
-{}
-
-ASTStringConstant::ASTStringConstant(ASTStringConstant const& base) : ASTExpr(base)
-{
-	str = base.str;
-}
-
-ASTStringConstant& ASTStringConstant::operator=(ASTStringConstant const& base)
-{
-	ASTExpr::operator=(base);
-	str = base.str;
-	return *this;
 }
 
 // ASTExprIdentifier
@@ -861,24 +860,24 @@ bool ASTExprIndex::isConstant() const
 }
 
 
-// ASTFuncCall
+// ASTExprCall
 
-ASTFuncCall::ASTFuncCall(LocationData const& location)
-	: ASTExpr(location), name(NULL)
+ASTExprCall::ASTExprCall(LocationData const& location)
+	: ASTExpr(location), left(NULL)
 {}
 
-ASTFuncCall::ASTFuncCall(ASTFuncCall const& base)
-	: ASTExpr(base), name(base.name)
+ASTExprCall::ASTExprCall(ASTExprCall const& base)
+	: ASTExpr(base), left(base.left)
 {
 	for (list<ASTExpr*>::const_iterator it = base.params.begin(); it != base.params.end(); ++it)
 		params.push_back((*it)->clone());
 }
 
-ASTFuncCall& ASTFuncCall::operator=(ASTFuncCall const& rhs)
+ASTExprCall& ASTExprCall::operator=(ASTExprCall const& rhs)
 {
 	ASTExpr::operator=(rhs);
-	delete name;
-	name = rhs.name;
+	delete left;
+	left = rhs.left;
 	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
 		delete *it;
 	for (list<ASTExpr*>::const_iterator it = rhs.params.begin(); it != rhs.params.end(); ++it)
@@ -886,9 +885,9 @@ ASTFuncCall& ASTFuncCall::operator=(ASTFuncCall const& rhs)
 	return *this;
 }
 
-ASTFuncCall::~ASTFuncCall()
+ASTExprCall::~ASTExprCall()
 {
-    delete name;
+    delete left;
 	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
 		delete *it;
 }
@@ -992,6 +991,117 @@ ASTBinaryExpr::~ASTBinaryExpr()
 // ASTExprLShift
 
 // ASTExprRShift
+
+////////////////////////////////////////////////////////////////
+// Literals
+
+// ASTLiteral
+
+ASTLiteral& ASTLiteral::operator=(ASTLiteral const& rhs)
+{
+	ASTExpr::operator=(rhs);
+	manager = rhs.manager;
+	return *this;
+}
+
+// ASTNumberLiteral
+
+ASTNumberLiteral::ASTNumberLiteral(ASTNumberLiteral const& base) : ASTLiteral(base)
+{
+	val = base.val ? base.val->clone() : NULL;
+}
+
+ASTNumberLiteral& ASTNumberLiteral::operator=(ASTNumberLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	delete val;
+	val = rhs.val ? rhs.val->clone() : NULL;
+	return *this;
+}
+
+// ASTBoolLiteral
+
+ASTBoolLiteral::ASTBoolLiteral(ASTBoolLiteral const& base)
+	: ASTLiteral(base), value(base.value)
+{}
+
+ASTBoolLiteral& ASTBoolLiteral::operator=(ASTBoolLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	value = rhs.value;
+	return *this;
+}
+
+// ASTStringLiteral
+
+ASTStringLiteral::ASTStringLiteral(char const* str, LocationData const& location)
+	: ASTLiteral(location), data(str)
+{}
+
+ASTStringLiteral::ASTStringLiteral(string const& str, LocationData const& location)
+	: ASTLiteral(location), data(str)
+{}
+
+ASTStringLiteral::ASTStringLiteral(ASTString const& raw)
+	: ASTLiteral(raw.getLocation()),
+	  data(raw.getValue().substr(1, raw.getValue().size() - 2))
+{}
+
+ASTStringLiteral::ASTStringLiteral(ASTStringLiteral const& base)
+	: ASTLiteral(base), data(base.data)
+{}
+
+ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	data = rhs.data;
+	return *this;
+}
+
+// ASTArrayLiteral
+
+ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
+	: ASTLiteral(location), type(NULL), size(NULL)
+{}
+
+ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
+	: ASTLiteral(base),
+	  type(base.type ? base.type->clone() : NULL),
+	  size(base.size ? base.size->clone() : NULL)
+{
+	for (vector<ASTExpr*>::const_iterator it = base.elements.begin();
+		 it != base.elements.end(); ++it)
+		elements.push_back((*it)->clone());
+}
+
+ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+
+	delete type;
+	delete size;
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		delete *it;
+
+	type = rhs.type ? rhs.type->clone() : NULL;
+	size = rhs.size ? rhs.size->clone() : NULL;
+	for (vector<ASTExpr*>::const_iterator it = rhs.elements.begin();
+		 it != rhs.elements.end(); ++it)
+		elements.push_back((*it)->clone());
+
+	return *this;
+}
+
+ASTArrayLiteral::~ASTArrayLiteral()
+{
+	delete type;
+	delete size;
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		delete *it;
+}
+
 
 ////////////////////////////////////////////////////////////////
 // Types

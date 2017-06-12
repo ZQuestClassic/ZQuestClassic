@@ -219,6 +219,10 @@ void printErrorMsg(AST *offender, int errorID, string param)
 	case CONSTASSIGN:
 		oss << "Error T49: You cannot assign to a constant value.";
 		break;
+
+	case EMPTYARRAYLITERAL:
+		oss << "Error S50: Array Literals must not be empty.";
+		break;
 		
     default:
         oss << "FATAL FATAL ERROR I0: bad internal error code" ;

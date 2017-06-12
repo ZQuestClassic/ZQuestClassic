@@ -11,15 +11,25 @@ using std::map;
 using std::vector;
 using std::pair;
 
+// Forward declare ZScript.h
+namespace ZScript
+{
+	struct Program;
+	struct Script;
+	struct Variable;
+	struct Function;
+}
+
 class FunctionSignature
 {
 public:
-	FunctionSignature(string const& name, vector<ZVarTypeId> const& paramTypeIds);
+	FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes);
+	FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes);
 	int compare(FunctionSignature const& other) const;
 	bool operator==(FunctionSignature const& other) const {return compare(other) == 0;}
 	bool operator<(FunctionSignature const& other) const {return compare(other) < 0;}
-	string name;
-	vector<ZVarTypeId> paramTypeIds;
+	vector<string> name;
+	vector<ZVarType const*> paramTypes;
 };
 
 class FunctionTypeIds
@@ -53,6 +63,7 @@ public:
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
+	ZVarType const* getCanonicalType(ZVarType const& type);
 	// Classes
 	ZClass* getClass(int classId) const;
 	ZClass* createClass(string const& name);
@@ -75,6 +86,7 @@ public:
     ZVarTypeId getFuncReturnTypeId(AST *node) const;
     vector<ZVarTypeId> getFuncParamTypeIds(int funcId) const;
     void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+    void putFuncTypes(int funcId, ZVarType const* returnType, vector<ZVarType const*> const& paramTypes);
 	// Global Pointers
     vector<int> const& getGlobalPointers() const {return globalPointers;}
     vector<int>& getGlobalPointers() {return globalPointers;}
@@ -93,43 +105,22 @@ private:
     vector<int> globalPointers;
 };
 
-struct SymbolData
-{
-    SymbolTable* symbols;
-    vector<ASTFuncDecl*> globalFuncs;
-    vector<ASTVarDecl*> globalVars;
-    vector<ASTArrayDecl*> globalArrays;
-    vector<ASTScript*> scripts;
-    map<ASTScript*, int> runsymbols;
-    map<ASTScript*, int> numParams;
-    map<ASTScript*, ScriptType> scriptTypes;
-    map<ASTScript*, int> thisPtr;
-};
-
 struct FunctionData
 {
-    SymbolTable* symbols;
-    vector<ASTFuncDecl*> functions;
-    vector<ASTVarDecl*> globalVars;
-    vector<ASTVarDecl*> newGlobalVars;
-    vector<ASTArrayDecl*> globalArrays;
-    vector<ASTArrayDecl*> newGlobalArrays;
-	int globalVarCount;
-    map<string, int> scriptRunSymbols;
-    map<string, int> numParams;
-    map<string, ScriptType> scriptTypes;
-    map<string, int> thisPtr;
+	FunctionData(ZScript::Program& program);
+	ZScript::Program& program;
+	vector<ZScript::Literal*> globalLiterals;
+	vector<ZScript::Variable*> globalVariables;
+	vector<ZScript::Variable*> globalConstants;
 };
 
 struct IntermediateData
 {
+	IntermediateData(FunctionData const& functionData);
+	ZScript::Program& program;
     map<int, vector<Opcode *> > funcs;
     vector<Opcode *> globalsInit;
-    vector<Opcode *> globalasInit;
     map<string, int> scriptRunLabels;
-    map<string, int> numParams;
-    map<string, ScriptType> scriptTypes;
-    map<string, int> thisPtr;
 };
 
 class LinkTable

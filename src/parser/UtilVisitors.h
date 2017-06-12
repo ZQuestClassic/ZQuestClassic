@@ -31,8 +31,6 @@ public:
 	// Declarations
     virtual void caseScript(ASTScript &host, void *param);
     virtual void caseScript(ASTScript &host);
-    virtual void caseDeclList(ASTDeclList &host, void *param);
-    virtual void caseDeclList(ASTDeclList &host);
     virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
     virtual void caseFuncDecl(ASTFuncDecl &host);
     virtual void caseArrayDecl(ASTArrayDecl &host, void *param);
@@ -48,14 +46,12 @@ public:
 	virtual void caseExprConst(ASTExprConst &host);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprAssign(ASTExprAssign &host);
-    virtual void caseNumConstant(ASTNumConstant &host, void *param);
-    virtual void caseNumConstant(ASTNumConstant &host);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host);
-    virtual void caseFuncCall(ASTFuncCall &host, void *param);
-    virtual void caseFuncCall(ASTFuncCall &host);
+    virtual void caseExprCall(ASTExprCall &host, void *param);
+    virtual void caseExprCall(ASTExprCall &host);
     virtual void caseExprNegate(ASTExprNegate &host, void *param);
     virtual void caseExprNegate(ASTExprNegate &host);
     virtual void caseExprNot(ASTExprNot &host, void *param);
@@ -106,6 +102,11 @@ public:
     virtual void caseExprLShift(ASTExprLShift &host);
     virtual void caseExprRShift(ASTExprRShift &host, void *param);
     virtual void caseExprRShift(ASTExprRShift &host);
+	// Literals
+    virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
+    virtual void caseNumberLiteral(ASTNumberLiteral& host);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host);
 };
 
 class CheckForExtraneousImports : public RecursiveVisitor

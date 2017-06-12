@@ -6,29 +6,42 @@
 #include "ParseError.h"
 #include "GlobalSymbols.h"
 #include "Scope.h"
+#include "ZScript.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
 
 using std::cout;
 using std::endl;
+using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // FunctionSignature
 
-FunctionSignature::FunctionSignature(string const& name, vector<ZVarTypeId> const& paramTypeIds)
-	: name(name), paramTypeIds(paramTypeIds)
+FunctionSignature::FunctionSignature(string const& name_, vector<ZVarType const*> const& paramTypes)
+	: paramTypes(paramTypes)
+{
+	name.push_back(name_);
+}
+
+FunctionSignature::FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes)
+	: name(name), paramTypes(paramTypes)
 {}
 
 int FunctionSignature::compare(FunctionSignature const& other) const
 {
-	int c = name.compare(other.name);
+	int c = name.size() - other.name.size();
 	if (c) return c;
-	c = paramTypeIds.size() - other.paramTypeIds.size();
-	if (c) return c;
-	for (int i = 0; i < paramTypeIds.size(); ++i)
+	for (int i = 0; i < name.size(); ++i)
 	{
-		c = paramTypeIds[i] - other.paramTypeIds[i];
+		c = name[i].compare(other.name[i]);
+		if (c) return c;
+	}
+	c = paramTypes.size() - other.paramTypes.size();
+	if (c) return c;
+	for (int i = 0; i < paramTypes.size(); ++i)
+	{
+		c = paramTypes[i]->compare(*other.paramTypes[i]);
 		if (c) return c;
 	}
 	return 0;
@@ -161,6 +174,12 @@ ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 	types.push_back(storedType);
 	typeIds[storedType] = id;
 	return id;
+}
+
+ZVarType const* SymbolTable::getCanonicalType(ZVarType const& type)
+{
+	int id = getOrAssignTypeId(type);
+	return (ZVarType const*)types[id];
 }
 
 // Classes
@@ -318,12 +337,67 @@ void SymbolTable::putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVa
 	funcTypes[funcId] = FunctionTypeIds(returnTypeId, paramTypeIds);
 }
 
-// 
+void SymbolTable::putFuncTypes(int funcId, ZVarType const* returnType, vector<ZVarType const*> const& paramTypes)
+{
+	ZVarTypeId returnTypeId = getOrAssignTypeId(*returnType);
+	vector<ZVarTypeId> paramTypeIds;
+	for (vector<ZVarType const*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
+		paramTypeIds.push_back(getOrAssignTypeId(**it));
+	funcTypes[funcId] = FunctionTypeIds(returnTypeId, paramTypeIds);
+}
+
+//
 
 void SymbolTable::printDiagnostics()
 {
     cout << (unsigned int)varTypes.size() << " variable symbols" << endl;
     cout << (unsigned int)funcTypes.size() << " function symbols" << endl;
+}
+
+////////////////////////////////////////////////////////////////
+// FunctionData
+
+FunctionData::FunctionData(Program& program)
+	: program(program), globalLiterals(program.globalScope.getLocalLiterals())
+{}
+
+////////////////////////////////////////////////////////////////
+// IntermediateData
+
+IntermediateData::IntermediateData(FunctionData const& functionData)
+	: program(functionData.program)
+{}
+
+////////////////////////////////////////////////////////////////
+// LinkTable
+
+int LinkTable::functionToLabel(int fid)
+{
+    map<int,int>::iterator it = funcLabels.find(fid);
+
+    if (it != funcLabels.end())
+        return (*it).second;
+
+    int newid = ScriptParser::getUniqueLabelID();
+    funcLabels[fid] = newid;
+    return newid;
+}
+
+int LinkTable::getGlobalID(int vid)
+{
+    map<int, int>::iterator it = globalIDs.find(vid);
+
+    if (it == globalIDs.end())
+        return -1;
+
+    return it->second;
+}
+
+int LinkTable::addGlobalVar(int vid)
+{
+    int newid = ScriptParser::getUniqueGlobalID();
+    globalIDs[vid] = newid;
+    return newid;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -23693,10 +23693,7 @@ void printZAsm()
 			if (commands_len == 0 || commands[0].command == 0xFFFF) continue;
 			al_trace("\n%s\n", it->second.second.c_str());
 			for (int i = 0; i < commands_len && commands[i].command != 0xFFFF; ++i)
-			{
-				al_trace("  %s  ; %d %d %d\n", to_string(commands[i]).c_str(),
-						 commands[i].command, commands[i].arg1, commands[i].arg2);
-			}
+				al_trace("  %s\n", to_string(commands[i]).c_str());
 		}
 	}
 

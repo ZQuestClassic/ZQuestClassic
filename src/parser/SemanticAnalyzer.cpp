@@ -3,41 +3,47 @@
 #include "Scope.h"
 #include "ParseError.h"
 
+using namespace ZScript;
+
 ////////////////////////////////////////////////////////////////
 // SemanticAnalyzer
 
-SemanticAnalyzer::SemanticAnalyzer() : failure(false), deprecateGlobals(false)
+SemanticAnalyzer::SemanticAnalyzer(Program& program)
+	: failure(false), deprecateGlobals(false), program(program)
 {
-	results.symbols = &data;
+	scope = &program.globalScope;
+	caseProgram(*program.node);
 }
 
-void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function)
+void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
-	// Create function scope.
-	BasicScope functionScope(scope);
+	ASTFuncDecl* functionDecl = function.node;
 
-	// Grab the script type.
-	ScriptType scriptType = SCRIPTTYPE_VOID;
-	if (script) scriptType = script->getType()->getType();
+	// Create function scope.
+	function.internalScope = scope->makeChild();
+	Scope& functionScope = *function.internalScope;
+
+	// Grab the script.
+	Script* script = NULL;
+	if (scope->isScript()) script = &((ScriptScope*)scope)->script;
 
 	// If this is the script's run method, add "this" to the scope.
-	ZVarType const& returnType = function.getReturnType()->resolve(*scope);
-	if (function.getName() == "run" && returnType == ZVarType::ZVOID)
+	if (script && function.name == "run" && *function.returnType == ZVarType::ZVOID)
 	{
-		ZVarTypeId thisTypeId = ScriptParser::getThisType(scriptType);
-		int variableId = functionScope.addVariable("this", thisTypeId);
-		results.thisPtr[script] = variableId;
+		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
+		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
+		function.thisVar = functionScope.addVariable(thisType, "this");
 	}
 
 	// Add the parameters to the scope.
-	list<ASTVarDecl*>& parameters = function.getParams();
+	list<ASTVarDecl*>& parameters = functionDecl->getParams();
 	for (list<ASTVarDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
 	{
 		ASTVarDecl& parameter = **it;
 		string const& name = parameter.getName();
 		ZVarType const& type = parameter.getType()->resolve(functionScope);
-		int variableId = functionScope.addVariable(name, type, &parameter);
-		if (variableId == -1)
+		Variable* var = functionScope.addVariable(type, name, &parameter);
+		if (var == NULL)
 		{
             printErrorMsg(&parameter, VARREDEF, name);
             failure = true;
@@ -47,7 +53,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 
 	// Evaluate the function block under its scope.
 	scope = &functionScope;
-	list<ASTStmt*>& statements = function.getBlock()->getStatements();
+	list<ASTStmt*>& statements = functionDecl->getBlock()->getStatements();
 	for (list<ASTStmt*>::iterator it = statements.begin(); it != statements.end(); ++it)
 		(*it)->execute(*this);
 	scope = scope->getParent();
@@ -55,38 +61,26 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 
 void SemanticAnalyzer::caseProgram(ASTProgram& host)
 {
-	// Create the global scope.
-	scope = new GlobalScope(data);
-
 	// Recurse on elements.
 	RecursiveVisitor::caseProgram(host);
 
+	vector<Function*> functions;
+
 	// Analyze function internals.
-	for (vector<ASTFuncDecl*>::iterator it = host.functions.begin(); it != host.functions.end(); ++it)
+	functions = program.getUserGlobalFunctions();
+	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
 		analyzeFunctionInternals(**it);
-	for (vector<ASTScript*>::iterator it = host.scripts.begin(); it != host.scripts.end(); ++it)
+	for (vector<Script*>::iterator it = program.scripts.begin();
+		 it != program.scripts.end(); ++it)
 	{
-		ASTScript& script = **it;
-		list<ASTDecl*>& decls = script.getScriptBlock()->getDeclarations();
-		for (list<ASTDecl*>::iterator it = decls.begin(); it != decls.end(); ++it)
-		{
-			// Only do function declarations.
-			bool isFuncDecl;
-			IsFuncDecl temp;
-			(*it)->execute(temp, &isFuncDecl);
-			if (!isFuncDecl) continue;
-			// Analyze.
-			scope = scope->getLocalChild(script.getName());
-			analyzeFunctionInternals(&script, (ASTFuncDecl&)**it);
-			scope = scope->getParent();
-		}
+		Script& script = **it;
+		scope = script.scope;
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		scope = scope->getParent();
 	}
 
-	// Save results.
-	results.globalFuncs = host.functions;
-	results.globalVars = host.variables;
-	results.globalArrays = host.arrays;
-	results.scripts = host.scripts;
 }
 
 // Statements
@@ -94,8 +88,7 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 void SemanticAnalyzer::caseBlock(ASTBlock& host)
 {
 	// Switch to block scope.
-	BasicScope blockScope(scope);
-	scope = &blockScope;
+	scope = scope->makeChild();
 
 	// Recurse.
 	RecursiveVisitor::caseBlock(host);
@@ -107,8 +100,7 @@ void SemanticAnalyzer::caseBlock(ASTBlock& host)
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host)
 {
 	// Switch to block scope.
-	BasicScope blockScope(scope);
-	scope = &blockScope;
+	scope = scope->makeChild();
 
 	// Recurse.
 	RecursiveVisitor::caseStmtFor(host);
@@ -162,11 +154,11 @@ void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
 	}
 
 	// Add variable to the scope.
-	int variableId = scope->addVariable(host.getName(), type, &host);
+	Variable* var = scope->addVariable(type, host.getName(), &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
-	if (variableId == -1)
+	if (var == NULL)
 	{
 		failure = true;
         printErrorMsg(&host, VARREDEF, host.getName());
@@ -190,21 +182,24 @@ void SemanticAnalyzer::caseVarDeclInitializer(ASTVarDeclInitializer& host)
 void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
 {
 	// Resolve the type under current scope.
-	ZVarType const& type = host.getType()->resolve(*scope);
-	if (!type.isResolved())
+	ZVarType const& elementType = host.getType()->resolve(*scope);
+	if (!elementType.isResolved())
 	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, type.getName());
+		printErrorMsg(&host, UNRESOLVEDTYPE, elementType.getName());
 		failure = true;
 		return;
 	}
 
 	// Don't allow void type.
-	if (type == ZVarType::ZVOID)
+	if (elementType == ZVarType::ZVOID)
 	{
 		failure = true;
 		printErrorMsg(&host, VOIDARR, host.getName());
 		return;
 	}
+
+	// Convert to array type.
+	ZVarTypeArray type(elementType);
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !type.canBeGlobal())
@@ -215,11 +210,11 @@ void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
 	}
 
 	// Add array to the scope.
-	int variableId = scope->addVariable(host.getName(), type, &host);
+	Variable* var = scope->addVariable(type, host.getName(), &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
-	if (variableId == -1)
+	if (var == NULL)
 	{
 		failure = true;
         printErrorMsg(&host, ARRREDEF, host.getName());
@@ -253,7 +248,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 	}
 
 	// Gather the paramater types.
-	vector<ZVarType*> paramTypes;
+	vector<ZVarType const*> paramTypes;
 	list<ASTVarDecl*>& params = host.getParams();
 	for (list<ASTVarDecl*>::iterator it = params.begin(); it != params.end(); ++it)
 	{
@@ -272,15 +267,16 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 			failure = true;
 		}
 
-		paramTypes.push_back((ZVarType*)&type);
+		paramTypes.push_back(&type);
 	}
 
 	// Add the function to the scope.
-	int functionId = scope->addFunction(host.getName(), returnType, paramTypes, &host);
+	Function* function = scope->addFunction(&returnType, host.getName(), paramTypes, &host);
+	function->node = &host;
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
-	if (functionId == -1)
+	if (function == NULL)
 	{
 		printErrorMsg(&host, FUNCTIONREDEF, host.getName());
 		failure = true;
@@ -289,75 +285,35 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 
 void SemanticAnalyzer::caseScript(ASTScript& host)
 {
-	string const& name = host.getName();
-
-	// Check the script's type.
-	ScriptType scriptType = host.getType()->getType();
-	if (scriptType != SCRIPTTYPE_GLOBAL
-		&& scriptType != SCRIPTTYPE_ITEM
-		&& scriptType != SCRIPTTYPE_FFC)
-	{
-		printErrorMsg(&host, SCRIPTBADTYPE, name);
-		failure = true;
-		return;
-	}
-
-	// Create script's scope.
-	Scope* scriptScope = scope->makeChild(name);
-	if (!scriptScope)
-	{
-		printErrorMsg(&host, SCRIPTREDEF, name);
-		failure = true;
-		return;
-	}
-	scriptScope->varDeclsDeprecated = true;
+	Script& script = *program.getScript(&host);
+	string name = script.getName();
 
 	// Recurse on script elements with its scope.
-	scope = scriptScope;
+	scope = script.scope;
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
 	if (failure) return;
 
-	// Get run function.
-	vector<int> possibleRunIds = scriptScope->getLocalFunctionIds("run");
-	if (possibleRunIds.size() > 1)
+	if (script.hasError())
 	{
-		printErrorMsg(&host, TOOMANYRUN, name);
-		failure = true;
-		return;
-	}
-	else if (possibleRunIds.size() == 0)
-	{
-		printErrorMsg(&host, SCRIPTNORUN, name);
-		failure = true;
-		return;
-	}
-	int runId = possibleRunIds[0];
-	if (data.getTypeId(ZVarType::ZVOID) != data.getFuncReturnTypeId(runId))
-	{
-		printErrorMsg(&host, SCRIPTRUNNOTVOID, name);
+		script.printErrors();
 		failure = true;
 		return;
 	}
 
-	// Save script info.
-	results.runsymbols[&host] = runId;
-	results.numParams[&host] = (int) data.getFuncParamTypeIds(runId).size();
-	results.scriptTypes[&host] = scriptType;
 }
 
 // Expressions
 
-void SemanticAnalyzer::caseStringConstant(ASTStringConstant& host)
+void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host)
 {
-	// Assign varible id for anonymous "variable".
-	int variableId = ScriptParser::getUniqueVarID();
-	scope->getTable().putNodeId(&host, variableId);
+	host.getLVal()->markAsLVal();
+	RecursiveVisitor::caseExprAssign(host);
 }
 
-void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
+void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 {
-	ASTExpr* left = host.getName();
+	ASTExpr* left = host.getLeft();
 
 	// If it's an arrow, recurse normally.
 	if (left->isTypeArrow()) left->execute(*this);
@@ -380,20 +336,20 @@ void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
 	// NOTE Add in support for function objects around here.
 
 	// Recurse on parameters.
-	RecursiveVisitor::caseFuncCall(host);
+	RecursiveVisitor::caseExprCall(host);
 }
 
 void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
 {
-	int variableId = scope->getVariableId(host.getComponents());
-	if (variableId == -1)
+	Variable* variable = scope->getVariable(host.getComponents());
+	if (!variable)
 	{
 		printErrorMsg(&host, VARUNDECLARED, host.asString());
 		failure = true;
 		return;
 	}
 
-	scope->getTable().putNodeId(&host, variableId);
+	scope->getTable().putNodeId(&host, variable->id);
 }
 
 // ExprArrow just recurses.
@@ -410,5 +366,57 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
 
 	// Standard recursing.
 	RecursiveVisitor::caseExprIndex(host);
+}
+
+// Literals
+
+void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host)
+{
+	// Assign type.
+	SymbolTable& table = scope->getTable();
+	ZVarType const* type = table.getCanonicalType(ZVarTypeArray(ZVarType::FLOAT));
+	host.setVarType(type);
+
+	// Add to scope as a managed literal.
+	scope->addLiteral(host, type);
+}
+
+void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
+{
+	// Recurse on type, size, and elements.
+	RecursiveVisitor::caseArrayLiteral(host);
+
+	// If present, resolve the type.
+	if (host.getType())
+	{
+		ZVarType const& elementType = host.getType()->resolve(*scope);
+		if (!elementType.isResolved())
+		{
+			printErrorMsg(&host, UNRESOLVEDTYPE, elementType.getName());
+			failure = true;
+			return;
+		}
+
+		// Disallow void type.
+		if (elementType == ZVarType::ZVOID)
+		{
+			printErrorMsg(&host, VOIDARR);
+			failure = true;
+			return;
+		}
+
+		// Convert to array type.
+		host.setVarType(scope->getTable().getCanonicalType(ZVarTypeArray(elementType)));
+	}
+
+	// Check that we have elements OR a type.
+	if (host.getElements().size() == 0 && !host.getType())
+	{
+		printErrorMsg(&host, EMPTYARRAYLITERAL);
+		failure = true;
+	}
+
+	// Add to scope as a managed literal.
+	scope->addLiteral(host);
 }
 

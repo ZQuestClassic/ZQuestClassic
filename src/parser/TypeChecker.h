@@ -30,13 +30,10 @@ public:
 	// Expressions
 	void caseExprConst(ASTExprConst &host);
     void caseExprAssign(ASTExprAssign &host);
-    void caseNumConstant(ASTNumConstant &host);
-    void caseBoolConstant(ASTBoolConstant &host);
-    void caseStringConstant(ASTStringConstant &host);
     void caseExprIdentifier(ASTExprIdentifier &host);
     void caseExprArrow(ASTExprArrow &host);
     void caseExprIndex(ASTExprIndex &host);
-    void caseFuncCall(ASTFuncCall &host);
+    void caseExprCall(ASTExprCall &host);
     void caseExprNegate(ASTExprNegate &host);
     void caseExprNot(ASTExprNot &host);
     void caseExprBitNot(ASTExprBitNot &host);
@@ -62,6 +59,11 @@ public:
     void caseExprBitXor(ASTExprBitXor &host);
     void caseExprLShift(ASTExprLShift &host);
     void caseExprRShift(ASTExprRShift &host);
+	// Literals
+    void caseNumberLiteral(ASTNumberLiteral& host);
+    void caseBoolLiteral(ASTBoolLiteral& host);
+    void caseStringLiteral(ASTStringLiteral& host);
+	void caseArrayLiteral(ASTArrayLiteral& host);
 
     bool isOK() {return !failure;}
     void fail() {failure = true;}
