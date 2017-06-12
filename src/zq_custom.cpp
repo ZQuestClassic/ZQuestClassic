@@ -1722,6 +1722,7 @@ void edit_itemdata(int index)
         itemdata_dlg[140+(i*2)].dp3 = is_large() ? lfont_l : pfont;
     }
     
+    
     for(int j=0; j<biw_cnt; j++)
     {
         if(biw[j].i == itemsbuf[index].wpn)
@@ -3474,7 +3475,8 @@ void edit_enemydata(int index)
     char ms[12][8];
     char enemynumstr[75];
 	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-    
+    build_biw_list();
+	
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -3653,20 +3655,86 @@ void edit_enemydata(int index)
    
     
     //2.6 Enemy Weapon Sprite
+    
+    byte default_weapon_sprites[]={
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //15
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,255, //31 script weapons start here
+	    255,255,255,255,255,255,255,255, 255,0,0,0,0,0,0,0, //47 last script weapon: 40
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //63
+	    
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //79
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //95
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //111
+	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //127
+	    17, //fireball 128
+	    //spritelist goes here
+	    19,	//enemy arrow 130
+	    4, //enemy brfang 131
+	    20, //enemy swordbeam 132
+	    18, //rock 133
+	    21, //magic	 134
+	    78, //enemy bomb explosion 135
+	    79, //enemy Sbomb explosion 136
+	    76, //enemy bomb projectile 137
+	    77, //enemy Sbomb projectile 138
+	   
+	    80, //firetrail 139
+	    35, //fire flame 140
+	    36, //wind magic 141
+	    81, //fire2 (unused?) 142
+	    82, //143 (fire trail 2?
+	    83, //144 (ice?)
+	    
+	    0
+    };
+    
+    if ( guysbuf[index].wpnsprite <= 0 ) {
+        for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
+        {
+	    if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; break; }
+        }
+    }
+    
+    char wpnsp[8];
+    
+    
     enedata_dlg[236].dp3 = is_large() ? lfont_l : pfont;
+    sprintf(efr,"%d",guysbuf[index].wpnsprite);
+    //enedata_dlg[236].dp = wpnsp;
+    
     //make the sprites list. 
     bool foundwpnsprite; //char wpnsp_def[10];
-    build_biw_list(); //built in weapons
-    for(int j=0; j<biw_cnt; j++)
+    //build_biw_list(); //built in weapons
+    if(biw_cnt==-1)
     {
-        if(biw[j].i == guysbuf[index].wpnsprite){
-            itemdata_dlg[236].d1 = j;
-            foundwpnsprite = true;
-	}
-	
-	
-           
+        build_biw_list(); //built-in weapons
     }
+    
+    
+    /*
+    if ( guysbuf[index].wpnsprite <= 0 ) {
+        for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
+        {
+	    if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; itemdata_dlg[236].d1 = default_weapon_sprites[q]; break; }
+        }
+    }
+    else {
+    */
+        for(int j=0; j<biw_cnt; j++)
+        {
+	    if(biw[j].i == guysbuf[index].wpnsprite){
+	        itemdata_dlg[236].d1 = j;
+	        foundwpnsprite = true;
+		    al_trace("Found weapon sprite: \n", j);
+		    break;
+	    }
+        }
+    //}
+    
+    //We could always make it a text entry box if all else fails. 
+    
+    
+    
     
     //Do enemies use sprite 0 for their weapons? if not then we can override. Hell, we can just read
     //their weapon, and if it is set to sprite 0 and not an arrow, and the quest header is not 2.54+, 
@@ -3787,7 +3855,8 @@ void edit_enemydata(int index)
         test.deadsfx = enedata_cpy[184].d1;
 	
 	//2.6 Enemy Weapon Sprite
-	test.wpnsprite = enedata_cpy[236].d1;
+	test.wpnsprite = biw[enedata_cpy[236].d1].i;
+	
    
         
         test.misc1 = (enedata_cpy[64].proc==jwin_droplist_proc) ? enedata_cpy[64].d1 : atol(ms[0]);

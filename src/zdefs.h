@@ -181,7 +181,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            27
+#define V_GUYS            28
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -915,7 +915,7 @@ enum
 	//42
 	wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
 	//43
-	ThrowRock, 
+	wThrowRock, 
 	//44
 	wPot, //Thrown pot or rock -Z
 	//45
@@ -945,6 +945,8 @@ enum
     ewIce,ewFireball2,
     wMax
 };
+
+#define FIRST_EWEAPON_ID 130 //First eweapon used for anything. 
 
 // phantom weapon types
 enum
@@ -1102,11 +1104,11 @@ enum
 	edefSTOMP, 	edefBYRNA, 	edefSCRIPT, 	edefLAST250, 	edefQUAKE, 	//19
 	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
 	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
-	edefICE,	edefRES001, 	edefRES002,	edefRES003,	edefRES004,	//34
+	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
 	edefRES005,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
 	edefLAST255, //41
-	edefSONIC,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
+	edef40,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
 	edefELECTRIC,	edefSHIELD,	edefTROWEL,	edefSPINATTK,	edefZ3SWORD,	//51
 	edefLASWORD,	//x52
 	edefLASTEND  //53
@@ -1507,7 +1509,7 @@ struct guydata
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
-    short wpnsprite; //wpnsprite is new for 2.6 -Z
+    int wpnsprite; //wpnsprite is new for 2.6 -Z
 };
 
 class refInfo

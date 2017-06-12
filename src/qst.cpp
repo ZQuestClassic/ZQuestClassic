@@ -9040,6 +9040,17 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
 	    }
+	    if(guyversion > 27)
+	    {
+	        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+	    }
+	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+            {
+		tempguy.wpnsprite = 0;
+            }
 	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD

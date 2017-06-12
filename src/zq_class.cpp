@@ -9359,6 +9359,10 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(61);
             }
+	    if(!p_iputl(guysbuf[i].wpnsprite,f))
+            {
+                new_return(62);
+            }
 	    
         }
         
