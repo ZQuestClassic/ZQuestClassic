@@ -1377,12 +1377,19 @@ public:
 
 // Literals
 
+namespace ZScript
+{
+	class Literal;
+}
+
 class ASTLiteral : public ASTExpr
 {
 public:
-	ASTLiteral(LocationData const& location) : ASTExpr(location) {}
-	ASTLiteral(ASTLiteral const& base) : ASTExpr(base) {}
+	ASTLiteral(LocationData const& location) : ASTExpr(location), manager(NULL) {}
+	ASTLiteral(ASTLiteral const& base) : ASTExpr(base), manager(base.manager) {}
 	ASTLiteral& operator=(ASTLiteral const& rhs);
+
+	ZScript::Literal* manager;
 };
 
 class ASTNumberLiteral : public ASTLiteral

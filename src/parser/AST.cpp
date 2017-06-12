@@ -1000,6 +1000,7 @@ ASTBinaryExpr::~ASTBinaryExpr()
 ASTLiteral& ASTLiteral::operator=(ASTLiteral const& rhs)
 {
 	ASTExpr::operator=(rhs);
+	manager = rhs.manager;
 	return *this;
 }
 

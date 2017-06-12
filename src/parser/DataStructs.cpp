@@ -357,9 +357,9 @@ void SymbolTable::printDiagnostics()
 ////////////////////////////////////////////////////////////////
 // FunctionData
 
-FunctionData::FunctionData(Program& program) : program(program)
-{
-}
+FunctionData::FunctionData(Program& program)
+	: program(program), globalLiterals(program.globalScope.getLocalLiterals())
+{}
 
 ////////////////////////////////////////////////////////////////
 // IntermediateData

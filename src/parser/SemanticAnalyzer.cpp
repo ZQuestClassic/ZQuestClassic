@@ -372,17 +372,17 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host)
 {
-	// Assign varible id for anonymous "variable".
-	int variableId = ScriptParser::getUniqueVarID();
-	scope->getTable().putNodeId(&host, variableId);
+	// Assign type.
+	SymbolTable& table = scope->getTable();
+	ZVarType const* type = table.getCanonicalType(ZVarTypeArray(ZVarType::FLOAT));
+	host.setVarType(type);
+
+	// Add to scope as a managed literal.
+	scope->addLiteral(host, type);
 }
 
 void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
 {
-	// Assign varible id for anonymous "variable".
-	int variableId = ScriptParser::getUniqueVarID();
-	scope->getTable().putNodeId(&host, variableId);
-
 	// Recurse on type, size, and elements.
 	RecursiveVisitor::caseArrayLiteral(host);
 
@@ -415,5 +415,8 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
 		printErrorMsg(&host, EMPTYARRAYLITERAL);
 		failure = true;
 	}
+
+	// Add to scope as a managed literal.
+	scope->addLiteral(host);
 }
 

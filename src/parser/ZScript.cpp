@@ -173,6 +173,14 @@ void Script::printErrors() const
 
 }
 
+// ZScript::Literal
+
+Literal::Literal(ASTLiteral* node, ZVarType const* type, int id)
+	: node(node), type(type), id(id)
+{
+	if (node) node->manager = this;
+}
+
 // ZScript::Variable
 
 Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)

@@ -6,6 +6,7 @@
 
 namespace ZScript
 {
+	class Literal;
 	class Variable;
 	class Function;
 };
@@ -41,6 +42,9 @@ public:
 	// Classes
 	virtual int getLocalClassId(string const& name) const = 0;
 	virtual int addClass(string const& name, AST* node) = 0;
+	// Managed Literals
+	virtual vector<ZScript::Literal*> getLocalLiterals() const = 0;
+	virtual ZScript::Literal* addLiteral(ASTLiteral& literal, ZVarType const* type = NULL) = 0;
 	// Variables
 	virtual vector<ZScript::Variable*> getLocalVariables() const = 0;
 	virtual ZScript::Variable* getLocalVariable(string const& name) const = 0;
@@ -81,6 +85,7 @@ public:
 	ZClass* getLocalClass(string const& name) const;
 	ZClass* getClass(string const& name) const;
 	int addClass(string const& name);
+	// Literals
 	// Variables
 	ZScript::Variable* getVariable(string const& name) const;
 	ZScript::Variable* getVariable(vector<string> const& name) const;
@@ -130,6 +135,9 @@ public:
 	// Classes
 	int getLocalClassId(string const& name) const;
 	int addClass(string const& name, AST* node);
+	// Literals
+	vector<ZScript::Literal*> getLocalLiterals() const;
+	ZScript::Literal* addLiteral(ASTLiteral& node, ZVarType const* type = NULL);
 	// Variables
 	vector<ZScript::Variable*> getLocalVariables() const;
 	ZScript::Variable* getLocalVariable(string const& name) const;
@@ -154,6 +162,7 @@ protected:
 	vector<Scope*> anonymousChildren;
 	map<string, int> types;
 	map<string, int> classes;
+	vector<ZScript::Literal*> literals;
 	map<string, ZScript::Variable*> variables;
 	map<string, ZScript::Function*> getters;
 	map<string, ZScript::Function*> setters;
