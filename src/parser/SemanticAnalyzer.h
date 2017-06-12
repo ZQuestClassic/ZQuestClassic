@@ -32,6 +32,7 @@ public:
 	void caseExprIndex(ASTExprIndex& host);
 	// Literals
 	void caseStringLiteral(ASTStringLiteral& host);
+	void caseArrayLiteral(ASTArrayLiteral& host);
 
 	////////////////
 	bool hasFailed() const {return failure;}

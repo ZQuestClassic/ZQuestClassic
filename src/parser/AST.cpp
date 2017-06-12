@@ -1057,6 +1057,51 @@ ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
 	return *this;
 }
 
+// ASTArrayLiteral
+
+ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
+	: ASTLiteral(location), type(NULL), size(NULL)
+{}
+
+ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
+	: ASTLiteral(base),
+	  type(base.type ? base.type->clone() : NULL),
+	  size(base.size ? base.size->clone() : NULL)
+{
+	for (vector<ASTExpr*>::const_iterator it = base.elements.begin();
+		 it != base.elements.end(); ++it)
+		elements.push_back((*it)->clone());
+}
+
+ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+
+	delete type;
+	delete size;
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		delete *it;
+
+	type = rhs.type ? rhs.type->clone() : NULL;
+	size = rhs.size ? rhs.size->clone() : NULL;
+	for (vector<ASTExpr*>::const_iterator it = rhs.elements.begin();
+		 it != rhs.elements.end(); ++it)
+		elements.push_back((*it)->clone());
+
+	return *this;
+}
+
+ASTArrayLiteral::~ASTArrayLiteral()
+{
+	delete type;
+	delete size;
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		delete *it;
+}
+
+
 ////////////////////////////////////////////////////////////////
 // Types
 

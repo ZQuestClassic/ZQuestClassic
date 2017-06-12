@@ -63,6 +63,7 @@ public:
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
+	ZVarType const* getCanonicalType(ZVarType const& type);
 	// Classes
 	ZClass* getClass(int classId) const;
 	ZClass* createClass(string const& name);

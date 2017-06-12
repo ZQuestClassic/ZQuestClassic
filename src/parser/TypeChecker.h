@@ -60,9 +60,10 @@ public:
     void caseExprLShift(ASTExprLShift &host);
     void caseExprRShift(ASTExprRShift &host);
 	// Literals
-    void caseNumberLiteral(ASTNumberLiteral &host);
-    void caseBoolLiteral(ASTBoolLiteral &host);
-    void caseStringLiteral(ASTStringLiteral &host);
+    void caseNumberLiteral(ASTNumberLiteral& host);
+    void caseBoolLiteral(ASTBoolLiteral& host);
+    void caseStringLiteral(ASTStringLiteral& host);
+	void caseArrayLiteral(ASTArrayLiteral& host);
 
     bool isOK() {return !failure;}
     void fail() {failure = true;}

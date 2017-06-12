@@ -176,6 +176,12 @@ ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 	return id;
 }
 
+ZVarType const* SymbolTable::getCanonicalType(ZVarType const& type)
+{
+	int id = getOrAssignTypeId(type);
+	return (ZVarType const*)types[id];
+}
+
 // Classes
 
 ZClass* SymbolTable::getClass(int classId) const

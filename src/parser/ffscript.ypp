@@ -55,7 +55,10 @@ extern YYLTYPE noloc;
 	dd = new ASTExprAssign(left, rval, ad);
 
 %}
+
+%glr-parser
 %expect 1
+%expect-rr 1
 %error-verbose
 %start Init
 
@@ -426,6 +429,52 @@ BoolConstant :
 	| ZFALSE {$$ = new ASTBoolLiteral(false, @$);}
 	;
 
+ArrayLiteral :
+	LBRACE ArrayLiteralList RBRACE {
+			ASTArrayLiteral* al = (ASTArrayLiteral*)$2;
+			al->updateLocation(@$);
+			$$ = al;}
+	| LPAREN Type LBRACKET RBRACKET RPAREN LBRACE ArrayLiteralList RBRACE {
+			ASTVarType* type = (ASTVarType*)$2;
+			ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
+			al->setType(type);
+			al->updateLocation(@$);
+			$$ = al;}
+	| LPAREN Type LBRACKET ConstExpr RBRACKET RPAREN LBRACE ArrayLiteralList RBRACE {
+			ASTVarType* type = (ASTVarType*)$2;
+			ASTExpr* size = (ASTExpr*)$4;
+			ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
+			al->setType(type);
+			al->setSize(size);
+			al->updateLocation(@$);
+			$$ = al;}
+	| LPAREN Type LBRACKET RBRACKET RPAREN LBRACE RBRACE {
+			ASTVarType* type = (ASTVarType*)$2;
+			ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+			al->setType(type);
+			$$ = al;}
+	| LPAREN Type LBRACKET ConstExpr RBRACKET RPAREN LBRACE RBRACE {
+			ASTVarType* type = (ASTVarType*)$2;
+			ASTExpr* size = (ASTExpr*)$4;
+			ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+			al->setType(type);
+			al->setSize(size);
+			$$ = al;}
+	;
+
+ArrayLiteralList :
+	Expr {
+			ASTExpr* element = (ASTExpr*)$1;
+			ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+			al->appendElement(element);
+			$$ = al;}
+	| ArrayLiteralList COMMA Expr {
+			ASTArrayLiteral* al = (ASTArrayLiteral*)$1;
+			ASTExpr* element = (ASTExpr*)$3;
+			al->appendElement(element);
+			$$ = al;}
+	;
+
 ////////////////////////////////////////////////////////////////
 // Expressions - in order of precedence.
 //   (Roughly following http://en.cppreference.com/w/cpp/language/operator_precedence).
@@ -445,6 +494,7 @@ Expr_1 : Identifier {$$ = $1;}
 			delete rawstring;
 			$$ = str;}
 	| BoolConstant {$$ = $1;}
+	| ArrayLiteral {$$ = $1;}
 	| LPAREN Expr RPAREN {$$ = $2;}
 	;
 

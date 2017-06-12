@@ -903,6 +903,47 @@ void TypeCheck::caseStringLiteral(ASTStringLiteral& host)
 	host.setVarType(ZVarType::FLOAT);
 }
 
+void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host)
+{
+	// First, check elements.
+	RecursiveVisitor::caseArrayLiteral(host);
+	if (failure) return;
+
+	// Check the size is a number, if present.
+	ASTExpr* size = host.getSize();
+	if (size && !size->getVarType()->canCastTo(ZVarType::FLOAT))
+	{
+		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
+		failure = true;
+		return;
+	}
+
+	// If we don't have a type assigned, grab it from the first element.
+	ZVarTypeArray const* type = (ZVarTypeArray const*)host.getVarType();
+	ZVarType const* elementType;
+	if (type)
+		elementType = &type->getElementType();
+	else
+	{
+		elementType = host.getElements()[0]->getVarType();
+		type = (ZVarTypeArray const*)symbolTable.getCanonicalType(ZVarTypeArray(*elementType));
+		host.setVarType(type);
+	}
+
+	// Check each element to make sure it adheres to type.
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+	{
+		if (!standardCheck(*elementType, *(*it)->getVarType(), &host))
+		{
+			failure = true;
+			return;
+		}
+	}
+}
+
+
 // Other
 
 bool TypeCheck::standardCheck(ZVarTypeId targetTypeId, ZVarTypeId sourceTypeId, AST* toBlame)
