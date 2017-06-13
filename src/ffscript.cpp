@@ -7462,7 +7462,28 @@ int run_script(const byte type, const word script, const byte i)
         case ARRAYSIZE:
             do_arraysize();
             break;
-            
+         case ARRAYSIZEB:
+            do_arraysize();
+            break;
+	case ARRAYSIZEF:
+            do_arraysize();
+            break;
+	case ARRAYSIZEN:
+            do_arraysize();
+            break;
+	case ARRAYSIZEI:
+            do_arraysize();
+            break;
+	case ARRAYSIZEID:
+            do_arraysize();
+            break;
+	case ARRAYSIZEL:
+            do_arraysize();
+            break;
+	case ARRAYSIZEE:
+            do_arraysize();
+            break;
+	
         case GETFFCSCRIPT:
             do_getffcscript();
             break;

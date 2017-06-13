@@ -1419,6 +1419,78 @@ public:
     }
 };
 
+
+class OArraySizeF : public UnaryOpcode
+{
+public:
+    OArraySizeF(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeF(a->clone());
+    }
+};
+class OArraySizeN : public UnaryOpcode
+{
+public:
+    OArraySizeN(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeN(a->clone());
+    }
+};
+class OArraySizeE : public UnaryOpcode
+{
+public:
+    OArraySizeE(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeE(a->clone());
+    }
+};
+class OArraySizeL : public UnaryOpcode
+{
+public:
+    OArraySizeL(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeL(a->clone());
+    }
+};
+class OArraySizeB : public UnaryOpcode
+{
+public:
+    OArraySizeB(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeB(a->clone());
+    }
+};
+class OArraySizeI : public UnaryOpcode
+{
+public:
+    OArraySizeI(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeI(a->clone());
+    }
+};
+class OArraySizeID : public UnaryOpcode
+{
+public:
+    OArraySizeID(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeID(a->clone());
+    }
+};
+
 class OCheckTrig : public Opcode
 {
 public:

@@ -1353,6 +1353,37 @@ string OArraySize::toString()
     return "ARRAYSIZE " + getArgument()->toString();
 }
 
+
+string OArraySizeF::toString()
+{
+    return "ARRAYSIZEF " + getArgument()->toString();
+}
+string OArraySizeN::toString()
+{
+    return "ARRAYSIZEN " + getArgument()->toString();
+}
+string OArraySizeE::toString()
+{
+    return "ARRAYSIZEE " + getArgument()->toString();
+}
+string OArraySizeL::toString()
+{
+    return "ARRAYSIZEL " + getArgument()->toString();
+}
+string OArraySizeB::toString()
+{
+    return "ARRAYSIZEB " + getArgument()->toString();
+}
+string OArraySizeI::toString()
+{
+    return "ARRAYSIZEI " + getArgument()->toString();
+}
+string OArraySizeID::toString()
+{
+    return "ARRAYSIZEID " + getArgument()->toString();
+}
+
+
 string OCalcSplineRegister::toString()
 {
     return "CALCSPLINER" + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
