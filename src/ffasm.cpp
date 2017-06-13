@@ -822,11 +822,28 @@ script_variable variable_list[]=
 	    //{ "EWPNINDEX",         EWPNINDEX,          0,             0 },
 	    //{ "NPCINDEX",         NPCINDEX,          0,             0 },
 	    //TABLE END
-	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 },
-	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 },
-	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 },
-	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 },
-	{ "IDATADURATION", IDATADURATION, 0, 0 },
+	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 }, //UseWeapon
+	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 }, //UseDefense
+	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 }, //Range
+	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 }, //Movement[]
+	{ "IDATADURATION", IDATADURATION, 0, 0 }, //Duration
+	
+	{ "IDATADUPLICATES", IDATADUPLICATES, 0, 0 }, //Duplicates
+	  { "IDATADRAWLAYER", IDATADRAWLAYER, 0, 0 }, //DrawLayer
+	  { "IDATACOLLECTFLAGS", IDATACOLLECTFLAGS, 0, 0 }, //CollectFlags
+	  { "IDATAWEAPONSCRIPT", IDATAWEAPONSCRIPT, 0, 0 }, //WeaponScript
+	  { "IDATAMISCD", IDATAMISCD, 0, 0 }, //WeaponMisc[32]
+	  { "IDATAWEAPHXOFS", IDATAWEAPHXOFS, 0, 0 }, //WeaponHitXOffset
+	  { "IDATAWEAPHYOFS", IDATAWEAPHYOFS, 0, 0 }, //WeaponHitYOffset
+	  { "IDATAWEAPHXSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitWidth
+	  { "IDATAWEAPHYSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitHeight
+	  { "IDATAWEAPHZSZ", IDATAWEAPHZSZ, 0, 0 }, //WeaponHitZHeight
+	  { "IDATAWEAPXOFS", IDATAWEAPXOFS, 0, 0 }, //WeaponDrawXOffset
+	  { "IDATAWEAPYOFS", IDATAWEAPYOFS, 0, 0 }, //WeaponDrawYOffset
+	  { "IDATAWEAPZOFS", IDATAWEAPZOFS, 0, 0 }, //WeaponDrawZOffset
+	  { "IDATAWPNINITD", IDATAWPNINITD, 0, 0 }, //WeaponD[8]
+	  
+	  { "NPCWEAPSPRITE", NPCWEAPSPRITE, 0, 0 }, //WeaponSprite
 	  
     { " ",                       -1,             0,             0 }
 };
