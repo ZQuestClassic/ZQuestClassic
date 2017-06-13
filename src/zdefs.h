@@ -1108,7 +1108,7 @@ enum
 	edefRES005,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
 	edefLAST255, //41
-	edef40,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
+	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
 	edefELECTRIC,	edefSHIELD,	edefTROWEL,	edefSPINATTK,	edefZ3SWORD,	//51
 	edefLASWORD,	//x52
 	edefLASTEND  //53
