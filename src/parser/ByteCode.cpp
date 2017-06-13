@@ -424,7 +424,7 @@ string VarArgument::toString()
 	return "ZELDABUILD";
     case ZELDABETA:
 	return "ZELDABETA";
-    case GAMECHEAT:
+    
         
     case GAMETIME:
         return "GAMETIME";
@@ -624,6 +624,7 @@ string VarArgument::toString()
         
     case NPCDEFENSED:
         return "NPCDEFENSED";
+    case NPCSCRDEFENSED: return "NPCSCRDEFENSED";
         
     case NPCMISCD:
         return "NPCMISCD";
