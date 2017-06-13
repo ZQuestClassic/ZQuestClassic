@@ -12,7 +12,9 @@ BuildOpcodes::BuildOpcodes()
 	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
 	  returnRefCount(0), continueRefCount(0), breakRefCount(0),
 	  failure(false)
-{}
+{
+	opcodeTargets.push_back(&result);
+}
 
 void BuildOpcodes::caseDefault(void *)
 {
@@ -22,7 +24,7 @@ void BuildOpcodes::caseDefault(void *)
 
 void BuildOpcodes::addOpcode(Opcode* code)
 {
-	result.push_back(code);
+	opcodeTargets.back()->push_back(code);
 }
 
 void BuildOpcodes::deallocateArrayRef(long arrayRef)
@@ -531,92 +533,6 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     {
         addOpcode(*it);
     }
-}
-
-void BuildOpcodes::caseNumConstant(ASTNumConstant& host, void*)
-{
-    if (host.hasDataValue())
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
-    else
-    {
-        pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
-
-        if (!val.second)
-            printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
-
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
-    }
-}
-
-void BuildOpcodes::caseBoolConstant(ASTBoolConstant& host, void*)
-{
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
-}
-
-void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
-{
-	OpcodeContext* c = (OpcodeContext*)param;
-	int id = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(id);
-    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
-
-	////////////////////////////////////////////////////////////////
-	// Initialization Code.
-
-	string data = host.getValue();
-	long size = (data.size() + 1) * 10000L;
-
-	// Allocate.
-	if (RAMtype == GLOBALRAM)
-	{
-		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
-		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
-	}
-	else
-	{
-		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
-		int offset = c->stackframe->getOffset(id);
-		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-	}
-
-	// Initialize.
-	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-	for (int i = 0; i < (int)data.size(); ++i)
-	{
-		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i * 10000L)));
-		long value = data[i] * 10000L;
-		c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(value)));
-	}
-	c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(data.size() * 10000L)));
-	c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(0)));
-
-	////////////////////////////////////////////////////////////////
-	// Actual Code.
-
-	if (globalid != -1)
-	{
-        // Global variable, so just get its value.
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
-	}
-	else
-	{
-		// Local variable, get its value from the stack.
-		int offset = c->stackframe->getOffset(id);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-	}
-
-	////////////////////////////////////////////////////////////////
-	// Register for cleanup.
-
-	if (globalid == -1)
-	{
-		int offset = c->stackframe->getOffset(id);
-		arrayRefs.push_back(offset);
-	}
 }
 
 void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
@@ -1267,6 +1183,190 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+}
+
+// Literals
+
+void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
+{
+    if (host.hasDataValue())
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
+    else
+    {
+        pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
+
+        if (!val.second)
+            printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
+
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
+    }
+}
+
+void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
+{
+    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
+}
+
+void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
+{
+	OpcodeContext* c = (OpcodeContext*)param;
+	int id = c->symbols->getNodeId(&host);
+    int globalid = c->linktable->getGlobalID(id);
+    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+
+	////////////////////////////////////////////////////////////////
+	// Initialization Code.
+
+	string data = host.getValue();
+	long size = (data.size() + 1) * 10000L;
+
+	// Allocate.
+	if (RAMtype == GLOBALRAM)
+	{
+		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+	}
+	else
+	{
+		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		int offset = c->stackframe->getOffset(id);
+		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	// Initialize.
+	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	for (int i = 0; i < (int)data.size(); ++i)
+	{
+		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i * 10000L)));
+		long value = data[i] * 10000L;
+		c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(value)));
+	}
+	c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(data.size() * 10000L)));
+	c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(0)));
+
+	////////////////////////////////////////////////////////////////
+	// Actual Code.
+
+	if (globalid != -1)
+	{
+        // Global variable, so just get its value.
+        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+	}
+	else
+	{
+		// Local variable, get its value from the stack.
+		int offset = c->stackframe->getOffset(id);
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Register for cleanup.
+
+	if (globalid == -1)
+	{
+		int offset = c->stackframe->getOffset(id);
+		arrayRefs.push_back(offset);
+	}
+}
+
+void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
+{
+	OpcodeContext* c = (OpcodeContext*)param;
+	int id = c->symbols->getNodeId(&host);
+    int globalid = c->linktable->getGlobalID(id);
+    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+
+	int size = -1;
+
+	// If there's an explicit size, grab it.
+	if (host.getSize())
+	{
+		// Make sure the size has been resloved.
+		if (!host.getSize()->hasDataValue())
+		{
+			printErrorMsg(&host, EXPRNOTCONSTANT);
+			failure = true;
+			return;
+		}
+
+		// Grab the size.
+		size = host.getSize()->getDataValue() / 10000;
+
+		// Make sure the chosen size has enough space.
+		if (size < host.getElements().size())
+		{
+			printErrorMsg(&host, ARRAYLISTTOOLARGE);
+			failure = true;
+			return;
+		}
+	}
+	// Otherwise, grab the number of elements.
+	else size = host.getElements().size();
+
+	////////////////////////////////////////////////////////////////
+	// Initialization Code.
+
+	// Allocate.
+	if (RAMtype == GLOBALRAM)
+	{
+		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L)));
+		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+	}
+	else
+	{
+		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L)));
+		int offset = c->stackframe->getOffset(id);
+		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	// Initialize.
+	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	long i = 0;
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it, i += 10000L)
+	{
+		c->initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
+		opcodeTargets.push_back(&c->initCode);
+		(*it)->execute(*this, param);
+		opcodeTargets.pop_back();
+		c->initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
+		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i)));
+		c->initCode.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP1)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Actual Code.
+
+	if (globalid != -1)
+	{
+        // Global variable, so just get its value.
+        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+	}
+	else
+	{
+		// Local variable, get its value from the stack.
+		int offset = c->stackframe->getOffset(id);
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Register for cleanup.
+
+	if (globalid == -1)
+	{
+		int offset = c->stackframe->getOffset(id);
+		arrayRefs.push_back(offset);
+	}
+
 }
 
 // Other

@@ -46,8 +46,6 @@ public:
 	virtual void caseExprConst(ASTExprConst &host);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprAssign(ASTExprAssign &host);
-    virtual void caseNumConstant(ASTNumConstant &host, void *param);
-    virtual void caseNumConstant(ASTNumConstant &host);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
@@ -104,6 +102,11 @@ public:
     virtual void caseExprLShift(ASTExprLShift &host);
     virtual void caseExprRShift(ASTExprRShift &host, void *param);
     virtual void caseExprRShift(ASTExprRShift &host);
+	// Literals
+    virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
+    virtual void caseNumberLiteral(ASTNumberLiteral& host);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host);
 };
 
 class CheckForExtraneousImports : public RecursiveVisitor

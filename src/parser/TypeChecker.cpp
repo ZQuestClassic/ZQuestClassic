@@ -197,29 +197,6 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host)
 	}
 }
 
-void TypeCheck::caseNumConstant(ASTNumConstant &host)
-{
-    host.setVarType(ZVarType::FLOAT);
-    pair<string,string> parts = host.getValue()->parseValue();
-    pair<long, bool> val = ScriptParser::parseLong(parts);
-
-    if (!val.second)
-        printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
-
-    host.setDataValue(val.first);
-}
-
-void TypeCheck::caseBoolConstant(ASTBoolConstant &host)
-{
-    host.setVarType(ZVarType::BOOL);
-    host.setDataValue(host.getValue() ? 1L : 0L);
-}
-
-void TypeCheck::caseStringConstant(ASTStringConstant& host)
-{
-	host.setVarType(ZVarType::FLOAT);
-}
-
 void TypeCheck::caseExprIdentifier(ASTExprIdentifier &host)
 {
     if (symbolTable.isInlinedConstant(&host))
@@ -900,6 +877,72 @@ void TypeCheck::caseExprRShift(ASTExprRShift &host)
         host.setDataValue(((firstval/10000)>>(secondval/10000))*10000);
     }
 }
+
+// Literals
+
+void TypeCheck::caseNumberLiteral(ASTNumberLiteral& host)
+{
+    host.setVarType(ZVarType::FLOAT);
+    pair<string,string> parts = host.getValue()->parseValue();
+    pair<long, bool> val = ScriptParser::parseLong(parts);
+
+    if (!val.second)
+        printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
+
+    host.setDataValue(val.first);
+}
+
+void TypeCheck::caseBoolLiteral(ASTBoolLiteral& host)
+{
+    host.setVarType(ZVarType::BOOL);
+    host.setDataValue(host.getValue() ? 1L : 0L);
+}
+
+void TypeCheck::caseStringLiteral(ASTStringLiteral& host) {}
+
+void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host)
+{
+	// First, check elements.
+	RecursiveVisitor::caseArrayLiteral(host);
+	if (failure) return;
+
+	// Check the size is a number, if present.
+	ASTExpr* size = host.getSize();
+	if (size && !size->getVarType()->canCastTo(ZVarType::FLOAT))
+	{
+		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
+		failure = true;
+		return;
+	}
+
+	// If we don't have a type assigned, grab it from the first element.
+	ZVarTypeArray const* type = (ZVarTypeArray const*)host.getVarType();
+	ZVarType const* elementType;
+	if (type)
+		elementType = &type->getElementType();
+	else
+	{
+		elementType = host.getElements()[0]->getVarType();
+		type = (ZVarTypeArray const*)symbolTable.getCanonicalType(ZVarTypeArray(*elementType));
+		host.setVarType(type);
+	}
+
+	// Check each element to make sure it adheres to type.
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+	{
+		if (!standardCheck(*elementType, *(*it)->getVarType(), &host))
+		{
+			failure = true;
+			return;
+		}
+	}
+
+	// Update literal type.
+	host.manager->type = type;
+}
+
 
 // Other
 

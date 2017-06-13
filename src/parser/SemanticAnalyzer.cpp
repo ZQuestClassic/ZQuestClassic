@@ -311,13 +311,6 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host)
 	RecursiveVisitor::caseExprAssign(host);
 }
 
-void SemanticAnalyzer::caseStringConstant(ASTStringConstant& host)
-{
-	// Assign varible id for anonymous "variable".
-	int variableId = ScriptParser::getUniqueVarID();
-	scope->getTable().putNodeId(&host, variableId);
-}
-
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 {
 	ASTExpr* left = host.getLeft();
@@ -373,5 +366,57 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
 
 	// Standard recursing.
 	RecursiveVisitor::caseExprIndex(host);
+}
+
+// Literals
+
+void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host)
+{
+	// Assign type.
+	SymbolTable& table = scope->getTable();
+	ZVarType const* type = table.getCanonicalType(ZVarTypeArray(ZVarType::FLOAT));
+	host.setVarType(type);
+
+	// Add to scope as a managed literal.
+	scope->addLiteral(host, type);
+}
+
+void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
+{
+	// Recurse on type, size, and elements.
+	RecursiveVisitor::caseArrayLiteral(host);
+
+	// If present, resolve the type.
+	if (host.getType())
+	{
+		ZVarType const& elementType = host.getType()->resolve(*scope);
+		if (!elementType.isResolved())
+		{
+			printErrorMsg(&host, UNRESOLVEDTYPE, elementType.getName());
+			failure = true;
+			return;
+		}
+
+		// Disallow void type.
+		if (elementType == ZVarType::ZVOID)
+		{
+			printErrorMsg(&host, VOIDARR);
+			failure = true;
+			return;
+		}
+
+		// Convert to array type.
+		host.setVarType(scope->getTable().getCanonicalType(ZVarTypeArray(elementType)));
+	}
+
+	// Check that we have elements OR a type.
+	if (host.getElements().size() == 0 && !host.getType())
+	{
+		printErrorMsg(&host, EMPTYARRAYLITERAL);
+		failure = true;
+	}
+
+	// Add to scope as a managed literal.
+	scope->addLiteral(host);
 }
 

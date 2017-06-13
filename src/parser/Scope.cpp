@@ -321,13 +321,13 @@ BasicScope::~BasicScope()
 		delete it->second;
 	for (vector<Scope*>::iterator it = anonymousChildren.begin(); it != anonymousChildren.end(); ++it)
 		delete *it;
+	for (vector<Literal*>::iterator it = literals.begin(); it != literals.end(); ++it)
+		delete *it;
 	for (map<string, Variable*>::iterator it = variables.begin(); it != variables.end(); ++it)
 		delete it->second;
 	for (map<FunctionSignature, Function*>::iterator it = functionsBySignature.begin();
-	   it != functionsBySignature.end(); ++it)
-	{
+		 it != functionsBySignature.end(); ++it)
 		delete it->second;
-	}
 	for (map<string, Function*>::iterator it = getters.begin(); it != getters.end(); ++it)
 		delete it->second;
 	for (map<string, Function*>::iterator it = setters.begin(); it != setters.end(); ++it)
@@ -416,6 +416,22 @@ int BasicScope::addClass(string const& name, AST* node)
 	return classId;
 }
 
+// Literals
+
+vector<Literal*> BasicScope::getLocalLiterals() const
+{
+	return literals;
+}
+
+Literal* BasicScope::addLiteral(ASTLiteral& node, ZVarType const* type)
+{
+	int id = ScriptParser::getUniqueVarID();
+	getTable().putNodeId(&node, id);
+	Literal* literal = new Literal(&node, type, id);
+	literals.push_back(literal);
+	return literal;
+}
+
 // Variables
 
 vector<Variable*> BasicScope::getLocalVariables() const
@@ -440,7 +456,7 @@ Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST*
 	map<string, Variable*>::const_iterator it = variables.find(name);
 	if (it != variables.end()) return NULL;
 
-	Variable* var = new Variable((ASTDecl*)node, &type, name, ScriptParser::getUniqueVarID());
+	Variable* var = new Variable((ASTDataDecl*)node, &type, name, ScriptParser::getUniqueVarID());
 	variables[name] = var;
 	table.putVarTypeId(var->id, table.getOrAssignTypeId(type));
 	if (node) table.putNodeId(node, var->id);

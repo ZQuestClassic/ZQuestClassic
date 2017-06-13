@@ -26,11 +26,13 @@ public:
     void caseScript(ASTScript& host);
 	// Expressions
 	void caseExprAssign(ASTExprAssign& host);
-	void caseStringConstant(ASTStringConstant& host);
 	void caseExprCall(ASTExprCall& host);
 	void caseExprIdentifier(ASTExprIdentifier& host);
 	// void caseExprArrow(ASTExprArrow& host); // No need to redefine.
 	void caseExprIndex(ASTExprIndex& host);
+	// Literals
+	void caseStringLiteral(ASTStringLiteral& host);
+	void caseArrayLiteral(ASTArrayLiteral& host);
 
 	////////////////
 	bool hasFailed() const {return failure;}

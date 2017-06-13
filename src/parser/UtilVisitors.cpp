@@ -319,16 +319,6 @@ void RecursiveVisitor::caseExprAssign(ASTExprAssign &host)
 	host.getRVal()->execute(*this);
 }
 
-void RecursiveVisitor::caseNumConstant(ASTNumConstant &host, void *param)
-{
-	host.getValue()->execute(*this, param);
-}
-
-void RecursiveVisitor::caseNumConstant(ASTNumConstant &host)
-{
-	host.getValue()->execute(*this);
-}
-
 void RecursiveVisitor::caseExprArrow(ASTExprArrow &host, void*param)
 {
 	host.getLeft()->execute(*this, param);
@@ -663,6 +653,42 @@ void RecursiveVisitor::caseExprRShift(ASTExprRShift &host)
 {
 	host.getFirstOperand()->execute(*this);
 	host.getSecondOperand()->execute(*this);
+}
+
+// Literals
+
+void RecursiveVisitor::caseNumberLiteral(ASTNumberLiteral& host, void* param)
+{
+	host.getValue()->execute(*this, param);
+}
+
+void RecursiveVisitor::caseNumberLiteral(ASTNumberLiteral& host)
+{
+	host.getValue()->execute(*this);
+}
+
+void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
+{
+	ASTVarType* type = host.getType();
+	if (type) type->execute(*this, param);
+	ASTExpr* size = host.getSize();
+	if (size) size->execute(*this, param);
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		(*it)->execute(*this, param);
+}
+
+void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host)
+{
+	ASTVarType* type = host.getType();
+	if (type) type->execute(*this);
+	ASTExpr* size = host.getSize();
+	if (size) size->execute(*this);
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		(*it)->execute(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

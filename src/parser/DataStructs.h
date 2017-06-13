@@ -63,6 +63,7 @@ public:
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
+	ZVarType const* getCanonicalType(ZVarType const& type);
 	// Classes
 	ZClass* getClass(int classId) const;
 	ZClass* createClass(string const& name);
@@ -108,6 +109,7 @@ struct FunctionData
 {
 	FunctionData(ZScript::Program& program);
 	ZScript::Program& program;
+	vector<ZScript::Literal*> globalLiterals;
 	vector<ZScript::Variable*> globalVariables;
 	vector<ZScript::Variable*> globalConstants;
 };
