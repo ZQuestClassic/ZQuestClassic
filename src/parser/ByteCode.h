@@ -2349,6 +2349,18 @@ public:
     }
 };
 
+
+class OOverlayTileRegister : public BinaryOpcode
+{
+public:
+    OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OOverlayTileRegister(a->clone(),b->clone());
+    }
+};
+
 class OSwapTileRegister : public BinaryOpcode
 {
 public:

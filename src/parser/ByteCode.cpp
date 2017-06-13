@@ -1836,6 +1836,11 @@ string OCopyTileRegister::toString()
     return "COPYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OOverlayTileRegister::toString()
+{
+    return "OVERLAYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OSwapTileRegister::toString()
 {
     return "SWAPTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
