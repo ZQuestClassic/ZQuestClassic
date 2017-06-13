@@ -6,9 +6,9 @@
 
 namespace ZScript
 {
-	class Literal;
-	class Variable;
-	class Function;
+	struct Literal;
+	struct Variable;
+	struct Function;
 };
 
 class Scope

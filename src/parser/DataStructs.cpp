@@ -32,14 +32,14 @@ int FunctionSignature::compare(FunctionSignature const& other) const
 {
 	int c = name.size() - other.name.size();
 	if (c) return c;
-	for (int i = 0; i < name.size(); ++i)
+	for (int i = 0; i < (int)name.size(); ++i)
 	{
 		c = name[i].compare(other.name[i]);
 		if (c) return c;
 	}
 	c = paramTypes.size() - other.paramTypes.size();
 	if (c) return c;
-	for (int i = 0; i < paramTypes.size(); ++i)
+	for (int i = 0; i < (int)paramTypes.size(); ++i)
 	{
 		c = paramTypes[i]->compare(*other.paramTypes[i]);
 		if (c) return c;
@@ -60,7 +60,7 @@ int FunctionTypeIds::compare(FunctionTypeIds const& other) const
 	if (c) return c;
 	c = paramTypeIds.size() - other.paramTypeIds.size();
 	if (c) return c;
-	for (int i = 0; i < paramTypeIds.size(); ++i)
+	for (int i = 0; i < (int)paramTypeIds.size(); ++i)
 	{
 		c = paramTypeIds[i] - other.paramTypeIds[i];
 		if (c) return c;
@@ -126,7 +126,7 @@ void SymbolTable::putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds)
 
 ZVarType* SymbolTable::getType(ZVarTypeId typeId) const
 {
-	if (typeId < 0 || typeId > types.size()) return NULL;
+	if (typeId < 0 || typeId > (int)types.size()) return NULL;
 	return types[typeId];
 }
 
@@ -186,7 +186,7 @@ ZVarType const* SymbolTable::getCanonicalType(ZVarType const& type)
 
 ZClass* SymbolTable::getClass(int classId) const
 {
-	if (classId < 0 || classId > classes.size()) return NULL;
+	if (classId < 0 || classId > (int)classes.size()) return NULL;
 	return classes[classId];
 }
 

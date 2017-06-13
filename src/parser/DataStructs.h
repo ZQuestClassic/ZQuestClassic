@@ -14,7 +14,7 @@ using std::pair;
 // Forward declare ZScript.h
 namespace ZScript
 {
-	struct Program;
+	class Program;
 	struct Script;
 	struct Variable;
 	struct Function;

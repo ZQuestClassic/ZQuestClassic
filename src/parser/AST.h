@@ -699,7 +699,7 @@ private:
 
 namespace ZScript
 {
-	class Variable;
+	struct Variable;
 }
 
 class ASTDataDecl : public ASTDecl
@@ -739,9 +739,6 @@ private:
     ASTArrayList *list;
     ASTExpr *size;
     ASTVarType *type;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTArrayDecl(ASTArrayDecl &);
-    ASTArrayDecl &operator=(ASTArrayDecl &);
 };
 
 class ASTArrayList : public AST
@@ -1379,7 +1376,7 @@ public:
 
 namespace ZScript
 {
-	class Literal;
+	struct Literal;
 }
 
 class ASTLiteral : public ASTExpr

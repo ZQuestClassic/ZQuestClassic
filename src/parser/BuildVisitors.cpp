@@ -1297,7 +1297,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		size = host.getSize()->getDataValue() / 10000;
 
 		// Make sure the chosen size has enough space.
-		if (size < host.getElements().size())
+		if (size < (int)host.getElements().size())
 		{
 			printErrorMsg(&host, ARRAYLISTTOOLARGE);
 			failure = true;
