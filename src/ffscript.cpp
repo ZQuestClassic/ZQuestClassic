@@ -2781,6 +2781,10 @@ long get_register(const long arg)
     }
     break;
     
+    case GAMEMAXMAPS:
+	ret = (map_count-1)*10000;
+	break;
+    
     case CURDMAP:
         ret=currdmap*10000;
         break;

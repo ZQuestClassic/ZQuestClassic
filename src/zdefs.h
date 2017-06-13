@@ -293,6 +293,7 @@ extern bool fake_pack_writing;
 #define MUSICFLAGS_SIZE       MAXMUSIC>>3
 
 #define MAXMAPS2        255                                 // 4 times the old number
+#define MAX_MAPS_NEW        255   //2.6
 //#define MAXMAPS         16
 #define MAPSCRSNORMAL   128
 #define MAPSCRS192b136  132

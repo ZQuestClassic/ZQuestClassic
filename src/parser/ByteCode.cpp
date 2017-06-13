@@ -407,6 +407,7 @@ string VarArgument::toString()
         
     case CURDMAP:
         return "CURDMAP";
+    case GAMEMAXMAPS: return "GAMEMAXMAPS";
         
     case CURLEVEL:
         return "CURLEVEL";
