@@ -8215,7 +8215,76 @@ int run_script(const byte type, const word script, const byte i)
 		setMonochrome(false);
 		break;
 	
-            
+	//Creates an lweapon using an iemdata struct values to generate its properties.
+	//Useful in conjunction with the new weapon editor. 
+        case CREATELWPNDX:
+	{
+		//Z_message("Trying to get Link->SetExtend().\n");
+		long ID = (ri->d[0] / 10000);
+		int itemid = (ri->d[1]/10000);
+		itemid = vbound(itemid,0,(MAXITEMS-1));
+		
+		//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[2], "ri->d[2]");
+	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
+	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
+	
+		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,Link.getUID()));
+		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		
+		/* Z_scripterrlog("CreateLWeaponDx ri->d[0] is (%i), trying to use for '%s'\n", ID, "ID");
+	    Z_scripterrlog("CreateLWeaponDx ri->d[1] is (%i), trying to use for '%s'\n", itemid, "itemid");
+	Z_scripterrlog("CreateLWeaponDx ri->lwpn is (%i), trying to use for '%s'\n", ri->lwpn, "ri->lwpn"); */
+		
+		ret = ri->lwpn; 
+	}
+	break;
+	
+	/*
+	//Screen->CollisionDx(int enemy_index, int lweapon_type, int power, int x, int y, int weapon_dir, int parent_item);
+	//Handles collision between an npc at screen index 'enemy_index', and an arbitrary lweapon that may or may not exist.
+	//Does damage, and returns true a value collision is valid. Returns a different value otherwise. 
+	
+	// take damage or ignore it
+	// -1: damage (if any) dealt
+	// 1: blocked
+	// 0: weapon passes through unhindered
+	// 2: heal enemy? -ZoriaRPG
+	
+	//THis function should automatically check for shields blocking the weapon, and calculate enemy defences.
+	//In theory, scritped swords, and other melee weapons could use this, as coudl any weapon, and it may simplify
+	//collision routines. 
+	case COLLISIONDX:
+	{
+		//Z_message("Trying to get Link->SetExtend().\n");
+		int index = (ri->d[0] / 10000);
+		long lweapon_type = (ri->d[1] / 10000);
+		int power = (ri->d[2]/10000);
+		
+		int wpnx = ri->4[3]/10000, wpny = ri->d[4]/10000;
+		int dir = ri->d[5]/10000;
+		int parentitem = (ri->d[6]/10000);
+		lweapon_type = vbound(lweapon_type,0,40); //Are we at 40, or higher now>
+		parentitem = vbound(itemid,0,255);
+		
+		//Log the stack events:
+		Z_scripterrlog("CollisionDx ri->d[0] is (%i), trying to use for '%s'\n", index, "index");
+		Z_scripterrlog("CollisionDx ri->d[1] is (%i), trying to use for '%s'\n", lweapon_type, "lweapon_type");
+		Z_scripterrlog("CollisionDx ri->d[2] is (%i), trying to use for '%s'\n", power, "power");
+		Z_scripterrlog("CollisionDx ri->d[3] is (%i), trying to use for '%s'\n", wpnx, "wpnx");
+		Z_scripterrlog("CollisionDx ri->d[4] is (%i), trying to use for '%s'\n", wpny, "wpny");
+		Z_scripterrlog("CollisionDx ri->d[5] is (%i), trying to use for '%s'\n", dir, "dir");
+		Z_scripterrlog("CollisionDx ri->d[0] is (%i), trying to use for '%s'\n", parentitem, "parentitem");
+		
+		weapon *w = new weapon((fix)wpnx,(fix)wpny,(fix)0,lweapon_type,0,power,dir,parentitem,-1,false);
+		int retval = ((enemy*)guys.spr(index))->takehit(w); 
+			//TakeHit, as I recall, applies damage and returns the hit status. Gold.
+		delete w;
+		ret = retval;
+	}
+	break;
+	
+	*/
+	
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
             break;

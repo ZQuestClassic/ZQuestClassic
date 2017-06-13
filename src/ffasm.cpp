@@ -795,7 +795,7 @@ script_variable variable_list[]=
 	{ "__RESERVED_FOR_SETSCREENDOOR",           __RESERVED_FOR_SETSCREENDOOR,            0,             0 },
 	{ "__RESERVED_FOR_SETSCREENENEMY",           __RESERVED_FOR_SETSCREENENEMY,            0,             0 },
 	{ "__RESERVED_FOR_GAMEMAXMAPS",           __RESERVED_FOR_GAMEMAXMAPS,              0,             0 },
-	{ "__RESERVED_FOR_CREATELWPNDX", __RESERVED_FOR_CREATELWPNDX, 0, 0 },
+	{ "CREATELWPNDX", CREATELWPNDX, 0, 0 },
 	{ "__RESERVED_FOR_SCREENFLAG",     __RESERVED_FOR_SCREENFLAG,        0,             0 },
 	{ "BUTTONPRESS",	BUTTONPRESS,        0,             0 },
 	{ "BUTTONINPUT",	BUTTONINPUT,        0,             0 },

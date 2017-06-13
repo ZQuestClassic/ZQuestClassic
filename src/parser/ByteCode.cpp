@@ -1015,6 +1015,9 @@ string VarArgument::toString()
     case UNDERCSET:
         return "UNDERCSET";
     
+    //2.6
+    case CREATELWPNDX: return "CREATELWPNDX";
+    
     //2.54 -Z
 /* 2.54 Implemented
     */
