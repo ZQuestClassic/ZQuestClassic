@@ -417,6 +417,14 @@ string VarArgument::toString()
         
     case GAMECHEAT:
         return "GAMECHEAT";
+    
+    case ZELDAVERSION:
+	return "ZELDAVERSION";
+    case ZELDABUILD:
+	return "ZELDABUILD";
+    case ZELDABETA:
+	return "ZELDABETA";
+    case GAMECHEAT:
         
     case GAMETIME:
         return "GAMETIME";
