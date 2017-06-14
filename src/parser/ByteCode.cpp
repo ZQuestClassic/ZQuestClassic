@@ -51,6 +51,8 @@ string VarArgument::toString()
         
     case FX:
         return "X";
+    case FFCID:
+	return "FFCID";
         
     case FY:
         return "Y";
