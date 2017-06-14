@@ -576,10 +576,10 @@ enum ASM_DEFINE
 #define NPCHUNGER            0x02E2
 //0x02E3-0x02EB are reserved for future NPC variables
 //#define             0x02E2 //This was a duplicate define value in the old source. 
-#define __RESERVED_FOR_NPCSUPERMAN            0x02E3
-#define __RESERVED_FOR_NPCHASITEM            0x02E4
-#define __RESERVED_FOR_NPCRINGLEAD            0x02E5
-#define __RESERVED_FOR_NPCINVINC            0x02E6
+#define NPCSUPERMAN            0x02E3
+#define NPCHASITEM            0x02E4
+#define NPCRINGLEAD            0x02E5
+#define NPCINVINC            0x02E6
 #define UNUSED131            0x02E7
 #define UNUSED132            0x02E8
 #define UNUSED133            0x02E9
