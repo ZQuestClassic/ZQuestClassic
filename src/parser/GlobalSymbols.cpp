@@ -1276,7 +1276,23 @@ static AccessorTable LinkSTable[] =
     { "getInvFlicker",            ZVARTYPEID_BOOL,          GETTER,       LINKCANFLICKER,         1,      {  ZVARTYPEID_LINK,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setHurtSound",               ZVARTYPEID_VOID,          SETTER,       LINKHURTSFX,             1,      {  ZVARTYPEID_LINK,         ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getHurtSound",            ZVARTYPEID_FLOAT,          GETTER,       LINKHURTSFX,         1,      {  ZVARTYPEID_LINK,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+    { "getUsingItem",            ZVARTYPEID_FLOAT,         GETTER,       LINKUSINGITEM,         1,      {  ZVARTYPEID_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setUsingItem",            ZVARTYPEID_VOID,          SETTER,       LINKUSINGITEM,         1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    //Not sure what the 'attack' var is used for at present, but that is what etItemA returned, so I'm renaming these to ->Attack
+    { "getAttack",            ZVARTYPEID_FLOAT,         GETTER,       LINKUSINGITEMA,         1,      {  ZVARTYPEID_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setAttack",            ZVARTYPEID_VOID,          SETTER,       LINKUSINGITEMA,         1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+     { "SetItemA",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,         -1,     -1,    -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetItemB",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,     -1,    -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+   { "SetItemSlot",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
    
+    { "setItemB",            ZVARTYPEID_VOID,          SETTER,       LINKITEMB,         1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setItemA",                ZVARTYPEID_VOID,          SETTER,       LINKITEMA,             1,      {  ZVARTYPEID_LINK,         ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "getItemB",            ZVARTYPEID_FLOAT,          GETTER,       LINKITEMB,         1,      {  ZVARTYPEID_LINK,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "getItemA",                ZVARTYPEID_FLOAT,          GETTER,       LINKITEMA,             1,      {  ZVARTYPEID_LINK,         -1,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "getEaten",            ZVARTYPEID_FLOAT,         GETTER,       LINKEATEN,         1,      {  ZVARTYPEID_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setEaten",            ZVARTYPEID_VOID,          SETTER,       LINKEATEN,         1,      {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 };
@@ -1308,6 +1324,57 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
     }
+    
+       //void SetItemSlot(link, int item, int slot, int force)
+    {
+        int id = memberids["SetItemSlot"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(SETITEMSLOT), new VarArgument(SFTEMP)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
+    //void SetItemA(link, int)
+    {
+        int id = functions["SetItemA"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        first->setLabel(label);
+        code.push_back(first);
+        //code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        code.push_back(new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    //void SetItemB(link, int)
+    {
+        int id = functions["SetItemB"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        first->setLabel(label);
+        code.push_back(first);
+        //code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        code.push_back(new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
     //PitWarp(link, int, int)
     {
         int id = functions["PitWarp"];

@@ -409,9 +409,20 @@ public:
     void setHurtSFX(int sfx); //Set Link;s hurt sfx
     int getHurtSFX();
     
+     int getDirectItem();
+    int getDirectItemA();
+    int getDirectItemB();
+    
+    void setDirectItem(int itm);
+    void setDirectItemA(int itm);
+    void setDirectItemB(int itm);
       //Prevent the subscreen from falling by script.
     bool stopSubscreenFalling();
     void stopSubscreenFalling(bool v);
+    
+    //Set the button items by brute force
+    void setAButtonItem(int itm);
+    void setBButtonItem(int itm);
     
 };
 
