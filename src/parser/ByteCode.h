@@ -1784,6 +1784,52 @@ public:
     }
 };
 
+class OSetDMapName : public BinaryOpcode
+{
+public:
+    OSetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapName(a->clone(), b->clone());
+    }
+};
+
+class OSetDMapIntro : public BinaryOpcode
+{
+public:
+    OSetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapIntro(a->clone(), b->clone());
+    }
+};
+
+class OSetDMapTitle : public BinaryOpcode
+{
+public:
+    OSetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetDMapTitle(a->clone(), b->clone());
+    }
+};
+
+
+class OSetMessage : public BinaryOpcode
+{
+public:
+    OSetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSetMessage(a->clone(), b->clone());
+    }
+};
+
+
 class OGetDMapIntro : public BinaryOpcode
 {
 public:
