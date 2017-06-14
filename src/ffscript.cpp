@@ -2223,6 +2223,39 @@ long get_register(const long arg)
     }
     break;
     
+        case NPCINVINC:
+        if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") != SH::_NoError)
+            ret = -10000;
+        else
+	ret = (int)GuyH::getNPC()->hclk * 10000;
+            
+        break;
+	
+    case NPCHASITEM:
+        if(GuyH::loadNPC(ri->guyref, "npc->HasItem") != SH::_NoError)
+            ret = 0;
+        else
+	ret = GuyH::getNPC()->itemguy?10000:0;
+            
+        break;
+	
+    case NPCRINGLEAD:
+        if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") != SH::_NoError)
+            ret = 0;
+        else
+	ret = GuyH::getNPC()->leader?10000:0;
+            
+        break;
+	
+	case NPCSUPERMAN:
+        if(GuyH::loadNPC(ri->guyref, "npc->Invincible") != SH::_NoError)
+            ret = -10000;
+        else
+	ret = (int)GuyH::getNPC()->superman * 10000;
+            
+        break;
+    
+    
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
@@ -5072,6 +5105,35 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 		default: break;
 	}
 
+    }
+    break;
+    
+        
+    case NPCINVINC:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") == SH::_NoError)
+            GuyH::getNPC()->hclk = (int)value/10000;
+    }
+    break;
+    
+    case NPCSUPERMAN:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Invincible") == SH::_NoError)
+            GuyH::getNPC()->superman = (int)value/10000;
+    }
+    break;
+    
+    case NPCHASITEM:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->HasItem") == SH::_NoError)
+            GuyH::getNPC()->itemguy = (value/10000)?1:0;
+    }
+    break;
+    
+    case NPCRINGLEAD:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") == SH::_NoError)
+            GuyH::getNPC()->leader = (value/10000)?1:0;
     }
     break;
     
