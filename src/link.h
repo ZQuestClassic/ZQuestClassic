@@ -233,6 +233,9 @@ class LinkClass : public sprite
     bool dontdraw;
     bool diagonalMovement;
     bool bigHitbox;
+    bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
+    int hurtsfx; //Link's Hurt SOund
+    int walkspeed; //Link's walking speed.
     
     // Methods below here.
     void movelink();
@@ -397,6 +400,19 @@ public:
     bool ffpit;
     void setscriptnohit(bool);
     bool getscriptnohit();
+    
+    //2.6
+    
+    bool getCanLinkFlicker(); //enable or disable flicker or flash
+    void setCanLinkFlicker(bool v);
+    
+    void setHurtSFX(int sfx); //Set Link;s hurt sfx
+    int getHurtSFX();
+    
+      //Prevent the subscreen from falling by script.
+    bool stopSubscreenFalling();
+    void stopSubscreenFalling(bool v);
+    
 };
 
 bool isRaftFlag(int flag);
