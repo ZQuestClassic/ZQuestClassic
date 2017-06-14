@@ -1734,6 +1734,55 @@ long get_register(const long arg)
         ret=(itemsbuf[ri->idata].weapduration)*10000;
         break;
     
+    case IDATADUPLICATES:
+        ret=(itemsbuf[ri->idata].duplicates)*10000;
+        break;
+    case IDATADRAWLAYER:
+        ret=(itemsbuf[ri->idata].drawlayer)*10000;
+        break;
+    case IDATACOLLECTFLAGS:
+        ret=(itemsbuf[ri->idata].collectflags)*10000;
+        break;
+    case IDATAWEAPONSCRIPT:
+        ret=(itemsbuf[ri->idata].weaponscript)*10000;
+        break;
+    case IDATAMISCD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,31);
+        ret=(itemsbuf[ri->idata].wpn_misc_d[a])*10000;
+    }
+    break;
+    case IDATAWPNINITD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,7);
+        ret=(itemsbuf[ri->idata].weap_initiald[a])*10000;
+    }
+    break;
+    case IDATAWEAPHXOFS:
+        ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
+        break;
+    case IDATAWEAPHYOFS:
+        ret=(itemsbuf[ri->idata].weap_yxofs)*10000;
+        break;
+    case IDATAWEAPHXSZ:
+        ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
+        break;
+    case IDATAWEAPHYSZ:
+        ret=(itemsbuf[ri->idata].weap_hysz)*10000;
+        break;
+    case IDATAWEAPHZSZ:
+        ret=(itemsbuf[ri->idata].weap_hzsz)*10000;
+        break;
+    case IDATAWEAPXOFS:
+        ret=(itemsbuf[ri->idata].weap_xofs)*10000;
+        break;
+    case IDATAWEAPYOFS:
+        ret=(itemsbuf[ri->idata].weap_yofs)*10000;
+        break;
+    
+    
     
     case IDATAFAMILY:
         ret=(itemsbuf[ri->idata].family)*10000;
@@ -1999,6 +2048,9 @@ long get_register(const long arg)
         
     case NPCHUNGER:
         GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+    
+    case NPCWEAPSPRITE:
+        GET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
         
     case NPCTYPE:
         GET_NPC_VAR_INT(family, "npc->Type") break;
@@ -3234,6 +3286,7 @@ void set_register(const long arg, const long value)
         
     case FFLINK:
         (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
+	//0 is none, setting this before made it impssible to clear it. -Z
         break;
         
     case FFMISCD:
@@ -3891,6 +3944,55 @@ void set_register(const long arg, const long value)
         break;
      case IDATADURATION:
         (itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);
+        break;
+     
+     case IDATADUPLICATES:
+	(itemsbuf[ri->idata].duplicates)=vbound(value/10000, 0, 255);
+        break;
+    case IDATADRAWLAYER:
+	(itemsbuf[ri->idata].drawlayer)=vbound(value/10000, 0, 7);
+        break;
+    case IDATACOLLECTFLAGS:
+	//int a = ri->d[0] / 10000;
+        (itemsbuf[ri->idata].collectflags)=vbound(value/10000, 0, 214747);
+        break;
+    case IDATAWEAPONSCRIPT:
+	(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
+        break;
+    case IDATAMISCD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,31);
+	(itemsbuf[ri->idata].wpn_misc_d[a])=(value/10000);
+    }
+    break;
+    case IDATAWPNINITD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,7);
+	(itemsbuf[ri->idata].weap_initiald[a])=(value/10000);
+    }
+    break;
+    case IDATAWEAPHXOFS:
+	(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
+        break;
+    case IDATAWEAPHYOFS:
+	(itemsbuf[ri->idata].weap_yxofs)=(value/10000);
+        break;
+    case IDATAWEAPHXSZ:
+	(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
+        break;
+    case IDATAWEAPHYSZ:
+	(itemsbuf[ri->idata].weap_hysz)=(value/10000);
+        break;
+    case IDATAWEAPHZSZ:
+	(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
+        break;
+    case IDATAWEAPXOFS:
+	(itemsbuf[ri->idata].weap_xofs)=(value/10000);
+        break;
+    case IDATAWEAPYOFS:
+	(itemsbuf[ri->idata].weap_yofs)=(value/10000);
         break;
 
     
@@ -4738,6 +4840,9 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
     case NPCHUNGER:
         SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+    
+    case NPCWEAPSPRITE:
+        SET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
         
     case NPCCSET:
     {
