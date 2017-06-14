@@ -51,6 +51,8 @@ string VarArgument::toString()
         
     case FX:
         return "X";
+    case FFCID:
+	return "FFCID";
         
     case FY:
         return "Y";
@@ -407,6 +409,7 @@ string VarArgument::toString()
         
     case CURDMAP:
         return "CURDMAP";
+    case GAMEMAXMAPS: return "GAMEMAXMAPS";
         
     case CURLEVEL:
         return "CURLEVEL";
@@ -416,6 +419,14 @@ string VarArgument::toString()
         
     case GAMECHEAT:
         return "GAMECHEAT";
+    
+    case ZELDAVERSION:
+	return "ZELDAVERSION";
+    case ZELDABUILD:
+	return "ZELDABUILD";
+    case ZELDABETA:
+	return "ZELDABETA";
+    
         
     case GAMETIME:
         return "GAMETIME";
@@ -615,6 +626,7 @@ string VarArgument::toString()
         
     case NPCDEFENSED:
         return "NPCDEFENSED";
+    case NPCSCRDEFENSED: return "NPCSCRDEFENSED";
         
     case NPCMISCD:
         return "NPCMISCD";
@@ -1015,6 +1027,9 @@ string VarArgument::toString()
     case UNDERCSET:
         return "UNDERCSET";
     
+    //2.6
+    case CREATELWPNDX: return "CREATELWPNDX";
+    
     //2.54 -Z
 /* 2.54 Implemented
     */
@@ -1352,6 +1367,37 @@ string OArraySize::toString()
 {
     return "ARRAYSIZE " + getArgument()->toString();
 }
+
+
+string OArraySizeF::toString()
+{
+    return "ARRAYSIZEF " + getArgument()->toString();
+}
+string OArraySizeN::toString()
+{
+    return "ARRAYSIZEN " + getArgument()->toString();
+}
+string OArraySizeE::toString()
+{
+    return "ARRAYSIZEE " + getArgument()->toString();
+}
+string OArraySizeL::toString()
+{
+    return "ARRAYSIZEL " + getArgument()->toString();
+}
+string OArraySizeB::toString()
+{
+    return "ARRAYSIZEB " + getArgument()->toString();
+}
+string OArraySizeI::toString()
+{
+    return "ARRAYSIZEI " + getArgument()->toString();
+}
+string OArraySizeID::toString()
+{
+    return "ARRAYSIZEID " + getArgument()->toString();
+}
+
 
 string OCalcSplineRegister::toString()
 {
@@ -1803,6 +1849,11 @@ string OIsValidNPC::toString()
 string OCopyTileRegister::toString()
 {
     return "COPYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OOverlayTileRegister::toString()
+{
+    return "OVERLAYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OSwapTileRegister::toString()
