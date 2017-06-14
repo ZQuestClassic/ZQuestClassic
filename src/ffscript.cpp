@@ -2870,6 +2870,10 @@ long get_register(const long arg)
         ret=disableClickToFreeze?0:10000;
         break;
         
+    
+    case NOACTIVESUBSC:
+	ret=Link.stopSubscreenFalling()?10000:0;
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -5264,6 +5268,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMECLICKFREEZE:
         disableClickToFreeze=value==0;
         break;
+    
+    
+    case NOACTIVESUBSC:
+	Link.stopSubscreenFalling((value/10000)?1:0);
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information

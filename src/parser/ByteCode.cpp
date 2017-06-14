@@ -522,6 +522,8 @@ string VarArgument::toString()
     case GAMECLICKFREEZE:
         return "GAMECLICKFREEZE";
         
+    case NOACTIVESUBSC: return "NOACTIVESUBSC"; //Disable active subscreen.
+    
     case FFFLAGSD:
         return "FFFLAGSD";
         
