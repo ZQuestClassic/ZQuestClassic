@@ -252,6 +252,13 @@ string VarArgument::toString()
     case KEYPRESS: return "KEYPRESS";
     case READKEY: return "READKEY";
     case JOYPADPRESS: return "JOYPADPRESS";
+    
+     case LINKINVFRAME:
+	return "LINKINVFRAME";
+    case LINKCANFLICKER:
+	return "LINKCANFLICKER";
+    case LINKHURTSFX:
+	return "LINKHURTSFX";
         
     case SDD:
         return "SDD";
@@ -515,6 +522,8 @@ string VarArgument::toString()
     case GAMECLICKFREEZE:
         return "GAMECLICKFREEZE";
         
+    case NOACTIVESUBSC: return "NOACTIVESUBSC"; //Disable active subscreen.
+    
     case FFFLAGSD:
         return "FFFLAGSD";
         
