@@ -93,11 +93,12 @@
 #include "zc_alleg.h"
 #include "zc_array.h"
 
-#define ZELDA_VERSION       0x0250                          //version of the program
+#define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
 #define ZELDA_VERSION_STR   "2.53.0"                    //version of the program as presented in text
+#define ZC_VERSION 25300 //Version ID for ZScript
 #define IS_BETA             -1                               //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "7th June, 2017"
+#define DATE_STR            "12th June, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -180,7 +181,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            25
+#define V_GUYS            28
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -323,7 +324,7 @@ extern bool fake_pack_writing;
 #define MAXFAVORITECOMBOS 100
 #define MAXFAVORITECOMBOALIASES 100
 
-#define MAGICPERBLOCK   32
+#define MAGICPERBLOCK   32 //This should be a quest variable.
 #define PALNAMESIZE     17
 // mapscr "valid" byte
 #define mVALID          0x01
@@ -457,6 +458,20 @@ extern bool fake_pack_writing;
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
 
+//Common struct array element sizes-Z
+#define INITIAL_A 2
+#define INITIAL_D 8
+#define FFSCRIPT_MISC 32
+#define NUM_FFCS 32
+
+//We have definitions for this below, but this is for scripted stuff in 2,54. 
+enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY, 
+	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOLINK, warpfxWAVYINNOLINK, warpfxWAVYOUTNOLINK, 
+		warpfxLAST};
+	
+//wipe types - mosaic should be one of them. 
+enum { wipeNONE, wipeCOOL, wipeBLACK, wipeBSZELDA, wipeTRIANGLE, wipeCIRCLE, wipeALLSTARS, wipeLAST };
+
 
 enum
 {
@@ -507,7 +522,31 @@ enum
     mfXSWORDBEAM, mfHOOKSHOT, mfWAND, mfHAMMER, mfSTRIKE, mfBLOCKHOLE,
     mfMAGICFAIRY, mfALLFAIRY, mfSINGLE, mfSINGLE16,
     mfNOENEMY, mfNOGROUNDENEMY, mfSCRIPT1, mfSCRIPT2, mfSCRIPT3, mfSCRIPT4, mfSCRIPT5,
-    mfRAFT_BOUNCE, mfMAX, mfPUSHED
+    mfRAFT_BOUNCE, mfOLDMAX, mfPUSHED,mfSCRIPT6, mfSCRIPT7, mfSCRIPT8, mfSCRIPT9, mfSCRIPT10, 
+    mfSCRIPT11, mfSCRIPT12, mfSCRIPT13, mfSCRIPT14, mfSCRIPT15,
+    mfSCRIPT16, mfSCRIPT17, mfSCRIPT18, mfSCRIPT19, mfSCRIPT20,
+    mfPITHOLE, mfPITFALLFLOOR, mfLAVA, mfICE, mfICEDAMAGE, 
+    mfDAMAGE1, mfDAMAGE2, mfDAMAGE4, mfDAMAGE8, mfDAMAGE16, mfDAMAGE32,
+    mfFREEZEALL, mfFREZEALLANSFFCS, mfFREEZEFFCSOLY,
+    mfSCRITPTW1TRIG, mfSCRITPTW2TRIG, mfSCRITPTW3TRIG, mfSCRITPTW4TRIG, mfSCRITPTW5TRIG,
+    mfSCRITPTW6TRIG, mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, 
+    mfTROWEL, mfTROWELNEXT, mfTROWELSPECIALITEM,
+    mfSLASHPOT, //mfSLASHPOTSPECIALITEM, //stack flags to make a drop or special item
+    mcLIFTPOT, //mfLIFTPOTSPECIAL, 
+    mfLIFTORSLASH, mfLIFTROCK, mfLIFTROCKHEAVY,
+    mfDROPITEM, mfSPECIALITEM, mfDROPKEY, mfDROPLKEY, mfDROPCOMPASS, mfDROPMAP, mcDROPBOSSKEY, 
+    mfSPAWNNPC, //160
+    //161
+    mfSWITCHHOOK, 
+    //162
+    mf162, mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
+    mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
+    mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
+    mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
+    mf214, mf215, mf216, mf217, mf218, mf219, mf220, mf221, mf222, mf223, mf224, mf225, mf226, 
+    mf227, mf228, mf229, mf230, mf231, mf232, mf233, mf234, mf235, mf236, mf237, mf238, mf239,
+    mf240, mf241, mf242, mf243, mf244, mf245, mf246, mf247, mf248, mf249, mf250, mf251, mf252, mf253, mf254, 
+    mcEXTEBNDED, mfMAX //256 for array sizing
 };
 
 // combo types
@@ -537,7 +576,113 @@ enum
     cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
     cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, cFLOWERSTOUCHY, cTALLGRASSTOUCHY,
     cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, cEYEBALL_4, cTALLGRASSNEXT,
-    cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, cMAX
+    cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, cMAX,
+//! potential new stuff that I might decide it is worth adding. 
+    //Five additional user script types, 
+    //146
+    cSCRIPT6, cSCRIPT7, cSRCIPT8, cSCRIPT9, cSCRIPT10, 
+    //
+    //151
+    cFIRELAVA1, cFIREFLAVA2, cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
+    //155
+    cHOLEDROP, //drop link as a warp with a drop effect
+    //156
+    cHOLEDAMAGE1, cHOLEDAMAGE2, cHOLEDAMAGE3, cHOLEDAMAGE4, //Pits that damage and respawn
+    //160
+    cDIG, cDIGNEXT, cDIGITEM, //Dig a hole, dig a hole.
+    
+      /* pot, or rock:
+		lift and slash combos need a 'break' sprite set in the combo editor. 
+		The lifted object also needs a 'damage enemies' value, so that when thrown
+		it makes an lweapon. The leweapon type, and damage should be inputs
+		in the combo editor. -1 to damage means enemies ignore it. 
+		-1 to weapon means that itdoesn't generate a weapon.
+	
+		The default type should be LW_POT, which we need to add, or LW_ROCK. 
+		We should add both of these. 
+		
+		These should also include a break sound, a throw sound, and possibly other
+		attributes such as throw distance. Sideview behaviour must be very carefully 
+		defined. -Z
+		
+	*/
+      //163
+    //normal (use undercombo), lift and generate drop item, lift and generate special item (screen item)
+    cLIFT, cLIFTITEM, cLIFTSPECITER, 
+    //166
+    //lift and show next combo, same plus item drop, same with room item
+    cLIFTNEXT, cLIFTNEXTITEM, cLIFTNEXTSPECITEM,
+    //169
+    //lift or slash (do not change combo; use undercombo), ...and make drop item, ...and make room item
+    cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM, 
+    //172
+    //lift or shash, then change the combo at its position to the 'next combo', ...
+	//...and make drop, ...and make screen room item
+    cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM, 
+    //175
+
+    cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful? 
+   //176s
+   cFREEZEFFCONLY, //freezes only scripts
+   //177
+   cSYS177, cSYS178, cSYS179, cSYS180,
+    cSYS181, cSYS182, cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
+    cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
+    cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
+    cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
+    cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230, 
+    cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240, 
+    cSYS241, cSYS242, cSYS243, cSYS244, cSYS245, cSYS246, cSYS247, cSYS248, cSYS249, cSYS250,
+    cSYS251, cSYS252, cSYS253, cSYS254,
+    //Should be 255
+    cEXPANDED, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
+    
+    
+    //2.54, these would need filepack changes. Needs V_COMBOS.
+    cMAX250 //Old max, to make filepack handling easier. 
+    
+    //These need to be in a new, index of expansion[]. 
+    //Let's use expansion[0] for now. 
+    
+    
+    
+    //cMAX
+};
+
+//Combo editor and additional system combos for combo type 'expanded'.
+
+//We could also change .type from a byte to a word, and typecast (byte)combo.type for old quests. 
+//That would make 2.50 exporting harder, though. 
+enum 
+{
+	cUSER000, cUSER001, cUSER002, cUSER003, cUSER004, cUSER005, cUSER006, cUSER007, cUSER008, cUSER009,
+    cUSER010, cUSER011, cUSER012, cUSER013, cUSER014, cUSER015, cUSER016, cUSER017, cUSER018, cUSER019,
+    cUSER020, cUSER021, cUSER022, cUSER023, cUSER024, cUSER025, cUSER026, cUSER027, cUSER028, cUSER029,
+    cUSER030, cUSER031, cUSER032, cUSER033, cUSER034, cUSER035, cUSER036, cUSER037, cUSER038, cUSER039,
+    cUSER040, cUSER041, cUSER042, cUSER043, cUSER044, cUSER045, cUSER046, cUSER047, cUSER048, cUSER049,
+    cUSER050, cUSER051, cUSER052, cUSER053, cUSER054, cUSER055, cUSER056, cUSER057, cUSER058, cUSER059,
+    cUSER060, cUSER061, cUSER062, cUSER063, cUSER064, cUSER065, cUSER066, cUSER067, cUSER068, cUSER069,
+    cUSER070, cUSER071, cUSER072, cUSER073, cUSER074, cUSER075, cUSER076, cUSER077, cUSER078, cUSER079,
+    cUSER080, cUSER081, cUSER082, cUSER083, cUSER084, cUSER085, cUSER086, cUSER087, cUSER088, cUSER089,
+    cUSER090, cUSER091, cUSER092, cUSER093, cUSER094, cUSER095, cUSER096, cUSER097, cUSER098, cUSER099,
+    cUSER100, cUSER101, cUSER102, cUSER103, cUSER104, cUSER105, cUSER106, cUSER107, cUSER108, cUSER109,
+    cUSER110, cUSER111, cUSER112, cUSER113, cUSER114, cUSER115, cUSER116, cUSER117, cUSER118, cUSER119,
+    cUSER120, cUSER121, cUSER122, cUSER123, cUSER124, cUSER125, cUSER126, cUSER127,
+    
+    cSYSTEM000, cSYSTEM001, cSYSTEM002, cSYSTEM003, cSYSTEM004, cSYSTEM005, cSYSTEM006, cSYSTEM007, cSYSTEM008, cSYSTEM009,
+    cSYSTEM010, cSYSTEM011, cSYSTEM012, cSYSTEM013, cSYSTEM014, cSYSTEM015, cSYSTEM016, cSYSTEM017, cSYSTEM018, cSYSTEM019,
+    cSYSTEM020, cSYSTEM021, cSYSTEM022, cSYSTEM023, cSYSTEM024, cSYSTEM025, cSYSTEM026, cSYSTEM027, cSYSTEM028, cSYSTEM029,
+    cSYSTEM030, cSYSTEM031, cSYSTEM032, cSYSTEM033, cSYSTEM034, cSYSTEM035, cSYSTEM036, cSYSTEM037, cSYSTEM038, cSYSTEM039,
+    cSYSTEM040, cSYSTEM041, cSYSTEM042, cSYSTEM043, cSYSTEM044, cSYSTEM045, cSYSTEM046, cSYSTEM047, cSYSTEM048, cSYSTEM049,
+    cSYSTEM050, cSYSTEM051, cSYSTEM052, cSYSTEM053, cSYSTEM054, cSYSTEM055, cSYSTEM056, cSYSTEM057, cSYSTEM058, cSYSTEM059,
+    cSYSTEM060, cSYSTEM061, cSYSTEM062, cSYSTEM063, cSYSTEM064, cSYSTEM065, cSYSTEM066, cSYSTEM067, cSYSTEM068, cSYSTEM069,
+    cSYSTEM070, cSYSTEM071, cSYSTEM072, cSYSTEM073, cSYSTEM074, cSYSTEM075, cSYSTEM076, cSYSTEM077, cSYSTEM078, cSYSTEM079,
+    cSYSTEM080, cSYSTEM081, cSYSTEM082, cSYSTEM083, cSYSTEM084, cSYSTEM085, cSYSTEM086, cSYSTEM087, cSYSTEM088, cSYSTEM089,
+    cSYSTEM090, cSYSTEM091, cSYSTEM092, cSYSTEM093, cSYSTEM094, cSYSTEM095, cSYSTEM096, cSYSTEM097, cSYSTEM098, cSYSTEM099,
+    cSYSTEM100, cSYSTEM101, cSYSTEM102, cSYSTEM103, cSYSTEM104, cSYSTEM105, cSYSTEM106, cSYSTEM107, cSYSTEM108, cSYSTEM109,
+    cSYSTEM110, cSYSTEM111, cSYSTEM112, cSYSTEM113, cSYSTEM114, cSYSTEM115, cSYSTEM116, cSYSTEM117, cSYSTEM118, cSYSTEM119,
+    cSYSTEM120, cSYSTEM121, cSYSTEM122, cSYSTEM123, cSYSTEM124, cSYSTEM125, cSYSTEM126, cSYSTEM127,
+    cEXPANDED_MAX	
 };
 
 #define QUESTRULES_SIZE 20
@@ -638,7 +783,7 @@ enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
 #define MAXDRUNKCLOCK          500
 
 enum
-{
+{ //Get rid of hardcoded decorations in favour of user-defined sprites? -Z
     dBUSHLEAVES, dFLOWERCLIPPINGS, dGRASSCLIPPINGS, dHAMMERSMACK,
     dTALLGRASS, dRIPPLES, dNAYRUSLOVESHIELD, dHOVER, dMAXDECORATIONS
 };
@@ -701,6 +846,7 @@ enum                                                        // value matters bec
 #define shFLAME		0x040
 #define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
+//script 1 to 10 for eweapons go here. -Z
 
 // item sets
 enum
@@ -761,7 +907,32 @@ enum
     // Dummy weapons - must be between lwMax and wEnemyWeapons!
     wScript1, wScript2, wScript3, wScript4,
     wScript5, wScript6, wScript7, wScript8,
-    wScript9, wScript10,
+    wScript9, wScript10, 
+	
+	//! Planned additions for 2.6, weapon editor. 
+	//41
+	wIce, 
+	//42
+	wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+	//43
+	wThrowRock, 
+	//44
+	wPot, //Thrown pot or rock -Z
+	//45
+	wLitZap, //Lightning or Electric -
+	//46
+	wZ3Sword,
+	//47
+	wLASWord, //Gamebpy sword
+	//48
+	wSpinAttk,
+	//49
+	wShield, //GB SHield, shield bash
+	//50
+	wTrowel, //trowel/shovel
+	
+	
+	
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -774,6 +945,8 @@ enum
     ewIce,ewFireball2,
     wMax
 };
+
+#define FIRST_EWEAPON_ID 130 //First eweapon used for anything. 
 
 // phantom weapon types
 enum
@@ -931,10 +1104,14 @@ enum
 	edefSTOMP, 	edefBYRNA, 	edefSCRIPT, 	edefLAST250, 	edefQUAKE, 	//19
 	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
 	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
-	edefICE,	edefRES001, 	edefRES002,	edefRES003,	edefRES004,	//34
+	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
 	edefRES005,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
-	edefLAST255 //41
+	edefLAST255, //41
+	edef40,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
+	edefELECTRIC,	edefSHIELD,	edefTROWEL,	edefSPINATTK,	edefZ3SWORD,	//51
+	edefLASWORD,	//x52
+	edefLASTEND  //53
     // Reserved for future use.
 	 //edefSCRIPT used to be unused edefSPIN
 
@@ -942,7 +1119,12 @@ enum
 
 #define edefLAST 19 
 
-
+//Old 2.future compat rubbish for quest loading. -Z
+enum
+{
+	scriptDEF1, scriptDEF2, scriptDEF3, scriptDEF4, scriptDEF5, scriptDEF6, scriptDEF7,
+	scriptDEF8, scriptDEF9, scriptDEF10, scriptDEFLAST
+};
 
 //2.50.x last defense, used for filepack loading. 
 
@@ -1031,7 +1213,59 @@ struct tiledata
     byte *data;
 };
 
+//Weapon editor
+
+//Weapon clocks
+enum
+{ 
+	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9 
+};
+
+
+
+//Weapon Types
+enum
+{
+	weaptypeNONE, weaptypeSWORD, weaptypeSWORDBEAM, weaptypeBRANG, weaptypeBOMBBLAST,
+	weaptypeSBOMBBLAST, weaptypeBOMB, weaptypeSBOMB, weaptypeARROW, weaptypeFIRE,
+	weaptypeWHISTLE, weaptypeBAIT, weaptypeWAND, weaptypeMAGIC, weaptypeCANDLE,
+	weaptypeWIND, weaptypeREFMAGIC, weaptypeREFFIREBALL, weaptypeREFROCK, weaptypeHAMMER,
+	weaptypeHOOKSHOT, weaptype21, weaptype22, weaptypeSPARKLE, weaptype24,
+	weaptype25, weaptypeBYRNA, weaptypeREFBEAM, weaptype28, weaptype29,
+	weaptypeSCRIPT1, weaptypeSCRIPT2, weaptypeSCRIPT3, weaptypeSCRIPT4, weaptypeSCRIPT5,
+	weaptypeSCRIPT6, weaptypeSCRIPT7, weaptypeSCRIPT8, weaptypeSCRIPT9, weaptypeSCRIPT10
+};
+
+//Defence types
+enum
+{
+	weapdefNONE, weapdefSWORD, weapdefSWORDBEAM, weapdefBRANG, weapdefBOMBBLAST,
+	weapdefSBOMBBLAST, weapdefBOMB, weapdefSBOMB, weapdefARROW, weapdefFIRE,
+	weapdefWHISTLE, weapdefBAIT, weapdefWAND, weapdefMAGIC, weapdefCANDLE,
+	weapdefWIND, weapdefREFMAGIC, weapdefREFFIREBALL, weapdefREFROCK, weapdefHAMMER,
+	weapdefHOOKSHOT, weapdef21, weapdef22, weapdefSPARKLE, weapdef24,
+	weapdef25, weapdefBYRNA, weapdefREFBEAM, weapdef28, weapdef29,
+	weapdefSCRIPT1, weapdefSCRIPT2, weapdefSCRIPT3, weapdefSCRIPT4, weapdefSCRIPT5,
+	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10 
+};
+	
+
 #define ITEM_MOVEMENT_PATTERNS 10
+
+	//Move pattern array indices
+enum{
+	wpnmovePATTERN, wmoveARG1, wmoveARG2, wmoveARG3, wmoveARG4, wmoveDUPLICATES, wmoveOTHER1
+};
+	
+
+//Movement patterns
+enum
+{
+	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A, 
+	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
+};
+
+
 //Holds the movement pattern, and its args.
 
 struct itemdata
@@ -1044,7 +1278,7 @@ struct itemdata
     byte delay;                                               // extra delay factor (-1) for first frame
     long ltm;                                                 // Link Tile Modifier
     byte family;												// What family the item is in
-    byte fam_type;											// What type in this family the item is
+    byte fam_type;	//level										// What type in this family the item is
     byte power;	// Damage, height, etc.
     word flags;
 #define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
@@ -1072,8 +1306,8 @@ struct itemdata
     byte playsound;
     word collect_script;
 //  byte exp[10];                                             // not used
-    long initiald[8];
-    byte initiala[2];
+    long initiald[INITIAL_D];
+    byte initiala[INITIAL_A];
     byte wpn;
     byte wpn2;
     byte wpn3;
@@ -1102,8 +1336,21 @@ struct itemdata
     int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int weaprange; //default range -Z
     int weapduration; //default duration, 0 = infinite. 
-    //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor. 
+ 
     
+    //To implement next;
+    int duplicates; //Number of duplicate weapons generated.
+    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
+    
+    long weap_initiald[INITIAL_D];
+    byte weap_initiala[INITIAL_A];
+    
+    byte drawlayer;
+    long collectflags;
+    int hxofs, yxofs, hxsz, hysz, hzsz, xofs, yofs; //item
+    int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
+    
+    word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     
 };
 
@@ -1253,6 +1500,16 @@ struct guydata
     //  short  startx, starty;
     //  short  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
+    //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
+    //Adding earlier will offset defdata arrays. -Z
+    
+    //2.6 enemy editor tile and hit sizes. -Z
+    int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions. 
+    // no hzofs - it's always equal to zofs.
+    int hxofs,hyofs,hxsz,hysz,hzsz;
+    int txsz,tysz;
+    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
+    int wpnsprite; //wpnsprite is new for 2.6 -Z
 };
 
 class refInfo
@@ -1321,11 +1578,11 @@ struct mapscr
     byte itemy;
     word color;
     byte enemyflags;
-    byte door[4];
+    byte door[4]; //need to add a dmapscreendoor command.
     word tilewarpdmap[4];
     byte tilewarpscr[4];
     byte exitdir;
-    word enemy[10];
+    word enemy[10]; //GetSetScreenEnemies()
     byte pattern;
     byte sidewarptype[4];
     byte sidewarpoverlayflags;
@@ -1359,43 +1616,45 @@ struct mapscr
     //  byte layerysize[6];
     //  byte layeryspeed[6];
     //  byte layerydelay[6];
-    byte layeropacity[6];
+    byte layeropacity[6]; //should be available to zscript.-Z
     word timedwarptics;
     byte nextmap;
     byte nextscr;
-    word secretcombo[128];
-    byte secretcset[128];
-    byte secretflag[128];
+    word secretcombo[128]; //should be available to zscript.-Z
+    byte secretcset[128]; //should be available to zscript.-Z
+    byte secretflag[128]; //should be available to zscript.-Z
     // you're listening to ptr radio, the sounds of insane. ;)
     std::vector<word> data;
     std::vector<byte> sflag;
     std::vector<byte> cset;
     word viewX;
     word viewY;
-    byte scrWidth;
-    byte scrHeight;
+    byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
+    byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
+    
+    byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
     
     //Why doesn't ffc get to be its own class?
     dword numff;
-    word ffdata[32];
-    byte ffcset[32];
-    word ffdelay[32];
-    long ffx[32];
-    long ffy[32];
-    long ffxdelta[32];
-    long ffydelta[32];
-    long ffxdelta2[32];
-    long ffydelta2[32];
-    dword ffflags[32];
-    byte ffwidth[32];
-    byte ffheight[32];
-    byte fflink[32];
+    word ffdata[NUM_FFCS];
+    byte ffcset[NUM_FFCS];
+    word ffdelay[NUM_FFCS];
+    long ffx[NUM_FFCS];
+    long ffy[NUM_FFCS];
+    long ffxdelta[NUM_FFCS];
+    long ffydelta[NUM_FFCS];
+    long ffxdelta2[NUM_FFCS];
+    long ffydelta2[NUM_FFCS];
+    dword ffflags[NUM_FFCS];
+    byte ffwidth[NUM_FFCS];
+    byte ffheight[NUM_FFCS];
+    byte fflink[NUM_FFCS];
     
     //ffc script attachments
-    word ffscript[32];
-    long initd[32][8];
-    long inita[32][2];
-    bool initialized[32];
+    word ffscript[NUM_FFCS];
+    long initd[NUM_FFCS][INITIAL_D];
+    long inita[NUM_FFCS][INITIAL_A];
+    bool initialized[NUM_FFCS];
     
     /*long d[32][8];
     long a[32][2];
@@ -1486,6 +1745,9 @@ struct mapscr
         timedwarptics=0;
         nextmap=0;
         nextscr=0;
+	 // new for 2.6
+        entry_x = entry_y = 0; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
+    
         
         viewX=0;
         viewY=0;
@@ -2679,6 +2941,7 @@ struct zinitdata
     byte link_swim_speed;
 };
 
+//more that could be interesting to modify. -Z
 struct zcmap
 {
     byte tileWidth;
@@ -2791,6 +3054,7 @@ INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
     }
 }
 
+//char, byte
 INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
 {
     unsigned char *cp = (unsigned char *)p;
@@ -2829,6 +3093,7 @@ INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
+//char, byte
 INLINE bool p_putc(int c,PACKFILE *f)
 {
     bool success=true;
@@ -2859,6 +3124,7 @@ INLINE bool p_putc(int c,PACKFILE *f)
     return success;
 }
 
+//word
 INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
 {
     short *cp = (short *)p;
@@ -2927,6 +3193,7 @@ INLINE bool p_iputw(int c,PACKFILE *f)
     return success;
 }
 
+//Getter for int/long
 INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 {
     dword *cp = (dword *)p;
@@ -2973,6 +3240,7 @@ INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
     return result;
 }
 
+//Getter for float
 INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
 {
     if(!f) return false;

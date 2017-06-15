@@ -822,11 +822,28 @@ script_variable variable_list[]=
 	    //{ "EWPNINDEX",         EWPNINDEX,          0,             0 },
 	    //{ "NPCINDEX",         NPCINDEX,          0,             0 },
 	    //TABLE END
-	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 },
-	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 },
-	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 },
-	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 },
-	{ "IDATADURATION", IDATADURATION, 0, 0 },
+	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 }, //UseWeapon
+	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 }, //UseDefense
+	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 }, //Range
+	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 }, //Movement[]
+	{ "IDATADURATION", IDATADURATION, 0, 0 }, //Duration
+	
+	{ "IDATADUPLICATES", IDATADUPLICATES, 0, 0 }, //Duplicates
+	  { "IDATADRAWLAYER", IDATADRAWLAYER, 0, 0 }, //DrawLayer
+	  { "IDATACOLLECTFLAGS", IDATACOLLECTFLAGS, 0, 0 }, //CollectFlags
+	  { "IDATAWEAPONSCRIPT", IDATAWEAPONSCRIPT, 0, 0 }, //WeaponScript
+	  { "IDATAMISCD", IDATAMISCD, 0, 0 }, //WeaponMisc[32]
+	  { "IDATAWEAPHXOFS", IDATAWEAPHXOFS, 0, 0 }, //WeaponHitXOffset
+	  { "IDATAWEAPHYOFS", IDATAWEAPHYOFS, 0, 0 }, //WeaponHitYOffset
+	  { "IDATAWEAPHXSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitWidth
+	  { "IDATAWEAPHYSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitHeight
+	  { "IDATAWEAPHZSZ", IDATAWEAPHZSZ, 0, 0 }, //WeaponHitZHeight
+	  { "IDATAWEAPXOFS", IDATAWEAPXOFS, 0, 0 }, //WeaponDrawXOffset
+	  { "IDATAWEAPYOFS", IDATAWEAPYOFS, 0, 0 }, //WeaponDrawYOffset
+	  { "IDATAWEAPZOFS", IDATAWEAPZOFS, 0, 0 }, //WeaponDrawZOffset
+	  { "IDATAWPNINITD", IDATAWPNINITD, 0, 0 }, //WeaponD[8]
+	  
+	  { "NPCWEAPSPRITE", NPCWEAPSPRITE, 0, 0 }, //WeaponSprite
 	  
     { " ",                       -1,             0,             0 }
 };
@@ -1352,7 +1369,7 @@ std::string to_string(zasm const& instruction)
 		// Find base variable.
 		script_variable* var;
 		bool found = false;
-		for (int i = 0; i < variable_list[i].id != -1; ++i)
+		for (int i = 0; variable_list[i].id != -1; ++i)
 		{
 			var = &variable_list[i];
 			int count = var->maxcount ? var->maxcount : 1;
@@ -1385,7 +1402,7 @@ std::string to_string(zasm const& instruction)
 			sprintf(buf, "%d", instruction.arg1);
 		// Otherwise, do decimal adjustment.
 		else if (instruction.arg1 % 10000 == 0)
-			sprintf(buf, "%d", instruction.arg1 * 0.0001);
+			sprintf(buf, "%d", instruction.arg1 / 10000);
 		else
 			sprintf(buf, "%.4f", instruction.arg1 * 0.0001);
 		s += buf;
@@ -1398,7 +1415,7 @@ std::string to_string(zasm const& instruction)
 		// Find base variable.
 		script_variable* var;
 		bool found = false;
-		for (int i = 0; i < variable_list[i].id != -1; ++i)
+		for (int i = 0; variable_list[i].id != -1; ++i)
 		{
 			var = &variable_list[i];
 			int count = var->maxcount ? var->maxcount : 1;
@@ -1426,7 +1443,7 @@ std::string to_string(zasm const& instruction)
 	else
 	{
 		if (instruction.arg2 % 10000 == 0)
-			sprintf(buf, "%d", instruction.arg2 * 0.0001);
+			sprintf(buf, "%d", instruction.arg2 / 10000);
 		else
 			sprintf(buf, "%.4f", instruction.arg2 * 0.0001);
 		s += buf;
