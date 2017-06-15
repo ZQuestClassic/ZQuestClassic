@@ -1203,20 +1203,20 @@ int enemy::defend(int wpnId, int *power, int edef)
 		*/
 	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
 	//otherwise, use enemy editor definitions.  -Z
-	int defence;
+	int the_defence;
 	
 	//al_trace("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
 	//Z_message("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
 	if ( defense[edef] > 0 ) 
 	{ 
-	    defence = defense[edef]; 
+	    the_defence = defense[edef]; 
 	   // al_trace("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
 	    //Z_message("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
 	
 	} 
 	else 
 	{
-	    defence = edef; //itemsbuf[id].usedefense;
+	    the_defence = edef; //itemsbuf[id].usedefense;
 	    //al_trace("enemy::defend(), Step 3, defense[edef] !> 0, setting defence: %d\n", edef);
 	    //Z_message("enemy::defend(), Step 2, defense[edef] !> 0, setting defence: %d\n", edef);
 	}
@@ -1224,7 +1224,7 @@ int enemy::defend(int wpnId, int *power, int edef)
     {
 	   // al_trace("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
 	  //  Z_message("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-        switch(defence)
+        switch(the_defence)
         {
         case edIGNORE:
             return 0;
@@ -1240,7 +1240,7 @@ int enemy::defend(int wpnId, int *power, int edef)
     
    // al_trace("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
     //Z_message("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-    switch(defence)
+    switch(the_defence)
     {
     case edSTUNORCHINK:
         if(*power <= 0)

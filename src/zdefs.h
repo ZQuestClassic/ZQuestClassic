@@ -95,10 +95,11 @@
 
 #define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
+#define VERSION_BETA        00020
 #define ZELDA_VERSION_STR   "2.53.0"                    //version of the program as presented in text
-#define ZC_VERSION 25300 //Version ID for ZScript
+#define ZC_VERSION 25100 //Version ID for ZScript Game->Version
 #define IS_BETA             -1                               //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "12th June, 2017"
+#define DATE_STR            "13th June, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -293,6 +294,7 @@ extern bool fake_pack_writing;
 #define MUSICFLAGS_SIZE       MAXMUSIC>>3
 
 #define MAXMAPS2        255                                 // 4 times the old number
+#define MAX_MAPS_NEW        255   //2.6
 //#define MAXMAPS         16
 #define MAPSCRSNORMAL   128
 #define MAPSCRS192b136  132
@@ -1108,7 +1110,7 @@ enum
 	edefRES005,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
 	edefLAST255, //41
-	edef40,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
+	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
 	edefELECTRIC,	edefSHIELD,	edefTROWEL,	edefSPINATTK,	edefZ3SWORD,	//51
 	edefLASWORD,	//x52
 	edefLASTEND  //53
@@ -1118,6 +1120,7 @@ enum
 }; 
 
 #define edefLAST 19 
+#define edefSCRIPTDEFS_MAX 9 //for 2.future compatibility
 
 //Old 2.future compat rubbish for quest loading. -Z
 enum

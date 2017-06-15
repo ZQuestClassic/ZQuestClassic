@@ -423,7 +423,7 @@
 #define __RESERVED_FOR_LINKEXTEND 392
 #define __RESERVED_FOR_SETLINKEXTEND 393
 #define __RESERVED_FOR_GETLINKEXTEND 394
-#define __RESERVED_FOR_NPCSCRDEFENSED 395
+#define NPCSCRDEFENSED 395
 #define __RESERVED_FOR_SETLINKTILE 396
 #define __RESERVED_FOR_SIDEWARPSFX 397
 #define __RESERVED_FOR_PITWARPSFX 398
@@ -472,16 +472,16 @@
 #define __RESERVED_FOR_LINKHURTSFX 441
 #define __RESERVED_FOR_NOACTIVESUBSC 442
 #define __RESERVED_FOR_LWPNRANGE 443
-#define __RESERVED_FOR_ZELDAVERSION 444
-#define __RESERVED_FOR_ZELDABUILD 445
-#define __RESERVED_FOR_ZELDABETA 446
+#define ZELDAVERSION 444
+#define ZELDABUILD 445
+#define ZELDABETA 446
 #define __RESERVED_FOR_NPCINVINC 447
 #define __RESERVED_FOR_NPCSUPERMAN 448
 #define __RESERVED_FOR_NPCHASITEM 449
 #define __RESERVED_FOR_NPCRINGLEAD 450
 #define __RESERVED_FOR_IDATAFRAME 451
 #define __RESERVED_FOR_ITEMACLK 452
-#define __RESERVED_FOR_FFCID 453
+#define FFCID 453
 #define IDATAFLAGS 454
 #define IDATASPRITE 455
 #define IDATAATTRIB 456
@@ -498,8 +498,8 @@
 //array pointer typecasting
 #define __RESERVED_FOR_SETSCREENDOOR 466
 #define __RESERVED_FOR_SETSCREENENEMY 467
-#define __RESERVED_FOR_GAMEMAXMAPS 468
-#define __RESERVED_FOR_CREATELWPNDX 469
+#define GAMEMAXMAPS 468
+#define CREATELWPNDX 469
 #define __RESERVED_FOR_SCREENFLAG 470
 #define __RESERVED_FOR_ADJUSTSFX 471
 #define RESVD112E 472
@@ -1419,6 +1419,78 @@ public:
     }
 };
 
+
+class OArraySizeF : public UnaryOpcode
+{
+public:
+    OArraySizeF(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeF(a->clone());
+    }
+};
+class OArraySizeN : public UnaryOpcode
+{
+public:
+    OArraySizeN(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeN(a->clone());
+    }
+};
+class OArraySizeE : public UnaryOpcode
+{
+public:
+    OArraySizeE(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeE(a->clone());
+    }
+};
+class OArraySizeL : public UnaryOpcode
+{
+public:
+    OArraySizeL(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeL(a->clone());
+    }
+};
+class OArraySizeB : public UnaryOpcode
+{
+public:
+    OArraySizeB(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeB(a->clone());
+    }
+};
+class OArraySizeI : public UnaryOpcode
+{
+public:
+    OArraySizeI(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeI(a->clone());
+    }
+};
+class OArraySizeID : public UnaryOpcode
+{
+public:
+    OArraySizeID(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OArraySizeID(a->clone());
+    }
+};
+
 class OCheckTrig : public Opcode
 {
 public:
@@ -2274,6 +2346,18 @@ public:
     Opcode *clone()
     {
         return new OCopyTileRegister(a->clone(),b->clone());
+    }
+};
+
+
+class OOverlayTileRegister : public BinaryOpcode
+{
+public:
+    OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OOverlayTileRegister(a->clone(),b->clone());
     }
 };
 
