@@ -568,6 +568,8 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
     table.addGlobalPointer(addVariable(ZVarType::LINK, "Link")->id);
     table.addGlobalPointer(addVariable(ZVarType::SCREEN, "Screen")->id);
     table.addGlobalPointer(addVariable(ZVarType::GAME, "Game")->id);
+	table.addGlobalPointer(addVariable(ZVarType::AUDIO, "Audio")->id);
+	table.addGlobalPointer(addVariable(ZVarType::DEBUG, "Debug")->id);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
