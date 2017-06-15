@@ -645,6 +645,17 @@ string VarArgument::toString()
         
     case NPCHUNGER:
         return "NPCHUNGER";
+    
+    
+    case NPCINVINC:
+        return "NPCINVINC";
+    case NPCSUPERMAN:
+        return "NPCSUPERMAN";
+    case NPCHASITEM:
+        return "NPCHASITEM";
+    case NPCRINGLEAD:
+        return "NPCRINGLEAD";
+        
         
     case SCRDOORD:
         return "SCRDOORD";
