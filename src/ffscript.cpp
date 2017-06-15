@@ -1246,6 +1246,17 @@ long get_register(const long arg)
     case LINKFLIP:
         ret = (int)(Link.flip)*10000;
         break;
+    
+    case LINKINVFRAME:
+	ret = (int)Link.getHClk()*10000;
+	break;
+    
+    case LINKCANFLICKER:
+        ret= Link.getCanLinkFlicker()?10000:0;
+        break;
+    case LINKHURTSFX:
+	ret = (int)Link.getHurtSFX()*10000;
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Input States
@@ -2859,6 +2870,10 @@ long get_register(const long arg)
         ret=disableClickToFreeze?0:10000;
         break;
         
+    
+    case NOACTIVESUBSC:
+	ret=Link.stopSubscreenFalling()?10000:0;
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -3596,6 +3611,20 @@ void set_register(const long arg, const long value)
     case LINKFLIP:
         (Link.flip)=(fix)(value/10000);
         break;
+    
+    
+    
+    case LINKINVFRAME:
+	Link.setHClk( (int)vbound((value/10000), 0, 214747) );
+	break;
+    
+    case LINKCANFLICKER:
+	Link.setCanLinkFlicker((value/10000)?1:0);
+	break;
+    
+    case LINKHURTSFX:
+	Link.setHurtSFX( (int)vbound((value/10000), 0, 255) );
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Input States
@@ -5239,6 +5268,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMECLICKFREEZE:
         disableClickToFreeze=value==0;
         break;
+    
+    
+    case NOACTIVESUBSC:
+	Link.stopSubscreenFalling((value/10000)?1:0);
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information

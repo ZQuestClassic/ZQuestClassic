@@ -80,6 +80,35 @@ LinkClass::LinkClass() : sprite()
     init();
 }
 
+
+//2.6
+
+//Stop the subscreen from falling. -Z
+
+bool LinkClass::stopSubscreenFalling(){
+	return preventsubscreenfalling;
+}
+
+void LinkClass::stopSubscreenFalling(bool v){
+	preventsubscreenfalling = v;
+}
+
+
+bool LinkClass::getCanLinkFlicker(){
+	return flickerorflash; //enable or disable flicker or flash
+}
+void LinkClass::setCanLinkFlicker(bool v){
+	flickerorflash = v;
+}
+
+//Set Link;s hurt sfx
+void LinkClass::setHurtSFX(int sfx){
+	hurtsfx = sfx;
+}	
+int LinkClass::getHurtSFX() {
+	return hurtsfx;
+}
+
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void LinkClass::linkstep()
 {
@@ -640,6 +669,7 @@ void LinkClass::init()
     sdir = up;
     ilswim=true;
     walkable=false;
+	
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -698,6 +728,11 @@ void LinkClass::init()
     
     bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION) != 0;
     diagonalMovement=get_bit(quest_rules,qr_LTTPWALK) != 0;
+    
+    //2.6
+	preventsubscreenfalling = false;  //-Z
+	hurtsfx = WAV_OUCH; //Set the default sound. 
+	flickerorflash = true; //flicker or flash unless disabled externally.
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -1146,11 +1181,11 @@ void LinkClass::draw(BITMAP* dest)
     
     if(!get_bit(quest_rules,qr_LINKFLICKER))
     {
-        if(superman)
+        if(superman && getCanLinkFlicker())
         {
             cs += (((~frame)>>1)&3);
         }
-        else if(hclk&&(NayrusLoveShieldClk<=0))
+        else if(hclk&&(NayrusLoveShieldClk<=0) && getCanLinkFlicker())
         {
             cs += ((hclk>>1)&3);
         }
@@ -1239,15 +1274,20 @@ attack:
                 tile+=dmap_tile_mod();
                 
                 // Stone of Agony
-                if(agony)
-                {
-                    yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
-                }
-                
-                if(!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
-                {
-                    masked_draw(dest);
-                }
+		    // Stone of Agony
+		if(agony)
+		{
+		    yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+		}
+		    
+		//Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
+		if(!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
+		{
+		    masked_draw(dest);
+		}
+		    
+		//Prevent flickering -Z
+		if ( !getCanLinkFlicker() ) masked_draw(dest);
             }
             
             if(attack!=wHammer)
@@ -3025,7 +3065,7 @@ void LinkClass::checkhit()
                 }
                 
                 hclk=48;
-                Backend::sfx->loop(WAV_OUCH,int(x));
+                Backend::sfx->loop(getHurtSFX(),int(x));
                 return;
             }
         }
@@ -3168,7 +3208,7 @@ killweapon:
                 }
                 
                 hclk=48;
-                Backend::sfx->play(WAV_OUCH,int(x));
+                Backend::sfx->play(getHurtSFX(),int(x));
                 return;
             }
         }
@@ -3232,7 +3272,7 @@ killweapon:
             tapping = false;
         }
         
-        Backend::sfx->play(WAV_OUCH,int(x));
+        Backend::sfx->play(getHurtSFX(),int(x));
         return;
     }
     
@@ -3263,7 +3303,7 @@ killweapon:
             tapping = false;
         }
         
-        Backend::sfx->play(WAV_OUCH,int(x));
+        Backend::sfx->play(getHurtSFX(),int(x));
         return;
     }
     
@@ -3366,7 +3406,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
                 tapping = false;
             }
             
-            Backend::sfx->play(WAV_OUCH,int(x));
+            Backend::sfx->play(getHurtSFX(),int(x));
             return true;
         }
         else paymagiccost(itemid); // Boots are successful
@@ -3413,7 +3453,7 @@ void LinkClass::hitlink(int hit2)
         action=gothit;
         
     hclk=48;
-    Backend::sfx->play(WAV_OUCH,int(x));
+    Backend::sfx->play(getHurtSFX(),int(x));
     
     if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
     {
@@ -4539,10 +4579,13 @@ bool LinkClass::animate(int)
         switch(lsave)
         {
         case 0:
-            conveyclk=3;
-            dosubscr(&QMisc);
-            newscr_clk += frame - tmp_subscr_clk;
-            break;
+            if ( !stopSubscreenFalling() ){
+		    conveyclk=3;
+		    dosubscr(&QMisc);
+		    newscr_clk += frame - tmp_subscr_clk;
+		    break;
+		}
+		else break;
             
         case 1:
             save_game((tmpscr->flags4&fSAVEROOM) != 0, 0);
@@ -15149,7 +15192,7 @@ void LinkClass::gameover()
         switch(f)
         {
         case   0:
-            Backend::sfx->play(WAV_OUCH,int(x));
+            Backend::sfx->play(getHurtSFX(),int(x));
             break;
             
         case  60:
