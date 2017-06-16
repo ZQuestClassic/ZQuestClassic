@@ -1132,6 +1132,31 @@ string VarArgument::toString()
     
     case SETSCREENDOOR: return "SETSCREENDOOR";
     case SETSCREENENEMY: return "SETSCREENENEMY";
+    case SETSCREENWIDTH: return "SETSCREENWIDTH";
+    case SETSCREENHEIGHT: return "SETSCREENHEIGHT";
+    case SETSCREENVIEWX: return "SETSCREENVIEWX";
+    case SETSCREENVIEWY: return "SETSCREENVIEWY";
+    case SETSCREENGUY: return "SETSCREENGUY";
+    case SETSCREENSTRING: return "SETSCREENSTRING";
+    case SETSCREENROOM: return "SETSCREENROOM";
+    case SETSCREENENTX: return "SETSCREENENTX";
+    case SETSCREENENTY: return "SETSCREENENTY";
+    case SETSCREENITEM: return "SETSCREENITEM";
+    case SETSCREENUNDCMB: return "SETSCREENUNDCMB";
+    case SETSCREENUNDCST: return "SETSCREENUNDCST";
+    case SETSCREENCATCH: return "SETSCREENCATCH";
+    case SETSCREENLAYOP: return "SETSCREENLAYOP";
+    case SETSCREENSECCMB: return "SETSCREENSECCMB";
+    case SETSCREENSECCST: return "SETSCREENSECCST";
+    case SETSCREENSECFLG: return "SETSCREENSECFLG";
+    case SETSCREENLAYMAP: return "SETSCREENLAYMAP";
+    case SETSCREENLAYSCR: return "SETSCREENLAYSCR";
+    case SETSCREENPATH: return "SETSCREENPATH";
+    case SETSCREENWARPRX: return "SETSCREENWARPRX";
+    case SETSCREENWARPRY: return "SETSCREENWARPRY";
+    
+    
+    
     
     default:
     {
@@ -2200,6 +2225,51 @@ string OGetScreenEnemy::toString()
     return "GETSCREENENEMY " + getArgument()->toString();
 }
 
+
+string OGetScreenLayerOpacity::toString()
+{
+    return "SETSCREENLAYOP " + getArgument()->toString();
+}
+
+string OGetScreenSecretCombo::toString()
+{
+    return "SETSCREENSECCMB " + getArgument()->toString();
+}
+
+string OGetScreenSecretCSet::toString()
+{
+    return "SETSCREENSECCST " + getArgument()->toString();
+}
+
+string OGetScreenSecretFlag::toString()
+{
+    return "SETSCREENSECFLG " + getArgument()->toString();
+}
+
+string OGetScreenLayerMap::toString()
+{
+    return "SETSCREENLAYMAP " + getArgument()->toString();
+}
+
+string OGetScreenLayerScreen::toString()
+{
+    return "SETSCREENLAYSCR " + getArgument()->toString();
+}
+
+string OGetScreenPath::toString()
+{
+    return "SETSCREENPATH " + getArgument()->toString();
+}
+
+string OGetScreenWarpReturnX::toString()
+{
+    return "SETSCREENWARPRX " + getArgument()->toString();
+}
+
+string OGetScreenWarpReturnY::toString()
+{
+    return "SETSCREENWARPRY " + getArgument()->toString();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 
