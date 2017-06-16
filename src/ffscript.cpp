@@ -1019,15 +1019,91 @@ sprite *s;
 
 
 
-void set_screendoor(mapscr *m, int door, int value)
+void set_screendoor(mapscr *m, int d, int value)
 {
-    m->door[door] = value;
+    m->door[d] = value;
 }
 
 
 void set_screenenemy(mapscr *m, int index, int value)
 {
     m->enemy[index] = vbound(value,0,511);
+}
+void set_screenlayeropacity(mapscr *m, int d, int value)
+{
+    m->layeropacity[d] = value;
+}
+void set_screensecretcombo(mapscr *m, int d, int value)
+{
+    m->secretcombo[d] = value;
+}
+void set_screensecretcset(mapscr *m, int d, int value)
+{
+    m->secretcset[d] = value;
+}
+void set_screensecretflag(mapscr *m, int d, int value)
+{
+    m->secretflag[d] = value;
+}
+void set_screenlayermap(mapscr *m, int d, int value)
+{
+    m->layermap[d] = value;
+}
+void set_screenlayerscreen(mapscr *m, int d, int value)
+{
+    m->layerscreen[d] = value;
+}
+void set_screenpath(mapscr *m, int d, int value)
+{
+    m->path[d] = value;
+}
+void set_screenwarpReturnX(mapscr *m, int d, int value)
+{
+    m->warpreturnx[d] = value;
+}
+void set_screenwarpReturnY(mapscr *m, int d, int value)
+{
+    m->warpreturny[d] = value;
+}
+void set_screenWidth(mapscr *m, int d, int value)
+{
+    m->scrWidth = value;
+}
+void set_screenHeight(mapscr *m, int d, int value)
+{
+    m->scrHeight = value;
+}
+void set_screenViewX(mapscr *m, int d, int value)
+{
+    m->viewX = value;
+}
+void set_screenViewY(mapscr *m, int d, int value)
+{
+    m->viewY = value;
+}
+void set_screenGuy(mapscr *m, int d, int value)
+{
+    m->guy = value;
+}
+void set_screenString(mapscr *m, int d, int value)
+{
+    m->str = value;
+}
+void set_screenRoomtype(mapscr *m, int d, int value)
+{
+    m->room = value;
+}
+void set_screenEntryX(mapscr *m, int d, int value)
+{
+    m->entry_x = value;
+}
+void set_screenEntryY(mapscr *m, int d, int value)
+{
+    m->entry_y = value;
+}
+void set_screenitem(mapscr *m, int d, int value)
+{
+    m->item = value;
 }
 
 
@@ -1063,6 +1139,274 @@ void do_setscreenenemy()
       
     set_screenenemy(&TheMaps[map * MAPSCRS + scrn], enem, value);    
     //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
+}
+
+void do_setscreenlayeropacity()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenLayerOpacity") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenLayerOpacity") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->SetScreenLayerOpacity") != SH::_NoError)
+        return;
+      
+    set_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+
+void do_setscreensecretcombo()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenSecretCombo") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenSecretCombo") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->SetScreenSecretCombo") != SH::_NoError)
+        return;
+      
+    set_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreensecretcet()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenSecretCSet") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenSecretCSet") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->SetScreenSecretCSet") != SH::_NoError)
+        return;
+      
+    set_screensecretcset(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreensecretflag()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenSecretFlag") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenSecretFlag") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->SetScreenSecretFlag") != SH::_NoError)
+        return;
+      
+    set_screensecretflag(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenlayermap()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenLayerMap") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenLayerMap") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->SetScreenLayerMap") != SH::_NoError)
+        return;
+      
+    set_screenlayermap(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenlayercreen()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenLayerScreen") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenLayerScreen") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->SetScreenLayerScreen") != SH::_NoError)
+        return;
+      
+    set_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenpath()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenPath") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenPath") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->SetScreenPath") != SH::_NoError)
+        return;
+      
+    set_screenpath(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenWarpReturnX()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenWarpReturnX") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenWarpReturnX") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenWarpReturnX") != SH::_NoError)
+        return;
+      
+    set_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenWarpReturnY()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenWarpReturnY") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenWarpReturnY") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenWarpReturnY") != SH::_NoError)
+        return;
+      
+    set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenWidth()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenWidth") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenWidth") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenWidth") != SH::_NoError)
+        return;
+      
+    set_screenWidth(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenHeight()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenHeight") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenHeight") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenHeight") != SH::_NoError)
+        return;
+      
+    set_screenHeight(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenViewX()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenViewX") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenViewX") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenViewX") != SH::_NoError)
+        return;
+      
+    set_screenViewX(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenViewY()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenViewY") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenViewY") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenViewY") != SH::_NoError)
+        return;
+      
+    set_screenViewY(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenGuy()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenGuy") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenGuy") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenGuy") != SH::_NoError)
+        return;
+      
+    set_screenGuy(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenString()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenString") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenString") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenString") != SH::_NoError)
+        return;
+      
+    set_screenString(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenRoomType()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenRoomType") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenRoomType") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenRoomType") != SH::_NoError)
+        return;
+      
+    set_screenRoomtype(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenEntryX()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenEntryX") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEntryX") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenEntryX") != SH::_NoError)
+        return;
+      
+    set_screenEntryX(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenEntryY()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenEntryY") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEntryY") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenEntryY") != SH::_NoError)
+        return;
+      
+    set_screenEntryY(&TheMaps[map * MAPSCRS + scrn], d,value);    
+}
+void do_setscreenItem()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long d = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenItem") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenItem") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->SetScreenItem") != SH::_NoError)
+        return;
+      
+    set_screenitem(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
 
 long get_register(const long arg)
@@ -6847,15 +7191,380 @@ void do_getscreeneflags()
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
 }
 
+//Some of these need to be reduced to two inputs. -Z
 
-long get_screendoor(mapscr *m, int door)
+long get_screendoor(mapscr *m, int d)
 {
-
-    int f = m->door[door];
-
+    int f = m->door[d];
     return f*10000;
 }
 
+long get_screenlayeropacity(mapscr *m, int d)
+{
+    int f = m->layeropacity[d]; //6 of these
+    return f*10000;
+}
+
+long get_screensecretcombo(mapscr *m, int d)
+{
+    int f = m->secretcombo[d]; //128 of these
+    return f*10000;
+}
+
+long get_screensecretcset(mapscr *m, int d)
+{
+    int f = m->secretcset[d]; //128 of these
+    return f*10000;
+}
+
+long get_screensecretflag(mapscr *m, int d)
+{
+    int f = m->secretflag[d]; //128 of these
+    return f*10000;
+}
+
+long get_screenlayermap(mapscr *m, int d)
+{
+    int f = m->layermap[d]; //6 of these
+    return f*10000;
+}
+
+long get_screenlayerscreen(mapscr *m, int d)
+{
+    int f = m->layerscreen[d]; //6 of these
+    return f*10000;
+}
+
+long get_screenpath(mapscr *m, int d)
+{
+    int f = m->path[d]; //4 of these
+    return f*10000;
+}
+
+long get_screenwarpReturnX(mapscr *m, int d)
+{
+    int f = m->warpreturnx[d]; //4 of these
+    return f*10000;
+}
+
+long get_screenwarpReturnY(mapscr *m, int d)
+{
+    int f = m->warpreturny[d]; //4 of these
+    return f*10000;
+}
+
+long get_screenWidth(mapscr *m, int d)
+{
+    int f = m->scrWidth;
+    return f*10000;
+}
+
+long get_screenHeight(mapscr *m, int d)
+{
+    int f = m->scrHeight;
+    return f*10000;
+}
+
+long get_screenViewX(mapscr *m, int d)
+{
+    int f = m->viewX;
+    return f*10000;
+}
+
+long get_screenGuy(mapscr *m, int d)
+{
+    int f = m->guy;
+    return f*10000;
+}
+
+long get_screenString(mapscr *m, int d)
+{
+    int f = m->str;
+    return f*10000;
+}
+
+long get_screenRoomtype(mapscr *m, int d)
+{
+    int f = m->room;
+    return f*10000;
+}
+
+long get_screenViewY(mapscr *m, int d)
+{
+    int f = m->viewY;
+    return f*10000;
+}
+
+long get_screenEntryX(mapscr *m, int d)
+{
+    int f = m->entry_x;
+    return f*10000;
+}
+
+long get_screenEntryY(mapscr *m, int d)
+{
+    int f = m->entry_y;
+    return f*10000;
+}
+
+
+long get_screenitem(mapscr *m, int d)
+{
+    int f = m->item;
+    return f*10000;
+}
+
+void do_getscreenLayerOpacity()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetLayerOpacity(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetLayerOpacity(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetLayerOpacity(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+
+void do_getscreenSecretCombo()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSecretCombo(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSecretCombo(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->GetSecretCombo(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+void do_getscreenSecretCSet()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSecretCSet(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSecretCSet(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->GetSecretCSet(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screensecretcset(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+void do_getscreenSecretFlag()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSecretFlag(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSecretFlag(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0,127, "Game->GetSecretFlag(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screensecretflag(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenLayerMap()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSreenLayerMap(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSreenLayerMap(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetSreenLayerMap(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenlayermap(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenLayerscreen()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSreenLayerScreen(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSreenLayerScreen(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetSreenLayerScreen(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenPath()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSreenPath(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSreenPath(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->GetSreenPath(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenpath(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenWarpReturnX()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenWarpReturnX(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWarpReturnX(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->GetScreenWarpReturnX(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenWarpReturnY()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenWarpReturnY(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWarpReturnY(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->GetScreenWarpReturnY(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenWidth()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenWidth(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWidth(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenWidth(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenWidth(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenHeight()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenHeight(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenHeight(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenHeight(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenHeight(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenViewX()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenViewX(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewX(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenViewX(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenViewX(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenViewY()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenViewY(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewY(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenViewY(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenViewY(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenGuy()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenGuy(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenGuy(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenGuy(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenGuy(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenString()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenString(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenString(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenString(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenString(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenRoomType()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenRoomType(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenRoomType(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenRoomType(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenRoomtype(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenEntryX()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenEntryX(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenEntryX(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenEntryX(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenEntryX(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenEntryY()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenEntryY(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenEntryY(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenEntryY(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenEntryY(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenItem()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenItem(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenItem(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 255, "Game->GetScreenItem(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenitem(&TheMaps[map * MAPSCRS + scrn], d));
+}
 
 void do_getscreendoor()
 {
