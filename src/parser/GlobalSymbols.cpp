@@ -4539,8 +4539,14 @@ NPCDataSymbols NPCDataSymbols::singleton = NPCDataSymbols();
 static AccessorTable NPCDataTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
-   { "getCSet",                ZVARTYPEID_FLOAT,         GETTER,       FCSET,                1,      {  ZVARTYPEID_FFC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+   { "getCSet",                ZVARTYPEID_FLOAT,         GETTER,       FCSET,                1,      {  ZVARTYPEID_NPCDATA,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+   /*
+	Use functions that accept two args (ID, value) per field for setters
+	use functions that accept one arg (ID) per field as getters
+	Plus One master function to set all attriutes using an array?
+*/   
+   
+   //SetName
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
