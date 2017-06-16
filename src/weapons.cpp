@@ -241,12 +241,7 @@ weapon::weapon(weapon const & other):
 	
 	//End Weapon editor non-arrays. 
 
-    //2.6 ZScript
-    
-    //We might need to clear scriptrange. -Z
-    scriptrange = -1; //we'll try -1 so that 0 does not interfere.
-    //Pewrhaps check the weapon editor properties, and see if it has a range; only for weapons
-    //that use misc1 for this. 
+     
 {
 	//weapname = other.weapname;		//char[128]	The name of the weapon. 
     for(int i=0; i<10; ++i)
@@ -443,6 +438,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hzsz=8;
     isLit = false;
 	setScreenLimits(*this);
+	
+	//2.6 ZScript
+    
+    //We might need to clear scriptrange. -Z
+    scriptrange = -1; //we'll try -1 so that 0 does not interfere.
+    //Pewrhaps check the weapon editor properties, and see if it has a range; only for weapons
+    //that use misc1 for this.
 	
 	//Weapon Editor -Z
 	if ( parentitem > -1 ) { 
