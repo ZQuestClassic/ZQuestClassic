@@ -3723,7 +3723,7 @@ void edit_enemydata(int index)
 		case 128: wspr = 17; break;
 		case 129: wspr = 0; break;
 		case 130: wspr = 19; break;
-		case 131: wspr = 14; break;
+		case 131: wspr = 4; break;
 		case 132: wspr = 20; break;
 		case 133: wspr = 18; break;
 		case 134: wspr = 21; break;
@@ -3737,6 +3737,7 @@ void edit_enemydata(int index)
 		case 142: wspr = 81; break;
 		case 143: wspr = 82; break;
 		case 144: wspr = 83; break;
+		case 145: wspr = 0; //fireball (rising)
 		
 		default: break; //No assign.
 		    
