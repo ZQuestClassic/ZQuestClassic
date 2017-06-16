@@ -2228,47 +2228,47 @@ string OGetScreenEnemy::toString()
 
 string OGetScreenLayerOpacity::toString()
 {
-    return "SETSCREENLAYOP " + getArgument()->toString();
+    return "GETSCREENLAYOP " + getArgument()->toString();
 }
 
 string OGetScreenSecretCombo::toString()
 {
-    return "SETSCREENSECCMB " + getArgument()->toString();
+    return "GETSCREENSECCMB " + getArgument()->toString();
 }
 
 string OGetScreenSecretCSet::toString()
 {
-    return "SETSCREENSECCST " + getArgument()->toString();
+    return "GETSCREENSECCST " + getArgument()->toString();
 }
 
 string OGetScreenSecretFlag::toString()
 {
-    return "SETSCREENSECFLG " + getArgument()->toString();
+    return "GETSCREENSECFLG " + getArgument()->toString();
 }
 
 string OGetScreenLayerMap::toString()
 {
-    return "SETSCREENLAYMAP " + getArgument()->toString();
+    return "GETSCREENLAYMAP " + getArgument()->toString();
 }
 
 string OGetScreenLayerScreen::toString()
 {
-    return "SETSCREENLAYSCR " + getArgument()->toString();
+    return "GETSCREENLAYSCR " + getArgument()->toString();
 }
 
 string OGetScreenPath::toString()
 {
-    return "SETSCREENPATH " + getArgument()->toString();
+    return "GETSCREENPATH " + getArgument()->toString();
 }
 
 string OGetScreenWarpReturnX::toString()
 {
-    return "SETSCREENWARPRX " + getArgument()->toString();
+    return "GETSCREENWARPRX " + getArgument()->toString();
 }
 
 string OGetScreenWarpReturnY::toString()
 {
-    return "SETSCREENWARPRY " + getArgument()->toString();
+    return "GETSCREENWARPRY " + getArgument()->toString();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
