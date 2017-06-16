@@ -1327,7 +1327,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     
        //void SetItemSlot(link, int item, int slot, int force)
     {
-        int id = memberids["SetItemSlot"];
+        int id = functions["SetItemSlot"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
