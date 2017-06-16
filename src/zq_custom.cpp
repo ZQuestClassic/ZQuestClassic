@@ -3069,27 +3069,27 @@ static DIALOG enedata_dlg[] =
     {  d_dummy_proc,           280,    140,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         280,    140,     30,     16,    vc(12),                 vc(1),                   0,    0,           2,    0,  NULL,                                                           NULL,   NULL                 },
     //54
-    {  jwin_text_proc,           6,     54-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 1:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,           6,     72-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 2:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,           6,     90-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 3:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,           6,    108-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 4:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,           6,    126-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 5:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,           6,    144-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 6:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,         120,     54-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 7:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,         120,     72-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 8:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,         120,     90-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 9:",                                   NULL,   NULL                 },
-    {  jwin_text_proc,         120,    108-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 10:",                                  NULL,   NULL                 },
+    {  jwin_text_proc,           6,     54-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 1:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           6,     72-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 2:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           6,     90-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 3:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           6,    108-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 4:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           6,    126-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 5:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           6,    144-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 6:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         160,     54-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 7:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         120+40,     72-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 8:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         120+40,     90-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 9:",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         120+40,    108-4,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 10:",                                  NULL,   NULL                 },
     //64 : Misc Attribute boxes. 
-    {  jwin_edit_proc,          56,     50-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,          56,     68-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,          56,     86-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,          56,    104-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,          56,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,          56,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         195,     50-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         195,     68-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         195,     86-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         195,    104-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          86,     50-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          86,     68-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          86,     86-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          86,    104-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          86,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          86,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         242,     50-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         242,     68-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         242,     86-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         242,    104-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     //74
     {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Damaged By Power 0 Weapons",                          NULL,   NULL                 },
     {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Invisible",                                        NULL,   NULL                 },
@@ -3216,10 +3216,10 @@ static DIALOG enedata_dlg[] =
     {  jwin_droplist_proc,      86,    187-4,     100,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &sfx__list,                                           NULL,   NULL                 },
     {  jwin_text_proc,          6,     184,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Animation:",                               NULL,   NULL                 },
     {  jwin_droplist_proc,      86,    180,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &walkerspawn_list,                                     NULL,   NULL                 },
-    {  jwin_text_proc,         120,    126-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
-    {  jwin_text_proc,         120,    144-4,     50,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
-    {  jwin_edit_proc,         195,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         195,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_text_proc,         160,    126-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
+    {  jwin_text_proc,         160,    144-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
+    {  jwin_edit_proc,         242,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         242,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     
     // 191
     {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script Weapon Defense:",                              NULL,   NULL                 },
@@ -3663,9 +3663,11 @@ void edit_enemydata(int index)
     
     //2.6 Enemy Weapon Sprite -Z
     
-    //Find the default sprite. 
+    //Find the default sprite. THe values are offset, somehow. Perhaps a switch statement would be better. 
+    
+    /*
     byte default_weapon_sprites[]={
-	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //15
+	    0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //15
 	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,255, //31 script weapons start here
 	    255,255,255,255,255,255,255,255, 255,0,0,0,0,0,0,0, //47 last script weapon: 40
 	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //63
@@ -3677,8 +3679,10 @@ void edit_enemydata(int index)
 	    17, //fireball 128
 	    //spritelist goes here
 	    19,	//enemy arrow 130
+	    0,
 	    4, //enemy brfang 131
 	    20, //enemy swordbeam 132
+	    0,0,
 	    18, //rock 133
 	    21, //magic	 134
 	    78, //enemy bomb explosion 135
@@ -3689,19 +3693,62 @@ void edit_enemydata(int index)
 	    80, //firetrail 139
 	    35, //fire flame 140
 	    36, //wind magic 141
-	    81, //fire2 (unused?) 142
+	    81, //fire2 (fire gleeok flame) 142
 	    82, //143 (fire trail 2?
 	    83, //144 (ice?)
 	    
 	    0
     };
     
+    */
+    
     //If the weapon sprite is 0, assign it here. 
     if ( guysbuf[index].wpnsprite <= 0 ) {
+	    int wspr = -1;
+	    switch(guysbuf[index].weapon)
+	    {
+		case 31:
+		case 32:
+		case 33:
+		case 34:
+		case 35:
+		case 36:
+		case 37:
+		case 38:
+		case 39:
+		case 40:
+			wspr = -1;
+			break;
+		
+		case 128: wspr = 17; break;
+		case 129: wspr = 0; break;
+		case 130: wspr = 19; break;
+		case 131: wspr = 14; break;
+		case 132: wspr = 20; break;
+		case 133: wspr = 18; break;
+		case 134: wspr = 21; break;
+		case 135: wspr = 78; break;
+		case 136: wspr = 79; break;
+		case 137: wspr = 76; break;
+		case 138: wspr = 77; break;
+		case 139: wspr = 80; break;
+		case 140: wspr = 35; break;
+		case 141: wspr = 36; break;
+		case 142: wspr = 81; break;
+		case 143: wspr = 82; break;
+		case 144: wspr = 83; break;
+		
+		default: break;
+		    
+		    
+	    }
+	    if ( wspr > -1 ) guysbuf[index].wpnsprite = wspr;
+	  /*  
         for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
         {
 	    if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; break; }
         }
+	    */
     }
     
     //Set the dialogue. 
