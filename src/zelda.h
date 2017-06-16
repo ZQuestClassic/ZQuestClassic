@@ -79,12 +79,6 @@ enum
     fade_blue_poof
 };
 
-enum 
-{
-	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE 
-	
-}; //Obviously, the overworld, dungeon and L9 midis don;t need to be here, but we can define some user space for o
-//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow. 
 /*********************************/
 /*********** Procedures **********/
 /*********************************/
