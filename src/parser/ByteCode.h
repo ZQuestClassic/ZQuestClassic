@@ -496,8 +496,8 @@
 #define __RESERVED_FOR_EWPNPTR 465
 
 //array pointer typecasting
-#define __RESERVED_FOR_SETSCREENDOOR 466
-#define __RESERVED_FOR_SETSCREENENEMY 467
+#define SETSCREENDOOR 466
+#define SETSCREENENEMY 467
 #define GAMEMAXMAPS 468
 #define CREATELWPNDX 469
 #define __RESERVED_FOR_SCREENFLAG 470
@@ -2975,6 +2975,29 @@ public:
     }
 };
 
+
+class OGetScreenDoor : public UnaryOpcode
+{
+public:
+    OGetScreenDoor(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenDoor(a->clone());
+    }
+};
+
+
+class OGetScreenEnemy : public UnaryOpcode
+{
+public:
+    OGetScreenEnemy(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenEnemy(a->clone());
+    }
+};
 
 
 
