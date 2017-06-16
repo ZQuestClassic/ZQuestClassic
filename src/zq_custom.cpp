@@ -3697,8 +3697,6 @@ void edit_enemydata(int index)
         }
     }
     
-    char wpnsp[8];
-    
     
     enedata_dlg[236].dp3 = is_large() ? lfont_l : pfont;
     sprintf(efr,"%d",guysbuf[index].wpnsprite);
