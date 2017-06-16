@@ -1128,6 +1128,8 @@ string VarArgument::toString()
     case DEBUGSP: return "DEBUGSP";
     case DEBUGGDR: return "DEBUGGDR";
     
+    case LWPNRANGE: return "LWPNRANGE";
+    
     default:
     {
         sprintf(temp, "d%d", ID);
