@@ -1155,6 +1155,7 @@ string VarArgument::toString()
     case SETSCREENWARPRX: return "SETSCREENWARPRX";
     case SETSCREENWARPRY: return "SETSCREENWARPRY";
     
+    case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
     
     
     

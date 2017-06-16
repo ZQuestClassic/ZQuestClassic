@@ -1121,8 +1121,9 @@ enum ASM_DEFINE
 #define SETSCREENPATH 0x117F
 #define SETSCREENWARPRX 0x1180
 #define SETSCREENWARPRY 0x1181
+#define GAMENUMMESSAGES 0x1182
 
-#define NUMVARIABLES         0x1182
+#define NUMVARIABLES         0x1183
 
 struct quad3Dstruct
 {

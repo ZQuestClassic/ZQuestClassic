@@ -1021,110 +1021,143 @@ sprite *s;
 
 void set_screendoor(mapscr *m, int d, int value)
 {
-    m->door[d] = value;
+    int dr = vbound(d,0,3);
+    int doortype = vbound(value,0,14);
+    m->door[dr] = doortype;
 }
 
 
 void set_screenenemy(mapscr *m, int index, int value)
 {
-    m->enemy[index] = vbound(value,0,511);
+    int enem_indx = vbound(index,0,9);
+    m->enemy[enem_indx] = vbound(value,0,511);
 }
 void set_screenlayeropacity(mapscr *m, int d, int value)
 {
-    m->layeropacity[d] = value;
+    int layer = vbound(d,0,6); int op;
+    if ( value <= 64 ) op = 64; 
+    else op = 128;
+    m->layeropacity[layer] = op;
 }
 void set_screensecretcombo(mapscr *m, int d, int value)
 {
-    m->secretcombo[d] = value;
+    int indx = vbound(value,0,127);
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->secretcombo[indx] = cmb;
 }
 void set_screensecretcset(mapscr *m, int d, int value)
 {
-    m->secretcset[d] = value;
+    int indx = vbound(value,0,127);
+    int cs = vbound(value,0,15);
+    m->secretcset[indx] = cs;
 }
 void set_screensecretflag(mapscr *m, int d, int value)
 {
-    m->secretflag[d] = value;
+    int indx = vbound(d,0,127);
+    int flag = vbound(value,0,MAX_FLAGS);
+    m->secretflag[indx] = flag;
 }
 void set_screenlayermap(mapscr *m, int d, int value)
 {
-    m->layermap[d] = value;
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int mp = vbound(value,0, (map_count-1));
+    m->layermap[layer] = mp;
 }
 void set_screenlayerscreen(mapscr *m, int d, int value)
 {
-    m->layerscreen[d] = value;
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int sc = vbound(value,0, 0x87);
+    m->layerscreen[layer] = sc;
 }
 void set_screenpath(mapscr *m, int d, int value)
 {
-    m->path[d] = value;
+    int indx = vbound(d,0,3);
+    m->path[indx] = value;
 }
 void set_screenwarpReturnX(mapscr *m, int d, int value)
 {
-    m->warpreturnx[d] = value;
+    int x = vbound(value,0,255);
+    m->warpreturnx[d] = x;
 }
 void set_screenwarpReturnY(mapscr *m, int d, int value)
 {
-    m->warpreturny[d] = value;
+    int y = vbound(value, 0, 255); //should be screen hight max, except that we may be able to move the subscreen.
+    m->warpreturny[d] = y;
 }
 
 //Use as SetScreenD:
 void set_screenWidth(mapscr *m, int value)
 {
-    m->scrWidth = value;
+    int w = vbound(value,0,255); //value is char
+    m->scrWidth = w;
 }
 void set_screenHeight(mapscr *m, int value)
 {
-    m->scrHeight = value;
+    int h = vbound(value,0,255); //value is char
+    m->scrHeight = h;
 }
 void set_screenViewX(mapscr *m, int value)
 {
-    m->viewX = value;
+    int x = vbound(value, 0, 255); //value is char
+    m->viewX = x;
 }
 void set_screenViewY(mapscr *m, int value)
 {
-    m->viewY = value;
+    int y = vbound(value, 0, 255); //value is char
+    m->viewY = y;
 }
 void set_screenGuy(mapscr *m, int value)
 {
-    m->guy = value;
+    int bloke = vbound(value,0,9); 
+    m->guy = bloke ;
 }
 void set_screenString(mapscr *m, int value)
 {
-    m->str = value;
+    int string = vbound(value, 0, msg_count-1); //Sanity check to keep it within the legal string IDs.
+    m->str = string;
 }
 void set_screenRoomtype(mapscr *m, int value)
 {
-    m->room = value;
+    int r = vbound(value, rNONE, (rMAX-1)); 
+    m->room = r;
 }
 void set_screenEntryX(mapscr *m, int value)
 {
-    m->entry_x = value;
+    int x = vbound(value,0,255);
+    m->entry_x = x;
 }
 void set_screenEntryY(mapscr *m, int value)
 {
-    m->entry_y = value;
+    int y = vbound(value,0,255);
+    m->entry_y = y;
 }
 void set_screenitem(mapscr *m, int value)
 {
-    m->item = value;
+    int itm = vbound(value,0,MAXITEMS);
+    m->item = itm;
 }
 void set_screenundercombo(mapscr *m, int value)
 {
-    m->undercombo = value;
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->undercombo = cmb;
 }
 void set_screenundercset(mapscr *m, int value)
 {
-    m->undercset = value;
+    int cs = vbound(value,0,15);
+    m->undercset = cs;
 }
 void set_screenatchall(mapscr *m, int value)
 {
-    m->catchall = value;
+    //What are ALL of the catchalls and their max (used) values?
+    int ctch = vbound(value, 0, 65535); //It is a word type. 
+    m->catchall = ctch;
 }
 
 
 //One too many inputs here. -Z
 long get_screenWidth(mapscr *m)
 {
-    long f = (int)m->scrWidth;
+    long f = m->scrWidth;
     return f*10000;
 }
 //One too many inputs here. -Z
@@ -3015,6 +3048,9 @@ long get_register(const long arg)
     
     case GAMEMAXMAPS:
 	ret = (map_count-1)*10000;
+	break;
+    case GAMENUMMESSAGES:
+	ret = (msg_count-1) * 10000; 
 	break;
     
     case CURDMAP:
@@ -6025,56 +6061,63 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     //These use the same method as SetScreenD
     case SETSCREENWIDTH:
-set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+	set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENHEIGHT:
-set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENHEIGHT:
+	set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENVIEWX:
-set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENVIEWX:
+	set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENVIEWY:
-set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENVIEWY:
+	set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENGUY:
-set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENGUY:
+	set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENSTRING:
-set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENSTRING:
+    {
+	set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	    //should this be either
+	    //set_screenString(&TheMaps[((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)])-1), value/10000);
+	    //or
+	    //set_screenString(&TheMaps[((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)])-+1), value/10000);
+	    Z_message("Map ref is: %d\n",((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)));
+    }
+	break;
 
-case SETSCREENROOM:
-set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENROOM:
+	set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENENTX:
-set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENENTX:
+	set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENENTY:
-set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENENTY:
+	set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENITEM:
-set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENITEM:
+	set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENUNDCMB:
-set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENUNDCMB:
+	set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENUNDCST:
-set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENUNDCST:
+	set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
-case SETSCREENCATCH:
-set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value);
-break;
+    case SETSCREENCATCH:
+	set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
 
 //These use the method of SetScreenEnemy
 
@@ -6082,7 +6125,7 @@ break;
 //SetScreenLayerOpacity(int map, int scr, int layer, int v)
 case SETSCREENLAYOP:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6098,7 +6141,7 @@ break;
 
 case SETSCREENSECCMB:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6114,7 +6157,7 @@ break;
 
 case SETSCREENSECCST:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6130,7 +6173,7 @@ break;
 
 case SETSCREENSECFLG:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6146,7 +6189,7 @@ break;
 
 case SETSCREENLAYMAP:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6162,7 +6205,7 @@ break;
 
 case SETSCREENLAYSCR:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6178,7 +6221,7 @@ break;
 
 case SETSCREENPATH:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6194,7 +6237,7 @@ break;
 
 case SETSCREENWARPRX:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 
@@ -6210,7 +6253,7 @@ break;
 
 case SETSCREENWARPRY:
 { 
-	long map     = (ri->d[1] / 10000) - 1; 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
 	long index = ri->d[0] / 10000; 
 	int nn = ri->d[3]/10000; 

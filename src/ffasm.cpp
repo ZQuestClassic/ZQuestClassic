@@ -884,6 +884,7 @@ script_variable variable_list[]=
 	{ "SETSCREENPATH",              SETSCREENPATH,                 0,             0 },
 	{ "SETSCREENWARPRX",              SETSCREENWARPRX,                 0,             0 },
 	{ "SETSCREENWARPRY",              SETSCREENWARPRY,                 0,             0 },
+	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0, 0 },
 	    { " ",                       -1,             0,             0 }
 };
 

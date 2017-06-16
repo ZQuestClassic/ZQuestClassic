@@ -321,6 +321,11 @@ extern bool fake_pack_writing;
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
+#define MAX_FLAGS 512
+#define MAX_ZQ_LAYER 6
+#define MAX_DRAW_LAYER 7
+#define MIN_ZQ_LAYER 0
+#define MIN_DRAW_LAYER 0
 
 #define MAXFAVORITECOMMANDS 8
 #define MAXFAVORITECOMBOS 100
