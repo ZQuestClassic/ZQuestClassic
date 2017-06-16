@@ -292,20 +292,20 @@ script_command command_list[NUMCOMMANDS+1]=
     { "RESUMESOUNDV",          1,   1,   0,   0},
     { "PAUSEMUSIC",			   0,   0,   0,   0},
     { "RESUMEMUSIC",			   0,   0,   0,   0},
-    { "__RESERVED_FOR_LWPNARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_EWPNARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_ITEMARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_IDATAARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_FFCARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_BOOLARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_NPCARRPTR",                1,   0,   0,   0},
-    { "__RESERVED_FOR_LWPNARRPTR2",                1,   0,   0,   0},
-    { "__RESERVED_FOR_EWPNARRPTR2",                1,   0,   0,   0},
-    { "__RESERVED_FOR_ITEMARRPTR2",                1,   0,   0,   0},
-    { "__RESERVED_FOR_IDATAARRPTR2",                1,   0,   0,   0},
-    { "__RESERVED_FOR_FFCARRPTR2",                1,   0,   0,   0},
-    { "__RESERVED_FOR_BOOLARRPTR2",                1,   0,   0,   0},
-    { "__RESERVED_FOR_NPCARRPTR2",                1,   0,   0,   0},
+    { "LWPNARRPTR",                1,   0,   0,   0},
+    { "EWPNARRPTR",                1,   0,   0,   0},
+    { "EWPNARRPTR",                1,   0,   0,   0},
+    { "IDATAARRPTR",                1,   0,   0,   0},
+    { "FFCARRPTR",                1,   0,   0,   0},
+    { "BOOLARRPTR",                1,   0,   0,   0},
+    { "BOOLARRPTR",                1,   0,   0,   0},
+    { "LWPNARRPTR2",                1,   0,   0,   0},
+    { "EWPNARRPTR2",                1,   0,   0,   0},
+    { "ITEMARRPTR2",                1,   0,   0,   0},
+    { "IDATAARRPTR2",                1,   0,   0,   0},
+    { "FFCARRPTR2",                1,   0,   0,   0},
+    { "BOOLARRPTR2",                1,   0,   0,   0},
+    { "NPCARRPTR2",                1,   0,   0,   0},
     { "ARRAYSIZEB",                1,   0,   0,   0},
     { "ARRAYSIZEF",                1,   0,   0,   0},
     { "ARRAYSIZEN",                1,   0,   0,   0},
@@ -844,6 +844,15 @@ script_variable variable_list[]=
 	  { "IDATAWPNINITD", IDATAWPNINITD, 0, 0 }, //WeaponD[8]
 	  
 	  { "NPCWEAPSPRITE", NPCWEAPSPRITE, 0, 0 }, //WeaponSprite
+	  
+	  { "DEBUGREFFFC", DEBUGREFFFC, 0, 0 }, //REFFFC
+	  { "DEBUGREFITEM", DEBUGREFITEM, 0, 0 }, //REFITEM
+	  { "DEBUGREFNPC", DEBUGREFNPC, 0, 0 }, //REFNPC
+	  { "DEBUGREFITEMDATA", DEBUGREFITEMDATA, 0, 0 }, //REFITEMCLASS
+	   { "DEBUGREFLWEAPON", DEBUGREFLWEAPON, 0, 0 }, //REFLWPN
+	    { "DEBUGREFEWEAPON", DEBUGREFEWEAPON, 0, 0 }, //REFEWPN
+	    { "DEBUGSP", DEBUGSP, 0, 0 }, //SP
+	    { "DEBUGGDR", DEBUGGDR, 0, 0 }, //GDR[256]
 	  
     { " ",                       -1,             0,             0 }
 };

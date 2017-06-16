@@ -3317,7 +3317,40 @@ else \
 	break;
 	
 	*/
+    case DEBUGREFFFC:
+        ret = ri->ffcref * 10000;
+        break;
         
+    case DEBUGREFITEM:
+        ret = ri->itemref;
+        break;
+        
+    case DEBUGREFITEMDATA:
+        ret = ri->idata;
+        break;
+        
+    case DEBUGREFLWEAPON:
+        ret = ri->lwpn;
+        break;
+        
+    case DEBUGREFEWEAPON:
+        ret = ri->ewpn;
+        break;
+        
+    case DEBUGREFNPC:
+        ret = ri->guyref;
+        break;
+        
+    case DEBUGSP:
+        ret = ri->sp * 10000;
+        break;
+    case DEBUGGDR:
+    {
+	int a = vbound(ri->d[0]/10000,0,15);
+        ret = game->global_d[a] * 10000;
+    }
+        break;
+    
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
@@ -5782,6 +5815,42 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
     case UNDERCSET:
         tmpscr->undercset=value/10000;
+        break;
+    
+    
+    case DEBUGGDR:
+    {
+	int a = vbound(ri->d[0]/10000,0,15);
+        game->global_d[a] = value / 10000;;
+    }
+        break;
+    
+    case DEBUGSP:
+        ri->sp = value / 10000;
+        break;
+        
+    case DEBUGREFFFC:
+        ri->ffcref = value / 10000;
+        break;
+        
+    case DEBUGREFITEM:
+        ri->itemref = value / 10000;
+        break;
+        
+    case DEBUGREFITEMDATA:
+        ri->idata = value / 10000;
+        break;
+        
+    case DEBUGREFLWEAPON:
+        ri->lwpn = value / 10000;
+        break;
+        
+    case DEBUGREFEWEAPON:
+        ri->ewpn = value / 10000;
+        break;
+        
+    case DEBUGREFNPC:
+        ri->guyref = value / 10000;
         break;
         
 ///----------------------------------------------------------------------------------------------------//

@@ -1117,6 +1117,17 @@ string VarArgument::toString()
     
     case NPCWEAPSPRITE: return "NPCWEAPSPRITE";
     
+    //Debug->
+    
+    case DEBUGREFFFC: return "DEBUGREFFFC";
+    case DEBUGREFITEM: return "DEBUGREFITEM";
+    case DEBUGREFNPC: return "DEBUGREFNPC";
+    case DEBUGREFITEMDATA: return "DEBUGREFITEMDATA";
+    case DEBUGREFLWEAPON: return "DEBUGREFLWEAPON";
+    case DEBUGREFEWEAPON: return "DEBUGREFEWEAPON";
+    case DEBUGSP: return "DEBUGSP";
+    case DEBUGGDR: return "DEBUGGDR";
+    
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -2103,6 +2114,75 @@ string OGetItemScript::toString()
 }
 
 
+string OGetLWeaponPointer::toString()
+{
+    return "LWPNARRPTR " + getArgument()->toString();
+}
+
+string OSetLWeaponPointer::toString()
+{
+    return "LWPNARRPTR2 " + getArgument()->toString();
+}
+
+string OGetEWeaponPointer::toString()
+{
+    return "EWPNARRPTR " + getArgument()->toString();
+}
+
+string OSetEWeaponPointer::toString()
+{
+    return "EWPNARRPTR2 " + getArgument()->toString();
+}
+
+string OGetItemPointer::toString()
+{
+    return "ITEMARRPTR " + getArgument()->toString();
+}
+
+string OSetItemPointer::toString()
+{
+    return "ITEMARRPTR2 " + getArgument()->toString();
+}
+
+string OGetItemDataPointer::toString()
+{
+    return "IDATAARRPTR " + getArgument()->toString();
+}
+
+string OSetItemDataPointer::toString()
+{
+    return "IDATAARRPTR2 " + getArgument()->toString();
+}
+
+string OGetFFCPointer::toString()
+{
+    return "FFCARRPTR " + getArgument()->toString();
+}
+
+string OSetFFCPointer::toString()
+{
+    return "FFCARRPTR2 " + getArgument()->toString();
+}
+
+string OGetBoolPointer::toString()
+{
+    return "BOOLARRPTR " + getArgument()->toString();
+}
+
+string OSetBoolPointer::toString()
+{
+    return "BOOLARRPTR2 " + getArgument()->toString();
+}
+
+string OGetNPCPointer::toString()
+{
+    return "NPCARRPTR " + getArgument()->toString();
+}
+
+string OSetNPCPointer::toString()
+{
+    return "NPCARRPTR2 " + getArgument()->toString();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 
