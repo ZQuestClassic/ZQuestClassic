@@ -2838,6 +2838,8 @@ int custom_game(int file)
     char infostr[200];
     char path[2048];
     int ret=0;
+	//The focus object for the button.
+	int focus_obj = 1;
     
     if(is_relative_filename(saves[file].qstpath))
     {
@@ -2871,7 +2873,8 @@ int custom_game(int file)
     
 	DIALOG *gamemode_cpy = resizeDialog(gamemode_dlg, 1.5);        
         
-    while((ret=zc_popup_dialog(gamemode_cpy,1))==1)
+    //focus_object sets which button is used if the user presses enter/return.
+    while((ret=zc_popup_dialog(gamemode_cpy,focus_obj))==1)
     {
         blit(screen,tmp_scr,miniscreenX(), miniscreenY(),0,0,320,240);
         
@@ -2894,11 +2897,15 @@ int custom_game(int file)
             {
 				gamemode_cpy[4].dp = infostr;
 				gamemode_cpy[5].flags = D_DISABLED;
+				//If we have not loaded a quest, focus on the browse button. -Z
+				focus_obj = 1;
             }
             else
             {
 				gamemode_cpy[4].dp = infostr;
 				gamemode_cpy[5].flags = D_EXIT;
+				//If we have selected a quest, focus on the 'OK' button. -Z
+				focus_obj = 5;
             }
             
 			gamemode_cpy[2].d1 = gamemode_cpy[4].d1 = 0;
