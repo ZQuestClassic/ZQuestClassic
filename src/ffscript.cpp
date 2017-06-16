@@ -95,7 +95,13 @@ void clear_global_stack()
 }
 
 
+int FFScript::getrule(int rule){
+	return -1;
+}
 
+void FFScript::setrule(int rule, bool state){
+	
+}
 
 //ScriptHelper
 class SH

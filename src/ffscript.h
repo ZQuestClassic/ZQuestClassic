@@ -5,6 +5,21 @@
 #include <string>
 #include <list>
 
+class FFScript
+{
+private:
+    long sid;
+    
+public:
+    byte rules[512];
+    
+    virtual ~FFScript();
+    virtual int getrule(int rule);   
+    virtual void setrule(int rule, bool state);  
+  
+};
+
+
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 
