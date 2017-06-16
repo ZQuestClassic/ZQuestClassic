@@ -1065,58 +1065,75 @@ void set_screenwarpReturnY(mapscr *m, int d, int value)
 {
     m->warpreturny[d] = value;
 }
+
+//These need to be dropped to two params. 
+//One too many inputs here. -Z
 void set_screenWidth(mapscr *m, int d, int value)
 {
     m->scrWidth = value;
 }
+//One too many inputs here. -Z
 void set_screenHeight(mapscr *m, int d, int value)
 {
     m->scrHeight = value;
 }
+//One too many inputs here. -Z
 void set_screenViewX(mapscr *m, int d, int value)
 {
     m->viewX = value;
 }
+//One too many inputs here. -Z
 void set_screenViewY(mapscr *m, int d, int value)
 {
     m->viewY = value;
 }
+//One too many inputs here. -Z
 void set_screenGuy(mapscr *m, int d, int value)
 {
     m->guy = value;
 }
+//One too many inputs here. -Z
 void set_screenString(mapscr *m, int d, int value)
 {
     m->str = value;
 }
+//One too many inputs here. -Z
 void set_screenRoomtype(mapscr *m, int d, int value)
 {
     m->room = value;
 }
+//One too many inputs here. -Z
 void set_screenEntryX(mapscr *m, int d, int value)
 {
     m->entry_x = value;
 }
+//One too many inputs here. -Z
 void set_screenEntryY(mapscr *m, int d, int value)
 {
     m->entry_y = value;
 }
+//One too many inputs here. -Z
 void set_screenitem(mapscr *m, int d, int value)
 {
     m->item = value;
 }
+//One too many inputs here. -Z
 void set_screenundercombo(mapscr *m, int d, int value)
 {
     m->undercombo = value;
 }
+//One too many inputs here. -Z
 void set_screenundercset(mapscr *m, int d, int value)
 {
     m->undercset = value;
 }
+//One too many inputs here. -Z
 void set_screenatchall(mapscr *m, int d, int value)
 {
     m->catchall = value;
 }
+
+//One too many inputs here. -Z
 void do_setscreenUnderCatchall()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1130,8 +1147,8 @@ void do_setscreenUnderCatchall()
         return;
       
     set_screenatchall(&TheMaps[map * MAPSCRS + scrn], door,value);    
-    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
 }
+//One too many inputs here. -Z
 void do_setscreenUnderCSet()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1145,8 +1162,8 @@ void do_setscreenUnderCSet()
         return;
       
     set_screenundercset(&TheMaps[map * MAPSCRS + scrn], door,value);    
-    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
 }
+//One too many inputs here. -Z
 void do_setscreenUndercombo()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1160,7 +1177,6 @@ void do_setscreenUndercombo()
         return;
       
     set_screenundercombo(&TheMaps[map * MAPSCRS + scrn], door,value);    
-    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
 }
 
 void do_setscreendoor()
@@ -1176,10 +1192,7 @@ void do_setscreendoor()
         return;
       
     set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value);    
-    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
 }
-
-
 
 void do_setscreenenemy()
 {
@@ -1194,7 +1207,6 @@ void do_setscreenenemy()
         return;
       
     set_screenenemy(&TheMaps[map * MAPSCRS + scrn], enem, value);    
-    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
 }
 
 void do_setscreenlayeropacity()
@@ -1324,6 +1336,7 @@ void do_setscreenWarpReturnY()
       
     set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenWidth()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1338,6 +1351,7 @@ void do_setscreenWidth()
       
     set_screenWidth(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenHeight()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1352,6 +1366,7 @@ void do_setscreenHeight()
       
     set_screenHeight(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenViewX()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1366,6 +1381,7 @@ void do_setscreenViewX()
       
     set_screenViewX(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenViewY()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1380,6 +1396,7 @@ void do_setscreenViewY()
       
     set_screenViewY(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenGuy()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1394,6 +1411,7 @@ void do_setscreenGuy()
       
     set_screenGuy(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenString()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1408,6 +1426,7 @@ void do_setscreenString()
       
     set_screenString(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenRoomType()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1422,6 +1441,7 @@ void do_setscreenRoomType()
       
     set_screenRoomtype(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenEntryX()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1436,6 +1456,7 @@ void do_setscreenEntryX()
       
     set_screenEntryX(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenEntryY()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -1450,6 +1471,7 @@ void do_setscreenEntryY()
       
     set_screenEntryY(&TheMaps[map * MAPSCRS + scrn], d,value);    
 }
+//One too many inputs here. -Z
 void do_setscreenItem()
 {
     long map     = (ri->d[3] / 10000) - 1;
@@ -7310,83 +7332,85 @@ long get_screenwarpReturnY(mapscr *m, int d)
     int f = m->warpreturny[d]; //4 of these
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenWidth(mapscr *m, int d)
 {
     int f = m->scrWidth;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenHeight(mapscr *m, int d)
 {
     int f = m->scrHeight;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenViewX(mapscr *m, int d)
 {
     int f = m->viewX;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenGuy(mapscr *m, int d)
 {
     int f = m->guy;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenString(mapscr *m, int d)
 {
     int f = m->str;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenRoomtype(mapscr *m, int d)
 {
     int f = m->room;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenViewY(mapscr *m, int d)
 {
     int f = m->viewY;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenEntryX(mapscr *m, int d)
 {
     int f = m->entry_x;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenEntryY(mapscr *m, int d)
 {
     int f = m->entry_y;
     return f*10000;
 }
-
-
+//One too many inputs here. -Z
 long get_screenitem(mapscr *m, int d)
 {
     int f = m->item;
     return f*10000;
 }
-
+//One too many inputs here. -Z
 long get_screenundercombo(mapscr *m, int d)
 {
     int f = m->undercombo;
     return f*10000;
 }
+//One too many inputs here. -Z
 long get_screenundercset(mapscr *m, int d)
 {
     int f = m->undercset;
     return f*10000;
 }
+//One too many inputs here. -Z
 long get_screenatchall(mapscr *m, int d)
 {
     int f = m->catchall;
     return f*10000;
 }
+//One too many inputs here. -Z
 void do_getscreenatchall()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7400,6 +7424,7 @@ void do_getscreenatchall()
         
     set_register(sarg1, get_screenatchall(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenUndercombo()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7413,6 +7438,7 @@ void do_getscreenUndercombo()
         
     set_register(sarg1, get_screenundercombo(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenUnderCSet()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7426,6 +7452,7 @@ void do_getscreenUnderCSet()
         
     set_register(sarg1, get_screenundercset(&TheMaps[map * MAPSCRS + scrn], d));
 }
+
 void do_getscreenLayerOpacity()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7439,8 +7466,6 @@ void do_getscreenLayerOpacity()
         
     set_register(sarg1, get_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], d));
 }
-
-
 void do_getscreenSecretCombo()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7547,6 +7572,7 @@ void do_getscreenWarpReturnY()
         
     set_register(sarg1, get_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenWidth()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7560,6 +7586,7 @@ void do_getscreenWidth()
         
     set_register(sarg1, get_screenWidth(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenHeight()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7573,6 +7600,7 @@ void do_getscreenHeight()
         
     set_register(sarg1, get_screenHeight(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenViewX()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7586,6 +7614,7 @@ void do_getscreenViewX()
         
     set_register(sarg1, get_screenViewX(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenViewY()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7599,6 +7628,7 @@ void do_getscreenViewY()
         
     set_register(sarg1, get_screenViewY(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenGuy()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7612,6 +7642,7 @@ void do_getscreenGuy()
         
     set_register(sarg1, get_screenGuy(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenString()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7625,6 +7656,7 @@ void do_getscreenString()
         
     set_register(sarg1, get_screenString(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenRoomType()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7638,6 +7670,7 @@ void do_getscreenRoomType()
         
     set_register(sarg1, get_screenRoomtype(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenEntryX()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7651,6 +7684,7 @@ void do_getscreenEntryX()
         
     set_register(sarg1, get_screenEntryX(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenEntryY()
 {
     long map     = (ri->d[2] / 10000) - 1;
@@ -7664,6 +7698,7 @@ void do_getscreenEntryY()
         
     set_register(sarg1, get_screenEntryY(&TheMaps[map * MAPSCRS + scrn], d));
 }
+//One too many inputs here. -Z
 void do_getscreenItem()
 {
     long map     = (ri->d[2] / 10000) - 1;
