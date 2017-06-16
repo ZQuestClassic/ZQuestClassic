@@ -3278,7 +3278,9 @@ static DIALOG enedata_dlg[] =
 	{ jwin_text_proc,         96,      67,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	//235 : Weapon Sprite Pulldown
 	{  jwin_text_proc,          8,    193-4+12,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
-	{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+	//{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+	
 	
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
@@ -3477,6 +3479,7 @@ void edit_enemydata(int index)
     char ms[12][8];
     char enemynumstr[75];
 	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
+	char weapsprite[8];
     build_biw_list();
 	
     //disable the missing dialog items!
@@ -3556,6 +3559,8 @@ void edit_enemydata(int index)
     sprintf(sh,"%d",guysbuf[index].s_height);
     sprintf(ew,"%d",guysbuf[index].e_width);
     sprintf(eh,"%d",guysbuf[index].e_height);
+    
+    
     enedata_dlg[30].dp = w;
     enedata_dlg[31].dp = h;
     enedata_dlg[32].dp = sw;
@@ -3656,8 +3661,9 @@ void edit_enemydata(int index)
     
    
     
-    //2.6 Enemy Weapon Sprite
+    //2.6 Enemy Weapon Sprite -Z
     
+    //Find the default sprite. 
     byte default_weapon_sprites[]={
 	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, //15
 	    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,255, //31 script weapons start here
@@ -3690,6 +3696,7 @@ void edit_enemydata(int index)
 	    0
     };
     
+    //If the weapon sprite is 0, assign it here. 
     if ( guysbuf[index].wpnsprite <= 0 ) {
         for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
         {
@@ -3697,18 +3704,26 @@ void edit_enemydata(int index)
         }
     }
     
+    //Set the dialogue. 
+    sprintf(weapsprite,"%d",guysbuf[index].wpnsprite);
+    enedata_dlg[236].dp = weapsprite;
     
+    /* Sprite list pulldown. 
     enedata_dlg[236].dp3 = is_large() ? lfont_l : pfont;
     sprintf(efr,"%d",guysbuf[index].wpnsprite);
+    */
     //enedata_dlg[236].dp = wpnsp;
     
     //make the sprites list. 
+    /*
     bool foundwpnsprite; //char wpnsp_def[10];
     //build_biw_list(); //built in weapons
     if(biw_cnt==-1)
     {
         build_biw_list(); //built-in weapons
     }
+    
+    */
     
     
     /*
@@ -3720,6 +3735,8 @@ void edit_enemydata(int index)
     }
     else {
     */
+    
+    /*
         for(int j=0; j<biw_cnt; j++)
         {
 	    if(biw[j].i == guysbuf[index].wpnsprite){
@@ -3730,6 +3747,8 @@ void edit_enemydata(int index)
 	    }
         }
     //}
+    
+    */
     
     //We could always make it a text entry box if all else fails. 
     
@@ -3743,10 +3762,11 @@ void edit_enemydata(int index)
     //Otherwise, add an exception that if the sprite is 0, it is treated as NULL?
     
     //Arrow (Enemy) will always be the first on the list, so we absolutely /must/ prime the enemy weapon sprite somewhere. -Z
-    
+    /*
     if ( !foundwpnsprite ) {
 	    //set a string "Default" for -1
     }
+    */
     
     //We need to set the initial default sprites for all weapons. 
     /* This requires that the default value of guydata.wpnsprite is -1, because sprite 0 is a legal sprite. 
@@ -3855,7 +3875,8 @@ void edit_enemydata(int index)
         test.deadsfx = enedata_cpy[184].d1;
 	
 	//2.6 Enemy Weapon Sprite
-	test.wpnsprite = biw[enedata_cpy[236].d1].i;
+	//test.wpnsprite = biw[enedata_cpy[236].d1].i;
+	test.wpnsprite = atoi(weapsprite);
 	
    
         
