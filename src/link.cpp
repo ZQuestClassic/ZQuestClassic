@@ -94,6 +94,16 @@ void LinkClass::stopSubscreenFalling(bool v){
 }
 
 
+//Set the button items by brute force
+
+void LinkClass::setAButtonItem(int itm){
+	game->awpn = itm;
+}
+
+void LinkClass::setBButtonItem(int itm){
+	game->bwpn = itm;
+}
+
 bool LinkClass::getCanLinkFlicker(){
 	return flickerorflash; //enable or disable flicker or flash
 }
@@ -108,6 +118,38 @@ void LinkClass::setHurtSFX(int sfx){
 int LinkClass::getHurtSFX() {
 	return hurtsfx;
 }
+
+
+int LinkClass::getDirectItem()
+{
+    return attackid;
+}
+
+int LinkClass::getDirectItemA()
+{
+    return attack;
+}
+
+int LinkClass::getDirectItemB()
+{
+    return attackid;
+}
+
+void LinkClass::setDirectItem(int itm)
+{
+    attackid = itm;
+}
+
+void LinkClass::setDirectItemA(int itm)
+{
+    attack = itm;
+}
+
+void LinkClass::setDirectItemB(int itm)
+{
+    attackid = itm;
+}
+
 
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void LinkClass::linkstep()
