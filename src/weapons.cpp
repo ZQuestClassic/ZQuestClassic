@@ -241,7 +241,12 @@ weapon::weapon(weapon const & other):
 	
 	//End Weapon editor non-arrays. 
 
-
+    //2.6 ZScript
+    
+    //We might need to clear scriptrange. -Z
+    scriptrange = -1; //we'll try -1 so that 0 does not interfere.
+    //Pewrhaps check the weapon editor properties, and see if it has a range; only for weapons
+    //that use misc1 for this. 
 {
 	//weapname = other.weapname;		//char[128]	The name of the weapon. 
     for(int i=0; i<10; ++i)
@@ -2439,6 +2444,12 @@ bool weapon::animate(int)
         {
             dead=4;
         }
+	
+	//2.6 ZScript lw->Range -Z
+	if(scriptrange>0 && clk > scriptrange)
+        {
+            dead=4; //if it exceeds its range, kill it. 
+        }
         
         if(findentrance(x,y,mfSTRIKE,true))
         {
@@ -2544,7 +2555,16 @@ bool weapon::animate(int)
         }
         
         ++clk2;
+	
+        //scriptrange is now -1
         int range = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].misc1;
+	if ( scriptrange < 0 ) scriptrange =  itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].misc1;
+	else if ( scriptrange >= 0 ) {
+		range = scriptrange; 
+	}
+	
+	//This sets zscript l->Range to the editor value if it is still the default (-1)
+	//If the user write to l->Range, it updates.
         
         if(range && clk2>=range)
         {
@@ -2652,6 +2672,8 @@ bool weapon::animate(int)
     
     case wHookshot:
     {
+	    //for lw->Range -Z
+	int  maxlength = parentitem>-1 ? 2*itemsbuf[parentitem].misc1 : 0; //2* value seems to match the desired range. 
         if(dead==0)  // Set by ZScript
         {
             hookshot_used = false;
@@ -2662,22 +2684,85 @@ bool weapon::animate(int)
             }
         }
         
+	//Set the range based on defaults, item editor, and script ofverrides. -Z
+	if ( scriptrange < 0 ) scriptrange =  maxlength; //scriptrange inits at -1
+	else if ( scriptrange > -1 ) { maxlength = scriptrange; } //20JAN17, was >= 0 before. 
+		//If the user sets it, change it.
+	
+	//Diagonal hookshot set-up. -Z
+	
+	//Check the item editor flag to see if it is allowed to be diagonal. 
+	if ( (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags&ITEM_FLAG2) && misc2 == 0 ) {
+	    if(Up())
+	    {
+		dir=up;
+		
+		if(Left() )  dir=l_up;
+		
+		if(Right() ) dir=r_up;
+		    misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+	    }
+	    else if(Down())
+	    {
+		dir=down;
+		
+		if(Left() )  dir=l_down;
+		
+		if(Right() ) dir=r_down;
+		     misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+	    }
+	    else if(Left())
+	    {
+		dir=left;
+		if(Up() )  dir=l_up;
+		if(Down() )  dir=l_down;
+		     misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+		
+	    }
+	    else if(Right())
+	    {
+		dir=right;
+		if(Up() )  dir=r_up;
+		if(Down() )  dir=r_down;
+		     misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
+	    }
+	}
+	
         // Hookshot grab and retract code
         if(misc==0)
         {
-            int maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
-            
+		
+	    //If the hookshot has extended to maxlength, retract it.
             if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
             {
-                dead=1;
+                dead=1;  //causes it to retract.
             }
             
+	    //If it hits a block object, retract it.
             if(findentrance(x,y,mfSTRIKE,true)) dead=1;
             
             if(findentrance(x,y,mfHOOKSHOT,true)) dead=1;
             
+	    
+	    //Look for grab combos based on direction.
+	    //...but where is the support for diagonal and angular? Oh, right, no-one ever thought of this.
+	    // /sarcasm -Z
+	    
+	    //This is the issue with weapons that predate angular movement, in general.
+	    
+	    /*
+	    int tempdir = dir;
+	    
+	    if ( key[KEY_LEFT] && key[KEY_UP] ) tempdir = l_up;
+	    if ( key[KEY_LEFT] && key[KEY_DOWN] ) tempdir = l_down;
+	    if ( key[KEY_RIGHT] && key[KEY_UP] ) tempdir = r_up;
+	    if ( key[KEY_RIGHT] && key[KEY_DOWN] ) tempdir = r_down;
+	    */
+	    
             if(dir==up)
             {
+		    //It would have been nice to comment these coordinates... 
+		    //...so that we know *why* the values were used.
                 if((combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB))
                 {
                     hooked=true;
@@ -2686,6 +2771,7 @@ bool weapon::animate(int)
                 if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
                     hooked = hooked || (combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
                     
+		//Retracts if the hookshot hits illegal spaces, solid spaces, and such.
                 if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7))
                 {
                     dead=1;
@@ -2710,6 +2796,8 @@ bool weapon::animate(int)
             
             if(dir==left)
             {
+		    //this is why it would be nice to know the specific reasons for the values
+		    //.., old rules grabbed at a higher y position
                 if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
                 {
                     if(combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB)
@@ -2733,6 +2821,7 @@ bool weapon::animate(int)
             
             if(dir==right)
             {
+		    
                 if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
                 {
                     if(combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB)
@@ -2753,6 +2842,142 @@ bool weapon::animate(int)
                     dead=1;
                 }
             }
+	    
+	    /*
+	    if ( dir == angular ) {} //Diagonal or angular
+	    
+	    */ 
+
+	    //in 2.50.x, if the user sets the hookshot direction to a diagonal, it flat-out refuses to grab. -Z
+	    
+		//! -Z Diagonal Hookshot Movement and Grab Code: Will need bugtesting galore. 
+		if ( dir == r_down ) //Diagonal hookshot, right-down -Z
+		{
+			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//right						//down
+				if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//right						//down
+			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				//down
+				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+			}
+                    
+			//right
+			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+				//down
+				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+			{
+			    dead=1;
+			}
+		    
+		    
+		}
+		if ( dir == l_down ) //Diagonal hookshot, left-down -Z
+		{
+			if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//left						//down
+				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+			
+
+					//left						//down
+			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+			{
+							//left
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+					//down
+				(combobuf[MAPCOMBO2(0,x+12,y+12)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+12,y+12)].type==cHSGRAB);
+			}
+			//left
+			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+				//down
+				(_walkflag(x+12,y+12,1) && !ishookshottable((int)x+12,(int)y+12)) ) )
+			{
+				dead=1;
+			}
+		    
+		    
+		}
+		if ( dir == r_up ) //Diagonal hookshot, right-up -Z
+		{
+		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//right						//up
+			    if( (combobuf[MAPCOMBO(x+9,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//right						//up
+			else if( ( (combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+9,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+9,y+13)].type==cHSGRAB ) || 
+				//up
+				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+			}
+			//right
+			if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int)x+9,(int)y+13)) ) ||
+				//up
+				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+			{
+				dead=1;
+			}
+		}
+		if ( dir == l_up ) //Diagonal hookshot, left-up -Z
+		{
+		        if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+			{	//left						//up
+				if( (combobuf[MAPCOMBO(x+6,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+				{
+					hooked=true;
+				}
+			}
+
+					//left						//up
+			else if( ( (combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB)) || (combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB) )
+			{
+				hooked=true;
+			}
+
+			if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
+			{
+				hooked = hooked || (combobuf[MAPCOMBO2(0,x+6,y+13)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+6,y+13)].type==cHSGRAB) || 
+				//up
+				(combobuf[MAPCOMBO2(0,x+2,y+7)].type==cHSGRAB) || (combobuf[MAPCOMBO2(1,x+2,y+7)].type==cHSGRAB);
+			}
+							//left
+			if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int)x+6,(int)y+13)) ) ||
+				//up
+				(_walkflag(x+2,y+7,1) && !ishookshottable((int)x+2,(int)y+7)) ) )
+			{
+				dead=1;
+			}
+		}
         }
         
         if(hooked==true)
