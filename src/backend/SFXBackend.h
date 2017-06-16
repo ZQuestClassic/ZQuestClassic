@@ -278,6 +278,24 @@ public:
     * in the designated slot, or file IO problems writing the sample to disk.)
     */
     bool saveWAV(int slot, const char *filename);
+    
+    
+    /*
+	Missing from this BACKEND from the old zc_sys
+	bool try_zcmusic(char *filename, int track, int midi);
+	void jukebox(int index);
+	void jukebox(int index,int loop);
+	void play_DmapMusic(); //Plays the music track for the current DMap
+	void music_pause(); //Pauses the DMap Music MIDI
+	void music_resume(); //Resumes the DMap Music MIDI
+	void music_stop(); //Stops the DMap Music MIDI
+	void master_volume(int dv,int mv);
+	int  sfx_count(); //Returns nummber of currently playing sfx
+	void sfx(int index,int pan,bool loop, bool restart = true); //includes loop controls
+	void cont_sfx(int index); //Restart the loop of a sound
+	void adjust_sfx(int index,int pan,bool loop); //adjust the loop points and pan
+	void stop_item_sfx(int family); //Suppress sfx from a given item class
+    */
 	
 	friend class Backend;
 

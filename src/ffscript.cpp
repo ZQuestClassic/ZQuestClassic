@@ -3317,7 +3317,40 @@ else \
 	break;
 	
 	*/
+    case DEBUGREFFFC:
+        ret = ri->ffcref * 10000;
+        break;
         
+    case DEBUGREFITEM:
+        ret = ri->itemref;
+        break;
+        
+    case DEBUGREFITEMDATA:
+        ret = ri->idata;
+        break;
+        
+    case DEBUGREFLWEAPON:
+        ret = ri->lwpn;
+        break;
+        
+    case DEBUGREFEWEAPON:
+        ret = ri->ewpn;
+        break;
+        
+    case DEBUGREFNPC:
+        ret = ri->guyref;
+        break;
+        
+    case DEBUGSP:
+        ret = ri->sp * 10000;
+        break;
+    case DEBUGGDR:
+    {
+	int a = vbound(ri->d[0]/10000,0,15);
+        ret = game->global_d[a] * 10000;
+    }
+        break;
+    
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
@@ -5783,6 +5816,42 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case UNDERCSET:
         tmpscr->undercset=value/10000;
         break;
+    
+    
+    case DEBUGGDR:
+    {
+	int a = vbound(ri->d[0]/10000,0,15);
+        game->global_d[a] = value / 10000;;
+    }
+        break;
+    
+    case DEBUGSP:
+        ri->sp = value / 10000;
+        break;
+        
+    case DEBUGREFFFC:
+        ri->ffcref = value / 10000;
+        break;
+        
+    case DEBUGREFITEM:
+        ri->itemref = value / 10000;
+        break;
+        
+    case DEBUGREFITEMDATA:
+        ri->idata = value / 10000;
+        break;
+        
+    case DEBUGREFLWEAPON:
+        ri->lwpn = value / 10000;
+        break;
+        
+    case DEBUGREFEWEAPON:
+        ri->ewpn = value / 10000;
+        break;
+        
+    case DEBUGREFNPC:
+        ri->guyref = value / 10000;
+        break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -7104,6 +7173,36 @@ void do_midi(bool v)
         jukebox(MIDI + (ZC_MIDI_COUNT - 1));
 }
 
+
+void stop_sfx(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    int sfx = (int)ID;
+    if(BC::checkSFXID(ID, "Game->EndSound") != SH::_NoError)
+        return;
+    Backend::sfx->stop(sfx);
+}
+
+void pause_sfx(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    int sfx = (int)ID;
+    if(BC::checkSFXID(ID, "Game->PauseSound") != SH::_NoError)
+        return;
+    Backend::sfx->pause(sfx);
+}
+
+void resume_sfx(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    int sfx = (int)ID;
+    if(BC::checkSFXID(ID, "Game->ResumeSound") != SH::_NoError)
+        return;
+    Backend::sfx->resume(sfx);
+}
+
+
+
 void do_enh_music(bool v)
 {
     long arrayptr = SH::get_arg(sarg1, v) / 10000;
@@ -8225,6 +8324,83 @@ int run_script(const byte type, const word script, const byte i)
         case SETDMAPENHMUSIC:
             do_set_dmap_enh_music(false);
             break;
+	
+	// Audio->
+	
+	case ENDSOUNDR:
+            stop_sfx(false);
+            break;
+            
+        case ENDSOUNDV:
+            stop_sfx(true);
+            break;
+	
+	case PAUSESOUNDR:
+            pause_sfx(false);
+            break;
+            
+        case PAUSESOUNDV:
+            pause_sfx(true);
+            break;
+	
+	case RESUMESOUNDR:
+            resume_sfx(false);
+            break;
+            
+        case RESUMESOUNDV:
+            resume_sfx(true);
+            break;
+	
+	
+	
+	case PAUSESFX:
+	{
+		int sound = ri->d[0]/10000;
+		Backend::sfx->pause(sound);
+		
+	}
+	break;
+
+	case RESUMESFX:
+	{
+		int sound = ri->d[0]/10000;
+		Backend::sfx->resume(sound);
+	}
+	break;
+
+	case ADJUSTSFX:
+	{
+		int sound = ri->d[2]/10000;
+		int pan = ri->d[1];
+		// control_state[6]=((value/10000)!=0)?true:false;
+		bool loop = ((ri->d[0]/10000)!=0)?true:false;
+		//SFXBackend.adjust_sfx(sound,pan,loop);
+		
+		//! adjust_sfx was not ported to the new back end!!! -Z
+	}
+	break;
+
+
+	case CONTINUESFX:
+	{
+		int sound = ri->d[0]/10000;
+		//Backend::sfx->cont_sfx(sound);
+		
+		//! cont_sfx was not ported to the new back end!!!
+		// I believe this restarted the loop. 
+		
+		Backend::sfx->resume(sound);
+	}
+	break;	
+
+	
+	case PAUSEMUSIC:
+		Backend::sfx->pauseAll();
+		break;
+	case RESUMEMUSIC:
+		Backend::sfx->resumeAll();
+		break;
+            
             
         case MSGSTRR:
             do_message(false);
