@@ -3738,7 +3738,7 @@ void edit_enemydata(int index)
 		case 143: wspr = 82; break;
 		case 144: wspr = 83; break;
 		
-		default: break;
+		default: break; //No assign.
 		    
 		    
 	    }
