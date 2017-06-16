@@ -2365,6 +2365,12 @@ long get_register(const long arg)
             ret=((weapon*)(s))->power*10000;
             
         break;
+	
+    case LWPNRANGE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+            ret=((weapon*)(s))->scriptrange*10000;
+            
+        break;
         
     case LWPNDEAD:
         if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
@@ -3318,36 +3324,66 @@ else \
 	
 	*/
     case DEBUGREFFFC:
-        ret = ri->ffcref * 10000;
+    {
+	int r = -1;
+	if ( ri->ffcref != NULL ) r = ri->ffcref;
+        ret = r * 10000;
+    }
         break;
         
     case DEBUGREFITEM:
-        ret = ri->itemref;
+    {
+	int r = -1;
+	if ( ri->itemref != NULL ) r = ri->itemref;
+        ret = r * 10000;
+    }
         break;
         
     case DEBUGREFITEMDATA:
-        ret = ri->idata;
+    {
+	int r = -1;
+	if ( ri->idata != NULL ) r = ri->idata;
+        ret = r * 10000;
+    }
         break;
         
     case DEBUGREFLWEAPON:
-        ret = ri->lwpn;
+    {
+	int r = -1;
+	if ( ri->lwpn != NULL ) r = ri->lwpn;
+        ret = r * 10000;
+    }
         break;
         
     case DEBUGREFEWEAPON:
-        ret = ri->ewpn;
+    {
+	int r = -1;
+	if ( ri->ewpn != NULL ) r = ri->ewpn;
+        ret = r * 10000;
+    }
         break;
         
     case DEBUGREFNPC:
-        ret = ri->guyref;
+    {
+	int r = -1;
+	if ( ri->guyref != NULL ) r = ri->guyref;
+        ret = r * 10000;
+    }    
         break;
         
     case DEBUGSP:
-        ret = ri->sp * 10000;
+    {
+	int r = -1;
+	if ( ri->sp != NULL ) r = ri->sp;
+        ret = r * 10000;
+    }   
         break;
     case DEBUGGDR:
     {
 	int a = vbound(ri->d[0]/10000,0,15);
-        ret = game->global_d[a] * 10000;
+	int r = -1;
+	if ( game->global_d[a] != NULL ) r = game->global_d[a];
+        ret = r * 10000;
     }
         break;
     
@@ -4634,6 +4670,11 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->power=(value/10000);
             
         break;
+	
+    case LWPNRANGE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+		((weapon*)s)->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
+        break;
         
     case LWPNDEAD:
         if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
@@ -5826,31 +5867,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     
     case DEBUGSP:
-        ri->sp = value / 10000;
+        ri->sp = vbound((value / 10000),0,256);
         break;
         
     case DEBUGREFFFC:
-        ri->ffcref = value / 10000;
+        ri->ffcref = vbound((value / 10000),1,31);
         break;
         
     case DEBUGREFITEM:
-        ri->itemref = value / 10000;
+        ri->itemref = vbound((value / 10000),0,255);
         break;
         
     case DEBUGREFITEMDATA:
-        ri->idata = value / 10000;
+        ri->idata = vbound((value / 10000),0,255);
         break;
         
     case DEBUGREFLWEAPON:
-        ri->lwpn = value / 10000;
+        ri->lwpn = vbound((value / 10000),0,255);
         break;
         
     case DEBUGREFEWEAPON:
-        ri->ewpn = value / 10000;
+        ri->ewpn = vbound((value / 10000),0,255);
         break;
         
     case DEBUGREFNPC:
-        ri->guyref = value / 10000;
+        ri->guyref = vbound((value / 10000),0,255);
         break;
         
 ///----------------------------------------------------------------------------------------------------//

@@ -773,7 +773,7 @@ script_variable variable_list[]=
 	{ "LINKCANFLICKER",           LINKCANFLICKER,            0,             0 },
 	{ "LINKHURTSFX",           LINKHURTSFX,            0,             0 },
 	{ "NOACTIVESUBSC",           NOACTIVESUBSC,            0,             0 },
-	{ "__RESERVED_FOR_LWPNRANGE",         __RESERVED_FOR_LWPNRANGE,            0,             0 },
+	{ "LWPNRANGE",         LWPNRANGE,            0,             0 },
 	{ "ZELDAVERSION",         ZELDAVERSION,            0,             0 },
 	{ "ZELDABUILD",         ZELDABUILD,            0,             0 },
 	{ "ZELDABETA",         ZELDABETA,            0,             0 },
