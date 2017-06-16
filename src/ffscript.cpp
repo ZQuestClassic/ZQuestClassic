@@ -1105,7 +1105,63 @@ void set_screenitem(mapscr *m, int d, int value)
 {
     m->item = value;
 }
-
+void set_screenundercombo(mapscr *m, int d, int value)
+{
+    m->undercombo = value;
+}
+void set_screenundercset(mapscr *m, int d, int value)
+{
+    m->undercset = value;
+}
+void set_screenatchall(mapscr *m, int d, int value)
+{
+    m->catchall = value;
+}
+void do_setscreenUnderCatchall()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long door = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenUnderCatchall") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenUnderCatchall") != SH::_NoError ||
+            BC::checkBounds(door, 0, 3, "Game->SetScreenUnderCatchall") != SH::_NoError)
+        return;
+      
+    set_screenatchall(&TheMaps[map * MAPSCRS + scrn], door,value);    
+    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
+}
+void do_setscreenUnderCSet()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long door = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenUnderCSet") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenUnderCSet") != SH::_NoError ||
+            BC::checkBounds(door, 0, 3, "Game->SetScreenUnderCSet") != SH::_NoError)
+        return;
+      
+    set_screenundercset(&TheMaps[map * MAPSCRS + scrn], door,value);    
+    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
+}
+void do_setscreenUndercombo()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long door = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenUndercomo") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenUndercomo") != SH::_NoError ||
+            BC::checkBounds(door, 0, 3, "Game->SetScreenUndercomo") != SH::_NoError)
+        return;
+      
+    set_screenundercombo(&TheMaps[map * MAPSCRS + scrn], door,value);    
+    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
+}
 
 void do_setscreendoor()
 {
@@ -7199,6 +7255,8 @@ long get_screendoor(mapscr *m, int d)
     return f*10000;
 }
 
+
+
 long get_screenlayeropacity(mapscr *m, int d)
 {
     int f = m->layeropacity[d]; //6 of these
@@ -7314,6 +7372,60 @@ long get_screenitem(mapscr *m, int d)
     return f*10000;
 }
 
+long get_screenundercombo(mapscr *m, int d)
+{
+    int f = m->undercombo;
+    return f*10000;
+}
+long get_screenundercset(mapscr *m, int d)
+{
+    int f = m->undercset;
+    return f*10000;
+}
+long get_screenatchall(mapscr *m, int d)
+{
+    int f = m->catchall;
+    return f*10000;
+}
+void do_getscreenatchall()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenCatchall(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenCatchall(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetScreenCatchall(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenatchall(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenUndercombo()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetcreenUndercombo(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetcreenUndercombo(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetcreenUndercombo(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenundercombo(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenUnderCSet()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GeScreenUnderCSet(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GeScreenUnderCSet(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GeScreenUnderCSet(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenundercset(&TheMaps[map * MAPSCRS + scrn], d));
+}
 void do_getscreenLayerOpacity()
 {
     long map     = (ri->d[2] / 10000) - 1;
