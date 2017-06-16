@@ -7325,6 +7325,26 @@ void do_getmessage(const bool v)
         Z_scripterrlog("Array supplied to 'Game->GetMessage' not large enough\n");
 }
 
+
+
+void do_setmessage(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+	if(BC::checkMessage(ID, "Game->SetMessage") != SH::_NoError)
+        return;
+	
+	string filename_str;
+
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(MsgStrings[ID].s, filename_str.c_str(), 72);
+    MsgStrings[ID].s[72]='\0';
+}
+
+
 void do_getdmapname(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -7335,6 +7355,23 @@ void do_getdmapname(const bool v)
         
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'Game->GetDMapName' not large enough\n");
+}
+
+void do_setdmapname(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "Game->Game->SetDMapName") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(DMaps[ID].name, filename_str.c_str(), 72);
+    DMaps[ID].name[72]='\0';
 }
 
 void do_getdmaptitle(const bool v)
@@ -7349,6 +7386,22 @@ void do_getdmaptitle(const bool v)
         Z_scripterrlog("Array supplied to 'Game->GetDMapTitle' not large enough\n");
 }
 
+
+void do_setdmaptitle(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "Game->Game->SetDMapTitle") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 21);
+    strncpy(DMaps[ID].title, filename_str.c_str(), 20);
+    DMaps[ID].title[20]='\0';
+}
+
 void do_getdmapintro(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -7360,6 +7413,24 @@ void do_getdmapintro(const bool v)
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'Game->GetDMapIntro' not large enough\n");
 }
+
+
+void do_setdmapintro(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "Game->Game->SetDMapIntro") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(DMaps[ID].intro, filename_str.c_str(), 72);
+    DMaps[ID].intro[72]='\0';
+}
+
+//Set npc and item names t.b.a. -Z
 
 void do_getitemname()
 {
@@ -8182,6 +8253,9 @@ int run_script(const byte type, const word script, const byte i)
         case GETMESSAGE:
             do_getmessage(false);
             break;
+	case SETMESSAGE:
+            do_setmessage(false);
+            break;
             
         case GETDMAPNAME:
             do_getdmapname(false);
@@ -8195,6 +8269,18 @@ int run_script(const byte type, const word script, const byte i)
             do_getdmapintro(false);
             break;
             
+	case SETDMAPNAME:
+            do_setdmapname(false);
+            break;
+            
+        case SETDMAPTITLE:
+            do_setdmaptitle(false);
+            break;
+	
+        case SETDMAPINTRO:
+            do_setdmapintro(false);
+            break;
+	
         case LOADLWEAPONR:
             do_loadlweapon(false);
             break;
