@@ -1063,7 +1063,7 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
                 int checkflag=combobuf[s->data[i]].flag; //Inherent
                 
                 if(iter==1) checkflag=s->sflag[i]; //Placed
-                
+                //This checks map flags against secret combos. -Z
                 switch(checkflag)
                 {
                 case mfBCANDLE:
@@ -2002,6 +2002,7 @@ void update_freeform_combos()
     }
 }
 
+//These appear to be unused. -Z
 bool hitcombo(int x, int y, int combotype)
 {
     return (COMBOTYPE(x,y)==combotype);
@@ -3313,6 +3314,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
         put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
         
         // Draw primitives over subscren
+	    //Wait, why are draw prims not drawn on a per-layer basis?? -Z
         do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
     }
     

@@ -1976,6 +1976,7 @@ struct ZAsmScript
 
 };
 
+//Screen->Secrets[] types for secretcombos[]
 enum
 {
     sBCANDLE, sARROW, sBOMB, sSTAIRS, sSECRET01, sSECRET02, sSECRET03,
