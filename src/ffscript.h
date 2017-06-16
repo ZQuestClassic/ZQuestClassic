@@ -5,6 +5,21 @@
 #include <string>
 #include <list>
 
+class FFScript
+{
+private:
+    long sid;
+    
+public:
+    byte rules[512];
+    
+    virtual ~FFScript();
+    virtual int getrule(int rule);   
+    virtual void setrule(int rule, bool state);  
+  
+};
+
+
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 
@@ -353,8 +368,8 @@ enum ASM_DEFINE
     __RESERVED_FOR_CREATELWPN2VR,            //0x0135
     __RESERVED_FOR_CREATELWPN2RV,            //0x0136
     __RESERVED_FOR_CREATELWPN2RR,            //0x0137
-   __RESERVED_FOR_GETSCREENDOOR, //0x0138
-   __RESERVED_FOR_GETSCREENENEMY, //0x0139
+   GETSCREENDOOR, //0x0138
+   GETSCREENENEMY, //0x0139
     PAUSESFX,
     RESUMESFX,
     CONTINUESFX,
@@ -953,8 +968,8 @@ enum ASM_DEFINE
 #define __RESERVED_FOR_EWPNPTR 0x1127
 
 
-#define __RESERVED_FOR_SETSCREENDOOR 0x1128
-#define __RESERVED_FOR_SETSCREENENEMY 0x1129
+#define SETSCREENDOOR 0x1128
+#define SETSCREENENEMY 0x1129
 #define GAMEMAXMAPS 0x112A
 #define CREATELWPNDX 0x112B
 #define __RESERVED_FOR_SCREENFLAG 0x112C

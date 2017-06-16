@@ -95,6 +95,14 @@ void clear_global_stack()
 }
 
 
+int FFScript::getrule(int rule){
+	return -1;
+}
+
+void FFScript::setrule(int rule, bool state){
+	
+}
+
 //ScriptHelper
 class SH
 {
@@ -1010,6 +1018,52 @@ int whichlayer(long scr)
 sprite *s;
 
 
+
+void set_screendoor(mapscr *m, int door, int value)
+{
+    m->door[door] = value;
+}
+
+
+void set_screenenemy(mapscr *m, int index, int value)
+{
+    m->enemy[index] = vbound(value,0,511);
+}
+
+
+void do_setscreendoor()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long door = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenDoor") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor") != SH::_NoError ||
+            BC::checkBounds(door, 0, 3, "Game->SetScreenDoor") != SH::_NoError)
+        return;
+      
+    set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value);    
+    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
+}
+
+
+
+void do_setscreenenemy()
+{
+    long map     = (ri->d[3] / 10000) - 1;
+    long scrn  = ri->d[2] / 10000;
+    long enem = ri->d[1] / 10000;
+	long value = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->SetScreenEnemy") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy") != SH::_NoError ||
+            BC::checkBounds(enem, 0, 9, "Game->SetScreenEnemy") != SH::_NoError)
+        return;
+      
+    set_screenenemy(&TheMaps[map * MAPSCRS + scrn], enem, value);    
+    //set_register(sarg1, set_screendoor(&TheMaps[map * MAPSCRS + scrn], door,value));
+}
 
 long get_register(const long arg)
 {
@@ -3176,6 +3230,55 @@ else \
             ret = -10000;
     }
     break;
+    
+    
+    
+    case SETSCREENENEMY:
+    { //void SetScreenEnemy(int map, int screen, int index, int value);
+	
+	    
+		long map     = (ri->d[1] / 10000) - 1; 
+		long scrn  = ri->d[2] / 10000; 
+		long index = ri->d[0] / 10000; 
+		int nn = ri->d[3]/10000; 
+	
+	   // int x;
+	    
+	   // Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
+	   // Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
+	   // Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
+	   // Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
+		
+		if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
+			BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
+			BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
+			return -10000;
+		
+	//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
+	//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
+		set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		
+		
+		
+    }
+    break;
+    
+    case SETSCREENDOOR:
+    { //void SetScreenDoor(int map, int screen, int index, int value);
+	long map     = (ri->d[1] / 10000) - 1; 
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+		
+		if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
+			BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
+			BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
+			return -10000;
+      
+		set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		
+    }
+    
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen Information
@@ -6744,6 +6847,52 @@ void do_getscreeneflags()
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
 }
 
+
+long get_screendoor(mapscr *m, int door)
+{
+
+    int f = m->door[door];
+
+    return f*10000;
+}
+
+
+void do_getscreendoor()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long door = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenDoor(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenDoor(...screen...)") != SH::_NoError ||
+            BC::checkBounds(door, 0, 3, "Game->GetScreenDoor(...doorindex...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screendoor(&TheMaps[map * MAPSCRS + scrn], door));
+}
+
+long get_screennpc(mapscr *m, int index)
+{
+    int f = m->enemy[index];
+    return f*10000;
+}
+
+
+void do_getscreennpc()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long enemy = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenEnemy(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenEnemy(...screen...)") != SH::_NoError ||
+            BC::checkBounds(enemy, 0, 9, "Game->GetScreenEnemy(...enemy...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screennpc(&TheMaps[map * MAPSCRS + scrn], enemy));
+}
+
+
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
 
@@ -7302,6 +7451,10 @@ void do_set_dmap_enh_music(const bool v)
     DMaps[ID].tmusic[55]='\0';
     DMaps[ID].tmusictrack=track;
 }
+
+
+
+
 
 ///----------------------------------------------------------------------------------------------------//
 //Tracing
@@ -8665,6 +8818,15 @@ int run_script(const byte type, const word script, const byte i)
         case GETSCREENEFLAGS:
             do_getscreeneflags();
             break;
+	
+	case GETSCREENDOOR:
+            do_getscreendoor();
+            break;
+	
+	case GETSCREENENEMY:
+            do_getscreennpc();
+            break;
+            
             
         case COMBOTILE:
             do_combotile(false);

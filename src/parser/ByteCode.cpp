@@ -1130,6 +1130,9 @@ string VarArgument::toString()
     
     case LWPNRANGE: return "LWPNRANGE";
     
+    case SETSCREENDOOR: return "SETSCREENDOOR";
+    case SETSCREENENEMY: return "SETSCREENENEMY";
+    
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -2185,6 +2188,18 @@ string OSetNPCPointer::toString()
 {
     return "NPCARRPTR2 " + getArgument()->toString();
 }
+
+
+string OGetScreenDoor::toString()
+{
+    return "GETSCREENDOOR " + getArgument()->toString();
+}
+
+string OGetScreenEnemy::toString()
+{
+    return "GETSCREENENEMY " + getArgument()->toString();
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 
