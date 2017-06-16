@@ -1257,7 +1257,37 @@ long get_register(const long arg)
     case LINKHURTSFX:
 	ret = (int)Link.getHurtSFX()*10000;
 	break;
+    
+    
+    case LINKUSINGITEM:
+	ret = (int)Link.getDirectItem()*10000;
+        break;
+    
+    case LINKUSINGITEMA:
+	ret = (int)Link.getDirectItemA()*10000;
+        break;
+    
+    case LINKUSINGITEMB:
+	ret = (int)Link.getDirectItemB()*10000;
+        break;
         
+    case LINKEATEN:
+	ret=(int)Link.getEaten()*10000;
+	break;
+        
+        
+    case LINKITEMB:
+	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	ret = Bwpn*10000;
+	break;
+    
+    case LINKITEMA:
+	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	ret = Awpn *10000;
+	break;
+    
+    
+    
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
@@ -3529,17 +3559,81 @@ void set_register(const long arg, const long value)
         }
         break;
         
-        /*case LINKEQUIP:
+         case LINKEQUIP:
           {
         
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
         	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
-        
+			Awpn = value/10000;
         	}
         	if(setb && game->item[setb]){
+			Bwpn = value/10000;
         	}
           }
-         break;*/
+         break;
+	  
+	  case SETITEMSLOT:
+	{
+		//ri->d[1] = 1st arg
+		//ri->d[0] = 2nd arg
+		//value = third arg
+		//int item, int slot, int force
+		int itm = ri->d[0]/10000;
+		
+		int slot = ri->d[1]/10000;
+		int force = ri->d[2]/10000;
+		
+	    Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
+	    Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
+		Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
+		
+		//If we add more item buttons, slot should be an int
+		//and force shuld be an int
+		
+		/*
+			For zScript, 
+				const int ITM_REQUIRE_NONE = 0
+				const int ITM_REQUIRE_INVENTORY = 1
+				const int ITM_REQUIRE_A_SLOT_RULE = 2
+				//Combine as flags
+		
+		
+		*/
+		if ( force == 0 ) {
+			if ( slot == 1 ) {
+				Awpn = itm;
+			}
+			else Bwpn = itm;
+		}
+		if ( force == 1 ) {
+			if(slot == 1 && game->item[itm]){
+				Awpn = itm;
+			}
+			else { 
+				if ( game->item[itm] ) Bwpn = itm;
+			}
+		}
+
+		if ( force == 2 ) {
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) ){
+				Awpn = itm;
+			}
+			else { 
+				Bwpn = itm;
+			}
+		}
+		
+		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm]){
+				Awpn = itm;
+			}
+			else { 
+				if ( game->item[itm] ) Bwpn = itm;
+			}
+		}
+	}
+	break;
+	  
     case LINKINVIS:
         Link.setDontDraw(value/10000);
         break;
@@ -3626,6 +3720,51 @@ void set_register(const long arg, const long value)
 	Link.setHurtSFX( (int)vbound((value/10000), 0, 255) );
 	break;
         
+    
+     case LINKITEMB:
+	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+    /*
+	Link.directItem = vbound((value/10000),0,(MAXITEMS-1));
+	Link.directItemB = Link.directItem;
+	Bwpn = vbound((value/10000),0,(MAXITEMS-1));
+    */
+	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link.setDirectItemB(Link.getDirectItem());
+	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	break;
+    
+    case LINKITEMA:
+	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link.setDirectItemA(Link.getDirectItem());
+	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	break;
+    
+      case LINKEATEN:
+	Link.setEaten(value/10000);
+	break;
+    
+      case GAMESETA:
+	{
+		//int state   = (ri->d[1]/10000);
+		//int extend = (ri->d[1]/10000);
+		//int dir = (ri->d[0]/10000);
+		Z_message("Trying to force-set the A-button item().\n");
+		Link.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	}
+	break;
+	
+	case GAMESETB:
+	{
+		//int state   = (ri->d[1]/10000);
+		//int extend = (ri->d[1]/10000);
+		//int dir = (ri->d[0]/10000);
+		Z_message("Trying to force-set the A-button item().\n");
+		Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	}
+	break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
