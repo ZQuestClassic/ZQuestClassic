@@ -189,5 +189,47 @@ private:
 };
 
 
+class AudioSymbols : public LibrarySymbols
+{
+public:
+    static AudioSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static AudioSymbols singleton;
+    AudioSymbols();
+};
+
+class DebugSymbols : public LibrarySymbols
+{
+public:
+    static DebugSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static DebugSymbols singleton;
+    DebugSymbols();
+};
+
+class NPCDataSymbols : public LibrarySymbols
+{
+public:
+    static NPCDataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static NPCDataSymbols singleton;
+    NPCDataSymbols();
+};
+
 #endif
 

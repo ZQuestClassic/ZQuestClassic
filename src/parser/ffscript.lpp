@@ -49,6 +49,7 @@ npc					{doLines(); return NPC;}
 lweapon					{doLines(); return LWEAPON;}
 eweapon					{doLines(); return EWEAPON;}
 typedef					{doLines(); return TYPEDEF;}
+npcdata					{doLines(); return NPCDATA;}
 
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }

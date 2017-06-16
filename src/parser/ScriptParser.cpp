@@ -351,6 +351,27 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         rval->funcs[it->first] = it->second;
     }
 
+    
+    globalcode = AudioSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = DebugSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = NPCDataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
     //Z_message("yes");
 
     for (vector<Variable*>::iterator it = globalVariables.begin();

@@ -1617,6 +1617,39 @@ string OGetDMapMusicTrack::toString()
     return "GETMUSICTRACK " + getArgument()->toString();
 }
 
+// Audio->
+string OEndSoundRegister::toString()
+{
+    return "ENDSOUNDR " + getArgument()->toString();
+}
+
+
+string OContinueSFX::toString()
+{
+    return "CONTINUESFX " + getArgument()->toString();
+}
+
+string OPauseSoundRegister::toString()
+{
+    return "PAUSESOUNDR " + getArgument()->toString();
+}
+
+string OPauseMusic::toString()
+{
+    return "PAUSEMUSIC";
+}
+string OResumeMusic::toString()
+{
+    return "RESUMEMUSIC";
+}
+
+string OResumeSoundRegister::toString()
+{
+    return "RESUMESOUNDR " + getArgument()->toString();
+}
+
+//END Audio
+
 string OSetDMapEnhancedMusic::toString()
 {
     return "SETDMAPENHMUSIC";

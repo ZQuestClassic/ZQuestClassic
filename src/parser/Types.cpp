@@ -16,6 +16,9 @@ ZVarTypeClass const ZVarType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
 ZVarTypeClass const ZVarType::NPC(ZCLASSID_NPC, "NPC");
 ZVarTypeClass const ZVarType::LWPN(ZCLASSID_LWPN, "LWeapon");
 ZVarTypeClass const ZVarType::EWPN(ZCLASSID_EWPN, "EWeapon");
+ZVarTypeClass const ZVarType::AUDIO(ZCLASSID_AUDIO, "Audio");
+ZVarTypeClass const ZVarType::DEBUG(ZCLASSID_DEBUG, "Debug");
+ZVarTypeClass const ZVarType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
 ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////
@@ -45,6 +48,9 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 	case ZVARTYPEID_NPC: return &NPC;
 	case ZVARTYPEID_LWPN: return &LWPN;
 	case ZVARTYPEID_EWPN: return &EWPN;
+		case ZVARTYPEID_AUDIO: return &AUDIO;
+		case ZVARTYPEID_DEBUG: return &DEBUG;
+		case ZVARTYPEID_NPCDATA: return &NPCDATA;
 	default: return NULL;
 	}
 }

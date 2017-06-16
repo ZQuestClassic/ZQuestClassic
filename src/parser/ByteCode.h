@@ -1708,6 +1708,103 @@ public:
     }
 };
 
+// Audio->
+
+
+
+class OEndSoundRegister : public UnaryOpcode
+{
+public:
+    OEndSoundRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OEndSoundRegister(a->clone());
+    }
+};
+
+
+class OPauseSoundRegister : public UnaryOpcode
+{
+public:
+    OPauseSoundRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OPauseSoundRegister(a->clone());
+    }
+};
+
+
+class OResumeSoundRegister : public UnaryOpcode
+{
+public:
+    OResumeSoundRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OResumeSoundRegister(a->clone());
+    }
+};
+
+
+class OPauseSFX : public UnaryOpcode
+{
+public:
+    OPauseSFX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OPauseSFX(a->clone());
+    }
+};
+
+class OResumeSFX : public UnaryOpcode
+{
+public:
+    OResumeSFX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OResumeSFX(a->clone());
+    }
+};
+
+class OContinueSFX : public UnaryOpcode
+{
+public:
+    OContinueSFX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OContinueSFX(a->clone());
+    }
+};
+
+
+class OPauseMusic : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OPauseMusic();
+    }
+};
+
+class OResumeMusic : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OResumeMusic();
+    }
+};
+
+
+//END Audio
+
 class OPlayMIDIRegister : public UnaryOpcode
 {
 public:

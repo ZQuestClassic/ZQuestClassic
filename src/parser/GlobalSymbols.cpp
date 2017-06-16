@@ -50,6 +50,9 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(ZVarTypeId typeId)
     case ZVARTYPEID_NPC: return &NPCSymbols::getInst();
     case ZVARTYPEID_LWPN: return &LinkWeaponSymbols::getInst();
     case ZVARTYPEID_EWPN: return &EnemyWeaponSymbols::getInst();
+	    case ZVARTYPEID_AUDIO: return &AudioSymbols::getInst();
+	    case ZVARTYPEID_DEBUG: return &DebugSymbols::getInst();
+	    case ZVARTYPEID_NPCDATA: return &NPCDataSymbols::getInst();
     default: return NULL;
     }
 }
@@ -4053,3 +4056,135 @@ map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
     return rval;
 }
 
+
+
+
+AudioSymbols AudioSymbols::singleton = AudioSymbols();
+
+static AccessorTable AudioTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+    { "PlaySound",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "EndSound",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      { ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PauseSound",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ResumeSound",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ContinueSound",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "AdjustSound",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           ZVARTYPEID_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PauseMusic",         ZVARTYPEID_VOID,          FUNCTION,     0,       		        1,      {  ZVARTYPEID_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ResumeMusic",         ZVARTYPEID_VOID,          FUNCTION,     0,       		        1,      {  ZVARTYPEID_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+   
+    { "PlayMIDI",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PlayEnhancedMusic",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+AudioSymbols::AudioSymbols()
+{
+    table = AudioTable;
+    refVar = NUL;
+}
+
+map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	//bool isValid(eweapon)
+    {
+        id = functions["isValid"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the pointer
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //Check validity
+        code.push_back(new OIsValidEWpn(new VarArgument(EXP1)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
+    return rval;
+}
+
+
+DebugSymbols DebugSymbols::singleton = DebugSymbols();
+
+static AccessorTable DebugTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+   { "getCSet",                ZVARTYPEID_FLOAT,         GETTER,       FCSET,                1,      {  ZVARTYPEID_FFC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+DebugSymbols::DebugSymbols()
+{
+    table = DebugTable;
+    refVar = NUL;
+}
+
+map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	//bool isValid(eweapon)
+    {
+        id = functions["isValid"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the pointer
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //Check validity
+        code.push_back(new OIsValidEWpn(new VarArgument(EXP1)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
+    return rval;
+}
+
+
+NPCDataSymbols NPCDataSymbols::singleton = NPCDataSymbols();
+
+static AccessorTable NPCDataTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+   { "getCSet",                ZVARTYPEID_FLOAT,         GETTER,       FCSET,                1,      {  ZVARTYPEID_FFC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+NPCDataSymbols::NPCDataSymbols()
+{
+    table = NPCDataTable;
+    refVar = NUL;
+}
+
+map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+	//bool isValid(eweapon)
+    {
+        id = functions["isValid"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the pointer
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //Check validity
+        code.push_back(new OIsValidEWpn(new VarArgument(EXP1)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
+    return rval;
+}
