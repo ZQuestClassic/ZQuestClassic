@@ -1647,6 +1647,22 @@ string OGetDMapIntro::toString()
     return "GETDMAPINTRO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+
+string OSetDMapName::toString()
+{
+    return "SETDMAPNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OSetDMapTitle::toString()
+{
+    return "SETDMAPTITLE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OSetDMapIntro::toString()
+{
+    return "SETDMAPINTRO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OGetItemName::toString()
 {
     return "ITEMNAME " + getArgument()->toString();
@@ -1660,6 +1676,12 @@ string OGetNPCName::toString()
 string OGetMessage::toString()
 {
     return "GETMESSAGE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+
+string OSetMessage::toString()
+{
+    return "SETMESSAGE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OClearSpritesRegister::toString()
