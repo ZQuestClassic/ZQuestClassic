@@ -1020,153 +1020,7 @@ sprite *s;
 
 
 
-void set_screendoor(mapscr *m, int d, int value)
-{
-    int dr = vbound(d,0,3);
-    int doortype = vbound(value,0,14);
-    m->door[dr] = doortype;
-}
 
-
-void set_screenenemy(mapscr *m, int index, int value)
-{
-    int enem_indx = vbound(index,0,9);
-    m->enemy[enem_indx] = vbound(value,0,511);
-}
-void set_screenlayeropacity(mapscr *m, int d, int value)
-{
-    int layer = vbound(d,0,6); int op;
-    if ( value <= 64 ) op = 64; 
-    else op = 128;
-    m->layeropacity[layer] = op;
-}
-void set_screensecretcombo(mapscr *m, int d, int value)
-{
-    int indx = vbound(value,0,127);
-    int cmb = vbound(value,0,MAXCOMBOS);
-    m->secretcombo[indx] = cmb;
-}
-void set_screensecretcset(mapscr *m, int d, int value)
-{
-    int indx = vbound(value,0,127);
-    int cs = vbound(value,0,15);
-    m->secretcset[indx] = cs;
-}
-void set_screensecretflag(mapscr *m, int d, int value)
-{
-    int indx = vbound(d,0,127);
-    int flag = vbound(value,0,MAX_FLAGS);
-    m->secretflag[indx] = flag;
-}
-void set_screenlayermap(mapscr *m, int d, int value)
-{
-    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
-    int mp = vbound(value,0, (map_count-1));
-    m->layermap[layer] = mp;
-}
-void set_screenlayerscreen(mapscr *m, int d, int value)
-{
-    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
-    int sc = vbound(value,0, 0x87);
-    m->layerscreen[layer] = sc;
-}
-void set_screenpath(mapscr *m, int d, int value)
-{
-    int indx = vbound(d,0,3);
-    m->path[indx] = value;
-}
-void set_screenwarpReturnX(mapscr *m, int d, int value)
-{
-    int x = vbound(value,0,255);
-    m->warpreturnx[d] = x;
-}
-void set_screenwarpReturnY(mapscr *m, int d, int value)
-{
-    int y = vbound(value, 0, 255); //should be screen hight max, except that we may be able to move the subscreen.
-    m->warpreturny[d] = y;
-}
-
-//Use as SetScreenD:
-void set_screenWidth(mapscr *m, int value)
-{
-    int w = vbound(value,0,255); //value is char
-    m->scrWidth = w;
-}
-void set_screenHeight(mapscr *m, int value)
-{
-    int h = vbound(value,0,255); //value is char
-    m->scrHeight = h;
-}
-void set_screenViewX(mapscr *m, int value)
-{
-    int x = vbound(value, 0, 255); //value is char
-    m->viewX = x;
-}
-void set_screenViewY(mapscr *m, int value)
-{
-    int y = vbound(value, 0, 255); //value is char
-    m->viewY = y;
-}
-void set_screenGuy(mapscr *m, int value)
-{
-    int bloke = vbound(value,0,9); 
-    m->guy = bloke ;
-}
-void set_screenString(mapscr *m, int value)
-{
-    int string = vbound(value, 0, msg_count-1); //Sanity check to keep it within the legal string IDs.
-    m->str = string;
-}
-void set_screenRoomtype(mapscr *m, int value)
-{
-    int r = vbound(value, rNONE, (rMAX-1)); 
-    m->room = r;
-}
-void set_screenEntryX(mapscr *m, int value)
-{
-    int x = vbound(value,0,255);
-    m->entry_x = x;
-}
-void set_screenEntryY(mapscr *m, int value)
-{
-    int y = vbound(value,0,255);
-    m->entry_y = y;
-}
-void set_screenitem(mapscr *m, int value)
-{
-    int itm = vbound(value,0,MAXITEMS);
-    m->item = itm;
-}
-void set_screenundercombo(mapscr *m, int value)
-{
-    int cmb = vbound(value,0,MAXCOMBOS);
-    m->undercombo = cmb;
-}
-void set_screenundercset(mapscr *m, int value)
-{
-    int cs = vbound(value,0,15);
-    m->undercset = cs;
-}
-void set_screenatchall(mapscr *m, int value)
-{
-    //What are ALL of the catchalls and their max (used) values?
-    int ctch = vbound(value, 0, 65535); //It is a word type. 
-    m->catchall = ctch;
-}
-
-
-//One too many inputs here. -Z
-long get_screenWidth(mapscr *m)
-{
-    long f = m->scrWidth;
-    return f*10000;
-}
-//One too many inputs here. -Z
-long get_screenHeight(mapscr *m)
-{
-    int f = m->scrHeight;
-    return f*10000;
-}
 
 long get_register(const long arg)
 {
@@ -3378,7 +3232,7 @@ else \
 		
 	//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
 	//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
-		set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 		
 		
 		
@@ -3397,7 +3251,7 @@ else \
 			BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
 			return -10000;
       
-		set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 		
     }
     
@@ -3426,11 +3280,11 @@ else \
     
     //These use the same method as GetScreenD -Z
     case SETSCREENWIDTH:
-        ret=get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        ret=FFScript::get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
 case SETSCREENHEIGHT:
-        ret=get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        ret=FFScript::get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
 case SETSCREENVIEWX:
@@ -6101,28 +5955,28 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     //These use the same method as SetScreenD
     case SETSCREENWIDTH:
-	set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENHEIGHT:
-	set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENVIEWX:
-	set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENVIEWY:
-	set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENGUY:
-	set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENSTRING:
     {
-	set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	    //should this be either
 	    //set_screenString(&TheMaps[((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)])-1), value/10000);
 	    //or
@@ -6132,31 +5986,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	break;
 
     case SETSCREENROOM:
-	set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENENTX:
-	set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENENTY:
-	set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENITEM:
-	set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENUNDCMB:
-	set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENUNDCST:
-	set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENCATCH:
-	set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
 //These use the method of SetScreenEnemy
@@ -6175,7 +6029,7 @@ case SETSCREENLAYOP:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerOpacity(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6191,7 +6045,7 @@ case SETSCREENSECCMB:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretCombo(...index...)") != SH::_NoError)
 		return;
 		
-	set_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6207,7 +6061,7 @@ case SETSCREENSECCST:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretCSet(...index...)") != SH::_NoError)
 		return;
 		
-	set_screensecretcset(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screensecretcset(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6223,7 +6077,7 @@ case SETSCREENSECFLG:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretFlag(...index...)") != SH::_NoError)
 		return;
 		
-	set_screensecretflag(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screensecretflag(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6239,7 +6093,7 @@ case SETSCREENLAYMAP:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerMap(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenlayermap(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenlayermap(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6255,7 +6109,7 @@ case SETSCREENLAYSCR:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerScreen(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6271,7 +6125,7 @@ case SETSCREENPATH:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenPath(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenpath(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenpath(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6287,7 +6141,7 @@ case SETSCREENWARPRX:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenWarpReturnX(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6303,7 +6157,7 @@ case SETSCREENWARPRY:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenWarpReturnY(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -7232,7 +7086,7 @@ void do_triggersecret(const bool v)
 	{
 		cmbx = COMBOX(q);
 		cmby = COMBOY(q);
-		if ( findentrance(cmbx, cmby, 4, false) ) break; //This is still triggering all secrets on the screen. 
+		if ( findentrance(cmbx, cmby, ID, false) ) break; //This is still triggering all secrets on the screen. 
 		//hidden_entrance(0,true,single16,scombo); //scombo is the position in one function, but a flag that determines the way it works, in another?!. 
 	}
 	
@@ -10036,3 +9890,154 @@ int ffscript_engine(const bool preload)
 
 
 ///----------------------------------------------------------------------------------------------------
+
+
+void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
+{
+    int y = vbound(value, 0, 255); //should be screen hight max, except that we may be able to move the subscreen.
+    m->warpreturny[d] = y;
+}
+
+void FFScript::set_screendoor(mapscr *m, int d, int value)
+{
+    int dr = vbound(d,0,3);
+    int doortype = vbound(value,0,14);
+    m->door[dr] = doortype;
+}
+
+
+void FFScript::set_screenenemy(mapscr *m, int index, int value)
+{
+    int enem_indx = vbound(index,0,9);
+    m->enemy[enem_indx] = vbound(value,0,511);
+}
+void FFScript::set_screenlayeropacity(mapscr *m, int d, int value)
+{
+    int layer = vbound(d,0,6); int op;
+    if ( value <= 64 ) op = 64; 
+    else op = 128;
+    m->layeropacity[layer] = op;
+}
+void FFScript::set_screensecretcombo(mapscr *m, int d, int value)
+{
+    int indx = vbound(value,0,127);
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->secretcombo[indx] = cmb;
+}
+void FFScript::set_screensecretcset(mapscr *m, int d, int value)
+{
+    int indx = vbound(value,0,127);
+    int cs = vbound(value,0,15);
+    m->secretcset[indx] = cs;
+}
+void FFScript::set_screensecretflag(mapscr *m, int d, int value)
+{
+    int indx = vbound(d,0,127);
+    int flag = vbound(value,0,MAX_FLAGS);
+    m->secretflag[indx] = flag;
+}
+void FFScript::set_screenlayermap(mapscr *m, int d, int value)
+{
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int mp = vbound(value,0, (map_count-1));
+    m->layermap[layer] = mp;
+}
+void FFScript::set_screenlayerscreen(mapscr *m, int d, int value)
+{
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int sc = vbound(value,0, 0x87);
+    m->layerscreen[layer] = sc;
+}
+void FFScript::set_screenpath(mapscr *m, int d, int value)
+{
+    int indx = vbound(d,0,3);
+    m->path[indx] = value;
+}
+void FFScript::set_screenwarpReturnX(mapscr *m, int d, int value)
+{
+    int x = vbound(value,0,255);
+    m->warpreturnx[d] = x;
+}
+
+
+//Use as SetScreenD:
+void FFScript::set_screenWidth(mapscr *m, int value)
+{
+    int w = vbound(value,0,255); //value is char
+    m->scrWidth = w;
+}
+void FFScript::set_screenHeight(mapscr *m, int value)
+{
+    int h = vbound(value,0,255); //value is char
+    m->scrHeight = h;
+}
+void FFScript::set_screenViewX(mapscr *m, int value)
+{
+    int x = vbound(value, 0, 255); //value is char
+    m->viewX = x;
+}
+void FFScript::set_screenViewY(mapscr *m, int value)
+{
+    int y = vbound(value, 0, 255); //value is char
+    m->viewY = y;
+}
+void FFScript::set_screenGuy(mapscr *m, int value)
+{
+    int bloke = vbound(value,0,9); 
+    m->guy = bloke ;
+}
+void FFScript::set_screenString(mapscr *m, int value)
+{
+    int string = vbound(value, 0, msg_count-1); //Sanity check to keep it within the legal string IDs.
+    m->str = string;
+}
+void FFScript::set_screenRoomtype(mapscr *m, int value)
+{
+    int r = vbound(value, rNONE, (rMAX-1)); 
+    m->room = r;
+}
+void FFScript::set_screenEntryX(mapscr *m, int value)
+{
+    int x = vbound(value,0,255);
+    m->entry_x = x;
+}
+void FFScript::set_screenEntryY(mapscr *m, int value)
+{
+    int y = vbound(value,0,255);
+    m->entry_y = y;
+}
+void FFScript::set_screenitem(mapscr *m, int value)
+{
+    int itm = vbound(value,0,MAXITEMS);
+    m->item = itm;
+}
+void FFScript::set_screenundercombo(mapscr *m, int value)
+{
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->undercombo = cmb;
+}
+void FFScript::set_screenundercset(mapscr *m, int value)
+{
+    int cs = vbound(value,0,15);
+    m->undercset = cs;
+}
+void FFScript::set_screenatchall(mapscr *m, int value)
+{
+    //What are ALL of the catchalls and their max (used) values?
+    int ctch = vbound(value, 0, 65535); //It is a word type. 
+    m->catchall = ctch;
+}
+
+
+//One too many inputs here. -Z
+long FFScript::get_screenWidth(mapscr *m)
+{
+    long f = m->scrWidth;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long FFScript::get_screenHeight(mapscr *m)
+{
+    int f = m->scrHeight;
+    return f*10000;
+}

@@ -15,7 +15,35 @@ public:
     
     virtual ~FFScript();
     virtual int getrule(int rule);   
-    virtual void setrule(int rule, bool state);  
+    virtual void setrule(int rule, bool state); 
+static void set_screenwarpReturnY(mapscr *m, int d, int value);
+static void set_screendoor(mapscr *m, int d, int value);
+static void set_screenenemy(mapscr *m, int index, int value);
+static void set_screenlayeropacity(mapscr *m, int d, int value);
+static void set_screensecretcombo(mapscr *m, int d, int value);
+static void set_screensecretcset(mapscr *m, int d, int value);
+static void set_screensecretflag(mapscr *m, int d, int value);
+static void set_screenlayermap(mapscr *m, int d, int value);
+static void set_screenlayerscreen(mapscr *m, int d, int value);
+static void set_screenpath(mapscr *m, int d, int value);
+static void set_screenwarpReturnX(mapscr *m, int d, int value);
+static void set_screenWidth(mapscr *m, int value);
+static void set_screenHeight(mapscr *m, int value);
+static void set_screenViewX(mapscr *m, int value);
+static void set_screenViewY(mapscr *m, int value);
+static void set_screenGuy(mapscr *m, int value);
+static void set_screenString(mapscr *m, int value);
+static void set_screenRoomtype(mapscr *m, int value);
+static void set_screenEntryX(mapscr *m, int value);
+static void set_screenEntryY(mapscr *m, int value);
+static void set_screenitem(mapscr *m, int value);
+static void set_screenundercombo(mapscr *m, int value);
+static void set_screenundercset(mapscr *m, int value);
+static void set_screenatchall(mapscr *m, int value);
+static long get_screenWidth(mapscr *m);
+static long get_screenHeight(mapscr *m);
+
+
   
 };
 
