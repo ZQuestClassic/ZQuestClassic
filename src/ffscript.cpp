@@ -2913,6 +2913,22 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Game Info
 	
+	
+    case GAMESUBSCHEIGHT:
+    {
+	ret = passive_subscreen_height*10000;    
+    }
+    break;
+    
+    case GAMEPLAYFIELDOFS:
+	ret = playing_field_offset*10000;
+    break;
+    
+    case PASSSUBOFS:
+	ret = passive_subscreen_offset * 10000;
+    break;
+
+    
     case ZELDAVERSION:
         ret = ZC_VERSION; //Do *not* multiply by 10,000!
         break;
@@ -5644,6 +5660,29 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
 ///----------------------------------------------------------------------------------------------------//
 //Game Information
+    
+    case GAMESUBSCHEIGHT:
+    {
+	int v = vbound(value,0,256);
+	passive_subscreen_height = (v/10000);   
+    }
+    break;
+    
+    case GAMEPLAYFIELDOFS:
+    {
+	int v = vbound(value,-256, 256);
+	playing_field_offset = (v/10000);
+    }
+    break;
+    
+    case PASSSUBOFS:
+    {
+	int v = vbound(value,-256, 256);
+	passive_subscreen_offset = (v/10000);
+    }
+    break;
+
+    
     case GAMEDEATHS:
         game->set_deaths(value/10000);
         break;

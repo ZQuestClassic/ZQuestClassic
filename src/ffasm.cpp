@@ -885,6 +885,9 @@ script_variable variable_list[]=
 	{ "SETSCREENWARPRX",              SETSCREENWARPRX,                 0,             0 },
 	{ "SETSCREENWARPRY",              SETSCREENWARPRY,                 0,             0 },
 	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0, 0 },
+	{"GAMESUBSCHEIGHT", GAMESUBSCHEIGHT, 0, 0 },
+	{"GAMEPLAYFIELDOFS", GAMEPLAYFIELDOFS, 0, 0 },
+	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
 	    { " ",                       -1,             0,             0 }
 };
 
