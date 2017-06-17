@@ -96,7 +96,7 @@ void FFScript::setrule(int rule, bool state){
 }
 
 //ScriptHelper
-class SH
+class SH : public FFScript
 {
 
 ///-----------------------------//
@@ -657,6 +657,8 @@ void clearScriptHelperData()
 ///---------------------------------------------//
 //           Array Helper Functions           //
 ///---------------------------------------------//
+
+//THis would be better if 't'were in a header. -Z
 
 //Array Helper
 class ArrayH : public SH

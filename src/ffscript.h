@@ -5,6 +5,8 @@
 #include <string>
 #include <list>
 
+
+
 class FFScript
 {
 private:
@@ -12,6 +14,7 @@ private:
     
 public:
     byte rules[512];
+
     
     virtual ~FFScript();
     virtual int getrule(int rule);   
@@ -54,7 +57,144 @@ static void do_openscreen();
 static void do_wavyin();
 static void do_wavyout();
 
+#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
+
+enum __Error
+    {
+        _NoError, //OK!
+        _Overflow, //script array too small
+        _InvalidPointer, //passed NULL pointer or similar
+        _OutOfBounds, //library array out of bounds
+        _InvalidSpriteUID //bad npc, ffc, etc.
+    };
+    
+    
+    static INLINE int checkUserArrayIndex(const long index, const dword size)
+    {
+        if(index < 0 || index >= long(size))
+        {
+          //  Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+            return _OutOfBounds;
+        }
+        
+        return _NoError;
+    }
+
+    
+    //Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
+    template <typename T>
+    static int getArray(const long ptr, T *refArray)
+    {
+        return getArray(ptr, getArray(ptr).Size(), 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int getArray(const long ptr, const word size, T *refArray)
+    {
+        return getArray(ptr, size, 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int getArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word j = 0, k = userStride;
+        
+        for(word i = 0; j < size; i++)
+        {
+            if(i >= a.Size())
+                return _Overflow;
+                
+            if(userOffset-- > 0)
+                continue;
+                
+            if(k > 0)
+                k--;
+            else if (checkUserArrayIndex(i, a.Size()) == _NoError)
+            {
+                refArray[j + refArrayOffset] = T(a[i]);
+                k = userStride;
+                j++;
+            }
+        }
+        
+        return _NoError;
+    }
+    
+    /*
+    static int setArray(const long ptr, const string s2)
+    {
+        ZScriptArray &a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word i;
+        
+        for(i = 0; i < s2.size(); i++)
+        {
+            if(i >= a.Size())
+            {
+                a.Back() = '\0';
+                return _Overflow;
+            }
+            
+            if(checkUserArrayIndex(i, a.Size()) == _NoError)
+                a[i] = s2[i] * 10000;
+        }
+        
+        if(checkUserArrayIndex(i, a.Size()) == _NoError)
+            a[i] = '\0';
+            
+        return _NoError;
+    }
+    */
+    
+    //Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
+    template <typename T>
+    static int setArray(const long ptr, const word size, T *refArray)
+    {
+        return setArray(ptr, size, 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int setArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word j = 0, k = userStride;
+        
+        for(word i = 0; j < size; i++)
+        {
+            if(i >= a.Size())
+                return _Overflow; //Resize?
+                
+            if(userOffset-- > 0)
+                continue;
+                
+            if(k > 0)
+                k--;
+            else if(checkUserArrayIndex(i, a.Size()) == _NoError)
+            {
+                a[i] = long(refArray[j + refArrayOffset]) * 10000;
+                k = userStride;
+                j++;
+            }
+        }
+        
+        return _NoError;
+    }
+    
+    
   
+    
 };
 
 
