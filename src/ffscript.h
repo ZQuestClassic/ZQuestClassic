@@ -4,14 +4,8 @@
 #include <utility>
 #include <string>
 #include <list>
-#include <sstream>
-#include <math.h>
-#include <cstdio>
-#include <deque>
-#include "zc_array.h"
 #include "zelda.h"
 
-using std::string;
 
 class FFScript
 {
@@ -147,7 +141,7 @@ enum __Error
     }
     
     //Returns values of a zscript array as an std::string.
-    static void getString(const long ptr, string &str, word num_chars = 256)
+    static void getString(const long ptr, std::string &str, word num_chars = 256)
     {
         ZScriptArray& a = getArray(ptr);
         
@@ -252,7 +246,7 @@ enum __Error
     }
     
     
-    static int setArray(const long ptr, const string s2)
+    static int setArray(const long ptr, const std::string s2)
     {
         ZScriptArray& a = getArray(ptr);
         
