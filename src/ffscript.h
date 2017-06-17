@@ -42,10 +42,21 @@ static void set_screenundercset(mapscr *m, int value);
 static void set_screenatchall(mapscr *m, int value);
 static long get_screenWidth(mapscr *m);
 static long get_screenHeight(mapscr *m);
-
+static void deallocateZScriptArray(const long ptrval);
+static int get_screen_d(long index1, long index2);
+static void set_screen_d(long index1, long index2, int val);
+static int whichlayer(long scr);
+static void clear_ffc_stack(const byte i);
+static void clear_global_stack();
+static void do_zapout();
+static void do_zapin();
+static void do_openscreen();
+static void do_wavyin();
+static void do_wavyout();
 
   
 };
+
 
 
 extern long ffmisc[32][16];

@@ -85,15 +85,6 @@ long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
 
-void clear_ffc_stack(const byte i)
-{
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
-}
-
-void clear_global_stack()
-{
-    memset(global_stack, 0, 256 * sizeof(long));
-}
 
 
 int FFScript::getrule(int rule){
@@ -893,28 +884,7 @@ public:
     }
 };
 
-// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
-void deallocateArray(const long ptrval)
-{
-    if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
-        Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
-    else
-    {
-        arrayOwner[ptrval] = 255;
-        
-        if(localRAM[ptrval].Size() == 0)
-            Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
-        else
-        {
-            word size = localRAM[ptrval].Size();
-            localRAM[ptrval].Clear();
-            
-            // If this happens once per frame, it can drown out every other message. -L
-            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-            size = size;
-        }
-    }
-}
+
 
 item *checkItem(long iid)
 {
@@ -982,39 +952,8 @@ weapon *checkEWpn(long eid, const char *what)
 }
 
 
-int get_screen_d(long index1, long index2)
-{
-    if(index2 < 0 || index2 > 7)
-    {
-        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
-        return 0;
-    }
-    
-    return game->screen_d[index1][index2];
-}
 
-void set_screen_d(long index1, long index2, int val)
-{
-    if(index2 < 0 || index2 > 7)
-    {
-        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
-        return;
-    }
-    
-    game->screen_d[index1][index2] = val;
-}
 
-// If scr is currently being used as a layer, return that layer no.
-int whichlayer(long scr)
-{
-    for(int i = 0; i < 6; i++)
-    {
-        if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
-            return i;
-    }
-    
-    return -1;
-}
 
 sprite *s;
 
@@ -3077,7 +3016,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->data[pos]*10000;
             else if(layr>-1)
@@ -3100,7 +3039,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
             else if(layr>-1)
@@ -3123,7 +3062,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
             else if(layr>-1)
@@ -3146,7 +3085,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
             else if(layr>-1)
@@ -3170,7 +3109,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
             else if(layr>-1)
@@ -3195,7 +3134,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
             else if(layr>-1)
@@ -3261,16 +3200,16 @@ else \
     case SDD:
     {
         int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-        ret=get_screen_d(di, ri->d[0]/10000);
+        ret=FFScript::get_screen_d(di, ri->d[0]/10000);
     }
     break;
     
     case SDDD:
-        ret=get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
+        ret=FFScript::get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
         break;
         
     case SDDDD:
-        ret=get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
+        ret=FFScript::get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
         break;
         
     case SCRDOORD:
@@ -3597,7 +3536,7 @@ void set_register(const long arg, const long value)
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if(arrayOwner[i]==ri->ffcref)
-                deallocateArray(i);
+                FFScript::deallocateZScriptArray(i);
         }
         
         tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, scripts.ffscripts.size()-1);
@@ -5820,7 +5759,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             screen_combo_modify_postroutine(tmpscr,pos);
         }
         
-        int layr = whichlayer(scr);
+        int layr = FFScript::whichlayer(scr);
         
         if(layr>-1)
         {
@@ -5850,7 +5789,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(scr==(currmap*MAPSCRS+currscr))
             tmpscr->cset[pos] = value/10000;
             
-        int layr = whichlayer(scr);
+        int layr = FFScript::whichlayer(scr);
         
         if(layr>-1)
             tmpscr2[layr].cset[pos]=(value/10000)&15;
@@ -5874,7 +5813,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(scr==(currmap*MAPSCRS+currscr))
             tmpscr->sflag[pos] = value/10000;
             
-        int layr = whichlayer(scr);
+        int layr = FFScript::whichlayer(scr);
         
         if(layr>-1)
             tmpscr2[layr].sflag[pos]=value/10000;
@@ -6165,7 +6104,7 @@ break;
     {
         {
             int di2 = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-            set_screen_d(di2, ri->d[0]/10000, value);
+            FFScript::set_screen_d(di2, ri->d[0]/10000, value);
             break;
         }
     }
@@ -6176,11 +6115,11 @@ break;
         break;
         
     case SDDD:
-        set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
+        FFScript::set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
         break;
         
     case SDDDD:
-        set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
+        FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
     case SCRDOORD:
@@ -6444,7 +6383,7 @@ void do_deallocatemem()
 {
     const long ptrval = get_register(sarg1) / 10000;
     
-    deallocateArray(ptrval);
+    FFScript::deallocateZScriptArray(ptrval);
 }
 
 void do_loada(const byte a)
@@ -7102,16 +7041,7 @@ void do_triggersecrets()
 	//We need a variation on these that triggers any combos with a given flag. -Z
 }
 
-void do_zapout()
-{
-	zapout();
-}
 
-void do_zapin(){ zapin(); }
-
-void do_openscreen() { openscreen(); }
-void do_wavyin() { wavyin(); }
-void do_wavyout() { wavyout(false); }
 
 
 void do_getscreenflags()
@@ -9768,19 +9698,19 @@ int run_script(const byte type, const word script, const byte i)
 	
 	//Visual Effects
 	case WAVYIN:
-		do_wavyin();
+		FFScript::do_wavyin();
 		break;
 	case WAVYOUT:
-		do_wavyout();
+		FFScript::do_wavyout();
 		break;
 	case ZAPIN:
-		do_zapin();
+		FFScript::do_zapin();
 		break;
 	case ZAPOUT:
-		do_zapout();
+		FFScript::do_zapout();
 		break;
 	case OPENWIPE:
-		do_openscreen();
+		FFScript::do_openscreen();
 		break;
 	
 	//Monochrome
@@ -10041,3 +9971,81 @@ long FFScript::get_screenHeight(mapscr *m)
     int f = m->scrHeight;
     return f*10000;
 }
+
+// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
+void FFScript::deallocateZScriptArray(const long ptrval)
+{
+    if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+        Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
+    else
+    {
+        arrayOwner[ptrval] = 255;
+        
+        if(localRAM[ptrval].Size() == 0)
+            Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
+        else
+        {
+            word size = localRAM[ptrval].Size();
+            localRAM[ptrval].Clear();
+            
+            // If this happens once per frame, it can drown out every other message. -L
+            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
+            size = size;
+        }
+    }
+}
+
+int FFScript::get_screen_d(long index1, long index2)
+{
+    if(index2 < 0 || index2 > 7)
+    {
+        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+        return 0;
+    }
+    
+    return game->screen_d[index1][index2];
+}
+
+void FFScript::set_screen_d(long index1, long index2, int val)
+{
+    if(index2 < 0 || index2 > 7)
+    {
+        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+        return;
+    }
+    
+    game->screen_d[index1][index2] = val;
+}
+
+// If scr is currently being used as a layer, return that layer no.
+int FFScript::whichlayer(long scr)
+{
+    for(int i = 0; i < 6; i++)
+    {
+        if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
+            return i;
+    }
+    
+    return -1;
+}
+
+void FFScript::clear_ffc_stack(const byte i)
+{
+    memset(ffc_stack[i], 0, 256 * sizeof(long));
+}
+
+void FFScript::clear_global_stack()
+{
+    memset(global_stack, 0, 256 * sizeof(long));
+}
+
+void FFScript::do_zapout()
+{
+	zapout();
+}
+
+void FFScript::do_zapin(){ zapin(); }
+
+void FFScript::do_openscreen() { openscreen(); }
+void FFScript::do_wavyin() { wavyin(); }
+void FFScript::do_wavyout() { wavyout(false); }
