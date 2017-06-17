@@ -4,8 +4,14 @@
 #include <utility>
 #include <string>
 #include <list>
+#include <sstream>
+#include <math.h>
+#include <cstdio>
+#include <deque>
+#include "zc_array.h"
+#include "zelda.h"
 
-
+using std::string;
 
 class FFScript
 {
@@ -14,6 +20,8 @@ private:
     
 public:
     byte rules[512];
+
+
 
     
     virtual ~FFScript();
@@ -81,6 +89,124 @@ enum __Error
     }
 
     
+    
+    //only if the player is messing with their pointers...
+    static ZScriptArray& InvalidError(const long ptr)
+    {
+        //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
+        return INVALIDARRAY;
+    }
+    
+    //Returns a reference to the correct array based on pointer passed
+    static ZScriptArray& getArray(const long ptr)
+    {
+        if(ptr <= 0)
+            return InvalidError(ptr);
+            
+        if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+        {
+            dword gptr = ptr - MAX_ZCARRAY_SIZE;
+            
+            if(gptr > game->globalRAM.size())
+                return InvalidError(ptr);
+                
+            return game->globalRAM[gptr];
+        }
+        else
+        {
+            if(localRAM[ptr].Size() == 0)
+                return InvalidError(ptr);
+                
+            return localRAM[ptr];
+        }
+    }
+    
+    static size_t getSize(const long ptr)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return size_t(-1);
+            
+        return a.Size();
+    }
+    
+    //Can't you get the std::string and then check its length?
+    static int strlen(const long ptr)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return -1;
+            
+        word count;
+        
+        for(count = 0; checkUserArrayIndex(count, a.Size()) == _NoError && a[count] != '\0'; count++) ;
+        
+        return count;
+    }
+    
+    //Returns values of a zscript array as an std::string.
+    static void getString(const long ptr, string &str, word num_chars = 256)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+        {
+            str.clear();
+            return;
+        }
+        
+        str.clear();
+        
+        for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
+        {
+            str += char(a[i] / 10000);
+            num_chars--;
+        }
+    }
+    
+    //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+    static void getValues(const long ptr, long* arrayPtr, word num_values)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+        {
+            arrayPtr[i] = (a[i] / 10000);
+            num_values--;
+        }
+    }
+    
+    //Get element from array
+    static INLINE long getElement(const long ptr, const long offset)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return -10000;
+            
+        if(checkUserArrayIndex(offset, a.Size()) == _NoError)
+            return a[offset];
+        else
+            return -10000;
+    }
+    
+    //Set element in array
+    static INLINE void setElement(const long ptr, const long offset, const long value)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        if(checkUserArrayIndex(offset, a.Size()) == _NoError)
+            a[offset] = value;
+    }
+    
     //Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
     template <typename T>
     static int getArray(const long ptr, T *refArray)
@@ -125,10 +251,10 @@ enum __Error
         return _NoError;
     }
     
-    /*
+    
     static int setArray(const long ptr, const string s2)
     {
-        ZScriptArray &a = getArray(ptr);
+        ZScriptArray& a = getArray(ptr);
         
         if(a == INVALIDARRAY)
             return _InvalidPointer;
@@ -152,7 +278,7 @@ enum __Error
             
         return _NoError;
     }
-    */
+    
     
     //Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
     template <typename T>
