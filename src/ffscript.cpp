@@ -26,6 +26,7 @@
 #include "backend/AllBackends.h"
 #include "pal.h"
 #include "zdefs.h"
+#include "zq_class.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -7210,6 +7211,35 @@ void do_layermap()
         set_register(sarg1, tmpscr->layermap[layer] * 10000);
 }
 
+void do_triggersecret(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+	int cmbx; int cmby; 
+	/*
+	//cmbx = COMBOX(1);
+	//cmby = COMBOY(1);
+	//findentrance(cmbx, cmby, 4, true);
+	
+	cmbx = COMBOX(86);
+	cmby = COMBOY(86);
+	findentrance(cmbx, cmby, 4, true);
+	*/
+	//cmbx = COMBOX(86);
+	//	cmby = COMBOY(86);
+	//	findentrance(cmbx, cmby, 4, true);
+	
+	for ( int q = 0; q < 176; q++ ) 
+	{
+		cmbx = COMBOX(q);
+		cmby = COMBOY(q);
+		if ( findentrance(cmbx, cmby, 4, false) ) break; //This is still triggering all secrets on the screen. 
+		//hidden_entrance(0,true,single16,scombo); //scombo is the position in one function, but a flag that determines the way it works, in another?!. 
+	}
+	
+	
+}
+	
+
 void do_triggersecrets()
 {
     hidden_entrance(0, true, false, -4);
@@ -9329,6 +9359,14 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         case PLAYSOUNDV:
+            do_sfx(true);
+            break;
+	
+	case TRIGGERSECRETR:
+            do_triggersecret(false);
+            break;
+            
+        case TRIGGERSECRETV:
             do_sfx(true);
             break;
             

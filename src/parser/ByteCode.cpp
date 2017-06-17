@@ -2274,5 +2274,9 @@ string OGetScreenWarpReturnY::toString()
     return "GETSCREENWARPRY " + getArgument()->toString();
 }
 
+string OTriggerSecretRegister::toString()
+{
+    return "TRIGGERSECRETR " + getArgument()->toString();
+}
 //////////////////////////////////////////////////////////////////////////////////////
 

@@ -3117,6 +3117,16 @@ public:
     }
 };
 
+class OTriggerSecretRegister : public UnaryOpcode
+{
+public:
+    OTriggerSecretRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OTriggerSecretRegister(a->clone());
+    }
+};
 
 
 #endif

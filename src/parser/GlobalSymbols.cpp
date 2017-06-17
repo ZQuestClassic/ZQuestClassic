@@ -5242,7 +5242,8 @@ static AccessorTable DebugTable[] =
     
     { "getPlayfieldOffset",               ZVARTYPEID_FLOAT,         GETTER,       GAMEPLAYFIELDOFS,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setPlayfieldOffset",               ZVARTYPEID_VOID,          SETTER,       GAMEPLAYFIELDOFS,            1,      {  ZVARTYPEID_DEBUG,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+    { "TriggerSecret",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+ 
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -5476,6 +5477,23 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     }
     
+    
+//void TriggerSecret(game, int)
+    {
+        int id = functions["TriggerSecret"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OTriggerSecretRegister(new VarArgument(EXP1)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
     return rval;
 }
 
