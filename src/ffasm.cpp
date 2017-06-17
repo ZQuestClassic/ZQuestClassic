@@ -313,7 +313,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "ARRAYSIZEE",                1,   0,   0,   0},
     { "ARRAYSIZEI",                1,   0,   0,   0},
     { "ARRAYSIZEID",                1,   0,   0,   0},
-    { "__RESERVED_FOR_POLYGONR",                0,   0,   0,   0},
+    { "POLYGONR",                0,   0,   0,   0},
     { "__RESERVED_FOR_POLYGON3DR",                0,   0,   0,   0},
     { "__RESERVED_FOR_SETRENDERSOURCE",                0,   0,   0,   0},
     { "__RESERVED_FOR_CREATEBITMAP",                0,   0,   0,   0},
