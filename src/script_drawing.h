@@ -6,7 +6,8 @@
 #include <string>
 
 
-#define MAX_SCRIPT_DRAWING_COMMANDS 1000
+#define MAX_SCRIPT_DRAWING_COMMANDS 10000
+//Increased to 10,000 draws. -Z
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
 
 
