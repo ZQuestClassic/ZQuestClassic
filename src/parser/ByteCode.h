@@ -569,6 +569,30 @@
 #define DEBUGSP 532
 #define DEBUGGDR 533
 
+#define SETSCREENWIDTH 534
+#define SETSCREENHEIGHT 535
+#define SETSCREENVIEWX 536
+#define SETSCREENVIEWY 537 
+#define SETSCREENGUY 538
+#define SETSCREENSTRING 539
+#define SETSCREENROOM 540
+#define SETSCREENENTX 541
+#define SETSCREENENTY 542
+#define SETSCREENITEM 543
+#define SETSCREENUNDCMB 544
+#define SETSCREENUNDCST 545
+#define SETSCREENCATCH 546
+#define SETSCREENLAYOP 547
+#define SETSCREENSECCMB 548
+#define SETSCREENSECCST 549
+#define SETSCREENSECFLG 550
+#define SETSCREENLAYMAP 551
+#define SETSCREENLAYSCR 552
+#define SETSCREENPATH 553
+#define SETSCREENWARPRX 554
+#define SETSCREENWARPRY 555
+#define GAMENUMMESSAGES 556
+
 //END OF BYTECODE
 
 class LiteralArgument;
@@ -2999,6 +3023,96 @@ public:
     }
 };
 
+class OGetScreenLayerOpacity : public UnaryOpcode
+{
+public:
+    OGetScreenLayerOpacity(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenLayerOpacity(a->clone());
+    }
+};
+class OGetScreenSecretCombo : public UnaryOpcode
+{
+public:
+    OGetScreenSecretCombo(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenSecretCombo(a->clone());
+    }
+};
+class OGetScreenSecretCSet : public UnaryOpcode
+{
+public:
+    OGetScreenSecretCSet(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenSecretCSet(a->clone());
+    }
+};
+class OGetScreenSecretFlag : public UnaryOpcode
+{
+public:
+    OGetScreenSecretFlag(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenSecretFlag(a->clone());
+    }
+};
+class OGetScreenLayerMap : public UnaryOpcode
+{
+public:
+    OGetScreenLayerMap(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenLayerMap(a->clone());
+    }
+};
+class OGetScreenLayerScreen : public UnaryOpcode
+{
+public:
+    OGetScreenLayerScreen(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenLayerScreen(a->clone());
+    }
+};
+class OGetScreenPath : public UnaryOpcode
+{
+public:
+    OGetScreenPath(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenPath(a->clone());
+    }
+};
+class OGetScreenWarpReturnX : public UnaryOpcode
+{
+public:
+    OGetScreenWarpReturnX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenWarpReturnX(a->clone());
+    }
+};
+class OGetScreenWarpReturnY : public UnaryOpcode
+{
+public:
+    OGetScreenWarpReturnY(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenWarpReturnY(a->clone());
+    }
+};
 
 
 

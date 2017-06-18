@@ -34,6 +34,56 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
+
+void do_getscreenflags();
+void do_getscreeneflags();
+long get_screendoor(mapscr *m, int d);
+long get_screenlayeropacity(mapscr *m, int d);
+long get_screensecretcombo(mapscr *m, int d);
+long get_screensecretcset(mapscr *m, int d);
+long get_screensecretflag(mapscr *m, int d);
+long get_screenlayermap(mapscr *m, int d);
+long get_screenlayerscreen(mapscr *m, int d);
+long get_screenpath(mapscr *m, int d);
+long get_screenwarpReturnX(mapscr *m, int d);
+long get_screenwarpReturnY(mapscr *m, int d);
+
+long get_screenViewX(mapscr *m);
+long get_screenGuy(mapscr *m);
+long get_screenString(mapscr *m);
+long get_screenRoomtype(mapscr *m);
+long get_screenViewY(mapscr *m);
+long get_screenEntryX(mapscr *m);
+long get_screenEntryY(mapscr *m);
+long get_screenitem(mapscr *m);
+long get_screenundercombo(mapscr *m);
+long get_screenundercset(mapscr *m);
+long get_screenatchall(mapscr *m);
+void do_getscreenLayerOpacity();
+void do_getscreenSecretCombo();
+void do_getscreenSecretCSet();
+void do_getscreenSecretFlag();
+void do_getscreenLayerMap();
+void do_getscreenLayerscreen();
+void do_getscreenPath();
+void do_getscreenWarpReturnX();
+void do_getscreenWarpReturnY();
+void do_getscreenatchall();
+void do_getscreenUndercombo();
+void do_getscreenUnderCSet();
+void do_getscreenWidth();
+void do_getscreenHeight();
+void do_getscreenViewX();
+void do_getscreenGuy();
+void do_getscreenString();
+void do_getscreenRoomType();
+void do_getscreenEntryX();
+void do_getscreenEntryY();
+void do_getscreenItem();
+void do_getscreendoor();
+long get_screennpc(mapscr *m, int index);
+void do_getscreennpc();
+
 struct script_command
 {
     char name[32];
@@ -376,6 +426,15 @@ enum ASM_DEFINE
     ADJUSTSFX,
     //__RESERVED_FOR_GETSCREENFLAG, //0x013A
     GETITEMSCRIPT, 
+    GETSCREENLAYOP,
+    GETSCREENSECCMB,
+    GETSCREENSECCST,
+    GETSCREENSECFLG,
+    GETSCREENLAYMAP,
+    GETSCREENLAYSCR,
+    GETSCREENPATH,
+    GETSCREENWARPRX,
+    GETSCREENWARPRY,
     NUMCOMMANDS           //0x013B
 };
 
@@ -1040,8 +1099,31 @@ enum ASM_DEFINE
 #define DEBUGREFEWEAPON 0x1169
 #define DEBUGSP 0x116A
 #define DEBUGGDR 0x116B
+#define SETSCREENWIDTH 0x116C
+#define SETSCREENHEIGHT 0x116D
+#define SETSCREENVIEWX 0x116E
+#define SETSCREENVIEWY 0x116F
+#define SETSCREENGUY 0x1170
+#define SETSCREENSTRING 0x1171
+#define SETSCREENROOM 0x1172
+#define SETSCREENENTX 0x1173
+#define SETSCREENENTY 0x1174
+#define SETSCREENITEM 0x1175
+#define SETSCREENUNDCMB 0x1176
+#define SETSCREENUNDCST 0x1177
+#define SETSCREENCATCH 0x1178
+#define SETSCREENLAYOP 0x1179
+#define SETSCREENSECCMB 0x117A
+#define SETSCREENSECCST 0x117B
+#define SETSCREENSECFLG 0x117C
+#define SETSCREENLAYMAP 0x117D
+#define SETSCREENLAYSCR 0x117E
+#define SETSCREENPATH 0x117F
+#define SETSCREENWARPRX 0x1180
+#define SETSCREENWARPRY 0x1181
+#define GAMENUMMESSAGES 0x1182
 
-#define NUMVARIABLES         0x116C
+#define NUMVARIABLES         0x1183
 
 struct quad3Dstruct
 {

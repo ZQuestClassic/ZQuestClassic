@@ -347,6 +347,15 @@ script_command command_list[NUMCOMMANDS+1]=
     { "CONTINUESFX",         1,   0,   0,   0},
     { "ADJUSTSFX",         3,   0,   0,   0},
     { "GETITEMSCRIPT",        1,   0,   0,   0},
+    { "GETSCREENLAYOP",      1,   0,   0,   0},
+	{ "GETSCREENSECCMB",      1,   0,   0,   0},
+	{ "GETSCREENSECCST",      1,   0,   0,   0},
+	{ "GETSCREENSECFLG",      1,   0,   0,   0},
+	{ "GETSCREENLAYMAP",      1,   0,   0,   0},
+	{ "GETSCREENLAYSCR",      1,   0,   0,   0},
+	{ "GETSCREENPATH",      1,   0,   0,   0},
+	{ "GETSCREENWARPRX",      1,   0,   0,   0},
+	{ "GETSCREENWARPRY",      1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
@@ -853,8 +862,30 @@ script_variable variable_list[]=
 	    { "DEBUGREFEWEAPON", DEBUGREFEWEAPON, 0, 0 }, //REFEWPN
 	    { "DEBUGSP", DEBUGSP, 0, 0 }, //SP
 	    { "DEBUGGDR", DEBUGGDR, 0, 0 }, //GDR[256]
-	  
-    { " ",                       -1,             0,             0 }
+	  { "SETSCREENWIDTH",              SETSCREENWIDTH,                 0,             0 },
+	{ "SETSCREENHEIGHT",              SETSCREENHEIGHT,                 0,             0 },
+	{ "SETSCREENVIEWX",              SETSCREENVIEWX,                 0,             0 },
+	{ "SETSCREENVIEWY",              SETSCREENVIEWY,                 0,             0 },
+	{ "SETSCREENGUY",              SETSCREENGUY,                 0,             0 },
+	{ "SETSCREENSTRING",              SETSCREENSTRING,                 0,             0 },
+	{ "SETSCREENROOM",              SETSCREENROOM,                 0,             0 },
+	{ "SETSCREENENTX",              SETSCREENENTX,                 0,             0 },
+	{ "SETSCREENENTY",              SETSCREENENTY,                 0,             0 },
+	{ "SETSCREENITEM",              SETSCREENITEM,                 0,             0 },
+	{ "SETSCREENUNDCMB",              SETSCREENUNDCMB,                 0,             0 },
+	{ "SETSCREENUNDCST",              SETSCREENUNDCST,                 0,             0 },
+	{ "SETSCREENCATCH",              SETSCREENCATCH,                 0,             0 },
+	{ "SETSCREENLAYOP",              SETSCREENLAYOP,                 0,             0 },
+	{ "SETSCREENSECCMB",              SETSCREENSECCMB,                 0,             0 },
+	{ "SETSCREENSECCST",              SETSCREENSECCST,                 0,             0 },
+	{ "SETSCREENSECFLG",              SETSCREENSECFLG,                 0,             0 },
+	{ "SETSCREENLAYMAP",              SETSCREENLAYMAP,                 0,             0 },
+	{ "SETSCREENLAYSCR",              SETSCREENLAYSCR,                 0,             0 },
+	{ "SETSCREENPATH",              SETSCREENPATH,                 0,             0 },
+	{ "SETSCREENWARPRX",              SETSCREENWARPRX,                 0,             0 },
+	{ "SETSCREENWARPRY",              SETSCREENWARPRY,                 0,             0 },
+	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0, 0 },
+	    { " ",                       -1,             0,             0 }
 };
 
 long ffparse(char *string)

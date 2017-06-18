@@ -321,6 +321,11 @@ extern bool fake_pack_writing;
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
+#define MAX_FLAGS 512
+#define MAX_ZQ_LAYER 6
+#define MAX_DRAW_LAYER 7
+#define MIN_ZQ_LAYER 0
+#define MIN_DRAW_LAYER 0
 
 #define MAXFAVORITECOMMANDS 8
 #define MAXFAVORITECOMBOS 100
@@ -686,6 +691,14 @@ enum
     cSYSTEM120, cSYSTEM121, cSYSTEM122, cSYSTEM123, cSYSTEM124, cSYSTEM125, cSYSTEM126, cSYSTEM127,
     cEXPANDED_MAX	
 };
+
+
+enum 
+{
+	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE, USR_MIDI_MAX 
+	
+}; //Obviously, the overworld, dungeon and L9 midis don;t need to be here, but we can define some user space for o
+//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow. 
 
 #define QUESTRULES_SIZE 20
 #define EXTRARULES_SIZE 1
