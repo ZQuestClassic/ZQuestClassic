@@ -223,7 +223,15 @@ void printErrorMsg(AST *offender, int errorID, string param)
 	case EMPTYARRAYLITERAL:
 		oss << "Error S50: Array Literals must not be empty.";
 		break;
-		
+
+	case DIMENSIONMISMATCH:
+		oss << "Error B51: Array Size Mismatch.";
+		break;
+
+	case ARRAYLITERALRESIZE:
+		oss << "Error S52: Re-specifying array size.";
+		break;
+
     default:
         oss << "FATAL FATAL ERROR I0: bad internal error code" ;
         assert(false);

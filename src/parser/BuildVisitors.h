@@ -4,6 +4,7 @@
 #include "AST.h"
 #include "UtilVisitors.h"
 #include "ByteCode.h"
+#include "ZScript.h"
 #include <stack>
 #include <algorithm>
 
@@ -28,9 +29,7 @@ public:
     virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
 	// Declarations
     virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
-    virtual void caseArrayDecl(ASTArrayDecl &host, void *param);
-    virtual void caseVarDecl(ASTVarDecl &host, void *param);
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
+	virtual void caseDataDecl(ASTDataDecl& host, void* param);
 	virtual void caseTypeDef(ASTTypeDef& host, void* param);
 	// Expressions
     virtual void caseExprConst(ASTExprConst &host, void *param);
@@ -69,6 +68,8 @@ public:
     virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);
     virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
 	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
+	// Types
+	void caseVarType(ASTVarType& host, void* param) {}
 
     vector<Opcode *> getResult() const {return result;}
     int getReturnLabelID() const {return returnlabelid;}
@@ -92,6 +93,15 @@ private:
     bool failure;
 	// Stack of opcode targets. Only the latest is used.
 	vector<vector<Opcode*>*> opcodeTargets;
+
+	// Helper Functions.
+
+	// For when ASTDataDecl is for a single variable.
+	void buildVariable(ASTDataDecl& host, OpcodeContext& context);
+	// For when ASTDataDecl is an initialized array.
+	void buildArrayInit(ASTDataDecl& host, OpcodeContext& context);
+	// For when ASTDataDecl is an uninitialized array.
+	void buildArrayUninit(ASTDataDecl& host, OpcodeContext& context);
 };
 
 class AssignStackSymbols : public RecursiveVisitor
@@ -102,30 +112,17 @@ public:
 	}
 
     virtual void caseDefault(void *) { }
-    virtual void caseArrayDecl(ASTArrayDecl &host, void* param)
-    {
-		ASTArrayList* list = host.getList();
-		if (list) list->execute(*this, param);
-		
-        int vid = st->getNodeId(&host);
-		sf->addToFrame(vid, curoffset);
-		curoffset += 10000;
-		if (highWaterOffset < curoffset)
-			highWaterOffset = curoffset;
-	}
-	virtual void caseVarDecl(ASTVarDecl &host, void *)
+
+	void caseDataDecl(ASTDataDecl& host, void* param)
 	{
-		int vid = st->getNodeId(&host);
-		sf->addToFrame(vid, curoffset);
+		RecursiveVisitor::caseDataDecl(host, param);
+		int id = host.manager->id;
+
+		sf->addToFrame(id, curoffset);
 		curoffset += 10000;
 		if (highWaterOffset < curoffset)
 			highWaterOffset = curoffset;
 	}
-	virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
-    {
-		host.getInitializer()->execute(*this, param);
-        caseVarDecl(host, param);
-    }
 
 	virtual void caseBlock(ASTBlock &host, void *param)
 	{
@@ -184,7 +181,7 @@ class LValBOHelper : public ASTVisitor
 {
 public:
     virtual void caseDefault(void *param);
-    virtual void caseVarDecl(ASTVarDecl &host, void *param);
+    //virtual void caseDataDecl(ASTDataDecl& host, void* param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);

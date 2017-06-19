@@ -36,12 +36,12 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	}
 
 	// Add the parameters to the scope.
-	list<ASTVarDecl*>& parameters = functionDecl->getParams();
-	for (list<ASTVarDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
+	vector<ASTDataDecl*>& parameters = functionDecl->getParameters();
+	for (vector<ASTDataDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
 	{
-		ASTVarDecl& parameter = **it;
-		string const& name = parameter.getName();
-		ZVarType const& type = parameter.getType()->resolve(functionScope);
+		ASTDataDecl& parameter = **it;
+		string const& name = parameter.name;
+		ZVarType const& type = *parameter.resolveType(&functionScope);
 		Variable* var = functionScope.addVariable(type, name, &parameter);
 		if (var == NULL)
 		{
@@ -53,7 +53,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 	// Evaluate the function block under its scope.
 	scope = &functionScope;
-	list<ASTStmt*>& statements = functionDecl->getBlock()->getStatements();
+	list<ASTStmt*>& statements = functionDecl->block->getStatements();
 	for (list<ASTStmt*>::iterator it = statements.begin(); it != statements.end(); ++it)
 		(*it)->execute(*this);
 	scope = scope->getParent();
@@ -126,10 +126,47 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host)
 	scope->addType(host.getName(), type, &host);
 }
 
-void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
+void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host)
 {
-	// Resolve the type under current scope.
-	ZVarType const& type = host.getType()->resolve(*scope);
+	// Resolve the base type.
+	ZVarType const& baseType = host.baseType->resolve(*scope);
+	if (!baseType.isResolved())
+	{
+		printErrorMsg(&host, UNRESOLVEDTYPE, baseType.getName());
+		failure = true;
+		return;
+	}
+
+	// Don't allow void type.
+	if (baseType == ZVarType::ZVOID)
+	{
+		failure = true;
+		printErrorMsg(&host, VOIDVAR);
+		return;
+	}
+
+	// Check for disallowed global types.
+	if (scope->isGlobal() && !baseType.canBeGlobal())
+	{
+		failure = true;
+        printErrorMsg(&host, REFVAR, baseType.getName());
+		return;
+	}
+
+	// Recurse on list contents.
+	vector<ASTDataDecl*> const& decls = host.getDeclarations();
+	for (vector<ASTDataDecl*>::const_iterator it = decls.begin();
+		 it != decls.end(); ++it)
+		caseDataDecl(**it);
+}
+
+void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host)
+{
+	// First do standard recursing.
+	RecursiveVisitor::caseDataDecl(host);
+
+	// Then resolve the type.
+	ZVarType const& type = *host.resolveType(scope);
 	if (!type.isResolved())
 	{
 		printErrorMsg(&host, UNRESOLVEDTYPE, type.getName());
@@ -141,7 +178,7 @@ void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
 	if (type == ZVarType::ZVOID)
 	{
 		failure = true;
-		printErrorMsg(&host, VOIDVAR, host.getName());
+		printErrorMsg(&host, VOIDVAR, host.name);
 		return;
 	}
 
@@ -149,98 +186,31 @@ void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
 	if (scope->isGlobal() && !type.canBeGlobal())
 	{
 		failure = true;
-        printErrorMsg(&host, REFVAR, type.getName() + " " + host.getName());
+        printErrorMsg(&host, REFVAR, type.getName() + " " + host.name);
 		return;
 	}
 
-	// Add variable to the scope.
-	Variable* var = scope->addVariable(type, host.getName(), &host);
+	// Add the variable to scope.
+	Variable* variable = scope->addVariable(type, host.name, &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
-	if (var == NULL)
+	if (variable == NULL)
 	{
 		failure = true;
-        printErrorMsg(&host, VARREDEF, host.getName());
+        printErrorMsg(&host, VARREDEF, host.name);
 		return;
 	}
 
 	// Special message for deprecated global variables.
 	if (scope->varDeclsDeprecated)
-        printErrorMsg(&host, DEPRECATEDGLOBAL, host.getName());
-}
-
-void SemanticAnalyzer::caseVarDeclInitializer(ASTVarDeclInitializer& host)
-{
-	// Recurse on initializer.
-	host.getInitializer()->execute(*this);
-
-	// Do standard variable declaration.
-	caseVarDecl(host);
-}
-
-void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
-{
-	// Resolve the type under current scope.
-	ZVarType const& elementType = host.getType()->resolve(*scope);
-	if (!elementType.isResolved())
-	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, elementType.getName());
-		failure = true;
-		return;
-	}
-
-	// Don't allow void type.
-	if (elementType == ZVarType::ZVOID)
-	{
-		failure = true;
-		printErrorMsg(&host, VOIDARR, host.getName());
-		return;
-	}
-
-	// Convert to array type.
-	ZVarTypeArray type(elementType);
-
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !type.canBeGlobal())
-	{
-		failure = true;
-        printErrorMsg(&host, REFARR, type.getName() + " " + host.getName());
-		return;
-	}
-
-	// Add array to the scope.
-	Variable* var = scope->addVariable(type, host.getName(), &host);
-
-	// If adding it failed, it means this scope already has a variable with
-	// that name.
-	if (var == NULL)
-	{
-		failure = true;
-        printErrorMsg(&host, ARRREDEF, host.getName());
-		return;
-	}
-
-	// Special message for deprecated global variables.
-	if (scope->isGlobal() && deprecateGlobals)
-        printErrorMsg(&host, DEPRECATEDGLOBAL, host.getName());
-
-	// Recurse on array's size.
-	host.getSize()->execute(*this);
-
-	// And on the initializer list.
-	ASTArrayList* initializer = host.getList();
-	if (initializer)
-	{
-		for (list<ASTExpr*>::iterator it = initializer->getList().begin(); it != initializer->getList().end(); ++it)
-			(*it)->execute(*this);
-	}
+        printErrorMsg(&host, DEPRECATEDGLOBAL, host.name);
 }
 
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 {
 	// Resolve the return type under current scope.
-	ZVarType const& returnType = host.getReturnType()->resolve(*scope);
+	ZVarType const& returnType = host.returnType->resolve(*scope);
 	if (!returnType.isResolved())
 	{
 		printErrorMsg(&host, UNRESOLVEDTYPE, returnType.getName());
@@ -249,21 +219,24 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 
 	// Gather the paramater types.
 	vector<ZVarType const*> paramTypes;
-	list<ASTVarDecl*>& params = host.getParams();
-	for (list<ASTVarDecl*>::iterator it = params.begin(); it != params.end(); ++it)
+	vector<ASTDataDecl*> const& params = host.getParameters();
+	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
+		 it != params.end(); ++it)
 	{
-		// Resolve the paramater type under current scope.
-		ZVarType const& type = (*it)->getType()->resolve(*scope);
+		ASTDataDecl& decl = **it;
+
+		// Resolve the parameter type under current scope.
+		ZVarType const& type = *decl.resolveType(scope);
 		if (!type.isResolved())
 		{
-			printErrorMsg(&host, UNRESOLVEDTYPE, type.getName());
+			printErrorMsg(&decl, UNRESOLVEDTYPE, type.getName());
 			failure = true;
 		}
 
 		// Don't allow void params.
 		if (type == ZVarType::ZVOID)
 		{
-			printErrorMsg(*it, FUNCTIONVOIDPARAM, (*it)->getName());
+			printErrorMsg(&decl, FUNCTIONVOIDPARAM, decl.name);
 			failure = true;
 		}
 
@@ -271,14 +244,14 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 	}
 
 	// Add the function to the scope.
-	Function* function = scope->addFunction(&returnType, host.getName(), paramTypes, &host);
+	Function* function = scope->addFunction(&returnType, host.name, paramTypes, &host);
 	function->node = &host;
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
 	{
-		printErrorMsg(&host, FUNCTIONREDEF, host.getName());
+		printErrorMsg(&host, FUNCTIONREDEF, host.name);
 		failure = true;
 	}
 }

@@ -178,12 +178,15 @@ class ZVarTypeArray : public ZVarType
 {
 public:
 	ZVarTypeArray(ZVarType const& elementType) : elementType(elementType) {}
-	ZVarTypeArray* clone() const {return new ZVarTypeArray(elementType);}
+	ZVarTypeArray* clone() const {return new ZVarTypeArray(*this);}
+
+	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
+
 	string getName() const {return elementType.getName() + "[]";}
 	ZVarType* resolve(Scope& scope) {return this;}
+
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
-	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
 	ZVarType const& getElementType() const {return elementType;}
 	ZVarType const& getBaseType() const;
 protected:

@@ -428,15 +428,15 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         //assign the local, non-parameters to slots on the stack
         
         AssignStackSymbols assign(&sf, symbols, offset);
-        node.getBlock()->execute(assign, NULL);
+        node.block->execute(assign, NULL);
         
 		offset = assign.getHighWaterOffset();
         
         //finally, assign the parameters, in reverse order
-		for (list<ASTVarDecl *>::reverse_iterator paramit = node.getParams().rbegin();
-			 paramit != node.getParams().rend(); ++paramit)
+		for (vector<ASTDataDecl*>::const_reverse_iterator it = node.getParameters().rbegin();
+			 it != node.getParameters().rend(); ++it)
 		{
-			int vid = symbols->getNodeId(*paramit);
+			int vid = symbols->getNodeId(*it);
 			sf.addToFrame(vid, offset);
 			offset += 10000;
 		}

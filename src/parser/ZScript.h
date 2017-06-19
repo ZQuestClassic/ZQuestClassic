@@ -36,8 +36,9 @@ namespace ZScript
 		map<ASTScript*, Script*> scriptsByNode;
 	};
 
-	struct Script
+	class Script
 	{
+	public:
 		Script(Program& program, ASTScript* script);
 
 		ASTScript* node;
@@ -51,25 +52,34 @@ namespace ZScript
 		void printErrors() const;
 	};
 
-	struct Literal
+	class Literal
 	{
+	public:
 		Literal(ASTLiteral* node, ZVarType const* type, int id);
 		ASTLiteral* node;
 		ZVarType const* type;
 		int id;
 	};
-	
-	struct Variable
+
+	class Variable
 	{
+	public:
 		Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id);
 		ASTDataDecl* node;
 		ZVarType const* type;
 		string name;
 		int id;
+
+		// Is this an inlined constant?
+		bool inlined;
+
+		// Is this a global variable?
+		bool global;
 	};
 
-	struct Function
+	class Function
 	{
+	public:
 		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
 				: node(NULL), internalScope(NULL), thisVar(NULL),
 				  returnType(returnType), name(name), paramTypes(paramTypes), id(id)

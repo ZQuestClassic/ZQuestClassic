@@ -96,64 +96,83 @@ void TypeCheck::caseStmtReturnVal(ASTStmtReturnVal &host)
 
 // Declarations
 
-void TypeCheck::caseArrayDecl(ASTArrayDecl &host)
+void TypeCheck::caseDataDecl(ASTDataDecl& host)
 {
-	ASTExpr *size = host.getSize();
-	size->execute(*this);
+	RecursiveVisitor::caseDataDecl(host);
+	if (failure) return;
 
-	if (!size->getVarType()->canCastTo(ZVarType::FLOAT))
+	Variable& variable = *host.manager;
+
+	// Constants are treated special.
+	if (*variable.type == ZVarType::CONST_FLOAT)
 	{
-		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
-		failure = true;
-		return;
+		// A constant without an initializer doesn't make sense.
+		if (!host.getInitializer())
+		{
+			printErrorMsg(&host, CONSTUNITIALIZED);
+			failure = true;
+			return;
+		}
+
+		// Inline the constant if possible.
+		if (host.getInitializer()->hasDataValue())
+		{
+			symbolTable.inlineConstant(&host, host.getInitializer()->getDataValue());
+			variable.inlined = true;
+		}
 	}
 
-    if (host.getList() != NULL)
-    {
-		ZVarTypeId arraytypeid = symbolTable.getVarTypeId(&host);
-        list<ASTExpr*> l = host.getList()->getList();
-
-        for(list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
-        {
-            (*it)->execute(*this);
-            if (failure) return;
-
-            if (!standardCheck(arraytypeid, *(*it)->getVarType(), &host))
-            {
-                failure = true;
-                return;
-            }
-        }
-    }
-}
-
-void TypeCheck::caseVarDecl(ASTVarDecl &host)
-{
-	// Constants must be initialized.
-	if (*symbolTable.getVarType(&host) == ZVarType::CONST_FLOAT)
+	// Does it have an initializer?
+	if (host.getInitializer())
 	{
-		printErrorMsg(&host, CONSTUNITIALIZED);
-		failure = true;
+		// Make sure we can cast the initializer to the type.
+		ZVarType const& initType = *host.getInitializer()->getVarType();
+		if (!standardCheck(*variable.type, initType, &host))
+		{
+			failure = true;
+			return;
+		}
+
+		// If it's an array, do an extra check for array count and sizes.
+		if (variable.type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+		{
+			if (*variable.type != initType)
+			{
+				string msg = initType.getName() + " to " + variable.type->getName();
+				printErrorMsg(&host, ILLEGALCAST, msg);
+				failure = true;
+				return;
+			}
+		}
 	}
 }
 
-void TypeCheck::caseVarDeclInitializer(ASTVarDeclInitializer &host)
+void TypeCheck::caseDataDeclExtraArray(ASTDataDeclExtraArray& host)
 {
-    ASTExpr* init = host.getInitializer();
-    init->execute(*this);
-    if (failure) return;
+	// Type Check size expressions.
+	RecursiveVisitor::caseDataDeclExtraArray(host);
 
-    ZVarType const& rtype = *init->getVarType();
-    ZVarType const& ltype = *symbolTable.getVarType(&host);
-
-    if (!standardCheck(ltype, rtype, &host))
-        failure = true;
-
-	// If a constant, save it as an inlined value.
-	if (*symbolTable.getVarType(&host) == ZVarType::CONST_FLOAT)
+	// Iterate over sizes.
+	for (vector<ASTExpr*>::const_iterator it = host.dimensions.begin();
+		 it != host.dimensions.end(); ++it)
 	{
-		if (init->hasDataValue())
-			symbolTable.inlineConstant(&host, init->getDataValue());
+		ASTExpr& size = **it;
+
+		// Make sure each size can cast to float.
+		if (!size.getVarType()->canCastTo(ZVarType::FLOAT))
+		{
+			printErrorMsg(&host, NONINTEGERARRAYSIZE);
+			failure = true;
+			return;
+		}
+
+		// Make sure that the size is constant.
+		if (!size.hasDataValue())
+		{
+			printErrorMsg(&host, EXPRNOTCONSTANT);
+			failure = true;
+			return;
+		}
 	}
 }
 
@@ -905,11 +924,19 @@ void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host)
 	RecursiveVisitor::caseArrayLiteral(host);
 	if (failure) return;
 
-	// Check the size is a number, if present.
+	// Check the explicit size is a number, if present.
 	ASTExpr* size = host.getSize();
 	if (size && !size->getVarType()->canCastTo(ZVarType::FLOAT))
 	{
-		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
+		printErrorMsg(&host, NONINTEGERARRAYSIZE);
+		failure = true;
+		return;
+	}
+
+	// Don't allow an explicit size if we're part of a declaration.
+	if (size && host.declaration)
+	{
+		printErrorMsg(&host, ARRAYLITERALRESIZE);
 		failure = true;
 		return;
 	}
@@ -1019,17 +1046,6 @@ bool TypeCheck::check(SymbolTable& symbolTable, AST& node)
 // GetLValType
 
 GetLValType::GetLValType(TypeCheck& typeCheck) : typeCheck(typeCheck) {}
-
-void GetLValType::caseDefault(void*)
-{
-    assert(false);
-}
-
-void GetLValType::caseVarDecl(ASTVarDecl& host)
-{
-    host.execute(typeCheck);
-    typeId = typeCheck.symbolTable.getVarTypeId(&host);
-}
 
 void GetLValType::caseExprArrow(ASTExprArrow &host)
 {

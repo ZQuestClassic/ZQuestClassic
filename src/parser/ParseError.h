@@ -59,5 +59,7 @@ void printErrorMsg(AST *offender, int errorID, string param = string());
 #define CONSTUNITIALIZED 48
 #define CONSTASSIGN 49
 #define EMPTYARRAYLITERAL 50
+#define DIMENSIONMISMATCH 51
+#define ARRAYLITERALRESIZE 52
 #endif
 
