@@ -1156,7 +1156,9 @@ string VarArgument::toString()
     case SETSCREENWARPRY: return "SETSCREENWARPRY";
     
     case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
-    
+    case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
+    case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
+    case PASSSUBOFS: return "PASSSUBOFS";
     
     
     default:
@@ -2272,5 +2274,9 @@ string OGetScreenWarpReturnY::toString()
     return "GETSCREENWARPRY " + getArgument()->toString();
 }
 
+string OTriggerSecretRegister::toString()
+{
+    return "TRIGGERSECRETR " + getArgument()->toString();
+}
 //////////////////////////////////////////////////////////////////////////////////////
 

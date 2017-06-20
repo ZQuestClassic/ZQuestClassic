@@ -360,7 +360,7 @@ void initZScriptGlobalRAM()
 {
     g_doscript = 1;
     globalScriptData.Clear();
-    clear_global_stack();
+    FFScript::clear_global_stack();
 }
 
 extern GameScripts scripts;

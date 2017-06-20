@@ -4,6 +4,8 @@
 #include <utility>
 #include <string>
 #include <list>
+#include "zelda.h"
+
 
 class FFScript
 {
@@ -12,12 +14,309 @@ private:
     
 public:
     byte rules[512];
+
+
+
     
     virtual ~FFScript();
     virtual int getrule(int rule);   
-    virtual void setrule(int rule, bool state);  
+    virtual void setrule(int rule, bool state); 
+static void set_screenwarpReturnY(mapscr *m, int d, int value);
+static void set_screendoor(mapscr *m, int d, int value);
+static void set_screenenemy(mapscr *m, int index, int value);
+static void set_screenlayeropacity(mapscr *m, int d, int value);
+static void set_screensecretcombo(mapscr *m, int d, int value);
+static void set_screensecretcset(mapscr *m, int d, int value);
+static void set_screensecretflag(mapscr *m, int d, int value);
+static void set_screenlayermap(mapscr *m, int d, int value);
+static void set_screenlayerscreen(mapscr *m, int d, int value);
+static void set_screenpath(mapscr *m, int d, int value);
+static void set_screenwarpReturnX(mapscr *m, int d, int value);
+static void set_screenWidth(mapscr *m, int value);
+static void set_screenHeight(mapscr *m, int value);
+static void set_screenViewX(mapscr *m, int value);
+static void set_screenViewY(mapscr *m, int value);
+static void set_screenGuy(mapscr *m, int value);
+static void set_screenString(mapscr *m, int value);
+static void set_screenRoomtype(mapscr *m, int value);
+static void set_screenEntryX(mapscr *m, int value);
+static void set_screenEntryY(mapscr *m, int value);
+static void set_screenitem(mapscr *m, int value);
+static void set_screenundercombo(mapscr *m, int value);
+static void set_screenundercset(mapscr *m, int value);
+static void set_screenatchall(mapscr *m, int value);
+static long get_screenWidth(mapscr *m);
+static long get_screenHeight(mapscr *m);
+static void deallocateZScriptArray(const long ptrval);
+static int get_screen_d(long index1, long index2);
+static void set_screen_d(long index1, long index2, int val);
+static int whichlayer(long scr);
+static void clear_ffc_stack(const byte i);
+static void clear_global_stack();
+static void do_zapout();
+static void do_zapin();
+static void do_openscreen();
+static void do_wavyin();
+static void do_wavyout();
+
+#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
+
+enum __Error
+    {
+        _NoError, //OK!
+        _Overflow, //script array too small
+        _InvalidPointer, //passed NULL pointer or similar
+        _OutOfBounds, //library array out of bounds
+        _InvalidSpriteUID //bad npc, ffc, etc.
+    };
+    
+    
+    static INLINE int checkUserArrayIndex(const long index, const dword size)
+    {
+        if(index < 0 || index >= long(size))
+        {
+          //  Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+            return _OutOfBounds;
+        }
+        
+        return _NoError;
+    }
+
+    
+    
+    //only if the player is messing with their pointers...
+    static ZScriptArray& InvalidError(const long ptr)
+    {
+        //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
+        return INVALIDARRAY;
+    }
+    
+    //Returns a reference to the correct array based on pointer passed
+    static ZScriptArray& getArray(const long ptr)
+    {
+        if(ptr <= 0)
+            return InvalidError(ptr);
+            
+        if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+        {
+            dword gptr = ptr - MAX_ZCARRAY_SIZE;
+            
+            if(gptr > game->globalRAM.size())
+                return InvalidError(ptr);
+                
+            return game->globalRAM[gptr];
+        }
+        else
+        {
+            if(localRAM[ptr].Size() == 0)
+                return InvalidError(ptr);
+                
+            return localRAM[ptr];
+        }
+    }
+    
+    static size_t getSize(const long ptr)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return size_t(-1);
+            
+        return a.Size();
+    }
+    
+    //Can't you get the std::string and then check its length?
+    static int strlen(const long ptr)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return -1;
+            
+        word count;
+        
+        for(count = 0; checkUserArrayIndex(count, a.Size()) == _NoError && a[count] != '\0'; count++) ;
+        
+        return count;
+    }
+    
+    //Returns values of a zscript array as an std::string.
+    static void getString(const long ptr, std::string &str, word num_chars = 256)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+        {
+            str.clear();
+            return;
+        }
+        
+        str.clear();
+        
+        for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
+        {
+            str += char(a[i] / 10000);
+            num_chars--;
+        }
+    }
+    
+    //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+    static void getValues(const long ptr, long* arrayPtr, word num_values)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+        {
+            arrayPtr[i] = (a[i] / 10000);
+            num_values--;
+        }
+    }
+    
+    //Get element from array
+    static INLINE long getElement(const long ptr, const long offset)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return -10000;
+            
+        if(checkUserArrayIndex(offset, a.Size()) == _NoError)
+            return a[offset];
+        else
+            return -10000;
+    }
+    
+    //Set element in array
+    static INLINE void setElement(const long ptr, const long offset, const long value)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        if(checkUserArrayIndex(offset, a.Size()) == _NoError)
+            a[offset] = value;
+    }
+    
+    //Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
+    template <typename T>
+    static int getArray(const long ptr, T *refArray)
+    {
+        return getArray(ptr, getArray(ptr).Size(), 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int getArray(const long ptr, const word size, T *refArray)
+    {
+        return getArray(ptr, size, 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int getArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word j = 0, k = userStride;
+        
+        for(word i = 0; j < size; i++)
+        {
+            if(i >= a.Size())
+                return _Overflow;
+                
+            if(userOffset-- > 0)
+                continue;
+                
+            if(k > 0)
+                k--;
+            else if (checkUserArrayIndex(i, a.Size()) == _NoError)
+            {
+                refArray[j + refArrayOffset] = T(a[i]);
+                k = userStride;
+                j++;
+            }
+        }
+        
+        return _NoError;
+    }
+    
+    
+    static int setArray(const long ptr, const std::string s2)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word i;
+        
+        for(i = 0; i < s2.size(); i++)
+        {
+            if(i >= a.Size())
+            {
+                a.Back() = '\0';
+                return _Overflow;
+            }
+            
+            if(checkUserArrayIndex(i, a.Size()) == _NoError)
+                a[i] = s2[i] * 10000;
+        }
+        
+        if(checkUserArrayIndex(i, a.Size()) == _NoError)
+            a[i] = '\0';
+            
+        return _NoError;
+    }
+    
+    
+    //Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
+    template <typename T>
+    static int setArray(const long ptr, const word size, T *refArray)
+    {
+        return setArray(ptr, size, 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int setArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word j = 0, k = userStride;
+        
+        for(word i = 0; j < size; i++)
+        {
+            if(i >= a.Size())
+                return _Overflow; //Resize?
+                
+            if(userOffset-- > 0)
+                continue;
+                
+            if(k > 0)
+                k--;
+            else if(checkUserArrayIndex(i, a.Size()) == _NoError)
+            {
+                a[i] = long(refArray[j + refArrayOffset]) * 10000;
+                k = userStride;
+                j++;
+            }
+        }
+        
+        return _NoError;
+    }
+    
+    
   
+    
 };
+
 
 
 extern long ffmisc[32][16];
@@ -435,6 +734,8 @@ enum ASM_DEFINE
     GETSCREENPATH,
     GETSCREENWARPRX,
     GETSCREENWARPRY,
+    TRIGGERSECRETR,
+    TRIGGERSECRETV,
     NUMCOMMANDS           //0x013B
 };
 
@@ -1122,8 +1423,11 @@ enum ASM_DEFINE
 #define SETSCREENWARPRX 0x1180
 #define SETSCREENWARPRY 0x1181
 #define GAMENUMMESSAGES 0x1182
+#define GAMESUBSCHEIGHT 0x1183
+#define GAMEPLAYFIELDOFS 0x1184
+#define PASSSUBOFS 0x1185
 
-#define NUMVARIABLES         0x1183
+#define NUMVARIABLES         0x1186
 
 struct quad3Dstruct
 {

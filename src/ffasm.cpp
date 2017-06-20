@@ -356,6 +356,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GETSCREENPATH",      1,   0,   0,   0},
 	{ "GETSCREENWARPRX",      1,   0,   0,   0},
 	{ "GETSCREENWARPRY",      1,   0,   0,   0},
+	{ "TRIGGERSECRETR",          1,   0,   0,   0},
+    { "TRIGGERSECRETV",          1,   1,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
@@ -885,6 +887,9 @@ script_variable variable_list[]=
 	{ "SETSCREENWARPRX",              SETSCREENWARPRX,                 0,             0 },
 	{ "SETSCREENWARPRY",              SETSCREENWARPRY,                 0,             0 },
 	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0, 0 },
+	{"GAMESUBSCHEIGHT", GAMESUBSCHEIGHT, 0, 0 },
+	{"GAMEPLAYFIELDOFS", GAMEPLAYFIELDOFS, 0, 0 },
+	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
 	    { " ",                       -1,             0,             0 }
 };
 

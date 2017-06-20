@@ -3880,7 +3880,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if(arrayOwner[i]<32 && (!(ffscr.ffflags[arrayOwner[i]]&ffCARRYOVER) || ffscr.flags5&fNOFFCARRYOVER))
-                deallocateArray(i);
+                FFScript::deallocateZScriptArray(i);
         }
         
         for(int i = 0; i < 32; i++)
@@ -3936,7 +3936,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
             {
                 memset(ffmisc[i], 0, 16 * sizeof(long));
                 ffcScriptData[i].Clear();
-                clear_ffc_stack(i);
+                FFScript::clear_ffc_stack(i);
             }
         }
     }

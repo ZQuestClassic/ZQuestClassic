@@ -592,6 +592,9 @@
 #define SETSCREENWARPRX 554
 #define SETSCREENWARPRY 555
 #define GAMENUMMESSAGES 556
+#define GAMESUBSCHEIGHT 557
+#define GAMEPLAYFIELDOFS 558
+#define PASSSUBOFS 559
 
 //END OF BYTECODE
 
@@ -3114,6 +3117,16 @@ public:
     }
 };
 
+class OTriggerSecretRegister : public UnaryOpcode
+{
+public:
+    OTriggerSecretRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OTriggerSecretRegister(a->clone());
+    }
+};
 
 
 #endif

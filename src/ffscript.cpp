@@ -26,6 +26,7 @@
 #include "backend/AllBackends.h"
 #include "pal.h"
 #include "zdefs.h"
+#include "zq_class.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -84,15 +85,6 @@ long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
 
-void clear_ffc_stack(const byte i)
-{
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
-}
-
-void clear_global_stack()
-{
-    memset(global_stack, 0, 256 * sizeof(long));
-}
 
 
 int FFScript::getrule(int rule){
@@ -104,7 +96,7 @@ void FFScript::setrule(int rule, bool state){
 }
 
 //ScriptHelper
-class SH
+class SH : public FFScript
 {
 
 ///-----------------------------//
@@ -666,6 +658,8 @@ void clearScriptHelperData()
 //           Array Helper Functions           //
 ///---------------------------------------------//
 
+//THis would be better if 't'were in a header. -Z
+
 //Array Helper
 class ArrayH : public SH
 {
@@ -892,28 +886,7 @@ public:
     }
 };
 
-// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
-void deallocateArray(const long ptrval)
-{
-    if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
-        Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
-    else
-    {
-        arrayOwner[ptrval] = 255;
-        
-        if(localRAM[ptrval].Size() == 0)
-            Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
-        else
-        {
-            word size = localRAM[ptrval].Size();
-            localRAM[ptrval].Clear();
-            
-            // If this happens once per frame, it can drown out every other message. -L
-            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-            size = size;
-        }
-    }
-}
+
 
 item *checkItem(long iid)
 {
@@ -981,191 +954,14 @@ weapon *checkEWpn(long eid, const char *what)
 }
 
 
-int get_screen_d(long index1, long index2)
-{
-    if(index2 < 0 || index2 > 7)
-    {
-        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
-        return 0;
-    }
-    
-    return game->screen_d[index1][index2];
-}
 
-void set_screen_d(long index1, long index2, int val)
-{
-    if(index2 < 0 || index2 > 7)
-    {
-        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
-        return;
-    }
-    
-    game->screen_d[index1][index2] = val;
-}
 
-// If scr is currently being used as a layer, return that layer no.
-int whichlayer(long scr)
-{
-    for(int i = 0; i < 6; i++)
-    {
-        if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
-            return i;
-    }
-    
-    return -1;
-}
 
 sprite *s;
 
 
 
-void set_screendoor(mapscr *m, int d, int value)
-{
-    int dr = vbound(d,0,3);
-    int doortype = vbound(value,0,14);
-    m->door[dr] = doortype;
-}
 
-
-void set_screenenemy(mapscr *m, int index, int value)
-{
-    int enem_indx = vbound(index,0,9);
-    m->enemy[enem_indx] = vbound(value,0,511);
-}
-void set_screenlayeropacity(mapscr *m, int d, int value)
-{
-    int layer = vbound(d,0,6); int op;
-    if ( value <= 64 ) op = 64; 
-    else op = 128;
-    m->layeropacity[layer] = op;
-}
-void set_screensecretcombo(mapscr *m, int d, int value)
-{
-    int indx = vbound(value,0,127);
-    int cmb = vbound(value,0,MAXCOMBOS);
-    m->secretcombo[indx] = cmb;
-}
-void set_screensecretcset(mapscr *m, int d, int value)
-{
-    int indx = vbound(value,0,127);
-    int cs = vbound(value,0,15);
-    m->secretcset[indx] = cs;
-}
-void set_screensecretflag(mapscr *m, int d, int value)
-{
-    int indx = vbound(d,0,127);
-    int flag = vbound(value,0,MAX_FLAGS);
-    m->secretflag[indx] = flag;
-}
-void set_screenlayermap(mapscr *m, int d, int value)
-{
-    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
-    int mp = vbound(value,0, (map_count-1));
-    m->layermap[layer] = mp;
-}
-void set_screenlayerscreen(mapscr *m, int d, int value)
-{
-    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
-    int sc = vbound(value,0, 0x87);
-    m->layerscreen[layer] = sc;
-}
-void set_screenpath(mapscr *m, int d, int value)
-{
-    int indx = vbound(d,0,3);
-    m->path[indx] = value;
-}
-void set_screenwarpReturnX(mapscr *m, int d, int value)
-{
-    int x = vbound(value,0,255);
-    m->warpreturnx[d] = x;
-}
-void set_screenwarpReturnY(mapscr *m, int d, int value)
-{
-    int y = vbound(value, 0, 255); //should be screen hight max, except that we may be able to move the subscreen.
-    m->warpreturny[d] = y;
-}
-
-//Use as SetScreenD:
-void set_screenWidth(mapscr *m, int value)
-{
-    int w = vbound(value,0,255); //value is char
-    m->scrWidth = w;
-}
-void set_screenHeight(mapscr *m, int value)
-{
-    int h = vbound(value,0,255); //value is char
-    m->scrHeight = h;
-}
-void set_screenViewX(mapscr *m, int value)
-{
-    int x = vbound(value, 0, 255); //value is char
-    m->viewX = x;
-}
-void set_screenViewY(mapscr *m, int value)
-{
-    int y = vbound(value, 0, 255); //value is char
-    m->viewY = y;
-}
-void set_screenGuy(mapscr *m, int value)
-{
-    int bloke = vbound(value,0,9); 
-    m->guy = bloke ;
-}
-void set_screenString(mapscr *m, int value)
-{
-    int string = vbound(value, 0, msg_count-1); //Sanity check to keep it within the legal string IDs.
-    m->str = string;
-}
-void set_screenRoomtype(mapscr *m, int value)
-{
-    int r = vbound(value, rNONE, (rMAX-1)); 
-    m->room = r;
-}
-void set_screenEntryX(mapscr *m, int value)
-{
-    int x = vbound(value,0,255);
-    m->entry_x = x;
-}
-void set_screenEntryY(mapscr *m, int value)
-{
-    int y = vbound(value,0,255);
-    m->entry_y = y;
-}
-void set_screenitem(mapscr *m, int value)
-{
-    int itm = vbound(value,0,MAXITEMS);
-    m->item = itm;
-}
-void set_screenundercombo(mapscr *m, int value)
-{
-    int cmb = vbound(value,0,MAXCOMBOS);
-    m->undercombo = cmb;
-}
-void set_screenundercset(mapscr *m, int value)
-{
-    int cs = vbound(value,0,15);
-    m->undercset = cs;
-}
-void set_screenatchall(mapscr *m, int value)
-{
-    //What are ALL of the catchalls and their max (used) values?
-    int ctch = vbound(value, 0, 65535); //It is a word type. 
-    m->catchall = ctch;
-}
-
-
-//One too many inputs here. -Z
-long get_screenWidth(mapscr *m)
-{
-    long f = m->scrWidth;
-    return f*10000;
-}
-//One too many inputs here. -Z
-long get_screenHeight(mapscr *m)
-{
-    int f = m->scrHeight;
-    return f*10000;
-}
 
 long get_register(const long arg)
 {
@@ -2913,6 +2709,22 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Game Info
 	
+	
+    case GAMESUBSCHEIGHT:
+    {
+	ret = passive_subscreen_height*10000;    
+    }
+    break;
+    
+    case GAMEPLAYFIELDOFS:
+	ret = playing_field_offset*10000;
+    break;
+    
+    case PASSSUBOFS:
+	ret = passive_subscreen_offset * 10000;
+    break;
+
+    
     case ZELDAVERSION:
         ret = ZC_VERSION; //Do *not* multiply by 10,000!
         break;
@@ -3206,7 +3018,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->data[pos]*10000;
             else if(layr>-1)
@@ -3229,7 +3041,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
             else if(layr>-1)
@@ -3252,7 +3064,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
             else if(layr>-1)
@@ -3275,7 +3087,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
             else if(layr>-1)
@@ -3299,7 +3111,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
             else if(layr>-1)
@@ -3324,7 +3136,7 @@ else \
           m>=0 && m<map_count)
         {
             long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            int layr = FFScript::whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
             else if(layr>-1)
@@ -3361,7 +3173,7 @@ else \
 		
 	//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
 	//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
-		set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 		
 		
 		
@@ -3380,7 +3192,7 @@ else \
 			BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
 			return -10000;
       
-		set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 		
     }
     
@@ -3390,16 +3202,16 @@ else \
     case SDD:
     {
         int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-        ret=get_screen_d(di, ri->d[0]/10000);
+        ret=FFScript::get_screen_d(di, ri->d[0]/10000);
     }
     break;
     
     case SDDD:
-        ret=get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
+        ret=FFScript::get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
         break;
         
     case SDDDD:
-        ret=get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
+        ret=FFScript::get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
         break;
         
     case SCRDOORD:
@@ -3409,11 +3221,11 @@ else \
     
     //These use the same method as GetScreenD -Z
     case SETSCREENWIDTH:
-        ret=get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        ret=FFScript::get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
 case SETSCREENHEIGHT:
-        ret=get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        ret=FFScript::get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
 case SETSCREENVIEWX:
@@ -3726,7 +3538,7 @@ void set_register(const long arg, const long value)
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if(arrayOwner[i]==ri->ffcref)
-                deallocateArray(i);
+                FFScript::deallocateZScriptArray(i);
         }
         
         tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, scripts.ffscripts.size()-1);
@@ -5644,6 +5456,29 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
 ///----------------------------------------------------------------------------------------------------//
 //Game Information
+    
+    case GAMESUBSCHEIGHT:
+    {
+	int v = vbound(value,0,256);
+	passive_subscreen_height = (v/10000);   
+    }
+    break;
+    
+    case GAMEPLAYFIELDOFS:
+    {
+	int v = vbound(value,-256, 256);
+	playing_field_offset = (v/10000);
+    }
+    break;
+    
+    case PASSSUBOFS:
+    {
+	int v = vbound(value,-256, 256);
+	passive_subscreen_offset = (v/10000);
+    }
+    break;
+
+    
     case GAMEDEATHS:
         game->set_deaths(value/10000);
         break;
@@ -5926,7 +5761,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             screen_combo_modify_postroutine(tmpscr,pos);
         }
         
-        int layr = whichlayer(scr);
+        int layr = FFScript::whichlayer(scr);
         
         if(layr>-1)
         {
@@ -5956,7 +5791,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(scr==(currmap*MAPSCRS+currscr))
             tmpscr->cset[pos] = value/10000;
             
-        int layr = whichlayer(scr);
+        int layr = FFScript::whichlayer(scr);
         
         if(layr>-1)
             tmpscr2[layr].cset[pos]=(value/10000)&15;
@@ -5980,7 +5815,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(scr==(currmap*MAPSCRS+currscr))
             tmpscr->sflag[pos] = value/10000;
             
-        int layr = whichlayer(scr);
+        int layr = FFScript::whichlayer(scr);
         
         if(layr>-1)
             tmpscr2[layr].sflag[pos]=value/10000;
@@ -6061,28 +5896,28 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     //These use the same method as SetScreenD
     case SETSCREENWIDTH:
-	set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENHEIGHT:
-	set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENVIEWX:
-	set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENVIEWY:
-	set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENGUY:
-	set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENSTRING:
     {
-	set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	    //should this be either
 	    //set_screenString(&TheMaps[((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)])-1), value/10000);
 	    //or
@@ -6092,31 +5927,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	break;
 
     case SETSCREENROOM:
-	set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENENTX:
-	set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENENTY:
-	set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENITEM:
-	set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENUNDCMB:
-	set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENUNDCST:
-	set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
     case SETSCREENCATCH:
-	set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	FFScript::set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
 //These use the method of SetScreenEnemy
@@ -6135,7 +5970,7 @@ case SETSCREENLAYOP:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerOpacity(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6151,7 +5986,7 @@ case SETSCREENSECCMB:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretCombo(...index...)") != SH::_NoError)
 		return;
 		
-	set_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6167,7 +6002,7 @@ case SETSCREENSECCST:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretCSet(...index...)") != SH::_NoError)
 		return;
 		
-	set_screensecretcset(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screensecretcset(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6183,7 +6018,7 @@ case SETSCREENSECFLG:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretFlag(...index...)") != SH::_NoError)
 		return;
 		
-	set_screensecretflag(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screensecretflag(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6199,7 +6034,7 @@ case SETSCREENLAYMAP:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerMap(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenlayermap(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenlayermap(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6215,7 +6050,7 @@ case SETSCREENLAYSCR:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerScreen(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6231,7 +6066,7 @@ case SETSCREENPATH:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenPath(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenpath(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenpath(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6247,7 +6082,7 @@ case SETSCREENWARPRX:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenWarpReturnX(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6263,7 +6098,7 @@ case SETSCREENWARPRY:
 		BC::checkBounds(index, 0, 9, "Game->SetScreenWarpReturnY(...index...)") != SH::_NoError)
 		return;
 		
-	set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+	FFScript::set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], index, nn); 
 }
 break;
 
@@ -6271,7 +6106,7 @@ break;
     {
         {
             int di2 = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-            set_screen_d(di2, ri->d[0]/10000, value);
+            FFScript::set_screen_d(di2, ri->d[0]/10000, value);
             break;
         }
     }
@@ -6282,11 +6117,11 @@ break;
         break;
         
     case SDDD:
-        set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
+        FFScript::set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
         break;
         
     case SDDDD:
-        set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
+        FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
     case SCRDOORD:
@@ -6550,7 +6385,7 @@ void do_deallocatemem()
 {
     const long ptrval = get_register(sarg1) / 10000;
     
-    deallocateArray(ptrval);
+    FFScript::deallocateZScriptArray(ptrval);
 }
 
 void do_loada(const byte a)
@@ -7171,6 +7006,35 @@ void do_layermap()
         set_register(sarg1, tmpscr->layermap[layer] * 10000);
 }
 
+void do_triggersecret(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+	int cmbx; int cmby; 
+	/*
+	//cmbx = COMBOX(1);
+	//cmby = COMBOY(1);
+	//findentrance(cmbx, cmby, 4, true);
+	
+	cmbx = COMBOX(86);
+	cmby = COMBOY(86);
+	findentrance(cmbx, cmby, 4, true);
+	*/
+	//cmbx = COMBOX(86);
+	//	cmby = COMBOY(86);
+	//	findentrance(cmbx, cmby, 4, true);
+	
+	for ( int q = 0; q < 176; q++ ) 
+	{
+		cmbx = COMBOX(q);
+		cmby = COMBOY(q);
+		if ( findentrance(cmbx, cmby, ID, false) ) break; //This is still triggering all secrets on the screen. 
+		//hidden_entrance(0,true,single16,scombo); //scombo is the position in one function, but a flag that determines the way it works, in another?!. 
+	}
+	
+	
+}
+	
+
 void do_triggersecrets()
 {
     hidden_entrance(0, true, false, -4);
@@ -7179,16 +7043,7 @@ void do_triggersecrets()
 	//We need a variation on these that triggers any combos with a given flag. -Z
 }
 
-void do_zapout()
-{
-	zapout();
-}
 
-void do_zapin(){ zapin(); }
-
-void do_openscreen() { openscreen(); }
-void do_wavyin() { wavyin(); }
-void do_wavyout() { wavyout(false); }
 
 
 void do_getscreenflags()
@@ -9292,6 +9147,14 @@ int run_script(const byte type, const word script, const byte i)
         case PLAYSOUNDV:
             do_sfx(true);
             break;
+	
+	case TRIGGERSECRETR:
+            do_triggersecret(false);
+            break;
+            
+        case TRIGGERSECRETV:
+            do_sfx(true);
+            break;
             
         case PLAYMIDIR:
             do_midi(false);
@@ -9837,19 +9700,19 @@ int run_script(const byte type, const word script, const byte i)
 	
 	//Visual Effects
 	case WAVYIN:
-		do_wavyin();
+		FFScript::do_wavyin();
 		break;
 	case WAVYOUT:
-		do_wavyout();
+		FFScript::do_wavyout();
 		break;
 	case ZAPIN:
-		do_zapin();
+		FFScript::do_zapin();
 		break;
 	case ZAPOUT:
-		do_zapout();
+		FFScript::do_zapout();
 		break;
 	case OPENWIPE:
-		do_openscreen();
+		FFScript::do_openscreen();
 		break;
 	
 	//Monochrome
@@ -9959,3 +9822,232 @@ int ffscript_engine(const bool preload)
 
 
 ///----------------------------------------------------------------------------------------------------
+
+
+void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
+{
+    int y = vbound(value, 0, 255); //should be screen hight max, except that we may be able to move the subscreen.
+    m->warpreturny[d] = y;
+}
+
+void FFScript::set_screendoor(mapscr *m, int d, int value)
+{
+    int dr = vbound(d,0,3);
+    int doortype = vbound(value,0,14);
+    m->door[dr] = doortype;
+}
+
+
+void FFScript::set_screenenemy(mapscr *m, int index, int value)
+{
+    int enem_indx = vbound(index,0,9);
+    m->enemy[enem_indx] = vbound(value,0,511);
+}
+void FFScript::set_screenlayeropacity(mapscr *m, int d, int value)
+{
+    int layer = vbound(d,0,6); int op;
+    if ( value <= 64 ) op = 64; 
+    else op = 128;
+    m->layeropacity[layer] = op;
+}
+void FFScript::set_screensecretcombo(mapscr *m, int d, int value)
+{
+    int indx = vbound(value,0,127);
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->secretcombo[indx] = cmb;
+}
+void FFScript::set_screensecretcset(mapscr *m, int d, int value)
+{
+    int indx = vbound(value,0,127);
+    int cs = vbound(value,0,15);
+    m->secretcset[indx] = cs;
+}
+void FFScript::set_screensecretflag(mapscr *m, int d, int value)
+{
+    int indx = vbound(d,0,127);
+    int flag = vbound(value,0,MAX_FLAGS);
+    m->secretflag[indx] = flag;
+}
+void FFScript::set_screenlayermap(mapscr *m, int d, int value)
+{
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int mp = vbound(value,0, (map_count-1));
+    m->layermap[layer] = mp;
+}
+void FFScript::set_screenlayerscreen(mapscr *m, int d, int value)
+{
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int sc = vbound(value,0, 0x87);
+    m->layerscreen[layer] = sc;
+}
+void FFScript::set_screenpath(mapscr *m, int d, int value)
+{
+    int indx = vbound(d,0,3);
+    m->path[indx] = value;
+}
+void FFScript::set_screenwarpReturnX(mapscr *m, int d, int value)
+{
+    int x = vbound(value,0,255);
+    m->warpreturnx[d] = x;
+}
+
+
+//Use as SetScreenD:
+void FFScript::set_screenWidth(mapscr *m, int value)
+{
+    int w = vbound(value,0,255); //value is char
+    m->scrWidth = w;
+}
+void FFScript::set_screenHeight(mapscr *m, int value)
+{
+    int h = vbound(value,0,255); //value is char
+    m->scrHeight = h;
+}
+void FFScript::set_screenViewX(mapscr *m, int value)
+{
+    int x = vbound(value, 0, 255); //value is char
+    m->viewX = x;
+}
+void FFScript::set_screenViewY(mapscr *m, int value)
+{
+    int y = vbound(value, 0, 255); //value is char
+    m->viewY = y;
+}
+void FFScript::set_screenGuy(mapscr *m, int value)
+{
+    int bloke = vbound(value,0,9); 
+    m->guy = bloke ;
+}
+void FFScript::set_screenString(mapscr *m, int value)
+{
+    int string = vbound(value, 0, msg_count-1); //Sanity check to keep it within the legal string IDs.
+    m->str = string;
+}
+void FFScript::set_screenRoomtype(mapscr *m, int value)
+{
+    int r = vbound(value, rNONE, (rMAX-1)); 
+    m->room = r;
+}
+void FFScript::set_screenEntryX(mapscr *m, int value)
+{
+    int x = vbound(value,0,255);
+    m->entry_x = x;
+}
+void FFScript::set_screenEntryY(mapscr *m, int value)
+{
+    int y = vbound(value,0,255);
+    m->entry_y = y;
+}
+void FFScript::set_screenitem(mapscr *m, int value)
+{
+    int itm = vbound(value,0,MAXITEMS);
+    m->item = itm;
+}
+void FFScript::set_screenundercombo(mapscr *m, int value)
+{
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->undercombo = cmb;
+}
+void FFScript::set_screenundercset(mapscr *m, int value)
+{
+    int cs = vbound(value,0,15);
+    m->undercset = cs;
+}
+void FFScript::set_screenatchall(mapscr *m, int value)
+{
+    //What are ALL of the catchalls and their max (used) values?
+    int ctch = vbound(value, 0, 65535); //It is a word type. 
+    m->catchall = ctch;
+}
+
+
+//One too many inputs here. -Z
+long FFScript::get_screenWidth(mapscr *m)
+{
+    long f = m->scrWidth;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long FFScript::get_screenHeight(mapscr *m)
+{
+    int f = m->scrHeight;
+    return f*10000;
+}
+
+// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
+void FFScript::deallocateZScriptArray(const long ptrval)
+{
+    if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+        Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
+    else
+    {
+        arrayOwner[ptrval] = 255;
+        
+        if(localRAM[ptrval].Size() == 0)
+            Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
+        else
+        {
+            word size = localRAM[ptrval].Size();
+            localRAM[ptrval].Clear();
+            
+            // If this happens once per frame, it can drown out every other message. -L
+            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
+            size = size;
+        }
+    }
+}
+
+int FFScript::get_screen_d(long index1, long index2)
+{
+    if(index2 < 0 || index2 > 7)
+    {
+        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+        return 0;
+    }
+    
+    return game->screen_d[index1][index2];
+}
+
+void FFScript::set_screen_d(long index1, long index2, int val)
+{
+    if(index2 < 0 || index2 > 7)
+    {
+        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+        return;
+    }
+    
+    game->screen_d[index1][index2] = val;
+}
+
+// If scr is currently being used as a layer, return that layer no.
+int FFScript::whichlayer(long scr)
+{
+    for(int i = 0; i < 6; i++)
+    {
+        if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
+            return i;
+    }
+    
+    return -1;
+}
+
+void FFScript::clear_ffc_stack(const byte i)
+{
+    memset(ffc_stack[i], 0, 256 * sizeof(long));
+}
+
+void FFScript::clear_global_stack()
+{
+    memset(global_stack, 0, 256 * sizeof(long));
+}
+
+void FFScript::do_zapout()
+{
+	zapout();
+}
+
+void FFScript::do_zapin(){ zapin(); }
+
+void FFScript::do_openscreen() { openscreen(); }
+void FFScript::do_wavyin() { wavyin(); }
+void FFScript::do_wavyout() { wavyout(false); }
