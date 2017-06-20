@@ -7174,6 +7174,9 @@ void do_layermap()
 void do_triggersecrets()
 {
     hidden_entrance(0, true, false, -4);
+	//hidden_entrance(0,true,single16,scombo); 
+	//bool findentrance(int x, int y, int flag, bool setflag)
+	//We need a variation on these that triggers any combos with a given flag. -Z
 }
 
 void do_zapout()

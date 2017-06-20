@@ -506,7 +506,7 @@ enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
 
 // map flags
 enum
-{
+{	//These are the COMBO flags. -Z
     mfNONE, mfPUSHUD, mfPUSH4, mfWHISTLE, mfBCANDLE, mfARROW, mfBOMB, mfFAIRY,
     mfRAFT, mfARMOS_SECRET, mfARMOS_ITEM, mfSBOMB, mfRAFT_BRANCH, mfDIVE_ITEM,
     mfLENSMARKER, mfZELDA,
@@ -529,7 +529,8 @@ enum
     mfXSWORDBEAM, mfHOOKSHOT, mfWAND, mfHAMMER, mfSTRIKE, mfBLOCKHOLE,
     mfMAGICFAIRY, mfALLFAIRY, mfSINGLE, mfSINGLE16,
     mfNOENEMY, mfNOGROUNDENEMY, mfSCRIPT1, mfSCRIPT2, mfSCRIPT3, mfSCRIPT4, mfSCRIPT5,
-    mfRAFT_BOUNCE, mfOLDMAX, mfPUSHED,mfSCRIPT6, mfSCRIPT7, mfSCRIPT8, mfSCRIPT9, mfSCRIPT10, 
+    mfRAFT_BOUNCE, mfPUSHED,
+    mfSCRIPT6, mfSCRIPT7, mfSCRIPT8, mfSCRIPT9, mfSCRIPT10, 
     mfSCRIPT11, mfSCRIPT12, mfSCRIPT13, mfSCRIPT14, mfSCRIPT15,
     mfSCRIPT16, mfSCRIPT17, mfSCRIPT18, mfSCRIPT19, mfSCRIPT20,
     mfPITHOLE, mfPITFALLFLOOR, mfLAVA, mfICE, mfICEDAMAGE, 
@@ -553,7 +554,7 @@ enum
     mf214, mf215, mf216, mf217, mf218, mf219, mf220, mf221, mf222, mf223, mf224, mf225, mf226, 
     mf227, mf228, mf229, mf230, mf231, mf232, mf233, mf234, mf235, mf236, mf237, mf238, mf239,
     mf240, mf241, mf242, mf243, mf244, mf245, mf246, mf247, mf248, mf249, mf250, mf251, mf252, mf253, mf254, 
-    mcEXTEBNDED, mfMAX //256 for array sizing
+    mfEXTENDED, mfMAX //256 for array sizing
 };
 
 // combo types
@@ -1975,6 +1976,7 @@ struct ZAsmScript
 
 };
 
+//Screen->Secrets[] types for secretcombos[]
 enum
 {
     sBCANDLE, sARROW, sBOMB, sSTAIRS, sSECRET01, sSECRET02, sSECRET03,
