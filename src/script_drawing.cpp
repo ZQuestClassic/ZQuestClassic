@@ -307,7 +307,7 @@ public:
 void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
     int vertices=sdci[2]/10000;
-    std::vector <const int> Points(vertices*2); //A vector sized by the number of vertices
+    std::vector <int> Points(vertices*2); //A vector sized by the number of vertices
     FFScript::getArray(sdci[3]/10000, &Points[0]);//Store the script array into the vecotr.
     
     
