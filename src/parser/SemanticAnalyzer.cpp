@@ -43,7 +43,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		string const& name = parameter.name;
 		ZVarType const& type = *parameter.resolveType(&functionScope);
 		Variable* var = functionScope.addVariable(type, name, &parameter);
-		if (var == NULL) compileError(parameter, CompileError::VarRedef, name.c_str());
+		if (var == NULL) compileError(parameter, &CompileError::VarRedef, name.c_str());
 	}
 
 	// Evaluate the function block under its scope.
@@ -112,7 +112,7 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 	ZVarType const& type = host.getType()->resolve(*scope);
 	if (!type.isResolved())
 	{
-		compileError(host, CompileError::UnresolvedType, type.getName().c_str());
+		compileError(host, &CompileError::UnresolvedType, type.getName().c_str());
 		return;
 	}
 
@@ -126,21 +126,21 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	ZVarType const& baseType = host.baseType->resolve(*scope);
 	if (!baseType.isResolved())
 	{
-		compileError(host, CompileError::UnresolvedType, baseType.getName().c_str());
+		compileError(host, &CompileError::UnresolvedType, baseType.getName().c_str());
 		return;
 	}
 
 	// Don't allow void type.
 	if (baseType == ZVarType::ZVOID)
 	{
-		compileError(host, CompileError::VoidVar);
+		compileError(host, &CompileError::VoidVar);
 		return;
 	}
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !baseType.canBeGlobal())
 	{
-		compileError(host, CompileError::RefVar, baseType.getName().c_str());
+		compileError(host, &CompileError::RefVar, baseType.getName().c_str());
 		return;
 	}
 
@@ -157,21 +157,21 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	ZVarType const& type = *host.resolveType(scope);
 	if (!type.isResolved())
 	{
-		compileError(host, CompileError::UnresolvedType, type.getName().c_str());
+		compileError(host, &CompileError::UnresolvedType, type.getName().c_str());
 		return;
 	}
 
 	// Don't allow void type.
 	if (type == ZVarType::ZVOID)
 	{
-		compileError(host, CompileError::VoidVar, host.name.c_str());
+		compileError(host, &CompileError::VoidVar, host.name.c_str());
 		return;
 	}
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !type.canBeGlobal())
 	{
-		compileError(host, CompileError::RefVar,
+		compileError(host, &CompileError::RefVar,
 					 (type.getName() + " " + host.name).c_str());
 		return;
 	}
@@ -183,18 +183,18 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	// that name.
 	if (variable == NULL)
 	{
-		compileError(host, CompileError::VarRedef, host.name.c_str());
+		compileError(host, &CompileError::VarRedef, host.name.c_str());
 		return;
 	}
 
 	// Special message for deprecated global variables.
 	if (scope->varDeclsDeprecated)
-		compileError(host, CompileError::DeprecatedGlobal, host.name.c_str());
+		compileError(host, &CompileError::DeprecatedGlobal, host.name.c_str());
 
 	// Currently disabled syntaxes:
 	if (type.getArrayDepth() > 1)
 	{
-		compileError(host, CompileError::UnimplementedFeature,
+		compileError(host, &CompileError::UnimplementedFeature,
 					 "Nested Array Declarations.");
 	}
 }
@@ -205,7 +205,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	ZVarType const& returnType = host.returnType->resolve(*scope);
 	if (!returnType.isResolved())
 	{
-		compileError(host, CompileError::UnresolvedType,
+		compileError(host, &CompileError::UnresolvedType,
 					 returnType.getName().c_str());
 		return;
 	}
@@ -222,7 +222,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		ZVarType const& type = *decl.resolveType(scope);
 		if (!type.isResolved())
 		{
-			compileError(decl, CompileError::UnresolvedType,
+			compileError(decl, &CompileError::UnresolvedType,
 						 type.getName().c_str());
 			return;
 		}
@@ -230,7 +230,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		// Don't allow void params.
 		if (type == ZVarType::ZVOID)
 		{
-			compileError(decl, CompileError::FunctionVoidParam,
+			compileError(decl, &CompileError::FunctionVoidParam,
 						 decl.name.c_str());
 			return;
 		}
@@ -245,7 +245,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
-		compileError(host, CompileError::FunctionRedef, host.name.c_str());
+		compileError(host, &CompileError::FunctionRedef, host.name.c_str());
 }
 
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
@@ -264,7 +264,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	for (vector<CompileError const*>::iterator it = errors.begin();
 		 it != errors.end(); ++it)
 	{
-		compileError(host, **it, name.c_str());
+		compileError(host, *it, name.c_str());
 		if (breakRecursion(host)) return;
 	}
 }
@@ -300,7 +300,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		vector<int> possibleFunctionIds = scope->getFunctionIds(identifier->getComponents());
 		if (possibleFunctionIds.size() == 0)
 		{
-			compileError(host, CompileError::FuncUndeclared,
+			compileError(host, &CompileError::FuncUndeclared,
 						 identifier->asString().c_str());
 			return;
 		}
@@ -319,7 +319,7 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 	Variable* variable = scope->getVariable(host.getComponents());
 	if (!variable)
 	{
-		compileError(host, CompileError::VarUndeclared,
+		compileError(host, &CompileError::VarUndeclared,
 					 host.asString().c_str());
 		return;
 	}
@@ -353,7 +353,7 @@ void SemanticAnalyzer::caseNumberLiteral(ASTNumberLiteral& host, void*)
 
     if (!val.second)
 		compileError(
-				host, CompileError::ConstTrunc, host.getValue()->getValue());
+				host, &CompileError::ConstTrunc, host.getValue()->getValue());
 
     host.setDataValue(val.first);
 }
@@ -386,7 +386,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		ZVarType const& elementType = host.getType()->resolve(*scope);
 		if (!elementType.isResolved())
 		{
-			compileError(host, CompileError::UnresolvedType,
+			compileError(host, &CompileError::UnresolvedType,
 						 elementType.getName().c_str());
 			return;
 		}
@@ -394,7 +394,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		// Disallow void type.
 		if (elementType == ZVarType::ZVOID)
 		{
-			compileError(host, CompileError::VoidArr);
+			compileError(host, &CompileError::VoidArr);
 			return;
 		}
 
@@ -405,7 +405,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// Check that we have elements OR a type.
 	if (host.getElements().size() == 0 && !host.getType())
 	{
-		compileError(host, CompileError::EmptyArrayLiteral);
+		compileError(host, &CompileError::EmptyArrayLiteral);
 	}
 
 	// Add to scope as a managed literal.

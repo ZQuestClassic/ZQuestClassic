@@ -17,7 +17,7 @@ bool RecursiveVisitor::breakRecursion(AST& host) const
 	return false;
 }
 
-void RecursiveVisitor::compileError(AST& host, CompileError const& error, ...)
+void RecursiveVisitor::compileError(AST& host, CompileError const* error, ...)
 {
 	// Scan through the error handlers backwards to see if we can find
 	// one matching this error.
@@ -27,9 +27,9 @@ void RecursiveVisitor::compileError(AST& host, CompileError const& error, ...)
 	{
 		// When we find a valid handler, save the error as the current one and
 		// return.
-		if ((*it)->canHandle(error))
+		if ((*it)->canHandle(*error))
 		{
-			currentCompileError = &error;
+			currentCompileError = error;
 			return;
 		}
 	}
@@ -37,8 +37,8 @@ void RecursiveVisitor::compileError(AST& host, CompileError const& error, ...)
 	// If there was no handler, fail if it's not a warning and then print it
 	// out.
 	va_list args;
-	va_start(args, error);
-	error.vprint(&host, args);
+	va_start(args, *error);
+	error->vprint(&host, args);
 	va_end(args);
 }
 
