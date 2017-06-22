@@ -79,6 +79,13 @@ public:
 			return *a < *b;
 		}
 	};
+
+	// This comes up so often I'm adding in this shortcut.
+	bool isArray() const {return typeClassId() == ZVARTYPE_CLASSID_ARRAY;}
+
+	// Get the number of nested arrays at top level.
+	int getArrayDepth() const;
+	
 protected:
 	virtual int selfCompare(ZVarType const& other) const = 0;
 

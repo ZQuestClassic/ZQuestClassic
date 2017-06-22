@@ -145,13 +145,7 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	}
 
 	// Recurse on list contents.
-	vector<ASTDataDecl*> const& decls = host.getDeclarations();
-	for (vector<ASTDataDecl*>::const_iterator it = decls.begin();
-		 it != decls.end(); ++it)
-	{
-		caseDataDecl(**it);
-		if (breakRecursion(host)) return;
-	}
+	recurse(host, NULL, host.getDeclarations());
 }
 
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
@@ -196,6 +190,13 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	// Special message for deprecated global variables.
 	if (scope->varDeclsDeprecated)
 		compileError(host, CompileError::DeprecatedGlobal, host.name.c_str());
+
+	// Currently disabled syntaxes:
+	if (type.getArrayDepth() > 1)
+	{
+		compileError(host, CompileError::UnimplementedFeature,
+					 "Nested Array Declarations.");
+	}
 }
 
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
