@@ -33,6 +33,7 @@ public:
 	virtual void caseTypeDef(ASTTypeDef& host, void* param);
 	// Expressions
     virtual void caseExprConst(ASTExprConst &host, void *param);
+	virtual void caseCompileError(ASTCompileError& host, void* param);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
@@ -75,7 +76,6 @@ public:
     int getReturnLabelID() const {return returnlabelid;}
     list<long> *getArrayRefs() {return &arrayRefs;}
     list<long> const *getArrayRefs() const {return &arrayRefs;}
-    bool isOK() const {return !failure;}
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
 	void addOpcode(Opcode* code);
@@ -90,7 +90,6 @@ private:
     int breaklabelid;
 	int breakRefCount;
     list<long> arrayRefs;
-    bool failure;
 	// Stack of opcode targets. Only the latest is used.
 	vector<vector<Opcode*>*> opcodeTargets;
 

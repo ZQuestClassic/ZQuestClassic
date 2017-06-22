@@ -120,6 +120,8 @@ extern YYLTYPE noloc;
 %token QUOTEDSTRING
 %token SINGLECHAR
 
+%token COMPILEERROR
+
 %left LSHIFT RSHIFT
 %left BITAND BITOR BITXOR
 %left AND OR
@@ -300,7 +302,16 @@ FuncDecl_ParamList :
 	;
 
 ////////////////
+// Compile Error
 
+CompileError : COMPILEERROR LPAREN ConstExpr RPAREN StmtNoSemi {
+		ASTExpr* errorId = (ASTExpr*)$3;
+		ASTStmt* statement = (ASTStmt*)$5;
+		$$ = new ASTCompileError(errorId, statement, @$);}
+	;
+	
+////////////////
+	
 Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {
 			ASTScriptType* type = (ASTScriptType*)$1;
 			ASTString* name = (ASTString*)$3;
@@ -393,6 +404,7 @@ Stmt :
 	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@1);}
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@1);}
 	| TypeDef SEMICOLON {$$ = $1;}
+	| CompileError SEMICOLON {$$ = $1;}
 	;
 
 StmtNoSemi :
@@ -409,6 +421,7 @@ StmtNoSemi :
 	| BREAK {$$ = new ASTStmtBreak(@1);}
 	| CONTINUE {$$ = new ASTStmtContinue(@1);}
 	| TypeDef {$$ = $1;}
+	| CompileError {$$ = $1;}
 	;
 
 TypeDef : TYPEDEF Type IDENTIFIER {

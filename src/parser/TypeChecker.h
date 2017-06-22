@@ -17,62 +17,57 @@ public:
 
     void caseDefault(void*) {}
 	// Statements
-    void caseStmtIf(ASTStmtIf &host);
-    void caseStmtIfElse(ASTStmtIfElse &host);
-	void caseStmtSwitch(ASTStmtSwitch &host);
-    void caseStmtFor(ASTStmtFor &host);
-    void caseStmtWhile(ASTStmtWhile &host);
-    void caseStmtReturn(ASTStmtReturn &host);
-    void caseStmtReturnVal(ASTStmtReturnVal &host);
+    void caseStmtIf(ASTStmtIf& host, void* = NULL);
+    void caseStmtIfElse(ASTStmtIfElse& host, void* = NULL);
+	void caseStmtSwitch(ASTStmtSwitch& host, void* = NULL);
+    void caseStmtFor(ASTStmtFor& host, void* = NULL);
+    void caseStmtWhile(ASTStmtWhile& host, void* = NULL);
+    void caseStmtReturn(ASTStmtReturn& host, void* = NULL);
+    void caseStmtReturnVal(ASTStmtReturnVal& host, void* = NULL);
 	// Declarations
-	void caseDataDecl(ASTDataDecl& host);
-	void caseDataDeclExtraArray(ASTDataDeclExtraArray& host);
+	void caseDataDecl(ASTDataDecl& host, void* = NULL);
+	void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* = NULL);
 	// Expressions
-	void caseExprConst(ASTExprConst &host);
-    void caseExprAssign(ASTExprAssign &host);
-    void caseExprIdentifier(ASTExprIdentifier &host);
-    void caseExprArrow(ASTExprArrow &host);
-    void caseExprIndex(ASTExprIndex &host);
-    void caseExprCall(ASTExprCall &host);
-    void caseExprNegate(ASTExprNegate &host);
-    void caseExprNot(ASTExprNot &host);
-    void caseExprBitNot(ASTExprBitNot &host);
-    void caseExprIncrement(ASTExprIncrement &host);
-    void caseExprPreIncrement(ASTExprPreIncrement &host);
-    void caseExprDecrement(ASTExprDecrement &host);
-    void caseExprPreDecrement(ASTExprPreDecrement &host);
-    void caseExprAnd(ASTExprAnd &host);
-    void caseExprOr(ASTExprOr &host);
-    void caseExprGT(ASTExprGT &host);
-    void caseExprGE(ASTExprGE &host);
-    void caseExprLT(ASTExprLT &host);
-    void caseExprLE(ASTExprLE &host);
-    void caseExprEQ(ASTExprEQ &host);
-    void caseExprNE(ASTExprNE &host);
-    void caseExprPlus(ASTExprPlus &host);
-    void caseExprMinus(ASTExprMinus &host);
-    void caseExprTimes(ASTExprTimes &host);
-    void caseExprDivide(ASTExprDivide &host);
-    void caseExprModulo(ASTExprModulo &host);
-    void caseExprBitAnd(ASTExprBitAnd &host);
-    void caseExprBitOr(ASTExprBitOr &host);
-    void caseExprBitXor(ASTExprBitXor &host);
-    void caseExprLShift(ASTExprLShift &host);
-    void caseExprRShift(ASTExprRShift &host);
+	void caseExprConst(ASTExprConst& host, void* = NULL);
+    void caseExprAssign(ASTExprAssign& host, void* = NULL);
+    void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
+    void caseExprArrow(ASTExprArrow& host, void* = NULL);
+    void caseExprIndex(ASTExprIndex& host, void* = NULL);
+    void caseExprCall(ASTExprCall& host, void* = NULL);
+    void caseExprNegate(ASTExprNegate& host, void* = NULL);
+    void caseExprNot(ASTExprNot& host, void* = NULL);
+    void caseExprBitNot(ASTExprBitNot& host, void* = NULL);
+    void caseExprIncrement(ASTExprIncrement& host, void* = NULL);
+    void caseExprPreIncrement(ASTExprPreIncrement& host, void* = NULL);
+    void caseExprDecrement(ASTExprDecrement& host, void* = NULL);
+    void caseExprPreDecrement(ASTExprPreDecrement& host, void* = NULL);
+    void caseExprAnd(ASTExprAnd& host, void* = NULL);
+    void caseExprOr(ASTExprOr& host, void* = NULL);
+    void caseExprGT(ASTExprGT& host, void* = NULL);
+    void caseExprGE(ASTExprGE& host, void* = NULL);
+    void caseExprLT(ASTExprLT& host, void* = NULL);
+    void caseExprLE(ASTExprLE& host, void* = NULL);
+    void caseExprEQ(ASTExprEQ& host, void* = NULL);
+    void caseExprNE(ASTExprNE& host, void* = NULL);
+    void caseExprPlus(ASTExprPlus& host, void* = NULL);
+    void caseExprMinus(ASTExprMinus& host, void* = NULL);
+    void caseExprTimes(ASTExprTimes& host, void* = NULL);
+    void caseExprDivide(ASTExprDivide& host, void* = NULL);
+    void caseExprModulo(ASTExprModulo& host, void* = NULL);
+    void caseExprBitAnd(ASTExprBitAnd& host, void* = NULL);
+    void caseExprBitOr(ASTExprBitOr& host, void* = NULL);
+    void caseExprBitXor(ASTExprBitXor& host, void* = NULL);
+    void caseExprLShift(ASTExprLShift& host, void* = NULL);
+    void caseExprRShift(ASTExprRShift& host, void* = NULL);
 	// Literals
-    void caseNumberLiteral(ASTNumberLiteral& host);
-    void caseBoolLiteral(ASTBoolLiteral& host);
-    void caseStringLiteral(ASTStringLiteral& host);
-	void caseArrayLiteral(ASTArrayLiteral& host);
+    void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
+	void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
 
-    bool isOK() {return !failure;}
-    void fail() {failure = true;}
 	static bool check(SymbolTable& symbolTable, ZVarTypeId returnTypeId, AST& node);
 	static bool check(SymbolTable& symbolTable, AST& node);
 private:
 	SymbolTable& symbolTable;
 	ZVarType const& returnType;
-    bool failure;
     bool standardCheck(ZVarTypeId targetTypeId, ZVarTypeId sourceTypeId, AST* toBlame);
     bool standardCheck(ZVarType const& targetType, ZVarTypeId sourceTypeId, AST* toBlame);
     bool standardCheck(ZVarTypeId targetTypeId, ZVarType const& sourceType, AST* toBlame);
@@ -87,9 +82,9 @@ class GetLValType : public ASTVisitor
 public:
 	GetLValType(TypeCheck& typeCheck);
     void caseDefault(void* param) {assert(false);}
-    void caseExprIdentifier(ASTExprIdentifier& host);
-    void caseExprArrow(ASTExprArrow& host);
-    void caseExprIndex(ASTExprIndex& host);
+    void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
+    void caseExprArrow(ASTExprArrow& host, void* = NULL);
+    void caseExprIndex(ASTExprIndex& host, void* = NULL);
 	ZVarTypeId typeId;
 private:
 	TypeCheck& typeCheck;
