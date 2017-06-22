@@ -303,6 +303,34 @@ public:
     }
 };
 
+//Polygon
+void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    int vertices=sdci[2]/10000;
+    std::vector <int> Points(vertices*2); //A vector sized by the number of vertices
+    FFScript::getArray(sdci[3]/10000, &Points[0]);//Store the script array into the vecotr.
+    
+    
+    
+	
+    int colour=sdci[4]/10000;
+	int rot = sdci[5]/10000;
+    int opacity=sdci[6]/10000;
+	
+    if(opacity <= 127) //translucent
+    {
+        drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+    }
+    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+    
+    if ( rot ) {
+	    BITMAP *subBmp = script_drawing_commands.AquireSubBitmap(256, 256);
+	    polygon(subBmp, vertices, &Points[0], colour);
+	    rotate_sprite(bmp, subBmp, 0, 0, degrees_to_fixed(rot));
+    }
+    else polygon(bmp, vertices, &Points[0], colour);
+    
+}
 
 
 
@@ -3379,6 +3407,12 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
         }
         break;
         
+	case POLYGONR:
+        {
+            do_polygonr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+	
         case CIRCLER:
         {
             do_circler(bmp, sdci, xoffset, yoffset);

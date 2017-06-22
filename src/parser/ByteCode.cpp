@@ -2278,5 +2278,10 @@ string OTriggerSecretRegister::toString()
 {
     return "TRIGGERSECRETR " + getArgument()->toString();
 }
+
+string OPolygonRegister::toString()
+{
+    return "POLYGONR";
+}
 //////////////////////////////////////////////////////////////////////////////////////
 
