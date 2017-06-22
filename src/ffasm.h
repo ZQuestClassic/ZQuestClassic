@@ -1,7 +1,8 @@
-#include "scripting/ZASMDefs.h"
-
 #ifndef _FFASM_H_
 #define _FFASM_H_
+
+#include "scripting/ZASMdefs.h"
+#include <string>
 
 struct script_command
 {
