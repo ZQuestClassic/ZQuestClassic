@@ -26,7 +26,6 @@
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
 #include "mem_debug.h"
-void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>
 #include <pngconf.h>
@@ -61,7 +60,6 @@ void setZScriptVersion(int) { } //bleh...
 #include "zq_class.h"
 #include "subscr.h"
 #include "zq_subscr.h"
-#include "ffscript.h"
 #include "EditboxNew.h"
 #include "sfx.h"
 

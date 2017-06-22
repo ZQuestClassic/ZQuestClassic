@@ -10,6 +10,8 @@
 #include <sstream>
 #include <math.h>
 #include <cstdio>
+#include "scripting/ZASMdefs.h"
+#include "ffasm.h"
 #include "zc_sys.h"
 #include "zc_math.h"
 #include "zc_array.h"
@@ -21,7 +23,6 @@
 #include "zsys.h"
 #include "title.h"
 #include "mem_debug.h"
-#include "zscriptversion.h"
 #include "rendertarget.h"
 #include "backend/AllBackends.h"
 #include "pal.h"
@@ -9813,7 +9814,7 @@ int ffscript_engine(const bool preload)
         if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link.getHoldClk()>0)
             continue;
             
-        ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
+		run_script(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
     }
     

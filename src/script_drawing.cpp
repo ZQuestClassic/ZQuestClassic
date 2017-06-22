@@ -7,6 +7,7 @@
 
 #include <allegro.h>
 #include "script_drawing.h"
+#include "ffasm.h"
 #include "rendertarget.h"
 #include "maps.h"
 #include "tiles.h"

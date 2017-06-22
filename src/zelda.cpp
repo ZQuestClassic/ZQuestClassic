@@ -31,7 +31,7 @@
 
 #include "zc_malloc.h"
 #include "mem_debug.h"
-#include "zscriptversion.h"
+#include "ffasm.h"
 #include "zcmusic.h"
 #include "zdefs.h"
 #include "zelda.h"
@@ -308,12 +308,6 @@ byte arrayOwner[MAX_ZCARRAY_SIZE];
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
 
 DebugConsole DebugConsole::singleton = DebugConsole();
-
-
-void setZScriptVersion(int s_version)
-{
-    ZScriptVersion::setVersion(s_version);
-}
 
 void initZScriptArrayRAM(bool firstplay)
 {
@@ -1439,11 +1433,11 @@ int init_game()
     if(firstplay)
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+        run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
     }
     else
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+		run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
     
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
@@ -2299,7 +2293,7 @@ void game_loop()
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
     if(!freezemsg && g_doscript)
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
     
     if(!freeze && !freezemsg)
@@ -2353,7 +2347,7 @@ void game_loop()
     
     if(global_wait)
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
     
@@ -3291,7 +3285,7 @@ int main(int argc, char* argv[])
             introclk=intropos=0;
             
             initZScriptGlobalRAM();
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+			run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
             
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
             
@@ -3308,7 +3302,7 @@ int main(int argc, char* argv[])
             show_subscreen_life=true;
             
             initZScriptGlobalRAM();
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+			run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
             ending();
         }
         break;

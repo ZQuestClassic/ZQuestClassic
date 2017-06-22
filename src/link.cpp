@@ -29,7 +29,6 @@
 #include "title.h"
 #include "ffscript.h"
 #include "mem_debug.h"
-#include "zscriptversion.h"
 #include "backend/AllBackends.h"
 
 using std::set;
@@ -2114,7 +2113,7 @@ void LinkClass::checkstab()
                             
                         if(itemsbuf[items.spr(j)->id].collect_script)
                         {
-                            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+							run_script(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
                         }
                         
                         getitem(items.spr(j)->id);
@@ -3474,7 +3473,7 @@ void LinkClass::hitlink(int hit2)
         // Stomp Boots script
         if(itemsbuf[itemid].script != 0)
         {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+			run_script(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
         }
         
         return;
@@ -5820,7 +5819,7 @@ void do_lens()
         
         if(dowpn>=0 && itemsbuf[dowpn].script != 0 && !did_scriptl)
         {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			run_script(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
             did_scriptl=true;
         }
         
@@ -6352,7 +6351,7 @@ void LinkClass::movelink()
         
         if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn))
         {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			run_script(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
             did_scripta=true;
         }
     }
@@ -6460,7 +6459,7 @@ void LinkClass::movelink()
             if(!paidmagic && attack!=wWand)
                 paymagiccost(dowpn);
                 
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			run_script(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
             did_scriptb=true;
         }
         
@@ -12523,7 +12522,7 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
     }
     
     if(g_doscript)
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         
     x = storex, y = storey;
 }
@@ -12735,7 +12734,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     if(global_wait)
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		run_script(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
     
@@ -12896,7 +12895,8 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         // Link's action should remain unchanged while scrolling,
         // but for the sake of scripts, here's an eye-watering kludge.
         action = scrolling;
-        ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
+		if (!get_bit(quest_rules, qr_NOSCRIPTSDURINGSCROLL))
+			run_scrolling_script(scrolldir, cx, sx, sy, end_frames);
         action = lastaction;
         
         if(no_move > 0)
@@ -12979,7 +12979,8 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         {
             // And now to injure your other eye
             action = scrolling;
-            ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
+			if(!get_bit(quest_rules, qr_NOSCRIPTSDURINGSCROLL))
+				run_scrolling_script(scrolldir, cx, sx, sy, end_frames);
             action = lastaction;
             global_wait=false;
         }
@@ -14375,7 +14376,7 @@ void LinkClass::checkitems(int index)
         
     if(itemsbuf[id2].collect_script)
     {
-        ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
+        run_script(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
     }
     
     getitem(id2);

@@ -22,6 +22,7 @@
 #include <string>
 
 //#include "zc_math.h"
+#include "ffasm.h"
 #include "maps.h"
 #include "zelda.h"
 #include "tiles.h"

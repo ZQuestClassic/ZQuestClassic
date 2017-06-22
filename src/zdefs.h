@@ -22,69 +22,6 @@
 //Other
 //#define _SKIPPASSWORDCHECK
 
-
-/*
-  //DOS Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_VGA
-  GFX_MODEX
-  GFX_VESA1
-  GFX_VESA2B
-  GFX_VESA2L
-  GFX_VESA3
-  GFX_VBEAF
-
-  //Windows Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_DIRECTX
-  GFX_DIRECTX_ACCEL
-  GFX_DIRECTX_SOFT
-  GFX_DIRECTX_SAFE
-  GFX_DIRECTX_WIN
-  GFX_DIRECTX_OVL
-  GFX_GDI
-
-  //Linux Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_FBCON
-  GFX_VBEAF
-  GFX_SVGALIB
-  GFX_VGA
-  GFX_MODEX
-
-  //X-Window Graphics Modes
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_XWINDOWS
-  GFX_XWINDOWS_FULLSCREEN
-  GFX_XDGA2
-  GFX_XDGA2_SOFT
-
-  //MacOS X Drivers
-  GFX_TEXT
-  GFX_AUTODETECT
-  GFX_AUTODETECT_FULLSCREEN
-  GFX_AUTODETECT_WINDOWED
-  GFX_SAFE
-  GFX_QUARTZ_FULLSCREEN
-  GFX_QUARTZ_WINDOW
-  */
-
 #include <math.h>
 #include <string.h>
 #include <vector>
@@ -167,7 +104,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           3
-#define V_RULES           13
+#define V_RULES           14
 #define V_STRINGS          5
 #define V_MISC             7
 #define V_TILES            1
@@ -765,7 +702,7 @@ enum
     qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
-    qr_BROKENSTATUES /* Compatibility */,
+    qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Compatibility */,
     qr_MAX
 };
 
@@ -1886,13 +1823,6 @@ struct mapscr
     
 };
 
-struct zasm
-{
-	uint16_t command;
-	int32_t arg1;
-	int32_t arg2;
-};
-
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
 // where the scripts are serialized
@@ -1910,71 +1840,6 @@ struct zasm
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
-
-struct ZAsmScript
-{
-	ZAsmScript() : version(ZASM_VERSION), type(SCRIPT_NONE)
-	{
-		name_len = 21;
-		name = new char[21];
-		strcpy(name, "Uninitialized Script");
-		commands_len = 1;
-		commands = new zasm[1];
-		commands[0].command = 0xFFFF;
-	}
-
-	~ZAsmScript()
-	{
-		delete[] name;
-		delete[] commands;
-	}
-
-	ZAsmScript &operator=(const ZAsmScript &other)
-	{
-		version = other.version;
-		type = other.type;
-		name_len = other.name_len;
-		delete[] name;
-		name = new char[name_len];
-		strcpy(name, other.name);
-		commands_len = other.commands_len;
-		delete[] commands;
-		commands = new zasm[commands_len];
-		for (int i = 0; i < commands_len; i++)
-			commands[i] = other.commands[i];
-
-		return *this;
-	}
-
-	ZAsmScript(const ZAsmScript &other)
-	{
-		version = other.version;
-		type = other.type;
-		name_len = other.name_len;
-		name = new char[name_len];
-		strcpy(name, other.name);
-		commands_len = other.commands_len;
-		commands = new zasm[commands_len];
-		for (int i = 0; i < commands_len; i++)
-			commands[i] = other.commands[i];
-	}
-
-	// Version of ZASM this script was compiled for
-	int16_t version;
-
-	// Type of the script (SCRIPT_GLOBAL, e.g.)
-	int16_t type;
-
-	// Name of the script, if the script was compiled from ZScript
-	// For debugging and logging errors, etc.
-	int16_t name_len;
-	char *name;
-
-	// The ZASM itself
-	int32_t commands_len;
-	zasm *commands;
-
-};
 
 //Screen->Secrets[] types for secretcombos[]
 enum
