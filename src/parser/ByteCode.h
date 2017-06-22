@@ -3128,6 +3128,15 @@ public:
     }
 };
 
+class OPolygonRegister : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OPolygonRegister();
+    }
+};
 
 #endif
 
