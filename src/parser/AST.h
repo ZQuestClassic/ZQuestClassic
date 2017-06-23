@@ -731,7 +731,7 @@ private:
 
 namespace ZScript
 {
-	struct Variable;
+	class Variable;
 }
 
 // A line of variable/constant declarations:
@@ -824,7 +824,7 @@ public:
 	vector<ASTExpr*> dimensions;
 
 	// If this declares an a sized array.
-	bool hasSize() const {return dimensions.size();}
+	bool hasSize() const {return dimensions.size() > 0;}
 
 	// If all expressions in the dimension array are constant.
 	bool isConstant() const;
@@ -1404,7 +1404,7 @@ public:
 
 namespace ZScript
 {
-	struct Literal;
+	class Literal;
 }
 
 class ASTLiteral : public ASTExpr

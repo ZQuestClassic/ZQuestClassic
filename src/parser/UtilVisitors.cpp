@@ -37,7 +37,7 @@ void RecursiveVisitor::compileError(AST& host, CompileError const* error, ...)
 	// If there was no handler, fail if it's not a warning and then print it
 	// out.
 	va_list args;
-	va_start(args, *error);
+	va_start(args, error);
 	error->vprint(&host, args);
 	va_end(args);
 }

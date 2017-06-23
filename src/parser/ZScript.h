@@ -31,7 +31,7 @@ namespace ZScript
 		// Return a list of all errors in the script declaration.
 		vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
-		bool hasError() const {return getErrors().size();}
+		bool hasError() const {return getErrors().size() > 0;}
 
 	private:
 		map<string, Script*> scriptsByName;
@@ -53,7 +53,7 @@ namespace ZScript
 		// Return a list of all errors in the script declaration.
 		vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
-		bool hasError() const {return getErrors().size();}
+		bool hasError() const {return getErrors().size() > 0;}
 	};
 
 	class Literal

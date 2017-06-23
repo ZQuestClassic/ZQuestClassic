@@ -15,9 +15,9 @@ using std::pair;
 namespace ZScript
 {
 	class Program;
-	struct Script;
-	struct Variable;
-	struct Function;
+	class Script;
+	class Variable;
+	class Function;
 }
 
 class FunctionSignature
