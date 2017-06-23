@@ -6351,7 +6351,7 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
     bool canedit=false;
     bool done=false;
     
-    while(!done && (!(Backend::mouse->rightButtonClicked() || immediately)))
+    while(!done && (!Backend::mouse->rightButtonClicked() || immediately))
     {
         int x= Backend::mouse->getVirtualScreenX();
         int y= Backend::mouse->getVirtualScreenY();
