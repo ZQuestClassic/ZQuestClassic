@@ -119,7 +119,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            28
+#define V_GUYS            29
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1427,6 +1427,14 @@ struct item_drop_object
 #define ffCHANGETHIS    0x08000000 //Change combo/cset to this
 #define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
 
+#define GUYDATA_FLAGS 20
+//fLAGS TO DEFINE IF VARIOUS ENEMY EDITOR PROPERTIES OVERRIDE SYSTEM DEFAULTS
+enum{
+	guyflagOVERRIDEXOFFSET, guyflagOVERRIDEYOFFSET, guyflagOVERRIDEHITXOFFSET, guyflagOVERRIDEHITYOFFSET,
+	guyflagOVERRIDEHITZOFFSET, guyflagOVERRIDEDRAWXOFFSET, guyflagOVERRIDEDRAWYOFFSET, guyflagOVERRIDEDRAWXZOFFSET,
+	guyflagLAST = 19
+};
+
 struct guydata
 {
     dword flags;
@@ -1464,6 +1472,7 @@ struct guydata
     int txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
+    bool SIZEflags[GUYDATA_FLAGS]; //Flags for size panel offsets. The user must enable these to override defaults. 
 };
 
 class refInfo

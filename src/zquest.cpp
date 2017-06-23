@@ -582,7 +582,7 @@ int mouse_scroll_h()
 int readsize, writesize;
 bool fake_pack_writing=false;
 
-int showxypos_x;
+int showxypos_x; //Label each of these.
 int showxypos_y;
 int showxypos_w;
 int showxypos_h;
@@ -7624,9 +7624,10 @@ void domouse()
             {
                 int ix = Map.CurrScr()->itemx;
                 int iy = Map.CurrScr()->itemy;
-                
+                //cursor x/y
                 if(cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
                     doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8,true,0,0,16,16);
+		//This is what is broken? -Z
             }
             
             // Move FFCs

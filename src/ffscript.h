@@ -14,6 +14,8 @@ private:
     
 public:
     byte rules[512];
+	int linktile;
+	int linkaction;
 
 
 
@@ -58,6 +60,7 @@ static void do_zapin();
 static void do_openscreen();
 static void do_wavyin();
 static void do_wavyout();
+static void do_triggersecret(const bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
