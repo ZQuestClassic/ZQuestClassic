@@ -9046,6 +9046,12 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
 	    }
+	    
+	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+            {
+		tempguy.wpnsprite = 0;
+            }
+	    
 	    if(guyversion > 27)
 	    {
 	        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
@@ -9053,11 +9059,10 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
 	    }
-	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
             {
-		tempguy.wpnsprite = 0;
+		tempguy.SIZEflags = 0;
             }
-	    
 	    if(guyversion > 28)
 	    {
 		if(!p_igetl(&(tempguy.SIZEflags),f,keepdata))
@@ -9066,10 +9071,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    }
 		
 	    }
-	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
-            {
-		tempguy.SIZEflags = 0;
-            }
+	    
 	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD

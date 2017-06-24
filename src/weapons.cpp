@@ -191,7 +191,7 @@ weapon::weapon(weapon const & other):
     misc2(other.misc2),			//int
     ignorecombo(other.ignorecombo),	//int
     isLit(other.isLit),			//bool		Does it light the screen?
-    parentid(other.parentid),		//int		Enemy that created it. -1 for none. 
+    parentid(other.parentid),		//int		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
     parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
     dragging(other.dragging),		//int draggong		?
     step(other.step),			//fix		Speed of movement
@@ -288,9 +288,9 @@ weapon::weapon(weapon const & other):
     }*/
     
     //Enemy Editor Weapon Sprite
-    
-    if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
-    else wpnsprite  = -1;
+    wpnsprite = other.wpnsprite;
+    //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
+    //else wpnsprite  = -1;
 }
 
 // Let's dispose of some sound effects!
@@ -1297,9 +1297,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewRock:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	    
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		Z_message("wpnsprite is: %d\n", guysbuf[parentid].wpnsprite);
+		Z_message("parentid is: %d\n", parentid);
+		if ( guysbuf[parentid].wpnsprite > 0 ) LOADGFX(guysbuf[parentid].wpnsprite);
+		else LOADGFX(ewROCK);
 	}
 	else LOADGFX(ewROCK);
   
