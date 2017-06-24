@@ -13,7 +13,7 @@
 
 #include "zdefs.h"
 #include "subscr.h"
-#include "zscriptversion.h"
+#include "scripting/ZASMdefs.h"
 
 // define these in main code
 //extern bool init_tiles(bool validate);

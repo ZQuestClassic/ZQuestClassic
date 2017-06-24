@@ -471,7 +471,7 @@
 #define LINKCANFLICKER 440
 #define LINKHURTSFX 441
 #define NOACTIVESUBSC 442
-#define __RESERVED_FOR_LWPNRANGE 443
+#define LWPNRANGE 443
 #define ZELDAVERSION 444
 #define ZELDABUILD 445
 #define ZELDABETA 446
@@ -496,8 +496,8 @@
 #define __RESERVED_FOR_EWPNPTR 465
 
 //array pointer typecasting
-#define __RESERVED_FOR_SETSCREENDOOR 466
-#define __RESERVED_FOR_SETSCREENENEMY 467
+#define SETSCREENDOOR 466
+#define SETSCREENENEMY 467
 #define GAMEMAXMAPS 468
 #define CREATELWPNDX 469
 #define __RESERVED_FOR_SCREENFLAG 470
@@ -568,6 +568,33 @@
 #define DEBUGREFEWEAPON 531
 #define DEBUGSP 532
 #define DEBUGGDR 533
+
+#define SETSCREENWIDTH 534
+#define SETSCREENHEIGHT 535
+#define SETSCREENVIEWX 536
+#define SETSCREENVIEWY 537 
+#define SETSCREENGUY 538
+#define SETSCREENSTRING 539
+#define SETSCREENROOM 540
+#define SETSCREENENTX 541
+#define SETSCREENENTY 542
+#define SETSCREENITEM 543
+#define SETSCREENUNDCMB 544
+#define SETSCREENUNDCST 545
+#define SETSCREENCATCH 546
+#define SETSCREENLAYOP 547
+#define SETSCREENSECCMB 548
+#define SETSCREENSECCST 549
+#define SETSCREENSECFLG 550
+#define SETSCREENLAYMAP 551
+#define SETSCREENLAYSCR 552
+#define SETSCREENPATH 553
+#define SETSCREENWARPRX 554
+#define SETSCREENWARPRY 555
+#define GAMENUMMESSAGES 556
+#define GAMESUBSCHEIGHT 557
+#define GAMEPLAYFIELDOFS 558
+#define PASSSUBOFS 559
 
 //END OF BYTECODE
 
@@ -2976,8 +3003,140 @@ public:
 };
 
 
+class OGetScreenDoor : public UnaryOpcode
+{
+public:
+    OGetScreenDoor(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenDoor(a->clone());
+    }
+};
 
 
+class OGetScreenEnemy : public UnaryOpcode
+{
+public:
+    OGetScreenEnemy(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenEnemy(a->clone());
+    }
+};
+
+class OGetScreenLayerOpacity : public UnaryOpcode
+{
+public:
+    OGetScreenLayerOpacity(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenLayerOpacity(a->clone());
+    }
+};
+class OGetScreenSecretCombo : public UnaryOpcode
+{
+public:
+    OGetScreenSecretCombo(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenSecretCombo(a->clone());
+    }
+};
+class OGetScreenSecretCSet : public UnaryOpcode
+{
+public:
+    OGetScreenSecretCSet(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenSecretCSet(a->clone());
+    }
+};
+class OGetScreenSecretFlag : public UnaryOpcode
+{
+public:
+    OGetScreenSecretFlag(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenSecretFlag(a->clone());
+    }
+};
+class OGetScreenLayerMap : public UnaryOpcode
+{
+public:
+    OGetScreenLayerMap(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenLayerMap(a->clone());
+    }
+};
+class OGetScreenLayerScreen : public UnaryOpcode
+{
+public:
+    OGetScreenLayerScreen(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenLayerScreen(a->clone());
+    }
+};
+class OGetScreenPath : public UnaryOpcode
+{
+public:
+    OGetScreenPath(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenPath(a->clone());
+    }
+};
+class OGetScreenWarpReturnX : public UnaryOpcode
+{
+public:
+    OGetScreenWarpReturnX(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenWarpReturnX(a->clone());
+    }
+};
+class OGetScreenWarpReturnY : public UnaryOpcode
+{
+public:
+    OGetScreenWarpReturnY(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGetScreenWarpReturnY(a->clone());
+    }
+};
+
+class OTriggerSecretRegister : public UnaryOpcode
+{
+public:
+    OTriggerSecretRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OTriggerSecretRegister(a->clone());
+    }
+};
+
+class OPolygonRegister : public Opcode
+{
+public:
+    string toString();
+    Opcode *clone()
+    {
+        return new OPolygonRegister();
+    }
+};
 
 #endif
 

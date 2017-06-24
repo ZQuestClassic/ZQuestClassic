@@ -91,6 +91,8 @@ void loadfullpal()
   {
   byte *si = colordata + */
 
+extern PALETTE tempgreypal;
+
 void loadlvlpal(int level)
 {
     byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;

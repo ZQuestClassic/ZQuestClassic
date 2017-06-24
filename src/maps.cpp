@@ -22,6 +22,7 @@
 #include <string>
 
 //#include "zc_math.h"
+#include "ffasm.h"
 #include "maps.h"
 #include "zelda.h"
 #include "tiles.h"
@@ -1063,7 +1064,7 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
                 int checkflag=combobuf[s->data[i]].flag; //Inherent
                 
                 if(iter==1) checkflag=s->sflag[i]; //Placed
-                
+                //This checks map flags against secret combos. -Z
                 switch(checkflag)
                 {
                 case mfBCANDLE:
@@ -2002,6 +2003,7 @@ void update_freeform_combos()
     }
 }
 
+//These appear to be unused. -Z
 bool hitcombo(int x, int y, int combotype)
 {
     return (COMBOTYPE(x,y)==combotype);
@@ -3313,6 +3315,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
         put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
         
         // Draw primitives over subscren
+	    //Wait, why are draw prims not drawn on a per-layer basis?? -Z
         do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
     }
     
@@ -3878,7 +3881,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if(arrayOwner[i]<32 && (!(ffscr.ffflags[arrayOwner[i]]&ffCARRYOVER) || ffscr.flags5&fNOFFCARRYOVER))
-                deallocateArray(i);
+                FFScript::deallocateZScriptArray(i);
         }
         
         for(int i = 0; i < 32; i++)
@@ -3934,7 +3937,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
             {
                 memset(ffmisc[i], 0, 16 * sizeof(long));
                 ffcScriptData[i].Clear();
-                clear_ffc_stack(i);
+                FFScript::clear_ffc_stack(i);
             }
         }
     }

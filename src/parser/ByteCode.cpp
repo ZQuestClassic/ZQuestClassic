@@ -2,8 +2,8 @@
 #include "../precompiled.h" //always first
 
 #include "ByteCode.h"
+#include "CompileError.h"
 #include "DataStructs.h"
-#include "ParseError.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -1128,6 +1128,39 @@ string VarArgument::toString()
     case DEBUGSP: return "DEBUGSP";
     case DEBUGGDR: return "DEBUGGDR";
     
+    case LWPNRANGE: return "LWPNRANGE";
+    
+    case SETSCREENDOOR: return "SETSCREENDOOR";
+    case SETSCREENENEMY: return "SETSCREENENEMY";
+    case SETSCREENWIDTH: return "SETSCREENWIDTH";
+    case SETSCREENHEIGHT: return "SETSCREENHEIGHT";
+    case SETSCREENVIEWX: return "SETSCREENVIEWX";
+    case SETSCREENVIEWY: return "SETSCREENVIEWY";
+    case SETSCREENGUY: return "SETSCREENGUY";
+    case SETSCREENSTRING: return "SETSCREENSTRING";
+    case SETSCREENROOM: return "SETSCREENROOM";
+    case SETSCREENENTX: return "SETSCREENENTX";
+    case SETSCREENENTY: return "SETSCREENENTY";
+    case SETSCREENITEM: return "SETSCREENITEM";
+    case SETSCREENUNDCMB: return "SETSCREENUNDCMB";
+    case SETSCREENUNDCST: return "SETSCREENUNDCST";
+    case SETSCREENCATCH: return "SETSCREENCATCH";
+    case SETSCREENLAYOP: return "SETSCREENLAYOP";
+    case SETSCREENSECCMB: return "SETSCREENSECCMB";
+    case SETSCREENSECCST: return "SETSCREENSECCST";
+    case SETSCREENSECFLG: return "SETSCREENSECFLG";
+    case SETSCREENLAYMAP: return "SETSCREENLAYMAP";
+    case SETSCREENLAYSCR: return "SETSCREENLAYSCR";
+    case SETSCREENPATH: return "SETSCREENPATH";
+    case SETSCREENWARPRX: return "SETSCREENWARPRX";
+    case SETSCREENWARPRY: return "SETSCREENWARPRY";
+    
+    case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
+    case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
+    case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
+    case PASSSUBOFS: return "PASSSUBOFS";
+    
+    
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -2184,5 +2217,71 @@ string OSetNPCPointer::toString()
     return "NPCARRPTR2 " + getArgument()->toString();
 }
 
+
+string OGetScreenDoor::toString()
+{
+    return "GETSCREENDOOR " + getArgument()->toString();
+}
+
+string OGetScreenEnemy::toString()
+{
+    return "GETSCREENENEMY " + getArgument()->toString();
+}
+
+
+string OGetScreenLayerOpacity::toString()
+{
+    return "GETSCREENLAYOP " + getArgument()->toString();
+}
+
+string OGetScreenSecretCombo::toString()
+{
+    return "GETSCREENSECCMB " + getArgument()->toString();
+}
+
+string OGetScreenSecretCSet::toString()
+{
+    return "GETSCREENSECCST " + getArgument()->toString();
+}
+
+string OGetScreenSecretFlag::toString()
+{
+    return "GETSCREENSECFLG " + getArgument()->toString();
+}
+
+string OGetScreenLayerMap::toString()
+{
+    return "GETSCREENLAYMAP " + getArgument()->toString();
+}
+
+string OGetScreenLayerScreen::toString()
+{
+    return "GETSCREENLAYSCR " + getArgument()->toString();
+}
+
+string OGetScreenPath::toString()
+{
+    return "GETSCREENPATH " + getArgument()->toString();
+}
+
+string OGetScreenWarpReturnX::toString()
+{
+    return "GETSCREENWARPRX " + getArgument()->toString();
+}
+
+string OGetScreenWarpReturnY::toString()
+{
+    return "GETSCREENWARPRY " + getArgument()->toString();
+}
+
+string OTriggerSecretRegister::toString()
+{
+    return "TRIGGERSECRETR " + getArgument()->toString();
+}
+
+string OPolygonRegister::toString()
+{
+    return "POLYGONR";
+}
 //////////////////////////////////////////////////////////////////////////////////////
 

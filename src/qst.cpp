@@ -37,6 +37,7 @@
 #include "md5.h"
 #include <sstream>
 #include "backend/AllBackends.h"
+#include "scripting/ZASMdefs.h"
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -77,6 +78,8 @@ std::map<int, pair<string,string> > ffcmap;
 std::map<int, pair<string,string> > globalmap;
 std::map<int, pair<string,string> > itemmap;
 GameScripts scripts;
+
+extern refInfo ffcScriptData[32];
 
 bool combosread=false;
 bool mapsread=false;
@@ -2555,6 +2558,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         set_bit(extra_rules, er_SHORTDGNWALK, 1);
     }
+
+	if (s_version < 14)
+	{
+		set_bit(quest_rules, qr_NOSCRIPTSDURINGSCROLL, 0);
+	}
     
     if(keepdata==true)
     {
@@ -7748,10 +7756,8 @@ int readscripts(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
-    setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
-
-	scripts = GameScripts();
+	if (s_version < 6 && keepdata)
+		set_bit(quest_rules, qr_NOSCRIPTSDURINGSCROLL, 1);
 
 	// read the scripts
 

@@ -12,6 +12,7 @@
 #define _ZQ_CLASS_H_
 
 #include "zdefs.h"
+#include "scripting/ZASMdefs.h"
 #include <stdio.h>
 
 #define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))

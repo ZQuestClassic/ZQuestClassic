@@ -79,6 +79,13 @@ public:
 			return *a < *b;
 		}
 	};
+
+	// This comes up so often I'm adding in this shortcut.
+	bool isArray() const {return typeClassId() == ZVARTYPE_CLASSID_ARRAY;}
+
+	// Get the number of nested arrays at top level.
+	int getArrayDepth() const;
+	
 protected:
 	virtual int selfCompare(ZVarType const& other) const = 0;
 
@@ -178,12 +185,15 @@ class ZVarTypeArray : public ZVarType
 {
 public:
 	ZVarTypeArray(ZVarType const& elementType) : elementType(elementType) {}
-	ZVarTypeArray* clone() const {return new ZVarTypeArray(elementType);}
+	ZVarTypeArray* clone() const {return new ZVarTypeArray(*this);}
+
+	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
+
 	string getName() const {return elementType.getName() + "[]";}
 	ZVarType* resolve(Scope& scope) {return this;}
+
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
-	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
 	ZVarType const& getElementType() const {return elementType;}
 	ZVarType const& getBaseType() const;
 protected:

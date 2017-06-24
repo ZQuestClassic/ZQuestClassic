@@ -83,6 +83,8 @@ public:
      int wpn_misc_d[FFSCRIPT_MISC];
     //! End weapon editor. -Z
     
+    //2.6 ZScript -Z
+    int scriptrange,blastsfx;
     
     weapon(weapon const & other);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);

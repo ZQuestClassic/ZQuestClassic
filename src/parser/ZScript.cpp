@@ -1,6 +1,5 @@
 #include "ZScript.h"
-
-#include "ParseError.h"
+#include "CompileError.h"
 
 using namespace std;
 using namespace ZScript;
@@ -88,17 +87,15 @@ vector<Function*> Program::getUserFunctions() const
 	return functions;
 }
 
-bool Program::hasError() const
+vector<CompileError const*> Program::getErrors() const
 {
+	vector<CompileError const*> errors;
 	for (vector<Script*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
-		if ((*it)->hasError()) return true;
-	return false;
-}
-
-void Program::printErrors() const
-{
-	for (vector<Script*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
-		(*it)->printErrors();
+	{
+		vector<CompileError const*> scriptErrors = (*it)->getErrors();
+		errors.insert(errors.end(), scriptErrors.begin(), scriptErrors.end());
+	}
+	return errors;
 }
 
 // ZScript::Script
@@ -123,35 +120,13 @@ Function* Script::getRun() const
 	return possibleRuns[0];
 }
 
-bool Script::hasError() const
+vector<CompileError const*> Script::getErrors() const
 {
-	// Has a scope.
-	if (!scope) return true;
-
-	// Has a proper script type.
-	ScriptType scriptType = getType();
-	if (scriptType != SCRIPTTYPE_GLOBAL
-		&& scriptType != SCRIPTTYPE_ITEM
-		&& scriptType != SCRIPTTYPE_FFC)
-	{
-		return true;
-	}
-
-	// Invalid run function.
-	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
-	if (possibleRuns.size() != 1) return true;
-	Function& run = *possibleRuns[0];
-	if (*run.returnType != ZVarType::ZVOID) return true;
-
-	return false;
-}
-
-void Script::printErrors() const
-{
+	vector<CompileError const*> errors;
 	string const& name = getName();
 
 	// Failed to create scope means an existing script already has this name.
-	if (!scope) printErrorMsg(node, SCRIPTREDEF, name);
+	if (!scope) errors.push_back(&CompileError::ScriptRedef);
 
 	// Invalid script type.
 	ScriptType scriptType = getType();
@@ -159,18 +134,19 @@ void Script::printErrors() const
 		&& scriptType != SCRIPTTYPE_ITEM
 		&& scriptType != SCRIPTTYPE_FFC)
 	{
-		printErrorMsg(node, SCRIPTBADTYPE, name);
+		errors.push_back(&CompileError::ScriptBadType);
 	}
 
 	// Invalid run function.
 	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
 	if (possibleRuns.size() > 1)
-		printErrorMsg(node, TOOMANYRUN, name);
+		errors.push_back(&CompileError::TooManyRun);
 	else if (possibleRuns.size() == 0)
-		printErrorMsg(node, SCRIPTNORUN, name);
+		errors.push_back(&CompileError::ScriptNoRun);
 	else if (*possibleRuns[0]->returnType != ZVarType::ZVOID)
-		printErrorMsg(node, SCRIPTRUNNOTVOID, name);
+		errors.push_back(&CompileError::ScriptRunNotVoid);
 
+	return errors;
 }
 
 // ZScript::Literal
@@ -184,9 +160,9 @@ Literal::Literal(ASTLiteral* node, ZVarType const* type, int id)
 // ZScript::Variable
 
 Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)
-	: node(node), type(type), name(name), id(id)
+	: node(node), type(type), name(name), id(id), inlined(false)
 {
-	if (node) node->variable = this;
+	if (node) node->manager = this;
 }
 
 // ZScript::Function

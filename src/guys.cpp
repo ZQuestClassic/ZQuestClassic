@@ -23,7 +23,6 @@
 #include "ffscript.h"
 #include "defdata.h"
 #include "mem_debug.h"
-#include "zscriptversion.h"
 #include "backend/AllBackends.h"
 
 extern LinkClass   Link;
@@ -14203,7 +14202,7 @@ void check_collisions()
                             {
                                 if(itemsbuf[items.spr(j)->id].collect_script)
                                 {
-                                    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+									run_script(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
                                 }
                                 
                                 //getitem(items.spr(j)->id);

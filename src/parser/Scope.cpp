@@ -460,6 +460,7 @@ Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST*
 	variables[name] = var;
 	table.putVarTypeId(var->id, table.getOrAssignTypeId(type));
 	if (node) table.putNodeId(node, var->id);
+	var->global = isGlobal() || isScript();
 	return var;
 }
 

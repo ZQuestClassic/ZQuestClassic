@@ -49,16 +49,15 @@ class ASTStmtReturnVal;
 class ASTStmtBreak;
 class ASTStmtContinue;
 class ASTStmtEmpty;
+class ASTCompileError;
 // Declarations
 class ASTDecl; // virtual
 class ASTScript;
 class ASTImportDecl;
 class ASTFuncDecl;
-class ASTDataDecl; // virtual
-class ASTArrayDecl;
-class ASTArrayList;
-class ASTVarDecl;
-class ASTVarDeclInitializer;
+class ASTDataDeclList;
+class ASTDataDecl;
+class ASTDataDeclExtraArray;
 class ASTTypeDef;
 // Expressions
 class ASTExpr; // virtual
@@ -117,152 +116,160 @@ public:
     virtual ~ASTVisitor() {}
     virtual void caseDefault(void *param) = 0;
 	// AST Subclasses
-    virtual void caseProgram(ASTProgram&, void* param) {caseDefault(param);}
-    virtual void caseProgram(ASTProgram& node) {caseProgram(node, NULL);}
-    virtual void caseFloat(ASTFloat&, void* param) {caseDefault(param);}
-    virtual void caseFloat(ASTFloat& node) {caseFloat(node, NULL);}
-    virtual void caseString(ASTString&, void* param) {caseDefault(param);}
-    virtual void caseString(ASTString& node) {caseString(node, NULL);}
+    virtual void caseProgram(ASTProgram&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseFloat(ASTFloat&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseString(ASTString&, void* param = NULL) {
+		caseDefault(param);}
 	// Statements
-    virtual void caseBlock(ASTBlock&, void* param) {caseDefault(param);}
-    virtual void caseBlock(ASTBlock& node) {caseBlock(node, NULL);}
-    virtual void caseStmtIf(ASTStmtIf&, void* param) {caseDefault(param);}
-    virtual void caseStmtIf(ASTStmtIf& node) {caseStmtIf(node, NULL);}
-    virtual void caseStmtIfElse(ASTStmtIfElse&, void* param) {caseDefault(param);}
-    virtual void caseStmtIfElse(ASTStmtIfElse& node) {caseStmtIfElse(node, NULL);}
-	virtual void caseStmtSwitch(ASTStmtSwitch&, void*  param) {caseDefault(param);}
-	virtual void caseStmtSwitch(ASTStmtSwitch& node) {caseStmtSwitch(node, NULL);}
-	virtual void caseSwitchCases(ASTSwitchCases&, void*  param) {caseDefault(param);}
-	virtual void caseSwitchCases(ASTSwitchCases& node) {caseSwitchCases(node, NULL);}
-    virtual void caseStmtFor(ASTStmtFor&, void* param) {caseDefault(param);}
-    virtual void caseStmtFor(ASTStmtFor& node) {caseStmtFor(node, NULL);}
-    virtual void caseStmtWhile(ASTStmtWhile&, void* param) {caseDefault(param);}
-    virtual void caseStmtWhile(ASTStmtWhile& node) {caseStmtWhile(node, NULL);}
-    virtual void caseStmtDo(ASTStmtDo&, void* param) {caseDefault(param);}
-    virtual void caseStmtDo(ASTStmtDo& node) {caseStmtDo(node, NULL);}
-    virtual void caseStmtReturn(ASTStmtReturn&, void* param) {caseDefault(param);}
-    virtual void caseStmtReturn(ASTStmtReturn& node) {caseStmtReturn(node, NULL);}
-    virtual void caseStmtReturnVal(ASTStmtReturnVal&, void* param) {caseDefault(param);}
-    virtual void caseStmtReturnVal(ASTStmtReturnVal& node) {caseStmtReturnVal(node, NULL);}
-    virtual void caseStmtBreak(ASTStmtBreak&, void* param) {caseDefault(param);}
-    virtual void caseStmtBreak(ASTStmtBreak& node) {caseStmtBreak(node, NULL);}
-    virtual void caseStmtContinue(ASTStmtContinue&, void* param) {caseDefault(param);}
-    virtual void caseStmtContinue(ASTStmtContinue& node) {caseStmtContinue(node, NULL);}
-    virtual void caseStmtEmpty(ASTStmtEmpty&, void* param) {caseDefault(param);}
-    virtual void caseStmtEmpty(ASTStmtEmpty& node) {caseStmtEmpty(node, NULL);}
+    virtual void caseBlock(ASTBlock&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtIf(ASTStmtIf&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtIfElse(ASTStmtIfElse&, void* param = NULL) {
+		caseDefault(param);}
+	virtual void caseStmtSwitch(ASTStmtSwitch&, void* param = NULL) {
+		caseDefault(param);}
+	virtual void caseSwitchCases(ASTSwitchCases&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtFor(ASTStmtFor&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtWhile(ASTStmtWhile&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtDo(ASTStmtDo&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtReturn(ASTStmtReturn&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtReturnVal(ASTStmtReturnVal&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtBreak(ASTStmtBreak&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtContinue(ASTStmtContinue&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStmtEmpty(ASTStmtEmpty&, void* param = NULL) {
+		caseDefault(param);}
+	virtual void caseCompileError(ASTCompileError& node, void* param = NULL) {
+		caseDefault(param);}
 	// Declarations
-    virtual void caseScript(ASTScript&, void* param) {caseDefault(param);}
-    virtual void caseScript(ASTScript& node) {caseScript(node, NULL);}
-    virtual void caseImportDecl(ASTImportDecl&, void* param) {caseDefault(param);}
-    virtual void caseImportDecl(ASTImportDecl& node) {caseImportDecl(node, NULL);}
-    virtual void caseFuncDecl(ASTFuncDecl&, void* param) {caseDefault(param);}
-    virtual void caseFuncDecl(ASTFuncDecl& node) {caseFuncDecl(node, NULL);}
-    virtual void caseArrayDecl(ASTArrayDecl&, void* param) {caseDefault(param);}
-    virtual void caseArrayDecl(ASTArrayDecl& node) {caseArrayDecl(node, NULL);}
-    virtual void caseArrayList(ASTArrayList&, void* param) {caseDefault(param);}
-    virtual void caseArrayList(ASTArrayList& node) {caseArrayList(node, NULL);}
-    virtual void caseVarDecl(ASTVarDecl&, void* param) {caseDefault(param);}
-    virtual void caseVarDecl(ASTVarDecl& node) {caseVarDecl(node, NULL);}
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer&, void* param) {caseDefault(param);}
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer& node) {caseVarDeclInitializer(node, NULL);}
-    virtual void caseTypeDef(ASTTypeDef&, void* param) {caseDefault(param);}
-    virtual void caseTypeDef(ASTTypeDef& node) {caseTypeDef(node, NULL);}
+    virtual void caseScript(ASTScript&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseImportDecl(ASTImportDecl&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseFuncDecl(ASTFuncDecl&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseDataDeclList(ASTDataDeclList&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseDataDecl(ASTDataDecl&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseDataDeclExtraArray(
+			ASTDataDeclExtraArray&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseTypeDef(ASTTypeDef&, void* param = NULL) {
+		caseDefault(param);}
 	// Expressions
-    virtual void caseExprConst(ASTExprConst&, void* param) {caseDefault(param);}
-    virtual void caseExprConst(ASTExprConst& node) {caseExprConst(node, NULL);}
-    virtual void caseExprAssign(ASTExprAssign&, void* param) {caseDefault(param);}
-    virtual void caseExprAssign(ASTExprAssign& node) {caseExprAssign(node, NULL);}
-    virtual void caseExprIdentifier(ASTExprIdentifier&, void* param) {caseDefault(param);}
-    virtual void caseExprIdentifier(ASTExprIdentifier& node) {caseExprIdentifier(node, NULL);}
-    virtual void caseExprArrow(ASTExprArrow&, void* param) {caseDefault(param);}
-    virtual void caseExprArrow(ASTExprArrow& node) {caseExprArrow(node, NULL);}
-    virtual void caseExprIndex(ASTExprIndex&, void* param) {caseDefault(param);}
-    virtual void caseExprIndex(ASTExprIndex& node) {caseExprIndex(node, NULL);}
-    virtual void caseExprCall(ASTExprCall&, void* param) {caseDefault(param);}
-    virtual void caseExprCall(ASTExprCall& node) {caseExprCall(node, NULL);}
-    virtual void caseExprNegate(ASTExprNegate&, void* param) {caseDefault(param);}
-    virtual void caseExprNegate(ASTExprNegate& node) {caseExprNegate(node, NULL);}
-    virtual void caseExprNot(ASTExprNot&, void* param) {caseDefault(param);}
-    virtual void caseExprNot(ASTExprNot& node) {caseExprNot(node, NULL);}
-    virtual void caseExprBitNot(ASTExprBitNot&, void* param) {caseDefault(param);}
-    virtual void caseExprBitNot(ASTExprBitNot& node) {caseExprBitNot(node, NULL);}
-    virtual void caseExprIncrement(ASTExprIncrement&, void* param) {caseDefault(param);}
-    virtual void caseExprIncrement(ASTExprIncrement& node) {caseExprIncrement(node, NULL);}
-    virtual void caseExprPreIncrement(ASTExprPreIncrement&, void* param) {caseDefault(param);}
-    virtual void caseExprPreIncrement(ASTExprPreIncrement& node) {caseExprPreIncrement(node, NULL);}
-    virtual void caseExprDecrement(ASTExprDecrement&, void* param) {caseDefault(param);}
-    virtual void caseExprDecrement(ASTExprDecrement& node) {caseExprDecrement(node, NULL);}
-    virtual void caseExprPreDecrement(ASTExprPreDecrement&, void* param) {caseDefault(param);}
-    virtual void caseExprPreDecrement(ASTExprPreDecrement& node) {caseExprPreDecrement(node, NULL);}
-    virtual void caseExprAnd(ASTExprAnd&, void* param) {caseDefault(param);}
-    virtual void caseExprAnd(ASTExprAnd& node) {caseExprAnd(node, NULL);}
-    virtual void caseExprOr(ASTExprOr&, void* param) {caseDefault(param);}
-    virtual void caseExprOr(ASTExprOr& node) {caseExprOr(node, NULL);}
-    virtual void caseExprGT(ASTExprGT&, void* param) {caseDefault(param);}
-    virtual void caseExprGT(ASTExprGT& node) {caseExprGT(node, NULL);}
-    virtual void caseExprGE(ASTExprGE&, void* param) {caseDefault(param);}
-    virtual void caseExprGE(ASTExprGE& node) {caseExprGE(node, NULL);}
-    virtual void caseExprLT(ASTExprLT&, void* param) {caseDefault(param);}
-    virtual void caseExprLT(ASTExprLT& node) {caseExprLT(node, NULL);}
-    virtual void caseExprLE(ASTExprLE&, void* param) {caseDefault(param);}
-    virtual void caseExprLE(ASTExprLE& node) {caseExprLE(node, NULL);}
-    virtual void caseExprEQ(ASTExprEQ&, void* param) {caseDefault(param);}
-    virtual void caseExprEQ(ASTExprEQ& node) {caseExprEQ(node, NULL);}
-    virtual void caseExprNE(ASTExprNE&, void* param) {caseDefault(param);}
-    virtual void caseExprNE(ASTExprNE& node) {caseExprNE(node, NULL);}
-    virtual void caseExprPlus(ASTExprPlus&, void* param) {caseDefault(param);}
-    virtual void caseExprPlus(ASTExprPlus& node) {caseExprPlus(node, NULL);}
-    virtual void caseExprMinus(ASTExprMinus&, void* param) {caseDefault(param);}
-    virtual void caseExprMinus(ASTExprMinus& node) {caseExprMinus(node, NULL);}
-    virtual void caseExprTimes(ASTExprTimes&, void* param) {caseDefault(param);}
-    virtual void caseExprTimes(ASTExprTimes& node) {caseExprTimes(node, NULL);}
-    virtual void caseExprDivide(ASTExprDivide&, void* param) {caseDefault(param);}
-    virtual void caseExprDivide(ASTExprDivide& node) {caseExprDivide(node, NULL);}
-    virtual void caseExprModulo(ASTExprModulo&, void* param) {caseDefault(param);}
-    virtual void caseExprModulo(ASTExprModulo& node) {caseExprModulo(node, NULL);}
-    virtual void caseExprBitAnd(ASTExprBitAnd&, void* param) {caseDefault(param);}
-    virtual void caseExprBitAnd(ASTExprBitAnd& node) {caseExprBitAnd(node, NULL);}
-    virtual void caseExprBitOr(ASTExprBitOr&, void* param) {caseDefault(param);}
-    virtual void caseExprBitOr(ASTExprBitOr& node) {caseExprBitOr(node, NULL);}
-    virtual void caseExprBitXor(ASTExprBitXor&, void* param) {caseDefault(param);}
-    virtual void caseExprBitXor(ASTExprBitXor& node) {caseExprBitXor(node, NULL);}
-    virtual void caseExprLShift(ASTExprLShift&, void* param) {caseDefault(param);}
-    virtual void caseExprLShift(ASTExprLShift& node) {caseExprLShift(node, NULL);}
-    virtual void caseExprRShift(ASTExprRShift&, void* param) {caseDefault(param);}
-    virtual void caseExprRShift(ASTExprRShift& node) {caseExprRShift(node, NULL);}
+    virtual void caseExprConst(ASTExprConst&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprAssign(ASTExprAssign&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprIdentifier(ASTExprIdentifier&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprArrow(ASTExprArrow&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprIndex(ASTExprIndex&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprCall(ASTExprCall&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprNegate(ASTExprNegate&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprNot(ASTExprNot&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprBitNot(ASTExprBitNot&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprIncrement(ASTExprIncrement&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprPreIncrement(
+			ASTExprPreIncrement&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprDecrement(ASTExprDecrement&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprPreDecrement(ASTExprPreDecrement&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprAnd(ASTExprAnd&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprOr(ASTExprOr&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprGT(ASTExprGT&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprGE(ASTExprGE&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprLT(ASTExprLT&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprLE(ASTExprLE&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprEQ(ASTExprEQ&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprNE(ASTExprNE&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprPlus(ASTExprPlus&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprMinus(ASTExprMinus&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprTimes(ASTExprTimes&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprDivide(ASTExprDivide&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprModulo(ASTExprModulo&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprBitAnd(ASTExprBitAnd&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprBitOr(ASTExprBitOr&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprBitXor(ASTExprBitXor&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprLShift(ASTExprLShift&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseExprRShift(ASTExprRShift&, void* param = NULL) {
+		caseDefault(param);}
 	// Literals
-    virtual void caseNumberLiteral(ASTNumberLiteral&, void* param) {caseDefault(param);}
-    virtual void caseNumberLiteral(ASTNumberLiteral& node) {caseNumberLiteral(node, NULL);}
-    virtual void caseBoolLiteral(ASTBoolLiteral&, void* param) {caseDefault(param);}
-    virtual void caseBoolLiteral(ASTBoolLiteral& node) {caseBoolLiteral(node, NULL);}
-    virtual void caseStringLiteral(ASTStringLiteral&, void* param) {caseDefault(param);}
-    virtual void caseStringLiteral(ASTStringLiteral& node) {caseStringLiteral(node, NULL);}
-	virtual void caseArrayLiteral(ASTArrayLiteral& node, void* param) {caseDefault(param);}
-	virtual void caseArrayLiteral(ASTArrayLiteral& node) {caseArrayLiteral(node, NULL);}
+    virtual void caseNumberLiteral(ASTNumberLiteral&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseBoolLiteral(ASTBoolLiteral&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseStringLiteral(ASTStringLiteral&, void* param = NULL) {
+		caseDefault(param);}
+	virtual void caseArrayLiteral(ASTArrayLiteral& node, void* param = NULL) {
+		caseDefault(param);}
 	// Types
-	virtual void caseScriptType(ASTScriptType&, void* param) {caseDefault(param);}
-	virtual void caseScriptType(ASTScriptType& node) {caseScriptType(node, NULL);}
-    virtual void caseVarType(ASTVarType&, void* param) {caseDefault(param);}
-    virtual void caseVarType(ASTVarType& node) {caseVarType(node, NULL);}
+	virtual void caseScriptType(ASTScriptType&, void* param = NULL) {
+		caseDefault(param);}
+    virtual void caseVarType(ASTVarType&, void* param = NULL) {
+		caseDefault(param);}
 };
 
 //////////////////////////////////////////////////////////////////////////////
 class LocationData
 {
 public:
+	LocationData()
+			: first_line(-1), last_line(-1),
+			  first_column(-1), last_column(-1),
+			  fname(curfilename)
+	{}
+
     LocationData(YYLTYPE loc)
-    {
-        first_line = loc.first_line;
-        last_line = loc.last_line;
-        first_column = loc.first_column;
-        last_column = loc.last_column;
-        fname = curfilename;
-    }
+			: first_line(loc.first_line), last_line(loc.last_line),
+			  first_column(loc.first_column), last_column(loc.last_column),
+			  fname(curfilename)
+	{}
+
     int first_line;
     int last_line;
     int first_column;
     int last_column;
     string fname;
+
+	static LocationData const NONE;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -278,8 +285,7 @@ public:
 	LocationData const &getLocation() const {return loc;}
 	LocationData &getLocation() {return loc;}
 	void updateLocation(LocationData const& location) {loc = location;}
-	virtual void execute(ASTVisitor &visitor, void *param)=0;
-	virtual void execute(ASTVisitor &visitor) {execute(visitor, NULL);}
+	virtual void execute(ASTVisitor &visitor, void* param = NULL) = 0;
 
 	virtual string asString() const {return "unknown";}
 
@@ -289,6 +295,8 @@ public:
 	virtual bool isTypeIdentifier() const {return false;}
 	virtual bool isTypeVarDecl() const {return false;}
 	virtual bool isTypeArrayDecl() const {return false;}
+	virtual bool isStringLiteral() const {return false;}
+	virtual bool isArrayLiteral() const {return false;}
 private:
     LocationData loc;
 };
@@ -309,8 +317,7 @@ public:
 
 	// Public since we'll be clearing them and such.
 	vector<ASTImportDecl*> imports;
-	vector<ASTVarDecl*> variables;
-	vector<ASTArrayDecl*> arrays;
+	vector<ASTDataDeclList*> variables;
 	vector<ASTFuncDecl*> functions;
 	vector<ASTTypeDef*> types;
 	vector<ASTScript*> scripts;
@@ -584,12 +591,42 @@ public:
     ASTStmtEmpty(LocationData Loc) : ASTStmt(Loc) {}
 	ASTStmtEmpty* clone() const;
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtEmpty(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtEmpty(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtEmpty(*this, param);}
 private:
     //NOT IMPLEMENTED; DO NOT USE
     ASTStmtEmpty(ASTStmtEmpty &);
     ASTStmtEmpty &operator=(ASTStmtEmpty&);
+};
+
+class CompileError;
+class ASTCompileError : public ASTStmt
+{
+public:
+	ASTCompileError(ASTExpr* errorId, ASTStmt* statement,
+					LocationData const& location = LocationData::NONE);
+	ASTCompileError(ASTCompileError const& base);
+	~ASTCompileError();
+	ASTCompileError& operator=(ASTCompileError const& rhs);
+	ASTCompileError* clone() const {return new ASTCompileError(*this);}
+
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseCompileError(*this, param);}
+	
+	// The expression for the error id. If NULL, no id is specified.
+	ASTExpr* errorId;
+
+	// The statement to execute while catching the compile error.
+	ASTStmt* statement;
+
+	// If the specified error has been triggered.
+	bool errorTriggered;
+	
+	// Get the error id as an integer. -1 for invalid.
+	int getErrorId() const;
+
+	// Does this node handle the given error?
+	bool canHandle(CompileError const& error) const;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -602,8 +639,8 @@ enum ASTDeclClassId
 	ASTDECL_CLASSID_IMPORT,
 	ASTDECL_CLASSID_CONSTANT,
 	ASTDECL_CLASSID_FUNCTION,
-	ASTDECL_CLASSID_ARRAY,
-	ASTDECL_CLASSID_VARIABLE,
+	ASTDECL_CLASSID_DATALIST,
+	ASTDECL_CLASSID_DATA,
 	ASTDECL_CLASSID_TYPE
 };
 
@@ -612,9 +649,9 @@ class ASTDecl : public ASTStmt
 public:
     ASTDecl(LocationData const& location) : ASTStmt(location) {}
 	ASTDecl(ASTDecl const& base) : ASTStmt(base) {}
-	ASTDecl& operator=(ASTDecl const& rhs);
-	virtual ASTDecl* clone() const = 0;
     virtual ~ASTDecl() {}
+	virtual ASTDecl& operator=(ASTDecl const& rhs);
+	virtual ASTDecl* clone() const = 0;
 
 	virtual ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_NONE;}
 };
@@ -624,7 +661,8 @@ class ASTScript : public ASTDecl
 public:
     ASTScript(LocationData const& location);
 	ASTScript(ASTScript const& base);
-	virtual ~ASTScript();
+	~ASTScript();
+	ASTScript& operator=(ASTScript const& rhs);
 	ASTScript* clone() const {return new ASTScript(*this);}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseScript(*this, param);}
@@ -642,14 +680,12 @@ public:
     string getName() {return name;}
 	void setName(string const& n) {name = n;}
 
-	vector<ASTVarDecl*> variables;
-	vector<ASTArrayDecl*> arrays;
+	vector<ASTDataDeclList*> variables;
 	vector<ASTFuncDecl*> functions;
 	vector<ASTTypeDef*> types;
 private:
     ASTScriptType* type;
     string name;
-
 };
 
 class ASTImportDecl : public ASTDecl
@@ -672,138 +708,130 @@ private:
 class ASTFuncDecl : public ASTDecl
 {
 public:
-    ASTFuncDecl(LocationData Loc) : ASTDecl(Loc), params() {}
+    ASTFuncDecl(LocationData const& location = LocationData::NONE);
+	ASTFuncDecl(ASTFuncDecl const& base);
+	ASTFuncDecl& operator=(ASTFuncDecl const& rhs);
+	ASTFuncDecl* clone() const {return new ASTFuncDecl(*this);}
     ~ASTFuncDecl();
-	ASTFuncDecl* clone() const;
-    
-    void setName(string n) {name = n;}
-    void setReturnType(ASTVarType *type) {rettype = type;}
-    void setBlock(ASTBlock *b) {block = b;}
-    
-    void addParam(ASTVarDecl *param);
-    list<ASTVarDecl *> const &getParams() const {return params;}
-    list<ASTVarDecl *> &getParams() {return params;}
-    ASTVarType *getReturnType() const {return rettype;}
-    ASTBlock *getBlock() const {return block;}
-    string getName() const {return name;}
-    
+
     void execute(ASTVisitor &visitor, void *param) {visitor.caseFuncDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseFuncDecl(*this);}
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_FUNCTION;}
+
+	vector<ASTDataDecl*>& getParameters() {return parameters;}
+	void addParameter(ASTDataDecl* parameter);
+
+	ASTVarType* returnType;
+	string name;
+	ASTBlock* block;
+
 private:
-    string name;
-    list<ASTVarDecl *> params;
-    ASTVarType *rettype;
-    ASTBlock *block;
+	vector<ASTDataDecl*> parameters;
 };
 
 namespace ZScript
 {
-	struct Variable;
+	class Variable;
 }
 
+// A line of variable/constant declarations:
+// int a, b, c[];
+class ASTDataDeclList : public ASTDecl
+{
+public:
+	ASTDataDeclList(LocationData const& location = LocationData::NONE);
+	ASTDataDeclList(ASTDataDeclList const& base);
+	ASTDataDeclList& operator=(ASTDataDeclList const& rhs);
+	~ASTDataDeclList();
+	ASTDataDeclList* clone() const {return new ASTDataDeclList(*this);}
+
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclList(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseDataDeclList(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATALIST;}
+
+	// The base type at the start of the line shared by all the declarations.
+	ASTVarType* baseType;
+
+	vector<ASTDataDecl*> const& getDeclarations() const {return declarations;}
+	void addDeclaration(ASTDataDecl* declaration);
+
+private:
+	// The list of individual data declarations.
+	vector<ASTDataDecl*> declarations;
+};
+
+// Declares a single variable or constant. May or may not be inside an
+// ASTDataDeclList.
 class ASTDataDecl : public ASTDecl
 {
 public:
-	ASTDataDecl(LocationData const& location) : ASTDecl(location), variable(NULL) {}
-	ASTDataDecl(ASTDataDecl const& base) : ASTDecl(base), variable(NULL) {}
+	ASTDataDecl(LocationData const& location = LocationData::NONE);
+	ASTDataDecl(ASTDataDecl const& base);
+	~ASTDataDecl();
 	ASTDataDecl& operator=(ASTDataDecl const& rhs);
+	ASTDataDecl* clone() const {return new ASTDataDecl(*this);}
 
-	// Reference back to the variable that is built for this node. Should be
-	// set by that Variable when it is created.
-	ZScript::Variable* variable;
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDecl(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseDataDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATA;}
+
+	// The list containing this declaration. Should be set by that list when
+	// this is added.
+	ASTDataDeclList* list;
+
+	// Reference back to the variable manager for this node. Should be set by
+	// that Variable when it is created.
+	ZScript::Variable* manager;
+
+	// This type of this data (minus the extra arrays). This should only be
+	// set if this declaration is not part of a list, as the list's base type
+	// should be used instead in that case.
+	ASTVarType* baseType;
+
+	// The symbol this declaration is binding.
+	string name;
+
+	ASTExpr* getInitializer() const {return initializer;}
+	void setInitializer(ASTExpr* initializer);
+
+	// Extra array type for this specific declaration. The final type is the
+	// list's base type combined with these.
+	vector<ASTDataDeclExtraArray*> extraArrays;
+
+	// Resolves the type, using either the list's or this node's own base type
+	// as appropriate.
+	ZVarType const* resolveType(Scope* scope) const;
+
+private:
+	// The initialization expression. Optional.
+	ASTExpr* initializer;
 };
 
-class ASTArrayDecl : public ASTDataDecl
+// The extra array parameters appended to a data declaration name.
+class ASTDataDeclExtraArray : public AST
 {
 public:
-    ASTArrayDecl(ASTVarType* type, string const& name, ASTExpr* size,
-				 ASTArrayList* list, LocationData const& location);
-	ASTArrayDecl(ASTArrayDecl const& base);
-	ASTArrayDecl& operator=(ASTArrayDecl const& rhs);
-	ASTArrayDecl* clone() const;
-    ~ASTArrayDecl();
+	ASTDataDeclExtraArray(LocationData const& location = LocationData::NONE);
+	ASTDataDeclExtraArray(ASTDataDeclExtraArray const& base);
+	ASTDataDeclExtraArray& operator=(ASTDataDeclExtraArray const& rhs);
+	ASTDataDeclExtraArray* clone() const {return new ASTDataDeclExtraArray(*this);}
+	~ASTDataDeclExtraArray();
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseArrayDecl(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseArrayDecl(*this);}
-	bool isTypeArrayDecl() const {return true;}
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclExtraArray(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseDataDeclExtraArray(*this);}
 
-    ASTVarType *getType() const {return type;}
-    string getName() const {return name;}
+	// The vector of array dimensions. Empty means unspecified.
+	vector<ASTExpr*> dimensions;
 
-    ASTExpr *getSize() const {return size;}
-    ASTArrayList *getList() const {return list;}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_ARRAY;}
-private:
-    string name;
-    ASTArrayList *list;
-    ASTExpr *size;
-    ASTVarType *type;
-};
+	// If this declares an a sized array.
+	bool hasSize() const {return dimensions.size() > 0;}
 
-class ASTArrayList : public AST
-{
-public:
-    ASTArrayList(LocationData Loc) : AST(Loc), listIsString(false) {}
-    ~ASTArrayList();
-	ASTArrayList* clone() const;
+	// If all expressions in the dimension array are constant.
+	bool isConstant() const;
 
-    list<ASTExpr *> const &getList() const {return exprs;}
-    list<ASTExpr *> &getList() {return exprs;}
-
-    void addParam(ASTExpr *expr);
-	void addString(string const & str);
-    bool isString() const {return listIsString;}
-    void makeString() {listIsString = true;}
-
-    // Just to allow us to instantiate the object.
-    void execute(ASTVisitor&, void *) {}
-    void execute(ASTVisitor&) {}
-private:
-    list<ASTExpr *> exprs;
-    bool listIsString;
-    //NOT IMPLEMENTED
-    ASTArrayList(ASTArrayList &);
-    ASTArrayList &operator=(ASTArrayList &);
-};
-
-class ASTVarDecl : public ASTDataDecl
-{
-public:
-    ASTVarDecl(ASTVarType* type, string const& name, LocationData const& location);
-	ASTVarDecl(ASTVarDecl const& base);
-	ASTVarDecl& operator=(ASTVarDecl const& rhs);
-	virtual ASTVarDecl* clone() const;
-    virtual ~ASTVarDecl();
-
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseVarDecl(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseVarDecl(*this);}
-	bool isTypeVarDecl() const {return true;}
-
-    ASTVarType* getType() const {return type;}
-    string getName() const {return name;}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_VARIABLE;}
-private:
-    ASTVarType* type;
-    string name;
-};
-
-class ASTVarDeclInitializer : public ASTVarDecl
-{
-public:
-    ASTVarDeclInitializer(ASTVarType* type, string const& name,
-						  ASTExpr* initial, LocationData const& location);
-	ASTVarDeclInitializer(ASTVarDeclInitializer const& base);
-	ASTVarDeclInitializer& operator=(ASTVarDeclInitializer const& rhs);
-	ASTVarDeclInitializer* clone() const;
-    ~ASTVarDeclInitializer();
-
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseVarDeclInitializer(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseVarDeclInitializer(*this);}
-
-    ASTExpr* getInitializer() const {return initial;}
-private:
-    ASTExpr* initial;
+	// If this is constant, get the total size. Returns -1 if not constant or
+	// not specified.
+	int getTotalSize() const;
 };
 
 class ASTTypeDef : public ASTDecl
@@ -1376,7 +1404,7 @@ public:
 
 namespace ZScript
 {
-	struct Literal;
+	class Literal;
 }
 
 class ASTLiteral : public ASTExpr
@@ -1436,9 +1464,16 @@ public:
 
 	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringLiteral(*this, param);}
 	void execute (ASTVisitor& visitor) {visitor.caseStringLiteral(*this);}
+	bool isStringLiteral() const {return true;}
+
 	bool isConstant() const {return true;}
 
 	string getValue() const {return data;}
+
+	// The data declaration that this literal may be part of. If NULL that
+	// means this is not part of a data declaration. This should be managed by
+	// that declaration and not modified by this object at all.
+	ASTDataDecl* declaration;
 private:
 	string data;
 };
@@ -1454,6 +1489,7 @@ public:
 
 	void execute (ASTVisitor& visitor, void* param) {visitor.caseArrayLiteral(*this, param);}
 	void execute (ASTVisitor& visitor) {visitor.caseArrayLiteral(*this);}
+	bool isArrayLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
 
@@ -1463,6 +1499,12 @@ public:
 	void setSize(ASTExpr* node) {size = node;}
 	vector<ASTExpr*> getElements() const {return elements;}
 	void appendElement(ASTExpr* element) {elements.push_back(element);}
+
+	// The data declaration that this literal may be part of. If NULL that
+	// means this is not part of a data declaration. This should be managed by
+	// that declaration and not modified by this object at all.
+	ASTDataDecl* declaration;
+
 private:
 	ASTVarType* type;
 	ASTExpr* size;

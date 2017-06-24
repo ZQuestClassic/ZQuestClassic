@@ -117,6 +117,8 @@ public:
 		case SCRIPTTYPE_GLOBAL:
 		case SCRIPTTYPE_VOID:
 			return ZVARTYPEID_VOID;
+		default:
+			return ZVARTYPEID_VOID;
 		}
 	}
 private:

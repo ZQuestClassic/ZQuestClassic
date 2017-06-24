@@ -1,12 +1,12 @@
 
 #include "../precompiled.h" //always first
 
-#include "ParseError.h"
-#include "y.tab.hpp"
-#include "TypeChecker.h"
-#include "GlobalSymbols.h"
-#include "ByteCode.h"
 #include "../zsyssimple.h"
+#include "ByteCode.h"
+#include "CompileError.h"
+#include "GlobalSymbols.h"
+#include "TypeChecker.h"
+#include "y.tab.hpp"
 #include <iostream>
 #include <assert.h>
 #include <string>
@@ -46,7 +46,7 @@ ScriptsData* compile(const char *filename)
 
     if (go(filename) != 0 || !resAST)
     {
-        printErrorMsg(NULL, CANTOPENSOURCE);
+		CompileError::CantOpenSource.print(NULL);
         return NULL;
     }
 
@@ -143,7 +143,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 {
     if (reclimit == 0)
     {
-        printErrorMsg(NULL, IMPORTRECURSION);
+		CompileError::ImportRecursion.print(NULL);
         return false;
     }
 
@@ -156,7 +156,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 
         if (go(fn.c_str()) != 0 || !resAST)
         {
-            printErrorMsg(*it, CANTOPENIMPORT, fn);
+			CompileError::CantOpenImport.print(*it, fn);
             return false;
         }
 
@@ -221,10 +221,7 @@ FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
 	}
 
     if (fd->globalVariables.size() > 256)
-    {
-        printErrorMsg(NULL, TOOMANYGLOBAL);
-        failure = true;
-    }
+		CompileError::TooManyGlobal.print(NULL);
 
     if (failure)
     {
@@ -388,7 +385,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		// Generate variable init code.
         BuildOpcodes bo;
         node.execute(bo, &oc);
-        if (!bo.isOK()) failure = true;
+        if (bo.hasFailed()) failure = true;
 		rval->globalsInit.insert(rval->globalsInit.end(), oc.initCode.begin(), oc.initCode.end());
         vector<Opcode*> code = bo.getResult();
 		rval->globalsInit.insert(rval->globalsInit.end(), code.begin(), code.end());
@@ -428,15 +425,15 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         //assign the local, non-parameters to slots on the stack
         
         AssignStackSymbols assign(&sf, symbols, offset);
-        node.getBlock()->execute(assign, NULL);
+        node.block->execute(assign, NULL);
         
 		offset = assign.getHighWaterOffset();
         
         //finally, assign the parameters, in reverse order
-		for (list<ASTVarDecl *>::reverse_iterator paramit = node.getParams().rbegin();
-			 paramit != node.getParams().rend(); ++paramit)
+		for (vector<ASTDataDecl*>::const_reverse_iterator it = node.getParameters().rbegin();
+			 it != node.getParameters().rend(); ++it)
 		{
-			int vid = symbols->getNodeId(*paramit);
+			int vid = symbols->getNodeId(*it);
 			sf.addToFrame(vid, offset);
 			offset += 10000;
 		}
@@ -488,7 +485,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         BuildOpcodes bo;
         node.execute(bo, &oc);
 
-        if (!bo.isOK()) failure = true;
+        if (bo.hasFailed()) failure = true;
 
         vector<Opcode *> code = bo.getResult();
 
