@@ -373,15 +373,15 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     //al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
     if ( d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-    if ( d->hxsz > 0 ) hxsz = d->hxsz;
-    if ( d->hysz > 0 ) hysz = d->hysz;
-    if ( d->hzsz > 0 ) hzsz = d->hzsz;
-    if ( d->hxofs != 0 ) hxofs = d->hxofs;
-    if ( d->hyofs != 0 ) hyofs = d->hyofs;
-   
-    if ( d->xofs != 0 ) xofs = (int)d->xofs;
-    if ( d->yofs != 0 ) yofs = (int)d->yofs;
-    if ( d->zofs != 0 ) zofs = (int)d->zofs;
+    if ( ((d->SIZEflags&guyflagOVERRIDEXOFFSET) != 0) && d->hxsz > 0 ) hxsz = d->hxsz;
+    if ( ((d->SIZEflags&guyflagOVERRIDEYOFFSET) != 0) && d->hysz > 0 ) hysz = d->hysz;
+    if ( ((d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0) && d->hzsz > 0  ) hzsz = d->hzsz;
+    if ( (d->SIZEflags&guyflagOVERRIDEHITXOFFSET) != 0) hxofs = d->hxofs;
+    if (  (d->SIZEflags&guyflagOVERRIDEHITYOFFSET) != 0 ) hyofs = d->hyofs;
+//    if ( (d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
+    if (  (d->SIZEflags&guyflagOVERRIDEDRAWXOFFSET) != 0 ) xofs = (int)d->xofs;
+    if ( (d->SIZEflags&guyflagOVERRIDEDRAWYOFFSET) != 0 ) yofs = (int)d->yofs;
+    if (  (d->SIZEflags&guyflagOVERRIDEDRAWXZOFFSET) != 0 ) zofs = (int)d->zofs;
     
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
@@ -6018,6 +6018,14 @@ eRock::eRock(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     clk=0;
     mainguy=false;
     clk2=-14;
+	/*
+    if ( (SIZEflags&guyflagOVERRIDEHITXOFFSET) != 0) hxofs = d->hxofs;
+    if (  (SIZEflags&guyflagOVERRIDEHITYOFFSET) != 0 ) hyofs = d->hyofs;
+    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
+    if (  (SIZEflags&guyflagOVERRIDEDRAWXOFFSET) != 0 ) xofs = (int)d->xofs;
+    if ( (SIZEflags&guyflagOVERRIDEDRAWYOFFSET) != 0 ) yofs = (int)d->yofs;
+    if (  (SIZEflags&guyflagOVERRIDEDRAWXZOFFSET) != 0 ) zofs = (int)d->zofs;
+	*/
     hxofs=hyofs=-2;
     hxsz=hysz=20;
     //nets+1640;
@@ -7561,9 +7569,11 @@ eKeese::eKeese(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     step=0;
     movestatus=1;
     c=0;
-    hxofs=2;
+	
+
+    if ( !(SIZEflags&guyflagOVERRIDEHITXOFFSET) ) hxofs=2;
     hxsz=12;
-    hyofs=4;
+    if ( !(SIZEflags&guyflagOVERRIDEHITYOFFSET) ) hxofs=2; hyofs=4;
     hysz=8;
     clk4=0;
     //nets;

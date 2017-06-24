@@ -1305,6 +1305,8 @@ struct itemdata
     int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
+    int wpnsprite; //enemy weapon sprite. 
+    
     
 };
 
@@ -1428,13 +1430,15 @@ struct item_drop_object
 #define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
 
 
-#define GUYDATA_FLAGS 20
-//fLAGS TO DEFINE IF VARIOUS ENEMY EDITOR PROPERTIES OVERRIDE SYSTEM DEFAULTS
-enum{
-	guyflagOVERRIDEXOFFSET, guyflagOVERRIDEYOFFSET, guyflagOVERRIDEHITXOFFSET, guyflagOVERRIDEHITYOFFSET,
-	guyflagOVERRIDEHITZOFFSET, guyflagOVERRIDEDRAWXOFFSET, guyflagOVERRIDEDRAWYOFFSET, guyflagOVERRIDEDRAWXZOFFSET,
-	guyflagLAST = 19
-};
+
+#define guyflagOVERRIDEXOFFSET       0x00000001
+#define guyflagOVERRIDEYOFFSET         0x00000002
+#define guyflagOVERRIDEHITXOFFSET         0x00000004
+#define guyflagOVERRIDEHITYOFFSET     0x00000008
+#define guyflagOVERRIDEHITZOFFSET    0x00000010
+#define guyflagOVERRIDEDRAWXOFFSET       0x00000020 
+#define guyflagOVERRIDEDRAWYOFFSET       0x00000040 
+#define guyflagOVERRIDEDRAWXZOFFSET       0x00000080 
 
 struct guydata
 {
@@ -1473,7 +1477,7 @@ struct guydata
     int txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
-    bool SIZEflags[GUYDATA_FLAGS]; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
 };
 
 class refInfo

@@ -2388,7 +2388,7 @@ static int enedata_defense3_list[] =
 
 static int enedata_spritesize_list[] =
 {
-    213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,-1
+    213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,237,238,239,240,241,242,243,244,-1
 };
 
 static TABPANEL enedata_tabs[] =
@@ -3280,8 +3280,23 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,          8,    193-4+12,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
 	//{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
 	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-	
-	
+	//237 HitWidth Override
+	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//238 HitHeight override
+	 { jwin_check_proc,        94+50,    99,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//239 HitZHeight Override
+	 { jwin_check_proc,        94+50,     115,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//240 HitXOffset override
+	 { jwin_check_proc,        94+50,     131,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//241 HitYOffset Override
+	 { jwin_check_proc,        94+50,    147,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//242 HitZOffset Override
+	 { jwin_check_proc,        94+50,     163,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//243 DrawXOffset Override
+	 { jwin_check_proc,        94+50,    179,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//244 DrawYOffset Overrife
+	 { jwin_check_proc,        94+50,     195,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+  
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
@@ -3649,6 +3664,17 @@ void edit_enemydata(int index)
     enedata_dlg[230].dp = drawofsx;
     enedata_dlg[232].dp = drawofsy;
     
+    //Override flags
+    enedata_dlg[237].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEXOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[238].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEYOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[239].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEHITXOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[240].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEHITYOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[241].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEHITZOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[242].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEDRAWXOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[243].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEDRAWYOFFSET) ? D_SELECTED : 0;
+    enedata_dlg[244].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDEDRAWXZOFFSET) ? D_SELECTED : 0;
+    
+    
     sprintf(frt,"%d",guysbuf[index].frate);
     sprintf(efr,"%d",guysbuf[index].e_frate);
     enedata_dlg[140].dp = frt;
@@ -3988,6 +4014,29 @@ void edit_enemydata(int index)
 	test.xofs = atoi(drawofsx);
 	test.yofs = atoi(drawofsy);
 	
+	//override flags
+	if(enedata_cpy[237].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEXOFFSET;
+            
+        if(enedata_cpy[238].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEYOFFSET;
+            
+        if(enedata_cpy[239].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEHITXOFFSET;
+            
+        if(enedata_cpy[240].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEHITYOFFSET;
+            
+        if(enedata_cpy[241].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEHITZOFFSET;
+            
+        if(enedata_cpy[242].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEDRAWXOFFSET;
+	if(enedata_cpy[243].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEDRAWYOFFSET;
+            
+        if(enedata_cpy[244].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDEDRAWXZOFFSET;
 
 	    
 	    
