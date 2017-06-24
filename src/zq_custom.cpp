@@ -3660,13 +3660,13 @@ void edit_enemydata(int index)
     sprintf(hitofsy,"%ld",guysbuf[index].hyofs);
     sprintf(hitofsz,"%ld",guysbuf[index].zofs);
     sprintf(drawofsx,"%ld",guysbuf[index].xofs);
-    sprintf(drawofsy,"%ld",guysbuf[index].yofs);
+    sprintf(drawofsy,"%ld",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
     
     enedata_dlg[224].dp = hitofsx;
     enedata_dlg[226].dp = hitofsy;
     enedata_dlg[228].dp = hitofsz;
     enedata_dlg[230].dp = drawofsx;
-    enedata_dlg[232].dp = drawofsy;
+    enedata_dlg[232].dp = drawofsy; //This seems to be setting to +48 or something with any value set?! -Z
     
     //Override flags
     enedata_dlg[237].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
@@ -4017,7 +4017,7 @@ void edit_enemydata(int index)
 	test.hyofs = atoi(hitofsy);
 	test.zofs = atoi(hitofsz);
 	test.xofs = atoi(drawofsx);
-	test.yofs = atoi(drawofsy);
+	test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
 	
 	//override flags
 	if(enedata_cpy[237].flags & D_SELECTED)

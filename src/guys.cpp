@@ -380,7 +380,12 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 //    if ( (d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
     if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
-    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) yofs = (int)d->yofs;
+    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+    {
+	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+    }
+    Z_message("npc drawyoffset is: %d\n",yofs); //Debug the actual y offset. 
     if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
     
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
