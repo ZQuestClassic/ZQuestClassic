@@ -7571,9 +7571,9 @@ eKeese::eKeese(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     c=0;
 	
 
-    if ( !(SIZEflags&guyflagOVERRIDEHITXOFFSET) ) hxofs=2;
+    if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
     hxsz=12;
-    if ( !(SIZEflags&guyflagOVERRIDEHITYOFFSET) ) hxofs=2; hyofs=4;
+    if ( !(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ) hxofs=2; hyofs=4;
     hysz=8;
     clk4=0;
     //nets;
