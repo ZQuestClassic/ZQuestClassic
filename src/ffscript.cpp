@@ -1239,6 +1239,13 @@ long get_register(const long arg)
 	ret = Awpn *10000;
 	break;
     
+    case LINKDIAG:
+	ret=Link.getDiagMove()?10000:0;
+	break;
+    
+    case LINKBIGHITBOX:
+	ret=Link.getBigHitbox()?10000:0;
+	break;
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -3917,6 +3924,16 @@ void set_register(const long arg, const long value)
 		Z_message("Trying to force-set the A-button item().\n");
 		Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	}
+	break;
+	
+	//Set Link Diagonal
+        case LINKDIAG:
+	    Link.setDiagMove((value/10000)?1:0);
+	break;
+    
+    //Set Link Big Hitbox
+        case LINKBIGHITBOX:
+	    Link.setBigHitbox((value/10000)?1:0);
 	break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States

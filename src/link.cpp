@@ -149,6 +149,22 @@ void LinkClass::setDirectItemB(int itm)
     attackid = itm;
 }
 
+bool  LinkClass::getDiagMove()
+{
+    return diagonalMovement;
+}
+void LinkClass::setDiagMove(bool newdiag)
+{
+    diagonalMovement=newdiag;
+}
+bool  LinkClass::getBigHitbox()
+{
+    return bigHitbox;
+}
+void LinkClass::setBigHitbox(bool newbighitbox)
+{
+    bigHitbox=newbighitbox;
+}
 
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void LinkClass::linkstep()
