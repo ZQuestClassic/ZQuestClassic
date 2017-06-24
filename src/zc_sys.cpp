@@ -57,7 +57,7 @@
 int d_stringloader(int msg,DIALOG *d,int c);
 
 extern FONT *lfont;
-extern LinkClass Link;
+extern LinkClass *Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 byte use_dwm_flush;
@@ -1702,7 +1702,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
     }
     
     case itype_clock:
-        return Link.getClock()?1:0;
+        return Link->getClock()?1:0;
         
     case itype_key:
         return (game->get_keys()>0);
@@ -3959,13 +3959,13 @@ void syskeys()
         
         if(ReadKey(KEY_F))
         {
-            if(Link.getAction()==freeze)
+            if(Link->getAction()==freeze)
             {
-                Link.unfreeze();
+                Link->unfreeze();
             }
             else
             {
-                Link.Freeze();
+                Link->Freeze();
             }
         }
         
@@ -4430,7 +4430,7 @@ void openscreen()
     }
     else
     {
-        Link.setDontDraw(true);
+        Link->setDontDraw(true);
         show_subscreen_dmap_dots=false;
         show_subscreen_numbers=false;
         //    show_subscreen_items=false;
@@ -4472,7 +4472,7 @@ void openscreen()
         }
     }
     
-    Link.setDontDraw(false);
+    Link->setDontDraw(false);
     show_subscreen_items=true;
     show_subscreen_dmap_dots=true;
 }
@@ -8086,7 +8086,7 @@ bool rI()
 
 bool drunk()
 {
-    return ((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link.DrunkClock()));
+    return ((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link->DrunkClock()));
 }
 
 bool DrunkUp()

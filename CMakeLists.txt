@@ -55,6 +55,7 @@ set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaGUI.txt
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaSprite.txt
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaSubscreen.txt
+	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaScripting.txt
 )
 
 set(ZQUEST_MODULES
@@ -203,7 +204,7 @@ if(UNITY_BUILD)
 	enable_unity_build(ZeldaSubscreen ZELDA_SUBSCREEN_SOURCES)
 endif()
 	
-add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
+add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
 target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
 if(MSVC AND USE_PCH)

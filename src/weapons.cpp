@@ -30,7 +30,7 @@
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
 
-extern LinkClass Link;
+extern LinkClass *Link;
 extern zinitdata zinit;
 extern int directWpn;
 
@@ -420,7 +420,7 @@ void setScreenLimits(weapon& w)
 	}
 }
 
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy) : sprite(), parentid(prntid)
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy) : sprite(*pool), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -1172,7 +1172,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewBomb:
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewBOMB);
 	}
@@ -1215,7 +1215,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewSBomb:
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewSBOMB);
 	}
@@ -1269,7 +1269,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(wid);
 	}
@@ -1289,7 +1289,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wRefFireball:
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewFIREBALL);
 	}
@@ -1309,7 +1309,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	    
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewROCK);
 	}
@@ -1336,7 +1336,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	    
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewARROW);
 	}
@@ -1368,7 +1368,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewSword:
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewSWORD);
 	}
@@ -1413,7 +1413,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewMagic:
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewMAGIC);
 	}
@@ -1464,7 +1464,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	{
 		if ( parentid > -1 )
 		{
-			sprite *e = guys.getByUID(parentid);
+			sprite *e = (sprite *)pool->getFromUID(parentid);
 			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 			else LOADGFX(ewFLAME);
 		}
@@ -1474,7 +1474,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	{
 		if ( parentid > -1 )
 		{
-			sprite *e = guys.getByUID(parentid);
+			sprite *e = (sprite *)pool->getFromUID(parentid);
 			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 			else LOADGFX(ewFLAME2);
 		}
@@ -1521,7 +1521,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewFireTrail:
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewFIRETRAIL);
 	}
@@ -1554,7 +1554,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		}
 	if ( parentid > -1 )
 	{
-		sprite *e = guys.getByUID(parentid);
+		sprite *e = (sprite *)pool->getFromUID(parentid);
 		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewWIND);
 	}
@@ -4251,7 +4251,7 @@ void weapon::draw(BITMAP *dest)
     case wSword:
     case wHammer:
         if(get_bit(quest_rules,qr_LINKFLICKER)&&((getClock()||LinkHClk())&&(frame&1)) ||
-                Link.getDontDraw() || tmpscr->flags3&fINVISLINK)
+                Link->getDontDraw() || tmpscr->flags3&fINVISLINK)
             return;
             
     case wBeam:

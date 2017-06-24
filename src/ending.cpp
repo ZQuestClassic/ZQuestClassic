@@ -30,7 +30,7 @@
 #include "init.h"
 #include "backend/AllBackends.h"
 
-extern LinkClass   Link;
+extern LinkClass   *Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern int draw_screen_clip_rect_x1;
 extern int draw_screen_clip_rect_x2;
@@ -240,7 +240,7 @@ void ending()
             }
             
             guys.draw(framebuf,true);
-            Link.draw(framebuf);
+            Link->draw(framebuf);
         }
         
         if(f>=288 && ((f-288)%5 == 0))

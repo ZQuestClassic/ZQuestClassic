@@ -33,7 +33,7 @@
 #include "zc_custom.h"
 #include "subscr.h"
 
-extern movingblock mblock2;                                 //mblock[4]?
+extern movingblock *mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
 extern const byte lsteps[8];

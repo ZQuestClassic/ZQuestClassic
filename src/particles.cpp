@@ -17,8 +17,9 @@
 /**********************************/
 
 #include "precompiled.h" //always first
-
 #include "particles.h"
+
+extern ObjectPool *pool;
 
 particle::~particle()
 {
@@ -39,7 +40,7 @@ void particle::draw(BITMAP *dest)
     putpixel(dest, x, y+yofs, tcs+color);
 }
 
-particle::particle(fix X,fix Y,int L,int CS,int C) : sprite()
+particle::particle(fix X,fix Y,int L,int CS,int C) : sprite(*pool)
 {
     x=X;
     y=Y;

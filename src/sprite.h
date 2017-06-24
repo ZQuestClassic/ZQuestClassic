@@ -17,6 +17,7 @@
 
 #include "zc_alleg.h"
 #include "zdefs.h"
+#include "scripting/ObjectPool.h"
 #include <set>
 #include <map>
 
@@ -35,19 +36,9 @@ extern int conveyclk;
 /******* Sprite Base Class ********/
 /**********************************/
 
-class sprite
+class sprite : public GameObject
 {
-private:
-    static long getNextUID();
-    //unique sprite ID
-    //given upon construction
-    long uid;
-    
 public:
-    long getUID()
-    {
-        return uid;
-    }
     fix x,y,z,fall;
     int tile,shadowtile,cs,flip,c_clk,clk,misc;
     
@@ -73,32 +64,11 @@ public:
     int extend;
     // Scripting additions
     long miscellaneous[16];
-    byte scriptcoldet;
-    //long stack[256];
-    //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
-    //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
+    byte scriptcoldet;    
     
-    //refInfo scriptData; //For when we have npc scripts maybe
-    /*long d[8];
-    long a[2];
-    byte ffcref;
-    dword itemref;
-    dword guyref;
-    dword lwpnref;
-    dword ewpnref;
-    byte sp;
-    word pc;
-    dword scriptflag;
-    word doscript;
-    byte itemclass;*/
-    //byte guyclass; //Not implemented
-    //byte lwpnclass;
-    //byte ewpnclass;
-    
-    
-    sprite();
+    sprite(ObjectPool &pool);
     sprite(sprite const & other);
-    sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
+    sprite(ObjectPool &pool, fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
     virtual ~sprite();
     virtual void draw(BITMAP* dest);                        // main layer
     virtual void draw8(BITMAP* dest);                       // main layer
@@ -133,15 +103,10 @@ class sprite_list
 {
     sprite *sprites[SLMAX];
     int count;
-    map<long, int> containedUIDs;
-    // Cache requests from scripts
-    mutable long lastUIDRequested;
-    mutable sprite* lastSpriteRequested;
-    
+ 
 public:
     sprite_list();
     
-    sprite *getByUID(long uid);
     void clear();
     sprite *spr(int index);
     bool swap(int a,int b);

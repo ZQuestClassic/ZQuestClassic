@@ -25,7 +25,7 @@
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
 
-extern LinkClass   Link;
+extern LinkClass   *Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern zinitdata    zinit;
 
@@ -163,8 +163,8 @@ int count_layer_enemies()
 
 int link_on_wall()
 {
-    int lx = Link.getX();
-    int ly = Link.getY();
+    int lx = Link->getX();
+    int ly = Link->getY();
     
     if(lx>=48 && lx<=192)
     {
@@ -263,7 +263,7 @@ bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
 
   */
 
-enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
+enemy::enemy(fix X, fix Y, int Id, int Clk) : sprite(*pool)
 {
     x=X;
     y=Y;
@@ -708,9 +708,9 @@ void enemy::FireWeapon()
     {
         int slant = 0;
         
-        if(((Link.x-x) < -8 && dir==up) || ((Link.x-x) > 8 && dir==down) || ((Link.y-y) < -8 && dir==left) || ((Link.y-y) > 8 && dir==right))
+        if(((Link->x-x) < -8 && dir==up) || ((Link->x-x) > 8 && dir==down) || ((Link->y-y) < -8 && dir==left) || ((Link->y-y) > 8 && dir==right))
             slant = left;
-        else if(((Link.x-x) > 8 && dir==up) || ((Link.x-x) < -8 && dir==down) || ((Link.y-y) > 8 && dir==left) || ((Link.y-y) < -8 && dir==right))
+        else if(((Link->x-x) > 8 && dir==up) || ((Link->x-x) < -8 && dir==down) || ((Link->y-y) > 8 && dir==left) || ((Link->y-y) < -8 && dir==right))
             slant = right;
             
         Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
@@ -789,7 +789,7 @@ void enemy::FireWeapon()
                     x2=16*((rand()%12)+2);
                     y2=16*((rand()%7)+2);
                     
-                    if((!m_walkflag(x2,y2,0))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
+                    if((!m_walkflag(x2,y2,0))&&((abs(x2-Link->getX())>=32)||(abs(y2-Link->getY())>=32)))
                     {
                         if(addenemy(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10))
                             ((enemy*)guys.spr(kids+i))->count_enemy = false;
@@ -1565,8 +1565,8 @@ int enemy::takehit(weapon *w)
             // Weapons which shields protect against
         case wSword:
         case wWand:
-            if(Link.getCharging()>0)
-                Link.setAttackClk(Link.getAttackClk()+1); //Cancel charging
+            if(Link->getCharging()>0)
+                Link->setAttackClk(Link->getAttackClk()+1); //Cancel charging
                 
             //fallthrough
         case wHookshot:
@@ -2979,8 +2979,8 @@ void enemy::floater_walk(int newrate,int newclk,fix s)
 // at as compared to enemy. Returns -1 if not lined up. Range is inclusive.
 int enemy::lined_up(int range, bool dir8)
 {
-    int lx = Link.getX();
-    int ly = Link.getY();
+    int lx = Link->getX();
+    int ly = Link->getY();
     
     if(abs(lx-int(x))<=range)
     {
@@ -3037,16 +3037,16 @@ int enemy::lined_up(int range, bool dir8)
 // returns true if Link is within 'range' pixels of the enemy
 bool enemy::LinkInRange(int range)
 {
-    int lx = Link.getX();
-    int ly = Link.getY();
+    int lx = Link->getX();
+    int ly = Link->getY();
     return abs(lx-int(x))<=range && abs(ly-int(y))<=range;
 }
 
 // place the enemy in line with Link (red wizzrobes)
 void enemy::place_on_axis(bool floater, bool solid_ok)
 {
-    int lx=zc_min(zc_max(int(Link.getX())&0xF0,32),208);
-    int ly=zc_min(zc_max(int(Link.getY())&0xF0,32),128);
+    int lx=zc_min(zc_max(int(Link->getX())&0xF0,32),208);
+    int ly=zc_min(zc_max(int(Link->getY())&0xF0,32),128);
     int pos2=rand()%23;
     int tried=0;
     bool last_resort,placed=false;
@@ -3830,7 +3830,7 @@ waves2:
     case a4FRM8EYE:
     {
         tilerows = 2;
-        double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+        double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
         int lookat=rand()&15;
         
         if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
@@ -5593,7 +5593,7 @@ bool eTrap::animate(int index)
     {
         ox = x;
         oy = y;
-        double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+        double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
         
         if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
         {
@@ -6302,7 +6302,7 @@ bool eProjectile::animate(int index)
         removearmos(x,y);
     }
     
-    double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+    double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
     
     if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
     {
@@ -6418,7 +6418,7 @@ bool eNPC::animate(int index)
     {
     case 0:
     {
-        double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+        double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
         
         if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
         {
@@ -6486,16 +6486,16 @@ eSpinTile::eSpinTile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 void eSpinTile::facelink()
 {
-    if(Link.x-x==0)
+    if(Link->x-x==0)
     {
-		if (Link.y + 8 < y)
+		if (Link->y + 8 < y)
 			dir = up;
 		else
 			dir = down;
     }
     else
     {
-        double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+        double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
         
         if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
         {
@@ -6550,7 +6550,7 @@ bool eSpinTile::animate(int index)
     if(misc==96)
     {
         facelink();
-        double ddir=atan2(double((Link.y)-y),double(Link.x-x));
+        double ddir=atan2(double((Link->y)-y),double(Link->x-x));
         angular=true;
         angle=ddir;
         step=(dstep/100.0);
@@ -6598,13 +6598,13 @@ eZora::eZora(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 
 void eZora::facelink()
 {
-    if(Link.x-x==0)
+    if(Link->x-x==0)
     {
-        dir=(Link.y+8<y)?up:down;
+        dir=(Link->y+8<y)?up:down;
     }
     else
     {
-        double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+        double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
         
         if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
         {
@@ -6699,7 +6699,7 @@ bool eZora::animate(int index)
     case 35:
         if(!get_bit(quest_rules,qr_NEWENEMYTILES))
         {
-            dir=(Link.y+8<y)?up:down;
+            dir=(Link->y+8<y)?up:down;
         }
         
         hxofs=0;
@@ -6773,7 +6773,7 @@ bool eStalfos::animate(int index)
     {
         if(haslink)
         {
-            Link.setEaten(0);
+            Link->setEaten(0);
             haslink=false;
         }
         
@@ -6843,7 +6843,7 @@ bool eStalfos::animate(int index)
         
         if(haslink)
         {
-            Link.setEaten(0);
+            Link->setEaten(0);
             haslink=false;
         }
         
@@ -6875,8 +6875,8 @@ bool eStalfos::animate(int index)
         
     if(haslink)
     {
-        Link.setX(x);
-        Link.setY(y);
+        Link->setX(x);
+        Link->setY(y);
         ++clk2;
         
         if(clk2==(dmisc8==0 ? 95 : dmisc8))
@@ -7009,7 +7009,7 @@ bool eStalfos::animate(int index)
                 
                 //if not in midair, and Link's swinging sword is nearby, jump.
                 /*if (dmisc9==e9tZ3STALFOS && z==0 && (!(tmpscr->flags7&fSIDEVIEW) || !_walkflag(x,y+16,0))
-                  && Link.getAttackClk()==5 && Link.getAttack()==wSword && distance(x,y,Link.getX(),Link.getY())<32)
+                  && Link->getAttackClk()==5 && Link->getAttack()==wSword && distance(x,y,Link->getX(),Link->getY())<32)
                     {
                       facelink(false);
                       sclk=16+((dir^1)<<8);
@@ -7141,13 +7141,13 @@ bool eStalfos::animate(int index)
         {
             int ndir=dir;
             
-            if(Link.x-x==0)
+            if(Link->x-x==0)
             {
-                ndir=(Link.y+8<y)?up:down;
+                ndir=(Link->y+8<y)?up:down;
             }
             else //turn to face Link
             {
-                double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+                double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
                 
                 if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
                 {
@@ -7272,7 +7272,7 @@ bool eStalfos::animate(int index)
         
         if(haslink)
         {
-            Link.setEaten(0);
+            Link->setEaten(0);
             haslink=false;
         }
         
@@ -7498,21 +7498,21 @@ void eStalfos::vire_hop()
 
 void eStalfos::eatlink()
 {
-    if(!haslink && Link.getEaten()==0 && Link.getAction() != hopping && Link.getAction() != swimming)
+    if(!haslink && Link->getEaten()==0 && Link->getAction() != hopping && Link->getAction() != swimming)
     {
         haslink=true;
         y=floor_y;
         z=0;
         
-        if(Link.isSwimming())
+        if(Link->isSwimming())
         {
-            Link.setX(x);
-            Link.setY(y);
+            Link->setX(x);
+            Link->setY(y);
         }
         else
         {
-            x=Link.getX();
-            y=Link.getY();
+            x=Link->getX();
+            y=Link->getY();
         }
         
         clk2=0;
@@ -7767,7 +7767,7 @@ bool eWizzrobe::animate(int index)
                             y=((rand()%9)+1)*16;
                         }
                         
-                        if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+                        if(!m_walkflag(x,y,spw_door)&&((abs(x-Link->getX())>=32)||(abs(y-Link->getY())>=32)))
                         {
                             placed=true;
                         }
@@ -7775,9 +7775,9 @@ bool eWizzrobe::animate(int index)
                         ++t;
                     }
                     
-                    if(abs(x-Link.getX())<abs(y-Link.getY()))
+                    if(abs(x-Link->getX())<abs(y-Link->getY()))
                     {
-                        if(y<Link.getY())
+                        if(y<Link->getY())
                         {
                             dir=down;
                         }
@@ -7788,7 +7788,7 @@ bool eWizzrobe::animate(int index)
                     }
                     else
                     {
-                        if(x<Link.getX())
+                        if(x<Link->getX())
                         {
                             dir=right;
                         }
@@ -7920,7 +7920,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
                     x2=16*((rand()%12)+2);
                     y2=16*((rand()%7)+2);
                     
-                    if(!m_walkflag(x2,y2,0) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
+                    if(!m_walkflag(x2,y2,0) && (abs(x2-Link->getX())>=32 || abs(y2-Link->getY())>=32))
                     {
                         if(addenemy(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10))
                             ((enemy*)guys.spr(kids+i))->count_enemy = false;
@@ -9333,7 +9333,7 @@ void getBigTri(int id2)
     
     if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
     {
-        Link.dowarp(1,0); //side warp
+        Link->dowarp(1,0); //side warp
     }
 }
 
@@ -11380,7 +11380,7 @@ void ePatraBS::draw(BITMAP *dest)
     
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
-        double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+        double ddir=atan2(double(y-(Link->y)),double(Link->x-x));
         
         if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
         {
@@ -11697,8 +11697,8 @@ bool CarryLink()
         {
             if(((eWallM*)guys.spr(i))->haslink)
             {
-                Link.x=guys.spr(i)->x;
-                Link.y=guys.spr(i)->y;
+                Link->x=guys.spr(i)->x;
+                Link->y=guys.spr(i)->y;
                 return ((eWallM*)guys.spr(i))->misc > 0;
             }
         }
@@ -11709,8 +11709,8 @@ bool CarryLink()
         {
           if(((eLikeLike*)guys.spr(i))->haslink)
           {
-            Link.x=guys.spr(i)->x;
-            Link.y=guys.spr(i)->y;
+            Link->x=guys.spr(i)->x;
+            Link->y=guys.spr(i)->y;
             return (true);
           }
         }*/
@@ -12361,7 +12361,7 @@ void loadguys()
                 Backend::sfx->play(WAV_SCALE,128);
                 
             addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[rand()&7], true);
-            Link.Freeze();
+            Link->Freeze();
         }
     }
     else if(Guy==gFAIRY)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
@@ -13509,7 +13509,7 @@ void setupscreen()
     }
     else
     {
-        Link.unfreeze();
+        Link->unfreeze();
     }
 }
 
@@ -14087,7 +14087,7 @@ breakout:
             {
 disappear:
                 msg_active = false;
-                Link.finishedmsg();
+                Link->finishedmsg();
             }
             
             if(repaircharge)
@@ -14248,7 +14248,7 @@ void check_collisions()
                                 
                                 //getitem(items.spr(j)->id);
                                 //items.del(j);
-                                Link.checkitems(j);
+                                Link->checkitems(j);
                                 //--j;
                             }
                         }

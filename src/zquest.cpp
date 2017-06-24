@@ -620,6 +620,7 @@ PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
 bool combo_cols=true;
+ObjectPool *pool;
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -21507,6 +21508,7 @@ int main(int argc, char **argv)
     //set_gfx_mode(GFX_TEXT,80,50,0,0);
 	set_color_conversion(COLORCONV_NONE);
 	Backend::initializeBackend();
+	pool = new ObjectPool();
     
     Z_message("OK\n");                                      // Initializing Allegro...
     
@@ -22528,6 +22530,7 @@ int main(int argc, char **argv)
     }
    
     quit_game();
+	delete pool;
 	Backend::shutdownBackend();
     
     if(ForceExit) //last resort fix to the allegro process hanging bug.

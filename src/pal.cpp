@@ -22,7 +22,7 @@
 #include "subscr.h"
 #include "backend/AllBackends.h"
 
-extern LinkClass Link;
+extern LinkClass *Link;
 
 int CSET_SIZE = 16;                                         // this is only changed to 4 in the NES title screen
 int CSET_SHFT = 4;                                          // log2 of CSET_SIZE
@@ -309,7 +309,7 @@ void lighting(bool existslight, bool setnaturaldark)
     
     if(darkroom != newstate)
     {
-fade((Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
+fade((Link->getSpecialCave()>0) ? (Link->getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
         darkroom = newstate;
     }
     
@@ -324,7 +324,7 @@ void lightingInstant()
     
     if(darkroom != newstate)
     {
-int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
+int level = (Link->getSpecialCave()>0) ? (Link->getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
 
         if(darkroom) // Old room dark, new room lit
         {
@@ -474,7 +474,7 @@ void cycle_palette()
     if(!get_bit(quest_rules,qr_FADE) || darkroom)
         return;
         
-    int level = (Link.getSpecialCave()==0) ? DMaps[currdmap].color : (Link.getSpecialCave()<GUYCAVE ? 11 : 10);
+    int level = (Link->getSpecialCave()==0) ? DMaps[currdmap].color : (Link->getSpecialCave()<GUYCAVE ? 11 : 10);
     
     for(int i=0; i<3; i++)
     {
