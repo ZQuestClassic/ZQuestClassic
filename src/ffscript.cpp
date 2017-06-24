@@ -3402,7 +3402,7 @@ case SETSCREENCATCH:
     case DEBUGREFFFC:
     {
 	int r = -1;
-	if ( ri->ffcref != NULL ) r = ri->ffcref;
+	if ( ri->ffcref ) r = ri->ffcref;
         ret = r * 10000;
     }
         break;
@@ -3410,7 +3410,7 @@ case SETSCREENCATCH:
     case DEBUGREFITEM:
     {
 	int r = -1;
-	if ( ri->itemref != NULL ) r = ri->itemref;
+	if ( ri->itemref ) r = ri->itemref;
         ret = r * 10000;
     }
         break;
@@ -3418,7 +3418,7 @@ case SETSCREENCATCH:
     case DEBUGREFITEMDATA:
     {
 	int r = -1;
-	if ( ri->idata != NULL ) r = ri->idata;
+	if ( ri->idata ) r = ri->idata;
         ret = r * 10000;
     }
         break;
@@ -3426,7 +3426,7 @@ case SETSCREENCATCH:
     case DEBUGREFLWEAPON:
     {
 	int r = -1;
-	if ( ri->lwpn != NULL ) r = ri->lwpn;
+	if ( ri->lwpn ) r = ri->lwpn;
         ret = r * 10000;
     }
         break;
@@ -3434,7 +3434,7 @@ case SETSCREENCATCH:
     case DEBUGREFEWEAPON:
     {
 	int r = -1;
-	if ( ri->ewpn != NULL ) r = ri->ewpn;
+	if ( ri->ewpn ) r = ri->ewpn;
         ret = r * 10000;
     }
         break;
@@ -3442,7 +3442,7 @@ case SETSCREENCATCH:
     case DEBUGREFNPC:
     {
 	int r = -1;
-	if ( ri->guyref != NULL ) r = ri->guyref;
+	if ( ri->guyref ) r = ri->guyref;
         ret = r * 10000;
     }    
         break;
@@ -3450,7 +3450,7 @@ case SETSCREENCATCH:
     case DEBUGSP:
     {
 	int r = -1;
-	if ( ri->sp != NULL ) r = ri->sp;
+	if ( ri->sp ) r = ri->sp;
         ret = r * 10000;
     }   
         break;
@@ -3458,7 +3458,7 @@ case SETSCREENCATCH:
     {
 	int a = vbound(ri->d[0]/10000,0,15);
 	int r = -1;
-	if ( game->global_d[a] != NULL ) r = game->global_d[a];
+	if ( game->global_d[a] ) r = game->global_d[a];
         ret = r * 10000;
     }
         break;

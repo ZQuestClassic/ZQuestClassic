@@ -4468,7 +4468,7 @@ void weapon::bookfirecreate()
 			{
 				//!Dimentio: Making sure this isn't null
 				//! ZoriaRPG: I need a detailed explanantion of what this is doing as a code comment. 
-				if (itemsbuf[current_item_id(itype_book)].misc2 <= 0 || itemsbuf[current_item_id(itype_book)].misc2 == NULL) Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+				if (itemsbuf[current_item_id(itype_book)].misc2 <= 0) Lwpns.add(new weapon(x,y,z,wFire,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				//!Dimentio: here's the default behavior.
 				else Lwpns.add(new weapon(x,y,z,itemsbuf[current_item_id(itype_book)].misc2,2,itemsbuf[current_item_id(itype_book)].misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				break;
