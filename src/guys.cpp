@@ -369,19 +369,19 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     dir = rand()&3;
     
     //2.6 Enemy Editor Hit and TIle Sizes
-    if ( d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
     //al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
-    if ( d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-    if ( ((d->SIZEflags&guyflagOVERRIDEXOFFSET) != 0) && d->hxsz > 0 ) hxsz = d->hxsz;
-    if ( ((d->SIZEflags&guyflagOVERRIDEYOFFSET) != 0) && d->hysz > 0 ) hysz = d->hysz;
-    if ( ((d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0) && d->hzsz > 0  ) hzsz = d->hzsz;
-    if ( (d->SIZEflags&guyflagOVERRIDEHITXOFFSET) != 0) hxofs = d->hxofs;
-    if (  (d->SIZEflags&guyflagOVERRIDEHITYOFFSET) != 0 ) hyofs = d->hyofs;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hysz >= 0 ) hxsz = d->hxsz;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+    if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+    if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 //    if ( (d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
-    if (  (d->SIZEflags&guyflagOVERRIDEDRAWXOFFSET) != 0 ) xofs = (int)d->xofs;
-    if ( (d->SIZEflags&guyflagOVERRIDEDRAWYOFFSET) != 0 ) yofs = (int)d->yofs;
-    if (  (d->SIZEflags&guyflagOVERRIDEDRAWXZOFFSET) != 0 ) zofs = (int)d->zofs;
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
+    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) yofs = (int)d->yofs;
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
     
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
