@@ -1170,10 +1170,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     case ewLitBomb:
     case ewBomb:
-	    if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 )) 
-	    {
-		    LOADGFX(guysbuf[parentid].wpnsprite);
-	    }
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewBOMB);
+	}
+	
 	else LOADGFX(ewBOMB);
 
         hxofs=0;
@@ -1210,9 +1213,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case ewLitSBomb:
     case ewSBomb:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 )) 
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewSBOMB);
 	}
 	else LOADGFX(ewSBOMB);
         hxofs=0;
@@ -1262,9 +1267,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
         
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(wid);
 	}
 	else LOADGFX(wid);
         break;
@@ -1280,9 +1287,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         //fallthrough
     case ewFireball:
     case wRefFireball:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewFIREBALL);
 	}
 	else LOADGFX(ewFIREBALL);
  
@@ -1300,9 +1309,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	    
 	if ( parentid > -1 )
 	{
-		Z_message("wpnsprite is: %d\n", guysbuf[parentid].wpnsprite);
-		Z_message("parentid is: %d\n", parentid);
-		if ( guysbuf[parentid].wpnsprite > 0 ) LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
 		else LOADGFX(ewROCK);
 	}
 	else LOADGFX(ewROCK);
@@ -1325,9 +1333,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewArrow:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	    
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewARROW);
 	}
 	else LOADGFX(ewARROW);
         
@@ -1355,9 +1366,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewSword:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewSWORD);
 	}
 	else LOADGFX(ewSWORD);
         
@@ -1398,9 +1411,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case wRefMagic:
     case ewMagic:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewMAGIC);
 	}
 	else LOADGFX(ewMAGIC);
         
@@ -1447,17 +1462,21 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewFlame2:
         if(id==ewFlame)
 	{
-		if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+		if ( parentid > -1 )
 		{
-			LOADGFX(guysbuf[parentid].wpnsprite);
+			sprite *e = guys.getByUID(parentid);
+			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			else LOADGFX(ewFLAME);
 		}
 		else LOADGFX(ewFLAME);
 	}
         else
 	{
-		if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+		if ( parentid > -1 )
 		{
-			LOADGFX(guysbuf[parentid].wpnsprite);
+			sprite *e = guys.getByUID(parentid);
+			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			else LOADGFX(ewFLAME2);
 		}
 		else LOADGFX(ewFLAME2);
 	}
@@ -1500,9 +1519,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewFireTrail:
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewFIRETRAIL);
 	}
 	else LOADGFX(ewFIRETRAIL);
 
@@ -1531,9 +1552,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			hxofs=hyofs=0;
 			hxsz=hysz=16;
 		}
-	if ( parentid > -1 && ( guysbuf[parentid].wpnsprite > 0 ))
+	if ( parentid > -1 )
 	{
-		LOADGFX(guysbuf[parentid].wpnsprite);
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewWIND);
 	}
 	else LOADGFX(ewWIND);
 
