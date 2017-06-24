@@ -16,7 +16,19 @@ public:
     byte rules[512];
 
 
+    int screenbounds[4]; //edges of the screen
+    int screen_dimensions[4];
+    int subscreen_dimensions[4];
+    int eweapon_removal_bounds[4];
+    int lweapon_removal_bounds[4];
+    int linktile, linkaction;
 
+    #define SCRIPT_DRAWING_RULES 20
+    bool ScriptDrawingRules[SCRIPT_DRAWING_RULES];
+	enum{
+		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
+		scdrDRAW_DURING_WIPES, scdrLAST
+	};
     
     virtual ~FFScript();
     virtual int getrule(int rule);   
@@ -60,6 +72,11 @@ static void do_wavyin();
 static void do_wavyout();
 static void do_triggersecret(const bool v);
 static void do_changeffcscript(const bool v);
+
+static void setLinkDiagonal(bool v);
+static bool getLinkDiagonal();
+static bool getLinkBigHitbox();
+static void setLinkBigHitbox(bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
