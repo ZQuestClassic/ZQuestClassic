@@ -191,7 +191,7 @@ weapon::weapon(weapon const & other):
     misc2(other.misc2),			//int
     ignorecombo(other.ignorecombo),	//int
     isLit(other.isLit),			//bool		Does it light the screen?
-    parentid(other.parentid),		//int		Enemy that created it. -1 for none. 
+    parentid(other.parentid),		//int		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
     parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
     dragging(other.dragging),		//int draggong		?
     step(other.step),			//fix		Speed of movement
@@ -286,6 +286,11 @@ weapon::weapon(weapon const & other):
     {
       a[i]=other.a[i];
     }*/
+    
+    //Enemy Editor Weapon Sprite
+    wpnsprite = other.wpnsprite;
+    //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
+    //else wpnsprite  = -1;
 }
 
 // Let's dispose of some sound effects!
@@ -1165,7 +1170,15 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     case ewLitBomb:
     case ewBomb:
-        LOADGFX(ewBOMB);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewBOMB);
+	}
+	
+	else LOADGFX(ewBOMB);
+
         hxofs=0;
         hxsz=16;
         
@@ -1200,7 +1213,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case ewLitSBomb:
     case ewSBomb:
-        LOADGFX(ewSBOMB);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewSBOMB);
+	}
+	else LOADGFX(ewSBOMB);
         hxofs=0;
         hxsz=16;
 		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
@@ -1247,7 +1266,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         }
         
         wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
-        LOADGFX(wid);
+        
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(wid);
+	}
+	else LOADGFX(wid);
         break;
         
     case ewFireball2:
@@ -1261,7 +1287,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         //fallthrough
     case ewFireball:
     case wRefFireball:
-        LOADGFX(ewFIREBALL);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewFIREBALL);
+	}
+	else LOADGFX(ewFIREBALL);
+ 
         step=1.75;
         
         if(Type&2)
@@ -1273,7 +1306,15 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewRock:
-        LOADGFX(ewROCK);
+	    
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewROCK);
+	}
+	else LOADGFX(ewROCK);
+  
         
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
@@ -1292,7 +1333,15 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewArrow:
-        LOADGFX(ewARROW);
+	    
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewARROW);
+	}
+	else LOADGFX(ewARROW);
+        
         step=2;
         
         switch(dir)
@@ -1317,7 +1366,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewSword:
-        LOADGFX(ewSWORD);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewSWORD);
+	}
+	else LOADGFX(ewSWORD);
+        
         
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
@@ -1355,7 +1411,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case wRefMagic:
     case ewMagic:
-        LOADGFX(ewMAGIC);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewMAGIC);
+	}
+	else LOADGFX(ewMAGIC);
         
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
@@ -1399,9 +1461,25 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewFlame:
     case ewFlame2:
         if(id==ewFlame)
-            LOADGFX(ewFLAME);
+	{
+		if ( parentid > -1 )
+		{
+			sprite *e = guys.getByUID(parentid);
+			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			else LOADGFX(ewFLAME);
+		}
+		else LOADGFX(ewFLAME);
+	}
         else
-            LOADGFX(ewFLAME2);
+	{
+		if ( parentid > -1 )
+		{
+			sprite *e = guys.getByUID(parentid);
+			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			else LOADGFX(ewFLAME2);
+		}
+		else LOADGFX(ewFLAME2);
+	}
             
         if(dir==255)
         {
@@ -1441,7 +1519,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewFireTrail:
-        LOADGFX(ewFIRETRAIL);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewFIRETRAIL);
+	}
+	else LOADGFX(ewFIRETRAIL);
+
         step=0;
         dir=-1;
         
@@ -1467,8 +1552,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			hxofs=hyofs=0;
 			hxsz=hysz=16;
 		}
-		
-        LOADGFX(ewWIND);
+	if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewWIND);
+	}
+	else LOADGFX(ewWIND);
+
         clk=0;
 	if (power > 0) step = itemsbuf[parentid].misc2; //!Dimentio: Add a check here.
 		//! ZoriaRPG: Explain why this is here. 

@@ -13,10 +13,28 @@ private:
     long sid;
     
 public:
-    byte rules[512];
+    byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
 
 
+    int screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+    int screen_dimensions[4]; //height, width, displaywidth, displayheight
+    int subscreen_dimensions[4];
+    int eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
+    int lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+    int linktile, linkaction; //Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+		//This way, we can make safe replicas of internal Link actions to be set by script. 
+#define FFSCRIPTCLASS_CLOCKS 10
+    int clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
 
+    #define SCRIPT_DRAWING_RULES 20
+    bool ScriptDrawingRules[SCRIPT_DRAWING_RULES];
+	//Allow or forbid drawing during specific game events. 
+	enum{
+		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
+		scdrDRAW_DURING_WIPES, scdrLAST
+	};
+#define NUM_USER_MIDI_OVERRIDES 6
+	int UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
     
     virtual ~FFScript();
     virtual int getrule(int rule);   
@@ -60,6 +78,11 @@ static void do_wavyin();
 static void do_wavyout();
 static void do_triggersecret(const bool v);
 static void do_changeffcscript(const bool v);
+
+static void setLinkDiagonal(bool v);
+static bool getLinkDiagonal();
+static bool getLinkBigHitbox();
+static void setLinkBigHitbox(bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 

@@ -2388,7 +2388,7 @@ static int enedata_defense3_list[] =
 
 static int enedata_spritesize_list[] =
 {
-    213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,-1
+    213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,237,238,239,240,241,242,243,244,245,246,-1
 };
 
 static TABPANEL enedata_tabs[] =
@@ -3265,7 +3265,7 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,         12,      147,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "HitYOffset:",                                  NULL,   NULL                 },
 	{  jwin_edit_proc,         60,    147-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	//227 HitZOffset
-	{  jwin_text_proc,         12,      163,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "HitZOffset:",                                  NULL,   NULL                 },
+	{  jwin_text_proc,         12,      163,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "DrawZOffset:",                                  NULL,   NULL                 },
 	{  jwin_edit_proc,         60,    163-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	//229 DrawXOffset
 	{  jwin_text_proc,         12,      179,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "DrawXOffset:",                                  NULL,   NULL                 },
@@ -3280,7 +3280,26 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,          8,    193-4+12,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
 	//{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
 	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-	
+	//237 HitWidth Override
+	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//238 HitHeight override
+	 { jwin_check_proc,        94+50,    99,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//239 HitZHeight Override
+	 { jwin_check_proc,        94+50,     115,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//240 HitXOffset override
+	 { jwin_check_proc,        94+50,     131,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//241 HitYOffset Override
+	 { jwin_check_proc,        94+50,    147,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//242 DrawZOffset Override
+	 { jwin_check_proc,        94+50,     163,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//243 DrawXOffset Override
+	 { jwin_check_proc,        94+50,    179,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//244 DrawYOffset Overrife
+	 { jwin_check_proc,        94+50,     195,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//245 TileWidth Overrife
+	 { jwin_check_proc,        94+50,     51,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	//246 TileHeight Overrife
+	 { jwin_check_proc,        94+50,     67,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
 	
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
@@ -3641,13 +3660,25 @@ void edit_enemydata(int index)
     sprintf(hitofsy,"%ld",guysbuf[index].hyofs);
     sprintf(hitofsz,"%ld",guysbuf[index].zofs);
     sprintf(drawofsx,"%ld",guysbuf[index].xofs);
-    sprintf(drawofsy,"%ld",guysbuf[index].yofs);
+    sprintf(drawofsy,"%ld",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
     
     enedata_dlg[224].dp = hitofsx;
     enedata_dlg[226].dp = hitofsy;
     enedata_dlg[228].dp = hitofsz;
     enedata_dlg[230].dp = drawofsx;
-    enedata_dlg[232].dp = drawofsy;
+    enedata_dlg[232].dp = drawofsy; //This seems to be setting to +48 or something with any value set?! -Z
+    
+    //Override flags
+    enedata_dlg[237].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
+    enedata_dlg[238].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[239].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[240].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[241].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[242].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[243].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[244].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[245].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
+    enedata_dlg[246].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
     
     sprintf(frt,"%d",guysbuf[index].frate);
     sprintf(efr,"%d",guysbuf[index].e_frate);
@@ -3986,8 +4017,35 @@ void edit_enemydata(int index)
 	test.hyofs = atoi(hitofsy);
 	test.zofs = atoi(hitofsz);
 	test.xofs = atoi(drawofsx);
-	test.yofs = atoi(drawofsy);
+	test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
 	
+	//override flags
+	if(enedata_cpy[237].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_HIT_WIDTH;
+            
+        if(enedata_cpy[238].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_HIT_HEIGHT;
+            
+        if(enedata_cpy[239].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_HIT_Z_HEIGHT;
+            
+        if(enedata_cpy[240].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_HIT_X_OFFSET;
+            
+        if(enedata_cpy[241].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_HIT_Y_OFFSET;
+            
+        if(enedata_cpy[242].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_DRAW_Z_OFFSET;
+	if(enedata_cpy[243].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_DRAW_X_OFFSET;
+            
+        if(enedata_cpy[244].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_DRAW_Y_OFFSET;
+	if(enedata_cpy[245].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_TILE_WIDTH;
+	if(enedata_cpy[246].flags & D_SELECTED)
+            test.SIZEflags |= guyflagOVERRIDE_TILE_HEIGHT;
 
 	    
 	    

@@ -424,6 +424,10 @@ public:
     void setAButtonItem(int itm);
     void setBButtonItem(int itm);
     
+    bool getDiagMove(); //Diagonal movement.
+    void setDiagMove(bool newdiag);
+    bool getBigHitbox(); //Large H-itbox
+    void setBigHitbox(bool newbighitbox);
 };
 
 bool isRaftFlag(int flag);

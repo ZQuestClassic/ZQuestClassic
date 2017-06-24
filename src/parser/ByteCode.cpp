@@ -1160,6 +1160,8 @@ string VarArgument::toString()
     case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
     case PASSSUBOFS: return "PASSSUBOFS";
     
+    case LINKBIGHITBOX: return "LINKBIGHITBOX";
+    case LINKDIAG: return "LINKDIAG";
     
     default:
     {

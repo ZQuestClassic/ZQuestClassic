@@ -86,6 +86,9 @@ public:
     //2.6 ZScript -Z
     int scriptrange,blastsfx;
     
+    //2.6 enemy editor weapon sprite
+    int wpnsprite;
+    
     weapon(weapon const & other);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
     virtual ~weapon();
