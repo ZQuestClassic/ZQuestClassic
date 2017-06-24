@@ -358,6 +358,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GETSCREENWARPRY",      1,   0,   0,   0},
 	{ "TRIGGERSECRETR",          1,   0,   0,   0},
     { "TRIGGERSECRETV",          1,   1,   0,   0},
+    { "CHANGEFFSCRIPTR",          1,   0,   0,   0},
+    { "CHANGEFFSCRIPTV",          1,   1,   0,   0
+    
     { "",                    0,   0,   0,   0}
 };
 

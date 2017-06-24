@@ -3535,6 +3535,14 @@ void set_register(const long arg, const long value)
         tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
+     case CHANGEFFSCRIPTR:
+        FFScript::do_changeffcscript(false);
+        break;
+    
+    case CHANGEFFSCRIPTV:
+        FFScript::do_changeffcscript(true);
+        break;
+    
     case FFSCRIPT:
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
@@ -7007,33 +7015,7 @@ void do_layermap()
         set_register(sarg1, tmpscr->layermap[layer] * 10000);
 }
 
-void do_triggersecret(const bool v)
-{
-    long ID = SH::get_arg(sarg1, v) / 10000;
-	int cmbx; int cmby; 
-	/*
-	//cmbx = COMBOX(1);
-	//cmby = COMBOY(1);
-	//findentrance(cmbx, cmby, 4, true);
-	
-	cmbx = COMBOX(86);
-	cmby = COMBOY(86);
-	findentrance(cmbx, cmby, 4, true);
-	*/
-	//cmbx = COMBOX(86);
-	//	cmby = COMBOY(86);
-	//	findentrance(cmbx, cmby, 4, true);
-	
-	for ( int q = 0; q < 176; q++ ) 
-	{
-		cmbx = COMBOX(q);
-		cmby = COMBOY(q);
-		if ( findentrance(cmbx, cmby, ID, false) ) break; //This is still triggering all secrets on the screen. 
-		//hidden_entrance(0,true,single16,scombo); //scombo is the position in one function, but a flag that determines the way it works, in another?!. 
-	}
-	
-	
-}
+
 	
 
 void do_triggersecrets()
@@ -9150,11 +9132,11 @@ int run_script(const byte type, const word script, const byte i)
             break;
 	
 	case TRIGGERSECRETR:
-            do_triggersecret(false);
+            FFScript::do_triggersecret(false);
             break;
             
         case TRIGGERSECRETV:
-            do_sfx(true);
+            FFScript::do_triggersecret(true);
             break;
             
         case PLAYMIDIR:
@@ -10052,3 +10034,191 @@ void FFScript::do_zapin(){ zapin(); }
 void FFScript::do_openscreen() { openscreen(); }
 void FFScript::do_wavyin() { wavyin(); }
 void FFScript::do_wavyout() { wavyout(false); }
+
+
+void FFScript::do_triggersecret(const bool v)
+{
+    long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
+    mapscr *s = tmpscr;
+    int ft=0, checkflag; //Flag trigger, checked flag temp. 
+    bool putit = true;  //Is set false with a mismatch (illegal value input).
+    //Convert a flag type to a secret type. -Z
+	switch(ID)
+	{
+		case mfBCANDLE:
+		    ft=sBCANDLE;
+		    break;
+		    
+		case mfRCANDLE:
+		    ft=sRCANDLE;
+		    break;
+		    
+		case mfWANDFIRE:
+		    ft=sWANDFIRE;
+		    break;
+		    
+		case mfDINSFIRE:
+		    ft=sDINSFIRE;
+		    break;
+		    
+		case mfARROW:
+		    ft=sARROW;
+		    break;
+		    
+		case mfSARROW:
+		    ft=sSARROW;
+		    break;
+		    
+		case mfGARROW:
+		    ft=sGARROW;
+		    break;
+		    
+		case mfSBOMB:
+		    ft=sSBOMB;
+		    break;
+		    
+		case mfBOMB:
+		    ft=sBOMB;
+		    break;
+		    
+		case mfBRANG:
+		    ft=sBRANG;
+		    break;
+		    
+		case mfMBRANG:
+		    ft=sMBRANG;
+		    break;
+		    
+		case mfFBRANG:
+		    ft=sFBRANG;
+		    break;
+		    
+		case mfWANDMAGIC:
+		    ft=sWANDMAGIC;
+		    break;
+		    
+		case mfREFMAGIC:
+		    ft=sREFMAGIC;
+		    break;
+		    
+		case mfREFFIREBALL:
+		    ft=sREFFIREBALL;
+		    break;
+		    
+		case mfSWORD:
+		    ft=sSWORD;
+		    break;
+		    
+		case mfWSWORD:
+		    ft=sWSWORD;
+		    break;
+		    
+		case mfMSWORD:
+		    ft=sMSWORD;
+		    break;
+		    
+		case mfXSWORD:
+		    ft=sXSWORD;
+		    break;
+		    
+		case mfSWORDBEAM:
+		    ft=sSWORDBEAM;
+		    break;
+		    
+		case mfWSWORDBEAM:
+		    ft=sWSWORDBEAM;
+		    break;
+		    
+		case mfMSWORDBEAM:
+		    ft=sMSWORDBEAM;
+		    break;
+		    
+		case mfXSWORDBEAM:
+		    ft=sXSWORDBEAM;
+		    break;
+		    
+		case mfHOOKSHOT:
+		    ft=sHOOKSHOT;
+		    break;
+		    
+		case mfWAND:
+		    ft=sWAND;
+		    break;
+		    
+		case mfHAMMER:
+		    ft=sHAMMER;
+		    break;
+		    
+		case mfSTRIKE:
+		    ft=sSTRIKE;
+		    break;
+		    
+		default:
+		    putit = false;
+		    break;
+	}
+	if ( putit ) {		
+		for(int iter=0; iter<2; ++iter)
+		{
+			for ( int q = 0; q < 176; q++ ) 
+			{		
+				if(iter==1) checkflag=s->sflag[q]; //Placed
+				else checkflag=combobuf[s->data[q]].flag; //Inherent
+				Z_message("checkflag is: %d\n", checkflag);
+				al_trace("checkflag is: %d\n", checkflag);
+				
+				Z_message("ID is: %d\n", ID);
+				al_trace("ID is: %d\n", ID);
+				//cmbx = COMBOX(q);
+				////cmby = COMBOY(q);
+				
+				//Placed flags
+				if ( iter == 1 ) {
+					if ( s->sflag[q] == ID ) {
+						screen_combo_modify_preroutine(s,q);
+						s->data[q] = s->secretcombo[ft];
+						s->cset[q] = s->secretcset[ft];
+						s->sflag[q] = s->secretflag[ft];
+					   // newflag = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,q);
+					}
+				}
+				//Inherent flags
+				else {
+					if ( combobuf[s->data[q]].flag == ID ) {
+						screen_combo_modify_preroutine(s,q);
+						s->data[q] = s->secretcombo[ft];
+						s->cset[q] = s->secretcset[ft];
+						//s->sflag[q] = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,q);
+					}
+					
+				}
+			}
+		}
+	}
+	
+}
+
+void FFScript::do_changeffcscript(const bool v){
+	long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+	    if(arrayOwner[i]==ri->ffcref)
+		FFScript::deallocateZScriptArray(i);
+	}
+	
+	tmpscr->ffscript[ri->ffcref] = vbound(ID/10000, 0, scripts.ffscripts.size()-1);
+	
+	for(int i=0; i<16; i++)
+	    ffmisc[ri->ffcref][i] = 0;
+	    
+	for(int i=0; i<2; i++)
+	    tmpscr->inita[ri->ffcref][i] = 0;
+	    
+	for(int i=0; i<8; i++)
+	    tmpscr->initd[ri->ffcref][i] = 0;
+	    
+	ffcScriptData[ri->ffcref].Clear();
+	tmpscr->initialized[ri->ffcref] = true;
+}

@@ -3138,5 +3138,16 @@ public:
     }
 };
 
+class OChangeFFCScriptRegister : public UnaryOpcode
+{
+public:
+    OChangeFFCScriptRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OChangeFFCScriptRegister(a->clone());
+    }
+};
+
 #endif
 
