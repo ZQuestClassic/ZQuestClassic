@@ -115,72 +115,72 @@ void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 
 void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 {
-	recurse(host, param, host.getStatements());
+	recurse(host, param, host.statements);
 }
 
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
 {
-	recurse(host.getCondition(), param);
+	recurse(host.condition, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getStmt(), param);
+	recurse(host.thenStatement, param);
 }
 
 void RecursiveVisitor::caseStmtIfElse(ASTStmtIfElse& host, void* param)
 {
 	caseStmtIf(host, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getElseStmt(), param);
+	recurse(host.elseStatement, param);
 }
 
 void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 {
-	recurse(host.getKey(), param);
+	recurse(host.key, param);
 	if (breakRecursion(host)) return;
-	recurse(host, param, host.getCases());
+	recurse(host, param, host.cases);
 }
 
 void RecursiveVisitor::caseSwitchCases(ASTSwitchCases& host, void* param)
 {
-	recurse(host, param, host.getCases());
+	recurse(host, param, host.cases);
 	if (breakRecursion(host)) return;
-	recurse(host.getBlock(), param);
+	recurse(host.block, param);
 }
 
 void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 {
-	recurse(host.getPrecondition(), param);
+	recurse(host.setup, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getTerminationCondition(), param);
+	recurse(host.test, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getIncrement(), param);
+	recurse(host.increment, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getStmt(), param);
+	recurse(host.body, param);
 }
 
 void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 {
-	recurse(host.getCond(), param);
+	recurse(host.test, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getStmt(), param);
+	recurse(host.body, param);
 }
 
 void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 {
-	recurse(host.getStmt(), param);
+	recurse(host.body, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getCond(), param);
+	recurse(host.test, param);
 }
 
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
-	recurse(host.getReturnValue(), param);
+	recurse(host.value, param);
 }
 
 // Declarations
 
 void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 {
-	recurse(host.getType(), param);
+	recurse(host.type, param);
 	if (breakRecursion(host)) return;
 	recurse(host, param, host.types);
 	if (breakRecursion(host)) return;
@@ -193,7 +193,7 @@ void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	recurse(host.returnType, param);
 	if (breakRecursion(host)) return;
-	recurse(host, param, host.getParameters());
+	recurse(host, param, host.parameters);
 	if (breakRecursion(host)) return;
 	recurse(host.block, param);
 }
@@ -202,7 +202,7 @@ void RecursiveVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 {
 	recurse(host.baseType, param);
 	if (breakRecursion(host)) return;
-	recurse(host, param, host.getDeclarations());
+	recurse(host, param, host.declarations());
 }
 
 void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
@@ -211,7 +211,7 @@ void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (breakRecursion(host)) return;
 	recurse(host, param, host.extraArrays);
 	if (breakRecursion(host)) return;
-	recurse(host.getInitializer(), param);
+	recurse(host.initializer(), param);
 }
 
 void RecursiveVisitor::caseDataDeclExtraArray(
@@ -222,221 +222,221 @@ void RecursiveVisitor::caseDataDeclExtraArray(
 
 void RecursiveVisitor::caseTypeDef(ASTTypeDef& host, void* param)
 {
-	recurse(host.getType(), param);
+	recurse(host.type, param);
 }
 
 // Expressions
 
 void RecursiveVisitor::caseExprConst(ASTExprConst& host, void* param)
 {
-	recurse(host.getContent(), param);
+	recurse(host.content, param);
 }
 
 void RecursiveVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 {
-	recurse(host.getLVal(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getRVal(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
-	recurse(host.getLeft(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getIndex(), param);
+	recurse(host.index, param);
 }
 
 void RecursiveVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 {
-	recurse(host.getArray(), param);
+	recurse(host.array, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getIndex(), param);
+	recurse(host.index, param);
 }
 
 void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
-	//recurse(host.getLeft(), param);
+	//recurse(host.left, param);
 	//if (breakRecursion(host)) return;
-	recurse(host, param, host.getParams());
+	recurse(host, param, host.parameters);
 }
 
 void RecursiveVisitor::caseExprNegate(ASTExprNegate& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprNot(ASTExprNot& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprIncrement(ASTExprIncrement& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprPreIncrement(
 		ASTExprPreIncrement& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprPreDecrement(
 		ASTExprPreDecrement& host, void* param)
 {
-	recurse(host.getOperand(), param);
+	recurse(host.operand, param);
 }
 
 void RecursiveVisitor::caseExprAnd(ASTExprAnd& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprOr(ASTExprOr& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprGT(ASTExprGT& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprGE(ASTExprGE& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprLT(ASTExprLT& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprLE(ASTExprLE& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprEQ(ASTExprEQ& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprNE(ASTExprNE& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprPlus(ASTExprPlus& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprMinus(ASTExprMinus& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprTimes(ASTExprTimes& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprDivide(ASTExprDivide& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprModulo(ASTExprModulo& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprLShift(ASTExprLShift& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 void RecursiveVisitor::caseExprRShift(ASTExprRShift& host, void* param)
 {
-	recurse(host.getFirstOperand(), param);
+	recurse(host.left, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSecondOperand(), param);
+	recurse(host.right, param);
 }
 
 // Literals
 
 void RecursiveVisitor::caseNumberLiteral(ASTNumberLiteral& host, void* param)
 {
-	recurse(host.getValue(), param);
+	recurse(host.value, param);
 }
 
 void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 {
-	recurse(host.getType(), param);
+	recurse(host.type, param);
 	if (breakRecursion(host)) return;
-	recurse(host.getSize(), param);
+	recurse(host.size, param);
 	if (breakRecursion(host)) return;
-	recurse(host, param, host.getElements());
+	recurse(host, param, host.elements);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	}
 
 	// Add the parameters to the scope.
-	vector<ASTDataDecl*>& parameters = functionDecl->getParameters();
+	vector<ASTDataDecl*>& parameters = functionDecl->parameters;
 	for (vector<ASTDataDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
 	{
 		ASTDataDecl& parameter = **it;
@@ -48,9 +48,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 	// Evaluate the function block under its scope.
 	scope = &functionScope;
-	list<ASTStmt*>& statements = functionDecl->block->getStatements();
-	for (list<ASTStmt*>::iterator it = statements.begin(); it != statements.end(); ++it)
-		(*it)->execute(*this);
+	AST::execute(functionDecl->block->statements, *this);
 	scope = scope->getParent();
 }
 
@@ -109,7 +107,7 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 {
 	// Resolve the base type under current scope.
-	ZVarType const& type = host.getType()->resolve(*scope);
+	ZVarType const& type = host.type->resolve(*scope);
 	if (!type.isResolved())
 	{
 		compileError(host, &CompileError::UnresolvedType, type.getName().c_str());
@@ -117,7 +115,7 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 	}
 
 	// Add type to the current scope under its new name.
-	scope->addType(host.getName(), type, &host);
+	scope->addType(host.name, type, &host);
 }
 
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
@@ -145,7 +143,7 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	}
 
 	// Recurse on list contents.
-	recurse(host, NULL, host.getDeclarations());
+	recurse(host, NULL, host.declarations());
 }
 
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
@@ -212,7 +210,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 
 	// Gather the paramater types.
 	vector<ZVarType const*> paramTypes;
-	vector<ASTDataDecl*> const& params = host.getParameters();
+	vector<ASTDataDecl*> const& params = host.parameters;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
 		 it != params.end(); ++it)
 	{
@@ -273,7 +271,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 
 void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 {
-	ASTExpr* content = host.getContent();
+	ASTExpr* content = host.content;
 	content->execute(*this);
 
 	if (content->hasDataValue())
@@ -282,13 +280,13 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 {
-	host.getLVal()->markAsLVal();
+	host.left->markAsLVal();
 	RecursiveVisitor::caseExprAssign(host);
 }
 
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 {
-	ASTExpr* left = host.getLeft();
+	ASTExpr* left = host.left;
 
 	// If it's an arrow, recurse normally.
 	if (left->isTypeArrow()) left->execute(*this);
@@ -297,7 +295,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	if (left->isTypeIdentifier())
 	{
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)left;
-		vector<int> possibleFunctionIds = scope->getFunctionIds(identifier->getComponents());
+		vector<int> possibleFunctionIds
+			= scope->getFunctionIds(identifier->components);
 		if (possibleFunctionIds.size() == 0)
 		{
 			compileError(host, &CompileError::FuncUndeclared,
@@ -316,7 +315,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 
 void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
-	Variable* variable = scope->getVariable(host.getComponents());
+	Variable* variable = scope->getVariable(host.components);
 	if (!variable)
 	{
 		compileError(host, &CompileError::VarUndeclared,
@@ -333,10 +332,10 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void*)
 {
 	// If the left hand side is an arrow, then pass the index over, so if it's
 	// a built-in command it has access to it.
-	if (host.getArray()->isTypeArrow())
+	if (host.array->isTypeArrow())
 	{
-		ASTExprArrow* arrow = (ASTExprArrow*)host.getArray();
-		arrow->setIndex(host.getIndex());
+		ASTExprArrow* arrow = (ASTExprArrow*)host.array;
+		arrow->index = host.index;
 	}
 
 	// Standard recursing.
@@ -348,12 +347,12 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void*)
 void SemanticAnalyzer::caseNumberLiteral(ASTNumberLiteral& host, void*)
 {
     host.setVarType(ZVarType::FLOAT);
-    pair<string,string> parts = host.getValue()->parseValue();
+    pair<string,string> parts = host.value->parseValue();
     pair<long, bool> val = ScriptParser::parseLong(parts);
 
     if (!val.second)
 		compileError(
-				host, &CompileError::ConstTrunc, host.getValue()->getValue());
+				host, &CompileError::ConstTrunc, host.value->value);
 
     host.setDataValue(val.first);
 }
@@ -361,7 +360,7 @@ void SemanticAnalyzer::caseNumberLiteral(ASTNumberLiteral& host, void*)
 void SemanticAnalyzer::caseBoolLiteral(ASTBoolLiteral& host, void*)
 {
     host.setVarType(ZVarType::BOOL);
-    host.setDataValue(host.getValue() ? 1L : 0L);
+    host.setDataValue(host.value ? 1L : 0L);
 }
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
@@ -381,9 +380,9 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	RecursiveVisitor::caseArrayLiteral(host);
 
 	// If present, resolve the type.
-	if (host.getType())
+	if (host.type)
 	{
-		ZVarType const& elementType = host.getType()->resolve(*scope);
+		ZVarType const& elementType = host.type->resolve(*scope);
 		if (!elementType.isResolved())
 		{
 			compileError(host, &CompileError::UnresolvedType,
@@ -403,7 +402,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 
 	// Check that we have elements OR a type.
-	if (host.getElements().size() == 0 && !host.getType())
+	if (host.getElements().size() == 0 && !host.type)
 	{
 		compileError(host, &CompileError::EmptyArrayLiteral);
 	}
