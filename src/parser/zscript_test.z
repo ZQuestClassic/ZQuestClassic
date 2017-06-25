@@ -129,6 +129,10 @@ global script Init {
 	}
 
 	void test_BuiltIns() {
+		// Read/Write a non-existent builtin.
+		compile_error(29) bool x = Link->PressEx0;
+		compile_error(29) Link->PressEx0 = true;
+		
 		test_group("Read/Write Bulitin Variable");
 		Link->Dir = DIR_LEFT;
 		test(DIR_LEFT, Link->Dir);

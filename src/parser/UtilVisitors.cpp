@@ -39,6 +39,7 @@ void RecursiveVisitor::compileError(AST& host, CompileError const* error, ...)
 	va_list args;
 	va_start(args, error);
 	error->vprint(&host, args);
+	failure = true;
 	va_end(args);
 }
 
