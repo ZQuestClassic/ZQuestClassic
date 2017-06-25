@@ -112,6 +112,8 @@ public:
         return false;
     }
     int wpnsprite; //wpnsprite is new for 2.6 -Z
+    int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
+
 protected:
     int  clk2,sclk;
     int  starting_hp;

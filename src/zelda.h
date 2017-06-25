@@ -25,6 +25,7 @@
 #include "jwin.h"
 #include "zsys.h"
 #include "script_drawing.h"
+#include "scripting/ObjectPool.h"
 
 int isFullScreen();
 int onFullscreen();
@@ -324,6 +325,7 @@ extern char *qstpath;
 extern char *qstdir;
 extern gamedata *saves;
 extern gamedata *game;
+extern ObjectPool *pool;
 
 // quest file data
 extern zquestheader QHeader;

@@ -11,6 +11,9 @@
 #include <math.h>
 #include <cstdio>
 #include "scripting/ZASMdefs.h"
+#include "scripting/bindings/IEnemy.h"
+#include "scripting/bindings/IItem.h"
+#include "scripting/bindings/IWeapon.h"
 #include "ffasm.h"
 #include "zc_sys.h"
 #include "zc_math.h"
@@ -46,7 +49,7 @@
 using std::string;
 
 extern sprite_list particles;
-extern LinkClass Link;
+extern LinkClass *Link;
 extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
@@ -401,7 +404,7 @@ class GuyH : public SH
 public:
     static int loadNPC(const long eid, const char * const funcvar)
     {
-        tempenemy = (enemy *) guys.getByUID(eid);
+		tempenemy = IEnemy(*pool, eid).getPtr();
         
         if(tempenemy == NULL)
         {
@@ -534,7 +537,7 @@ class ItemH : public SH
 public:
     static int loadItem(const long iid, const char * const funcvar)
     {
-        tempitem = (item *) items.getByUID(iid);
+        tempitem = IItem(*pool, iid).getPtr();
         
         if(tempitem == NULL)
         {
@@ -574,7 +577,7 @@ class LwpnH : public SH
 public:
     static int loadWeapon(const long wid, const char * const funcvar)
     {
-        tempweapon = (weapon *) Lwpns.getByUID(wid);
+        tempweapon = IWeapon(*pool, wid).getPtr();
         
         if(tempweapon == NULL)
         {
@@ -614,7 +617,7 @@ class EwpnH : public SH
 public:
     static int loadWeapon(const long wid, const char * const funcvar)
     {
-        tempweapon = (weapon *) Ewpns.getByUID(wid);
+        tempweapon = IWeapon(*pool, wid).getPtr();
         
         if(tempweapon == NULL)
         {
@@ -891,7 +894,7 @@ public:
 
 item *checkItem(long iid)
 {
-    item *s = (item *)items.getByUID(iid);
+    item *s = IItem(*pool, iid).getPtr();
     
     if(s == NULL)
     {
@@ -912,7 +915,7 @@ item *checkItem(long iid)
 
 weapon *checkLWpn(long eid, const char *what)
 {
-    weapon *s = (weapon *)Lwpns.getByUID(eid);
+    weapon *s = IWeapon(*pool, eid).getPtr();
     
     if(s == NULL)
     {
@@ -934,7 +937,7 @@ weapon *checkLWpn(long eid, const char *what)
 
 weapon *checkEWpn(long eid, const char *what)
 {
-    weapon *s = (weapon *)Ewpns.getByUID(eid);
+    weapon *s = IWeapon(*pool, eid).getPtr();
     
     if(s == NULL)
     {
@@ -1064,28 +1067,28 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * 10000;
+        ret = long(Link->getX()) * 10000;
         break;
         
     case LINKY:
-        ret = long(Link.getY()) * 10000;
+        ret = long(Link->getY()) * 10000;
         break;
         
     case LINKZ:
-        ret = long(Link.getZ()) * 10000;
+        ret = long(Link->getZ()) * 10000;
         break;
         
     case LINKJUMP:
         // -fall/100*10000, but doing it that way screwed up the result
-        ret = long(-Link.getFall()) * 100;
+        ret = long(-Link->getFall()) * 100;
         break;
         
     case LINKDIR:
-        ret=(int)(Link.dir)*10000;
+        ret=(int)(Link->dir)*10000;
         break;
         
     case LINKHITDIR:
-        ret=(int)(Link.getHitDir())*10000;
+        ret=(int)(Link->getHitDir())*10000;
         break;
         
     case LINKHP:
@@ -1105,11 +1108,11 @@ long get_register(const long arg)
         break;
         
     case LINKACTION:
-        ret=(int)(Link.getAction())*10000;
+        ret=(int)(Link->getAction())*10000;
         break;
         
     case LINKHELD:
-        ret = (int)(Link.getHeldItem())*10000;
+        ret = (int)(Link->getHeldItem())*10000;
         break;
         
     case LINKITEMD:
@@ -1121,124 +1124,131 @@ long get_register(const long arg)
         break;
         
     case LINKINVIS:
-        ret = (int)(Link.getDontDraw())*10000;
+        ret = (int)(Link->getDontDraw())*10000;
         break;
         
     case LINKINVINC:
-        ret = (int)(Link.scriptcoldet)*10000;
+        ret = (int)(Link->scriptcoldet)*10000;
         break;
         
     case LINKLADDERX:
-        ret=(int)(Link.getLadderX())*10000;
+        ret=(int)(Link->getLadderX())*10000;
         break;
         
     case LINKLADDERY:
-        ret=(int)(Link.getLadderY())*10000;
+        ret=(int)(Link->getLadderY())*10000;
         break;
         
     case LINKSWORDJINX:
-        ret = (int)(Link.getSwordClk())*10000;
+        ret = (int)(Link->getSwordClk())*10000;
         break;
         
     case LINKITEMJINX:
-        ret = (int)(Link.getItemClk())*10000;
+        ret = (int)(Link->getItemClk())*10000;
         break;
         
     case LINKDRUNK:
-        ret = (int)(Link.DrunkClock())*10000;
+        ret = (int)(Link->DrunkClock())*10000;
         break;
         
     case LINKMISCD:
-        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)]);
+        ret = (int)(Link->miscellaneous[vbound(ri->d[0]/10000,0,31)]);
         break;
         
     case LINKHXOFS:
-        ret = (int)(Link.hxofs)*10000;
+        ret = (int)(Link->hxofs)*10000;
         break;
         
     case LINKHYOFS:
-        ret = (int)(Link.hyofs)*10000;
+        ret = (int)(Link->hyofs)*10000;
         break;
         
     case LINKXOFS:
-        ret = (int)(Link.xofs)*10000;
+        ret = (int)(Link->xofs)*10000;
         break;
         
     case LINKYOFS:
-        ret = (int)(Link.yofs-playing_field_offset)*10000;
+        ret = (int)(Link->yofs-playing_field_offset)*10000;
         break;
         
     case LINKZOFS:
-        ret = (int)(Link.zofs)*10000;
+        ret = (int)(Link->zofs)*10000;
         break;
         
     case LINKHXSZ:
-        ret = (int)(Link.hxsz)*10000;
+        ret = (int)(Link->hxsz)*10000;
         break;
         
     case LINKHYSZ:
-        ret = (int)(Link.hysz)*10000;
+        ret = (int)(Link->hysz)*10000;
         break;
         
     case LINKHZSZ:
-        ret = (int)(Link.hzsz)*10000;
+        ret = (int)(Link->hzsz)*10000;
         break;
         
     case LINKTXSZ:
-        ret = (int)(Link.txsz)*10000;
+        ret = (int)(Link->txsz)*10000;
         break;
         
     case LINKTYSZ:
-        ret = (int)(Link.tysz)*10000;
+        ret = (int)(Link->tysz)*10000;
         break;
         
     case LINKTILE:
-        ret = (int)(Link.tile)*10000;
+        ret = (int)(Link->tile)*10000;
         break;
         
     case LINKFLIP:
-        ret = (int)(Link.flip)*10000;
+        ret = (int)(Link->flip)*10000;
         break;
     
     case LINKINVFRAME:
-	ret = (int)Link.getHClk()*10000;
+	ret = (int)Link->getHClk()*10000;
 	break;
     
     case LINKCANFLICKER:
-        ret= Link.getCanLinkFlicker()?10000:0;
+        ret= Link->getCanLinkFlicker()?10000:0;
         break;
     case LINKHURTSFX:
-	ret = (int)Link.getHurtSFX()*10000;
+	ret = (int)Link->getHurtSFX()*10000;
 	break;
     
     
     case LINKUSINGITEM:
-	ret = (int)Link.getDirectItem()*10000;
+	ret = (int)Link->getDirectItem()*10000;
         break;
     
     case LINKUSINGITEMA:
-	ret = (int)Link.getDirectItemA()*10000;
+	ret = (int)Link->getDirectItemA()*10000;
         break;
     
     case LINKUSINGITEMB:
-	ret = (int)Link.getDirectItemB()*10000;
+	ret = (int)Link->getDirectItemB()*10000;
         break;
         
     case LINKEATEN:
-	ret=(int)Link.getEaten()*10000;
+	ret=(int)Link->getEaten()*10000;
 	break;
         
         
     case LINKITEMB:
-	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	ret = Bwpn*10000;
 	break;
     
     case LINKITEMA:
-	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	ret = Awpn *10000;
 	break;
     
+    case LINKDIAG:
+	ret=Link->getDiagMove()?10000:0;
+	break;
+    
+    case LINKBIGHITBOX:
+	ret=Link->getBigHitbox()?10000:0;
+	break;
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -2880,7 +2890,7 @@ long get_register(const long arg)
         
     
     case NOACTIVESUBSC:
-	ret=Link.stopSubscreenFalling()?10000:0;
+	ret=Link->stopSubscreenFalling()?10000:0;
 	break;
         
 ///----------------------------------------------------------------------------------------------------//
@@ -3307,19 +3317,19 @@ case SETSCREENCATCH:
         break;
         
     case PUSHBLOCKX:
-        ret = blockmoving ? int(mblock2.x)*10000 : -10000;
+        ret = blockmoving ? int(mblock2->x)*10000 : -10000;
         break;
         
     case PUSHBLOCKY:
-        ret = blockmoving ? int(mblock2.y)*10000 : -10000;
+        ret = blockmoving ? int(mblock2->y)*10000 : -10000;
         break;
         
     case PUSHBLOCKCOMBO:
-        ret = mblock2.bcombo*10000;
+        ret = mblock2->bcombo*10000;
         break;
         
     case PUSHBLOCKCSET:
-        ret = mblock2.cs*10000;
+        ret = mblock2->cs*10000;
         break;
         
     case UNDERCOMBO:
@@ -3343,7 +3353,7 @@ case SETSCREENCATCH:
 	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
 	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
 	
-		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,Link.getUID()));
+		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,Link->getUID()));
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		
 		/* Z_scripterrlog("CreateLWeaponDx ri->d[0] is (%i), trying to use for '%s'\n", ID, "ID");
@@ -3402,7 +3412,7 @@ case SETSCREENCATCH:
     case DEBUGREFFFC:
     {
 	int r = -1;
-	if ( ri->ffcref != NULL ) r = ri->ffcref;
+	if ( ri->ffcref ) r = ri->ffcref;
         ret = r * 10000;
     }
         break;
@@ -3410,7 +3420,7 @@ case SETSCREENCATCH:
     case DEBUGREFITEM:
     {
 	int r = -1;
-	if ( ri->itemref != NULL ) r = ri->itemref;
+	if ( ri->itemref ) r = ri->itemref;
         ret = r * 10000;
     }
         break;
@@ -3418,7 +3428,7 @@ case SETSCREENCATCH:
     case DEBUGREFITEMDATA:
     {
 	int r = -1;
-	if ( ri->idata != NULL ) r = ri->idata;
+	if ( ri->idata ) r = ri->idata;
         ret = r * 10000;
     }
         break;
@@ -3426,7 +3436,7 @@ case SETSCREENCATCH:
     case DEBUGREFLWEAPON:
     {
 	int r = -1;
-	if ( ri->lwpn != NULL ) r = ri->lwpn;
+	if ( ri->lwpn ) r = ri->lwpn;
         ret = r * 10000;
     }
         break;
@@ -3434,7 +3444,7 @@ case SETSCREENCATCH:
     case DEBUGREFEWEAPON:
     {
 	int r = -1;
-	if ( ri->ewpn != NULL ) r = ri->ewpn;
+	if ( ri->ewpn ) r = ri->ewpn;
         ret = r * 10000;
     }
         break;
@@ -3442,7 +3452,7 @@ case SETSCREENCATCH:
     case DEBUGREFNPC:
     {
 	int r = -1;
-	if ( ri->guyref != NULL ) r = ri->guyref;
+	if ( ri->guyref ) r = ri->guyref;
         ret = r * 10000;
     }    
         break;
@@ -3450,7 +3460,7 @@ case SETSCREENCATCH:
     case DEBUGSP:
     {
 	int r = -1;
-	if ( ri->sp != NULL ) r = ri->sp;
+	if ( ri->sp ) r = ri->sp;
         ret = r * 10000;
     }   
         break;
@@ -3458,7 +3468,7 @@ case SETSCREENCATCH:
     {
 	int a = vbound(ri->d[0]/10000,0,15);
 	int r = -1;
-	if ( game->global_d[a] != NULL ) r = game->global_d[a];
+	if ( game->global_d[a] ) r = game->global_d[a];
         ret = r * 10000;
     }
         break;
@@ -3535,6 +3545,14 @@ void set_register(const long arg, const long value)
         tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
+     case CHANGEFFSCRIPTR:
+        FFScript::do_changeffcscript(false);
+        break;
+    
+    case CHANGEFFSCRIPTV:
+        FFScript::do_changeffcscript(true);
+        break;
+    
     case FFSCRIPT:
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
@@ -3634,32 +3652,32 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        Link.setX(value/10000);
+        Link->setX(value/10000);
         break;
         
     case LINKY:
-        Link.setY(value/10000);
+        Link->setY(value/10000);
         break;
         
     case LINKZ:
-        Link.setZ(value/10000);
+        Link->setZ(value/10000);
         break;
         
     case LINKJUMP:
-        Link.setFall(fix((-value * (100.0)) / 10000.0));
+        Link->setFall(fix((-value * (100.0)) / 10000.0));
         break;
         
     case LINKDIR:
     {
-        //Link.setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-        if(Link.getAction() == attacking) Link.dir = (value/10000);
-        else Link.setDir(value/10000);
+        //Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
+        if(Link->getAction() == attacking) Link->dir = (value/10000);
+        else Link->setDir(value/10000);
         
         break;
     }
     
     case LINKHITDIR:
-        Link.setHitDir(value / 10000);
+        Link->setHitDir(value / 10000);
         break;
         
     case LINKHP:
@@ -3679,11 +3697,11 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKACTION:
-        Link.setAction((actiontype)(value/10000));
+        Link->setAction((actiontype)(value/10000));
         break;
         
     case LINKHELD:
-        Link.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
+        Link->setHeldItem(vbound(value/10000,0,MAXITEMS-1));
         break;
         
     case LINKITEMD:
@@ -3780,115 +3798,115 @@ void set_register(const long arg, const long value)
 	break;
 	  
     case LINKINVIS:
-        Link.setDontDraw(value/10000);
+        Link->setDontDraw(value/10000);
         break;
         
     case LINKINVINC:
-        Link.scriptcoldet=(value/10000);
+        Link->scriptcoldet=(value/10000);
         break;
         
     case LINKSWORDJINX:
-        Link.setSwordClk(value/10000);
+        Link->setSwordClk(value/10000);
         break;
         
     case LINKITEMJINX:
-        Link.setItemClk(value/10000);
+        Link->setItemClk(value/10000);
         break;
         
     case LINKDRUNK:
-        Link.setDrunkClock(value/10000);
+        Link->setDrunkClock(value/10000);
         break;
         
     case LINKMISCD:
-        Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
+        Link->miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
         break;
         
     case LINKHXOFS:
-        (Link.hxofs)=(fix)(value/10000);
+        (Link->hxofs)=(fix)(value/10000);
         break;
         
     case LINKHYOFS:
-        (Link.hyofs)=(fix)(value/10000);
+        (Link->hyofs)=(fix)(value/10000);
         break;
         
     case LINKXOFS:
-        (Link.xofs)=(fix)(value/10000);
+        (Link->xofs)=(fix)(value/10000);
         break;
         
     case LINKYOFS:
-        (Link.yofs)=(fix)(value/10000)+playing_field_offset;
+        (Link->yofs)=(fix)(value/10000)+playing_field_offset;
         break;
         
     case LINKZOFS:
-        (Link.zofs)=(fix)(value/10000);
+        (Link->zofs)=(fix)(value/10000);
         break;
         
     case LINKHXSZ:
-        (Link.hxsz)=(fix)(value/10000);
+        (Link->hxsz)=(fix)(value/10000);
         break;
         
     case LINKHYSZ:
-        (Link.hysz)=(fix)(value/10000);
+        (Link->hysz)=(fix)(value/10000);
         break;
         
     case LINKHZSZ:
-        (Link.hzsz)=(fix)(value/10000);
+        (Link->hzsz)=(fix)(value/10000);
         break;
         
     case LINKTXSZ:
-        (Link.txsz)=(fix)(value/10000);
+        (Link->txsz)=(fix)(value/10000);
         break;
         
     case LINKTYSZ:
-        (Link.tysz)=(fix)(value/10000);
+        (Link->tysz)=(fix)(value/10000);
         break;
         
     case LINKTILE:
-        (Link.tile)=(fix)(value/10000);
+        (Link->tile)=(fix)(value/10000);
         break;
         
     case LINKFLIP:
-        (Link.flip)=(fix)(value/10000);
+        (Link->flip)=(fix)(value/10000);
         break;
     
     
     
     case LINKINVFRAME:
-	Link.setHClk( (int)vbound((value/10000), 0, 214747) );
+	Link->setHClk( (int)vbound((value/10000), 0, 214747) );
 	break;
     
     case LINKCANFLICKER:
-	Link.setCanLinkFlicker((value/10000)?1:0);
+	Link->setCanLinkFlicker((value/10000)?1:0);
 	break;
     
     case LINKHURTSFX:
-	Link.setHurtSFX( (int)vbound((value/10000), 0, 255) );
+	Link->setHurtSFX( (int)vbound((value/10000), 0, 255) );
 	break;
         
     
      case LINKITEMB:
-	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
     /*
-	Link.directItem = vbound((value/10000),0,(MAXITEMS-1));
-	Link.directItemB = Link.directItem;
+	Link->directItem = vbound((value/10000),0,(MAXITEMS-1));
+	Link->directItemB = Link->directItem;
 	Bwpn = vbound((value/10000),0,(MAXITEMS-1));
     */
-	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItemB(Link.getDirectItem());
+	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItemB(Link->getDirectItem());
 	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
 	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
 	break;
     
     case LINKITEMA:
-	    //Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItemA(Link.getDirectItem());
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItemA(Link->getDirectItem());
 	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
 	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
 	break;
     
       case LINKEATEN:
-	Link.setEaten(value/10000);
+	Link->setEaten(value/10000);
 	break;
     
       case GAMESETA:
@@ -3897,7 +3915,7 @@ void set_register(const long arg, const long value)
 		//int extend = (ri->d[1]/10000);
 		//int dir = (ri->d[0]/10000);
 		Z_message("Trying to force-set the A-button item().\n");
-		Link.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		Link->setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	}
 	break;
 	
@@ -3907,8 +3925,18 @@ void set_register(const long arg, const long value)
 		//int extend = (ri->d[1]/10000);
 		//int dir = (ri->d[0]/10000);
 		Z_message("Trying to force-set the A-button item().\n");
-		Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	}
+	break;
+	
+	//Set Link Diagonal
+        case LINKDIAG:
+	    Link->setDiagMove((value/10000)?1:0);
+	break;
+    
+    //Set Link Big Hitbox
+        case LINKBIGHITBOX:
+	    Link->setBigHitbox((value/10000)?1:0);
 	break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
@@ -5137,7 +5165,7 @@ void set_register(const long arg, const long value)
             GuyH::getNPC()->x = fix(value / 10000);
             
             if(GuyH::hasLink())
-                Link.setX(fix(value / 10000));
+                Link->setX(fix(value / 10000));
         }
     }
     break;
@@ -5151,7 +5179,7 @@ void set_register(const long arg, const long value)
             GuyH::getNPC()->floor_y += ((value / 10000) - oldy);
             
             if(GuyH::hasLink())
-                Link.setY(fix(value / 10000));
+                Link->setY(fix(value / 10000));
         }
     }
     break;
@@ -5168,7 +5196,7 @@ void set_register(const long arg, const long value)
                     GuyH::getNPC()->z = fix(value / 10000);
                     
                 if(GuyH::hasLink())
-                    Link.setZ(fix(value / 10000));
+                    Link->setZ(fix(value / 10000));
             }
         }
     }
@@ -5182,7 +5210,7 @@ void set_register(const long arg, const long value)
                 GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
                 
             if(GuyH::hasLink())
-                Link.setFall(value / fix(10000.0));
+                Link->setFall(value / fix(10000.0));
         }
     }
     break;
@@ -5583,7 +5611,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     
     case NOACTIVESUBSC:
-	Link.stopSubscreenFalling((value/10000)?1:0);
+	Link->stopSubscreenFalling((value/10000)?1:0);
 	break;
         
 ///----------------------------------------------------------------------------------------------------//
@@ -6150,12 +6178,12 @@ break;
         break;
         
     case PUSHBLOCKCOMBO:
-        mblock2.bcombo=value/10000;
+        mblock2->bcombo=value/10000;
         break;
         
     case PUSHBLOCKCSET:
-        mblock2.cs=value/10000;
-        mblock2.oldcset=value/10000;
+        mblock2->cs=value/10000;
+        mblock2->oldcset=value/10000;
         break;
         
     case UNDERCOMBO:
@@ -6776,7 +6804,7 @@ void do_warp(bool v)
     tmpscr->sidewarpdmap[0] = dmap;
     tmpscr->sidewarpscr[0]  = screen;
     tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
+    Link->ffwarp = true;
 }
 
 void do_pitwarp(bool v)
@@ -6792,8 +6820,8 @@ void do_pitwarp(bool v)
     tmpscr->sidewarpdmap[0] = dmap;
     tmpscr->sidewarpscr[0]  = screen;
     tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-    Link.ffpit = true;
+    Link->ffwarp = true;
+    Link->ffpit = true;
 }
 
 void do_breakshield()
@@ -7007,33 +7035,7 @@ void do_layermap()
         set_register(sarg1, tmpscr->layermap[layer] * 10000);
 }
 
-void do_triggersecret(const bool v)
-{
-    long ID = SH::get_arg(sarg1, v) / 10000;
-	int cmbx; int cmby; 
-	/*
-	//cmbx = COMBOX(1);
-	//cmby = COMBOY(1);
-	//findentrance(cmbx, cmby, 4, true);
-	
-	cmbx = COMBOX(86);
-	cmby = COMBOY(86);
-	findentrance(cmbx, cmby, 4, true);
-	*/
-	//cmbx = COMBOX(86);
-	//	cmby = COMBOY(86);
-	//	findentrance(cmbx, cmby, 4, true);
-	
-	for ( int q = 0; q < 176; q++ ) 
-	{
-		cmbx = COMBOX(q);
-		cmby = COMBOY(q);
-		if ( findentrance(cmbx, cmby, ID, false) ) break; //This is still triggering all secrets on the screen. 
-		//hidden_entrance(0,true,single16,scombo); //scombo is the position in one function, but a flag that determines the way it works, in another?!. 
-	}
-	
-	
-}
+
 	
 
 void do_triggersecrets()
@@ -7651,7 +7653,7 @@ void do_clearsprites(const bool v)
         
     case 3:
         Lwpns.clear();
-        Link.reset_hookshot();
+        Link->reset_hookshot();
         break;
         
     case 4:
@@ -7736,7 +7738,7 @@ void do_createlweapon(const bool v)
     if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
         return;
         
-    addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
+    addLwpn(0, 0, 0, ID, 0, 0, 0, Link->getUID());
     
     if(Lwpns.Count() < 1)
     {
@@ -7834,7 +7836,7 @@ void do_message(const bool v)
         dismissmsg();
         msgfont = zfont;
         blockpath = false;
-        Link.finishedmsg();
+        Link->finishedmsg();
     }
     else
         donewmsg(ID);
@@ -9150,11 +9152,11 @@ int run_script(const byte type, const word script, const byte i)
             break;
 	
 	case TRIGGERSECRETR:
-            do_triggersecret(false);
+            FFScript::do_triggersecret(false);
             break;
             
         case TRIGGERSECRETV:
-            do_sfx(true);
+            FFScript::do_triggersecret(true);
             break;
             
         case PLAYMIDIR:
@@ -9811,7 +9813,7 @@ int ffscript_engine(const bool preload)
         if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
             continue;
             
-        if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link.getHoldClk()>0)
+        if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link->getHoldClk()>0)
             continue;
             
 		run_script(SCRIPT_FFC, tmpscr->ffscript[i], i);
@@ -10052,3 +10054,191 @@ void FFScript::do_zapin(){ zapin(); }
 void FFScript::do_openscreen() { openscreen(); }
 void FFScript::do_wavyin() { wavyin(); }
 void FFScript::do_wavyout() { wavyout(false); }
+
+
+void FFScript::do_triggersecret(const bool v)
+{
+    long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
+    mapscr *s = tmpscr;
+    int ft=0, checkflag; //Flag trigger, checked flag temp. 
+    bool putit = true;  //Is set false with a mismatch (illegal value input).
+    //Convert a flag type to a secret type. -Z
+	switch(ID)
+	{
+		case mfBCANDLE:
+		    ft=sBCANDLE;
+		    break;
+		    
+		case mfRCANDLE:
+		    ft=sRCANDLE;
+		    break;
+		    
+		case mfWANDFIRE:
+		    ft=sWANDFIRE;
+		    break;
+		    
+		case mfDINSFIRE:
+		    ft=sDINSFIRE;
+		    break;
+		    
+		case mfARROW:
+		    ft=sARROW;
+		    break;
+		    
+		case mfSARROW:
+		    ft=sSARROW;
+		    break;
+		    
+		case mfGARROW:
+		    ft=sGARROW;
+		    break;
+		    
+		case mfSBOMB:
+		    ft=sSBOMB;
+		    break;
+		    
+		case mfBOMB:
+		    ft=sBOMB;
+		    break;
+		    
+		case mfBRANG:
+		    ft=sBRANG;
+		    break;
+		    
+		case mfMBRANG:
+		    ft=sMBRANG;
+		    break;
+		    
+		case mfFBRANG:
+		    ft=sFBRANG;
+		    break;
+		    
+		case mfWANDMAGIC:
+		    ft=sWANDMAGIC;
+		    break;
+		    
+		case mfREFMAGIC:
+		    ft=sREFMAGIC;
+		    break;
+		    
+		case mfREFFIREBALL:
+		    ft=sREFFIREBALL;
+		    break;
+		    
+		case mfSWORD:
+		    ft=sSWORD;
+		    break;
+		    
+		case mfWSWORD:
+		    ft=sWSWORD;
+		    break;
+		    
+		case mfMSWORD:
+		    ft=sMSWORD;
+		    break;
+		    
+		case mfXSWORD:
+		    ft=sXSWORD;
+		    break;
+		    
+		case mfSWORDBEAM:
+		    ft=sSWORDBEAM;
+		    break;
+		    
+		case mfWSWORDBEAM:
+		    ft=sWSWORDBEAM;
+		    break;
+		    
+		case mfMSWORDBEAM:
+		    ft=sMSWORDBEAM;
+		    break;
+		    
+		case mfXSWORDBEAM:
+		    ft=sXSWORDBEAM;
+		    break;
+		    
+		case mfHOOKSHOT:
+		    ft=sHOOKSHOT;
+		    break;
+		    
+		case mfWAND:
+		    ft=sWAND;
+		    break;
+		    
+		case mfHAMMER:
+		    ft=sHAMMER;
+		    break;
+		    
+		case mfSTRIKE:
+		    ft=sSTRIKE;
+		    break;
+		    
+		default:
+		    putit = false;
+		    break;
+	}
+	if ( putit ) {		
+		for(int iter=0; iter<2; ++iter)
+		{
+			for ( int q = 0; q < 176; q++ ) 
+			{		
+				if(iter==1) checkflag=s->sflag[q]; //Placed
+				else checkflag=combobuf[s->data[q]].flag; //Inherent
+				Z_message("checkflag is: %d\n", checkflag);
+				al_trace("checkflag is: %d\n", checkflag);
+				
+				Z_message("ID is: %d\n", ID);
+				al_trace("ID is: %d\n", ID);
+				//cmbx = COMBOX(q);
+				////cmby = COMBOY(q);
+				
+				//Placed flags
+				if ( iter == 1 ) {
+					if ( s->sflag[q] == ID ) {
+						screen_combo_modify_preroutine(s,q);
+						s->data[q] = s->secretcombo[ft];
+						s->cset[q] = s->secretcset[ft];
+						s->sflag[q] = s->secretflag[ft];
+					   // newflag = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,q);
+					}
+				}
+				//Inherent flags
+				else {
+					if ( combobuf[s->data[q]].flag == ID ) {
+						screen_combo_modify_preroutine(s,q);
+						s->data[q] = s->secretcombo[ft];
+						s->cset[q] = s->secretcset[ft];
+						//s->sflag[q] = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,q);
+					}
+					
+				}
+			}
+		}
+	}
+	
+}
+
+void FFScript::do_changeffcscript(const bool v){
+	long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+	    if(arrayOwner[i]==ri->ffcref)
+		FFScript::deallocateZScriptArray(i);
+	}
+	
+	tmpscr->ffscript[ri->ffcref] = vbound(ID/10000, 0, scripts.ffscripts.size()-1);
+	
+	for(int i=0; i<16; i++)
+	    ffmisc[ri->ffcref][i] = 0;
+	    
+	for(int i=0; i<2; i++)
+	    tmpscr->inita[ri->ffcref][i] = 0;
+	    
+	for(int i=0; i<8; i++)
+	    tmpscr->initd[ri->ffcref][i] = 0;
+	    
+	ffcScriptData[ri->ffcref].Clear();
+	tmpscr->initialized[ri->ffcref] = true;
+}

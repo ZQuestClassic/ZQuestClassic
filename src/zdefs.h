@@ -119,7 +119,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            28
+#define V_GUYS            29
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1305,6 +1305,8 @@ struct itemdata
     int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
+    int wpnsprite; //enemy weapon sprite. 
+    
     
 };
 
@@ -1427,6 +1429,19 @@ struct item_drop_object
 #define ffCHANGETHIS    0x08000000 //Change combo/cset to this
 #define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
 
+//Guydata Enemy Editor Size Panel FLags
+#define guyflagOVERRIDE_TILE_WIDTH	0x00000001
+#define guyflagOVERRIDE_TILE_HEIGHT	0x00000002
+#define guyflagOVERRIDE_HIT_WIDTH	0x00000004
+#define guyflagOVERRIDE_HIT_HEIGHT	0x00000008
+#define guyflagOVERRIDE_HIT_Z_HEIGHT	0x00000010
+#define guyflagOVERRIDE_HIT_X_OFFSET	0x00000020
+#define guyflagOVERRIDE_HIT_Y_OFFSET	0x00000040
+#define guyflagOVERRIDE_DRAW_X_OFFSET	0x00000080
+#define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
+#define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
+
+
 struct guydata
 {
     dword flags;
@@ -1464,6 +1479,7 @@ struct guydata
     int txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
+    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
 };
 
 class refInfo

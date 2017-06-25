@@ -23,7 +23,7 @@
 #include "guys.h"
 #include "backend/AllBackends.h"
 
-extern LinkClass   Link;
+extern LinkClass   *Link;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
@@ -92,7 +92,7 @@ void dosubscr(miscQdata *misc)
     for(int y=176-2; y>=6; y-=3)
     {
         do_dcounters();
-        Link.refill();
+        Link->refill();
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
         
@@ -174,7 +174,7 @@ void dosubscr(miscQdata *misc)
             Backend::sfx->play(WAV_CHIME,128);
             
         do_dcounters();
-        Link.refill();
+        Link->refill();
         
         //put_passive_subscr(framebuf,misc,0,174-miny,showtime,true);
         //blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
@@ -217,7 +217,7 @@ void dosubscr(miscQdata *misc)
     for(int y=6; y<=174; y+=3)
     {
         do_dcounters();
-        Link.refill();
+        Link->refill();
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
         

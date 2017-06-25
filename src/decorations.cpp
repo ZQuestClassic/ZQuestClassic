@@ -25,7 +25,7 @@
 /*******  Decoration Base Class  *******/
 /***************************************/
 
-decoration::decoration(fix X,fix Y,int Id,int Clk) : sprite()
+decoration::decoration(fix X,fix Y,int Id,int Clk) : sprite(*pool)
 {
     x=X;
     y=Y;

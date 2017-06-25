@@ -74,7 +74,7 @@ void LinkClass::setDrunkClock(int newdrunkclk)
     drunkclk=newdrunkclk;
 }
 
-LinkClass::LinkClass() : sprite()
+LinkClass::LinkClass() : sprite(*pool)
 {
     init();
 }
@@ -149,6 +149,22 @@ void LinkClass::setDirectItemB(int itm)
     attackid = itm;
 }
 
+bool  LinkClass::getDiagMove()
+{
+    return diagonalMovement;
+}
+void LinkClass::setDiagMove(bool newdiag)
+{
+    diagonalMovement=newdiag;
+}
+bool  LinkClass::getBigHitbox()
+{
+    return bigHitbox;
+}
+void LinkClass::setBigHitbox(bool newbighitbox)
+{
+    bigHitbox=newbighitbox;
+}
 
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void LinkClass::linkstep()
@@ -8025,7 +8041,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         return ret;
     }
     
-    if(blockmoving && mblock2.hit(wx,wy,0,1,1,1))
+    if(blockmoving && mblock2->hit(wx,wy,0,1,1,1))
     {
         ret.setUnwalkable(true);
         return ret;
@@ -8473,7 +8489,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 LinkClass::WalkflagInfo LinkClass::walkflagMBlock(int wx,int wy)
 {
     WalkflagInfo ret;
-    ret.setUnwalkable(blockmoving && mblock2.hit(wx,wy,0,1,1,1));
+    ret.setUnwalkable(blockmoving && mblock2->hit(wx,wy,0,1,1,1));
     return ret;
 }
 
@@ -8699,9 +8715,9 @@ void LinkClass::checkpushblock()
             //{
             //++tmpscr->data[(by&0xF0)+(bx>>4)];
             //}
-            if(mblock2.clk<=0)
+            if(mblock2->clk<=0)
             {
-                mblock2.push((fix)bx,(fix)by,dir,f);
+                mblock2->push((fix)bx,(fix)by,dir,f);
                 
                 if(get_bit(quest_rules,qr_MORESOUNDS))
                     Backend::sfx->play(WAV_ZN1PUSHBLOCK,(int)x);

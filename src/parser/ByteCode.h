@@ -362,8 +362,8 @@
 //#define FFDD			    309 //8 of these
 
 #define __RESERVED_FOR_GAMETHROTTLE	334
-#define __RESERVED_FOR_LINKDIAG	335
-#define __RESERVED_FOR_LINKBIGHITBOX	336
+#define LINKDIAG	335
+#define LINKBIGHITBOX	336
 #define ITEMCLASSID 337
 #define _DEPRECATED_IDATAMISC1 338
 #define _DEPRECATED_IDATAMISC2 339
@@ -3135,6 +3135,17 @@ public:
     Opcode *clone()
     {
         return new OPolygonRegister();
+    }
+};
+
+class OChangeFFCScriptRegister : public UnaryOpcode
+{
+public:
+    OChangeFFCScriptRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OChangeFFCScriptRegister(a->clone());
     }
 };
 

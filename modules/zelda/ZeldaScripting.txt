@@ -1,0 +1,14 @@
+## Source list for Zelda Scripting module
+set(ZELDA_SCRIPTING_SOURCES
+
+################################
+# Add or remove files here
+################################
+src/scripting/ObjectPool.cpp
+src/scripting/bindings/IEnemy.cpp
+src/scripting/bindings/IItem.cpp
+src/scripting/bindings/IWeapon.cpp
+
+## End of Zelda Core module
+)
+

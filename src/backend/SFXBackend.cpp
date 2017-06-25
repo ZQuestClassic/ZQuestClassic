@@ -21,7 +21,8 @@ SFXSample::SFXSample(const SAMPLE &s)
 
 SFXSample::~SFXSample()
 {
-    delete[] sample.data;
+	// Cast to inhibit warning for deleting void*.
+    delete[] (char*)sample.data;
 }
 
 SFXBackend::SFXBackend() : volume_(248), pan_style_(1)

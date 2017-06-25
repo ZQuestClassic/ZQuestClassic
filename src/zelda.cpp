@@ -294,6 +294,7 @@ mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
+ObjectPool *pool = NULL;
 
 extern refInfo globalScriptData;
 extern word g_doscript;
@@ -590,7 +591,7 @@ void dismissmsg()
     cursor_x=0;
     cursor_y=0;
     msg_onscreen = msg_active = false;
-    //Link.finishedmsg(); //Not possible?
+    //Link->finishedmsg(); //Not possible?
     clear_bitmap(msgdisplaybuf);
     set_clip_state(msgdisplaybuf, 1);
 }
@@ -705,13 +706,13 @@ void Z_scripterrlog(const char * const format,...)
 
 bool blockmoving;
 #include "sprite.h"
-movingblock mblock2;                                        //mblock[4]?
+movingblock *mblock2;                                        //mblock[4]?
 
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 
 #include "zc_custom.h"
 #include "link.h"
-LinkClass   Link;
+LinkClass   *Link;
 
 #include "maps.h"
 #include "subscr.h"
@@ -756,13 +757,13 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         
     particles.clear();
     
-    if(Link.getNayrusLoveShieldClk())
+    if(Link->getNayrusLoveShieldClk())
     {
-        Link.setNayrusLoveShieldClk(Link.getNayrusLoveShieldClk());
+        Link->setNayrusLoveShieldClk(Link->getNayrusLoveShieldClk());
     }
     
-    Link.resetflags(false);
-    Link.reset_hookshot();
+    Link->resetflags(false);
+    Link->reset_hookshot();
     linkedmsgclk=0;
     add_asparkle=0;
     add_bsparkle=0;
@@ -773,7 +774,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     add_nl2asparkle=false;
     add_nl2bsparkle=false;
     //  for(int i=0; i<1; i++)
-    mblock2.clk=0;
+    mblock2->clk=0;
     dismissmsg();
     fadeclk=-1;
     introclk=intropos=72;
@@ -784,11 +785,11 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     
     if(watch && !cheat_superman)
     {
-        Link.setClock(false);
+        Link->setClock(false);
     }
     
     //  if(watch)
-    //    Link.setClock(false);
+    //    Link->setClock(false);
     watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
     Backend::sfx->stop(WAV_BRANG);
     
@@ -808,68 +809,68 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
 }
 void centerLink()
 {
-    Link.setX(120);
-    Link.setY(80);
+    Link->setX(120);
+    Link->setY(80);
 }
 fix  LinkX()
 {
-    return Link.getX();
+    return Link->getX();
 }
 fix  LinkY()
 {
-    return Link.getY();
+    return Link->getY();
 }
 fix  LinkZ()
 {
-    return Link.getZ();
+    return Link->getZ();
 }
 int  LinkHClk()
 {
-    return Link.getHClk();
+    return Link->getHClk();
 }
 int  LinkAction()
 {
-    return Link.getAction();
+    return Link->getAction();
 }
 int  LinkCharged()
 {
-    return Link.isCharged();
+    return Link->isCharged();
 }
 int  LinkNayrusLoveShieldClk()
 {
-    return Link.getNayrusLoveShieldClk();
+    return Link->getNayrusLoveShieldClk();
 }
 int  LinkHoverClk()
 {
-    return Link.getHoverClk();
+    return Link->getHoverClk();
 }
 int  LinkSwordClk()
 {
-    return Link.getSwordClk();
+    return Link->getSwordClk();
 }
 int  LinkItemClk()
 {
-    return Link.getItemClk();
+    return Link->getItemClk();
 }
 void setSwordClk(int newclk)
 {
-    Link.setSwordClk(newclk);
+    Link->setSwordClk(newclk);
 }
 void setItemClk(int newclk)
 {
-    Link.setItemClk(newclk);
+    Link->setItemClk(newclk);
 }
 int  LinkLStep()
 {
-    return Link.getLStep();
+    return Link->getLStep();
 }
 void LinkCheckItems()
 {
-    Link.checkitems();
+    Link->checkitems();
 }
 bool LinkGetDontDraw()
 {
-    return Link.getDontDraw();
+    return Link->getDontDraw();
 }
 fix  GuyX(int j)
 {
@@ -914,15 +915,15 @@ void StunGuy(int j,int stun)
 
 fix LinkModifiedX()
 {
-    return Link.getModifiedX();
+    return Link->getModifiedX();
 }
 fix LinkModifiedY()
 {
-    return Link.getModifiedY();
+    return Link->getModifiedY();
 }
 int LinkDir()
 {
-    return Link.getDir();
+    return Link->getDir();
 }
 void add_grenade(int wx, int wy, int wz, int size, int parentid)
 {
@@ -951,15 +952,15 @@ fix distance(int x1, int y1, int x2, int y2)
 
 bool getClock()
 {
-    return Link.getClock();
+    return Link->getClock();
 }
 void setClock(bool state)
 {
-    Link.setClock(state);
+    Link->setClock(state);
 }
 void CatchBrang()
 {
-    Link.Catch();
+    Link->Catch();
 }
 
 /**************************/
@@ -1147,9 +1148,9 @@ int init_game()
     
 //Some initialising globals
     didpit=false;
-    Link.unfreeze();
-    Link.reset_hookshot();
-    Link.reset_ladder();
+    Link->unfreeze();
+    Link->reset_hookshot();
+    Link->reset_ladder();
     linkedmsgclk=0;
     blockmoving=false;
     add_asparkle=0;
@@ -1333,9 +1334,9 @@ int init_game()
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
     
-    Link.init();
-    Link.resetflags(true);
-    Link.setEntryPoints(LinkX(),LinkY());
+    Link->init();
+    Link->resetflags(true);
+    Link->setEntryPoints(LinkX(),LinkY());
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
@@ -1404,7 +1405,7 @@ int init_game()
     
     reset_subscr_items();
     
-    Link.setDontDraw(false);
+    Link->setDontDraw(false);
     show_subscreen_dmap_dots=true;
     show_subscreen_items=true;
     show_subscreen_numbers=true;
@@ -1424,7 +1425,7 @@ int init_game()
     
     if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
     {
-        Link.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
+        Link->stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
     }
     
     if(!Quit)
@@ -1450,9 +1451,9 @@ int cont_game()
 {
     //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
     didpit=false;
-    Link.unfreeze();
-    Link.reset_hookshot();
-    Link.reset_ladder();
+    Link->unfreeze();
+    Link->reset_hookshot();
+    Link->reset_ladder();
     linkedmsgclk=0;
     blockmoving=0;
     add_asparkle=0;
@@ -1508,7 +1509,7 @@ int cont_game()
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
-    Link.init();
+    Link->init();
     wavy=quakeclk=0;
     
     //if(get_bit(zinit.misc,idM_CONTPERCENT))
@@ -1547,7 +1548,7 @@ int cont_game()
         playLevelMusic();
         
         if(isdungeon())
-            Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+            Link->stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
             
         newscr_clk=frame;
         activated_timed_warp=false;
@@ -1602,11 +1603,11 @@ void restart_level()
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
-    Link.init();
+    Link->init();
     currcset=DMaps[currdmap].color;
     openscreen();
     map_bkgsfx(true);
-    Link.setEntryPoints(LinkX(),LinkY());
+    Link->setEntryPoints(LinkX(),LinkY());
     show_subscreen_numbers=true;
     show_subscreen_life=true;
     loadguys();
@@ -1617,7 +1618,7 @@ void restart_level()
         playLevelMusic();
         
         if(isdungeon())
-            Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+            Link->stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
             
         newscr_clk=frame;
         activated_timed_warp=false;
@@ -1688,7 +1689,7 @@ void show_details()
     textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
     textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
     
-//    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getPushing());
+//    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link->getPushing());
 //    for(int i=0; i<Lwpns.Count(); i++)
 //      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
 
@@ -1703,15 +1704,15 @@ void show_details()
         
 //      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int(LinkModifiedX()),int(LinkModifiedY()));
     //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
-//      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getAction());
+//      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link->getAction());
 
     /*
       for(int i=0; i<Ewpns.Count(); i++)
       {
       sprite *s=Ewpns.spr(i);
       textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d>%3d %3d>%3d %3d<%3d %3d<%3d ",
-      int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs),
-      int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
+      int(Link->getX()+0+16), int(s->x+s->hxofs),  int(Link->getY()+0+16), int(s->y+s->hyofs),
+      int(Link->getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link->getY()+0), int(s->y+s->hyofs+s->hysz));
       }
       */
 //        textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"gi=%3d",guycarryingitem);
@@ -1750,31 +1751,31 @@ void do_magic_casting()
     {
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),LinkZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(LinkX(),LinkY(),LinkZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Link->getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=(BSZ)?32:29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            //          Link->tile=(BSZ)?32:29;
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_landhold2, Link->getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
             
-            casty=Link.getY();
+            casty=Link->getY();
         }
         
         if(magiccastclk==64)
         {
-            Lwpns.add(new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
+            Lwpns.add(new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link->getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            //          Link->tile=29;
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_landhold2, Link->getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
             
             castnext=false;
@@ -1782,22 +1783,22 @@ void do_magic_casting()
         
         if(castnext)
         {
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_cast, Link->getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                Backend::sfx->play(itemsbuf[magicitem].usesound,Link.getX());
+                Backend::sfx->play(itemsbuf[magicitem].usesound,Link->getX());
                 
             int flamemax=itemsbuf[magicitem].misc1;
             
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
                 Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
-                                     (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
+                                     (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link->getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
@@ -1829,40 +1830,40 @@ void do_magic_casting()
             
             unpack_tile(newtilebuf, ltile, lflip, true);
             memcpy(linktilebuf, unpackbuf, 256);
-            tempx=Link.getX();
-            tempy=Link.getY();
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_pound, down, zinit.linkanimationstyle);
+            tempx=Link->getX();
+            tempy=Link->getY();
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_pound, down, zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
         }
         
         if(magiccastclk>=0&&magiccastclk<64)
         {
-            Link.setX(tempx+((rand()%3)-1));
-            Link.setY(tempy+((rand()%3)-1));
+            Link->setX(tempx+((rand()%3)-1));
+            Link->setY(tempy+((rand()%3)-1));
         }
         
         if(magiccastclk==64)
         {
-            Link.setX(tempx);
-            Link.setY(tempy);
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_stab, down, zinit.linkanimationstyle);
+            Link->setX(tempx);
+            Link->setY(tempy);
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_stab, down, zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
         }
         
         if(magiccastclk==96)
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                Backend::sfx->play(itemsbuf[magicitem].usesound,Link.getX());
+                Backend::sfx->play(itemsbuf[magicitem].usesound,Link->getX());
                 
-            Link.setDontDraw(true);
+            Link->setDontDraw(true);
             
             for(int i=0; i<16; ++i)
             {
@@ -1872,14 +1873,14 @@ void do_magic_casting()
                     {
                         if(itemsbuf[magicitem].misc1==1)  // Twilight
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
+                            particles.add(new pTwilight(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 0, 0, (rand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=3;
                         }
                         else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
+                            particles.add(new pTwilight(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 1, 2, (rand()%16)+i*2));
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=4;
@@ -1892,14 +1893,14 @@ void do_magic_casting()
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            particles.add(new pFaroresWindDust(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
                             
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->angular=true;
                             p->angle=rand();
                             p->step=(((double)j)/8);
-                            p->yofs=Link.getYOfs();
+                            p->yofs=Link->getYOfs();
                         }
                     }
                 }
@@ -1916,7 +1917,7 @@ void do_magic_casting()
             //action=none;
             magicitem=-1;
             magiccastclk=0;
-            Link.setDontDraw(false);
+            Link->setDontDraw(false);
         }
     }
     break;
@@ -1926,21 +1927,21 @@ void do_magic_casting()
         // See also Link.cpp, LinkClass::checkhit().
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link->getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(LinkX(),LinkY(),(fix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link->getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=(BSZ)?32:29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            //          Link->tile=(BSZ)?32:29;
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_cast, Link->getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
             
-            castx=Link.getX();
+            castx=Link->getX();
         }
         
         if(magiccastclk==64)
@@ -1954,18 +1955,18 @@ void do_magic_casting()
             }
             
             int d=zc_max(LinkX(),256-LinkX())+32;
-            Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
+            Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link->getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon((fix)(LinkX()+d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID()));
+            Lwpns.add(new weapon((fix)(LinkX()+d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link->getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            //          Link->tile=29;
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_cast, Link->getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
             
             castnext=false;
@@ -1973,15 +1974,15 @@ void do_magic_casting()
         
         if(castnext)
         {
-            //          Link.tile=4;
-            linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            //          Link->tile=4;
+            linktile(&Link->tile, &Link->flip, &Link->extend, ls_landhold2, Link->getDir(), zinit.linkanimationstyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link->tile+=item_tile_mod(shieldModify);
             }
             
-            Link.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
+            Link->setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
@@ -2057,12 +2058,12 @@ void update_hookshot()
                 if(abs(hs_dx)>=hs_xdist+8)
                 {
                     hs_xdist=abs(hs_x-hs_startx);
-                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link->getDir(), parentitem,Link->getUID()));
                 }
                 else if(abs(hs_dy)>=hs_ydist+8)
                 {
                     hs_ydist=abs(hs_y-hs_starty);
-                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                    chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, (fix)hs_z,wHSChain, 0,0,Link->getDir(), parentitem,Link->getUID()));
                 }
             }                                                     //stretching chain
             else
@@ -2085,7 +2086,7 @@ void update_hookshot()
                 
                 for(int counter=0; counter<chainlinks.Count(); counter++)
                 {
-                    if(Link.getDir()>down)                            //chain is moving horizontally
+                    if(Link->getDir()>down)                            //chain is moving horizontally
                     {
                         chainlinks.spr(counter)->x=hs_startx+hs_w+dist_bx+(counter*(hs_w+dist_bx));
                     }
@@ -2115,7 +2116,7 @@ void update_hookshot()
             }
             
             /* With ZScript modification, chains can conceivably move diagonally.*/
-            //if (Link.getDir()>down)                               //chain is moving horizontally
+            //if (Link->getDir()>down)                               //chain is moving horizontally
             {
                 if(abs(hs_dx)-(8*chainlinks.Count())>0)             //chain is stretched
                 {
@@ -2298,7 +2299,7 @@ void game_loop()
     
     if(!freeze && !freezemsg)
     {
-        mblock2.animate(0);
+        mblock2->animate(0);
         items.animate();
         items.check_conveyor();
         guys.animate();
@@ -2309,7 +2310,7 @@ void game_loop()
         
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
-            if(Link.animate(0))
+            if(Link->animate(0))
             {
                 if(!Quit)
                 {
@@ -2368,7 +2369,7 @@ void game_loop()
     
     if(dmapmsgclk>0)
     {
-        Link.Freeze();
+        Link->Freeze();
         
         if(dmapmsgclk<=50)
         {
@@ -2378,7 +2379,7 @@ void game_loop()
     
     if(dmapmsgclk==1)
     {
-        Link.finishedmsg();
+        Link->finishedmsg();
         dmapmsgclk=0;
         introclk=72;
         clear_bitmap(msgdisplaybuf);
@@ -2735,6 +2736,10 @@ int main(int argc, char* argv[])
     jpgalleg_init();
     loadpng_init();
 	Backend::initializeBackend();
+	pool = new ObjectPool();
+
+	mblock2 = new movingblock;
+	Link = new LinkClass;
     
     // set and load game configurations
     set_config_file("ag.cfg");
@@ -3276,7 +3281,7 @@ int main(int argc, char* argv[])
         case qGAMEOVER:
         {
             playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
-            Link.setDontDraw(false);
+            Link->setDontDraw(false);
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;
@@ -3295,7 +3300,7 @@ int main(int argc, char* argv[])
         
         case qWON:
         {
-            Link.setDontDraw(false);
+            Link->setDontDraw(false);
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;
@@ -3327,7 +3332,10 @@ quick_quit:
     //  if(useCD)
     //    cd_exit();
     quit_game();
-    Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
+	delete mblock2;
+	delete Link;
+	delete pool;
+	Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
     Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
     Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
     
@@ -3587,7 +3595,7 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
     {
         //for best results set a breakpoint in here.
         char buf[1024];
-        sprintf("ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
+        sprintf(buf, "ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
         
         al_trace("%s", buf);
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

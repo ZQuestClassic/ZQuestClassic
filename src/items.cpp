@@ -174,7 +174,7 @@ void item::draw(BITMAP *dest)
     }
 }
 
-item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
+item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite(*pool)
 {
     x=X;
     y=Y;

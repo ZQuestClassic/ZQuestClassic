@@ -62,9 +62,9 @@ float log2(float n)
 FONT *get_zc_font(int index);
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
-extern movingblock mblock2;                                 //mblock[4]?
+extern movingblock *mblock2;                                 //mblock[4]?
 extern zinitdata zinit;
-extern LinkClass Link;
+extern LinkClass *Link;
 int current_ffcombo=-1;
 
 short ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
@@ -1811,7 +1811,7 @@ void update_freeform_combos()
             continue;
             
         // Frozen because Link's holding up an item?
-        if(Link.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
+        if(Link->getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
             continue;
             
         // Check for changers
@@ -2901,27 +2901,27 @@ void draw_screen(mapscr* this_screen, bool showlink)
     if(!(get_bit(quest_rules,qr_LAYER12UNDERCAVE)))
     {
         if(showlink &&
-                ((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
+                ((Link->getAction()==climbcovertop)||(Link->getAction()==climbcoverbottom)))
         {
-            if(Link.getAction()==climbcovertop)
+            if(Link->getAction()==climbcovertop)
             {
                 cmby2=16;
             }
-            else if(Link.getAction()==climbcoverbottom)
+            else if(Link->getAction()==climbcoverbottom)
             {
                 cmby2=-16;
             }
             
             decorations.draw2(scrollbuf,true);
-            Link.draw(scrollbuf);
+            Link->draw(scrollbuf);
             decorations.draw(scrollbuf,true);
-            int ccx = (int)(Link.getClimbCoverX());
-            int ccy = (int)(Link.getClimbCoverY());
+            int ccx = (int)(Link->getClimbCoverX());
+            int ccy = (int)(Link->getClimbCoverY());
             
             overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
             putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
             
-            if(int(Link.getX())&15)
+            if(int(Link->getX())&15)
             {
                 overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
                 putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
@@ -2957,27 +2957,27 @@ void draw_screen(mapscr* this_screen, bool showlink)
     if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
     {
         if(showlink &&
-                ((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
+                ((Link->getAction()==climbcovertop)||(Link->getAction()==climbcoverbottom)))
         {
-            if(Link.getAction()==climbcovertop)
+            if(Link->getAction()==climbcovertop)
             {
                 cmby2=16;
             }
-            else if(Link.getAction()==climbcoverbottom)
+            else if(Link->getAction()==climbcoverbottom)
             {
                 cmby2=-16;
             }
             
             decorations.draw2(scrollbuf,true);
-            Link.draw(scrollbuf);
+            Link->draw(scrollbuf);
             decorations.draw(scrollbuf,true);
-            int ccx = (int)(Link.getClimbCoverX());
-            int ccy = (int)(Link.getClimbCoverY());
+            int ccx = (int)(Link->getClimbCoverX());
+            int ccy = (int)(Link->getClimbCoverY());
             
             overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
             putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
             
-            if(int(Link.getX())&15)
+            if(int(Link->getX())&15)
             {
                 overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
                 putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
@@ -3019,14 +3019,14 @@ void draw_screen(mapscr* this_screen, bool showlink)
         masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
     }
     
-    if(showlink && ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom)))
+    if(showlink && ((Link->getAction()!=climbcovertop)&&(Link->getAction()!=climbcoverbottom)))
     {
-        Link.draw_under(framebuf);
+        Link->draw_under(framebuf);
         
-        if(Link.isSwimming())
+        if(Link->isSwimming())
         {
             decorations.draw2(framebuf,true);
-            Link.draw(framebuf);
+            Link->draw(framebuf);
             decorations.draw(framebuf,true);
         }
     }
@@ -3115,19 +3115,19 @@ void draw_screen(mapscr* this_screen, bool showlink)
         guys.draw2(framebuf,true);
     }
     
-    if(showlink && ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom)))
+    if(showlink && ((Link->getAction()!=climbcovertop)&& (Link->getAction()!=climbcoverbottom)))
     {
-        mblock2.draw(framebuf);
+        mblock2->draw(framebuf);
         
-        if(!Link.isSwimming())
+        if(!Link->isSwimming())
         {
-            if(Link.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+            if(Link->getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
             {
-                Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
+                Link->drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
             }
             
             decorations.draw2(framebuf,true);
-            Link.draw(framebuf);
+            Link->draw(framebuf);
             decorations.draw(framebuf,true);
         }
     }
@@ -3150,7 +3150,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
             }
         }
         
-        if(guys.spr(i)->z > Link.getZ())
+        if(guys.spr(i)->z > Link->getZ())
         {
             //Jumping enemies in front of Link.
             guys.spr(i)->draw(framebuf);
@@ -3218,10 +3218,10 @@ void draw_screen(mapscr* this_screen, bool showlink)
     set_clip_rect(framebuf,0,0,256,224);
     
     //Jumping Link and jumping enemies are drawn on this layer.
-    if(Link.getZ() > (fix)zinit.jump_link_layer_threshold)
+    if(Link->getZ() > (fix)zinit.jump_link_layer_threshold)
     {
         decorations.draw2(framebuf,false);
-        Link.draw(framebuf);
+        Link->draw(framebuf);
         chainlinks.draw(framebuf,true);
         
         for(int i=0; i<Lwpns.Count(); i++)
@@ -4483,7 +4483,7 @@ bool hit_walkflag(int x,int y,int cnt)
         return true;
         
     //  for(int i=0; i<4; i++)
-    if(mblock2.clk && mblock2.hit(x,y,0,cnt*8,1,16))
+    if(mblock2->clk && mblock2->hit(x,y,0,cnt*8,1,16))
         return true;
         
     return _walkflag(x,y,cnt);

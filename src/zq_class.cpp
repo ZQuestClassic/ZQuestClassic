@@ -9363,6 +9363,10 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(62);
             }
+	    if(!p_iputl(guysbuf[i].SIZEflags,f))
+            {
+                new_return(62);
+            }
 	    
         }
         
