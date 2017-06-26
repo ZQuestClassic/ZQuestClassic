@@ -132,6 +132,9 @@ global script Init {
 		// Read/Write a non-existent builtin.
 		compile_error(29) bool x = Link->PressEx0;
 		compile_error(29) Link->PressEx0 = true;
+
+		// Call a non-existent builtin function.
+		compile_error(21) Link->Warp(1, 2, 3);
 		
 		test_group("Read/Write Bulitin Variable");
 		Link->Dir = DIR_LEFT;
