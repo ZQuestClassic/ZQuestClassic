@@ -277,19 +277,18 @@ public:
 class AST
 {
 public:
-	AST(LocationData const& location) : loc(location) {}
-	AST(AST const& base) : loc(base.loc) {}
-	AST& operator=(AST const& rhs);
-
+	AST(LocationData const& location = LocationData::NONE);
+	AST(AST const& base);
+	// Calls subclass's copy constructor on self.
 	virtual AST* clone() const = 0;
-	LocationData const &getLocation() const {return loc;}
-	LocationData &getLocation() {return loc;}
-	void updateLocation(LocationData const& location) {loc = location;}
-	virtual void execute(ASTVisitor &visitor, void* param = NULL) = 0;
 
+	virtual void execute(ASTVisitor& visitor, void* param = NULL) = 0;
 	virtual string asString() const {return "unknown";}
 
-	// Subclass Predicates (replacing typeof and such)
+	// Filename and linenumber.
+    LocationData location;
+
+	// Subclass Predicates (replacing typeof and such).
 	virtual bool isTypeArrow() const {return false;}
 	virtual bool isTypeIndex() const {return false;}
 	virtual bool isTypeIdentifier() const {return false;}
@@ -297,22 +296,79 @@ public:
 	virtual bool isTypeArrayDecl() const {return false;}
 	virtual bool isStringLiteral() const {return false;}
 	virtual bool isArrayLiteral() const {return false;}
-private:
-    LocationData loc;
+
+	// Clone a single node pointer.
+	template <class Node>
+	static Node* clone(Node* node) {return node ? node->clone() : NULL;}
+	// Clone a vector of AST nodes.
+	template <class Node>
+	static vector<Node*> clone(vector<Node*> const& nodes)
+	{
+		vector<Node*> clones;
+		for (typename vector<Node*>::const_iterator it = nodes.begin();
+			 it != nodes.end(); ++it)
+			clones.push_back((*it)->clone());
+		return clones;
+	}	
+	// Clone a list of AST nodes.
+	template <class Node> static list<Node*> clone(list<Node*> const& nodes)
+	{
+		list<Node*> clones;
+		for (typename list<Node*>::const_iterator it = nodes.begin();
+			 it != nodes.end(); ++it)
+			clones.push_back((*it)->clone());
+		return clones;
+	}
+	// Execute a single node pointer.
+	template <class Node>
+	static void execute(Node* node, ASTVisitor& visitor, void* param = NULL)
+	{
+		if (node) node->execute(visitor, param);
+	}
+	// Execute a vector of AST nodes.
+	template <class Node>
+	static void execute(
+			vector<Node*> const& nodes, ASTVisitor& visitor,
+			void* param = NULL)
+	{
+		for (typename vector<Node*>::const_iterator it = nodes.begin();
+			 it != nodes.end(); ++it)
+			(*it)->execute(visitor, param);
+	}
+	// Execute a list of AST nodes.
+	template <class Node>
+	static void execute(
+			list<Node*> const& nodes, ASTVisitor& visitor,
+			void* param = NULL)
+	{
+		for (typename list<Node*>::const_iterator it = nodes.begin();
+			 it != nodes.end(); ++it)
+			(*it)->execute(visitor, param);
+	}
+
+protected:
+	// For leaf classes to call in their own assignment operators.
+	AST& operator=(AST const& rhs);
 };
+
+
+////////////////////////////////////////////////////////////////
 
 class ASTProgram : public AST
 {
 public:
-    ASTProgram(LocationData const& location);
+    ASTProgram(LocationData const& location = LocationData::NONE);
 	ASTProgram(ASTProgram const& base);
 	~ASTProgram();
+	ASTProgram& operator=(ASTProgram const& rhs);
 	ASTProgram* clone() const {return new ASTProgram(*this);}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseProgram(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseProgram(*this);}
 
+	// Add a declaration to the proper list based on its type.
 	void addDeclaration(ASTDecl* declaration);
+	// Steal all the contents of other.
 	ASTProgram& merge(ASTProgram& other);
 
 	// Public since we'll be clearing them and such.
@@ -326,35 +382,45 @@ public:
 class ASTFloat : public AST
 {
 public:
-    ASTFloat(char *Value, int Type, LocationData Loc);
-    ASTFloat(const char *Value, int Type, LocationData Loc);
-    ASTFloat(string Value, int Type, LocationData Loc);
-    ASTFloat(long Value, int Type, LocationData Loc);
-	ASTFloat* clone() const;
-    string getValue() const {return val;}
+	enum Type {TYPE_DECIMAL, TYPE_BINARY, TYPE_HEX};
+	
+    ASTFloat(char* value, Type type,
+			 LocationData const& location = LocationData::NONE);
+    ASTFloat(char const* value, Type type,
+			 LocationData const& location = LocationData::NONE);
+    ASTFloat(string const& value, Type type,
+			 LocationData const& location = LocationData::NONE);
+    ASTFloat(long value, Type type,
+			 LocationData const& location = LocationData::NONE);
+	ASTFloat(ASTFloat const& base);
+	ASTFloat& operator=(ASTFloat const& rhs);
+	ASTFloat* clone() const {return new ASTFloat(*this);}
+	
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseFloat(*this, param);}
+    	
     pair<string,string> parseValue();
-    int getType() const {return type;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseFloat(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseFloat(*this);}
-    void set_negative(bool neg) {negative = neg;}
-    static const int TYPE_DECIMAL = 0;
-    static const int TYPE_BINARY = 1;
-    static const int TYPE_HEX = 2;
-private:
-    int type;
-    string val;
+
+	Type type;
+    string value;
     bool negative;
 };
 
 class ASTString : public AST
 {
 public:
-	ASTString(const char *strval, LocationData Loc);
-    ASTString(string Str, LocationData Loc);
-	ASTString* clone() const;
+	ASTString(const char* str,
+			  LocationData const& location = LocationData::NONE);
+    ASTString(string const& str,
+			  LocationData const& location = LocationData::NONE);
+	ASTString(ASTString const& base);
+	ASTString& operator=(ASTString const& rhs);
+	ASTString* clone() const {return new ASTString(*this);}
+	
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseString(*this, param);}
+
     string getValue() const {return str;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseString(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseString(*this);}
 private:
     string str;
 };
@@ -365,102 +431,101 @@ private:
 class ASTStmt : public AST
 {
 public:
-    ASTStmt(LocationData const& location) : AST(location) {}
+    ASTStmt(LocationData const& location = LocationData::NONE);
 	ASTStmt(ASTStmt const& base) : AST(base) {}
-	ASTStmt& operator=(ASTStmt const& rhs);
 	virtual ASTStmt* clone() const = 0;
+protected:
+	ASTStmt& operator=(ASTStmt const& rhs);
 };
 
 class ASTBlock : public ASTStmt
 {
 public:
-    ASTBlock(LocationData Loc) : ASTStmt(Loc), statements() {}
+    ASTBlock(LocationData const& location = LocationData::NONE);
+	ASTBlock(ASTBlock const& base);
     ~ASTBlock();
-	ASTBlock* clone() const;
+	ASTBlock& operator=(ASTBlock const& rhs);
+	ASTBlock* clone() const {return new ASTBlock(*this);}
 
-    list<ASTStmt*> const &getStatements() const {return statements;}
-    list<ASTStmt*> &getStatements() {return statements;}
-    void addStatement(ASTStmt *Stmt);
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseBlock(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseBlock(*this);}
-private:
-    list<ASTStmt*> statements;
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseBlock(*this, param);}
+
+	// List of statements this block contains.
+    vector<ASTStmt*> statements;
 };
 
 class ASTStmtIf : public ASTStmt
 {
 public:
-    ASTStmtIf(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc) : ASTStmt(Loc), cond(Cond), stmt(Stmt) {}
+	ASTStmtIf(ASTExpr* condition, ASTStmt* thenStatement,
+			  LocationData const& location = LocationData::NONE);
+	ASTStmtIf(ASTStmtIf const& base);
     virtual ~ASTStmtIf();
-	ASTStmtIf* clone() const;
+	ASTStmtIf& operator=(ASTStmtIf const& rhs);
+	ASTStmtIf* clone() const {return new ASTStmtIf(*this);}
 
-    ASTExpr *getCondition() const {return cond;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {return visitor.caseStmtIf(*this, param);}
-    void execute(ASTVisitor &visitor) {return visitor.caseStmtIf(*this);}
-private:
-    ASTExpr *cond;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtIf(ASTStmtIf &);
-    ASTStmtIf &operator=(ASTStmtIf &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		return visitor.caseStmtIf(*this, param);}
+
+	ASTExpr* condition;
+	ASTStmt* thenStatement;
 };
 
 class ASTStmtIfElse : public ASTStmtIf
 {
 public:
-    ASTStmtIfElse(ASTExpr *Cond, ASTStmt *Ifstmt, ASTStmt *Elsestmt, LocationData Loc);
+	ASTStmtIfElse(
+		ASTExpr* condition, ASTStmt* thenStatement, ASTStmt* elseStatement,
+		LocationData const& location = LocationData::NONE);
+	ASTStmtIfElse(ASTStmtIfElse const& base);
     ~ASTStmtIfElse();
-	ASTStmtIfElse* clone() const;
+	ASTStmtIfElse& operator=(ASTStmtIfElse const& rhs);
+	ASTStmtIfElse* clone() const {return new ASTStmtIfElse(*this);}
 
-    ASTStmt *getElseStmt() const {return elsestmt;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtIfElse(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtIfElse(*this);}
-private:
-    ASTStmt *elsestmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtIfElse(ASTStmtIfElse &);
-    ASTStmtIfElse &operator=(ASTStmtIfElse &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtIfElse(*this, param);}
+
+    ASTStmt* elseStatement;
 };
 
+// A switch statement.
 class ASTStmtSwitch : public ASTStmt
 {
 public:
-	ASTStmtSwitch(LocationData Loc) : ASTStmt(Loc), key(NULL), cases() {}
+	ASTStmtSwitch(LocationData const& location = LocationData::NONE);
+	ASTStmtSwitch(ASTStmtSwitch const& base);
 	~ASTStmtSwitch();
-	ASTStmtSwitch* clone() const;
+	ASTStmtSwitch& operator=(ASTStmtSwitch const& rhs);
+	ASTStmtSwitch* clone() const {return new ASTStmtSwitch(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseStmtSwitch(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseStmtSwitch(*this);}
-	void setKey(ASTExpr* k) {key = k;}
-	ASTExpr* getKey() const {return key;}
-	void addCases(ASTSwitchCases* c) {cases.push_back(c);}
-	vector<ASTSwitchCases*> & getCases() {return cases;}
-	vector<ASTSwitchCases*> const & getCases() const {return cases;}
-private:
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtSwitch(*this, param);}
+
+	// The key expression used to switch.
 	ASTExpr* key;
+	// A vector of case groupings.
 	vector<ASTSwitchCases*> cases;
+private:
 };
 
+// A grouping of switch statement labels, and the code for the group.
 class ASTSwitchCases : public AST
 {
 public:
-	ASTSwitchCases(LocationData Loc) : AST(Loc), isDefault(false), cases() {}
+	ASTSwitchCases(LocationData const& location = LocationData::NONE);
+	ASTSwitchCases(ASTSwitchCases const& base);
 	~ASTSwitchCases();
-	ASTSwitchCases* clone() const;
+	ASTSwitchCases& operator=(ASTSwitchCases const& rhs);
+	ASTSwitchCases* clone() const {return new ASTSwitchCases(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseSwitchCases(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseSwitchCases(*this);}
-	void addCase(ASTExprConst* expr) {cases.push_back(expr);}
-	vector<ASTExprConst*> & getCases() {return cases;}
-	vector<ASTExprConst*> const & getCases() const {return cases;}
-	void addDefaultCase() {isDefault = true;}
-	bool isDefaultCase() const {return isDefault;}
-	void setBlock(ASTBlock* b) {block = b;}
-	ASTBlock* getBlock() const {return block;}
-private:
-	bool isDefault;
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseSwitchCases(*this, param);}
+
+	// The list of case labels.
 	vector<ASTExprConst*> cases;
+	// If the default case is included in this grouping.
+	bool isDefault;
+	// The block to run.
 	ASTBlock* block;
 };
 
@@ -468,142 +533,131 @@ private:
 class ASTStmtFor : public ASTStmt
 {
 public:
-    ASTStmtFor(ASTStmt *Prec, ASTExpr *Term, ASTStmt *Incr, ASTStmt *Stmt, LocationData Loc);
+    ASTStmtFor(ASTStmt* setup = NULL,
+			   ASTExpr* test = NULL,
+			   ASTStmt* increment = NULL,
+			   ASTStmt* body = NULL,
+			   LocationData const& location = LocationData::NONE);
+	ASTStmtFor(ASTStmtFor const& base);
     ~ASTStmtFor();
-	ASTStmtFor* clone() const;
+	ASTStmtFor& operator=(ASTStmtFor const& rhs);
+	ASTStmtFor* clone() const {return new ASTStmtFor(*this);}
 
-    ASTStmt *getPrecondition() const {return prec;}
-    ASTExpr *getTerminationCondition() const {return term;}
-    ASTStmt *getIncrement() const {return incr;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {return visitor.caseStmtFor(*this, param);}
-    void execute(ASTVisitor &visitor) {return visitor.caseStmtFor(*this);}
-private:
-    ASTStmt *prec;
-    ASTExpr *term;
-    ASTStmt *incr;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtFor(ASTStmtFor &);
-    ASTStmtFor &operator=(ASTStmtFor &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		return visitor.caseStmtFor(*this, param);}
+
+    ASTStmt* setup;
+    ASTExpr* test;
+    ASTStmt* increment;
+    ASTStmt* body;
 };
 
 class ASTStmtWhile : public ASTStmt
 {
 public:
-    ASTStmtWhile(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc);
+    ASTStmtWhile(ASTExpr* test = NULL,
+				 ASTStmt* body = NULL,
+				 LocationData const& location = LocationData::NONE);
+	ASTStmtWhile(ASTStmtWhile const& base);
     ~ASTStmtWhile();
-	ASTStmtWhile* clone() const;
+	ASTStmtWhile& operator=(ASTStmtWhile const& rhs);
+	ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
-    ASTExpr *getCond() const {return cond;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtWhile(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtWhile(*this);}
-private:
-    ASTExpr *cond;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtWhile(ASTStmtWhile &);
-    ASTStmtWhile &operator=(ASTStmtWhile &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtWhile(*this, param);}
+
+    ASTExpr* test;
+    ASTStmt* body;
 };
 
 class ASTStmtDo : public ASTStmt
 {
 public:
-    ASTStmtDo(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc);
+    ASTStmtDo(ASTExpr* test = NULL,
+			  ASTStmt* body = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTStmtDo(ASTStmtDo const& base);
     ~ASTStmtDo();
-	ASTStmtDo* clone() const;
+	ASTStmtDo& operator=(ASTStmtDo const& rhs);
+	ASTStmtDo* clone() const {return new ASTStmtDo(*this);}
 	
-    ASTExpr *getCond() const {return cond;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtDo(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtDo(*this);}
-private:
-    ASTExpr *cond;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtDo(ASTStmtDo &);
-    ASTStmtDo &operator=(ASTStmtDo &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtDo(*this, param);}
+
+    ASTExpr* test;
+    ASTStmt* body;
 };
 
 class ASTStmtReturn : public ASTStmt
 {
 public:
-    ASTStmtReturn(LocationData Loc) : ASTStmt(Loc) {}
-	ASTStmtReturn* clone() const;
+    ASTStmtReturn(LocationData const& location = LocationData::NONE);
+	ASTStmtReturn(ASTStmtReturn const& base);
+	ASTStmtReturn& operator=(ASTStmtReturn const& rhs);
+	ASTStmtReturn* clone() const {return new ASTStmtReturn(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtReturn(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtReturn(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtReturn(ASTStmtReturn &);
-    ASTStmtReturn &operator=(ASTStmtReturn &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtReturn(*this, param);}
 };
 
-class ASTStmtReturnVal : public ASTStmt
+class ASTStmtReturnVal : public ASTStmtReturn
 {
 public:
-    ASTStmtReturnVal(ASTExpr *Retval, LocationData Loc) : ASTStmt(Loc), retval(Retval) {}
+    ASTStmtReturnVal(ASTExpr* value = NULL,
+					 LocationData const& location = LocationData::NONE);
+	ASTStmtReturnVal(ASTStmtReturnVal const& base);
     ~ASTStmtReturnVal();
-	ASTStmtReturnVal* clone() const;
+	ASTStmtReturnVal& operator=(ASTStmtReturnVal const& rhs);
+	ASTStmtReturnVal* clone() const {return new ASTStmtReturnVal(*this);}
 
-    ASTExpr *getReturnValue() const {return retval;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtReturnVal(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtReturnVal(*this);}
-private:
-    ASTExpr *retval;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtReturnVal(ASTStmtReturnVal &);
-    ASTStmtReturnVal &operator=(ASTStmtReturnVal &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtReturnVal(*this, param);}
+
+    ASTExpr* value;
 };
 
 class ASTStmtBreak : public ASTStmt
 {
 public:
-    ASTStmtBreak(LocationData Loc) : ASTStmt(Loc) {}
-	ASTStmtBreak* clone() const;
+    ASTStmtBreak(LocationData const& location = LocationData::NONE);
+	ASTStmtBreak(ASTStmtBreak const& base);
+	ASTStmtBreak& operator=(ASTStmtBreak const& rhs);
+	ASTStmtBreak* clone() const {return new ASTStmtBreak(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtBreak(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtBreak(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtBreak(ASTStmtBreak &);
-    ASTStmtBreak &operator=(ASTStmtBreak &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtBreak(*this, param);}
 };
 
 class ASTStmtContinue : public ASTStmt
 {
 public:
-    ASTStmtContinue(LocationData Loc) : ASTStmt(Loc) {}
-	ASTStmtContinue* clone() const;
+    ASTStmtContinue(LocationData const& location = LocationData::NONE);
+	ASTStmtContinue(ASTStmtContinue const& base);
+	ASTStmtContinue& operator=(ASTStmtContinue const& rhs);
+	ASTStmtContinue* clone() const {return new ASTStmtContinue(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtContinue(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseStmtContinue(*this);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtContinue(ASTStmtContinue &);
-    ASTStmtContinue &operator=(ASTStmtContinue &);
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStmtContinue(*this, param);}
 };
 
 class ASTStmtEmpty : public ASTStmt
 {
 public:
-    ASTStmtEmpty(LocationData Loc) : ASTStmt(Loc) {}
-	ASTStmtEmpty* clone() const;
+    ASTStmtEmpty(LocationData const& location = LocationData::NONE);
+	ASTStmtEmpty(ASTStmtEmpty const& base);
+	ASTStmtEmpty& operator=(ASTStmtEmpty const& rhs);
+	ASTStmtEmpty* clone() const {return new ASTStmtEmpty(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseStmtEmpty(*this, param);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtEmpty(ASTStmtEmpty &);
-    ASTStmtEmpty &operator=(ASTStmtEmpty&);
 };
 
 class CompileError;
 class ASTCompileError : public ASTStmt
 {
 public:
-	ASTCompileError(ASTExpr* errorId, ASTStmt* statement,
+	ASTCompileError(ASTExpr* errorId = NULL,
+					ASTStmt* statement = NULL,
 					LocationData const& location = LocationData::NONE);
 	ASTCompileError(ASTCompileError const& base);
 	~ASTCompileError();
@@ -632,6 +686,7 @@ public:
 ////////////////////////////////////////////////////////////////
 // Declarations
 
+// Different declaration subclasses.
 enum ASTDeclClassId
 {
 	ASTDECL_CLASSID_NONE,
@@ -644,65 +699,63 @@ enum ASTDeclClassId
 	ASTDECL_CLASSID_TYPE
 };
 
+// virtual
 class ASTDecl : public ASTStmt
 {
 public:
-    ASTDecl(LocationData const& location) : ASTStmt(location) {}
+    ASTDecl(LocationData const& location = LocationData::NONE);
 	ASTDecl(ASTDecl const& base) : ASTStmt(base) {}
-    virtual ~ASTDecl() {}
-	virtual ASTDecl& operator=(ASTDecl const& rhs);
 	virtual ASTDecl* clone() const = 0;
 
-	virtual ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_NONE;}
+	// Return the subclass id.
+	virtual ASTDeclClassId declarationClassId() const = 0;
+
+protected:
+	virtual ASTDecl& operator=(ASTDecl const& rhs);
 };
 
+// Declares a script.
 class ASTScript : public ASTDecl
 {
 public:
-    ASTScript(LocationData const& location);
+    ASTScript(LocationData const& location = LocationData::NONE);
 	ASTScript(ASTScript const& base);
 	~ASTScript();
 	ASTScript& operator=(ASTScript const& rhs);
 	ASTScript* clone() const {return new ASTScript(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseScript(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseScript(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseScript(*this, param);}
 
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_SCRIPT;}
+	ASTDeclClassId declarationClassId() const {
+		return ASTDECL_CLASSID_SCRIPT;}
 
 	// Adds a declaration to the proper vector.
 	void addDeclaration(ASTDecl& declaration);
 
-    ASTScriptType* getType() const {return type;}
-	void setType(ASTScriptType* node) {type = node;}
-
-    string const& getName() const {return name;}
-    string getName() {return name;}
-	void setName(string const& n) {name = n;}
-
+    ASTScriptType* type;
+    string name;
 	vector<ASTDataDeclList*> variables;
 	vector<ASTFuncDecl*> functions;
 	vector<ASTTypeDef*> types;
-private:
-    ASTScriptType* type;
-    string name;
 };
 
 class ASTImportDecl : public ASTDecl
 {
 public:
-    ASTImportDecl(string file, LocationData Loc) : ASTDecl(Loc), filename(file) {}
-	ASTImportDecl* clone() const;
+    ASTImportDecl(string const& filename,
+				  LocationData const& location = LocationData::NONE);
+	ASTImportDecl(ASTImportDecl const& base);
+	ASTImportDecl& operator=(ASTImportDecl const& rhs);
+	ASTImportDecl* clone() const {return new ASTImportDecl(*this);}
     
-    string getFilename() const {return filename;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseImportDecl(*this,param);}
-    void execute(ASTVisitor &visitor) {visitor.caseImportDecl(*this);}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_IMPORT;}
-private:
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseImportDecl(*this,param);}
+
+	ASTDeclClassId declarationClassId() const {
+		return ASTDECL_CLASSID_IMPORT;}
+
     string filename;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTImportDecl(ASTImportDecl &);
-    ASTImportDecl &operator=(ASTImportDecl &);
 };
 
 class ASTFuncDecl : public ASTDecl
@@ -710,23 +763,20 @@ class ASTFuncDecl : public ASTDecl
 public:
     ASTFuncDecl(LocationData const& location = LocationData::NONE);
 	ASTFuncDecl(ASTFuncDecl const& base);
+    ~ASTFuncDecl();
 	ASTFuncDecl& operator=(ASTFuncDecl const& rhs);
 	ASTFuncDecl* clone() const {return new ASTFuncDecl(*this);}
-    ~ASTFuncDecl();
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseFuncDecl(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseFuncDecl(*this);}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_FUNCTION;}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseFuncDecl(*this, param);}
 
-	vector<ASTDataDecl*>& getParameters() {return parameters;}
-	void addParameter(ASTDataDecl* parameter);
+	ASTDeclClassId declarationClassId() const {
+		return ASTDECL_CLASSID_FUNCTION;}
 
 	ASTVarType* returnType;
+	vector<ASTDataDecl*> parameters;
 	string name;
 	ASTBlock* block;
-
-private:
-	vector<ASTDataDecl*> parameters;
 };
 
 namespace ZScript
@@ -741,8 +791,8 @@ class ASTDataDeclList : public ASTDecl
 public:
 	ASTDataDeclList(LocationData const& location = LocationData::NONE);
 	ASTDataDeclList(ASTDataDeclList const& base);
-	ASTDataDeclList& operator=(ASTDataDeclList const& rhs);
 	~ASTDataDeclList();
+	ASTDataDeclList& operator=(ASTDataDeclList const& rhs);
 	ASTDataDeclList* clone() const {return new ASTDataDeclList(*this);}
 
 	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclList(*this, param);}
@@ -752,12 +802,12 @@ public:
 	// The base type at the start of the line shared by all the declarations.
 	ASTVarType* baseType;
 
-	vector<ASTDataDecl*> const& getDeclarations() const {return declarations;}
+	vector<ASTDataDecl*> const& declarations() const {return mDeclarations;}
 	void addDeclaration(ASTDataDecl* declaration);
 
 private:
 	// The list of individual data declarations.
-	vector<ASTDataDecl*> declarations;
+	vector<ASTDataDecl*> mDeclarations;
 };
 
 // Declares a single variable or constant. May or may not be inside an
@@ -791,8 +841,8 @@ public:
 	// The symbol this declaration is binding.
 	string name;
 
-	ASTExpr* getInitializer() const {return initializer;}
-	void setInitializer(ASTExpr* initializer);
+	ASTExpr* initializer() const {return mInitializer;}
+	ASTExpr* initializer(ASTExpr* initializer);
 
 	// Extra array type for this specific declaration. The final type is the
 	// list's base type combined with these.
@@ -804,7 +854,7 @@ public:
 
 private:
 	// The initialization expression. Optional.
-	ASTExpr* initializer;
+	ASTExpr* mInitializer;
 };
 
 // The extra array parameters appended to a data declaration name.
@@ -813,12 +863,12 @@ class ASTDataDeclExtraArray : public AST
 public:
 	ASTDataDeclExtraArray(LocationData const& location = LocationData::NONE);
 	ASTDataDeclExtraArray(ASTDataDeclExtraArray const& base);
+	~ASTDataDeclExtraArray();
 	ASTDataDeclExtraArray& operator=(ASTDataDeclExtraArray const& rhs);
 	ASTDataDeclExtraArray* clone() const {return new ASTDataDeclExtraArray(*this);}
-	~ASTDataDeclExtraArray();
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclExtraArray(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseDataDeclExtraArray(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseDataDeclExtraArray(*this, param);}
 
 	// The vector of array dimensions. Empty means unspecified.
 	vector<ASTExpr*> dimensions;
@@ -837,17 +887,19 @@ public:
 class ASTTypeDef : public ASTDecl
 {
 public:
-	ASTTypeDef(ASTVarType *type, string const& name, LocationData location) : ASTDecl(location), type(type), name(name) {}
+	ASTTypeDef(ASTVarType* type = NULL,
+			   string const& name = "",
+			   LocationData const& location = LocationData::NONE);
+	ASTTypeDef(ASTTypeDef const& base);
 	~ASTTypeDef();
-	ASTTypeDef* clone() const;
+	ASTTypeDef& operator=(ASTTypeDef const& rhs);
+	ASTTypeDef* clone() const {return new ASTTypeDef(*this);}
 
-	ASTVarType* getType() const {return type;}
-	string getName() const {return name;}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseTypeDef(*this, param);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeDef(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseTypeDef(*this);}
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_TYPE;}
-private:
+
 	ASTVarType* type;
 	string name;
 };
@@ -858,9 +910,8 @@ private:
 class ASTExpr : public ASTStmt
 {
 public:
-    ASTExpr(LocationData const& location) : ASTStmt(location), hasValue(false), value(0L), varType(NULL), lval(false) {}
+    ASTExpr(LocationData const& location = LocationData::NONE);
 	ASTExpr(ASTExpr const& base);
-	ASTExpr& operator=(ASTExpr const& rhs);
 	virtual ASTExpr* clone() const = 0;
 
 	virtual bool isConstant() const = 0;
@@ -883,89 +934,91 @@ private:
 	long value;
 	ZVarType const* varType;
 	bool lval;
+
+protected:
+	ASTExpr& operator=(ASTExpr const& rhs);
 };
 
 // Wrap around an expression to type it as constant.
 class ASTExprConst : public ASTExpr
 {
 public:
-    ASTExprConst(ASTExpr* content) : ASTExpr(content->getLocation()), content(content) {}
-	ASTExprConst(ASTExpr* content, LocationData const& location) : ASTExpr(location), content(content) {}
+	ASTExprConst(ASTExpr* content = NULL,
+				 LocationData const& location = LocationData::NONE);
 	ASTExprConst(ASTExprConst const& base);
-	ASTExprConst& operator=(ASTExprConst const& rhs);
 	~ASTExprConst() {delete content;}
+	ASTExprConst& operator=(ASTExprConst const& rhs);
 	ASTExprConst* clone() const {return new ASTExprConst(*this);}
 
-	ASTExpr* getContent() const {return content;}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprConst(*this, param);}
+
 	bool isConstant() const {return true;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprConst(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprConst(*this);}
-private:
+
 	ASTExpr* content;
 };
 
 class ASTExprAssign : public ASTExpr
 {
 public:
-	ASTExprAssign(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTExpr(location), lval(left), rval(right) {}
+	ASTExprAssign(ASTExpr* left = NULL,
+				  ASTExpr* right = NULL,
+				  LocationData const& location = LocationData::NONE);
+	ASTExprAssign(ASTExprAssign const& base);
 	~ASTExprAssign();
-	ASTExprAssign* clone() const;
+	ASTExprAssign& operator=(ASTExprAssign const& rhs);
+	ASTExprAssign* clone() const {return new ASTExprAssign(*this);}
 
-	ASTExpr* getLVal() const {return lval;}
-	ASTExpr* getRVal() const {return rval;}
-	bool isConstant() const {return rval && rval->isConstant();}
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprAssign(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprAssign(*this);}
-private:
-	ASTExpr* lval;
-	ASTExpr* rval;
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprAssign(*this, param);}
+
+	bool isConstant() const {return right && right->isConstant();}
+
+	ASTExpr* left;
+	ASTExpr* right;
 };
 
 class ASTExprIdentifier : public ASTExpr
 {
 public:
-    ASTExprIdentifier(string const& name, LocationData const& location);
+    ASTExprIdentifier(string const& name = "",
+					  LocationData const& location = LocationData::NONE);
 	ASTExprIdentifier(ASTExprIdentifier const& base);
 	ASTExprIdentifier& operator=(ASTExprIdentifier const& base);
 	ASTExprIdentifier* clone() const {return new ASTExprIdentifier(*this);}
 
-	vector<string>const& getComponents() const {return components;}
-	void appendComponent(string const& component) {components.push_back(component);}
-	bool isConstant() const {return isConstant_;}
-	void markConstant() {isConstant_ = true;}
-	void execute(ASTVisitor &visitor, void *param) {visitor.caseExprIdentifier(*this, param);}
-	void execute(ASTVisitor &visitor) {visitor.caseExprIdentifier(*this);}
-
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprIdentifier(*this, param);}
 	string asString() const;
 	bool isTypeIdentifier() const {return true;}
-private:
+
+	bool isConstant() const {return mIsConstant;}
+	void markConstant() {mIsConstant = true;}
+
+	// The identifier components separated by '.'.
 	vector<string> components;
-	bool isConstant_;
+private:
+	bool mIsConstant;
 };
 
 class ASTExprArrow : public ASTExpr
 {
 public:
-	ASTExprArrow(ASTExpr* left, string const& right, LocationData const& location);
+	ASTExprArrow(ASTExpr* left = NULL,
+				 string const& right = "",
+				 LocationData const& location = LocationData::NONE);
 	ASTExprArrow(ASTExprArrow const& base);
 	ASTExprArrow& operator=(ASTExprArrow const& rhs);
 	~ASTExprArrow();
 	ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
-	ASTExpr* getLeft() const {return left;}
-	string getRight() const {return right;}
-	ASTExpr* getIndex() const {return index;}
-	void setIndex(ASTExpr* e) {index = e;}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprArrow(*this, param);}
+	string asString() const;
+	bool isTypeArrow() const {return true;}
+
 	bool isConstant() const {return false;}
 
-	void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArrow(*this, param);}
-	void execute(ASTVisitor &visitor) {visitor.caseExprArrow(*this);}
-
-	string asString() const;
-
-	bool isTypeArrow() const {return true;}
-private:
 	ASTExpr* left;
 	string right;
 	ASTExpr* index;
@@ -974,22 +1027,20 @@ private:
 class ASTExprIndex : public ASTExpr
 {
 public:
-	ASTExprIndex(ASTExpr* array, ASTExpr* index, LocationData const& location);
+	ASTExprIndex(ASTExpr* array = NULL,
+				 ASTExpr* index = NULL,
+				 LocationData const& location = LocationData::NONE);
 	ASTExprIndex(ASTExprIndex const& base);
-	ASTExprIndex& operator=(ASTExprIndex const& rhs);
 	~ASTExprIndex() {delete array; delete index;}
+	ASTExprIndex& operator=(ASTExprIndex const& rhs);
 	ASTExprIndex* clone() const {return new ASTExprIndex(*this);}
+
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprIndex(*this, param);}
 	bool isTypeIndex() const {return true;}
 
-	ASTExpr* getArray()const {return array;}
-	ASTExpr* getIndex() const {return index;}
-	void setArray(ASTExpr* e) {array = e;}
-	void setIndex(ASTExpr* e) {index = e;}
 	bool isConstant() const;
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprIndex(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprIndex(*this);}
-private:
 	ASTExpr* array;
 	ASTExpr* index;
 };
@@ -997,407 +1048,479 @@ private:
 class ASTExprCall : public ASTExpr
 {
 public:
-	ASTExprCall(LocationData const& location);
+	ASTExprCall(LocationData const& location = LocationData::NONE);
 	ASTExprCall(ASTExprCall const& base);
-	ASTExprCall& operator=(ASTExprCall const& rhs);
 	~ASTExprCall();
+	ASTExprCall& operator=(ASTExprCall const& rhs);
 	ASTExprCall* clone() const {return new ASTExprCall(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprCall(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprCall(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprCall(*this, param);}
 
 	bool isConstant() const {return false;}
 
-	ASTExpr* getLeft() const {return left;}
-	void setLeft(ASTExpr* expr) {left = expr;}
-	list<ASTExpr*> const &getParams() const {return params;}
-	list<ASTExpr*> &getParams() {return params;}
-	void addParam(ASTExpr* param) {params.push_back(param);}
-
-private:
     ASTExpr* left;
-    list<ASTExpr*> params;
+    vector<ASTExpr*> parameters;
 };
 
+// virtual
 class ASTUnaryExpr : public ASTExpr
 {
 public:
-    ASTUnaryExpr(LocationData const& location) : ASTExpr(location) {}
+    ASTUnaryExpr(LocationData const& location = LocationData::NONE);
 	ASTUnaryExpr(ASTUnaryExpr const& base);
-	ASTUnaryExpr& operator=(ASTUnaryExpr const& rhs);
     virtual ~ASTUnaryExpr() {delete operand;}
 	virtual ASTUnaryExpr* clone() const = 0;
 
-    ASTExpr* getOperand() const {return operand;}
-    void setOperand(ASTExpr* e) {operand = e;}
 	virtual bool isConstant() const {return operand->isConstant();}
-private:
+
     ASTExpr* operand;
+
+protected:
+	ASTUnaryExpr& operator=(ASTUnaryExpr const& rhs);
 };
 
 class ASTExprNegate : public ASTUnaryExpr
 {
 public:
-    ASTExprNegate(LocationData const& location) : ASTUnaryExpr(location) {}
+    ASTExprNegate(LocationData const& location = LocationData::NONE);
+	ASTExprNegate(ASTExprNegate const& base);
+	ASTExprNegate& operator=(ASTExprNegate const& rhs);
 	ASTExprNegate* clone() const {return new ASTExprNegate(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprNegate(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprNegate(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprNegate(*this, param);}
 };
 
 class ASTExprNot : public ASTUnaryExpr
 {
 public:
-    ASTExprNot(LocationData const& location) : ASTUnaryExpr(location) {}
+    ASTExprNot(LocationData const& location = LocationData::NONE);
+	ASTExprNot(ASTExprNot const& base);
+	ASTExprNot& operator=(ASTExprNot const& rhs);
 	ASTExprNot* clone() const {return new ASTExprNot(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprNot(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprNot(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprNot(*this, param);}
 };
 
 class ASTExprBitNot : public ASTUnaryExpr
 {
 public:
-    ASTExprBitNot(LocationData const& location) : ASTUnaryExpr(location) {}
+    ASTExprBitNot(LocationData const& location = LocationData::NONE);
+	ASTExprBitNot(ASTExprBitNot const& base);
+	ASTExprBitNot& operator=(ASTExprBitNot const& rhs);
 	ASTExprBitNot* clone() const {return new ASTExprBitNot(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitNot(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprBitNot(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprBitNot(*this, param);}
 };
 
 class ASTExprIncrement : public ASTUnaryExpr
 {
 public:
-    ASTExprIncrement(LocationData const& location) : ASTUnaryExpr(location) {}
+    ASTExprIncrement(LocationData const& location = LocationData::NONE);
+	ASTExprIncrement(ASTExprIncrement const& base);
+	ASTExprIncrement& operator=(ASTExprIncrement const& rhs);
 	ASTExprIncrement* clone() const {return new ASTExprIncrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprIncrement(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprIncrement(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprIncrement(*this, param);}
+
 	bool isConstant() const {return false;}
 };
 
 class ASTExprPreIncrement : public ASTUnaryExpr
 {
 public:
-    ASTExprPreIncrement(LocationData const& location) : ASTUnaryExpr(location) {}
+    ASTExprPreIncrement(LocationData const& location = LocationData::NONE);
+	ASTExprPreIncrement(ASTExprPreIncrement const& base);
+	ASTExprPreIncrement& operator=(ASTExprPreIncrement const& rhs);
 	ASTExprPreIncrement* clone() const {return new ASTExprPreIncrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprPreIncrement(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprPreIncrement(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprPreIncrement(*this, param);}
+
 	bool isConstant() const {return false;}
 };
 
 class ASTExprDecrement : public ASTUnaryExpr
 {
 public:
-    ASTExprDecrement(LocationData const& location) : ASTUnaryExpr(location) {}
+    ASTExprDecrement(LocationData const& location = LocationData::NONE);
+	ASTExprDecrement(ASTExprDecrement const& base);
+	ASTExprDecrement& operator=(ASTExprDecrement const& rhs);
 	ASTExprDecrement* clone() const {return new ASTExprDecrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprDecrement(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprDecrement(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprDecrement(*this, param);}
+
 	bool isConstant() const {return false;}
 };
 
 class ASTExprPreDecrement : public ASTUnaryExpr
 {
 public:
-    ASTExprPreDecrement(LocationData const& location) : ASTUnaryExpr(location) {}
-	ASTExprPreDecrement* clone() const {return new ASTExprPreDecrement(*this);}
+    ASTExprPreDecrement(LocationData const& location = LocationData::NONE);
+	ASTExprPreDecrement(ASTExprPreDecrement const& base);
+	ASTExprPreDecrement& operator=(ASTExprPreDecrement const& rhs);
+	ASTExprPreDecrement* clone() const {
+		return new ASTExprPreDecrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseExprPreDecrement(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseExprPreDecrement(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprPreDecrement(*this, param);}
+
 	bool isConstant() const {return false;}
 };
 
+// virtual
 class ASTBinaryExpr : public ASTExpr
 {
 public:
-	ASTBinaryExpr(LocationData const& location) : ASTExpr(location) {}
-	ASTBinaryExpr(ASTExpr* first, ASTExpr* second, LocationData const& location)
-			: ASTExpr(location), first(first), second(second) {}
+	ASTBinaryExpr(ASTExpr* left = NULL,
+				  ASTExpr* right = NULL,
+				  LocationData const& location = LocationData::NONE);
 	ASTBinaryExpr(ASTBinaryExpr const& base);
-	ASTBinaryExpr& operator=(ASTBinaryExpr const& rhs);
 	virtual ~ASTBinaryExpr();
 	virtual ASTBinaryExpr* clone() const = 0;
 
-	ASTExpr* getFirstOperand() const {return first;}
-	void setFirstOperand(ASTExpr* e) {first = e;}
-	ASTExpr* getSecondOperand() const {return second;}
-	void setSecondOperand(ASTExpr* e) {second = e;}
-	bool isConstant() const {return first->isConstant() && second->isConstant();}
-private:
-	ASTExpr* first;
-	ASTExpr* second;
+	bool isConstant() const;
+
+	ASTExpr* left;
+	ASTExpr* right;
+
+protected:
+	ASTBinaryExpr& operator=(ASTBinaryExpr const& rhs);
 };
 
+// virtual
 class ASTLogExpr : public ASTBinaryExpr
 {
 public:
-	ASTLogExpr(LocationData const& location) : ASTBinaryExpr(location) {}
-	ASTLogExpr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBinaryExpr(left, right, location) {}
+	ASTLogExpr(ASTExpr* left = NULL,
+			   ASTExpr* right = NULL,
+			   LocationData const& location = LocationData::NONE);
+	ASTLogExpr(ASTLogExpr const& base);
 	virtual ASTLogExpr* clone() const = 0;
+
+protected:
+	ASTLogExpr& operator=(ASTLogExpr const& rhs);
 };
 
 class ASTExprAnd : public ASTLogExpr
 {
 public:
-	ASTExprAnd(LocationData const& location) : ASTLogExpr(location) {}
-	ASTExprAnd(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTLogExpr(left, right, location) {}
+	ASTExprAnd(ASTExpr* left = NULL,
+			   ASTExpr* right = NULL,
+			   LocationData const& location = LocationData::NONE);
+	ASTExprAnd(ASTExprAnd const& base);
+	ASTExprAnd& operator=(ASTExprAnd const& rhs);
 	ASTExprAnd* clone() const {return new ASTExprAnd(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprAnd(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprAnd(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprAnd(*this, param);}
 };
 
 class ASTExprOr : public ASTLogExpr
 {
 public:
-	ASTExprOr(LocationData const& location) : ASTLogExpr(location) {}
-	ASTExprOr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTLogExpr(left, right, location) {}
+	ASTExprOr(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprOr(ASTExprOr const& base);
+	ASTExprOr& operator=(ASTExprOr const& rhs);
 	ASTExprOr* clone() const {return new ASTExprOr(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprOr(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprOr(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprOr(*this, param);}
 };
 
+// virtual
 class ASTRelExpr : public ASTBinaryExpr
 {
 public:
-	ASTRelExpr(LocationData const& location) : ASTBinaryExpr(location) {}
-	ASTRelExpr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBinaryExpr(left, right, location) {}
+	ASTRelExpr(ASTExpr* left = NULL,
+			   ASTExpr* right = NULL,
+			   LocationData const& location = LocationData::NONE);
+	ASTRelExpr(ASTRelExpr const& base);
 	virtual ASTRelExpr* clone() const = 0;
+
+protected:
+	ASTRelExpr& operator=(ASTRelExpr const& rhs);
 };
 
 class ASTExprGT : public ASTRelExpr
 {
 public:
-	ASTExprGT(LocationData const& location) : ASTRelExpr(location) {}
-	ASTExprGT(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTRelExpr(left, right, location) {}
+	ASTExprGT(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprGT(ASTExprGT const& base);
+	ASTExprGT& operator=(ASTExprGT const& rhs);
 	ASTExprGT* clone() const {return new ASTExprGT(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprGT(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprGT(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprGT(*this, param);}
 };
 
 class ASTExprGE : public ASTRelExpr
 {
 public:
-	ASTExprGE(LocationData const& location) : ASTRelExpr(location) {}
+	ASTExprGE(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprGE(ASTExprGE const& base);
+	ASTExprGE& operator=(ASTExprGE const& rhs);
 	ASTExprGE* clone() const {return new ASTExprGE(*this);}
-	ASTExprGE(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTRelExpr(left, right, location) {}
 
-	void execute(ASTVisitor &visitor, void *param) {visitor.caseExprGE(*this, param);}
-	void execute(ASTVisitor &visitor) {visitor.caseExprGE(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprGE(*this, param);}
 };
 
 class ASTExprLT : public ASTRelExpr
 {
 public:
-	ASTExprLT(LocationData const& location) : ASTRelExpr(location) {}
-	ASTExprLT(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTRelExpr(left, right, location) {}
+	ASTExprLT(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprLT(ASTExprLT const& base);
+	ASTExprLT& operator=(ASTExprLT const& rhs);
 	ASTExprLT* clone() const {return new ASTExprLT(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprLT(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprLT(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprLT(*this, param);}
 };
 
 class ASTExprLE : public ASTRelExpr
 {
 public:
-	ASTExprLE(LocationData const& location) : ASTRelExpr(location) {}
-	ASTExprLE(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTRelExpr(left, right, location) {}
+	ASTExprLE(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprLE(ASTExprLE const& base);
+	ASTExprLE& operator=(ASTExprLE const& rhs);
 	ASTExprLE* clone() const {return new ASTExprLE(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprLE(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprLE(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprLE(*this, param);}
 };
 
 class ASTExprEQ : public ASTRelExpr
 {
 public:
-	ASTExprEQ(LocationData const& location) : ASTRelExpr(location) {}
-	ASTExprEQ(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTRelExpr(left, right, location) {}
+	ASTExprEQ(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprEQ(ASTExprEQ const& base);
+	ASTExprEQ& operator=(ASTExprEQ const& rhs);
 	ASTExprEQ* clone() const {return new ASTExprEQ(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprEQ(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprEQ(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprEQ(*this, param);}
 };
 
 class ASTExprNE : public ASTRelExpr
 {
 public:
-	ASTExprNE(LocationData const& location) : ASTRelExpr(location) {}
-	ASTExprNE(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTRelExpr(left, right, location) {}
+	ASTExprNE(ASTExpr* left = NULL,
+			  ASTExpr* right = NULL,
+			  LocationData const& location = LocationData::NONE);
+	ASTExprNE(ASTExprNE const& base);
+	ASTExprNE& operator=(ASTExprNE const& rhs);
 	ASTExprNE* clone() const {return new ASTExprNE(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprNE(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprNE(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprNE(*this, param);}
 };
 
+// virtual
 class ASTAddExpr : public ASTBinaryExpr
 {
 public:
-	ASTAddExpr(LocationData const& location) : ASTBinaryExpr(location) {}
-	ASTAddExpr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBinaryExpr(left, right, location) {}
+	ASTAddExpr(ASTExpr* left = NULL,
+			   ASTExpr* right = NULL,
+			   LocationData const& location = LocationData::NONE);
+	ASTAddExpr(ASTAddExpr const& base);
 	virtual ASTAddExpr* clone() const = 0;
+
+protected:
+	ASTAddExpr& operator=(ASTAddExpr const& rhs);
 };
 
 class ASTExprPlus : public ASTAddExpr
 {
 public:
-	ASTExprPlus(LocationData const& location) : ASTAddExpr(location) {}
-	ASTExprPlus(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTAddExpr(left, right, location) {}
+	ASTExprPlus(ASTExpr* left = NULL,
+				ASTExpr* right = NULL,
+				LocationData const& location = LocationData::NONE);
+	ASTExprPlus(ASTExprPlus const& base);
+	ASTExprPlus& operator=(ASTExprPlus const& rhs);
 	ASTExprPlus* clone() const {return new ASTExprPlus(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprPlus(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprPlus(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprPlus(*this, param);}
 };
 
 class ASTExprMinus : public ASTAddExpr
 {
 public:
-	ASTExprMinus(LocationData const& location) : ASTAddExpr(location) {}
-	ASTExprMinus(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTAddExpr(left, right, location) {}
+	ASTExprMinus(ASTExpr* left = NULL,
+				 ASTExpr* right = NULL,
+				 LocationData const& location = LocationData::NONE);
+	ASTExprMinus(ASTExprMinus const& base);
+	ASTExprMinus& operator=(ASTExprMinus const& rhs);
 	ASTExprMinus* clone() const {return new ASTExprMinus(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprMinus(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprMinus(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprMinus(*this, param);}
 };
 
+// virtual
 class ASTMultExpr : public ASTBinaryExpr
 {
 public:
-	ASTMultExpr(LocationData const& location) : ASTBinaryExpr(location) {}
-	ASTMultExpr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBinaryExpr(left, right, location) {}
+	ASTMultExpr(ASTExpr* left = NULL,
+				ASTExpr* right = NULL,
+				LocationData const& location = LocationData::NONE);
+	ASTMultExpr(ASTMultExpr const& base);
 	virtual ASTMultExpr* clone() const = 0;
+
+protected:
+	ASTMultExpr& operator=(ASTMultExpr const& rhs);
 };
 
 class ASTExprTimes : public ASTMultExpr
 {
 public:
-	ASTExprTimes(LocationData const& location) : ASTMultExpr(location) {}
-	ASTExprTimes(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTMultExpr(left, right, location) {}
+	ASTExprTimes(ASTExpr* left = NULL,
+				 ASTExpr* right = NULL,
+				 LocationData const& location = LocationData::NONE);
+	ASTExprTimes(ASTExprTimes const& base);
+	ASTExprTimes& operator=(ASTExprTimes const& rhs);
 	ASTExprTimes* clone() const {return new ASTExprTimes(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprTimes(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprTimes(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprTimes(*this, param);}
 };
 
 class ASTExprDivide : public ASTMultExpr
 {
 public:
-	ASTExprDivide(LocationData const& location) : ASTMultExpr(location) {}
-	ASTExprDivide(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTMultExpr(left, right, location) {}
+	ASTExprDivide(ASTExpr* left = NULL,
+				  ASTExpr* right = NULL,
+				  LocationData const& location = LocationData::NONE);
+	ASTExprDivide(ASTExprDivide const& base);
+	ASTExprDivide& operator=(ASTExprDivide const& rhs);
 	ASTExprDivide* clone() const {return new ASTExprDivide(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprDivide(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprDivide(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprDivide(*this, param);}
 };
 
 class ASTExprModulo : public ASTMultExpr
 {
 public:
-	ASTExprModulo(LocationData const& location) : ASTMultExpr(location) {}
-	ASTExprModulo(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTMultExpr(left, right, location) {}
+	ASTExprModulo(ASTExpr* left = NULL,
+				  ASTExpr* right = NULL,
+				  LocationData const& location = LocationData::NONE);
+	ASTExprModulo(ASTExprModulo const& base);
+	ASTExprModulo& operator=(ASTExprModulo const& rhs);
 	ASTExprModulo* clone() const {return new ASTExprModulo(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprModulo(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprModulo(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprModulo(*this, param);}
 };
 
+// virtual
 class ASTBitExpr : public ASTBinaryExpr
 {
 public:
-	ASTBitExpr(LocationData const& location) : ASTBinaryExpr(location) {}
-	ASTBitExpr(ASTExpr* left, ASTExpr* right, LocationData const& location) :
-			ASTBinaryExpr(left, right, location) {}
+	ASTBitExpr(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTBitExpr(ASTBitExpr const& base);
 	virtual ASTBitExpr* clone() const = 0;
+
+protected:
+	ASTBitExpr& operator=(ASTBitExpr const& rhs);
 };
 
 class ASTExprBitAnd : public ASTBitExpr
 {
 public:
-	ASTExprBitAnd(LocationData const& location) : ASTBitExpr(location) {}
-	ASTExprBitAnd(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBitExpr(left, right, location) {}
+	ASTExprBitAnd(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTExprBitAnd(ASTExprBitAnd const& base);
+	ASTExprBitAnd& operator=(ASTExprBitAnd const& rhs);
 	ASTExprBitAnd* clone() const {return new ASTExprBitAnd(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitAnd(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprBitAnd(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprBitAnd(*this, param);}
 };
 
 class ASTExprBitOr : public ASTBitExpr
 {
 public:
-	ASTExprBitOr(LocationData const& location) : ASTBitExpr(location) {}
-	ASTExprBitOr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBitExpr(left, right, location) {}
+	ASTExprBitOr(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTExprBitOr(ASTExprBitOr const& base);
+	ASTExprBitOr& operator=(ASTExprBitOr const& rhs);
 	ASTExprBitOr* clone() const {return new ASTExprBitOr(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitOr(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprBitOr(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprBitOr(*this, param);}
 };
 
 class ASTExprBitXor : public ASTBitExpr
 {
 public:
-	ASTExprBitXor(LocationData const& location) : ASTBitExpr(location) {}
-	ASTExprBitXor(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBitExpr(left, right, location) {}
+	ASTExprBitXor(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTExprBitXor(ASTExprBitXor const& base);
+	ASTExprBitXor& operator=(ASTExprBitXor const& rhs);
 	ASTExprBitXor* clone() const {return new ASTExprBitXor(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprBitXor(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprBitXor(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprBitXor(*this, param);}
 };
 
+// virtual
 class ASTShiftExpr : public ASTBinaryExpr
 {
 public:
-	ASTShiftExpr(LocationData const& location) : ASTBinaryExpr(location) {}
-	ASTShiftExpr(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTBinaryExpr(left, right, location) {}
+	ASTShiftExpr(
+			ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTShiftExpr(ASTShiftExpr const& base);
 	virtual ASTShiftExpr* clone() const = 0;
+
+protected:
+	ASTShiftExpr& operator=(ASTShiftExpr const& rhs);
 };
 
 class ASTExprLShift : public ASTShiftExpr
 {
 public:
-	ASTExprLShift(LocationData const& location) : ASTShiftExpr(location) {}
-	ASTExprLShift(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTShiftExpr(left, right, location) {}
+	ASTExprLShift(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTExprLShift(ASTExprLShift const& base);
+	ASTExprLShift& operator=(ASTExprLShift const& rhs);
 	ASTExprLShift* clone() const {return new ASTExprLShift(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprLShift(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprLShift(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprLShift(*this, param);}
 };
 
 class ASTExprRShift : public ASTShiftExpr
 {
 public:
-	ASTExprRShift(LocationData const& location) : ASTShiftExpr(location) {}
-	ASTExprRShift(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTShiftExpr(left, right, location) {}
+	ASTExprRShift(ASTExpr* left = NULL, ASTExpr* right = NULL,
+			LocationData const& location = LocationData::NONE);
+	ASTExprRShift(ASTExprRShift const& base);
+	ASTExprRShift& operator=(ASTExprRShift const& rhs);
 	ASTExprRShift* clone() const {return new ASTExprRShift(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprRShift(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseExprRShift(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseExprRShift(*this, param);}
 };
 
 // Literals
@@ -1407,85 +1530,93 @@ namespace ZScript
 	class Literal;
 }
 
+// virtual
 class ASTLiteral : public ASTExpr
 {
 public:
-	ASTLiteral(LocationData const& location) : ASTExpr(location), manager(NULL) {}
-	ASTLiteral(ASTLiteral const& base) : ASTExpr(base), manager(base.manager) {}
-	ASTLiteral& operator=(ASTLiteral const& rhs);
-
+	ASTLiteral(LocationData const& location = LocationData::NONE);
+	ASTLiteral(ASTLiteral const& base) : ASTExpr(base), manager(NULL) {}
+	virtual ASTLiteral* clone() const = 0;
+	
 	ZScript::Literal* manager;
+
+protected:
+	ASTLiteral& operator=(ASTLiteral const& rhs);
 };
 
 class ASTNumberLiteral : public ASTLiteral
 {
 public:
-    ASTNumberLiteral(ASTFloat* value, LocationData const& location) : ASTLiteral(location), val(value) {}
+    ASTNumberLiteral(
+			ASTFloat* value = NULL,
+			LocationData const& location = LocationData::NONE);
 	ASTNumberLiteral(ASTNumberLiteral const& base);
+    ~ASTNumberLiteral() {delete value;}
 	ASTNumberLiteral& operator=(ASTNumberLiteral const& rhs);
-    ~ASTNumberLiteral() {delete val;}
 	ASTNumberLiteral* clone() const {return new ASTNumberLiteral(*this);}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseNumberLiteral(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseNumberLiteral(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseNumberLiteral(*this, param);}
 
-    ASTFloat* getValue() const {return val;}
 	bool isConstant() const {return true;}
-private:
-    ASTFloat* val;
+
+    ASTFloat* value;
 };
 
 class ASTBoolLiteral : public ASTLiteral
 {
 public:
-    ASTBoolLiteral(bool value, LocationData const& location) : ASTLiteral(location), value(value) {}
+    ASTBoolLiteral(
+			bool value = false,
+			LocationData const& location = LocationData::NONE);
 	ASTBoolLiteral(ASTBoolLiteral const& base);
 	ASTBoolLiteral& operator=(ASTBoolLiteral const& base);
 	ASTBoolLiteral* clone() const {return new ASTBoolLiteral(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseBoolLiteral(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseBoolLiteral(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseBoolLiteral(*this, param);}
 
-    bool getValue() const {return value;}
 	bool isConstant() const {return true;}
-private:
+
     bool value;
 };
 
 class ASTStringLiteral : public ASTLiteral
 {
 public:
-	ASTStringLiteral(char const* str, LocationData const& location);
-	ASTStringLiteral(string const& str, LocationData const& location);
+	ASTStringLiteral(
+			char const* str = "",
+			LocationData const& location = LocationData::NONE);
+	ASTStringLiteral(
+			string const& str,
+			LocationData const& location = LocationData::NONE);
 	ASTStringLiteral(ASTString const& raw);
 	ASTStringLiteral(ASTStringLiteral const& base);
 	ASTStringLiteral& operator=(ASTStringLiteral const& rhs);
 	ASTStringLiteral* clone() const {return new ASTStringLiteral(*this);}
 
-	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringLiteral(*this, param);}
-	void execute (ASTVisitor& visitor) {visitor.caseStringLiteral(*this);}
+	void execute (ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseStringLiteral(*this, param);}
 	bool isStringLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
-
-	string getValue() const {return data;}
 
 	// The data declaration that this literal may be part of. If NULL that
 	// means this is not part of a data declaration. This should be managed by
 	// that declaration and not modified by this object at all.
 	ASTDataDecl* declaration;
-private:
-	string data;
+
+	string value;
 };
 
 class ASTArrayLiteral : public ASTLiteral
 {
 public:
-	ASTArrayLiteral(LocationData const& location);
+	ASTArrayLiteral(LocationData const& location = LocationData::NONE);
 	ASTArrayLiteral(ASTArrayLiteral const& base);
+	~ASTArrayLiteral();
 	ASTArrayLiteral& operator=(ASTArrayLiteral const& rhs);
 	ASTArrayLiteral* clone() const {return new ASTArrayLiteral(*this);}
-	~ASTArrayLiteral();
 
 	void execute (ASTVisitor& visitor, void* param) {visitor.caseArrayLiteral(*this, param);}
 	void execute (ASTVisitor& visitor) {visitor.caseArrayLiteral(*this);}
@@ -1505,9 +1636,11 @@ public:
 	// that declaration and not modified by this object at all.
 	ASTDataDecl* declaration;
 
-private:
+	// Optional type specification.
 	ASTVarType* type;
+	// Optional size specification.
 	ASTExpr* size;
+	// The array elements.
 	vector<ASTExpr*> elements;
 };
 
@@ -1516,32 +1649,41 @@ private:
 class ASTScriptType : public AST
 {
 public:
-	ASTScriptType(ScriptType Type, LocationData Loc) : AST(Loc), type(Type) {}
-	ASTScriptType* clone() const {return new ASTScriptType(type, getLocation());}
-	ScriptType getType() const {return type;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseScriptType(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseScriptType(*this);}
-private:
+	ASTScriptType(
+			ScriptType type = SCRIPTTYPE_VOID,
+			LocationData const& location = LocationData::NONE);
+	ASTScriptType(ASTScriptType const& base);
+	ASTScriptType& operator=(ASTScriptType const& rhs);
+	ASTScriptType* clone() const {return new ASTScriptType(*this);}
+
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseScriptType(*this, param);}
+
 	ScriptType type;
 };
 
 class ASTVarType : public AST
 {
 public:
-    ASTVarType(ZVarType const& type, LocationData Loc) : AST(Loc), type(type.clone()) {}
-    ASTVarType(ZVarType* type, LocationData Loc) : AST(Loc), type(type) {}
-	ASTVarType(ASTVarType const& base) : AST(base.getLocation()), type(base.type->clone()) {}
+	// Takes ownership of type.
+    ASTVarType(
+			ZVarType* type = NULL,
+			LocationData const& location = LocationData::NONE);
+	// Clones type.
+    ASTVarType(
+			ZVarType const& type,
+			LocationData const& location = LocationData::NONE);
+	ASTVarType(ASTVarType const& base);
 	~ASTVarType() {delete type;}
+	ASTVarType& operator=(ASTVarType const& rhs);
 	ASTVarType* clone() const {return new ASTVarType(*this);}
-	ASTVarType& operator=(ASTVarType const& base)
-	{
-		getLocation() = base.getLocation();
-		type = base.type->clone();
-	}
-    void execute(ASTVisitor &visitor, void* param) {visitor.caseVarType(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseVarType(*this);}
+	
+    void execute(ASTVisitor& visitor, void* param = NULL) {
+		visitor.caseVarType(*this, param);}
+
 	ZVarType const& resolve(Scope& scope);
-private:
+
+	// Owned by this object.
 	ZVarType* type;
 };
 

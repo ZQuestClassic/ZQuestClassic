@@ -33,7 +33,7 @@ void CompileError::vprint(AST* offender, va_list args) const
 	// Output location data.
     if (offender)
     {
-        LocationData const& ld = offender->getLocation();
+        LocationData const& ld = offender->location;
         oss << ld.fname << ", line " << ld.first_line << ": ";
     }
 

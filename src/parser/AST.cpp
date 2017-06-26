@@ -1,6 +1,7 @@
 #include "../precompiled.h" //always first
 #include "AST.h"
 #include "CompileError.h"
+#include "CompilerUtils.h"
 #include "DataStructs.h"
 #include "Scope.h"
 
@@ -10,9 +11,13 @@
 
 // AST
 
+AST::AST(LocationData const& location) : location(location) {}
+
+AST::AST(AST const& base) : location(base.location) {}
+
 AST& AST::operator=(AST const& rhs)
 {
-	loc = rhs.loc;
+	location = rhs.location;
 	return *this;
 }
 
@@ -20,43 +25,43 @@ AST& AST::operator=(AST const& rhs)
 
 ASTProgram::ASTProgram(LocationData const& location) : AST(location) {}
 
-ASTProgram::ASTProgram(ASTProgram const& base) : AST(base.getLocation())
-{
-	for (vector<ASTImportDecl*>::const_iterator it = base.imports.begin();
-		 it != base.imports.end(); ++it)
-		imports.push_back((*it)->clone());
-	for (vector<ASTDataDeclList*>::const_iterator it = base.variables.begin();
-		 it != base.variables.end(); ++it)
-		variables.push_back((*it)->clone());
-	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin();
-		 it != base.functions.end(); ++it)
-		functions.push_back((*it)->clone());
-	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin();
-		 it != base.types.end(); ++it)
-		types.push_back((*it)->clone());
-	for (vector<ASTScript*>::const_iterator it = base.scripts.begin();
-		 it != base.scripts.end(); ++it)
-		scripts.push_back((*it)->clone());
-}
+ASTProgram::ASTProgram(ASTProgram const& base)
+	: AST(base),
+	  imports(AST::clone(base.imports)),
+	  variables(AST::clone(base.variables)),
+	  functions(AST::clone(base.functions)),
+	  types(AST::clone(base.types)),
+	  scripts(AST::clone(base.scripts))
+{}
 
 ASTProgram::~ASTProgram()
 {
-	for (vector<ASTImportDecl*>::const_iterator it = imports.begin();
-		 it != imports.end(); ++it)
-		delete *it;
-	for (vector<ASTDataDeclList*>::const_iterator it = variables.begin();
-		 it != variables.end(); ++it)
-		delete *it;
-	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
-		 it != functions.end(); ++it)
-		delete *it;
-	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
-		 it != types.end(); ++it)
-		delete *it;
-	for (vector<ASTScript*>::const_iterator it = scripts.begin();
-		 it != scripts.end(); ++it)
-		delete *it;
+	deleteElements(imports);
+	deleteElements(variables);
+	deleteElements(functions);
+	deleteElements(types);
+	deleteElements(scripts);
 }
+
+ASTProgram& ASTProgram::operator=(ASTProgram const& rhs)
+{
+	AST::operator=(rhs);
+
+	deleteElements(imports);
+	deleteElements(variables);
+	deleteElements(functions);
+	deleteElements(types);
+	deleteElements(scripts);
+
+	imports = AST::clone(rhs.imports);
+	variables = AST::clone(rhs.variables);
+	functions = AST::clone(rhs.functions);
+	types = AST::clone(rhs.types);
+	scripts = AST::clone(rhs.scripts);
+
+	return *this;
+}
+
 
 void ASTProgram::addDeclaration(ASTDecl* declaration)
 {
@@ -82,65 +87,66 @@ void ASTProgram::addDeclaration(ASTDecl* declaration)
 
 ASTProgram& ASTProgram::merge(ASTProgram& other)
 {
-	for (vector<ASTImportDecl*>::const_iterator it = other.imports.begin();
-		 it != other.imports.end(); ++it)
-		imports.push_back(*it);
+	imports.insert(imports.end(), other.imports.begin(), other.imports.end());
 	other.imports.clear();
-	for (vector<ASTDataDeclList*>::const_iterator it = other.variables.begin();
-		 it != other.variables.end(); ++it)
-		variables.push_back(*it);
+	variables.insert(variables.end(), other.variables.begin(),
+					 other.variables.end());
 	other.variables.clear();
-	for (vector<ASTFuncDecl*>::const_iterator it = other.functions.begin();
-		 it != other.functions.end(); ++it)
-		functions.push_back(*it);
+	functions.insert(functions.end(), other.functions.begin(),
+					 other.functions.end());
 	other.functions.clear();
-	for (vector<ASTTypeDef*>::const_iterator it = other.types.begin();
-		 it != other.types.end(); ++it)
-		types.push_back(*it);
+	types.insert(types.end(), other.types.begin(), other.types.end());
 	other.types.clear();
-	for (vector<ASTScript*>::const_iterator it = other.scripts.begin();
-		 it != other.scripts.end(); ++it)
-		scripts.push_back(*it);
+	scripts.insert(scripts.end(), other.scripts.begin(), other.scripts.end());
 	other.scripts.clear();
 	return *this;
 }
 
 // ASTFloat
 
-ASTFloat::ASTFloat(char *Value, int Type, LocationData Loc)
-		: AST(Loc), type(Type), negative(false), val((string)Value)
+ASTFloat::ASTFloat(char* value, Type type, LocationData const& location)
+	: AST(location), type(type), negative(false), value((string)value)
 {}
 
-ASTFloat::ASTFloat(const char *Value, int Type, LocationData Loc)
-		: AST(Loc), type(Type), negative(false), val((string)Value)
+ASTFloat::ASTFloat(char const* value, Type type, LocationData const& location)
+	: AST(location), type(type), negative(false), value((string)value)
 {}
 
-ASTFloat::ASTFloat(string Value, int Type, LocationData Loc)
-		: AST(Loc), type(Type), negative(false), val(Value)
+ASTFloat::ASTFloat(
+		string const& value, Type type, LocationData const& location)
+	: AST(location), type(type), negative(false), value(value)
 {}
 
-ASTFloat::ASTFloat(long Value, int Type, LocationData Loc)
-		: AST(Loc), type(Type), negative(false)
+ASTFloat::ASTFloat(long value, Type type, LocationData const& location)
+	: AST(location), type(type), negative(false)
 {
 	char tmp[15];
-	sprintf(tmp, "%ld", Value);
-	val = string(tmp);
+	sprintf(tmp, "%ld", value);
+	ASTFloat::value = string(tmp);
 }
 
-ASTFloat* ASTFloat::clone() const
+ASTFloat::ASTFloat(ASTFloat const& base)
+	: AST(base), type(base.type), value(base.value), negative(base.negative)
+{}
+
+ASTFloat& ASTFloat::operator=(ASTFloat const& rhs)
 {
-	ASTFloat* c = new ASTFloat(val, type, getLocation());
-	c->set_negative(negative);
-	return c;
+	AST::operator=(rhs);
+
+	type = rhs.type;
+	value = rhs.value;
+	negative = rhs.negative;
+
+	return *this;
 }
 
 pair<string, string> ASTFloat::parseValue()
 {
-    string f = getValue();
+    string f = value;
     string intpart;
     string fpart;
 
-    switch(getType())
+    switch(type)
     {
     case TYPE_DECIMAL:
     {
@@ -225,17 +231,25 @@ pair<string, string> ASTFloat::parseValue()
 
 // ASTString
 
-ASTString::ASTString(const char *strval, LocationData Loc)
-		: AST(Loc), str((string)strval)
+ASTString::ASTString(const char* str, LocationData const& location)
+	: AST(location), str((string)str)
 {}
 
-ASTString::ASTString(string Str, LocationData Loc)
-		: AST(Loc), str(Str)
+ASTString::ASTString(string const& str, LocationData const& location)
+	: AST(location), str(str)
 {}
 
-ASTString* ASTString::clone() const
+ASTString::ASTString(ASTString const& base)
+	: AST(base), str(base.str)
+{}
+
+ASTString& ASTString::operator=(ASTString const& rhs)
 {
-	return new ASTString(str, getLocation());
+	AST::operator=(rhs);
+
+	str = rhs.str;
+
+	return *this;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -243,216 +257,362 @@ ASTString* ASTString::clone() const
 
 // ASTStmt
 
+ASTStmt::ASTStmt(LocationData const& location) : AST(location) {}
+
 ASTStmt& ASTStmt::operator=(ASTStmt const& rhs)
 {
 	AST::operator=(rhs);
+
 	return *this;
 }
 
 // ASTBlock
 
+ASTBlock::ASTBlock(LocationData const& location) : ASTStmt(location) {}
+
+ASTBlock::ASTBlock(ASTBlock const& base)
+	: ASTStmt(base), statements(AST::clone(base.statements))
+{}
+
 ASTBlock::~ASTBlock()
 {
-    list<ASTStmt *>::iterator it;
-
-    for (it = statements.begin(); it != statements.end(); it++)
-    {
-        delete *it;
-    }
-
-    statements.clear();
+	deleteElements(statements);
 }
 
-ASTBlock* ASTBlock::clone() const
+ASTBlock& ASTBlock::operator=(ASTBlock const& rhs)
 {
-	ASTBlock* c = new ASTBlock(getLocation());
-	for (list<ASTStmt*>::const_iterator it = statements.begin(); it != statements.end(); ++it)
-		c->statements.push_back((*it)->clone());
-	return c;
-}
+	ASTStmt::operator=(rhs);
 
-void ASTBlock::addStatement(ASTStmt *stmt)
-{
-    statements.push_back(stmt);
+	deleteElements(statements);
+
+	statements = AST::clone(rhs.statements);
+
+	return *this;
 }
 
 // ASTStmtIf
 
+ASTStmtIf::ASTStmtIf(ASTExpr* condition,
+					 ASTStmt* thenStatement,
+					 LocationData const& location)
+	: ASTStmt(location), condition(condition), thenStatement(thenStatement)
+{}
+
+ASTStmtIf::ASTStmtIf(ASTStmtIf const& base)
+	: ASTStmt(base),
+	  condition(AST::clone(condition)),
+	  thenStatement(AST::clone(thenStatement))
+{}
+
 ASTStmtIf::~ASTStmtIf()
 {
-	delete cond;
-	delete stmt;
+	delete condition;
+	delete thenStatement;
 }
 
-ASTStmtIf* ASTStmtIf::clone() const
+ASTStmtIf& ASTStmtIf::operator=(ASTStmtIf const& rhs)
 {
-	return new ASTStmtIf(
-			cond != NULL ? cond->clone() : NULL,
-			stmt != NULL ? stmt->clone() : NULL,
-			getLocation());
+	ASTStmt::operator=(rhs);
+
+	delete condition;
+	delete thenStatement;
+
+	condition = AST::clone(rhs.condition);
+	thenStatement = AST::clone(rhs.thenStatement);
+
+	return *this;
 }
 
 // ASTStmtIfElse
 
-ASTStmtIfElse::ASTStmtIfElse(ASTExpr *Cond, ASTStmt *Ifstmt, ASTStmt *Elsestmt, LocationData Loc)
-		: ASTStmtIf(Cond, Ifstmt, Loc), elsestmt(Elsestmt)
+ASTStmtIfElse::ASTStmtIfElse(
+		ASTExpr* condition, ASTStmt* thenStatement,
+		ASTStmt* elseStatement, LocationData const& location)
+	: ASTStmtIf(condition, thenStatement, location),
+	  elseStatement(elseStatement)
+{}
+
+ASTStmtIfElse::ASTStmtIfElse(ASTStmtIfElse const& base)
+	: ASTStmtIf(base), elseStatement(AST::clone(base.elseStatement))
 {}
 
 ASTStmtIfElse::~ASTStmtIfElse()
 {
-	delete elsestmt;
+	delete elseStatement;
 }
 
-ASTStmtIfElse* ASTStmtIfElse::clone() const
+ASTStmtIfElse& ASTStmtIfElse::operator=(ASTStmtIfElse const& rhs)
 {
-	return new ASTStmtIfElse(
-			getCondition() != NULL ? getCondition()->clone() : NULL,
-			getStmt() != NULL ? getStmt()->clone() : NULL,
-			elsestmt != NULL ? elsestmt->clone() : NULL,
-			getLocation());
+	ASTStmtIf::operator=(rhs);
+
+	delete elseStatement;
+
+	elseStatement = AST::clone(rhs.elseStatement);
+
+	return *this;
 }
 
 // ASTStmtSwitch
 
+ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
+	: ASTStmt(location), key(NULL)
+{}
+
+ASTStmtSwitch::ASTStmtSwitch(ASTStmtSwitch const& base)
+	: ASTStmt(base), key(AST::clone(base.key)), cases(AST::clone(base.cases))
+{}
+
 ASTStmtSwitch::~ASTStmtSwitch()
 {
 	delete key;
-	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
-		delete *it;
+	deleteElements(cases);
 }
 
-ASTStmtSwitch* ASTStmtSwitch::clone() const
+ASTStmtSwitch& ASTStmtSwitch::operator=(ASTStmtSwitch const& rhs)
 {
-	ASTStmtSwitch* c = new ASTStmtSwitch(getLocation());
-	for (vector<ASTSwitchCases*>::const_iterator it = cases.begin(); it != cases.end(); ++it)
-		c->addCases((*it)->clone());
-	return c;
+	ASTStmt::operator=(rhs);
+
+	delete key;
+	deleteElements(cases);
+
+	key = AST::clone(rhs.key);
+	cases = AST::clone(rhs.cases);
+
+	return *this;
 }
 
 // ASTSwitchCases
 
+ASTSwitchCases::ASTSwitchCases(LocationData const& location)
+	: AST(location), isDefault(false), block(NULL)
+{}
+
+ASTSwitchCases::ASTSwitchCases(ASTSwitchCases const& base)
+	: AST(base),
+	  cases(AST::clone(base.cases)),
+	  isDefault(base.isDefault),
+	  block(AST::clone(base.block))
+{}
+
 ASTSwitchCases::~ASTSwitchCases()
 {
-	for (vector<ASTExprConst*>::iterator it = cases.begin(); it != cases.end(); ++it)
-		delete *it;
+	deleteElements(cases);
 	delete block;
 }
 
-ASTSwitchCases* ASTSwitchCases::clone() const
+ASTSwitchCases& ASTSwitchCases::operator=(ASTSwitchCases const& rhs)
 {
-	ASTSwitchCases* c = new ASTSwitchCases(getLocation());
-	for (vector<ASTExprConst*>::const_iterator it = cases.begin(); it != cases.end(); ++it)
-		c->addCase((*it)->clone());
-	if (isDefault)
-		c->addDefaultCase();
-	c->setBlock(block->clone());
-	return c;
+	AST::operator=(rhs);
+
+	deleteElements(cases);
+	delete block;
+
+	cases = AST::clone(rhs.cases);
+	isDefault = rhs.isDefault;
+	block = AST::clone(rhs.block);
+
+	return *this;
 }
 
 // ASTStmtFor
 
-ASTStmtFor::ASTStmtFor(ASTStmt *Prec, ASTExpr *Term, ASTStmt *Incr, ASTStmt *Stmt, LocationData Loc)
-		: ASTStmt(Loc), prec(Prec), term(Term), incr(Incr), stmt(Stmt)
+ASTStmtFor::ASTStmtFor(
+		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
+		LocationData const& location)
+	: ASTStmt(location), setup(setup), test(test), increment(increment),
+	  body(body)
+{}
+
+ASTStmtFor::ASTStmtFor(ASTStmtFor const& base)
+	: ASTStmt(base),
+	  setup(AST::clone(base.setup)),
+	  test(AST::clone(base.test)),
+	  increment(AST::clone(base.increment)),
+	  body(AST::clone(base.body))
 {}
 
 ASTStmtFor::~ASTStmtFor()
 {
-	delete prec;
-	delete term;
-	delete incr;
-	delete stmt;
+	delete setup;
+	delete test;
+	delete increment;
+	delete body;
 }
 
-ASTStmtFor* ASTStmtFor::clone() const
+ASTStmtFor& ASTStmtFor::operator=(ASTStmtFor const& rhs)
 {
-	return new ASTStmtFor(
-			prec != NULL ? prec->clone() : NULL,
-			term != NULL ? term->clone() : NULL,
-			incr != NULL ? incr->clone() : NULL,
-			stmt != NULL ? stmt->clone() : NULL,
-			getLocation());
+	ASTStmt::operator=(rhs);
+
+	delete setup;
+	delete test;
+	delete increment;
+	delete body;
+
+	setup = AST::clone(rhs.setup);
+	test = AST::clone(rhs.test);
+	increment = AST::clone(rhs.increment);
+	body = AST::clone(rhs.body);
+
+	return *this;
 }
 
 // ASTStmtWhile
 
-ASTStmtWhile::ASTStmtWhile(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc)
-		: ASTStmt(Loc), cond(Cond), stmt(Stmt)
+ASTStmtWhile::ASTStmtWhile(
+		ASTExpr* test, ASTStmt* body, LocationData const& location)
+	: ASTStmt(location), test(test), body(body)
+{}
+
+ASTStmtWhile::ASTStmtWhile(ASTStmtWhile const& base)
+	: ASTStmt(base),
+	  test(AST::clone(base.test)),
+	  body(AST::clone(base.body))
 {}
 
 ASTStmtWhile::~ASTStmtWhile()
 {
-	delete cond;
-	delete stmt;
+	delete test;
+	delete body;
 }
 
-ASTStmtWhile* ASTStmtWhile::clone() const
+ASTStmtWhile& ASTStmtWhile::operator=(ASTStmtWhile const& rhs)
 {
-	return new ASTStmtWhile(
-			cond != NULL ? cond->clone() : NULL,
-			stmt != NULL ? stmt->clone() : NULL,
-			getLocation());
+	ASTStmt::operator=(rhs);
+
+	delete test;
+	delete body;
+
+	test = AST::clone(rhs.test);
+	body = AST::clone(rhs.body);
+
+	return *this;
 }
 
 // ASTStmtDo
 
-ASTStmtDo::ASTStmtDo(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc)
-		: ASTStmt(Loc), cond(Cond), stmt(Stmt)
+ASTStmtDo::ASTStmtDo(
+		ASTExpr* test, ASTStmt* body, LocationData const& location)
+	: ASTStmt(location), test(test), body(body)
+{}
+
+ASTStmtDo::ASTStmtDo(ASTStmtDo const& base)
+	: ASTStmt(base),
+	  test(AST::clone(base.test)),
+	  body(AST::clone(base.body))
 {}
 
 ASTStmtDo::~ASTStmtDo()
 {
-	delete cond;
-	delete stmt;
+	delete test;
+	delete body;
 }
 
-ASTStmtDo* ASTStmtDo::clone() const
+ASTStmtDo& ASTStmtDo::operator=(ASTStmtDo const& rhs)
 {
-	return new ASTStmtDo(
-			cond != NULL ? cond->clone() : NULL,
-			stmt != NULL ? stmt->clone() : NULL,
-			getLocation());
+	ASTStmt::operator=(rhs);
+
+	delete test;
+	delete body;
+
+	test = AST::clone(rhs.test);
+	body = AST::clone(rhs.body);
+
+	return *this;
 }
 
 // ASTStmtReturn
 
-ASTStmtReturn* ASTStmtReturn::clone() const
+ASTStmtReturn::ASTStmtReturn(LocationData const& location)
+	: ASTStmt(location)
+{}
+
+ASTStmtReturn::ASTStmtReturn(ASTStmtReturn const& base)
+	: ASTStmt(base)
+{}
+
+ASTStmtReturn& ASTStmtReturn::operator=(ASTStmtReturn const& rhs)
 {
-	return new ASTStmtReturn(getLocation());
+	ASTStmt::operator=(rhs);
+
+	return *this;
 }
 
 // ASTStmtReturnVal
 
+ASTStmtReturnVal::ASTStmtReturnVal(
+		ASTExpr* value, LocationData const& location)
+	: ASTStmtReturn(location), value(value)
+{}
+
+ASTStmtReturnVal::ASTStmtReturnVal(ASTStmtReturnVal const& base)
+	: ASTStmtReturn(base), value(AST::clone(base.value))
+{}
+
 ASTStmtReturnVal::~ASTStmtReturnVal()
 {
-	delete retval;
+	delete value;
 }
 
-ASTStmtReturnVal* ASTStmtReturnVal::clone() const
+ASTStmtReturnVal& ASTStmtReturnVal::operator=(ASTStmtReturnVal const& rhs)
 {
-	return new ASTStmtReturnVal(
-			retval != NULL ? retval->clone() : NULL,
-			getLocation());
+	ASTStmtReturn::operator=(rhs);
+
+	delete value;
+
+	value = AST::clone(rhs.value);
+
+	return *this;
 }
 
 // ASTStmtBreak
 
-ASTStmtBreak* ASTStmtBreak::clone() const
+ASTStmtBreak::ASTStmtBreak(LocationData const& location)
+	: ASTStmt(location)
+{}
+
+ASTStmtBreak::ASTStmtBreak(ASTStmtBreak const& base)
+	: ASTStmt(base)
+{}
+
+ASTStmtBreak& ASTStmtBreak::operator=(ASTStmtBreak const& rhs)
 {
-	return new ASTStmtBreak(getLocation());
+	ASTStmt::operator=(rhs);
+
+	return *this;
 }
 
 // ASTStmtContinue
 
-ASTStmtContinue* ASTStmtContinue::clone() const
+ASTStmtContinue::ASTStmtContinue(LocationData const& location)
+	: ASTStmt(location)
+{}
+
+ASTStmtContinue::ASTStmtContinue(ASTStmtContinue const& base)
+	: ASTStmt(base)
+{}
+
+ASTStmtContinue& ASTStmtContinue::operator=(ASTStmtContinue const& rhs)
 {
-	return new ASTStmtContinue(getLocation());
+	ASTStmt::operator=(rhs);
+
+	return *this;
 }
 
 // ASTStmtEmpty
 
-ASTStmtEmpty* ASTStmtEmpty::clone() const
+ASTStmtEmpty::ASTStmtEmpty(LocationData const& location)
+	: ASTStmt(location)
+{}
+
+ASTStmtEmpty::ASTStmtEmpty(ASTStmtEmpty const& base)
+	: ASTStmt(base)
+{}
+
+ASTStmtEmpty& ASTStmtEmpty::operator=(ASTStmtEmpty const& rhs)
 {
-	return new ASTStmtEmpty(getLocation());
+	ASTStmt::operator=(rhs);
+
+	return *this;
 }
 
 // ASTCompileError
@@ -466,10 +626,9 @@ ASTCompileError::ASTCompileError(
 
 ASTCompileError::ASTCompileError(ASTCompileError const& base)
 	: ASTStmt(base),
-	  errorId(base.errorId ? base.errorId->clone() : NULL),
-	  statement(base.statement ? base.statement->clone() : NULL),
+	  errorId(AST::clone(base.errorId)),
+	  statement(AST::clone(base.statement)),
 	  errorTriggered(base.errorTriggered)
-	  
 {}
 
 ASTCompileError::~ASTCompileError()
@@ -481,14 +640,14 @@ ASTCompileError::~ASTCompileError()
 ASTCompileError& ASTCompileError::operator=(ASTCompileError const& rhs)
 {
 	ASTStmt::operator=(rhs);
-	// Delete.
+
 	delete errorId;
 	delete statement;
-	// Copy.
-	errorId = rhs.errorId ? rhs.errorId->clone() : NULL;
-	statement = rhs.statement ? rhs.statement->clone() : NULL;
+
+	errorId = AST::clone(rhs.errorId);
+	statement = AST::clone(rhs.statement);
 	errorTriggered = rhs.errorTriggered;
-	// Return.
+
 	return *this;
 }
 
@@ -509,6 +668,10 @@ bool ASTCompileError::canHandle(CompileError const& error) const
 
 // ASTDecl
 
+ASTDecl::ASTDecl(LocationData const& location)
+	: ASTStmt(location)
+{}
+
 ASTDecl& ASTDecl::operator=(ASTDecl const& rhs)
 {
 	ASTStmt::operator=(rhs);
@@ -521,62 +684,37 @@ ASTScript::ASTScript(LocationData const& location)
 	: ASTDecl(location), type(NULL), name("") {}
 
 ASTScript::ASTScript(ASTScript const& base)
-	: ASTDecl(base.getLocation()),
-	  type(base.type ? base.type->clone() : NULL),
-	  name(base.name)
-{
-	for (vector<ASTDataDeclList*>::const_iterator it = base.variables.begin();
-		 it != base.variables.end(); ++it)
-		variables.push_back((*it)->clone());
-	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin();
-		 it != base.functions.end(); ++it)
-		functions.push_back((*it)->clone());
-	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin();
-		 it != base.types.end(); ++it)
-		types.push_back((*it)->clone());
-}
+	: ASTDecl(base),
+	  type(AST::clone(base.type)),
+	  name(base.name),
+	  variables(AST::clone(base.variables)),
+	  functions(AST::clone(base.functions)),
+	  types(AST::clone(base.types))
+{}
 
 ASTScript::~ASTScript()
 {
 	delete type;
-	for (vector<ASTDataDeclList*>::const_iterator it = variables.begin();
-		 it != variables.end(); ++it)
-		delete *it;
-	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
-		 it != functions.end(); ++it)
-		delete *it;
-	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
-		 it != types.end(); ++it)
-		delete *it;
+	deleteElements(variables);
+	deleteElements(functions);
+	deleteElements(types);
 }
 
 ASTScript& ASTScript::operator=(ASTScript const& rhs)
 {
 	ASTDecl::operator=(rhs);
-	// Delete.
+
 	delete type;
-	for (vector<ASTDataDeclList*>::const_iterator it = variables.begin();
-		 it != variables.end(); ++it)
-		delete *it;
-	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
-		 it != functions.end(); ++it)
-		delete *it;
-	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
-		 it != types.end(); ++it)
-		delete *it;
-	// Copy.
-	for (vector<ASTDataDeclList*>::const_iterator it = rhs.variables.begin();
-		 it != rhs.variables.end(); ++it)
-		variables.push_back((*it)->clone());
-	for (vector<ASTFuncDecl*>::const_iterator it = rhs.functions.begin();
-		 it != rhs.functions.end(); ++it)
-		functions.push_back((*it)->clone());
-	for (vector<ASTTypeDef*>::const_iterator it = rhs.types.begin();
-		 it != rhs.types.end(); ++it)
-		types.push_back((*it)->clone());
-	type = rhs.type ? rhs.type->clone() : NULL;
+	deleteElements(variables);
+	deleteElements(functions);
+	deleteElements(types);
+
+	type = AST::clone(rhs.type);
 	name = rhs.name;
-	// Return.
+	variables = AST::clone(rhs.variables);
+	functions = AST::clone(rhs.functions);
+	types = AST::clone(rhs.types);
+
 	return *this;
 }
 
@@ -598,9 +736,22 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 
 // ASTImportDecl
 
-ASTImportDecl* ASTImportDecl::clone() const
+ASTImportDecl::ASTImportDecl(
+		string const& filename, LocationData const& location)
+	: ASTDecl(location), filename(filename)
+{}
+
+ASTImportDecl::ASTImportDecl(ASTImportDecl const& base)
+	: ASTDecl(base), filename(base.filename)
+{}
+
+ASTImportDecl& ASTImportDecl::operator=(ASTImportDecl const& rhs)
 {
-	return new ASTImportDecl(filename, getLocation());
+	ASTDecl::operator=(rhs);
+
+	filename = rhs.filename;
+
+	return *this;
 }
 
 // ASTFuncDecl
@@ -611,47 +762,33 @@ ASTFuncDecl::ASTFuncDecl(LocationData const& location)
 
 ASTFuncDecl::ASTFuncDecl(ASTFuncDecl const& base)
 	: ASTDecl(base),
-	  returnType(base.returnType ? base.returnType->clone() : NULL),
+	  returnType(AST::clone(base.returnType)),
+	  parameters(AST::clone(base.parameters)),
 	  name(base.name),
-	  block(base.block ? base.block->clone() : NULL)
+	  block(AST::clone(base.block))
+{}
+
+ASTFuncDecl::~ASTFuncDecl()
 {
-	for (vector<ASTDataDecl*>::const_iterator it = base.parameters.begin();
-		 it != base.parameters.end(); ++it)
-		parameters.push_back((*it)->clone());
+	delete returnType;
+	deleteElements(parameters);
+	delete block;
 }
 
 ASTFuncDecl& ASTFuncDecl::operator=(ASTFuncDecl const& rhs)
 {
 	ASTDecl::operator=(rhs);
-	// Delete.
+
 	delete returnType;
+	deleteElements(parameters);
 	delete block;
-	for (vector<ASTDataDecl*>::iterator it = parameters.begin();
-		 it != parameters.end(); ++it)
-		delete *it;
-	// Copy.
-	returnType = rhs.returnType ? rhs.returnType->clone() : NULL;
+
+	returnType = AST::clone(rhs.returnType);
+	parameters = AST::clone(rhs.parameters);
 	name = rhs.name;
-	block = rhs.block ? rhs.block->clone() : NULL;
-	for (vector<ASTDataDecl*>::const_iterator it = rhs.parameters.begin();
-		 it != rhs.parameters.end(); ++it)
-		parameters.push_back((*it)->clone());
-	// Return.
+	block = AST::clone(rhs.block);
+
 	return *this;
-}
-
-ASTFuncDecl::~ASTFuncDecl()
-{
-	delete returnType;
-	delete block;
-	for (vector<ASTDataDecl*>::iterator it = parameters.begin();
-		 it != parameters.end(); ++it)
-		delete *it;
-}
-
-void ASTFuncDecl::addParameter(ASTDataDecl* parameter)
-{
-	parameters.push_back(parameter);
 }
 
 // ASTDataDeclList
@@ -661,34 +798,27 @@ ASTDataDeclList::ASTDataDeclList(LocationData const& location)
 {}
 
 ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& base)
-	: ASTDecl(base), baseType(base.baseType)
+	: ASTDecl(base),
+	  baseType(AST::clone(base.baseType)),
+	  mDeclarations(AST::clone(base.mDeclarations))
+{}
+
+ASTDataDeclList::~ASTDataDeclList()
 {
-	for (vector<ASTDataDecl*>::const_iterator it = base.declarations.begin();
-		 it != base.declarations.end(); ++it)
-		declarations.push_back((*it)->clone());
+	deleteElements(mDeclarations);
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 {
 	ASTDecl::operator=(rhs);
-	// Delete.
-	for (vector<ASTDataDecl*>::iterator it = declarations.begin();
-		 it != declarations.end(); ++it)
-		delete *it;
-	// Copy.
-    baseType = rhs.baseType;
-	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations.begin();
-		 it != rhs.declarations.end(); ++it)
-		declarations.push_back((*it)->clone());
-	// Return.
-	return *this;
-}
 
-ASTDataDeclList::~ASTDataDeclList()
-{
-	for (vector<ASTDataDecl*>::iterator it = declarations.begin();
-		 it != declarations.end(); ++it)
-		delete *it;
+	delete baseType;
+	deleteElements(mDeclarations);
+
+    baseType = AST::clone(rhs.baseType);
+	mDeclarations = AST::clone(rhs.mDeclarations);
+	
+	return *this;
 }
 
 void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
@@ -697,64 +827,55 @@ void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
 	assert(!declaration->baseType);
 
 	declaration->list = this;
-	declarations.push_back(declaration);
+	mDeclarations.push_back(declaration);
 }
 
 // ASTDataDecl
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
 	: ASTDecl(location), list(NULL), manager(NULL),
-	  baseType(NULL), initializer(NULL)
+	  baseType(NULL), mInitializer(NULL)
 {}
 
 ASTDataDecl::ASTDataDecl(ASTDataDecl const& base)
 	: ASTDecl(base),
-	  baseType(base.baseType ? base.baseType->clone() : NULL),
+	  baseType(AST::clone(base.baseType)),
 	  name(base.name),
-	  initializer(base.initializer ? base.initializer->clone() : NULL),
+	  mInitializer(AST::clone(base.mInitializer)),
+	  extraArrays(AST::clone(base.extraArrays)),
 	  // list and manager indicate being this object being "owned" by them, so
 	  // it doesn't make sense for a copy to keep those values.
 	  list(NULL), manager(NULL)
-{
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it = base.extraArrays.begin();
-		 it != base.extraArrays.end(); ++it)
-		extraArrays.push_back((*it)->clone());
-}
-
+{}
 
 ASTDataDecl::~ASTDataDecl()
 {
 	delete baseType;
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
-		 it != extraArrays.end(); ++it)
-		delete *it;
-	delete initializer;
+	deleteElements(extraArrays);
+	delete mInitializer;
 }
+
 ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 {
 	ASTDecl::operator=(rhs);
-	// Delete.
+
 	delete baseType;
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
-		 it != extraArrays.end(); ++it)
-		delete *it;
-	delete initializer;
-	// Copy.
+	deleteElements(extraArrays);
+	delete mInitializer;
+
 	list = NULL;
 	manager = NULL;
-	baseType = rhs.baseType ? rhs.baseType->clone() : NULL;
+	baseType = AST::clone(rhs.baseType);
 	name = rhs.name;
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it = rhs.extraArrays.begin();
-		 it != rhs.extraArrays.end(); ++it)
-		extraArrays.push_back((*it)->clone());
-	initializer = rhs.initializer ? rhs.initializer->clone() : NULL;
-	// Return.
+	extraArrays = AST::clone(rhs.extraArrays);
+	mInitializer = AST::clone(rhs.mInitializer);
+
 	return *this;
 }
 
-void ASTDataDecl::setInitializer(ASTExpr* initializer)
+ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 {
-	this->initializer = initializer;
+	mInitializer = initializer;
 
 	// Give a string or array literal a reference back to this object so it
 	// can grab size information.
@@ -771,6 +892,8 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 			stringLiteral.declaration = this;
 		}
 	}
+
+	return initializer;
 }
 
 ZVarType const* ASTDataDecl::resolveType(Scope* scope) const
@@ -798,34 +921,26 @@ ASTDataDeclExtraArray::ASTDataDeclExtraArray(LocationData const& location)
 	: AST(location)
 {}
 
-ASTDataDeclExtraArray::ASTDataDeclExtraArray(ASTDataDeclExtraArray const& base)
-	: AST(base)
-{
-	for (vector<ASTExpr*>::const_iterator it = base.dimensions.begin();
-		 it != base.dimensions.end(); ++it)
-		dimensions.push_back((*it)->clone());
-}
-
-ASTDataDeclExtraArray& ASTDataDeclExtraArray::operator=(ASTDataDeclExtraArray const& rhs)
-{
-	AST::operator=(rhs);
-	// Delete.
-	for (vector<ASTExpr*>::iterator it = dimensions.begin();
-		 it != dimensions.end(); ++it)
-		delete *it;
-	// Copy.
-	for (vector<ASTExpr*>::const_iterator it = rhs.dimensions.begin();
-		 it != rhs.dimensions.end(); ++it)
-		dimensions.push_back((*it)->clone());
-	// Return.
-	return *this;
-}
+ASTDataDeclExtraArray::ASTDataDeclExtraArray(
+		ASTDataDeclExtraArray const& base)
+	: AST(base), dimensions(AST::clone(base.dimensions))
+{}
 
 ASTDataDeclExtraArray::~ASTDataDeclExtraArray()
 {
-	for (vector<ASTExpr*>::iterator it = dimensions.begin();
-		 it != dimensions.end(); ++it)
-		delete *it;
+	deleteElements(dimensions);
+}
+
+ASTDataDeclExtraArray& ASTDataDeclExtraArray::operator=(
+		ASTDataDeclExtraArray const& rhs)
+{
+	AST::operator=(rhs);
+
+	deleteElements(dimensions);
+
+	dimensions = AST::clone(rhs.dimensions);
+
+	return *this;
 }
 
 bool ASTDataDeclExtraArray::isConstant() const
@@ -852,14 +967,29 @@ int ASTDataDeclExtraArray::getTotalSize() const
 
 // ASTTypeDef
 
+ASTTypeDef::ASTTypeDef(
+		ASTVarType* type, string const& name, LocationData const& location)
+	 : ASTDecl(location), type(type), name(name)
+{}
+
+ASTTypeDef::ASTTypeDef(ASTTypeDef const& base)
+	: ASTDecl(base), type(AST::clone(base.type)), name(base.name)
+{}
+
 ASTTypeDef::~ASTTypeDef()
 {
 	delete type;
 }
 
-ASTTypeDef* ASTTypeDef::clone() const
+ASTTypeDef& ASTTypeDef::operator=(ASTTypeDef const& rhs)
 {
-	return new ASTTypeDef(type->clone(), name, getLocation());
+	ASTDecl::operator=(rhs);
+
+	delete type;
+
+	type = AST::clone(rhs.type);
+
+	return *this;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -867,69 +997,104 @@ ASTTypeDef* ASTTypeDef::clone() const
 
 // ASTExpr
 
+ASTExpr::ASTExpr(LocationData const& location)
+	: ASTStmt(location),
+	  hasValue(false),
+	  value(0L),
+	  varType(NULL),
+	  lval(false)
+{}
+
 ASTExpr::ASTExpr(ASTExpr const& base)
-	: ASTStmt(base), hasValue(base.hasValue), value(base.value), lval(false), varType(base.varType)
+	: ASTStmt(base),
+	  hasValue(base.hasValue),
+	  value(base.value),
+	  varType(base.varType),
+	  lval(false)
 {}
 
 ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 {
 	ASTStmt::operator=(rhs);
+	
 	lval = rhs.lval;
 	hasValue = rhs.hasValue;
 	value = rhs.value;
 	varType = rhs.varType;
+
 	return *this;
 }
 
 
-
 // ASTExprConst
 
-ASTExprConst::ASTExprConst(ASTExprConst const& base) : ASTExpr(base)
-{
-	content = base.content ? base.content->clone() : NULL;
-}
+ASTExprConst::ASTExprConst(ASTExpr* content, LocationData const& location)
+	: ASTExpr(location), content(content)
+{}
+
+ASTExprConst::ASTExprConst(ASTExprConst const& base)
+	: ASTExpr(base), content(AST::clone(base.content))
+{}
 
 ASTExprConst& ASTExprConst::operator=(ASTExprConst const& rhs)
 {
 	ASTExpr::operator=(rhs);
-	content = rhs.content->clone();
+	
+	content = AST::clone(rhs.content);
+	
 	return *this;
 }
 
 // ASTExprAssign
 
+ASTExprAssign::ASTExprAssign(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExpr(location), left(left), right(right) {}
+
+ASTExprAssign::ASTExprAssign(ASTExprAssign const& base)
+	: ASTExpr(base), left(AST::clone(base.left)), right(AST::clone(base.right))
+{}
+
 ASTExprAssign::~ASTExprAssign()
 {
-	delete lval;
-	delete rval;
+	delete left;
+	delete right;
 }
 
-ASTExprAssign* ASTExprAssign::clone() const
+ASTExprAssign& ASTExprAssign::operator=(ASTExprAssign const& rhs)
 {
-	return new ASTExprAssign(
-			lval != NULL ? lval->clone() : NULL,
-			rval != NULL ? rval->clone() : NULL,
-			getLocation());
+	ASTExpr::operator=(rhs);
+
+	delete left;
+	delete right;
+
+	left = AST::clone(rhs.left);
+	right = AST::clone(rhs.right);
+
+	return *this;
 }
 
 // ASTExprIdentifier
 
-ASTExprIdentifier::ASTExprIdentifier(string const& name, LocationData const& location)
-	: ASTExpr(location), isConstant_(false)
+ASTExprIdentifier::ASTExprIdentifier(string const& name,
+									 LocationData const& location)
+	: ASTExpr(location), mIsConstant(false)
 {
-	components.push_back(name);
+	if (name != "") components.push_back(name);
 }
 
 ASTExprIdentifier::ASTExprIdentifier(ASTExprIdentifier const& base)
-	: ASTExpr(base), isConstant_(base.isConstant_), components(base.components)
+	: ASTExpr(base), mIsConstant(base.mIsConstant),
+	  components(base.components)
 {}
 
 ASTExprIdentifier& ASTExprIdentifier::operator=(ASTExprIdentifier const& base)
 {
 	ASTExpr::operator=(base);
+	
 	components = base.components;
-	isConstant_ = base.isConstant_;
+	mIsConstant = base.mIsConstant;
+	
 	return *this;
 }
 
@@ -948,23 +1113,29 @@ string ASTExprIdentifier::asString() const
 
 // ASTExprArrow
 
-ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right, LocationData const& location)
+ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
+						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL)
 {}
 
 ASTExprArrow::ASTExprArrow(ASTExprArrow const& base)
-	: ASTExpr(base), left(base.left->clone()), right(base.right),
-	  index(base.index ? base.index->clone() : NULL)
+	: ASTExpr(base),
+	  left(AST::clone(base.left)),
+	  right(base.right),
+	  index(AST::clone(base.index))
 {}
 
 ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 {
 	ASTExpr::operator=(rhs);
+	
 	delete left;
-	left = rhs.left->clone();
-	right = rhs.right;
 	delete index;
-	index = rhs.index ? rhs.index->clone() : NULL;
+
+	left = AST::clone(rhs.left);
+	right = rhs.right;
+	index = AST::clone(rhs.index);
+
 	return *this;
 }
 
@@ -983,21 +1154,27 @@ string ASTExprArrow::asString() const
 
 // ASTExprIndex
 
-ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index, LocationData const& location)
+ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index,
+						   LocationData const& location)
 	: ASTExpr(location), array(array), index(index)
 {}
 
 ASTExprIndex::ASTExprIndex(ASTExprIndex const& base)
-	: ASTExpr(base.getLocation()),
-	  array(base.array ? base.array->clone() : NULL),
-	  index(base.index ? base.index->clone() : NULL)
+	: ASTExpr(base),
+	  array(AST::clone(base.array)),
+	  index(AST::clone(base.index))
 {}
 
 ASTExprIndex& ASTExprIndex::operator=(ASTExprIndex const& rhs)
 {
 	ASTExpr::operator=(rhs);
-	array = rhs.array ? rhs.array->clone() : NULL;
-	index = rhs.index ? rhs.index->clone() : NULL;
+
+	delete array;
+	delete index;
+	
+	array = AST::clone(rhs.array);
+	index = AST::clone(rhs.index);
+	
 	return *this;
 }
 
@@ -1007,7 +1184,6 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
-
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
@@ -1015,135 +1191,602 @@ ASTExprCall::ASTExprCall(LocationData const& location)
 {}
 
 ASTExprCall::ASTExprCall(ASTExprCall const& base)
-	: ASTExpr(base), left(base.left)
+	: ASTExpr(base),
+	  left(AST::clone(base.left)),
+	  parameters(AST::clone(base.parameters))
+{}
+
+ASTExprCall::~ASTExprCall()
 {
-	for (list<ASTExpr*>::const_iterator it = base.params.begin(); it != base.params.end(); ++it)
-		params.push_back((*it)->clone());
+    delete left;
+	deleteElements(parameters);
 }
 
 ASTExprCall& ASTExprCall::operator=(ASTExprCall const& rhs)
 {
 	ASTExpr::operator=(rhs);
+	
 	delete left;
-	left = rhs.left;
-	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
-		delete *it;
-	for (list<ASTExpr*>::const_iterator it = rhs.params.begin(); it != rhs.params.end(); ++it)
-		params.push_back((*it)->clone());
-	return *this;
-}
+	deleteElements(parameters);
 
-ASTExprCall::~ASTExprCall()
-{
-    delete left;
-	for (list<ASTExpr*>::iterator it = params.begin(); it != params.end(); ++it)
-		delete *it;
+	left = AST::clone(rhs.left);
+	parameters = AST::clone(rhs.parameters);
+
+	return *this;
 }
 
 // ASTUnaryExpr
 
+ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
+	: ASTExpr(location)
+{}
+
 ASTUnaryExpr::ASTUnaryExpr(ASTUnaryExpr const& base)
-	: ASTExpr(base), operand(base.operand ? base.operand->clone() : NULL)
+	: ASTExpr(base), operand(AST::clone(base.operand))
 {}
 
 ASTUnaryExpr& ASTUnaryExpr::operator=(ASTUnaryExpr const& rhs)
 {
 	ASTExpr::operator=(rhs);
+	
 	delete operand;
-	operand = rhs.operand ? rhs.operand->clone() : NULL;
+
+	operand = AST::clone(rhs.operand);
+
 	return *this;
 }
 
 // ASTExprNegate
 
+ASTExprNegate::ASTExprNegate(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprNegate::ASTExprNegate(ASTExprNegate const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprNegate& ASTExprNegate::operator=(ASTExprNegate const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprNot
+
+ASTExprNot::ASTExprNot(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprNot::ASTExprNot(ASTExprNot const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprNot& ASTExprNot::operator=(ASTExprNot const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprBitNot
 
+ASTExprBitNot::ASTExprBitNot(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprBitNot::ASTExprBitNot(ASTExprBitNot const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprBitNot& ASTExprBitNot::operator=(ASTExprBitNot const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprIncrement
+
+ASTExprIncrement::ASTExprIncrement(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprIncrement::ASTExprIncrement(ASTExprIncrement const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprIncrement& ASTExprIncrement::operator=(ASTExprIncrement const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprPreIncrement
 
+ASTExprPreIncrement::ASTExprPreIncrement(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprPreIncrement::ASTExprPreIncrement(ASTExprPreIncrement const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprPreIncrement& ASTExprPreIncrement::operator=(
+		ASTExprPreIncrement const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprDecrement
+
+ASTExprDecrement::ASTExprDecrement(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprDecrement::ASTExprDecrement(ASTExprDecrement const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprDecrement& ASTExprDecrement::operator=(ASTExprDecrement const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprPreDecrement
 
+ASTExprPreDecrement::ASTExprPreDecrement(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+ASTExprPreDecrement::ASTExprPreDecrement(ASTExprPreDecrement const& base)
+	: ASTUnaryExpr(base)
+{}
+
+ASTExprPreDecrement& ASTExprPreDecrement::operator=(
+		ASTExprPreDecrement const& rhs)
+{
+	ASTUnaryExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTBinaryExpr
 
-ASTBinaryExpr::ASTBinaryExpr(ASTBinaryExpr const& base)
-	: ASTExpr(base),
-	  first(base.first ? base.first->clone() : NULL),
-	  second(base.second ? base.second->clone() : NULL)
+ASTBinaryExpr::ASTBinaryExpr(ASTExpr* left, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExpr(location), left(left), right(right)
 {}
+
+ASTBinaryExpr::ASTBinaryExpr(ASTBinaryExpr const& base)
+	: ASTExpr(base), left(AST::clone(base.left)),
+	  right(AST::clone(base.right))
+{}
+
+ASTBinaryExpr::~ASTBinaryExpr()
+{
+	delete left;
+	delete right;
+}
 
 ASTBinaryExpr& ASTBinaryExpr::operator=(ASTBinaryExpr const& rhs)
 {
 	ASTExpr::operator=(rhs);
-	delete first;
-	first = rhs.first ? rhs.first->clone() : NULL;
-	delete second;
-	second = rhs.second ? rhs.second->clone() : NULL;
+	
+	delete left;
+	delete right;
+
+	left = AST::clone(rhs.left);
+	right = AST::clone(rhs.right);
+	
 	return *this;
 }
 
-ASTBinaryExpr::~ASTBinaryExpr()
+bool ASTBinaryExpr::isConstant() const
 {
-	delete first;
-	delete second;
+	if (left && !left->isConstant()) return false;
+	if (right && !right->isConstant()) return false;
+	return true;
 }
 
 // ASTLogExpr
 
+ASTLogExpr::ASTLogExpr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBinaryExpr(left, right, location)
+{}
+
+ASTLogExpr::ASTLogExpr(ASTLogExpr const& base) : ASTBinaryExpr(base) {}
+
+ASTLogExpr& ASTLogExpr::operator=(ASTLogExpr const& rhs)
+{
+	ASTBinaryExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprAnd
+
+ASTExprAnd::ASTExprAnd(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTLogExpr(left, right, location)
+{}
+
+ASTExprAnd::ASTExprAnd(ASTExprAnd const& base) : ASTLogExpr(base) {}
+
+ASTExprAnd& ASTExprAnd::operator=(ASTExprAnd const& rhs)
+{
+	ASTLogExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprOr
 
+ASTExprOr::ASTExprOr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTLogExpr(left, right, location)
+{}
+
+ASTExprOr::ASTExprOr(ASTExprOr const& base) : ASTLogExpr(base) {}
+
+ASTExprOr& ASTExprOr::operator=(ASTExprOr const& rhs)
+{
+	ASTLogExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTRelExpr
+
+ASTRelExpr::ASTRelExpr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBinaryExpr(left, right, location)
+{}
+
+ASTRelExpr::ASTRelExpr(ASTRelExpr const& base) : ASTBinaryExpr(base) {}
+
+ASTRelExpr& ASTRelExpr::operator=(ASTRelExpr const& rhs)
+{
+	ASTBinaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprGT
 
+ASTExprGT::ASTExprGT(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+ASTExprGT::ASTExprGT(ASTExprGT const& base) : ASTRelExpr(base) {}
+
+ASTExprGT& ASTExprGT::operator=(ASTExprGT const& rhs)
+{
+	ASTRelExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprGE
+
+ASTExprGE::ASTExprGE(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+ASTExprGE::ASTExprGE(ASTExprGE const& base) : ASTRelExpr(base) {}
+
+ASTExprGE& ASTExprGE::operator=(ASTExprGE const& rhs)
+{
+	ASTRelExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprLT
 
+ASTExprLT::ASTExprLT(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+ASTExprLT::ASTExprLT(ASTExprLT const& base) : ASTRelExpr(base) {}
+
+ASTExprLT& ASTExprLT::operator=(ASTExprLT const& rhs)
+{
+	ASTRelExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprLE
+
+ASTExprLE::ASTExprLE(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+ASTExprLE::ASTExprLE(ASTExprLE const& base) : ASTRelExpr(base) {}
+
+ASTExprLE& ASTExprLE::operator=(ASTExprLE const& rhs)
+{
+	ASTRelExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprEQ
 
+ASTExprEQ::ASTExprEQ(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+ASTExprEQ::ASTExprEQ(ASTExprEQ const& base) : ASTRelExpr(base) {}
+
+ASTExprEQ& ASTExprEQ::operator=(ASTExprEQ const& rhs)
+{
+	ASTRelExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprNE
+
+ASTExprNE::ASTExprNE(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+ASTExprNE::ASTExprNE(ASTExprNE const& base) : ASTRelExpr(base) {}
+
+ASTExprNE& ASTExprNE::operator=(ASTExprNE const& rhs)
+{
+	ASTRelExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTAddExpr
 
+ASTAddExpr::ASTAddExpr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBinaryExpr(left, right, location)
+{}
+
+ASTAddExpr::ASTAddExpr(ASTAddExpr const& base) : ASTBinaryExpr(base) {}
+
+ASTAddExpr& ASTAddExpr::operator=(ASTAddExpr const& rhs)
+{
+	ASTBinaryExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprPlus
+
+ASTExprPlus::ASTExprPlus(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTAddExpr(left, right, location)
+{}
+
+ASTExprPlus::ASTExprPlus(ASTExprPlus const& base) : ASTAddExpr(base) {}
+
+ASTExprPlus& ASTExprPlus::operator=(ASTExprPlus const& rhs)
+{
+	ASTAddExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprMinus
 
+ASTExprMinus::ASTExprMinus(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTAddExpr(left, right, location)
+{}
+
+ASTExprMinus::ASTExprMinus(ASTExprMinus const& base) : ASTAddExpr(base) {}
+
+ASTExprMinus& ASTExprMinus::operator=(ASTExprMinus const& rhs)
+{
+	ASTAddExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTMultExpr
+
+ASTMultExpr::ASTMultExpr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBinaryExpr(left, right, location)
+{}
+
+ASTMultExpr::ASTMultExpr(ASTMultExpr const& base) : ASTBinaryExpr(base) {}
+
+ASTMultExpr& ASTMultExpr::operator=(ASTMultExpr const& rhs)
+{
+	ASTBinaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprTimes
 
+ASTExprTimes::ASTExprTimes(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTMultExpr(left, right, location)
+{}
+
+ASTExprTimes::ASTExprTimes(ASTExprTimes const& base) : ASTMultExpr(base) {}
+
+ASTExprTimes& ASTExprTimes::operator=(ASTExprTimes const& rhs)
+{
+	ASTMultExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprDivide
+
+ASTExprDivide::ASTExprDivide(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTMultExpr(left, right, location)
+{}
+
+ASTExprDivide::ASTExprDivide(ASTExprDivide const& base) : ASTMultExpr(base) {}
+
+ASTExprDivide& ASTExprDivide::operator=(ASTExprDivide const& rhs)
+{
+	ASTMultExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprModulo
 
+ASTExprModulo::ASTExprModulo(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTMultExpr(left, right, location)
+{}
+
+ASTExprModulo::ASTExprModulo(ASTExprModulo const& base) : ASTMultExpr(base) {}
+
+ASTExprModulo& ASTExprModulo::operator=(ASTExprModulo const& rhs)
+{
+	ASTMultExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTBitExpr
+
+ASTBitExpr::ASTBitExpr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBinaryExpr(left, right, location)
+{}
+
+ASTBitExpr::ASTBitExpr(ASTBitExpr const& base) : ASTBinaryExpr(base) {}
+
+ASTBitExpr& ASTBitExpr::operator=(ASTBitExpr const& rhs)
+{
+	ASTBinaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprBitAnd
 
+ASTExprBitAnd::ASTExprBitAnd(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBitExpr(left, right, location)
+{}
+
+ASTExprBitAnd::ASTExprBitAnd(ASTExprBitAnd const& base) : ASTBitExpr(base) {}
+
+ASTExprBitAnd& ASTExprBitAnd::operator=(ASTExprBitAnd const& rhs)
+{
+	ASTBitExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprBitOr
+
+ASTExprBitOr::ASTExprBitOr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBitExpr(left, right, location)
+{}
+
+ASTExprBitOr::ASTExprBitOr(ASTExprBitOr const& base) : ASTBitExpr(base) {}
+
+ASTExprBitOr& ASTExprBitOr::operator=(ASTExprBitOr const& rhs)
+{
+	ASTBitExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprBitXor
 
+ASTExprBitXor::ASTExprBitXor(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBitExpr(left, right, location)
+{}
+
+ASTExprBitXor::ASTExprBitXor(ASTExprBitXor const& base) : ASTBitExpr(base) {}
+
+ASTExprBitXor& ASTExprBitXor::operator=(ASTExprBitXor const& rhs)
+{
+	ASTBitExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTShiftExpr
+
+ASTShiftExpr::ASTShiftExpr(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTBinaryExpr(left, right, location)
+{}
+
+ASTShiftExpr::ASTShiftExpr(ASTShiftExpr const& base) : ASTBinaryExpr(base) {}
+
+ASTShiftExpr& ASTShiftExpr::operator=(ASTShiftExpr const& rhs)
+{
+	ASTBinaryExpr::operator=(rhs);
+
+	return *this;
+}
 
 // ASTExprLShift
 
+ASTExprLShift::ASTExprLShift(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTShiftExpr(left, right, location)
+{}
+
+ASTExprLShift::ASTExprLShift(ASTExprLShift const& base) : ASTShiftExpr(base) {}
+
+ASTExprLShift& ASTExprLShift::operator=(ASTExprLShift const& rhs)
+{
+	ASTShiftExpr::operator=(rhs);
+
+	return *this;
+}
+
 // ASTExprRShift
+
+ASTExprRShift::ASTExprRShift(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTShiftExpr(left, right, location)
+{}
+
+ASTExprRShift::ASTExprRShift(ASTExprRShift const& base) : ASTShiftExpr(base) {}
+
+ASTExprRShift& ASTExprRShift::operator=(ASTExprRShift const& rhs)
+{
+	ASTShiftExpr::operator=(rhs);
+
+	return *this;
+}
 
 ////////////////////////////////////////////////////////////////
 // Literals
 
 // ASTLiteral
+
+ASTLiteral::ASTLiteral(LocationData const& location)
+	: ASTExpr(location), manager(NULL)
+{}
 
 ASTLiteral& ASTLiteral::operator=(ASTLiteral const& rhs)
 {
@@ -1154,20 +1797,31 @@ ASTLiteral& ASTLiteral::operator=(ASTLiteral const& rhs)
 
 // ASTNumberLiteral
 
-ASTNumberLiteral::ASTNumberLiteral(ASTNumberLiteral const& base) : ASTLiteral(base)
-{
-	val = base.val ? base.val->clone() : NULL;
-}
+ASTNumberLiteral::ASTNumberLiteral(
+		ASTFloat* value, LocationData const& location)
+	: ASTLiteral(location), value(value)
+{}
+
+ASTNumberLiteral::ASTNumberLiteral(ASTNumberLiteral const& base)
+	: ASTLiteral(base), value(AST::clone(base.value))
+{}
 
 ASTNumberLiteral& ASTNumberLiteral::operator=(ASTNumberLiteral const& rhs)
 {
 	ASTLiteral::operator=(rhs);
-	delete val;
-	val = rhs.val ? rhs.val->clone() : NULL;
+
+	delete value;
+
+	value = AST::clone(rhs.value);
+
 	return *this;
 }
 
 // ASTBoolLiteral
+
+ASTBoolLiteral::ASTBoolLiteral(bool value, LocationData const& location)
+	: ASTLiteral(location), value(value)
+{}
 
 ASTBoolLiteral::ASTBoolLiteral(ASTBoolLiteral const& base)
 	: ASTLiteral(base), value(base.value)
@@ -1176,28 +1830,31 @@ ASTBoolLiteral::ASTBoolLiteral(ASTBoolLiteral const& base)
 ASTBoolLiteral& ASTBoolLiteral::operator=(ASTBoolLiteral const& rhs)
 {
 	ASTLiteral::operator=(rhs);
+
 	value = rhs.value;
+
 	return *this;
 }
 
 // ASTStringLiteral
 
 ASTStringLiteral::ASTStringLiteral(char const* str, LocationData const& location)
-	: ASTLiteral(location), data(str), declaration(NULL)
+	: ASTLiteral(location), value(str), declaration(NULL)
 {}
 
-ASTStringLiteral::ASTStringLiteral(string const& str, LocationData const& location)
-	: ASTLiteral(location), data(str), declaration(NULL)
+ASTStringLiteral::ASTStringLiteral(
+		string const& str, LocationData const& location)
+	: ASTLiteral(location), value(str), declaration(NULL)
 {}
 
 ASTStringLiteral::ASTStringLiteral(ASTString const& raw)
-	: ASTLiteral(raw.getLocation()),
-	  data(raw.getValue().substr(1, raw.getValue().size() - 2)),
+	: ASTLiteral(raw.location),
+	  value(raw.getValue().substr(1, raw.getValue().size() - 2)),
 	  declaration(NULL)
 {}
 
 ASTStringLiteral::ASTStringLiteral(ASTStringLiteral const& base)
-	: ASTLiteral(base), data(base.data),
+	: ASTLiteral(base), value(base.value),
 	  // declaration field is managed by the declaration itself, so it stays
 	  // NULL regardless.
 	  declaration(NULL)
@@ -1206,7 +1863,7 @@ ASTStringLiteral::ASTStringLiteral(ASTStringLiteral const& base)
 ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
 {
 	ASTLiteral::operator=(rhs);
-	data = rhs.data;
+	value = rhs.value;
 	declaration = NULL;
 	return *this;
 }
@@ -1219,53 +1876,81 @@ ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
 
 ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
 	: ASTLiteral(base),
-	  type(base.type ? base.type->clone() : NULL),
-	  size(base.size ? base.size->clone() : NULL),
+	  type(AST::clone(base.type)),
+	  size(AST::clone(base.size)),
+	  elements(AST::clone(base.elements)),
 	  // declaration field is managed by the declaration itself, so it stays
 	  // NULL regardless.
 	  declaration(NULL)
-{
-	for (vector<ASTExpr*>::const_iterator it = base.elements.begin();
-		 it != base.elements.end(); ++it)
-		elements.push_back((*it)->clone());
-}
-
-ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
-{
-	ASTLiteral::operator=(rhs);
-	// Delete.
-	delete type;
-	delete size;
-	for (vector<ASTExpr*>::iterator it = elements.begin();
-		 it != elements.end(); ++it)
-		delete *it;
-	// Copy.
-	type = rhs.type ? rhs.type->clone() : NULL;
-	size = rhs.size ? rhs.size->clone() : NULL;
-	declaration = NULL;
-	for (vector<ASTExpr*>::const_iterator it = rhs.elements.begin();
-		 it != rhs.elements.end(); ++it)
-		elements.push_back((*it)->clone());
-	// Return.
-	return *this;
-}
+{}
 
 ASTArrayLiteral::~ASTArrayLiteral()
 {
 	delete type;
 	delete size;
-	for (vector<ASTExpr*>::iterator it = elements.begin();
-		 it != elements.end(); ++it)
-		delete *it;
+	deleteElements(elements);
 }
 
+ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+
+	delete type;
+	delete size;
+	deleteElements(elements);
+
+	type = AST::clone(rhs.type);
+	size = AST::clone(rhs.size);
+	elements = AST::clone(rhs.elements);
+	declaration = NULL;
+
+	return *this;
+}
 
 ////////////////////////////////////////////////////////////////
 // Types
 
 // ASTScriptType
 
+ASTScriptType::ASTScriptType(ScriptType type, LocationData const& location)
+	: AST(location), type(type)
+{}
+
+ASTScriptType::ASTScriptType(ASTScriptType const& base)
+	: AST(base), type(base.type)
+{}
+
+ASTScriptType& ASTScriptType::operator=(ASTScriptType const& rhs)
+{
+	AST::operator=(rhs);
+
+	type = rhs.type;
+
+	return *this;
+}
+
 // ASTVarType
+
+ASTVarType::ASTVarType(ZVarType* type, LocationData const& location)
+	: AST(location), type(type)
+{}
+
+ASTVarType::ASTVarType(ZVarType const& type, LocationData const& location)
+	: AST(location), type(type.clone())
+{}
+
+ASTVarType::ASTVarType(ASTVarType const& base)
+	: AST(base), type(AST::clone(base.type))
+{}
+
+ASTVarType& ASTVarType::operator=(ASTVarType const& rhs)
+{
+	AST::operator=(rhs);
+
+	type = AST::clone(rhs.type);
+
+	return *this;
+}
 
 ZVarType const& ASTVarType::resolve(Scope& scope)
 {
