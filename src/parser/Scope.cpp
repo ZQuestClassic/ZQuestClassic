@@ -272,7 +272,7 @@ vector<int> Scope::getFunctionIds(vector<string> const& names)const
 	return scope->getFunctionIds(names.back());
 }
 
-Function* Scope::getFunction(FunctionSignature const& signature) const
+Function* Scope::getFunction(ZScript::Function::Signature const& signature) const
 {
 	Function* function = getLocalFunction(signature);
 	if (!function)
@@ -283,7 +283,7 @@ Function* Scope::getFunction(FunctionSignature const& signature) const
 	return function;
 }
 
-int Scope::getFunctionId(FunctionSignature const& signature) const
+int Scope::getFunctionId(ZScript::Function::Signature const& signature) const
 {
 	Function* function = getLocalFunction(signature);
 	if (!function)
@@ -325,7 +325,7 @@ BasicScope::~BasicScope()
 		delete *it;
 	for (map<string, Variable*>::iterator it = variables.begin(); it != variables.end(); ++it)
 		delete it->second;
-	for (map<FunctionSignature, Function*>::iterator it = functionsBySignature.begin();
+	for (map<ZScript::Function::Signature, Function*>::iterator it = functionsBySignature.begin();
 		 it != functionsBySignature.end(); ++it)
 		delete it->second;
 	for (map<string, Function*>::iterator it = getters.begin(); it != getters.end(); ++it)
@@ -514,7 +514,7 @@ Function* BasicScope::addSetter(
 
 void BasicScope::getLocalFunctions(vector<Function*>& functions) const
 {
-	for (map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.begin();
+	for (map<ZScript::Function::Signature, Function*>::const_iterator it = functionsBySignature.begin();
 		 it != functionsBySignature.end(); ++it)
 		functions.push_back(it->second);
 }
@@ -526,9 +526,9 @@ void BasicScope::getLocalFunctions(string const& name, vector<Function*>& out) c
 		out.insert(out.end(), it->second.begin(), it->second.end());
 }
 
-Function* BasicScope::getLocalFunction(FunctionSignature const& signature) const
+Function* BasicScope::getLocalFunction(ZScript::Function::Signature const& signature) const
 {
-	map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.find(signature);
+	map<ZScript::Function::Signature, Function*>::const_iterator it = functionsBySignature.find(signature);
 	if (it == functionsBySignature.end()) return NULL;
 	return it->second;
 }
@@ -536,8 +536,8 @@ Function* BasicScope::getLocalFunction(FunctionSignature const& signature) const
 Function* BasicScope::addFunction(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node)
 {
 	// Return null if function with signature already exists locally.
-	FunctionSignature signature(name, paramTypes);
-	map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.find(signature);
+	ZScript::Function::Signature signature(name, paramTypes);
+	map<ZScript::Function::Signature, Function*>::const_iterator it = functionsBySignature.find(signature);
 	if (it != functionsBySignature.end()) return NULL;
 
 	Function* fun = new Function(returnType, name, paramTypes, ScriptParser::getUniqueFuncID());

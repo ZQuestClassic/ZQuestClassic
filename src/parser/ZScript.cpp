@@ -172,6 +172,37 @@ Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, 
 	if (node) node->manager = this;
 }
 
+// ZScript::Function::Signature
+
+Function::Signature::Signature(
+		string const& name, vector<ZVarType const*> const& parameterTypes)
+	: name(name), parameterTypes(parameterTypes)
+{}
+
+int Function::Signature::compare(Function::Signature const& other) const
+{
+	int c = name.compare(other.name);
+	if (c) return c;
+	c = parameterTypes.size() - other.parameterTypes.size();
+	if (c) return c;
+	for (int i = 0; i < (int)parameterTypes.size(); ++i)
+	{
+		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		if (c) return c;
+	}
+	return 0;
+}
+
+bool Function::Signature::operator==(Function::Signature const& other) const
+{
+	return compare(other) == 0;
+}
+
+bool Function::Signature::operator<(Function::Signature const& other) const
+{
+	return compare(other) < 0;
+}
+
 // ZScript::Function
 
 Script* Function::getScript() const
@@ -183,3 +214,4 @@ Script* Function::getScript() const
 	ScriptScope* scriptScope = (ScriptScope*)parentScope;
 	return &scriptScope->script;
 }
+
