@@ -1,8 +1,12 @@
 #ifndef ZSCRIPT_H
 #define ZSCRIPT_H
 
-#include "DataStructs.h"
-#include "Scope.h"
+#include <vector>
+#include <map>
+
+class SymbolTable;
+class GlobalScope;
+class ScriptScope;
 
 namespace ZScript
 {
@@ -12,8 +16,8 @@ namespace ZScript
 		Program(ASTProgram* ast);
 		~Program();
 		ASTProgram* node;
-		SymbolTable table;
-		GlobalScope globalScope;
+		SymbolTable& table;
+		GlobalScope& globalScope;
 
 		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
@@ -36,6 +40,10 @@ namespace ZScript
 	private:
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
+
+		// Disabled.
+		Program(Program const&);
+		Program& operator=(Program const&);
 	};
 
 	class Script
