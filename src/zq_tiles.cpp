@@ -5514,7 +5514,7 @@ void register_used_tiles()
     
     for(int u=0; u<iLast; u++)
     {
-        for(int t=zc_max(itemsbuf[u].tile,0); t<zc_min(itemsbuf[u].tile+zc_max(itemsbuf[u].frames,1),NEWMAXTILES); ++t)
+        for(int t=zc_max(curQuest->itemDefTable().getItemDefinition(u).tile,0); t<zc_min(curQuest->itemDefTable().getItemDefinition(u).tile+zc_max(curQuest->itemDefTable().getItemDefinition(u).frames,1),NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         }
@@ -5841,6 +5841,8 @@ void register_used_tiles()
     }
 }
 
+extern item_struct *bii;
+
 bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
 {
     bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
@@ -6053,7 +6055,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     int i;
     bool *move_combo_list = new bool[MAXCOMBOS];
-    bool *move_items_list = new bool[iMax];
+    bool *move_items_list = new bool[curQuest->itemDefTable().getNumItemDefinitions()];
     bool *move_weapons_list = new bool[wMAX];
     bool move_link_sprites_list[41];
     bool move_mapstyles_list[6];
@@ -6191,24 +6193,24 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 flood=false;
                 build_bii_list(false);
                 
-                for(int u=0; u<iMax; u++)
+                for(int u=0; u<curQuest->itemDefTable().getNumItemDefinitions(); u++)
                 {
                     move_items_list[u]=false;
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(curQuest->itemDefTable().getItemDefinition(bii[u].i).tile, curQuest->itemDefTable().getItemDefinition(bii[u].i).tile+zc_max(curQuest->itemDefTable().getItemDefinition(bii[u].i).frames,1)-1, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
+                        i=move_intersection_ss(curQuest->itemDefTable().getItemDefinition(bii[u].i).tile, curQuest->itemDefTable().getItemDefinition(bii[u].i).tile+zc_max(curQuest->itemDefTable().getItemDefinition(bii[u].i).frames,1)-1, selection_first, selection_last);
                     }
                     
-                    if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
+                    if((i!=ti_none)&&(curQuest->itemDefTable().getItemDefinition(bii[u].i).tile!=0))
                     {
                         if(i==ti_broken || q==0)
                         {
-                            sprintf(temptext, "%s\n", bii[u].s);
+                            sprintf(temptext, "%s\n", bii[u].s.c_str());
                             
                             if(strlen(tile_move_list_text)<65000)
                             {
@@ -7329,11 +7331,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<iMax; u++)
+            for(int u=0; u<curQuest->itemDefTable().getNumItemDefinitions(); u++)
             {
                 if(move_items_list[u])
                 {
-                    itemsbuf[bii[u].i].tile+=diff;
+                    curQuest->itemDefTable().getItemDefinition(bii[u].i).tile+=diff;
                 }
             }
             

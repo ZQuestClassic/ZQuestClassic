@@ -741,11 +741,11 @@ void integrityCheckSideWarpDest()
                 int ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
                 // Check Triforce items as well.
-                bool triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & ITEM_FLAG1);
+                bool triforce = (curQuest->itemDefTable().getItemDefinition(ts->screenItem).family==itype_triforcepiece && curQuest->itemDefTable().getItemDefinition(ts->screenItem).flags & itemdata::IF_FLAG1);
                 
                 if(ts->room==rSP_ITEM && !triforce)
                 {
-                    triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & ITEM_FLAG1);
+                    triforce = (curQuest->itemDefTable().getItemDefinition(ts->screenItem).family==itype_triforcepiece && curQuest->itemDefTable().getItemDefinition(ts->screenItem).flags & itemdata::IF_FLAG1);
                 }
                 
                 if(ctype==cAWARPA || triforce)
@@ -1288,7 +1288,7 @@ void integrityCheckItemWalkability()
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
-            if(ts->item!=0&&
+            if(ts->screenItem!=0&&
                     ((combobuf[ts->data[(ts->itemy    &0xF0)+(ts->itemx    >>4)]].walk!=0) ||
                      (combobuf[ts->data[(ts->itemy    &0xF0)+((ts->itemx+15)>>4)]].walk!=0) ||
                      (combobuf[ts->data[((ts->itemy+15)&0xF0)+(ts->itemx    >>4)]].walk!=0) ||
@@ -1621,6 +1621,8 @@ typedef struct item_location_node
     item_location_node* next;
 } item_location_node;
 
+extern item_struct *bii;
+
 void itemLocationReport()
 {
     mapscr *ts=NULL;
@@ -1630,9 +1632,9 @@ void itemLocationReport()
     
     item_location_node **item_location_grid;
     
-    item_location_grid = new item_location_node*[iMax];
+    item_location_grid = new item_location_node*[curQuest->itemDefTable().getNumItemDefinitions()];
     
-    for(int i=0; i<iMax; i++)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
     {
         item_location_grid[i] = new item_location_node[location_types];
     }
@@ -1641,7 +1643,7 @@ void itemLocationReport()
     item_location_node *tempnode2=NULL;
     item_location_node *newnode=NULL;
     
-    for(int i=0; i<iMax; ++i)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); ++i)
     {
         for(int j=0; j<location_types; ++j)
         {
@@ -1671,7 +1673,7 @@ void itemLocationReport()
             if(ts->hasitem)
             {
                 //start at the room item in the item location grid
-                tempnode=&(item_location_grid[ts->item][0]);
+                tempnode=&(item_location_grid[ts->screenItem][0]);
                 //loop to the end of the list
                 int count=0;
                 
@@ -1798,7 +1800,7 @@ void itemLocationReport()
     build_bii_list(false);
     
     //for each item
-    for(int i2=0; i2<iMax; ++i2)
+    for(int i2=0; i2<curQuest->itemDefTable().getNumItemDefinitions(); ++i2)
     {
         int i=bii[i2].i;
         item_found=false;
@@ -1817,7 +1819,7 @@ void itemLocationReport()
                 if(!item_found)
                 {
                     buf[0]=0;
-                    sprintf(buf, "\n--- %s ---\n", item_string[i]);
+                    sprintf(buf, "\n--- %s ---\n", curQuest->itemDefTable().getItemName(i).c_str());
                     quest_report_str+=buf;
                 }
                 
@@ -1867,7 +1869,7 @@ void itemLocationReport()
         }
     }
     
-    for(int i=0; i<iMax; ++i)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); ++i)
     {
         for(int type=0; type<location_types; ++type)
         {

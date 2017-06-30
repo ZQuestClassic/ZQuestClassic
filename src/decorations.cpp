@@ -458,7 +458,7 @@ dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
         ft[1][3][2]=1;
     }
     
-    wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
+    wpnid=curQuest->itemDefTable().getItemDefinition(current_item_id(itype_hammer)).wpn2;
 }
 
 bool dHammerSmack::animate(int index)
@@ -562,7 +562,7 @@ dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
     id=Id;
     clk=Clk;
-    wpnid = itemsbuf[current_item_id(itype_hoverboots)].wpn;
+    wpnid = curQuest->itemDefTable().getItemDefinition(current_item_id(itype_hoverboots)).wpn;
 }
 
 void dHover::draw(BITMAP *dest)
@@ -609,17 +609,17 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     }
     
     int fb=(misc==0?
-            (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
-             itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
-                (itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
-                 itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
+            ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn5 ?
+                curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn5 : (byte) iwNayrusLoveShieldFront) :
+                ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn10 ?
+                    curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn10 : (byte) iwNayrusLoveShieldBack));
     int t=wpnsbuf[fb].tile;
     int fr=wpnsbuf[fb].frames;
     int spd=wpnsbuf[fb].speed;
     cs=wpnsbuf[fb].csets&15;
     flip=0;
-    bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
-    bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
+    bool flickering = ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG4) != 0;
+    bool translucent = ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG3) != 0;
     
     if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
 {

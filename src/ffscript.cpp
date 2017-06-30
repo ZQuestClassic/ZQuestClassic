@@ -351,7 +351,7 @@ public:
     
     static INLINE int checkItemID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, ITEMCNT-1, str);
+        return checkBounds(ID, 0, curQuest->itemDefTable().getNumItemDefinitions()-1, str);
     }
     
     static INLINE int checkWeaponID(const long ID, const char * const str)
@@ -1116,7 +1116,7 @@ long get_register(const long arg)
         break;
         
     case LINKITEMD:
-        ret = game->item[vbound(ri->d[0]/10000, 0, MAXITEMS-1)] ? 10000 : 0;
+        ret = game->inventoryItems.count(vbound(ri->d[0]/10000, 0, curQuest->itemDefTable().getNumItemDefinitions()-1)) > 0 ? 10000 : 0;
         break;
         
     case LINKEQUIP:
@@ -1721,111 +1721,111 @@ long get_register(const long arg)
 	
 	
     case IDATAUSEWPN:
-        ret=(itemsbuf[ri->idata].useweapon)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).useweapon)*10000;
         break;
     case IDATAUSEDEF:
-        ret=(itemsbuf[ri->idata].usedefence)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).usedefence)*10000;
         break;
     case IDATAWRANGE:
-        ret=(itemsbuf[ri->idata].weaprange)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weaprange)*10000;
         break;
     case IDATAUSEMVT:
     {
 	long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
 	    
-        ret=(itemsbuf[ri->idata].weap_pattern[a])*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_pattern[a])*10000;
         
     }
     break;
     
     case IDATADURATION:
-        ret=(itemsbuf[ri->idata].weapduration)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weapduration)*10000;
         break;
     
     case IDATADUPLICATES:
-        ret=(itemsbuf[ri->idata].duplicates)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).duplicates)*10000;
         break;
     case IDATADRAWLAYER:
-        ret=(itemsbuf[ri->idata].drawlayer)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).drawlayer)*10000;
         break;
     case IDATACOLLECTFLAGS:
-        ret=(itemsbuf[ri->idata].collectflags)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).collectflags)*10000;
         break;
     case IDATAWEAPONSCRIPT:
-        ret=(itemsbuf[ri->idata].weaponscript)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weaponscript)*10000;
         break;
     case IDATAMISCD:
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,31);
-        ret=(itemsbuf[ri->idata].wpn_misc_d[a])*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn_misc_d[a])*10000;
     }
     break;
     case IDATAWPNINITD:
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,7);
-        ret=(itemsbuf[ri->idata].weap_initiald[a])*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_initiald[a])*10000;
     }
     break;
     case IDATAWEAPHXOFS:
-        ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hxofs)*10000;
         break;
     case IDATAWEAPHYOFS:
-        ret=(itemsbuf[ri->idata].weap_yxofs)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_yxofs)*10000;
         break;
     case IDATAWEAPHXSZ:
-        ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hxsz)*10000;
         break;
     case IDATAWEAPHYSZ:
-        ret=(itemsbuf[ri->idata].weap_hysz)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hysz)*10000;
         break;
     case IDATAWEAPHZSZ:
-        ret=(itemsbuf[ri->idata].weap_hzsz)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hzsz)*10000;
         break;
     case IDATAWEAPXOFS:
-        ret=(itemsbuf[ri->idata].weap_xofs)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_xofs)*10000;
         break;
     case IDATAWEAPYOFS:
-        ret=(itemsbuf[ri->idata].weap_yofs)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_yofs)*10000;
         break;
     
     
     
     case IDATAFAMILY:
-        ret=(itemsbuf[ri->idata].family)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).family)*10000;
         break;
         
     case IDATALEVEL:
-        ret=(itemsbuf[ri->idata].fam_type)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).fam_type)*10000;
         break;
         
     case IDATAKEEP:
-        ret=(itemsbuf[ri->idata].flags & ITEM_GAMEDATA)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_GAMEDATA)?10000:0;
         break;
         
     case IDATAAMOUNT:
-        ret=(itemsbuf[ri->idata].amount)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).amount)*10000;
         break;
         
     case IDATASETMAX:
-        ret=(itemsbuf[ri->idata].setmax)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).setmax)*10000;
         break;
         
     case IDATAMAX:
-        ret=(itemsbuf[ri->idata].max)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).max)*10000;
         break;
         
     case IDATACOUNTER:
-        ret=(itemsbuf[ri->idata].count)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).count)*10000;
         break;
         
     case IDATAUSESOUND:
-        ret=(itemsbuf[ri->idata].usesound)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).usesound)*10000;
         break;
         
     case IDATAPOWER:
-        ret=(itemsbuf[ri->idata].power)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).power)*10000;
         break;
         
     //2.54
@@ -1836,7 +1836,7 @@ long get_register(const long arg)
     
 	//Get the script assigned to an item (active)
     case IDATASCRIPT:
-        ret=(itemsbuf[ri->idata].script)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).script)*10000;
         break;
     //Get the ->Attributes[] of an item
     case IDATAATTRIB:
@@ -1844,26 +1844,26 @@ long get_register(const long arg)
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
 		    case 0:
-			ret=(itemsbuf[ri->idata].misc1)*10000;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc1)*10000;
 		    break;
 		    case 1:
-			ret=(itemsbuf[ri->idata].misc2)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc2)*10000; break;
 		    case 2:
-			ret=(itemsbuf[ri->idata].misc3)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc3)*10000; break;
 		    case 3:
-			ret=(itemsbuf[ri->idata].misc4)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc4)*10000; break;
 		    case 4:
-			ret=(itemsbuf[ri->idata].misc5)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc5)*10000; break;
 		    case 5:
-			ret=(itemsbuf[ri->idata].misc6)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc6)*10000; break;
 		    case 6:
-			ret=(itemsbuf[ri->idata].misc7)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc7)*10000; break;
 		    case 7:
-			ret=(itemsbuf[ri->idata].misc8)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc8)*10000; break;
 		    case 8:
-			ret=(itemsbuf[ri->idata].misc9)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc9)*10000; break;
 		    case 9:
-			ret=(itemsbuf[ri->idata].misc10)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc10)*10000; break;
 		    default: 
 			   ret = -10000; break;
 		}
@@ -1876,26 +1876,26 @@ long get_register(const long arg)
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
 		    case 0:
-			ret=(itemsbuf[ri->idata].wpn)*10000;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn)*10000;
 		    break;
 		    case 1:
-			ret=(itemsbuf[ri->idata].wpn2)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn2)*10000; break;
 		    case 2:
-			ret=(itemsbuf[ri->idata].wpn3)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn3)*10000; break;
 		    case 3:
-			ret=(itemsbuf[ri->idata].wpn4)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn4)*10000; break;
 		    case 4:
-			ret=(itemsbuf[ri->idata].wpn5)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn5)*10000; break;
 		    case 5:
-			ret=(itemsbuf[ri->idata].wpn6)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn6)*10000; break;
 		    case 6:
-			ret=(itemsbuf[ri->idata].wpn7)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn7)*10000; break;
 		    case 7:
-			ret=(itemsbuf[ri->idata].wpn8)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn8)*10000; break;
 		    case 8:
-			ret=(itemsbuf[ri->idata].wpn9)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn9)*10000; break;
 		    case 9:
-			ret=(itemsbuf[ri->idata].wpn10)*10000; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn10)*10000; break;
 		    default: 
 			   ret = -10000; break;
 		}
@@ -1904,35 +1904,35 @@ long get_register(const long arg)
 	}
 	//Link TIle modifier
     case IDATALTM:
-        ret=(itemsbuf[ri->idata].ltm)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).ltm)*10000;
         break;
     //Pickup script
     case IDATAPSCRIPT:
-        ret=(itemsbuf[ri->idata].collect_script)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).collect_script)*10000;
         break;
     //Magic cost
      case IDATAMAGCOST:
-        ret=(itemsbuf[ri->idata].magic)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).magic)*10000;
         break;
      //Min Hearts to Pick Up
      case IDATAMINHEARTS:
-        ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).pickup_hearts)*10000;
         break;
      //Tile used by the item
      case IDATATILE:
-        ret=(itemsbuf[ri->idata].tile)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).tile)*10000;
         break;
      //itemdata->Flash
      case IDATAMISC:
-        ret=(itemsbuf[ri->idata].misc)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).misc)*10000;
         break;
      //->CSet
      case IDATACSET:
-        ret=(itemsbuf[ri->idata].csets)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).csets)*10000;
         break;
      //->A.Frames
      case IDATAFRAMES:
-        ret=(itemsbuf[ri->idata].frames)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).frames)*10000;
         break;
      /*
      case IDATAFRAME:
@@ -1941,35 +1941,35 @@ long get_register(const long arg)
     */ 
      //->A.Speed
      case IDATAASPEED:
-        ret=(itemsbuf[ri->idata].speed)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).speed)*10000;
         break;
      //->Delay
      case IDATADELAY:
-        ret=(itemsbuf[ri->idata].delay)*10000;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).delay)*10000;
         break;
      // teo of this item upgrades
       case IDATACOMBINE:
-        ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_COMBINE)?10000:0;
         break;
       //Use item, and get the lower level one
       case IDATADOWNGRADE:
-        ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_DOWNGRADE)?10000:0;
         break;
       //->Flags[5]
       case IDATAFLAGS: {
 	    int index = vbound(ri->d[0]/10000,0,4);
 		switch(index){
 		    case 0:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_FLAG1)?10000:0;
 		    break;
 		    case 1:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG2)?10000:0; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_FLAG2)?10000:0; break;
 		    case 2:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG3)?10000:0; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_FLAG3)?10000:0; break;
 		    case 3:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG4)?10000:0; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_FLAG4)?10000:0; break;
 		    case 4:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG5)?10000:0; break;
+			ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_FLAG5)?10000:0; break;
 		   
 		    default: 
 			   ret = 0; break;
@@ -1980,23 +1980,23 @@ long get_register(const long arg)
 		
 	//->Keep Old
       case IDATAKEEPOLD:
-        ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_KEEPOLD)?10000:0;
         break;
       //Use rupees instead of magic
       case IDATARUPEECOST:
-        ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_RUPEE_MAGIC)?10000:0;
         break;
       //Can be eaten
       case IDATAEDIBLE:
-        ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_EDIBLE)?10000:0;
         break;
       //Not int he editor, could become flags[6], but I'm reserving this one for other item uses. 
       case IDATAFLAGUNUSED:
-        ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_UNUSED)?10000:0;
         break;
       //Gain lower level items when collected
       case IDATAGAINLOWER:
-        ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+        ret=(curQuest->itemDefTable().getItemDefinition(ri->idata).flags & itemdata::IF_GAINOLD)?10000:0;
         break;
 	//Unchanged from master
     case IDATAINITDD:
@@ -2006,7 +2006,7 @@ long get_register(const long arg)
         if(BC::checkBounds(a, 0, 7, "itemdata->InitD") != SH::_NoError)
             ret = -10000;
         else
-            ret = itemsbuf[ri->idata].initiald[a];
+            ret = curQuest->itemDefTable().getItemDefinition(ri->idata).initiald[a];
     }
     break;
     
@@ -2809,11 +2809,11 @@ long get_register(const long arg)
         break;
         
     case GAMEITEMSD:
-        ret=(game->item[(ri->d[0])/10000] ? 10000 : 0);
+        ret=(game->inventoryItems.count((ri->d[0])/10000) > 0 ? 10000 : 0);
         break;
     case DISABLEDITEM:
-	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
-	break;
+	    ret = (game->disabledItems.count((ri->d[0])/10000) > 0  ? 10000 : 0);
+	    break;
         
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
@@ -3347,7 +3347,7 @@ case SETSCREENCATCH:
 		//Z_message("Trying to get Link->SetExtend().\n");
 		long ID = (ri->d[0] / 10000);
 		int itemid = (ri->d[1]/10000);
-		itemid = vbound(itemid,0,(MAXITEMS-1));
+		itemid = vbound(itemid,0,(curQuest->itemDefTable().getNumItemDefinitions()-1));
 		
 		//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[2], "ri->d[2]");
 	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
@@ -3701,12 +3701,12 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKHELD:
-        Link->setHeldItem(vbound(value/10000,0,MAXITEMS-1));
+        Link->setHeldItem(vbound(value/10000,0,curQuest->itemDefTable().getNumItemDefinitions()-1));
         break;
         
     case LINKITEMD:
         {
-            int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
+            int itemID=vbound(ri->d[0]/10000,0,curQuest->itemDefTable().getNumItemDefinitions()-1);
             
             // If the Cane of Byrna is being removed, cancel its effect.
             if(value==0 && itemID==current_item_id(itype_cbyrna))
@@ -3715,7 +3715,7 @@ void set_register(const long arg, const long value)
             bool settrue = ( value != 0 );
 		    
 	    //Sanity check to prevent setting the item if the value would be the same. -Z
-	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
+	    if ( game->get_item(itemID) != settrue ) game->set_item(itemID,(value != 0));
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
@@ -3726,11 +3726,11 @@ void set_register(const long arg, const long value)
           {
         
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
-        	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
-			Awpn = value/10000;
+        	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->get_item(seta)){
+			    Awpn = value/10000;
         	}
-        	if(setb && game->item[setb]){
-			Bwpn = value/10000;
+        	if(setb && game->get_item(setb)){
+			    Bwpn = value/10000;
         	}
           }
          break;
@@ -3769,11 +3769,11 @@ void set_register(const long arg, const long value)
 			else Bwpn = itm;
 		}
 		if ( force == 1 ) {
-			if(slot == 1 && game->item[itm]){
+			if(slot == 1 && game->get_item(itm)){
 				Awpn = itm;
 			}
 			else { 
-				if ( game->item[itm] ) Bwpn = itm;
+				if ( game->get_item(itm) ) Bwpn = itm;
 			}
 		}
 
@@ -3787,11 +3787,11 @@ void set_register(const long arg, const long value)
 		}
 		
 		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm]){
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->get_item(itm)){
 				Awpn = itm;
 			}
 			else { 
-				if ( game->item[itm] ) Bwpn = itm;
+				if ( game->get_item(itm) ) Bwpn = itm;
 			}
 		}
 	}
@@ -3891,18 +3891,18 @@ void set_register(const long arg, const long value)
 	Link->directItemB = Link->directItem;
 	Bwpn = vbound((value/10000),0,(MAXITEMS-1));
     */
-	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItem((int)vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1)));
 	Link->setDirectItemB(Link->getDirectItem());
-	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	Bwpn = (int)vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1));
+	game->bwpn = (int)vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1));
 	break;
     
     case LINKITEMA:
 	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItem((int)vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1)));
 	Link->setDirectItemA(Link->getDirectItem());
-	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	Awpn = (int)vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1));
+	game->awpn = (int)vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1));
 	break;
     
       case LINKEATEN:
@@ -3915,7 +3915,7 @@ void set_register(const long arg, const long value)
 		//int extend = (ri->d[1]/10000);
 		//int dir = (ri->d[0]/10000);
 		Z_message("Trying to force-set the A-button item().\n");
-		Link->setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		Link->setAButtonItem(vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1)));
 	}
 	break;
 	
@@ -3925,7 +3925,7 @@ void set_register(const long arg, const long value)
 		//int extend = (ri->d[1]/10000);
 		//int dir = (ri->d[0]/10000);
 		Z_message("Trying to force-set the A-button item().\n");
-		Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		Link->setBButtonItem(vbound((value/10000),0,(curQuest->itemDefTable().getNumItemDefinitions()-1)));
 	}
 	break;
 	
@@ -4110,7 +4110,7 @@ void set_register(const long arg, const long value)
             (s->x)=(fix)(value/10000);
             
             // Move the Fairy enemy as well.
-            if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
+            if(curQuest->itemDefTable().getItemDefinition(((item*)(s))->id).family==itype_fairy && curQuest->itemDefTable().getItemDefinition(((item*)(s))->id).misc3)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
         }
         
@@ -4122,7 +4122,7 @@ void set_register(const long arg, const long value)
             (s->y)=(fix)(value/10000);
             
             // Move the Fairy enemy as well.
-            if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
+            if(curQuest->itemDefTable().getItemDefinition(((item*)(s))->id).family==itype_fairy && curQuest->itemDefTable().getItemDefinition(((item*)(s))->id).misc3)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
         }
         
@@ -4410,124 +4410,124 @@ void set_register(const long arg, const long value)
 	//not mine, but let;s guard some of them all the same -Z
 	//item class
     case IDATAFAMILY:
-        (itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).family)=vbound(value/10000,0, 254);
         flushItemCache();
         break;
     
     case IDATAUSEWPN:
-        (itemsbuf[ri->idata].useweapon)=vbound(value/10000, 0, 255);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).useweapon)=vbound(value/10000, 0, 255);
         break;
     case IDATAUSEDEF:
-        (itemsbuf[ri->idata].usedefence)=vbound(value/10000, 0, 255);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).usedefence)=vbound(value/10000, 0, 255);
         break;
     case IDATAWRANGE:
-        (itemsbuf[ri->idata].weaprange)=vbound(value/10000, 0, 255);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).weaprange)=vbound(value/10000, 0, 255);
         break;
      case IDATADURATION:
-        (itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).weapduration)=vbound(value/10000, 0, 255);
         break;
      
      case IDATADUPLICATES:
-	(itemsbuf[ri->idata].duplicates)=vbound(value/10000, 0, 255);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).duplicates)=vbound(value/10000, 0, 255);
         break;
     case IDATADRAWLAYER:
-	(itemsbuf[ri->idata].drawlayer)=vbound(value/10000, 0, 7);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).drawlayer)=vbound(value/10000, 0, 7);
         break;
     case IDATACOLLECTFLAGS:
 	//int a = ri->d[0] / 10000;
-        (itemsbuf[ri->idata].collectflags)=vbound(value/10000, 0, 214747);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).collectflags)=vbound(value/10000, 0, 214747);
         break;
     case IDATAWEAPONSCRIPT:
-	(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weaponscript)=vbound(value/10000, 0, 255);
         break;
     case IDATAMISCD:
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,31);
-	(itemsbuf[ri->idata].wpn_misc_d[a])=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).wpn_misc_d[a])=(value/10000);
     }
     break;
     case IDATAWPNINITD:
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,7);
-	(itemsbuf[ri->idata].weap_initiald[a])=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_initiald[a])=(value/10000);
     }
     break;
     case IDATAWEAPHXOFS:
-	(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hxofs)=(value/10000);
         break;
     case IDATAWEAPHYOFS:
-	(itemsbuf[ri->idata].weap_yxofs)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_yxofs)=(value/10000);
         break;
     case IDATAWEAPHXSZ:
-	(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hxsz)=(value/10000);
         break;
     case IDATAWEAPHYSZ:
-	(itemsbuf[ri->idata].weap_hysz)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hysz)=(value/10000);
         break;
     case IDATAWEAPHZSZ:
-	(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_hzsz)=(value/10000);
         break;
     case IDATAWEAPXOFS:
-	(itemsbuf[ri->idata].weap_xofs)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_xofs)=(value/10000);
         break;
     case IDATAWEAPYOFS:
-	(itemsbuf[ri->idata].weap_yofs)=(value/10000);
+	(curQuest->itemDefTable().getItemDefinition(ri->idata).weap_yofs)=(value/10000);
         break;
 
     
     case IDATAUSEMVT:
 	{
 	    long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
-	    (itemsbuf[ri->idata].weap_pattern[a])=vbound(value/10000, 0, 255);
+	    (curQuest->itemDefTable().getItemDefinition(ri->idata).weap_pattern[a])=vbound(value/10000, 0, 255);
 	}
         break;
     
     
     //item level
     case IDATALEVEL:
-        (itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).fam_type)=vbound(value/10000, 0, 512);
         flushItemCache();
         break;
         //bool keep
     case IDATAKEEP:
-        (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_GAMEDATA:0;
         break;
         //Need the legal range -Z
     case IDATAAMOUNT:
-        (itemsbuf[ri->idata].amount)=value/10000;
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).amount)=value/10000;
         break;
         
     case IDATASETMAX:
-        (itemsbuf[ri->idata].setmax)=value/10000;
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).setmax)=value/10000;
         break;
         
     case IDATAMAX:
-        (itemsbuf[ri->idata].max)=value/10000;
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).max)=value/10000;
         break;
         
     case IDATAPOWER:
-        (itemsbuf[ri->idata].power)=value/10000;
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).power)=value/10000;
         break;
         
     case IDATACOUNTER:
-        (itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).count)=vbound(value/10000,0,31);
         break;
         
     case IDATAUSESOUND:
-        (itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
+        (curQuest->itemDefTable().getItemDefinition(ri->idata).usesound)=vbound(value/10000, 0, 255);
         break;
     
     //2.54
     //My additions begin here. -Z
     //Stack item to gain next level
     case IDATACOMBINE:
-		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
+		(curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_COMBINE:0;
 		break;
     //using a level of an item downgrades to a lower one
 	case IDATADOWNGRADE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
+	      (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_DOWNGRADE:0;
 		break;
 
 	//Flags[5]
@@ -4535,16 +4535,16 @@ void set_register(const long arg, const long value)
 	    int index = vbound(ri->d[0]/10000,0,4);
 		switch(index){
 		    case 0:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
+			(curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_FLAG1:0;
 		    break;
 		    case 1:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:0; 
+			(curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_FLAG2:0;
 		    case 2:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:0; 
+			(curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_FLAG3:0;
 		    case 3:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:0; 
+			(curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_FLAG4:0;
 		    case 4:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:0; 
+			(curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_FLAG5:0;
 		    
 		    
 		    default: 
@@ -4555,27 +4555,27 @@ void set_register(const long arg, const long value)
 	}
 	//Keep Old in editor
 	case IDATAKEEPOLD:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
+	      (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_KEEPOLD:0;
 		break;
 	//Ruppes for magic
 	case IDATARUPEECOST:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
+	      (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_RUPEE_MAGIC:0;
 		break;
 	//can be eaten
 	case IDATAEDIBLE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
+	      (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_EDIBLE:0;
 		break;
 	//Reserving this for item editor stuff. 
 	case IDATAFLAGUNUSED:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
+	      (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_UNUSED:0;
 		break;
 	//gain lower level items
 	case IDATAGAINLOWER:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
+	      (curQuest->itemDefTable().getItemDefinition(ri->idata).flags)|=(value/10000)?itemdata::IF_GAINOLD:0;
 		break;
 	//Set the action script
 	case IDATASCRIPT:
-        itemsbuf[ri->idata].script=vbound(value/10000,1,255);
+        curQuest->itemDefTable().getItemDefinition(ri->idata).script=vbound(value/10000,1,255);
         break;
     
       /*
@@ -4592,26 +4592,26 @@ void set_register(const long arg, const long value)
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
 		    case 0:
-			itemsbuf[ri->idata].misc1=value/10000;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc1=value/10000;
 		    break;
 		    case 1:
-			itemsbuf[ri->idata].misc2=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc2=value/10000; break;
 		    case 2:
-			itemsbuf[ri->idata].misc3=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc3=value/10000; break;
 		    case 3:
-			itemsbuf[ri->idata].misc4=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc4=value/10000; break;
 		    case 4:
-			itemsbuf[ri->idata].misc5=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc5=value/10000; break;
 		    case 5:
-			itemsbuf[ri->idata].misc6=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc6=value/10000; break;
 		    case 6:
-			itemsbuf[ri->idata].misc7=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc7=value/10000; break;
 		    case 7:
-			itemsbuf[ri->idata].misc8=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc8=value/10000; break;
 		    case 8:
-			itemsbuf[ri->idata].misc9=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc9=value/10000; break;
 		    case 9:
-			itemsbuf[ri->idata].misc10=value/10000; break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).misc10=value/10000; break;
 
 		    default: 
 			    break;
@@ -4624,26 +4624,26 @@ void set_register(const long arg, const long value)
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
 		    case 0:
-			itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn=vbound(value/10000, 0, 255);
 		    break;
 		    case 1:
-			itemsbuf[ri->idata].wpn2=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn2=(value/10000, 0, 255); break;
 		    case 2:
-			itemsbuf[ri->idata].wpn3=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn3=(value/10000, 0, 255); break;
 		    case 3:
-			itemsbuf[ri->idata].wpn4=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn4=(value/10000, 0, 255); break;
 		    case 4:
-			itemsbuf[ri->idata].wpn5=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn5=(value/10000, 0, 255); break;
 		    case 5:
-			itemsbuf[ri->idata].wpn6=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn6=(value/10000, 0, 255); break;
 		    case 6:
-			itemsbuf[ri->idata].wpn7=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn7=(value/10000, 0, 255); break;
 		    case 7:
-			itemsbuf[ri->idata].wpn8=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn8=(value/10000, 0, 255); break;
 		    case 8:
-			itemsbuf[ri->idata].wpn9=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn9=(value/10000, 0, 255); break;
 		    case 9:
-			itemsbuf[ri->idata].wpn10=(value/10000, 0, 255); break;
+                curQuest->itemDefTable().getItemDefinition(ri->idata).wpn10=(value/10000, 0, 255); break;
 		    
 		    default: 
 			    break;
@@ -4653,31 +4653,31 @@ void set_register(const long arg, const long value)
 	}
 	//Link tile modifier. 
 	case IDATALTM:
-        itemsbuf[ri->idata].ltm=value/10000;
+        curQuest->itemDefTable().getItemDefinition(ri->idata).ltm=value/10000;
         break;
 	//Pickup script
     case IDATAPSCRIPT:
-        itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
+        curQuest->itemDefTable().getItemDefinition(ri->idata).collect_script=(value/10000, 1, 255);
         break;
     //magic cost
      case IDATAMAGCOST:
-        itemsbuf[ri->idata].magic=value/10000;
+         curQuest->itemDefTable().getItemDefinition(ri->idata).magic=value/10000;
         break;
      //min hearts to pick up
      case IDATAMINHEARTS:
-        itemsbuf[ri->idata].pickup_hearts=vbound(value/10000, 0, 214748);
+         curQuest->itemDefTable().getItemDefinition(ri->idata).pickup_hearts=vbound(value/10000, 0, 214748);
         break;
      //item tile
      case IDATATILE:
-        itemsbuf[ri->idata].tile=vbound(value/10000, 0, 65519);
+         curQuest->itemDefTable().getItemDefinition(ri->idata).tile=vbound(value/10000, 0, 65519);
         break;
      //flash
      case IDATAMISC:
-        itemsbuf[ri->idata].misc=value/10000;
+         curQuest->itemDefTable().getItemDefinition(ri->idata).misc=value/10000;
         break;
      //cset
      case IDATACSET:
-        itemsbuf[ri->idata].csets=vbound(value/10000,0,13);
+         curQuest->itemDefTable().getItemDefinition(ri->idata).csets=vbound(value/10000,0,13);
         break;
      /*
      case IDATAFRAME:
@@ -4686,15 +4686,15 @@ void set_register(const long arg, const long value)
      */
      //A.Frames
      case IDATAFRAMES:
-	(itemsbuf[ri->idata].frames)=vbound(value/10000, 0, 214748);
+         curQuest->itemDefTable().getItemDefinition(ri->idata).frames=vbound(value/10000, 0, 214748);
         break;
 	//A.speed
      case IDATAASPEED:
-        itemsbuf[ri->idata].speed=vbound(value/10000, 0, 214748);
+         curQuest->itemDefTable().getItemDefinition(ri->idata).speed=vbound(value/10000, 0, 214748);
         break;
      //Anim delay
      case IDATADELAY:
-        itemsbuf[ri->idata].delay=vbound(value/10000, 0, 214748);
+         curQuest->itemDefTable().getItemDefinition(ri->idata).delay=vbound(value/10000, 0, 214748);
         break;
      
         //not one of mine. 
@@ -4703,7 +4703,7 @@ void set_register(const long arg, const long value)
         int a = ri->d[0] / 10000;
         
         if(BC::checkBounds(a, 0, 7, "itemdata->InitD") == SH::_NoError)
-            itemsbuf[ri->idata].initiald[a] = value;
+            curQuest->itemDefTable().getItemDefinition(ri->idata).initiald[a] = value;
     }
     break;
     
@@ -5573,8 +5573,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     
     case DISABLEDITEM:
-	game->items_off[(ri->d[0])/10000]=value/10000;
-	break;
+	    game->set_disabled_item((ri->d[0])/10000,value/10000);
+	    break;
         
     case GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=value/10000;
@@ -7185,7 +7185,7 @@ long get_screenEntryY(mapscr *m)
 //One too many inputs here. -Z
 long get_screenitem(mapscr *m)
 {
-    int f = m->item;
+    int f = m->screenItem;
     return f*10000;
 }
 //One too many inputs here. -Z
@@ -7785,12 +7785,12 @@ void do_createitem(const bool v)
     if(items.Count() < 1)
     {
         ri->itemref = LONG_MAX;
-        Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
+        Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", curQuest->itemDefTable().getItemDefinition(ri->idata));
     }
     else
     {
         ri->itemref = items.spr(items.Count() - 1)->getUID();
-        Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
+        Z_eventlog("Script created item \"%s\" with UID = %ld\n", curQuest->itemDefTable().getItemDefinition(ri->idata), ri->itemref);
     }
 }
 
@@ -8385,7 +8385,7 @@ void do_getitemname()
 {
     long arrayptr = get_register(sarg1) / 10000;
     
-    if(ArrayH::setArray(arrayptr, item_string[ri->idata]) == SH::_Overflow)
+    if(ArrayH::setArray(arrayptr, curQuest->itemDefTable().getItemName(ri->idata)) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
 }
 
@@ -8594,8 +8594,8 @@ int run_script(const byte type, const word script, const byte i)
         stack = &item_stack;
         memset(stack, 0, 256 * sizeof(long)); //zero here too
         
-        memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
-        memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
+        memcpy(ri->d, curQuest->itemDefTable().getItemDefinition(i).initiald, 8 * sizeof(long));
+        memcpy(ri->a, curQuest->itemDefTable().getItemDefinition(i).initiala, 2 * sizeof(long));
         
         ri->idata = i; //'this' pointer
         
@@ -9943,8 +9943,8 @@ void FFScript::set_screenEntryY(mapscr *m, int value)
 }
 void FFScript::set_screenitem(mapscr *m, int value)
 {
-    int itm = vbound(value,0,MAXITEMS);
-    m->item = itm;
+    int itm = vbound(value,0,curQuest->itemDefTable().getNumItemDefinitions()-1);
+    m->screenItem = itm;
 }
 void FFScript::set_screenundercombo(mapscr *m, int value)
 {

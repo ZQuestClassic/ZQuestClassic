@@ -836,7 +836,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         return 3;
     }
     
-    if(section_version < 11) //Sorry!
+    if(section_version < 12) //Sorry!
     {
         //Currently unsupported
         return 1;
@@ -976,15 +976,39 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         }
         
         savedata[i].set_cheat(tempbyte);
-        char temp;
         
-        for(int j=0; j<256; j++) // why not MAXITEMS ?
+        savedata[i].inventoryItems.clear();
+        uint32_t numitems;
+        if (!p_igetl(&numitems, f, true))
+            return 18;
+
+        for (uint32_t j = 0; j < numitems; j++)
         {
-            if(!p_getc(&temp, f, true))
+            uint32_t iitem;
+            if (!p_igetl(&iitem, f, true))
                 return 18;
-                
-            savedata[i].set_item(j, (temp != 0));
+
+            savedata[i].inventoryItems.insert(iitem);
         }
+
+        savedata[i].disabledItems.clear();
+
+        uint32_t numdisabled;
+        if (!p_igetl(&numdisabled, f, true))
+        {
+            return 19;
+        }
+
+        for(uint32_t j=0; j<numdisabled; j++)
+        {
+            uint32_t ditem;
+            uint8_t disableflag;
+            if (!p_igetl(&ditem, f, true))
+                return 19;
+            if (!p_getc(&disableflag, f, true))
+                return 19;
+            savedata[i].disabledItems[ditem] = disableflag;
+        }        
         
         if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
         {
@@ -1661,10 +1685,26 @@ int writesaves(gamedata *savedata, PACKFILE *f)
             return 17;
         }
         
-        for(int j=0; j<MAXITEMS; j++)
+        if (!p_iputl(savedata[i].inventoryItems.size(), f))
+            return 18;
+
+        for(std::set<uint32_t>::iterator it = savedata[i].inventoryItems.begin(); it != savedata[i].inventoryItems.end(); ++it)
         {
-            if(!p_putc(savedata[i].get_item(j) ? 1 : 0,f))
+            if(!p_iputl(*it,f))
                 return 18;
+        }
+
+        if (!p_iputl(savedata[i].disabledItems.size(), f))
+        {
+            return 19;
+        }
+
+        for (std::map<uint32_t, uint8_t>::iterator it = savedata[i].disabledItems.begin(); it != savedata[i].disabledItems.end(); ++it)
+        {
+            if (!p_iputl(it->first, f))
+                return 19;
+            if (!p_putc(it->second, f))
+                return 19;
         }
         
         if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
@@ -1921,11 +1961,11 @@ void load_game_icon_to_buffer(bool forceDefault, int index)
     if(!forceDefault)
     {
         flushItemCache();
-        int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+        int maxringid = curQuest->itemDefTable().getHighestLevelOfFamily(&zinit, itype_ring);
         
         if(maxringid != -1)
         {
-            ring = itemsbuf[maxringid].fam_type;
+            ring = curQuest->itemDefTable().getItemDefinition(maxringid).fam_type;
         }
     }
     
@@ -2549,8 +2589,8 @@ static bool register_name()
             game = saves+s;
             saves[s].set_maxlife(zinit.hc*HP_PER_HEART);
             //saves[s].items[itype_ring]=0;
-            removeItemsOfFamily(&saves[s], itemsbuf, itype_ring);
-            int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+            curQuest->itemDefTable().removeItemsOfFamily(&saves[s], itype_ring);
+            int maxringid = curQuest->itemDefTable().getHighestLevelOfFamily(&zinit, itype_ring);
             
             if(maxringid != -1)
                 getitem(maxringid, true);
@@ -2814,7 +2854,7 @@ bool load_custom_game(int file)
             //messy hack to get this to work properly since game is not initialized -DD
             gamedata *oldgame = game;
             game = saves+file;
-            int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+            int maxringid = curQuest->itemDefTable().getHighestLevelOfFamily(&zinit, itype_ring);
             
             if(maxringid != -1)
                 getitem(maxringid, true);
@@ -3423,11 +3463,11 @@ void game_over(int type)
             
             int ring=0;
             flushItemCache();
-            int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+            int maxringid = curQuest->itemDefTable().getHighestLevelOfFamily(game, itype_ring);
             
             if(maxringid != -1)
             {
-                ring = itemsbuf[maxringid].fam_type;
+                ring = curQuest->itemDefTable().getItemDefinition(maxringid).fam_type;
             }
             
             ring = ring ? ring-1 : 0;
@@ -3456,11 +3496,11 @@ void save_game(bool savepoint)
     
     int ring=0;
     flushItemCache();
-    int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+    int maxringid = curQuest->itemDefTable().getHighestLevelOfFamily(game, itype_ring);
     
     if(maxringid != -1)
     {
-        ring = itemsbuf[maxringid].fam_type;
+        ring = curQuest->itemDefTable().getItemDefinition(maxringid).fam_type;
     }
     
     ring = ring ? ring-1 : 0;
@@ -3583,11 +3623,11 @@ bool save_game(bool savepoint, int type)
                 
                 int ring=0;
                 flushItemCache();
-                int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+                int maxringid = curQuest->itemDefTable().getHighestLevelOfFamily(game, itype_ring);
                 
                 if(maxringid != -1)
                 {
-                    ring = itemsbuf[maxringid].fam_type;
+                    ring = curQuest->itemDefTable().getItemDefinition(maxringid).fam_type;
                 }
                 
                 ring = ring ? ring-1 : 0;

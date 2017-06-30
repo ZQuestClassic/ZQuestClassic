@@ -15,6 +15,8 @@
 #include "subscr.h"
 #include "scripting/ZASMdefs.h"
 
+class ItemDefinitionTable;
+
 // define these in main code
 //extern bool init_tiles(bool validate);
 //extern bool init_combos(bool validate);
@@ -123,7 +125,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word 
 int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
-int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool keepdata, bool zgpmode=false);
+int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemDefinitionTable &idt);
 int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
@@ -182,8 +184,6 @@ extern void delete_combo_aliases();
 void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int setupsubscreens();
-void reset_itembuf(itemdata *item, int id);
-void reset_itemname(int id);
 void reset_weaponname(int i);
 void init_guys(int guyversion);
 void init_item_drop_sets();

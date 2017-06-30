@@ -47,6 +47,7 @@ void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
 gamedata *game;
 
+extern item_struct *bii;
 //extern char *itemlist(int index, int *list_size)
 extern int bii_cnt;
 
@@ -4714,9 +4715,9 @@ int Bweapon(int pos)
         family=css->objects[p].d1;
     }
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
     {
-        if(itemsbuf[i].family==family) return i+(bow ? 0xF000 : 0);
+        if(curQuest->itemDefTable().getItemDefinition(i).family==family) return i+(bow ? 0xF000 : 0);
     }
     
     return 0;

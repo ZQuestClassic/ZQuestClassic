@@ -119,7 +119,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
     
     //now set up the items!
-    for(int i=0; i<MAXITEMS; i++)
+    //TODO FIX
+    for(int i=0; i<256; i++)
     {
         zinit2->items[i] = gdata->get_item(i);
     }

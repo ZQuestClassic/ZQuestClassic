@@ -17,6 +17,7 @@
 
 #include <vector>
 #include "zdefs.h"
+#include "quest/Quest.h"
 #include "zc_array.h"
 #include "zc_sys.h"
 #include "zeldadat.h"
@@ -169,12 +170,12 @@ extern ZCMUSIC *zcmusic;
 extern int db;
 extern int detail_int[10];                                  //temporary holder for things you want to detail
 extern zinitdata  zinit;
-extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern int strike_hint_counter;
 extern int strike_hint_timer;
 extern int strike_hint;
 
+extern Quest *curQuest;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
@@ -186,7 +187,6 @@ extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, 
 extern PALETTE  RAMpal;
 extern byte     *colordata;
 //extern byte     *tilebuf;
-extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern comboclass *combo_class_buf;
 extern guydata  *guysbuf;

@@ -26,6 +26,7 @@
 #include <string.h>
 #include <vector>
 #include <set>
+#include <map>
 #include <assert.h>
 #include "zc_alleg.h"
 #include "zc_array.h"
@@ -110,10 +111,10 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            1
 #define V_COMBOS           7
 #define V_CSETS            4
-#define V_MAPS            18
-#define V_DMAPS            9
+#define V_MAPS            19
+#define V_DMAPS           10
 #define V_DOORS            1
-#define V_ITEMS           26
+#define V_ITEMS           27
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -122,7 +123,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            29
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        11
+#define V_SAVEGAME        12
 #define V_COMBOALIASES     2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
@@ -247,7 +248,6 @@ extern bool fake_pack_writing;
 #define MAXLEVELS        512								 //this should be the same number (was 32)
 #define OLDMAXLEVELS	 256
 #define OLDMAXDMAPS		 256
-#define MAXITEMS         256
 #define MAXWPNS          256
 #define OLDBETAMAXGUYS   256								//max 2.5 guys through beta 20
 #define MAXGUYS          512
@@ -785,8 +785,7 @@ enum                                                        // value matters bec
     iCustom6, iCustom7, iCustom8, iCustom9, iCustom10,
     iCustom11, iCustom12, iCustom13, iCustom14, iCustom15,
     iCustom16, iCustom17, iCustom18, iCustom19, iCustom20,
-    iLast,
-    iMax=256
+    iLast
 };
 
 // Shield projectile blocking
@@ -1158,7 +1157,6 @@ struct size_and_pos
 
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
-#define ITEMCNT   iMax
 #define WPNCNT    wMAX
 
 struct tiledata
@@ -1221,94 +1219,6 @@ enum
 
 
 //Holds the movement pattern, and its args.
-
-struct itemdata
-{
-    word tile;
-    byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte delay;                                               // extra delay factor (-1) for first frame
-    long ltm;                                                 // Link Tile Modifier
-    byte family;												// What family the item is in
-    byte fam_type;	//level										// What type in this family the item is
-    byte power;	// Damage, height, etc.
-    word flags;
-#define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
-#define ITEM_COMBINE     0x0004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE   0x0008
-#define ITEM_FLAG1   0x0010
-#define ITEM_FLAG2   0x0020
-#define ITEM_KEEPOLD     0x0040
-#define ITEM_RUPEE_MAGIC 0x0080
-#define ITEM_UNUSED       0x0100
-#define ITEM_GAINOLD     0x0200
-#define ITEM_FLAG3     0x0400
-#define ITEM_FLAG4     0x0800
-#define ITEM_FLAG5     0x1000
-
-
-
-
-    word script;												// Which script the item is using
-    char count;
-    word amount;
-    short setmax;
-    word max;
-    byte playsound;
-    word collect_script;
-//  byte exp[10];                                             // not used
-    long initiald[INITIAL_D];
-    byte initiala[INITIAL_A];
-    byte wpn;
-    byte wpn2;
-    byte wpn3;
-    byte wpn4;
-    byte wpn5;
-    byte wpn6;
-    byte wpn7;
-    byte wpn8;
-    byte wpn9;
-    byte wpn10;
-    byte pickup_hearts;
-    long misc1;
-    long misc2;
-    long misc3;
-    long misc4;
-    long misc5;
-    long misc6;
-    long misc7;
-    long misc8;
-    long misc9;
-    long misc10;
-    byte magic; // Magic usage!
-    byte usesound;
-    byte useweapon; //lweapon id type -Z
-    byte usedefence; //default defence type -Z
-    int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
-    int weaprange; //default range -Z
-    int weapduration; //default duration, 0 = infinite. 
- 
-    
-    //To implement next;
-    int duplicates; //Number of duplicate weapons generated.
-    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
-    
-    long weap_initiald[INITIAL_D];
-    byte weap_initiala[INITIAL_A];
-    
-    byte drawlayer;
-    long collectflags;
-    int hxofs, yxofs, hxsz, hysz, hzsz, xofs, yofs; //item
-    int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
-    
-    word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
-    int wpnsprite; //enemy weapon sprite. 
-    
-    
-};
 
 struct wpndata
 {
@@ -1534,7 +1444,8 @@ struct mapscr
     byte guy;
     word str;
     byte room;
-    byte item;
+    //byte item;
+    int32_t screenItem;
     byte hasitem;
     byte tilewarptype[4];
     byte tilewarpoverlayflags;
@@ -1677,7 +1588,7 @@ struct mapscr
         guy=0;
         str=0;
         room=0;
-        item=0;
+        screenItem=0;
         hasitem=0;
         tilewarpoverlayflags=0;
         door_combo_set=0;
@@ -2173,6 +2084,44 @@ struct DoorComboSet
 
 struct dmap
 {
+    dmap()
+    {
+        map = 0;
+        level = 0;
+        xoff = 0;
+        compass = 0;
+        color = 0;
+        midi = 0;
+        cont = 0;
+        type = dmCAVE;
+        for (int i = 0; i < 8; i++)
+            grid[i] = 0;
+
+        memset(name, 0, 21);
+        sprintf(title, "                    ");
+        sprintf(intro, "                                                                        ");
+
+        minimap_1_tile = 0;
+        minimap_1_cset = 0;
+
+        minimap_2_tile = 0;
+        minimap_2_cset = 0;
+
+        largemap_1_tile = 0;
+        largemap_1_cset = 0;
+
+        largemap_2_tile = 0;
+        largemap_2_cset = 0;
+
+        memset(tmusic, 0, 56);
+        tmusictrack = 0;
+        active_subscreen = 0;
+        passive_subscreen = 0;
+        disabledItems.clear();
+
+        flags = 0;
+    }
+
     byte map;
     word level;
     char xoff;
@@ -2208,7 +2157,7 @@ struct dmap
     // int emusic;
     //byte padding;
     //204
-    byte disableditems[iMax];
+    std::vector<uint32_t> disabledItems;
     // 460
     long flags;
 };
@@ -2561,8 +2510,8 @@ struct gamedata
     //byte  _keys,_maxbombs,
     byte  /*_wlevel,*/_cheat;
     //24
-    bool  item[MAXITEMS];
-    byte  items_off[MAXITEMS];
+    std::set<uint32_t> inventoryItems;
+    std::map<uint32_t, uint8_t> disabledItems;
     //280
     word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
     word _counter[32];
@@ -2763,10 +2712,12 @@ struct gamedata
     byte get_lkeys();
     
     void set_item(int id, bool value);
+    void set_disabled_item(int id, uint8_t value); // bit 1: set by DMaps. Everything else: set by scripts
+    uint8_t get_disabled_item(int id);
     void set_item_no_flush(int id, bool value);
     inline bool get_item(int id)
     {
-        return item[id];
+        return inventoryItems.count(id)>0;
     }
     
 };
@@ -2794,6 +2745,7 @@ enum
 struct zinitdata
 {
     byte bombs, super_bombs;
+    // TODO: remove limit
     bool items[256];
     //94
     byte hc;
@@ -3368,19 +3320,6 @@ INLINE void SCRFIX()
 //INLINE int new_return(int x) { fake_pack_writing=false; return x; }
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
-//some methods for dealing with items
-int getItemFamily(itemdata *items, int item);
-void removeItemsOfFamily(gamedata *g, itemdata *items, int family);
-void removeItemsOfFamily(zinitdata *i, itemdata *items, int family);
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int level);
-int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family);
-int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool checkenabled = false);
-int getItemID(itemdata *items, int family, int level);
-int getCanonicalItemID(itemdata *items, int family);
-int getItemIDPower(itemdata *items, int family, int power);
-void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels);
-int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
-
 extern void flushItemCache();
 extern void removeFromItemCache(int itemid);
 
@@ -3398,6 +3337,14 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_GAME		1
 #define GLOBAL_SCRIPT_END		2
 #define GLOBAL_SCRIPT_CONTINUE 	3
+
+
+//placeholder for now
+struct LensItemAnim
+{
+    int aclk;
+    int aframe;
+};
 
 
 #endif                                                      //_ZDEFS_H_

@@ -69,10 +69,8 @@ INLINE int bit(int val,int b)
 enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU, ftZQT, ftQST, ftMAX };
 extern const char *imgstr[ftMAX];
 extern char ns_string[4];
-extern const char *old_item_string[iLast];
 extern const char *old_weapon_string[wLast];
 extern const char *old_sfx_string[Z35];
-extern char *item_string[ITEMCNT];
 extern char *weapon_string[WPNCNT];
 extern const char *roomtype_string[MAXROOMTYPES];
 extern const char *catchall_string[MAXROOMTYPES];

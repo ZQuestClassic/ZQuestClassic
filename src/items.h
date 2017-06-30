@@ -19,8 +19,6 @@
 #include "zdefs.h"
 
 
-extern char *item_string[ITEMCNT];
-
 extern int fairy_cnt;
 void movefairy(fix &x,fix &y,int misc);
 void killfairy(int misc);

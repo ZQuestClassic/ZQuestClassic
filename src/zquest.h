@@ -8,6 +8,7 @@
 #include "jwinfsel.h"
 #include "zcmusic.h"
 #include "sprite.h"
+#include "quest/Quest.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -80,9 +81,9 @@ extern int tooltip_timer, tooltip_maxtimer;
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
 extern bool resize_mouse_pos;                               //for eyeball combos
 
-extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 //extern int mode, switch_mode, orig_mode;
+extern Quest *curQuest;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern char *datafile_str;
@@ -96,7 +97,6 @@ extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *b
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
-extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
@@ -450,11 +450,9 @@ void printZAsm();
 
 typedef struct item_struct
 {
-    char *s;
+    std::string s;
     int i;
 } item_struct;
-
-extern item_struct bii[iMax+1];
 
 typedef struct weapon_struct
 {

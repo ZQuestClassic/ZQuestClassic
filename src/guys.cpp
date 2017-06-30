@@ -570,7 +570,7 @@ void enemy::leave_item()
 {
     int drop_item = select_dropitem(item_set, x, y);
     
-    if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0)))
+    if(drop_item!=-1&&((curQuest->itemDefTable().getItemDefinition(drop_item).family!=itype_fairy)||!m_walkflag(x,y,0)))
     {
         if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(fix)0,drop_item,ipBIGRANGE+ipTIMER,0));
         else items.add(new item(x,y,(fix)0,drop_item,ipBIGRANGE+ipTIMER,0));
@@ -827,7 +827,7 @@ int enemy::getWeaponID(weapon *w){
 		//al_trace("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
 		//Z_message("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
 	
-		int usewpn = itemsbuf[w->parentitem].useweapon;
+		int usewpn = curQuest->itemDefTable().getItemDefinition(w->parentitem).useweapon;
 		//al_trace("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
 		//Z_message("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
 	
@@ -860,7 +860,7 @@ int enemy::resolveEnemyDefence(weapon *w){
 	//Z_message("enemy::resolveEnemyDefence(), Step 1, initial wid: %d\n", wid);
 	
 	if ( w->parentitem > -1 ) {
-		int usedef = itemsbuf[w->parentitem].usedefence;
+		int usedef = curQuest->itemDefTable().getItemDefinition(w->parentitem).usedefence;
 		
 		//al_trace("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
 		//Z_message("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
@@ -1501,7 +1501,7 @@ int enemy::takehit(weapon *w)
 	//Weapon Editor. 
 	if ( enemyHitWeapon > -1 ) {
 		
-		if ( itemsbuf[enemyHitWeapon].useweapon > 0 ) { wpnId =	itemsbuf[enemyHitWeapon].useweapon; }
+		if ( curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).useweapon > 0 ) { wpnId =	curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).useweapon; }
 		//The defined weapon type to use for enemy and combo interaction. -Z
 		else wpnId = w->id; //if we are using s special weapon type, use the attributes from that weapon. 
 	}
@@ -1665,7 +1665,7 @@ int enemy::takehit(weapon *w)
         if(enemyHitWeapon > -1)
         {
             int p = 0;
-            int f = itemsbuf[enemyHitWeapon].family;
+            int f = curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).family;
             
             switch(f)
             {
@@ -1705,9 +1705,9 @@ int enemy::takehit(weapon *w)
         {
             stunclk=160;
             
-            if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))
+            if(enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_brang))
             {
-                hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*DAMAGE_MULTIPLIER;
+                hp -= (enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_brang))*DAMAGE_MULTIPLIER;
                 goto hitclock;
             }
             
@@ -1715,7 +1715,7 @@ int enemy::takehit(weapon *w)
         }
         
         if(!power)
-            hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*DAMAGE_MULTIPLIER;
+            hp-=(enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).fam_type : current_item(itype_brang))*DAMAGE_MULTIPLIER;
         else
             hp-=power;
             
@@ -1732,16 +1732,16 @@ int enemy::takehit(weapon *w)
         {
             stunclk=160;
             
-            if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
+            if(enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_hookshot))
             {
-                hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*DAMAGE_MULTIPLIER;
+                hp -= (enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_hookshot))*DAMAGE_MULTIPLIER;
                 goto hitclock;
             }
             
             break;
         }
         
-        if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*DAMAGE_MULTIPLIER;
+        if(!power) hp-=(enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).fam_type : current_item(itype_hookshot))*DAMAGE_MULTIPLIER;
         else
             hp-=power;
             
@@ -1751,11 +1751,11 @@ int enemy::takehit(weapon *w)
     
     case wHSHandle:
     {
-        if(itemsbuf[enemyHitWeapon>-1 ? enemyHitWeapon : current_item_id(itype_hookshot)].flags & ITEM_FLAG1)
+        if(curQuest->itemDefTable().getItemDefinition(enemyHitWeapon>-1 ? enemyHitWeapon : current_item_id(itype_hookshot)).flags & itemdata::IF_FLAG1)
             return 0;
             
         bool ignorehookshot = ((defense[edefHOOKSHOT] == edIGNORE) || ((defense[edefHOOKSHOT] == edIGNOREL1 || defense[edefHOOKSHOT] == edSTUNORIGNORE)
-                               && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot)) <= 0));
+                               && (enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_hookshot)) <= 0));
                                
         // Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
         if(!(family==eePEAHAT || family==eeAQUA || family==eeMANHAN || (family==eeWIZZ && !ignorehookshot)
@@ -1830,7 +1830,7 @@ hitclock:
             if(item<0)
                 item=current_item_id(itype_arrow);
                 
-            if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG1))
+            if(item>=0 && (curQuest->itemDefTable().getItemDefinition(item).flags & itemdata::IF_FLAG1))
                 return 0;
         }
         
@@ -1839,7 +1839,7 @@ hitclock:
             if(item<0)
                 item=current_item_id(itype_sword);
                 
-            if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG3))
+            if(item>=0 && (curQuest->itemDefTable().getItemDefinition(item).flags & itemdata::IF_FLAG3))
                 return 0;
         }
     }
@@ -5113,7 +5113,7 @@ int ePeahat::takehit(weapon *w)
         
     if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
             // fire boomerang, for nailing peahats
-            && !(wpnId==wBrang && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0))
+            && !(wpnId==wBrang && (enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_brang))>0))
         return 0;
         
     // Time for a kludge...
@@ -6917,9 +6917,9 @@ bool eStalfos::animate(int index)
             {
             case e7tEATITEMS:
             {
-                for(int i=0; i<MAXITEMS; i++)
+                for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
                 {
-                    if(itemsbuf[i].flags&ITEM_EDIBLE)
+                    if(curQuest->itemDefTable().getItemDefinition(i).flags & itemdata::IF_EDIBLE)
                         game->set_item(i, false);
                 }
                 
@@ -9226,7 +9226,7 @@ int eGanon::takehit(weapon *w)
         return 1;
         
     case 2:
-        if(wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4)
+        if(wpnId!=wArrow || (enemyHitWeapon>-1 ? curQuest->itemDefTable().getItemDefinition(enemyHitWeapon).power : current_item_power(itype_arrow))<4)
             return 0;
             
         misc=3;
@@ -9313,10 +9313,10 @@ void getBigTri(int id2)
       200 top SHUTTER opens
       209 bottom SHUTTER opens
       */
-    Backend::sfx->play(itemsbuf[id2].playsound,128);
+    Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(id2).playsound,128);
     guys.clear();
     
-    if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+    if(curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_GAMEDATA)
     {
         game->lvlitems[dlevel]|=liTRIFORCE;
     }
@@ -9363,7 +9363,7 @@ void getBigTri(int id2)
     //play_DmapMusic();
     playLevelMusic();
     
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
+    if( (curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_FLAG1) && currscr < 128)
     {
         Link->dowarp(1,0); //side warp
     }
@@ -12416,11 +12416,11 @@ void loadguys()
 
 void loaditem()
 {
-    byte Item = 0;
+    uint32_t Item = 0;
     
     if(currscr<128)
     {
-        Item=tmpscr->item;
+        Item=tmpscr->screenItem;
         
         if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
         {
@@ -12432,7 +12432,7 @@ void loaditem()
                 items.add(new item((fix)tmpscr->itemx,
                                    (tmpscr->flags7&fITEMFALLS && tmpscr->flags7&fSIDEVIEW) ? (fix)-170 : (fix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
                                    (tmpscr->flags7&fITEMFALLS && !(tmpscr->flags7&fSIDEVIEW)) ? (fix)170 : (fix)0,
-                                   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
+                                   Item,ipONETIME+ipBIGRANGE+((curQuest->itemDefTable().getItemDefinition(Item).family==itype_triforcepiece ||
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
         }
     }
@@ -13366,10 +13366,10 @@ void setupscreen()
                 
                 if(itemid>=0 && prices[i]!=100000)
                 {
-                    if(itemsbuf[itemid].flags & ITEM_FLAG1)
-                        prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
+                    if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
+                        prices[i]=((prices[i]*curQuest->itemDefTable().getItemDefinition(itemid).misc1)/100);
                     else
-                        prices[i]-=itemsbuf[itemid].misc1;
+                        prices[i]-=curQuest->itemDefTable().getItemDefinition(itemid).misc1;
                     prices[i]=vbound(prices[i], -99999, 0);
                     if(prices[i]==0)
                         prices[i]=100000;
@@ -13476,10 +13476,10 @@ void setupscreen()
                 
                 if(itemid>=0 && prices[i]!=100000)
                 {
-                    if(itemsbuf[itemid].flags & ITEM_FLAG1)
-                        prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
+                    if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
+                        prices[i]=((prices[i]*curQuest->itemDefTable().getItemDefinition(itemid).misc1)/100);
                     else
-                        prices[i]+=itemsbuf[itemid].misc1;
+                        prices[i]+=curQuest->itemDefTable().getItemDefinition(itemid).misc1;
                     prices[i]=vbound(prices[i], 0, 99999);
                     if(prices[i]==0)
                         prices[i]=100000;
@@ -13523,10 +13523,10 @@ void setupscreen()
         
         if(itemid >= 0)
         {
-            if(itemsbuf[itemid].flags & ITEM_FLAG1)
-                prices[i]*=(itemsbuf[itemid].misc1/100);
+            if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
+                prices[i]*=(curQuest->itemDefTable().getItemDefinition(itemid).misc1/100);
             else
-                prices[i]+=itemsbuf[itemid].misc1;
+                prices[i]+=curQuest->itemDefTable().getItemDefinition(itemid).misc1;
         }
         
         if(tmpscr[t].catchall>1 && prices[i]>-1)
@@ -13691,7 +13691,7 @@ bool parsemsgcode()
     {
         int it = (int)grab_next_argument();
         
-        if(it<MAXITEMS && game->item[it])
+        if(it<curQuest->itemDefTable().getNumItemDefinitions() && game->get_item(it))
             goto switched;
             
         (void)grab_next_argument();
@@ -14273,9 +14273,9 @@ void check_collisions()
                             if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
                                     || (get_bit(quest_rules,qr_BRANGPICKUP) && !priced))
                             {
-                                if(itemsbuf[items.spr(j)->id].collect_script)
+                                if(curQuest->itemDefTable().getItemDefinition(items.spr(j)->id).collect_script)
                                 {
-									run_script(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+									run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(items.spr(j)->id).collect_script, items.spr(j)->id & 0xFFF);
                                 }
                                 
                                 //getitem(items.spr(j)->id);
@@ -14309,7 +14309,7 @@ void dragging_item()
                     // Drag the Fairy enemy as well as the Fairy item
                     int id = items.spr(w->dragging)->id;
                     
-                    if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
+                    if(curQuest->itemDefTable().getItemDefinition(id).family ==itype_fairy && curQuest->itemDefTable().getItemDefinition(id).misc3)
                     {
                         movefairy2(w->x,w->y,items.spr(w->dragging)->misc);
                     }
@@ -14378,14 +14378,14 @@ void roaming_item()
             return;                                               //eSHOOTFBALL are alive but enemies from the list
         }                                                       //are not. Defer to LinkClass::checkspecial().
         
-        int Item=tmpscr->item;
+        uint32_t Item=tmpscr->screenItem;
         
         hasitem &= ~4;
         
         if(!getmapflag(mITEM) && (tmpscr->hasitem != 0))
         {
             additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
-                    + (((tmpscr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
+                    + (((tmpscr->flags3&fHOLDITEM) || (curQuest->itemDefTable().getItemDefinition(Item).family==itype_triforcepiece)) ? ipHOLDUP : 0)
                    );
             hasitem |= 2;
         }

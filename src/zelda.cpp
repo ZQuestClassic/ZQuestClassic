@@ -29,6 +29,7 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "quest/Quest.h"
 #include "zc_malloc.h"
 #include "mem_debug.h"
 #include "ffasm.h"
@@ -75,8 +76,8 @@ ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
 int db=0;
 //zinitdata  zinit;
+std::map<int, LensItemAnim> lens_hint_item;
 int detail_int[10];                                         //temporary holder for things you want to detail
-int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 int strike_hint_counter=0;
 int strike_hint_timer=0;
@@ -157,6 +158,7 @@ int startdmapxy[6] = {0,0,0,0,0,0};
 int curr_tb_page=0;
 bool triplebuffer_not_available=false;
 
+Quest *curQuest;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
@@ -167,7 +169,6 @@ FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *p
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
-itemdata   *itemsbuf;
 wpndata    *wpnsbuf;
 comboclass *combo_class_buf;
 guydata    *guysbuf;
@@ -620,7 +621,6 @@ bool bad_version(int version)
 }
 
 extern char *weapon_string[];
-extern char *item_string[];
 extern char *sfx_string[];
 extern char *guy_string[];
 
@@ -1130,10 +1130,15 @@ int load_quest(gamedata *g, bool report)
 void init_dmap()
 {
     // readjust disabled items; could also do dmap-specific scripts here
-    for(int i=0; i<MAXITEMS; i++)
+    for (std::map<uint32_t, uint8_t>::iterator it = game->disabledItems.begin(); it != game->disabledItems.end(); ++it)
     {
-        game->items_off[i] &= (~1); // disable last bit - this one is set by dmap
-        game->items_off[i] |= DMaps[currdmap].disableditems[i]; // and reset if required
+        game->disabledItems[it->first] &= (~1); // disable last bit - this one is set by dmap
+    }
+
+    for(std::vector<uint32_t>::iterator it = DMaps[currdmap].disabledItems.begin(); it != DMaps[currdmap].disabledItems.end(); ++it)
+    {
+        game->disabledItems[*it] |= 1; // and reset if required
+
     }
     
     flushItemCache();
@@ -1168,12 +1173,6 @@ int init_game()
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
     show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
     cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_ff_scripts=show_hitboxes=false;
-    
-    for(int x = 0; x < MAXITEMS; x++)
-    {
-        lens_hint_item[x][0]=0;
-        lens_hint_item[x][1]=0;
-    }
     
     for(int x = 0; x < MAXWPNS; x++)
     {
@@ -1745,7 +1744,7 @@ void do_magic_casting()
         return;
     }
     
-    switch(itemsbuf[magicitem].family)
+    switch(curQuest->itemDefTable().getItemDefinition(magicitem).family)
     {
     case itype_dinsfire:
     {
@@ -1791,16 +1790,16 @@ void do_magic_casting()
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                Backend::sfx->play(itemsbuf[magicitem].usesound,Link->getX());
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(magicitem).usesound,Link->getX());
                 
-            int flamemax=itemsbuf[magicitem].misc1;
+            int flamemax= curQuest->itemDefTable().getItemDefinition(magicitem).misc1;
             
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
-                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
+                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3, curQuest->itemDefTable().getItemDefinition(magicitem).power*DAMAGE_MULTIPLIER,
                                      (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link->getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
-                w->step=(itemsbuf[magicitem].misc2/100.0);
+                w->step=(curQuest->itemDefTable().getItemDefinition(magicitem).misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
             }
@@ -1861,7 +1860,7 @@ void do_magic_casting()
         if(magiccastclk==96)
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                Backend::sfx->play(itemsbuf[magicitem].usesound,Link->getX());
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(magicitem).usesound,Link->getX());
                 
             Link->setDontDraw(true);
             
@@ -1871,14 +1870,14 @@ void do_magic_casting()
                 {
                     if(linktilebuf[i*16+j])
                     {
-                        if(itemsbuf[magicitem].misc1==1)  // Twilight
+                        if(curQuest->itemDefTable().getItemDefinition(magicitem).misc1==1)  // Twilight
                         {
                             particles.add(new pTwilight(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 0, 0, (rand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=3;
                         }
-                        else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
+                        else if(curQuest->itemDefTable().getItemDefinition(magicitem).misc1==2)  // Sands of Hours
                         {
                             particles.add(new pTwilight(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 1, 2, (rand()%16)+i*2));
                             int k=particles.Count()-1;
@@ -1982,17 +1981,17 @@ void do_magic_casting()
                 Link->tile+=item_tile_mod(shieldModify);
             }
             
-            Link->setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
+            Link->setNayrusLoveShieldClk(curQuest->itemDefTable().getItemDefinition(magicitem).misc1);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
                 if(nayruitem != -1)
                 {
-                    Backend::sfx->stop(itemsbuf[nayruitem].usesound+1);
-                    Backend::sfx->stop(itemsbuf[nayruitem].usesound);
+                    Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(magicitem).usesound+1);
+                    Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(magicitem).usesound);
                 }
                 
-                Backend::sfx->loop(itemsbuf[magicitem].usesound,128);
+                Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(magicitem).usesound,128);
             }
             
             castnext=false;
@@ -2051,7 +2050,7 @@ void update_hookshot()
         //extending
         if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
         {
-            int maxchainlinks=itemsbuf[parentitem].misc2;
+            int maxchainlinks= curQuest->itemDefTable().getItemDefinition(parentitem).misc2;
             
             if(chainlinks.Count()<maxchainlinks)           //extending chain
             {
@@ -2405,31 +2404,31 @@ void game_loop()
         if(!freezemsg && current_item(itype_heartring))
         {
             int itemid = current_item_id(itype_heartring);
-            int fskip = itemsbuf[itemid].misc2;
+            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
-                game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
+                game->set_life(zc_min(game->get_life() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxlife()));
         }
         
         if(!freezemsg && current_item(itype_magicring))
         {
             int itemid = current_item_id(itype_magicring);
-            int fskip = itemsbuf[itemid].misc2;
+            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
-                game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
+                game->set_magic(zc_min(game->get_magic() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxmagic()));
             }
         }
         
         if(!freezemsg && current_item(itype_wallet))
         {
             int itemid = current_item_id(itype_wallet);
-            int fskip = itemsbuf[itemid].misc2;
+            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
-                game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
+                game->set_rupies(zc_min(game->get_rupies() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxcounter(1)));
             }
         }
         
@@ -2437,24 +2436,24 @@ void game_loop()
         {
             int itemid = current_item_id(itype_bombbag);
             
-            if(itemsbuf[itemid].misc1)
+            if(curQuest->itemDefTable().getItemDefinition(itemid).misc1)
             {
-                int fskip = itemsbuf[itemid].misc2;
+                int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
                 
                 if(fskip == 0 || frame % fskip == 0)
                 {
-                    game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
+                    game->set_bombs(zc_min(game->get_bombs() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxbombs()));
                 }
                 
-                if(itemsbuf[itemid].flags & ITEM_FLAG1)
+                if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
                 {
                     int ratio = zinit.bomb_ratio;
                     
-                    fskip = itemsbuf[itemid].misc2 * ratio;
+                    fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2 * ratio;
                     
                     if(fskip == 0 || frame % fskip == 0)
                     {
-                        game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
+                        game->set_sbombs(zc_min(game->get_sbombs() + zc_max(curQuest->itemDefTable().getItemDefinition(itemid).misc1 / ratio, 1), game->get_maxbombs() / ratio));
                     }
                 }
             }
@@ -2463,11 +2462,11 @@ void game_loop()
         if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
         {
             int itemid = current_item_id(itype_quiver);
-            int fskip = itemsbuf[itemid].misc2;
+            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
-                game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
+                game->set_arrows(zc_min(game->get_arrows() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxarrows()));
             }
         }
         
@@ -2695,6 +2694,7 @@ int main(int argc, char* argv[])
     Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
     qstdir = (char*)zc_malloc(2048);
     qstpath = (char*)zc_malloc(2048);
+    curQuest = NULL;
     
     if(!qstdir || !qstpath)
     {
@@ -3071,11 +3071,6 @@ int main(int argc, char* argv[])
         weapon_string[i] = new char[64];
     }
     
-    for(int i=0; i<ITEMCNT; i++)
-    {
-        item_string[i] = new char[64];
-    }
-    
     for(int i=0; i<eMAXGUYS; i++)
     {
         guy_string[i] = new char[64];
@@ -3372,6 +3367,8 @@ void delete_everything_else() //blarg.
 void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
+    if (curQuest)
+        delete curQuest;
 	Backend::mouse->setCursorVisibility(false);
     Backend::sfx->clearSamples();
 	Backend::shutdownBackend();
@@ -3432,11 +3429,6 @@ void quit_game()
     for(int i=0; i<WPNCNT; i++)
     {
         delete [] weapon_string[i];
-    }
-    
-    for(int i=0; i<ITEMCNT; i++)
-    {
-        delete [] item_string[i];
     }
     
     for(int i=0; i<eMAXGUYS; i++)

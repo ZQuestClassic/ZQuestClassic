@@ -38,8 +38,8 @@ void gamedata::Clear()
     _quest=0;
     _deaths=0;
     _cheat=0;
-    std::fill(item, item+MAXITEMS, false);
-    std::fill(items_off, items_off+MAXITEMS, 0);
+    inventoryItems.clear();
+    disabledItems.clear();
     std::fill(_maxcounter, _maxcounter+32, 0);
     std::fill(_counter, _counter+32, 0);
     std::fill(_dcounter, _dcounter+32, 0);
@@ -79,11 +79,8 @@ void gamedata::Copy(const gamedata& g)
     _deaths = g._deaths;
     _cheat = g._cheat;
     
-    for(word i = 0; i < MAXITEMS; i++)
-    {
-        item[i] = g.item[i];
-        items_off[i] = g.items_off[i];
-    }
+    inventoryItems = g.inventoryItems;
+    disabledItems = g.disabledItems;
     
     for(byte i = 0; i < 32; i++)
     {
@@ -792,12 +789,40 @@ void gamedata::set_item(int id, bool value)
     flushItemCache();
 }
 
+void gamedata::set_disabled_item(int id, uint8_t value)
+{
+    if (value)
+        disabledItems[id] = value;
+    else
+    {
+        std::map<uint32_t, uint8_t>::iterator it = disabledItems.find(id);
+        if (it != disabledItems.end())
+            disabledItems.erase(it);
+    }
+}
+
+uint8_t gamedata::get_disabled_item(int id)
+{
+    std::map<uint32_t, uint8_t>::iterator it = disabledItems.find(id);
+    if (it == disabledItems.end())
+        return 0;
+    return disabledItems[id];
+}
+
 void gamedata::set_item_no_flush(int id, bool value)
 {
-    if(!isclearing && !(value == item[id]))
-        Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, item_string[id]);
+    bool curvalue = inventoryItems.count(id) > 0;
+    if(!isclearing && !(value == curvalue))
+        Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, curQuest->itemDefTable().getItemName(id));
         
-    item[id]=value;
+    if (value)
+        inventoryItems.insert(id);
+    else
+    {
+        std::set<uint32_t>::iterator it = inventoryItems.find(id);
+        if (it != inventoryItems.end())
+            inventoryItems.erase(it);
+    }
 }
 
 /*** end of gamedata.cpp ***/

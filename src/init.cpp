@@ -47,9 +47,7 @@ extern FONT *sfont2;
 extern FONT *lfont;
 extern FONT *pfont;
 extern dmap *DMaps;
-extern itemdata *itemsbuf;
 extern byte quest_rules[20];
-extern char *item_string[];
 
 int oldselection;
 zinitdata tempdata;
@@ -1560,11 +1558,12 @@ const char *item_class_list(int index, int *list_size)
 
 int doInit(zinitdata *local_zinit)
 {
-    for(int i=0; i<MAXITEMS; i++)
+    int numitems = curQuest->itemDefTable().getNumItemDefinitions();
+    for(int i=0; i<numitems; i++)
     {
-        int family = itemsbuf[i].family;
+        int family = curQuest->itemDefTable().getItemDefinition(i).family;
         
-        if(family == 0xFF || family == itype_triforcepiece || !(itemsbuf[i].flags & ITEM_GAMEDATA))
+        if(family == 0xFF || family == itype_triforcepiece || !(curQuest->itemDefTable().getItemDefinition(i).flags & itemdata::IF_GAMEDATA))
         {
             continue;
         }
@@ -1576,7 +1575,7 @@ int doInit(zinitdata *local_zinit)
             families[family] = std::vector<Family>();
         }
         
-        families[family].push_back(Family(family, itemsbuf[i].fam_type,i));
+        families[family].push_back(Family(family, curQuest->itemDefTable().getItemDefinition(i).fam_type,i));
     }
     
     //family map has been populated, now sort
@@ -1858,7 +1857,7 @@ void doFamily(int biicindx, zinitdata *local_zinit, DIALOG *d)
     {
         d[i].proc = jwin_checkfont_proc;
         d[i].dp2 = is_large() ? lfont_l : pfont;
-        d[i].dp = (void *)item_string[it->itemid];
+        d[i].dp = (void *)curQuest->itemDefTable().getItemName(it->itemid).c_str();
         d[i].flags = local_zinit->items[it->itemid] ? D_SELECTED : 0;
     }
     
@@ -1933,22 +1932,30 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_maxcounter(zinit2->max_keys, 5);
     
     //set up the items
-    for(int i=0; i<MAXITEMS; i++)
+    // TODO FIX
+    int numitems = curQuest->itemDefTable().getNumItemDefinitions();
+    game2->inventoryItems.clear();
+    game2->disabledItems.clear();
+    for(int i=0; i<256 && i < numitems; i++)
     {
-        if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
+        if(zinit2->items[i] && (curQuest->itemDefTable().getItemDefinition(i).flags & itemdata::IF_GAMEDATA))
         {
             if(!game2->get_item(i))
                 getitem(i,true);
         }
         else
-            game2->set_item_no_flush(i,false);
-            
-        game2->items_off[i] = 0;
-        
-        // Fix them DMap items
-        // Since resetItems() gets called before AND after init_dmap()...
-        if(get_currdmap() > -1)
-            game2->items_off[i] |= DMaps[get_currdmap()].disableditems[i];
+            game2->set_item_no_flush(i,false);                    
+    }
+
+    // Fix them DMap items
+    // Since resetItems() gets called before AND after init_dmap()...
+    if (get_currdmap() > -1)
+    {
+        int numdisabled = DMaps[get_currdmap()].disabledItems.size();
+        for (int i = 0; i < numdisabled; i++)
+        {
+            game2->disabledItems[DMaps[get_currdmap()].disabledItems[i]] |= 1;
+        }
     }
     
     flushItemCache();

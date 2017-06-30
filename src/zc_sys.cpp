@@ -69,6 +69,10 @@ int virtualScreenScale();
 int miniscreenX();
 int miniscreenY();
 
+// placeholder for now
+extern std::map<int, LensItemAnim > lens_hint_item;
+
+
 static const char *ZC_str = "Zelda Classic";
 #ifdef ALLEGRO_DOS
 static  const char *qst_dir_name = "dos_qst_dir";
@@ -1673,7 +1677,8 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 
 bool item_disabled(int item)                 //is this item disabled?
 {
-    return (item>=0 && game->items_off[item] != 0);
+    std::map<uint32_t, uint8_t>::iterator it = game->disabledItems.find(item);
+    return (item>=0 && (it == game->disabledItems.end() || it->second != 0) );
 }
 
 bool can_use_item(int item_type, int item)                  //can Link use this item?
@@ -1693,7 +1698,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
     case itype_bomb:
     case itype_sbomb:
     {
-        int itemid = getItemID(itemsbuf, item_type, it);
+        int itemid = curQuest->itemDefTable().getItemID(item_type, it);
         
         if(itemid == -1)
             return false;
@@ -1856,7 +1861,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
         
           return false;
         }*/
-        int itemid = getItemID(itemsbuf, item_type, it);
+        int itemid = curQuest->itemDefTable().getItemID(item_type, it);
         
         if(itemid == -1)
             return false;
@@ -1937,12 +1942,12 @@ int current_item(int item_type, bool checkenabled)           //item currently be
     }
     
     default:
-        int maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
+        int maxid = curQuest->itemDefTable().getHighestLevelOfFamily(game, item_type, checkenabled);
         
         if(maxid == -1)
             return 0;
             
-        return itemsbuf[maxid].fam_type;
+        return curQuest->itemDefTable().getItemDefinition(maxid).fam_type;
         break;
     }
 }
@@ -1986,23 +1991,23 @@ int current_item_id(int itemtype, bool checkmagic)
     int result = -1;
     int highestlevel = -1;
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(std::set<uint32_t>::iterator it = game->inventoryItems.begin(); it != game->inventoryItems.end(); ++it)
     {
-        if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
+        if(curQuest->itemDefTable().getItemDefinition(*it).family==itemtype && !item_disabled(*it))
         {
             if((checkmagic || itemtype == itype_ring) && itemtype != itype_magicring)
             {
                 //printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
-                if(!checkmagiccost(i))
+                if(!checkmagiccost(*it))
                 {
                     continue;
                 }
             }
             
-            if(itemsbuf[i].fam_type >= highestlevel)
+            if(curQuest->itemDefTable().getItemDefinition(*it).fam_type >= highestlevel)
             {
-                highestlevel = itemsbuf[i].fam_type;
-                result=i;
+                highestlevel = curQuest->itemDefTable().getItemDefinition(*it).fam_type;
+                result=*it;
             }
         }
     }
@@ -2014,7 +2019,7 @@ int current_item_id(int itemtype, bool checkmagic)
 int current_item_power(int itemtype)
 {
     int result = current_item_id(itemtype,true);
-    return (result<0) ? 0 : itemsbuf[result].power;
+    return (result<0) ? 0 : curQuest->itemDefTable().getItemDefinition(result).power;
 }
 
 int item_tile_mod(bool)
@@ -2032,7 +2037,7 @@ int item_tile_mod(bool)
         
     default:
         if(current_item_id(itype_bomb,false)>=0)
-            ret=itemsbuf[current_item_id(itype_bomb,false)].ltm;
+            ret=curQuest->itemDefTable().getItemDefinition(current_item_id(itype_bomb,false)).ltm;
         else
             ret=0;
             
@@ -2052,7 +2057,7 @@ int item_tile_mod(bool)
         
     default:
         if(current_item_id(itype_sbomb,false)>=0)
-            ret=itemsbuf[current_item_id(itype_sbomb,false)].ltm;
+            ret=curQuest->itemDefTable().getItemDefinition(current_item_id(itype_sbomb,false)).ltm;
         else
             ret=0;
             
@@ -2066,7 +2071,7 @@ int item_tile_mod(bool)
     switch(ret)
     {
     case 1:
-        ret=itemsbuf[iClock].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iClock).ltm;
         break;
         
     default:
@@ -2085,7 +2090,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iKey].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iKey).ltm;
         break;
     }
     
@@ -2100,7 +2105,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iLevelKey].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iLevelKey).ltm;
         break;
     }
     
@@ -2115,7 +2120,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iMap].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iMap).ltm;
         break;
     }
     
@@ -2130,7 +2135,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iCompass].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iCompass).ltm;
         break;
     }
     
@@ -2145,7 +2150,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iBossKey].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iBossKey).ltm;
         break;
     }
     
@@ -2160,7 +2165,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iMagicC].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iMagicC).ltm;
         break;
     }
     
@@ -2175,7 +2180,7 @@ int item_tile_mod(bool)
         break;
         
     default:
-        ret=itemsbuf[iTriforce].ltm;
+        ret=curQuest->itemDefTable().getItemDefinition(iTriforce).ltm;
         break;
     }
     
@@ -2186,7 +2191,7 @@ int item_tile_mod(bool)
         ret=current_item_id(i,false);
         
         if(ret >= 0)
-            tile+=itemsbuf[ret].ltm;
+            tile+=curQuest->itemDefTable().getItemDefinition(ret).ltm;
     }
     
     return tile;
@@ -2322,21 +2327,21 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             {
                             case cPUSH_HEAVY:
                             case cPUSH_HW:
-                                tempitem=getItemIDPower(itemsbuf,itype_bracelet,1);
+                                tempitem=curQuest->itemDefTable().getItemIDPower(itype_bracelet,1);
                                 tempitemx=x, tempitemy=y;
                                 
                                 if(tempitem>-1)
-                                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                                     
                                 break;
                                 
                             case cPUSH_HEAVY2:
                             case cPUSH_HW2:
-                                tempitem=getItemIDPower(itemsbuf,itype_bracelet,2);
+                                tempitem=curQuest->itemDefTable().getItemIDPower(itype_bracelet,2);
                                 tempitemx=x, tempitemy=y;
                                 
                                 if(tempitem>-1)
-                                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                                     
                                 break;
                             }
@@ -2348,7 +2353,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfWHISTLE:
                     if(hints)
                     {
-                        tempitem=getItemID(itemsbuf,itype_whistle,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_whistle,1);
                         
                         if(tempitem<0) break;
                         
@@ -2359,7 +2364,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2370,7 +2375,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfALLFAIRY:
                     if(hints)
                     {
-                        tempitem=getItemID(itemsbuf, itype_fairy,1);//iFairyMoving;
+                        tempitem=curQuest->itemDefTable().getItemID(itype_fairy,1);//iFairyMoving;
                         
                         if(tempitem < 0) break;
                         
@@ -2381,7 +2386,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2391,7 +2396,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_candle,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_candle,1);
                         
                         if(tempitem<0) break;
                         
@@ -2402,7 +2407,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2412,7 +2417,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_candle,2);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_candle,2);
                         
                         if(tempitem<0) break;
                         
@@ -2423,7 +2428,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2433,7 +2438,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_wand,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_wand,1);
                         
                         if(tempitem<0) break;
                         
@@ -2452,7 +2457,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         }
                         
                         putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2462,7 +2467,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sDINSFIRE],tmpscr->secretcset[sDINSFIRE]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_dinsfire,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_dinsfire,1);
                         
                         if(tempitem<0) break;
                         
@@ -2473,7 +2478,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2483,7 +2488,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_arrow,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_arrow,1);
                         
                         if(tempitem<0) break;
                         
@@ -2494,7 +2499,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2504,7 +2509,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_arrow,2);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_arrow,2);
                         
                         if(tempitem<0) break;
                         
@@ -2515,7 +2520,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2525,7 +2530,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_arrow,3);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_arrow,3);
                         
                         if(tempitem<0) break;
                         
@@ -2536,7 +2541,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2594,7 +2599,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_brang,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_brang,1);
                         
                         if(tempitem<0) break;
                         
@@ -2605,7 +2610,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2615,7 +2620,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_brang,2);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_brang,2);
                         
                         if(tempitem<0) break;
                         
@@ -2626,7 +2631,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2636,7 +2641,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_brang,3);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_brang,3);
                         
                         if(tempitem<0) break;
                         
@@ -2647,7 +2652,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2657,11 +2662,11 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_wand,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_wand,1);
                         
                         if(tempitem<0) break;
                         
-                        tempweapon=itemsbuf[tempitem].wpn3;
+                        tempweapon=curQuest->itemDefTable().getItemDefinition(tempitem).wpn3;
                         
                         if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
                                 || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
@@ -2682,7 +2687,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         }
                         
                         putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2692,7 +2697,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_shield,3);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_shield,3);
                         
                         if(tempitem<0) break;
                         
@@ -2729,7 +2734,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             }
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                         putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, lens_hint_weapon[ewMagic][2], lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
                     }
                     
@@ -2740,7 +2745,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_shield,3);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_shield,3);
                         
                         if(tempitem<0) break;
                         
@@ -2771,7 +2776,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             }
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                         putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon][3],tempweapony+lens_hint_weapon[ewFireball][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
                     }
                     
@@ -2782,7 +2787,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,1);
                         
                         if(tempitem<0) break;
                         
@@ -2793,7 +2798,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2803,7 +2808,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,2);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,2);
                         
                         if(tempitem<0) break;
                         
@@ -2814,7 +2819,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2824,7 +2829,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,3);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,3);
                         
                         if(tempitem<0) break;
                         
@@ -2835,7 +2840,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2845,7 +2850,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,4);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,4);
                         
                         if(tempitem<0) break;
                         
@@ -2856,7 +2861,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2866,7 +2871,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,1);
                         
                         if(tempitem<0) break;
                         
@@ -2877,7 +2882,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 1);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 1);
                     }
                     
                     break;
@@ -2887,7 +2892,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,2);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,2);
                         
                         if(tempitem<0) break;
                         
@@ -2898,7 +2903,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 2);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 2);
                     }
                     
                     break;
@@ -2908,7 +2913,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,3);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,3);
                         
                         if(tempitem<0) break;
                         
@@ -2919,7 +2924,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 3);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 3);
                     }
                     
                     break;
@@ -2929,7 +2934,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_sword,4);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_sword,4);
                         
                         if(tempitem<0) break;
                         
@@ -2940,7 +2945,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 4);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 4);
                     }
                     
                     break;
@@ -2950,7 +2955,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_hookshot,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_hookshot,1);
                         
                         if(tempitem<0) break;
                         
@@ -2961,7 +2966,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2971,7 +2976,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_wand,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_wand,1);
                         
                         if(tempitem<0) break;
                         
@@ -2982,7 +2987,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -2992,7 +2997,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
                     else
                     {
-                        tempitem=getItemID(itemsbuf,itype_hammer,1);
+                        tempitem=curQuest->itemDefTable().getItemID(itype_hammer,1);
                         
                         if(tempitem<0) break;
                         
@@ -3003,7 +3008,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                         }
                         
-                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                        putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
                     break;
@@ -3012,7 +3017,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfDIVE_ITEM:
                     if(!getmapflag())
                         //          putitem2(dest,x,y,tmpscr->catchall);
-                        putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall][0], lens_hint_item[tmpscr->catchall][1], 0);
+                        putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall].aclk, lens_hint_item[tmpscr->catchall].aframe, 0);
                         
                     break;
                     
@@ -3095,7 +3100,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
             {
                 if(tmpscr->flags&fWHISTLE)
                 {
-                    tempitem=getItemID(itemsbuf,itype_whistle,1);
+                    tempitem=curQuest->itemDefTable().getItemID(itype_whistle,1);
                     int tempitemx=-16;
                     int tempitemy=-16;
                     
@@ -3106,7 +3111,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         tempitemy=tmpscr->stairy+playing_field_offset;
                     }
                     
-                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+                    putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                 }
             }
         }
@@ -3120,7 +3125,7 @@ void draw_lens_over()
     // Oh, what the heck.
     static BITMAP *lens_scr = NULL;
     static int last_width = -1;
-    int width = itemsbuf[current_item_id(itype_lens,true)].misc1;
+    int width = curQuest->itemDefTable().getItemDefinition(current_item_id(itype_lens,true)).misc1;
     
     // Only redraw the circle if the size has changed
     if(width != last_width)
@@ -6298,11 +6303,11 @@ int onCheatArrows()
 
 int onCheatBombs()
 {
-    //getitem(iBombs,true);
-    for(int i=0; i<MAXITEMS; i++)
+    int numitems = curQuest->itemDefTable().getNumItemDefinitions();
+    for(int i=0; i<numitems; i++)
     {
-        if(itemsbuf[i].family == itype_bomb
-                || itemsbuf[i].family == itype_sbomb)
+        if(curQuest->itemDefTable().getItemDefinition(i).family == itype_bomb
+                ||curQuest->itemDefTable().getItemDefinition(i).family == itype_sbomb)
             getitem(i, true);
     }
     

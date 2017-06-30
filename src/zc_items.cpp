@@ -66,12 +66,12 @@ int select_dropitem(int item_set, int x, int y)
         {
             int current_item=item_drop_sets[item_set].item[k-1];
             
-            if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
+            if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(curQuest->itemDefTable().getItemDefinition(current_item).family == itype_magic))
             {
                 current_chance=0;
             }
             
-            if((!get_bit(quest_rules,qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
+            if((!get_bit(quest_rules,qr_TRUEARROWS))&&(curQuest->itemDefTable().getItemDefinition(current_item).family == itype_arrowammo))
             {
                 current_chance=0;
             }
@@ -93,12 +93,12 @@ int select_dropitem(int item_set, int x, int y)
         int current_chance=item_drop_sets[item_set].chance[k];
         int current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
         
-        if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
+        if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&curQuest->itemDefTable().getItemDefinition(current_item).family == itype_magic))
         {
             current_chance=0;
         }
         
-        if((!get_bit(quest_rules,qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
+        if((!get_bit(quest_rules,qr_TRUEARROWS))&&(current_item>=0&&curQuest->itemDefTable().getItemDefinition(current_item).family == itype_arrowammo))
         {
             current_chance=0;
         }
@@ -114,11 +114,11 @@ int select_dropitem(int item_set, int x, int y)
         }
     }
     
-    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy)
+    if(drop_item>=0 && curQuest->itemDefTable().getItemDefinition(drop_item).family==itype_fairy)
     {
         for(int j=0; j<items.Count(); ++j)
         {
-            if((itemsbuf[items.spr(j)->id].family==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
+            if((curQuest->itemDefTable().getItemDefinition(items.spr(j)->id).family==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
             {
                 drop_item=-1;
                 break;

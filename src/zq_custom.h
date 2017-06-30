@@ -11,6 +11,8 @@
 #ifndef _ZQ_CUSTOM_H_
 #define _ZQ_CUSTOM_H_
 
+#include "quest/ItemDefinitionTable.h"
+
 int d_cstile_proc(int msg,DIALOG *d,int c);
 int jwin_as_droplist_proc(int msg,DIALOG *d,int c);
 

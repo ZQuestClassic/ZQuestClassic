@@ -59,6 +59,8 @@ void playLevelMusic();
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+// placeholder for now
+extern std::map<int, LensItemAnim > lens_hint_item;
 
 static inline bool isSideview()
 {
@@ -196,8 +198,8 @@ void LinkClass::resetflags(bool all)
         
         if(nayruitem != -1)
         {
-            Backend::sfx->stop(itemsbuf[nayruitem].usesound);
-            Backend::sfx->stop(itemsbuf[nayruitem].usesound+1);
+            Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(nayruitem).usesound);
+            Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(nayruitem).usesound+1);
         }
         
         nayruitem = -1;
@@ -560,7 +562,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
        new_action==hopping)
         return; // Can't use these actions.
     
-    if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
+    if(magicitem>-1 && curQuest->itemDefTable().getItemDefinition(magicitem).family==itype_faroreswind)
     {
         // Using Farore's Wind
         if(magiccastclk<96)
@@ -801,13 +803,13 @@ void LinkClass::draw_under(BITMAP* dest)
     {
         if(((dir==left) || (dir==right)) && (get_bit(quest_rules,qr_RLFIX)))
         {
-            overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
-                       itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc>>2)&3)^3);
+            overtile16(dest, curQuest->itemDefTable().getItemDefinition(c_raft).tile, x, y+playing_field_offset+4,
+                curQuest->itemDefTable().getItemDefinition(c_raft).csets&15, rotate_value((curQuest->itemDefTable().getItemDefinition(c_raft).misc>>2)&3)^3);
         }
         else
         {
-            overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
-                       itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc>>2)&3);
+            overtile16(dest, curQuest->itemDefTable().getItemDefinition(c_raft).tile, x, y+playing_field_offset+4,
+                curQuest->itemDefTable().getItemDefinition(c_raft).csets&15, (curQuest->itemDefTable().getItemDefinition(c_raft).misc>>2)&3);
         }
     }
     
@@ -815,13 +817,13 @@ void LinkClass::draw_under(BITMAP* dest)
     {
         if((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
         {
-            overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
-                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
+            overtile16(dest, curQuest->itemDefTable().getItemDefinition(c_ladder).tile, ladderx, laddery+playing_field_offset,
+                curQuest->itemDefTable().getItemDefinition(c_ladder).csets&15, rotate_value((curQuest->itemDefTable().getItemDefinition(iRaft).misc>>2)&3)^3);
         }
         else
         {
-            overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
-                       itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc>>2)&3);
+            overtile16(dest, curQuest->itemDefTable().getItemDefinition(c_ladder).tile, ladderx, laddery+playing_field_offset,
+                curQuest->itemDefTable().getItemDefinition(c_ladder).csets&15, (curQuest->itemDefTable().getItemDefinition(c_ladder).misc>>2)&3);
         }
     }
 }
@@ -879,17 +881,17 @@ bool LinkClass::agonyflag(int flag)
 // The Whimsical Ring is applied on a target-by-target basis.
 int LinkClass::weaponattackpower()
 {
-    int power = directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
+    int power = directWpn>-1 ? curQuest->itemDefTable().getItemDefinition(directWpn).power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
     
     // Multiply it by the power of the spin attack/quake hammer, if applicable.
-    power *= (spins>0 ? itemsbuf[current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)].power : 1);
+    power *= (spins>0 ? curQuest->itemDefTable().getItemDefinition(current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)).power : 1);
     return power;
 }
 
 // Must only be called once per frame!
 void LinkClass::positionSword(weapon *w, int itemid)
 {
-    itemid=vbound(itemid, 0, MAXITEMS-1);
+    itemid=vbound(itemid, 0, curQuest->itemDefTable().getNumItemDefinitions()-1);
     // Place a sword weapon at the right spot.
     int wy=1;
     int wx=1;
@@ -911,7 +913,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         wx=-1;
         wy=-12;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4 && charging==0)
         {
             if(attackclk>10) //extended stab
             {
@@ -947,7 +949,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         f=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
         wy=11;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4) && charging==0)
         {
             if(attackclk>10) //extended stab
             {
@@ -984,7 +986,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         wx=-11;
         ++t;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4) && charging==0)
         {
             if(attackclk>10)  //extended stab
             {
@@ -1020,7 +1022,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         wx=11;
         ++t;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4) && charging==0)
         {
             if(attackclk>10) //extended stab
             {
@@ -1053,9 +1055,9 @@ void LinkClass::positionSword(weapon *w, int itemid)
         break;
     }
     
-    if(game->get_canslash() && itemsbuf[itemid].flags & ITEM_FLAG4 && attackclk<11)
+    if(game->get_canslash() && (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4) && attackclk<11)
     {
-        int wpn2=itemsbuf[itemid].wpn2;
+        int wpn2=curQuest->itemDefTable().getItemDefinition(itemid).wpn2;
         wpn2=vbound(wpn2, 0, MAXWPNS);
         
         //slashing tiles
@@ -1157,7 +1159,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
     
     int itemid2 = current_item_id(itype_chargering);
     
-    if(charging>(itemid2>=0 ? itemsbuf[itemid2].misc1 : 64))
+    if(charging>(itemid2>=0 ? curQuest->itemDefTable().getItemDefinition(itemid2).misc1 : 64))
     {
         cs2=(BSZ ? (frame&3)+6 : ((frame>>2)&1)+7);
     }
@@ -1214,7 +1216,7 @@ void LinkClass::draw(BITMAP* dest)
         
     if(agonyid>-1)
     {
-        int power=itemsbuf[agonyid].power;
+        int power=curQuest->itemDefTable().getItemDefinition(agonyid).power;
         int left=static_cast<int>(x+8-power)&0xF0; // Check top-left pixel of each tile
         int right=(static_cast<int>(x+8+power)&0xF0)+16;
         int top=static_cast<int>(y+(bigHitbox ? 8 : 12)-power)&0xF0;
@@ -1259,12 +1261,12 @@ attack:
         * - which is used to acquire a wpn ID! Aack!
         */
         int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-        int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-        itemid=vbound(itemid, 0, MAXITEMS-1);
+        int itemid = (directWpn>-1 && curQuest->itemDefTable().getItemDefinition(directWpn).family==itype) ? directWpn : current_item_id(itype);
+        itemid=vbound(itemid, 0, curQuest->itemDefTable().getNumItemDefinitions()-1);
         
         if(attackclk>4||(attack==wSword&&game->get_canslash()))
         {
-            if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
+            if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && curQuest->itemDefTable().getItemDefinition(itemid).wpn)) && wpnsbuf[curQuest->itemDefTable().getItemDefinition(itemid).wpn].tile)
             {
                 // Create a sword weapon at the right spot.
                 weapon *w=NULL;
@@ -1292,7 +1294,7 @@ attack:
                     // Stone of Agony
                     if(agony)
                     {
-                        w->y-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,2));
+                        w->y-=!(frame%zc_max(60-curQuest->itemDefTable().getItemDefinition(agonyid).misc1,2));
                     }
                 }
                 
@@ -1313,7 +1315,7 @@ attack:
             {
                 linktile(&tile, &flip, &extend, ls_stab, dir, zinit.linkanimationstyle);
                 
-                if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7))
+                if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4 && (attackclk<7))
                 {
                     linktile(&tile, &flip, &extend, ls_slash, dir, zinit.linkanimationstyle);
                 }
@@ -1334,7 +1336,7 @@ attack:
 		    // Stone of Agony
 		if(agony)
 		{
-		    yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+		    yofs-=!(frame%zc_max(60-curQuest->itemDefTable().getItemDefinition(agonyid).misc1,3));
 		}
 		    
 		//Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
@@ -1476,7 +1478,7 @@ attack:
             // Stone of Agony
             if(agony)
             {
-                wy-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+                wy-=!(frame%zc_max(60-curQuest->itemDefTable().getItemDefinition(agonyid).misc1,3));
             }
             
             w->x = x+wx;
@@ -1501,7 +1503,7 @@ attack:
             
             if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideview()))
             {
-                Backend::sfx->play(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,x);
+                Backend::sfx->play(((iswater(MAPCOMBO(x+wx+8,y+wy)) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : curQuest->itemDefTable().getItemDefinition(itemid).usesound,x);
             }
             
             xofs=oxofs;
@@ -1783,7 +1785,7 @@ attack:
     // Stone of Agony
     if(agony)
     {
-        yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+        yofs-=!(frame%zc_max(60-curQuest->itemDefTable().getItemDefinition(agonyid).misc1,3));
     }
     
     if(!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
@@ -1798,7 +1800,7 @@ attack:
         {
             if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
             {
-                putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET)),holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+                putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET)),holditem,lens_hint_item[holditem].aclk, lens_hint_item[holditem].aframe, 0);
             }
             else
             {
@@ -1812,7 +1814,7 @@ attack:
         {
             if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
             {
-                putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET)),holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+                putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET)),holditem,lens_hint_item[holditem].aclk, lens_hint_item[holditem].aframe, 0);
             }
             else
             {
@@ -1992,8 +1994,8 @@ void LinkClass::checkstab()
     
     // The return of Spaghetti Code Constants!
     int itype = (attack==wWand ? itype_wand : itype_sword);
-    int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-    itemid = vbound(itemid, 0, MAXITEMS-1);
+    int itemid = (directWpn>-1 && curQuest->itemDefTable().getItemDefinition(directWpn).family==itype) ? directWpn : current_item_id(itype);
+    itemid = vbound(itemid, 0, curQuest->itemDefTable().getNumItemDefinitions()-1);
     
     // The sword offsets aren't based on anything other than what felt about right
     // compared to the NES game and what mostly kept it from hitting things that
@@ -2001,7 +2003,7 @@ void LinkClass::checkstab()
     // Don't use 2.10 for reference; it's pretty far off.
     // - Saf
     
-    if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
+    if(game->get_canslash() && (attack==wSword || attack==wWand) && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4)
     {
         switch(w->dir)
         {
@@ -2079,7 +2081,7 @@ void LinkClass::checkstab()
             
             if(whimsyid>-1)
             {
-                whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
+                whimsypower = rand()%zc_max(curQuest->itemDefTable().getItemDefinition(current_item_id(itype_whimsicalring)).misc1,1) ?
                               0 : current_item_power(itype_whimsicalring);
             }
             
@@ -2087,7 +2089,7 @@ void LinkClass::checkstab()
             
             if(h<0 && whimsypower)
             {
-                Backend::sfx->play(itemsbuf[whimsyid].usesound,128);
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(whimsyid).usesound,128);
             }
             
             if(h && charging>0)
@@ -2127,9 +2129,9 @@ void LinkClass::checkstab()
                         else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
                             setmapflag();
                             
-                        if(itemsbuf[items.spr(j)->id].collect_script)
+                        if(curQuest->itemDefTable().getItemDefinition(items.spr(j)->id).collect_script)
                         {
-							run_script(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+							run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(items.spr(j)->id).collect_script, items.spr(j)->id & 0xFFF);
                         }
                         
                         getitem(items.spr(j)->id);
@@ -2371,7 +2373,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+    int sworditem = (directWpn>-1 && curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_sword) ? curQuest->itemDefTable().getItemDefinition(directWpn).fam_type : current_item(itype_sword);
     
     if(!ignorescreen)
     {
@@ -2519,7 +2521,7 @@ void LinkClass::check_slash_block(int bx, int by)
                 it=iRupy;                                 // 20%
             }
             
-            if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
+            if(it!=-1 && curQuest->itemDefTable().getItemDefinition(it).family != itype_misc) // Don't drop non-gameplay items
             {
                 items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
             }
@@ -2815,58 +2817,58 @@ int LinkClass::EwpnHit()
             case ewFireball:
                 if(ew->type & 1) //Boss fireball
                 {
-                    if(!(itemsbuf[itemid].misc1 & (shFIREBALL2)))
+                    if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & (shFIREBALL2)))
                         return i;
                         
-                    reflect = ((itemsbuf[itemid].misc2 & shFIREBALL2) != 0);
+                    reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shFIREBALL2) != 0);
                 }
                 else
                 {
-                    if(!(itemsbuf[itemid].misc1 & (shFIREBALL)))
+                    if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & (shFIREBALL)))
                         return i;
                         
-                    reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
+                    reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shFIREBALL) != 0);
                 }
                 
                 break;
                 
             case ewMagic:
-                if(!(itemsbuf[itemid].misc1 & shMAGIC))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shMAGIC))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shMAGIC) != 0);
                 break;
                 
             case ewSword:
-                if(!(itemsbuf[itemid].misc1 & shSWORD))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shSWORD))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shSWORD) != 0);
                 break;
                 
             case ewFlame:
-                if(!(itemsbuf[itemid].misc1 & shFLAME))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shFLAME))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shFLAME) != 0); // Actually isn't reflected.
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shFLAME) != 0); // Actually isn't reflected.
                 break;
                 
             case ewRock:
-                if(!(itemsbuf[itemid].misc1 & shROCK))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shROCK))
                     return i;
                     
-                reflect = (itemsbuf[itemid].misc2 & shROCK);
+                reflect = (curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shROCK);
                 break;
                 
             case ewArrow:
-                if(!(itemsbuf[itemid].misc1 & shARROW))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shARROW))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shARROW) != 0); // Actually isn't reflected.
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shARROW) != 0); // Actually isn't reflected.
                 break;
                 
             case ewBrang:
-                if(!(itemsbuf[itemid].misc1 & shBRANG))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shBRANG))
                     return i;
                     
                 break;
@@ -2874,10 +2876,10 @@ int LinkClass::EwpnHit()
             default: // Just throw the script weapons in here...
                 if(ew->id>=wScript1 && ew->id<=wScript10)
                 {
-                    if(!(itemsbuf[itemid].misc1 & shSCRIPT))
+                    if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shSCRIPT))
                         return i;
                         
-                    reflect = ((itemsbuf[itemid].misc2 & shSCRIPT) != 0);
+                    reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shSCRIPT) != 0);
                 }
                 
                 break;
@@ -2899,7 +2901,7 @@ int LinkClass::EwpnHit()
                 ew->ignorecombo=-1;
             }
             
-            Backend::sfx->play(itemsbuf[itemid].usesound,int(x));
+            Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,int(x));
         }
     }
     
@@ -2956,40 +2958,40 @@ int LinkClass::LwpnHit()                                    //only here to check
                 if(lw->type & 1)  //Boss fireball
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & (shFIREBALL)))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & (shFIREBALL)))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shFIREBALL) != 0);
                 break;
                 
             case wRefMagic:
                 if(itemid<0)
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & shMAGIC))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shMAGIC))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shMAGIC) != 0);
                 break;
                 
             case wRefBeam:
                 if(itemid<0)
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & shSWORD))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shSWORD))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
+                reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shSWORD) != 0);
                 break;
                 
             case wRefRock:
                 if(itemid<0)
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & shROCK))
+                if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc1 & shROCK))
                     return i;
                     
-                reflect = (itemsbuf[itemid].misc2 & shROCK);
+                reflect = (curQuest->itemDefTable().getItemDefinition(itemid).misc2 & shROCK);
                 break;
                 
             default:
@@ -3006,7 +3008,7 @@ int LinkClass::LwpnHit()                                    //only here to check
             lw->onhit(false, 1+reflect, dir);
             lw->ignoreLink=true;
             lw->ignorecombo=-1;
-            Backend::sfx->play(itemsbuf[itemid].usesound,int(x));
+            Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,int(x));
         }
         
     return -1;
@@ -3027,17 +3029,17 @@ void LinkClass::checkhit()
             
             if(NayrusLoveShieldClk == 0 && nayruitem != -1)
             {
-                Backend::sfx->stop(itemsbuf[nayruitem].usesound);
-                Backend::sfx->stop(itemsbuf[nayruitem].usesound+1);
+                Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(nayruitem).usesound);
+                Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(nayruitem).usesound+1);
                 nayruitem = -1;
             }
             else if(get_bit(quest_rules,qr_MORESOUNDS) && !(NayrusLoveShieldClk&0xF00) && nayruitem != -1)
             {
-                Backend::sfx->stop(itemsbuf[nayruitem].usesound);
+                Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(nayruitem).usesound);
                 // This should also be called once, in principle
                 // but to do so requires some significant refactoring
                 // (for instance NayrusLoveShieldClk might skip 0xF00 due to item editing/scripting)
-                Backend::sfx->loop(itemsbuf[nayruitem].usesound+1,128);
+                Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(nayruitem).usesound+1,128);
             }
         }
     }
@@ -3098,7 +3100,7 @@ void LinkClass::checkhit()
             int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
             
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
-                        (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
+                        (itemid < 0 || curQuest->itemDefTable().getItemDefinition(itemid).family!=itype_dinsfire))
             {
                 if(NayrusLoveShieldClk<=0)
                 {
@@ -3135,7 +3137,7 @@ void LinkClass::checkhit()
             {
                 int itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
                              directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? itype_hookshot : itype_brang);
-                itemid = vbound(itemid, 0, MAXITEMS-1);
+                itemid = vbound(itemid, 0, curQuest->itemDefTable().getNumItemDefinitions()-1);
                 
                 for(int j=0; j<Ewpns.Count(); j++)
                 {
@@ -3148,21 +3150,21 @@ void LinkClass::checkhit()
                         switch(t->id)
                         {
                         case ewBrang:
-                            if(!(itemsbuf[itemid].misc3 & shBRANG)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & shBRANG)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & shBRANG) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & shBRANG) != 0);
                             goto killweapon;
                             
                         case ewArrow:
-                            if(!(itemsbuf[itemid].misc3 & shARROW)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & shARROW)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & shARROW) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & shARROW) != 0);
                             goto killweapon;
                             
                         case ewRock:
-                            if(!(itemsbuf[itemid].misc3 & shROCK)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & shROCK)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & shROCK) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & shROCK) != 0);
                             goto killweapon;
                             
                         case ewFireball2:
@@ -3170,23 +3172,23 @@ void LinkClass::checkhit()
                         {
                             int mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
                             
-                            if(!(itemsbuf[itemid].misc3 & mask)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & mask)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & mask) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & mask) != 0);
                             goto killweapon;
                         }
                         
                         case ewSword:
-                            if(!(itemsbuf[itemid].misc3 & shSWORD)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & shSWORD)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & shSWORD) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & shSWORD) != 0);
                             goto killweapon;
                             
                         case wRefMagic:
                         case ewMagic:
-                            if(!(itemsbuf[itemid].misc3 & shMAGIC)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & shMAGIC)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & shMAGIC) != 0);
                             goto killweapon;
                             
                         case wScript1:
@@ -3199,9 +3201,9 @@ void LinkClass::checkhit()
                         case wScript8:
                         case wScript9:
                         case wScript10:
-                            if(!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
+                            if(!(curQuest->itemDefTable().getItemDefinition(itemid).misc3 & shSCRIPT)) break;
                             
-                            reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
+                            reflect = ((curQuest->itemDefTable().getItemDefinition(itemid).misc4 & shSCRIPT) != 0);
                             goto killweapon;
                             
                         case ewLitBomb:
@@ -3245,7 +3247,7 @@ killweapon:
             {
                 if(NayrusLoveShieldClk<=0)
                 {
-                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *HP_PER_HEART));
+                    int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? curQuest->itemDefTable().getItemDefinition(((weapon*)s)->parentitem).misc3 : ((weapon*)s)->power) *HP_PER_HEART));
                     game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
                 }
                 
@@ -3283,7 +3285,7 @@ killweapon:
             // warp ring will be used
             int whistle=((weapon*)s)->parentitem;
             
-            if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
+            if(whistle>-1 && curQuest->itemDefTable().getItemDefinition(whistle).family==itype_whistle)
                 whistleitem=whistle;
                 
             return;
@@ -3434,7 +3436,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int itemid = current_item_id(itype_boots);
     
-    bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
+    bool bootsnosolid = itemid >= 0 && 0 != (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1);
     
     if(hp_modmin<0)
     {
@@ -3481,15 +3483,15 @@ void LinkClass::hitlink(int hit2)
     {
         int itemid = current_item_id(itype_stompboots);
         paymagiccost(itemid);
-        hit_enemy(hit2,wStomp,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,x,y,0,itemid);
+        hit_enemy(hit2,wStomp,curQuest->itemDefTable().getItemDefinition(itemid).power*DAMAGE_MULTIPLIER,x,y,0,itemid);
         
-        if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
+        if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_DOWNGRADE)
             game->set_item(itemid,false);
             
         // Stomp Boots script
-        if(itemsbuf[itemid].script != 0)
+        if(curQuest->itemDefTable().getItemDefinition(itemid).script != 0)
         {
-			run_script(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+			run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(itemid).script, itemid & 0xFFF);
         }
         
         return;
@@ -3541,8 +3543,8 @@ void LinkClass::hitlink(int hit2)
     {
         int itemid = current_item_id(itype_whispring);
         //I can only assume these are supposed to be int, not bool ~pkmnfrk
-        int sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
-        int itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
+        int sworddivisor = ((itemid>-1 && curQuest->itemDefTable().getItemDefinition(itemid).misc1 & 1) ? curQuest->itemDefTable().getItemDefinition(itemid).power : 1);
+        int itemdivisor = ((itemid>-1 && curQuest->itemDefTable().getItemDefinition(itemid).misc1 & 2) ? curQuest->itemDefTable().getItemDefinition(itemid).power : 1);
         
         switch(dm7)
         {
@@ -3559,10 +3561,10 @@ void LinkClass::hitlink(int hit2)
             
         case e7tPERMJINX:
             if(dm8==0 || dm8==2)
-                if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int(150/sworddivisor) : -1;
+                if(sworddivisor) swordclk=(itemid >-1 && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)? int(150/sworddivisor) : -1;
                 
             if(dm8==1 || dm8==2)
-                if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int(150/itemdivisor) : -1;
+                if(itemdivisor) itemclk=(itemid >-1 && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)? int(150/itemdivisor) : -1;
                 
             break;
             
@@ -3606,14 +3608,14 @@ void LinkClass::addsparkle(int wpn)
     if(itemid<0)
         return;
         
-    int itemtype = itemsbuf[itemid].family;
+    int itemtype = curQuest->itemDefTable().getItemDefinition(itemid).family;
     
     if(itemtype!=itype_cbyrna && frame%4)
         return;
     
-    int wpn2 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2; 
+    int wpn2 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? curQuest->itemDefTable().getItemDefinition(itemid).wpn4 : curQuest->itemDefTable().getItemDefinition(itemid).wpn2; 
     //!Dimentio: let's stuff the wand in here...
-    int wpn3 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3; 
+    int wpn3 = (itemtype==itype_cbyrna || itemtype==itype_wand) ? curQuest->itemDefTable().getItemDefinition(itemid).wpn5 : curQuest->itemDefTable().getItemDefinition(itemid).wpn3; 
     //!Dimentio: and here...
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
 	int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (rand()&1 ? wpn2 : wpn3)));
@@ -3645,7 +3647,7 @@ void LinkClass::addsparkle(int wpn)
         }
         
         // Damaging boomerang sparkle?
-        if(wpn3 && (itemtype==itype_brang || (itemtype==itype_wand && itemsbuf[itemid].misc1 == 3))) //!Dimentio: Wand exceptions...
+        if(wpn3 && (itemtype==itype_brang || (itemtype==itype_wand && curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 3))) //!Dimentio: Wand exceptions...
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.
@@ -3766,7 +3768,7 @@ bool LinkClass::animate(int)
             int id = current_item_id(itype_hoverboots);
 
             if (id >= 0)
-                Backend::sfx->stop(itemsbuf[id].usesound);
+                Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(id).usesound);
 
             fall = hoverclk = jumping = 0;
             y-=(int)y%8; //fix position
@@ -3780,7 +3782,7 @@ bool LinkClass::animate(int)
             int id = current_item_id(itype_hoverboots);
 
             if (id >= 0)
-                Backend::sfx->stop(itemsbuf[id].usesound);
+                Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(id).usesound);
 
             hoverclk = 0;
             reset_ladder();
@@ -3822,12 +3824,12 @@ bool LinkClass::animate(int)
             {
                 fall = jumping = 0;
                 int itemid = current_item_id(itype_hoverboots);
-                hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+                hoverclk = curQuest->itemDefTable().getItemDefinition(itemid).misc1 ? curQuest->itemDefTable().getItemDefinition(itemid).misc1 : -1;
                 
-                if(itemsbuf[itemid].wpn)
+                if(curQuest->itemDefTable().getItemDefinition(itemid).wpn)
                     decorations.add(new dHover(x, y, dHOVER, 0));
                     
-                Backend::sfx->play(itemsbuf[itemid].usesound,int(x));
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,int(x));
             }
             else if(!ladderx && !laddery)
             {
@@ -3909,9 +3911,9 @@ bool LinkClass::animate(int)
             {
                 fall = 0;
                 int itemid = current_item_id(itype_hoverboots);
-                hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+                hoverclk = curQuest->itemDefTable().getItemDefinition(itemid).misc1 ? curQuest->itemDefTable().getItemDefinition(itemid).misc1 : -1;
                 decorations.add(new dHover(x, y, dHOVER, 0));
-                Backend::sfx->play(itemsbuf[current_item_id(itype_hoverboots)].usesound,int(x));
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(current_item_id(itype_hoverboots)).usesound,int(x));
             }
             else fall += zinit.gravity;
         }
@@ -4664,7 +4666,7 @@ bool LinkClass::animate(int)
 // to switch Link's weapon if his current weapon (bombs) was depleted.
 void LinkClass::deselectbombs(int super)
 {
-    if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
+    if(curQuest->itemDefTable().getItemFamily(Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
         int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn);
         Bwpn = Bweapon(temp);
@@ -4717,7 +4719,7 @@ bool LinkClass::startwpn(int itemid)
     
     bool use_hookshot=true;
     
-    switch(itemsbuf[itemid].family)
+    switch(curQuest->itemDefTable().getItemDefinition(itemid).family)
     {
     case itype_potion:
         if(!checkmagiccost(itemid))
@@ -4725,7 +4727,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         
-        if(itemsbuf[itemid].misc1 || itemsbuf[itemid].misc2)
+        if(curQuest->itemDefTable().getItemDefinition(itemid).misc1 || curQuest->itemDefTable().getItemDefinition(itemid).misc2)
         {
             refill_what=REFILL_ALL;
             refill_why=itemid;
@@ -4756,13 +4758,13 @@ bool LinkClass::startwpn(int itemid)
                 return false;
                 
             paymagiccost(itemid);
-            fall -= FEATHERJUMP*(itemsbuf[itemid].power+2);
+            fall -= FEATHERJUMP*(curQuest->itemDefTable().getItemDefinition(itemid).power+2);
             
             // Reset the ladder, unless on an unwalkable combo
             if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
                 reset_ladder();
                 
-            Backend::sfx->play(itemsbuf[itemid].usesound,int(x));
+            Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,int(x));
         }
         
         ret = false;
@@ -4777,7 +4779,7 @@ bool LinkClass::startwpn(int itemid)
                 ((currscr<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))||(currscr>=128&&DMaps[currdmap].flags&dmfGUYCAVES))
           )
         {
-            int usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
+            int usedid = curQuest->itemDefTable().getItemID(itype_letter,i_letter+1);
             
             if(usedid != -1)
                 getitem(usedid, true);
@@ -4799,14 +4801,14 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        Backend::sfx->play(itemsbuf[itemid].usesound,128);
+        Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,128);
         
         if(dir==up || dir==right)
             ++blowcnt;
         else
             --blowcnt;
             
-        while(Backend::sfx->isPlaying(itemsbuf[itemid].usesound))
+        while(Backend::sfx->isPlaying(curQuest->itemDefTable().getItemDefinition(itemid).usesound))
         {
             advanceframe(true);
             
@@ -4819,10 +4821,10 @@ bool LinkClass::startwpn(int itemid)
         if(whistleflag=findentrance(x,y,mfWHISTLE,false))
             didstuff |= did_whistle;
             
-        if((didstuff&did_whistle && itemsbuf[itemid].flags&ITEM_FLAG1) || currscr>=128)
+        if((didstuff&did_whistle && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1) || currscr>=128)
             return false;
             
-        if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff |= did_whistle;
+        if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1) didstuff |= did_whistle;
         
         if((tmpscr->flags&fWHISTLE) || (tmpscr->flags7 & fWHISTLEWATER)
                 || (tmpscr->flags7&fWHISTLEPAL))
@@ -4831,12 +4833,12 @@ bool LinkClass::startwpn(int itemid)
         }
         else
         {
-            int where = itemsbuf[itemid].misc1;
+            int where = curQuest->itemDefTable().getItemDefinition(itemid).misc1;
             
             if(where>right) where=dir^1;
             
             if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
-                    itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
+                curQuest->itemDefTable().getItemDefinition(itemid).misc2 >= 0 && curQuest->itemDefTable().getItemDefinition(itemid).misc2 <= 8 && !whistleflag)
                 Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
                                      (fix)0,wWind,0,0,where,itemid,getUID()));
                                      
@@ -4850,7 +4852,7 @@ bool LinkClass::startwpn(int itemid)
     case itype_bomb:
     {
         //Remote detonation
-        if(Lwpns.idCount(wLitBomb) >= zc_max(itemsbuf[itemid].misc2,1))
+        if(Lwpns.idCount(wLitBomb) >= zc_max(curQuest->itemDefTable().getItemDefinition(itemid).misc2,1))
         {
             weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
             
@@ -4880,7 +4882,7 @@ bool LinkClass::startwpn(int itemid)
         if(!get_debug() && !current_item_power(itype_bombbag))
             game->change_bombs(-1);
             
-        if(itemsbuf[itemid].misc1>0) // If not remote bombs
+        if(curQuest->itemDefTable().getItemDefinition(itemid).misc1>0) // If not remote bombs
             deselectbombs(false);
             
         if(isdungeon())
@@ -4888,8 +4890,8 @@ bool LinkClass::startwpn(int itemid)
             wy=zc_max(wy,16);
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitBomb,itemsbuf[itemid].fam_type,
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitBomb,curQuest->itemDefTable().getItemDefinition(itemid).fam_type,
+                             curQuest->itemDefTable().getItemDefinition(itemid).power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
         Backend::sfx->play(WAV_PLACE,wx);
     }
     break;
@@ -4897,7 +4899,7 @@ bool LinkClass::startwpn(int itemid)
     case itype_sbomb:
     {
         //Remote detonation
-        if(Lwpns.idCount(wLitSBomb) >= zc_max(itemsbuf[itemid].misc2,1))
+        if(Lwpns.idCount(wLitSBomb) >= zc_max(curQuest->itemDefTable().getItemDefinition(itemid).misc2,1))
         {
             weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitSBomb)));
             
@@ -4917,7 +4919,7 @@ bool LinkClass::startwpn(int itemid)
         //Even if you have no bombs, the icon remains so that you can detonate laid bombs.
         //But the remaining code requires at least one bomb.
         bool magicbag = (current_item_power(itype_bombbag)
-                         && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1);
+                         && curQuest->itemDefTable().getItemDefinition(current_item_id(itype_bombbag)).flags & itemdata::IF_FLAG1);
                          
         if(!game->get_sbombs() && !magicbag)
             return false;
@@ -4930,10 +4932,10 @@ bool LinkClass::startwpn(int itemid)
         if(!get_debug() && !magicbag)
             game->change_sbombs(-1);
             
-        if(itemsbuf[itemid].misc1>0) // If not remote bombs
+        if(curQuest->itemDefTable().getItemDefinition(itemid).misc1>0) // If not remote bombs
             deselectbombs(true);
             
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,curQuest->itemDefTable().getItemDefinition(itemid).fam_type,curQuest->itemDefTable().getItemDefinition(itemid).power*DAMAGE_MULTIPLIER,dir, itemid,getUID()));
         Backend::sfx->play(WAV_PLACE,wx);
     }
     break;
@@ -5010,14 +5012,14 @@ bool LinkClass::startwpn(int itemid)
        
        
        
-            if(Lwpns.idCount(itemsbuf[itemid].misc1))
+            if(Lwpns.idCount(curQuest->itemDefTable().getItemDefinition(itemid).misc1))
                 return false;
                
        
             int bookid = current_item_id(itype_book);
             bool paybook = (bookid>-1 && checkmagiccost(bookid));
            
-            if(!(itemsbuf[itemid].flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
+            if(!(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1) && !paybook)  //Can the wand shoot without the book?
                 return false;
                
             if(!checkmagiccost(itemid))
@@ -5025,8 +5027,8 @@ bool LinkClass::startwpn(int itemid)
                
         //Why is this here? -Z
                
-            int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-            int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+            int type = bookid != -1 ? current_item(itype_book) : curQuest->itemDefTable().getItemDefinition(itemid).fam_type;
+            int pow = (bookid != -1 ? current_item_power(itype_book) : curQuest->itemDefTable().getItemDefinition(itemid).power)*DAMAGE_MULTIPLIER;
            
             for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
                 if(dir!=(i^1))
@@ -5034,15 +5036,15 @@ bool LinkClass::startwpn(int itemid)
             //YOu don;t need any of those case statements until you want to do somethign special with each type.
             //Try this, for now.
 					//! ZoriaRPG is this the number of 'duplicates'?
-					for (int i2 = 0; i2 <= abs(itemsbuf[itemid].misc8); i2++) //Moving this to Other 1. 
+					for (int i2 = 0; i2 <= abs(curQuest->itemDefTable().getItemDefinition(itemid).misc8); i2++) //Moving this to Other 1. 
 					{
 						bool ItemCreatedThisTime = false; //!Dimentio: just a failsafe to prevent the setting of variables if a weapon was not created.
-						switch(itemsbuf[itemid].misc1) //!Dimentio: sort out the exceptions...
+						switch(curQuest->itemDefTable().getItemDefinition(itemid).misc1) //!Dimentio: sort out the exceptions...
 						{
 							case 254:
 							case 0:
 							{
-								if (itemsbuf[itemid].misc10 == 1) 
+								if (curQuest->itemDefTable().getItemDefinition(itemid).misc10 == 1) 
 									
 								//! ZoriaRPG: Go through this,and comment what each class variable is doing, and why
 								//! so that I can move them over tot he weapon editor without needing to guess. 
@@ -5054,13 +5056,13 @@ bool LinkClass::startwpn(int itemid)
 										case up:
 										case down: //!Dimentio: Okay, bit of complex math here. This is for multiple weapons that spawn side by side.
 										{
-											Lwpns.add(new weapon((fix)wx - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
+											Lwpns.add(new weapon((fix)wx - (curQuest->itemDefTable().getItemDefinition(itemid).misc8 * (curQuest->itemDefTable().getItemDefinition(itemid).misc9 / 2)) + (curQuest->itemDefTable().getItemDefinition(itemid).misc9 * i2),(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
 											break;
 										}
 										case left:
 										case right:
 										{
-											Lwpns.add(new weapon((fix)wx,(fix)wy - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wz,wMagic,type,pow,i, itemid,getUID()));
+											Lwpns.add(new weapon((fix)wx,(fix)wy - (curQuest->itemDefTable().getItemDefinition(itemid).misc8 * (curQuest->itemDefTable().getItemDefinition(itemid).misc9 / 2)) + (curQuest->itemDefTable().getItemDefinition(itemid).misc9 * i2),(fix)wz,wMagic,type,pow,i, itemid,getUID()));
 											break;
 										}
 									}
@@ -5071,25 +5073,25 @@ bool LinkClass::startwpn(int itemid)
 							}
 							case 15: 
 							{
-								if (itemsbuf[itemid].misc10 == 1) 
+								if (curQuest->itemDefTable().getItemDefinition(itemid).misc10 == 1) 
 								{
 									switch(i)
 									{
 										case up:
 										case down: //!Dimentio: Okay, bit of complex math here. This is for multiple weapons that spawn side by side.
 										{
-											Ewpns.add(new weapon((fix)wx - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wy,(fix)wz,ewWind,type,itemsbuf[itemid].misc2,i, itemid,getUID()));
+											Ewpns.add(new weapon((fix)wx - (curQuest->itemDefTable().getItemDefinition(itemid).misc8 * (curQuest->itemDefTable().getItemDefinition(itemid).misc9 / 2)) + (curQuest->itemDefTable().getItemDefinition(itemid).misc9 * i2),(fix)wy,(fix)wz,ewWind,type,curQuest->itemDefTable().getItemDefinition(itemid).misc2,i, itemid,getUID()));
 											break;
 										}
 										case left:
 										case right:
 										{
-											Ewpns.add(new weapon((fix)wx,(fix)wy - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wz,ewWind,type,itemsbuf[itemid].misc2,i, itemid,getUID()));
+											Ewpns.add(new weapon((fix)wx,(fix)wy - (curQuest->itemDefTable().getItemDefinition(itemid).misc8 * (curQuest->itemDefTable().getItemDefinition(itemid).misc9 / 2)) + (curQuest->itemDefTable().getItemDefinition(itemid).misc9 * i2),(fix)wz,ewWind,type,curQuest->itemDefTable().getItemDefinition(itemid).misc2,i, itemid,getUID()));
 											break;
 										}
 									}
 								}
-								else Ewpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,ewWind,type,itemsbuf[itemid].misc2,i, itemid,getUID()));
+								else Ewpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,ewWind,type,curQuest->itemDefTable().getItemDefinition(itemid).misc2,i, itemid,getUID()));
 								ItemCreatedThisTime = true;
 								break;
 							}
@@ -5102,35 +5104,35 @@ bool LinkClass::startwpn(int itemid)
 							break;
 							default: 
 							{
-								if (itemsbuf[itemid].misc10 == 1) 
+								if (curQuest->itemDefTable().getItemDefinition(itemid).misc10 == 1) 
 								{
 									switch(i)
 									{
 										case up:
 										case down: //!Dimentio: Okay, bit of complex math here. This is for multiple weapons that spawn side by side.
 										{
-											Lwpns.add(new weapon((fix)wx - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wy,(fix)wz,itemsbuf[itemid].misc1,type,pow,i, itemid,itemid));
+											Lwpns.add(new weapon((fix)wx - (curQuest->itemDefTable().getItemDefinition(itemid).misc8 * (curQuest->itemDefTable().getItemDefinition(itemid).misc9 / 2)) + (curQuest->itemDefTable().getItemDefinition(itemid).misc9 * i2),(fix)wy,(fix)wz,curQuest->itemDefTable().getItemDefinition(itemid).misc1,type,pow,i, itemid,itemid));
 											break;
 										}
 										case left:
 										case right:
 										{
-											Lwpns.add(new weapon((fix)wx,(fix)wy - (itemsbuf[itemid].misc8 * (itemsbuf[itemid].misc9 / 2)) + (itemsbuf[itemid].misc9 * i2),(fix)wz,itemsbuf[itemid].misc1,type,pow,i, itemid,itemid));
+											Lwpns.add(new weapon((fix)wx,(fix)wy - (curQuest->itemDefTable().getItemDefinition(itemid).misc8 * (curQuest->itemDefTable().getItemDefinition(itemid).misc9 / 2)) + (curQuest->itemDefTable().getItemDefinition(itemid).misc9 * i2),(fix)wz,curQuest->itemDefTable().getItemDefinition(itemid).misc1,type,pow,i, itemid,itemid));
 											break;
 										}
 									}
 								}
-								else Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,itemsbuf[itemid].misc1,type,pow,i, itemid,itemid)); //!Dimentio: wandfireweapon3 is what weapon the wand fires. Determined just above.
+								else Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,curQuest->itemDefTable().getItemDefinition(itemid).misc1,type,pow,i, itemid,itemid)); //!Dimentio: wandfireweapon3 is what weapon the wand fires. Determined just above.
 								ItemCreatedThisTime = true;
 								break;
 							}
 						}
 						weapon *w;
-						if (itemsbuf[itemid].misc1 == 15) w = (weapon*)Ewpns.spr(Ewpns.Count()-1);
+						if (curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 15) w = (weapon*)Ewpns.spr(Ewpns.Count()-1);
 						 else w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
-						 w->LOADGFX(itemsbuf[itemid].wpn3); //use Sprites[3]
-						if (itemsbuf[itemid].misc1 == 1 || itemsbuf[itemid].misc1 == 12 || itemsbuf[itemid].misc1 == 20 || itemsbuf[itemid].misc1 == 8 || 
-						 itemsbuf[itemid].misc1 == 2 || itemsbuf[itemid].misc1 == 13 || itemsbuf[itemid].misc1 == 16 || itemsbuf[itemid].misc1 == 28)
+						 w->LOADGFX(curQuest->itemDefTable().getItemDefinition(itemid).wpn3); //use Sprites[3]
+						if (curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 1 || curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 12 || curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 20 || curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 8 || 
+                            curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 2 || curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 13 || curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 16 || curQuest->itemDefTable().getItemDefinition(itemid).misc1 == 28)
 						 {
 							switch(w->dir)
 							{
@@ -5152,14 +5154,14 @@ bool LinkClass::startwpn(int itemid)
 								break;
 							}
 						}
-						if (itemsbuf[itemid].misc2 > 0)
+						if (curQuest->itemDefTable().getItemDefinition(itemid).misc2 > 0)
 						{
-							int StepSaver = itemsbuf[itemid].misc2 / 100; //!Dimentio: Maybe this will fix the problem with Weapon Wind.
+							int StepSaver = curQuest->itemDefTable().getItemDefinition(itemid).misc2 / 100; //!Dimentio: Maybe this will fix the problem with Weapon Wind.
 							w->step = StepSaver; //Attributes[1]
 						}
 						else w->step = (BSZ ? 3 : 2.5);
 						
-						if (itemsbuf[itemid].misc10 != 1 && w->id != wWand) w->count2 = i2 * itemsbuf[itemid].misc9;
+						if (curQuest->itemDefTable().getItemDefinition(itemid).misc10 != 1 && w->id != wWand) w->count2 = i2 * curQuest->itemDefTable().getItemDefinition(itemid).misc9;
 					}
 				}  //!End Dimentio Edit Territory
             paymagiccost(itemid);
@@ -5168,9 +5170,9 @@ bool LinkClass::startwpn(int itemid)
                 paymagiccost(current_item_id(itype_book));
                
             if(bookid != -1)
-                Backend::sfx->play(itemsbuf[bookid].usesound,wx); //pan() is deprecated. -Z
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(bookid).usesound,wx); //pan() is deprecated. -Z
             else
-                Backend::sfx->play(itemsbuf[itemid].usesound,wx);
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,wx);
         }
     /*
     //    Fireball Wand
@@ -5211,25 +5213,25 @@ bool LinkClass::startwpn(int itemid)
         paymagiccost(itemid);
         float temppower;
         
-        if(itemsbuf[itemid].flags & ITEM_FLAG2)
+        if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG2)
         {
-            temppower=DAMAGE_MULTIPLIER*itemsbuf[itemid].power;
-            temppower=temppower*itemsbuf[itemid].misc2;
+            temppower=DAMAGE_MULTIPLIER*curQuest->itemDefTable().getItemDefinition(itemid).power;
+            temppower=temppower*curQuest->itemDefTable().getItemDefinition(itemid).misc2;
             temppower=temppower/100;
         }
         else
         {
-            temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
+            temppower = DAMAGE_MULTIPLIER*curQuest->itemDefTable().getItemDefinition(itemid).misc2;
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,curQuest->itemDefTable().getItemDefinition(itemid).fam_type,int(temppower),dir,itemid,getUID()));
         Backend::sfx->play(WAV_BEAM,wx);
     }
     break;
     
     case itype_candle:
     {
-        if(itemsbuf[itemid].flags&ITEM_FLAG1 && didstuff&did_candle)
+        if(curQuest->itemDefTable().getItemDefinition(itemid).flags&itemdata::IF_FLAG1 && didstuff&did_candle)
         {
             return false;
         }
@@ -5246,19 +5248,19 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff|=did_candle;
+        if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1) didstuff|=did_candle;
         
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wFire,
-                             (itemsbuf[itemid].fam_type > 1), //To do with combo flags
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-        Backend::sfx->play(itemsbuf[itemid].usesound,wx);
+                             (curQuest->itemDefTable().getItemDefinition(itemid).fam_type > 1), //To do with combo flags
+            curQuest->itemDefTable().getItemDefinition(itemid).power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+        Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,wx);
         attack=wFire;
     }
     break;
     
     case itype_arrow:
     {
-        if(Lwpns.idCount(wArrow) > itemsbuf[itemid].misc2)
+        if(Lwpns.idCount(wArrow) > curQuest->itemDefTable().getItemDefinition(itemid).misc2)
             return false;
             
         if(!checkmagiccost(itemid))
@@ -5281,9 +5283,9 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,curQuest->itemDefTable().getItemDefinition(itemid).fam_type,DAMAGE_MULTIPLIER*curQuest->itemDefTable().getItemDefinition(itemid).power,dir,itemid,getUID()));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
-        Backend::sfx->play(itemsbuf[itemid].usesound,wx);
+        Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,wx);
     }
     break;
     
@@ -5295,7 +5297,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        Backend::sfx->play(itemsbuf[itemid].usesound,wx);
+        Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,wx);
         
         if(tmpscr->room==rGRUMBLE && !getmapflag())
         {
@@ -5306,7 +5308,7 @@ bool LinkClass::startwpn(int itemid)
             set_clip_state(pricesdisplaybuf, 1);
             //    putscr(scrollbuf,0,0,tmpscr);
             setmapflag();
-            removeItemsOfFamily(game,itemsbuf,itype_bait);
+            curQuest->itemDefTable().removeItemsOfFamily(game,itype_bait);
             verifyBothWeapons();
             Backend::sfx->play(tmpscr->secretsfx,128);
             return false;
@@ -5317,7 +5319,7 @@ bool LinkClass::startwpn(int itemid)
         
     case itype_brang:
     {
-        if(Lwpns.idCount(wBrang) > itemsbuf[itemid].misc2)
+        if(Lwpns.idCount(wBrang) > curQuest->itemDefTable().getItemDefinition(itemid).misc2)
             return false;
             
         if(!checkmagiccost(itemid))
@@ -5325,7 +5327,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,curQuest->itemDefTable().getItemDefinition(itemid).fam_type,(curQuest->itemDefTable().getItemDefinition(itemid).power*DAMAGE_MULTIPLIER),dir,itemid,getUID()));
     }
     break;
     
@@ -5373,8 +5375,8 @@ bool LinkClass::startwpn(int itemid)
         
         if(use_hookshot)
         {
-            int hookitem = itemsbuf[itemid].fam_type;
-            int hookpower = itemsbuf[itemid].power;
+            int hookitem = curQuest->itemDefTable().getItemDefinition(itemid).fam_type;
+            int hookpower = curQuest->itemDefTable().getItemDefinition(itemid).power;
             
             if(Lwpns.Count()>=SLMAX)
             {
@@ -5486,8 +5488,8 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         
-        for(int i=0; i<itemsbuf[itemid].misc3; i++)
-            Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+        for(int i=0; i<curQuest->itemDefTable().getItemDefinition(itemid).misc3; i++)
+            Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,curQuest->itemDefTable().getItemDefinition(itemid).power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
     }
     break;
     
@@ -5495,7 +5497,7 @@ bool LinkClass::startwpn(int itemid)
         ret = false;
     }
     
-    if(itemsbuf[itemid].flags & ITEM_DOWNGRADE)
+    if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_DOWNGRADE)
     {
         game->set_item(itemid,false);
         
@@ -5538,8 +5540,8 @@ bool LinkClass::doattack()
         return false;
     }
     
-    int candleid = (directWpn>-1 && itemsbuf[directWpn].family==itype_candle) ? directWpn : current_item_id(itype_candle);
-    int byrnaid = (directWpn>-1 && itemsbuf[directWpn].family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
+    int candleid = (directWpn>-1 &&curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_candle) ? directWpn : current_item_id(itype_candle);
+    int byrnaid = (directWpn>-1 && curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
     
     // An attack can be "walked out-of" after 8 frames, unless it's:
     // * a sword stab
@@ -5549,8 +5551,8 @@ bool LinkClass::doattack()
     // * a cane thrust
     // In which case it should continue.
     if((attack==wCatching && attackclk>4)||(attack!=wWand && attack!=wSword && attack!=wHammer
-                                            && (attack!=wFire || (candleid!=-1 && !(itemsbuf[candleid].wpn)))
-                                            && (attack!=wCByrna || (byrnaid!=-1 && !(itemsbuf[byrnaid].wpn))) && attackclk>7))
+                                            && (attack!=wFire || (candleid!=-1 && !(curQuest->itemDefTable().getItemDefinition(candleid).wpn)))
+                                            && (attack!=wCByrna || (byrnaid!=-1 && !(curQuest->itemDefTable().getItemDefinition(byrnaid).wpn))) && attackclk>7))
     {
         if(DrunkUp()||DrunkDown()||DrunkLeft()||DrunkRight())
         {
@@ -5570,8 +5572,8 @@ bool LinkClass::doattack()
     
     if(itemid>=0)
     {
-        normalcharge = itemsbuf[itemid].misc1;
-        magiccharge = itemsbuf[itemid].misc2;
+        normalcharge = curQuest->itemDefTable().getItemDefinition(itemid).misc1;
+        magiccharge = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
     }
     
     itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
@@ -5633,7 +5635,7 @@ bool LinkClass::doattack()
     }
     else if(attack==wCByrna && byrnaid!=-1)
     {
-        if(!(itemsbuf[byrnaid].wpn))
+        if(!(curQuest->itemDefTable().getItemDefinition(byrnaid).wpn))
         {
             attack = wNone;
             return startwpn(attackid); // Beam if the Byrna stab animation WASN'T used.
@@ -5684,10 +5686,10 @@ bool LinkClass::doattack()
         {
             if(attack==wSword)
             {
-                spins=(charging>magiccharge ? (itemsbuf[current_item_id(itype_spinscroll2)].misc1*4)-3
-                       : (itemsbuf[current_item_id(itype_spinscroll)].misc1*4)+1);
+                spins=(charging>magiccharge ? (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_spinscroll2)).misc1*4)-3
+                       : (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_spinscroll)).misc1*4)+1);
                 attackclk=1;
-                Backend::sfx->play(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,int(x));
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)).usesound,int(x));
             }
             /*
             else if(attack==wWand)
@@ -5700,15 +5702,15 @@ bool LinkClass::doattack()
             {
                 spins=1; //signifies the quake hammer
                 bool super = (charging>magiccharge && current_item(itype_quakescroll2));
-                Backend::sfx->play(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,int(x));
-                quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
+                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(current_item_id(super ? itype_quakescroll2 : itype_quakescroll)).usesound,int(x));
+                quakeclk=(curQuest->itemDefTable().getItemDefinition(current_item_id(super ? itype_quakescroll2 : itype_quakescroll)).misc1);
                 
                 // general area stun
                 for(int i=0; i<GuyCount(); i++)
                 {
                     if(!isflier(GuyID(i)))
                     {
-                        StunGuy(i,(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc2)-
+                        StunGuy(i,(curQuest->itemDefTable().getItemDefinition(current_item_id(super ? itype_quakescroll2 : itype_quakescroll)).misc2)-
                                 distance(x,y,GuyX(i),GuyY(i)));
                     }
                 }
@@ -5724,7 +5726,7 @@ bool LinkClass::doattack()
             tapping = false;
     }
     
-    if(attackclk==1 && attack==wFire && candleid!=-1 && !(itemsbuf[candleid].wpn))
+    if (attackclk == 1 && attack == wFire && candleid != -1 && !(curQuest->itemDefTable().getItemDefinition(candleid).wpn))
     {
         return startwpn(attackid); // Flame if the Candle stab animation WASN'T used.
     }
@@ -5734,10 +5736,10 @@ bool LinkClass::doattack()
     if(attackclk==13 || (attackclk==7 && spins>1 && crossid >=0 && checkmagiccost(crossid)))
     {
     
-        int wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
-        long long templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
+        int wpnid = (directWpn>-1 && curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_sword) ? directWpn : current_item_id(itype_sword);
+        long long templife = wpnid>=0?curQuest->itemDefTable().getItemDefinition(directWpn).misc1 : 0;
         
-        if(wpnid>=0 && itemsbuf[wpnid].flags & ITEM_FLAG1)
+        if(wpnid>=0 && curQuest->itemDefTable().getItemDefinition(wpnid).flags & itemdata::IF_FLAG1)
         {
             templife=templife*game->get_maxlife();
             templife=templife/100;
@@ -5749,11 +5751,11 @@ bool LinkClass::doattack()
         
         bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((HP_PER_HEART/4)-1):((HP_PER_HEART/2)-1))>=templife);
         int perilid = current_item_id(itype_perilscroll);
-        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*HP_PER_HEART
+        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=curQuest->itemDefTable().getItemDefinition(perilid).misc1*HP_PER_HEART
                           && checkmagiccost(perilid)
                           // Must actually be able to shoot sword beams
-                          && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
-                              || itemsbuf[wpnid].misc1 <= game->get_maxlife()/HP_PER_HEART));
+                          && ((curQuest->itemDefTable().getItemDefinition(wpnid).flags & itemdata::IF_FLAG1)
+                              || curQuest->itemDefTable().getItemDefinition(wpnid).misc1 <= game->get_maxlife()/HP_PER_HEART));
                               
         if(attack==wSword && !tapping && (perilbeam || normalbeam))
         {
@@ -5772,10 +5774,10 @@ bool LinkClass::doattack()
         if(attack==wWand)
             startwpn(attackid); // Flame if the Wand stab animation WAS used (it always is).
             
-        if(attack==wFire && candleid!=-1 && itemsbuf[candleid].wpn) // Flame if the Candle stab animation WAS used.
+        if (attack == wFire && candleid != -1 && curQuest->itemDefTable().getItemDefinition(candleid).wpn) // Flame if the Candle stab animation WAS used.
             startwpn(attackid);
             
-        if(attack==wCByrna && byrnaid!=-1 && itemsbuf[byrnaid].wpn) // Beam if the Byrna stab animation WAS used.
+        if(attack==wCByrna && byrnaid!=-1 && curQuest->itemDefTable().getItemDefinition(byrnaid).wpn) // Beam if the Byrna stab animation WAS used.
             startwpn(attackid);
     }
     
@@ -5828,14 +5830,14 @@ void do_lens()
         {
             lensid=itemid;
             
-            if(get_bit(quest_rules,qr_MORESOUNDS)) Backend::sfx->play(itemsbuf[itemid].usesound,128);
+            if(get_bit(quest_rules,qr_MORESOUNDS)) Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(itemid).usesound,128);
         }
         
         paymagiccost(itemid);
         
-        if(dowpn>=0 && itemsbuf[dowpn].script != 0 && !did_scriptl)
+        if(dowpn>=0 && curQuest->itemDefTable().getItemDefinition(dowpn).script != 0 && !did_scriptl)
         {
-			run_script(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(dowpn).script, dowpn & 0xFFF);
             did_scriptl=true;
         }
         
@@ -6339,13 +6341,13 @@ void LinkClass::movelink()
     {
         if(DrunkrBbtn())
         {
-            btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+            btnwpn=curQuest->itemDefTable().getItemFamily(Bwpn&0xFFF);
             dowpn = Bwpn&0xFFF;
             directWpn = directItemB;
         }
         else if(DrunkrAbtn())
         {
-            btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+            btnwpn=curQuest->itemDefTable().getItemFamily(Awpn&0xFFF);
             dowpn = Awpn&0xFFF;
             directWpn = directItemA;
         }
@@ -6357,17 +6359,17 @@ void LinkClass::movelink()
             btnwpn=-1;
     }
     
-    if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
+    if(can_attack() && (directWpn>-1 ? curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
         action=attacking;
         attack=wSword;
         attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
         attackclk=0;
-        Backend::sfx->play(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, int(x));
+        Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(directWpn>-1 ? directWpn : current_item_id(itype_sword)).usesound, int(x));
         
-        if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn))
+        if(dowpn>-1 && curQuest->itemDefTable().getItemDefinition(dowpn).script!=0 && !did_scripta && checkmagiccost(dowpn))
         {
-			run_script(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(dowpn).script, dowpn & 0xFFF);
             did_scripta=true;
         }
     }
@@ -6406,7 +6408,7 @@ void LinkClass::movelink()
     {
         bool paidmagic = false;
         
-        if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+        if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_wand : false) : current_item(itype_wand)))
         {
             action=attacking;
             attack=wWand;
@@ -6414,7 +6416,7 @@ void LinkClass::movelink()
             attackclk=0;
         }
         else if((btnwpn==itype_hammer)&&!(action==attacking && attack==wHammer)
-                && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn))
+                && (directWpn>-1 ? (!item_disabled(directWpn) ? curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn))
         {
             paymagiccost(dowpn);
             paidmagic = true;
@@ -6424,7 +6426,7 @@ void LinkClass::movelink()
             attackclk=0;
         }
         else if((btnwpn==itype_candle)&&!(action==attacking && attack==wFire)
-                && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
+                && (directWpn>-1 ? (!item_disabled(directWpn) ? curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_candle : false) : current_item(itype_candle)))
         {
             action=attacking;
             attack=wFire;
@@ -6432,7 +6434,7 @@ void LinkClass::movelink()
             attackclk=0;
         }
         else if((btnwpn==itype_cbyrna)&&!(action==attacking && attack==wCByrna)
-                && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
+                && (directWpn>-1 ? (!item_disabled(directWpn) ? curQuest->itemDefTable().getItemDefinition(directWpn).family==itype_cbyrna : false) : current_item(itype_cbyrna)))
         {
             action=attacking;
             attack=wCByrna;
@@ -6468,14 +6470,14 @@ void LinkClass::movelink()
             }
         }
         
-        if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)))
+        if(dowpn>-1 && curQuest->itemDefTable().getItemDefinition(dowpn).script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)))
         {
             // Only charge for magic if item's magic cost wasn't already charged
             // for the item's main use.
             if(!paidmagic && attack!=wWand)
                 paymagiccost(dowpn);
                 
-			run_script(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(dowpn).script, dowpn & 0xFFF);
             did_scriptb=true;
         }
         
@@ -6523,7 +6525,7 @@ void LinkClass::movelink()
                 spins--;
                 
                 if(spins%5==0)
-                    Backend::sfx->play(itemsbuf[current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)].usesound,int(x));
+                    Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)).usesound,int(x));
                     
                 attackclk=1;
                 
@@ -8617,8 +8619,8 @@ void LinkClass::checkpushblock()
     if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) return;
     
     if((t==cPUSH_HW || t==cPUSH_HEAVY || t==cPUSH_HEAVY2 || t==cPUSH_HW2)
-            && (itemid<0 || itemsbuf[itemid].power<((t==cPUSH_HEAVY2 || t==cPUSH_HW2)?2:1) ||
-                ((itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) && (didstuff&did_glove)))) return;
+            && (itemid<0 || curQuest->itemDefTable().getItemDefinition(itemid).power<((t==cPUSH_HEAVY2 || t==cPUSH_HW2)?2:1) ||
+                ((itemid>=0 && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1) && (didstuff&did_glove)))) return;
                 
     if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) return;
     
@@ -8701,7 +8703,7 @@ void LinkClass::checkpushblock()
     
     if(doit)
     {
-        if(itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1) didstuff|=did_glove;
+        if(itemid>=0 && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1) didstuff|=did_glove;
         
         //   for(int i=0; i<1; i++)
         if(!blockmoving)
@@ -8733,8 +8735,8 @@ bool usekey()
     int itemid = current_item_id(itype_magickey);
     
     if(itemid<0 ||
-            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
-             : itemsbuf[itemid].power!=dlevel))
+            (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1 ? curQuest->itemDefTable().getItemDefinition(itemid).power<dlevel
+             : curQuest->itemDefTable().getItemDefinition(itemid).power!=dlevel))
     {
         if(game->lvlkeys[dlevel]!=0)
         {
@@ -9614,7 +9616,7 @@ void LinkClass::checkspecial()
         // item
         if(hasitem)
         {
-            int Item=tmpscr->item;
+            int Item=tmpscr->screenItem;
             
             //if(getmapflag())
             //  Item=0;
@@ -9626,7 +9628,7 @@ void LinkClass::checkspecial()
                 items.add(new item((fix)tmpscr->itemx,
                                    (tmpscr->flags7&fITEMFALLS && isSideview()) ? (fix)-170 : (fix)tmpscr->itemy+1,
                                    (tmpscr->flags7&fITEMFALLS && !isSideview()) ? (fix)170 : (fix)0,
-                                   Item,ipONETIME+ipBIGRANGE+((itemsbuf[Item].family==itype_triforcepiece ||
+                                   Item,ipONETIME+ipBIGRANGE+((curQuest->itemDefTable().getItemDefinition(Item).family==itype_triforcepiece ||
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0),0));
             }
             
@@ -10641,7 +10643,7 @@ bool LinkClass::dowarp(int type, int index)
     case 2:                                                 // whistle warp
     {
         wtype = wtWHISTLE;
-        int wind = whistleitem>-1 ? itemsbuf[whistleitem].misc2 : 8;
+        int wind = whistleitem>-1 ? curQuest->itemDefTable().getItemDefinition(whistleitem).misc2 : 8;
         int level=0;
         
         if(blowcnt==0)
@@ -11588,7 +11590,7 @@ void LinkClass::walkdown(bool opening) //entering cave
     int id = current_item_id(itype_brang);
 
     if (id>=0)
-        Backend::sfx->stop(itemsbuf[id].usesound);
+        Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(id).usesound);
 
     Backend::sfx->play(WAV_STAIRS,int(x));
     clk=0;
@@ -11649,7 +11651,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     int id = current_item_id(itype_brang);
 
     if (id >= 0)
-        Backend::sfx->stop(itemsbuf[id].usesound);
+        Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(id).usesound);
 
     Backend::sfx->play(WAV_STAIRS,int(x));
     clk=0;
@@ -11707,7 +11709,7 @@ void LinkClass::walkup(bool opening) //exiting cave
     int id = current_item_id(itype_brang);
 
     if (id >= 0)
-        Backend::sfx->stop(itemsbuf[id].usesound);
+        Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(id).usesound);
 
     Backend::sfx->play(WAV_STAIRS,int(x));
     dir=down;
@@ -11759,7 +11761,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
     int id = current_item_id(itype_brang);
 
     if (id >= 0)
-        Backend::sfx->stop(itemsbuf[id].usesound);
+        Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(id).usesound);
 
     Backend::sfx->play(WAV_STAIRS,int(x));
     dir=up;
@@ -13322,17 +13324,17 @@ int LinkClass::ringpower(int dmg)
     {
         usering = true;
         paymagiccost(itemid);
-        result *= itemsbuf[itemid].power;
+        result *= curQuest->itemDefTable().getItemDefinition(itemid).power;
     }
     
     /* Now for the Peril Ring */
     itemid = current_item_id(itype_perilring);
     
-    if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*HP_PER_HEART && checkmagiccost(itemid))
+    if(itemid>-1 && game->get_life()<=curQuest->itemDefTable().getItemDefinition(itemid).misc1*HP_PER_HEART && checkmagiccost(itemid))
     {
         usering = true;
         paymagiccost(itemid);
-        result *= itemsbuf[itemid].power;
+        result *= curQuest->itemDefTable().getItemDefinition(itemid).power;
     }
     
     // Ring divisor of 0 = no damage. -L
@@ -13426,15 +13428,15 @@ bool checkmagiccost(int itemid)
     {
         return false;
     }
-    else if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
+    else if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_RUPEE_MAGIC)
     {
-        return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
+        return (game->get_rupies()+game->get_drupy()>=curQuest->itemDefTable().getItemDefinition(itemid).magic);
     }
     else if(get_bit(quest_rules,qr_ENABLEMAGIC))
     {
         return (((current_item_power(itype_magicring) > 0)
                  ? game->get_maxmagic()
-                 : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
+                 : game->get_magic()+game->get_dmagic())>=curQuest->itemDefTable().getItemDefinition(itemid).magic*game->get_magicdrainrate());
     }
     
     return 1;
@@ -13445,19 +13447,19 @@ void paymagiccost(int itemid)
     if(itemid < 0)
         return;
         
-    if(itemsbuf[itemid].magic <= 0)
+    if(curQuest->itemDefTable().getItemDefinition(itemid).magic <= 0)
         return;
         
-    if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
+    if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_RUPEE_MAGIC)
     {
-        game->change_drupy(-itemsbuf[itemid].magic);
+        game->change_drupy(-curQuest->itemDefTable().getItemDefinition(itemid).magic);
         return;
     }
     
     if(current_item_power(itype_magicring) > 0)
         return;
         
-    game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+    game->change_magic(-(curQuest->itemDefTable().getItemDefinition(itemid).magic*game->get_magicdrainrate()));
 }
 
 int Bweapon(int pos)
@@ -13492,12 +13494,12 @@ int Bweapon(int pos)
     {
         bool select = false;
         
-        switch(itemsbuf[actualItem-1].family)
+        switch(curQuest->itemDefTable().getItemDefinition(actualItem-1).family)
         {
         case itype_bomb:
             if((game->get_bombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+                    (actualItem-1>-1 && curQuest->itemDefTable().getItemDefinition(actualItem-1).misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
                     current_item_power(itype_bombbag))
             {
                 select=true;
@@ -13532,8 +13534,8 @@ int Bweapon(int pos)
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-                    (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
+                    (actualItem-1>-1 && curQuest->itemDefTable().getItemDefinition(actualItem-1).misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+                    (current_item_power(itype_bombbag) && bombbagid>-1 && (curQuest->itemDefTable().getItemDefinition(bombbagid).flags & itemdata::IF_FLAG1)))
             {
                 select=true;
             }
@@ -13558,7 +13560,7 @@ int Bweapon(int pos)
         {
             directItem = actualItem-1;
             
-            if(directItem>-1 && itemsbuf[directItem].family == itype_arrow) bow=true;
+            if(directItem>-1 && curQuest->itemDefTable().getItemDefinition(directItem).family == itype_arrow) bow=true;
             
             return actualItem-1+(bow?0xF000:0);
         }
@@ -13575,7 +13577,7 @@ int Bweapon(int pos)
         
         if((game->get_bombs() ||
                 // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                (bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+                (bombid>-1 && curQuest->itemDefTable().getItemDefinition(bombid).misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
                 current_item_power(itype_bombbag))
         {
             family=itype_bomb;
@@ -13613,8 +13615,8 @@ int Bweapon(int pos)
         
         if((game->get_sbombs() ||
                 // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                (sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-                (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
+                (sbombid>-1 && curQuest->itemDefTable().getItemDefinition(sbombid).misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+                (current_item_power(itype_bombbag) && bombbagid>-1 && (curQuest->itemDefTable().getItemDefinition(bombbagid).flags & itemdata::IF_FLAG1)))
         {
             family=itype_sbomb;
         }
@@ -13638,10 +13640,10 @@ int Bweapon(int pos)
     if(family==-1)
         return 0;
         
-    for(int j=0; j<MAXITEMS; j++)
+    for(int j=0; j<curQuest->itemDefTable().getNumItemDefinitions(); j++)
     {
         // Find the item that matches this subscreen object.
-        if(itemsbuf[j].family==family && j == current_item_id(family,false) && !item_disabled(j))
+        if(curQuest->itemDefTable().getItemDefinition(j).family==family && j == current_item_id(family,false) && !item_disabled(j))
         {
             return j+(bow?0xF000:0);
         }
@@ -13664,9 +13666,9 @@ void stopCaneOfByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int wpn)
 {
-    if((wpn==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
+    if((wpn==curQuest->itemDefTable().getItemFamily(Bwpn&0xFFF)) && DrunkcBbtn()) return true;
     
-    if((wpn==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
+    if((wpn==curQuest->itemDefTable().getItemFamily(Awpn&0xFFF)) && DrunkcAbtn()) return true;
     
     return false;
 }
@@ -13870,7 +13872,7 @@ int selectSword()
 // Used for the 'Pickup Hearts' item pickup condition.
 bool canget(int id)
 {
-    return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*HP_PER_HEART));
+    return id>=0 && (game->get_maxlife()>=(curQuest->itemDefTable().getItemDefinition(id).pickup_hearts*HP_PER_HEART));
 }
 
 void dospecialmoney(int index)
@@ -13949,9 +13951,9 @@ void dospecialmoney(int index)
         }
         
         //also give Link an actual Bomb item
-        for(int i=0; i<MAXITEMS; i++)
+        for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
         {
-            if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
+            if(curQuest->itemDefTable().getItemDefinition(i).family == itype_bomb && curQuest->itemDefTable().getItemDefinition(i).fam_type == 1)
                 getitem(i, true);
         }
         
@@ -14017,98 +14019,98 @@ void getitem(int id, bool nosound)
         return;
     }
     
-    if(itemsbuf[id].family!=0xFF)
+    if(curQuest->itemDefTable().getItemDefinition(id).family!=0xFF)
     {
-        if(itemsbuf[id].flags & ITEM_GAMEDATA && itemsbuf[id].family != itype_triforcepiece)
+        if(curQuest->itemDefTable().getItemDefinition(id).flags & itemdata::IF_GAMEDATA && curQuest->itemDefTable().getItemDefinition(id).family != itype_triforcepiece)
         {
             // Fix boomerang sounds.
-            int itemid = current_item_id(itemsbuf[id].family);
+            int itemid = current_item_id(curQuest->itemDefTable().getItemDefinition(id).family);
             
-            if(itemid>=0 && (itemsbuf[id].family == itype_brang || itemsbuf[id].family == itype_nayruslove
-                             || itemsbuf[id].family == itype_hookshot || itemsbuf[id].family == itype_cbyrna)
-                    && Backend::sfx->isPlaying(itemsbuf[itemid].usesound)
-                    && itemsbuf[id].usesound != itemsbuf[itemid].usesound)
+            if(itemid>=0 && (curQuest->itemDefTable().getItemDefinition(id).family == itype_brang || curQuest->itemDefTable().getItemDefinition(id).family == itype_nayruslove
+                             || curQuest->itemDefTable().getItemDefinition(id).family == itype_hookshot || curQuest->itemDefTable().getItemDefinition(id).family == itype_cbyrna)
+                    && Backend::sfx->isPlaying(curQuest->itemDefTable().getItemDefinition(itemid).usesound)
+                    && curQuest->itemDefTable().getItemDefinition(id).usesound != curQuest->itemDefTable().getItemDefinition(itemid).usesound)
             {
-                Backend::sfx->stop(itemsbuf[itemid].usesound);
-                Backend::sfx->loop(itemsbuf[id].usesound,128);
+                Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(itemid).usesound);
+                Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(id).usesound,128);
             }
             
             game->set_item(id,true);
             
-            if(!(itemsbuf[id].flags & ITEM_KEEPOLD))
+            if(!(curQuest->itemDefTable().getItemDefinition(id).flags & itemdata::IF_KEEPOLD))
             {
-                if(current_item(itemsbuf[id].family)<itemsbuf[id].fam_type)
+                if(current_item(curQuest->itemDefTable().getItemDefinition(id).family)<curQuest->itemDefTable().getItemDefinition(id).fam_type)
                 {
-                    removeLowerLevelItemsOfFamily(game,itemsbuf,itemsbuf[id].family, itemsbuf[id].fam_type);
+                    curQuest->itemDefTable().removeLowerLevelItemsOfFamily(game,curQuest->itemDefTable().getItemDefinition(id).family, curQuest->itemDefTable().getItemDefinition(id).fam_type);
                 }
             }
             
             // NES consistency: replace all flying boomerangs with the current boomerang.
-            if(itemsbuf[id].family==itype_brang)
+            if(curQuest->itemDefTable().getItemDefinition(id).family==itype_brang)
                 for(int i=0; i<Lwpns.Count(); i++)
                 {
                     weapon *w = ((weapon*)Lwpns.spr(i));
                     
                     if(w->id==wBrang)
                     {
-                        w->LOADGFX(itemsbuf[id].wpn);
+                        w->LOADGFX(curQuest->itemDefTable().getItemDefinition(id).wpn);
                     }
                 }
         }
         
-        if(itemsbuf[id].count!=-1)
+        if(curQuest->itemDefTable().getItemDefinition(id).count!=-1)
         {
-            if(itemsbuf[id].setmax)
+            if(curQuest->itemDefTable().getItemDefinition(id).setmax)
             {
                 // Bomb bags are a special case; they may be set not to increase super bombs
-                if(itemsbuf[id].family==itype_bombbag && itemsbuf[id].count==2 && (itemsbuf[id].flags&16)==0)
+                if(curQuest->itemDefTable().getItemDefinition(id).family==itype_bombbag && curQuest->itemDefTable().getItemDefinition(id).count==2 && (curQuest->itemDefTable().getItemDefinition(id).flags&16)==0)
                 {
                     int max = game->get_maxbombs();
                     
-                    if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+                    if(max<curQuest->itemDefTable().getItemDefinition(id).max) max=curQuest->itemDefTable().getItemDefinition(id).max;
                     
-                    game->set_maxbombs(zc_min(game->get_maxbombs()+itemsbuf[id].setmax,max), false);
+                    game->set_maxbombs(zc_min(game->get_maxbombs()+curQuest->itemDefTable().getItemDefinition(id).setmax,max), false);
                 }
                 else
                 {
-                    int max = game->get_maxcounter(itemsbuf[id].count);
+                    int max = game->get_maxcounter(curQuest->itemDefTable().getItemDefinition(id).count);
                     
-                    if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+                    if(max<curQuest->itemDefTable().getItemDefinition(id).max) max=curQuest->itemDefTable().getItemDefinition(id).max;
                     
-                    game->set_maxcounter(zc_min(game->get_maxcounter(itemsbuf[id].count)+itemsbuf[id].setmax,max), itemsbuf[id].count);
+                    game->set_maxcounter(zc_min(game->get_maxcounter(curQuest->itemDefTable().getItemDefinition(id).count)+curQuest->itemDefTable().getItemDefinition(id).setmax,max), curQuest->itemDefTable().getItemDefinition(id).count);
                 }
             }
             
             // Amount is an unsigned short, but the range is -9999 to 16383
             // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
-            if(itemsbuf[id].amount&0x3FFF)
+            if(curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF)
             {
-                if(itemsbuf[id].amount&0x8000)
+                if(curQuest->itemDefTable().getItemDefinition(id).amount&0x8000)
                     game->set_dcounter(
-                        game->get_dcounter(itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+                        game->get_dcounter(curQuest->itemDefTable().getItemDefinition(id).count)+((curQuest->itemDefTable().getItemDefinition(id).amount&0x4000)?-(curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF):curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF), curQuest->itemDefTable().getItemDefinition(id).count);
                 else
                 {
-                    if(itemsbuf[id].amount>=16385 && game->get_counter(0)<=itemsbuf[id].amount-16384)
-                        game->set_counter(0, itemsbuf[id].count);
+                    if(curQuest->itemDefTable().getItemDefinition(id).amount>=16385 && game->get_counter(0)<=curQuest->itemDefTable().getItemDefinition(id).amount-16384)
+                        game->set_counter(0, curQuest->itemDefTable().getItemDefinition(id).count);
                     else
                         // This is too confusing to try and change...
-                        game->set_counter(zc_min(game->get_counter(itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF),game->get_maxcounter(itemsbuf[id].count)), itemsbuf[id].count);
+                        game->set_counter(zc_min(game->get_counter(curQuest->itemDefTable().getItemDefinition(id).count)+((curQuest->itemDefTable().getItemDefinition(id).amount&0x4000)?-(curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF):curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF),game->get_maxcounter(curQuest->itemDefTable().getItemDefinition(id).count)), curQuest->itemDefTable().getItemDefinition(id).count);
                 }
             }
         }
     }
     
-    if(itemsbuf[id].playsound&&!nosound)
+    if(curQuest->itemDefTable().getItemDefinition(id).playsound&&!nosound)
     {
-        Backend::sfx->play(itemsbuf[id].playsound,128);
+        Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(id).playsound,128);
     }
     
     //add lower-level items
-    if(itemsbuf[id].flags&ITEM_GAINOLD)
+    if(curQuest->itemDefTable().getItemDefinition(id).flags & itemdata::IF_GAINOLD)
     {
-        for(int i=itemsbuf[id].fam_type-1; i>0; i--)
+        for(int i=curQuest->itemDefTable().getItemDefinition(id).fam_type-1; i>0; i--)
         {
-            int potid = getItemID(itemsbuf, itemsbuf[id].family, i);
+            int potid = curQuest->itemDefTable().getItemID(curQuest->itemDefTable().getItemDefinition(id).family, i);
             
             if(potid != -1)
             {
@@ -14117,7 +14119,7 @@ void getitem(int id, bool nosound)
         }
     }
     
-    switch(itemsbuf[id&0xFF].family)
+    switch(curQuest->itemDefTable().getItemDefinition(id&0xFF).family)
     {
     case itype_clock:
     {
@@ -14126,7 +14128,7 @@ void getitem(int id, bool nosound)
         for(int i=0; i<eMAXGUYS; i++)
             clock_zoras[i]=0;
             
-        clockclk=itemsbuf[id&0xFF].misc1;
+        clockclk=curQuest->itemDefTable().getItemDefinition(id&0xFF).misc1;
     }
     break;
     
@@ -14146,14 +14148,14 @@ void getitem(int id, bool nosound)
         
     case itype_whispring:
     {
-        if(itemsbuf[id].flags & ITEM_FLAG1)
+        if(curQuest->itemDefTable().getItemDefinition(id).flags & itemdata::IF_FLAG1)
         {
             if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
             
             if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
         }
         
-        if(itemsbuf[id].power==0)
+        if(curQuest->itemDefTable().getItemDefinition(id).power==0)
         {
             setSwordClk(0);
             setItemClk(0);
@@ -14177,8 +14179,8 @@ void getitem(int id, bool nosound)
         
     case itype_fairy:
     
-        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*HP_PER_HEART))),game->get_maxlife()));
-        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*MAGICPERBLOCK))),game->get_maxmagic()));
+        game->set_life(zc_min(game->get_life()+(curQuest->itemDefTable().getItemDefinition(id).flags & itemdata::IF_FLAG1 ?(int)(game->get_maxlife()*(curQuest->itemDefTable().getItemDefinition(id).misc1/100.0)):((curQuest->itemDefTable().getItemDefinition(id).misc1*HP_PER_HEART))),game->get_maxlife()));
+        game->set_magic(zc_min(game->get_magic()+(curQuest->itemDefTable().getItemDefinition(id).flags & itemdata::IF_FLAG2 ?(int)(game->get_maxmagic()*(curQuest->itemDefTable().getItemDefinition(id).misc2/100.0)):((curQuest->itemDefTable().getItemDefinition(id).misc2*MAGICPERBLOCK))),game->get_maxmagic()));
         break;
         
     case itype_heartpiece:
@@ -14189,9 +14191,9 @@ void getitem(int id, bool nosound)
             
         game->set_HCpieces(0);
         
-        for(int i=0; i<MAXITEMS; i++)
+        for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
         {
-            if(itemsbuf[i].family == itype_heartcontainer)
+            if(curQuest->itemDefTable().getItemDefinition(i).family == itype_heartcontainer)
             {
                 getitem(i);
                 break;
@@ -14215,22 +14217,22 @@ void takeitem(int id)
     game->set_item(id, false);
     
     /* Lower the counters! */
-    if(itemsbuf[id].count!=-1)
+    if(curQuest->itemDefTable().getItemDefinition(id).count!=-1)
     {
-        if(itemsbuf[id].setmax)
+        if(curQuest->itemDefTable().getItemDefinition(id).setmax)
         {
-            game->set_maxcounter(game->get_maxcounter(itemsbuf[id].count)-itemsbuf[id].setmax, itemsbuf[id].count);
+            game->set_maxcounter(game->get_maxcounter(curQuest->itemDefTable().getItemDefinition(id).count)-curQuest->itemDefTable().getItemDefinition(id).setmax, curQuest->itemDefTable().getItemDefinition(id).count);
         }
         
-        if(itemsbuf[id].amount&0x3FFF)
+        if(curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF)
         {
-            if(itemsbuf[id].amount&0x8000)
-                game->set_dcounter(game->get_dcounter(itemsbuf[id].count)-((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
-            else game->set_counter(game->get_counter(itemsbuf[id].count)-((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+            if(curQuest->itemDefTable().getItemDefinition(id).amount&0x8000)
+                game->set_dcounter(game->get_dcounter(curQuest->itemDefTable().getItemDefinition(id).count)-((curQuest->itemDefTable().getItemDefinition(id).amount&0x4000)?-(curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF):curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF), curQuest->itemDefTable().getItemDefinition(id).count);
+            else game->set_counter(game->get_counter(curQuest->itemDefTable().getItemDefinition(id).count)-((curQuest->itemDefTable().getItemDefinition(id).amount&0x4000)?-(curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF):curQuest->itemDefTable().getItemDefinition(id).amount&0x3FFF), curQuest->itemDefTable().getItemDefinition(id).count);
         }
     }
     
-    switch(itemsbuf[id&0xFF].family)
+    switch(curQuest->itemDefTable().getItemDefinition(id&0xFF).family)
     {
         // NES consistency: replace all flying boomerangs with the current boomerang.
     case itype_brang:
@@ -14240,7 +14242,7 @@ void takeitem(int id)
                 
                 if(w->id==wBrang)
                 {
-                    w->LOADGFX(itemsbuf[current_item_id(itype_brang)].wpn);
+                    w->LOADGFX(curQuest->itemDefTable().getItemDefinition(current_item_id(itype_brang)).wpn);
                 }
             }
             
@@ -14323,16 +14325,16 @@ void LinkClass::checkitems(int index)
     if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
         return;
         
-    if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
+    if((curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_COMBINE) && current_item(curQuest->itemDefTable().getItemDefinition(id2).family)==curQuest->itemDefTable().getItemDefinition(id2).fam_type)
         // Item upgrade routine.
     {
         int nextitem = -1;
         
-        for(int i=0; i<MAXITEMS; i++)
+        for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
         {
             // Find the item which is as close to this item's fam_type as possible.
-            if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-                    && (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+            if(curQuest->itemDefTable().getItemDefinition(i).family==curQuest->itemDefTable().getItemDefinition(id2).family && curQuest->itemDefTable().getItemDefinition(i).fam_type>curQuest->itemDefTable().getItemDefinition(id2).fam_type
+                    && (nextitem>-1 ? curQuest->itemDefTable().getItemDefinition(i).fam_type<=curQuest->itemDefTable().getItemDefinition(nextitem).fam_type : true))
             {
                 nextitem = i;
             }
@@ -14390,9 +14392,9 @@ void LinkClass::checkitems(int index)
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
         setmapflag();
         
-    if(itemsbuf[id2].collect_script)
+    if(curQuest->itemDefTable().getItemDefinition(id2).collect_script)
     {
-        run_script(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
+        run_script(SCRIPT_ITEM, curQuest->itemDefTable().getItemDefinition(id2).collect_script, id2 & 0xFFF);
     }
     
     getitem(id2);
@@ -14451,7 +14453,7 @@ void LinkClass::checkitems(int index)
             freeze_guys=true;
         }
         
-        if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
+        if(curQuest->itemDefTable().getItemDefinition(id2).family!=itype_triforcepiece || !(curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_GAMEDATA))
         {
             Backend::sfx->play(tmpscr[0].holdupsfx,128);
         }
@@ -14535,9 +14537,9 @@ void LinkClass::checkitems(int index)
         set_clip_state(pricesdisplaybuf, 1);
     }
     
-    if(itemsbuf[id2].family==itype_triforcepiece)
+    if(curQuest->itemDefTable().getItemDefinition(id2).family==itype_triforcepiece)
     {
-        if(itemsbuf[id2].misc2==1)
+        if(curQuest->itemDefTable().getItemDefinition(id2).misc2==1)
             getTriforce(id2);
         else
             getBigTri(id2);
@@ -14555,14 +14557,14 @@ void LinkClass::StartRefill(int refillWhat)
         
         if(refill_why>=0) // Item index
         {
-            if((itemsbuf[refill_why].family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
+            if((curQuest->itemDefTable().getItemDefinition(refill_why).family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
             {
                 swordclk=0;
                 
                 if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
             }
             
-            if((itemsbuf[refill_why].family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
+            if((curQuest->itemDefTable().getItemDefinition(refill_why).family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
             {
                 swordclk=0;
                 
@@ -14588,10 +14590,10 @@ bool LinkClass::refill()
     int refill_heart_stop=game->get_maxlife();
     int refill_magic_stop=game->get_maxmagic();
     
-    if(refill_why>=0 && itemsbuf[refill_why].family==itype_potion)
+    if(refill_why>=0 && curQuest->itemDefTable().getItemDefinition(refill_why).family==itype_potion)
     {
-        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *HP_PER_HEART))),game->get_maxlife());
-        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *MAGICPERBLOCK))),game->get_maxmagic());
+        refill_heart_stop=zc_min(potion_life+(curQuest->itemDefTable().getItemDefinition(refill_why).flags & itemdata::IF_FLAG1 ?int(game->get_maxlife()*(curQuest->itemDefTable().getItemDefinition(refill_why).misc1 /100.0)):((curQuest->itemDefTable().getItemDefinition(refill_why).misc1 *HP_PER_HEART))),game->get_maxlife());
+        refill_magic_stop=zc_min(potion_magic+(curQuest->itemDefTable().getItemDefinition(refill_why).flags & itemdata::IF_FLAG2 ?int(game->get_maxmagic()*(curQuest->itemDefTable().getItemDefinition(refill_why).misc2 /100.0)):((curQuest->itemDefTable().getItemDefinition(refill_why).misc2 *MAGICPERBLOCK))),game->get_maxmagic());
     }
     
     if(refillclk%speed == 0)
@@ -14671,15 +14673,15 @@ void LinkClass::getTriforce(int id2)
         show_subscreen_items=false;
     }
     
-    Backend::sfx->play(itemsbuf[id2].playsound,128);
+    Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(id2).playsound,128);
     music_stop();
     
-    if(itemsbuf[id2].misc1)
-        jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
+    if(curQuest->itemDefTable().getItemDefinition(id2).misc1)
+        jukebox(curQuest->itemDefTable().getItemDefinition(id2).misc1+ZC_MIDI_COUNT-1);
     else
         try_zcmusic((char*)"zelda.nsf",5, ZC_MIDI_TRIFORCE);
         
-    if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+    if(curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_GAMEDATA)
     {
         game->lvlitems[dlevel]|=liTRIFORCE;
     }
@@ -14743,7 +14745,7 @@ void LinkClass::getTriforce(int id2)
             }
         }
         
-        if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+        if(curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_GAMEDATA)
         {
             if(f==88)
             {
@@ -14762,7 +14764,7 @@ void LinkClass::getTriforce(int id2)
             }
         }
         
-        if(itemsbuf[id2].flags & ITEM_FLAG1) // Warp out flag
+        if(curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_FLAG1) // Warp out flag
         {
             if(f>=208 && f<288)
             {
@@ -14815,7 +14817,7 @@ void LinkClass::getTriforce(int id2)
     //draw_screen_clip_rect_show_link=true;
     show_subscreen_items=true;
     
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
+    if( (curQuest->itemDefTable().getItemDefinition(id2).flags & itemdata::IF_FLAG1) && currscr < 128)
     {
         sdir=dir;
         dowarp(1,0); //side warp
@@ -15302,7 +15304,7 @@ void LinkClass::ganon_intro()
     
     dir=down;
     action=landhold2;
-    holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
+    holditem=curQuest->itemDefTable().getItemID(itype_triforcepiece, 1);
     //not good, as this only returns the highest level that Link possesses. -DD
     //getHighestLevelOfFamily(game, itemsbuf, itype_triforcepiece, false));
     
@@ -15350,7 +15352,7 @@ void LinkClass::ganon_intro()
         
         if(f==256)
         {
-            holditem=getItemID(itemsbuf,itype_triforcepiece,1);
+            holditem=curQuest->itemDefTable().getItemID(itype_triforcepiece,1);
         }
         
         draw_screen(tmpscr);
@@ -15416,7 +15418,7 @@ void LinkClass::reset_hookshot()
     
     if(index>=0)
     {
-        Backend::sfx->stop(itemsbuf[index].usesound);
+        Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(index).usesound);
     }
     
     hs_xdist=0;

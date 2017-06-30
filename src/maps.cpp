@@ -3255,7 +3255,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     // Draw the Moving Fairy above layer 3
     for(int i=0; i<items.Count(); i++)
-        if(itemsbuf[items.spr(i)->id].family == itype_fairy && itemsbuf[items.spr(i)->id].misc3)
+        if(curQuest->itemDefTable().getItemDefinition(items.spr(i)->id).family == itype_fairy && curQuest->itemDefTable().getItemDefinition(items.spr(i)->id).misc3)
             items.spr(i)->draw(framebuf);
             
     //8. Blit framebuf onto temp_buf

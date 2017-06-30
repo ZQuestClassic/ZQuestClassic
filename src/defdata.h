@@ -15,10 +15,13 @@
 #ifndef _DEFDATA_H_
 #define _DEFDATA_H_
 
-#include "items.h"
+#include "quest/ItemDefinitionTable.h"
 #include "guys.h"
 extern comboclass default_combo_classes[cMAX];
-extern itemdata default_items[iLast];
+
+const char *old_item_names[];
+const std::vector<itemdata> &getDefaultItems();
+
 extern guydata default_guys[OLDMAXGUYS];
 extern item_drop_object default_item_drop_sets[isMAX];
 #endif

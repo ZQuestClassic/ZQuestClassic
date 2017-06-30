@@ -46,6 +46,7 @@
 
 // the following are used by both zelda.cc and zquest.cc
 #include "zdefs.h"
+#include "quest/Quest.h"
 #include "tiles.h"
 #include "colors.h"
 #include "qst.h"
@@ -146,6 +147,10 @@ bool disable_saving=false, OverwriteProtection;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
+
+//placeholder
+
+std::map<int, LensItemAnim> lens_hint_item;
 
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
@@ -597,9 +602,9 @@ bool showxypos_cursor_icon=false;
 bool close_button_quit=false;
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
 bool resize_mouse_pos=false;                                //for eyeball combos
-int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 
+Quest *curQuest;
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
@@ -610,7 +615,6 @@ FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *p
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
-itemdata *itemsbuf;
 wpndata  *wpnsbuf;
 comboclass *combo_class_buf;
 guydata  *guysbuf;
@@ -3695,10 +3699,10 @@ void drawpanel(int pnl)
             {
                 jwin_draw_frame(menu1,panel(8).x+14+(32*i),panel(8).y+12,20,20,FR_DEEP);
                 
-                if(i==0 && scr->hasitem && scr->item > 0)
+                if(i==0 && scr->hasitem && scr->screenItem > 0)
                 {
                     rectfill(menu1,panel(8).x+16+(32*i),panel(8).y+14,panel(8).x+31+(32*i),panel(8).y+29,0);
-                    overtile16(menu1, itemsbuf[scr->item].tile,panel(8).x+16+(32*i),panel(8).y+14,itemsbuf[scr->item].csets&15,0);
+                    overtile16(menu1, curQuest->itemDefTable().getItemDefinition(scr->screenItem).tile,panel(8).x+16+(32*i),panel(8).y+14,curQuest->itemDefTable().getItemDefinition(scr->screenItem).csets&15,0);
                 }
                 else
                     blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel(8).x+16+(32*i),panel(8).y+14, 16, 16);
@@ -3821,10 +3825,10 @@ void drawpanel(int pnl)
             {
                 jwin_draw_frame(menu1,panel(1).x+14+(32*i),panel(1).y+4,20,20,FR_DEEP);
                 
-                if(i==0 && scr->hasitem && scr->item > 0)
+                if(i==0 && scr->hasitem && scr->screenItem > 0)
                 {
                     rectfill(menu1,panel(8).x+16+(32*i),panel(1).y+6,panel(1).x+31+(32*i),panel(1).y+21,0);
-                    overtile16(menu1, itemsbuf[scr->item].tile,panel(1).x+16+(32*i),panel(1).y+6,itemsbuf[scr->item].csets&15,0);
+                    overtile16(menu1, curQuest->itemDefTable().getItemDefinition(scr->screenItem).tile,panel(1).x+16+(32*i),panel(1).y+6,curQuest->itemDefTable().getItemDefinition(scr->screenItem).csets&15,0);
                 }
                 else
                     blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel(1).x+16+(32*i),panel(1).y+6, 16, 16);
@@ -3941,7 +3945,7 @@ void drawpanel(int pnl)
                 switch(rtype)
                 {
                 case rSP_ITEM:
-                    textprintf_ex(menu1,pfont,panel(3).x+7+xofs,panel(3).y+32,jwin_pal[jcBOXFG],-1,"%s",item_string[scr->catchall]);
+                    textprintf_ex(menu1,pfont,panel(3).x+7+xofs,panel(3).y+32,jwin_pal[jcBOXFG],-1,"%s",curQuest->itemDefTable().getItemName(scr->catchall).c_str());
                     break;
                     
                 case rINFO:
@@ -5183,7 +5187,7 @@ void refresh(int flags)
         switch(Map.CurrScr()->room)
         {
         case rSP_ITEM:
-            sprintf(buf,"Special Item is %s",item_string[Map.CurrScr()->catchall]);
+            sprintf(buf,"Special Item is %s",curQuest->itemDefTable().getItemName(Map.CurrScr()->catchall).c_str());
             show_screen_error(buf,i++, vc(15));
             break;
             
@@ -5211,7 +5215,7 @@ void refresh(int flags)
             break;
             
         case rRP_HC:
-            sprintf(buf,"Take %s or %s", item_string[iRPotion], item_string[iHeartC]);
+            sprintf(buf,"Take %s or %s", curQuest->itemDefTable().getItemName(iRPotion).c_str(), curQuest->itemDefTable().getItemName(iHeartC).c_str());
             show_screen_error(buf,i++, vc(15));
             break;
             
@@ -5232,7 +5236,7 @@ void refresh(int flags)
                     
             for(int j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
                 {
-                    strcat(buf,item_string[misc.shop[shop].item[j]]);
+                    strcat(buf,curQuest->itemDefTable().getItemName(misc.shop[shop].item[j]).c_str());
                     strcat(buf,":");
                     char pricebuf[4];
                     sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
@@ -5249,9 +5253,9 @@ void refresh(int flags)
         {
             int shop = Map.CurrScr()->catchall;
             sprintf(buf,"Take Only One: %s%s%s%s%s",
-                    misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
-                    misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
-                    misc.shop[shop].item[2]<1?"":item_string[misc.shop[shop].item[2]]);
+                    misc.shop[shop].item[0]<1?"":curQuest->itemDefTable().getItemName(misc.shop[shop].item[0]).c_str(),misc.shop[shop].item[0]>0?", ":"",
+                    misc.shop[shop].item[1]<1?"":curQuest->itemDefTable().getItemName(misc.shop[shop].item[1]).c_str(),(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
+                    misc.shop[shop].item[2]<1?"":curQuest->itemDefTable().getItemName(misc.shop[shop].item[2]).c_str());
             show_screen_error(buf,i++, vc(15));
         }
         break;
@@ -9847,39 +9851,41 @@ static DIALOG rlist_dlg[] =
 
 
 
-/*
-  typedef struct item_struct {
-  char *s;
-  int i;
-  } item_struct;
-  */
-item_struct bii[iMax+1];
+
+item_struct *bii = NULL;
 int bii_cnt=-1;
 
 void build_bii_list(bool usenone)
 {
-    int start=bii_cnt=0;
-    
+    if (bii)
+        delete[] bii;
+    bii_cnt=0;
+
     if(usenone)
     {
-        bii[0].s = (char *)"(None)";
+        bii = new item_struct[1 + curQuest->itemDefTable().getNumItemDefinitions()];
+
+        bii[0].s = string("(None)");
         bii[0].i = -2;
         bii_cnt=1;
-        start=0;
+    }
+    else
+    {
+        bii = new item_struct[curQuest->itemDefTable().getNumItemDefinitions()];
     }
     
-    for(int i=start; i<iMax; i++)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
     {
-        bii[bii_cnt].s = item_string[i];
+        bii[bii_cnt].s = curQuest->itemDefTable().getItemName(i);
         bii[bii_cnt].i = i;
         ++bii_cnt;
     }
     
-    for(int i=start; i<bii_cnt-1; i++)
+    for(int i=0; i<bii_cnt-1; i++)
     {
         for(int j=i+1; j<bii_cnt; j++)
         {
-            if(stricmp(bii[i].s,bii[j].s)>0 && strcmp(bii[j].s,""))
+            if(stricmp(bii[i].s.c_str(),bii[j].s.c_str())>0 && strcmp(bii[j].s.c_str(),""))
             {
                 zc_swap(bii[i],bii[j]);
             }
@@ -9895,31 +9901,37 @@ const char *itemlist(int index, int *list_size)
         return NULL;
     }
     
-    return bii[index].s;
+    return bii[index].s.c_str();
 }
 
 // disable items on dmaps stuff
-int DI[iMax];
+int *DI = NULL;
 int nDI;
 
 void initDI(int index)
 {
+    if (DI)
+        delete[] DI;
+    DI = new int[DMaps[index].disabledItems.size()];
+
     int j=0;
     
-    for(int i=0; i<iMax; i++)
+    for(int i=0; i<bii_cnt; i++)
     {
         int index1=bii[i].i; // true index of item in dmap's DI list
         
-        if(DMaps[index].disableditems[index1])
+        for (std::vector<uint32_t>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
         {
-            DI[j]=i;
-            j++;
-        }
+            if (*it == index1)
+            {
+                DI[j]=i;
+                j++;
+                break;
+            }
+        }        
     }
     
     nDI=j;
-    
-    for(int i=j; i<iMax; i++) DI[j]=0;
     
     return;
 }
@@ -9927,7 +9939,17 @@ void initDI(int index)
 void insertDI(int id, int index)
 {
     int trueid=bii[id].i;
-    DMaps[index].disableditems[trueid] |= 1; //bit set
+    bool alreadyin = false;
+    for (std::vector<uint32_t>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
+    {
+        if (*it == trueid)
+        {
+            alreadyin = true;
+            break;
+        }
+    }
+    if (!alreadyin)
+        DMaps[index].disabledItems.push_back(trueid);
     initDI(index);
     return;
 }
@@ -9936,7 +9958,14 @@ void deleteDI(int id, int index)
 {
     int i=DI[id];
     int trueid=bii[i].i;
-    DMaps[index].disableditems[trueid] &= (~1); // bit clear
+    for (std::vector<uint32_t>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
+    {
+        if (*it == trueid)
+        {
+            DMaps[index].disabledItems.erase(it);
+            break;
+        }
+    }
     initDI(index);
     return;
 }
@@ -9950,7 +9979,7 @@ const char *DIlist(int index, int *list_size)
     }
     
     int i=DI[index];
-    return bii[i].s;
+    return bii[i].s.c_str();
     
 }
 
@@ -9980,9 +10009,10 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
 		ilist_cpy[2].flags|=(D_USER<<1);
 		ilist_cpy[3].dp = (void *)"Edit";
 		ilist_cpy[4].dp = (void *)"Done";
-		ilist_cpy[3].x = is_large()?285:90;
-		ilist_cpy[4].x = is_large()?405:170;
-		ilist_cpy[5].flags |= D_HIDDEN;
+        ilist_cpy[5].dp = (void *)"New";
+        ilist_cpy[3].x = is_large()?240:60;
+        ilist_cpy[4].x = is_large()?350:135;
+        ilist_cpy[5].flags &= ~D_HIDDEN;
     }
     else
     {
@@ -10103,7 +10133,7 @@ void build_bir_list()
     {
         for(int j=i+1; j<bir_cnt; j++)
         {
-            if(stricmp(bir[i].s,bir[j].s)>0)
+            if(stricmp(bir[i].s.c_str(),bir[j].s.c_str())>0)
             {
                 zc_swap(bir[i],bir[j]);
             }
@@ -10119,7 +10149,7 @@ const char *roomlist(int index, int *list_size)
         return NULL;
     }
     
-    return bir[index].s;
+    return bir[index].s.c_str();
 }
 
 int select_room(const char *prompt,int room)
@@ -11458,7 +11488,7 @@ int onItem()
     restore_mouse();
     build_bii_list(true);
     int exit_status;
-    int current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -2;
+    int current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->screenItem : -2;
     
     do
     {
@@ -11479,7 +11509,7 @@ int onItem()
             if(ret>=0)
             {
                 saved=false;
-                Map.CurrScr()->item=ret;
+                Map.CurrScr()->screenItem=ret;
                 Map.CurrScr()->hasitem = true;
             }
             else
@@ -11519,7 +11549,7 @@ int onRType()
     switch(Map.CurrScr()->room)
     {
     case rSP_ITEM:
-        Map.CurrScr()->catchall=bound(c,0,ITEMCNT-1);
+        Map.CurrScr()->catchall=bound(c,0,curQuest->itemDefTable().getNumItemDefinitions()-1);
         break;
         // etc...
     }
@@ -11741,8 +11771,8 @@ int d_idroplist_proc(int msg,DIALOG *d,int c)
 	case MSG_DRAW:
 	case MSG_CHAR:
 	case MSG_CLICK:
-		int tile = bii[d->d1].i >= 0 ? itemsbuf[bii[d->d1].i].tile : 0;
-		int cset = bii[d->d1].i >= 0 ? itemsbuf[bii[d->d1].i].csets & 15 : 0;
+		int tile = bii[d->d1].i >= 0 ? curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).tile : 0;
+		int cset = bii[d->d1].i >= 0 ? curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).csets & 15 : 0;
 		int x = d->x + d->w + 4;
 		int y = d->y - 2;
 		int w = 16;
@@ -11807,8 +11837,8 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
         
         if(bii[d->d1].i >-1)
         {
-            tile= itemsbuf[bii[d->d1].i].tile;
-            cset= itemsbuf[bii[d->d1].i].csets&15;
+            tile= curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).tile;
+            cset= curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).csets&15;
         }
         
         int x = d->x + d->w + 4;
@@ -11843,7 +11873,7 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             textprintf_ex(screen,spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
             
             textprintf_ex(screen,spfont,x,y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x+int(16*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+            textprintf_ex(screen,spfont,x+int(16*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).power);
         }
         
         // Might be a bit confusing for new users
@@ -21300,12 +21330,12 @@ int current_item(int item_type)
     int lowestid = -1;
     int ret = 0;
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
     {
-        if(itemsbuf[i].family == item_type && (lowestid==-1 || itemsbuf[i].fam_type < ret))
+        if(curQuest->itemDefTable().getItemDefinition(i).family == item_type && (lowestid==-1 || curQuest->itemDefTable().getItemDefinition(i).fam_type < ret))
         {
             lowestid = i;
-            ret = itemsbuf[i].fam_type;
+            ret = curQuest->itemDefTable().getItemDefinition(i).fam_type;
         }
     }
     
@@ -21322,9 +21352,9 @@ int current_item_id(int itemtype, bool checkmagic)
 {
     checkmagic=checkmagic;
     
-    for(int i=0; i<MAXITEMS; i++)
+    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
     {
-        if(itemsbuf[i].family==itemtype)
+        if(curQuest->itemDefTable().getItemDefinition(i).family==itemtype)
             return i;
     }
     
@@ -21509,6 +21539,7 @@ int main(int argc, char **argv)
 	set_color_conversion(COLORCONV_NONE);
 	Backend::initializeBackend();
 	pool = new ObjectPool();
+    curQuest = NULL;
     
     Z_message("OK\n");                                      // Initializing Allegro...
     
@@ -22220,12 +22251,6 @@ int main(int argc, char **argv)
         memset(weapon_string[i], 0, 64);
     }
     
-    for(int i=0; i<ITEMCNT; i++)
-    {
-        item_string[i] = new char[64];
-        memset(item_string[i], 0, 64);
-    }
-    
     for(int i=0; i<eMAXGUYS; i++)
     {
         guy_string[i] = new char[64];
@@ -22344,12 +22369,6 @@ int main(int argc, char **argv)
 		quit_game();
 		exit(0);
 	}
-    
-    for(int x=0; x<MAXITEMS; x++)
-    {
-        lens_hint_item[x][0]=0;
-        lens_hint_item[x][1]=0;
-    }
     
     for(int x=0; x<MAXWPNS; x++)
     {
@@ -22660,11 +22679,6 @@ void quit_game()
     for(int i=0; i<WPNCNT; i++)
     {
         delete [] weapon_string[i];
-    }
-    
-    for(int i=0; i<ITEMCNT; i++)
-    {
-        delete [] item_string[i];
     }
     
     for(int i=0; i<eMAXGUYS; i++)

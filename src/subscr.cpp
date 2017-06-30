@@ -2946,7 +2946,7 @@ void update_subscr_items()
             Bitem = new item((fix)0, (fix)0, (fix)0, Bwpn&0x0FFF, 0, 0);
             Bitem->dummy_bool[0]=false;
             
-            switch(itemsbuf[Bwpn&0x0FFF].family)
+            switch(curQuest->itemDefTable().getItemDefinition(Bwpn&0x0FFF).family)
             {
             case itype_arrow:
                 if((Bwpn&0xF000)==0xF000)
@@ -2981,7 +2981,7 @@ void update_subscr_items()
         {
             Aitem = new item((fix)0, (fix)0,(fix)0,Awpn&0x0FFF, 0, 0);
             
-            switch(itemsbuf[Awpn&0x0FFF].family)
+            switch(curQuest->itemDefTable().getItemDefinition(Awpn&0x0FFF).family)
             {
             case itype_arrow:
                 if((Awpn&0xF000)==0xF000)
@@ -3047,13 +3047,13 @@ bool displaysubscreenitem(int itemtype, int d)
     if((itemtype == itype_bomb &&
             !(game->get_bombs()
               // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-              || (itemsbuf[current_item_id(itype_bomb)].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+              || (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_bomb)).misc1==0 && Lwpns.idCount(wLitBomb)>0)
               || current_item_power(itype_bombbag)))
             || (itemtype == itype_sbomb &&
                 !(game->get_sbombs()
-                  || (itemsbuf[current_item_id(itype_sbomb)].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
+                  || (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_sbomb)).misc1==0 && Lwpns.idCount(wLitSBomb)>0)
                   || (current_item_power(itype_bombbag)
-                      && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
+                      && curQuest->itemDefTable().getItemDefinition(current_item_id(itype_bombbag)).flags & itemdata::IF_FLAG1))))
         return false;
         
     if(itemtype!=itype_bowandarrow ||
@@ -3079,7 +3079,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         }
         else if(Sitems.spr(i)->misc!=-1)
         {
-            int d= itemsbuf[Sitems.spr(i)->id].family;
+            int d= curQuest->itemDefTable().getItemDefinition(Sitems.spr(i)->id).family;
             
             if((d==itemtype)||
                     (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
@@ -3103,8 +3103,8 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
     }
     
     //Item Override stuff here
-    if((itemtype & 0x8000) && (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0))
+    if((itemtype & 0x8000) && (has_item(curQuest->itemDefTable().getItemDefinition(itemtype&0xFFF).family,curQuest->itemDefTable().getItemDefinition(itemtype&0xFFF).fam_type))
+            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(curQuest->itemDefTable().getItemDefinition(itemtype&0xFFF).family, 0))
     {
         if(overridecheck == 0xFFFF)
         {
@@ -3627,9 +3627,9 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     break;
                     
                 char itemname[140]="";
-                sprintf(itemname, "%s", item_string[itemid]);
+                sprintf(itemname, "%s", curQuest->itemDefTable().getItemName(itemid).c_str());
                 
-                switch(itemsbuf[itemid].family)
+                switch(curQuest->itemDefTable().getItemDefinition(itemid).family)
                 {
                 case itype_arrow:
                     if(Bitem->dummy_bool[0]==true)  //if we also have a bow
@@ -3637,7 +3637,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                         if(current_item_id(itype_bow))
                         {
                             bool hasarrows=((get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_arrows()))||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_rupies())));
-                            sprintf(itemname, "%s%s%s", item_string[current_item_id(itype_bow)], hasarrows?" & ":"",hasarrows?item_string[Bitem->id]:"");
+                            sprintf(itemname, "%s%s%s", curQuest->itemDefTable().getItemName(current_item_id(itype_bow)).c_str(), hasarrows?" & ":"",hasarrows?curQuest->itemDefTable().getItemName(Bitem->id).c_str() : "");
                             /*switch (current_item_power(itype_bow))
                             {
                               case 1:
@@ -3759,7 +3759,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     {
                         tempsel->x=css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
                         tempsel->y=css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
-                        tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
+                        tempsel->tile+=(zc_max(curQuest->itemDefTable().getItemDefinition(tempsel->id).frames,1)*j);
                         
                         if(temptile)
                         {
@@ -3817,7 +3817,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             Aitem->x=x;
             Aitem->y=y;
             
-            switch(itemsbuf[Aitem->id].family)
+            switch(curQuest->itemDefTable().getItemDefinition(Aitem->id).family)
             {
             case itype_arrow:
                 if(Aitem->dummy_bool[0]==true)
@@ -3849,7 +3849,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             Bitem->x=x;
             Bitem->y=y;
             
-            switch(itemsbuf[Bitem->id].family)
+            switch(curQuest->itemDefTable().getItemDefinition(Bitem->id).family)
             {
             case itype_arrow:
                 if(Bitem->dummy_bool[0]==true)
@@ -3896,10 +3896,10 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
         
         if(itemid>-1)
         {
-            if(itemsbuf[itemid].flags&ITEM_FLAG1)
-                magickey = itemsbuf[itemid].power>=get_dlevel();
+            if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
+                magickey = curQuest->itemDefTable().getItemDefinition(itemid).power>=get_dlevel();
             else
-                magickey = itemsbuf[itemid].power==get_dlevel();
+                magickey = curQuest->itemDefTable().getItemDefinition(itemid).power==get_dlevel();
         }
         
         putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,current_item_power(itype_wallet)>0,idigit);
@@ -3914,7 +3914,7 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
         if(game)
         {
             int itemid = current_item_id(itype_bombbag);
-            bool superbomb = (itemid>=0 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1);
+            bool superbomb = (itemid>=0 && curQuest->itemDefTable().getItemDefinition(itemid).power>0 && curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1);
             
             putxnum(dest,x+8,y+24,game->get_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,superbomb,idigit);
         }
@@ -3926,7 +3926,7 @@ bool is_counter_item(int itemtype, int countertype)
     switch(countertype)
     {
     case sscBOMBS:
-        if(itemsbuf[itemtype].family==itype_bomb)
+        if(curQuest->itemDefTable().getItemDefinition(itemtype).family==itype_bomb)
         {
             return true;
         }
@@ -3934,7 +3934,7 @@ bool is_counter_item(int itemtype, int countertype)
         break;
         
     case sscSBOMBS:
-        if(itemsbuf[itemtype].family==itype_sbomb)
+        if(curQuest->itemDefTable().getItemDefinition(itemtype).family==itype_sbomb)
         {
             return true;
         }
@@ -3942,7 +3942,7 @@ bool is_counter_item(int itemtype, int countertype)
         break;
         
     case sscARROWS:
-        if(itemsbuf[itemtype].family==itype_arrow)
+        if(curQuest->itemDefTable().getItemDefinition(itemtype).family==itype_arrow)
         {
             return true;
         }
@@ -4014,7 +4014,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
     {
         int itemid = current_item_id(itype_bombbag);
         
-        if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
+        if(itemid>-1 && curQuest->itemDefTable().getItemDefinition(itemid).power>0 && (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1))
             infinite=true;
             
         value+=game->get_sbombs();
@@ -4049,10 +4049,10 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
         
         if(itemid>-1 && !infinite)
         {
-            if(itemsbuf[itemid].flags&ITEM_FLAG1)
-                infinite = itemsbuf[itemid].power>=get_dlevel();
+            if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
+                infinite = curQuest->itemDefTable().getItemDefinition(itemid).power>=get_dlevel();
             else
-                infinite = itemsbuf[itemid].power==get_dlevel();
+                infinite = curQuest->itemDefTable().getItemDefinition(itemid).power==get_dlevel();
         }
     }
     
@@ -4556,7 +4556,7 @@ void load_Sitems(miscQdata *misc)
         {
             int j = current_item_id(i,false);
             
-            if(itemsbuf[j].tile)
+            if(curQuest->itemDefTable().getItemDefinition(j).tile)
                 add_subscr_item(new item((fix)0, (fix)0,(fix)0,j,0,0));
         }
     }

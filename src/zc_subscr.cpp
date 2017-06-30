@@ -61,10 +61,10 @@ void dosubscr(miscQdata *misc)
     Backend::sfx->pause(WAV_BRANG);
     
     if(current_item_id(itype_brang)>=0)
-        Backend::sfx->pause(itemsbuf[current_item_id(itype_brang)].usesound);
+        Backend::sfx->pause(curQuest->itemDefTable().getItemDefinition(current_item_id(itype_brang)).usesound);
         
     if(current_item_id(itype_hookshot)>=0)
-        Backend::sfx->pause(itemsbuf[current_item_id(itype_hookshot)].usesound);
+        Backend::sfx->pause(curQuest->itemDefTable().getItemDefinition(current_item_id(itype_hookshot)).usesound);
         
     Backend::sfx->unloop(WAV_ER);
     Backend::sfx->unloop(WAV_MSG);

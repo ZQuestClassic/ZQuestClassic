@@ -52,6 +52,7 @@ using std::pair;
 //const char zqsheader[30]="Zelda Classic String Table\n\x01";
 extern char msgbuf[MSGSIZE*3];
 
+extern std::map<int, LensItemAnim> lens_hint_item;
 extern string zScript;
 extern std::map<int, pair<string, string> > ffcmap;
 extern std::map<int, pair<string, string> > globalmap;
@@ -1255,7 +1256,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->guy=src->guy;
     dest->str=src->str;
     dest->room=src->room;
-    dest->item=src->item;
+    dest->screenItem=src->screenItem;
     dest->hasitem=src->hasitem;
     
     for(int i=0; i<4; i++)
@@ -2446,7 +2447,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     if((layer->hasitem != 0) && !(flags&cNOITEM))
     {
         frame=0;
-        putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_bit(quest_rules, qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
+        putitem2(dest, layer->itemx + x, layer->itemy + y + 1 - (get_bit(quest_rules, qr_NOITEMOFFSET)), layer->screenItem, lens_hint_item[layer->screenItem].aclk, lens_hint_item[layer->screenItem].aframe, 0);
     }
     
     for(int k=2; k<4; k++)
@@ -4033,7 +4034,7 @@ void zmap::PasteScreenData()
         screens[currscr].flags8 = copymapscr.flags8;
         screens[currscr].flags9 = copymapscr.flags9;
         screens[currscr].flags10 = copymapscr.flags10;
-        screens[currscr].item = copymapscr.item;
+        screens[currscr].screenItem = copymapscr.screenItem;
         screens[currscr].hasitem = copymapscr.hasitem;
         screens[currscr].itemx = copymapscr.itemx;
         screens[currscr].itemy = copymapscr.itemy;
@@ -5284,11 +5285,12 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_ITEMS)
     {
-        if(readitems(f, ZELDA_VERSION, VERSION_BUILD, NULL, false, true)!=0)
+        // ZGP is about to be removed anyway
+        /*if(readitems(f, ZELDA_VERSION, VERSION_BUILD, NULL, false, true)!=0)
         {
             pack_fclose(f);
             return false;
-        }
+        }*/
     }
     else
     {
@@ -6668,22 +6670,17 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(27);
             }
             
-            byte disabled[32];
-            memset(disabled,0,32);
-            
-            for(int j=0; j<MAXITEMS; j++)
-            {
-                if(DMaps[i].disableditems[j])
-                {
-                    disabled[j/8] |= (1 << (j%8));
-                }
-            }
-            
-            if(!pfwrite(disabled,32,f))
-            {
+            uint32_t numdisabled = DMaps[i].disabledItems.size();
+            if (!p_iputl(numdisabled, f))
                 new_return(28);
+
+            for (uint32_t j = 0; j < numdisabled; j++)
+            {
+                uint32_t itemid = DMaps[i].disabledItems[j];
+                if (!p_iputl(itemid, f))
+                    new_return(28);
             }
-            
+
             if(!p_iputl(DMaps[i].flags,f))
             {
                 new_return(29);
@@ -7184,114 +7181,120 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!p_iputw(iMax,f))
+        uint32_t numitems = curQuest->itemDefTable().getNumItemDefinitions();
+        if(!p_iputl(numitems,f))
         {
             new_return(5);
         }
         
-        for(int i=0; i<iMax; i++)
+        for(uint32_t i=0; i<numitems; i++)
         {
-            if(!pfwrite(item_string[i], 64, f))
+            uint32_t namelen = curQuest->itemDefTable().getItemName(i).length();
+            if (!p_iputl(namelen, f))
+                new_return(5);
+
+            if(!pfwrite((void *)curQuest->itemDefTable().getItemName(i).c_str(), namelen, f))
             {
                 new_return(5);
             }
         }
         
-        for(int i=0; i<iMax; i++)
+        for(uint32_t i=0; i<numitems; i++)
         {
-            if(!p_iputw(itemsbuf[i].tile,f))
+            const itemdata &itemd = curQuest->itemDefTable().getItemDefinition(i);
+            if(!p_iputw(itemd.tile,f))
             {
                 new_return(6);
             }
             
-            if(!p_putc(itemsbuf[i].misc,f))
+            if(!p_putc(itemd.misc,f))
             {
                 new_return(7);
             }
             
-            if(!p_putc(itemsbuf[i].csets,f))
+            if(!p_putc(itemd.csets,f))
             {
                 new_return(8);
             }
             
-            if(!p_putc(itemsbuf[i].frames,f))
+            if(!p_putc(itemd.frames,f))
             {
                 new_return(9);
             }
             
-            if(!p_putc(itemsbuf[i].speed,f))
+            if(!p_putc(itemd.speed,f))
             {
                 new_return(10);
             }
             
-            if(!p_putc(itemsbuf[i].delay,f))
+            if(!p_putc(itemd.delay,f))
             {
                 new_return(11);
             }
             
-            if(!p_iputl(itemsbuf[i].ltm,f))
+            if(!p_iputl(itemd.ltm,f))
             {
                 new_return(12);
             }
             
-            if(!p_putc(itemsbuf[i].family,f))
+            if(!p_putc(itemd.family,f))
             {
                 new_return(13);
             }
             
-            if(!p_putc(itemsbuf[i].fam_type,f))
+            if(!p_putc(itemd.fam_type,f))
             {
                 new_return(14);
             }
             
-            if(!p_putc(itemsbuf[i].power,f))
+            if(!p_putc(itemd.power,f))
             {
                 new_return(14);
             }
             
-            if(!p_iputw(itemsbuf[i].flags,f))
+            if(!p_iputw(itemd.flags,f))
             {
                 new_return(15);
             }
             
-            if(!p_iputw(itemsbuf[i].script,f))
+            if(!p_iputw(itemd.script,f))
             {
                 new_return(16);
             }
             
-            if(!p_putc(itemsbuf[i].count,f))
+            if(!p_putc(itemd.count,f))
             {
                 new_return(17);
             }
             
-            if(!p_iputw(itemsbuf[i].amount,f))
+            if(!p_iputw(itemd.amount,f))
             {
                 new_return(18);
             }
             
-            if(!p_iputw(itemsbuf[i].collect_script,f))
+            if(!p_iputw(itemd.collect_script,f))
             {
                 new_return(19);
             }
             
-            if(!p_iputw(itemsbuf[i].setmax,f))
+            if(!p_iputw(itemd.setmax,f))
             {
                 new_return(21);
             }
             
-            if(!p_iputw(itemsbuf[i].max,f))
+            if(!p_iputw(itemd.max,f))
             {
                 new_return(22);
             }
             
-            if(!p_putc(itemsbuf[i].playsound,f))
+            if(!p_putc(itemd.playsound,f))
             {
                 new_return(23);
             }
             
             for(int j=0; j<8; j++)
             {
-                if(!p_iputl(itemsbuf[i].initiald[j],f))
+                if(!p_iputl(itemd.initiald[j],f))
                 {
                     new_return(24);
                 }
@@ -7299,123 +7302,123 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             
             for(int j=0; j<2; j++)
             {
-                if(!p_putc(itemsbuf[i].initiala[j],f))
+                if(!p_putc(itemd.initiala[j],f))
                 {
                     new_return(25);
                 }
             }
             
-            if(!p_putc(itemsbuf[i].wpn,f))
+            if(!p_putc(itemd.wpn,f))
             {
                 new_return(26);
             }
             
-            if(!p_putc(itemsbuf[i].wpn2,f))
+            if(!p_putc(itemd.wpn2,f))
             {
                 new_return(27);
             }
             
-            if(!p_putc(itemsbuf[i].wpn3,f))
+            if(!p_putc(itemd.wpn3,f))
             {
                 new_return(28);
             }
             
-            if(!p_putc(itemsbuf[i].wpn4,f))
+            if(!p_putc(itemd.wpn4,f))
             {
                 new_return(29);
             }
             
-            if(!p_putc(itemsbuf[i].wpn5,f))
+            if(!p_putc(itemd.wpn5,f))
             {
                 new_return(30);
             }
             
-            if(!p_putc(itemsbuf[i].wpn6,f))
+            if(!p_putc(itemd.wpn6,f))
             {
                 new_return(31);
             }
             
-            if(!p_putc(itemsbuf[i].wpn7,f))
+            if(!p_putc(itemd.wpn7,f))
             {
                 new_return(32);
             }
             
-            if(!p_putc(itemsbuf[i].wpn8,f))
+            if(!p_putc(itemd.wpn8,f))
             {
                 new_return(33);
             }
             
-            if(!p_putc(itemsbuf[i].wpn9,f))
+            if(!p_putc(itemd.wpn9,f))
             {
                 new_return(34);
             }
             
-            if(!p_putc(itemsbuf[i].wpn10,f))
+            if(!p_putc(itemd.wpn10,f))
             {
                 new_return(35);
             }
             
-            if(!p_putc(itemsbuf[i].pickup_hearts,f))
+            if(!p_putc(itemd.pickup_hearts,f))
             {
                 new_return(36);
             }
             
-            if(!p_iputl(itemsbuf[i].misc1,f))
+            if(!p_iputl(itemd.misc1,f))
             {
                 new_return(37);
             }
             
-            if(!p_iputl(itemsbuf[i].misc2,f))
+            if(!p_iputl(itemd.misc2,f))
             {
                 new_return(38);
             }
             
-            if(!p_putc(itemsbuf[i].magic,f))
+            if(!p_putc(itemd.magic,f))
             {
                 new_return(39);
             }
             
-            if(!p_iputl(itemsbuf[i].misc3,f))
+            if(!p_iputl(itemd.misc3,f))
             {
                 new_return(40);
             }
             
-            if(!p_iputl(itemsbuf[i].misc4,f))
+            if(!p_iputl(itemd.misc4,f))
             {
                 new_return(41);
             }
             
-            if(!p_iputl(itemsbuf[i].misc5,f))
+            if(!p_iputl(itemd.misc5,f))
             {
                 new_return(42);
             }
             
-            if(!p_iputl(itemsbuf[i].misc6,f))
+            if(!p_iputl(itemd.misc6,f))
             {
                 new_return(43);
             }
             
-            if(!p_iputl(itemsbuf[i].misc7,f))
+            if(!p_iputl(itemd.misc7,f))
             {
                 new_return(44);
             }
             
-            if(!p_iputl(itemsbuf[i].misc8,f))
+            if(!p_iputl(itemd.misc8,f))
             {
                 new_return(45);
             }
             
-            if(!p_iputl(itemsbuf[i].misc9,f))
+            if(!p_iputl(itemd.misc9,f))
             {
                 new_return(46);
             }
             
-            if(!p_iputl(itemsbuf[i].misc10,f))
+            if(!p_iputl(itemd.misc10,f))
             {
                 new_return(47);
             }
             
-            if(!p_putc(itemsbuf[i].usesound,f))
+            if(!p_putc(itemd.usesound,f))
             {
                 new_return(48);
             }
@@ -7423,24 +7426,24 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 	    //New itemdata vars -Z
 	    //! I need help with this. THis should wori, but ZQuest is crashing on reading items. -Z
 	    
-	    if(!p_putc(itemsbuf[i].useweapon,f))
+	    if(!p_putc(itemd.useweapon,f))
             {
                 new_return(49);
             }
-	    if(!p_putc(itemsbuf[i].usedefence,f))
+	    if(!p_putc(itemd.usedefence,f))
             {
                 new_return(50);
             }
-	    if(!p_iputl(itemsbuf[i].weaprange,f))
+	    if(!p_iputl(itemd.weaprange,f))
             {
                 new_return(51);
             }
-	    if(!p_iputl(itemsbuf[i].weapduration,f))
+	    if(!p_iputl(itemd.weapduration,f))
             {
                 new_return(52);
             }
 	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+		    if(!p_iputl(itemd.weap_pattern[q],f))
 		    {
 			new_return(53);
 		    }
@@ -7598,7 +7601,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    if(!p_putc(screen.item,f))
+    if(!p_iputl(screen.screenItem,f))
     {
         return qe_invalid;
     }
@@ -10448,7 +10451,8 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         
         //finally...  section data
         //write the new items
-        for(int i=0; i<MAXITEMS; i++)
+        //TODO FIX
+        for(int i=0; i<256; i++)
         {
             if(!p_putc(zinit.items[i] ? 1 : 0, f))
             {
