@@ -607,6 +607,9 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     {
         return;
     }
+
+    if (current_item_id(itype_nayruslove) == -1)
+        return;
     
     int fb=(misc==0?
             ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn5 ?

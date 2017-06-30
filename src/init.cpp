@@ -1608,7 +1608,7 @@ int doInit(zinitdata *local_zinit)
 	init_dlg[5].dp = (void *)&family_list;
     init_dlg[5].d1 = -1;
         
-    memcpy(&tempdata, local_zinit,sizeof(zinitdata));
+    tempdata = *local_zinit;
     
     
     if(families.size() == 0)
@@ -1747,12 +1747,15 @@ int doInit(zinitdata *local_zinit)
                 
                 for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
-                    tempdata.items[it2->itemid] = 0 != (init_cpy[j].flags & D_SELECTED);
+                    if (init_cpy[j].flags & D_SELECTED)
+                    {
+                        tempdata.inventoryItems.insert(it2->itemid);
+                    }
                 }
             }
         }
         
-        memcpy(local_zinit, &tempdata, sizeof(zinitdata));
+        *local_zinit = tempdata;
         local_zinit->bombs=atoi(bombstring);
         local_zinit->max_bombs=atoi(maxbombstring);
         local_zinit->super_bombs=atoi(sbombstring);
@@ -1858,7 +1861,7 @@ void doFamily(int biicindx, zinitdata *local_zinit, DIALOG *d)
         d[i].proc = jwin_checkfont_proc;
         d[i].dp2 = is_large() ? lfont_l : pfont;
         d[i].dp = (void *)curQuest->itemDefTable().getItemName(it->itemid).c_str();
-        d[i].flags = local_zinit->items[it->itemid] ? D_SELECTED : 0;
+        d[i].flags = (local_zinit->inventoryItems.count(it->itemid) > 0) ? D_SELECTED : 0;
     }
     
     for(; i<endEquipField; i++)
@@ -1899,7 +1902,8 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
                 
                 for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
                 {
-                    tempdata.items[it2->itemid] = 0 != (((DIALOG *)d->dp3)[j].flags & D_SELECTED);
+                    if ((((DIALOG *)d->dp3)[j].flags & D_SELECTED))
+                        tempdata.inventoryItems.insert(it2->itemid);
                 }
             }
         }
@@ -1932,19 +1936,19 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_maxcounter(zinit2->max_keys, 5);
     
     //set up the items
-    // TODO FIX
     int numitems = curQuest->itemDefTable().getNumItemDefinitions();
     game2->inventoryItems.clear();
     game2->disabledItems.clear();
-    for(int i=0; i<256 && i < numitems; i++)
+
+    for (std::set<uint32_t>::iterator it = zinit2->inventoryItems.begin(); it != zinit2->inventoryItems.end(); ++it)
     {
-        if(zinit2->items[i] && (curQuest->itemDefTable().getItemDefinition(i).flags & itemdata::IF_GAMEDATA))
+        if (int(*it) < curQuest->itemDefTable().getNumItemDefinitions() && (curQuest->itemDefTable().getItemDefinition(*it).flags & itemdata::IF_GAMEDATA))
         {
-            if(!game2->get_item(i))
-                getitem(i,true);
+            if(!game2->get_item(*it))
+                getitem(*it,true);
         }
         else
-            game2->set_item_no_flush(i,false);                    
+            game2->set_item_no_flush(*it,false);             
     }
 
     // Fix them DMap items

@@ -813,7 +813,7 @@ void gamedata::set_item_no_flush(int id, bool value)
 {
     bool curvalue = inventoryItems.count(id) > 0;
     if(!isclearing && !(value == curvalue))
-        Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, curQuest->itemDefTable().getItemName(id));
+        Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, curQuest->itemDefTable().getItemName(id).c_str());
         
     if (value)
         inventoryItems.insert(id);

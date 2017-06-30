@@ -19,7 +19,7 @@ itemdata ItemDefinitionTable::defaultItemData(int slot)
 {
     if (slot < iLast)
     {
-        //return getDefaultItems()[slot];
+        return getDefaultItems()[slot];
     }
     else
         return itemdata();
@@ -65,8 +65,7 @@ void ItemDefinitionTable::addOldStyleFamily(zinitdata *dest, int family, char le
 
             if (id != -1)
             {
-                //TODO FIX
-                dest->items[id] = true;
+                dest->inventoryItems.insert(id);
             }
         }
     }
@@ -88,7 +87,7 @@ int ItemDefinitionTable::getHighestLevelOfFamily(zinitdata *source, int family)
 
     for(int i=0; i<getNumItemDefinitions(); i++)
     {
-        if(itemData_[i].family == family && source->items[i])
+        if(itemData_[i].family == family && source->inventoryItems.count(i)>0)
         {
             if(itemData_[i].fam_type >= highestlevel)
             {
@@ -150,8 +149,12 @@ void ItemDefinitionTable::removeItemsOfFamily(zinitdata *z, int family)
 {
     for(int i=0; i<getNumItemDefinitions(); i++)
     {
-        if(itemData_[i].family == family)
-            z->items[i]=false;
+        if (itemData_[i].family == family)
+        {
+            std::set<uint32_t>::iterator it = z->inventoryItems.find(i);
+            if (it != z->inventoryItems.end())
+                z->inventoryItems.erase(*it);
+        }
     }
 }
 
@@ -161,7 +164,7 @@ int ItemDefinitionTable::computeOldStyleBitfield(zinitdata *source, int family)
 
     for(int i=0; i<getNumItemDefinitions(); i++)
     {
-        if(itemData_[i].family == family && source->items[i])
+        if(itemData_[i].family == family && source->inventoryItems.count(i)>0)
         {
             if(itemData_[i].fam_type > 0)
                 rval |= 1<<(itemData_[i].fam_type-1);

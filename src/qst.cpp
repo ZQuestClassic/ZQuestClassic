@@ -12206,9 +12206,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     byte padding;
     
     zinitdata temp_zinit;
-    memset(&temp_zinit, 0, sizeof(zinitdata));
-    
-    
+        
     // Legacy item properties (now integrated into itemdata)
     byte sword_hearts[4];
     byte beam_hearts[4];
@@ -12240,12 +12238,6 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     temp_zinit.max_keys=255;
     temp_zinit.hcp_per_hc=4;
     temp_zinit.bomb_ratio=4;
-    
-    // TODO FIX
-    for(int i=0; i<256; i++)
-    {
-        temp_zinit.items[i]=false;
-    }
     
     if(Header->zelda_version > 0x192)
     {
@@ -12297,16 +12289,40 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
         
     if(s_version >= 10)
     {
-        char temp;
-        
-        //new-style items
-        for(int j=0; j<256; j++)
+
+        // old-style item bitfield
+        if (s_version < 19)
         {
-            if(!p_getc(&temp,f,true))
-                return qe_invalid;
-                
-            temp_zinit.items[j] = (temp != 0);
+            char temp;
+
+            for (int j = 0; j < 256; j++)
+            {
+                if (!p_getc(&temp, f, true))
+                    return qe_invalid;
+
+                if (temp)
+                    temp_zinit.inventoryItems.insert(j);
+            }
         }
+        else
+        {
+            //new-style items
+            uint32_t numitems;
+            if (!p_igetl(&numitems, f, true))
+            {
+                return qe_invalid;
+            }
+            for (uint32_t j = 0; j < numitems; j++)
+            {
+                uint32_t itemid;
+                if (!p_igetl(&itemid, f, true))
+                {
+                    return qe_invalid;
+                }
+                temp_zinit.inventoryItems.insert(itemid);
+            }
+        }
+
     }
     
     if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>26)))
@@ -12325,43 +12341,48 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 {
                     return qe_invalid;
                 }
-                
-                temp_zinit.items[iRaft]=(temp != 0);
-                
-                if(!p_getc(&temp,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_zinit.items[iLadder]=(temp != 0);
+                if (temp)
+                    temp_zinit.inventoryItems.insert(iRaft);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                temp_zinit.items[iBook]=(temp != 0);
-                
+                if (temp)
+                    temp_zinit.inventoryItems.insert(iLadder);
+
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                temp_zinit.items[iMKey]=(temp!=0);
-                
+                if (temp)
+                    temp_zinit.inventoryItems.insert(iBook);
+
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                temp_zinit.items[iFlippers]=(temp != 0);
-                
+                if (temp)
+                    temp_zinit.inventoryItems.insert(iMKey);
+
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                temp_zinit.items[iBoots]=(temp!=0);
+                if (temp)
+                    temp_zinit.inventoryItems.insert(iFlippers);
+
+                if(!p_getc(&temp,f,true))
+                {
+                    return qe_invalid;
+                }
+                
+                if (temp)
+                    temp_zinit.inventoryItems.insert(iBoots);
             }
         }
         
@@ -12597,25 +12618,36 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            temp_zinit.items[iRaft]=(get_bit(&equipment, idE_RAFT)!=0);
-            temp_zinit.items[iLadder]=(get_bit(&equipment, idE_LADDER)!=0);
-            temp_zinit.items[iBook]=(get_bit(&equipment, idE_BOOK)!=0);
-            temp_zinit.items[iMKey]=(get_bit(&equipment, idE_KEY)!=0);
-            temp_zinit.items[iFlippers]=(get_bit(&equipment, idE_FLIPPERS)!=0);
-            temp_zinit.items[iBoots]=(get_bit(&equipment, idE_BOOTS)!=0);
-            
+            if (get_bit(&equipment, idE_RAFT))
+                temp_zinit.inventoryItems.insert(iRaft);
+            if (get_bit(&equipment, idE_LADDER))
+                temp_zinit.inventoryItems.insert(iLadder);
+            if (get_bit(&equipment, idE_BOOK))
+                temp_zinit.inventoryItems.insert(iBook);
+            if (get_bit(&equipment, idE_KEY))
+                temp_zinit.inventoryItems.insert(iMKey);
+            if (get_bit(&equipment, idE_FLIPPERS))
+                temp_zinit.inventoryItems.insert(iFlippers);
+            if (get_bit(&equipment, idE_BOOTS))
+                temp_zinit.inventoryItems.insert(iBoots);
             
             if(!p_getc(&items,f,true))
             {
                 return qe_invalid;
             }
             
-            temp_zinit.items[iWand]=(get_bit(&items, idI_WAND)!=0);
-            temp_zinit.items[iLetter]=(get_bit(&items, idI_LETTER)!=0);
-            temp_zinit.items[iLens]=(get_bit(&items, idI_LENS)!=0);
-            temp_zinit.items[iHookshot]=(get_bit(&items, idI_HOOKSHOT)!=0);
-            temp_zinit.items[iBait]=(get_bit(&items, idI_BAIT)!=0);
-            temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
+            if (get_bit(&items, idI_WAND))
+                temp_zinit.inventoryItems.insert(iWand);
+            if (get_bit(&items, idI_LETTER))
+                temp_zinit.inventoryItems.insert(iLetter);
+            if (get_bit(&items, idI_LENS))
+                temp_zinit.inventoryItems.insert(iLens);
+            if (get_bit(&items, idI_HOOKSHOT))
+                temp_zinit.inventoryItems.insert(iHookshot);
+            if (get_bit(&items, idI_BAIT))
+                temp_zinit.inventoryItems.insert(iBait);
+            if (get_bit(&items, idI_HAMMER))
+                temp_zinit.inventoryItems.insert(iHammer);
         }
         
         if(!p_getc(&temp_zinit.hc,f,true))
@@ -13190,10 +13222,12 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 return qe_invalid;
             }
-            
-            temp_zinit.items[iDinsFire]=(get_bit(&items2, idI_DFIRE)!=0);
-            temp_zinit.items[iFaroresWind]=(get_bit(&items2, idI_FWIND)!=0);
-            temp_zinit.items[iNayrusLove]=(get_bit(&items2, idI_NLOVE)!=0);
+            if (get_bit(&items2, idI_DFIRE))
+                temp_zinit.inventoryItems.insert(iDinsFire);
+            if (get_bit(&items2, idI_FWIND))
+                temp_zinit.inventoryItems.insert(iFaroresWind);
+            if (get_bit(&items2, idI_NLOVE))
+                temp_zinit.inventoryItems.insert(iNayrusLove);
         }
         
         if(Header->zelda_version < 0x193)
@@ -13227,8 +13261,8 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
         //temp_zinit.shield=i_smallshield;
         int sshieldid = curQuest->itemDefTable().getItemID(itype_shield, i_smallshield);
         
-        if(sshieldid != -1)
-            temp_zinit.items[sshieldid] = true;
+        if (sshieldid != -1)
+            temp_zinit.inventoryItems.insert(sshieldid);
     }
     
     if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<27)))
@@ -13396,7 +13430,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(keepdata==true)
     {
-        memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
+        zinit = temp_zinit;
         
         if(zinit.linkanimationstyle==las_zelda3slow)
         {

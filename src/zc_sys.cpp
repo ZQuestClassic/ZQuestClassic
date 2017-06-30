@@ -1678,7 +1678,7 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 bool item_disabled(int item)                 //is this item disabled?
 {
     std::map<uint32_t, uint8_t>::iterator it = game->disabledItems.find(item);
-    return (item>=0 && (it == game->disabledItems.end() || it->second != 0) );
+    return (item>=0 && it != game->disabledItems.end() && it->second != 0 );
 }
 
 bool can_use_item(int item_type, int item)                  //can Link use this item?

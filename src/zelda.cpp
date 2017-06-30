@@ -3216,6 +3216,8 @@ int main(int argc, char* argv[])
     
     // play the game
     fix_menu();
+    // dummy quest for the purposes of displaying All of Treasures
+    curQuest = new Quest();
     reset_items(true, &QHeader);
     
     clear_to_color(screen,BLACK);
@@ -3367,8 +3369,6 @@ void delete_everything_else() //blarg.
 void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
-    if (curQuest)
-        delete curQuest;
 	Backend::mouse->setCursorVisibility(false);
     Backend::sfx->clearSamples();
 	Backend::shutdownBackend();
@@ -3376,7 +3376,9 @@ void quit_game()
 
 	remove_installed_timers();
     delete_everything_else();
-    
+    if (curQuest)
+        delete curQuest;
+
     al_trace("Freeing Data: \n");
     
     if(game) delete game;

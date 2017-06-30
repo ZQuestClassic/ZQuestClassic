@@ -7189,7 +7189,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         
         for(uint32_t i=0; i<numitems; i++)
         {
-            uint32_t namelen = curQuest->itemDefTable().getItemName(i).length();
+            uint32_t namelen = 1+curQuest->itemDefTable().getItemName(i).length();
             if (!p_iputl(namelen, f))
                 new_return(5);
 
@@ -10451,13 +10451,13 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         
         //finally...  section data
         //write the new items
-        //TODO FIX
-        for(int i=0; i<256; i++)
+        if (!p_iputl(zinit.inventoryItems.size(), f))
+            new_return(5);
+
+        for (std::set<uint32_t>::iterator it = zinit.inventoryItems.begin(); it != zinit.inventoryItems.end(); ++it)
         {
-            if(!p_putc(zinit.items[i] ? 1 : 0, f))
-            {
-                new_return(5);
-            }
+            if (!p_iputl(*it, f))
+                new_return(6);
         }
         
         //bomb counter RANDOMLY in the middle of items :-/

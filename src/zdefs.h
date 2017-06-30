@@ -119,7 +119,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        18
+#define V_INITDATA        19
 #define V_GUYS            29
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -2744,9 +2744,70 @@ enum
 
 struct zinitdata
 {
+    zinitdata()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        bombs = 0;
+        super_bombs = 0;
+        inventoryItems.clear();
+        hc = 0;
+        start_heart = 0;
+        cont_heart = 0;
+        hcp = 0;
+        hcp_per_hc = 0;
+        max_bombs = 0;
+        keys = 0;
+        arrows = 0;
+        max_arrows = 0;
+        rupies = 0;
+        triforce = 0;
+        for (int i = 0; i < 64; i++)
+        {
+            map[i] = 0;
+            compass[i] = 0;
+            boss_key[i] = 0;
+        }
+        for (int i = 0; i < 16; i++)
+            misc[i] = 0;
+        last_map = 0;
+        last_screen = 0;
+        max_magic = 0;
+        magic = 0;
+        bomb_ratio = 0;
+        msg_more_x = 0;
+        msg_more_y = 0;
+        msg_more_is_offset = 0;
+        subscreen = 0;
+        start_dmap = 0;
+        linkanimationstyle = 0;
+        for (int i = 0; i < MAXLEVELS; i++)
+            level_keys[i] = 0;
+        ss_grid_x = 0;
+        ss_grid_y = 0;
+        ss_grid_xofs = 0;
+        ss_grid_yofs = 0;
+        ss_grid_color = 0;
+        ss_bbox_1_color = 0;
+        ss_bbox_2_color = 0;
+        ss_flags = 0;
+        subscreen_style = 0;
+        usecustomsfx = 0;
+        max_rupees = 0;
+        max_keys = 0;
+        gravity = 0;
+        terminalv = 0;
+        msg_speed = 0;
+        transition_type = 0;
+        jump_link_layer_threshold = 0;
+        link_swim_speed = 0;
+    }
+
     byte bombs, super_bombs;
-    // TODO: remove limit
-    bool items[256];
+    std::set<uint32_t> inventoryItems;
     //94
     byte hc;
     word start_heart, cont_heart;
