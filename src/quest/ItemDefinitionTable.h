@@ -211,36 +211,138 @@ struct itemdata
     int wpnsprite; //enemy weapon sprite. 
 };
 
+/*
+ * Stores all item definitions in the quest. These are the properties specified
+ * in the item editor and stored in the .qst file (*not* temporary instances of 
+ * item sprites.
+ * Each item has a name and an itemdata structure associated to it, the latter
+ * of which contains all of the non-name data.
+ */
 class ItemDefinitionTable
 {
 public:
-    static std::string defaultItemName(int slot);
-    static itemdata defaultItemData(int slot);
+    /*
+     * Removes all item definitions.
+     */
     void clear();
+
+    /*
+     * Computes the default item name for the item with given slot ID in the
+     * item definition table.
+     * These names are based on the order items were hard-coded in very old
+     * versions of ZC. Items with slots that don't correspond to legacy items
+     * get a procedurally-generated name.
+     */
+    static std::string defaultItemName(int slot);
+
+    /*
+     * Returns the default item definition for the item with given slot ID,
+     * based on the hard-coded items in very old versions of ZC. Items
+     * with slots that don't correspond to legacy item get blank settings.
+     */
+    static itemdata defaultItemData(int slot);
+
+    /*
+     * Adds a new item at the end of the item definition table, with given
+     * settings and name.
+     */
     void addItemDefinition(const itemdata &data, const std::string &name);
 
+    /*
+     * Retrives the item definition with given index from the table. Given
+     * how often this method is called all over the place in the ZC and
+     * ZQ code, with no checking of whether or not the item index is valid,
+     * this is bound to be a source of many bugs until all instances of
+     * unsafe access are flushed out...
+     */
     itemdata &getItemDefinition(int idx) { return itemData_[idx]; }
+
+    /*
+     * Retrives the name of the item with given index in the item
+     * definition table. Crashes if the index is invalid.
+     */
     const std::string &getItemName(int idx) { return itemNames_[idx]; }
+
+    /*
+     * Overwrites the name of hte item in the given slot in the definition
+     * table with a new name. The index must be valid (crashes otherwise).
+     */
     void setItemName(int idx, const std::string &name);
+
+    /*
+     * The number of items currently in the items definition table.
+     */
     int getNumItemDefinitions() { return (int)itemData_.size(); }
 
-    /* Retrieves the canonical item of a given item family, the item with least non-0 level */
+    /* 
+     * Retrieves the canonical item of a given item family: the item with 
+     * lowest non-0 level. Returns the wooden sword for swords, blue candle
+     * for candles, etc.
+     * Returns -1 if no item of the given family exists.
+     */
     int getCanonicalItemID(int family);
 
+    /*
+     * Retrieves the family of the item with given index in the definitions
+     * table. The index must be valid.
+     */
     int getItemFamily(int item);
 
-    /* Searches the item table for an item with the given family and fam_type. */
+    /* 
+     * Searches the item table for an item with the given family and fam_type
+     * (level) or power. Returns the first time in the table found satisfying
+     * the search criteria, or -1 if no item exists.
+     */
     int getItemID(int family, int fam_type);
     int getItemIDPower(int family, int power);
 
-    // Adds items to the init data based on old-style bitmasks specifying item levels within families
+    /*
+     * Adds items to the init data based on old-style bitmasks (levels) 
+     * specifying item levels within families.
+     */
     void addOldStyleFamily(zinitdata *dest, int family, char levels);
+
+    /*
+     * Searches the init data for the item of the given family with highest
+     * level (fam_type). Returns -1 if no such item is found.
+     */
     int getHighestLevelOfFamily(zinitdata *source, int family);
+
+    /*
+     * Removes all items from the init data whose family matches the given
+     * family (does nothing if there weren't any such items in the init
+     * data in the first place).
+     */
     void removeItemsOfFamily(zinitdata *z, int family);
+
+    /*
+     * Computes an old-.qst-style bit field representing which items of a
+     * given family are present in the init data.
+     * Should *not* be used except for obscure compatibility purposes, since
+     * there is no guarantee that modern, fully-editable item sets can be
+     * correctly encoded in such a bit field.
+     */
     int computeOldStyleBitfield(zinitdata *source, int family);
 
+    /*
+    * Removes all items from the game data whose family matches the given
+    * family (does nothing if there weren't any such items in the game
+    * data in the first place).
+    */
     void removeItemsOfFamily(gamedata *g, int family);
+    
+    /*
+    * Searches the game data for the item of the given family with highest
+    * level (fam_type). Returns -1 if no such item is found.
+    */
     int getHighestLevelOfFamily(gamedata *source, int family, bool checkenabled = false);
+
+    /*
+     * Searches through the items in the game data and removes all items
+     * of the given family whose level (fam_type) is lower than the given
+     * treshold. Used when upgrading items removes all lower-level items
+     * of the same family, such as boomerangs, etc.
+     */
     void removeLowerLevelItemsOfFamily(gamedata *g, int family, int level);
 
 private:
@@ -248,11 +350,5 @@ private:
     std::vector<itemdata> itemData_;
     std::vector<std::string> itemNames_;
 };
-
-
-//some methods for dealing with items
-void removeItemsOfFamily(gamedata *g, itemdata *items, int family);
-void removeItemsOfFamily(zinitdata *i, itemdata *items, int family);
-int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
 
 #endif
