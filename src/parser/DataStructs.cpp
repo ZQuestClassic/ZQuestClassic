@@ -112,7 +112,7 @@ void SymbolTable::putNodeId(AST* node, int id)
 
 vector<int> SymbolTable::getPossibleNodeFuncIds(AST* node) const
 {
-	map<AST*, vector<int>>::const_iterator it = possibleNodeFuncIds.find(node);
+	map<AST*, vector<int> >::const_iterator it = possibleNodeFuncIds.find(node);
 	if (it == possibleNodeFuncIds.end()) return vector<int>();
 	return it->second;
 }

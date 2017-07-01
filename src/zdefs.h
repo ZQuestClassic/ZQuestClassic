@@ -22,6 +22,7 @@
 //Other
 //#define _SKIPPASSWORDCHECK
 
+#include <cstdio>
 #include <math.h>
 #include <string.h>
 #include <vector>

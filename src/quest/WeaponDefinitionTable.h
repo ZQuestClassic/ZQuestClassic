@@ -1,6 +1,7 @@
 #ifndef WEAPONDEFINITIONTABLE_H
 #define WEAPONDEFINITIONTABLE_H
 
+#include <string>
 #include "../zdefs.h"
 
 class SpriteDefinitionTable;
