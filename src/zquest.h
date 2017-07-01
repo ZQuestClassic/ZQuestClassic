@@ -81,7 +81,6 @@ extern int tooltip_timer, tooltip_maxtimer;
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
 extern bool resize_mouse_pos;                               //for eyeball combos
 
-extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 //extern int mode, switch_mode, orig_mode;
 extern Quest *curQuest;
 extern RGB_MAP rgb_table;
@@ -97,7 +96,6 @@ extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *b
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
-extern wpndata  *wpnsbuf;
 extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
@@ -456,11 +454,9 @@ typedef struct item_struct
 
 typedef struct weapon_struct
 {
-    char *s;
+    std::string s;
     int i;
 } weapon_struct;
-
-extern weapon_struct biw[wMAX];
 
 typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
@@ -512,7 +508,6 @@ enum
     cmdExport_Subscreen,
     cmdExport_Tiles,
     cmdExport_UnencodedQuest,
-    cmdExport_ZGP,
     cmdFlags,
     cmdPasteFFCombos,
     cmdSelectFFCombo,
@@ -527,7 +522,6 @@ enum
     cmdImportItemScript,
     cmdImport_Combos,
     cmdImport_DMaps,
-    cmdImport_ZGP,
     cmdImport_Map,
     cmdImport_Pals,
     cmdImport_ZQT,

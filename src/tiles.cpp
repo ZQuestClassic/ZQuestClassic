@@ -22,7 +22,6 @@
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
-extern wpndata    *wpnsbuf;
 extern byte        quest_rules[QUESTRULES_SIZE];
 //extern byte *tilebuf;
 //BITMAP* tilebuf[NEWMAXTILES];

@@ -170,7 +170,6 @@ extern ZCMUSIC *zcmusic;
 extern int db;
 extern int detail_int[10];                                  //temporary holder for things you want to detail
 extern zinitdata  zinit;
-extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern int strike_hint_counter;
 extern int strike_hint_timer;
 extern int strike_hint;
@@ -187,7 +186,6 @@ extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, 
 extern PALETTE  RAMpal;
 extern byte     *colordata;
 //extern byte     *tilebuf;
-extern wpndata  *wpnsbuf;
 extern comboclass *combo_class_buf;
 extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];

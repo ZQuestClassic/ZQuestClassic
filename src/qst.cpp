@@ -52,6 +52,7 @@ using std::string;
 using std::pair;
 
 extern std::map<int, LensItemAnim> lens_hint_item;
+extern std::map<int, LensWeaponAnim> lens_hint_weapon;
 
 // extern bool                debug;
 extern int                 link_animation_speed; //lower is faster animation
@@ -65,7 +66,6 @@ extern byte                *colordata;
 //extern byte              *tilebuf;
 extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
-extern wpndata             *wpnsbuf;
 extern comboclass          *combo_class_buf;
 extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
@@ -994,7 +994,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
         
     case ID_WEAPONS:
         //weapons
-        ret=readweapons(f, Header, true);
+        ret=readweapons(f, Header, curQuest->itemDefTable(), curQuest->weaponDefTable());
         break;
         
     case ID_COLORS:
@@ -1090,9 +1090,6 @@ bool reset_wpns(bool validate, zquestheader *Header)
 {
     bool ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
     
-    for(int i=0; i<WPNCNT; i++)
-        reset_weaponname(i);
-        
     return ret;
 }
 
@@ -1219,15 +1216,6 @@ int get_qst_buffers()
         
     Z_message("OK\n");                                        // Allocating trash buffer...       
     
-    memrequested+=(sizeof(wpndata)*MAXWPNS);
-    Z_message("Allocating weapon buffer (%s)... ", byte_conversion2(sizeof(wpndata)*MAXWPNS,memrequested,-1,-1));
-    
-    if((wpnsbuf=(wpndata*)zc_malloc(sizeof(wpndata)*MAXWPNS))==NULL)
-        return 0;
-        
-    memset(wpnsbuf,0,sizeof(wpndata)*MAXWPNS);
-    Z_message("OK\n");                                        // Allocating weapon buffer...
-    
     memrequested+=(sizeof(guydata)*MAXGUYS);
     Z_message("Allocating guy buffer (%s)... ", byte_conversion2(sizeof(guydata)*MAXGUYS,memrequested,-1,-1));
     
@@ -1298,8 +1286,6 @@ void del_qst_buffers()
     al_trace("Cleaning misc. \n");
     
     if(trashbuf) zc_free(trashbuf);
-    
-    if(wpnsbuf) zc_free(wpnsbuf);
     
     if(guysbuf) zc_free(guysbuf);
     
@@ -4646,9 +4632,6 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     return 0;
 }
 
-extern char *weapon_string[WPNCNT];
-extern const char *old_weapon_string[wLast];
-
 void reset_itembuf(itemdata *item, int id)
 {
     if(id<iLast)
@@ -5877,13 +5860,16 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
     return qe_OK;
 }
 
-int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
+int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtable, WeaponDefinitionTable &table)
 {
-    word weapons_to_read=MAXWPNS;
+    table.clear();
+    uint32_t weapons_to_read;
     int dummy;
     byte padding;
-    wpndata tempweapon;
     word s_version=0, s_cversion=0;
+
+    // placeholder; this shouldn't really be here
+    lens_hint_weapon.clear();
     
     
     if(Header->zelda_version < 0x186)
@@ -5919,63 +5905,92 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
         
         //finally...  section data
-        if(!p_igetw(&weapons_to_read,f,true))
+        if (s_version < 7)
         {
-            return qe_invalid;
-        }
-    }
-    
-    if(s_version>2)
-    {
-        for(int i=0; i<weapons_to_read; i++)
-        {
-            char tempname[64];
-            
-            if(!pfread(tempname, 64, f, keepdata))
+            word wtr;
+            if (!p_igetw(&wtr, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(keepdata)
+            weapons_to_read = wtr;
+        }
+        else
+        {
+            if (!p_igetl(&weapons_to_read, f, true))
             {
-                strcpy(weapon_string[i], tempname);
+                return qe_invalid;
+            }
+        }
+    }
+
+    std::vector<std::string> names;
+    
+    if(s_version>2)
+    {
+        for(uint32_t i=0; i<weapons_to_read; i++)
+        {
+            if (s_version < 7)
+            {
+                char tempname[64];
+
+                if (!pfread(tempname, 64, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                names.push_back(string(tempname));
+            }
+            else
+            {
+                uint32_t namelen;
+                if (!p_igetl(&namelen, f, true))
+                {
+                    return qe_invalid;
+                }
+                
+                char *buf = new char[namelen];
+                
+                if (!pfread(buf, namelen, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                names.push_back(string(buf));
+
+                delete[] buf;
             }
         }
         
         if(s_version<4)
         {
-            if(keepdata)
-            {
-                strcpy(weapon_string[iwHover],old_weapon_string[iwHover]);
-                strcpy(weapon_string[wFIREMAGIC],old_weapon_string[wFIREMAGIC]);
-            }
+            if(iwHover < weapons_to_read)
+                names[iwHover] = WeaponDefinitionTable::defaultWeaponName(iwHover);
+            if(wFIREMAGIC < weapons_to_read)
+                names[wFIREMAGIC] = WeaponDefinitionTable::defaultWeaponName(wFIREMAGIC);            
         }
         
         if(s_version<5)
         {
-            if(keepdata)
+            if (iwQuarterHearts < weapons_to_read)
             {
-                strcpy(weapon_string[iwQuarterHearts],old_weapon_string[iwQuarterHearts]);
+                names[iwQuarterHearts] = WeaponDefinitionTable::defaultWeaponName(iwQuarterHearts);
             }
         }
-        
-        /*
-            if (s_version<6)
-            {
-              strcpy(weapon_string[iwSideRaft],old_weapon_string[iwSideRaft]);
-              strcpy(weapon_string[iwSideLadder],old_weapon_string[iwSideLadder]);
-            }
-        */
     }
     else
     {
-        if(keepdata)
-            for(int i=0; i<WPNCNT; i++)
-                reset_weaponname(i);
+        for (uint32_t i = 0; i < weapons_to_read; i++)
+        {
+            names.push_back(WeaponDefinitionTable::defaultWeaponName(i));
+        }
     }
+
+    // now read the weapons
     
-    for(int i=0; i<weapons_to_read; i++)
+    for(uint32_t i=0; i<weapons_to_read; i++)
     {
+        wpndata tempweapon;
+
         if(!p_igetw(&tempweapon.tile,f,true))
         {
             return qe_invalid;
@@ -6018,39 +6033,45 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             if(i==ewFIRETRAIL)
             {
-                tempweapon.misc |= WF_BEHIND;
+                tempweapon.misc |= wpndata::WF_BEHIND;
             }
             else
-                tempweapon.misc &= ~WF_BEHIND;
+                tempweapon.misc &= ~wpndata::WF_BEHIND;
         }
         
-        if(keepdata==true)
-        {
-            memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
-        }
+        table.addWeaponDefinition(tempweapon, names[i]);
     }
     
-    if(keepdata==true)
+    if(s_version<2)
     {
-        if(s_version<2)
-        {
-            wpnsbuf[wSBOOM]=wpnsbuf[wBOOM];
-        }
+        if (wSBOOM < weapons_to_read && wBOOM < weapons_to_read)
+            table.getWeaponDefinition(wSBOOM) = table.getWeaponDefinition(wBOOM);
+    }
         
-        if(s_version<5)
+    if(s_version<5)
+    {
+        if (iwQuarterHearts < weapons_to_read)
         {
-            wpnsbuf[iwQuarterHearts].tile=1;
-            wpnsbuf[iwQuarterHearts].csets=1;
+            table.getWeaponDefinition(iwQuarterHearts).tile = 1;
+            table.getWeaponDefinition(iwQuarterHearts).csets = 1;
         }
+    }
         
-        if(Header->zelda_version < 0x176)
+    if(Header->zelda_version < 0x176)
+    {
+        // No, just... no
+        /*wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
+        wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
+        memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
+        memset(&itemsbuf[iMisc2],0,sizeof(itemdata));*/
+
+        if (iwSpawn < weapons_to_read)
         {
-            // No, just... no
-            /*wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
-            wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
-            memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
-            memset(&itemsbuf[iMisc2],0,sizeof(itemdata));*/
-            itemdata &copyitem = curQuest->itemDefTable().getItemDefinition(iMisc1);
+            itemdata copyitem;
+            if (iMisc1 < itemtable.getNumItemDefinitions())
+            {
+                copyitem = itemtable.getItemDefinition(iMisc1);
+            }
             wpndata spawnwpn;
             spawnwpn.tile = copyitem.tile;
             spawnwpn.misc = copyitem.misc;
@@ -6058,39 +6079,52 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
             spawnwpn.frames = copyitem.frames;
             spawnwpn.speed = copyitem.speed;
             // type and script do not need to be copied, presumably
-                
-            wpnsbuf[iwSpawn] = spawnwpn;
+
+            table.getWeaponDefinition(iwSpawn) = spawnwpn;
+            if(iMisc1 < itemtable.getNumItemDefinitions())
+                itemtable.getItemDefinition(iMisc1) = itemdata();            
+        }
             
-            itemdata &copyitem2 = curQuest->itemDefTable().getItemDefinition(iMisc2);
+        if (iwDeath < weapons_to_read)
+        {
+            itemdata copyitem;
+            if (iMisc2 < itemtable.getNumItemDefinitions())
+            {
+                copyitem = itemtable.getItemDefinition(iMisc2);
+            }
             wpndata deathwpn;
-            deathwpn.tile = copyitem2.tile;
-            deathwpn.misc = copyitem2.misc;
-            deathwpn.csets = copyitem2.csets;
-            deathwpn.frames = copyitem2.frames;
-            deathwpn.speed = copyitem2.speed;
-            
-            wpnsbuf[iwDeath] = deathwpn;
-            
-            copyitem = itemdata();
-            copyitem2 = itemdata();
-        }
-        
-        if((Header->zelda_version < 0x192)||
-                ((Header->zelda_version == 0x192)&&(Header->build<129)))
-        {
-            wpnsbuf[wHSCHAIN_V] = wpnsbuf[wHSCHAIN_H];
-        }
-        
-        if((Header->zelda_version < 0x210))
-        {
-            wpnsbuf[wLSHEAD] = wpnsbuf[wHSHEAD];
-            wpnsbuf[wLSCHAIN_H] = wpnsbuf[wHSCHAIN_H];
-            wpnsbuf[wLSHANDLE] = wpnsbuf[wHSHANDLE];
-            wpnsbuf[wLSCHAIN_V] = wpnsbuf[wHSCHAIN_V];
-        }
+            deathwpn.tile = copyitem.tile;
+            deathwpn.misc = copyitem.misc;
+            deathwpn.csets = copyitem.csets;
+            deathwpn.frames = copyitem.frames;
+            deathwpn.speed = copyitem.speed;
+
+            table.getWeaponDefinition(iwDeath) = deathwpn;
+            if(iMisc2 < itemtable.getNumItemDefinitions())
+                itemtable.getItemDefinition(iMisc2) = itemdata(); 
+        }            
     }
-    
-    return 0;
+        
+    if((Header->zelda_version < 0x192)||
+            ((Header->zelda_version == 0x192)&&(Header->build<129)))
+    {
+        if (wHSCHAIN_V < weapons_to_read && wHSCHAIN_H < weapons_to_read)
+            table.getWeaponDefinition(wHSCHAIN_V) = table.getWeaponDefinition(wHSCHAIN_H);
+    }
+        
+    if((Header->zelda_version < 0x210))
+    {
+        if (wLSHEAD < weapons_to_read && wHSHEAD < weapons_to_read)
+            table.getWeaponDefinition(wLSHEAD) = table.getWeaponDefinition(wHSHEAD);
+        if (wLSCHAIN_H < weapons_to_read && wHSCHAIN_H < weapons_to_read)
+            table.getWeaponDefinition(wLSCHAIN_H) = table.getWeaponDefinition(wHSCHAIN_H);
+        if (wLSHANDLE < weapons_to_read && wHSHANDLE < weapons_to_read)
+            table.getWeaponDefinition(wLSHANDLE) = table.getWeaponDefinition(wHSHANDLE);
+        if (wLSCHAIN_V < weapons_to_read && wHSCHAIN_V < weapons_to_read)
+            table.getWeaponDefinition(wLSCHAIN_V) = table.getWeaponDefinition(wHSCHAIN_V);        
+    }
+
+    return qe_OK;
 }
 
 void init_guys(int guyversion)
@@ -6167,16 +6201,6 @@ void init_guys(int guyversion)
             guysbuf[i].misc3 = (i==eFGELTRIB ? eFZOL : eZOL);
         }
     }
-}
-
-void reset_weaponname(int i)
-{
-    if(i<wLast)
-    {
-        strcpy(weapon_string[i],old_weapon_string[i]);
-    }
-    else
-        sprintf(weapon_string[i],"zz%03d",i);
 }
 
 void init_item_drop_sets()
@@ -11913,10 +11937,10 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
-            if(get_bit(quest_rules,qr_BSZELDA))   //
+            if(get_bit(quest_rules,qr_BSZELDA) && iwSwim < curQuest->weaponDefTable().getNumWeaponDefinitions())   //
             {
                 byte tempbyte;
-                int floattile=wpnsbuf[iwSwim].tile;
+                int floattile=curQuest->weaponDefTable().getWeaponDefinition(iwSwim).tile;
                 
                 for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order
                 {
@@ -13967,22 +13991,25 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 break;
             }
             case ID_WEAPONS:
-            
+            {
                 //weapons
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Weapons...");
-                ret=readweapons(f, &tempheader, keepall&&!get_bit(skip_flags, skip_weapons));
+                WeaponDefinitionTable table;
+                ret = readweapons(f, &tempheader, curQuest->itemDefTable(), table);
+                if (keepall && !get_bit(skip_flags, skip_weapons))
+                    curQuest->setWeaponDefTable(table);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+            }
             case ID_COLORS:
             
                 //misc. colors
@@ -14304,8 +14331,11 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         //weapons
         box_out("Reading Weapons...");
-        ret=readweapons(f, &tempheader, keepall&&!get_bit(skip_flags, skip_weapons));
+        WeaponDefinitionTable wdt;
+        ret=readweapons(f, &tempheader, curQuest->itemDefTable(), wdt);        
         checkstatus(ret);
+        if (keepall && !get_bit(skip_flags, skip_weapons))
+            curQuest->setWeaponDefTable(wdt);
         box_out("okay.");
         box_eol();
         

@@ -1669,21 +1669,24 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 
 void weapon::LOADGFX(int wpn)
 {
-    if(wpn<0)
+    if(wpn<0 || wpn < curQuest->weaponDefTable().getNumWeaponDefinitions())
         return;
         
     wid = wpn;
-    flash = wpnsbuf[wid].misc&3;
-    tile  = wpnsbuf[wid].tile;
-    cs = wpnsbuf[wid].csets&15;
-    o_tile = wpnsbuf[wid].tile;
-    o_cset = wpnsbuf[wid].csets;
-    o_flip=(wpnsbuf[wid].misc>>2)&3;
-    o_speed = wpnsbuf[wid].speed;
-    o_type = wpnsbuf[wid].type;
-    frames = wpnsbuf[wid].frames;
-    temp1 = wpnsbuf[wFIRE].tile;
-    behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
+    flash = curQuest->weaponDefTable().getWeaponDefinition(wid).misc&3;
+    tile  = curQuest->weaponDefTable().getWeaponDefinition(wid).tile;
+    cs = curQuest->weaponDefTable().getWeaponDefinition(wid).csets&15;
+    o_tile = curQuest->weaponDefTable().getWeaponDefinition(wid).tile;
+    o_cset = curQuest->weaponDefTable().getWeaponDefinition(wid).csets;
+    o_flip=(curQuest->weaponDefTable().getWeaponDefinition(wid).misc>>2)&3;
+    o_speed = curQuest->weaponDefTable().getWeaponDefinition(wid).speed;
+    o_type = curQuest->weaponDefTable().getWeaponDefinition(wid).type;
+    frames = curQuest->weaponDefTable().getWeaponDefinition(wid).frames;
+    if (wFIRE < curQuest->weaponDefTable().getNumWeaponDefinitions())
+        temp1 = curQuest->weaponDefTable().getWeaponDefinition(wFIRE).tile;
+    else
+        temp1 = 0;
+    behind = (curQuest->weaponDefTable().getWeaponDefinition(wid).misc & wpndata::WF_BEHIND)!=0;
 }
 
 bool weapon::Dead()
@@ -3180,7 +3183,7 @@ bool weapon::animate(int)
             break;
             
         case pDINSFIREROCKETTRAIL:                                             //Din's Fire Rocket trail
-            if(clk>=(((wpnsbuf[wDINSFIRES1A].frames) * (wpnsbuf[wDINSFIRES1A].speed))-1))
+            if(clk>=(((curQuest->weaponDefTable().getWeaponDefinition(wDINSFIRES1A).frames) * (curQuest->weaponDefTable().getWeaponDefinition(wDINSFIRES1A).speed))-1))
             {
                 dead=0;
             }
@@ -3188,7 +3191,7 @@ bool weapon::animate(int)
             break;
             
         case pDINSFIREROCKETTRAILRETURN:                                             //Din's Fire Rocket return trail
-            if(clk>=(((wpnsbuf[wDINSFIRES1B].frames) * (wpnsbuf[wDINSFIRES1B].speed))-1))
+            if(clk>=(((curQuest->weaponDefTable().getWeaponDefinition(wDINSFIRES1B).frames) * (curQuest->weaponDefTable().getWeaponDefinition(wDINSFIRES1B).speed))-1))
             {
                 dead=0;
             }
@@ -3205,7 +3208,7 @@ bool weapon::animate(int)
             break;
             
         case pNAYRUSLOVEROCKETTRAIL1:                                             //Nayru's Love Rocket trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES1A].frames) * (wpnsbuf[wNAYRUSLOVES1A].speed))-1))
+            if(clk>=(((curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES1A).frames) * (curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES1A).speed))-1))
             {
                 dead=0;
             }
@@ -3213,7 +3216,7 @@ bool weapon::animate(int)
             break;
             
         case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES1B].frames) * (wpnsbuf[wNAYRUSLOVES1B].speed))-1))
+            if(clk>=(((curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES1B).frames) * (curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES1B).speed))-1))
             {
                 dead=0;
             }
@@ -3230,7 +3233,7 @@ bool weapon::animate(int)
             break;
             
         case pNAYRUSLOVEROCKETTRAIL2:                                             //Nayru's Love Rocket trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES2A].frames) * (wpnsbuf[wNAYRUSLOVES2A].speed))-1))
+            if(clk>=(((curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES2A).frames) * (curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES2A).speed))-1))
             {
                 dead=0;
             }
@@ -3238,7 +3241,7 @@ bool weapon::animate(int)
             break;
             
         case pNAYRUSLOVEROCKETTRAILRETURN2:                                             //Nayru's Love Rocket return trail
-            if(clk>=(((wpnsbuf[wNAYRUSLOVES2B].frames) * (wpnsbuf[wNAYRUSLOVES2B].speed))-1))
+            if(clk>=(((curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES2B).frames) * (curQuest->weaponDefTable().getWeaponDefinition(wNAYRUSLOVES2B).speed))-1))
             {
                 dead=0;
             }
@@ -4334,9 +4337,9 @@ void weapon::draw(BITMAP *dest)
             break;
         }
         
-        tile = wpnsbuf[id2].tile;
-        cs = wpnsbuf[id2].csets&15;
-        boomframes = wpnsbuf[id2].frames;
+        tile = curQuest->weaponDefTable().getWeaponDefinition(id2).tile;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(id2).csets&15;
+        boomframes = curQuest->weaponDefTable().getWeaponDefinition(id2).frames;
         
         if(boomframes != 0)
         {

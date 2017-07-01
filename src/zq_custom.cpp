@@ -1591,6 +1591,9 @@ void test_item(itemdata test, int x, int y)
 }
 
 
+extern weapon_struct *biw;
+
+
 void edit_itemdata(int index)
 {
     
@@ -2274,26 +2277,26 @@ void edit_weapondata(int index)
     char name[64];
     char wpnnumstr[75];
     
-    sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
+    sprintf(wpnnumstr, "Sprite %d: %s", index, curQuest->weaponDefTable().getWeaponName(index).c_str());
     wpndata_dlg[0].dp  = wpnnumstr;
     wpndata_dlg[0].dp2 = lfont;
-    wpndata_dlg[2].d1  = wpnsbuf[index].tile;
-    wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
+    wpndata_dlg[2].d1  = curQuest->weaponDefTable().getWeaponDefinition(index).tile;
+    wpndata_dlg[2].d2  = curQuest->weaponDefTable().getWeaponDefinition(index).csets&15;
     
     for(int i=0; i<4; i++)
-        wpndata_dlg[i+5].flags = (wpnsbuf[index].misc&(1<<i)) ? D_SELECTED : 0;
+        wpndata_dlg[i+5].flags = (curQuest->weaponDefTable().getWeaponDefinition(index).misc&(1<<i)) ? D_SELECTED : 0;
         
-    wpndata_dlg[17].flags = (wpnsbuf[index].misc & WF_BEHIND) ? D_SELECTED : 0;
+    wpndata_dlg[17].flags = (curQuest->weaponDefTable().getWeaponDefinition(index).misc & wpndata::WF_BEHIND) ? D_SELECTED : 0;
     
-    sprintf(fcs,"%d",wpnsbuf[index].csets>>4);
-    sprintf(frm,"%d",wpnsbuf[index].frames);
-    sprintf(spd,"%d",wpnsbuf[index].speed);
-    sprintf(typ,"%d",wpnsbuf[index].type);
+    sprintf(fcs,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).csets>>4);
+    sprintf(frm,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).frames);
+    sprintf(spd,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).speed);
+    sprintf(typ,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).type);
     wpndata_dlg[13].dp = fcs;
     wpndata_dlg[14].dp = frm;
     wpndata_dlg[15].dp = spd;
     wpndata_dlg[16].dp = typ;
-    sprintf(name,"%s",weapon_string[index]);
+    sprintf(name,"%s",curQuest->weaponDefTable().getWeaponName(index).c_str());
     wpndata_dlg[18].dp = name;
 
 	DIALOG *wpndata_cpy = resizeDialog(wpndata_dlg, 1.5);
@@ -2314,7 +2317,7 @@ void edit_weapondata(int index)
             if(wpndata_cpy[i+5].flags & D_SELECTED)
                 test.misc |= 1<<i;
                 
-        test.misc |= (wpndata_cpy[17].flags & D_SELECTED) ? WF_BEHIND : 0;
+        test.misc |= (wpndata_cpy[17].flags & D_SELECTED) ? wpndata::WF_BEHIND : 0;
         
         test.csets  |= (atoi(fcs)&15)<<4;
         test.frames = atoi(frm);
@@ -2326,8 +2329,8 @@ void edit_weapondata(int index)
     
     if(ret==3)
     {
-        strcpy(weapon_string[index],name);
-        wpnsbuf[index] = test;
+        curQuest->weaponDefTable().setWeaponName(index, std::string(name));
+        curQuest->weaponDefTable().getWeaponDefinition(index) = test;
         saved = false;
     }
 
@@ -2461,7 +2464,7 @@ const char *enetypelist(int index, int *list_size)
     return bief[index].s;
 }
 
-list_data_struct biea[wMAX];
+list_data_struct biea[aMAX];
 int biea_cnt=-1;
 
 void build_biea_list()

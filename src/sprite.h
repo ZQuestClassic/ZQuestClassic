@@ -24,7 +24,6 @@
 using std::map;
 // this code needs some patching for use in zquest.cc
 
-extern wpndata  *wpnsbuf;
 extern bool     freeze_guys;
 extern int fadeclk;
 extern int frame;

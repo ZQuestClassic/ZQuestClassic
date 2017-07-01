@@ -10,6 +10,7 @@ src/zelda.cpp
 src/defdata.cpp
 src/quest/Quest.cpp
 src/quest/ItemDefinitionTable.cpp
+src/quest/WeaponDefinitionTable.cpp
 src/qst.cpp
 src/zc_init.cpp
 src/zc_items.cpp

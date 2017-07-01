@@ -5533,7 +5533,7 @@ void register_used_tiles()
         case wWSWORD:
         case wMSWORD:
         case wXSWORD:
-            m=3+((wpnsbuf[u].type==3)?1:0);
+            m=3+((curQuest->weaponDefTable().getWeaponDefinition(u).type==3)?1:0);
             break;
             
         case wSWORDSLASH:
@@ -5609,7 +5609,7 @@ void register_used_tiles()
             break;
         }
         
-        for(int t=zc_max(wpnsbuf[u].tile,0); t<zc_min(wpnsbuf[u].tile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
+        for(int t=zc_max(curQuest->weaponDefTable().getWeaponDefinition(u).tile,0); t<zc_min(curQuest->weaponDefTable().getWeaponDefinition(u).tile+zc_max((ignore_frames?0:curQuest->weaponDefTable().getWeaponDefinition(u).frames),1)+m,NEWMAXTILES); ++t)
         {
             used_tile_table[t]=true;
         }
@@ -5842,6 +5842,7 @@ void register_used_tiles()
 }
 
 extern item_struct *bii;
+extern weapon_struct *biw;
 
 bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
 {
@@ -6056,7 +6057,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     int i;
     bool *move_combo_list = new bool[MAXCOMBOS];
     bool *move_items_list = new bool[curQuest->itemDefTable().getNumItemDefinitions()];
-    bool *move_weapons_list = new bool[wMAX];
+    bool *move_weapons_list = new bool[curQuest->weaponDefTable().getNumWeaponDefinitions()];
     bool move_link_sprites_list[41];
     bool move_mapstyles_list[6];
     //bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -6283,7 +6284,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 build_biw_list();
                 bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<wMAX; u++)
+                for(int u=0; u<curQuest->weaponDefTable().getNumWeaponDefinitions(); u++)
                 {
                     ignore_frames=false;
                     move_weapons_list[u]=false;
@@ -6295,7 +6296,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     case wWSWORD:
                     case wMSWORD:
                     case wXSWORD:
-                        m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
+                        m=3+((curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).type==3)?1:0);
                         break;
                         
                     case wSWORDSLASH:
@@ -6373,14 +6374,14 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     
                     if(rect)
                     {
-                        i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
+                        i=move_intersection_sr(curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).tile, curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).tile+zc_max((ignore_frames?0:curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
                     }
                     else
                     {
-                        i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
+                        i=move_intersection_ss(curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).tile, curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).tile+zc_max((ignore_frames?0:curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).frames),1)-1+m, selection_first, selection_last);
                     }
                     
-                    if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
+                    if((i!=ti_none)&&(curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).tile!=0))
                     {
                         if(i==ti_broken || q==0)
                         {
@@ -7339,11 +7340,11 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<wMAX; u++)
+            for(int u=0; u<curQuest->weaponDefTable().getNumWeaponDefinitions(); u++)
             {
                 if(move_weapons_list[u])
                 {
-                    wpnsbuf[biw[u].i].tile+=diff;
+                    curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).tile+=diff;
                 }
             }
             

@@ -5177,325 +5177,6 @@ bool load_combo_alias(const char *path)
     return false;
 }
 
-bool load_zgp(const char *path)
-{
-    dword section_id;
-    dword section_version;
-    dword section_cversion;
-//  setPackfilePassword(NULL);
-    PACKFILE *f=pack_fopen_password(path,F_READ,"");
-    
-    if(!f)
-        return false;
-        
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id!=ID_GRAPHICSPACK)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //section version info
-    if(!p_igetw(&section_version,f,true))
-    {
-        return 2;
-    }
-    
-    if(!p_igetw(&section_cversion,f,true))
-    {
-        return 3;
-    }
-    
-    //tiles
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_TILES)
-    {
-        if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
-        {
-            pack_fclose(f);
-            init_tiles(true, &header);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //combos
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_COMBOS)
-    {
-        if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS, true)!=0)
-        {
-            pack_fclose(f);
-            //      init_combos(true, &header);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //palettes
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_CSETS)
-    {
-        if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL, true)!=0)
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //items
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_ITEMS)
-    {
-        // ZGP is about to be removed anyway
-        /*if(readitems(f, ZELDA_VERSION, VERSION_BUILD, NULL, false, true)!=0)
-        {
-            pack_fclose(f);
-            return false;
-        }*/
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //weapons
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_WEAPONS)
-    {
-        if(readweapons(f, &header, true)!=0)
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //read the triforce pieces info and make sure it worked
-    //really do this?
-    
-    //read the game icons info and make sure it worked
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_ICONS)
-    {
-        if(readgameicons(f, &header, &misc, true)!=0)
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //read the misc colors info and map styles info and make sure it worked
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_COLORS)
-    {
-        if(readmisccolors(f, &header, &misc, true)!=0)
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //read the door combo sets and make sure it worked
-    if(!p_mgetl(&section_id,f,true))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    if(section_id==ID_DOORS)
-    {
-        if(readdoorcombosets(f, &header, true)!=0)
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    else
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //read the template screens and make sure it worked
-    //really do this?
-    
-    //yay!  it worked!  close the file and say everything was ok.
-    loadlvlpal(Color);
-    setup_combo_animations();
-    setup_combo_animations2();
-    pack_fclose(f);
-    return true;
-}
-
-bool save_zgp(const char *path)
-{
-//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-//  return false;
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    //open the file
-    PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
-    
-    if(!f)
-        return false;
-        
-    dword section_id=ID_GRAPHICSPACK;
-    dword section_version=V_GRAPHICSPACK;
-    dword section_cversion=CV_GRAPHICSPACK;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        return 1;
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        return 2;
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        return 3;
-    }
-    
-    //tiles
-    if(writetiles(f, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //combos
-    if(writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //palettes
-    if(writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //items
-    if(writeitems(f, &header)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //weapons
-    if(writeweapons(f, &header)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //write the triforce pieces info and make sure it worked
-    //really do this?
-    
-    //write the game icons info and make sure it worked
-    if(writegameicons(f, &header, &misc)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //write the misc colors info and map styles info and make sure it worked
-    if(writemisccolors(f, &header, &misc)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //write the door combo sets and make sure it worked
-    if(writedoorcombosets(f, &header)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    //write the template screens and make sure it worked
-    //really do this?
-    
-    pack_fclose(f);
-    return true;
-}
-
 bool save_subscreen(const char *path, bool *cancel)
 {
 //  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -7508,47 +7189,51 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!p_iputw(wMAX,f))
+        uint32_t numweapons = curQuest->weaponDefTable().getNumWeaponDefinitions();
+        if(!p_iputl(numweapons,f))
         {
             new_return(5);
         }
         
-        for(int i=0; i<wMAX; i++)
+        for(uint32_t i=0; i<numweapons; i++)
         {
-            if(!pfwrite((char *)weapon_string[i], 64, f))
+            uint32_t len = curQuest->weaponDefTable().getWeaponName(i).length() + 1;
+            if (!p_iputl(len, f))
+                new_return(5);
+            if(!pfwrite((void *)curQuest->weaponDefTable().getWeaponName(i).c_str(), len, f))
             {
                 new_return(5);
             }
         }
         
-        for(int i=0; i<wMAX; i++)
+        for(uint32_t i=0; i<numweapons; i++)
         {
-            if(!p_iputw(wpnsbuf[i].tile,f))
+            if(!p_iputw(curQuest->weaponDefTable().getWeaponDefinition(i).tile,f))
             {
                 new_return(6);
             }
             
-            if(!p_putc(wpnsbuf[i].misc,f))
+            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).misc,f))
             {
                 new_return(7);
             }
             
-            if(!p_putc(wpnsbuf[i].csets,f))
+            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).csets,f))
             {
                 new_return(8);
             }
             
-            if(!p_putc(wpnsbuf[i].frames,f))
+            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).frames,f))
             {
                 new_return(9);
             }
             
-            if(!p_putc(wpnsbuf[i].speed,f))
+            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).speed,f))
             {
                 new_return(10);
             }
             
-            if(!p_putc(wpnsbuf[i].type,f))
+            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).type,f))
             {
                 new_return(11);
             }

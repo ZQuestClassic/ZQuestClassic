@@ -356,12 +356,12 @@ public:
     
     static INLINE int checkWeaponID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, WPNCNT-1, str);
+        return checkBounds(ID, 0, curQuest->weaponDefTable().getNumWeaponDefinitions()-1, str);
     }
     
     static INLINE int checkWeaponMiscSprite(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXWPNS-1, str);
+        return checkBounds(ID, 0, curQuest->weaponDefTable().getNumWeaponDefinitions()-1, str);
     }
     
     static INLINE int checkSFXID(const long ID, const char * const str)
@@ -5383,7 +5383,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long weapon = value / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Weapon") == SH::_NoError &&
-                BC::checkBounds(weapon, 0, MAXWPNS-1, "npc->Weapon") == SH::_NoError)
+                BC::checkBounds(weapon, 0, curQuest->weaponDefTable().getNumWeaponDefinitions()-1, "npc->Weapon") == SH::_NoError)
             GuyH::getNPC()->wpn = weapon;
     }
     break;

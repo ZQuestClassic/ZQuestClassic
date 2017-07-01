@@ -71,6 +71,7 @@ int miniscreenY();
 
 // placeholder for now
 extern std::map<int, LensItemAnim > lens_hint_item;
+extern std::map<int, LensWeaponAnim > lens_hint_weapon;
 
 
 static const char *ZC_str = "Zelda Classic";
@@ -2456,7 +2457,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempweapony=y;
                         }
                         
-                        putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+                        putweapon(dest,tempweaponx,tempweapony,tempweapon, 0, up, lens_hint_weapon[tempweapon].aclk, lens_hint_weapon[tempweapon].aframe,-1);
                         putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
@@ -2562,7 +2563,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempweapony=y;
                         }
                         
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon].y,tempweapon, 0, up, lens_hint_weapon[tempweapon].aclk, lens_hint_weapon[tempweapon].aframe,-1);
                     }
                     
                     break;
@@ -2583,7 +2584,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempweapony=y;
                         }
                         
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon].y,tempweapon, 0, up, lens_hint_weapon[tempweapon].aclk, lens_hint_weapon[tempweapon].aframe,-1);
                     }
                     
                     break;
@@ -2678,15 +2679,15 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         {
                             tempweaponx=x;
                             tempweapony=y;
-                            --lens_hint_weapon[wMagic][4];
+                            --lens_hint_weapon[wMagic].y;
                             
-                            if(lens_hint_weapon[wMagic][4]<-8)
+                            if(lens_hint_weapon[wMagic].y<-8)
                             {
-                                lens_hint_weapon[wMagic][4]=8;
+                                lens_hint_weapon[wMagic].y=8;
                             }
                         }
                         
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon].y,tempweapon, 0, up, lens_hint_weapon[tempweapon].aclk, lens_hint_weapon[tempweapon].aframe,-1);
                         putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
                     }
                     
@@ -2714,28 +2715,28 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempweaponx=x;
                             tempweapony=y;
                             
-                            if(lens_hint_weapon[ewMagic][2]==up)
+                            if(lens_hint_weapon[ewMagic].dir==up)
                             {
-                                --lens_hint_weapon[ewMagic][4];
+                                --lens_hint_weapon[ewMagic].y;
                             }
                             else
                             {
-                                ++lens_hint_weapon[ewMagic][4];
+                                ++lens_hint_weapon[ewMagic].y;
                             }
                             
-                            if(lens_hint_weapon[ewMagic][4]>8)
+                            if(lens_hint_weapon[ewMagic].y>8)
                             {
-                                lens_hint_weapon[ewMagic][2]=up;
+                                lens_hint_weapon[ewMagic].dir=up;
                             }
                             
-                            if(lens_hint_weapon[ewMagic][4]<=0)
+                            if(lens_hint_weapon[ewMagic].y<=0)
                             {
-                                lens_hint_weapon[ewMagic][2]=down;
+                                lens_hint_weapon[ewMagic].dir=down;
                             }
                         }
                         
                         putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
-                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon][4],tempweapon, 0, lens_hint_weapon[ewMagic][2], lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+                        putweapon(dest,tempweaponx,tempweapony+lens_hint_weapon[tempweapon].y,tempweapon, 0, lens_hint_weapon[ewMagic].dir, lens_hint_weapon[tempweapon].aclk, lens_hint_weapon[tempweapon].aframe,-1);
                     }
                     
                     break;
@@ -2758,26 +2759,26 @@ void draw_lens_under(BITMAP *dest, bool layer)
                             tempitemy=y;
                             tempweaponx=x;
                             tempweapony=y;
-                            ++lens_hint_weapon[ewFireball][3];
+                            ++lens_hint_weapon[ewFireball].x;
                             
-                            if(lens_hint_weapon[ewFireball][3]>8)
+                            if(lens_hint_weapon[ewFireball].x>8)
                             {
-                                lens_hint_weapon[ewFireball][3]=-8;
-                                lens_hint_weapon[ewFireball][4]=8;
+                                lens_hint_weapon[ewFireball].x=-8;
+                                lens_hint_weapon[ewFireball].y=8;
                             }
                             
-                            if(lens_hint_weapon[ewFireball][3]>0)
+                            if(lens_hint_weapon[ewFireball].x>0)
                             {
-                                ++lens_hint_weapon[ewFireball][4];
+                                ++lens_hint_weapon[ewFireball].y;
                             }
                             else
                             {
-                                --lens_hint_weapon[ewFireball][4];
+                                --lens_hint_weapon[ewFireball].y;
                             }
                         }
                         
                         putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem].aclk, lens_hint_item[tempitem].aframe, 0);
-                        putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon][3],tempweapony+lens_hint_weapon[ewFireball][4],tempweapon, 0, up, lens_hint_weapon[tempweapon][0], lens_hint_weapon[tempweapon][1],-1);
+                        putweapon(dest,tempweaponx+lens_hint_weapon[tempweapon].x,tempweapony+lens_hint_weapon[ewFireball].y,tempweapon, 0, up, lens_hint_weapon[tempweapon].aclk, lens_hint_weapon[tempweapon].aframe,-1);
                     }
                     
                     break;

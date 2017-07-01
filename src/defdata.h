@@ -22,6 +22,8 @@ extern comboclass default_combo_classes[cMAX];
 const char *old_item_names[];
 const std::vector<itemdata> &getDefaultItems();
 
+extern const char *old_weapon_names[];
+
 extern guydata default_guys[OLDMAXGUYS];
 extern item_drop_object default_item_drop_sets[isMAX];
 #endif

@@ -256,6 +256,7 @@ public:
      * unsafe access are flushed out...
      */
     itemdata &getItemDefinition(int idx) { return itemData_[idx]; }
+    const itemdata &getItemDefinition(int idx) const { return itemData_[idx]; }
 
     /*
      * Retrives the name of the item with given index in the item
@@ -272,7 +273,7 @@ public:
     /*
      * The number of items currently in the items definition table.
      */
-    int getNumItemDefinitions() { return (int)itemData_.size(); }
+    int getNumItemDefinitions() const { return (int)itemData_.size(); }
 
     /* 
      * Retrieves the canonical item of a given item family: the item with 

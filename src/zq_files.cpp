@@ -1367,49 +1367,6 @@ int onExport_ComboAlias()
     return D_O_K;
 }
 
-int onImport_ZGP()
-{
-    if(!getname("Import Graphics Pack (.zgp)","zgp",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    
-    // usetiles=true;
-    if(!load_zgp(temppath))
-    {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    }
-    
-    refresh(rALL);
-    return D_O_K;
-}
-
-int onExport_ZGP()
-{
-    if(!getname("Export Graphics Pack (.zgp)","zgp",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
-    
-    if(save_zgp(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    return D_O_K;
-}
-
 int onImport_Subscreen()
 {
     if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))

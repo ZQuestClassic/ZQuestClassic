@@ -21,7 +21,9 @@
 #include "zdefs.h"
 #include "sprite.h"
 #include "tiles.h"
+#include "quest/Quest.h"
 
+extern Quest *curQuest;
 extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
@@ -531,8 +533,8 @@ void sprite::draw(BITMAP* dest)
     {
         if(e!=3)
         {
-            int t  = wpnsbuf[iwSpawn].tile;
-            int cs2 = wpnsbuf[iwSpawn].csets&15;
+            int t  = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).tile;
+            int cs2 = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).csets&15;
             
             if(BSZ)
             {
@@ -551,7 +553,7 @@ void sprite::draw(BITMAP* dest)
         }
         else
         {
-            sprite w(*pool, (fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w(*pool, (fix)sx,(fix)sy,curQuest->weaponDefTable().getWeaponDefinition(extend).tile,curQuest->weaponDefTable().getWeaponDefinition(extend).csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -641,8 +643,8 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     else
     {
-        int t  = wpnsbuf[iwSpawn].tile;
-        int cs2 = wpnsbuf[iwSpawn].csets&15;
+        int t  = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).tile;
+        int cs2 = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).csets&15;
         
         if(BSZ)
         {
@@ -671,8 +673,8 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
         return;
     }
     
-    int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
-    int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
+    int shadowcs = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).csets & 0xFFFF;
+    int shadowflip = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).misc & 0xFF;
     
     int sx = real_x(x+xofs)+(txsz-1)*8;
     int sy = real_y(y+yofs+(tysz-1)*16);

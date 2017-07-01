@@ -115,7 +115,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_DMAPS           10
 #define V_DOORS            1
 #define V_ITEMS           27
-#define V_WEAPONS          6
+#define V_WEAPONS          7
 #define V_COLORS           2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
@@ -248,7 +248,6 @@ extern bool fake_pack_writing;
 #define MAXLEVELS        512								 //this should be the same number (was 32)
 #define OLDMAXLEVELS	 256
 #define OLDMAXDMAPS		 256
-#define MAXWPNS          256
 #define OLDBETAMAXGUYS   256								//max 2.5 guys through beta 20
 #define MAXGUYS          512
 #define MAXITEMDROPSETS  256
@@ -837,7 +836,7 @@ enum
     ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
     wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
     
-    wLast, wMAX=256
+    wLast
 };
 
 // weapon types in game engine
@@ -1157,7 +1156,6 @@ struct size_and_pos
 
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
-#define WPNCNT    wMAX
 
 struct tiledata
 {
@@ -1219,21 +1217,6 @@ enum
 
 
 //Holds the movement pattern, and its args.
-
-struct wpndata
-{
-    word tile;
-    byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte type;                                                // used by certain weapons
-//  byte wpn_type;
-    word script;
-//  byte exp;                                                 // not used
-};
-
-#define		WF_BEHIND			0x10	//Weapon renders behind other sprites
 
 struct quest_template
 {
@@ -3405,6 +3388,15 @@ struct LensItemAnim
 {
     int aclk;
     int aframe;
+};
+
+struct LensWeaponAnim
+{
+    int aclk;
+    int aframe;
+    int dir;
+    int x;
+    int y;
 };
 
 

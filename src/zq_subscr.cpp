@@ -486,13 +486,13 @@ int d_stilelist_proc(int msg,DIALOG *d,int c)
         case ssmstSSVINETILE:
             (d-15)->w=52;
             (d-14)->w=48;
-            (d-14)->d1=wpnsbuf[iwSubscreenVine].tile;
+            (d-14)->d1=curQuest->weaponDefTable().getWeaponDefinition(iwSubscreenVine).tile;
             break;
             
         case ssmstMAGICMETER:
             (d-15)->w=148;
             (d-14)->w=144;
-            (d-14)->d1=wpnsbuf[iwMMeter].tile;
+            (d-14)->d1=curQuest->weaponDefTable().getWeaponDefinition(iwMMeter).tile;
             break;
             
         case -1:
@@ -2879,13 +2879,13 @@ int sso_properties(subscreen_object *tempsso)
             switch(tempsso->d2)
             {
             case ssmstSSVINETILE:
-				sso_properties_cpy[98].d1=wpnsbuf[iwSubscreenVine].tile;
+				sso_properties_cpy[98].d1=curQuest->weaponDefTable().getWeaponDefinition(iwSubscreenVine).tile;
 				sso_properties_cpy[97].w=52;
 				sso_properties_cpy[98].w=48;
                 break;
                 
             case ssmstMAGICMETER:
-				sso_properties_cpy[98].d1=wpnsbuf[iwMMeter].tile;
+				sso_properties_cpy[98].d1=curQuest->weaponDefTable().getWeaponDefinition(iwMMeter).tile;
 				sso_properties_cpy[97].w=148;
 				sso_properties_cpy[98].w=144;
                 break;

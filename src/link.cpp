@@ -830,11 +830,14 @@ void LinkClass::draw_under(BITMAP* dest)
 
 void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 {
-    int tempy=yofs;
-    yofs+=8;
-    shadowtile = wpnsbuf[iwShadow].tile;
-    sprite::drawshadow(dest,translucent);
-    yofs=tempy;
+    if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    {
+        int tempy = yofs;
+        yofs += 8;
+        shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile;
+        sprite::drawshadow(dest, translucent);
+        yofs = tempy;
+    }
 }
 
 // The Stone of Agony reacts to these flags.
@@ -1058,7 +1061,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
     if(game->get_canslash() && (curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG4) && attackclk<11)
     {
         int wpn2=curQuest->itemDefTable().getItemDefinition(itemid).wpn2;
-        wpn2=vbound(wpn2, 0, MAXWPNS);
+        wpn2=vbound(wpn2, 0, curQuest->weaponDefTable().getNumWeaponDefinitions());
         
         //slashing tiles
         switch(dir)
@@ -1073,8 +1076,8 @@ void LinkClass::positionSword(weapon *w, int itemid)
             {
                 wy-=9;
                 wx-=3;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = curQuest->weaponDefTable().getWeaponDefinition(wpn2).tile;
+                cs2 = curQuest->weaponDefTable().getWeaponDefinition(wpn2).csets&15;
                 f=0;
             }
             
@@ -1090,8 +1093,8 @@ void LinkClass::positionSword(weapon *w, int itemid)
             {
                 wy+=15;
                 wx+=2;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = curQuest->weaponDefTable().getWeaponDefinition(wpn2).tile;
+                cs2 = curQuest->weaponDefTable().getWeaponDefinition(wpn2).csets&15;
                 ++t;
                 f=0;
             }
@@ -1109,8 +1112,8 @@ void LinkClass::positionSword(weapon *w, int itemid)
                 wx-=15;
                 wy+=3;
                 slashxofs-=1;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = curQuest->weaponDefTable().getWeaponDefinition(wpn2).tile;
+                cs2 = curQuest->weaponDefTable().getWeaponDefinition(wpn2).csets&15;
                 t+=2;
                 f=0;
             }
@@ -1137,8 +1140,8 @@ void LinkClass::positionSword(weapon *w, int itemid)
             {
                 wx+=15;
                 slashxofs+=1;
-                t = wpnsbuf[wpn2].tile;
-                cs2 = wpnsbuf[wpn2].csets&15;
+                t = curQuest->weaponDefTable().getWeaponDefinition(wpn2).tile;
+                cs2 = curQuest->weaponDefTable().getWeaponDefinition(wpn2).csets&15;
                 
                 if(spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX))
                 {
@@ -1266,7 +1269,7 @@ attack:
         
         if(attackclk>4||(attack==wSword&&game->get_canslash()))
         {
-            if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && curQuest->itemDefTable().getItemDefinition(itemid).wpn)) && wpnsbuf[curQuest->itemDefTable().getItemDefinition(itemid).wpn].tile)
+            if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && curQuest->itemDefTable().getItemDefinition(itemid).wpn)) && curQuest->weaponDefTable().getWeaponDefinition(curQuest->itemDefTable().getItemDefinition(itemid).wpn).tile)
             {
                 // Create a sword weapon at the right spot.
                 weapon *w=NULL;
@@ -15063,8 +15066,8 @@ void LinkClass::gameover()
                     action = dying;
                     
                 extend = 0;
-                cs = wpnsbuf[iwDeath].csets&15;
-                tile = wpnsbuf[iwDeath].tile;
+                cs = curQuest->weaponDefTable().getWeaponDefinition(iwDeath).csets&15;
+                tile = curQuest->weaponDefTable().getWeaponDefinition(iwDeath).tile;
                 
                 if(BSZ)
                 {

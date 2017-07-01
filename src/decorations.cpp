@@ -173,17 +173,21 @@ void dBushLeaves::draw(BITMAP *dest)
         clk=128;
         return;
     }
-    
-    int t=wpnsbuf[iwBushLeaves].tile;
-    cs=wpnsbuf[iwBushLeaves].csets&15;
-    
-    for(int i=0; i<4; ++i)
+
+    if (iwBushLeaves < curQuest->weaponDefTable().getNumWeaponDefinitions())
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        flip=ft[i][int(float(clk-1)/3)][2];
-        tile=t*4+i;
-        decoration::draw8(dest);
+
+        int t = curQuest->weaponDefTable().getWeaponDefinition(iwBushLeaves).tile;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(iwBushLeaves).csets & 15;
+
+        for (int i = 0; i < 4; ++i)
+        {
+            x = ox + ft[i][int(float(clk - 1) / 3)][0];
+            y = oy + ft[i][int(float(clk - 1) / 3)][1];
+            flip = ft[i][int(float(clk - 1) / 3)][2];
+            tile = t * 4 + i;
+            decoration::draw8(dest);
+        }
     }
 }
 
@@ -314,16 +318,19 @@ void dFlowerClippings::draw(BITMAP *dest)
         return;
     }
     
-    int t=wpnsbuf[iwFlowerClippings].tile;
-    cs=wpnsbuf[iwFlowerClippings].csets&15;
-    
-    for(int i=0; i<4; ++i)
+    if (iwFlowerClippings < curQuest->weaponDefTable().getNumWeaponDefinitions())
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        flip=ft[i][int(float(clk-1)/3)][2];
-        tile=t*4+i;
-        decoration::draw8(dest);
+        int t = curQuest->weaponDefTable().getWeaponDefinition(iwFlowerClippings).tile;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(iwFlowerClippings).csets & 15;
+
+        for (int i = 0; i < 4; ++i)
+        {
+            x = ox + ft[i][int(float(clk - 1) / 3)][0];
+            y = oy + ft[i][int(float(clk - 1) / 3)][1];
+            flip = ft[i][int(float(clk - 1) / 3)][2];
+            tile = t * 4 + i;
+            decoration::draw8(dest);
+        }
     }
 }
 
@@ -405,17 +412,20 @@ void dGrassClippings::draw(BITMAP *dest)
         clk=128;
         return;
     }
-    
-    int t=wpnsbuf[iwGrassClippings].tile;
-    cs=wpnsbuf[iwGrassClippings].csets&15;
-    
-    for(int i=0; i<3; ++i)
+
+    if (iwGrassClippings < curQuest->weaponDefTable().getNumWeaponDefinitions())
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        flip=ft[i][int(float(clk-1)/3)][2];
-        tile=(t+(ft[i][int(float(clk-1)/3)][3]))*4+i;
-        decoration::draw8(dest);
+        int t = curQuest->weaponDefTable().getWeaponDefinition(iwGrassClippings).tile;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(iwGrassClippings).csets & 15;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            x = ox + ft[i][int(float(clk - 1) / 3)][0];
+            y = oy + ft[i][int(float(clk - 1) / 3)][1];
+            flip = ft[i][int(float(clk - 1) / 3)][2];
+            tile = (t + (ft[i][int(float(clk - 1) / 3)][3])) * 4 + i;
+            decoration::draw8(dest);
+        }
     }
 }
 
@@ -474,17 +484,20 @@ void dHammerSmack::draw(BITMAP *dest)
         clk=128;
         return;
     }
-    
-    int t=wpnsbuf[wpnid].tile;
-    cs=wpnsbuf[wpnid].csets&15;
-    flip=0;
-    
-    for(int i=0; i<2; ++i)
+
+    if (wpnid < curQuest->weaponDefTable().getNumWeaponDefinitions())
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        tile=t*4+i+(ft[i][int(float(clk-1)/3)][2]*2);
-        decoration::draw8(dest);
+        int t = curQuest->weaponDefTable().getWeaponDefinition(wpnid).tile;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(wpnid).csets & 15;
+        flip = 0;
+
+        for (int i = 0; i < 2; ++i)
+        {
+            x = ox + ft[i][int(float(clk - 1) / 3)][0];
+            y = oy + ft[i][int(float(clk - 1) / 3)][1];
+            tile = t * 4 + i + (ft[i][int(float(clk - 1) / 3)][2] * 2);
+            decoration::draw8(dest);
+        }
     }
 }
 
@@ -504,27 +517,30 @@ void dTallGrass::draw(BITMAP *dest)
 {
     if(LinkGetDontDraw())
         return;
-        
-    int t=wpnsbuf[iwTallGrass].tile*4;
-    cs=wpnsbuf[iwTallGrass].csets&15;
-    flip=0;
-    x=LinkX();
-    y=LinkY()+10;
-    
-//  if (BSZ)
-    if(zinit.linkanimationstyle==las_bszelda)
+
+    if (iwTallGrass < curQuest->weaponDefTable().getNumWeaponDefinitions())
     {
-        tile=t+(anim_3_4(LinkLStep(),7)*2);
+        int t = curQuest->weaponDefTable().getWeaponDefinition(iwTallGrass).tile * 4;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(iwTallGrass).csets & 15;
+        flip = 0;
+        x = LinkX();
+        y = LinkY() + 10;
+
+        //  if (BSZ)
+        if (zinit.linkanimationstyle == las_bszelda)
+        {
+            tile = t + (anim_3_4(LinkLStep(), 7) * 2);
+        }
+        else
+        {
+            tile = t + ((LinkLStep() >= 6) ? 2 : 0);
+        }
+
+        decoration::draw8(dest);
+        x += 8;
+        ++tile;
+        decoration::draw8(dest);
     }
-    else
-    {
-        tile=t+((LinkLStep()>=6)?2:0);
-    }
-    
-    decoration::draw8(dest);
-    x+=8;
-    ++tile;
-    decoration::draw8(dest);
 }
 
 dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
@@ -545,17 +561,20 @@ void dRipples::draw(BITMAP *dest)
 {
     if(LinkGetDontDraw())
         return;
-        
-    int t=wpnsbuf[iwRipples].tile*4;
-    cs=wpnsbuf[iwRipples].csets&15;
-    flip=0;
-    x=LinkX();
-    y=LinkY()+10;
-    tile=t+(((clk/8)%3)*2);
-    decoration::draw8(dest);
-    x+=8;
-    ++tile;
-    decoration::draw8(dest);
+
+    if (iwRipples < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    {
+        int t = curQuest->weaponDefTable().getWeaponDefinition(iwRipples).tile * 4;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(iwRipples).csets & 15;
+        flip = 0;
+        x = LinkX();
+        y = LinkY() + 10;
+        tile = t + (((clk / 8) % 3) * 2);
+        decoration::draw8(dest);
+        x += 8;
+        ++tile;
+        decoration::draw8(dest);
+    }
 }
 
 dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
@@ -567,16 +586,19 @@ dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 void dHover::draw(BITMAP *dest)
 {
-    int t=wpnsbuf[wpnid].tile*4;
-    cs=wpnsbuf[wpnid].csets&15;
-    flip=0;
-    x=LinkX();
-    y=LinkY()+10-LinkZ();
-    tile=t+(((clk/8)%3)*2);
-    decoration::draw8(dest);
-    x+=8;
-    ++tile;
-    decoration::draw8(dest);
+    if (wpnid < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    {
+        int t = curQuest->weaponDefTable().getWeaponDefinition(wpnid).tile * 4;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(wpnid).csets & 15;
+        flip = 0;
+        x = LinkX();
+        y = LinkY() + 10 - LinkZ();
+        tile = t + (((clk / 8) % 3) * 2);
+        decoration::draw8(dest);
+        x += 8;
+        ++tile;
+        decoration::draw8(dest);
+    }
 }
 
 bool dHover::animate(int index)
@@ -616,37 +638,40 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
                 curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn5 : (byte) iwNayrusLoveShieldFront) :
                 ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn10 ?
                     curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn10 : (byte) iwNayrusLoveShieldBack));
-    int t=wpnsbuf[fb].tile;
-    int fr=wpnsbuf[fb].frames;
-    int spd=wpnsbuf[fb].speed;
-    cs=wpnsbuf[fb].csets&15;
-    flip=0;
-    bool flickering = ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG4) != 0;
-    bool translucent = ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG3) != 0;
-    
-    if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
-{
-        drawstyle=translucent?1:0;
-        x=LinkX()-8;
-        y=LinkY()-8-LinkZ();
-        tile=t;
-        
-        if(fr>0&&spd>0)
+    if (fb < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    {
+        int t = curQuest->weaponDefTable().getWeaponDefinition(fb).tile;
+        int fr = curQuest->weaponDefTable().getWeaponDefinition(fb).frames;
+        int spd = curQuest->weaponDefTable().getWeaponDefinition(fb).speed;
+        cs = curQuest->weaponDefTable().getWeaponDefinition(fb).csets & 15;
+        flip = 0;
+        bool flickering = (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG4) != 0;
+        bool translucent = (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG3) != 0;
+
+        if (((LinkNayrusLoveShieldClk() & 0x20) || (LinkNayrusLoveShieldClk() & 0xF00)) && (!flickering || ((misc == 1) ? (frame & 1) : (!(frame & 1)))))
         {
-            tile+=((clk/spd)%fr);
+            drawstyle = translucent ? 1 : 0;
+            x = LinkX() - 8;
+            y = LinkY() - 8 - LinkZ();
+            tile = t;
+
+            if (fr > 0 && spd > 0)
+            {
+                tile += ((clk / spd) % fr);
+            }
+
+            decoration::draw(dest);
+            x += 16;
+            tile += fr;
+            decoration::draw(dest);
+            x -= 16;
+            y += 16;
+            tile += fr;
+            decoration::draw(dest);
+            x += 16;
+            tile += fr;
+            decoration::draw(dest);
         }
-        
-        decoration::draw(dest);
-        x+=16;
-        tile+=fr;
-        decoration::draw(dest);
-        x-=16;
-        y+=16;
-        tile+=fr;
-        decoration::draw(dest);
-        x+=16;
-        tile+=fr;
-        decoration::draw(dest);
     }
 }
 

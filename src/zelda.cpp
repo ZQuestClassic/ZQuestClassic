@@ -77,8 +77,8 @@ zinitdata zinit;
 int db=0;
 //zinitdata  zinit;
 std::map<int, LensItemAnim> lens_hint_item;
+std::map<int, LensWeaponAnim> lens_hint_weapon;
 int detail_int[10];                                         //temporary holder for things you want to detail
-int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 int strike_hint_counter=0;
 int strike_hint_timer=0;
 int strike_hint;
@@ -169,7 +169,6 @@ FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *p
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
-wpndata    *wpnsbuf;
 comboclass *combo_class_buf;
 guydata    *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
@@ -1173,13 +1172,6 @@ int init_game()
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
     show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
     cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_ff_scripts=show_hitboxes=false;
-    
-    for(int x = 0; x < MAXWPNS; x++)
-    {
-        lens_hint_weapon[x][0]=0;
-        lens_hint_weapon[x][1]=0;
-    }
-    
     
 //Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
@@ -2355,9 +2347,9 @@ void game_loop()
     
     if(linkedmsgclk==1)
     {
-        if(wpnsbuf[iwMore].tile!=0)
+        if(iwMore < curQuest->weaponDefTable().getNumWeaponDefinitions() && curQuest->weaponDefTable().getWeaponDefinition(iwMore).tile!=0)
         {
-            putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+            putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom].aclk, lens_hint_weapon[wPhantom].aframe,-1);
         }
     }
     
@@ -3066,11 +3058,6 @@ int main(int argc, char* argv[])
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
-    for(int i=0; i<WPNCNT; i++)
-    {
-        weapon_string[i] = new char[64];
-    }
-    
     for(int i=0; i<eMAXGUYS; i++)
     {
         guy_string[i] = new char[64];
@@ -3427,11 +3414,6 @@ void quit_game()
     zcmusic_exit();      
         
     al_trace("Misc... \n");
-    
-    for(int i=0; i<WPNCNT; i++)
-    {
-        delete [] weapon_string[i];
-    }
     
     for(int i=0; i<eMAXGUYS; i++)
     {

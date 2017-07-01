@@ -151,6 +151,7 @@ bool show_hitboxes = false;
 //placeholder
 
 std::map<int, LensItemAnim> lens_hint_item;
+std::map<int, LensWeaponAnim> lens_hint_weapon;
 
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
@@ -602,7 +603,6 @@ bool showxypos_cursor_icon=false;
 bool close_button_quit=false;
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
 bool resize_mouse_pos=false;                                //for eyeball combos
-int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 
 Quest *curQuest;
 RGB_MAP zq_rgb_table;
@@ -615,7 +615,6 @@ FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *p
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
-wpndata  *wpnsbuf;
 comboclass *combo_class_buf;
 guydata  *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
@@ -824,7 +823,6 @@ static MENU import_menu[] =
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -842,7 +840,6 @@ static MENU export_menu[] =
     { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
     { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
@@ -10040,24 +10037,31 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
     return bii[index].i;
 }
 
-weapon_struct biw[wMAX];
+weapon_struct *biw = NULL;
 int biw_cnt=-1;
 
 void build_biw_list()
 {
-    int start=biw_cnt=0;
+    if (biw)
+        delete[] biw;
+
+    biw_cnt=0;
+
+    int numweapons = curQuest->weaponDefTable().getNumWeaponDefinitions();
+
+    biw = new weapon_struct[numweapons];
     
-    for(int i=start; i<wMAX; i++)
+    for(int i=0; i<numweapons; i++)
     {
-        biw[biw_cnt].s = (char *)weapon_string[i];
+        biw[biw_cnt].s = curQuest->weaponDefTable().getWeaponName(i);
         biw[biw_cnt].i = i;
         ++biw_cnt;
     }
     
-    for(int i=start; i<biw_cnt-1; i++)
+    for(int i=0; i<biw_cnt-1; i++)
     {
         for(int j=i+1; j<biw_cnt; j++)
-            if(stricmp(biw[i].s,biw[j].s)>0 && strcmp(biw[j].s,""))
+            if(stricmp(biw[i].s.c_str(),biw[j].s.c_str())>0 && strcmp(biw[j].s.c_str(),""))
                 zc_swap(biw[i],biw[j]);
     }
 }
@@ -10070,7 +10074,7 @@ const char *weaponlist(int index, int *list_size)
         return NULL;
     }
     
-    return biw[index].s;
+    return biw[index].s.c_str();
 }
 
 int select_weapon(const char *prompt,int weapon)
@@ -11897,8 +11901,8 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
         
         int tile = 0;
         int cset = 0;
-        tile= wpnsbuf[biw[d->d1].i].tile;
-        cset= wpnsbuf[biw[d->d1].i].csets&15;
+        tile= curQuest->weaponDefTable().getWeaponDefinition(biw[d->d1].i).tile;
+        cset= curQuest->weaponDefTable().getWeaponDefinition(biw[d->d1].i).csets&15;
         int x = d->x + d->w + 4;
         int y = d->y;
         int w = 16;
@@ -22245,12 +22249,6 @@ int main(int argc, char **argv)
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
-    for(int i=0; i<WPNCNT; i++)
-    {
-        weapon_string[i] = new char[64];
-        memset(weapon_string[i], 0, 64);
-    }
-    
     for(int i=0; i<eMAXGUYS; i++)
     {
         guy_string[i] = new char[64];
@@ -22369,12 +22367,6 @@ int main(int argc, char **argv)
 		quit_game();
 		exit(0);
 	}
-    
-    for(int x=0; x<MAXWPNS; x++)
-    {
-        lens_hint_weapon[x][0]=0;
-        lens_hint_weapon[x][1]=0;
-    }
     
     load_selections();
     load_arrows();
@@ -22675,11 +22667,6 @@ void quit_game()
     al_trace("Cleaning sfx. \n");
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
-    
-    for(int i=0; i<WPNCNT; i++)
-    {
-        delete [] weapon_string[i];
-    }
     
     for(int i=0; i<eMAXGUYS; i++)
     {
@@ -23401,7 +23388,6 @@ command_pair commands[cmdMAX]=
     { "Export Subscreen",                   0, (intF) onExport_Subscreen                               },
     { "Export Tiles",                       0, (intF) onExport_Tiles                                   },
     { "Export Unencoded Quest",             0, (intF) onExport_UnencodedQuest                          },
-    { "Export Graphics Pack",               0, (intF) onExport_ZGP                                     },
     { "Flags",                              0, (intF) onFlags                                          },
     { "Paste Freeform Combos",              0, (intF) onPasteFFCombos                                  },
     { "Freeform Combos",                    0, (intF) onSelectFFCombo                                  },
@@ -23416,7 +23402,6 @@ command_pair commands[cmdMAX]=
     { "Import ASM Item Script",             0, (intF) onImportItemScript                               },
     { "Import Combos",                      0, (intF) onImport_Combos                                  },
     { "Import DMaps",                       0, (intF) onImport_DMaps                                   },
-    { "Import Graphics Pack",               0, (intF) onImport_ZGP                                     },
     { "Import Map",                         0, (intF) onImport_Map                                     },
     { "Import Palettes",                    0, (intF) onImport_Pals                                    },
     { "Import Quest Template",              0, (intF) onImport_ZQT                                     },

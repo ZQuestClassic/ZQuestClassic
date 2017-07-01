@@ -71,7 +71,6 @@ extern const char *imgstr[ftMAX];
 extern char ns_string[4];
 extern const char *old_weapon_string[wLast];
 extern const char *old_sfx_string[Z35];
-extern char *weapon_string[WPNCNT];
 extern const char *roomtype_string[MAXROOMTYPES];
 extern const char *catchall_string[MAXROOMTYPES];
 extern const char *warptype_string[MAXWARPTYPES];
