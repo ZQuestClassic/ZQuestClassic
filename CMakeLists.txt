@@ -43,6 +43,7 @@ include_directories(./include/gme)
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp 
 	src/zcmusicd.cpp
+	src/alleg_compat.cpp
 )
 
 set(ROMVIEW_MODULES
@@ -98,7 +99,7 @@ endif()
 # Windows
 
 if(MSVC)
-	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44_debug.lib>" 
+	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
 				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg44.lib>")
 	
 	add_definitions(-DALLEGRO_MSVC)
