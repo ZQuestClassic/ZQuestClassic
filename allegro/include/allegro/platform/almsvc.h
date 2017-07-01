@@ -51,8 +51,10 @@
 
 
 /* describe how function prototypes look to MSVC */
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
+#if defined ALLEGRO_STATICLINK
    #define _AL_DLL
+#elif defined ALLEGRO_SRC
+   #define _AL_DLL   __declspec(dllexport)
 #else
    #define _AL_DLL   __declspec(dllimport)
 #endif
@@ -77,10 +79,10 @@
 
 #define LONG_LONG    __int64
 
-// MSVC now has these built in
-#if _MSC_VER < 1500
-//#define int64_t      signed __int64
-//#define uint64_t     unsigned __int64
+/* Why does Allegro always insist on doing this? Sigh... -DD */
+#if _MSC_VER <= 1600
+#define int64_t      signed __int64
+#define uint64_t     unsigned __int64
 #endif
 
 #define AL_CONST     const

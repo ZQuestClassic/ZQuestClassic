@@ -45,15 +45,21 @@
 #endif
 
 #define ALLEGRO_VERSION          4
-#define ALLEGRO_SUB_VERSION      2
+#define ALLEGRO_SUB_VERSION      4
 #define ALLEGRO_WIP_VERSION      2
-#define ALLEGRO_VERSION_STR      "4.2.2"
-#define ALLEGRO_DATE_STR         "2007"
-#define ALLEGRO_DATE             20070722    /* yyyymmdd */
+#define ALLEGRO_VERSION_STR      "4.4.2"
+#define ALLEGRO_DATE_STR         "2011"
+#define ALLEGRO_DATE             20110519    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/
 /*******************************************/
+
+
+/* Asm build disabled as of 4.3.10+. */
+#ifndef ALLEGRO_NO_ASM
+   #define ALLEGRO_NO_ASM
+#endif
 
 #ifndef TRUE 
    #define TRUE         -1
@@ -66,7 +72,14 @@
      
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-#define MID(x,y,z)   MAX((x), MIN((y), (z)))
+
+/* Returns the median of x, y, z */
+#define MID(x,y,z)   ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ?    \
+                       (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : \
+                       (x)): (y)))
+
+/* Optimized version of MID for when x <= z. */
+#define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
      
 #undef ABS
 #define ABS(x)       (((x) >= 0) ? (x) : (-(x)))

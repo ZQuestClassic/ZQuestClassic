@@ -25,32 +25,6 @@
    extern "C" {
 #endif
 
-
-//Win7 keyboard callback stuff;
-//AL_FUNCPTR(void, al_zc_win_key_press_fix, (unsigned char*));
-//AL_FUNCPTR(void, al_zc_win_key_release_fix, (unsigned char*));
-//AL_FUNC(void, al_zc_set_key_press_fix, (AL_METHOD(void, funcPtr, (unsigned char*))));
-//AL_FUNC(void, al_zc_set_key_release_fix, (AL_METHOD(void, funcPtr, (unsigned char*))));
-//AL_FUNC(void, al_zc_set_key_press_fix, (void (*funcPtr)(unsigned char*)));
-//AL_FUNC(void, al_zc_set_key_release_fix, (void (*funcPtr)(unsigned char*)));
-
-typedef void (*alzckeyfuncptr)(unsigned char*);
-
-static alzckeyfuncptr al_zc_win_key_press_fix = NULL;
-static alzckeyfuncptr al_zc_win_key_release_fix = NULL;
-
-
-/*
-static void al_zc_set_key_press_fix(void (*funcPtr)(unsigned char*))
-{
-	al_zc_win_key_press_fix = funcPtr;
-}
-
-static void al_zc_set_key_release_fix(void (*funcPtr)(unsigned char*))
-{
-	al_zc_win_key_release_fix = funcPtr;
-}
-*/
 typedef struct KEYBOARD_DRIVER
 {
    int  id;

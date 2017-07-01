@@ -23,14 +23,11 @@
  */
 
 
-//#if defined _MSC_VER
+
 #if defined ALLEGRO_HAVE_INTTYPES_H
    #include <inttypes.h>
 #elif defined ALLEGRO_HAVE_STDINT_H
    #include <stdint.h>
-#elif defined (_MSC_VER) || defined ALLEGRO_MSVC
-	//include a reasonable inttypes 
-	#include "msvc_astdint.h"
 #elif defined ALLEGRO_I386 && defined ALLEGRO_LITTLE_ENDIAN
    #ifndef ALLEGRO_GUESS_INTTYPES_OK
       #warning Guessing the definitions of fixed-width integer types.
