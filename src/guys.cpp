@@ -659,9 +659,11 @@ void enemy::FireBreath(bool seeklink)
         ew->angle=fire_angle;
     }
     
-    if(wpn==ewFlame && ewFLAME < curQuest->weaponDefTable().getNumWeaponDefinitions() && curQuest->weaponDefTable().getWeaponDefinition(ewFLAME).frames>1)
+    int flamesprite = curQuest->specialSprites().flickeringFlame;
+
+    if(wpn==ewFlame && curQuest->weaponDefTable().getSpriteDefinition(flamesprite).frames>1)
     {
-        ew->aframe=rand()%curQuest->weaponDefTable().getWeaponDefinition(ewFLAME).frames;
+        ew->aframe=rand()%curQuest->weaponDefTable().getSpriteDefinition(flamesprite).frames;
         ew->tile+=ew->aframe;
     }
     
@@ -1490,7 +1492,7 @@ int enemy::defenditemclass(int wpnId, int *power, weapon *w)
 int enemy::takehit(weapon *w)
 {
 	
-    int wpnId;
+    int wpnId = -1;
     int trueID = w->id; //The true ID of the weapon, based on its type. -Z
     int power = w->power;
     int wpnx = w->x;
@@ -1879,22 +1881,21 @@ void enemy::draw(BITMAP *dest)
                 
             return;
         }
+
+        int deaths = curQuest->specialSprites().enemyDeathCloud;
         
-        if (iwDeath < curQuest->weaponDefTable().getNumWeaponDefinitions())
-        {
-            flip = 0;
-            tile = curQuest->weaponDefTable().getWeaponDefinition(iwDeath).tile;
+        flip = 0;
+        tile = curQuest->weaponDefTable().getSpriteDefinition(deaths).tile;
 
-            if (BSZ)
-                tile += zc_min((15 - clk2) / 3, 4);
-            else if (clk2 > 6 && clk2 <= 12)
-                ++tile;
+        if (BSZ)
+            tile += zc_min((15 - clk2) / 3, 4);
+        else if (clk2 > 6 && clk2 <= 12)
+            ++tile;
 
-            if (BSZ || fading == fade_blue_poof)
-                cs = curQuest->weaponDefTable().getWeaponDefinition(iwDeath).csets & 15;
-            else
-                cs = (((clk2 + 5) >> 1) & 3) + 6;
-        }
+        if (BSZ || fading == fade_blue_poof)
+            cs = curQuest->weaponDefTable().getSpriteDefinition(deaths).csets & 15;
+        else
+            cs = (((clk2 + 5) >> 1) & 3) + 6;
     }
     else if(hclk>0)
     {
@@ -2028,8 +2029,11 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
         
         //this hack is in place as not all enemies that should use the z axis while in the air
         //(ie rocks, boulders) actually do. To be removed when the enemy revamp is complete -DD
-        if(canfall(id) && shadowtile == 0 && iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
-            shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile;
+
+        int shadows = curQuest->specialSprites().smallShadow;
+
+        if(canfall(id) && shadowtile == 0)
+            shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile;
             
         if(z>0 || !canfall(id))
             sprite::drawshadow(dest,translucent);
@@ -4947,42 +4951,40 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
     int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
         efrate:((clk>=(frate>>1))?1:0);
 
-    if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    flip = 0;
+    int shadows = curQuest->specialSprites().smallShadow;
+    shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile;
+
+    if (get_bit(quest_rules, qr_NEWENEMYTILES))
     {
-        flip = 0;
-        shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile;
-
-        if (get_bit(quest_rules, qr_NEWENEMYTILES))
+        if (misc == 0)
         {
-            if (misc == 0)
-            {
-                shadowtile += f2;
-            }
-            else if (misc != 1)
-                shadowtile += 2;
+            shadowtile += f2;
         }
-        else
-        {
-            if (misc == 0)
-            {
-                shadowtile += f2 ? 1 : 0;
-            }
-            else if (misc != 1)
-            {
-                ++shadowtile;
-            }
-        }
-
-        yofs += 8;
-
-        if (!get_bit(quest_rules, qr_ENEMIESZAXIS) && misc == 2)
-        {
-            yofs += zc_max(0, zc_min(clk2start - clk2, clk2));
-        }
-
-        enemy::drawshadow(dest, translucent);
-        yofs = tempy;
+        else if (misc != 1)
+            shadowtile += 2;
     }
+    else
+    {
+        if (misc == 0)
+        {
+            shadowtile += f2 ? 1 : 0;
+        }
+        else if (misc != 1)
+        {
+            ++shadowtile;
+        }
+    }
+
+    yofs += 8;
+
+    if (!get_bit(quest_rules, qr_ENEMIESZAXIS) && misc == 2)
+    {
+        yofs += zc_max(0, zc_min(clk2start - clk2, clk2));
+    }
+
+    enemy::drawshadow(dest, translucent);
+    yofs = tempy;
 }
 
 void eTektite::draw(BITMAP *dest)
@@ -5077,21 +5079,19 @@ bool ePeahat::animate(int index)
 
 void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 {
-    if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    int shadows = curQuest->specialSprites().smallShadow;
+    int tempy = yofs;
+    flip = 0;
+    shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile + posframe;
+
+    if (!get_bit(quest_rules, qr_ENEMIESZAXIS))
     {
-        int tempy = yofs;
-        flip = 0;
-        shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile + posframe;
-
-        if (!get_bit(quest_rules, qr_ENEMIESZAXIS))
-        {
-            yofs += 8;
-            yofs += int(step / (dstep / 1000.0));
-        }
-
-        enemy::drawshadow(dest, translucent);
-        yofs = tempy;
+        yofs += 8;
+        yofs += int(step / (dstep / 1000.0));
     }
+
+    enemy::drawshadow(dest, translucent);
+    yofs = tempy;
 }
 
 void ePeahat::draw(BITMAP *dest)
@@ -6117,23 +6117,21 @@ bool eRock::animate(int index)
 
 void eRock::drawshadow(BITMAP *dest, bool translucent)
 {
-    if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    int shadows = curQuest->specialSprites().smallShadow;
+    if (clk2 >= 0)
     {
-        if (clk2 >= 0)
-        {
-            int tempy = yofs;
-            flip = 0;
-            int fdiv = frate / 4;
-            int efrate = fdiv == 0 ? 0 : clk / fdiv;
-            int f2 = get_bit(quest_rules, qr_NEWENEMYTILES) ?
-                efrate : ((clk >= (frate >> 1)) ? 1 : 0);
-            shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile + f2;
+        int tempy = yofs;
+        flip = 0;
+        int fdiv = frate / 4;
+        int efrate = fdiv == 0 ? 0 : clk / fdiv;
+        int f2 = get_bit(quest_rules, qr_NEWENEMYTILES) ?
+            efrate : ((clk >= (frate >> 1)) ? 1 : 0);
+        shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile + f2;
 
-            yofs += 8;
-            yofs += zc_max(0, zc_min(29 - clk3, clk3));
-            enemy::drawshadow(dest, translucent);
-            yofs = tempy;
-        }
+        yofs += 8;
+        yofs += zc_max(0, zc_min(29 - clk3, clk3));
+        enemy::drawshadow(dest, translucent);
+        yofs = tempy;
     }
 }
 
@@ -6260,31 +6258,29 @@ bool eBoulder::animate(int index)
 
 void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 {
-    if (iwLargeShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
+    int lshadows = curQuest->specialSprites().largeShadow;
+    if (clk2 >= 0)
     {
-        if (clk2 >= 0)
-        {
-            int tempy = yofs;
-            flip = 0;
-            int f2 = ((clk << 2) / frate) << 1;
-            shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwLargeShadow).tile + f2;
-            yofs += zc_max(0, zc_min(29 - clk3, clk3));
+        int tempy = yofs;
+        flip = 0;
+        int f2 = ((clk << 2) / frate) << 1;
+        shadowtile = curQuest->weaponDefTable().getSpriteDefinition(lshadows).tile + f2;
+        yofs += zc_max(0, zc_min(29 - clk3, clk3));
 
-            yofs += 8;
-            xofs -= 8;
-            enemy::drawshadow(dest, translucent);
-            xofs += 16;
-            ++shadowtile;
-            enemy::drawshadow(dest, translucent);
-            yofs += 16;
-            shadowtile += 20;
-            enemy::drawshadow(dest, translucent);
-            xofs -= 16;
-            --shadowtile;
-            enemy::drawshadow(dest, translucent);
-            xofs += 8;
-            yofs = tempy;
-        }
+        yofs += 8;
+        xofs -= 8;
+        enemy::drawshadow(dest, translucent);
+        xofs += 16;
+        ++shadowtile;
+        enemy::drawshadow(dest, translucent);
+        yofs += 16;
+        shadowtile += 20;
+        enemy::drawshadow(dest, translucent);
+        xofs -= 16;
+        --shadowtile;
+        enemy::drawshadow(dest, translucent);
+        xofs += 8;
+        yofs = tempy;
     }
 }
 
@@ -6435,8 +6431,8 @@ void eTrigger::death_sfx()
 
 eNPC::eNPC(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-    if(iwNPCs < curQuest->weaponDefTable().getNumWeaponDefinitions())
-        o_tile+=curQuest->weaponDefTable().getWeaponDefinition(iwNPCs).tile;
+    int npcs = curQuest->specialSprites().npcTemplate;
+    o_tile+=curQuest->weaponDefTable().getSpriteDefinition(npcs).tile;
     count_enemy=false;
 }
 
@@ -6611,14 +6607,12 @@ void eSpinTile::draw(BITMAP *dest)
 
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
-    if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
-    {
-        flip = 0;
-        shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile + (clk % 4);
-        yofs += 4;
-        enemy::drawshadow(dest, translucent);
-        yofs -= 4;
-    }
+    int shadows = curQuest->specialSprites().smallShadow;
+    flip = 0;
+    shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile + (clk % 4);
+    yofs += 4;
+    enemy::drawshadow(dest, translucent);
+    yofs -= 4;
 }
 
 eZora::eZora(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
@@ -7163,9 +7157,10 @@ bool eStalfos::animate(int index)
         int i=Ewpns.Count()-1;
         weapon *ew = (weapon*)(Ewpns.spr(i));
         
-        if(wpn==ewFIRETRAIL && ewFIRETRAIL < curQuest->weaponDefTable().getNumWeaponDefinitions() && curQuest->weaponDefTable().getWeaponDefinition(ewFIRETRAIL).frames>1)
+        int firetrails = curQuest->specialSprites().flickeringFireTrail;
+        if(wpn==ewFireTrail && curQuest->weaponDefTable().getSpriteDefinition(firetrails).frames>1)
         {
-            ew->aframe=rand()%curQuest->weaponDefTable().getWeaponDefinition(ewFIRETRAIL).frames;
+            ew->aframe=rand()%curQuest->weaponDefTable().getSpriteDefinition(firetrails).frames;
             ew->tile+=ew->aframe;
         }
     }
@@ -7360,28 +7355,26 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
     */
     if((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
     {
-        if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
+        int shadows = curQuest->specialSprites().smallShadow;
+        flip = 0;
+        int fdiv = frate / 4;
+        int efrate = fdiv == 0 ? 0 : clk / fdiv;
+
+        int f2 = get_bit(quest_rules, qr_NEWENEMYTILES) ?
+            efrate : ((clk >= (frate >> 1)) ? 1 : 0);
+        shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile;
+
+        if (get_bit(quest_rules, qr_NEWENEMYTILES))
         {
-            flip = 0;
-            int fdiv = frate / 4;
-            int efrate = fdiv == 0 ? 0 : clk / fdiv;
-
-            int f2 = get_bit(quest_rules, qr_NEWENEMYTILES) ?
-                efrate : ((clk >= (frate >> 1)) ? 1 : 0);
-            shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile;
-
-            if (get_bit(quest_rules, qr_NEWENEMYTILES))
-            {
-                shadowtile += f2;
-            }
-            else
-            {
-                shadowtile += f2 ? 1 : 0;
-            }
-
-            yofs += shadowdistance;
-            yofs += 8;
+            shadowtile += f2;
         }
+        else
+        {
+            shadowtile += f2 ? 1 : 0;
+        }
+
+        yofs += shadowdistance;
+        yofs += 8;
     }
     
     enemy::drawshadow(dest, translucent);
@@ -7717,19 +7710,17 @@ bool eKeese::animate(int index)
 
 void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
-    if (iwShadow < curQuest->weaponDefTable().getNumWeaponDefinitions())
-    {
-        int tempy = yofs;
-        flip = 0;
-        shadowtile = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).tile + posframe;
-        yofs += 8;
+    int shadows = curQuest->specialSprites().smallShadow;
+    int tempy = yofs;
+    flip = 0;
+    shadowtile = curQuest->weaponDefTable().getSpriteDefinition(shadows).tile + posframe;
+    yofs += 8;
 
-        if (!get_bit(quest_rules, qr_ENEMIESZAXIS))
-            yofs += int(step / (dstep / 1000.0));
+    if (!get_bit(quest_rules, qr_ENEMIESZAXIS))
+        yofs += int(step / (dstep / 1000.0));
 
-        enemy::drawshadow(dest, translucent);
-        yofs = tempy;
-    }
+    enemy::drawshadow(dest, translucent);
+    yofs = tempy;
 }
 
 void eKeese::draw(BITMAP *dest)

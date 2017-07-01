@@ -7189,7 +7189,7 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        uint32_t numweapons = curQuest->weaponDefTable().getNumWeaponDefinitions();
+        uint32_t numweapons = curQuest->weaponDefTable().getNumSpriteDefinitions();
         if(!p_iputl(numweapons,f))
         {
             new_return(5);
@@ -7197,10 +7197,10 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         
         for(uint32_t i=0; i<numweapons; i++)
         {
-            uint32_t len = curQuest->weaponDefTable().getWeaponName(i).length() + 1;
+            uint32_t len = curQuest->weaponDefTable().getSpriteName(i).length() + 1;
             if (!p_iputl(len, f))
                 new_return(5);
-            if(!pfwrite((void *)curQuest->weaponDefTable().getWeaponName(i).c_str(), len, f))
+            if(!pfwrite((void *)curQuest->weaponDefTable().getSpriteName(i).c_str(), len, f))
             {
                 new_return(5);
             }
@@ -7208,32 +7208,32 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         
         for(uint32_t i=0; i<numweapons; i++)
         {
-            if(!p_iputw(curQuest->weaponDefTable().getWeaponDefinition(i).tile,f))
+            if(!p_iputw(curQuest->weaponDefTable().getSpriteDefinition(i).tile,f))
             {
                 new_return(6);
             }
             
-            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).misc,f))
+            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).misc,f))
             {
                 new_return(7);
             }
             
-            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).csets,f))
+            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).csets,f))
             {
                 new_return(8);
             }
             
-            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).frames,f))
+            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).frames,f))
             {
                 new_return(9);
             }
             
-            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).speed,f))
+            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).speed,f))
             {
                 new_return(10);
             }
             
-            if(!p_putc(curQuest->weaponDefTable().getWeaponDefinition(i).type,f))
+            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).type,f))
             {
                 new_return(11);
             }

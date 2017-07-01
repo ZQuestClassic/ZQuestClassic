@@ -2097,8 +2097,10 @@ static void list_save(int save_num, int ypos)
     {
         game->set_maxlife(saves[save_num].get_maxlife());
         game->set_life(saves[save_num].get_maxlife());
-        if(iwQuarterHearts < curQuest->weaponDefTable().getNumWeaponDefinitions())
-            curQuest->weaponDefTable().getWeaponDefinition(iwQuarterHearts).tile = 4;
+
+        int hearts = curQuest->specialSprites().lifeMeterHearts;
+
+        curQuest->weaponDefTable().getSpriteDefinition(hearts).tile = 4;
         //boogie!
         lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);

@@ -9,7 +9,7 @@ using namespace std;
          return string(old_item_names[slot]);
      else
      {
-         char buf[6];
+         char buf[40];
          sprintf(buf, "zz%03d", slot);
          return string(buf);
      }

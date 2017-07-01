@@ -16,7 +16,7 @@
 #include "scripting/ZASMdefs.h"
 
 class ItemDefinitionTable;
-class WeaponDefinitionTable;
+class SpriteDefinitionTable;
 
 // define these in main code
 //extern bool init_tiles(bool validate);
@@ -127,7 +127,7 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
 int readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemDefinitionTable &idt);
-int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &idt, WeaponDefinitionTable &wdt);
+int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &idt, SpriteDefinitionTable &wdt);
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
 int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);

@@ -10,14 +10,20 @@
 struct Quest
 {
 public:
-    ItemDefinitionTable &itemDefTable() { return itemDefTable_; }
-    WeaponDefinitionTable &weaponDefTable() { return weaponDefTable_; }
     void setItemDefTable(ItemDefinitionTable &idt) { itemDefTable_ = idt; }
-    void setWeaponDefTable(WeaponDefinitionTable &wdt) { weaponDefTable_ = wdt; }
+    ItemDefinitionTable &itemDefTable() { return itemDefTable_; }
+    
+    void setWeaponDefTable(SpriteDefinitionTable &wdt) { weaponDefTable_ = wdt; }
+    SpriteDefinitionTable &weaponDefTable() { return weaponDefTable_; }
 
+    SpecialSpriteIndex &specialSprites() { return specialSpriteIndex_; }
+    void setSpecialSpriteIndex(SpecialSpriteIndex &ssi) { specialSpriteIndex_ = ssi; }
+    
 private:
     ItemDefinitionTable itemDefTable_;
-    WeaponDefinitionTable weaponDefTable_;
+
+    SpriteDefinitionTable weaponDefTable_;
+    SpecialSpriteIndex specialSpriteIndex_;
 };
 
 #endif

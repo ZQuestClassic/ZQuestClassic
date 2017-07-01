@@ -2347,7 +2347,8 @@ void game_loop()
     
     if(linkedmsgclk==1)
     {
-        if(iwMore < curQuest->weaponDefTable().getNumWeaponDefinitions() && curQuest->weaponDefTable().getWeaponDefinition(iwMore).tile!=0)
+        int iwmore = curQuest->specialSprites().messageMoreIndicator;
+        if(curQuest->weaponDefTable().getSpriteDefinition(iwmore).tile!=0)
         {
             putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom].aclk, lens_hint_weapon[wPhantom].aframe,-1);
         }
@@ -3206,6 +3207,7 @@ int main(int argc, char* argv[])
     // dummy quest for the purposes of displaying All of Treasures
     curQuest = new Quest();
     reset_items(true, &QHeader);
+    reset_wpns(true, &QHeader);
     
     clear_to_color(screen,BLACK);
     Quit = (fast_start||skip_title) ? qQUIT : qRESET;

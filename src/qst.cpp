@@ -113,6 +113,7 @@ enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERP
 
 static byte deprecated_rules[QUESTRULES_SIZE];
 
+static int readSpecialSpritesIndex(SpriteDefinitionTable &wpns, SpecialSpriteIndex &ssi);
 
 void delete_combo_aliases()
 {
@@ -995,6 +996,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
     case ID_WEAPONS:
         //weapons
         ret=readweapons(f, Header, curQuest->itemDefTable(), curQuest->weaponDefTable());
+        ret |= readSpecialSpritesIndex(curQuest->weaponDefTable(), curQuest->specialSprites());
         break;
         
     case ID_COLORS:
@@ -5281,8 +5283,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iBombs:
                 tempitem.fam_type=i_bomb;
                 tempitem.power=4;
-                tempitem.wpn=wBOMB;
-                tempitem.wpn2=wBOOM;
+                tempitem.wpn = OS_BOMB;
+                tempitem.wpn2 = OS_BOOM;
                 tempitem.misc1 = 50;
                     
                 if(get_bit(deprecated_rules,116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
@@ -5292,8 +5294,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iSBomb:
                 tempitem.fam_type=i_sbomb;
                 tempitem.power=16;
-                tempitem.wpn=wSBOMB;
-                tempitem.wpn2=wSBOOM;
+                tempitem.wpn = OS_SBOMB;
+                tempitem.wpn2 = OS_SBOOM;
                 tempitem.misc1 = 50;
                     
                 if(get_bit(deprecated_rules,116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
@@ -5302,40 +5304,40 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                     
             case iBook:
                 if(get_bit(deprecated_rules, 113))
-                    tempitem.wpn = wFIREMAGIC; //qr_FIREMAGICSPRITE
+                    tempitem.wpn = OS_FIREMAGIC; //qr_FIREMAGICSPRITE
                         
                 break;
                     
             case iSArrow:
-                tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
+                tempitem.wpn2 = get_bit(deprecated_rules,27) ? OS_SSPARKLE : 0; //qr_SASPARKLES
                 tempitem.power=4;
                 tempitem.flags|=itemdata::IF_GAMEDATA;
-                tempitem.wpn=wSARROW;
+                tempitem.wpn = OS_SARROW;
                 break;
                     
             case iGArrow:
-                tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
+                tempitem.wpn2 = get_bit(deprecated_rules,28) ? OS_GSPARKLE : 0; //qr_GASPARKLES
                 tempitem.power=8;
                 tempitem.flags|=(itemdata::IF_GAMEDATA|itemdata::IF_FLAG1);
-                tempitem.wpn=wGARROW;
+                tempitem.wpn = OS_GARROW;
                 break;
                     
             case iBrang:
                 tempitem.power=0;
-                tempitem.wpn=wBRANG;
+                tempitem.wpn = OS_BRANG;
                 tempitem.misc1=36;
                 break;
                     
             case iMBrang:
-                tempitem.wpn2 = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
+                tempitem.wpn2 = get_bit(deprecated_rules,29) ? OS_MSPARKLE : 0; //qr_MBSPARKLES
                 tempitem.power=0;
-                tempitem.wpn=wMBRANG;
+                tempitem.wpn = OS_MBRANG;
                 break;
                     
             case iFBrang:
-                tempitem.wpn3 = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
+                tempitem.wpn3 = get_bit(deprecated_rules,30) ? OS_FSPARKLE : 0; //qr_FBSPARKLES
                 tempitem.power=2;
-                tempitem.wpn=wFBRANG;
+                tempitem.wpn = OS_FBRANG;
                 break;
                     
             case iBoots:
@@ -5346,64 +5348,64 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iWand:
                 tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
                 tempitem.power=2;
-                tempitem.wpn=wWAND;
-                tempitem.wpn3=wMAGIC;
+                tempitem.wpn = OS_WAND;
+                tempitem.wpn3 = OS_MAGIC;
                 break;
                     
             case iBCandle:
                 tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
                 tempitem.power=1;
                 tempitem.flags|=(itemdata::IF_GAMEDATA|itemdata::IF_FLAG1);
-                tempitem.wpn3=wFIRE;
+                tempitem.wpn3 = OS_FIRE;
                 break;
                     
             case iRCandle:
                 tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
                 tempitem.power=1;
-                tempitem.wpn3=wFIRE;
+                tempitem.wpn3 = OS_FIRE;
                 break;
                     
             case iSword:
                 tempitem.power=1;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3=wSWORD;
-                tempitem.wpn2=wSWORDSLASH;
+                tempitem.wpn=tempitem.wpn3 = OS_SWORD;
+                tempitem.wpn2 = OS_SWORDSLASH;                
                 break;
                     
             case iWSword:
                 tempitem.power=2;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3=wWSWORD;
-                tempitem.wpn2=wWSWORDSLASH;
+                tempitem.wpn=tempitem.wpn3 = OS_WSWORD;
+                tempitem.wpn2 = OS_WSWORDSLASH;
                 break;
                     
             case iMSword:
                 tempitem.power=4;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3=wMSWORD;
-                tempitem.wpn2=wMSWORDSLASH;
+                tempitem.wpn=tempitem.wpn3 = OS_MSWORD;
+                tempitem.wpn2 = OS_MSWORDSLASH;
                 break;
                     
             case iXSword:
                 tempitem.power=8;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3=wXSWORD;
-                tempitem.wpn2=wXSWORDSLASH;
+                tempitem.wpn=tempitem.wpn3 = OS_XSWORD;
+                tempitem.wpn2 = OS_XSWORDSLASH;
                 break;
                     
             case iNayrusLove:
                 tempitem.flags |= get_bit(deprecated_rules,76) ? itemdata::IF_FLAG1 : 0;
                 tempitem.flags |= get_bit(deprecated_rules,75) ? itemdata::IF_FLAG2 : 0;
-                tempitem.wpn=wNAYRUSLOVE1A;
-                tempitem.wpn2=wNAYRUSLOVE1B;
-                tempitem.wpn3=wNAYRUSLOVES1A;
-                tempitem.wpn4=wNAYRUSLOVES1B;
-                tempitem.wpn6=wNAYRUSLOVE2A;
-                tempitem.wpn7=wNAYRUSLOVE2B;
-                tempitem.wpn8=wNAYRUSLOVES2A;
-                tempitem.wpn9=wNAYRUSLOVES2B;
-                tempitem.wpn5 = iwNayrusLoveShieldFront;
-                tempitem.wpn10 = iwNayrusLoveShieldBack;
+                tempitem.wpn  = OS_NAYRUSLOVE1A;
+                tempitem.wpn2 = OS_NAYRUSLOVE1B;
+                tempitem.wpn3 = OS_NAYRUSLOVES1A;
+                tempitem.wpn4 = OS_NAYRUSLOVES1B;
+                tempitem.wpn6 = OS_NAYRUSLOVE2A;
+                tempitem.wpn7 = OS_NAYRUSLOVE2B;
+                tempitem.wpn8 = OS_NAYRUSLOVES2A;
+                tempitem.wpn9 = OS_NAYRUSLOVES2B;
+                tempitem.wpn5 = OS_NAYRUSLOVESHIELDFRONT;
+                tempitem.wpn10 = OS_NAYRUSLOVESHIELDBACK;
                 tempitem.misc1=512;
                 tempitem.magic=64;
                 break;
@@ -5416,20 +5418,20 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                     
             case iArrow:
                 tempitem.power=2;
-                tempitem.wpn=wARROW;
+                tempitem.wpn = OS_ARROW;
                 break;
                     
             case iHoverBoots:
                 tempitem.misc1=45;
-                tempitem.wpn=iwHover;
+                tempitem.wpn = OS_HOVER;
                 break;
                     
             case iDinsFire:
                 tempitem.power=8;
-                tempitem.wpn=wDINSFIRE1A;
-                tempitem.wpn2=wDINSFIRE1B;
-                tempitem.wpn3=wDINSFIRES1A;
-                tempitem.wpn4=wDINSFIRES1B;
+                tempitem.wpn  = OS_DINSFIRE1A;
+                tempitem.wpn2 = OS_DINSFIRE1B;
+                tempitem.wpn3 = OS_DINSFIRES1A;
+                tempitem.wpn4 = OS_DINSFIRES1B;
                 tempitem.misc1 = 32;
                 tempitem.misc2 = 200;
                 tempitem.magic=32;
@@ -5442,10 +5444,10 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iHookshot:
                 tempitem.power=0;
                 tempitem.flags&=~itemdata::IF_FLAG1;
-                tempitem.wpn=wHSHEAD;
-                tempitem.wpn2=wHSCHAIN_H;
-                tempitem.wpn4=wHSHANDLE;
-                tempitem.wpn3=wHSCHAIN_V;
+                tempitem.wpn  = OS_HSHEAD;
+                tempitem.wpn2 = OS_HSCHAIN_H;
+                tempitem.wpn4 = OS_HSHANDLE;
+                tempitem.wpn3 = OS_HSCHAIN_V;
                 tempitem.misc1=50;
                 tempitem.misc2=100;
                 break;
@@ -5453,25 +5455,25 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iLongshot:
                 tempitem.power=0;
                 tempitem.flags&=~itemdata::IF_FLAG1;
-                tempitem.wpn=wLSHEAD;
-                tempitem.wpn2=wLSCHAIN_H;
-                tempitem.wpn4=wLSHANDLE;
-                tempitem.wpn3=wLSCHAIN_V;
+                tempitem.wpn  = OS_LSHEAD;
+                tempitem.wpn2 = OS_LSCHAIN_H;
+                tempitem.wpn4 = OS_LSHANDLE;
+                tempitem.wpn3 = OS_LSCHAIN_V;
                 tempitem.misc1=99;
                 tempitem.misc2=100;
                 break;
                     
             case iHammer:
                 tempitem.power=4;
-                tempitem.wpn=wHAMMER;
-                tempitem.wpn2=iwHammerSmack;
+                tempitem.wpn  = OS_HAMMER;
+                tempitem.wpn2 = OS_HAMMERSMACK;
                 break;
                     
             case iCByrna:
                 tempitem.power=1;
-                tempitem.wpn=wCBYRNA;
-                tempitem.wpn2=wCBYRNASLASH;
-                tempitem.wpn3=wCBYRNAORB;
+                tempitem.wpn  = OS_CBYRNA;
+                tempitem.wpn2 = OS_CBYRNASLASH;
+                tempitem.wpn3 = OS_CBYRNAORB;
                 tempitem.misc1=4;
                 tempitem.misc2=16;
                 tempitem.misc3=1;
@@ -5479,7 +5481,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                 break;
                     
             case iWhistle:
-                tempitem.wpn=wWIND;
+                tempitem.wpn = OS_WIND;
                 tempitem.misc1=3;
                 tempitem.flags|=itemdata::IF_FLAG1;
                 break;
@@ -5763,7 +5765,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
         {
             if(tempitem.family == itype_candle && !tempitem.wpn3)
             {
-                tempitem.wpn3 = wFIRE;
+                tempitem.wpn3 = OS_FIRE;
             }
             else if(tempitem.family == itype_arrow && tempitem.power>4)
             {
@@ -5800,12 +5802,12 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
         {
             if(tempitem.family == itype_nayruslove)
             {
-                tempitem.wpn6=wNAYRUSLOVE2A;
-                tempitem.wpn7=wNAYRUSLOVE2B;
-                tempitem.wpn8=wNAYRUSLOVES2A;
-                tempitem.wpn9=wNAYRUSLOVES2B;
-                tempitem.wpn5 = iwNayrusLoveShieldFront;
-                tempitem.wpn10 = iwNayrusLoveShieldBack;
+                tempitem.wpn6 = OS_NAYRUSLOVE2A;
+                tempitem.wpn7 = OS_NAYRUSLOVE2B;
+                tempitem.wpn8 = OS_NAYRUSLOVES2A;
+                tempitem.wpn9 = OS_NAYRUSLOVES2B;
+                tempitem.wpn5 = OS_NAYRUSLOVESHIELDFRONT;
+                tempitem.wpn10 = OS_NAYRUSLOVESHIELDBACK;
             }
         }
             
@@ -5836,9 +5838,9 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
         if(s_version < 23)    // March 2011
         {
             if(tempitem.family == itype_dinsfire)
-                tempitem.wpn5 = wFIRE;
+                tempitem.wpn5 = OS_FIRE;
             else if(tempitem.family == itype_book)
-                tempitem.wpn2 = wFIRE;
+                tempitem.wpn2 = OS_FIRE;
         }
             
         // Version 25: Bomb bags were acting as though "super bombs also" was checked
@@ -5854,13 +5856,13 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
         }
             
         if(tempitem.fam_type==0)  // Always do this
-            tempitem.fam_type=1;          
+            tempitem.fam_type=1;     
     }
   
-    return qe_OK;
+    return qe_OK;    
 }
 
-int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtable, WeaponDefinitionTable &table)
+int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtable, SpriteDefinitionTable &table)
 {
     table.clear();
     uint32_t weapons_to_read;
@@ -5963,17 +5965,17 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
         
         if(s_version<4)
         {
-            if(iwHover < weapons_to_read)
-                names[iwHover] = WeaponDefinitionTable::defaultWeaponName(iwHover);
-            if(wFIREMAGIC < weapons_to_read)
-                names[wFIREMAGIC] = WeaponDefinitionTable::defaultWeaponName(wFIREMAGIC);            
+            if(OS_HOVER < weapons_to_read)
+                names[OS_HOVER] = SpriteDefinitionTable::defaultSpriteName(OS_HOVER);
+            if(OS_FIREMAGIC < weapons_to_read)
+                names[OS_FIREMAGIC] = SpriteDefinitionTable::defaultSpriteName(OS_FIREMAGIC);            
         }
         
         if(s_version<5)
         {
-            if (iwQuarterHearts < weapons_to_read)
+            if (OS_QUARTERHEARTS < weapons_to_read)
             {
-                names[iwQuarterHearts] = WeaponDefinitionTable::defaultWeaponName(iwQuarterHearts);
+                names[OS_QUARTERHEARTS] = SpriteDefinitionTable::defaultSpriteName(OS_QUARTERHEARTS);
             }
         }
     }
@@ -5981,7 +5983,16 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
     {
         for (uint32_t i = 0; i < weapons_to_read; i++)
         {
-            names.push_back(WeaponDefinitionTable::defaultWeaponName(i));
+            names.push_back(SpriteDefinitionTable::defaultSpriteName(i));
+        }
+    }
+
+    if (s_version < 7)
+    {
+        for (int i = weapons_to_read; i < OS_LAST; i++)
+        {
+            wpndata blank;
+            table.addSpriteDefinition(blank, SpriteDefinitionTable::defaultSpriteName(i));
         }
     }
 
@@ -6031,7 +6042,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
         
         if(s_version < 6)
         {
-            if(i==ewFIRETRAIL)
+            if(i==OS_ENEMY_FIRETRAIL)
             {
                 tempweapon.misc |= wpndata::WF_BEHIND;
             }
@@ -6039,21 +6050,21 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
                 tempweapon.misc &= ~wpndata::WF_BEHIND;
         }
         
-        table.addWeaponDefinition(tempweapon, names[i]);
+        table.addSpriteDefinition(tempweapon, names[i]);
     }
     
     if(s_version<2)
     {
-        if (wSBOOM < weapons_to_read && wBOOM < weapons_to_read)
-            table.getWeaponDefinition(wSBOOM) = table.getWeaponDefinition(wBOOM);
+        if (OS_SBOOM < weapons_to_read && OS_BOOM < weapons_to_read)
+            table.getSpriteDefinition(OS_SBOOM) = table.getSpriteDefinition(OS_BOOM);
     }
         
     if(s_version<5)
     {
-        if (iwQuarterHearts < weapons_to_read)
+        if (OS_QUARTERHEARTS < weapons_to_read)
         {
-            table.getWeaponDefinition(iwQuarterHearts).tile = 1;
-            table.getWeaponDefinition(iwQuarterHearts).csets = 1;
+            table.getSpriteDefinition(OS_QUARTERHEARTS).tile = 1;
+            table.getSpriteDefinition(OS_QUARTERHEARTS).csets = 1;
         }
     }
         
@@ -6065,7 +6076,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
         memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
         memset(&itemsbuf[iMisc2],0,sizeof(itemdata));*/
 
-        if (iwSpawn < weapons_to_read)
+        if (OS_SPAWN < weapons_to_read)
         {
             itemdata copyitem;
             if (iMisc1 < itemtable.getNumItemDefinitions())
@@ -6080,12 +6091,12 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
             spawnwpn.speed = copyitem.speed;
             // type and script do not need to be copied, presumably
 
-            table.getWeaponDefinition(iwSpawn) = spawnwpn;
+            table.getSpriteDefinition(OS_SPAWN) = spawnwpn;
             if(iMisc1 < itemtable.getNumItemDefinitions())
                 itemtable.getItemDefinition(iMisc1) = itemdata();            
         }
             
-        if (iwDeath < weapons_to_read)
+        if (OS_DEATH < weapons_to_read)
         {
             itemdata copyitem;
             if (iMisc2 < itemtable.getNumItemDefinitions())
@@ -6099,7 +6110,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
             deathwpn.frames = copyitem.frames;
             deathwpn.speed = copyitem.speed;
 
-            table.getWeaponDefinition(iwDeath) = deathwpn;
+            table.getSpriteDefinition(OS_DEATH) = deathwpn;
             if(iMisc2 < itemtable.getNumItemDefinitions())
                 itemtable.getItemDefinition(iMisc2) = itemdata(); 
         }            
@@ -6108,23 +6119,78 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
     if((Header->zelda_version < 0x192)||
             ((Header->zelda_version == 0x192)&&(Header->build<129)))
     {
-        if (wHSCHAIN_V < weapons_to_read && wHSCHAIN_H < weapons_to_read)
-            table.getWeaponDefinition(wHSCHAIN_V) = table.getWeaponDefinition(wHSCHAIN_H);
+        if (OS_HSCHAIN_V < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
+            table.getSpriteDefinition(OS_HSCHAIN_V) = table.getSpriteDefinition(OS_HSCHAIN_H);
     }
         
     if((Header->zelda_version < 0x210))
     {
-        if (wLSHEAD < weapons_to_read && wHSHEAD < weapons_to_read)
-            table.getWeaponDefinition(wLSHEAD) = table.getWeaponDefinition(wHSHEAD);
-        if (wLSCHAIN_H < weapons_to_read && wHSCHAIN_H < weapons_to_read)
-            table.getWeaponDefinition(wLSCHAIN_H) = table.getWeaponDefinition(wHSCHAIN_H);
-        if (wLSHANDLE < weapons_to_read && wHSHANDLE < weapons_to_read)
-            table.getWeaponDefinition(wLSHANDLE) = table.getWeaponDefinition(wHSHANDLE);
-        if (wLSCHAIN_V < weapons_to_read && wHSCHAIN_V < weapons_to_read)
-            table.getWeaponDefinition(wLSCHAIN_V) = table.getWeaponDefinition(wHSCHAIN_V);        
+        if (OS_LSHEAD < weapons_to_read && OS_HSHEAD < weapons_to_read)
+            table.getSpriteDefinition(OS_LSHEAD) = table.getSpriteDefinition(OS_HSHEAD);
+        if (OS_LSCHAIN_H < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
+            table.getSpriteDefinition(OS_LSCHAIN_H) = table.getSpriteDefinition(OS_HSCHAIN_H);
+        if (OS_LSHANDLE < weapons_to_read && OS_HSHANDLE < weapons_to_read)
+            table.getSpriteDefinition(OS_LSHANDLE) = table.getSpriteDefinition(OS_HSHANDLE);
+        if (OS_LSCHAIN_V < weapons_to_read && OS_HSCHAIN_V < weapons_to_read)
+            table.getSpriteDefinition(OS_LSCHAIN_V) = table.getSpriteDefinition(OS_HSCHAIN_V);        
     }
 
     return qe_OK;
+}
+
+int readSpecialSpritesIndex(SpriteDefinitionTable &wpns, SpecialSpriteIndex &ssi)
+{
+    ssi = SpecialSpriteIndex();
+
+    // hard-coded for now. Could be editable later.
+    ssi.messageMoreIndicator = OS_MORE;
+    ssi.bushLeavesDecoration = OS_BUSHLEAVES;
+    ssi.flowerClippingsDecoration = OS_FLOWERCLIPPINGS;
+    ssi.grassClippingsDecoration = OS_GRASSCLIPPINGS;
+    ssi.tallGrassDecoration = OS_TALLGRASS;
+    ssi.ripplesDecoration = OS_RIPPLES;
+    ssi.nayruShieldFront = OS_NAYRUSLOVESHIELDFRONT;           
+    ssi.nayruShieldBack = OS_NAYRUSLOVESHIELDBACK;
+    ssi.lifeMeterHearts = OS_QUARTERHEARTS;
+    ssi.enemySpawnCloud = OS_SPAWN;
+    ssi.enemyDeathCloud = OS_DEATH;
+    ssi.smallShadow = OS_SHADOW;
+    ssi.largeShadow = OS_LARGESHADOW;
+    ssi.linkSwim = OS_SWIM;
+    ssi.linkSlash = OS_LINKSLASH;
+    ssi.magicMeter = OS_MMETER;
+    ssi.flickeringFlame = OS_ENEMY_FLAME;
+    ssi.flickeringFlame2 = OS_ENEMY_FLAME2;
+    ssi.flickeringFireTrail = OS_ENEMY_FIRETRAIL;
+    ssi.subscreenVine = OS_SUBSCREENVINE;
+    ssi.npcTemplate = OS_NPCS;
+    ssi.defaultLinkWeaponSprite = OS_SWORD;
+    ssi.defaultFireSprite = OS_FIRE;
+    ssi.defaultBoomerangSprites[0] = OS_BRANG;
+    ssi.defaultBoomerangSprites[1] = OS_MBRANG;
+    ssi.defaultBoomerangSprites[2] = OS_FBRANG;
+    ssi.defaultBombExplosion = OS_BOOM;
+    ssi.defaultSuperBombExplosion = OS_SBOOM;
+    ssi.silverSparkle = OS_SSPARKLE;
+    ssi.fireSparkle = OS_FSPARKLE;
+    ssi.dinsRocketTrail = OS_DINSFIRES1A;
+    ssi.dinsRocketTrailReturn = OS_DINSFIRES1B;
+    ssi.nayruRocketTrail = OS_NAYRUSLOVES1A;
+    ssi.nayruRocketTrailReturn = OS_NAYRUSLOVES1B;
+    ssi.nayruRocketTrail2 = OS_NAYRUSLOVES2A;
+    ssi.nayruRocketTrailReturn2 = OS_NAYRUSLOVES2B;
+    ssi.defaultEnemySwordBeamSprite = OS_ENEMY_SWORD;
+    ssi.defaultEnemyBomb = OS_ENEMY_BOMB;
+    ssi.defaultEnemySuperBomb = OS_ENEMY_SBOMB;
+    ssi.defaultEnemyFireball = OS_ENEMY_FIREBALL;
+    ssi.defaultEnemyRock = OS_ENEMY_ROCK;
+    ssi.defaultEnemyArrow = OS_ENEMY_ARROW;
+    ssi.defaultEnemyMagic = OS_ENEMY_MAGIC;
+    ssi.defaultEnemyWind = OS_ENEMY_WIND;
+    ssi.defaultEnemyBombExplosion = OS_ENEMY_BOOM;
+    ssi.defaultEnemySuperBombExplosion = OS_ENEMY_SBOOM;
+
+    return ssi.checkConsistency(wpns);
 }
 
 void init_guys(int guyversion)
@@ -11937,10 +12003,10 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
-            if(get_bit(quest_rules,qr_BSZELDA) && iwSwim < curQuest->weaponDefTable().getNumWeaponDefinitions())   //
+            if(get_bit(quest_rules,qr_BSZELDA) && OS_SWIM < curQuest->weaponDefTable().getNumSpriteDefinitions())   //
             {
                 byte tempbyte;
-                int floattile=curQuest->weaponDefTable().getWeaponDefinition(iwSwim).tile;
+                int floattile=curQuest->weaponDefTable().getSpriteDefinition(OS_SWIM).tile;
                 
                 for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order
                 {
@@ -14001,11 +14067,15 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 }
 
                 box_out("Reading Weapons...");
-                WeaponDefinitionTable table;
+                SpriteDefinitionTable table;
                 ret = readweapons(f, &tempheader, curQuest->itemDefTable(), table);
+                checkstatus(ret);
                 if (keepall && !get_bit(skip_flags, skip_weapons))
                     curQuest->setWeaponDefTable(table);
-                checkstatus(ret);
+                SpecialSpriteIndex ssi;
+                ret = readSpecialSpritesIndex(table, ssi);
+                if (keepall && !get_bit(skip_flags, skip_weapons))
+                    curQuest->setSpecialSpriteIndex(ssi);
                 box_out("okay.");
                 box_eol();
                 break;
@@ -14331,11 +14401,15 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         //weapons
         box_out("Reading Weapons...");
-        WeaponDefinitionTable wdt;
+        SpriteDefinitionTable wdt;
         ret=readweapons(f, &tempheader, curQuest->itemDefTable(), wdt);        
         checkstatus(ret);
         if (keepall && !get_bit(skip_flags, skip_weapons))
             curQuest->setWeaponDefTable(wdt);
+        SpecialSpriteIndex ssi;
+        ret = readSpecialSpritesIndex(wdt,ssi);
+        if (keepall && !get_bit(skip_flags, skip_weapons))
+            curQuest->setSpecialSpriteIndex(ssi);
         box_out("okay.");
         box_eol();
         

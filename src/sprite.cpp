@@ -533,8 +533,9 @@ void sprite::draw(BITMAP* dest)
     {
         if(e!=3)
         {
-            int t  = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).tile;
-            int cs2 = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).csets&15;
+            int spawns = curQuest->specialSprites().enemySpawnCloud;
+            int t  = curQuest->weaponDefTable().getSpriteDefinition(spawns).tile;
+            int cs2 = curQuest->weaponDefTable().getSpriteDefinition(spawns).csets&15;
             
             if(BSZ)
             {
@@ -553,7 +554,7 @@ void sprite::draw(BITMAP* dest)
         }
         else
         {
-            sprite w(*pool, (fix)sx,(fix)sy,curQuest->weaponDefTable().getWeaponDefinition(extend).tile,curQuest->weaponDefTable().getWeaponDefinition(extend).csets&15,0,0,0);
+            sprite w(*pool, (fix)sx,(fix)sy,curQuest->weaponDefTable().getSpriteDefinition(extend).tile,curQuest->weaponDefTable().getSpriteDefinition(extend).csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -643,8 +644,9 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     else
     {
-        int t  = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).tile;
-        int cs2 = curQuest->weaponDefTable().getWeaponDefinition(iwSpawn).csets&15;
+        int spawns = curQuest->specialSprites().enemySpawnCloud;
+        int t  = curQuest->weaponDefTable().getSpriteDefinition(spawns).tile;
+        int cs2 = curQuest->weaponDefTable().getSpriteDefinition(spawns).csets&15;
         
         if(BSZ)
         {
@@ -673,8 +675,10 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
         return;
     }
     
-    int shadowcs = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).csets & 0xFFFF;
-    int shadowflip = curQuest->weaponDefTable().getWeaponDefinition(iwShadow).misc & 0xFF;
+    int shadows = curQuest->specialSprites().smallShadow;
+
+    int shadowcs = curQuest->weaponDefTable().getSpriteDefinition(shadows).csets & 0xFFFF;
+    int shadowflip = curQuest->weaponDefTable().getSpriteDefinition(shadows).misc & 0xFF;
     
     int sx = real_x(x+xofs)+(txsz-1)*8;
     int sy = real_y(y+yofs+(tysz-1)*16);

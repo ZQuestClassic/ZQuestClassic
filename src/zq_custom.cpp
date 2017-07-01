@@ -2277,26 +2277,26 @@ void edit_weapondata(int index)
     char name[64];
     char wpnnumstr[75];
     
-    sprintf(wpnnumstr, "Sprite %d: %s", index, curQuest->weaponDefTable().getWeaponName(index).c_str());
+    sprintf(wpnnumstr, "Sprite %d: %s", index, curQuest->weaponDefTable().getSpriteName(index).c_str());
     wpndata_dlg[0].dp  = wpnnumstr;
     wpndata_dlg[0].dp2 = lfont;
-    wpndata_dlg[2].d1  = curQuest->weaponDefTable().getWeaponDefinition(index).tile;
-    wpndata_dlg[2].d2  = curQuest->weaponDefTable().getWeaponDefinition(index).csets&15;
+    wpndata_dlg[2].d1  = curQuest->weaponDefTable().getSpriteDefinition(index).tile;
+    wpndata_dlg[2].d2  = curQuest->weaponDefTable().getSpriteDefinition(index).csets&15;
     
     for(int i=0; i<4; i++)
-        wpndata_dlg[i+5].flags = (curQuest->weaponDefTable().getWeaponDefinition(index).misc&(1<<i)) ? D_SELECTED : 0;
+        wpndata_dlg[i+5].flags = (curQuest->weaponDefTable().getSpriteDefinition(index).misc&(1<<i)) ? D_SELECTED : 0;
         
-    wpndata_dlg[17].flags = (curQuest->weaponDefTable().getWeaponDefinition(index).misc & wpndata::WF_BEHIND) ? D_SELECTED : 0;
+    wpndata_dlg[17].flags = (curQuest->weaponDefTable().getSpriteDefinition(index).misc & wpndata::WF_BEHIND) ? D_SELECTED : 0;
     
-    sprintf(fcs,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).csets>>4);
-    sprintf(frm,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).frames);
-    sprintf(spd,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).speed);
-    sprintf(typ,"%d",curQuest->weaponDefTable().getWeaponDefinition(index).type);
+    sprintf(fcs,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).csets>>4);
+    sprintf(frm,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).frames);
+    sprintf(spd,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).speed);
+    sprintf(typ,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).type);
     wpndata_dlg[13].dp = fcs;
     wpndata_dlg[14].dp = frm;
     wpndata_dlg[15].dp = spd;
     wpndata_dlg[16].dp = typ;
-    sprintf(name,"%s",curQuest->weaponDefTable().getWeaponName(index).c_str());
+    sprintf(name,"%s",curQuest->weaponDefTable().getSpriteName(index).c_str());
     wpndata_dlg[18].dp = name;
 
 	DIALOG *wpndata_cpy = resizeDialog(wpndata_dlg, 1.5);
@@ -2329,8 +2329,8 @@ void edit_weapondata(int index)
     
     if(ret==3)
     {
-        curQuest->weaponDefTable().setWeaponName(index, std::string(name));
-        curQuest->weaponDefTable().getWeaponDefinition(index) = test;
+        curQuest->weaponDefTable().setSpriteName(index, std::string(name));
+        curQuest->weaponDefTable().getSpriteDefinition(index) = test;
         saved = false;
     }
 

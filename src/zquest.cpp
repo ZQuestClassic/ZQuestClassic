@@ -10047,13 +10047,13 @@ void build_biw_list()
 
     biw_cnt=0;
 
-    int numweapons = curQuest->weaponDefTable().getNumWeaponDefinitions();
+    int numweapons = curQuest->weaponDefTable().getNumSpriteDefinitions();
 
     biw = new weapon_struct[numweapons];
     
     for(int i=0; i<numweapons; i++)
     {
-        biw[biw_cnt].s = curQuest->weaponDefTable().getWeaponName(i);
+        biw[biw_cnt].s = curQuest->weaponDefTable().getSpriteName(i);
         biw[biw_cnt].i = i;
         ++biw_cnt;
     }
@@ -11901,8 +11901,8 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
         
         int tile = 0;
         int cset = 0;
-        tile= curQuest->weaponDefTable().getWeaponDefinition(biw[d->d1].i).tile;
-        cset= curQuest->weaponDefTable().getWeaponDefinition(biw[d->d1].i).csets&15;
+        tile= curQuest->weaponDefTable().getSpriteDefinition(biw[d->d1].i).tile;
+        cset= curQuest->weaponDefTable().getSpriteDefinition(biw[d->d1].i).csets&15;
         int x = d->x + d->w + 4;
         int y = d->y;
         int w = 16;

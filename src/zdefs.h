@@ -806,39 +806,6 @@ enum
     isMAGIC, isMAGICBOMBS, isMAGICMONEY, isMAGICLIFE, isMAGIC2, isTALLGRASS, isMAX
 };
 
-// weapons (in qst data)
-enum
-{
-    wSWORD, wWSWORD, wMSWORD, wXSWORD, wBRANG,
-    wMBRANG, wFBRANG, wBOMB, wSBOMB, wBOOM,
-// 10
-    wARROW, wSARROW, wFIRE, wWIND, wBAIT,
-    wWAND, wMAGIC, ewFIREBALL, ewROCK, ewARROW,
-// 20
-    ewSWORD, ewMAGIC, iwSpawn, iwDeath, iwSwim,
-    wHAMMER, wHSHEAD, wHSCHAIN_H, wHSHANDLE, wSSPARKLE,
-// 30
-    wGSPARKLE, wMSPARKLE, wFSPARKLE, iwHammerSmack, wGARROW,
-    ewFLAME, ewWIND, iwMMeter, wDINSFIRE1A, wDINSFIRE1B,
-// 40
-    wDINSFIRES1A, wDINSFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
-    iwLinkSlash, wSWORDSLASH, wWSWORDSLASH, wMSWORDSLASH, wXSWORDSLASH,
-// 50
-    iwShadow, iwLargeShadow, iwBushLeaves, iwFlowerClippings, iwGrassClippings,
-    iwTallGrass, iwRipples, iwNPCs, wNAYRUSLOVE1A, wNAYRUSLOVE1B,
-// 60
-    wNAYRUSLOVES1A, wNAYRUSLOVES1B, wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A,
-    wNAYRUSLOVES2B, iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA,
-// 70
-    wCBYRNASLASH, wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V,
-    wSBOOM, ewBOMB, ewSBOMB, ewBOOM, ewSBOOM,
-// 80
-    ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
-    wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
-    
-    wLast
-};
-
 // weapon types in game engine
 enum
 {
