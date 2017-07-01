@@ -98,8 +98,8 @@ endif()
 # Windows
 
 if(MSVC)
-	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alld_crt.lib>" 
-				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg_crt.lib>")
+	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44_debug.lib>" 
+				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg44.lib>")
 	
 	add_definitions(-DALLEGRO_MSVC)
 	

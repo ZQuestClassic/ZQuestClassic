@@ -7,6 +7,7 @@ set(ROMVIEW_CORE_SOURCES
 
 src/zsys.cpp
 src/romview.cpp
+src/alleg_compat.cpp
 
 ## End of Romview Core module
 )
