@@ -8000,12 +8000,89 @@ void do_drawing_command(const int script_command)
 
 		long arrayID = script_drawing_commands[j][8] / 10000;
 		int length = ArrayH::strlen(arrayID);
-		char *str = (char*)script_drawing_commands[j].AllocateDrawBuffer(length + 1);
-
-		ArrayH::uncheckedGetCString(arrayID, str, length);
+		if(length > 0)
+		{
+			char *str = (char*)script_drawing_commands[j].AllocateDrawBuffer(length + 1);
+			ArrayH::uncheckedGetCString(arrayID, str, length);
+		}
+		else
+		{
+			script_drawing_commands.AbortDrawingCommand();
+		}
     }
     break;
-    }
+
+
+	//case BITMAPEXR:
+	//{
+	//}
+	//break;
+
+	//case POLYGONR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//		long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//		script_drawing_commands[j].SetPtr(ptr);
+	//	}
+	//break;
+
+	//case PIXELARRAYR:
+	//{
+	//	set_drawing_command_args(j, 5);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	//case TILEARRAYR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	//case COMBOARRAYR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	} //switch
 }
 
 void do_set_rendertarget(bool)
@@ -9557,9 +9634,14 @@ int run_script(const byte type, const word script, const byte i)
         case DRAWSTRINGR:
         case SPLINER:
         case BITMAPR:
-	case BITMAPEXR:
+		case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
+		//case BITMAPEXR:
+		//case POLYGONR:
+		//case PIXELARRAYR:
+		//case TILEARRAYR:
+		//case COMBOARRAYR:
             do_drawing_command(scommand);
             break;
             

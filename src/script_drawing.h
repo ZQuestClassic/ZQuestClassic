@@ -253,6 +253,13 @@ public:
         
         return next_index;
     }
+
+	void AbortDrawingCommand()
+	{
+		ASSERT(count != 0);
+		if(count > 0)
+			--count;
+	}
     
     CScriptDrawingCommandVars& operator [](const int i)
     {

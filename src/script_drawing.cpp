@@ -3139,6 +3139,108 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	script_drawing_commands[i].DeallocateDrawBuffer();
 }
 
+//
+//void do_bitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+//{
+//	//todo
+//}
+//void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+//{
+//	//todo
+//}
+//void do_pixelarrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffset)
+//{
+//	//sdci[1]=layer
+//	//sdci[2]=count
+//	//sdci[3]=x[]
+//	//sdci[4]=y[]
+//	//sdci[5]=colors[]
+//	long* p = (long*)script_drawing_commands[icommand].GetPtr();
+//	if(!p)
+//	{
+//		al_trace("do_pixelarrayr: pointer is null! Internal error. \n");
+//		return;
+//	}
+//	int count = sdci[2]/10000;
+//	long* px = p;
+//	long* py = p + count;
+//	long* pc = p + count * 2;
+//	for(int i(0); i != count; ++i)
+//	{
+//		putpixel(bmp,
+//			xoffset + px[i] / 10000,
+//			yoffset + py[i] / 10000,
+//			pc[i] / 10000);
+//	}
+//	zc_free(p);
+//}
+//void do_tilearrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffset)
+//{
+//	//sdci[1]=layer
+//	//sdci[2]=count
+//	//sdci[3]=tile[]
+//	//sdci[4]=x[]
+//	//sdci[5]=y[]
+//	//sdci[6]=colors[]
+//	long* p = (long*)script_drawing_commands[icommand].GetPtr();
+//	if(!p)
+//	{
+//		al_trace("do_tilearrayr: pointer is null! Internal error. \n");
+//		return;
+//	}
+//	int count = sdci[2] / 10000;
+//	long* ptiles = p;
+//	long* px = p + count;
+//	long* py = p + count * 2;
+//	long* pc = p + count * 3;
+//	for(int i(0); i != count; ++i)
+//	{
+//		int x = px[i] / 10000;
+//		int y = py[i] / 10000;
+//		overtile16(bmp,
+//			ptiles[i] / 10000,
+//			xoffset + x,
+//			yoffset + y,
+//			pc[i] / 10000,
+//			0 //flip
+//			);
+//	}
+//	zc_free(p);
+//}
+//void do_comboarrayr(BITMAP *bmp, int icommand, int *sdci, int xoffset, int yoffset)
+//{
+//	//sdci[1]=layer
+//	//sdci[2]=count
+//	//sdci[3]=tile[]
+//	//sdci[4]=x[]
+//	//sdci[5]=y[]
+//	//sdci[6]=colors[]
+//	long* p = (long*)script_drawing_commands[icommand].GetPtr();
+//	if(!p)
+//	{
+//		al_trace("do_tilearrayr: pointer is null! Internal error. \n");
+//		return;
+//	}
+//	int count = sdci[2]/10000;
+//	long* pcombos = p;
+//	long* px = p + count;
+//	long* py = p + count * 2;
+//	long* pc = p + count * 3;
+//	for(int i(0); i != count; ++i)
+//	{
+//		int x = px[i] / 10000;
+//		int y = py[i] / 10000;
+//		overtile16(bmp,
+//			combo_tile(pcombos[i] / 10000, x, y),
+//			xoffset + x,
+//			yoffset + y,
+//			pc[i] / 10000,
+//			0 //flip
+//			);
+//	}
+//	zc_free(p);
+//}
+
 
 bool is_layer_transparent(const mapscr& m, int layer)
 {
@@ -3402,7 +3504,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
         }
         break;
         
-	case POLYGONR:
+		case POLYGONR:
         {
             do_polygonr(bmp, sdci, xoffset, yoffset);
         }
@@ -3516,7 +3618,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
         }
         break;
 	
-	case BITMAPEXR:
+		case BITMAPEXR:
         {
             do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
         }
@@ -3534,6 +3636,31 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
         }
         break;
         
+		//case BITMAPEXR:
+		//	{
+		//		do_bitmapexr(bmp, sdci, xoffset, yoffset);
+		//	}
+		//	break;
+		//case POLYGONR:
+		//	{
+		//		do_polygonr(bmp, sdci, xoffset, yoffset);
+		//	}
+		//	break;
+		//case PIXELARRAYR:
+		//	{
+		//		do_pixelarrayr(bmp, i, sdci, xoffset, yoffset);
+		//	}
+		//	break;
+		//case TILEARRAYR:
+		//	{
+		//		do_tilearrayr(bmp, i, sdci, xoffset, yoffset);
+		//	}
+		//	break;
+		//case COMBOARRAYR:
+		//	{
+		//		do_comboarrayr(bmp, i, sdci, xoffset, yoffset);
+		//	}
+		//	break;
         }
     }
     
