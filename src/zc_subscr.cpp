@@ -23,7 +23,7 @@
 #include "guys.h"
 #include "backend/AllBackends.h"
 
-extern LinkClass   *Link;
+extern LinkClass *Link;
 extern int directItem;
 extern int directItemA;
 extern int directItemB;

@@ -102,7 +102,7 @@ public:
 	static ZVarTypeClass const LWPN;
 	static ZVarTypeClass const EWPN;
 	static ZVarTypeClass const GAME;
-	static ZVarTypeClass const LINK;
+	static ZVarTypeClass const _LINK; //Rename this. "LINK" is still constant somewhere.
 	static ZVarTypeClass const SCREEN;
 	static ZVarTypeClass const AUDIO;
 	static ZVarTypeClass const DEBUG;

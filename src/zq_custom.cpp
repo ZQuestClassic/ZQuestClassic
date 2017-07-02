@@ -58,6 +58,7 @@ extern int biic_cnt;
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
+#define snprintf _snprintf
 #endif
 
 

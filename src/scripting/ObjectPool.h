@@ -38,4 +38,5 @@ private:
 	int uid_;
 };
 
+
 #endif

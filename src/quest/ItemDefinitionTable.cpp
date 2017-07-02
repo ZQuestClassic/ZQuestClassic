@@ -1,7 +1,9 @@
 #include "ItemDefinitionTable.h"
 #include "../defdata.h"
 
-using namespace std;
+//using namespace std; STOP USING NAMESPACE STD!!! (It breaks compiles)
+using std::string;
+
 
  string ItemDefinitionTable::defaultItemName(int slot)
 {

@@ -1,7 +1,7 @@
 #include "WeaponDefinitionTable.h"
 #include "../defdata.h"
 
-using namespace std;
+using std::string;
 
 
 SpecialSpriteIndex::SpecialSpriteIndex() :

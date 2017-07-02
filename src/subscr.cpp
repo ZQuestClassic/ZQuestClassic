@@ -28,7 +28,7 @@ bool show_subscreen_life=true;
 bool new_sel=false;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
-extern LinkClass   Link;
+extern LinkClass   *Link;
 
 subscreen_group *current_subscreen_active;
 subscreen_group *current_subscreen_passive;
