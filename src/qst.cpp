@@ -2553,6 +2553,17 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(extra_rules, er_SHORTDGNWALK, 1);
     }
     
+    //COMBOSDM
+    //COMBOSDM
+    if(tempheader.zelda_version == 0x250 && tempheader.build < 30) //2.50.2 or earlier
+    {
+        set_bit(quest_rules,qr_NEWCOMBOSDM, 0);
+    }
+    if(tempheader.zelda_version == 0x250 && tempheader.build == 30) //2.50.3RC1
+    {
+        set_bit(quest_rules,qr_NEWCOMBOSDM, 1);
+    }
+    
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
