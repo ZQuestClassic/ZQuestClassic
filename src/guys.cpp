@@ -13027,7 +13027,7 @@ bool is_ceiling_pattern(int i)
 
 int placeenemy(int i)
 {
-    std::map<int, int> freeposcache;
+    int freeposcache[176];
     int frees = 0;
     
     for(int y=0; y<176; y+=16)
