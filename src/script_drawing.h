@@ -3,7 +3,8 @@
 #define _zc_script_drawing_h
 
 #include <vector>
-#include <string>
+//#include <string>
+#include "zc_malloc.h"
 
 
 #define MAX_SCRIPT_DRAWING_COMMANDS 10000
@@ -11,7 +12,7 @@
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
 
 
-// For Quad and Triangle. *allegro Bug-Fix* -Gleeok
+
 class SmallBitmapTextureCache
 {
 public:
@@ -69,15 +70,10 @@ public:
         if(bw == 1 || bw == 2 || bw == 4 || bw == 8)
         {
             int x = bw >> 1;
-            
             if(x > 3) x = 3;
-            
             if(bh == 1) ret = _bmp[x][0];
-            
             if(bh == 2) ret = _bmp[x][1];
-            
             if(bh == 4) ret = _bmp[x][2];
-            
             if(bh == 8) ret = _bmp[x][3];
         }
         
@@ -111,6 +107,7 @@ public:
     {
         return AquireSubBitmap(0, 0, w, h);
     }
+
     inline BITMAP* AquireSubBitmap(int x, int y, int w, int h)
     {
         //todo: can currently only partition out one bitmap at a time.
@@ -140,92 +137,6 @@ protected:
 };
 
 
-class DrawingContainer
-{
-public:
-    DrawingContainer() :
-        drawstring(), current_string_count(0),
-        drawdata(), current_drawdata_count(0)
-    {}
-    
-    ~DrawingContainer()
-    {
-        this->Dispose();
-    }
-    
-    void Dispose()
-    {
-        for(size_t i(0); i < drawstring.size(); ++i)
-            delete drawstring[i];
-            
-        drawstring.clear();
-        
-        
-        for(size_t i(0); i < drawdata.size(); ++i)
-            delete drawdata[i];
-            
-        drawdata.clear();
-    }
-    
-    void Clear()
-    {
-        current_string_count = 0;
-        current_drawdata_count = 0;
-    }
-    
-    std::string* GetString()
-    {
-        std::string* str;
-        
-        if(drawstring.size() > current_string_count)
-        {
-            str = drawstring[current_string_count];
-            str->clear();
-        }
-        else
-        {
-            str = new std::string();
-            drawstring.push_back(str);
-        }
-        
-        current_string_count++;
-        
-        return str;
-    }
-    
-    std::vector<long>* GetVector()
-    {
-        std::vector<long>* v;
-        
-        if(drawdata.size() > current_drawdata_count)
-        {
-            v = drawdata[current_drawdata_count];
-            v->clear();
-        }
-        else
-        {
-            v = new std::vector<long>();
-            drawdata.push_back(v);
-        }
-        
-        current_drawdata_count++;
-        
-        return v;
-    }
-    
-protected:
-    //for drawstring
-    std::vector<std::string*> drawstring;
-    size_t current_string_count;
-    
-    //for other dynamic drawing (quad3d etc..)
-    std::vector<std::vector<long>*> drawdata;
-    size_t current_drawdata_count;
-    
-};
-
-
-
 
 class CScriptDrawingCommandVars
 {
@@ -239,33 +150,37 @@ public:
     {
         memset((void*)this, 0, sizeof(CScriptDrawingCommandVars));
     }
-    
-    void SetString(std::string* str)
-    {
-        ptr = (void*)str;
-    }
-    
-    void SetVector(std::vector<long>* v)
-    {
-        ptr = (void*)v;
-    }
-    
-    void* GetPtr()
+
+	// Shouldn't be needed, but a simple stack allocator would get rid of
+	// memory allocations here. It would be more worthwhile to give a frame allocator
+	// to everything in zc anyway, rather than just script drawing, but meh.
+	long* AllocateDrawBuffer(unsigned nBytes)
+	{
+		assert(ptr == NULL);
+
+		ptr = zc_malloc(nBytes);
+		return (long*)ptr;
+	}
+
+	void DeallocateDrawBuffer()
+	{
+		if(ptr)
+		{
+			zc_free(ptr);
+			ptr = NULL;
+		}
+	}
+
+	void* GetDrawBufferPtr()
     {
         return ptr;
     }
     
-    int &operator [](const int i)
-    {
-        return data[i];
-    }
-    const int &operator [](const int i) const
-    {
-        return data[i];
-    }
+	int &operator [](const int i) { return data[i]; }
+    const int &operator [](const int i) const { return data[i]; }
     
 protected:
-    int data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
+    int data[SCRIPT_DRAWING_COMMAND_VARIABLES];
     void* ptr; //will be changed later
 };
 
@@ -274,11 +189,6 @@ protected:
 class CScriptDrawingCommands
 {
 public:
-    typedef CScriptDrawingCommandVars value_type;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef std::vector<value_type> vec_type;
-    typedef vec_type ::iterator vec_type_iter;
     
     // Unlikely people will be using all 1000 commands.
     const static int DefaultCapacity = 256; //176 + some extra
@@ -311,22 +221,14 @@ public:
         memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
         count = 0;
         
-        draw_container.Clear();
+        //draw_container.Clear();
     }
     
     int Count() const
     {
         return count;
     }
-    std::string* GetString()
-    {
-        return draw_container.GetString();
-    }
-    std::vector<long>* GetVector()
-    {
-        return draw_container.GetVector();
-    }
-    
+
     int GetNext()
     {
         if(count>=MAX_SCRIPT_DRAWING_COMMANDS)
@@ -352,15 +254,14 @@ public:
         return next_index;
     }
     
-    reference operator [](const int i)
+    CScriptDrawingCommandVars& operator [](const int i)
     {
         return commands[i];
     }
-    const_reference operator [](const int i) const
+    const CScriptDrawingCommandVars& operator [](const int i) const
     {
         return commands[i];
     }
-    
     
     inline BITMAP* AquireSubBitmap(int w, int h)
     {
@@ -379,10 +280,10 @@ public:
     
     
 protected:
-    vec_type commands;
+	std::vector<CScriptDrawingCommandVars> commands;
     int count;
     
-    DrawingContainer draw_container;
+    //DrawingContainer draw_container;
     ScriptDrawingBitmapPool bitmap_pool;
     SmallBitmapTextureCache small_tex_cache;
     

@@ -1417,7 +1417,7 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[8]=string
     //sdci[9]=opacity
     
-    std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
+    char* str = (char*)script_drawing_commands[i].GetDrawBufferPtr();
     
     if(!str)
     {
@@ -1439,10 +1439,10 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(opacity < 128)
     {
-        int width=zc_min(text_length(font, str->c_str()), 512);
+        int width=zc_min(text_length(font, str), 512);
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
-        textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
+        textout_ex(pbmp, font, str, 0, 0, color, bg_color);
         if(format_type == 2)   // right-sided text
             x-=width;
         else if(format_type == 1)   // centered text
@@ -1454,17 +1454,19 @@ void do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     {
         if(format_type == 2)   // right-sided text
         {
-            textout_right_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+            textout_right_ex(bmp, font, str, x+xoffset, y+yoffset, color, bg_color);
         }
         else if(format_type == 1)   // centered text
         {
-            textout_centre_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+            textout_centre_ex(bmp, font, str, x+xoffset, y+yoffset, color, bg_color);
         }
         else // standard left-sided text
         {
-            textout_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+            textout_ex(bmp, font, str, x+xoffset, y+yoffset, color, bg_color);
         }
     }
+
+	script_drawing_commands[i].DeallocateDrawBuffer();
 }
 
 
@@ -3001,23 +3003,18 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    long* ptr = (long*)script_drawing_commands[i].GetDrawBufferPtr();
     
-    if(!v_ptr)
+    if(!ptr)
     {
         al_trace("Quad3d: Vector pointer is null! Internal error. \n");
         return;
     }
-    
-    std::vector<long> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
-        
-    long* pos = &v[0];
-    long* uv = &v[12];
-    long* col = &v[20];
-    long* size = &v[24];
+
+    long* pos = &ptr[0];
+    long* uv = &ptr[12];
+    long* col = &ptr[20];
+    long* size = &ptr[24];
     
     int w = size[0]; //magic numerical constants... yuck.
     int h = size[1];
@@ -3065,6 +3062,7 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
+	script_drawing_commands[i].DeallocateDrawBuffer();
 }
 
 
@@ -3080,18 +3078,13 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[7]=tile/combo
     //sdci[8]=polytype
     
-    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    long* v = (long*)script_drawing_commands[i].GetDrawBufferPtr();
     
-    if(!v_ptr)
+    if(!v)
     {
-        al_trace("Quad3d: Vector pointer is null! Internal error. \n");
+        al_trace("Quad3d: DrawBufferPtr pointer is null! Internal error. \n");
         return;
     }
-    
-    std::vector<long> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
         
     long* pos = &v[0];
     long* uv = &v[9];
@@ -3142,7 +3135,8 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(mustDestroyBmp)
         destroy_bitmap(tex);
-        
+    
+	script_drawing_commands[i].DeallocateDrawBuffer();
 }
 
 
