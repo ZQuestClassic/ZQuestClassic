@@ -1,7 +1,7 @@
 // This program is free software; you can redistribute it and/or modify it under the terms of the
 // modified version 3 of the GNU General Public License. See License.txt for details.
 
-
+//! ritate_sprite_trans doesn't seem to be supported by or allegro header !?
 
 #include "precompiled.h" //always first
 
@@ -1314,9 +1314,13 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         break;
     }
     
+    //FONT* font=get_zc_font(sdci[4]/10000);
+    
     if(w>0&&h>0)//stretch
     {
-        BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
+        BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(get_zc_font(font_index), numbuf)+1, text_height(get_zc_font(font_index)));
+        clear_bitmap(pbmp);
+	    //script_drawing_commands.GetSmallTextureBitmap(1,1);
         
         if(opacity < 128)
         {
@@ -1486,15 +1490,19 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if(((w-1) & w) != 0 || ((h-1) & h) != 0)
     {
-        Z_message("Quad() : PO2 error with %i, %i.", w, h);
+        Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
         return; //non power of two error
     }
     
     int tex_width = w*16;
     int tex_height = h*16;
     
+    BITMAP *tex;
+    
     bool mustDestroyBmp = false;
-    BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+    
+	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
+	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
     
     if(!tex)
     {
@@ -1517,11 +1525,12 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         col[0]=col[1]=col[2]=col[3]=color;
     }
     
-    if(tile > 0)   // TILE
+    if(tile > 0 && tile <= 65519)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
     }
-    else        // COMBO
+    
+    if ( tile < 0 )        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
         const int tiletodraw = combo_tile(c, x1, y1);
@@ -1629,30 +1638,30 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
-    //sdci[1]=layer
-    //sdci[2]=bitmap
-    //sdci[3]=sourcex
-    //sdci[4]=sourcey
-    //sdci[5]=sourcew
-    //sdci[6]=sourceh
-    //sdci[7]=destx
-    //sdci[8]=desty
-    //sdci[9]=destw
-    //sdci[10]=desth
-    //sdci[11]=rotation
-    //sdci[12]=mask
-    
-    int bitmapIndex = sdci[2]/10000;
-    int sx = sdci[3]/10000;
-    int sy = sdci[4]/10000;
-    int sw = sdci[5]/10000;
-    int sh = sdci[6]/10000;
-    int dx = sdci[7]/10000;
-    int dy = sdci[8]/10000;
-    int dw = sdci[9]/10000;
-    int dh = sdci[10]/10000;
-    float rot = sdci[11]/10000;
-    bool masked = (sdci[12] != 0);
+	//sdci[1]=layer
+	//sdci[2]=bitmap
+	//sdci[3]=sourcex
+	//sdci[4]=sourcey
+	//sdci[5]=sourcew
+	//sdci[6]=sourceh
+	//sdci[7]=destx
+	//sdci[8]=desty
+	//sdci[9]=destw
+	//sdci[10]=desth
+	//sdci[11]=rotation
+	//sdci[12]=mask
+
+	int bitmapIndex = sdci[2]/10000;
+	int sx = sdci[3]/10000;
+	int sy = sdci[4]/10000;
+	int sw = sdci[5]/10000;
+	int sh = sdci[6]/10000;
+	int dx = sdci[7]/10000;
+	int dy = sdci[8]/10000;
+	int dw = sdci[9]/10000;
+	int dh = sdci[10]/10000;
+	float rot = sdci[11]/10000;
+	bool masked = (sdci[12] != 0);
 
 	//bugfix
 	sx = vbound(sx, 0, 512);
@@ -1660,88 +1669,123 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	sw = vbound(sw, 0, 512 - sx); //keep the w/h within range as well
 	sh = vbound(sh, 0, 512 - sy);
 
+
+	if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
+	return;
+
+	bool stretched = (sw != dw || sh != dh);
+
+	BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
     
-    if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
-        return;
+	if(!sourceBitmap)
+	{
+		Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
+		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
+		return;
+	}
+    
+	BITMAP* subBmp = 0;
+    
+	if(rot != 0)
+	{
+		subBmp = script_drawing_commands.AquireSubBitmap(dw, dh);
         
-    bool stretched = (sw != dw || sh != dh);
-    
-    BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-    
-    if(!sourceBitmap)
-    {
-        Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
-        Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
-        return;
-    }
-    
-    BITMAP* subBmp = 0;
-    
-    if(rot != 0)
-    {
-        subBmp = script_drawing_commands.AquireSubBitmap(dw, dh);
-        
-        if(!subBmp)
-        {
-        }
-    }
+		if(!subBmp)
+		{
+		}
+	}
     
     
-    dx = dx + xoffset;
-    dy = dy + yoffset;
+	dx = dx + xoffset;
+	dy = dy + yoffset;
     
-    if(stretched)
-    {
-        if(masked)
-        {
-            if(rot != 0)
-            {
-                masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-                rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-            }
-            else
-                masked_stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
-        }
-        else
-        {
-            if(rot != 0)
-            {
-                stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
-                rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-            }
-            else
-                stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
-        }
-    }
-    else
-    {
-        if(masked)
-        {
-            if(rot != 0)
-            {
-                masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
-                rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-            }
-            else
-                masked_blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
-        }
-        else
-        {
-            if(rot != 0)
-            {
-                blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
-                rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-            }
-            else
-                blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
-        }
-    }
+	if(stretched)
+	{
+		if(masked)
+		{
+			if(rot != 0)
+			{	
+				//if ( rot == 4096 ) { //translucent
+				//	masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+				//	//rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+				//	draw_trans_sprite(bmp, subBmp, dx, dy);
+				//	//draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, 0);
+			
+			
+				//}
+				//else { 
+					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+					//rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+					//
+			
+				//}
+			}
+			else
+				masked_stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
+		}
+		else
+		{
+			if(rot != 0)
+			{
+				//if ( rot == 4096 ) { //translucent
+				//	stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+				//	draw_trans_sprite(bmp, subBmp, dx, dy);
+				//}
+				//else {
+					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+				//}
+			}
+			else
+				stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
+		}
+	}
+	else
+	{
+		if(masked)
+		{
+			if(rot != 0)
+			{
+				//if ( rot == 4096 ) {//translucent
+				//	masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					//rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+		    
+					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+				//	draw_trans_sprite(bmp, subBmp, dx, dy);
+				//}
+			//else {
+				masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));  
+			//}
+		}
+		else
+			masked_blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
+		}
+		else
+		{
+			if(rot != 0)
+			{
+				//if ( rot == 4096 ) { //translucent
+				//	blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);   
+				//	draw_trans_sprite(bmp, subBmp, dx, dy);
+				//}
+				//else {
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+				//}
+			}
+			else
+				blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
+		}
+	}
     
-    //cleanup
-    if(subBmp)
-    {
-        script_drawing_commands.ReleaseSubBitmap(subBmp);
-    }
+	//cleanup
+	if(subBmp)
+	{
+		script_drawing_commands.ReleaseSubBitmap(subBmp);
+	}
 }
 
 
@@ -2162,6 +2206,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_rectr(bmp, sdci, xoffset, yoffset);
         }
         break;
+	
         
         case CIRCLER:
         {
@@ -2264,12 +2309,20 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
+	/*
+	case POLYGONR:
+        {
+            do_polygonr(bmp, i, sdci, xoffset, yoffset);
+        }
+        break;
+	*/
         
         case BITMAPR:
         {
             do_drawbitmapr(bmp, sdci, xoffset, yoffset);
         }
         break;
+	
         
         case DRAWLAYERR:
         {
@@ -2289,3 +2342,4 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     
     color_map=&trans_table;
 }
+
