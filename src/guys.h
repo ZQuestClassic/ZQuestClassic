@@ -240,6 +240,27 @@ public:
 };
 
 /*******************************/
+/******  Scripted Enemy   ******/
+/*******************************/
+
+//class eScriptedEnemy : public enemy
+//{
+//public:
+//
+//	eScriptedEnemy(fix X,fix Y,int Id,int Clk) {}
+//	~eScriptedEnemy() {}
+//
+//	// Internal API
+//	virtual bool animate(int index) {}
+//	virtual void draw(BITMAP *dest) {}
+//	virtual int takehit(weapon *w) {}
+//	virtual void break_shield() {}
+//
+//	// Script API
+//
+//};
+
+/*******************************/
 /*********   Enemies   *********/
 /*******************************/
 
@@ -645,14 +666,25 @@ public:
 class esGleeok : public enemy
 {
 public:
-    int nx[255],ny[255];                                        //neck x and y?
-    int headtile;
-    int flyingheadtile;
-    int necktile;
-    sprite * parent; //parent Gleeok to whose neck this segment is attached
-    fix xoffset, yoffset; //coords relative to the parent Gleeok
-    int nxoffset[255], nyoffset[255]; //random "jiggling" of the next tiles
+	struct esGleeokExtendedData // guys will need to be the same size in the future.
+	{
+		int nx[255],ny[255]; //neck x and y?
+		int nxoffset[255], nyoffset[255]; //random "jiggling" of the next tiles
+	};
+
+	esGleeokExtendedData* extendedData;
+	int headtile;
+	int flyingheadtile;
+	int necktile;
+	sprite * parent; //parent Gleeok to whose neck this segment is attached
+	fix xoffset, yoffset; //coords relative to the parent Gleeok
+
     esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt);                   // : enemy(X,Y,Id,Clk)
+	~esGleeok()
+	{
+		delete extendedData;
+	}
+
     virtual bool animate(int index);
     virtual int takehit(weapon *w);
     virtual void draw(BITMAP *dest);

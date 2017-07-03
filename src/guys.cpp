@@ -10580,6 +10580,8 @@ void eGleeok::draw2(BITMAP *dest)
 
 esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
 {
+	extendedData = new esGleeokExtendedData();
+
     xoffset=0;
     yoffset=(fix)((dmisc5*4+2));
 //  dummy_bool[0]=false;
@@ -10602,6 +10604,11 @@ esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk
     dir&=1;                                                   // up or down
     dmisc5=vbound(dmisc5,1,255);
     
+	int* nx = extendedData->nx;
+	int* ny = extendedData->ny;
+	int* nxoffset = extendedData->nxoffset;
+	int* nyoffset = extendedData->nyoffset;
+
     for(int i=0; i<dmisc5; i++)
     {
         nxoffset[i] = 0;
@@ -10625,7 +10632,12 @@ esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk
 bool esGleeok::animate(int index)
 {
     // don't call removearmos() - it's a segment.
-    
+
+	int* nx = extendedData->nx;
+	int* ny = extendedData->ny;
+	int* nxoffset = extendedData->nxoffset;
+	int* nyoffset = extendedData->nyoffset;
+
     dmisc5=vbound(dmisc5,1,255);
     
     if(misc == 0)
@@ -10811,6 +10823,11 @@ void esGleeok::draw(BITMAP *dest)
 {
     dmisc5=vbound(dmisc5,1,255);
     
+	int* nx = extendedData->nx;
+	int* ny = extendedData->ny;
+	int* nxoffset = extendedData->nxoffset;
+	int* nyoffset = extendedData->nyoffset;
+
     switch(misc)
     {
     case 0:                                                 //neck
