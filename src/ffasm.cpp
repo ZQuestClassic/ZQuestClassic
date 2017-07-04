@@ -764,8 +764,8 @@ script_variable variable_list[]=
 	{ "GAMESETA",           GAMESETA,            0,             0 },
 	{ "GAMESETB",           GAMESETB,            0,             0 },
 	{ "SETITEMSLOT",           SETITEMSLOT,            0,             0 },
-	{ "LINKITEMB",           LINKITEMB,            0,             0 },
-	{ "LINKITEMA",           LINKITEMA,            0,             0 },
+	//{ "LINKITEMB",           LINKITEMB,            0,             0 },
+	//{ "LINKITEMA",           LINKITEMA,            0,             0 },
 	{ "__RESERVED_FOR_LINKWALKTILE",           __RESERVED_FOR_LINKWALKTILE,            0,             0 }, //Walk sprite
 	{ "__RESERVED_FOR_LINKFLOATTILE",           __RESERVED_FOR_LINKFLOATTILE,            0,             0 }, //float sprite
 	{ "__RESERVED_FOR_LINKSWIMTILE",           __RESERVED_FOR_LINKSWIMTILE,            0,             0 }, //swim sprite
@@ -826,9 +826,9 @@ script_variable variable_list[]=
 	{ "__RESERVED_FOR_PLAYPITWARPSFX", __RESERVED_FOR_PLAYPITWARPSFX, 0, 0 },
 	{ "__RESERVED_FOR_WARPEFFECT", __RESERVED_FOR_WARPEFFECT, 0, 0 },
 	{ "__RESERVED_FOR_PLAYWARPSOUND", __RESERVED_FOR_PLAYWARPSOUND, 0, 0 },
-	{ "LINKUSINGITEM", LINKUSINGITEM, 0, 0 },
-	{ "LINKUSINGITEMA", LINKUSINGITEMA, 0, 0 },
-	{ "LINKUSINGITEMB", LINKUSINGITEMB, 0, 0 },
+	//{ "LINKUSINGITEM", LINKUSINGITEM, 0, 0 },
+	//{ "LINKUSINGITEMA", LINKUSINGITEMA, 0, 0 },
+	//{ "LINKUSINGITEMB", LINKUSINGITEMB, 0, 0 },
 	//    { "DMAPLEVELPAL",         DMAPLEVELPAL,          0,             0 },
 	//{ "LINKZHEIGHT",           LINKZHEIGHT,            0,             0 },
 	    //{ "ITEMINDEX",         ITEMINDEX,          0,             0 },

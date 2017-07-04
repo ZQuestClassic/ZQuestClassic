@@ -446,16 +446,22 @@ int onCompileScript();
 
 void printZAsm();
 
-typedef struct item_struct
+typedef struct room_struct
 {
     std::string s;
     int i;
+} room_struct;
+
+typedef struct item_struct
+{
+    std::string s;
+    ItemDefinitionRef i;
 } item_struct;
 
 typedef struct weapon_struct
 {
     std::string s;
-    int i;
+    SpriteDefinitionRef i;
 } weapon_struct;
 
 typedef std::pair<std::string, int> script_struct;
@@ -634,11 +640,11 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, 
 
 void build_bii_list(bool usenone);
 const char *itemlist(int index, int *list_size);
-int select_item(const char *prompt,int item,bool is_editor,int &exit_status);
+ItemDefinitionRef select_item(const char *prompt,const ItemDefinitionRef &item,bool is_editor,int &exit_status);
 
 void build_biw_list();
 const char *weaponlist(int index, int *list_size);
-int select_weapon(const char *prompt,int weapon);
+SpriteDefinitionRef select_weapon(const char *prompt, const SpriteDefinitionRef &weapon);
 
 void build_bir_list();
 const char *roomlist(int index, int *list_size);
@@ -1023,16 +1029,17 @@ void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
 int get_currdmap();
-int current_item(int item_type);
+int currentItemLevel(int item_type);
 int current_item_power(int item_type);
-int current_item_id(int item_type, bool checkmagic);
+ItemDefinitionRef current_item_id(int item_type, bool checkmagic);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int it);
 int get_bmaps(int si);
 
 bool no_subscreen();
 
-extern int Awpn, Bwpn, Bpos;
+extern ItemDefinitionRef Awpn, Bwpn;
+extern int Bpos;
 extern sprite_list Sitems;
 
 int main(int argc,char **argv);

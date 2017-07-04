@@ -945,7 +945,7 @@ void delete_fireball_shooter(mapscr *s, int i)
     for(int j=0; j<guys.Count(); j++)
     {
         // Finds the smallest enemy ID
-        if((int(guys.spr(j)->x)==cx)&&(int(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags2 & eneflag_fire))
+        if((int(guys.spr(j)->x)==cx)&&(int(guys.spr(j)->y)==cy)&&(guysbuf[(((enemy *)guys.spr(j))->id)&0xFFF].flags2 & eneflag_fire))
         {
             guys.del(j);
         }
@@ -3237,7 +3237,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
         {
-            if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
+            if((isflier(((enemy *)guys.spr(i))->id)) || guys.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
             {
                 guys.spr(i)->draw(framebuf);
             }
@@ -3246,7 +3246,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     {
         for(int i=0; i<guys.Count(); i++)
         {
-            if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0)
+            if((isflier(((enemy *)guys.spr(i))->id)) || guys.spr(i)->z > 0)
             {
                 guys.spr(i)->draw(framebuf);
             }
@@ -3255,7 +3255,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     // Draw the Moving Fairy above layer 3
     for(int i=0; i<items.Count(); i++)
-        if(curQuest->itemDefTable().getItemDefinition(items.spr(i)->id).family == itype_fairy && curQuest->itemDefTable().getItemDefinition(items.spr(i)->id).misc3)
+        if(curQuest->getItemDefinition(((item *)items.spr(i))->itemDefinition).family == itype_fairy && curQuest->getItemDefinition(((item *)items.spr(i))->itemDefinition).misc3)
             items.spr(i)->draw(framebuf);
             
     //8. Blit framebuf onto temp_buf

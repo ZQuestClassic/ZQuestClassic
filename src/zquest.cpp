@@ -69,6 +69,7 @@
 
 #include "questReport.h"
 #include "backend/AllBackends.h"
+#include "quest/QuestRefs.h"
 
 #ifdef ALLEGRO_DOS
 static const char *data_path_name   = "dos_data_path";
@@ -150,7 +151,7 @@ bool show_hitboxes = false;
 
 //placeholder
 
-std::map<int, LensItemAnim> lens_hint_item;
+std::map<ItemDefinitionRef, LensItemAnim> lens_hint_item;
 std::map<int, LensWeaponAnim> lens_hint_weapon;
 
 // Used to find FFC script names
@@ -564,7 +565,6 @@ size_and_pos commands_list()
 	}
 	return result;
 }
-
 
 size_and_pos tooltip_box;
 size_and_pos tooltip_trigger;
@@ -3696,10 +3696,10 @@ void drawpanel(int pnl)
             {
                 jwin_draw_frame(menu1,panel(8).x+14+(32*i),panel(8).y+12,20,20,FR_DEEP);
                 
-                if(i==0 && scr->hasitem && scr->screenItem > 0)
+                if(i==0 && scr->hasitem && curQuest->isValid(scr->screenItem))
                 {
                     rectfill(menu1,panel(8).x+16+(32*i),panel(8).y+14,panel(8).x+31+(32*i),panel(8).y+29,0);
-                    overtile16(menu1, curQuest->itemDefTable().getItemDefinition(scr->screenItem).tile,panel(8).x+16+(32*i),panel(8).y+14,curQuest->itemDefTable().getItemDefinition(scr->screenItem).csets&15,0);
+                    overtile16(menu1, curQuest->getItemDefinition(scr->screenItem).tile,panel(8).x+16+(32*i),panel(8).y+14,curQuest->getItemDefinition(scr->screenItem).csets&15,0);
                 }
                 else
                     blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel(8).x+16+(32*i),panel(8).y+14, 16, 16);
@@ -3822,10 +3822,10 @@ void drawpanel(int pnl)
             {
                 jwin_draw_frame(menu1,panel(1).x+14+(32*i),panel(1).y+4,20,20,FR_DEEP);
                 
-                if(i==0 && scr->hasitem && scr->screenItem > 0)
+                if(i==0 && scr->hasitem && curQuest->isValid(scr->screenItem))
                 {
                     rectfill(menu1,panel(8).x+16+(32*i),panel(1).y+6,panel(1).x+31+(32*i),panel(1).y+21,0);
-                    overtile16(menu1, curQuest->itemDefTable().getItemDefinition(scr->screenItem).tile,panel(1).x+16+(32*i),panel(1).y+6,curQuest->itemDefTable().getItemDefinition(scr->screenItem).csets&15,0);
+                    overtile16(menu1, curQuest->getItemDefinition(scr->screenItem).tile,panel(1).x+16+(32*i),panel(1).y+6,curQuest->getItemDefinition(scr->screenItem).csets&15,0);
                 }
                 else
                     blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel(1).x+16+(32*i),panel(1).y+6, 16, 16);
@@ -3942,7 +3942,7 @@ void drawpanel(int pnl)
                 switch(rtype)
                 {
                 case rSP_ITEM:
-                    textprintf_ex(menu1,pfont,panel(3).x+7+xofs,panel(3).y+32,jwin_pal[jcBOXFG],-1,"%s",curQuest->itemDefTable().getItemName(scr->catchall).c_str());
+                    textprintf_ex(menu1,pfont,panel(3).x+7+xofs,panel(3).y+32,jwin_pal[jcBOXFG],-1,"%s",curQuest->getItemName(scr->catchallItem).c_str());
                     break;
                     
                 case rINFO:
@@ -5184,7 +5184,7 @@ void refresh(int flags)
         switch(Map.CurrScr()->room)
         {
         case rSP_ITEM:
-            sprintf(buf,"Special Item is %s",curQuest->itemDefTable().getItemName(Map.CurrScr()->catchall).c_str());
+            sprintf(buf,"Special Item is %s",curQuest->getItemName(Map.CurrScr()->catchallItem).c_str());
             show_screen_error(buf,i++, vc(15));
             break;
             
@@ -5212,7 +5212,7 @@ void refresh(int flags)
             break;
             
         case rRP_HC:
-            sprintf(buf,"Take %s or %s", curQuest->itemDefTable().getItemName(iRPotion).c_str(), curQuest->itemDefTable().getItemName(iHeartC).c_str());
+            sprintf(buf,"Take %s or %s", curQuest->getItemName(curQuest->specialItems().redPotion).c_str(), curQuest->getItemName(curQuest->specialItems().heartContainer).c_str());
             show_screen_error(buf,i++, vc(15));
             break;
             
@@ -5231,15 +5231,17 @@ void refresh(int flags)
             sprintf(buf,"%sShop: ",
                     Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
                     
-            for(int j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
+            for(int j=0; j<3; j++) 
+                if(curQuest->isValid(misc.shop[shop].item[j]))  // Print the 3 items and prices
                 {
-                    strcat(buf,curQuest->itemDefTable().getItemName(misc.shop[shop].item[j]).c_str());
+                    strcat(buf,curQuest->getItemName(misc.shop[shop].item[j]).c_str());
                     strcat(buf,":");
                     char pricebuf[4];
                     sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
                     strcat(buf,pricebuf);
                     
-                    if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
+                    if(j<2 && curQuest->isValid(misc.shop[shop].item[j+1])) 
+                        strcat(buf,", ");
                 }
                 
             show_screen_error(buf,i++, vc(15));
@@ -5250,9 +5252,9 @@ void refresh(int flags)
         {
             int shop = Map.CurrScr()->catchall;
             sprintf(buf,"Take Only One: %s%s%s%s%s",
-                    misc.shop[shop].item[0]<1?"":curQuest->itemDefTable().getItemName(misc.shop[shop].item[0]).c_str(),misc.shop[shop].item[0]>0?", ":"",
-                    misc.shop[shop].item[1]<1?"":curQuest->itemDefTable().getItemName(misc.shop[shop].item[1]).c_str(),(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
-                    misc.shop[shop].item[2]<1?"":curQuest->itemDefTable().getItemName(misc.shop[shop].item[2]).c_str());
+                    misc.shop[shop].hasitem[0]<1?"":curQuest->getItemName(misc.shop[shop].item[0]).c_str(), (misc.shop[shop].hasitem[1]>0 ? ", " : ""),
+                    misc.shop[shop].hasitem[1]<1?"":curQuest->getItemName(misc.shop[shop].item[1]).c_str(), ((misc.shop[shop].hasitem[1]>0 && misc.shop[shop].hasitem[2] > 0) ? ", " : ""),
+                    misc.shop[shop].hasitem[2]<1?"":curQuest->getItemName(misc.shop[shop].item[2]).c_str());
             show_screen_error(buf,i++, vc(15));
         }
         break;
@@ -9858,24 +9860,36 @@ void build_bii_list(bool usenone)
         delete[] bii;
     bii_cnt=0;
 
+    int numitems = 0;
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
+    {
+        numitems += curQuest->getModule(*it).itemDefTable().getNumItemDefinitions();
+    }
+
     if(usenone)
     {
-        bii = new item_struct[1 + curQuest->itemDefTable().getNumItemDefinitions()];
+        bii = new item_struct[1 + numitems];
 
         bii[0].s = string("(None)");
-        bii[0].i = -2;
+        bii[0].i = ItemDefinitionRef();
         bii_cnt=1;
     }
     else
     {
-        bii = new item_struct[curQuest->itemDefTable().getNumItemDefinitions()];
+        bii = new item_struct[numitems];
     }
     
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        bii[bii_cnt].s = curQuest->itemDefTable().getItemName(i);
-        bii[bii_cnt].i = i;
-        ++bii_cnt;
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
+        {
+            bii[bii_cnt].s = module.itemDefTable().getItemName(i);
+            bii[bii_cnt].i = ItemDefinitionRef(*it,i);
+            ++bii_cnt;
+        }
     }
     
     for(int i=0; i<bii_cnt-1; i++)
@@ -9915,9 +9929,9 @@ void initDI(int index)
     
     for(int i=0; i<bii_cnt; i++)
     {
-        int index1=bii[i].i; // true index of item in dmap's DI list
+        ItemDefinitionRef index1=bii[i].i; // true index of item in dmap's DI list
         
-        for (std::vector<uint32_t>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
+        for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
         {
             if (*it == index1)
             {
@@ -9935,9 +9949,9 @@ void initDI(int index)
 
 void insertDI(int id, int index)
 {
-    int trueid=bii[id].i;
+    ItemDefinitionRef trueid=bii[id].i;
     bool alreadyin = false;
-    for (std::vector<uint32_t>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
+    for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
     {
         if (*it == trueid)
         {
@@ -9954,8 +9968,8 @@ void insertDI(int id, int index)
 void deleteDI(int id, int index)
 {
     int i=DI[id];
-    int trueid=bii[i].i;
-    for (std::vector<uint32_t>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
+    ItemDefinitionRef trueid=bii[i].i;
+    for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
     {
         if (*it == trueid)
         {
@@ -9980,7 +9994,7 @@ const char *DIlist(int index, int *list_size)
     
 }
 
-int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
+ItemDefinitionRef select_item(const char *prompt,const ItemDefinitionRef &item,bool is_editor,int &exit_status)
 {
     int index=0;
     
@@ -10028,7 +10042,7 @@ int select_item(const char *prompt,int item,bool is_editor,int &exit_status)
     {
 		Backend::mouse->setWheelPosition(0);
 		delete[] ilist_cpy;
-        return -1;
+        return ItemDefinitionRef();
     }
     
     index = ilist_cpy[2].d1;
@@ -10047,15 +10061,26 @@ void build_biw_list()
 
     biw_cnt=0;
 
-    int numweapons = curQuest->weaponDefTable().getNumSpriteDefinitions();
-
-    biw = new weapon_struct[numweapons];
+    uint32_t numsprites=0;
     
-    for(int i=0; i<numweapons; i++)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
+        numsprites += curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+     
+    biw = new weapon_struct[numsprites];
+    
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        biw[biw_cnt].s = curQuest->weaponDefTable().getSpriteName(i);
-        biw[biw_cnt].i = i;
-        ++biw_cnt;
+        QuestModule &module = curQuest->getModule(*it);
+        for(uint32_t i=0; i<module.weaponDefTable().getNumSpriteDefinitions(); i++)
+        {
+            SpriteDefinitionRef ref(*it, i);
+            biw[biw_cnt].s = curQuest->getSpriteName(ref);
+            biw[biw_cnt].i = ref;
+            ++biw_cnt;
+        }
     }
     
     for(int i=0; i<biw_cnt-1; i++)
@@ -10077,7 +10102,7 @@ const char *weaponlist(int index, int *list_size)
     return biw[index].s.c_str();
 }
 
-int select_weapon(const char *prompt,int weapon)
+SpriteDefinitionRef select_weapon(const char *prompt, const SpriteDefinitionRef &weapon)
 {
     if(biw_cnt==-1)
         build_biw_list();
@@ -10106,7 +10131,7 @@ int select_weapon(const char *prompt,int weapon)
     {
 		Backend::mouse->setWheelPosition(0);
 		delete[] wlist_cpy;
-        return -1;
+        return SpriteDefinitionRef();
     }
     
     index = wlist_cpy[2].d1;
@@ -10116,7 +10141,7 @@ int select_weapon(const char *prompt,int weapon)
 }
 
 
-item_struct bir[rMAX];
+room_struct bir[rMAX];
 int bir_cnt=-1;
 
 void build_bir_list()
@@ -11492,15 +11517,15 @@ int onItem()
     restore_mouse();
     build_bii_list(true);
     int exit_status;
-    int current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->screenItem : -2;
+    ItemDefinitionRef current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->screenItem : ItemDefinitionRef();
     
     do
     {
-        int ret=select_item("Select Item",current_item,false,exit_status);
+        ItemDefinitionRef ret=select_item("Select Item",current_item,false,exit_status);
         
         if(exit_status == 5)
         {
-            if(ret>=0)  // Edit
+            if(curQuest->isValid(ret))  // Edit
             {
                 current_item=ret;
                 build_biw_list();
@@ -11510,7 +11535,7 @@ int onItem()
         }
         else  if(exit_status==2 || exit_status==3)   // Double-click or OK
         {
-            if(ret>=0)
+            if(curQuest->isValid(ret))
             {
                 saved=false;
                 Map.CurrScr()->screenItem=ret;
@@ -11547,17 +11572,7 @@ int onRType()
         saved=false;
         Map.CurrScr()->room=ret;
     }
-    
-    int c=Map.CurrScr()->catchall;
-    
-    switch(Map.CurrScr()->room)
-    {
-    case rSP_ITEM:
-        Map.CurrScr()->catchall=bound(c,0,curQuest->itemDefTable().getNumItemDefinitions()-1);
-        break;
-        // etc...
-    }
-    
+        
     refresh(rMENU);
     
     return D_O_K;
@@ -11629,61 +11644,93 @@ int onCatchall()
     }
     
     restore_mouse();
-    int ret=-1;
     int rtype=Map.CurrScr()->room;
     
-    switch(rtype)
+    switch (rtype)
     {
     case rSP_ITEM:
+    {
         int exit_status;
         build_bii_list(false);
-        
+        ItemDefinitionRef ret;
         do
         {
-            ret=select_item("Select Special Item",Map.CurrScr()->catchall,false,exit_status);
-            
-            if(exit_status == 5 && ret >= 0)
+            ret = select_item("Select Special Item", Map.CurrScr()->catchallItem, false, exit_status);
+
+            if (exit_status == 5 && curQuest->isValid(ret))
             {
                 build_biw_list();
                 edit_itemdata(ret);
             }
             else exit_status = -1;
+        } while (exit_status == 5);
+
+        if (curQuest->isValid(ret))
+        {
+            if (ret != Map.CurrScr()->catchallItem)
+                saved = false;
+
+            Map.CurrScr()->catchallItem = ret;
         }
-        while(exit_status == 5);
-        
+
         break;
-        
+    }
     case rINFO:
+    {
         info_list_size = 256;
-        ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
+        int ret = select_data("Select Info Type", Map.CurrScr()->catchall, infolist, "OK", "Cancel", lfont);
+        if (ret >= 0)
+        {
+            if (ret != Map.CurrScr()->catchall)
+                saved = false;
+
+            Map.CurrScr()->catchall = ret;
+        }
         break;
-        
+    }
     case rTAKEONE:
+    {
         shop_list_size = 256;
-        ret = select_data("Select \"Take One Item\" Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
+        int ret = select_data("Select \"Take One Item\" Type", Map.CurrScr()->catchall, shoplist, "OK", "Cancel", lfont);
+        if (ret >= 0)
+        {
+            if (ret != Map.CurrScr()->catchall)
+                saved = false;
+
+            Map.CurrScr()->catchall = ret;
+        }
         break;
-        
+    }
     case rP_SHOP:
     case rSHOP:
-        shop_list_size = 256;
-        ret = select_data("Select Shop Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-        
-    default:
-        char buf[80]="Enter ";
-        strcat(buf,catchall_string[rtype]);
-        ret=getnumber(buf,Map.CurrScr()->catchall);
-        break;
-    }
-    
-    if(ret>=0)
     {
-        if(ret != Map.CurrScr()->catchall)
-            saved=false;
-            
-        Map.CurrScr()->catchall=ret;
+        shop_list_size = 256;
+        int ret = select_data("Select Shop Type", Map.CurrScr()->catchall, shoplist, "OK", "Cancel", lfont);
+        if (ret >= 0)
+        {
+            if (ret != Map.CurrScr()->catchall)
+                saved = false;
+
+            Map.CurrScr()->catchall = ret;
+        }
+        break;
     }
-    
+    default:
+    {
+        char buf[80] = "Enter ";
+        strcat(buf, catchall_string[rtype]);
+        int ret = getnumber(buf, Map.CurrScr()->catchall);
+        if (ret >= 0)
+        {
+            if (ret != Map.CurrScr()->catchall)
+                saved = false;
+
+            Map.CurrScr()->catchall = ret;
+        }
+        break;
+    }
+    }
+   
     refresh(rMENU);
     return D_O_K;
 }
@@ -11775,8 +11822,8 @@ int d_idroplist_proc(int msg,DIALOG *d,int c)
 	case MSG_DRAW:
 	case MSG_CHAR:
 	case MSG_CLICK:
-		int tile = bii[d->d1].i >= 0 ? curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).tile : 0;
-		int cset = bii[d->d1].i >= 0 ? curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).csets & 15 : 0;
+		int tile = curQuest->isValid(bii[d->d1].i) ? curQuest->getItemDefinition(bii[d->d1].i).tile : 0;
+		int cset = curQuest->isValid(bii[d->d1].i) ? curQuest->getItemDefinition(bii[d->d1].i).csets & 15 : 0;
 		int x = d->x + d->w + 4;
 		int y = d->y - 2;
 		int w = 16;
@@ -11839,10 +11886,10 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
         int tile = 0;
         int cset = 0;
         
-        if(bii[d->d1].i >-1)
+        if(curQuest->isValid(bii[d->d1].i))
         {
-            tile= curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).tile;
-            cset= curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).csets&15;
+            tile= curQuest->getItemDefinition(bii[d->d1].i).tile;
+            cset= curQuest->getItemDefinition(bii[d->d1].i).csets&15;
         }
         
         int x = d->x + d->w + 4;
@@ -11872,12 +11919,12 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             blit(bigbmp,screen,0,0,x+2,y+2,w,h);
             destroy_bitmap(bigbmp);
         }
-        if(bii[d->d1].i>=0)
+        if(curQuest->isValid(bii[d->d1].i))
         {
-            textprintf_ex(screen,spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
+            textprintf_ex(screen,spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i.slot);
             
             textprintf_ex(screen,spfont,x,y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x+int(16*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",curQuest->itemDefTable().getItemDefinition(bii[d->d1].i).power);
+            textprintf_ex(screen,spfont,x+int(16*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",curQuest->getItemDefinition(bii[d->d1].i).power);
         }
         
         // Might be a bit confusing for new users
@@ -11901,8 +11948,8 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
         
         int tile = 0;
         int cset = 0;
-        tile= curQuest->weaponDefTable().getSpriteDefinition(biw[d->d1].i).tile;
-        cset= curQuest->weaponDefTable().getSpriteDefinition(biw[d->d1].i).csets&15;
+        tile= curQuest->getSpriteDefinition(biw[d->d1].i).tile;
+        cset= curQuest->getSpriteDefinition(biw[d->d1].i).csets&15;
         int x = d->x + d->w + 4;
         int y = d->y;
         int w = 16;
@@ -11931,7 +11978,7 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
             destroy_bitmap(bigbmp);
         }
 
-		if (biw[d->d1].i >= 0)
+		if (curQuest->isValid(biw[d->d1].i))
 		{
 			textprintf_ex(screen, is_large() ? font : spfont, x, y + 20 * (is_large() ? 2 : 1), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
 		}
@@ -15704,10 +15751,10 @@ void EditShopType(int index)
         
         for(int i=0; i<3; ++i)
         {
-            if(bii[editshop_cpy[9+(i<<1)].d1].i == -2)
+            if(!curQuest->isValid(bii[editshop_cpy[9+(i<<1)].d1].i))
             {
                 misc.shop[index].hasitem[i] = 0;
-                misc.shop[index].item[i] = 0;
+                misc.shop[index].item[i] = ItemDefinitionRef();
                 misc.shop[index].price[i] = 0;
             }
             else
@@ -15718,7 +15765,6 @@ void EditShopType(int index)
         }
         
         //filter all the 0 items to the end (yeah, bubble sort; sue me)
-        word swaptmp;
         
         for(int j=0; j<3-1; j++)
         {
@@ -15726,15 +15772,15 @@ void EditShopType(int index)
             {
                 if(misc.shop[index].hasitem[k]==0)
                 {
-                    swaptmp = misc.shop[index].item[k];
+                    ItemDefinitionRef swaptmp = misc.shop[index].item[k];
                     misc.shop[index].item[k] = misc.shop[index].item[k+1];
                     misc.shop[index].item[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].price[k];
+                    word swapprice = misc.shop[index].price[k];
                     misc.shop[index].price[k] = misc.shop[index].price[k+1];
-                    misc.shop[index].price[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].hasitem[k];
-                    misc.shop[index].hasitem[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].hasitem[k+1] = swaptmp;
+                    misc.shop[index].price[k+1] = swapprice;
+                    byte swaphas = misc.shop[index].hasitem[k];
+                    misc.shop[index].hasitem[k] = misc.shop[index].hasitem[k+1];
+                    misc.shop[index].hasitem[k+1] = swaphas;
                 }
             }
         }
@@ -15953,7 +15999,7 @@ void EditItemDropSet(int index)
         {
             item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
             
-            if(bii[edititemdropset_cpy[15+(i*3)].d1].i == -2)
+            if(!curQuest->isValid(bii[edititemdropset_cpy[15+(i*3)].d1].i))
             {
                 item_drop_sets[index].chance[i+1]=0;
             }
@@ -15964,7 +16010,7 @@ void EditItemDropSet(int index)
             
             if(item_drop_sets[index].chance[i+1]==0)
             {
-                item_drop_sets[index].item[i] = 0;
+                item_drop_sets[index].item[i] = ItemDefinitionRef();
             }
         }
     }
@@ -21322,7 +21368,7 @@ int get_homescr()
     return DMaps[zinit.start_dmap].cont;
 }
 
-int current_item(int item_type)
+int currentItemLevel(int item_type)
 {
     //TODO remove as special case?? -DD
     if(item_type==itype_shield)
@@ -21330,20 +21376,11 @@ int current_item(int item_type)
         return 2;
     }
     
-    //find lowest item of that class
-    int lowestid = -1;
-    int ret = 0;
-    
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
-    {
-        if(curQuest->itemDefTable().getItemDefinition(i).family == item_type && (lowestid==-1 || curQuest->itemDefTable().getItemDefinition(i).fam_type < ret))
-        {
-            lowestid = i;
-            ret = curQuest->itemDefTable().getItemDefinition(i).fam_type;
-        }
-    }
-    
-    return ret;
+    ItemDefinitionRef itemref = curQuest->getCanonicalItemID(item_type);
+    if (!curQuest->isValid(itemref))
+        return 0;
+
+    return curQuest->getItemDefinition(itemref).fam_type;
 }
 
 int current_item_power(int itemtype)
@@ -21352,17 +21389,9 @@ int current_item_power(int itemtype)
     return 1;
 }
 
-int current_item_id(int itemtype, bool checkmagic)
+ItemDefinitionRef current_item_id(int itemtype, bool )
 {
-    checkmagic=checkmagic;
-    
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
-    {
-        if(curQuest->itemDefTable().getItemDefinition(i).family==itemtype)
-            return i;
-    }
-    
-    return -1;
+    return curQuest->getCanonicalItemID(itemtype);
 }
 
 
@@ -21397,7 +21426,12 @@ bool no_subscreen()
     return false;
 }
 
-int Awpn=0, Bwpn=0, Bpos=0;
+ItemDefinitionRef Awpn;
+bool combinedBowArrowA;
+ItemDefinitionRef Bwpn;
+bool combinedBowArrowB;
+int Bpos = 0;
+
 sprite_list Sitems, Lwpns;
 
 
@@ -23335,11 +23369,6 @@ char *getBetaControlString()
     }
     
     return result;
-}
-
-bool item_disabled(int)
-{
-    return false;
 }
 
 int onCmdExit()

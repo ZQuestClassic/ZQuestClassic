@@ -54,7 +54,7 @@ zinitdata tempdata;
 
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
-void getitem(int id, bool nosound);
+void getitem(const ItemDefinitionRef &id, bool nosound);
 
 static const int endEquipField = 33;
 
@@ -64,10 +64,10 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c);
 class Family
 {
 public:
-    Family(int fam, int lvl, int id) : family(fam), level(lvl), itemid(id) {}
+    Family(int fam, int lvl, const ItemDefinitionRef &iref) : family(fam), level(lvl), itemid(iref) {}
     int family;
     int level;
-    int itemid;
+    ItemDefinitionRef itemid;
     bool operator<(const Family &other) const
     {
         return level < other.level;
@@ -1558,25 +1558,33 @@ const char *item_class_list(int index, int *list_size)
 
 int doInit(zinitdata *local_zinit)
 {
-    int numitems = curQuest->itemDefTable().getNumItemDefinitions();
-    for(int i=0; i<numitems; i++)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        int family = curQuest->itemDefTable().getItemDefinition(i).family;
-        
-        if(family == 0xFF || family == itype_triforcepiece || !(curQuest->itemDefTable().getItemDefinition(i).flags & itemdata::IF_GAMEDATA))
+        QuestModule &module = curQuest->getModule(*it);
+        int numitems = module.itemDefTable().getNumItemDefinitions();
+        for(int i=0; i<numitems; i++)
         {
-            continue;
+            int family = module.itemDefTable().getItemDefinition(i).family;
+
+            if(family == 0xFF || family == itype_triforcepiece || !(module.itemDefTable().getItemDefinition(i).flags & itemdata::IF_GAMEDATA))
+            {
+                continue;
+            }
+
+            std::map<int,std::vector<Family> >::iterator it2 = families.find(family);
+
+            if(it2 == families.end())
+            {
+                families[family] = std::vector<Family>();
+            }
+
+            families[family].push_back(Family(family, module.itemDefTable().getItemDefinition(i).fam_type, ItemDefinitionRef(*it, i)));
         }
-        
-        std::map<int,std::vector<Family> >::iterator it = families.find(family);
-        
-        if(it == families.end())
-        {
-            families[family] = std::vector<Family>();
-        }
-        
-        families[family].push_back(Family(family, curQuest->itemDefTable().getItemDefinition(i).fam_type,i));
     }
+    
     
     //family map has been populated, now sort
     for(std::map<int, std::vector<Family> >::iterator it = families.begin(); it != families.end(); it++)
@@ -1860,7 +1868,7 @@ void doFamily(int biicindx, zinitdata *local_zinit, DIALOG *d)
     {
         d[i].proc = jwin_checkfont_proc;
         d[i].dp2 = is_large() ? lfont_l : pfont;
-        d[i].dp = (void *)curQuest->itemDefTable().getItemName(it->itemid).c_str();
+        d[i].dp = (void *)curQuest->getItemName(it->itemid).c_str();
         d[i].flags = (local_zinit->inventoryItems.count(it->itemid) > 0) ? D_SELECTED : 0;
     }
     
@@ -1936,13 +1944,12 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_maxcounter(zinit2->max_keys, 5);
     
     //set up the items
-    int numitems = curQuest->itemDefTable().getNumItemDefinitions();
     game2->inventoryItems.clear();
     game2->disabledItems.clear();
 
-    for (std::set<uint32_t>::iterator it = zinit2->inventoryItems.begin(); it != zinit2->inventoryItems.end(); ++it)
+    for (std::set<ItemDefinitionRef>::iterator it = zinit2->inventoryItems.begin(); it != zinit2->inventoryItems.end(); ++it)
     {
-        if (int(*it) < curQuest->itemDefTable().getNumItemDefinitions() && (curQuest->itemDefTable().getItemDefinition(*it).flags & itemdata::IF_GAMEDATA))
+        if (curQuest->isValid(*it) && (curQuest->getItemDefinition(*it).flags & itemdata::IF_GAMEDATA))
         {
             if(!game2->get_item(*it))
                 getitem(*it,true);
@@ -1967,12 +1974,12 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     //Then set up the counters
     game2->set_bombs(zinit2->bombs);
     
-    if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(iBombs, true);
+    if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(curQuest->specialItems().bomb, true);
     
     game2->set_keys(zinit2->keys);
     game2->set_sbombs(zinit2->super_bombs);
     
-    if(zinit2->super_bombs > 0 && (zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
+    if(zinit2->super_bombs > 0 && (zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(curQuest->specialItems().superBomb, true);
     
     game2->set_HCpieces(zinit2->hcp);
     game2->set_rupies(zinit2->rupies);

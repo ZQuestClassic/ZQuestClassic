@@ -1,7 +1,89 @@
+#include "WeaponDefinitionTable.h"
 #include "ItemDefinitionTable.h"
 #include "../defdata.h"
+#include "Quest.h"
 
 using namespace std;
+
+bool SpecialItemIndex::checkConsistency(Quest &quest)
+{
+    if (!quest.isValid(dustPile))
+        return false;
+    if (!quest.isValid(clock))
+        return false;
+    if (!quest.isValid(key))
+        return false;
+    if (!quest.isValid(levelKey))
+        return false;
+    if (!quest.isValid(bossKey))
+        return false;
+    if (!quest.isValid(triforce))
+        return false;
+    if (!quest.isValid(magicContainer))
+        return false;
+    if (!quest.isValid(compass))
+        return false;
+    if (!quest.isValid(map))
+        return false;
+    if (!quest.isValid(redPotion))
+        return false;
+    if (!quest.isValid(heartContainer))
+        return false;
+    if (!quest.isValid(selectA))
+        return false;
+    if (!quest.isValid(selectB))
+        return false;
+    if (!quest.isValid(rupy))
+        return false;
+    if (!quest.isValid(heart))
+        return false;
+    if (!quest.isValid(heartContainerPiece))
+        return false;
+    if (!quest.isValid(bomb))
+        return false;
+    if (!quest.isValid(superBomb))
+        return false;
+    if (!quest.isValid(bigTriforce))
+        return false;
+    if (!quest.isValid(bait))
+        return false;
+    if (!quest.isValid(fairyMoving))
+        return false;
+    return true;
+}
+
+itemdata::itemdata(byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_, 
+    uint32_t wpn_, uint32_t wpn2_, uint32_t wpn3_, uint32_t wpn4_, uint32_t wpn5_, uint32_t wpn6_, uint32_t wpn7_, uint32_t wpn8_, uint32_t wpn9_, uint32_t wpn10_, 
+    byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_)
+{        
+    clear();
+    family = family_;
+    fam_type = fam_type_;
+    power = power_;
+    flags = flags_;
+    count = count_;
+    amount = amount_;
+    setmax = setmax_;
+    max = max_;
+    playsound = playsound_;
+    wpns[0] = SpriteDefinitionRef("CORE", wpn_);
+    wpns[1] = SpriteDefinitionRef("CORE", wpn2_);
+    wpns[2] = SpriteDefinitionRef("CORE", wpn3_);
+    wpns[3] = SpriteDefinitionRef("CORE", wpn4_);
+    wpns[4] = SpriteDefinitionRef("CORE", wpn5_);
+    wpns[5] = SpriteDefinitionRef("CORE", wpn6_);
+    wpns[6] = SpriteDefinitionRef("CORE", wpn7_);
+    wpns[7] = SpriteDefinitionRef("CORE", wpn8_);
+    wpns[8] = SpriteDefinitionRef("CORE", wpn9_);
+    wpns[9] = SpriteDefinitionRef("CORE", wpn10_);
+    pickup_hearts = pickup_hearts_;
+    misc1 = misc1_;
+    misc2 = misc2_;
+    misc3 = misc3_;
+    misc4 = misc4_;
+    magic = magic_;
+    usesound = usesound_;
+}
 
  string ItemDefinitionTable::defaultItemName(int slot)
 {
@@ -23,155 +105,6 @@ itemdata ItemDefinitionTable::defaultItemData(int slot)
     }
     else
         return itemdata();
-}
-
-int ItemDefinitionTable::getCanonicalItemID(int family)
-{
-    int lowestid = -1;
-    int lowestlevel = -1;
-
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && (itemData_[i].fam_type < lowestlevel || lowestlevel == -1))
-        {
-            lowestlevel = itemData_[i].fam_type;
-            lowestid = i;
-        }
-    }
-
-    return lowestid;
-}
-
-int ItemDefinitionTable::getItemID(int family, int level)
-{
-    if(level<0) return getCanonicalItemID(family);
-
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && itemData_[i].fam_type == level)
-            return i;
-    }
-
-    return -1;
-}
-
-void ItemDefinitionTable::addOldStyleFamily(zinitdata *dest, int family, char levels)
-{
-    for(int i=0; i<8; i++)
-    {
-        if(levels & (1<<i))
-        {
-            int id = getItemID(family, i+1);
-
-            if (id != -1)
-            {
-                dest->inventoryItems.insert(id);
-            }
-        }
-    }
-}
-
-void ItemDefinitionTable::removeItemsOfFamily(gamedata *g, int family)
-{
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family)
-            g->set_item(i,false);
-    }
-}
-
-int ItemDefinitionTable::getHighestLevelOfFamily(zinitdata *source, int family)
-{
-    int result = -1;
-    int highestlevel = -1;
-
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && source->inventoryItems.count(i)>0)
-        {
-            if(itemData_[i].fam_type >= highestlevel)
-            {
-                highestlevel = itemData_[i].fam_type;
-                result=i;
-            }
-        }
-    }
-
-    return result;
-}
-
-int ItemDefinitionTable::getHighestLevelOfFamily(gamedata *source, int family, bool checkenabled)
-{
-    int result = -1;
-    int highestlevel = -1;
-
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && source->get_item(i) && (checkenabled?(!(source->get_disabled_item(i))):1))
-        {
-            if(itemData_[i].fam_type >= highestlevel)
-            {
-                highestlevel = itemData_[i].fam_type;
-                result=i;
-            }
-        }
-    }
-
-    return result;
-}
-
-int ItemDefinitionTable::getItemIDPower(int family, int power)
-{
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && itemData_[i].power == power)
-            return i;
-    }
-
-    return -1;
-}
-
-int ItemDefinitionTable::getItemFamily(int item)
-{
-    return itemData_[item].family;
-}
-
-void ItemDefinitionTable::removeLowerLevelItemsOfFamily(gamedata *g, int family, int level)
-{
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && itemData_[i].fam_type < level)
-            g->set_item(i, false);
-    }
-}
-
-void ItemDefinitionTable::removeItemsOfFamily(zinitdata *z, int family)
-{
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if (itemData_[i].family == family)
-        {
-            std::set<uint32_t>::iterator it = z->inventoryItems.find(i);
-            if (it != z->inventoryItems.end())
-                z->inventoryItems.erase(*it);
-        }
-    }
-}
-
-int ItemDefinitionTable::computeOldStyleBitfield(zinitdata *source, int family)
-{
-    int rval=0;
-
-    for(int i=0; i<getNumItemDefinitions(); i++)
-    {
-        if(itemData_[i].family == family && source->inventoryItems.count(i)>0)
-        {
-            if(itemData_[i].fam_type > 0)
-                rval |= 1<<(itemData_[i].fam_type-1);
-        }
-    }
-
-    return rval;
 }
 
 void ItemDefinitionTable::clear()

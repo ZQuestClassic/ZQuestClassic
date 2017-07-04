@@ -24,6 +24,7 @@
 
 #include "zq_class.h"
 #include "zdefs.h"
+#include "weapons.h"
 
 void movefairy(fix&,fix&,int)
 {
@@ -55,10 +56,21 @@ bool is_side_view()
     return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
 }
 
-void getitem(int, bool)
+void getitem(const ItemDefinitionRef &itemref, bool)
 {
     return;
 }
-/*** end of sprite.cc ***/
 
+extern sprite_list Lwpns;
+
+int LwpnsIdCount(int id)
+{
+    int ret = 0;
+    for (int i = 0; i < Lwpns.Count(); i++)
+    {
+        if (((weapon *)Lwpns.spr(i))->id == id)
+            ret++;
+    }
+    return ret;
+}
 

@@ -163,11 +163,11 @@ void loadpalset(int cset,int dataset)
 
 void ringcolor(bool forceDefault)
 {
-    int itemid = current_item_id(itype_ring);
+    ItemDefinitionRef itemid = current_item_id(itype_ring);
     
-    if(!forceDefault && itemid>-1)
+    if(!forceDefault && curQuest->isValid(itemid))
     {
-         loadpalset(6,curQuest->itemDefTable().getItemDefinition(itemid).misc1 ? pSprite(zc_min(29,curQuest->itemDefTable().getItemDefinition(itemid).misc1)):6);
+         loadpalset(6,curQuest->getItemDefinition(itemid).misc1 ? pSprite(zc_min(29,curQuest->getItemDefinition(itemid).misc1)):6);
     }
     else
     {

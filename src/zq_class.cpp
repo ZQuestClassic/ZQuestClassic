@@ -52,7 +52,7 @@ using std::pair;
 //const char zqsheader[30]="Zelda Classic String Table\n\x01";
 extern char msgbuf[MSGSIZE*3];
 
-extern std::map<int, LensItemAnim> lens_hint_item;
+extern std::map<ItemDefinitionRef, LensItemAnim> lens_hint_item;
 extern string zScript;
 extern std::map<int, pair<string, string> > ffcmap;
 extern std::map<int, pair<string, string> > globalmap;
@@ -6357,8 +6357,13 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 
             for (uint32_t j = 0; j < numdisabled; j++)
             {
-                uint32_t itemid = DMaps[i].disabledItems[j];
-                if (!p_iputl(itemid, f))
+                ItemDefinitionRef itemid = DMaps[i].disabledItems[j];
+                uint32_t len = itemid.module.length() + 1;
+                if (!p_iputl(len, f))
+                    new_return(28);
+                if (!pfwrite((void *)itemid.module.c_str(), len, f))
+                    new_return(28);
+                if (!p_iputl(itemid.slot, f))
                     new_return(28);
             }
 
@@ -6707,7 +6712,17 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             
             for(int j=0; j<3; j++)
             {
-                if(!p_putc(Misc->shop[i].item[j],f))
+                uint32_t modulelen = Misc->shop[i].item[j].module.length() + 1;
+                if (!p_iputl(modulelen, f))
+                {
+                    new_return(7);
+                }
+                if (!pfwrite((void *)Misc->shop[i].item[j].module.c_str(), modulelen, f))
+                {
+                    new_return(7);
+                }
+
+                if(!p_iputl(Misc->shop[i].item[j].slot,f))
                 {
                     new_return(7);
                 }
@@ -6849,292 +6864,287 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for (int writecycle = 0; writecycle < 2; ++writecycle)
     {
-        fake_pack_writing=(writecycle==0);
-        
+        fake_pack_writing = (writecycle == 0);
+
         //section size
-        if(!p_iputl(section_size,f))
+        if (!p_iputl(section_size, f))
         {
             new_return(4);
         }
-        
-        writesize=0;
-        
+
+        writesize = 0;
+
         //finally...  section data
-        uint32_t numitems = curQuest->itemDefTable().getNumItemDefinitions();
-        if(!p_iputl(numitems,f))
+        uint32_t numitems=0;
+        std::vector<std::string> modulenames;
+        curQuest->getModules(modulenames);
+        for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
+        {
+            QuestModule &module = curQuest->getModule(*it);
+            numitems += module.itemDefTable().getNumItemDefinitions();
+        }
+
+        if (!p_iputl(numitems, f))
         {
             new_return(5);
         }
-        
-        for(uint32_t i=0; i<numitems; i++)
-        {
-            uint32_t namelen = 1+curQuest->itemDefTable().getItemName(i).length();
-            if (!p_iputl(namelen, f))
-                new_return(5);
 
-            if(!pfwrite((void *)curQuest->itemDefTable().getItemName(i).c_str(), namelen, f))
-            {
-                new_return(5);
-            }
-        }
-        
-        for(uint32_t i=0; i<numitems; i++)
+        for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
         {
-            const itemdata &itemd = curQuest->itemDefTable().getItemDefinition(i);
-            if(!p_iputw(itemd.tile,f))
+            QuestModule &module = curQuest->getModule(*it);
+
+            for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
             {
-                new_return(6);
-            }
-            
-            if(!p_putc(itemd.misc,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(itemd.csets,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(itemd.frames,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(itemd.speed,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(itemd.delay,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_iputl(itemd.ltm,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_putc(itemd.family,f))
-            {
-                new_return(13);
-            }
-            
-            if(!p_putc(itemd.fam_type,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_putc(itemd.power,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_iputw(itemd.flags,f))
-            {
-                new_return(15);
-            }
-            
-            if(!p_iputw(itemd.script,f))
-            {
-                new_return(16);
-            }
-            
-            if(!p_putc(itemd.count,f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_iputw(itemd.amount,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_iputw(itemd.collect_script,f))
-            {
-                new_return(19);
-            }
-            
-            if(!p_iputw(itemd.setmax,f))
-            {
-                new_return(21);
-            }
-            
-            if(!p_iputw(itemd.max,f))
-            {
-                new_return(22);
-            }
-            
-            if(!p_putc(itemd.playsound,f))
-            {
-                new_return(23);
-            }
-            
-            for(int j=0; j<8; j++)
-            {
-                if(!p_iputl(itemd.initiald[j],f))
+                uint32_t namelen = 1 + module.itemDefTable().getItemName(i).length();
+                if (!p_iputl(namelen, f))
+                    new_return(5);
+
+                if (!pfwrite((void *)module.itemDefTable().getItemName(i).c_str(), namelen, f))
                 {
-                    new_return(24);
+                    new_return(5);
                 }
             }
-            
-            for(int j=0; j<2; j++)
-            {
-                if(!p_putc(itemd.initiala[j],f))
-                {
-                    new_return(25);
-                }
-            }
-            
-            if(!p_putc(itemd.wpn,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(itemd.wpn2,f))
-            {
-                new_return(27);
-            }
-            
-            if(!p_putc(itemd.wpn3,f))
-            {
-                new_return(28);
-            }
-            
-            if(!p_putc(itemd.wpn4,f))
-            {
-                new_return(29);
-            }
-            
-            if(!p_putc(itemd.wpn5,f))
-            {
-                new_return(30);
-            }
-            
-            if(!p_putc(itemd.wpn6,f))
-            {
-                new_return(31);
-            }
-            
-            if(!p_putc(itemd.wpn7,f))
-            {
-                new_return(32);
-            }
-            
-            if(!p_putc(itemd.wpn8,f))
-            {
-                new_return(33);
-            }
-            
-            if(!p_putc(itemd.wpn9,f))
-            {
-                new_return(34);
-            }
-            
-            if(!p_putc(itemd.wpn10,f))
-            {
-                new_return(35);
-            }
-            
-            if(!p_putc(itemd.pickup_hearts,f))
-            {
-                new_return(36);
-            }
-            
-            if(!p_iputl(itemd.misc1,f))
-            {
-                new_return(37);
-            }
-            
-            if(!p_iputl(itemd.misc2,f))
-            {
-                new_return(38);
-            }
-            
-            if(!p_putc(itemd.magic,f))
-            {
-                new_return(39);
-            }
-            
-            if(!p_iputl(itemd.misc3,f))
-            {
-                new_return(40);
-            }
-            
-            if(!p_iputl(itemd.misc4,f))
-            {
-                new_return(41);
-            }
-            
-            if(!p_iputl(itemd.misc5,f))
-            {
-                new_return(42);
-            }
-            
-            if(!p_iputl(itemd.misc6,f))
-            {
-                new_return(43);
-            }
-            
-            if(!p_iputl(itemd.misc7,f))
-            {
-                new_return(44);
-            }
-            
-            if(!p_iputl(itemd.misc8,f))
-            {
-                new_return(45);
-            }
-            
-            if(!p_iputl(itemd.misc9,f))
-            {
-                new_return(46);
-            }
-            
-            if(!p_iputl(itemd.misc10,f))
-            {
-                new_return(47);
-            }
-            
-            if(!p_putc(itemd.usesound,f))
-            {
-                new_return(48);
-            }
-	    
-	    //New itemdata vars -Z
-	    //! I need help with this. THis should wori, but ZQuest is crashing on reading items. -Z
-	    
-	    if(!p_putc(itemd.useweapon,f))
-            {
-                new_return(49);
-            }
-	    if(!p_putc(itemd.usedefence,f))
-            {
-                new_return(50);
-            }
-	    if(!p_iputl(itemd.weaprange,f))
-            {
-                new_return(51);
-            }
-	    if(!p_iputl(itemd.weapduration,f))
-            {
-                new_return(52);
-            }
-	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-		    if(!p_iputl(itemd.weap_pattern[q],f))
-		    {
-			new_return(53);
-		    }
-	    }
-	    
         }
-        
-        if(writecycle==0)
+
+        for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
         {
-            section_size=writesize;
+            QuestModule &module = curQuest->getModule(*it);
+
+            for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
+            {
+                uint32_t modlen = it->length() + 1;
+                if (!p_iputl(modlen, f))
+                {
+                    new_return(6);
+                }
+                if (!pfwrite((void *)it->c_str(), modlen, f))
+                {
+                    new_return(6);
+                }
+
+                const itemdata &itemd = module.itemDefTable().getItemDefinition(i);
+                if (!p_iputw(itemd.tile, f))
+                {
+                    new_return(6);
+                }
+
+                if (!p_putc(itemd.misc, f))
+                {
+                    new_return(7);
+                }
+
+                if (!p_putc(itemd.csets, f))
+                {
+                    new_return(8);
+                }
+
+                if (!p_putc(itemd.frames, f))
+                {
+                    new_return(9);
+                }
+
+                if (!p_putc(itemd.speed, f))
+                {
+                    new_return(10);
+                }
+
+                if (!p_putc(itemd.delay, f))
+                {
+                    new_return(11);
+                }
+
+                if (!p_iputl(itemd.ltm, f))
+                {
+                    new_return(12);
+                }
+
+                if (!p_putc(itemd.family, f))
+                {
+                    new_return(13);
+                }
+
+                if (!p_putc(itemd.fam_type, f))
+                {
+                    new_return(14);
+                }
+
+                if (!p_putc(itemd.power, f))
+                {
+                    new_return(14);
+                }
+
+                if (!p_iputw(itemd.flags, f))
+                {
+                    new_return(15);
+                }
+
+                if (!p_iputw(itemd.script, f))
+                {
+                    new_return(16);
+                }
+
+                if (!p_putc(itemd.count, f))
+                {
+                    new_return(17);
+                }
+
+                if (!p_iputw(itemd.amount, f))
+                {
+                    new_return(18);
+                }
+
+                if (!p_iputw(itemd.collect_script, f))
+                {
+                    new_return(19);
+                }
+
+                if (!p_iputw(itemd.setmax, f))
+                {
+                    new_return(21);
+                }
+
+                if (!p_iputw(itemd.max, f))
+                {
+                    new_return(22);
+                }
+
+                if (!p_putc(itemd.playsound, f))
+                {
+                    new_return(23);
+                }
+
+                for (int j = 0; j < 8; j++)
+                {
+                    if (!p_iputl(itemd.initiald[j], f))
+                    {
+                        new_return(24);
+                    }
+                }
+
+                for (int j = 0; j < 2; j++)
+                {
+                    if (!p_putc(itemd.initiala[j], f))
+                    {
+                        new_return(25);
+                    }
+                }
+
+                for (int wpn = 0; wpn < 10; wpn++)
+                {
+                    uint32_t wpnlen = itemd.wpns[wpn].module.length() + 1;
+                    if (!p_iputl(wpnlen, f))
+                    {
+                        new_return(26);
+                    }
+                    if (!pfwrite((void *)itemd.wpns[wpn].module.c_str(), wpnlen, f))
+                    {
+                        new_return(27);
+                    }
+                    if (!p_iputl(itemd.wpns[wpn].slot, f))
+                    {
+                        new_return(28);
+                    }
+                }
+
+                if (!p_putc(itemd.pickup_hearts, f))
+                {
+                    new_return(36);
+                }
+
+                if (!p_iputl(itemd.misc1, f))
+                {
+                    new_return(37);
+                }
+
+                if (!p_iputl(itemd.misc2, f))
+                {
+                    new_return(38);
+                }
+
+                if (!p_putc(itemd.magic, f))
+                {
+                    new_return(39);
+                }
+
+                if (!p_iputl(itemd.misc3, f))
+                {
+                    new_return(40);
+                }
+
+                if (!p_iputl(itemd.misc4, f))
+                {
+                    new_return(41);
+                }
+
+                if (!p_iputl(itemd.misc5, f))
+                {
+                    new_return(42);
+                }
+
+                if (!p_iputl(itemd.misc6, f))
+                {
+                    new_return(43);
+                }
+
+                if (!p_iputl(itemd.misc7, f))
+                {
+                    new_return(44);
+                }
+
+                if (!p_iputl(itemd.misc8, f))
+                {
+                    new_return(45);
+                }
+
+                if (!p_iputl(itemd.misc9, f))
+                {
+                    new_return(46);
+                }
+
+                if (!p_iputl(itemd.misc10, f))
+                {
+                    new_return(47);
+                }
+
+                if (!p_putc(itemd.usesound, f))
+                {
+                    new_return(48);
+                }
+
+                //New itemdata vars -Z
+                //! I need help with this. THis should wori, but ZQuest is crashing on reading items. -Z
+
+                if (!p_putc(itemd.useweapon, f))
+                {
+                    new_return(49);
+                }
+                if (!p_putc(itemd.usedefence, f))
+                {
+                    new_return(50);
+                }
+                if (!p_iputl(itemd.weaprange, f))
+                {
+                    new_return(51);
+                }
+                if (!p_iputl(itemd.weapduration, f))
+                {
+                    new_return(52);
+                }
+                for (int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++) {
+                    if (!p_iputl(itemd.weap_pattern[q], f))
+                    {
+                        new_return(53);
+                    }
+                }
+
+            }
+
+            if (writecycle == 0)
+            {
+                section_size = writesize;
+            }
         }
     }
     
@@ -7189,53 +7199,79 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        uint32_t numweapons = curQuest->weaponDefTable().getNumSpriteDefinitions();
+        uint32_t numweapons= 0;
+        std::vector<std::string> modules;
+        curQuest->getModules(modules);
+        
+        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
+        {
+            numweapons += curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+        }
+
         if(!p_iputl(numweapons,f))
         {
             new_return(5);
         }
         
-        for(uint32_t i=0; i<numweapons; i++)
+        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
         {
-            uint32_t len = curQuest->weaponDefTable().getSpriteName(i).length() + 1;
-            if (!p_iputl(len, f))
-                new_return(5);
-            if(!pfwrite((void *)curQuest->weaponDefTable().getSpriteName(i).c_str(), len, f))
+            numweapons = curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+            for (uint32_t i = 0; i < numweapons; i++)
             {
-                new_return(5);
+                uint32_t len = curQuest->getModule(*it).weaponDefTable().getSpriteName(i).length() + 1;
+                if (!p_iputl(len, f))
+                    new_return(5);
+                if (!pfwrite((void *)curQuest->getModule(*it).weaponDefTable().getSpriteName(i).c_str(), len, f))
+                {
+                    new_return(5);
+                }
             }
         }
         
-        for(uint32_t i=0; i<numweapons; i++)
+        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
         {
-            if(!p_iputw(curQuest->weaponDefTable().getSpriteDefinition(i).tile,f))
+            numweapons = curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+
+            for (uint32_t i = 0; i < numweapons; i++)
             {
-                new_return(6);
-            }
-            
-            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).misc,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).csets,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).frames,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).speed,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(curQuest->weaponDefTable().getSpriteDefinition(i).type,f))
-            {
-                new_return(11);
+                uint32_t modlen = it->length() + 1;
+                if (!p_iputl(modlen, f))
+                {
+                    new_return(6);
+                }
+                if (!pfwrite((void *)it->c_str(), modlen, f))
+                {
+                    new_return(6);
+                }
+                if (!p_iputw(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).tile, f))
+                {
+                    new_return(6);
+                }
+
+                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).misc, f))
+                {
+                    new_return(7);
+                }
+
+                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).csets, f))
+                {
+                    new_return(8);
+                }
+
+                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).frames, f))
+                {
+                    new_return(9);
+                }
+
+                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).speed, f))
+                {
+                    new_return(10);
+                }
+
+                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).type, f))
+                {
+                    new_return(11);
+                }
             }
         }
         
@@ -7285,8 +7321,15 @@ int writemapscreen(PACKFILE *f, int i, int j)
     {
         return qe_invalid;
     }
+
+    uint32_t modulelen = 1 + screen.screenItem.module.length();
+    if (!p_iputl(modulelen, f))
+        return qe_invalid;
+
+    if (!pfwrite((void *)screen.screenItem.module.c_str(), modulelen, f))
+        return qe_invalid;
     
-    if(!p_iputl(screen.screenItem,f))
+    if(!p_iputl(screen.screenItem.slot,f))
     {
         return qe_invalid;
     }
@@ -7472,6 +7515,22 @@ int writemapscreen(PACKFILE *f, int i, int j)
     }
     
     if(!p_iputw(screen.catchall,f))
+    {
+        return qe_invalid;
+    }
+
+    uint32_t catchallitem_len = screen.catchallItem.module.length() + 1;
+    if (!p_iputl(catchallitem_len, f))
+    {
+        return qe_invalid;
+    }
+
+    if (!pfwrite((void *)screen.catchallItem.module.c_str(), catchallitem_len, f))
+    {
+        return qe_invalid;
+    }
+
+    if (!p_iputl(screen.catchallItem.slot, f))
     {
         return qe_invalid;
     }
@@ -9047,10 +9106,19 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(61);
             }
-	    if(!p_iputl(guysbuf[i].wpnsprite,f))
-            {
-                new_return(62);
-            }
+        uint32_t len = guysbuf[i].wpnsprite.module.length() + 1;
+        if (!p_iputl(len, f))
+        {
+            new_return(62);
+        }
+        if (!pfwrite((void *)guysbuf[i].wpnsprite.module.c_str(), len, f))
+        {
+            new_return(62);
+        }
+        if (!p_iputl(guysbuf[i].wpnsprite.slot, f))
+        {
+            new_return(62);
+        }
 	    if(!p_iputl(guysbuf[i].SIZEflags,f))
             {
                 new_return(62);
@@ -10139,10 +10207,21 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         if (!p_iputl(zinit.inventoryItems.size(), f))
             new_return(5);
 
-        for (std::set<uint32_t>::iterator it = zinit.inventoryItems.begin(); it != zinit.inventoryItems.end(); ++it)
+        for (std::set<ItemDefinitionRef>::iterator it = zinit.inventoryItems.begin(); it != zinit.inventoryItems.end(); ++it)
         {
-            if (!p_iputl(*it, f))
+            int len = it->module.length() + 1;
+            if (!p_iputl(len, f))
+            {
                 new_return(6);
+            }
+            if (!pfwrite((void *)it->module.c_str(), len, f))
+            {
+                new_return(7);
+            }
+            if (!p_iputl(it->slot, f))
+            {
+                new_return(8);
+            }
         }
         
         //bomb counter RANDOMLY in the middle of items :-/
@@ -10463,7 +10542,18 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
             
             for(int j=0; j<10; ++j)
             {
-                if(!p_iputw(item_drop_sets[i].item[j],f))
+                uint32_t modulelen = item_drop_sets[i].item[j].module.length() + 1;
+                if (!p_iputl(modulelen, f))
+                {
+                    new_return(7);
+                }
+
+                if (!pfwrite((void *)item_drop_sets[i].item[j].module.c_str(), modulelen, f))
+                {
+                    new_return(7);
+                }
+
+                if(!p_iputl(item_drop_sets[i].item[j].slot,f))
                 {
                     new_return(7);
                 }

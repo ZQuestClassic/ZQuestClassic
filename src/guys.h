@@ -62,6 +62,7 @@ public:
     guydata *d;
     // Approximately all of these variables are accessed by either ffscript.cpp or inherited classes
     int o_tile, frate, hp, hclk, clk3, stunclk, timer, fading, superman, mainguy, did_armos;
+    int id;
 //2.54 int script_tile; //An override for the current npc tile. In the future, read tro see if this is not -1 before drawing. -Z
     byte movestatus, item_set, grumble, posframe;
     bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
@@ -111,7 +112,7 @@ public:
     {
         return false;
     }
-    int wpnsprite; //wpnsprite is new for 2.6 -Z
+    SpriteDefinitionRef wpnsprite; //wpnsprite is new for 2.6 -Z
     int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
 
 protected:
@@ -549,7 +550,7 @@ public:
     void draw_flash(BITMAP *dest);
 };
 
-void getBigTri(int id2);
+void getBigTri(const ItemDefinitionRef &id2);
 
 /**********************************/
 /***  Multiple-Segment Enemies  ***/
@@ -707,11 +708,11 @@ public:
 /**********************************/
 void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
 // Used by Link's swords & stomp boots
-int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir, int enemyHitWeapon);
+int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir, const ItemDefinitionRef &enemyHitWeapon);
 void enemy_scored(int index);
 void addguy(int x,int y,int id,int clk,bool mainguy);
-void additem(int x,int y,int id,int pickup);
-void additem(int x,int y,int id,int pickup,int clk);
+void additem(int x,int y,const ItemDefinitionRef &item, int pickup);
+void additem(int x,int y,const ItemDefinitionRef &item,int pickup,int clk);
 void kill_em_all();
 // For Link's hit detection. Don't count them if they are stunned or are guys.
 int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);

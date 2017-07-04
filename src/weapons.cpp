@@ -29,10 +29,10 @@
 #include "link.h"
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
+#include "guys.h"
 
 extern LinkClass *Link;
 extern zinitdata zinit;
-extern int directWpn;
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -41,6 +41,27 @@ extern int directWpn;
 byte boomframe[16] = {0,0,1,0,2,0,1,1,0,1,1,3,2,2,1,2};
 byte bszboomflip[4] = {0,2,3,1};
 
+int EwpnsIdCount(int id)
+{
+    int ret = 0;
+    for (int i = 0; i < Ewpns.Count(); i++)
+    {
+        if (((weapon *)Ewpns.spr(i))->id == id)
+            ret++;
+    }
+    return ret;
+}
+
+int LwpnsIdCount(int id)
+{
+    int ret = 0;
+    for (int i = 0; i < Lwpns.Count(); i++)
+    {
+        if (((weapon *)Lwpns.spr(i))->id == id)
+            ret++;
+    }
+    return ret;
+}
 //light up the screen if there is at least one "lit" weapon
 //otherwise darken the screen
 void checkLightSources()
@@ -190,6 +211,7 @@ weapon::weapon(weapon const & other):
     clk2(other.clk2),			//int
     misc2(other.misc2),			//int
     ignorecombo(other.ignorecombo),	//int
+    id(other.id),
     isLit(other.isLit),			//bool		Does it light the screen?
     parentid(other.parentid),		//int		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
     parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
@@ -298,18 +320,18 @@ weapon::~weapon()
 {
     // First, check for the existence of weapons that don't have parentitems
     // but make looping sounds anyway.
-    if(parentitem<0 && get_bit(quest_rules, qr_MORESOUNDS))
+    if(!curQuest->isValid(parentitem) && get_bit(quest_rules, qr_MORESOUNDS))
     {
         //I am reasonably confident that I fixed these expressions. ~pkmnfrk
-        if(id==ewBrang && Ewpns.idCount(ewBrang) > 0)
+        if(id==ewBrang && EwpnsIdCount(ewBrang) > 0)
             return;
             
-        if(id==wWind && Lwpns.idCount(wWind) > 0)
+        if(id==wWind && LwpnsIdCount(wWind) > 0)
             return;
     }
     
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
-    if(parentitem>=0)
+    if(curQuest->isValid(parentitem))
     {
         for(int i=0; i<Lwpns.Count(); i++)
         {
@@ -320,12 +342,13 @@ weapon::~weapon()
                 continue;
             }
             
-            int wparent = w->parentitem;
+            ItemDefinitionRef wparent = w->parentitem;
             
-            if(wparent>=0 && (curQuest->itemDefTable().getItemDefinition(wparent).family == itype_brang || curQuest->itemDefTable().getItemDefinition(wparent).family == itype_nayruslove
-                              || curQuest->itemDefTable().getItemDefinition(wparent).family == itype_hookshot || curQuest->itemDefTable().getItemDefinition(wparent).family == itype_cbyrna))
+            if(curQuest->isValid(wparent) && 
+                (curQuest->getItemDefinition(wparent).family == itype_brang || curQuest->getItemDefinition(wparent).family == itype_nayruslove
+                              || curQuest->getItemDefinition(wparent).family == itype_hookshot || curQuest->getItemDefinition(wparent).family == itype_cbyrna))
             {
-                if(curQuest->itemDefTable().getItemDefinition(wparent).usesound == curQuest->itemDefTable().getItemDefinition(parentitem).usesound)
+                if(curQuest->getItemDefinition(wparent).usesound == curQuest->getItemDefinition(parentitem).usesound)
                     return;
             }
         }
@@ -343,18 +366,18 @@ weapon::~weapon()
         
     case wBrang:
     case wCByrna:
-        if(parentitem>=0)
+        if(curQuest->isValid(parentitem))
         {
-            Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound);
+            Backend::sfx->stop(curQuest->getItemDefinition(parentitem).usesound);
         }
         
         break;
         
     case wSSparkle:
     case wFSparkle:
-        if(parentitem>=0 && curQuest->itemDefTable().getItemDefinition(parentitem).family==itype_cbyrna)
+        if(curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).family==itype_cbyrna)
         {
-            Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound);
+            Backend::sfx->stop(curQuest->getItemDefinition(parentitem).usesound);
         }
         
         break;
@@ -420,7 +443,7 @@ void setScreenLimits(weapon& w)
 	}
 }
 
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy) : sprite(*pool), parentid(prntid)
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefinitionRef &Parentitem, int prntid, bool isDummy) : sprite(*pool), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -431,7 +454,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     parentitem=Parentitem;
     dir=zc_max(Dir,0);
     clk=clk2=flip=misc=misc2=0;
-    frames=flash=wid=aframe=csclk=0;
+    frames=flash=aframe=csclk=0;
+    wid = SpriteDefinitionRef();
     ignorecombo=-1;
     step=0;
     dead=-1;
@@ -452,26 +476,26 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     //that use misc1 for this.
 	
 	//Weapon Editor -Z
-	if ( parentitem > -1 ) { 
-		useweapon = curQuest->itemDefTable().getItemDefinition(parentitem).useweapon;
-		usedefence = curQuest->itemDefTable().getItemDefinition(parentitem).usedefence;
-		weaprange = curQuest->itemDefTable().getItemDefinition(parentitem).weaprange;
-		weapduration = curQuest->itemDefTable().getItemDefinition(parentitem).weapduration;
-		duplicates = curQuest->itemDefTable().getItemDefinition(parentitem).duplicates;
-		family_class = curQuest->itemDefTable().getItemDefinition(parentitem).family;
-		family_level = curQuest->itemDefTable().getItemDefinition(parentitem).fam_type;
+	if ( curQuest->isValid(parentitem)) { 
+		useweapon = curQuest->getItemDefinition(parentitem).useweapon;
+		usedefence = curQuest->getItemDefinition(parentitem).usedefence;
+		weaprange = curQuest->getItemDefinition(parentitem).weaprange;
+		weapduration = curQuest->getItemDefinition(parentitem).weapduration;
+		duplicates = curQuest->getItemDefinition(parentitem).duplicates;
+		family_class = curQuest->getItemDefinition(parentitem).family;
+		family_level = curQuest->getItemDefinition(parentitem).fam_type;
 		//flags = 
-		collectflags = curQuest->itemDefTable().getItemDefinition(parentitem).collectflags;
-		tilemod = curQuest->itemDefTable().getItemDefinition(parentitem).ltm;
+		collectflags = curQuest->getItemDefinition(parentitem).collectflags;
+		tilemod = curQuest->getItemDefinition(parentitem).ltm;
 		
 		for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )  
 		{
-			weap_pattern[q] = curQuest->itemDefTable().getItemDefinition(parentitem).weap_pattern[q];
+			weap_pattern[q] = curQuest->getItemDefinition(parentitem).weap_pattern[q];
 		}
 		
 		for ( int q = 0; q < FFSCRIPT_MISC; q++ )
 		{
-			wpn_misc_d[q] = curQuest->itemDefTable().getItemDefinition(parentitem).wpn_misc_d[q];
+			wpn_misc_d[q] = curQuest->getItemDefinition(parentitem).wpn_misc_d[q];
 			
 		}
 		//hxofs = itemsbuf[parentitem].weap_hxofs; //hit x offset
@@ -485,17 +509,18 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		
 		for ( int q = 0; q < INITIAL_D; q++ )
 		{
-			initiald[q] = curQuest->itemDefTable().getItemDefinition(parentitem).weap_initiald[q];
+			initiald[q] = curQuest->getItemDefinition(parentitem).weap_initiald[q];
 		}
 		for ( int q = 0; q < INITIAL_A; q++ )
 		{
-			initiala[q] = curQuest->itemDefTable().getItemDefinition(parentitem).weap_initiala[q];
+			initiala[q] = curQuest->getItemDefinition(parentitem).weap_initiala[q];
 		}
 			
 			
 	}
     
-    int defaultw, itemid = parentitem;
+    SpriteDefinitionRef defaultw;
+    ItemDefinitionRef itemid = parentitem;
     
     if(id>wEnemyWeapons)
     {
@@ -515,12 +540,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     //! Dimentio Wand
     
-    if (parentitem > -1)
+    if (curQuest->isValid(parentitem))
     {
-        if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && (id != wWand || (curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG3)))
+        if (curQuest->getItemDefinition(parentitem).family == itype_wand && (id != wWand || (curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG3)))
         { //!Dimentio: This calculates the move effects. These are modifiers to normal wand weapon's movement. 
             //Turn on flag 3 to include the wand with it.
-            switch (curQuest->itemDefTable().getItemDefinition(parentitem).misc5)
+            switch (curQuest->getItemDefinition(parentitem).misc5)
             {
             case 1:
             case 2:
@@ -542,9 +567,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             default: break;
             }
         }
-        if (type == 1 && curQuest->itemDefTable().getItemDefinition(parentitem).misc4 > 0 && curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book)
+        if (type == 1 && curQuest->getItemDefinition(parentitem).misc4 > 0 && curQuest->getItemDefinition(parentitem).family == itype_book)
         {
-            switch (curQuest->itemDefTable().getItemDefinition(parentitem).misc4)
+            switch (curQuest->getItemDefinition(parentitem).misc4)
             {
             case 5:
             {
@@ -569,15 +594,15 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             }
         }
 
-        if (type == 1 && curQuest->itemDefTable().getItemDefinition(parentitem).misc4 > 0 && curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book)
+        if (type == 1 && curQuest->getItemDefinition(parentitem).misc4 > 0 && curQuest->getItemDefinition(parentitem).family == itype_book)
         {
-            switch (curQuest->itemDefTable().getItemDefinition(parentitem).misc4)
+            switch (curQuest->getItemDefinition(parentitem).misc4)
             {
             case 5:
             {
                 if (GuyCount() > 0)
                 {
-                    fix StepSaving = curQuest->itemDefTable().getItemDefinition(parentitem).misc5 / (fix)100.0;
+                    fix StepSaving = curQuest->getItemDefinition(parentitem).misc5 / (fix)100.0;
                     step = StepSaving;
                 }
                 break;
@@ -586,21 +611,21 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             {
                 if (GuyCount() > 0)
                 {
-                    fix StepSaving = curQuest->itemDefTable().getItemDefinition(parentitem).misc5 / (fix)100.0;
+                    fix StepSaving = curQuest->getItemDefinition(parentitem).misc5 / (fix)100.0;
                     step = StepSaving;
                 }
                 break;
             }
             case 7:
             {
-                fix StepSaving = curQuest->itemDefTable().getItemDefinition(parentitem).misc5 / (fix)100.0;
+                fix StepSaving = curQuest->getItemDefinition(parentitem).misc5 / (fix)100.0;
                 step = StepSaving;
                 seekLink();
                 break;
             }
             case 8:
             {
-                fix StepSaving = curQuest->itemDefTable().getItemDefinition(parentitem).misc5 / (fix)100.0;
+                fix StepSaving = curQuest->getItemDefinition(parentitem).misc5 / (fix)100.0;
                 step = StepSaving;
                 seekLink();
                 break;
@@ -613,13 +638,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
     case wSword: // Link's sword
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_sword);
+            itemid = curQuest->getCanonicalItemID(itype_sword);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -630,13 +655,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     case wWand: // Link's wand, as well as the Cane itself
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_wand);
+            itemid = curQuest->getCanonicalItemID(itype_wand);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -648,13 +673,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     case wHammer:
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_hammer);
+            itemid = curQuest->getCanonicalItemID(itype_hammer);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -666,27 +691,27 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     case wCByrna: // The Cane's beam
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_cbyrna);
+            itemid = curQuest->getCanonicalItemID(itype_cbyrna);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn3;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[2];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
         LOADGFX(defaultw);
-        int speed = parentitem>-1 ? zc_max(curQuest->itemDefTable().getItemDefinition(parentitem).misc1,1) : 1;
-        int qty = parentitem>-1 ? zc_max(curQuest->itemDefTable().getItemDefinition(parentitem).misc3,1) : 1;
+        int speed = curQuest->isValid(parentitem) ? zc_max(curQuest->getItemDefinition(parentitem).misc1,1) : 1;
+        int qty = curQuest->isValid(parentitem) ? zc_max(curQuest->getItemDefinition(parentitem).misc3,1) : 1;
         clk = (int)((((2*type*PI)/qty)
                      // Appear on top of the cane's hook
                      + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
         type = 0;
         
-        if(parentitem>-1)
+        if(curQuest->isValid(parentitem))
         {
-            Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound,128);
+            Backend::sfx->loop(curQuest->getItemDefinition(parentitem).usesound,128);
         }
         
         break;
@@ -700,13 +725,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case wWind:
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_whistle);
+            itemid = curQuest->getCanonicalItemID(itype_whistle);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -724,13 +749,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wRefBeam:
         step = 3;
         
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_sword);
+            itemid = curQuest->getCanonicalItemID(itype_sword);
         }
         
-        if (itemid > -1 && id != wRefBeam)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn3;
+        if (curQuest->isValid(itemid) && id != wRefBeam)
+            defaultw = curQuest->getItemDefinition(itemid).wpns[2];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -767,13 +792,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case wArrow:
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_arrow);
+            itemid = curQuest->getCanonicalItemID(itype_arrow);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -803,54 +828,54 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        if(itemid >-1)
-            misc = curQuest->itemDefTable().getItemDefinition(itemid).misc1;
+        if(curQuest->isValid(itemid))
+            misc = curQuest->getItemDefinition(itemid).misc1;
             
         break;
         
     case wSSparkle:
     {
-        int ssparkles = curQuest->specialSprites().silverSparkle;
-        LOADGFX(type ? type : ssparkles);
+        SpriteDefinitionRef ssparkles = curQuest->specialSprites().silverSparkle;
+        LOADGFX(ssparkles);
         step = 0;
         break;
     }
         
     case wFSparkle:
     {
-        int fsparkles = curQuest->specialSprites().fireSparkle;
-        LOADGFX(type ? type : fsparkles);
+        SpriteDefinitionRef fsparkles = curQuest->specialSprites().fireSparkle;
+        LOADGFX(fsparkles);
         step = 0;
         break;
     }
         
     case wFire:
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_candle);
+            itemid = curQuest->getCanonicalItemID(itype_candle);
         }
         
         switch(type)
         {
         case 3: // Din's Fire. This uses magicitem rather than itemid
-            if(magicitem >-1 && !isDummy)
-                defaultw = curQuest->itemDefTable().getItemDefinition(magicitem).wpn5;
+            if(curQuest->isValid(magicitem) && !isDummy)
+                defaultw = curQuest->getItemDefinition(magicitem).wpns[4];
             else defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
             break;
             
         case 2: // Wand
-            if(itemid>-1 && !isDummy)
-                defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn2;
+            if(curQuest->isValid(itemid) && !isDummy)
+                defaultw = curQuest->getItemDefinition(itemid).wpns[1];
             else defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
             break;
             
         case 0:
         case 1: // Candles
-            if(itemid>-1 && !isDummy)
+            if(curQuest->isValid(itemid) && !isDummy)
             {
-                defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn3;
+                defaultw = curQuest->getItemDefinition(itemid).wpns[2];
                 break;
             }
             
@@ -871,30 +896,30 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wLitBomb:
     case wBomb:
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand || curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book) itemid = parentitem;
+            if (curQuest->getItemDefinition(parentitem).family == itype_wand || curQuest->getItemDefinition(parentitem).family == itype_book) itemid = parentitem;
 		//!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
-            else itemid = curQuest->itemDefTable().getCanonicalItemID(itype_bomb);
+            else itemid = curQuest->getCanonicalItemID(itype_bomb);
         }
         
-        if (itemid > -1)
+        if (curQuest->isValid(itemid))
         {
-            if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand)
+            if (curQuest->getItemDefinition(parentitem).family == itype_wand)
             {
-                defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn3; //!Dimentio: Here too.
+                defaultw = curQuest->getItemDefinition(itemid).wpns[2]; //!Dimentio: Here too.
                 //! ZoriaRPG: I need to know what value wpn3 is doing here. 
-                misc = (id == wBomb ? 1 : curQuest->itemDefTable().getItemDefinition(itemid).misc2);
+                misc = (id == wBomb ? 1 : curQuest->getItemDefinition(itemid).misc2);
             }
-            else if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book)
+            else if (curQuest->getItemDefinition(parentitem).family == itype_book)
             {
-                defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn2; //!Dimentio: Here too.
+                defaultw = curQuest->getItemDefinition(itemid).wpns[1]; //!Dimentio: Here too.
                 //! ZoriaRPG: I need to know what value wpn3 is doing here. 
-                misc = (id == wBomb ? 1 : curQuest->itemDefTable().getItemDefinition(itemid).misc2);
+                misc = (id == wBomb ? 1 : curQuest->getItemDefinition(itemid).misc2);
             }
             else {
-                defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
-                misc = (id == wBomb ? 1 : curQuest->itemDefTable().getItemDefinition(itemid).misc1);
+                defaultw = curQuest->getItemDefinition(itemid).wpns[0];
+                misc = (id == wBomb ? 1 : curQuest->getItemDefinition(itemid).misc1);
             }
         }
         else
@@ -912,24 +937,24 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wLitSBomb:
     case wSBomb:
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-	    if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand) itemid = parentitem; 
+	    if (curQuest->getItemDefinition(parentitem).family == itype_wand) itemid = parentitem; 
 		//!Dimentio: Bomb exceptions, to prevent them from being naughty with the new wand.
-            else itemid = curQuest->itemDefTable().getCanonicalItemID(itype_sbomb);
+            else itemid = curQuest->getCanonicalItemID(itype_sbomb);
         }
         
-        if(parentitem>-1)
+        if(curQuest->isValid(itemid))
         {
-			if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand){ 
-				defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn3; 
+			if (curQuest->getItemDefinition(parentitem).family == itype_wand){ 
+				defaultw = curQuest->getItemDefinition(itemid).wpns[2]; 
 				//!Dimentio: Here too.
 				//! ZoriaRPG: I need to know what value wpn3 is doing here. 
-				misc = (id==wSBomb ? 1 : curQuest->itemDefTable().getItemDefinition(itemid).misc2);
+				misc = (id==wSBomb ? 1 : curQuest->getItemDefinition(itemid).misc2);
 			}
             else {
-				defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
-				misc = (id==wSBomb ? 1 : curQuest->itemDefTable().getItemDefinition(itemid).misc1);
+				defaultw = curQuest->getItemDefinition(itemid).wpns[0];
+				misc = (id==wSBomb ? 1 : curQuest->getItemDefinition(itemid).misc1);
 			}
         }
         else
@@ -945,13 +970,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     }
     
     case wBait:
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_bait);
+            itemid = curQuest->getCanonicalItemID(itype_bait);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -963,25 +988,25 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         itemid = current_item_id(itype_book);
         bool book = true;
         
-        if(itemid<0)
+        if(!curQuest->isValid(itemid))
         {
-            itemid = directWpn>-1 ? directWpn : current_item_id(itype_wand);
+            itemid = current_item_id(itype_wand);
             book = false;
         }
         
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_wand);
+            itemid = curQuest->getCanonicalItemID(itype_wand);
             book = false;
         }
         
-        if(itemid >-1)
-	{
+        if (curQuest->isValid(itemid))
+        {
             // Book Magic sprite is wpn, Wand Magic sprite is wpn3.
-	    if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book && type == 1) defaultw = curQuest->itemDefTable().getItemDefinition(parentitem).wpn3;
-		//!Dimentio: Okay, is it created by the book?
-            else defaultw = book ? curQuest->itemDefTable().getItemDefinition(itemid).wpn : curQuest->itemDefTable().getItemDefinition(itemid).wpn3;
-	}
+            if (curQuest->getItemDefinition(parentitem).family == itype_book && type == 1) defaultw = curQuest->getItemDefinition(parentitem).wpns[2];
+            //!Dimentio: Okay, is it created by the book?
+            else defaultw = book ? curQuest->getItemDefinition(itemid).wpns[0] : curQuest->getItemDefinition(itemid).wpns[2];
+        }
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -1012,13 +1037,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     }
     
     case wBrang:
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_brang);
+            itemid = curQuest->getCanonicalItemID(itype_brang);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultBoomerangSprites[0];
             
@@ -1033,13 +1058,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wHookshot:
         hookshot_used=true;
         
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_hookshot);
+            itemid = curQuest->getCanonicalItemID(itype_hookshot);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[0];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -1086,13 +1111,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wHSHandle:
         step = 0;
         
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_hookshot);
+            itemid = curQuest->getCanonicalItemID(itype_hookshot);
         }
         
-        if(itemid >-1)
-            defaultw = curQuest->itemDefTable().getItemDefinition(itemid).wpn4;
+        if(curQuest->isValid(itemid))
+            defaultw = curQuest->getItemDefinition(itemid).wpns[3];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -1136,13 +1161,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case wHSChain:
     {
-        if(isDummy || itemid<0)
+        if(isDummy || !curQuest->isValid(itemid))
         {
-            itemid = curQuest->itemDefTable().getCanonicalItemID(itype_hookshot);
+            itemid = curQuest->getCanonicalItemID(itype_hookshot);
         }
         
-        if (itemid > -1)
-            defaultw = (dir < left) ? curQuest->itemDefTable().getItemDefinition(itemid).wpn3 : curQuest->itemDefTable().getItemDefinition(itemid).wpn2;
+        if (curQuest->isValid(itemid))
+            defaultw = (dir < left) ? curQuest->getItemDefinition(itemid).wpns[2] : curQuest->getItemDefinition(itemid).wpns[1];
         else
             defaultw = curQuest->specialSprites().defaultLinkWeaponSprite;
             
@@ -1182,17 +1207,18 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int ebombs = curQuest->specialSprites().defaultEnemyBomb;
+            SpriteDefinitionRef ebombs = curQuest->specialSprites().defaultEnemyBomb;
             LOADGFX(ebombs);
         }
 	}
 	
     else
     {
-        int ebombs = curQuest->specialSprites().defaultEnemyBomb;
+        SpriteDefinitionRef ebombs = curQuest->specialSprites().defaultEnemyBomb;
         LOADGFX(ebombs);
     }
 
@@ -1233,16 +1259,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite)) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int esbombs = curQuest->specialSprites().defaultEnemySuperBomb;
+            SpriteDefinitionRef esbombs = curQuest->specialSprites().defaultEnemySuperBomb;
             LOADGFX(esbombs);
         }
 	}
     else
     {
-        int esbombs = curQuest->specialSprites().defaultEnemySuperBomb;
+        SpriteDefinitionRef esbombs = curQuest->specialSprites().defaultEnemySuperBomb;
         LOADGFX(esbombs);
     }
         hxofs=0;
@@ -1291,16 +1318,19 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             hxsz = 8;
         }
 
-        int branglevels = zc_min(zc_max(current_item(itype_brang), 1), 3) - 1;
-        wid = curQuest->specialSprites().defaultBoomerangSprites[branglevels];
+        int branglevels = zc_min(zc_max(currentItemLevel(itype_brang), 1), 3) - 1;
+        SpriteDefinitionRef wid = curQuest->specialSprites().defaultBoomerangSprites[branglevels];
 
         if (parentid > -1)
         {
             sprite *e = (sprite *)pool->getFromUID(parentid);
-            if (guysbuf[e->id].wpnsprite > 0) LOADGFX(guysbuf[e->id].wpnsprite);
-            else LOADGFX(wid);
+            if (curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite)) 
+                LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+            else 
+                LOADGFX(wid);
         }
-        else LOADGFX(wid);
+        else 
+            LOADGFX(wid);
         break;
     }
 
@@ -1318,16 +1348,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite) ) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int fireballs = curQuest->specialSprites().defaultEnemyFireball;
+            SpriteDefinitionRef fireballs = curQuest->specialSprites().defaultEnemyFireball;
             LOADGFX(fireballs);
         }
 	}
     else
     {
-        int fireballs = curQuest->specialSprites().defaultEnemyFireball;
+        SpriteDefinitionRef fireballs = curQuest->specialSprites().defaultEnemyFireball;
         LOADGFX(fireballs);
     }
  
@@ -1346,15 +1377,15 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite)) LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int rocks = curQuest->specialSprites().defaultEnemyRock;
+            SpriteDefinitionRef rocks = curQuest->specialSprites().defaultEnemyRock;
             LOADGFX(rocks);
         }
 	}
     {
-        int rocks = curQuest->specialSprites().defaultEnemyRock;
+        SpriteDefinitionRef rocks = curQuest->specialSprites().defaultEnemyRock;
         LOADGFX(rocks);
     }
 
@@ -1380,15 +1411,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite )) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int arrows = curQuest->specialSprites().defaultEnemyArrow;
+            SpriteDefinitionRef arrows = curQuest->specialSprites().defaultEnemyArrow;
             LOADGFX(arrows);
         }
 	}
     {
-        int arrows = curQuest->specialSprites().defaultEnemyArrow;
+        SpriteDefinitionRef arrows = curQuest->specialSprites().defaultEnemyArrow;
         LOADGFX(arrows);
     }
 
@@ -1419,15 +1451,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int swords = curQuest->specialSprites().defaultEnemySwordBeamSprite;
+            SpriteDefinitionRef swords = curQuest->specialSprites().defaultEnemySwordBeamSprite;
             LOADGFX(swords);
         }
 	}
     {
-        int swords = curQuest->specialSprites().defaultEnemySwordBeamSprite;
+        SpriteDefinitionRef swords = curQuest->specialSprites().defaultEnemySwordBeamSprite;
         LOADGFX(swords);
     }
 
@@ -1471,15 +1504,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int magics = curQuest->specialSprites().defaultEnemyMagic;
+            SpriteDefinitionRef magics = curQuest->specialSprites().defaultEnemyMagic;
             LOADGFX(magics);
         }
 	}
     {
-        int magics = curQuest->specialSprites().defaultEnemyMagic;
+        SpriteDefinitionRef magics = curQuest->specialSprites().defaultEnemyMagic;
         LOADGFX(magics);
     }
 
@@ -1529,16 +1563,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		if ( parentid > -1 )
 		{
 			sprite *e = (sprite *)pool->getFromUID(parentid);
-			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+                LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
             else
             {
-                int flames = curQuest->specialSprites().flickeringFlame;
+                SpriteDefinitionRef flames = curQuest->specialSprites().flickeringFlame;
                 LOADGFX(flames);
             }
 		}
         else
         {
-            int flames = curQuest->specialSprites().flickeringFlame;
+            SpriteDefinitionRef flames = curQuest->specialSprites().flickeringFlame;
             LOADGFX(flames);
         }
         }
@@ -1547,16 +1582,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		if ( parentid > -1 )
 		{
 			sprite *e = (sprite *)pool->getFromUID(parentid);
-			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+                LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
             else
             {
-                int flames = curQuest->specialSprites().flickeringFlame2;
+                SpriteDefinitionRef flames = curQuest->specialSprites().flickeringFlame2;
                 LOADGFX(flames);
             }
 		}
         else
         {
-            int flames = curQuest->specialSprites().flickeringFlame2;
+            SpriteDefinitionRef flames = curQuest->specialSprites().flickeringFlame2;
             LOADGFX(flames);
         }
         }
@@ -1602,16 +1638,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int firetrails = curQuest->specialSprites().flickeringFireTrail;
+            SpriteDefinitionRef firetrails = curQuest->specialSprites().flickeringFireTrail;
             LOADGFX(firetrails);
         }
 	}
 	else
     {
-        int firetrails = curQuest->specialSprites().flickeringFireTrail;
+        SpriteDefinitionRef firetrails = curQuest->specialSprites().flickeringFireTrail;
         LOADGFX(firetrails);
     }
 
@@ -1643,21 +1680,22 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
+            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
         else
         {
-            int winds = curQuest->specialSprites().defaultEnemyWind;
+            SpriteDefinitionRef winds = curQuest->specialSprites().defaultEnemyWind;
             LOADGFX(winds);
         }
 	}
     else
     {
-        int winds = curQuest->specialSprites().defaultEnemyWind;
+        SpriteDefinitionRef winds = curQuest->specialSprites().defaultEnemyWind;
         LOADGFX(winds);
     }
 
         clk=0;
-	if (power > 0) step = curQuest->itemDefTable().getItemDefinition(parentitem).misc2; //!Dimentio: Add a check here.
+	if (power > 0) step = curQuest->getItemDefinition(parentitem).misc2; //!Dimentio: Add a check here.
 		//! ZoriaRPG: Explain why this is here. 
         else step=3;
         break;
@@ -1669,7 +1707,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 Backend::sfx->play(WAV_ZN1ROCKETUP,(int)x);
                 
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[0]);
             step = 4;
             break;
             
@@ -1677,75 +1715,75 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 Backend::sfx->play(WAV_ZN1ROCKETDOWN,(int)x);
                 
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn2);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[1]);
             step = 4;
             break;
             
         case pDINSFIREROCKETTRAIL:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn3);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[2]);
             break;
             
         case pDINSFIREROCKETTRAILRETURN:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn4);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[3]);
             break;
             
         case pMESSAGEMORE:
         {
-            int mores = curQuest->specialSprites().messageMoreIndicator;
+            SpriteDefinitionRef mores = curQuest->specialSprites().messageMoreIndicator;
             LOADGFX(mores);
             break;
         }
             
         case pNAYRUSLOVEROCKET1:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[0]);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 Backend::sfx->play(WAV_ZN1ROCKETUP,(int)x);
                 
             step = 4;
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKETRETURN1:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn2);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[1]);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 Backend::sfx->play(WAV_ZN1ROCKETDOWN,(int)x);
                 
             step = 4;
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKETTRAIL1:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn3);
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[2]);
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKETTRAILRETURN1:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn4);
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[3]);
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKET2:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn6);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[5]);
             step = 4;
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKETRETURN2:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn7);
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[6]);
             step = 4;
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKETTRAIL2:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn8);
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[7]);
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         case pNAYRUSLOVEROCKETTRAILRETURN2:
-            LOADGFX(curQuest->itemDefTable().getItemDefinition(parentitem).wpn9);
-            drawstyle=curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
+            LOADGFX(curQuest->getItemDefinition(parentitem).wpns[8]);
+            drawstyle=curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2 ? 1 : 0;
             break;
             
         default:
@@ -1756,7 +1794,6 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     default:
-        LOADGFX(0);
         break;
     }
     
@@ -1766,23 +1803,23 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     }
 }
 
-void weapon::LOADGFX(int wpn)
+void weapon::LOADGFX(const SpriteDefinitionRef &wpn)
 {
-    if(wpn<0 || wpn >= curQuest->weaponDefTable().getNumSpriteDefinitions())
+    if(!curQuest->isValid(wpn))
         return;
         
     wid = wpn;
-    flash = curQuest->weaponDefTable().getSpriteDefinition(wid).misc&3;
-    tile  = curQuest->weaponDefTable().getSpriteDefinition(wid).tile;
-    cs = curQuest->weaponDefTable().getSpriteDefinition(wid).csets&15;
-    o_tile = curQuest->weaponDefTable().getSpriteDefinition(wid).tile;
-    o_cset = curQuest->weaponDefTable().getSpriteDefinition(wid).csets;
-    o_flip=(curQuest->weaponDefTable().getSpriteDefinition(wid).misc>>2)&3;
-    o_speed = curQuest->weaponDefTable().getSpriteDefinition(wid).speed;
-    o_type = curQuest->weaponDefTable().getSpriteDefinition(wid).type;
-    frames = curQuest->weaponDefTable().getSpriteDefinition(wid).frames;
+    flash = curQuest->getSpriteDefinition(wid).misc&3;
+    tile  = curQuest->getSpriteDefinition(wid).tile;
+    cs = curQuest->getSpriteDefinition(wid).csets&15;
+    o_tile = curQuest->getSpriteDefinition(wid).tile;
+    o_cset = curQuest->getSpriteDefinition(wid).csets;
+    o_flip=(curQuest->getSpriteDefinition(wid).misc>>2)&3;
+    o_speed = curQuest->getSpriteDefinition(wid).speed;
+    o_type = curQuest->getSpriteDefinition(wid).type;
+    frames = curQuest->getSpriteDefinition(wid).frames;
     temp1 = curQuest->specialSprites().defaultFireSprite;
-    behind = (curQuest->weaponDefTable().getSpriteDefinition(wid).misc & wpndata::WF_BEHIND)!=0;
+    behind = (curQuest->getSpriteDefinition(wid).misc & wpndata::WF_BEHIND)!=0;
 }
 
 bool weapon::Dead()
@@ -1843,8 +1880,8 @@ bool weapon::blocked(int xOffset, int yOffset)
     if(get_bit(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon,id)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
-        if(parentitem<0 || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
-            curQuest->itemDefTable().getItemDefinition(parentitem).fam_type))
+        if(!curQuest->isValid(parentitem) || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
+            curQuest->getItemDefinition(parentitem).fam_type))
         {
             return true;
         }
@@ -1872,8 +1909,8 @@ bool weapon::blocked(int xOffset, int yOffset)
     if(get_bit(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon,id)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
-        if(parentitem<0 || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
-            curQuest->itemDefTable().getItemDefinition(parentitem).fam_type))
+        if(!curQuest->isValid(parentitem) || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
+            curQuest->getItemDefinition(parentitem).fam_type))
         {
             return true;
         }
@@ -1893,7 +1930,7 @@ bool weapon::animate(int)
     case wFire:
     
         // Din's Fire shouldn't fall
-        if(parentitem>=0 && curQuest->itemDefTable().getItemDefinition(parentitem).family==itype_dinsfire && !(curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG3))
+        if(curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).family==itype_dinsfire && !(curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG3))
         {
             break;
         }
@@ -1980,34 +2017,34 @@ bool weapon::animate(int)
         }
 	
 	//! Dimentio Wand Stuff
-    if (parentitem > -1)
+    if (curQuest->isValid(parentitem))
     {
-        if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && (id != wWand || curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2))
+        if (curQuest->getItemDefinition(parentitem).family == itype_wand && (id != wWand || curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2))
         { //!Dimentio: So this handles the movement of the wand's movement effect. Uses offsets to do this, so unfortunately,
           //!Dimentio: no setting offsets via script while one of these is active. Could change this if need be, though it'd
           //!Dimentio: be a bit odd.
             //! ZoriaRPG: Scripts MUST NOT conflict. Please look into this. 
 
-            switch (curQuest->itemDefTable().getItemDefinition(parentitem).misc5)
+            switch (curQuest->getItemDefinition(parentitem).misc5)
             {
             case 1:
             {
-                this->count1 += curQuest->itemDefTable().getItemDefinition(parentitem).misc7;
+                this->count1 += curQuest->getItemDefinition(parentitem).misc7;
                 this->count1 %= 360;
                 switch (this->count3)
                 {
                 case up:
                 case down:
                 {
-                    hxofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
-                    xofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
+                    hxofs = curQuest->getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
+                    xofs = curQuest->getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
                     break;
                 }
                 case left:
                 case right:
                 {
-                    hyofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174);
-                    yofs = (curQuest->itemDefTable().getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
+                    hyofs = curQuest->getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174);
+                    yofs = (curQuest->getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
                     break;
                 }
                 }
@@ -2015,22 +2052,22 @@ bool weapon::animate(int)
             }
             case 2:
             {
-                this->count1 += curQuest->itemDefTable().getItemDefinition(parentitem).misc7;
+                this->count1 += curQuest->getItemDefinition(parentitem).misc7;
                 this->count1 %= 360;
                 switch (this->count3)
                 {
                 case up:
                 case down:
                 {
-                    hyofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174);
-                    yofs = (curQuest->itemDefTable().getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
+                    hyofs = curQuest->getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174);
+                    yofs = (curQuest->getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
                     break;
                 }
                 case left:
                 case right:
                 {
-                    hxofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
-                    xofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
+                    hxofs = curQuest->getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
+                    xofs = curQuest->getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
                     break;
                 }
                 }
@@ -2038,28 +2075,28 @@ bool weapon::animate(int)
             }
             case 3:
             {
-                this->count1 += curQuest->itemDefTable().getItemDefinition(parentitem).misc7;
+                this->count1 += curQuest->getItemDefinition(parentitem).misc7;
                 this->count1 %= 360;
-                xofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
-                yofs = (curQuest->itemDefTable().getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
-                hxofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
-                hyofs = curQuest->itemDefTable().getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174);
+                xofs = curQuest->getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
+                yofs = (curQuest->getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174)) + playing_field_offset;
+                hxofs = curQuest->getItemDefinition(parentitem).misc6*cos(this->count1 * 0.0174);
+                hyofs = curQuest->getItemDefinition(parentitem).misc6*sin(this->count1 * 0.0174);
                 break;
             }
             default: break;
             }
         }
 
-        if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book && (curQuest->itemDefTable().getItemDefinition(parentitem).misc4 >= 3 && curQuest->itemDefTable().getItemDefinition(parentitem).misc4 <= 8) && type == 2) //Is this the weapon?
+        if (curQuest->getItemDefinition(parentitem).family == itype_book && (curQuest->getItemDefinition(parentitem).misc4 >= 3 && curQuest->getItemDefinition(parentitem).misc4 <= 8) && type == 2) //Is this the weapon?
         {
             if ((this->count4 - 1) % 4 == 0) //If the death counter's evenly divideable by 4...
             {
-                Lwpns.add(new weapon(x + ((rand() % 32) - 16), y + ((rand() % 32) - 16), z, curQuest->itemDefTable().getItemDefinition(parentitem).misc2, 1, curQuest->itemDefTable().getItemDefinition(parentitem).misc1*DAMAGE_MULTIPLIER, 0, parentitem, parentitem)); //Make 3 randomly placed weapons around this weapon
-                Lwpns.add(new weapon(x + ((rand() % 32) - 16), y + ((rand() % 32) - 16), z, curQuest->itemDefTable().getItemDefinition(parentitem).misc2, 1, curQuest->itemDefTable().getItemDefinition(parentitem).misc1*DAMAGE_MULTIPLIER, 0, parentitem, parentitem));
-                Lwpns.add(new weapon(x + ((rand() % 32) - 16), y + ((rand() % 32) - 16), z, curQuest->itemDefTable().getItemDefinition(parentitem).misc2, 1, curQuest->itemDefTable().getItemDefinition(parentitem).misc1*DAMAGE_MULTIPLIER, 0, parentitem, parentitem));
+                Lwpns.add(new weapon(x + ((rand() % 32) - 16), y + ((rand() % 32) - 16), z, curQuest->getItemDefinition(parentitem).misc2, 1, curQuest->getItemDefinition(parentitem).misc1*DAMAGE_MULTIPLIER, 0, parentitem, -1)); //Make 3 randomly placed weapons around this weapon
+                Lwpns.add(new weapon(x + ((rand() % 32) - 16), y + ((rand() % 32) - 16), z, curQuest->getItemDefinition(parentitem).misc2, 1, curQuest->getItemDefinition(parentitem).misc1*DAMAGE_MULTIPLIER, 0, parentitem, -1));
+                Lwpns.add(new weapon(x + ((rand() % 32) - 16), y + ((rand() % 32) - 16), z, curQuest->getItemDefinition(parentitem).misc2, 1, curQuest->getItemDefinition(parentitem).misc1*DAMAGE_MULTIPLIER, 0, parentitem, -1));
                 //sfx(itemsbuf[parentitem].usesound,pan(x)); //Play sound
             }
-            if (this->count4 >= ((curQuest->itemDefTable().getItemDefinition(parentitem).misc6 * 4) - 3))
+            if (this->count4 >= ((curQuest->getItemDefinition(parentitem).misc6 * 4) - 3))
             {
                 dead = 0;
             }
@@ -2087,8 +2124,8 @@ bool weapon::animate(int)
             dead=0;
         }
         
-        int speed = parentitem>-1 ? zc_max(curQuest->itemDefTable().getItemDefinition(parentitem).misc1,1) : 1;
-        int radius = parentitem>-1 ? zc_max(curQuest->itemDefTable().getItemDefinition(parentitem).misc2,8) : 8;
+        int speed = curQuest->isValid(parentitem) ? zc_max(curQuest->getItemDefinition(parentitem).misc1,1) : 1;
+        int radius = curQuest->isValid(parentitem) ? zc_max(curQuest->getItemDefinition(parentitem).misc2,8) : 8;
         double xdiff = -(sin((double)clk/speed) * radius);
         double ydiff = (cos((double)clk/speed) * radius);
         
@@ -2115,18 +2152,18 @@ bool weapon::animate(int)
         y = (fix)((double)LinkY() + ydiff);
         z = LinkZ();
         
-        if(parentitem>-1)
-            Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound,int(x));
+        if(curQuest->isValid(parentitem))
+            Backend::sfx->loop(curQuest->getItemDefinition(parentitem).usesound,int(x));
     }
     break;
     
     case wBeam:
     case wRefBeam: //More Dimentio Wand stuff
-		if (clk==94 && curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book && (dir < 0 || step <= 0))
+		if (clk==94 && curQuest->getItemDefinition(parentitem).family == itype_book && (dir < 0 || step <= 0))
 		{
 			dead = 23;
 		}
-        for(int i2=0; ((i2<=zc_min(type-1,3) && curQuest->itemDefTable().getItemDefinition(parentitem).family != itype_wand) || (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && i2 <= zc_min(curQuest->itemDefTable().getItemDefinition(parentitem).fam_type - 1, 3))) && dead!=23; i2++)
+        for(int i2=0; ((i2<=zc_min(type-1,3) && curQuest->getItemDefinition(parentitem).family != itype_wand) || (curQuest->getItemDefinition(parentitem).family == itype_wand && i2 <= zc_min(curQuest->getItemDefinition(parentitem).fam_type - 1, 3))) && dead!=23; i2++)
         {
             if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23; //!Dimentio: Alright, now this checks to see if it's fired from a wand.
         }
@@ -2410,13 +2447,13 @@ bool weapon::animate(int)
             dead=1;
         }
         
-        if(parentitem<0 || (parentitem>-1 && curQuest->itemDefTable().getItemDefinition(parentitem).family!=itype_book))
+        if(!curQuest->isValid(parentitem) || (curQuest->getItemDefinition(parentitem).family!=itype_book))
         {
             if(clk==32)
             {
                 step=0;
                 
-                if(parentitem<0 || !(curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2))
+                if(!curQuest->isValid(parentitem) || !(curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2))
                 {
                     isLit = true;
                     checkLightSources();
@@ -2427,9 +2464,9 @@ bool weapon::animate(int)
             {
                 dead=1;
                 
-                if((parentitem<0 || !(curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)) &&
+                if((!curQuest->isValid(parentitem) || !(curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)) &&
                    get_bit(quest_rules,qr_TEMPCANDLELIGHT) &&
-                   (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+                   (LwpnsIdCount(wFire) + EwpnsIdCount(ewFlame))==1)
                 {
                     isLit = false;
                     checkLightSources();
@@ -2441,12 +2478,12 @@ bool weapon::animate(int)
                 findentrance(x,y,mfBCANDLE,true);
                 
 		    //Dimentio wand
-                if((type>0 && curQuest->itemDefTable().getItemDefinition(parentitem).family!=itype_wand) || (curQuest->itemDefTable().getItemDefinition(parentitem).family==itype_wand && curQuest->itemDefTable().getItemDefinition(parentitem).fam_type>=2)) //!Dimentio: Blue Fire fired from wand was triggering red fire, so have to make this check more specific.
+                if((type>0 && curQuest->getItemDefinition(parentitem).family!=itype_wand) || (curQuest->getItemDefinition(parentitem).family==itype_wand && curQuest->getItemDefinition(parentitem).fam_type>=2)) //!Dimentio: Blue Fire fired from wand was triggering red fire, so have to make this check more specific.
                 {
                     findentrance(x,y,mfRCANDLE,true);
                 }
                 
-                if((type>2 && curQuest->itemDefTable().getItemDefinition(parentitem).family!=itype_wand) || (curQuest->itemDefTable().getItemDefinition(parentitem).family==itype_wand && curQuest->itemDefTable().getItemDefinition(parentitem).fam_type>=4))   
+                if((type>2 && curQuest->getItemDefinition(parentitem).family!=itype_wand) || (curQuest->getItemDefinition(parentitem).family==itype_wand && curQuest->getItemDefinition(parentitem).fam_type>=4))   
                 {
                     findentrance(x,y,mfDINSFIRE,true); 
                 }
@@ -2467,7 +2504,7 @@ bool weapon::animate(int)
                 findentrance(x,y,mfRCANDLE,true);
                 findentrance(x,y,mfWANDFIRE,true);
                 
-                if(get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+                if(get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (LwpnsIdCount(wFire) + EwpnsIdCount(ewFlame))==1)
                 {
                     isLit=false;
                     checkLightSources();
@@ -2476,7 +2513,7 @@ bool weapon::animate(int)
         }
         
         // Killed by script?
-        if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+        if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (LwpnsIdCount(wFire) + EwpnsIdCount(ewFlame))==1)
         {
             isLit=false;
             checkLightSources();
@@ -2507,15 +2544,15 @@ bool weapon::animate(int)
         if(clk==(misc-2) && step==0)
         {
             id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
-                      : parentitem>-1 ? ((curQuest->itemDefTable().getItemDefinition(parentitem).family==itype_sbomb) ? wSBomb:wBomb)
+                      : curQuest->isValid(parentitem) ? ((curQuest->getItemDefinition(parentitem).family==itype_sbomb) ? wSBomb:wBomb)
                       : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
             hxofs=2000;
         }
         
         if(clk==(misc-1) && step==0)
     {
-            Backend::sfx->play((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-                curQuest->itemDefTable().getItemDefinition(parentitem).usesound,int(x));
+            Backend::sfx->play((id>=wEnemyWeapons || !curQuest->isValid(parentitem)) ? WAV_BOMB :
+                curQuest->getItemDefinition(parentitem).usesound,int(x));
                 
             if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
             {
@@ -2532,7 +2569,7 @@ bool weapon::animate(int)
         }
         
         int boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
-                              (parentitem>-1 && curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG1)) ? 35 : 31));
+                              (curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG1)) ? 35 : 31));
                               
         if(clk==boomend && step==0)
         {
@@ -2656,7 +2693,7 @@ bool weapon::animate(int)
         }
         
 	//Dimentio Wand stuff
-        if((current_item(itype_arrow)>1 && curQuest->itemDefTable().getItemDefinition(parentitem).family != itype_wand) || (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && curQuest->itemDefTable().getItemDefinition(parentitem).fam_type > 1)) //!Dimentio: Okay, the wand's level can also serve as the level of the arrow.
+        if((currentItemLevel(itype_arrow)>1 && curQuest->getItemDefinition(parentitem).family != itype_wand) || (curQuest->getItemDefinition(parentitem).family == itype_wand && curQuest->getItemDefinition(parentitem).fam_type > 1)) //!Dimentio: Okay, the wand's level can also serve as the level of the arrow.
         {
             if(findentrance(x,y,mfSARROW,true))
             {
@@ -2664,7 +2701,7 @@ bool weapon::animate(int)
             }
         }
         
-        if((current_item(itype_arrow)>=3 && curQuest->itemDefTable().getItemDefinition(parentitem).family != itype_wand) || (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && curQuest->itemDefTable().getItemDefinition(parentitem).fam_type >= 3)) //!Dimentio: So now Arrows fired from the wand can trigger higher leveled arrow secrets.
+        if((currentItemLevel(itype_arrow)>=3 && curQuest->getItemDefinition(parentitem).family != itype_wand) || (curQuest->getItemDefinition(parentitem).family == itype_wand && curQuest->getItemDefinition(parentitem).fam_type >= 3)) //!Dimentio: So now Arrows fired from the wand can trigger higher leveled arrow secrets.
         {
             if(findentrance(x,y,mfGARROW,true))
             {
@@ -2713,7 +2750,7 @@ bool weapon::animate(int)
         }
         
 	//!Dimentio: What's this? Hardcoded bait values? Nononono, screw this. 
-        if(((parentitem>-1 && curQuest->itemDefTable().getItemDefinition(parentitem).family != itype_wand) && clk>=curQuest->itemDefTable().getItemDefinition(parentitem).misc1) || (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && clk>=curQuest->itemDefTable().getItemDefinition(parentitem).power))
+        if(((curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).family != itype_wand) && clk>=curQuest->getItemDefinition(parentitem).misc1) || (curQuest->getItemDefinition(parentitem).family == itype_wand && clk>=curQuest->getItemDefinition(parentitem).power))
         { //!Dimentio: Ah, much better.
             dead=1;
         }
@@ -2724,7 +2761,7 @@ bool weapon::animate(int)
     {
         if(dead==0)  // Set by ZScript
         {
-            Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).usesound);
+            Backend::sfx->stop(curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).usesound);
             break;
         }
         
@@ -2733,9 +2770,9 @@ bool weapon::animate(int)
             onhit(false);
         }
         
-        int deadval=(curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).flags & itemdata::IF_FLAG3)?-2:1;
+        int deadval=(curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).flags & itemdata::IF_FLAG3)?-2:1;
         
-        for(int i=0; ((i<=zc_min(current_item(itype_brang)-1,2) && curQuest->itemDefTable().getItemDefinition(parentitem).family != itype_wand) || (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && i <= zc_min(curQuest->itemDefTable().getItemDefinition(parentitem).fam_type - 1, 3))); i++)
+        for(int i=0; ((i<=zc_min(currentItemLevel(itype_brang)-1,2) && curQuest->getItemDefinition(parentitem).family != itype_wand) || (curQuest->getItemDefinition(parentitem).family == itype_wand && i <= zc_min(curQuest->getItemDefinition(parentitem).fam_type - 1, 3))); i++)
         { //!Dimentio: If you have a wand, use misc 4. Otherwise, use the canon boomerang.
             if(findentrance(x,y,mfBRANG+i,true)) dead=deadval;
         }
@@ -2751,8 +2788,8 @@ bool weapon::animate(int)
         ++clk2;
 	
         //scriptrange is now -1
-        int range = curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).misc1;
-	if ( scriptrange < 0 ) scriptrange =  curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).misc1;
+        int range = curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).misc1;
+	if ( scriptrange < 0 ) scriptrange =  curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).misc1;
 	else if ( scriptrange >= 0 ) {
 		range = scriptrange; 
 	}
@@ -2788,7 +2825,7 @@ bool weapon::animate(int)
         if(clk==0)                                            // delay a frame
         {
             ++clk;
-            Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).usesound,int(x));
+            Backend::sfx->loop(curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).usesound,int(x));
             return false;
         }
         
@@ -2840,8 +2877,8 @@ bool weapon::animate(int)
                     CatchBrang();
                 }
                 
-                if (Lwpns.idCount(wBrang) <= 1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
-                    Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(parentitem > -1 ? parentitem : current_item_id(itype_brang)).usesound);
+                if (LwpnsIdCount(wBrang) <= 1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !EwpnsIdCount(ewBrang)))
+                    Backend::sfx->stop(curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).usesound);
                     
                 /*if (dummy_bool[0])
                 {
@@ -2859,7 +2896,7 @@ bool weapon::animate(int)
             seekLink();
         }
         
-        Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).usesound,int(x));
+        Backend::sfx->loop(curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).usesound,int(x));
         
         break;
     }
@@ -2867,14 +2904,24 @@ bool weapon::animate(int)
     case wHookshot:
     {
 	    //for lw->Range -Z
-	int  maxlength = parentitem>-1 ? 2*curQuest->itemDefTable().getItemDefinition(parentitem).misc1 : 0; //2* value seems to match the desired range. 
+        int  maxlength = curQuest->isValid(parentitem) ? 2 * curQuest->getItemDefinition(parentitem).misc1 : 0; //2* value seems to match the desired range. 
         if(dead==0)  // Set by ZScript
         {
             hookshot_used = false;
             
-            for(int i=0; i<chainlinks.Count(); i++)
+            bool found = true;
+            while (found)
             {
-                chainlinks.del(chainlinks.idFirst(wHSChain));
+                found = false;
+                for (int i = 0; i < chainlinks.Count(); i++)
+                {
+                    if (((weapon *)chainlinks.spr(i))->id == wHSChain)
+                    {
+                        chainlinks.del(i);
+                        found = true;
+                        break;
+                    }
+                }
             }
         }
         
@@ -2886,7 +2933,7 @@ bool weapon::animate(int)
 	//Diagonal hookshot set-up. -Z
 	
 	//Check the item editor flag to see if it is allowed to be diagonal. 
-	if ( (curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_hookshot)).flags & itemdata::IF_FLAG2) && misc2 == 0 ) {
+	if ( (curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_hookshot)).flags & itemdata::IF_FLAG2) && misc2 == 0 ) {
 	    if(Up())
 	    {
 		dir=up;
@@ -3187,9 +3234,9 @@ bool weapon::animate(int)
         {
             ++clk;
             
-            if(parentitem>-1)
+            if(curQuest->isValid(parentitem))
             {
-                Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound,int(x));
+                Backend::sfx->loop(curQuest->getItemDefinition(parentitem).usesound,int(x));
             }
             
             return false;
@@ -3220,9 +3267,9 @@ bool weapon::animate(int)
                 chainlinks.clear();
                 CatchBrang();
                 
-                if(parentitem>-1)
+                if(curQuest->isValid(parentitem))
                 {
-                    Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound);
+                    Backend::sfx->stop(curQuest->getItemDefinition(parentitem).usesound);
                 }
                 
                 if(dragging!=-1)
@@ -3234,9 +3281,9 @@ bool weapon::animate(int)
             }
         }
         
-        if(parentitem>-1)
+        if(curQuest->isValid(parentitem))
         {
-            Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(parentitem).usesound,int(x));
+            Backend::sfx->loop(curQuest->getItemDefinition(parentitem).usesound,int(x));
         }
         
         if(blocked())
@@ -3282,8 +3329,8 @@ bool weapon::animate(int)
             
         case pDINSFIREROCKETTRAIL:                                             //Din's Fire Rocket trail
         {            
-            int dinsa = curQuest->specialSprites().dinsRocketTrail;
-            if (clk >= (((curQuest->weaponDefTable().getSpriteDefinition(dinsa).frames) * (curQuest->weaponDefTable().getSpriteDefinition(dinsa).speed)) - 1))
+            SpriteDefinitionRef dinsa = curQuest->specialSprites().dinsRocketTrail;
+            if (clk >= (((curQuest->getSpriteDefinition(dinsa).frames) * (curQuest->getSpriteDefinition(dinsa).speed)) - 1))
             {
                 dead = 0;
             }
@@ -3292,9 +3339,9 @@ bool weapon::animate(int)
         }
         case pDINSFIREROCKETTRAILRETURN:      
         {
-            int dinsb = curQuest->specialSprites().dinsRocketTrailReturn;
+            SpriteDefinitionRef dinsb = curQuest->specialSprites().dinsRocketTrailReturn;
             //Din's Fire Rocket return trail
-            if (clk >= (((curQuest->weaponDefTable().getSpriteDefinition(dinsb).frames) * (curQuest->weaponDefTable().getSpriteDefinition(dinsb).speed)) - 1))
+            if (clk >= (((curQuest->getSpriteDefinition(dinsb).frames) * (curQuest->getSpriteDefinition(dinsb).speed)) - 1))
             {
                 dead = 0;
             }
@@ -3312,8 +3359,8 @@ bool weapon::animate(int)
             
         case pNAYRUSLOVEROCKETTRAIL1:                                             //Nayru's Love Rocket trail
         {
-            int nayrua = curQuest->specialSprites().nayruRocketTrail;
-            if (clk >= (((curQuest->weaponDefTable().getSpriteDefinition(nayrua).frames) * (curQuest->weaponDefTable().getSpriteDefinition(nayrua).speed)) - 1))
+            SpriteDefinitionRef nayrua = curQuest->specialSprites().nayruRocketTrail;
+            if (clk >= (((curQuest->getSpriteDefinition(nayrua).frames) * (curQuest->getSpriteDefinition(nayrua).speed)) - 1))
             {
                 dead = 0;
             }
@@ -3323,8 +3370,8 @@ bool weapon::animate(int)
 
         case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
         {
-            int nayrub = curQuest->specialSprites().nayruRocketTrailReturn;
-            if (clk >= (((curQuest->weaponDefTable().getSpriteDefinition(nayrub).frames) * (curQuest->weaponDefTable().getSpriteDefinition(nayrub).speed)) - 1))
+            SpriteDefinitionRef nayrub = curQuest->specialSprites().nayruRocketTrailReturn;
+            if (clk >= (((curQuest->getSpriteDefinition(nayrub).frames) * (curQuest->getSpriteDefinition(nayrub).speed)) - 1))
             {
                 dead = 0;
             }
@@ -3344,8 +3391,8 @@ bool weapon::animate(int)
         case pNAYRUSLOVEROCKETTRAIL2:
         {
             //Nayru's Love Rocket trail
-            int nayru2a = curQuest->specialSprites().nayruRocketTrail2;
-            if (clk >= (((curQuest->weaponDefTable().getSpriteDefinition(nayru2a).frames) * (curQuest->weaponDefTable().getSpriteDefinition(nayru2a).speed)) - 1))
+            SpriteDefinitionRef nayru2a = curQuest->specialSprites().nayruRocketTrail2;
+            if (clk >= (((curQuest->getSpriteDefinition(nayru2a).frames) * (curQuest->getSpriteDefinition(nayru2a).speed)) - 1))
             {
                 dead = 0;
             }
@@ -3356,8 +3403,8 @@ bool weapon::animate(int)
         case pNAYRUSLOVEROCKETTRAILRETURN2:
         {
             //Nayru's Love Rocket return trail
-            int nayru2b = curQuest->specialSprites().nayruRocketTrailReturn2;
-            if (clk >= (((curQuest->weaponDefTable().getSpriteDefinition(nayru2b).frames) * (curQuest->weaponDefTable().getSpriteDefinition(nayru2b).speed)) - 1))
+            SpriteDefinitionRef nayru2b = curQuest->specialSprites().nayruRocketTrailReturn2;
+            if (clk >= (((curQuest->getSpriteDefinition(nayru2b).frames) * (curQuest->getSpriteDefinition(nayru2b).speed)) - 1))
             {
                 dead = 0;
             }
@@ -3383,8 +3430,8 @@ bool weapon::animate(int)
         
         if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
         
-        if((id==wMagic && current_item(itype_book) &&
-            curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_book)).flags & itemdata::IF_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+        if((id==wMagic && currentItemLevel(itype_book) &&
+            curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_book)).flags & itemdata::IF_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
         {
             findentrance(x,y,mfBCANDLE,true);
             findentrance(x,y,mfRCANDLE,true);
@@ -3745,7 +3792,7 @@ mirrors:
         }
         
         // Killed by script?
-        if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+        if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (LwpnsIdCount(wFire) + EwpnsIdCount(ewFlame))==1)
         {
             isLit=false;
             checkLightSources();
@@ -3858,7 +3905,7 @@ mirrors:
                 
                 if((abs(x-GuyX(index))<7)&&(abs(y-GuyY(index))<7))
                 {
-                    if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
+                    if(get_bit(quest_rules,qr_MORESOUNDS) && !LwpnsIdCount(wBrang) && EwpnsIdCount(ewBrang)<=1)
                     {
                         Backend::sfx->stop(WAV_BRANG);
                     }
@@ -3910,7 +3957,7 @@ mirrors:
         //otherwise it disappears
         if(killrang || dead==1)
         {
-            if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
+            if(get_bit(quest_rules,qr_MORESOUNDS) && !LwpnsIdCount(wBrang) && EwpnsIdCount(ewBrang)<=1)
             {
                 Backend::sfx->stop(WAV_BRANG);
             }
@@ -4165,7 +4212,7 @@ offscreenCheck:
     case wCByrna:
     
         // byrna keeps going
-        if(parentitem<0 || !(curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG1))
+        if(!curQuest->isValid(parentitem) || !(curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG1))
             dead=0;
             
         break;
@@ -4180,7 +4227,7 @@ offscreenCheck:
         if(misc==0)
         {
             clk2=256;
-            int deadval=(curQuest->itemDefTable().getItemDefinition(parentitem>-1 ? parentitem : current_item_id(itype_brang)).flags & itemdata::IF_FLAG3)?-2:4;
+            int deadval=(curQuest->getItemDefinition(curQuest->isValid(parentitem) ? parentitem : current_item_id(itype_brang)).flags & itemdata::IF_FLAG3)?-2:4;
             
             if(clipped)
             {
@@ -4233,15 +4280,15 @@ offscreenCheck:
     case wMagic:
     //!Dimentio: Hey, let's add changing the book fire to other weapons, too!
     {
-	if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_book && (x<272 && x>-17 && y<272 && y>-17)) break;
+	if (curQuest->getItemDefinition(parentitem).family == itype_book && (x<272 && x>-17 && y<272 && y>-17)) break;
 	dead=1; //remove the dead part to make the wand only die when clipped
 		bookfirecreate();
 
 	break; //!Over already? What a shame.
     }
         
-        if(((id==wMagic && current_item(itype_book) &&
-                (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).flags & itemdata::IF_FLAG1))) && Lwpns.idCount(wFire)<2)
+        if(((id==wMagic && currentItemLevel(itype_book) &&
+                (curQuest->getItemDefinition(current_item_id(itype_book)).flags & itemdata::IF_FLAG1))) && LwpnsIdCount(wFire)<2)
         {
             Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
             Backend::sfx->play(WAV_FIRE,x);
@@ -4410,7 +4457,7 @@ void weapon::draw(BITMAP *dest)
         if(!misc || clk<misc-2) break;
         
         // draw the explosion
-        int id2=0;
+        SpriteDefinitionRef id2;
         int boomframes = 0;
         
         switch(id)
@@ -4419,14 +4466,14 @@ void weapon::draw(BITMAP *dest)
         {
             id2 = curQuest->specialSprites().defaultBombExplosion;
 
-            if (parentitem > -1 && curQuest->itemDefTable().getItemDefinition(parentitem).family != itype_wand) //!Dimentio: Yet another exception, for bombs.
+            if (curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).family != itype_wand) //!Dimentio: Yet another exception, for bombs.
             {
-                id2 = curQuest->itemDefTable().getItemDefinition(parentitem).wpn2; //This sets the explosion sprite, but because it is linked to itemdata
+                id2 = curQuest->getItemDefinition(parentitem).wpns[1]; //This sets the explosion sprite, but because it is linked to itemdata
                         //it may not work with script generated explosions. -Z
             //Perhaps it would be better to add a special case to createlweapon and createeweapon to 
             //use a usesprite value with wpns.add
             }
-            else if (curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand) id2 = curQuest->itemDefTable().getItemDefinition(parentitem).wpn4;
+            else if (curQuest->getItemDefinition(parentitem).family == itype_wand) id2 = curQuest->getItemDefinition(parentitem).wpns[3];
 
 
             break;
@@ -4436,9 +4483,9 @@ void weapon::draw(BITMAP *dest)
         {            
             id2 = curQuest->specialSprites().defaultSuperBombExplosion;
             
-            if(parentitem>-1)
+            if(curQuest->isValid(parentitem))
             {
-                id2=curQuest->itemDefTable().getItemDefinition(parentitem).wpn2;
+                id2=curQuest->getItemDefinition(parentitem).wpns[1];
             }
             
             break;
@@ -4455,9 +4502,9 @@ void weapon::draw(BITMAP *dest)
             break;
         }
         
-        tile = curQuest->weaponDefTable().getSpriteDefinition(id2).tile;
-        cs = curQuest->weaponDefTable().getSpriteDefinition(id2).csets&15;
-        boomframes = curQuest->weaponDefTable().getSpriteDefinition(id2).frames;
+        tile = curQuest->getSpriteDefinition(id2).tile;
+        cs = curQuest->getSpriteDefinition(id2).csets&15;
+        boomframes = curQuest->getSpriteDefinition(id2).frames;
         
         if(boomframes != 0)
         {
@@ -4525,7 +4572,7 @@ void weapon::draw(BITMAP *dest)
     case wBrang:
         cs = o_cset&15;
         
-        if(parentitem<0 || !(curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG1))
+        if(!curQuest->isValid(parentitem) || !(curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG1))
         {
             tile = o_tile;
             
@@ -4538,14 +4585,14 @@ void weapon::draw(BITMAP *dest)
                 flip = boomframe[(clk&0xE)+1];
             }
             
-            if(parentitem>=0 && curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)
+            if(curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)
             {
                 update_weapon_frame((BSZ?1:4)*dir,tile);
             }
         }
         else
         {
-            if(parentitem>=0 && curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)
+            if(curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)
             {
                 update_weapon_frame(zc_max(frames,1)*dir,tile);
             }
@@ -4553,9 +4600,9 @@ void weapon::draw(BITMAP *dest)
         
         if(dead>0)
         {
-            if(parentitem>=0 && curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG1)
+            if(curQuest->isValid(parentitem) && curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG1)
             {
-                tile=o_tile+(frames*(curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)?8:1);
+                tile=o_tile+(frames*(curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG2)?8:1);
             }
             else
             {
@@ -4575,7 +4622,7 @@ void weapon::draw(BITMAP *dest)
             flip ^= o_flip;
             
         if((dead!=-1) && !BSZ)
-            tile = temp1;//wpnsbuf[wFIRE].tile;
+            tile = curQuest->getSpriteDefinition(temp1).tile;//wpnsbuf[wFIRE].tile;
             
         break;
         
@@ -4597,7 +4644,7 @@ void weapon::draw(BITMAP *dest)
         case pNAYRUSLOVEROCKETRETURN2:
         case pNAYRUSLOVEROCKETTRAIL2:
         case pNAYRUSLOVEROCKETTRAILRETURN2:
-            if(parentitem>=0 && (curQuest->itemDefTable().getItemDefinition(parentitem).flags & itemdata::IF_FLAG1 ? 1 : 0)&&!(frame&1))
+            if(curQuest->isValid(parentitem) && (curQuest->getItemDefinition(parentitem).flags & itemdata::IF_FLAG1 ? 1 : 0)&&!(frame&1))
             {
                 return;
             }
@@ -4614,7 +4661,7 @@ void weapon::draw(BITMAP *dest)
 
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe, int parentid)
 {
-    weapon temp((fix)x,(fix)y,(fix)0,weapon_id,type,0,dir,-1,parentid,true);
+    weapon temp((fix)x,(fix)y,(fix)0,weapon_id,type,0,dir,ItemDefinitionRef(),parentid,-1);
     temp.ignorecombo=((dir==up?y+8:y)&0xF0)+((dir==left?x+8:x)>>4); // Lens hints can sometimes create real weapons without this
     temp.ignoreLink=true;
     temp.yofs=0;
@@ -4629,60 +4676,60 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
 void weapon::bookfirecreate()
 {
 	int bookmagicmaxcount = 2; //!Dimentio: BOOKMAGICHANDLER
-	if (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc3 > 0)
+	if (curQuest->getItemDefinition(current_item_id(itype_book)).misc3 > 0)
 	{
-		bookmagicmaxcount = curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc3;
+		bookmagicmaxcount = curQuest->getItemDefinition(current_item_id(itype_book)).misc3;
 	}
-	else if (curQuest->itemDefTable().getItemDefinition(parentitem).misc8 > 0)
+	else if (curQuest->getItemDefinition(parentitem).misc8 > 0)
 	{
-		bookmagicmaxcount = (curQuest->itemDefTable().getItemDefinition(parentitem).misc8 + 1) * 2;
+		bookmagicmaxcount = (curQuest->getItemDefinition(parentitem).misc8 + 1) * 2;
 	}
 	else bookmagicmaxcount = 2;
-	if(((curQuest->itemDefTable().getItemDefinition(parentitem).family == itype_wand && current_item(itype_book) && (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).flags & itemdata::IF_FLAG1))) && Lwpns.idCount(curQuest->itemDefTable().getItemDefinition(current_item(itype_book)).misc2)<bookmagicmaxcount)
+	if(((curQuest->getItemDefinition(parentitem).family == itype_wand && currentItemLevel(itype_book) && (curQuest->getItemDefinition(current_item_id(itype_book)).flags & itemdata::IF_FLAG1))) && LwpnsIdCount(curQuest->getItemDefinition(current_item_id(itype_book)).misc2)<bookmagicmaxcount)
 	{
-		switch(curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc4)
+		switch(curQuest->getItemDefinition(current_item_id(itype_book)).misc4)
 		{
 			
 			case 3:
 			{
-				Lwpns.add(new weapon(x,y,z,wBomb,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
-				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1)); //And here's the dummy info holder
+				Lwpns.add(new weapon(x,y,z,wBomb,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
+				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //And here's the dummy info holder
 				break;
 			}
 			case 4:
 			{
-				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1));
+				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				break;
 			}
 			case 5:
 			{
-				Lwpns.add(new weapon(x,y,z,wBomb,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
-				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1)); //And here's the dummy info holder
+				Lwpns.add(new weapon(x,y,z,wBomb,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
+				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //And here's the dummy info holder
 				break;
 			}
 			case 6:
 			{
-				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1));
+				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				break;
 			}
 			case 7:
 			{
-				Lwpns.add(new weapon(x,y,z,wBomb,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
-				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1)); //And here's the dummy info holder
+				Lwpns.add(new weapon(x,y,z,wBomb,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //Let's make an explosion...
+				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1)); //And here's the dummy info holder
 				break;
 			}
 			case 8:
 			{
-				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item(itype_book),-1));
+				Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				break;
 			}
 			default:
 			{
 				//!Dimentio: Making sure this isn't null
 				//! ZoriaRPG: I need a detailed explanantion of what this is doing as a code comment. 
-				if (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc2 <= 0) Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+				if (curQuest->getItemDefinition(current_item_id(itype_book)).misc2 <= 0) Lwpns.add(new weapon(x,y,z,wFire,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				//!Dimentio: here's the default behavior.
-				else Lwpns.add(new weapon(x,y,z,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc2,2,curQuest->itemDefTable().getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+				else Lwpns.add(new weapon(x,y,z,curQuest->getItemDefinition(current_item_id(itype_book)).misc2,2,curQuest->getItemDefinition(current_item_id(itype_book)).misc1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
 				break;
 			}
 		}

@@ -2,8 +2,10 @@
 #define WEAPONDEFINITIONTABLE_H
 
 #include "../zdefs.h"
+#include "QuestRefs.h"
 
 class SpriteDefinitionTable;
+class Quest;
 
 struct wpndata
 {
@@ -15,7 +17,6 @@ struct wpndata
     byte frames;                                              // animation frame count
     byte speed;                                               // animation speed
     byte type;                                                // used by certain weapons
-    byte tiles_used;                                          // not all sprites have simple animations; this fields records the total number of tiles used
     word script;
 };
 
@@ -38,53 +39,52 @@ public:
      * Checks that all entries in the index point to valid weapons in the given
      * weapons definition table.
      */
-    bool checkConsistency(SpriteDefinitionTable &table);
+    bool checkConsistency(Quest &quest);
 
-    int messageMoreIndicator;       // sprite used for the "more" indicator in message strings
-    int bushLeavesDecoration;       // animated combos
-    int flowerClippingsDecoration;
-    int grassClippingsDecoration;
-    int tallGrassDecoration;
-    int ripplesDecoration;
-    int nayruShieldFront;           
-    int nayruShieldBack;
-    int lifeMeterHearts;            // quarter-heart sprites used in the life meter
-    int enemySpawnCloud;            // poof when enemies spawn
-    int enemyDeathCloud;            // poof when enemies die
-    int smallShadow;                // shadow sprite of small (1-tile) enemies
-    int largeShadow;                // shadow sprite of large (4-tile) enemies
-    int linkSwim;               
-    int linkSlash;
-    int magicMeter;                 // unit of the magic meter on the subscreen
-    int flickeringFlame;            // enemy flame sprite (special in that it flickers over time)
-    int flickeringFlame2;
-    int flickeringFireTrail;        // enemy fire trail (special in that it flickers over time)
-    int subscreenVine;
-    int npcTemplate;                // start of NPC tiles
-    int defaultLinkWeaponSprite;    // used if a weapon item for some reason does not have a wpn set
-    int defaultFireSprite;          // for some reason needed in conjunction with the warp whistle wind? I don't really understand
-    int defaultBoomerangSprites[3];
-    int defaultBombExplosion;
-    int defaultSuperBombExplosion;
-    int silverSparkle;
-    int fireSparkle;
-    int dinsRocketTrail;
-    int dinsRocketTrailReturn;
-    int nayruRocketTrail;
-    int nayruRocketTrailReturn;
-    int nayruRocketTrail2;
-    int nayruRocketTrailReturn2;
-    int defaultEnemySwordBeamSprite;
-    int defaultEnemyBomb;           // default enemy attack sprites
-    int defaultEnemySuperBomb;
-    int defaultEnemyFireball;
-    int defaultEnemyRock;
-    int defaultEnemyArrow;
-    int defaultEnemyMagic;
-    int defaultEnemyWind;
-    int defaultEnemyBombExplosion;
-    int defaultEnemySuperBombExplosion;
-
+    SpriteDefinitionRef messageMoreIndicator;       // sprite used for the "more" indicator in message strings
+    SpriteDefinitionRef bushLeavesDecoration;       // animated combos
+    SpriteDefinitionRef flowerClippingsDecoration;
+    SpriteDefinitionRef grassClippingsDecoration;
+    SpriteDefinitionRef tallGrassDecoration;
+    SpriteDefinitionRef ripplesDecoration;
+    SpriteDefinitionRef nayruShieldFront;           
+    SpriteDefinitionRef nayruShieldBack;
+    SpriteDefinitionRef lifeMeterHearts;            // quarter-heart sprites used in the life meter
+    SpriteDefinitionRef enemySpawnCloud;            // poof when enemies spawn
+    SpriteDefinitionRef enemyDeathCloud;            // poof when enemies die
+    SpriteDefinitionRef smallShadow;                // shadow sprite of small (1-tile) enemies
+    SpriteDefinitionRef largeShadow;                // shadow sprite of large (4-tile) enemies
+    SpriteDefinitionRef linkSwim;               
+    SpriteDefinitionRef linkSlash;
+    SpriteDefinitionRef magicMeter;                 // unit of the magic meter on the subscreen
+    SpriteDefinitionRef flickeringFlame;            // enemy flame sprite (special in that it flickers over time)
+    SpriteDefinitionRef flickeringFlame2;
+    SpriteDefinitionRef flickeringFireTrail;        // enemy fire trail (special in that it flickers over time)
+    SpriteDefinitionRef subscreenVine;
+    SpriteDefinitionRef npcTemplate;                // start of NPC tiles
+    SpriteDefinitionRef defaultLinkWeaponSprite;    // used if a weapon item for some reason does not have a wpn set
+    SpriteDefinitionRef defaultFireSprite;          // for some reason needed in conjunction with the warp whistle wind? I don't really understand
+    SpriteDefinitionRef defaultBoomerangSprites[3];
+    SpriteDefinitionRef defaultBombExplosion;
+    SpriteDefinitionRef defaultSuperBombExplosion;
+    SpriteDefinitionRef silverSparkle;
+    SpriteDefinitionRef fireSparkle;
+    SpriteDefinitionRef dinsRocketTrail;
+    SpriteDefinitionRef dinsRocketTrailReturn;
+    SpriteDefinitionRef nayruRocketTrail;
+    SpriteDefinitionRef nayruRocketTrailReturn;
+    SpriteDefinitionRef nayruRocketTrail2;
+    SpriteDefinitionRef nayruRocketTrailReturn2;
+    SpriteDefinitionRef defaultEnemySwordBeamSprite;
+    SpriteDefinitionRef defaultEnemyBomb;           // default enemy attack sprites
+    SpriteDefinitionRef defaultEnemySuperBomb;
+    SpriteDefinitionRef defaultEnemyFireball;
+    SpriteDefinitionRef defaultEnemyRock;
+    SpriteDefinitionRef defaultEnemyArrow;
+    SpriteDefinitionRef defaultEnemyMagic;
+    SpriteDefinitionRef defaultEnemyWind;
+    SpriteDefinitionRef defaultEnemyBombExplosion;
+    SpriteDefinitionRef defaultEnemySuperBombExplosion;
 };
 
 
@@ -138,7 +138,7 @@ public:
     /*
      * The number of sprites currently in the weapon definition table.
      */
-    int getNumSpriteDefinitions() const { return (int)spriteData_.size(); }
+    uint32_t getNumSpriteDefinitions() const { return (int)spriteData_.size(); }
 
     /*
      * Returns whether the given sprite index is valid (in the table).

@@ -3546,3 +3546,4 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     
     color_map=&trans_table;
 }
+

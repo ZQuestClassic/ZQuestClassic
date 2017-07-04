@@ -27,7 +27,7 @@ struct list_data_struct
 /*****************************/
 
 void test_item(itemdata test);
-void edit_itemdata(int index);
+void edit_itemdata(ItemDefinitionRef index);
 int onCustomItems();
 
 /****************************/

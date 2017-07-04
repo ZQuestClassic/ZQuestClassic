@@ -84,9 +84,9 @@ struct script_variable
 #define __RESERVED_FOR_LINKRETSQUARE             0x024B
 #define __RESERVED_FOR_LINKWARPSOUND             0x024C
 //LINKWARPMUSIC
-#define LINKUSINGITEM             0x024D
-#define LINKUSINGITEMA             0x024E
-#define LINKUSINGITEMB             0x024F
+//#define LINKUSINGITEM             0x024D
+//#define LINKUSINGITEMA             0x024E
+//#define LINKUSINGITEMB             0x024F
 #define __RESERVED_FOR_PLAYWARPSOUND             0x0250
 #define __RESERVED_FOR_WARPEFFECT             0x0251
 #define __RESERVED_FOR_PLAYPITWARPSFX             0x0252
@@ -572,8 +572,8 @@ struct script_variable
 #define UNUSED1101 0x1101
 #define UNUSED1102 0x1102
 #define UNUSED1103 0x1103
-#define LINKITEMB 0x1104
-#define LINKITEMA 0x1105
+//#define LINKITEMB 0x1104
+//#define LINKITEMA 0x1105
 #define __RESERVED_FOR_LINKWALKTILE 0x1106
 #define 	__RESERVED_FOR_LINKFLOATTILE 0x1107
 #define 	__RESERVED_FOR_LINKSWIMTILE 0x1108

@@ -1,151 +1,107 @@
 #include "WeaponDefinitionTable.h"
 #include "../defdata.h"
+#include "Quest.h"
 
 using namespace std;
 
 
-SpecialSpriteIndex::SpecialSpriteIndex() :
-    messageMoreIndicator(0),
-    bushLeavesDecoration(0),
-    flowerClippingsDecoration(0),
-    grassClippingsDecoration(0),
-    tallGrassDecoration(0),
-    ripplesDecoration(0),
-    nayruShieldFront(0),
-    nayruShieldBack(0),
-    lifeMeterHearts(0),
-    enemySpawnCloud(0),
-    enemyDeathCloud(0),
-    smallShadow(0),
-    largeShadow(0),
-    linkSwim(0),
-    linkSlash(0),
-    magicMeter(0),
-    flickeringFlame(0),
-    flickeringFlame2(0),
-    flickeringFireTrail(0),
-    subscreenVine(0),
-    npcTemplate(0),
-    defaultLinkWeaponSprite(0),
-    defaultFireSprite(0),
-    defaultBombExplosion(0),
-    defaultSuperBombExplosion(0),
-    silverSparkle(0),
-    fireSparkle(0),
-    dinsRocketTrail(0),
-    dinsRocketTrailReturn(0),
-    nayruRocketTrail(0),
-    nayruRocketTrailReturn(0),
-    nayruRocketTrail2(0),
-    nayruRocketTrailReturn2(0),
-    defaultEnemySwordBeamSprite(0),
-    defaultEnemyBomb(0),
-    defaultEnemySuperBomb(0),
-    defaultEnemyFireball(0),
-    defaultEnemyRock(0),
-    defaultEnemyArrow(0),
-    defaultEnemyMagic(0),
-    defaultEnemyWind(0),
-    defaultEnemyBombExplosion(0),
-    defaultEnemySuperBombExplosion(0)
-
+SpecialSpriteIndex::SpecialSpriteIndex()
 {
-    for (int i = 0; i < 3; i++)
-        defaultBoomerangSprites[i] = 0;
+
 }
 
-bool SpecialSpriteIndex::checkConsistency(SpriteDefinitionTable &table)
+bool SpecialSpriteIndex::checkConsistency(Quest &quest)
 {
-    if (!table.isValid(messageMoreIndicator))
+    if (!quest.isValid(messageMoreIndicator))
         return false;
-    if (!table.isValid(bushLeavesDecoration))
+    if (!quest.isValid(bushLeavesDecoration))
         return false;
-    if (!table.isValid(flowerClippingsDecoration))
+    if (!quest.isValid(flowerClippingsDecoration))
         return false;
-    if (!table.isValid(grassClippingsDecoration))
+    if (!quest.isValid(grassClippingsDecoration))
         return false;
-    if (!table.isValid(tallGrassDecoration))
+    if (!quest.isValid(tallGrassDecoration))
         return false;
-    if (!table.isValid(ripplesDecoration))
+    if (!quest.isValid(ripplesDecoration))
         return false;
-    if (!table.isValid(nayruShieldFront))
+    if (!quest.isValid(nayruShieldFront))
         return false;
-    if (!table.isValid(nayruShieldBack))
+    if (!quest.isValid(nayruShieldBack))
         return false;
-    if (!table.isValid(lifeMeterHearts))
+    if (!quest.isValid(lifeMeterHearts))
         return false;
-    if (!table.isValid(enemySpawnCloud))
+    if (!quest.isValid(enemySpawnCloud))
         return false;
-    if (!table.isValid(enemyDeathCloud))
+    if (!quest.isValid(enemyDeathCloud))
         return false;
-    if (!table.isValid(smallShadow))
+    if (!quest.isValid(smallShadow))
         return false;
-    if (!table.isValid(largeShadow))
+    if (!quest.isValid(largeShadow))
         return false;
-    if (!table.isValid(linkSwim))
+    if (!quest.isValid(linkSwim))
         return false;
-    if (!table.isValid(linkSlash))
+    if (!quest.isValid(linkSlash))
         return false;
-    if (!table.isValid(magicMeter))
+    if (!quest.isValid(magicMeter))
         return false;
-    if (!table.isValid(flickeringFlame))
+    if (!quest.isValid(flickeringFlame))
         return false;
-    if (!table.isValid(flickeringFlame2))
+    if (!quest.isValid(flickeringFlame2))
         return false;
-    if (!table.isValid(flickeringFireTrail))
+    if (!quest.isValid(flickeringFireTrail))
         return false;
-    if (!table.isValid(subscreenVine))
+    if (!quest.isValid(subscreenVine))
         return false;
-    if (!table.isValid(npcTemplate))
+    if (!quest.isValid(npcTemplate))
         return false;
-    if (!table.isValid(defaultLinkWeaponSprite))
+    if (!quest.isValid(defaultLinkWeaponSprite))
         return false;
-    if (!table.isValid(defaultLinkWeaponSprite))
+    if (!quest.isValid(defaultLinkWeaponSprite))
         return false;
-    if (!table.isValid(defaultEnemySwordBeamSprite))
+    if (!quest.isValid(defaultEnemySwordBeamSprite))
         return false;
-    if (!table.isValid(silverSparkle))
+    if (!quest.isValid(silverSparkle))
         return false;
-    if (!table.isValid(fireSparkle))
+    if (!quest.isValid(fireSparkle))
         return false;
-    if (!table.isValid(dinsRocketTrail))
+    if (!quest.isValid(dinsRocketTrail))
         return false;
-    if (!table.isValid(dinsRocketTrailReturn))
+    if (!quest.isValid(dinsRocketTrailReturn))
         return false;
-    if (!table.isValid(nayruRocketTrail))
+    if (!quest.isValid(nayruRocketTrail))
         return false;
-    if (!table.isValid(nayruRocketTrailReturn))
+    if (!quest.isValid(nayruRocketTrailReturn))
         return false;
-    if (!table.isValid(nayruRocketTrail2))
+    if (!quest.isValid(nayruRocketTrail2))
         return false;
-    if (!table.isValid(nayruRocketTrailReturn2))
+    if (!quest.isValid(nayruRocketTrailReturn2))
         return false;
-    if (!table.isValid(defaultBombExplosion))
+    if (!quest.isValid(defaultBombExplosion))
         return false;
-    if (!table.isValid(defaultSuperBombExplosion))
+    if (!quest.isValid(defaultSuperBombExplosion))
         return false;
-    if (!table.isValid(defaultEnemyBomb))
+    if (!quest.isValid(defaultEnemyBomb))
         return false;
-    if (!table.isValid(defaultEnemySuperBomb))
+    if (!quest.isValid(defaultEnemySuperBomb))
         return false;
-    if (!table.isValid(defaultEnemyFireball))
+    if (!quest.isValid(defaultEnemyFireball))
         return false;
-    if (!table.isValid(defaultEnemyRock))
+    if (!quest.isValid(defaultEnemyRock))
         return false;
-    if (!table.isValid(defaultEnemyArrow))
+    if (!quest.isValid(defaultEnemyArrow))
         return false;
-    if (!table.isValid(defaultEnemyMagic))
+    if (!quest.isValid(defaultEnemyMagic))
         return false;
-    if (!table.isValid(defaultEnemyWind))
+    if (!quest.isValid(defaultEnemyWind))
         return false;
-    if (!table.isValid(defaultEnemyBombExplosion))
+    if (!quest.isValid(defaultEnemyBombExplosion))
         return false;
-    if (!table.isValid(defaultEnemySuperBombExplosion))
+    if (!quest.isValid(defaultEnemySuperBombExplosion))
         return false;
 
     for (int i = 0; i < 3; i++)
     {
-        if (!table.isValid(defaultBoomerangSprites[i]))
+        if (!quest.isValid(defaultBoomerangSprites[i]))
             return false;
     }
     return true;

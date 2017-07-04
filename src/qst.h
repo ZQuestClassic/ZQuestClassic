@@ -126,8 +126,8 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word 
 int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
-int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemDefinitionTable &idt);
-int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &idt, SpriteDefinitionTable &wdt);
+int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::map<std::string, ItemDefinitionTable> &idts);
+int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItemTable, std::map<std::string, SpriteDefinitionTable> &wdts);
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
 int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);

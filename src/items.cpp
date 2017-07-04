@@ -33,7 +33,7 @@ int fairy_cnt=0;
 
 item::~item()
 {
-    if(curQuest->itemDefTable().getItemDefinition(id).family==itype_fairy && curQuest->itemDefTable().getItemDefinition(id).misc3>0 && misc>0)
+    if(curQuest->isValid(itemDefinition) && curQuest->getItemDefinition(itemDefinition).family==itype_fairy && curQuest->getItemDefinition(itemDefinition).misc3>0 && misc>0)
         killfairy(misc);
 }
 
@@ -137,7 +137,7 @@ bool item::animate(int)
             tile = o_tile + aframe;
     }
     
-    if(curQuest->itemDefTable().getItemDefinition(id).family ==itype_fairy && curQuest->itemDefTable().getItemDefinition(id).misc3)
+    if(curQuest->isValid(itemDefinition) && curQuest->getItemDefinition(itemDefinition).family ==itype_fairy && curQuest->getItemDefinition(itemDefinition).misc3)
     {
         movefairy(x,y,misc);
     }
@@ -165,19 +165,19 @@ void item::draw(BITMAP *dest)
         
     if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
     {
-        if(clk2>32 || (clk2&2)==0 || curQuest->itemDefTable().getItemDefinition(id).family == itype_fairy)
+        if(clk2>32 || (clk2&2)==0 || curQuest->isValid(itemDefinition) && curQuest->getItemDefinition(itemDefinition).family == itype_fairy)
         {
             sprite::draw(dest);
         }
     }
 }
 
-item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite(*pool)
+item::item(fix X,fix Y,fix Z,ItemDefinitionRef ref,int p,int c, bool isDummy) : sprite(*pool)
 {
     x=X;
     y=Y;
     z=Z;
-    id=i;
+    itemDefinition = ref;
     pickup=p;
     clk=c;
     misc=clk2=0;
@@ -185,25 +185,25 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite(*pool)
     anim=flash=twohand=subscreenItem=false;
     dummy_int[0]=PriceIndex=-1;
     
-    if(id<0 || id >= curQuest->itemDefTable().getNumItemDefinitions())
+    if(!curQuest->isValid(itemDefinition))
         return;
         
-    o_tile = curQuest->itemDefTable().getItemDefinition(id).tile;
-    tile = curQuest->itemDefTable().getItemDefinition(id).tile;
-    cs = curQuest->itemDefTable().getItemDefinition(id).csets&15;
-    o_cset = curQuest->itemDefTable().getItemDefinition(id).csets;
-    o_speed = curQuest->itemDefTable().getItemDefinition(id).speed;
-    o_delay = curQuest->itemDefTable().getItemDefinition(id).delay;
-    frames = curQuest->itemDefTable().getItemDefinition(id).frames;
-    flip = curQuest->itemDefTable().getItemDefinition(id).misc>>2;
+    o_tile = curQuest->getItemDefinition(itemDefinition).tile;
+    tile = curQuest->getItemDefinition(itemDefinition).tile;
+    cs = curQuest->getItemDefinition(itemDefinition).csets&15;
+    o_cset = curQuest->getItemDefinition(itemDefinition).csets;
+    o_speed = curQuest->getItemDefinition(itemDefinition).speed;
+    o_delay = curQuest->getItemDefinition(itemDefinition).delay;
+    frames = curQuest->getItemDefinition(itemDefinition).frames;
+    flip = curQuest->getItemDefinition(itemDefinition).misc>>2;
     
-    if(curQuest->itemDefTable().getItemDefinition(id).misc&1)
+    if(curQuest->getItemDefinition(itemDefinition).misc&1)
         flash=true;
         
-    if(curQuest->itemDefTable().getItemDefinition(id).misc&2)
+    if(curQuest->getItemDefinition(itemDefinition).misc&2)
         twohand=true;
         
-    anim = curQuest->itemDefTable().getItemDefinition(id).frames>0;
+    anim = curQuest->getItemDefinition(itemDefinition).frames>0;
     
     if(pickup&ipBIGRANGE)
     {
@@ -226,12 +226,12 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite(*pool)
         hysz=12;
     }
     
-    if(!isDummy && curQuest->itemDefTable().getItemDefinition(id).family == itype_fairy && curQuest->itemDefTable().getItemDefinition(id).misc3)
+    if(!isDummy && curQuest->getItemDefinition(itemDefinition).family == itype_fairy && curQuest->getItemDefinition(itemDefinition).misc3)
     {
         misc = ++fairy_cnt;
         
-        if(addfairy(x, y, curQuest->itemDefTable().getItemDefinition(id).misc3, misc))
-            Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(id).usesound,128);
+        if(addfairy(x, y, curQuest->getItemDefinition(itemDefinition).misc3, misc))
+            Backend::sfx->play(curQuest->getItemDefinition(itemDefinition).usesound,128);
     }
     
     /*for(int j=0;j<8;j++)
@@ -243,17 +243,17 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite(*pool)
 
 // easy way to draw an item
 
-void putitem(BITMAP *dest,int x,int y,int item_id)
+void putitem(BITMAP *dest,int x,int y, const ItemDefinitionRef &itemref)
 {
-    item temp((fix)x,(fix)y,(fix)0,item_id,0,0);
+    item temp((fix)x,(fix)y,(fix)0,itemref,0,0);
     temp.yofs=0;
     temp.animate(0);
     temp.draw(dest);
 }
 
-void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash)
+void putitem2(BITMAP *dest,int x,int y,const ItemDefinitionRef &itemref, int &aclk, int &aframe, int flash)
 {
-    item temp((fix)x,(fix)y,(fix)0,item_id,0,0,true);
+    item temp((fix)x,(fix)y,(fix)0,itemref,0,0,true);
     temp.yofs=0;
     temp.aclk=aclk;
     temp.aframe=aframe;

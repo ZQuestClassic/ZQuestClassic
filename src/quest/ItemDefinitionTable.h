@@ -3,8 +3,45 @@
 
 #include "../zdefs.h"
 #include "../sfx.h"
+#include "QuestRefs.h"
 #include <string>
 #include <vector>
+
+class Quest;
+
+struct SpecialItemIndex
+{
+public:
+    SpecialItemIndex() {}
+
+    /*
+    * Checks that all entries in the index point to valid weapons in the given
+    * weapons definition table.
+    */
+    bool checkConsistency(Quest &quest);
+
+    ItemDefinitionRef dustPile;
+    ItemDefinitionRef clock;    // items with special handling of the link tile modifier
+    ItemDefinitionRef key;
+    ItemDefinitionRef levelKey;
+    ItemDefinitionRef bossKey;
+    ItemDefinitionRef triforce;
+    ItemDefinitionRef magicContainer;
+    ItemDefinitionRef compass;
+    ItemDefinitionRef map;
+    ItemDefinitionRef redPotion;        // used in "take X or Y" rooms
+    ItemDefinitionRef heartContainer;   // used in "take X or Y" rooms
+    ItemDefinitionRef selectA;      // A button selector on subscreen
+    ItemDefinitionRef selectB;      // B button selector on subscreen
+    ItemDefinitionRef rupy;         // used for money special rooms and slash combos
+    ItemDefinitionRef heart;        // used for slash combos
+    ItemDefinitionRef heartContainerPiece;  // used in subscreen
+    ItemDefinitionRef bomb;         // given to the player if bombs are positive in init data
+    ItemDefinitionRef superBomb;    // given to the player if super bombs are positive in init data
+    ItemDefinitionRef bigTriforce;  // used in ending animation
+    ItemDefinitionRef bait;         // used in grumble room
+    ItemDefinitionRef fairyMoving;  // special handling when picking up
+};
 
 struct itemdata
 {
@@ -28,38 +65,9 @@ struct itemdata
     }
 
     // just enough to initialize the default items
-    itemdata(byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_, 
-        byte wpn_, byte wpn2_, byte wpn3_, byte wpn4_, byte wpn5_, byte wpn6_, byte wpn7_, byte wpn8_, byte wpn9_, byte wpn10_, 
-        byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_)
-    {        
-        clear();
-        family = family_;
-        fam_type = fam_type_;
-        power = power_;
-        flags = flags_;
-        count = count_;
-        amount = amount_;
-        setmax = setmax_;
-        max = max_;
-        playsound = playsound_;
-        wpn = wpn_;
-        wpn2 = wpn2_;
-        wpn3 = wpn3_;
-        wpn4 = wpn4_;
-        wpn5 = wpn5_;
-        wpn6 = wpn6_;
-        wpn7 = wpn7_;
-        wpn8 = wpn8_;
-        wpn9 = wpn9_;
-        wpn10 = wpn10_;
-        pickup_hearts = pickup_hearts_;
-        misc1 = misc1_;
-        misc2 = misc2_;
-        misc3 = misc3_;
-        misc4 = misc4_;
-        magic = magic_;
-        usesound = usesound_;
-    }
+    itemdata(byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_,
+        uint32_t wpn_, uint32_t wpn2_, uint32_t wpn3_, uint32_t wpn4_, uint32_t wpn5_, uint32_t wpn6_, uint32_t wpn7_, uint32_t wpn8_, uint32_t wpn9_, uint32_t wpn10_,
+        byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_);
 
     void clear()
     {
@@ -85,16 +93,8 @@ struct itemdata
             initiald[i] = 0;
         for (int i = 0; i < INITIAL_A; i++)
             initiala[i] = 0;
-        wpn = 0;
-        wpn2 = 0;
-        wpn3 = 0;
-        wpn4 = 0;
-        wpn5 = 0;
-        wpn6 = 0;
-        wpn7 = 0;
-        wpn8 = 0;
-        wpn9 = 0;
-        wpn10 = 0;
+        for (int i = 0; i < 9; i++)
+            wpns[i] = SpriteDefinitionRef();
         pickup_hearts = 0;
         misc1 = 0;
         misc2 = 0;
@@ -165,16 +165,7 @@ struct itemdata
     //  byte exp[10];                                             // not used
     long initiald[INITIAL_D];
     byte initiala[INITIAL_A];
-    byte wpn;
-    byte wpn2;
-    byte wpn3;
-    byte wpn4;
-    byte wpn5;
-    byte wpn6;
-    byte wpn7;
-    byte wpn8;
-    byte wpn9;
-    byte wpn10;
+    SpriteDefinitionRef wpns[10];
     byte pickup_hearts;
     long misc1;
     long misc2;
@@ -273,79 +264,12 @@ public:
     /*
      * The number of items currently in the items definition table.
      */
-    int getNumItemDefinitions() const { return (int)itemData_.size(); }
-
-    /* 
-     * Retrieves the canonical item of a given item family: the item with 
-     * lowest non-0 level. Returns the wooden sword for swords, blue candle
-     * for candles, etc.
-     * Returns -1 if no item of the given family exists.
-     */
-    int getCanonicalItemID(int family);
+    uint32_t getNumItemDefinitions() const { return itemData_.size(); }
 
     /*
-     * Retrieves the family of the item with given index in the definitions
-     * table. The index must be valid.
-     */
-    int getItemFamily(int item);
-
-    /* 
-     * Searches the item table for an item with the given family and fam_type
-     * (level) or power. Returns the first time in the table found satisfying
-     * the search criteria, or -1 if no item exists.
-     */
-    int getItemID(int family, int fam_type);
-    int getItemIDPower(int family, int power);
-
-    /*
-     * Adds items to the init data based on old-style bitmasks (levels) 
-     * specifying item levels within families.
-     */
-    void addOldStyleFamily(zinitdata *dest, int family, char levels);
-
-    /*
-     * Searches the init data for the item of the given family with highest
-     * level (fam_type). Returns -1 if no such item is found.
-     */
-    int getHighestLevelOfFamily(zinitdata *source, int family);
-
-    /*
-     * Removes all items from the init data whose family matches the given
-     * family (does nothing if there weren't any such items in the init
-     * data in the first place).
-     */
-    void removeItemsOfFamily(zinitdata *z, int family);
-
-    /*
-     * Computes an old-.qst-style bit field representing which items of a
-     * given family are present in the init data.
-     * Should *not* be used except for obscure compatibility purposes, since
-     * there is no guarantee that modern, fully-editable item sets can be
-     * correctly encoded in such a bit field.
-     */
-    int computeOldStyleBitfield(zinitdata *source, int family);
-
-    /*
-    * Removes all items from the game data whose family matches the given
-    * family (does nothing if there weren't any such items in the game
-    * data in the first place).
+    * Returns whether the given item index is valid (in the table).
     */
-    void removeItemsOfFamily(gamedata *g, int family);
-    
-    /*
-    * Searches the game data for the item of the given family with highest
-    * level (fam_type). Returns -1 if no such item is found.
-    */
-    int getHighestLevelOfFamily(gamedata *source, int family, bool checkenabled = false);
-
-    /*
-     * Searches through the items in the game data and removes all items
-     * of the given family whose level (fam_type) is lower than the given
-     * treshold. Used when upgrading items removes all lower-level items
-     * of the same family, such as boomerangs, etc.
-     */
-    void removeLowerLevelItemsOfFamily(gamedata *g, int family, int level);
-
+    bool isValid(int slot) { return slot >= 0 && slot < (int)itemData_.size(); }
 private:
 
     std::vector<itemdata> itemData_;

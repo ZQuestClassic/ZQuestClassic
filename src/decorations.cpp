@@ -174,10 +174,10 @@ void dBushLeaves::draw(BITMAP *dest)
         return;
     }
 
-    int sbushleaves = curQuest->specialSprites().bushLeavesDecoration;
+    SpriteDefinitionRef sbushleaves = curQuest->specialSprites().bushLeavesDecoration;
     
-    int t = curQuest->weaponDefTable().getSpriteDefinition(sbushleaves).tile;
-    cs = curQuest->weaponDefTable().getSpriteDefinition(sbushleaves).csets & 15;
+    int t = curQuest->getSpriteDefinition(sbushleaves).tile;
+    cs = curQuest->getSpriteDefinition(sbushleaves).csets & 15;
 
     for (int i = 0; i < 4; ++i)
     {
@@ -316,10 +316,10 @@ void dFlowerClippings::draw(BITMAP *dest)
         return;
     }
 
-    int flowerclippings = curQuest->specialSprites().flowerClippingsDecoration;
+    SpriteDefinitionRef flowerclippings = curQuest->specialSprites().flowerClippingsDecoration;
     
-    int t = curQuest->weaponDefTable().getSpriteDefinition(flowerclippings).tile;
-    cs = curQuest->weaponDefTable().getSpriteDefinition(flowerclippings).csets & 15;
+    int t = curQuest->getSpriteDefinition(flowerclippings).tile;
+    cs = curQuest->getSpriteDefinition(flowerclippings).csets & 15;
 
     for (int i = 0; i < 4; ++i)
     {
@@ -410,10 +410,10 @@ void dGrassClippings::draw(BITMAP *dest)
         return;
     }
 
-    int grassclippings = curQuest->specialSprites().grassClippingsDecoration;
+    SpriteDefinitionRef grassclippings = curQuest->specialSprites().grassClippingsDecoration;
 
-    int t = curQuest->weaponDefTable().getSpriteDefinition(grassclippings).tile;
-    cs = curQuest->weaponDefTable().getSpriteDefinition(grassclippings).csets & 15;
+    int t = curQuest->getSpriteDefinition(grassclippings).tile;
+    cs = curQuest->getSpriteDefinition(grassclippings).csets & 15;
 
     for (int i = 0; i < 3; ++i)
     {
@@ -464,7 +464,7 @@ dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
         ft[1][3][2]=1;
     }
     
-    wpnid=curQuest->itemDefTable().getItemDefinition(current_item_id(itype_hammer)).wpn2;
+    wpnid=curQuest->getItemDefinition(current_item_id(itype_hammer)).wpns[1];
 }
 
 bool dHammerSmack::animate(int index)
@@ -481,10 +481,10 @@ void dHammerSmack::draw(BITMAP *dest)
         return;
     }
 
-    if (wpnid < curQuest->weaponDefTable().getNumSpriteDefinitions())
+    if (curQuest->isValid(wpnid))
     {
-        int t = curQuest->weaponDefTable().getSpriteDefinition(wpnid).tile;
-        cs = curQuest->weaponDefTable().getSpriteDefinition(wpnid).csets & 15;
+        int t = curQuest->getSpriteDefinition(wpnid).tile;
+        cs = curQuest->getSpriteDefinition(wpnid).csets & 15;
         flip = 0;
 
         for (int i = 0; i < 2; ++i)
@@ -514,10 +514,10 @@ void dTallGrass::draw(BITMAP *dest)
     if(LinkGetDontDraw())
         return;
 
-    int tallgrasss = curQuest->specialSprites().tallGrassDecoration;
+    SpriteDefinitionRef tallgrasss = curQuest->specialSprites().tallGrassDecoration;
 
-    int t = curQuest->weaponDefTable().getSpriteDefinition(tallgrasss).tile * 4;
-    cs = curQuest->weaponDefTable().getSpriteDefinition(tallgrasss).csets & 15;
+    int t = curQuest->getSpriteDefinition(tallgrasss).tile * 4;
+    cs = curQuest->getSpriteDefinition(tallgrasss).csets & 15;
     flip = 0;
     x = LinkX();
     y = LinkY() + 10;
@@ -557,10 +557,10 @@ void dRipples::draw(BITMAP *dest)
     if(LinkGetDontDraw())
         return;
 
-    int ripples = curQuest->specialSprites().ripplesDecoration;
+    SpriteDefinitionRef ripples = curQuest->specialSprites().ripplesDecoration;
 
-    int t = curQuest->weaponDefTable().getSpriteDefinition(ripples).tile * 4;
-    cs = curQuest->weaponDefTable().getSpriteDefinition(ripples).csets & 15;
+    int t = curQuest->getSpriteDefinition(ripples).tile * 4;
+    cs = curQuest->getSpriteDefinition(ripples).csets & 15;
     flip = 0;
     x = LinkX();
     y = LinkY() + 10;
@@ -575,15 +575,15 @@ dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
     id=Id;
     clk=Clk;
-    wpnid = curQuest->itemDefTable().getItemDefinition(current_item_id(itype_hoverboots)).wpn;
+    wpnid = curQuest->getItemDefinition(current_item_id(itype_hoverboots)).wpns[0];
 }
 
 void dHover::draw(BITMAP *dest)
 {
-    if (wpnid < curQuest->weaponDefTable().getNumSpriteDefinitions())
+    if (curQuest->isValid(wpnid))
     {
-        int t = curQuest->weaponDefTable().getSpriteDefinition(wpnid).tile * 4;
-        cs = curQuest->weaponDefTable().getSpriteDefinition(wpnid).csets & 15;
+        int t = curQuest->getSpriteDefinition(wpnid).tile * 4;
+        cs = curQuest->getSpriteDefinition(wpnid).csets & 15;
         flip = 0;
         x = LinkX();
         y = LinkY() + 10 - LinkZ();
@@ -624,26 +624,28 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
         return;
     }
 
-    if (current_item_id(itype_nayruslove) == -1)
+    ItemDefinitionRef nayruitem = current_item_id(itype_nayruslove);
+
+    if (!curQuest->isValid(nayruitem))
         return;
 
-    int nayrufront = curQuest->specialSprites().nayruShieldFront;
-    int nayruback = curQuest->specialSprites().nayruShieldBack;
+    SpriteDefinitionRef nayrufront = curQuest->specialSprites().nayruShieldFront;
+    SpriteDefinitionRef nayruback = curQuest->specialSprites().nayruShieldBack;
     
-    int fb=(misc==0?
-            ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn5 ?
-                curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn5 :  nayrufront) :
-                ( curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn10 ?
-                    curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).wpn10 : nayruback));
-    if (fb < curQuest->weaponDefTable().getNumSpriteDefinitions())
+    SpriteDefinitionRef fb=(misc==0?
+            ( curQuest->isValid(curQuest->getItemDefinition(nayruitem).wpns[4]) ?
+                curQuest->getItemDefinition(nayruitem).wpns[4] :  nayrufront) :
+                ( curQuest->isValid(curQuest->getItemDefinition(nayruitem).wpns[9]) ?
+                    curQuest->getItemDefinition(nayruitem).wpns[9] : nayruback));
+    if (curQuest->isValid(fb))
     {
-        int t = curQuest->weaponDefTable().getSpriteDefinition(fb).tile;
-        int fr = curQuest->weaponDefTable().getSpriteDefinition(fb).frames;
-        int spd = curQuest->weaponDefTable().getSpriteDefinition(fb).speed;
-        cs = curQuest->weaponDefTable().getSpriteDefinition(fb).csets & 15;
+        int t = curQuest->getSpriteDefinition(fb).tile;
+        int fr = curQuest->getSpriteDefinition(fb).frames;
+        int spd = curQuest->getSpriteDefinition(fb).speed;
+        cs = curQuest->getSpriteDefinition(fb).csets & 15;
         flip = 0;
-        bool flickering = (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG4) != 0;
-        bool translucent = (curQuest->itemDefTable().getItemDefinition(current_item_id(itype_nayruslove)).flags & itemdata::IF_FLAG3) != 0;
+        bool flickering = (curQuest->getItemDefinition(nayruitem).flags & itemdata::IF_FLAG4) != 0;
+        bool translucent = (curQuest->getItemDefinition(nayruitem).flags & itemdata::IF_FLAG3) != 0;
 
         if (((LinkNayrusLoveShieldClk() & 0x20) || (LinkNayrusLoveShieldClk() & 0xF00)) && (!flickering || ((misc == 1) ? (frame & 1) : (!(frame & 1)))))
         {

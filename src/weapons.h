@@ -42,15 +42,18 @@ private:
     
 public:
     int power,type,dead,clk2,misc2,ignorecombo;
+    int id;
     bool isLit; //if true, this weapon is providing light to the current screen
-    int parentid, //Enemy who created it
-        parentitem; //Item which created it
+    int parentid; //Enemy who created it
+    ItemDefinitionRef parentitem; //Item which created it
     int dragging;
     fix step;
     bool bounce, ignoreLink;
-    word flash,wid,aframe,csclk;
+    word flash;
+    SpriteDefinitionRef wid;
+    word aframe, csclk;
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
-    int temp1;
+    SpriteDefinitionRef temp1;
     bool behind;
 
 	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
@@ -90,9 +93,9 @@ public:
     int wpnsprite;
     
     weapon(weapon const & other);
-    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
+    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefinitionRef &Parentid, int prntid, bool isDummy=false);
     virtual ~weapon();
-    void LOADGFX(int wpn);
+    void LOADGFX(const SpriteDefinitionRef &wpn);
     bool Dead();
     bool clip();
     bool blocked();

@@ -51,7 +51,7 @@
 using std::string;
 using std::pair;
 
-extern std::map<int, LensItemAnim> lens_hint_item;
+extern std::map<ItemDefinitionRef, LensItemAnim> lens_hint_item;
 extern std::map<int, LensWeaponAnim> lens_hint_weapon;
 
 // extern bool                debug;
@@ -113,7 +113,8 @@ enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERP
 
 static byte deprecated_rules[QUESTRULES_SIZE];
 
-static int readSpecialSpritesIndex(SpriteDefinitionTable &wpns, SpecialSpriteIndex &ssi);
+static int readSpecialSpritesIndex(Quest &quest, SpecialSpriteIndex &ssi);
+static int readSpecialItemIndex(Quest &quest, SpecialItemIndex &ssi);
 
 void delete_combo_aliases()
 {
@@ -989,16 +990,29 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
         break;
         
     case ID_ITEMS:
+    {
         //items
-        ret=readitems(f, version, build, Header, curQuest->itemDefTable());
+        std::map<std::string, ItemDefinitionTable> items;
+        ret = readitems(f, version, build, Header, items);
+        for (std::map<std::string, ItemDefinitionTable>::iterator it = items.begin(); it != items.end(); ++it)
+        {
+            curQuest->getModule(it->first).setItemDefTable(it->second);
+        }
+        ret |= readSpecialItemIndex(*curQuest, curQuest->specialItems());
         break;
-        
+    }
     case ID_WEAPONS:
+    {
         //weapons
-        ret=readweapons(f, Header, curQuest->itemDefTable(), curQuest->weaponDefTable());
-        ret |= readSpecialSpritesIndex(curQuest->weaponDefTable(), curQuest->specialSprites());
+        std::map<std::string, SpriteDefinitionTable> sprites;
+        ret = readweapons(f, Header, curQuest->getModule("CORE").itemDefTable(), sprites);
+        for (std::map<std::string, SpriteDefinitionTable>::iterator it = sprites.begin(); it != sprites.end(); ++it)
+        {
+            curQuest->getModule(it->first).setWeaponDefTable(it->second);
+        }
+        ret |= readSpecialSpritesIndex(*curQuest, curQuest->specialSprites());
         break;
-        
+    }
     case ID_COLORS:
         //misc. colors
         ret=readmisccolors(f, Header, Misc, true);
@@ -3672,7 +3686,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 {
                     if (di[j / 8] & (1 << (j % 8)))
                     {
-                        tempDMap.disabledItems.push_back(j);
+                        tempDMap.disabledItems.push_back(ItemDefinitionRef("CORE",j));
                     }
                 }
             }
@@ -3684,10 +3698,21 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                     return qe_invalid;
                 for (uint32_t i = 0; i < numdisabled; i++)
                 {
+                    uint32_t len;
+                    if (!p_igetl(&len, f, true))
+                        return qe_invalid;
+                    char *buf = new char[len];
+                    if (!pfread(buf, len, f, true))
+                    {
+                        delete[] buf;
+                        return qe_invalid;
+                    }
+                    std::string modname(buf);
+                    delete[] buf;
                     uint32_t itemid;
                     if (!p_igetl(&itemid, f, true))
                         return qe_invalid;
-                    tempDMap.disabledItems.push_back(itemid);
+                    tempDMap.disabledItems.push_back(ItemDefinitionRef(modname, itemid));
                 }
             }
         }
@@ -3763,7 +3788,7 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
     word s_version=0, s_cversion=0;
     int tempsize=0;
     
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
+    temp_misc = *Misc;
     
     //section version info
     if(!p_igetw(&s_version,f,true))
@@ -3941,7 +3966,7 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
     
     if(keepdata==true)
     {
-        memcpy(Misc, &temp_misc, sizeof(temp_misc));
+        *Misc = temp_misc;
     }
     
     return 0;
@@ -3954,7 +3979,7 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     byte icons;
     int tempsize=0;
     
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
+    temp_misc = *Misc;
     
     //section version info
     if(!p_igetw(&s_version,f,true))
@@ -3990,7 +4015,7 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     
     if(keepdata==true)
     {
-        memcpy(Misc, &temp_misc, sizeof(temp_misc));
+        *Misc = temp_misc;
     }
     
     return 0;
@@ -4004,21 +4029,8 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     word ponds=16, pondsize=72, expansionsize=98*2;
     byte tempbyte, padding;
     miscQdata temp_misc;
-    word s_version=0, s_cversion=0;
-    word swaptmp;
-    int tempsize=0;
-    
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
-    
-    for(int i=0; i<maxshops; ++i)
-    {
-        memset(&temp_misc.shop, 0, sizeof(shoptype)*256);
-    }
-    
-    for(int i=0; i<maxinfos; ++i)
-    {
-        memset(&temp_misc.info, 0, sizeof(infotype)*256);
-    }
+    word s_version=0, s_cversion=0;    
+    int tempsize=0;    
     
     if(Header->zelda_version > 0x192)
     {
@@ -4067,14 +4079,44 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         
         for(int j=0; j<3; j++)
         {
-            if(!p_getc(&temp_misc.shop[i].item[j],f,true))
+            if (s_version < 8)
             {
-                return qe_invalid;
+                byte olditem;
+                if (!p_getc(&olditem, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                ItemDefinitionRef ref("CORE", olditem);
+                temp_misc.shop[i].item[j] = ref;
+
+                if (s_version < 4)
+                {
+                    temp_misc.shop[i].hasitem[j] = (olditem == 0) ? 0 : 1;
+                }
             }
-            
-            if(s_version < 4)
+            else
             {
-                temp_misc.shop[i].hasitem[j] = (temp_misc.shop[i].item[j] == 0) ? 0 : 1;
+                uint32_t modlen;
+                if (!p_igetl(&modlen, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                char *buf = new char[modlen];
+                if (!pfread(buf, modlen, f, true))
+                {
+                    delete[] buf;
+                    return qe_invalid;
+                }
+                uint32_t itemid;
+                if (!p_igetl(&itemid, f, true))
+                {
+                    return qe_invalid;
+                }
+                ItemDefinitionRef ref(string(buf), itemid);
+                temp_misc.shop[i].item[j] = ref;
+                delete[] buf;
             }
         }
         
@@ -4113,15 +4155,15 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             {
                 if(temp_misc.shop[i].hasitem[k]==0)
                 {
-                    swaptmp = temp_misc.shop[i].item[k];
+                    ItemDefinitionRef swaptmp = temp_misc.shop[i].item[k];
                     temp_misc.shop[i].item[k] = temp_misc.shop[i].item[k+1];
                     temp_misc.shop[i].item[k+1] = swaptmp;
-                    swaptmp = temp_misc.shop[i].price[k];
+                    word swapprice = temp_misc.shop[i].price[k];
                     temp_misc.shop[i].price[k] = temp_misc.shop[i].price[k+1];
-                    temp_misc.shop[i].price[k+1] = swaptmp;
-                    swaptmp = temp_misc.shop[i].hasitem[k];
+                    temp_misc.shop[i].price[k+1] = swapprice;
+                    byte swaphas = temp_misc.shop[i].hasitem[k];
                     temp_misc.shop[i].hasitem[k] = temp_misc.shop[i].hasitem[k+1];
-                    temp_misc.shop[i].hasitem[k+1] = swaptmp;
+                    temp_misc.shop[i].hasitem[k+1] = swaphas;
                 }
             }
         }
@@ -4201,7 +4243,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             {
                 if(temp_misc.info[i].str[k]==0)
                 {
-                    swaptmp = temp_misc.info[i].str[k];
+                    word swaptmp = temp_misc.info[i].str[k];
                     temp_misc.info[i].str[k] = temp_misc.info[i].str[k+1];
                     temp_misc.info[i].str[k+1] = swaptmp;
                     swaptmp = temp_misc.info[i].price[k];
@@ -4558,7 +4600,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     {
         if(keepdata==true)
         {
-            memcpy(Misc, &temp_misc, sizeof(temp_misc));
+            *Misc = temp_misc;
         }
         
         return 0;
@@ -4628,22 +4670,22 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     
     if(keepdata==true)
     {
-        memcpy(Misc, &temp_misc, sizeof(temp_misc));
+        *Misc = temp_misc;
     }
     
     return 0;
 }
 
-void reset_itembuf(itemdata *item, int id)
+void reset_itembuf(itemdata *item, const ItemDefinitionRef &iref)
 {
-    if(id<iLast)
+    if(iref.module == "CORE" && iref.slot<iLast)
     {
         // Copy everything *EXCEPT* the tile, misc, cset, frames, speed, delay and ltm.
         word tile = item->tile;
         byte miscs = item->misc, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
         long ltm = item->ltm;
 
-        *item = getDefaultItems()[id];
+        *item = getDefaultItems()[iref.slot];
         item->tile = tile;
         item->misc = miscs;
         item->csets = cset;
@@ -4655,7 +4697,7 @@ void reset_itembuf(itemdata *item, int id)
 }
 
 
-int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemDefinitionTable &table)
+int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::map<std::string, ItemDefinitionTable> &tables)
 {
     byte padding;
     int  dummy;
@@ -4664,7 +4706,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
     word s_version=0, s_cversion=0;
     word dummy_word;
 
-    table.clear();
+    tables.clear();
 
     // placeholder; this shouldn't really be here
     lens_hint_item.clear();
@@ -4763,6 +4805,28 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
     {
         itemdata tempitem = ItemDefinitionTable::defaultItemData(i);
 
+        std::string modulename;
+        if (s_version < 27)
+        {
+            modulename = string("CORE");
+        }
+        else
+        {
+            uint32_t modlen;
+            if (!p_igetl(&modlen, f, true))
+            {
+                return qe_invalid;
+            }
+            char *buf = new char[modlen];
+            if (!pfread(buf, modlen, f, true))
+            {
+                delete[] buf;
+                return qe_invalid;
+            }
+            modulename = string(buf);
+            delete[] buf;
+        }
+
         if(!p_igetw(&tempitem.tile,f,true))
         {
             return qe_invalid;
@@ -4818,13 +4882,13 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                 }
                 
                 tempitem.count=-1;
-                tempitem.flags=tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
+                tempitem.flags=tempitem.pickup_hearts=
                                                 tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
                 tempitem.family=0xFF;
                 tempitem.playsound=WAV_SCALE;
-                reset_itembuf(&tempitem,i);
+                reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
                 
-                table.addItemDefinition(tempitem, names[i]);
+                tables[modulename].addItemDefinition(tempitem, names[i]);
                 
                 continue;
             }
@@ -4846,30 +4910,30 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             }
         }
         
-        if(s_version>1)
+        if (s_version > 1)
         {
-            if(!p_getc(&tempitem.family,f,true))
+            if (!p_getc(&tempitem.family, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(s_version < 16)
-                if(tempitem.family == 0xFF)
+
+            if (s_version < 16)
+                if (tempitem.family == 0xFF)
                     tempitem.family = itype_misc;
-                    
-            if(!p_getc(&tempitem.fam_type,f,true))
+
+            if (!p_getc(&tempitem.fam_type, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(s_version>5)
+
+            if (s_version > 5)
             {
-                if(!p_getc(&tempitem.power,f,true))
+                if (!p_getc(&tempitem.power, f, true))
                 {
                     return qe_invalid;
                 }
-                
-                if(!p_igetw(&tempitem.flags,f,true))
+
+                if (!p_igetw(&tempitem.flags, f, true))
                 {
                     return qe_invalid;
                 }
@@ -4878,183 +4942,179 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             {
                 //tempitem.power = tempitem.fam_type;
                 char tempchar;
-                
-                if(!p_getc(&tempchar,f,true))
+
+                if (!p_getc(&tempchar, f, true))
                 {
                     return qe_invalid;
                 }
-                
+
                 tempitem.flags |= (tempchar ? itemdata::IF_GAMEDATA : 0);
             }
-            
-            if(!p_igetw(&tempitem.script,f,true))
+
+            if (!p_igetw(&tempitem.script, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(s_version<=3)
+
+            if (s_version <= 3)
             {
-                if(tempitem.script > NUMSCRIPTITEM)
+                if (tempitem.script > NUMSCRIPTITEM)
                 {
                     tempitem.script = 0;
                 }
             }
-            
-            if(!p_getc(&tempitem.count,f,true))
+
+            if (!p_getc(&tempitem.count, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(!p_igetw(&tempitem.amount,f,true))
+
+            if (!p_igetw(&tempitem.amount, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(!p_igetw(&tempitem.collect_script,f,true))
+
+            if (!p_igetw(&tempitem.collect_script, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(s_version<=3)
+
+            if (s_version <= 3)
             {
-                if(tempitem.collect_script > NUMSCRIPTITEM)
+                if (tempitem.collect_script > NUMSCRIPTITEM)
                 {
                     tempitem.collect_script = 0;
                 }
             }
-            
-            if(!p_igetw(&tempitem.setmax,f,true))
+
+            if (!p_igetw(&tempitem.setmax, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(!p_igetw(&tempitem.max,f,true))
+
+            if (!p_igetw(&tempitem.max, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(!p_getc(&tempitem.playsound,f,true))
+
+            if (!p_getc(&tempitem.playsound, f, true))
             {
                 return qe_invalid;
             }
-            
-            for(int j=0; j<8; j++)
+
+            for (int j = 0; j < 8; j++)
             {
-                if(!p_igetl(&tempitem.initiald[j],f,true))
+                if (!p_igetl(&tempitem.initiald[j], f, true))
                 {
                     return qe_invalid;
                 }
             }
-            
-            for(int j=0; j<2; j++)
+
+            for (int j = 0; j < 2; j++)
             {
-                if(!p_getc(&tempitem.initiala[j],f,true))
+                if (!p_getc(&tempitem.initiala[j], f, true))
                 {
                     return qe_invalid;
                 }
             }
-            
-            if(s_version>4)
+
+            if (s_version > 4)
             {
-                if(s_version>5)
+                if (s_version > 5)
                 {
-                    if(!p_getc(&tempitem.wpn,f,true))
+                    if (s_version < 27)
                     {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn2,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn3,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempitem.wpn4,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(s_version>=15)
-                    {
-                        if(!p_getc(&tempitem.wpn5,f,true))
+                        for (int i = 0; i < 5; i++)
                         {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn6,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn7,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn8,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn9,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_getc(&tempitem.wpn10,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                    }
-                    
-                    if(!p_getc(&tempitem.pickup_hearts,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(s_version<15)
-                    {
-                        if(!p_igetw(&dummy_word,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        tempitem.misc1=dummy_word;
-                        
-                        if(!p_igetw(&dummy_word,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        tempitem.misc2=dummy_word;
-                    }
-                    else
-                    {
-                        if(!p_igetl(&tempitem.misc1,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        if(!p_igetl(&tempitem.misc2,f,true))
-                        {
-                            return qe_invalid;
-                        }
-                        
-                        // Version 24: shICE -> shSCRIPT; previously, all shields could block script weapons
-                        if(s_version<24)
-                        {
-                            if(tempitem.family==itype_shield)
+                            byte wpn;
+                            if (!p_getc(&wpn, f, true))
                             {
-                                tempitem.misc1|=shSCRIPT;
+                                return qe_invalid;
+                            }
+                            SpriteDefinitionRef ref("CORE", wpn);
+                            tempitem.wpns[i] = ref;
+                        }
+
+                        if (s_version >= 15)
+                        {
+                            for (int i = 5; i < 10; i++)
+                            {
+                                byte wpn;
+                                if (!p_getc(&wpn, f, true))
+                                {
+                                    return qe_invalid;
+                                }
+                                SpriteDefinitionRef ref("CORE", wpn);
+                                tempitem.wpns[i] = ref;
                             }
                         }
                     }
-                    
-                    if(!p_getc(&tempitem.magic,f,true))
+                    else
+                    {
+                        for (int i = 0; i < 10; i++)
+                        {
+                            uint32_t len;
+                            if (!p_igetl(&len, f, true))
+                                return qe_invalid;
+                            char *buf = new char[len];
+                            if (!pfread(buf, len, f, true))
+                            {
+                                delete[] buf;
+                                return qe_invalid;
+                            }
+                            std::string modname(buf);
+                            delete[] buf;
+                            uint32_t slot;
+                            if (!p_igetl(&slot, f, true))
+                                return qe_invalid;
+                            tempitem.wpns[i] = SpriteDefinitionRef(modname, slot);
+                        }
+                    }
+
+                    if (!p_getc(&tempitem.pickup_hearts, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    if (s_version < 15)
+                    {
+                        if (!p_igetw(&dummy_word, f, true))
+                        {
+                            return qe_invalid;
+                        }
+
+                        tempitem.misc1 = dummy_word;
+
+                        if (!p_igetw(&dummy_word, f, true))
+                        {
+                            return qe_invalid;
+                        }
+
+                        tempitem.misc2 = dummy_word;
+                    }
+                    else
+                    {
+                        if (!p_igetl(&tempitem.misc1, f, true))
+                        {
+                            return qe_invalid;
+                        }
+
+                        if (!p_igetl(&tempitem.misc2, f, true))
+                        {
+                            return qe_invalid;
+                        }
+
+                        // Version 24: shICE -> shSCRIPT; previously, all shields could block script weapons
+                        if (s_version < 24)
+                        {
+                            if (tempitem.family == itype_shield)
+                            {
+                                tempitem.misc1 |= shSCRIPT;
+                            }
+                        }
+                    }
+
+                    if (!p_getc(&tempitem.magic, f, true))
                     {
                         return qe_invalid;
                     }
@@ -5062,124 +5122,124 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                 else
                 {
                     char tempchar;
-                    
-                    if(!p_getc(&tempchar,f,true))
+
+                    if (!p_getc(&tempchar, f, true))
                     {
                         return qe_invalid;
                     }
-                    
+
                     tempitem.flags |= (tempchar ? itemdata::IF_EDIBLE : 0);
                 }
-                
+
                 // June 2007: more misc. attributes
-                if(s_version>=12)
+                if (s_version >= 12)
                 {
-                    if(s_version<15)
+                    if (s_version < 15)
                     {
-                        if(!p_igetw(&dummy_word,f,true))
+                        if (!p_igetw(&dummy_word, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        tempitem.misc3=dummy_word;
-                        
-                        if(!p_igetw(&dummy_word,f,true))
+
+                        tempitem.misc3 = dummy_word;
+
+                        if (!p_igetw(&dummy_word, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        tempitem.misc4=dummy_word;
+
+                        tempitem.misc4 = dummy_word;
                     }
                     else
                     {
-                        if(!p_igetl(&tempitem.misc3,f,true))
+                        if (!p_igetl(&tempitem.misc3, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc4,f,true))
+
+                        if (!p_igetl(&tempitem.misc4, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc5,f,true))
+
+                        if (!p_igetl(&tempitem.misc5, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc6,f,true))
+
+                        if (!p_igetl(&tempitem.misc6, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc7,f,true))
+
+                        if (!p_igetl(&tempitem.misc7, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc8,f,true))
+
+                        if (!p_igetl(&tempitem.misc8, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc9,f,true))
+
+                        if (!p_igetl(&tempitem.misc9, f, true))
                         {
                             return qe_invalid;
                         }
-                        
-                        if(!p_igetl(&tempitem.misc10,f,true))
+
+                        if (!p_igetl(&tempitem.misc10, f, true))
                         {
                             return qe_invalid;
                         }
                     }
-                    
-                    if(!p_getc(&tempitem.usesound,f,true))
+
+                    if (!p_getc(&tempitem.usesound, f, true))
                     {
                         return qe_invalid;
                     }
                 }
-		
-		
+
+
             }
-	    if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
-		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-			if(!p_getc(&tempitem.useweapon,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_getc(&tempitem.usedefence,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weaprange,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weapduration,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-				
-				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
-				{
-				    return qe_invalid;
-				}
-			}
-		
-		}
+            if (s_version >= 26)  //! New itemdata vars for weapon editor. -Z
+            {			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+                if (!p_getc(&tempitem.useweapon, f, true))
+                {
+                    return qe_invalid;
+                }
+                if (!p_getc(&tempitem.usedefence, f, true))
+                {
+                    return qe_invalid;
+                }
+                if (!p_igetl(&tempitem.weaprange, f, true))
+                {
+                    return qe_invalid;
+                }
+                if (!p_igetl(&tempitem.weapduration, f, true))
+                {
+                    return qe_invalid;
+                }
+                for (int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++) {
+
+                    if (!p_igetl(&tempitem.weap_pattern[q], f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+
+            }
         }
         else
         {
             tempitem.count=-1;
             tempitem.family=itype_misc;
-            tempitem.flags=tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+            tempitem.flags=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
             tempitem.playsound=WAV_SCALE;
-            reset_itembuf(&tempitem,i);
+            reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
         }
         
 
-        table.addItemDefinition(tempitem, names[i]);
+        tables[modulename].addItemDefinition(tempitem, names[i]);
     }
     
     //////////////////////////////////////////////////////
@@ -5188,23 +5248,23 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
     // might be too low.)
     //////////////////////////////////////////////////////
 
-    int numitems = table.getNumItemDefinitions();
+    int numitems = tables["CORE"].getNumItemDefinitions();
 
-   for(int i=0; i<numitems; i++)
+    for (int i = 0; i < numitems; i++)
     {
-       itemdata &tempitem = table.getItemDefinition(i);
+        itemdata &tempitem = tables["CORE"].getItemDefinition(i);
             
         //Account for older quests that didn't have an actual item for the used letter
         if(s_version < 2 && i==iLetterUsed && iLetter < numitems)
         {
-            reset_itembuf(&tempitem, iLetterUsed);
-            table.setItemName(i, old_item_names[i]);
-            tempitem.tile = table.getItemDefinition(iLetter).tile;
-            tempitem.csets = table.getItemDefinition(iLetter).csets;
-            tempitem.misc = table.getItemDefinition(iLetter).misc;
-            tempitem.frames = table.getItemDefinition(iLetter).frames;
-            tempitem.speed = table.getItemDefinition(iLetter).speed;
-            tempitem.ltm = table.getItemDefinition(iLetter).ltm;
+            reset_itembuf(&tempitem, ItemDefinitionRef("CORE", iLetterUsed));
+            tables["CORE"].setItemName(i, old_item_names[i]);
+            tempitem.tile = tables["CORE"].getItemDefinition(iLetter).tile;
+            tempitem.csets = tables["CORE"].getItemDefinition(iLetter).csets;
+            tempitem.misc = tables["CORE"].getItemDefinition(iLetter).misc;
+            tempitem.frames = tables["CORE"].getItemDefinition(iLetter).frames;
+            tempitem.speed = tables["CORE"].getItemDefinition(iLetter).speed;
+            tempitem.ltm = tables["CORE"].getItemDefinition(iLetter).ltm;
         }
             
         if(s_version < 3)
@@ -5233,17 +5293,17 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iWealthMedal:
             case iL2WealthMedal:
             case iL3WealthMedal:
-                reset_itembuf(&tempitem, i);
-                table.setItemName(i, old_item_names[i]);
+                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
+                tables["CORE"].setItemName(i, old_item_names[i]);
                 break;
                     
             case iSShield:
-                reset_itembuf(&tempitem, i);
-                table.setItemName(i, old_item_names[i]);
+                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
+                tables["CORE"].setItemName(i, old_item_names[i]);
                 if(iShield < numitems)
-                    table.setItemName(iShield, old_item_names[iShield]);
+                    tables["CORE"].setItemName(iShield, old_item_names[iShield]);
                 if(iMShield < numitems)
-                    table.setItemName(iMShield,old_item_names[iMShield]);
+                    tables["CORE"].setItemName(iMShield,old_item_names[iMShield]);
                 break;
             }
         }
@@ -5259,8 +5319,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iL2MagicRing:
             case iL3MagicRing:
             case iL4MagicRing:
-                reset_itembuf(&tempitem, i);
-                table.setItemName(i,old_item_names[i]);
+                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
+                tables["CORE"].setItemName(i,old_item_names[i]);
                 break;
             }
         }
@@ -5283,8 +5343,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iBombs:
                 tempitem.fam_type=i_bomb;
                 tempitem.power=4;
-                tempitem.wpn = OS_BOMB;
-                tempitem.wpn2 = OS_BOOM;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_BOMB);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_BOOM);
                 tempitem.misc1 = 50;
                     
                 if(get_bit(deprecated_rules,116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
@@ -5294,8 +5354,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iSBomb:
                 tempitem.fam_type=i_sbomb;
                 tempitem.power=16;
-                tempitem.wpn = OS_SBOMB;
-                tempitem.wpn2 = OS_SBOOM;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_SBOMB);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_SBOOM);
                 tempitem.misc1 = 50;
                     
                 if(get_bit(deprecated_rules,116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
@@ -5304,40 +5364,40 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                     
             case iBook:
                 if(get_bit(deprecated_rules, 113))
-                    tempitem.wpn = OS_FIREMAGIC; //qr_FIREMAGICSPRITE
+                    tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_FIREMAGIC); //qr_FIREMAGICSPRITE
                         
                 break;
                     
             case iSArrow:
-                tempitem.wpn2 = get_bit(deprecated_rules,27) ? OS_SSPARKLE : 0; //qr_SASPARKLES
+                tempitem.wpns[1] = get_bit(deprecated_rules,27) ? SpriteDefinitionRef("CORE",OS_SSPARKLE) : SpriteDefinitionRef(); //qr_SASPARKLES
                 tempitem.power=4;
                 tempitem.flags|=itemdata::IF_GAMEDATA;
-                tempitem.wpn = OS_SARROW;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_SARROW);
                 break;
                     
             case iGArrow:
-                tempitem.wpn2 = get_bit(deprecated_rules,28) ? OS_GSPARKLE : 0; //qr_GASPARKLES
+                tempitem.wpns[1] = get_bit(deprecated_rules,28) ? SpriteDefinitionRef("CORE",OS_GSPARKLE) : SpriteDefinitionRef(); //qr_GASPARKLES
                 tempitem.power=8;
                 tempitem.flags|=(itemdata::IF_GAMEDATA|itemdata::IF_FLAG1);
-                tempitem.wpn = OS_GARROW;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_GARROW);
                 break;
                     
             case iBrang:
                 tempitem.power=0;
-                tempitem.wpn = OS_BRANG;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_BRANG);
                 tempitem.misc1=36;
                 break;
                     
             case iMBrang:
-                tempitem.wpn2 = get_bit(deprecated_rules,29) ? OS_MSPARKLE : 0; //qr_MBSPARKLES
+                tempitem.wpns[1] = get_bit(deprecated_rules,29) ? SpriteDefinitionRef("CORE",OS_MSPARKLE) : SpriteDefinitionRef(); //qr_MBSPARKLES
                 tempitem.power=0;
-                tempitem.wpn = OS_MBRANG;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_MBRANG);
                 break;
                     
             case iFBrang:
-                tempitem.wpn3 = get_bit(deprecated_rules,30) ? OS_FSPARKLE : 0; //qr_FBSPARKLES
+                tempitem.wpns[2] = get_bit(deprecated_rules,30) ? SpriteDefinitionRef("CORE",OS_FSPARKLE) : SpriteDefinitionRef(); //qr_FBSPARKLES
                 tempitem.power=2;
-                tempitem.wpn = OS_FBRANG;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_FBRANG);
                 break;
                     
             case iBoots:
@@ -5348,64 +5408,64 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iWand:
                 tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
                 tempitem.power=2;
-                tempitem.wpn = OS_WAND;
-                tempitem.wpn3 = OS_MAGIC;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_WAND);
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_MAGIC);
                 break;
                     
             case iBCandle:
                 tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
                 tempitem.power=1;
                 tempitem.flags|=(itemdata::IF_GAMEDATA|itemdata::IF_FLAG1);
-                tempitem.wpn3 = OS_FIRE;
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_FIRE);
                 break;
                     
             case iRCandle:
                 tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
                 tempitem.power=1;
-                tempitem.wpn3 = OS_FIRE;
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_FIRE);
                 break;
                     
             case iSword:
                 tempitem.power=1;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3 = OS_SWORD;
-                tempitem.wpn2 = OS_SWORDSLASH;                
+                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_SWORD);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_SWORDSLASH);                
                 break;
                     
             case iWSword:
                 tempitem.power=2;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3 = OS_WSWORD;
-                tempitem.wpn2 = OS_WSWORDSLASH;
+                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_WSWORD);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_WSWORDSLASH);
                 break;
                     
             case iMSword:
                 tempitem.power=4;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3 = OS_MSWORD;
-                tempitem.wpn2 = OS_MSWORDSLASH;
+                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_MSWORD);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_MSWORDSLASH);
                 break;
                     
             case iXSword:
                 tempitem.power=8;
                 tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpn=tempitem.wpn3 = OS_XSWORD;
-                tempitem.wpn2 = OS_XSWORDSLASH;
+                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_XSWORD);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_XSWORDSLASH);
                 break;
                     
             case iNayrusLove:
                 tempitem.flags |= get_bit(deprecated_rules,76) ? itemdata::IF_FLAG1 : 0;
                 tempitem.flags |= get_bit(deprecated_rules,75) ? itemdata::IF_FLAG2 : 0;
-                tempitem.wpn  = OS_NAYRUSLOVE1A;
-                tempitem.wpn2 = OS_NAYRUSLOVE1B;
-                tempitem.wpn3 = OS_NAYRUSLOVES1A;
-                tempitem.wpn4 = OS_NAYRUSLOVES1B;
-                tempitem.wpn6 = OS_NAYRUSLOVE2A;
-                tempitem.wpn7 = OS_NAYRUSLOVE2B;
-                tempitem.wpn8 = OS_NAYRUSLOVES2A;
-                tempitem.wpn9 = OS_NAYRUSLOVES2B;
-                tempitem.wpn5 = OS_NAYRUSLOVESHIELDFRONT;
-                tempitem.wpn10 = OS_NAYRUSLOVESHIELDBACK;
+                tempitem.wpns[0]  = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE1A);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE1B);
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES1A);
+                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES1B);
+                tempitem.wpns[5] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2A);
+                tempitem.wpns[6] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2B);
+                tempitem.wpns[7] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2A);
+                tempitem.wpns[8] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2B);
+                tempitem.wpns[4] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDFRONT);
+                tempitem.wpns[9] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDBACK);
                 tempitem.misc1=512;
                 tempitem.magic=64;
                 break;
@@ -5418,20 +5478,20 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                     
             case iArrow:
                 tempitem.power=2;
-                tempitem.wpn = OS_ARROW;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_ARROW);
                 break;
                     
             case iHoverBoots:
                 tempitem.misc1=45;
-                tempitem.wpn = OS_HOVER;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_HOVER);
                 break;
                     
             case iDinsFire:
                 tempitem.power=8;
-                tempitem.wpn  = OS_DINSFIRE1A;
-                tempitem.wpn2 = OS_DINSFIRE1B;
-                tempitem.wpn3 = OS_DINSFIRES1A;
-                tempitem.wpn4 = OS_DINSFIRES1B;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_DINSFIRE1A);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_DINSFIRE1B);
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_DINSFIRES1A);
+                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_DINSFIRES1B);
                 tempitem.misc1 = 32;
                 tempitem.misc2 = 200;
                 tempitem.magic=32;
@@ -5444,10 +5504,10 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iHookshot:
                 tempitem.power=0;
                 tempitem.flags&=~itemdata::IF_FLAG1;
-                tempitem.wpn  = OS_HSHEAD;
-                tempitem.wpn2 = OS_HSCHAIN_H;
-                tempitem.wpn4 = OS_HSHANDLE;
-                tempitem.wpn3 = OS_HSCHAIN_V;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_HSHEAD);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_HSCHAIN_H);
+                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_HSHANDLE);
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_HSCHAIN_V);
                 tempitem.misc1=50;
                 tempitem.misc2=100;
                 break;
@@ -5455,25 +5515,25 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iLongshot:
                 tempitem.power=0;
                 tempitem.flags&=~itemdata::IF_FLAG1;
-                tempitem.wpn  = OS_LSHEAD;
-                tempitem.wpn2 = OS_LSCHAIN_H;
-                tempitem.wpn4 = OS_LSHANDLE;
-                tempitem.wpn3 = OS_LSCHAIN_V;
+                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_LSHEAD);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_LSCHAIN_H);
+                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_LSHANDLE);
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_LSCHAIN_V);
                 tempitem.misc1=99;
                 tempitem.misc2=100;
                 break;
                     
             case iHammer:
                 tempitem.power=4;
-                tempitem.wpn  = OS_HAMMER;
-                tempitem.wpn2 = OS_HAMMERSMACK;
+                tempitem.wpns[0]  = SpriteDefinitionRef("CORE",OS_HAMMER);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_HAMMERSMACK);
                 break;
                     
             case iCByrna:
                 tempitem.power=1;
-                tempitem.wpn  = OS_CBYRNA;
-                tempitem.wpn2 = OS_CBYRNASLASH;
-                tempitem.wpn3 = OS_CBYRNAORB;
+                tempitem.wpns[0]  = SpriteDefinitionRef("CORE",OS_CBYRNA);
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_CBYRNASLASH);
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_CBYRNAORB);
                 tempitem.misc1=4;
                 tempitem.misc2=16;
                 tempitem.misc3=1;
@@ -5481,7 +5541,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
                 break;
                     
             case iWhistle:
-                tempitem.wpn = OS_WIND;
+                tempitem.wpns[0]= SpriteDefinitionRef("CORE",OS_WIND);
                 tempitem.misc1=3;
                 tempitem.flags|=itemdata::IF_FLAG1;
                 break;
@@ -5569,8 +5629,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             case iPerilRing:
             case iWhimsicalRing:
             {
-                reset_itembuf(&tempitem, i);
-                table.setItemName(i,old_item_names[i]);
+                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
+                tables["CORE"].setItemName(i,old_item_names[i]);
                 break;
             }
             }
@@ -5763,9 +5823,9 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
             
         if(s_version < 17) // November 2007
         {
-            if(tempitem.family == itype_candle && !tempitem.wpn3)
+            if(tempitem.family == itype_candle && (tempitem.wpns[2] == SpriteDefinitionRef()))
             {
-                tempitem.wpn3 = OS_FIRE;
+                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_FIRE);
             }
             else if(tempitem.family == itype_arrow && tempitem.power>4)
             {
@@ -5802,12 +5862,12 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
         {
             if(tempitem.family == itype_nayruslove)
             {
-                tempitem.wpn6 = OS_NAYRUSLOVE2A;
-                tempitem.wpn7 = OS_NAYRUSLOVE2B;
-                tempitem.wpn8 = OS_NAYRUSLOVES2A;
-                tempitem.wpn9 = OS_NAYRUSLOVES2B;
-                tempitem.wpn5 = OS_NAYRUSLOVESHIELDFRONT;
-                tempitem.wpn10 = OS_NAYRUSLOVESHIELDBACK;
+                tempitem.wpns[5] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2A);
+                tempitem.wpns[6] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2B);
+                tempitem.wpns[7] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES2A);
+                tempitem.wpns[8] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2B);
+                tempitem.wpns[4] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDFRONT);
+                tempitem.wpns[9] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDBACK);
             }
         }
             
@@ -5838,9 +5898,9 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
         if(s_version < 23)    // March 2011
         {
             if(tempitem.family == itype_dinsfire)
-                tempitem.wpn5 = OS_FIRE;
+                tempitem.wpns[4] = SpriteDefinitionRef("CORE",OS_FIRE);
             else if(tempitem.family == itype_book)
-                tempitem.wpn2 = OS_FIRE;
+                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_FIRE);
         }
             
         // Version 25: Bomb bags were acting as though "super bombs also" was checked
@@ -5862,9 +5922,9 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, ItemD
     return qe_OK;    
 }
 
-int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtable, SpriteDefinitionTable &table)
+int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItemTable, std::map<std::string, SpriteDefinitionTable> &tables)
 {
-    table.clear();
+    tables.clear();
     uint32_t weapons_to_read;
     int dummy;
     byte padding;
@@ -5987,19 +6047,32 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
         }
     }
 
-    if (s_version < 7)
-    {
-        for (int i = weapons_to_read; i < OS_LAST; i++)
-        {
-            wpndata blank;
-            table.addSpriteDefinition(blank, SpriteDefinitionTable::defaultSpriteName(i));
-        }
-    }
-
     // now read the weapons
     
     for(uint32_t i=0; i<weapons_to_read; i++)
     {
+        std::string modname;
+        if (s_version < 7)
+        {
+            modname = string("CORE");
+        }
+        else
+        {
+            uint32_t len;
+            if (!p_igetl(&len, f, true))
+            {
+                return qe_invalid;
+            }
+
+            char *buf = new char[len];
+            if (!pfread(buf, len, f, true))
+            {
+                delete[] buf;
+                return qe_invalid;
+            }
+            modname = std::string(buf);
+            delete[] buf;
+        }
         wpndata tempweapon;
 
         if(!p_igetw(&tempweapon.tile,f,true))
@@ -6050,21 +6123,32 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
                 tempweapon.misc &= ~wpndata::WF_BEHIND;
         }
         
-        table.addSpriteDefinition(tempweapon, names[i]);
+        tables[modname].addSpriteDefinition(tempweapon, names[i]);
     }
+
+    if (s_version < 7)
+    {
+        for (int i = weapons_to_read; i < OS_LAST; i++)
+        {
+            wpndata blank;
+            tables["CORE"].addSpriteDefinition(blank, SpriteDefinitionTable::defaultSpriteName(i));
+        }
+    }
+
+
     
     if(s_version<2)
     {
         if (OS_SBOOM < weapons_to_read && OS_BOOM < weapons_to_read)
-            table.getSpriteDefinition(OS_SBOOM) = table.getSpriteDefinition(OS_BOOM);
+            tables["CORE"].getSpriteDefinition(OS_SBOOM) = tables["CORE"].getSpriteDefinition(OS_BOOM);
     }
         
     if(s_version<5)
     {
         if (OS_QUARTERHEARTS < weapons_to_read)
         {
-            table.getSpriteDefinition(OS_QUARTERHEARTS).tile = 1;
-            table.getSpriteDefinition(OS_QUARTERHEARTS).csets = 1;
+            tables["CORE"].getSpriteDefinition(OS_QUARTERHEARTS).tile = 1;
+            tables["CORE"].getSpriteDefinition(OS_QUARTERHEARTS).csets = 1;
         }
     }
         
@@ -6079,9 +6163,9 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
         if (OS_SPAWN < weapons_to_read)
         {
             itemdata copyitem;
-            if (iMisc1 < itemtable.getNumItemDefinitions())
+            if (iMisc1 < coreItemTable.getNumItemDefinitions())
             {
-                copyitem = itemtable.getItemDefinition(iMisc1);
+                copyitem = coreItemTable.getItemDefinition(iMisc1);
             }
             wpndata spawnwpn;
             spawnwpn.tile = copyitem.tile;
@@ -6091,17 +6175,17 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
             spawnwpn.speed = copyitem.speed;
             // type and script do not need to be copied, presumably
 
-            table.getSpriteDefinition(OS_SPAWN) = spawnwpn;
-            if(iMisc1 < itemtable.getNumItemDefinitions())
-                itemtable.getItemDefinition(iMisc1) = itemdata();            
+            tables["CORE"].getSpriteDefinition(OS_SPAWN) = spawnwpn;
+            if(iMisc1 < coreItemTable.getNumItemDefinitions())
+                coreItemTable.getItemDefinition(iMisc1) = itemdata();            
         }
             
         if (OS_DEATH < weapons_to_read)
         {
             itemdata copyitem;
-            if (iMisc2 < itemtable.getNumItemDefinitions())
+            if (iMisc2 < coreItemTable.getNumItemDefinitions())
             {
-                copyitem = itemtable.getItemDefinition(iMisc2);
+                copyitem = coreItemTable.getItemDefinition(iMisc2);
             }
             wpndata deathwpn;
             deathwpn.tile = copyitem.tile;
@@ -6110,9 +6194,9 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
             deathwpn.frames = copyitem.frames;
             deathwpn.speed = copyitem.speed;
 
-            table.getSpriteDefinition(OS_DEATH) = deathwpn;
-            if(iMisc2 < itemtable.getNumItemDefinitions())
-                itemtable.getItemDefinition(iMisc2) = itemdata(); 
+            tables["CORE"].getSpriteDefinition(OS_DEATH) = deathwpn;
+            if(iMisc2 < coreItemTable.getNumItemDefinitions())
+                coreItemTable.getItemDefinition(iMisc2) = itemdata(); 
         }            
     }
         
@@ -6120,77 +6204,104 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &itemtabl
             ((Header->zelda_version == 0x192)&&(Header->build<129)))
     {
         if (OS_HSCHAIN_V < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
-            table.getSpriteDefinition(OS_HSCHAIN_V) = table.getSpriteDefinition(OS_HSCHAIN_H);
+            tables["CORE"].getSpriteDefinition(OS_HSCHAIN_V) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_H);
     }
         
     if((Header->zelda_version < 0x210))
     {
         if (OS_LSHEAD < weapons_to_read && OS_HSHEAD < weapons_to_read)
-            table.getSpriteDefinition(OS_LSHEAD) = table.getSpriteDefinition(OS_HSHEAD);
+            tables["CORE"].getSpriteDefinition(OS_LSHEAD) = tables["CORE"].getSpriteDefinition(OS_HSHEAD);
         if (OS_LSCHAIN_H < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
-            table.getSpriteDefinition(OS_LSCHAIN_H) = table.getSpriteDefinition(OS_HSCHAIN_H);
+            tables["CORE"].getSpriteDefinition(OS_LSCHAIN_H) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_H);
         if (OS_LSHANDLE < weapons_to_read && OS_HSHANDLE < weapons_to_read)
-            table.getSpriteDefinition(OS_LSHANDLE) = table.getSpriteDefinition(OS_HSHANDLE);
+            tables["CORE"].getSpriteDefinition(OS_LSHANDLE) = tables["CORE"].getSpriteDefinition(OS_HSHANDLE);
         if (OS_LSCHAIN_V < weapons_to_read && OS_HSCHAIN_V < weapons_to_read)
-            table.getSpriteDefinition(OS_LSCHAIN_V) = table.getSpriteDefinition(OS_HSCHAIN_V);        
+            tables["CORE"].getSpriteDefinition(OS_LSCHAIN_V) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_V);        
     }
 
     return qe_OK;
 }
 
-int readSpecialSpritesIndex(SpriteDefinitionTable &wpns, SpecialSpriteIndex &ssi)
+int readSpecialItemIndex(Quest &quest, SpecialItemIndex &sii)
+{
+    sii = SpecialItemIndex();
+    sii.dustPile        = ItemDefinitionRef("CORE", iPile);
+    sii.clock           = ItemDefinitionRef("CORE", iClock);
+    sii.key             = ItemDefinitionRef("CORE", iKey);
+    sii.levelKey        = ItemDefinitionRef("CORE", iLevelKey);
+    sii.bossKey         = ItemDefinitionRef("CORE", iBossKey);
+    sii.triforce        = ItemDefinitionRef("CORE", iTriforce);
+    sii.magicContainer  = ItemDefinitionRef("CORE", iMagicC);
+    sii.compass         = ItemDefinitionRef("CORE", iCompass);
+    sii.map             = ItemDefinitionRef("CORE", iMap);
+    sii.redPotion       = ItemDefinitionRef("CORE", iRPotion);
+    sii.heartContainer  = ItemDefinitionRef("CORE", iHeartC);
+    sii.selectA         = ItemDefinitionRef("CORE", iSelectA);
+    sii.selectB         = ItemDefinitionRef("CORE", iSelectB);
+    sii.rupy            = ItemDefinitionRef("CORE", iRupy);
+    sii.heart           = ItemDefinitionRef("CORE", iHeart);
+    sii.heartContainerPiece = ItemDefinitionRef("CORE", iHCPiece);
+    sii.bomb            = ItemDefinitionRef("CORE", iBombs);
+    sii.superBomb       = ItemDefinitionRef("CORE", iSBomb);
+    sii.bigTriforce     = ItemDefinitionRef("CORE", iBigTri);
+    sii.bait            = ItemDefinitionRef("CORE", iBait);
+    sii.fairyMoving     = ItemDefinitionRef("CORE", iFairyMoving);    
+    return sii.checkConsistency(quest) ? qe_OK : qe_invalid;
+}
+
+int readSpecialSpritesIndex(Quest &quest, SpecialSpriteIndex &ssi)
 {
     ssi = SpecialSpriteIndex();
 
     // hard-coded for now. Could be editable later.
-    ssi.messageMoreIndicator = OS_MORE;
-    ssi.bushLeavesDecoration = OS_BUSHLEAVES;
-    ssi.flowerClippingsDecoration = OS_FLOWERCLIPPINGS;
-    ssi.grassClippingsDecoration = OS_GRASSCLIPPINGS;
-    ssi.tallGrassDecoration = OS_TALLGRASS;
-    ssi.ripplesDecoration = OS_RIPPLES;
-    ssi.nayruShieldFront = OS_NAYRUSLOVESHIELDFRONT;           
-    ssi.nayruShieldBack = OS_NAYRUSLOVESHIELDBACK;
-    ssi.lifeMeterHearts = OS_QUARTERHEARTS;
-    ssi.enemySpawnCloud = OS_SPAWN;
-    ssi.enemyDeathCloud = OS_DEATH;
-    ssi.smallShadow = OS_SHADOW;
-    ssi.largeShadow = OS_LARGESHADOW;
-    ssi.linkSwim = OS_SWIM;
-    ssi.linkSlash = OS_LINKSLASH;
-    ssi.magicMeter = OS_MMETER;
-    ssi.flickeringFlame = OS_ENEMY_FLAME;
-    ssi.flickeringFlame2 = OS_ENEMY_FLAME2;
-    ssi.flickeringFireTrail = OS_ENEMY_FIRETRAIL;
-    ssi.subscreenVine = OS_SUBSCREENVINE;
-    ssi.npcTemplate = OS_NPCS;
-    ssi.defaultLinkWeaponSprite = OS_SWORD;
-    ssi.defaultFireSprite = OS_FIRE;
-    ssi.defaultBoomerangSprites[0] = OS_BRANG;
-    ssi.defaultBoomerangSprites[1] = OS_MBRANG;
-    ssi.defaultBoomerangSprites[2] = OS_FBRANG;
-    ssi.defaultBombExplosion = OS_BOOM;
-    ssi.defaultSuperBombExplosion = OS_SBOOM;
-    ssi.silverSparkle = OS_SSPARKLE;
-    ssi.fireSparkle = OS_FSPARKLE;
-    ssi.dinsRocketTrail = OS_DINSFIRES1A;
-    ssi.dinsRocketTrailReturn = OS_DINSFIRES1B;
-    ssi.nayruRocketTrail = OS_NAYRUSLOVES1A;
-    ssi.nayruRocketTrailReturn = OS_NAYRUSLOVES1B;
-    ssi.nayruRocketTrail2 = OS_NAYRUSLOVES2A;
-    ssi.nayruRocketTrailReturn2 = OS_NAYRUSLOVES2B;
-    ssi.defaultEnemySwordBeamSprite = OS_ENEMY_SWORD;
-    ssi.defaultEnemyBomb = OS_ENEMY_BOMB;
-    ssi.defaultEnemySuperBomb = OS_ENEMY_SBOMB;
-    ssi.defaultEnemyFireball = OS_ENEMY_FIREBALL;
-    ssi.defaultEnemyRock = OS_ENEMY_ROCK;
-    ssi.defaultEnemyArrow = OS_ENEMY_ARROW;
-    ssi.defaultEnemyMagic = OS_ENEMY_MAGIC;
-    ssi.defaultEnemyWind = OS_ENEMY_WIND;
-    ssi.defaultEnemyBombExplosion = OS_ENEMY_BOOM;
-    ssi.defaultEnemySuperBombExplosion = OS_ENEMY_SBOOM;
+    ssi.messageMoreIndicator = SpriteDefinitionRef("CORE",OS_MORE);
+    ssi.bushLeavesDecoration = SpriteDefinitionRef("CORE",OS_BUSHLEAVES);
+    ssi.flowerClippingsDecoration = SpriteDefinitionRef("CORE",OS_FLOWERCLIPPINGS);
+    ssi.grassClippingsDecoration = SpriteDefinitionRef("CORE",OS_GRASSCLIPPINGS);
+    ssi.tallGrassDecoration = SpriteDefinitionRef("CORE",OS_TALLGRASS);
+    ssi.ripplesDecoration = SpriteDefinitionRef("CORE",OS_RIPPLES);
+    ssi.nayruShieldFront = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDFRONT);
+    ssi.nayruShieldBack = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDBACK);
+    ssi.lifeMeterHearts = SpriteDefinitionRef("CORE",OS_QUARTERHEARTS);
+    ssi.enemySpawnCloud = SpriteDefinitionRef("CORE",OS_SPAWN);
+    ssi.enemyDeathCloud = SpriteDefinitionRef("CORE",OS_DEATH);
+    ssi.smallShadow = SpriteDefinitionRef("CORE",OS_SHADOW);
+    ssi.largeShadow = SpriteDefinitionRef("CORE",OS_LARGESHADOW);
+    ssi.linkSwim = SpriteDefinitionRef("CORE",OS_SWIM);
+    ssi.linkSlash = SpriteDefinitionRef("CORE",OS_LINKSLASH);
+    ssi.magicMeter = SpriteDefinitionRef("CORE",OS_MMETER);
+    ssi.flickeringFlame = SpriteDefinitionRef("CORE", OS_ENEMY_FLAME);
+    ssi.flickeringFlame2 = SpriteDefinitionRef("CORE",OS_ENEMY_FLAME2);
+    ssi.flickeringFireTrail = SpriteDefinitionRef("CORE",OS_ENEMY_FIRETRAIL);
+    ssi.subscreenVine = SpriteDefinitionRef("CORE",OS_SUBSCREENVINE);
+    ssi.npcTemplate = SpriteDefinitionRef("CORE",OS_NPCS);
+    ssi.defaultLinkWeaponSprite = SpriteDefinitionRef("CORE",OS_SWORD);
+    ssi.defaultFireSprite = SpriteDefinitionRef("CORE",OS_FIRE);
+    ssi.defaultBoomerangSprites[0] = SpriteDefinitionRef("CORE",OS_BRANG);
+    ssi.defaultBoomerangSprites[1] = SpriteDefinitionRef("CORE",OS_MBRANG);
+    ssi.defaultBoomerangSprites[2] = SpriteDefinitionRef("CORE",OS_FBRANG);
+    ssi.defaultBombExplosion = SpriteDefinitionRef("CORE",OS_BOOM);
+    ssi.defaultSuperBombExplosion = SpriteDefinitionRef("CORE",OS_SBOOM);
+    ssi.silverSparkle = SpriteDefinitionRef("CORE",OS_SSPARKLE);
+    ssi.fireSparkle = SpriteDefinitionRef("CORE",OS_FSPARKLE);
+    ssi.dinsRocketTrail = SpriteDefinitionRef("CORE",OS_DINSFIRES1A);
+    ssi.dinsRocketTrailReturn = SpriteDefinitionRef("CORE",OS_DINSFIRES1B);
+    ssi.nayruRocketTrail = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES1A);
+    ssi.nayruRocketTrailReturn = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES1B);
+    ssi.nayruRocketTrail2 = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2A);
+    ssi.nayruRocketTrailReturn2 = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2B);
+    ssi.defaultEnemySwordBeamSprite = SpriteDefinitionRef("CORE",OS_ENEMY_SWORD);
+    ssi.defaultEnemyBomb = SpriteDefinitionRef("CORE",OS_ENEMY_BOMB);
+    ssi.defaultEnemySuperBomb = SpriteDefinitionRef("CORE",OS_ENEMY_SBOMB);
+    ssi.defaultEnemyFireball = SpriteDefinitionRef("CORE",OS_ENEMY_FIREBALL);
+    ssi.defaultEnemyRock = SpriteDefinitionRef("CORE",OS_ENEMY_ROCK);
+    ssi.defaultEnemyArrow = SpriteDefinitionRef("CORE",OS_ENEMY_ARROW);
+    ssi.defaultEnemyMagic = SpriteDefinitionRef("CORE",OS_ENEMY_MAGIC);
+    ssi.defaultEnemyWind = SpriteDefinitionRef("CORE",OS_ENEMY_WIND);
+    ssi.defaultEnemyBombExplosion = SpriteDefinitionRef("CORE",OS_ENEMY_BOOM);
+    ssi.defaultEnemySuperBombExplosion = SpriteDefinitionRef("CORE",OS_ENEMY_SBOOM);
 
-    return ssi.checkConsistency(wpns);
+    return ssi.checkConsistency(quest) ? qe_OK : qe_invalid;
 }
 
 void init_guys(int guyversion)
@@ -6273,31 +6384,32 @@ void init_item_drop_sets()
 {
     for(int i=0; i<MAXITEMDROPSETS; i++)
     {
-//    item_drop_sets[i] = default_item_drop_sets[0];
-        memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
+        item_drop_sets[i] = item_drop_object();
     }
     
     for(int i=0; i<isMAX; i++)
     {
-        item_drop_sets[i] = default_item_drop_sets[i];
+
+        item_drop_sets[i] = getDefaultItemDropSets()[i];
         
         // Deprecated: qr_NOCLOCKS and qr_ALLOW10RUPEEDROPS
         for(int j=0; j<10; ++j)
         {
-            int it = item_drop_sets[i].item[j];
+            ItemDefinitionRef it = item_drop_sets[i].item[j];
             
-            if((curQuest->itemDefTable().getItemDefinition(it).family == itype_rupee && ((curQuest->itemDefTable().getItemDefinition(it).amount)&0xFFF) == 10)
-                    && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
+            if((curQuest->isValid(it) && curQuest->getItemDefinition(it).family == itype_rupee && ((curQuest->getItemDefinition(it).amount)&0xFFF) == 10)
+
+                && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
             {
                 item_drop_sets[i].chance[j+1]=0;
             }
-            else if(curQuest->itemDefTable().getItemDefinition(it).family == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
+            else if(curQuest->isValid(it) && curQuest->getItemDefinition(it).family == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
             {
                 item_drop_sets[i].chance[j+1]=0;
             }
             
             // From Sept 2007 to Dec 2008, non-gameplay items were prohibited.
-            if(curQuest->itemDefTable().getItemDefinition(it).family == itype_misc)
+            if(curQuest->isValid(it) && curQuest->getItemDefinition(it).family == itype_misc)
             {
                 // If a non-gameplay item was selected, then item drop was aborted.
                 // Reflect this by increasing the 'Nothing' chance accordingly.
@@ -9139,17 +9251,28 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     }
 	    }
 	    
-	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
-            {
-		tempguy.wpnsprite = 0;
-            }
+        if (guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+        {
+            tempguy.wpnsprite = SpriteDefinitionRef();
+        }
 	    
 	    if(guyversion > 27)
 	    {
-	        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
+            uint32_t modlen;
+            if (!p_igetl(&modlen, f, true))
+                return qe_invalid;
+            char *buf = new char[modlen];
+            if (!pfread(buf, modlen, f, true))
+            {
+                delete[] buf;
+                return qe_invalid;
+            }
+            std::string name(buf);
+            delete[] buf;
+            uint32_t slot;
+            if (!p_igetl(&slot, f, true))
+                return qe_invalid;
+            tempguy.wpnsprite = SpriteDefinitionRef(name, slot);
 	    }
 	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
             {
@@ -9724,17 +9847,34 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         {
             return qe_invalid;
         }
-        temp_mapscr->screenItem = olditem;
+        temp_mapscr->screenItem = ItemDefinitionRef("CORE", olditem);
     }
     else
     {
-        if (!p_igetl(&temp_mapscr->screenItem, f, true))
+        uint32_t len;
+        if (!p_igetl(&len, f, true))
             return qe_invalid;
+
+        char *buf = new char[len];
+        if (!pfread(buf, len, f, true))
+        {
+            delete[] buf;
+            return qe_invalid;
+        }
+
+        string modname(buf);
+        delete[] buf;
+
+        uint32_t slot;
+        if (!p_igetl(&slot, f, true))
+            return qe_invalid;
+
+        temp_mapscr->screenItem = ItemDefinitionRef(modname, slot);
     }
     
     if(Header->zelda_version < 0x211 || (Header->zelda_version == 0x211 && Header->build < 14))
     {
-        temp_mapscr->hasitem = (temp_mapscr->screenItem != 0) ? 1 : 0;
+        temp_mapscr->hasitem = (temp_mapscr->screenItem.slot != 0) ? 1 : 0;
     }
     else
     {
@@ -10188,9 +10328,40 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         return qe_invalid;
     }
     
-    if(!p_igetw(&(temp_mapscr->catchall),f,true))
+    if (!p_igetw(&(temp_mapscr->catchall), f, true))
     {
         return qe_invalid;
+    }
+
+    if (version < 19)
+    {
+        temp_mapscr->catchallItem = ItemDefinitionRef("CORE", temp_mapscr->catchall);
+    }
+    else
+    {
+        uint32_t len;
+        if (!p_igetl(&len, f, true))
+        {
+            return qe_invalid;
+        }
+
+        char *buf = new char[len];
+        if (!pfread(buf, len, f, true))
+        {
+            delete[] buf;
+            return qe_invalid;
+        }
+
+        std::string modname(buf);
+        delete[] buf;
+
+        uint32_t slot;
+        if (!p_igetl(&slot, f, true))
+        {
+            return qe_invalid;
+        }
+
+        temp_mapscr->catchallItem = ItemDefinitionRef(modname, slot);
     }
     
     if(!p_getc(&(temp_mapscr->flags),f,true))
@@ -11697,8 +11868,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     max_csets=max_csets;
     word s_version=0;
     
-    miscQdata temp_misc;
-    memcpy(&temp_misc, Misc, sizeof(temp_misc));
+    miscQdata temp_misc = *Misc;
     
     byte temp_colordata[48];
     char temp_palname[PALNAMESIZE];
@@ -11883,7 +12053,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
         
         if(keepdata==true)
         {
-            memcpy(Misc, &temp_misc, sizeof(temp_misc));
+            *Misc = temp_misc;
         }
     }
     
@@ -12003,10 +12173,11 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
-            if(get_bit(quest_rules,qr_BSZELDA) && OS_SWIM < curQuest->weaponDefTable().getNumSpriteDefinitions())   //
+            SpriteDefinitionRef SWIM("CORE", OS_SWIM);
+            if(get_bit(quest_rules,qr_BSZELDA) && curQuest->isValid(SWIM))   //
             {
                 byte tempbyte;
-                int floattile=curQuest->weaponDefTable().getSpriteDefinition(OS_SWIM).tile;
+                int floattile=curQuest->getSpriteDefinition(SWIM).tile;
                 
                 for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order
                 {
@@ -12391,7 +12562,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
 
                 if (temp)
-                    temp_zinit.inventoryItems.insert(j);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",j));
             }
         }
         else
@@ -12404,12 +12575,23 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             for (uint32_t j = 0; j < numitems; j++)
             {
+                uint32_t len;
+                if (!p_igetl(&len, f, true))
+                    return qe_invalid;
+                char *buf = new char[len];
+                if (!pfread(buf, len, f, true))
+                {
+                    delete[] buf;
+                    return qe_invalid;
+                }
+                std::string modname(buf);
+                delete[] buf;
                 uint32_t itemid;
                 if (!p_igetl(&itemid, f, true))
                 {
                     return qe_invalid;
                 }
-                temp_zinit.inventoryItems.insert(itemid);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef(modname, itemid));
             }
         }
 
@@ -12432,7 +12614,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
                 }
                 if (temp)
-                    temp_zinit.inventoryItems.insert(iRaft);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iRaft));
                 
                 if(!p_getc(&temp,f,true))
                 {
@@ -12440,7 +12622,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 
                 if (temp)
-                    temp_zinit.inventoryItems.insert(iLadder);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iLadder));
 
                 if(!p_getc(&temp,f,true))
                 {
@@ -12448,7 +12630,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 
                 if (temp)
-                    temp_zinit.inventoryItems.insert(iBook);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iBook));
 
                 if(!p_getc(&temp,f,true))
                 {
@@ -12456,7 +12638,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 
                 if (temp)
-                    temp_zinit.inventoryItems.insert(iMKey);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iMKey));
 
                 if(!p_getc(&temp,f,true))
                 {
@@ -12464,7 +12646,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 
                 if (temp)
-                    temp_zinit.inventoryItems.insert(iFlippers);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iFlippers));
 
                 if(!p_getc(&temp,f,true))
                 {
@@ -12472,7 +12654,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 
                 if (temp)
-                    temp_zinit.inventoryItems.insert(iBoots);
+                    temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iBoots));
             }
         }
         
@@ -12530,15 +12712,15 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             //rings start at level 2... wtf
             //account for this -DD
             tempring <<= 1;
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_ring, tempring);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_sword, tempsword);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_shield, tempshield);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_wallet, tempwallet);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_ring, tempring);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_sword, tempsword);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_shield, tempshield);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_wallet, tempwallet);
             //bracelet ALSO starts at level 2 :-( -DD
             tempbracelet<<=1;
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_bracelet, tempbracelet);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_amulet, tempamulet);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_bow, tempbow);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_bracelet, tempbracelet);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_amulet, tempamulet);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_bow, tempbow);
             
             //new only
             if((Header->zelda_version == 0x192)&&(Header->build>173))
@@ -12574,7 +12756,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_potion, temp);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_potion, temp);
             
             if(!p_getc(&tempwhistle,f,true))
             {
@@ -12590,10 +12772,10 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 tempwhistle=(tempwhistle)?(1<<(tempwhistle-1)):0;
             }
             
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_candle, tempcandle);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_brang, tempboomerang);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_arrow, temparrow);
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_whistle, tempwhistle);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_candle, tempcandle);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_brang, tempboomerang);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_arrow, temparrow);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_whistle, tempwhistle);
             //What about the potion...?
             
         }
@@ -12622,63 +12804,63 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_wand, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_wand, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_letter, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_letter, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_lens, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_lens, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_hookshot, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_hookshot, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_bait, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_bait, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_hammer, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_hammer, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_dinsfire, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_dinsfire, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_faroreswind, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_faroreswind, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
                     return qe_invalid;
                 }
                 
-                curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_nayruslove, temp);
+                curQuest->addOldStyleFamily(&temp_zinit, itype_nayruslove, temp);
                 
                 if(!p_getc(&temp,f,true))
                 {
@@ -12709,17 +12891,17 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
             if (get_bit(&equipment, idE_RAFT))
-                temp_zinit.inventoryItems.insert(iRaft);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iRaft));
             if (get_bit(&equipment, idE_LADDER))
-                temp_zinit.inventoryItems.insert(iLadder);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iLadder));
             if (get_bit(&equipment, idE_BOOK))
-                temp_zinit.inventoryItems.insert(iBook);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iBook));
             if (get_bit(&equipment, idE_KEY))
-                temp_zinit.inventoryItems.insert(iMKey);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iMKey));
             if (get_bit(&equipment, idE_FLIPPERS))
-                temp_zinit.inventoryItems.insert(iFlippers);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iFlippers));
             if (get_bit(&equipment, idE_BOOTS))
-                temp_zinit.inventoryItems.insert(iBoots);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iBoots));
             
             if(!p_getc(&items,f,true))
             {
@@ -12727,17 +12909,17 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
             if (get_bit(&items, idI_WAND))
-                temp_zinit.inventoryItems.insert(iWand);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iWand));
             if (get_bit(&items, idI_LETTER))
-                temp_zinit.inventoryItems.insert(iLetter);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iLetter));
             if (get_bit(&items, idI_LENS))
-                temp_zinit.inventoryItems.insert(iLens);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iLens));
             if (get_bit(&items, idI_HOOKSHOT))
-                temp_zinit.inventoryItems.insert(iHookshot);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iHookshot));
             if (get_bit(&items, idI_BAIT))
-                temp_zinit.inventoryItems.insert(iBait);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iBait));
             if (get_bit(&items, idI_HAMMER))
-                temp_zinit.inventoryItems.insert(iHammer);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE", iHammer));
         }
         
         if(!p_getc(&temp_zinit.hc,f,true))
@@ -13162,7 +13344,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            curQuest->itemDefTable().addOldStyleFamily(&temp_zinit, itype_quiver, temp);
+            curQuest->addOldStyleFamily(&temp_zinit, itype_quiver, temp);
         }
         
         if(s_version>6 && s_version<15)
@@ -13313,11 +13495,11 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             if (get_bit(&items2, idI_DFIRE))
-                temp_zinit.inventoryItems.insert(iDinsFire);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iDinsFire));
             if (get_bit(&items2, idI_FWIND))
-                temp_zinit.inventoryItems.insert(iFaroresWind);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iFaroresWind));
             if (get_bit(&items2, idI_NLOVE))
-                temp_zinit.inventoryItems.insert(iNayrusLove);
+                temp_zinit.inventoryItems.insert(ItemDefinitionRef("CORE",iNayrusLove));
         }
         
         if(Header->zelda_version < 0x193)
@@ -13349,9 +13531,9 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<15)))
     {
         //temp_zinit.shield=i_smallshield;
-        int sshieldid = curQuest->itemDefTable().getItemID(itype_shield, i_smallshield);
+        ItemDefinitionRef sshieldid = curQuest->getItemFromFamilyLevel(itype_shield, i_smallshield);
         
-        if (sshieldid != -1)
+        if (curQuest->isValid(sshieldid))
             temp_zinit.inventoryItems.insert(sshieldid);
     }
     
@@ -13412,84 +13594,93 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     // Okay,  let's put these legacy values into itemsbuf.
     if (s_version < 15)
     {
-        int numitems = curQuest->itemDefTable().getNumItemDefinitions();
-        if (iFairyStill < numitems)
+        ItemDefinitionRef fairystill("CORE", iFairyStill);
+        if (curQuest->isValid(fairystill))
         {
-            curQuest->itemDefTable().getItemDefinition(iFairyStill).misc1 = stationary_fairy_hearts;
-            curQuest->itemDefTable().getItemDefinition(iFairyStill).misc2 = stationary_fairy_magic;
-            curQuest->itemDefTable().getItemDefinition(iFairyStill).misc3 = 0;
-            curQuest->itemDefTable().getItemDefinition(iFairyStill).flags |= stationary_fairy_heart_percent ? itemdata::IF_FLAG1 : 0;
-            curQuest->itemDefTable().getItemDefinition(iFairyStill).flags |= stationary_fairy_magic_percent ? itemdata::IF_FLAG2 : 0;
+            curQuest->getItemDefinition(fairystill).misc1 = stationary_fairy_hearts;
+            curQuest->getItemDefinition(fairystill).misc2 = stationary_fairy_magic;
+            curQuest->getItemDefinition(fairystill).misc3 = 0;
+            curQuest->getItemDefinition(fairystill).flags |= stationary_fairy_heart_percent ? itemdata::IF_FLAG1 : 0;
+            curQuest->getItemDefinition(fairystill).flags |= stationary_fairy_magic_percent ? itemdata::IF_FLAG2 : 0;
         }
 
-        if (iFairyMoving < numitems)
+        ItemDefinitionRef fairymoving("CORE", iFairyMoving);
+        if (curQuest->isValid(fairymoving))
         {
-            curQuest->itemDefTable().getItemDefinition(iFairyMoving).misc1 = moving_fairy_hearts;
-            curQuest->itemDefTable().getItemDefinition(iFairyMoving).misc2 = moving_fairy_magic;
-            curQuest->itemDefTable().getItemDefinition(iFairyMoving).misc3 = 50;
-            curQuest->itemDefTable().getItemDefinition(iFairyMoving).flags |= moving_fairy_heart_percent ? itemdata::IF_FLAG1 : 0;
-            curQuest->itemDefTable().getItemDefinition(iFairyMoving).flags |= moving_fairy_magic_percent ? itemdata::IF_FLAG2 : 0;
+            curQuest->getItemDefinition(fairymoving).misc1 = moving_fairy_hearts;
+            curQuest->getItemDefinition(fairymoving).misc2 = moving_fairy_magic;
+            curQuest->getItemDefinition(fairymoving).misc3 = 50;
+            curQuest->getItemDefinition(fairymoving).flags |= moving_fairy_heart_percent ? itemdata::IF_FLAG1 : 0;
+            curQuest->getItemDefinition(fairymoving).flags |= moving_fairy_magic_percent ? itemdata::IF_FLAG2 : 0;
         }
 
-        if (iRPotion < numitems)
+        ItemDefinitionRef rpotion("CORE", iRPotion);
+        if (curQuest->isValid(rpotion))
         {
-            curQuest->itemDefTable().getItemDefinition(iRPotion).misc1 = red_potion_hearts;
-            curQuest->itemDefTable().getItemDefinition(iRPotion).misc2 = red_potion_magic;
-            curQuest->itemDefTable().getItemDefinition(iRPotion).flags |= red_potion_heart_percent ? itemdata::IF_FLAG1 : 0;
-            curQuest->itemDefTable().getItemDefinition(iRPotion).flags |= red_potion_magic_percent ? itemdata::IF_FLAG2 : 0;
+            curQuest->getItemDefinition(rpotion).misc1 = red_potion_hearts;
+            curQuest->getItemDefinition(rpotion).misc2 = red_potion_magic;
+            curQuest->getItemDefinition(rpotion).flags |= red_potion_heart_percent ? itemdata::IF_FLAG1 : 0;
+            curQuest->getItemDefinition(rpotion).flags |= red_potion_magic_percent ? itemdata::IF_FLAG2 : 0;
         }
 
-        if (iBPotion < numitems)
+        ItemDefinitionRef bpotion("CORE", iBPotion);
+        if (curQuest->isValid(bpotion))
         {
-            curQuest->itemDefTable().getItemDefinition(iBPotion).misc1 = blue_potion_hearts;
-            curQuest->itemDefTable().getItemDefinition(iBPotion).misc2 = blue_potion_magic;
-            curQuest->itemDefTable().getItemDefinition(iBPotion).flags |= blue_potion_heart_percent ? itemdata::IF_FLAG1 : 0;
-            curQuest->itemDefTable().getItemDefinition(iBPotion).flags |= blue_potion_magic_percent ? itemdata::IF_FLAG2 : 0;
+            curQuest->getItemDefinition(bpotion).misc1 = blue_potion_hearts;
+            curQuest->getItemDefinition(bpotion).misc2 = blue_potion_magic;
+            curQuest->getItemDefinition(bpotion).flags |= blue_potion_heart_percent ? itemdata::IF_FLAG1 : 0;
+            curQuest->getItemDefinition(bpotion).flags |= blue_potion_magic_percent ? itemdata::IF_FLAG2 : 0;
         }
 
-        if (iSword < numitems)
+        ItemDefinitionRef sword("CORE", iSword);
+        if (curQuest->isValid(sword))
         {
-            curQuest->itemDefTable().getItemDefinition(iSword).pickup_hearts = sword_hearts[0];
-            curQuest->itemDefTable().getItemDefinition(iSword).misc1 = beam_hearts[0];
-            curQuest->itemDefTable().getItemDefinition(iSword).misc2 = beam_power[0];
+            curQuest->getItemDefinition(sword).pickup_hearts = sword_hearts[0];
+            curQuest->getItemDefinition(sword).misc1 = beam_hearts[0];
+            curQuest->getItemDefinition(sword).misc2 = beam_power[0];
             // It seems that ITEM_FLAG1 was already added by reset_itembuf()...
-            curQuest->itemDefTable().getItemDefinition(iSword).flags &= (!get_bit(&beam_percent, 0)) ? ~itemdata::IF_FLAG1 : ~0;
+            curQuest->getItemDefinition(sword).flags &= (!get_bit(&beam_percent, 0)) ? ~itemdata::IF_FLAG1 : ~0;
         }
 
-        if (iWSword < numitems)
+        ItemDefinitionRef wsword("CORE", iWSword);
+        if (curQuest->isValid(wsword))
         {
-            curQuest->itemDefTable().getItemDefinition(iWSword).pickup_hearts = sword_hearts[1];
-            curQuest->itemDefTable().getItemDefinition(iWSword).misc1 = beam_hearts[1];
-            curQuest->itemDefTable().getItemDefinition(iWSword).misc2 = beam_power[1];
-            curQuest->itemDefTable().getItemDefinition(iWSword).flags &= (!get_bit(&beam_percent, 1)) ? ~itemdata::IF_FLAG1 : ~0;
+            curQuest->getItemDefinition(wsword).pickup_hearts = sword_hearts[1];
+            curQuest->getItemDefinition(wsword).misc1 = beam_hearts[1];
+            curQuest->getItemDefinition(wsword).misc2 = beam_power[1];
+            curQuest->getItemDefinition(wsword).flags &= (!get_bit(&beam_percent, 1)) ? ~itemdata::IF_FLAG1 : ~0;
         }
 
-        if (iMSword < numitems)
+        ItemDefinitionRef msword("CORE", iMSword);
+        if (curQuest->isValid(msword))
         {
-            curQuest->itemDefTable().getItemDefinition(iMSword).pickup_hearts = sword_hearts[2];
-            curQuest->itemDefTable().getItemDefinition(iMSword).misc1 = beam_hearts[2];
-            curQuest->itemDefTable().getItemDefinition(iMSword).misc2 = beam_power[2];
-            curQuest->itemDefTable().getItemDefinition(iMSword).flags &= (!get_bit(&beam_percent, 2)) ? ~itemdata::IF_FLAG1 : ~0;
+            curQuest->getItemDefinition(msword).pickup_hearts = sword_hearts[2];
+            curQuest->getItemDefinition(msword).misc1 = beam_hearts[2];
+            curQuest->getItemDefinition(msword).misc2 = beam_power[2];
+            curQuest->getItemDefinition(msword).flags &= (!get_bit(&beam_percent, 2)) ? ~itemdata::IF_FLAG1 : ~0;
         }
 
-        if (iXSword < numitems)
+        ItemDefinitionRef xsword("CORE", iXSword);
+        if (curQuest->isValid(xsword))
         {
-            curQuest->itemDefTable().getItemDefinition(iXSword).pickup_hearts = sword_hearts[3];
-            curQuest->itemDefTable().getItemDefinition(iXSword).misc1 = beam_hearts[3];
-            curQuest->itemDefTable().getItemDefinition(iXSword).misc2 = beam_power[3];
-            curQuest->itemDefTable().getItemDefinition(iXSword).flags &= (!get_bit(&beam_percent, 3)) ? ~itemdata::IF_FLAG1 : ~0;
+            curQuest->getItemDefinition(xsword).pickup_hearts = sword_hearts[3];
+            curQuest->getItemDefinition(xsword).misc1 = beam_hearts[3];
+            curQuest->getItemDefinition(xsword).misc2 = beam_power[3];
+            curQuest->getItemDefinition(xsword).flags &= (!get_bit(&beam_percent, 3)) ? ~itemdata::IF_FLAG1 : ~0;
         }
 
-        if (iHookshot < numitems)
+        ItemDefinitionRef hookshot("CORE", iHookshot);
+        if (curQuest->isValid(hookshot))
         {
-            curQuest->itemDefTable().getItemDefinition(iHookshot).misc1 = hookshot_length;
-            curQuest->itemDefTable().getItemDefinition(iHookshot).misc2 = hookshot_links;
+            curQuest->getItemDefinition(hookshot).misc1 = hookshot_length;
+            curQuest->getItemDefinition(hookshot).misc2 = hookshot_links;
         }
 
-        if (iLongshot < numitems)
+        ItemDefinitionRef longshot("CORE", iLongshot);
+        if (curQuest->isValid(longshot))
         {
-            curQuest->itemDefTable().getItemDefinition(iLongshot).misc1 = longshot_length;
-            curQuest->itemDefTable().getItemDefinition(iLongshot).misc2 = longshot_links;
+            curQuest->getItemDefinition(longshot).misc1 = longshot_length;
+            curQuest->getItemDefinition(longshot).misc2 = longshot_links;
         }
     }
             
@@ -13557,7 +13748,7 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
     {
         for(int i=0; i<MAXITEMDROPSETS; i++)
         {
-            memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
+            item_drop_sets[i] = item_drop_object();
         }
     }
     
@@ -13606,13 +13797,38 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
                 return qe_invalid;
             }
             
-            for(int j=0; j<10; ++j)
+            for (int j = 0; j < 10; ++j)
             {
-                if(!p_igetw(&tempitemdrop.item[j],f,true))
+                if (s_version < 3)
                 {
-                    return qe_invalid;
+
+                    word oldid;
+                    if (!p_igetw(&oldid, f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    tempitemdrop.item[j] = ItemDefinitionRef("CORE", oldid);
+                }
+                else
+                {
+                    uint32_t len;
+                    if (!p_igetl(&len, f, true))
+                        return qe_invalid;
+                    char *buf = new char[len];
+                    if (!pfread(buf, len, f, true))
+                    {
+                        delete[] buf;
+                        return qe_invalid;
+                    }
+                    std::string modname(buf);
+                    delete[] buf;
+                    uint32_t slot;
+                    if (!p_igetl(&slot, f, true))
+                        return qe_invalid;
+                    tempitemdrop.item[j] = ItemDefinitionRef(modname, slot);
                 }
             }
+        
             
             for(int j=0; j<11; ++j)
             {
@@ -13630,21 +13846,20 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
             // Deprecated: qr_NOCLOCKS and qr_ALLOW10RUPEEDROPS
             if(s_version<2) for(int j=0; j<10; ++j)
                 {
-                    int it = tempitemdrop.item[j];
+                    ItemDefinitionRef it = tempitemdrop.item[j];
                     
-                    if((curQuest->itemDefTable().getItemDefinition(it).family == itype_rupee
-                            && ((curQuest->itemDefTable().getItemDefinition(it).amount)&0xFFF) == 10)
+                    if( curQuest->isValid(it) && (curQuest->getItemDefinition(it).family == itype_rupee && ((curQuest->getItemDefinition(it).amount)&0xFFF) == 10)
                             && !get_bit(deprecated_rules, qr_ALLOW10RUPEEDROPS_DEP))
                     {
                         tempitemdrop.chance[j+1]=0;
                     }
-                    else if(curQuest->itemDefTable().getItemDefinition(it).family == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
+                    else if( curQuest->isValid(it) &&  curQuest->getItemDefinition(it).family == itype_clock && get_bit(deprecated_rules, qr_NOCLOCKS_DEP))
                     {
                         tempitemdrop.chance[j+1]=0;
                     }
                     
                     // From Sept 2007 to Dec 2008, non-gameplay items were prohibited.
-                    if(curQuest->itemDefTable().getItemDefinition(it).family == itype_misc)
+                    if( curQuest->isValid(it) && curQuest->getItemDefinition(it).family == itype_misc)
                     {
                         // If a non-gameplay item was selected, then item drop was aborted.
                         // Reflect this by increasing the 'Nothing' chance accordingly.
@@ -13655,7 +13870,7 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
                 
             if(keepdata)
             {
-                memcpy(&item_drop_sets[i], &tempitemdrop, sizeof(item_drop_object));
+                item_drop_sets[i] = tempitemdrop;
             }
         }
     }
@@ -14046,11 +14261,23 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 }
 
                 box_out("Reading Items...");
-                ItemDefinitionTable idt;
-                ret = readitems(f, tempheader.zelda_version, tempheader.build, Header, idt);
-                if (keepall && !get_bit(skip_flags, skip_items))
-                    curQuest->setItemDefTable(idt);
+                std::map<std::string, ItemDefinitionTable> idts;
+                ret = readitems(f, tempheader.zelda_version, tempheader.build, Header, idts);
                 checkstatus(ret);
+                if (keepall && !get_bit(skip_flags, skip_items))
+                {
+                    for (std::map<std::string, ItemDefinitionTable>::iterator it = idts.begin(); it != idts.end(); ++it)
+                    {
+                        curQuest->getModule(it->first).setItemDefTable(it->second);
+                    }
+                }
+                SpecialItemIndex ssi;
+                ret = readSpecialItemIndex(*curQuest, ssi);
+                checkstatus(ret);
+                if (keepall && !get_bit(skip_flags, skip_items))
+                {
+                    curQuest->setSpecialItemIndex(ssi);
+                }
 
                 box_out("okay.");
                 box_eol();
@@ -14067,13 +14294,19 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 }
 
                 box_out("Reading Weapons...");
-                SpriteDefinitionTable table;
-                ret = readweapons(f, &tempheader, curQuest->itemDefTable(), table);
+                std::map<std::string, SpriteDefinitionTable> sdts;                
+                ret = readweapons(f, &tempheader, curQuest->getModule("CORE").itemDefTable(), sdts);
                 checkstatus(ret);
                 if (keepall && !get_bit(skip_flags, skip_weapons))
-                    curQuest->setWeaponDefTable(table);
+                {
+                    for (std::map<std::string, SpriteDefinitionTable>::iterator it = sdts.begin(); it != sdts.end(); ++it)
+                    {
+                        curQuest->getModule(it->first).setWeaponDefTable(it->second);
+                    }
+                }
                 SpecialSpriteIndex ssi;
-                ret = readSpecialSpritesIndex(table, ssi);
+                ret = readSpecialSpritesIndex(*curQuest, ssi);
+                checkstatus(ret);
                 if (keepall && !get_bit(skip_flags, skip_weapons))
                     curQuest->setSpecialSpriteIndex(ssi);
                 box_out("okay.");
@@ -14391,23 +14624,41 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         //items
         box_out("Reading Items...");
-        ItemDefinitionTable idt;
-        ret=readitems(f, tempheader.zelda_version, tempheader.build, Header, idt);        
+        std::map<std::string, ItemDefinitionTable> idts;
+        ret = readitems(f, tempheader.zelda_version, tempheader.build, Header, idts);
         checkstatus(ret);
         if (keepall && !get_bit(skip_flags, skip_items))
-            curQuest->setItemDefTable(idt);
+        {
+            for (std::map<std::string, ItemDefinitionTable>::iterator it = idts.begin(); it != idts.end(); ++it)
+            {
+                curQuest->getModule(it->first).setItemDefTable(it->second);
+            }
+        }
+        SpecialItemIndex sii;
+        ret = readSpecialItemIndex(*curQuest, sii);
+        checkstatus(ret);
+        if (keepall && !get_bit(skip_flags, skip_items))
+        {
+            curQuest->setSpecialItemIndex(sii);
+        }
         box_out("okay.");
         box_eol();
         
         //weapons
         box_out("Reading Weapons...");
-        SpriteDefinitionTable wdt;
-        ret=readweapons(f, &tempheader, curQuest->itemDefTable(), wdt);        
+        std::map<std::string, SpriteDefinitionTable> sdts;                
+        ret = readweapons(f, &tempheader, curQuest->getModule("CORE").itemDefTable(), sdts);
         checkstatus(ret);
         if (keepall && !get_bit(skip_flags, skip_weapons))
-            curQuest->setWeaponDefTable(wdt);
+        {
+            for (std::map<std::string, SpriteDefinitionTable>::iterator it = sdts.begin(); it != sdts.end(); ++it)
+            {
+                curQuest->getModule(it->first).setWeaponDefTable(it->second);
+            }
+        }
         SpecialSpriteIndex ssi;
-        ret = readSpecialSpritesIndex(wdt,ssi);
+        ret = readSpecialSpritesIndex(*curQuest, ssi);
+        checkstatus(ret);
         if (keepall && !get_bit(skip_flags, skip_weapons))
             curQuest->setSpecialSpriteIndex(ssi);
         box_out("okay.");

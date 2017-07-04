@@ -33,7 +33,7 @@ void magicmeter(BITMAP *dest,int x,int y);
 void buttonitem(BITMAP *dest, int button, int x, int y);
 void putxnum(BITMAP *dest,int x,int y,int num,FONT *tempfont,int color,int shadowcolor,int bgcolor,int textstyle,bool usex,int digits,bool infinite,char idigit);
 void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, bool usex, int textstyle, int digits, char idigit);
-void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype1, int itemtype2, int itemtype3, int infiniteitem, bool onlyselected);
+void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype1, int itemtype2, int itemtype3, const ItemDefinitionRef &infiniteitem, bool onlyselected);
 void minimaptitle(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle);
 void animate_selectors();
 void delete_selectors();
@@ -183,7 +183,7 @@ extern subscreen_group *current_subscreen_active;
 extern subscreen_group *current_subscreen_passive;
 
 extern item *Bitem, *Aitem;
-extern int   Bid, Aid;
+extern ItemDefinitionRef   Bid, Aid;
 const byte tripiece[2][8][3] =
 {
     //  112,112,0, 128,112,1, 96,128,0, 144,128,1,

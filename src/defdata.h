@@ -56,6 +56,7 @@ enum OldSpriteID
 extern const char *old_weapon_names[];
 
 extern guydata default_guys[OLDMAXGUYS];
-extern item_drop_object default_item_drop_sets[isMAX];
+
+const std::vector<item_drop_object> &getDefaultItemDropSets();
 #endif
  

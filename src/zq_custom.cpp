@@ -36,7 +36,7 @@
 #include "backend/AllBackends.h"
 
 extern int ex;
-extern void reset_itembuf(itemdata *item, int id);
+extern void reset_itembuf(itemdata *item, const ItemDefinitionRef &id);
 extern const char *item_class_list(int index, int *list_size);
 extern const char *sfxlist(int index, int *list_size);
 // zq_subscr.cpp
@@ -1519,11 +1519,11 @@ void test_item(itemdata test, int x, int y)
     Quest *oldquest = curQuest;
     Quest tmp;
     curQuest = &tmp;
-    tmp.itemDefTable().addItemDefinition(test, std::string("Test Item"));
+    tmp.getModule("TMP").itemDefTable().addItemDefinition(test, std::string("Test Item"));
     BITMAP *buf = create_bitmap_ex(8,16,16);
     BITMAP *buf2 = create_bitmap_ex(8,64,64);
     
-    item temp((fix)0,(fix)0,(fix)0,0,0,0);
+    item temp((fix)0,(fix)0,(fix)0,ItemDefinitionRef("TMP",0),0,0);
     temp.yofs = 0;
     go();
     itemdata_dlg[0].flags=0;
@@ -1594,69 +1594,69 @@ void test_item(itemdata test, int x, int y)
 extern weapon_struct *biw;
 
 
-void edit_itemdata(int index)
+void edit_itemdata(ItemDefinitionRef itemref)
 {
     
     char frm[32], spd[32], fcs[32], dly[32], ltm[32];
     char /*cls[8],*/ cll[32], amt[32], fmx[32], max[32], asn[32];
     char snd[32], mgc[32], hrt[32], pow[32];
-    char name[64], zname[64];
+    char name[64];
     char ms1[32], ms2[32], ms3[32], ms4[32], ms5[32], ms6[32], ms7[32], ms8[32], ms9[32], ms10[32];
 	char wrange[32], wdur[32], wdef[32], wweap[32], wptrn[32], warg1[32], warg2[32], warg3[32], warg4[32], warg5[32], warg6[32];
     char itemnumstr[75];
     char da[10][13];
     
-    sprintf(itemnumstr,"Item %d: %s", index, curQuest->itemDefTable().getItemName(index).c_str());
-    sprintf(fcs,"%d",curQuest->itemDefTable().getItemDefinition(index).csets>>4);
-    sprintf(frm,"%d",curQuest->itemDefTable().getItemDefinition(index).frames);
-    sprintf(spd,"%d",curQuest->itemDefTable().getItemDefinition(index).speed);
-    sprintf(dly,"%d",curQuest->itemDefTable().getItemDefinition(index).delay);
-    sprintf(ltm,"%ld",curQuest->itemDefTable().getItemDefinition(index).ltm);
-    sprintf(cll,"%d",curQuest->itemDefTable().getItemDefinition(index).fam_type);
-    sprintf(amt,"%d",(curQuest->itemDefTable().getItemDefinition(index).amount&0x4000)?(-(curQuest->itemDefTable().getItemDefinition(index).amount&0x3FFF)):(curQuest->itemDefTable().getItemDefinition(index).amount&0x3FFF));
-    sprintf(fmx,"%d",curQuest->itemDefTable().getItemDefinition(index).max);
-    sprintf(max,"%d",curQuest->itemDefTable().getItemDefinition(index).setmax);
-    sprintf(snd,"%d",curQuest->itemDefTable().getItemDefinition(index).playsound);
-    sprintf(ms1,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc1);
-    sprintf(ms2,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc2);
-    sprintf(ms3,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc3);
-    sprintf(ms4,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc4);
-    sprintf(ms5,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc5);
-    sprintf(ms6,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc6);
-    sprintf(ms7,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc7);
-    sprintf(ms8,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc8);
-    sprintf(ms9,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc9);
-    sprintf(ms10,"%ld",curQuest->itemDefTable().getItemDefinition(index).misc10);
-    sprintf(mgc,"%d",curQuest->itemDefTable().getItemDefinition(index).magic);
-    sprintf(hrt,"%d",curQuest->itemDefTable().getItemDefinition(index).pickup_hearts);
-    sprintf(pow,"%d",curQuest->itemDefTable().getItemDefinition(index).power);
-    sprintf(asn,"%d",curQuest->itemDefTable().getItemDefinition(index).usesound);
+    sprintf(itemnumstr,"Item %d: %s", itemref.slot, curQuest->getItemName(itemref).c_str());
+    sprintf(fcs,"%d",curQuest->getItemDefinition(itemref).csets>>4);
+    sprintf(frm,"%d",curQuest->getItemDefinition(itemref).frames);
+    sprintf(spd,"%d",curQuest->getItemDefinition(itemref).speed);
+    sprintf(dly,"%d",curQuest->getItemDefinition(itemref).delay);
+    sprintf(ltm,"%ld",curQuest->getItemDefinition(itemref).ltm);
+    sprintf(cll,"%d",curQuest->getItemDefinition(itemref).fam_type);
+    sprintf(amt,"%d",(curQuest->getItemDefinition(itemref).amount&0x4000)?(-(curQuest->getItemDefinition(itemref).amount&0x3FFF)):(curQuest->getItemDefinition(itemref).amount&0x3FFF));
+    sprintf(fmx,"%d",curQuest->getItemDefinition(itemref).max);
+    sprintf(max,"%d",curQuest->getItemDefinition(itemref).setmax);
+    sprintf(snd,"%d",curQuest->getItemDefinition(itemref).playsound);
+    sprintf(ms1,"%ld",curQuest->getItemDefinition(itemref).misc1);
+    sprintf(ms2,"%ld",curQuest->getItemDefinition(itemref).misc2);
+    sprintf(ms3,"%ld",curQuest->getItemDefinition(itemref).misc3);
+    sprintf(ms4,"%ld",curQuest->getItemDefinition(itemref).misc4);
+    sprintf(ms5,"%ld",curQuest->getItemDefinition(itemref).misc5);
+    sprintf(ms6,"%ld",curQuest->getItemDefinition(itemref).misc6);
+    sprintf(ms7,"%ld",curQuest->getItemDefinition(itemref).misc7);
+    sprintf(ms8,"%ld",curQuest->getItemDefinition(itemref).misc8);
+    sprintf(ms9,"%ld",curQuest->getItemDefinition(itemref).misc9);
+    sprintf(ms10,"%ld",curQuest->getItemDefinition(itemref).misc10);
+    sprintf(mgc,"%d",curQuest->getItemDefinition(itemref).magic);
+    sprintf(hrt,"%d",curQuest->getItemDefinition(itemref).pickup_hearts);
+    sprintf(pow,"%d",curQuest->getItemDefinition(itemref).power);
+    sprintf(asn,"%d",curQuest->getItemDefinition(itemref).usesound);
     
     //New itemdata vars
-    sprintf(wrange,"%d",curQuest->itemDefTable().getItemDefinition(index).weaprange);
-    sprintf(wdur,"%d",curQuest->itemDefTable().getItemDefinition(index).weapduration);
-    sprintf(wdef,"%d",curQuest->itemDefTable().getItemDefinition(index).usedefence);
-    sprintf(wweap,"%d",curQuest->itemDefTable().getItemDefinition(index).useweapon);
-    sprintf(wptrn,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[0]);
-    sprintf(warg1,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[1]);
-    sprintf(warg2,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[2]);
-    sprintf(warg3,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[3]);
-    sprintf(warg4,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[4]);
-    sprintf(warg5,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[5]);
-    sprintf(warg6,"%d",curQuest->itemDefTable().getItemDefinition(index).weap_pattern[6]);
+    sprintf(wrange,"%d",curQuest->getItemDefinition(itemref).weaprange);
+    sprintf(wdur,"%d",curQuest->getItemDefinition(itemref).weapduration);
+    sprintf(wdef,"%d",curQuest->getItemDefinition(itemref).usedefence);
+    sprintf(wweap,"%d",curQuest->getItemDefinition(itemref).useweapon);
+    sprintf(wptrn,"%d",curQuest->getItemDefinition(itemref).weap_pattern[0]);
+    sprintf(warg1,"%d",curQuest->getItemDefinition(itemref).weap_pattern[1]);
+    sprintf(warg2,"%d",curQuest->getItemDefinition(itemref).weap_pattern[2]);
+    sprintf(warg3,"%d",curQuest->getItemDefinition(itemref).weap_pattern[3]);
+    sprintf(warg4,"%d",curQuest->getItemDefinition(itemref).weap_pattern[4]);
+    sprintf(warg5,"%d",curQuest->getItemDefinition(itemref).weap_pattern[5]);
+    sprintf(warg6,"%d",curQuest->getItemDefinition(itemref).weap_pattern[6]);
   
     
-    snprintf(name, 63, "%s",curQuest->itemDefTable().getItemName(index).c_str());
+    snprintf(name, 63, "%s",curQuest->getItemName(itemref).c_str());
     
     
     
     
     
     for(int j=0; j<8; j++)
-        sprintf(da[j],"%.4f",curQuest->itemDefTable().getItemDefinition(index).initiald[j]/10000.0);
+        sprintf(da[j],"%.4f",curQuest->getItemDefinition(itemref).initiald[j]/10000.0);
         
-    sprintf(da[8],"%d",curQuest->itemDefTable().getItemDefinition(index).initiala[0]/10000);
-    sprintf(da[9],"%d",curQuest->itemDefTable().getItemDefinition(index).initiala[1]/10000);
+    sprintf(da[8],"%d",curQuest->getItemDefinition(itemref).initiala[0]/10000);
+    sprintf(da[9],"%d",curQuest->getItemDefinition(itemref).initiala[1]/10000);
     
     itemdata_dlg[0].dp = itemnumstr;
     itemdata_dlg[0].dp2 = lfont;
@@ -1675,18 +1675,18 @@ void edit_itemdata(int index)
     
     for(int j=0; j<biic_cnt; j++)
     {
-        if(biic[j].i == curQuest->itemDefTable().getItemDefinition(index).family)
+        if(biic[j].i == curQuest->getItemDefinition(itemref).family)
             itemdata_dlg[9].d1 = j;
     }
     
     itemdata_dlg[11].dp = cll;
     itemdata_dlg[13].dp = pow;
-    itemdata_dlg[14].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
-    itemdata_dlg[15].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
-    itemdata_dlg[16].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
-    itemdata_dlg[17].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
-    itemdata_dlg[18].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
-    itemdata_dlg[19].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
+    itemdata_dlg[14].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
+    itemdata_dlg[15].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
+    itemdata_dlg[16].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
+    itemdata_dlg[17].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
+    itemdata_dlg[18].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
+    itemdata_dlg[19].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
     itemdata_dlg[21].dp = ms1;
     itemdata_dlg[23].dp = ms2;
     itemdata_dlg[25].dp = ms3;
@@ -1703,28 +1703,28 @@ void edit_itemdata(int index)
     itemdata_dlg[62].dp = spd;
     itemdata_dlg[64].dp = dly;
     itemdata_dlg[66].dp = ltm;
-    itemdata_dlg[68].d1 = curQuest->itemDefTable().getItemDefinition(index).tile;
-    itemdata_dlg[68].d2 = curQuest->itemDefTable().getItemDefinition(index).csets&15;
-    itemdata_dlg[69].flags = (curQuest->itemDefTable().getItemDefinition(index).misc&1) ? D_SELECTED : 0;
-    itemdata_dlg[70].flags = (curQuest->itemDefTable().getItemDefinition(index).misc&2) ? D_SELECTED : 0;
+    itemdata_dlg[68].d1 = curQuest->getItemDefinition(itemref).tile;
+    itemdata_dlg[68].d2 = curQuest->getItemDefinition(itemref).csets&15;
+    itemdata_dlg[69].flags = (curQuest->getItemDefinition(itemref).misc&1) ? D_SELECTED : 0;
+    itemdata_dlg[70].flags = (curQuest->getItemDefinition(itemref).misc&2) ? D_SELECTED : 0;
     
     itemdata_dlg[93].dp = amt;
-    itemdata_dlg[94].flags = (curQuest->itemDefTable().getItemDefinition(index).amount & 0x8000)  ? D_SELECTED : 0;
-    itemdata_dlg[96].d1 = curQuest->itemDefTable().getItemDefinition(index).count+1;
+    itemdata_dlg[94].flags = (curQuest->getItemDefinition(itemref).amount & 0x8000)  ? D_SELECTED : 0;
+    itemdata_dlg[96].d1 = curQuest->getItemDefinition(itemref).count+1;
     itemdata_dlg[98].dp = fmx;
     itemdata_dlg[100].dp = max;
     itemdata_dlg[104].dp = snd;
     itemdata_dlg[106].dp = hrt;
     
-    itemdata_dlg[107].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_KEEPOLD) ? D_SELECTED : 0;
-    itemdata_dlg[108].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_GAINOLD) ? D_SELECTED : 0;
-    itemdata_dlg[109].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_EDIBLE) ? D_SELECTED : 0;
-    itemdata_dlg[110].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_COMBINE) ? D_SELECTED : 0;
+    itemdata_dlg[107].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_KEEPOLD) ? D_SELECTED : 0;
+    itemdata_dlg[108].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAINOLD) ? D_SELECTED : 0;
+    itemdata_dlg[109].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_EDIBLE) ? D_SELECTED : 0;
+    itemdata_dlg[110].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_COMBINE) ? D_SELECTED : 0;
     
     itemdata_dlg[134].dp = mgc;
     itemdata_dlg[136].dp = asn;
-    itemdata_dlg[137].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
-    itemdata_dlg[138].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
+    itemdata_dlg[137].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
+    itemdata_dlg[138].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
     
     for(int i=0; i<10; ++i)
     {
@@ -1735,34 +1735,34 @@ void edit_itemdata(int index)
     
     for(int j=0; j<biw_cnt; j++)
     {
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[0])
             itemdata_dlg[140].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn2)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[1])
             itemdata_dlg[142].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn3)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[2])
             itemdata_dlg[144].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn4)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[3])
             itemdata_dlg[146].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn5)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[4])
             itemdata_dlg[148].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn6)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[5])
             itemdata_dlg[150].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn7)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[6])
             itemdata_dlg[152].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn8)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[7])
             itemdata_dlg[154].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn9)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[8])
             itemdata_dlg[156].d1 = j;
             
-        if(biw[j].i == curQuest->itemDefTable().getItemDefinition(index).wpn10)
+        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[9])
             itemdata_dlg[158].d1 = j;
     }
     
@@ -1777,10 +1777,10 @@ void edit_itemdata(int index)
     
     for(int j = 0; j < biitems_cnt; j++)
     {
-        if(biitems[j].second == curQuest->itemDefTable().getItemDefinition(index).script - 1)
+        if(biitems[j].second == curQuest->getItemDefinition(itemref).script - 1)
             script = j;
             
-        if(biitems[j].second == curQuest->itemDefTable().getItemDefinition(index).collect_script - 1)
+        if(biitems[j].second == curQuest->getItemDefinition(itemref).collect_script - 1)
             pickupscript = j;
     }
     
@@ -1806,9 +1806,9 @@ void edit_itemdata(int index)
     
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[200].d1 = curQuest->itemDefTable().getItemDefinition(index).useweapon;
-    itemdata_dlg[202].d1 = curQuest->itemDefTable().getItemDefinition(index).usedefence;
-    itemdata_dlg[204].d1 = curQuest->itemDefTable().getItemDefinition(index).weap_pattern[0];
+     itemdata_dlg[200].d1 = curQuest->getItemDefinition(itemref).useweapon;
+    itemdata_dlg[202].d1 = curQuest->getItemDefinition(itemref).usedefence;
+    itemdata_dlg[204].d1 = curQuest->getItemDefinition(itemref).weap_pattern[0];
     
     //.dp is correcxt here, and these now work, and are retained. -Z
     itemdata_dlg[206].dp = warg1; //itemsbuf[index].weap_pattern[1];
@@ -1827,7 +1827,7 @@ void edit_itemdata(int index)
     memset(&test, 0, sizeof(itemdata));
     test.playsound = 25;
     
-    setLabels(curQuest->itemDefTable().getItemDefinition(index).family, itemdata_dlg);
+    setLabels(curQuest->getItemDefinition(itemref).family, itemdata_dlg);
     FONT *tfont=font;
     font=pfont;
 
@@ -1938,16 +1938,8 @@ void edit_itemdata(int index)
         test.speed  = zc_min(atoi(spd),255);
         test.delay  = zc_min(atoi(dly),255);
         test.ltm    = zc_max(zc_min(atol(ltm),NEWMAXTILES-1),0-(NEWMAXTILES-1));
-        test.wpn   = biw[itemdata_cpy[140].d1].i;
-        test.wpn2  = biw[itemdata_cpy[142].d1].i;
-        test.wpn3  = biw[itemdata_cpy[144].d1].i;
-        test.wpn4  = biw[itemdata_cpy[146].d1].i;
-        test.wpn5  = biw[itemdata_cpy[148].d1].i;
-        test.wpn6  = biw[itemdata_cpy[150].d1].i;
-        test.wpn7  = biw[itemdata_cpy[152].d1].i;
-        test.wpn8  = biw[itemdata_cpy[154].d1].i;
-        test.wpn9  = biw[itemdata_cpy[156].d1].i;
-        test.wpn10 = biw[itemdata_cpy[158].d1].i;
+        for (int j = 0; j < 10; j++)
+            test.wpns[j] = biw[itemdata_cpy[140 + 2 * j].d1].i;
         
         for(int j=0; j<8; j++)
             test.initiald[j] = vbound(ffparse(da[j]),-327680000, 327680000);
@@ -1981,7 +1973,7 @@ void edit_itemdata(int index)
             //memset(&test, 0, sizeof(itemdata));
             //test.family=0xFF;
             
-            reset_itembuf(&test, index);
+            reset_itembuf(&test, itemref);
             
             sprintf(fcs,"%d",test.csets>>4);
             sprintf(frm,"%d",test.frames);
@@ -2020,15 +2012,14 @@ void edit_itemdata(int index)
 	    sprintf(warg1,"%d",test.weap_pattern[1]);
 	    sprintf(warg2,"%d",test.weap_pattern[2]);
 	    
-            sprintf(zname, "zz%03d", index);
-            sprintf(name,"%s",index<iLast?old_item_names[index]:zname);
+            sprintf(name,"%s",curQuest->getItemName(itemref).c_str());
             
             for(int j=0; j<8; j++)
                 sprintf(da[j],"%.4f",test.initiald[j]/10000.0);
                 
             sprintf(da[8],"%d",test.initiala[0]/10000);
             sprintf(da[9],"%d",test.initiala[1]/10000);
-            sprintf(itemnumstr,"Item %d: %s", index, name);
+            sprintf(itemnumstr,"Item %d: %s", itemref.slot, name);
             
 			itemdata_cpy[0].dp = itemnumstr;
 			itemdata_cpy[0].dp2 = lfont;
@@ -2053,12 +2044,12 @@ void edit_itemdata(int index)
             
 			itemdata_cpy[11].dp = cll;
 			itemdata_cpy[13].dp = pow;
-			itemdata_cpy[14].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
-			itemdata_cpy[15].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
-			itemdata_cpy[16].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
-			itemdata_cpy[17].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
-			itemdata_cpy[18].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
-			itemdata_cpy[19].flags = (curQuest->itemDefTable().getItemDefinition(index).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
+			itemdata_cpy[14].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
+			itemdata_cpy[15].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
+			itemdata_cpy[16].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
+			itemdata_cpy[17].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
+			itemdata_cpy[18].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
+			itemdata_cpy[19].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
 			itemdata_cpy[21].dp = ms1;
 			itemdata_cpy[23].dp = ms2;
 			itemdata_cpy[25].dp = ms3;
@@ -2082,7 +2073,7 @@ void edit_itemdata(int index)
             
 			itemdata_cpy[93].dp = amt;
 			itemdata_cpy[94].flags = (test.amount & 0x8000)  ? D_SELECTED : 0;
-			itemdata_cpy[96].d1 = curQuest->itemDefTable().getItemDefinition(index).count+1;
+			itemdata_cpy[96].d1 = curQuest->getItemDefinition(itemref).count+1;
 			itemdata_cpy[98].dp = fmx;
 			itemdata_cpy[100].dp = max;
 			itemdata_cpy[102].d1 = pickupscript;
@@ -2117,35 +2108,11 @@ void edit_itemdata(int index)
             
             for(int j=0; j<biw_cnt; j++)
             {
-                if(biw[j].i == test.wpn)
-					itemdata_cpy[140].d1 = j;
-                    
-                if(biw[j].i == test.wpn2)
-					itemdata_cpy[142].d1 = j;
-                    
-                if(biw[j].i == test.wpn3)
-					itemdata_cpy[144].d1 = j;
-                    
-                if(biw[j].i == test.wpn4)
-					itemdata_cpy[146].d1 = j;
-                    
-                if(biw[j].i == test.wpn5)
-					itemdata_cpy[148].d1 = j;
-                    
-                if(biw[j].i == test.wpn6)
-					itemdata_cpy[150].d1 = j;
-                    
-                if(biw[j].i == test.wpn7)
-					itemdata_cpy[152].d1 = j;
-                    
-                if(biw[j].i == test.wpn8)
-					itemdata_cpy[154].d1 = j;
-                    
-                if(biw[j].i == test.wpn9)
-					itemdata_cpy[156].d1 = j;
-                    
-                if(biw[j].i == test.wpn10)
-					itemdata_cpy[158].d1 = j;
+                for (int k = 0; k < 10; k++)
+                {
+                    if (biw[j].i == test.wpns[k])
+                        itemdata_cpy[140 + 2*k].d1 = j;
+                }                
             }
             
             for(int j=0; j<8; j++)
@@ -2167,8 +2134,8 @@ void edit_itemdata(int index)
     
     if(ret==3)
     {
-        curQuest->itemDefTable().setItemName(index,name);
-        curQuest->itemDefTable().getItemDefinition(index) = test;
+        curQuest->setItemName(itemref,name);
+        curQuest->getItemDefinition(itemref) = test;
         saved = false;
     }
     
@@ -2176,7 +2143,7 @@ void edit_itemdata(int index)
 
 extern item_struct *bii;
 extern DIALOG ilist_dlg[];
-static int copiedItem;
+static ItemDefinitionRef copiedItem;
 static MENU ilist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
@@ -2186,10 +2153,10 @@ static MENU ilist_rclick_menu[] =
 
 void ilist_rclick_func(int index, int x, int y)
 {
-    if(bii[index].i<0) // Clicked (none)?
+    if(!curQuest->isValid(bii[index].i)) // Clicked (none)?
         return;
     
-    if(copiedItem<0)
+    if(!curQuest->isValid(copiedItem))
         ilist_rclick_menu[1].flags|=D_DISABLED;
     else
         ilist_rclick_menu[1].flags&=~D_DISABLED;
@@ -2200,7 +2167,7 @@ void ilist_rclick_func(int index, int x, int y)
         copiedItem=bii[index].i;
     else if(ret==1) // paste
     {
-        curQuest->itemDefTable().getItemDefinition(bii[index].i) = curQuest->itemDefTable().getItemDefinition(copiedItem);
+        curQuest->getItemDefinition(bii[index].i) = curQuest->getItemDefinition(copiedItem);
         ilist_dlg[2].flags|=D_DIRTY;
         saved=false;
     }
@@ -2215,14 +2182,15 @@ int onCustomItems()
     
     build_bii_list(false);
     int ret;
-    int index = select_item("Select Item",bii[0].i,true,ret);
-    copiedItem=-1;
+    ItemDefinitionRef index = select_item("Select Item",bii[0].i,true,ret);
+    copiedItem=ItemDefinitionRef();
     
-    while(index >= 0 || ret == 5)
+    while(curQuest->isValid(index) || ret == 5)
     {
         if (ret == 5)
         {
-            curQuest->itemDefTable().addItemDefinition(itemdata(), "(New Item)");            
+            //TODO GUI module support
+            curQuest->getModule("CORE").itemDefTable().addItemDefinition(itemdata(), "(New Item)");            
         }
         else
         {
@@ -2271,32 +2239,32 @@ static DIALOG wpndata_dlg[] =
 
 
 
-void edit_weapondata(int index)
+void edit_weapondata(const SpriteDefinitionRef &spriteref)
 {
     char frm[8], spd[8], fcs[8], typ[8];
     char name[64];
     char wpnnumstr[75];
     
-    sprintf(wpnnumstr, "Sprite %d: %s", index, curQuest->weaponDefTable().getSpriteName(index).c_str());
+    sprintf(wpnnumstr, "Sprite %d: %s", spriteref.slot, curQuest->getSpriteName(spriteref).c_str());
     wpndata_dlg[0].dp  = wpnnumstr;
     wpndata_dlg[0].dp2 = lfont;
-    wpndata_dlg[2].d1  = curQuest->weaponDefTable().getSpriteDefinition(index).tile;
-    wpndata_dlg[2].d2  = curQuest->weaponDefTable().getSpriteDefinition(index).csets&15;
+    wpndata_dlg[2].d1  = curQuest->getSpriteDefinition(spriteref).tile;
+    wpndata_dlg[2].d2  = curQuest->getSpriteDefinition(spriteref).csets&15;
     
     for(int i=0; i<4; i++)
-        wpndata_dlg[i+5].flags = (curQuest->weaponDefTable().getSpriteDefinition(index).misc&(1<<i)) ? D_SELECTED : 0;
+        wpndata_dlg[i+5].flags = (curQuest->getSpriteDefinition(spriteref).misc&(1<<i)) ? D_SELECTED : 0;
         
-    wpndata_dlg[17].flags = (curQuest->weaponDefTable().getSpriteDefinition(index).misc & wpndata::WF_BEHIND) ? D_SELECTED : 0;
+    wpndata_dlg[17].flags = (curQuest->getSpriteDefinition(spriteref).misc & wpndata::WF_BEHIND) ? D_SELECTED : 0;
     
-    sprintf(fcs,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).csets>>4);
-    sprintf(frm,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).frames);
-    sprintf(spd,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).speed);
-    sprintf(typ,"%d",curQuest->weaponDefTable().getSpriteDefinition(index).type);
+    sprintf(fcs,"%d",curQuest->getSpriteDefinition(spriteref).csets>>4);
+    sprintf(frm,"%d",curQuest->getSpriteDefinition(spriteref).frames);
+    sprintf(spd,"%d",curQuest->getSpriteDefinition(spriteref).speed);
+    sprintf(typ,"%d",curQuest->getSpriteDefinition(spriteref).type);
     wpndata_dlg[13].dp = fcs;
     wpndata_dlg[14].dp = frm;
     wpndata_dlg[15].dp = spd;
     wpndata_dlg[16].dp = typ;
-    sprintf(name,"%s",curQuest->weaponDefTable().getSpriteName(index).c_str());
+    sprintf(name,"%s",curQuest->getSpriteName(spriteref).c_str());
     wpndata_dlg[18].dp = name;
 
 	DIALOG *wpndata_cpy = resizeDialog(wpndata_dlg, 1.5);
@@ -2329,8 +2297,8 @@ void edit_weapondata(int index)
     
     if(ret==3)
     {
-        curQuest->weaponDefTable().setSpriteName(index, std::string(name));
-        curQuest->weaponDefTable().getSpriteDefinition(index) = test;
+        curQuest->setSpriteName(spriteref, std::string(name));
+        curQuest->getSpriteDefinition(spriteref) = test;
         saved = false;
     }
 
@@ -2346,9 +2314,9 @@ int onCustomWpns()
     
     build_biw_list();
     
-    int index = select_weapon("Select Weapon",biw[0].i);
+    SpriteDefinitionRef index = select_weapon("Select Weapon",biw[0].i);
     
-    while(index >= 0)
+    while(curQuest->isValid(index))
     {
         edit_weapondata(index);
         index = select_weapon("Select Weapon",index);
@@ -3751,8 +3719,11 @@ void edit_enemydata(int index)
     
     */
     
+    // I don't know what's going on here; if you want to assign weapon sprites,
+    // use curQuest->specialSprites(). not random numerical constants -DD
+
     //If the weapon sprite is 0, assign it here. 
-    if ( guysbuf[index].wpnsprite <= 0 ) {
+/*    if ( !curQuest->isValid(guysbuf[index].wpnsprite)) {
 	    int wspr = -1;
 	    switch(guysbuf[index].weapon)
 	    {
@@ -3792,17 +3763,16 @@ void edit_enemydata(int index)
 		    
 		    
 	    }
-	    if ( wspr > -1 ) guysbuf[index].wpnsprite = wspr;
-	  /*  
+*  
         for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
         {
 	    if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; break; }
         }
-	    */
-    }
+	    
+    }*/
     
     //Set the dialogue. 
-    sprintf(weapsprite,"%d",guysbuf[index].wpnsprite);
+    sprintf(weapsprite,"%d",guysbuf[index].wpnsprite.slot);
     enedata_dlg[236].dp = weapsprite;
     
     /* Sprite list pulldown. 
@@ -3973,7 +3943,7 @@ void edit_enemydata(int index)
 	
 	//2.6 Enemy Weapon Sprite
 	//test.wpnsprite = biw[enedata_cpy[236].d1].i;
-	test.wpnsprite = atoi(weapsprite);
+	//test.wpnsprite = atoi(weapsprite);
 	
    
         

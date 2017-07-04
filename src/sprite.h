@@ -50,7 +50,7 @@ public:
      * To jump over a sprite, you must be higher than its z+hzsz.
      * Enemies have hzsz of 0 so that Link can jump over them (see LA.)
      */
-    int id,dir;
+    int dir;
     bool angular,canfreeze;
     double angle;
     int lasthit, lasthitclk;
@@ -113,7 +113,6 @@ public:
     bool remove(sprite *s);
     fix getX(int j);
     fix getY(int j);
-    int getID(int j);
     int getMisc(int j);
     bool del(int j);
     void draw(BITMAP* dest,bool lowfirst);
@@ -124,19 +123,7 @@ public:
     void check_conveyor();
     int Count();
     int hit(sprite *s);
-    int hit(int x,int y,int z,int xsize, int ysize, int zsize);
-    // returns the number of sprites with matching id
-    int idCount(int id, int mask);
-    // returns index of first sprite with matching id, -1 if none found
-    int idFirst(int id, int mask);
-    // returns index of last sprite with matching id, -1 if none found
-    int idLast(int id, int mask);
-    // returns the number of sprites with matching id
-    int idCount(int id);
-    // returns index of first sprite with matching id, -1 if none found
-    int idFirst(int id);
-    // returns index of last sprite with matching id, -1 if none found
-    int idLast(int id);
+    int hit(int x,int y,int z,int xsize, int ysize, int zsize);    
     
 private:
 

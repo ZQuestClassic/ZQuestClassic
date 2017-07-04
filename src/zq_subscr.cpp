@@ -487,16 +487,16 @@ int d_stilelist_proc(int msg,DIALOG *d,int c)
         {
             (d - 15)->w = 52;
             (d - 14)->w = 48;
-            int vines = curQuest->specialSprites().subscreenVine;
-            (d - 14)->d1 = curQuest->weaponDefTable().getSpriteDefinition(vines).tile;
+            SpriteDefinitionRef vines = curQuest->specialSprites().subscreenVine;
+            (d - 14)->d1 = curQuest->getSpriteDefinition(vines).tile;
             break;
         }
         case ssmstMAGICMETER:
         {
             (d - 15)->w = 148;
             (d - 14)->w = 144;
-            int mmeters = curQuest->specialSprites().magicMeter;
-            (d - 14)->d1 = curQuest->weaponDefTable().getSpriteDefinition(mmeters).tile;
+            SpriteDefinitionRef mmeters = curQuest->specialSprites().magicMeter;
+            (d - 14)->d1 = curQuest->getSpriteDefinition(mmeters).tile;
             break;
         }
         case -1:
@@ -2146,12 +2146,14 @@ int sso_properties(subscreen_object *tempsso)
             build_bii_list(true);
         }
         
+        //TODO module support in subscreen
         int index=tempsso->d10;
+        ItemDefinitionRef iref("CORE", index);
         int itemid = 0;
         
         for(int i=0; i<bii_cnt; i++)
         {
-            if(bii[i].i == index)
+            if(bii[i].i == iref)
             {
                 itemid = i;
                 break;
@@ -2558,11 +2560,13 @@ int sso_properties(subscreen_object *tempsso)
         
         build_bii_list(true);
         int index=tempsso->d8-1;
+        //TODO module support for subscreen
+        ItemDefinitionRef iref("CORE", index);
         int itemid = 0;
         
         for(int i=0; i<bii_cnt; i++)
         {
-            if(bii[i].i == index)
+            if(bii[i].i == iref)
             {
                 itemid = i;
                 break;
@@ -2884,16 +2888,16 @@ int sso_properties(subscreen_object *tempsso)
             {
             case ssmstSSVINETILE:
             {
-                int vines = curQuest->specialSprites().subscreenVine;
-                sso_properties_cpy[98].d1 = curQuest->weaponDefTable().getSpriteDefinition(vines).tile;
+                SpriteDefinitionRef vines = curQuest->specialSprites().subscreenVine;
+                sso_properties_cpy[98].d1 = curQuest->getSpriteDefinition(vines).tile;
                 sso_properties_cpy[97].w = 52;
                 sso_properties_cpy[98].w = 48;
                 break;
             }
             case ssmstMAGICMETER:
             {
-                int mmeters = curQuest->specialSprites().magicMeter;
-                sso_properties_cpy[98].d1 = curQuest->weaponDefTable().getSpriteDefinition(mmeters).tile;
+                SpriteDefinitionRef mmeters = curQuest->specialSprites().magicMeter;
+                sso_properties_cpy[98].d1 = curQuest->getSpriteDefinition(mmeters).tile;
                 sso_properties_cpy[97].w = 148;
                 sso_properties_cpy[98].w = 144;
                 break;
@@ -3593,7 +3597,8 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d7= sso_properties_cpy[136].d1;
             tempsso->d8= sso_properties_cpy[137].d1;
             tempsso->d9= sso_properties_cpy[138].d1;
-            tempsso->d10=bii[sso_properties_cpy[126].d1].i;
+            //TODO fix module support
+            tempsso->d10=bii[sso_properties_cpy[126].d1].i.slot;
         }
         break;
         
@@ -3701,7 +3706,8 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d5=atoi((char *)sso_properties_cpy[buf3i].dp);
             tempsso->d6=atoi((char *)sso_properties_cpy[buf4i].dp);
             tempsso->d7=atoi((char *)sso_properties_cpy[buf5i].dp);
-            tempsso->d8=vbound(bii[sso_properties_cpy[176].d1].i+1, 0, 255);
+            //TODO module support for subscreen
+            tempsso->d8=vbound(bii[sso_properties_cpy[176].d1].i.slot+1, 0, 255);
             
             tempsso->d1=vbound(biic[sso_properties_cpy[133].d1].i, 0, 255);
             tempsso->d2= sso_properties_cpy[139].flags&D_SELECTED?0:1;
@@ -4670,9 +4676,10 @@ int d_ssrt_btn3_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int Bweapon(int pos)
+ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
 {
     int p=-1;
+    combinedBowArrow = false;
     
     for(int i=0; css->objects[i].type!=ssoNULL; ++i)
     {
@@ -4685,28 +4692,27 @@ int Bweapon(int pos)
     
     if(p==-1)
     {
-        return 0;
+        return ItemDefinitionRef();
     }
     
     int family = 0;
-    bool bow = false;
     
     switch(css->objects[p].d1)
     {
     case itype_arrow:
     case itype_bowandarrow:
-        if(current_item(itype_bow) && current_item(itype_arrow))
+        if(currentItemLevel(itype_bow) && currentItemLevel(itype_arrow))
         {
-            bow=(css->objects[p].d1==itype_bowandarrow);
+            combinedBowArrow=(css->objects[p].d1==itype_bowandarrow);
             family=itype_arrow;
         }
         
         break;
         
     case itype_letterpotion:
-        if(current_item(itype_potion))
+        if(currentItemLevel(itype_potion))
             family=itype_potion;
-        else if(current_item(itype_letter))
+        else if(currentItemLevel(itype_letter))
             family=itype_letter;
         
         break;
@@ -4724,22 +4730,18 @@ int Bweapon(int pos)
         family=css->objects[p].d1;
     }
     
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
-    {
-        if(curQuest->itemDefTable().getItemDefinition(i).family==family) return i+(bow ? 0xF000 : 0);
-    }
-    
-    return 0;
+    return curQuest->getCanonicalItemID(family);
 }
 
 void selectBwpn(int xstep, int ystep)
 {
     if((xstep==0)&&(ystep==0))
     {
-        Bwpn=Bweapon(Bpos);
+        bool bowandarrow;
+        Bwpn=weaponFromSlot(Bpos,bowandarrow);
         update_subscr_items();
         
-        if(Bwpn)
+        if(curQuest->isValid(Bwpn))
         {
             return;
         }
@@ -4749,10 +4751,11 @@ void selectBwpn(int xstep, int ystep)
     
     if((xstep==8)&&(ystep==8))
     {
-        Bwpn=Bweapon(Bpos);
+        bool bowandarrow;
+        Bwpn=weaponFromSlot(Bpos,bowandarrow);
         update_subscr_items();
         
-        if(Bwpn)
+        if(curQuest->isValid(Bwpn))
         {
             return;
         }
@@ -4791,17 +4794,18 @@ void selectBwpn(int xstep, int ystep)
             }
         }
         
-        Bwpn = Bweapon(Bpos);
+        bool bowandarrow;
+        Bwpn = weaponFromSlot(Bpos,bowandarrow);
         update_subscr_items();
         
-        if(Bwpn)
+        if(curQuest->isValid(Bwpn))
         {
             return;
         }
     }
     while(Bpos!=pos && ++tries<0x100);
     
-    if(!Bwpn)
+    if(!curQuest->isValid(Bwpn))
         Bpos=0;
 }
 

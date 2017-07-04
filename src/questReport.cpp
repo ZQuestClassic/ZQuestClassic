@@ -741,11 +741,11 @@ void integrityCheckSideWarpDest()
                 int ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
                 // Check Triforce items as well.
-                bool triforce = (curQuest->itemDefTable().getItemDefinition(ts->screenItem).family==itype_triforcepiece && curQuest->itemDefTable().getItemDefinition(ts->screenItem).flags & itemdata::IF_FLAG1);
+                bool triforce = (curQuest->isValid(ts->screenItem) && curQuest->getItemDefinition(ts->screenItem).family==itype_triforcepiece && curQuest->getItemDefinition(ts->screenItem).flags & itemdata::IF_FLAG1);
                 
                 if(ts->room==rSP_ITEM && !triforce)
                 {
-                    triforce = (curQuest->itemDefTable().getItemDefinition(ts->screenItem).family==itype_triforcepiece && curQuest->itemDefTable().getItemDefinition(ts->screenItem).flags & itemdata::IF_FLAG1);
+                    triforce = (curQuest->isValid(ts->screenItem) && curQuest->getItemDefinition(ts->screenItem).family==itype_triforcepiece && curQuest->getItemDefinition(ts->screenItem).flags & itemdata::IF_FLAG1);
                 }
                 
                 if(ctype==cAWARPA || triforce)
@@ -1288,7 +1288,7 @@ void integrityCheckItemWalkability()
         {
             ts=&TheMaps[m*MAPSCRS+s];
             
-            if(ts->screenItem!=0&&
+            if(curQuest->isValid(ts->screenItem) &&
                     ((combobuf[ts->data[(ts->itemy    &0xF0)+(ts->itemx    >>4)]].walk!=0) ||
                      (combobuf[ts->data[(ts->itemy    &0xF0)+((ts->itemx+15)>>4)]].walk!=0) ||
                      (combobuf[ts->data[((ts->itemy+15)&0xF0)+(ts->itemx    >>4)]].walk!=0) ||
@@ -1622,6 +1622,8 @@ typedef struct item_location_node
 } item_location_node;
 
 extern item_struct *bii;
+extern int bii_cnt;
+
 
 void itemLocationReport()
 {
@@ -1630,30 +1632,32 @@ void itemLocationReport()
     int location_types=6;
     char buf[255];
     
-    item_location_node **item_location_grid;
-    
-    item_location_grid = new item_location_node*[curQuest->itemDefTable().getNumItemDefinitions()];
-    
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); i++)
-    {
-        item_location_grid[i] = new item_location_node[location_types];
-    }
+    std::map<ItemDefinitionRef, item_location_node *> item_location_grid;
     
     item_location_node *tempnode=NULL;
     item_location_node *tempnode2=NULL;
     item_location_node *newnode=NULL;
-    
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); ++i)
+
+    std::vector < std::string > modules;
+    curQuest->getModules(modules);
+
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        for(int j=0; j<location_types; ++j)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); ++i)
         {
-            item_location_grid[i][j].map=-1;
-            item_location_grid[i][j].screen=-1;
-            item_location_grid[i][j].extra1=-1;
-            item_location_grid[i][j].extra2=-1;
-            item_location_grid[i][j].enemy=-1;
-            item_location_grid[i][j].pal=0;
-            item_location_grid[i][j].next=NULL;
+            ItemDefinitionRef ref(*it, i);
+            item_location_grid[ref] = new item_location_node[location_types];
+            for (int j = 0; j < location_types; ++j)
+            {
+                item_location_grid[ref][j].map = -1;
+                item_location_grid[ref][j].screen = -1;
+                item_location_grid[ref][j].extra1 = -1;
+                item_location_grid[ref][j].extra2 = -1;
+                item_location_grid[ref][j].enemy = -1;
+                item_location_grid[ref][j].pal = 0;
+                item_location_grid[ref][j].next = NULL;
+            }
         }
     }
     
@@ -1699,31 +1703,34 @@ void itemLocationReport()
             if(ts->room==rSP_ITEM)
             {
                 //start at the special item in the item location grid
-                tempnode=&(item_location_grid[ts->catchall][1]);
-                
-                //loop to the end of the list
-                while(tempnode->next!=NULL)
+                if (curQuest->isValid(ts->catchallItem))
                 {
-                    tempnode=tempnode->next;
+                    tempnode = &(item_location_grid[ts->catchallItem][1]);
+
+                    //loop to the end of the list
+                    while (tempnode->next != NULL)
+                    {
+                        tempnode = tempnode->next;
+                    }
+
+                    //make a new node
+                    newnode = (item_location_node*)zc_malloc(sizeof(item_location_node));
+                    //insert the map and screen data
+                    newnode->map = m + 1;
+                    newnode->screen = s;
+                    newnode->extra1 = -1;
+                    newnode->extra2 = -1;
+                    newnode->enemy = -1;
+                    newnode->pal = ts->color;
+                    newnode->next = NULL;
+                    tempnode->next = newnode;
                 }
-                
-                //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
-                //insert the map and screen data
-                newnode->map=m+1;
-                newnode->screen=s;
-                newnode->extra1=-1;
-                newnode->extra2=-1;
-                newnode->enemy=-1;
-                newnode->pal=ts->color;
-                newnode->next=NULL;
-                tempnode->next=newnode;
             }
             
             if(ts->room==rRP_HC)
             {
                 //start at the hc/rp room item in the item location grid
-                tempnode=&(item_location_grid[iRPotion][2]);
+                tempnode=&(item_location_grid[curQuest->specialItems().redPotion][2]);
                 
                 //loop to the end of the list
                 while(tempnode->next!=NULL)
@@ -1743,7 +1750,7 @@ void itemLocationReport()
                 newnode->next=NULL;
                 tempnode->next=newnode;
                 
-                tempnode=&(item_location_grid[iHeartC][2]);
+                tempnode=&(item_location_grid[curQuest->specialItems().heartContainer][2]);
                 
                 //loop to the end of the list
                 while(tempnode->next!=NULL)
@@ -1769,7 +1776,7 @@ void itemLocationReport()
             {
                 for(int si=0; si<3; ++si)
                 {
-                    if(misc.shop[ts->catchall].item[si]>0)
+                    if(curQuest->isValid(misc.shop[ts->catchall].item[si]))
                     {
                         //start at the special item in the item location grid
                         tempnode=&(item_location_grid[misc.shop[ts->catchall].item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
@@ -1800,9 +1807,9 @@ void itemLocationReport()
     build_bii_list(false);
     
     //for each item
-    for(int i2=0; i2<curQuest->itemDefTable().getNumItemDefinitions(); ++i2)
+    for(int i2=0; i2<bii_cnt; ++i2)
     {
-        int i=bii[i2].i;
+        ItemDefinitionRef i=bii[i2].i;
         item_found=false;
         
         //check each item location type (room item, special item, shop item, choose any item, etc.)
@@ -1819,7 +1826,7 @@ void itemLocationReport()
                 if(!item_found)
                 {
                     buf[0]=0;
-                    sprintf(buf, "\n--- %s ---\n", curQuest->itemDefTable().getItemName(i).c_str());
+                    sprintf(buf, "\n--- %s ---\n", curQuest->getItemName(i).c_str());
                     quest_report_str+=buf;
                 }
                 
@@ -1869,26 +1876,31 @@ void itemLocationReport()
         }
     }
     
-    for(int i=0; i<curQuest->itemDefTable().getNumItemDefinitions(); ++i)
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        for(int type=0; type<location_types; ++type)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); ++i)
         {
-            if(item_location_grid[i][type].next!=NULL)
+            ItemDefinitionRef ref(*it, i);
+            for (int type = 0; type < location_types; ++type)
             {
-                tempnode=&(item_location_grid[i][type]);
-                tempnode=tempnode->next;
-                
-                while(tempnode!=NULL)
+                if (item_location_grid[ref][type].next != NULL)
                 {
-                    tempnode2=tempnode->next;
-                    zc_free(tempnode);
-                    tempnode=tempnode2;
+                    tempnode = &(item_location_grid[ref][type]);
+                    tempnode = tempnode->next;
+
+                    while (tempnode != NULL)
+                    {
+                        tempnode2 = tempnode->next;
+                        zc_free(tempnode);
+                        tempnode = tempnode2;
+                    }
                 }
             }
+
+            //don't forget to zc_free this too -DD
+            delete[] item_location_grid[ref];
         }
-        
-        //don't forget to zc_free this too -DD
-        delete[] item_location_grid[i];
     }
     
     if(!type_found)
@@ -1901,9 +1913,6 @@ void itemLocationReport()
     {
         quest_report_str += '\n';
     }
-    
-    //and this -DD
-    delete[] item_location_grid;
 }
 
 int onItemLocationReport()

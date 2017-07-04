@@ -30,6 +30,7 @@
 #include <assert.h>
 #include "zc_alleg.h"
 #include "zc_array.h"
+#include "quest/QuestRefs.h"
 
 #define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
@@ -107,7 +108,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           3
 #define V_RULES           14
 #define V_STRINGS          5
-#define V_MISC             7
+#define V_MISC             8
 #define V_TILES            1
 #define V_COMBOS           7
 #define V_CSETS            4
@@ -127,7 +128,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOALIASES     2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
-#define V_ITEMDROPSETS     2
+#define V_ITEMDROPSETS     3
 #define V_FFSCRIPT         7
 #define V_SFX              7
 #define V_FAVORITES        1
@@ -726,7 +727,9 @@ enum direction { up, down, left, right, l_up, r_up, l_down, r_down };
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
-#define REFILL_FAIRY -1
+
+//probably safe? -DD
+#define REFILL_FAIRY ItemDefinitionRef("CORE", iFairyMoving)
 
 //Z-axis related
 #define FEATHERJUMP 80
@@ -1194,8 +1197,58 @@ struct quest_template
 
 struct item_drop_object
 {
+    item_drop_object()
+    {
+        clear();
+    }
+
+    item_drop_object(const char *name_, ItemDefinitionRef item0,
+        ItemDefinitionRef item1,
+        ItemDefinitionRef item2,
+        ItemDefinitionRef item3,
+        ItemDefinitionRef item4,
+        ItemDefinitionRef item5,
+        ItemDefinitionRef item6,
+        ItemDefinitionRef item7,
+        ItemDefinitionRef item8,
+        ItemDefinitionRef item9,
+        word chance0, word chance1, word chance2, word chance3, word chance4, word chance5, word chance6, word chance7, word chance8, word chance9, word chance10)
+    {
+        memcpy(name, name_, strlen(name_)+1);
+        item[0] = item0;
+        item[1] = item1;
+        item[2] = item2;
+        item[3] = item3;
+        item[4] = item4;
+        item[5] = item5;
+        item[6] = item6;
+        item[7] = item7;
+        item[8] = item8;
+        item[9] = item9;
+        chance[0] = chance0;
+        chance[1] = chance1;
+        chance[2] = chance2;
+        chance[3] = chance3;
+        chance[4] = chance4;
+        chance[5] = chance5;
+        chance[6] = chance6;
+        chance[7] = chance7;
+        chance[8] = chance8;
+        chance[9] = chance9;
+        chance[10] = chance10;
+    }
+
+    void clear()
+    {
+        memset(name, 0, 64);
+        for (int i = 0; i < 10; i++)
+            item[i] = ItemDefinitionRef();
+        for (int i = 0; i < 11; i++)
+            chance[i] = 0;
+    }
+
     char name[64];
-    word item[10];
+    ItemDefinitionRef item[10];
     word chance[11]; //0=none
 };
 
@@ -1338,7 +1391,7 @@ struct guydata
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
-    int wpnsprite; //wpnsprite is new for 2.6 -Z
+    SpriteDefinitionRef wpnsprite; //wpnsprite is new for 2.6 -Z
     int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
 };
 
@@ -1353,7 +1406,7 @@ public:
     byte sp; //stack pointer for current script
     dword scriptflag; //stores whether various operations were true/false etc.
     
-    byte ffcref, idata; //current object pointers
+    int32_t ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1395,7 +1448,7 @@ struct mapscr
     word str;
     byte room;
     //byte item;
-    int32_t screenItem;
+    ItemDefinitionRef screenItem;
     byte hasitem;
     byte tilewarptype[4];
     byte tilewarpoverlayflags;
@@ -1426,6 +1479,7 @@ struct mapscr
     word undercombo;
     byte undercset;
     word catchall;
+    ItemDefinitionRef catchallItem;
     byte flags;
     byte flags2;
     byte flags3;
@@ -1538,7 +1592,7 @@ struct mapscr
         guy=0;
         str=0;
         room=0;
-        screenItem=0;
+        screenItem=ItemDefinitionRef();
         hasitem=0;
         tilewarpoverlayflags=0;
         door_combo_set=0;
@@ -1560,6 +1614,7 @@ struct mapscr
         undercombo=0;
         undercset=0;
         catchall=0;
+        catchallItem = ItemDefinitionRef();
         flags=0;
         flags2=0;
         flags3=0;
@@ -2107,7 +2162,7 @@ struct dmap
     // int emusic;
     //byte padding;
     //204
-    std::vector<uint32_t> disabledItems;
+    std::vector<ItemDefinitionRef> disabledItems;
     // 460
     long flags;
 };
@@ -2155,8 +2210,24 @@ struct combo_alias
 
 struct shoptype
 {
+    shoptype()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        memset(name, 0, 32);
+        for (int i = 0; i < 3; i++)
+        {
+            item[i] = ItemDefinitionRef();
+            hasitem[i] = false;
+            price[i] = 0;
+        }
+    }
+
     char name[32];
-    byte item[3];
+    ItemDefinitionRef item[3];
     byte hasitem[3];
     word price[3];
     //10
@@ -2176,6 +2247,21 @@ struct pondtype
 
 struct infotype
 {
+    infotype()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        memset(name, 0, 32);
+        for (int i = 0; i < 3; i++)
+        {
+            str[i] = 0;
+            price[i] = 0;
+        }
+    }
+
     char name[32];
     word str[3];
     //byte padding;
@@ -2185,6 +2271,22 @@ struct infotype
 
 struct warpring
 {
+    warpring()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        memset(name, 0, 32);
+        for (int i = 0; i < 9; i++)
+        {
+            dmap[i] = 0;
+            scr[i] = 0;
+        }
+        size = 0;
+    }
+
     char name[32];
     word dmap[9];
     byte scr[9];
@@ -2194,6 +2296,54 @@ struct warpring
 
 struct zcolors
 {
+    zcolors()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        text = 0;
+        caption = 0;
+        overw_bg = 0;
+        dngn_bg = 0;
+        dngn_fg = 0;
+        cave_fg = 0;
+        bs_dk = 0;
+        bs_goal = 0;
+        compass_lt = 0;
+        compass_dk = 0;
+        //10
+        subscr_bg = 0;
+        subscr_shadow = 0;
+        triframe_color = 0;
+        bmap_bg = 0;
+        bmap_fg = 0;
+        link_dot = 0;
+        //15
+        triforce_cset = 0;
+        triframe_cset = 0;
+        overworld_map_cset = 0;
+        dungeon_map_cset = 0;
+        blueframe_cset = 0;
+        //20
+        triforce_tile = 0;
+        triframe_tile = 0;
+        overworld_map_tile = 0;
+        dungeon_map_tile = 0;
+        blueframe_tile = 0;
+        //30
+        HCpieces_tile = 0;
+        HCpieces_cset = 0;
+        msgtext = 0;
+        for(int i=0; i<6; i++)
+            foo[i] = 0;
+        //40
+        for(int i=0; i<256; i++)
+            foo2[i] = 0;
+        //296 bytes
+    }
+
     byte text, caption;
     byte overw_bg, dngn_bg;
     byte dngn_fg, cave_fg;
@@ -2227,12 +2377,41 @@ struct zcolors
 
 struct palcycle
 {
+    palcycle() : first(0), count(0), speed(0) {}
     byte first,count,speed;
     //3
 };
 
 struct miscQdata
 {
+    miscQdata()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            shop[i] = shoptype();
+            info[i] = infotype();
+            for (int j = 0; j < 3; j++)
+                cycles[i][j] = palcycle();
+        }
+
+        for (int i = 0; i < 8; i++)
+        {
+            triforce[i] = 0;
+        }
+
+        colors = zcolors();
+
+        for (int i = 0; i < 4; i++)
+            icons[i] = 0;
+
+        endstring = 0;
+    }
+
     shoptype shop[256];
     //160 (160=10*16)
     infotype info[256];
@@ -2460,8 +2639,8 @@ struct gamedata
     //byte  _keys,_maxbombs,
     byte  /*_wlevel,*/_cheat;
     //24
-    std::set<uint32_t> inventoryItems;
-    std::map<uint32_t, uint8_t> disabledItems;
+    std::set<ItemDefinitionRef> inventoryItems;
+    std::map<ItemDefinitionRef, uint8_t> disabledItems;
     //280
     word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
     word _counter[32];
@@ -2661,11 +2840,11 @@ struct gamedata
     
     byte get_lkeys();
     
-    void set_item(int id, bool value);
-    void set_disabled_item(int id, uint8_t value); // bit 1: set by DMaps. Everything else: set by scripts
-    uint8_t get_disabled_item(int id);
-    void set_item_no_flush(int id, bool value);
-    inline bool get_item(int id)
+    void set_item(const ItemDefinitionRef &id, bool value);
+    void set_disabled_item(const ItemDefinitionRef &id, uint8_t value); // bit 1: set by DMaps. Everything else: set by scripts
+    uint8_t get_disabled_item(const ItemDefinitionRef &id);
+    void set_item_no_flush(const ItemDefinitionRef &id, bool value);
+    inline bool get_item(const ItemDefinitionRef &id)
     {
         return inventoryItems.count(id)>0;
     }
@@ -2757,7 +2936,7 @@ struct zinitdata
     }
 
     byte bombs, super_bombs;
-    std::set<uint32_t> inventoryItems;
+    std::set<ItemDefinitionRef> inventoryItems;
     //94
     byte hc;
     word start_heart, cont_heart;

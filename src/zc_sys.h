@@ -151,14 +151,13 @@ void open_black_opening(int x, int y, bool wait);
 void openscreen();
 int  TriforceCount();
 
-bool item_disabled(int item);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int item);
 //int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
-int current_item(int item_type);
-int current_item(int item_type, bool checkenabled);
+int currentItemLevel(int item_type);
+int currentItemLevel(int item_type, bool checkenabled);
 int current_item_power(int item_type);
-int current_item_id(int item_type, bool checkmagic = true);
+ItemDefinitionRef current_item_id(int item_type, bool checkmagic = true);
 int high_flag(int i, int item_type, bool consecutive);
 int item_tile_mod(bool);
 int dmap_tile_mod();

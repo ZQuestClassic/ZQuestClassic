@@ -277,10 +277,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 
 void setuplinktiles(int style)
 {
-    int swims = curQuest->specialSprites().linkSwim;
-    int slashs = curQuest->specialSprites().linkSlash;
-    old_floatspr = curQuest->weaponDefTable().getSpriteDefinition(swims).tile;
-    old_slashspr = curQuest->weaponDefTable().getSpriteDefinition(slashs).tile;
+    SpriteDefinitionRef swims = curQuest->specialSprites().linkSwim;
+    SpriteDefinitionRef slashs = curQuest->specialSprites().linkSlash;
+    old_floatspr = curQuest->getSpriteDefinition(swims).tile;
+    old_slashspr = curQuest->getSpriteDefinition(slashs).tile;
     linkspr = 4;
     
     switch(style)

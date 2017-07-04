@@ -59,6 +59,8 @@
 #include "vectorset.h"
 #include "single_instance.h"
 #include "backend/AllBackends.h"
+#include "weapons.h"
+#include "link.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -76,7 +78,7 @@ ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
 int db=0;
 //zinitdata  zinit;
-std::map<int, LensItemAnim> lens_hint_item;
+std::map<ItemDefinitionRef, LensItemAnim> lens_hint_item;
 std::map<int, LensWeaponAnim> lens_hint_weapon;
 int detail_int[10];                                         //temporary holder for things you want to detail
 int strike_hint_counter=0;
@@ -95,9 +97,6 @@ int passive_subscreen_height=56;
 int original_playing_field_offset=56;
 int playing_field_offset=original_playing_field_offset;
 int passive_subscreen_offset=0;
-extern int directItem;
-extern int directItemA;
-extern int directItemB;
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
@@ -209,7 +208,7 @@ FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk, intropos, dmapmsgclk, linkedmsgclk;
 short    lensclk;
-int     lensid; // Lens's item id. -1 if lens is off.
+ItemDefinitionRef     lensid; // Lens's item id. 
 int    Bpos;
 byte screengrid[22];
 byte ffcgrid[4];
@@ -229,7 +228,12 @@ byte frame_rest_suggest=0,forceExit=0;
 byte use_debug_console=0, use_win32_proc=1; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
-int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
+int lastentrance = 0, lastentrance_dmap = 0, prices[3], loadside; 
+
+ItemDefinitionRef Bwpn, Awpn;
+bool combinedBowArrowA;
+bool combinedBowArrowB;
+
 int digi_volume,midi_volume,emusic_volume,currmidi,hasitem,whistleclk;
 bool analog_movement=true;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
@@ -240,8 +244,11 @@ int js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 int DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
 int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
-int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
-int nets=1580, magicitem=-1,nayruitem=-1, title_version, magiccastclk, quakeclk=0, wavy=0, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
+int gfc, gfc2, pitx, pity, refill_what, heart_beep_timer=0, new_enemy_tile_start=1580;
+ItemDefinitionRef refill_why;
+int nets=1580, title_version, magiccastclk, quakeclk=0, wavy=0, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
+ItemDefinitionRef magicitem;
+ItemDefinitionRef nayruitem;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
 bool do_cheat_goto=false, do_cheat_light=false;
 int checkx, checky;
@@ -304,6 +311,22 @@ extern bool global_wait;
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
 byte arrayOwner[MAX_ZCARRAY_SIZE];
+
+extern sprite_list Lwpns;
+
+int LwpnsIdFirst(int id)
+{
+    for (int i = 0; i < Lwpns.Count(); i++)
+    {
+        sprite *sprite = Lwpns.spr(i);
+        weapon *wpn = (weapon *)sprite;
+        if (wpn->id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -725,7 +748,7 @@ LinkClass   *Link;
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
 {
-    Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,-1,parentid));
+    Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,ItemDefinitionRef(),parentid));
 }
 
 void ALLOFF(bool messagesToo, bool decorationsToo)
@@ -739,11 +762,15 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     
-    if(items.idCount(iPile))
+    for(int i=0; i<items.Count(); i++)
     {
-        loadlvlpal(DMaps[currdmap].color);
+        if (((item *)items.spr(i))->itemDefinition == curQuest->specialItems().dustPile)
+        {
+            loadlvlpal(DMaps[currdmap].color);
+            break;
+        }
     }
-    
+
     items.clear();
     guys.clear();
     Lwpns.clear();
@@ -779,7 +806,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     introclk=intropos=72;
     
     lensclk = 0;
-    lensid=-1;
+    lensid = ItemDefinitionRef();
     drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
     
     if(watch && !cheat_superman)
@@ -881,7 +908,9 @@ fix  GuyY(int j)
 }
 int  GuyID(int j)
 {
-    return guys.getID(j);
+    if (j < 0 || j >= guys.Count())
+        return -1;
+    return ((enemy *)guys.spr(j))->id;
 }
 int  GuyMisc(int j)
 {
@@ -929,14 +958,14 @@ void add_grenade(int wx, int wy, int wz, int size, int parentid)
     if(size)
     {
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wSBomb,0,16*DAMAGE_MULTIPLIER,LinkDir(),
-                             -1, parentid));
-        Lwpns.spr(Lwpns.Count()-1)->id=wSBomb;
+                             ItemDefinitionRef(), parentid));
+        ((weapon *)Lwpns.spr(Lwpns.Count()-1))->id=wSBomb;
     }
     else
     {
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBomb,0,4*DAMAGE_MULTIPLIER,LinkDir(),
-                             -1, parentid));
-        Lwpns.spr(Lwpns.Count()-1)->id=wBomb;
+                             ItemDefinitionRef(), parentid));
+        ((weapon *)Lwpns.spr(Lwpns.Count()-1))->id=wBomb;
     }
     
     Lwpns.spr(Lwpns.Count()-1)->clk=48;
@@ -1129,12 +1158,12 @@ int load_quest(gamedata *g, bool report)
 void init_dmap()
 {
     // readjust disabled items; could also do dmap-specific scripts here
-    for (std::map<uint32_t, uint8_t>::iterator it = game->disabledItems.begin(); it != game->disabledItems.end(); ++it)
+    for (std::map<ItemDefinitionRef, uint8_t>::iterator it = game->disabledItems.begin(); it != game->disabledItems.end(); ++it)
     {
         game->disabledItems[it->first] &= (~1); // disable last bit - this one is set by dmap
     }
 
-    for(std::vector<uint32_t>::iterator it = DMaps[currdmap].disabledItems.begin(); it != DMaps[currdmap].disabledItems.end(); ++it)
+    for(std::vector<ItemDefinitionRef>::iterator it = DMaps[currdmap].disabledItems.begin(); it != DMaps[currdmap].disabledItems.end(); ++it)
     {
         game->disabledItems[*it] |= 1; // and reset if required
 
@@ -1286,7 +1315,9 @@ int init_game()
     lastentrance_dmap = currdmap;
     currmap = DMaps[currdmap].map;
     dlevel = DMaps[currdmap].level;
-    sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
+    sle_x=sle_y=newscr_clk=opendoors=Bpos=0;
+    Bwpn = ItemDefinitionRef();
+    combinedBowArrowB = false;
     fadeclk=-1;
     
     if(DMaps[currdmap].flags&dmfVIEWMAP)
@@ -1384,14 +1415,12 @@ int init_game()
             apos=-1;
         }
         
-        Awpn = Bweapon(apos);
-        directItemA = directItem;
+        Awpn = weaponFromSlot(apos, combinedBowArrowA);
     }
     
     game->awpn = apos;
     game->bwpn = bpos;
-    Bwpn = Bweapon(bpos);
-    directItemB = directItem;
+    Bwpn = weaponFromSlot(bpos, combinedBowArrowB);
     update_subscr_items();
     
     reset_subscr_items();
@@ -1731,12 +1760,12 @@ void do_magic_casting()
     int lflip=0;
     bool shieldModify=true;
     
-    if(magicitem==-1)
+    if(!curQuest->isValid(magicitem))
     {
         return;
     }
     
-    switch(curQuest->itemDefTable().getItemDefinition(magicitem).family)
+    switch(curQuest->getItemDefinition(magicitem).family)
     {
     case itype_dinsfire:
     {
@@ -1782,16 +1811,16 @@ void do_magic_casting()
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(magicitem).usesound,Link->getX());
+                Backend::sfx->play(curQuest->getItemDefinition(magicitem).usesound,Link->getX());
                 
-            int flamemax= curQuest->itemDefTable().getItemDefinition(magicitem).misc1;
+            int flamemax= curQuest->getItemDefinition(magicitem).misc1;
             
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
-                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3, curQuest->itemDefTable().getItemDefinition(magicitem).power*DAMAGE_MULTIPLIER,
+                Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3, curQuest->getItemDefinition(magicitem).power*DAMAGE_MULTIPLIER,
                                      (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link->getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
-                w->step=(curQuest->itemDefTable().getItemDefinition(magicitem).misc2/100.0);
+                w->step=(curQuest->getItemDefinition(magicitem).misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
             }
@@ -1802,7 +1831,7 @@ void do_magic_casting()
         
         if((magiccastclk++)>=226)
         {
-            magicitem=-1;
+            magicitem=ItemDefinitionRef();
             magiccastclk=0;
         }
     }
@@ -1852,7 +1881,7 @@ void do_magic_casting()
         if(magiccastclk==96)
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                Backend::sfx->play(curQuest->itemDefTable().getItemDefinition(magicitem).usesound,Link->getX());
+                Backend::sfx->play(curQuest->getItemDefinition(magicitem).usesound,Link->getX());
                 
             Link->setDontDraw(true);
             
@@ -1862,14 +1891,14 @@ void do_magic_casting()
                 {
                     if(linktilebuf[i*16+j])
                     {
-                        if(curQuest->itemDefTable().getItemDefinition(magicitem).misc1==1)  // Twilight
+                        if(curQuest->getItemDefinition(magicitem).misc1==1)  // Twilight
                         {
                             particles.add(new pTwilight(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 0, 0, (rand()%8)+i*4));
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=3;
                         }
-                        else if(curQuest->itemDefTable().getItemDefinition(magicitem).misc1==2)  // Sands of Hours
+                        else if(curQuest->getItemDefinition(magicitem).misc1==2)  // Sands of Hours
                         {
                             particles.add(new pTwilight(Link->getX()+j, Link->getY()-Link->getZ()+i, 5, 1, 2, (rand()%16)+i*2));
                             int k=particles.Count()-1;
@@ -1901,12 +1930,12 @@ void do_magic_casting()
         if((magiccastclk++)>=226)
         {
             //attackclk=0;
-            int nayrutemp=nayruitem;
+            ItemDefinitionRef nayrutemp=nayruitem;
             restart_level();
             nayruitem=nayrutemp;
             //xofs=0;
             //action=none;
-            magicitem=-1;
+            magicitem=ItemDefinitionRef();
             magiccastclk=0;
             Link->setDontDraw(false);
         }
@@ -1973,17 +2002,17 @@ void do_magic_casting()
                 Link->tile+=item_tile_mod(shieldModify);
             }
             
-            Link->setNayrusLoveShieldClk(curQuest->itemDefTable().getItemDefinition(magicitem).misc1);
+            Link->setNayrusLoveShieldClk(curQuest->getItemDefinition(magicitem).misc1);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-                if(nayruitem != -1)
+                if(curQuest->isValid(nayruitem))
                 {
-                    Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(magicitem).usesound+1);
-                    Backend::sfx->stop(curQuest->itemDefTable().getItemDefinition(magicitem).usesound);
+                    Backend::sfx->stop(curQuest->getItemDefinition(magicitem).usesound+1);
+                    Backend::sfx->stop(curQuest->getItemDefinition(magicitem).usesound);
                 }
                 
-                Backend::sfx->loop(curQuest->itemDefTable().getItemDefinition(magicitem).usesound,128);
+                Backend::sfx->loop(curQuest->getItemDefinition(magicitem).usesound,128);
             }
             
             castnext=false;
@@ -2002,7 +2031,7 @@ void do_magic_casting()
                     Lwpns.del(i);
             }
             
-            magicitem=-1;
+            magicitem=ItemDefinitionRef();
             magiccastclk=0;
         }
     }
@@ -2025,24 +2054,24 @@ void update_hookshot()
     
     //find out where the head is and make it
     //easy to reference
-    if(Lwpns.idFirst(wHookshot)>-1)
+    if(LwpnsIdFirst(wHookshot)>-1)
     {
         check_hs=true;
     }
     
     if(check_hs)
     {
-        int parentitem = ((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
-        hs_x=Lwpns.spr(Lwpns.idFirst(wHookshot))->x;
-        hs_y=Lwpns.spr(Lwpns.idFirst(wHookshot))->y;
-        hs_z=Lwpns.spr(Lwpns.idFirst(wHookshot))->z;
+        ItemDefinitionRef parentitem = ((weapon*)Lwpns.spr(LwpnsIdFirst(wHookshot)))->parentitem;
+        hs_x=Lwpns.spr(LwpnsIdFirst(wHookshot))->x;
+        hs_y=Lwpns.spr(LwpnsIdFirst(wHookshot))->y;
+        hs_z=Lwpns.spr(LwpnsIdFirst(wHookshot))->z;
         hs_dx=hs_x-hs_startx;
         hs_dy=hs_y-hs_starty;
         
         //extending
-        if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
+        if(((weapon*)Lwpns.spr(LwpnsIdFirst(wHookshot)))->misc==0)
         {
-            int maxchainlinks= curQuest->itemDefTable().getItemDefinition(parentitem).misc2;
+            int maxchainlinks= curQuest->getItemDefinition(parentitem).misc2;
             
             if(chainlinks.Count()<maxchainlinks)           //extending chain
             {
@@ -2088,7 +2117,7 @@ void update_hookshot()
                 }
             }
         }                                                       //retracting
-        else if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==1)
+        else if(((weapon*)Lwpns.spr(LwpnsIdFirst(wHookshot)))->misc==1)
         {
             dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
             dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
@@ -2124,11 +2153,25 @@ void update_hookshot()
                         
                         if(pull_link==false)
                         {
-                            chainlinks.del(chainlinks.idLast(wHSChain));
+                            for (int i = chainlinks.Count() - 1; i >= 0; i--)
+                            {
+                                if (((weapon *)chainlinks.spr(i))->id == wHSChain)
+                                {
+                                    chainlinks.del(i);
+                                    break;
+                                }
+                            }                            
                         }
                         else
                         {
-                            chainlinks.del(chainlinks.idFirst(wHSChain));
+                            for (int i = 0; i < chainlinks.Count(); i++)
+                            {
+                                if (((weapon *)chainlinks.spr(i))->id == wHSChain)
+                                {
+                                    chainlinks.del(i);
+                                    break;
+                                }
+                            }                            
                         }
                     }
                 }
@@ -2150,11 +2193,25 @@ void update_hookshot()
                         
                         if(pull_link==false)
                         {
-                            chainlinks.del(chainlinks.idLast(wHSChain));
+                            for (int i = chainlinks.Count() - 1; i >= 0; i--)
+                            {
+                                if (((weapon *)chainlinks.spr(i))->id == wHSChain)
+                                {
+                                    chainlinks.del(i);
+                                    break;
+                                }
+                            }                            
                         }
                         else
                         {
-                            chainlinks.del(chainlinks.idFirst(wHSChain));
+                            for (int i = 0; i < chainlinks.Count(); i++)
+                            {
+                                if (((weapon *)chainlinks.spr(i))->id == wHSChain)
+                                {
+                                    chainlinks.del(i);
+                                    break;
+                                }
+                            }  
                         }
                     }
                 }
@@ -2347,8 +2404,8 @@ void game_loop()
     
     if(linkedmsgclk==1)
     {
-        int iwmore = curQuest->specialSprites().messageMoreIndicator;
-        if(curQuest->weaponDefTable().getSpriteDefinition(iwmore).tile!=0)
+        SpriteDefinitionRef iwmore = curQuest->specialSprites().messageMoreIndicator;
+        if(curQuest->getSpriteDefinition(iwmore).tile!=0)
         {
             putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom].aclk, lens_hint_weapon[wPhantom].aframe,-1);
         }
@@ -2394,72 +2451,72 @@ void game_loop()
         
         do_dcounters();
         
-        if(!freezemsg && current_item(itype_heartring))
+        if(!freezemsg && currentItemLevel(itype_heartring))
         {
-            int itemid = current_item_id(itype_heartring);
-            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
+            ItemDefinitionRef itemid = current_item_id(itype_heartring);
+            int fskip = curQuest->getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
-                game->set_life(zc_min(game->get_life() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxlife()));
+                game->set_life(zc_min(game->get_life() + curQuest->getItemDefinition(itemid).misc1, game->get_maxlife()));
         }
         
-        if(!freezemsg && current_item(itype_magicring))
+        if(!freezemsg && currentItemLevel(itype_magicring))
         {
-            int itemid = current_item_id(itype_magicring);
-            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
+            ItemDefinitionRef itemid = current_item_id(itype_magicring);
+            int fskip = curQuest->getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
-                game->set_magic(zc_min(game->get_magic() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxmagic()));
+                game->set_magic(zc_min(game->get_magic() + curQuest->getItemDefinition(itemid).misc1, game->get_maxmagic()));
             }
         }
         
-        if(!freezemsg && current_item(itype_wallet))
+        if(!freezemsg && currentItemLevel(itype_wallet))
         {
-            int itemid = current_item_id(itype_wallet);
-            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
+            ItemDefinitionRef itemid = current_item_id(itype_wallet);
+            int fskip = curQuest->getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
-                game->set_rupies(zc_min(game->get_rupies() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxcounter(1)));
+                game->set_rupies(zc_min(game->get_rupies() + curQuest->getItemDefinition(itemid).misc1, game->get_maxcounter(1)));
             }
         }
         
-        if(!freezemsg && current_item(itype_bombbag))
+        if(!freezemsg && currentItemLevel(itype_bombbag))
         {
-            int itemid = current_item_id(itype_bombbag);
+            ItemDefinitionRef itemid = current_item_id(itype_bombbag);
             
-            if(curQuest->itemDefTable().getItemDefinition(itemid).misc1)
+            if(curQuest->getItemDefinition(itemid).misc1)
             {
-                int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
+                int fskip = curQuest->getItemDefinition(itemid).misc2;
                 
                 if(fskip == 0 || frame % fskip == 0)
                 {
-                    game->set_bombs(zc_min(game->get_bombs() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxbombs()));
+                    game->set_bombs(zc_min(game->get_bombs() + curQuest->getItemDefinition(itemid).misc1, game->get_maxbombs()));
                 }
                 
-                if(curQuest->itemDefTable().getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
+                if(curQuest->getItemDefinition(itemid).flags & itemdata::IF_FLAG1)
                 {
                     int ratio = zinit.bomb_ratio;
                     
-                    fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2 * ratio;
+                    fskip = curQuest->getItemDefinition(itemid).misc2 * ratio;
                     
                     if(fskip == 0 || frame % fskip == 0)
                     {
-                        game->set_sbombs(zc_min(game->get_sbombs() + zc_max(curQuest->itemDefTable().getItemDefinition(itemid).misc1 / ratio, 1), game->get_maxbombs() / ratio));
+                        game->set_sbombs(zc_min(game->get_sbombs() + zc_max(curQuest->getItemDefinition(itemid).misc1 / ratio, 1), game->get_maxbombs() / ratio));
                     }
                 }
             }
         }
         
-        if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
+        if(!freezemsg && currentItemLevel(itype_quiver) && game->get_arrows() != game->get_maxarrows())
         {
-            int itemid = current_item_id(itype_quiver);
-            int fskip = curQuest->itemDefTable().getItemDefinition(itemid).misc2;
+            ItemDefinitionRef itemid = current_item_id(itype_quiver);
+            int fskip = curQuest->getItemDefinition(itemid).misc2;
             
             if(fskip == 0 || frame % fskip == 0)
             {
-                game->set_arrows(zc_min(game->get_arrows() + curQuest->itemDefTable().getItemDefinition(itemid).misc1, game->get_maxarrows()));
+                game->set_arrows(zc_min(game->get_arrows() + curQuest->getItemDefinition(itemid).misc1, game->get_maxarrows()));
             }
         }
         
