@@ -22,6 +22,7 @@
 //Other
 //#define _SKIPPASSWORDCHECK
 
+#include <cstdio>
 #include <math.h>
 #include <string.h>
 #include <vector>
@@ -31,6 +32,7 @@
 #include "zc_alleg.h"
 #include "zc_array.h"
 #include "quest/QuestRefs.h"
+#include "zc_malloc.h"
 
 #define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
@@ -1441,45 +1443,82 @@ public:
 };
 
 
+struct ScreenFFCSet
+{
+	dword numff;
+	word ffdata[NUM_FFCS];
+	byte ffcset[NUM_FFCS];
+	word ffdelay[NUM_FFCS];
+	long ffx[NUM_FFCS];
+	long ffy[NUM_FFCS];
+	long ffxdelta[NUM_FFCS];
+	long ffydelta[NUM_FFCS];
+	long ffxdelta2[NUM_FFCS];
+	long ffydelta2[NUM_FFCS];
+	dword ffflags[NUM_FFCS];
+	byte ffwidth[NUM_FFCS];
+	byte ffheight[NUM_FFCS];
+	byte fflink[NUM_FFCS];
+
+	//ffc script attachments
+	word ffscript[NUM_FFCS];
+	long initd[NUM_FFCS][INITIAL_D];
+	long inita[NUM_FFCS][INITIAL_A];
+	bool initialized[NUM_FFCS];
+
+	void clear()
+	{
+		memset(this, 0, sizeof(ScreenFFCSet));
+	}
+};
+
+//extern ScreenFFCSet tempscrFFCSet[2];
+//extern ScreenFFCSet currentFFCSet;
+
+
 struct mapscr
 {
-    byte valid;
-    byte guy;
-    word str;
-    byte room;
-    //byte item;
     ItemDefinitionRef screenItem;
-    byte hasitem;
+    word str;
+	word door_combo_set;
+
     byte tilewarptype[4];
-    byte tilewarpoverlayflags;
-    word door_combo_set;
     byte warpreturnx[4];
     byte warpreturny[4];
-    word warpreturnc;
-    byte stairx;
-    byte stairy;
-    byte itemx;
-    byte itemy;
-    word color;
-    byte enemyflags;
-    byte door[4]; //need to add a dmapscreendoor command.
-    word tilewarpdmap[4];
-    byte tilewarpscr[4];
-    byte exitdir;
+	byte tilewarpscr[4];
+	byte door[4]; //need to add a dmapscreendoor command.
+	byte sidewarptype[4];
+	byte path[4];
+	byte sidewarpscr[4];
+
     word enemy[10]; //GetSetScreenEnemies()
+	word tilewarpdmap[4];
+	word sidewarpdmap[4];
+	word warpreturnc;
+	word color;
+	word undercombo;
+	word catchall;
+    ItemDefinitionRef catchallItem;
+
+	byte exitdir;
     byte pattern;
-    byte sidewarptype[4];
     byte sidewarpoverlayflags;
     byte warparrivalx;
     byte warparrivaly;
-    byte path[4];
-    byte sidewarpscr[4];
-    word sidewarpdmap[4];
     byte sidewarpindex;
-    word undercombo;
     byte undercset;
-    word catchall;
-    ItemDefinitionRef catchallItem;
+	byte valid;
+	byte guy;
+	byte room;
+	byte hasitem;
+	byte tilewarpoverlayflags;
+	//byte item;
+	byte stairx;
+	byte stairy;
+	byte itemx;
+	byte itemy;
+	byte enemyflags;
+
     byte flags;
     byte flags2;
     byte flags3;
@@ -1491,35 +1530,46 @@ struct mapscr
     byte flags9;
     byte flags10;
     byte csensitive;
-    word noreset;
-    word nocarry;
+	byte nextmap;
+	byte nextscr;
+
     byte layermap[6];
+	word noreset;
     byte layerscreen[6];
+	word nocarry;
+	byte layeropacity[6];
+	word timedwarptics;
+
+	word script_entry;
+	word script_occupancy;
+	word script_exit;
+	word screen_midi;
+	word viewX;
+	word viewY;
+
+	byte scrWidth;
+	byte scrHeight;
+	byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
+
+	byte oceansfx;
+	byte bosssfx;
+	byte secretsfx;
+	byte holdupsfx;
+
+	// for importing older quests...
+	byte old_cpage;
+	byte lens_layer;
+
     //  byte layerxsize[6];
     //  byte layerxspeed[6];
     //  byte layerxdelay[6];
     //  byte layerysize[6];
     //  byte layeryspeed[6];
     //  byte layerydelay[6];
-    byte layeropacity[6]; //should be available to zscript.-Z
-    word timedwarptics;
-    byte nextmap;
-    byte nextscr;
-    word secretcombo[128]; //should be available to zscript.-Z
-    byte secretcset[128]; //should be available to zscript.-Z
-    byte secretflag[128]; //should be available to zscript.-Z
-    // you're listening to ptr radio, the sounds of insane. ;)
-    std::vector<word> data;
-    std::vector<byte> sflag;
-    std::vector<byte> cset;
-    word viewX;
-    word viewY;
-    byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
-    byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
-    
-    byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
-    
+
     //Why doesn't ffc get to be its own class?
+	//Warning: ffc refactoring in progress.
+	// ---
     dword numff;
     word ffdata[NUM_FFCS];
     byte ffcset[NUM_FFCS];
@@ -1540,159 +1590,126 @@ struct mapscr
     long initd[NUM_FFCS][INITIAL_D];
     long inita[NUM_FFCS][INITIAL_A];
     bool initialized[NUM_FFCS];
-    
-    /*long d[32][8];
-    long a[32][2];
-    word pc[32];
-    dword scriptflag[32];
-    byte sp[32]; //stack pointer
-    byte ffcref[32];
-    dword itemref[32];
-    byte itemclass[32];
-    dword lwpnref[32];
-    dword ewpnref[32];
-    dword guyref[32];*/
-    //byte lwpnclass[32]; Not implemented
-    //byte ewpnclass[32]; Not implemented
-    //byte guyclass[32]; Not implemented
-    
-    /*long map_stack[256];
-    long map_d[8];
-    word map_pc;
-    dword map_scriptflag;
-    byte map_sp;
-    byte map_itemref;
-    byte map_itemclass;
-    byte map_lwpnref;
-    byte map_lwpnclass;
-    byte map_ewpnref;
-    byte map_ewpnclass;
-    byte map_guyref;
-    byte map_guyclass;
-    byte map_ffcref;*/ //All this is trash because we don't have map scripts, waste of memory
-    word script_entry;
-    word script_occupancy;
-    word script_exit;
-    
-    byte oceansfx;
-    byte bosssfx;
-    byte secretsfx;
-    byte holdupsfx;
-    
-    // for importing older quests...
-    byte old_cpage;
-    short screen_midi;
-    byte lens_layer;
-    
-    
-    void zero_memory()
-    {
-        //oh joy, this will be fun...
-        valid=0;
-        guy=0;
-        str=0;
-        room=0;
-        screenItem=ItemDefinitionRef();
-        hasitem=0;
-        tilewarpoverlayflags=0;
-        door_combo_set=0;
-        warpreturnc=0;
-        stairx=0;
-        stairy=0;
-        itemx=0;
-        itemy=0;
-        color=0;
-        enemyflags=0;
+
+	// --
+
+	word secretcombo[128];
+	byte secretcset[128];
+	byte secretflag[128];
+
+	// Must be last.
+	std::vector<word> data;
+	std::vector<byte> sflag;
+	std::vector<byte> cset;
+
+	void zero_memory()
+	{
+        // This is unsafe due to having no guarantees about how the C++ compiler packs and pads structs in memory
+        // I know it's painful but let's avoid memset'ing or memcpy'ing any nontrivial data structures -DD
+		//memset(this, 0, sizeof(mapscr) - (sizeof(std::vector<byte>) * 3));
+
+        screenItem = ItemDefinitionRef();
+        str = 0;
+        door_combo_set = 0;
+
+        for (int i = 0; i < 4; i++)
+        {
+            tilewarptype[i] = 0;
+            warpreturnx[i] = 0;
+            warpreturny[i] = 0;
+            tilewarpscr[i] = 0;
+            door[i] = 0;
+            sidewarptype[i] = 0;
+            path[i] = 0;
+            sidewarpscr[i] = 0;
+        }
+
+        for(int i=0; i<10; i++)
+            enemy[i] = 0;
+
+        for (int i = 0; i < 4; i++)
+        {
+            tilewarpdmap[i] = 0;
+            sidewarpdmap[i] = 0;
+        }
+
+        warpreturnc = 0;
+        color = 0;
+        undercombo = 0;
+        catchall = 0;
+        ItemDefinitionRef catchallItem = ItemDefinitionRef();
+
+        exitdir = 0;
+        pattern = 0;
+        sidewarpoverlayflags = 0;
+        warparrivalx = 0;
+        warparrivaly = 0;
+        sidewarpindex = 0;
+        undercset = 0;
+        valid = 0;
+        guy = 0;
+        room = 0;
+        hasitem = 0;
+        tilewarpoverlayflags = 0;
         
-        exitdir=0;
-        pattern=0;
-        sidewarpoverlayflags=0;
-        warparrivalx=0;
-        warparrivaly=0;
-        
-        sidewarpindex=0;
-        undercombo=0;
-        undercset=0;
-        catchall=0;
-        catchallItem = ItemDefinitionRef();
-        flags=0;
-        flags2=0;
-        flags3=0;
-        flags4=0;
-        flags5=0;
-        flags6=0;
-        flags7=0;
-        flags8=0;
-        flags9=0;
-        flags10=0;
-        csensitive=0;
+        stairx = 0;
+        stairy = 0;
+        itemx = 0;
+        itemy = 0;
+        enemyflags = 0;
+
+        flags = 0;
+        flags2 = 0;
+        flags3 = 0;
+        flags4 = 0;
+        flags5 = 0;
+        flags6 = 0;
+        flags7 = 0;
+        flags8 = 0;
+        flags9 = 0;
+        flags10 = 0;
+        csensitive = 0;
+        nextmap = 0;
+        nextscr = 0;
+
+        for(int i=0; i<6; i++)
+            layermap[i]=0;
         noreset=0;
-        nocarry=0;
+        for(int i=0; i<6; i++)
+            layerscreen[i]=0;
+        nocarry = 0;
+        for(int i=0; i<6; i++)
+            layeropacity[i]=0;
         timedwarptics=0;
-        nextmap=0;
-        nextscr=0;
-	 // new for 2.6
-        entry_x = entry_y = 0; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
-    
-        
+
+        script_entry=0;
+        script_occupancy=0;
+        script_exit=0;
+        screen_midi=0;
         viewX=0;
         viewY=0;
+
         scrWidth=0;
         scrHeight=0;
-        numff=0;
+        entry_x = 0;
+        entry_y=0;
+
+        oceansfx=0;
+        bosssfx=0;
+        secretsfx=0;
+        holdupsfx=0;
+
+        // for importing older quests...
+        old_cpage=0;
+        lens_layer=0;
+
         
-        for(int i(0); i<4; i++)
+        //Why doesn't ffc get to be its own class?
+        //Warning: ffc refactoring in progress.
+        // ---
+        dword numffc=0;
+        for (int i = 0; i < NUM_FFCS; i++)
         {
-            door[i]=0;
-            tilewarpdmap[i]=0;
-            tilewarpscr[i]=0;
-            tilewarptype[i]=0;
-            warpreturnx[i]=0;
-            warpreturny[i]=0;
-            path[i]=0;
-            sidewarpscr[i]=0;
-            sidewarpdmap[i]=0;
-            sidewarptype[i]=0;
-        }
-        
-        for(int i(0); i<10; i++)
-            enemy[i]=0;
-            
-        for(int i(0); i<128; i++)
-        {
-            secretcombo[i]=0;
-            secretcset[i]=0;
-            secretflag[i]=0;
-        }
-        
-        for(int i(0); i<6; i++)
-        {
-            layermap[i]=0;
-            layerscreen[i]=0;
-            layeropacity[i]=0;
-        }
-        
-        for(int i(0); i<32; i++)
-        {
-            for(int j(0); j<8; j++)
-            {
-                //d[i][j]=0;
-                initd[i][j]=0;
-            }
-            
-            for(int j(0); j<2; j++)
-            {
-                inita[i][j]=0;
-                //a[i][j]=0;
-            }
-            
-            initialized[i]=0;
-            /*pc[i]=0;
-            scriptflag[i]=0;
-            sp[i]=0;
-            ffcref[i]=0;
-            itemref[i]=0;
-            itemclass[i]=0;*/
             ffdata[i]=0;
             ffcset[i]=0;
             ffdelay[i]=0;
@@ -1706,54 +1723,34 @@ struct mapscr
             ffwidth[i]=0;
             ffheight[i]=0;
             fflink[i]=0;
+
+            //ffc script attachments
             ffscript[i]=0;
+            for(int j=0; j<INITIAL_D; j++)
+                initd[i][j]=0;
+            for(int j=0; j<INITIAL_A; j++)
+                inita[i][j] = 0;  // Apparently this needs to be 10000?
+            initialized[i] = false;
+        }
+
+        for (int i = 0; i < 128; i++)
+        {
+            secretcombo[i] = 0;
+            secretcset[i]=0;
+            secretflag[i]=0;
         }
         
-        /*	  for(int i(0);i<256;i++)
-        	  {
-        	   map_stack[i]=0;
-        	  }
-        	   for(int i(0);i<8;i++)
-        	  {
-        	   map_d[i]=0;
-        	  }
-           map_pc=0;
-           map_scriptflag=0;
-           map_sp=map_itemref=map_itemclass=0;
-           map_lwpnref=0;
-           map_lwpnclass=0;
-           map_ewpnref=0;
-           map_ewpnclass=0;
-           map_guyref=0;
-           map_guyclass=0;
-           map_ffcref=0;*/
-        script_entry=0;
-        script_occupancy=0;
-        script_exit=0;
-        oceansfx=0;
-        bosssfx=0;
-        secretsfx=0;
-        holdupsfx=0;
-        lens_layer=0;
-        
-        data.assign(176,0);
-        sflag.assign(176,0);
-        cset.assign(176,0);
-        //data.assign(data.size(),0);
-        //sflag.assign(sflag.size(),0);
-        //cset.assign(cset.size(),0);
-    }
-    
-    
-    mapscr()
-    {
-        data.resize(176,0);
-        sflag.resize(176,0);
-        cset.resize(176,0);
-        zero_memory();
-    }
-    
+        data.assign(176, 0);
+		sflag.assign(176, 0);
+		cset.assign(176, 0);
+	}
+
+	mapscr()
+	{
+		zero_memory();
+	}
 };
+
 
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format

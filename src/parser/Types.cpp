@@ -8,7 +8,7 @@ ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
 ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool", "Bool");
 ZVarTypeClass const ZVarType::GAME(ZCLASSID_GAME, "Game");
-ZVarTypeClass const ZVarType::LINK(ZCLASSID_LINK, "Link");
+ZVarTypeClass const ZVarType::_LINK(ZCLASSID_LINK, "Link");
 ZVarTypeClass const ZVarType::SCREEN(ZCLASSID_SCREEN, "Screen");
 ZVarTypeClass const ZVarType::FFC(ZCLASSID_FFC, "FFC");
 ZVarTypeClass const ZVarType::ITEM(ZCLASSID_ITEM, "Item");
@@ -40,7 +40,7 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 	case ZVARTYPEID_BOOL: return &BOOL;
 	case ZVARTYPEID_CONST_FLOAT: return &CONST_FLOAT;
 	case ZVARTYPEID_GAME: return &GAME;
-	case ZVARTYPEID_LINK: return &LINK;
+	case ZVARTYPEID_LINK: return &_LINK;
 	case ZVARTYPEID_SCREEN: return &SCREEN;
 	case ZVARTYPEID_FFC: return &FFC;
 	case ZVARTYPEID_ITEM: return &ITEM;

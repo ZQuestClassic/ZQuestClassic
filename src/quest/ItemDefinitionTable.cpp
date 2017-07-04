@@ -3,7 +3,9 @@
 #include "../defdata.h"
 #include "Quest.h"
 
-using namespace std;
+//using namespace std; STOP USING NAMESPACE STD!!! (It breaks compiles)
+using std::string;
+
 
 bool SpecialItemIndex::checkConsistency(Quest &quest)
 {

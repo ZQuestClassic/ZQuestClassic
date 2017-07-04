@@ -4,7 +4,7 @@
 
 #include "precompiled.h" //always first
 
-#include <deque>
+//#include <deque>
 //#include <algorithm>
 #include <string>
 #include <sstream>
@@ -740,6 +740,23 @@ public:
             num_chars--;
         }
     }
+
+	// Non std::string version. Requires exact length, array must be valid.
+	static void uncheckedGetCString(const long ptr, char* str, int stringLength)
+	{
+		ZScriptArray& a = getArray(ptr);
+
+		int i = 0;
+		if(a != INVALIDARRAY)
+		{
+			for( ; i < stringLength; ++i)
+			{
+				str[i] = char(a[i] / 10000);
+			}
+		}
+
+		str[i] = 0; //null terminate.
+	}
     
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
     static void getValues(const long ptr, long* arrayPtr, word num_values)
@@ -7501,13 +7518,12 @@ void do_drawing_command(const int script_command)
         
     case QUAD3DR:
     {
-        std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(26, 0);
+        long* v = script_drawing_commands[j].AllocateDrawBuffer(26 * sizeof(long));
         
-        long* pos = &v->at(0);
-        long* uv = &v->at(12);
-        long* col = &v->at(20);
-        long* size = &v->at(24);
+        long* pos = v + 0;
+        long* uv = v + 12;
+        long* col = v + 20;
+        long* size = v + 24;
         
         set_drawing_command_args(j, 8);
         ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
@@ -7515,19 +7531,18 @@ void do_drawing_command(const int script_command)
         ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
         ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
         
-        script_drawing_commands[j].SetVector(v);
+       // script_drawing_commands[j].SetPtr(v);
     }
     break;
     
     case TRIANGLE3DR:
     {
-        std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(20, 0);
+        long *v = script_drawing_commands[j].AllocateDrawBuffer(20 * sizeof(long));
         
-        long* pos = &v->at(0);
-        long* uv = &v->at(9);
-        long* col = &v->at(15);
-        long* size = &v->at(18);
+        long* pos = v + 0;
+        long* uv = v + 9;
+        long* col = v + 15;
+        long* size = v + 18;
         
         set_drawing_command_args(j, 8);
         ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
@@ -7535,22 +7550,99 @@ void do_drawing_command(const int script_command)
         ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
         ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
         
-        script_drawing_commands[j].SetVector(v);
+        //script_drawing_commands[j].SetVector(v);
     }
     break;
     
     case DRAWSTRINGR:
     {
         set_drawing_command_args(j, 9);
-        // Unused
-        //const int index = script_drawing_commands[j][19] = j;
-        
-        string *str = script_drawing_commands.GetString();
-        ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
-        script_drawing_commands[j].SetString(str);
+
+		long arrayID = script_drawing_commands[j][8] / 10000;
+		int length = ArrayH::strlen(arrayID);
+		if(length > 0)
+		{
+			char *str = (char*)script_drawing_commands[j].AllocateDrawBuffer(length + 1);
+			ArrayH::uncheckedGetCString(arrayID, str, length);
+		}
+		else
+		{
+			script_drawing_commands.AbortDrawingCommand();
+		}
     }
     break;
-    }
+
+
+	//case BITMAPEXR:
+	//{
+	//}
+	//break;
+
+	//case POLYGONR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//		long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//		script_drawing_commands[j].SetPtr(ptr);
+	//	}
+	//break;
+
+	//case PIXELARRAYR:
+	//{
+	//	set_drawing_command_args(j, 5);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	//case TILEARRAYR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	//case COMBOARRAYR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	} //switch
 }
 
 void do_set_rendertarget(bool)
@@ -9113,9 +9205,14 @@ int run_script(const byte type, const word script, const byte i)
         case DRAWSTRINGR:
         case SPLINER:
         case BITMAPR:
-	case BITMAPEXR:
+		case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
+		//case BITMAPEXR:
+		//case POLYGONR:
+		//case PIXELARRAYR:
+		//case TILEARRAYR:
+		//case COMBOARRAYR:
             do_drawing_command(scommand);
             break;
             
