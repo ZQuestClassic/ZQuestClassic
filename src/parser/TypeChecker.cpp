@@ -115,7 +115,7 @@ void TypeCheck::caseDataDecl(ASTDataDecl& host, void*)
 		if (host.initializer()->hasDataValue())
 		{
 			symbolTable.inlineConstant(&host, host.initializer()->getDataValue());
-			variable.inlined = true;
+			variable.compileTimeValue = host.initializer()->getDataValue();
 		}
 	}
 

@@ -363,7 +363,7 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 	Variable& manager = *host.manager;
 
 	// Ignore inlined values.
-	if (manager.inlined) return;
+	if (manager.compileTimeValue) return;
 
 	// Switch off to the proper helper function.
 	if (manager.type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
