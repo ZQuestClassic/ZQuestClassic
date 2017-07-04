@@ -4,21 +4,23 @@
 #define ZSCRIPT_COMPILER_UTILS_H
 
 #include <cassert>
+#include <list>
+#include <vector>
 
 // Delete all the elements in a vector of pointers.
 template<class Element>
-void deleteElements(vector<Element*>& container)
+void deleteElements(std::vector<Element*>& container)
 {
-	for (typename vector<Element*>::iterator it = container.begin();
+	for (typename std::vector<Element*>::iterator it = container.begin();
 		 it != container.end(); ++it)
 		delete *it;
 }
 
-// Delete all the elements in a list of pointers.
+// Delete all the elements in a std::list of pointers.
 template<class Element>
-void deleteElements(list<Element*>& container)
+void deleteElements(std::list<Element*>& container)
 {
-	for (typename list<Element*>::iterator it = container.begin();
+	for (typename std::list<Element*>::iterator it = container.begin();
 		 it != container.end(); ++it)
 		delete *it;
 }

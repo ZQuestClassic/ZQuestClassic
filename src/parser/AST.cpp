@@ -1025,7 +1025,6 @@ ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 	return *this;
 }
 
-
 // ASTExprConst
 
 ASTExprConst::ASTExprConst(ASTExpr* content, LocationData const& location)

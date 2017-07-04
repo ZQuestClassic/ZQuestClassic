@@ -10,6 +10,7 @@
 #include <string>
 #include <stdio.h>
 
+#include "CompilerUtils.h"
 #include "Types.h"
 
 using std::string;
