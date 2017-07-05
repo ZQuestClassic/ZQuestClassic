@@ -1,6 +1,8 @@
 #ifndef QUESTREFS_H
 #define QUESTREFS_H
 
+#include <string>
+
 struct ItemDefinitionRef
 {
     ItemDefinitionRef() : module(""), slot(0) {}
