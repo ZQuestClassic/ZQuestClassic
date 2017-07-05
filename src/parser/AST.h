@@ -878,12 +878,10 @@ public:
 	// If this declares an a sized array.
 	bool hasSize() const {return dimensions.size() > 0;}
 
-	// If all expressions in the dimension array are constant.
-	bool isConstant() const;
-
-	// If this is constant, get the total size. Returns -1 if not constant or
-	// not specified.
-	int getTotalSize() const;
+	// Get the total size of this array at compile time.
+	optional<int> getCompileTimeSize(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTTypeDef : public ASTDecl
@@ -925,13 +923,8 @@ public:
 	// compile time.
 	virtual optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
-		const
-	{return hasValue ? optional<long>(value) : nullopt;}
-	
-	// working on getting rid of these for the above.
-	bool hasDataValue() const {return hasValue;}
-	long getDataValue() const {return value;}
-	void setDataValue(long v) {value = v; hasValue = true;}
+			const
+	{return nullopt;}
 	
 	ZVarType const* getVarType() const {return varType;}
 	void setVarType(ZVarType const& type) {varType = &type;}
@@ -940,8 +933,6 @@ public:
 	void setVarType(ZVarType* type) {varType = (ZVarType const*)type;}
 
 private:
-	bool hasValue;
-	long value;
 	ZVarType const* varType;
 	bool lval;
 
@@ -965,6 +956,10 @@ public:
 
 	bool isConstant() const {return true;}
 
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
+	
 	ASTExpr* content;
 };
 
@@ -984,6 +979,10 @@ public:
 
 	bool isConstant() const {return right && right->isConstant();}
 
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
+	
 	ASTExpr* left;
 	ASTExpr* right;
 };
@@ -1005,6 +1004,10 @@ public:
 	bool isConstant() const {return mIsConstant;}
 	void markConstant() {mIsConstant = true;}
 
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
+	
 	// The identifier components separated by '.'.
 	vector<string> components;
 
@@ -1103,6 +1106,10 @@ public:
 
     void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprNegate(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprNot : public ASTUnaryExpr
@@ -1115,6 +1122,10 @@ public:
 
     void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprNot(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprBitNot : public ASTUnaryExpr
@@ -1127,6 +1138,10 @@ public:
 
     void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprBitNot(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprIncrement : public ASTUnaryExpr
@@ -1232,6 +1247,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprAnd(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprOr : public ASTLogExpr
@@ -1246,6 +1265,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprOr(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 // virtual
@@ -1274,6 +1297,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprGT(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprGE : public ASTRelExpr
@@ -1288,6 +1315,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprGE(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprLT : public ASTRelExpr
@@ -1302,6 +1333,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprLT(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprLE : public ASTRelExpr
@@ -1316,6 +1351,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprLE(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprEQ : public ASTRelExpr
@@ -1330,6 +1369,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprEQ(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprNE : public ASTRelExpr
@@ -1344,6 +1387,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprNE(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 // virtual
@@ -1372,6 +1419,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprPlus(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprMinus : public ASTAddExpr
@@ -1386,6 +1437,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprMinus(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 // virtual
@@ -1414,6 +1469,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprTimes(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprDivide : public ASTMultExpr
@@ -1428,6 +1487,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprDivide(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprModulo : public ASTMultExpr
@@ -1442,6 +1505,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprModulo(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 // virtual
@@ -1468,6 +1535,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprBitAnd(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprBitOr : public ASTBitExpr
@@ -1481,6 +1552,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprBitOr(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprBitXor : public ASTBitExpr
@@ -1494,6 +1569,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprBitXor(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 // virtual
@@ -1521,6 +1600,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprLShift(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 class ASTExprRShift : public ASTShiftExpr
@@ -1534,6 +1617,10 @@ public:
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
 		visitor.caseExprRShift(*this, param);}
+
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
 };
 
 // Literals
@@ -1573,6 +1660,10 @@ public:
 
 	bool isConstant() const {return true;}
 
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const;
+	
     ASTFloat* value;
 };
 
@@ -1591,6 +1682,11 @@ public:
 
 	bool isConstant() const {return true;}
 
+	optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+			const
+	{return value ? 10000L : 0L;}
+	
     bool value;
 };
 

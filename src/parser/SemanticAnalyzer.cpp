@@ -197,7 +197,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (type.getArrayDepth() > 1)
 	{
 		handleError(CompileError::UnimplementedFeature, &host,
-		            "Nested Array Declarations.");
+		            "Nested Array Declarations");
 	}
 }
 
@@ -278,9 +278,6 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 {
 	ASTExpr* content = host.content;
 	content->execute(*this);
-
-	if (optional<long> value = content->getCompileTimeValue(this))
-		host.setDataValue(*value);
 }
 
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
@@ -353,19 +350,11 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void*)
 void SemanticAnalyzer::caseNumberLiteral(ASTNumberLiteral& host, void*)
 {
     host.setVarType(ZVarType::FLOAT);
-    pair<string,string> parts = host.value->parseValue();
-    pair<long, bool> val = ScriptParser::parseLong(parts);
-
-    if (!val.second)
-	    handleError(CompileError::ConstTrunc, &host, host.value->value);
-
-    host.setDataValue(val.first);
 }
 
 void SemanticAnalyzer::caseBoolLiteral(ASTBoolLiteral& host, void*)
 {
     host.setVarType(ZVarType::BOOL);
-    host.setDataValue(host.value ? 1L : 0L);
 }
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)

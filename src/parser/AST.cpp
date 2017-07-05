@@ -654,8 +654,9 @@ ASTCompileError& ASTCompileError::operator=(ASTCompileError const& rhs)
 int ASTCompileError::getErrorId() const
 {
 	if (!errorId) return -1;
-	if (!errorId->hasDataValue()) return -1;
-	return errorId->getDataValue() / 10000;
+	if (optional<long> id = errorId->getCompileTimeValue())
+		return *id / 10000L;
+	return -1;
 }
 
 bool ASTCompileError::canHandle(CompileError const& error) const
@@ -943,24 +944,20 @@ ASTDataDeclExtraArray& ASTDataDeclExtraArray::operator=(
 	return *this;
 }
 
-bool ASTDataDeclExtraArray::isConstant() const
+optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
+		CompileErrorHandler* errorHandler)
+		const
 {
-	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
-		 it != dimensions.end(); ++it)
-		if (!(*it)->hasDataValue()) return false;
-	return true;
-}
-
-int ASTDataDeclExtraArray::getTotalSize() const
-{
-	if (dimensions.size() == 0) return -1;
-	long size = 1;
+	if (dimensions.size() == 0) return nullopt;
+	int size = 1;
 	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
 		 it != dimensions.end(); ++it)
 	{
 		ASTExpr& expr = **it;
-		if (!expr.hasDataValue()) return -1;
-		size *= expr.getDataValue() / 10000L;
+		if (optional<long> value = expr.getCompileTimeValue(errorHandler))
+			size *= *value / 10000L;
+		else
+			return nullopt;
 	}
 	return size;
 }
@@ -999,16 +996,12 @@ ASTTypeDef& ASTTypeDef::operator=(ASTTypeDef const& rhs)
 
 ASTExpr::ASTExpr(LocationData const& location)
 	: ASTStmt(location),
-	  hasValue(false),
-	  value(0L),
 	  varType(NULL),
 	  lval(false)
 {}
 
 ASTExpr::ASTExpr(ASTExpr const& base)
 	: ASTStmt(base),
-	  hasValue(base.hasValue),
-	  value(base.value),
 	  varType(base.varType),
 	  lval(false)
 {}
@@ -1018,8 +1011,6 @@ ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 	ASTStmt::operator=(rhs);
 	
 	lval = rhs.lval;
-	hasValue = rhs.hasValue;
-	value = rhs.value;
 	varType = rhs.varType;
 
 	return *this;
@@ -1042,6 +1033,13 @@ ASTExprConst& ASTExprConst::operator=(ASTExprConst const& rhs)
 	content = AST::clone(rhs.content);
 	
 	return *this;
+}
+
+optional<long> ASTExprConst::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	return content ? content->getCompileTimeValue(errorHandler) : nullopt;
 }
 
 // ASTExprAssign
@@ -1071,6 +1069,13 @@ ASTExprAssign& ASTExprAssign::operator=(ASTExprAssign const& rhs)
 	right = AST::clone(rhs.right);
 
 	return *this;
+}
+
+optional<long> ASTExprAssign::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	return right ? right->getCompileTimeValue(errorHandler) : nullopt;
 }
 
 // ASTExprIdentifier
@@ -1109,6 +1114,13 @@ string ASTExprIdentifier::asString() const
 	}
 
 	return s;
+}
+
+optional<long> ASTExprIdentifier::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	return binding ? binding->compileTimeValue : nullopt;
 }
 
 // ASTExprArrow
@@ -1253,6 +1265,16 @@ ASTExprNegate& ASTExprNegate::operator=(ASTExprNegate const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprNegate::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!operand) return nullopt;
+	if (optional<long> value = operand->getCompileTimeValue())
+		return -*value;
+	return nullopt;
+}
+
 // ASTExprNot
 
 ASTExprNot::ASTExprNot(LocationData const& location)
@@ -1270,6 +1292,16 @@ ASTExprNot& ASTExprNot::operator=(ASTExprNot const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprNot::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!operand) return nullopt;
+	if (optional<long> value = operand->getCompileTimeValue())
+		return *value ? 0L : 10000L;
+	return nullopt;
+}
+
 // ASTExprBitNot
 
 ASTExprBitNot::ASTExprBitNot(LocationData const& location)
@@ -1285,6 +1317,16 @@ ASTExprBitNot& ASTExprBitNot::operator=(ASTExprBitNot const& rhs)
 	ASTUnaryExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprBitNot::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!operand) return nullopt;
+	if (optional<long> value = operand->getCompileTimeValue())
+		return ~(*value / 10000L) * 10000L;
+	return nullopt;
 }
 
 // ASTExprIncrement
@@ -1427,6 +1469,18 @@ ASTExprAnd& ASTExprAnd::operator=(ASTExprAnd const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprAnd::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue && *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprOr
 
 ASTExprOr::ASTExprOr(
@@ -1441,6 +1495,18 @@ ASTExprOr& ASTExprOr::operator=(ASTExprOr const& rhs)
 	ASTLogExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprOr::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue || *rightValue) ? 10000L : 0L;
 }
 
 // ASTRelExpr
@@ -1475,6 +1541,18 @@ ASTExprGT& ASTExprGT::operator=(ASTExprGT const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprGT::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue > *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprGE
 
 ASTExprGE::ASTExprGE(
@@ -1489,6 +1567,18 @@ ASTExprGE& ASTExprGE::operator=(ASTExprGE const& rhs)
 	ASTRelExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprGE::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue >= *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprLT
@@ -1507,6 +1597,18 @@ ASTExprLT& ASTExprLT::operator=(ASTExprLT const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprLT::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue < *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprLE
 
 ASTExprLE::ASTExprLE(
@@ -1521,6 +1623,18 @@ ASTExprLE& ASTExprLE::operator=(ASTExprLE const& rhs)
 	ASTRelExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprLE::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue <= *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprEQ
@@ -1539,6 +1653,18 @@ ASTExprEQ& ASTExprEQ::operator=(ASTExprEQ const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprEQ::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue == *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprNE
 
 ASTExprNE::ASTExprNE(
@@ -1553,6 +1679,18 @@ ASTExprNE& ASTExprNE::operator=(ASTExprNE const& rhs)
 	ASTRelExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprNE::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue != *rightValue) ? 10000L : 0L;
 }
 
 // ASTAddExpr
@@ -1587,6 +1725,18 @@ ASTExprPlus& ASTExprPlus::operator=(ASTExprPlus const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprPlus::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return *leftValue + *rightValue;
+}
+
 // ASTExprMinus
 
 ASTExprMinus::ASTExprMinus(
@@ -1601,6 +1751,18 @@ ASTExprMinus& ASTExprMinus::operator=(ASTExprMinus const& rhs)
 	ASTAddExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprMinus::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return *leftValue - *rightValue;
 }
 
 // ASTMultExpr
@@ -1635,6 +1797,19 @@ ASTExprTimes& ASTExprTimes::operator=(ASTExprTimes const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprTimes::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return long(*leftValue * (*rightValue / 10000.0));
+}
+
 // ASTExprDivide
 
 ASTExprDivide::ASTExprDivide(
@@ -1651,6 +1826,25 @@ ASTExprDivide& ASTExprDivide::operator=(ASTExprDivide const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprDivide::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue == 0)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::DivByZero, this);
+		return nullopt;
+	}
+	return *leftValue / *rightValue * 10000L;
+}
+
 // ASTExprModulo
 
 ASTExprModulo::ASTExprModulo(
@@ -1665,6 +1859,25 @@ ASTExprModulo& ASTExprModulo::operator=(ASTExprModulo const& rhs)
 	ASTMultExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprModulo::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue == 0)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::DivByZero, this);
+		return nullopt;
+	}
+	return *leftValue % *rightValue;
 }
 
 // ASTBitExpr
@@ -1699,6 +1912,19 @@ ASTExprBitAnd& ASTExprBitAnd::operator=(ASTExprBitAnd const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprBitAnd::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return ((*leftValue / 10000L) & (*rightValue / 10000L)) * 10000L;
+}
+
 // ASTExprBitOr
 
 ASTExprBitOr::ASTExprBitOr(
@@ -1715,6 +1941,19 @@ ASTExprBitOr& ASTExprBitOr::operator=(ASTExprBitOr const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprBitOr::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return ((*leftValue / 10000L) | (*rightValue / 10000L)) * 10000L;
+}
+
 // ASTExprBitXor
 
 ASTExprBitXor::ASTExprBitXor(
@@ -1729,6 +1968,19 @@ ASTExprBitXor& ASTExprBitXor::operator=(ASTExprBitXor const& rhs)
 	ASTBitExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprBitXor::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return ((*leftValue / 10000L) ^ (*rightValue / 10000L)) * 10000L;
 }
 
 // ASTShiftExpr
@@ -1763,6 +2015,26 @@ ASTExprLShift& ASTExprLShift::operator=(ASTExprLShift const& rhs)
 	return *this;
 }
 
+optional<long> ASTExprLShift::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue % 10000L)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::ShiftNotInt, this);
+		rightValue = (*rightValue / 10000L) * 10000L;
+	}
+	
+	return ((*leftValue / 10000L) << (*rightValue / 10000L)) * 10000L;
+}
+
 // ASTExprRShift
 
 ASTExprRShift::ASTExprRShift(
@@ -1777,6 +2049,26 @@ ASTExprRShift& ASTExprRShift::operator=(ASTExprRShift const& rhs)
 	ASTShiftExpr::operator=(rhs);
 
 	return *this;
+}
+
+optional<long> ASTExprRShift::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue % 10000L)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::ShiftNotInt, this);
+		rightValue = (*rightValue / 10000L) * 10000L;
+	}
+	
+	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1815,6 +2107,20 @@ ASTNumberLiteral& ASTNumberLiteral::operator=(ASTNumberLiteral const& rhs)
 	value = AST::clone(rhs.value);
 
 	return *this;
+}
+
+optional<long> ASTNumberLiteral::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!value) return nullopt;
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue());
+
+    if (!val.second && errorHandler)
+	    errorHandler->handleError(
+				CompileError::ConstTrunc, this, value->value);
+
+	return val.first;
 }
 
 // ASTBoolLiteral
