@@ -1077,13 +1077,13 @@ ASTExprAssign& ASTExprAssign::operator=(ASTExprAssign const& rhs)
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
 									 LocationData const& location)
-	: ASTExpr(location), mIsConstant(false)
+	: ASTExpr(location), binding(NULL), mIsConstant(false)
 {
 	if (name != "") components.push_back(name);
 }
 
 ASTExprIdentifier::ASTExprIdentifier(ASTExprIdentifier const& base)
-	: ASTExpr(base), mIsConstant(base.mIsConstant),
+	: ASTExpr(base), binding(NULL), mIsConstant(base.mIsConstant),
 	  components(base.components)
 {}
 
@@ -1093,6 +1093,7 @@ ASTExprIdentifier& ASTExprIdentifier::operator=(ASTExprIdentifier const& base)
 	
 	components = base.components;
 	mIsConstant = base.mIsConstant;
+	binding = NULL;
 	
 	return *this;
 }

@@ -210,10 +210,10 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
 
 void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
-    if (symbolTable.isInlinedConstant(&host))
+    if (optional<long> value = host.binding->compileTimeValue)
 	{
         host.setVarType(symbolTable.getType(symbolTable.getTypeId(ZVarType::CONST_FLOAT)));
-		host.setDataValue(symbolTable.getInlinedValue(&host));
+		host.setDataValue(*value);
 	}
     else
     {

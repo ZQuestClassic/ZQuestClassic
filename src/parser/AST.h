@@ -1007,6 +1007,9 @@ public:
 
 	// The identifier components separated by '.'.
 	vector<string> components;
+
+	// What this identifier refers to.
+	ZScript::Variable* binding;
 private:
 	bool mIsConstant;
 };
