@@ -6876,24 +6876,37 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 
         writesize = 0;
 
+
+
         //finally...  section data
-        uint32_t numitems=0;
         std::vector<std::string> modulenames;
         curQuest->getModules(modulenames);
-        for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
-        {
-            QuestModule &module = curQuest->getModule(*it);
-            numitems += module.itemDefTable().getNumItemDefinitions();
-        }
 
-        if (!p_iputl(numitems, f))
+        uint32_t nummodules = modulenames.size();
+        if (!p_iputl(nummodules, f))
         {
-            new_return(5);
+            new_return(4);
         }
 
         for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
         {
             QuestModule &module = curQuest->getModule(*it);
+            uint32_t numitems = module.itemDefTable().getNumItemDefinitions();
+
+            uint32_t modlen = it->length() + 1;
+            if (!p_iputl(modlen, f))
+            {
+                new_return(5);
+            }
+            if (!pfwrite((void *)it->c_str(), modlen, f))
+            {
+                new_return(5);
+            }
+
+            if (!p_iputl(numitems, f))
+            {
+                new_return(5);
+            }
 
             for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
             {
@@ -6906,24 +6919,8 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                     new_return(5);
                 }
             }
-        }
-
-        for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
-        {
-            QuestModule &module = curQuest->getModule(*it);
-
             for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
             {
-                uint32_t modlen = it->length() + 1;
-                if (!p_iputl(modlen, f))
-                {
-                    new_return(6);
-                }
-                if (!pfwrite((void *)it->c_str(), modlen, f))
-                {
-                    new_return(6);
-                }
-
                 const itemdata &itemd = module.itemDefTable().getItemDefinition(i);
                 if (!p_iputw(itemd.tile, f))
                 {
@@ -7141,10 +7138,11 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 
             }
 
-            if (writecycle == 0)
-            {
-                section_size = writesize;
-            }
+        }
+
+        if (writecycle == 0)
+        {
+            section_size = writesize;
         }
     }
     
@@ -7186,37 +7184,48 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
         new_return(3);
     }
     
-    for(int writecycle=0; writecycle<2; ++writecycle)
+    for (int writecycle = 0; writecycle < 2; ++writecycle)
     {
-        fake_pack_writing=(writecycle==0);
-        
+        fake_pack_writing = (writecycle == 0);
+
         //section size
-        if(!p_iputl(section_size,f))
+        if (!p_iputl(section_size, f))
         {
             new_return(4);
         }
-        
-        writesize=0;
-        
+
+        writesize = 0;
+
         //finally...  section data
-        uint32_t numweapons= 0;
         std::vector<std::string> modules;
         curQuest->getModules(modules);
-        
-        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
+
+        uint32_t nummodules = modules.size();
+        if (!p_iputl(nummodules, f))
         {
-            numweapons += curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+            new_return(4);
         }
 
-        if(!p_iputl(numweapons,f))
-        {
-            new_return(5);
-        }
-        
         for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
         {
-            numweapons = curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
-            for (uint32_t i = 0; i < numweapons; i++)
+            uint32_t numsprites = curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+
+            uint32_t modlen = it->length() + 1;
+            if (!p_iputl(modlen, f))
+            {
+                new_return(5);
+            }
+            if (!pfwrite((void *)it->c_str(), modlen, f))
+            {
+                new_return(5);
+            }
+
+            if (!p_iputl(numsprites, f))
+            {
+                new_return(5);
+            }
+
+            for (uint32_t i = 0; i < numsprites; i++)
             {
                 uint32_t len = curQuest->getModule(*it).weaponDefTable().getSpriteName(i).length() + 1;
                 if (!p_iputl(len, f))
@@ -7226,23 +7235,11 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
                     new_return(5);
                 }
             }
-        }
-        
-        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-        {
-            numweapons = curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
 
-            for (uint32_t i = 0; i < numweapons; i++)
+
+            for (uint32_t i = 0; i < numsprites; i++)
             {
-                uint32_t modlen = it->length() + 1;
-                if (!p_iputl(modlen, f))
-                {
-                    new_return(6);
-                }
-                if (!pfwrite((void *)it->c_str(), modlen, f))
-                {
-                    new_return(6);
-                }
+
                 if (!p_iputw(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).tile, f))
                 {
                     new_return(6);
@@ -7274,12 +7271,13 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
                 }
             }
         }
-        
-        if(writecycle==0)
+
+        if (writecycle == 0)
         {
-            section_size=writesize;
+            section_size = writesize;
         }
     }
+
     
     if(writesize!=int(section_size) && save_warn)
     {

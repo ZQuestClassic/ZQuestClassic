@@ -4705,6 +4705,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
     itemdata tempitem;
     word s_version=0, s_cversion=0;
     word dummy_word;
+    uint32_t modules_to_read;
 
     tables.clear();
 
@@ -4714,6 +4715,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
     if(version < 0x186)
     {
         items_to_read=64;
+        modules_to_read = 1; // only CORE
     }
     
     if(version > 0x192)
@@ -4747,297 +4749,288 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                 return qe_invalid;
             }
             items_to_read = itr;
+            modules_to_read = 1; // only CORE
         }
         else
         {
-            if (!p_igetl(&items_to_read, f, true))
+            if (!p_igetl(&modules_to_read, f, true))
                 return qe_invalid;
         }
     }
 
-    std::vector<string> names;
-    
-    if(s_version>1)
+    for (uint32_t module = 0; module < modules_to_read; module++)
     {
-        for(uint32_t i=0; i<items_to_read; i++)
-        {
-            string name;
-
-            if (s_version < 27)
-            {
-                char tempname[64];
-
-                if (!pfread(tempname, 64, f, true))
-                {
-                    return qe_invalid;
-                }
-
-                names.push_back(string(tempname));
-            }
-            else
-            {
-                uint32_t namelen;
-                if (!p_igetl(&namelen, f, true))
-                    return qe_invalid;
-
-                char *buf = new char[namelen];
-                if (!pfread(buf, namelen, f, true))
-                {
-                    delete[] buf;
-                    return qe_invalid;
-                }
-
-                names.push_back(string(buf));
-
-                delete[] buf;
-            }
-        }
-    }
-    else
-    {
-        for(int i=0; i<256; i++)
-        {
-            names.push_back(ItemDefinitionTable::defaultItemName(i));
-        }
-    }
- 
-    for(uint32_t i=0; i<items_to_read; i++)
-    {
-        itemdata tempitem = ItemDefinitionTable::defaultItemData(i);
-
-        std::string modulename;
+        string modulename;
         if (s_version < 27)
         {
-            modulename = string("CORE");
+            modulename = "CORE";
         }
         else
         {
-            uint32_t modlen;
-            if (!p_igetl(&modlen, f, true))
-            {
+            uint32_t modnamelen;
+            if (!p_igetl(&modnamelen, f, true))
                 return qe_invalid;
-            }
-            char *buf = new char[modlen];
-            if (!pfread(buf, modlen, f, true))
+            char *buf = new char[modnamelen];
+            if (!pfread(buf, modnamelen, f, true))
             {
                 delete[] buf;
                 return qe_invalid;
             }
             modulename = string(buf);
             delete[] buf;
+
+            if (!p_igetl(&items_to_read, f, true))
+                return qe_invalid;
         }
 
-        if(!p_igetw(&tempitem.tile,f,true))
+        std::vector<string> names;
+    
+        if(s_version>1)
         {
-            return qe_invalid;
+            for(uint32_t i=0; i<items_to_read; i++)
+            {
+                string name;
+
+                if (s_version < 27)
+                {
+                    char tempname[64];
+
+                    if (!pfread(tempname, 64, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    names.push_back(string(tempname));
+                }
+                else
+                {
+                    uint32_t namelen;
+                    if (!p_igetl(&namelen, f, true))
+                        return qe_invalid;
+
+                    char *buf = new char[namelen];
+                    if (!pfread(buf, namelen, f, true))
+                    {
+                        delete[] buf;
+                        return qe_invalid;
+                    }
+
+                    names.push_back(string(buf));
+
+                    delete[] buf;
+                }
+            }
         }
-        
-        if(!p_getc(&tempitem.misc,f,true))
+        else
         {
-            return qe_invalid;
+            for(int i=0; i<256; i++)
+            {
+                names.push_back(ItemDefinitionTable::defaultItemName(i));
+            }
         }
-        
-        if(!p_getc(&tempitem.csets,f,true))
+ 
+        for(uint32_t i=0; i<items_to_read; i++)
         {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.frames,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.speed,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempitem.delay,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(version < 0x193)
-        {
-            if(!p_getc(&padding,f,true))
+            itemdata tempitem = ItemDefinitionTable::defaultItemData(i);
+
+            if(!p_igetw(&tempitem.tile,f,true))
             {
                 return qe_invalid;
             }
-            
-            if((version < 0x192)||((version == 0x192)&&(build<186)))
+        
+            if(!p_getc(&tempitem.misc,f,true))
             {
-                switch(i)
-                {
-                case iShield:
-                    tempitem.ltm=get_bit(quest_rules,qr_BSZELDA)?-12:10;
-                    break;
-                    
-                case iMShield:
-                    tempitem.ltm=get_bit(quest_rules,qr_BSZELDA)?-6:-10;
-                    break;
-                    
-                default:
-                    tempitem.ltm=0;
-                    break;
-                }
-                
-                tempitem.count=-1;
-                tempitem.flags=tempitem.pickup_hearts=
-                                                tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
-                tempitem.family=0xFF;
-                tempitem.playsound=WAV_SCALE;
-                reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
-                
-                tables[modulename].addItemDefinition(tempitem, names[i]);
-                
-                continue;
+                return qe_invalid;
             }
-        }
         
-        if(!p_igetl(&tempitem.ltm,f,true))
-        {
-            return qe_invalid;
-        }
+            if(!p_getc(&tempitem.csets,f,true))
+            {
+                return qe_invalid;
+            }
         
-        if(version < 0x193)
-        {
-            for(int q=0; q<12; q++)
+            if(!p_getc(&tempitem.frames,f,true))
+            {
+                return qe_invalid;
+            }
+        
+            if(!p_getc(&tempitem.speed,f,true))
+            {
+                return qe_invalid;
+            }
+        
+            if(!p_getc(&tempitem.delay,f,true))
+            {
+                return qe_invalid;
+            }
+        
+            if(version < 0x193)
             {
                 if(!p_getc(&padding,f,true))
                 {
                     return qe_invalid;
                 }
+            
+                if((version < 0x192)||((version == 0x192)&&(build<186)))
+                {
+                    switch(i)
+                    {
+                    case iShield:
+                        tempitem.ltm=get_bit(quest_rules,qr_BSZELDA)?-12:10;
+                        break;
+                    
+                    case iMShield:
+                        tempitem.ltm=get_bit(quest_rules,qr_BSZELDA)?-6:-10;
+                        break;
+                    
+                    default:
+                        tempitem.ltm=0;
+                        break;
+                    }
+                
+                    tempitem.count=-1;
+                    tempitem.flags=tempitem.pickup_hearts=
+                                                    tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+                    tempitem.family=0xFF;
+                    tempitem.playsound=WAV_SCALE;
+                    reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
+                
+                    tables[modulename].addItemDefinition(tempitem, names[i]);
+                
+                    continue;
+                }
             }
-        }
         
-        if (s_version > 1)
-        {
-            if (!p_getc(&tempitem.family, f, true))
+            if(!p_igetl(&tempitem.ltm,f,true))
             {
                 return qe_invalid;
             }
-
-            if (s_version < 16)
-                if (tempitem.family == 0xFF)
-                    tempitem.family = itype_misc;
-
-            if (!p_getc(&tempitem.fam_type, f, true))
+        
+            if(version < 0x193)
             {
-                return qe_invalid;
+                for(int q=0; q<12; q++)
+                {
+                    if(!p_getc(&padding,f,true))
+                    {
+                        return qe_invalid;
+                    }
+                }
             }
-
-            if (s_version > 5)
+        
+            if (s_version > 1)
             {
-                if (!p_getc(&tempitem.power, f, true))
+                if (!p_getc(&tempitem.family, f, true))
                 {
                     return qe_invalid;
                 }
 
-                if (!p_igetw(&tempitem.flags, f, true))
-                {
-                    return qe_invalid;
-                }
-            }
-            else
-            {
-                //tempitem.power = tempitem.fam_type;
-                char tempchar;
+                if (s_version < 16)
+                    if (tempitem.family == 0xFF)
+                        tempitem.family = itype_misc;
 
-                if (!p_getc(&tempchar, f, true))
+                if (!p_getc(&tempitem.fam_type, f, true))
                 {
                     return qe_invalid;
                 }
 
-                tempitem.flags |= (tempchar ? itemdata::IF_GAMEDATA : 0);
-            }
-
-            if (!p_igetw(&tempitem.script, f, true))
-            {
-                return qe_invalid;
-            }
-
-            if (s_version <= 3)
-            {
-                if (tempitem.script > NUMSCRIPTITEM)
-                {
-                    tempitem.script = 0;
-                }
-            }
-
-            if (!p_getc(&tempitem.count, f, true))
-            {
-                return qe_invalid;
-            }
-
-            if (!p_igetw(&tempitem.amount, f, true))
-            {
-                return qe_invalid;
-            }
-
-            if (!p_igetw(&tempitem.collect_script, f, true))
-            {
-                return qe_invalid;
-            }
-
-            if (s_version <= 3)
-            {
-                if (tempitem.collect_script > NUMSCRIPTITEM)
-                {
-                    tempitem.collect_script = 0;
-                }
-            }
-
-            if (!p_igetw(&tempitem.setmax, f, true))
-            {
-                return qe_invalid;
-            }
-
-            if (!p_igetw(&tempitem.max, f, true))
-            {
-                return qe_invalid;
-            }
-
-            if (!p_getc(&tempitem.playsound, f, true))
-            {
-                return qe_invalid;
-            }
-
-            for (int j = 0; j < 8; j++)
-            {
-                if (!p_igetl(&tempitem.initiald[j], f, true))
-                {
-                    return qe_invalid;
-                }
-            }
-
-            for (int j = 0; j < 2; j++)
-            {
-                if (!p_getc(&tempitem.initiala[j], f, true))
-                {
-                    return qe_invalid;
-                }
-            }
-
-            if (s_version > 4)
-            {
                 if (s_version > 5)
                 {
-                    if (s_version < 27)
+                    if (!p_getc(&tempitem.power, f, true))
                     {
-                        for (int i = 0; i < 5; i++)
-                        {
-                            byte wpn;
-                            if (!p_getc(&wpn, f, true))
-                            {
-                                return qe_invalid;
-                            }
-                            SpriteDefinitionRef ref("CORE", wpn);
-                            tempitem.wpns[i] = ref;
-                        }
+                        return qe_invalid;
+                    }
 
-                        if (s_version >= 15)
+                    if (!p_igetw(&tempitem.flags, f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+                else
+                {
+                    //tempitem.power = tempitem.fam_type;
+                    char tempchar;
+
+                    if (!p_getc(&tempchar, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    tempitem.flags |= (tempchar ? itemdata::IF_GAMEDATA : 0);
+                }
+
+                if (!p_igetw(&tempitem.script, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (s_version <= 3)
+                {
+                    if (tempitem.script > NUMSCRIPTITEM)
+                    {
+                        tempitem.script = 0;
+                    }
+                }
+
+                if (!p_getc(&tempitem.count, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&tempitem.amount, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&tempitem.collect_script, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (s_version <= 3)
+                {
+                    if (tempitem.collect_script > NUMSCRIPTITEM)
+                    {
+                        tempitem.collect_script = 0;
+                    }
+                }
+
+                if (!p_igetw(&tempitem.setmax, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&tempitem.max, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&tempitem.playsound, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                for (int j = 0; j < 8; j++)
+                {
+                    if (!p_igetl(&tempitem.initiald[j], f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+
+                for (int j = 0; j < 2; j++)
+                {
+                    if (!p_getc(&tempitem.initiala[j], f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+
+                if (s_version > 4)
+                {
+                    if (s_version > 5)
+                    {
+                        if (s_version < 27)
                         {
-                            for (int i = 5; i < 10; i++)
+                            for (int i = 0; i < 5; i++)
                             {
                                 byte wpn;
                                 if (!p_getc(&wpn, f, true))
@@ -5047,878 +5040,896 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                                 SpriteDefinitionRef ref("CORE", wpn);
                                 tempitem.wpns[i] = ref;
                             }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < 10; i++)
-                        {
-                            uint32_t len;
-                            if (!p_igetl(&len, f, true))
-                                return qe_invalid;
-                            char *buf = new char[len];
-                            if (!pfread(buf, len, f, true))
+
+                            if (s_version >= 15)
                             {
+                                for (int i = 5; i < 10; i++)
+                                {
+                                    byte wpn;
+                                    if (!p_getc(&wpn, f, true))
+                                    {
+                                        return qe_invalid;
+                                    }
+                                    SpriteDefinitionRef ref("CORE", wpn);
+                                    tempitem.wpns[i] = ref;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < 10; i++)
+                            {
+                                uint32_t len;
+                                if (!p_igetl(&len, f, true))
+                                    return qe_invalid;
+                                char *buf = new char[len];
+                                if (!pfread(buf, len, f, true))
+                                {
+                                    delete[] buf;
+                                    return qe_invalid;
+                                }
+                                std::string modname(buf);
                                 delete[] buf;
-                                return qe_invalid;
+                                uint32_t slot;
+                                if (!p_igetl(&slot, f, true))
+                                    return qe_invalid;
+                                tempitem.wpns[i] = SpriteDefinitionRef(modname, slot);
                             }
-                            std::string modname(buf);
-                            delete[] buf;
-                            uint32_t slot;
-                            if (!p_igetl(&slot, f, true))
-                                return qe_invalid;
-                            tempitem.wpns[i] = SpriteDefinitionRef(modname, slot);
                         }
-                    }
 
-                    if (!p_getc(&tempitem.pickup_hearts, f, true))
-                    {
-                        return qe_invalid;
-                    }
-
-                    if (s_version < 15)
-                    {
-                        if (!p_igetw(&dummy_word, f, true))
+                        if (!p_getc(&tempitem.pickup_hearts, f, true))
                         {
                             return qe_invalid;
                         }
 
-                        tempitem.misc1 = dummy_word;
-
-                        if (!p_igetw(&dummy_word, f, true))
+                        if (s_version < 15)
                         {
-                            return qe_invalid;
-                        }
-
-                        tempitem.misc2 = dummy_word;
-                    }
-                    else
-                    {
-                        if (!p_igetl(&tempitem.misc1, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        if (!p_igetl(&tempitem.misc2, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        // Version 24: shICE -> shSCRIPT; previously, all shields could block script weapons
-                        if (s_version < 24)
-                        {
-                            if (tempitem.family == itype_shield)
+                            if (!p_igetw(&dummy_word, f, true))
                             {
-                                tempitem.misc1 |= shSCRIPT;
+                                return qe_invalid;
+                            }
+
+                            tempitem.misc1 = dummy_word;
+
+                            if (!p_igetw(&dummy_word, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            tempitem.misc2 = dummy_word;
+                        }
+                        else
+                        {
+                            if (!p_igetl(&tempitem.misc1, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc2, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            // Version 24: shICE -> shSCRIPT; previously, all shields could block script weapons
+                            if (s_version < 24)
+                            {
+                                if (tempitem.family == itype_shield)
+                                {
+                                    tempitem.misc1 |= shSCRIPT;
+                                }
                             }
                         }
-                    }
 
-                    if (!p_getc(&tempitem.magic, f, true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-                else
-                {
-                    char tempchar;
-
-                    if (!p_getc(&tempchar, f, true))
-                    {
-                        return qe_invalid;
-                    }
-
-                    tempitem.flags |= (tempchar ? itemdata::IF_EDIBLE : 0);
-                }
-
-                // June 2007: more misc. attributes
-                if (s_version >= 12)
-                {
-                    if (s_version < 15)
-                    {
-                        if (!p_igetw(&dummy_word, f, true))
+                        if (!p_getc(&tempitem.magic, f, true))
                         {
                             return qe_invalid;
                         }
-
-                        tempitem.misc3 = dummy_word;
-
-                        if (!p_igetw(&dummy_word, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        tempitem.misc4 = dummy_word;
                     }
                     else
                     {
-                        if (!p_igetl(&tempitem.misc3, f, true))
+                        char tempchar;
+
+                        if (!p_getc(&tempchar, f, true))
                         {
                             return qe_invalid;
                         }
 
-                        if (!p_igetl(&tempitem.misc4, f, true))
+                        tempitem.flags |= (tempchar ? itemdata::IF_EDIBLE : 0);
+                    }
+
+                    // June 2007: more misc. attributes
+                    if (s_version >= 12)
+                    {
+                        if (s_version < 15)
                         {
-                            return qe_invalid;
+                            if (!p_igetw(&dummy_word, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            tempitem.misc3 = dummy_word;
+
+                            if (!p_igetw(&dummy_word, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            tempitem.misc4 = dummy_word;
+                        }
+                        else
+                        {
+                            if (!p_igetl(&tempitem.misc3, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc4, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc5, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc6, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc7, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc8, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc9, f, true))
+                            {
+                                return qe_invalid;
+                            }
+
+                            if (!p_igetl(&tempitem.misc10, f, true))
+                            {
+                                return qe_invalid;
+                            }
                         }
 
-                        if (!p_igetl(&tempitem.misc5, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        if (!p_igetl(&tempitem.misc6, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        if (!p_igetl(&tempitem.misc7, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        if (!p_igetl(&tempitem.misc8, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        if (!p_igetl(&tempitem.misc9, f, true))
-                        {
-                            return qe_invalid;
-                        }
-
-                        if (!p_igetl(&tempitem.misc10, f, true))
+                        if (!p_getc(&tempitem.usesound, f, true))
                         {
                             return qe_invalid;
                         }
                     }
 
-                    if (!p_getc(&tempitem.usesound, f, true))
+
+                }
+                if (s_version >= 26)  //! New itemdata vars for weapon editor. -Z
+                {			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+                    if (!p_getc(&tempitem.useweapon, f, true))
                     {
                         return qe_invalid;
                     }
-                }
-
-
-            }
-            if (s_version >= 26)  //! New itemdata vars for weapon editor. -Z
-            {			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-                if (!p_getc(&tempitem.useweapon, f, true))
-                {
-                    return qe_invalid;
-                }
-                if (!p_getc(&tempitem.usedefence, f, true))
-                {
-                    return qe_invalid;
-                }
-                if (!p_igetl(&tempitem.weaprange, f, true))
-                {
-                    return qe_invalid;
-                }
-                if (!p_igetl(&tempitem.weapduration, f, true))
-                {
-                    return qe_invalid;
-                }
-                for (int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++) {
-
-                    if (!p_igetl(&tempitem.weap_pattern[q], f, true))
+                    if (!p_getc(&tempitem.usedefence, f, true))
                     {
                         return qe_invalid;
                     }
-                }
+                    if (!p_igetl(&tempitem.weaprange, f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&tempitem.weapduration, f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    for (int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++) {
 
+                        if (!p_igetl(&tempitem.weap_pattern[q], f, true))
+                        {
+                            return qe_invalid;
+                        }
+                    }
+
+                }
             }
-        }
-        else
-        {
-            tempitem.count=-1;
-            tempitem.family=itype_misc;
-            tempitem.flags=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
-            tempitem.playsound=WAV_SCALE;
-            reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
-        }
+            else
+            {
+                tempitem.count=-1;
+                tempitem.family=itype_misc;
+                tempitem.flags=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+                tempitem.playsound=WAV_SCALE;
+                reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
+            }
         
 
-        tables[modulename].addItemDefinition(tempitem, names[i]);
-    }
+            tables[modulename].addItemDefinition(tempitem, names[i]);
+        }
     
-    //////////////////////////////////////////////////////
-    // Now do any updates because of new item additions
-    // (These can't be done above because items_to_read
-    // might be too low.)
-    //////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////
+        // Now do any updates because of new item additions
+        // (These can't be done above because items_to_read
+        // might be too low.)
+        //////////////////////////////////////////////////////
 
-    int numitems = tables["CORE"].getNumItemDefinitions();
+        // only update items in the CORE module (i.e. default items in old quests)
+        if (modulename == "CORE")
+        {
+            int numitems = tables["CORE"].getNumItemDefinitions();
 
-    for (int i = 0; i < numitems; i++)
-    {
-        itemdata &tempitem = tables["CORE"].getItemDefinition(i);
-            
-        //Account for older quests that didn't have an actual item for the used letter
-        if(s_version < 2 && i==iLetterUsed && iLetter < numitems)
-        {
-            reset_itembuf(&tempitem, ItemDefinitionRef("CORE", iLetterUsed));
-            tables["CORE"].setItemName(i, old_item_names[i]);
-            tempitem.tile = tables["CORE"].getItemDefinition(iLetter).tile;
-            tempitem.csets = tables["CORE"].getItemDefinition(iLetter).csets;
-            tempitem.misc = tables["CORE"].getItemDefinition(iLetter).misc;
-            tempitem.frames = tables["CORE"].getItemDefinition(iLetter).frames;
-            tempitem.speed = tables["CORE"].getItemDefinition(iLetter).speed;
-            tempitem.ltm = tables["CORE"].getItemDefinition(iLetter).ltm;
-        }
-            
-        if(s_version < 3)
-        {
-            switch(i)
+            for (int i = 0; i < numitems; i++)
             {
-            case iRocsFeather:
-            case iHoverBoots:
-            case iSpinScroll:
-            case iL2SpinScroll:
-            case iCrossScroll:
-            case iQuakeScroll:
-            case iL2QuakeScroll:
-            case iWhispRing:
-            case iL2WhispRing:
-            case iChargeRing:
-            case iL2ChargeRing:
-            case iPerilScroll:
-            case iWalletL3:
-            case iQuiverL4:
-            case iBombBagL4:
-            case iBracelet:
-            case iL2Bracelet:
-            case iOldGlove:
-            case iL2Ladder:
-            case iWealthMedal:
-            case iL2WealthMedal:
-            case iL3WealthMedal:
-                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
-                tables["CORE"].setItemName(i, old_item_names[i]);
-                break;
-                    
-            case iSShield:
-                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
-                tables["CORE"].setItemName(i, old_item_names[i]);
-                if(iShield < numitems)
-                    tables["CORE"].setItemName(iShield, old_item_names[iShield]);
-                if(iMShield < numitems)
-                    tables["CORE"].setItemName(iMShield,old_item_names[iMShield]);
-                break;
-            }
-        }
-            
-        if(s_version < 5)
-        {
-            switch(i)
-            {
-            case iHeartRing:
-            case iL2HeartRing:
-            case iL3HeartRing:
-            case iMagicRing:
-            case iL2MagicRing:
-            case iL3MagicRing:
-            case iL4MagicRing:
-                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
-                tables["CORE"].setItemName(i,old_item_names[i]);
-                break;
-            }
-        }
-            
-        if(s_version < 6)  // April 2007: Advanced item editing capabilities.
-        {
-            if(i!=iBPotion && i!=iRPotion)
-                tempitem.flags |= get_bit(deprecated_rules,32) ? itemdata::IF_KEEPOLD : 0;
-                    
-            switch(i)
-            {
-            case iTriforce:
-                tempitem.fam_type=1;
-                break;
-                    
-            case iBigTri:
-                tempitem.fam_type=0;
-                break;
-                    
-            case iBombs:
-                tempitem.fam_type=i_bomb;
-                tempitem.power=4;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_BOMB);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_BOOM);
-                tempitem.misc1 = 50;
-                    
-                if(get_bit(deprecated_rules,116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
-                    
-                break;
-                    
-            case iSBomb:
-                tempitem.fam_type=i_sbomb;
-                tempitem.power=16;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_SBOMB);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_SBOOM);
-                tempitem.misc1 = 50;
-                    
-                if(get_bit(deprecated_rules,116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
-                    
-                break;
-                    
-            case iBook:
-                if(get_bit(deprecated_rules, 113))
-                    tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_FIREMAGIC); //qr_FIREMAGICSPRITE
-                        
-                break;
-                    
-            case iSArrow:
-                tempitem.wpns[1] = get_bit(deprecated_rules,27) ? SpriteDefinitionRef("CORE",OS_SSPARKLE) : SpriteDefinitionRef(); //qr_SASPARKLES
-                tempitem.power=4;
-                tempitem.flags|=itemdata::IF_GAMEDATA;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_SARROW);
-                break;
-                    
-            case iGArrow:
-                tempitem.wpns[1] = get_bit(deprecated_rules,28) ? SpriteDefinitionRef("CORE",OS_GSPARKLE) : SpriteDefinitionRef(); //qr_GASPARKLES
-                tempitem.power=8;
-                tempitem.flags|=(itemdata::IF_GAMEDATA|itemdata::IF_FLAG1);
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_GARROW);
-                break;
-                    
-            case iBrang:
-                tempitem.power=0;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_BRANG);
-                tempitem.misc1=36;
-                break;
-                    
-            case iMBrang:
-                tempitem.wpns[1] = get_bit(deprecated_rules,29) ? SpriteDefinitionRef("CORE",OS_MSPARKLE) : SpriteDefinitionRef(); //qr_MBSPARKLES
-                tempitem.power=0;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_MBRANG);
-                break;
-                    
-            case iFBrang:
-                tempitem.wpns[2] = get_bit(deprecated_rules,30) ? SpriteDefinitionRef("CORE",OS_FSPARKLE) : SpriteDefinitionRef(); //qr_FBSPARKLES
-                tempitem.power=2;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_FBRANG);
-                break;
-                    
-            case iBoots:
-                tempitem.magic = get_bit(deprecated_rules,51) ? 1 : 0;
-                tempitem.power=7;
-                break;
-                    
-            case iWand:
-                tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
-                tempitem.power=2;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_WAND);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_MAGIC);
-                break;
-                    
-            case iBCandle:
-                tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
-                tempitem.power=1;
-                tempitem.flags|=(itemdata::IF_GAMEDATA|itemdata::IF_FLAG1);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_FIRE);
-                break;
-                    
-            case iRCandle:
-                tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
-                tempitem.power=1;
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_FIRE);
-                break;
-                    
-            case iSword:
-                tempitem.power=1;
-                tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_SWORD);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_SWORDSLASH);                
-                break;
-                    
-            case iWSword:
-                tempitem.power=2;
-                tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_WSWORD);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_WSWORDSLASH);
-                break;
-                    
-            case iMSword:
-                tempitem.power=4;
-                tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_MSWORD);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_MSWORDSLASH);
-                break;
-                    
-            case iXSword:
-                tempitem.power=8;
-                tempitem.flags|= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
-                tempitem.wpns[0]=tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_XSWORD);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_XSWORDSLASH);
-                break;
-                    
-            case iNayrusLove:
-                tempitem.flags |= get_bit(deprecated_rules,76) ? itemdata::IF_FLAG1 : 0;
-                tempitem.flags |= get_bit(deprecated_rules,75) ? itemdata::IF_FLAG2 : 0;
-                tempitem.wpns[0]  = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE1A);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE1B);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES1A);
-                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES1B);
-                tempitem.wpns[5] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2A);
-                tempitem.wpns[6] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2B);
-                tempitem.wpns[7] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2A);
-                tempitem.wpns[8] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2B);
-                tempitem.wpns[4] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDFRONT);
-                tempitem.wpns[9] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDBACK);
-                tempitem.misc1=512;
-                tempitem.magic=64;
-                break;
-                    
-            case iLens:
-                tempitem.misc1=60;
-                tempitem.flags |= get_bit(quest_rules,qr_ENABLEMAGIC) ? 0 : itemdata::IF_RUPEE_MAGIC;
-                tempitem.magic = get_bit(quest_rules,qr_ENABLEMAGIC) ? 2 : 1;
-                break;
-                    
-            case iArrow:
-                tempitem.power=2;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_ARROW);
-                break;
-                    
-            case iHoverBoots:
-                tempitem.misc1=45;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_HOVER);
-                break;
-                    
-            case iDinsFire:
-                tempitem.power=8;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_DINSFIRE1A);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_DINSFIRE1B);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_DINSFIRES1A);
-                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_DINSFIRES1B);
-                tempitem.misc1 = 32;
-                tempitem.misc2 = 200;
-                tempitem.magic=32;
-                break;
-                    
-            case iFaroresWind:
-                tempitem.magic=32;
-                break;
-                    
-            case iHookshot:
-                tempitem.power=0;
-                tempitem.flags&=~itemdata::IF_FLAG1;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_HSHEAD);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_HSCHAIN_H);
-                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_HSHANDLE);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_HSCHAIN_V);
-                tempitem.misc1=50;
-                tempitem.misc2=100;
-                break;
-                    
-            case iLongshot:
-                tempitem.power=0;
-                tempitem.flags&=~itemdata::IF_FLAG1;
-                tempitem.wpns[0] = SpriteDefinitionRef("CORE",OS_LSHEAD);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_LSCHAIN_H);
-                tempitem.wpns[3] = SpriteDefinitionRef("CORE",OS_LSHANDLE);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_LSCHAIN_V);
-                tempitem.misc1=99;
-                tempitem.misc2=100;
-                break;
-                    
-            case iHammer:
-                tempitem.power=4;
-                tempitem.wpns[0]  = SpriteDefinitionRef("CORE",OS_HAMMER);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_HAMMERSMACK);
-                break;
-                    
-            case iCByrna:
-                tempitem.power=1;
-                tempitem.wpns[0]  = SpriteDefinitionRef("CORE",OS_CBYRNA);
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_CBYRNASLASH);
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_CBYRNAORB);
-                tempitem.misc1=4;
-                tempitem.misc2=16;
-                tempitem.misc3=1;
-                tempitem.magic=1;
-                break;
-                    
-            case iWhistle:
-                tempitem.wpns[0]= SpriteDefinitionRef("CORE",OS_WIND);
-                tempitem.misc1=3;
-                tempitem.flags|=itemdata::IF_FLAG1;
-                break;
-                    
-            case iBRing:
-                tempitem.power=2;
-                tempitem.misc1=spBLUE;
-                break;
-                    
-            case iRRing:
-                tempitem.power=4;
-                tempitem.misc1=spRED;
-                break;
-                    
-            case iGRing:
-                tempitem.power=8;
-                tempitem.misc1=spGOLD;
-                break;
-                    
-            case iSpinScroll:
-                tempitem.power = 2;
-                tempitem.misc1 = 1;
-                break;
-                    
-            case iL2SpinScroll:
-                tempitem.family=itype_spinscroll2;
-                tempitem.fam_type=1;
-                tempitem.magic=8;
-                tempitem.power=2;
-                tempitem.misc1 = 20;
-                break;
-                    
-            case iQuakeScroll:
-                tempitem.misc1=0x10;
-                tempitem.misc2=64;
-                break;
-                    
-            case iL2QuakeScroll:
-                tempitem.family=itype_quakescroll2;
-                tempitem.fam_type=1;
-                tempitem.power = 2;
-                tempitem.misc1=0x20;
-                tempitem.misc2=192;
-                tempitem.magic=8;
-                break;
-                    
-            case iChargeRing:
-                tempitem.misc1=64;
-                tempitem.misc2=128;
-                break;
-                    
-            case iL2ChargeRing:
-                tempitem.misc1=32;
-                tempitem.misc2=64;
-                break;
-                    
-            case iOldGlove:
-                tempitem.flags |= itemdata::IF_FLAG1;
-                    
-                //fallthrough
-            case iBombBagL4:
-            case iWalletL3:
-            case iQuiverL4:
-            case iBracelet:
-                tempitem.power = 1;
-                break;
-                    
-            case iL2Bracelet:
-                tempitem.power = 2;
-                break;
-                    
-            case iMKey:
-                tempitem.power=0xFF;
-                tempitem.flags |= itemdata::IF_FLAG1;
-                break;
-            }
-        }
-            
-        if(s_version < 7)
-        {
-            switch(i)
-            {
-            case iStoneAgony:
-            case iStompBoots:
-            case iPerilRing:
-            case iWhimsicalRing:
-            {
-                reset_itembuf(&tempitem, ItemDefinitionRef("CORE",i));
-                tables["CORE"].setItemName(i,old_item_names[i]);
-                break;
-            }
-            }
-        }
-            
-        if(s_version < 8) // May 2007: Some corrections.
-        {
-            switch(i)
-            {
-            case iMShield:
-                tempitem.misc1|=shFLAME;
-                tempitem.misc2|=shFIREBALL|shMAGIC;
-                    
-                if(get_bit(quest_rules, qr_SWORDMIRROR))
+                itemdata &tempitem = tables["CORE"].getItemDefinition(i);
+
+                //Account for older quests that didn't have an actual item for the used letter
+                if (s_version < 2 && i == iLetterUsed && iLetter < numitems)
                 {
-                    tempitem.misc2 |= shSWORD;
+                    reset_itembuf(&tempitem, ItemDefinitionRef("CORE", iLetterUsed));
+                    tables["CORE"].setItemName(i, old_item_names[i]);
+                    tempitem.tile = tables["CORE"].getItemDefinition(iLetter).tile;
+                    tempitem.csets = tables["CORE"].getItemDefinition(iLetter).csets;
+                    tempitem.misc = tables["CORE"].getItemDefinition(iLetter).misc;
+                    tempitem.frames = tables["CORE"].getItemDefinition(iLetter).frames;
+                    tempitem.speed = tables["CORE"].getItemDefinition(iLetter).speed;
+                    tempitem.ltm = tables["CORE"].getItemDefinition(iLetter).ltm;
                 }
-                    
-                // fallthrough
-            case iShield:
-                tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
-                    
-                // fallthrough
-            case iSShield:
-                tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
-                    
-                if(get_bit(deprecated_rules,102))  //qr_REFLECTROCKS
+
+                if (s_version < 3)
                 {
-                    tempitem.misc2 |= shROCK;
+                    switch (i)
+                    {
+                    case iRocsFeather:
+                    case iHoverBoots:
+                    case iSpinScroll:
+                    case iL2SpinScroll:
+                    case iCrossScroll:
+                    case iQuakeScroll:
+                    case iL2QuakeScroll:
+                    case iWhispRing:
+                    case iL2WhispRing:
+                    case iChargeRing:
+                    case iL2ChargeRing:
+                    case iPerilScroll:
+                    case iWalletL3:
+                    case iQuiverL4:
+                    case iBombBagL4:
+                    case iBracelet:
+                    case iL2Bracelet:
+                    case iOldGlove:
+                    case iL2Ladder:
+                    case iWealthMedal:
+                    case iL2WealthMedal:
+                    case iL3WealthMedal:
+                        reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
+                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        break;
+
+                    case iSShield:
+                        reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
+                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        if (iShield < numitems)
+                            tables["CORE"].setItemName(iShield, old_item_names[iShield]);
+                        if (iMShield < numitems)
+                            tables["CORE"].setItemName(iMShield, old_item_names[iMShield]);
+                        break;
+                    }
                 }
-                    
-                break;
-                    
-            case iWhispRing:
-                tempitem.power=1;
-                tempitem.flags|=itemdata::IF_GAMEDATA|itemdata::IF_FLAG1;
-                tempitem.misc1 = 3;
-                break;
-                    
-            case iL2WhispRing:
-                tempitem.power=0;
-                tempitem.flags|=itemdata::IF_GAMEDATA|itemdata::IF_FLAG1;
-                tempitem.misc1 = 3;
-                break;
-                    
-            case iL2Ladder:
-            case iBow:
-            case iCByrna:
-                tempitem.power = 1;
-                break;
-                break;
-            }
-        }
-            
-        if(s_version < 9 && i==iClock)
-        {
-            tempitem.misc1 = get_bit(deprecated_rules, qr_TEMPCLOCKS_DEP) ? 256 : 0;
-        }
-            
-        //add the misc flag for bomb
-        if(s_version < 10 && tempitem.family == itype_bomb)
-        {
-            tempitem.flags = (tempitem.flags & ~itemdata::IF_FLAG1) | (get_bit(quest_rules, qr_LONGBOMBBOOM_DEP) ? itemdata::IF_FLAG1 : 0);
-        }
-            
-        if(s_version < 11 && tempitem.family == itype_triforcepiece)
-        {
-            tempitem.flags = (tempitem.fam_type ? itemdata::IF_GAMEDATA : 0);
-            tempitem.playsound = (tempitem.fam_type ? WAV_SCALE : WAV_CLEARED);
-        }
-            
-        if(s_version < 12) // June 2007: More Misc. attributes.
-        {
-            switch(i)
-            {
-            case iFBrang:
-                tempitem.misc4 |= shFIREBALL|shSWORD|shMAGIC;
-                    
-                //fallthrough
-            case iMBrang:
-                tempitem.misc3 |= shSWORD|shMAGIC;
-                    
-                //fallthrough
-            case iHookshot:
-            case iLongshot:
-                //fallthrough
-                tempitem.misc3 |= shFIREBALL;
-                    
-            case iBrang:
-                tempitem.misc3 |= shBRANG|shROCK|shARROW;
-                break;
-            }
-                
-            switch(tempitem.family)
-            {
-            case itype_hoverboots:
-                tempitem.usesound = WAV_ZN1HOVER;
-                break;
-                    
-            case itype_wand:
-            case itype_book:
-                tempitem.usesound = WAV_WAND;
-                break;
-                    
-            case itype_arrow:
-                tempitem.usesound = WAV_ARROW;
-                break;
-                    
-            case itype_hookshot:
-                tempitem.usesound = WAV_HOOKSHOT;
-                break;
-                    
-            case itype_brang:
-                tempitem.usesound = WAV_BRANG;
-                break;
-                    
-            case itype_shield:
-                tempitem.usesound = WAV_CHINK;
-                break;
-                    
-            case itype_sword:
-                tempitem.usesound = WAV_SWORD;
-                break;
-                    
-            case itype_whistle:
-                tempitem.usesound = WAV_WHISTLE;
-                break;
-                    
-            case itype_hammer:
-                tempitem.usesound = WAV_HAMMER;
-                break;
-                    
-            case itype_dinsfire:
-                tempitem.usesound = WAV_ZN1DINSFIRE;
-                break;
-                    
-            case itype_faroreswind:
-                tempitem.usesound = WAV_ZN1FARORESWIND;
-                break;
-                    
-            case itype_nayruslove:
-                tempitem.usesound = WAV_ZN1NAYRUSLOVE1;
-                break;
-                    
-            case itype_bomb:
-            case itype_sbomb:
-            case itype_quakescroll:
-            case itype_quakescroll2:
-                tempitem.usesound = WAV_BOMB;
-                break;
-                    
-            case itype_spinscroll:
-            case itype_spinscroll2:
-                tempitem.usesound = WAV_ZN1SPINATTACK;
-                break;
-            }
-        }
-            
-        if(s_version < 13) // July 2007
-        {
-            if(tempitem.family == itype_whistle)
-            {
-                tempitem.misc1 = (tempitem.power==2 ? 4 : 3);
-                tempitem.power = 1;
-                tempitem.flags|=itemdata::IF_FLAG1;
-            }
-            else if(tempitem.family == itype_wand)
-                tempitem.flags|=itemdata::IF_FLAG1;
-            else if(tempitem.family == itype_book)
-            {
-                tempitem.flags|=itemdata::IF_FLAG1;
-                tempitem.power = 2;
-            }
-        }
-            
-        if(s_version < 14) // August 2007
-        {
-            if(tempitem.family == itype_fairy)
-            {
-                tempitem.usesound = WAV_SCALE;
-                    
-                if(tempitem.fam_type)
-                    tempitem.misc3=50;
-            }
-            else if(tempitem.family == itype_potion)
-            {
-                tempitem.flags |= itemdata::IF_GAINOLD;
-            }
-        }
-            
-        if(s_version < 17) // November 2007
-        {
-            if(tempitem.family == itype_candle && (tempitem.wpns[2] == SpriteDefinitionRef()))
-            {
-                tempitem.wpns[2] = SpriteDefinitionRef("CORE",OS_FIRE);
-            }
-            else if(tempitem.family == itype_arrow && tempitem.power>4)
-            {
-                tempitem.flags|=itemdata::IF_FLAG1;
-            }
-        }
-            
-        if(s_version < 18) // New Year's Eve 2007
-        {
-            if(tempitem.family == itype_whistle)
-                tempitem.misc2 = 8; // Use the Whistle warp ring
-            else if(tempitem.family == itype_bait)
-                tempitem.misc1 = 768; // Frames until it goes
-            else if(tempitem.family == itype_triforcepiece)
-            {
-                if(tempitem.flags & itemdata::IF_GAMEDATA)
+
+                if (s_version < 5)
                 {
-                    tempitem.misc2 = 1; // Cutscene 1
-                    tempitem.flags |= itemdata::IF_FLAG1; // Side Warp Out
+                    switch (i)
+                    {
+                    case iHeartRing:
+                    case iL2HeartRing:
+                    case iL3HeartRing:
+                    case iMagicRing:
+                    case iL2MagicRing:
+                    case iL3MagicRing:
+                    case iL4MagicRing:
+                        reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
+                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        break;
+                    }
                 }
-            }
-        }
-            
-        if(s_version < 19)  // January 2008
-        {
-            if(tempitem.family == itype_nayruslove)
-            {
-                tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)?itemdata::IF_FLAG3:0;
-                tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)?itemdata::IF_FLAG4:0;
-            }
-        }
-            
-        if(s_version < 20)  // October 2008
-        {
-            if(tempitem.family == itype_nayruslove)
-            {
-                tempitem.wpns[5] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2A);
-                tempitem.wpns[6] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVE2B);
-                tempitem.wpns[7] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES2A);
-                tempitem.wpns[8] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVES2B);
-                tempitem.wpns[4] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDFRONT);
-                tempitem.wpns[9] = SpriteDefinitionRef("CORE",OS_NAYRUSLOVESHIELDBACK);
-            }
-        }
-            
-        if(s_version < 21)  // November 2008
-        {
-            if(tempitem.flags & 0x0100)  // ITEM_SLASH
-            {
-                tempitem.flags &= ~0x0100;
-                    
-                if(tempitem.family == itype_sword ||
-                        tempitem.family == itype_wand ||
-                        tempitem.family == itype_candle ||
-                        tempitem.family == itype_cbyrna)
+
+                if (s_version < 6)  // April 2007: Advanced item editing capabilities.
                 {
-                    tempitem.flags |= itemdata::IF_FLAG4;
+                    if (i != iBPotion && i != iRPotion)
+                        tempitem.flags |= get_bit(deprecated_rules, 32) ? itemdata::IF_KEEPOLD : 0;
+
+                    switch (i)
+                    {
+                    case iTriforce:
+                        tempitem.fam_type = 1;
+                        break;
+
+                    case iBigTri:
+                        tempitem.fam_type = 0;
+                        break;
+
+                    case iBombs:
+                        tempitem.fam_type = i_bomb;
+                        tempitem.power = 4;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_BOMB);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_BOOM);
+                        tempitem.misc1 = 50;
+
+                        if (get_bit(deprecated_rules, 116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
+
+                        break;
+
+                    case iSBomb:
+                        tempitem.fam_type = i_sbomb;
+                        tempitem.power = 16;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_SBOMB);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_SBOOM);
+                        tempitem.misc1 = 50;
+
+                        if (get_bit(deprecated_rules, 116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
+
+                        break;
+
+                    case iBook:
+                        if (get_bit(deprecated_rules, 113))
+                            tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_FIREMAGIC); //qr_FIREMAGICSPRITE
+
+                        break;
+
+                    case iSArrow:
+                        tempitem.wpns[1] = get_bit(deprecated_rules, 27) ? SpriteDefinitionRef("CORE", OS_SSPARKLE) : SpriteDefinitionRef(); //qr_SASPARKLES
+                        tempitem.power = 4;
+                        tempitem.flags |= itemdata::IF_GAMEDATA;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_SARROW);
+                        break;
+
+                    case iGArrow:
+                        tempitem.wpns[1] = get_bit(deprecated_rules, 28) ? SpriteDefinitionRef("CORE", OS_GSPARKLE) : SpriteDefinitionRef(); //qr_GASPARKLES
+                        tempitem.power = 8;
+                        tempitem.flags |= (itemdata::IF_GAMEDATA | itemdata::IF_FLAG1);
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_GARROW);
+                        break;
+
+                    case iBrang:
+                        tempitem.power = 0;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_BRANG);
+                        tempitem.misc1 = 36;
+                        break;
+
+                    case iMBrang:
+                        tempitem.wpns[1] = get_bit(deprecated_rules, 29) ? SpriteDefinitionRef("CORE", OS_MSPARKLE) : SpriteDefinitionRef(); //qr_MBSPARKLES
+                        tempitem.power = 0;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_MBRANG);
+                        break;
+
+                    case iFBrang:
+                        tempitem.wpns[2] = get_bit(deprecated_rules, 30) ? SpriteDefinitionRef("CORE", OS_FSPARKLE) : SpriteDefinitionRef(); //qr_FBSPARKLES
+                        tempitem.power = 2;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_FBRANG);
+                        break;
+
+                    case iBoots:
+                        tempitem.magic = get_bit(deprecated_rules, 51) ? 1 : 0;
+                        tempitem.power = 7;
+                        break;
+
+                    case iWand:
+                        tempitem.magic = get_bit(deprecated_rules, 49) ? 8 : 0;
+                        tempitem.power = 2;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_WAND);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_MAGIC);
+                        break;
+
+                    case iBCandle:
+                        tempitem.magic = get_bit(deprecated_rules, 50) ? 4 : 0;
+                        tempitem.power = 1;
+                        tempitem.flags |= (itemdata::IF_GAMEDATA | itemdata::IF_FLAG1);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_FIRE);
+                        break;
+
+                    case iRCandle:
+                        tempitem.magic = get_bit(deprecated_rules, 50) ? 4 : 0;
+                        tempitem.power = 1;
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_FIRE);
+                        break;
+
+                    case iSword:
+                        tempitem.power = 1;
+                        tempitem.flags |= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
+                        tempitem.wpns[0] = tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_SWORD);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_SWORDSLASH);
+                        break;
+
+                    case iWSword:
+                        tempitem.power = 2;
+                        tempitem.flags |= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
+                        tempitem.wpns[0] = tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_WSWORD);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_WSWORDSLASH);
+                        break;
+
+                    case iMSword:
+                        tempitem.power = 4;
+                        tempitem.flags |= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
+                        tempitem.wpns[0] = tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_MSWORD);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_MSWORDSLASH);
+                        break;
+
+                    case iXSword:
+                        tempitem.power = 8;
+                        tempitem.flags |= itemdata::IF_FLAG4 | itemdata::IF_FLAG2;
+                        tempitem.wpns[0] = tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_XSWORD);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_XSWORDSLASH);
+                        break;
+
+                    case iNayrusLove:
+                        tempitem.flags |= get_bit(deprecated_rules, 76) ? itemdata::IF_FLAG1 : 0;
+                        tempitem.flags |= get_bit(deprecated_rules, 75) ? itemdata::IF_FLAG2 : 0;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVE1A);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVE1B);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES1A);
+                        tempitem.wpns[3] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES1B);
+                        tempitem.wpns[5] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVE2A);
+                        tempitem.wpns[6] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVE2B);
+                        tempitem.wpns[7] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES2A);
+                        tempitem.wpns[8] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES2B);
+                        tempitem.wpns[4] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVESHIELDFRONT);
+                        tempitem.wpns[9] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVESHIELDBACK);
+                        tempitem.misc1 = 512;
+                        tempitem.magic = 64;
+                        break;
+
+                    case iLens:
+                        tempitem.misc1 = 60;
+                        tempitem.flags |= get_bit(quest_rules, qr_ENABLEMAGIC) ? 0 : itemdata::IF_RUPEE_MAGIC;
+                        tempitem.magic = get_bit(quest_rules, qr_ENABLEMAGIC) ? 2 : 1;
+                        break;
+
+                    case iArrow:
+                        tempitem.power = 2;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_ARROW);
+                        break;
+
+                    case iHoverBoots:
+                        tempitem.misc1 = 45;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_HOVER);
+                        break;
+
+                    case iDinsFire:
+                        tempitem.power = 8;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_DINSFIRE1A);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_DINSFIRE1B);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_DINSFIRES1A);
+                        tempitem.wpns[3] = SpriteDefinitionRef("CORE", OS_DINSFIRES1B);
+                        tempitem.misc1 = 32;
+                        tempitem.misc2 = 200;
+                        tempitem.magic = 32;
+                        break;
+
+                    case iFaroresWind:
+                        tempitem.magic = 32;
+                        break;
+
+                    case iHookshot:
+                        tempitem.power = 0;
+                        tempitem.flags &= ~itemdata::IF_FLAG1;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_HSHEAD);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_HSCHAIN_H);
+                        tempitem.wpns[3] = SpriteDefinitionRef("CORE", OS_HSHANDLE);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_HSCHAIN_V);
+                        tempitem.misc1 = 50;
+                        tempitem.misc2 = 100;
+                        break;
+
+                    case iLongshot:
+                        tempitem.power = 0;
+                        tempitem.flags &= ~itemdata::IF_FLAG1;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_LSHEAD);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_LSCHAIN_H);
+                        tempitem.wpns[3] = SpriteDefinitionRef("CORE", OS_LSHANDLE);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_LSCHAIN_V);
+                        tempitem.misc1 = 99;
+                        tempitem.misc2 = 100;
+                        break;
+
+                    case iHammer:
+                        tempitem.power = 4;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_HAMMER);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_HAMMERSMACK);
+                        break;
+
+                    case iCByrna:
+                        tempitem.power = 1;
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_CBYRNA);
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_CBYRNASLASH);
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_CBYRNAORB);
+                        tempitem.misc1 = 4;
+                        tempitem.misc2 = 16;
+                        tempitem.misc3 = 1;
+                        tempitem.magic = 1;
+                        break;
+
+                    case iWhistle:
+                        tempitem.wpns[0] = SpriteDefinitionRef("CORE", OS_WIND);
+                        tempitem.misc1 = 3;
+                        tempitem.flags |= itemdata::IF_FLAG1;
+                        break;
+
+                    case iBRing:
+                        tempitem.power = 2;
+                        tempitem.misc1 = spBLUE;
+                        break;
+
+                    case iRRing:
+                        tempitem.power = 4;
+                        tempitem.misc1 = spRED;
+                        break;
+
+                    case iGRing:
+                        tempitem.power = 8;
+                        tempitem.misc1 = spGOLD;
+                        break;
+
+                    case iSpinScroll:
+                        tempitem.power = 2;
+                        tempitem.misc1 = 1;
+                        break;
+
+                    case iL2SpinScroll:
+                        tempitem.family = itype_spinscroll2;
+                        tempitem.fam_type = 1;
+                        tempitem.magic = 8;
+                        tempitem.power = 2;
+                        tempitem.misc1 = 20;
+                        break;
+
+                    case iQuakeScroll:
+                        tempitem.misc1 = 0x10;
+                        tempitem.misc2 = 64;
+                        break;
+
+                    case iL2QuakeScroll:
+                        tempitem.family = itype_quakescroll2;
+                        tempitem.fam_type = 1;
+                        tempitem.power = 2;
+                        tempitem.misc1 = 0x20;
+                        tempitem.misc2 = 192;
+                        tempitem.magic = 8;
+                        break;
+
+                    case iChargeRing:
+                        tempitem.misc1 = 64;
+                        tempitem.misc2 = 128;
+                        break;
+
+                    case iL2ChargeRing:
+                        tempitem.misc1 = 32;
+                        tempitem.misc2 = 64;
+                        break;
+
+                    case iOldGlove:
+                        tempitem.flags |= itemdata::IF_FLAG1;
+
+                        //fallthrough
+                    case iBombBagL4:
+                    case iWalletL3:
+                    case iQuiverL4:
+                    case iBracelet:
+                        tempitem.power = 1;
+                        break;
+
+                    case iL2Bracelet:
+                        tempitem.power = 2;
+                        break;
+
+                    case iMKey:
+                        tempitem.power = 0xFF;
+                        tempitem.flags |= itemdata::IF_FLAG1;
+                        break;
+                    }
                 }
+
+                if (s_version < 7)
+                {
+                    switch (i)
+                    {
+                    case iStoneAgony:
+                    case iStompBoots:
+                    case iPerilRing:
+                    case iWhimsicalRing:
+                    {
+                        reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
+                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        break;
+                    }
+                    }
+                }
+
+                if (s_version < 8) // May 2007: Some corrections.
+                {
+                    switch (i)
+                    {
+                    case iMShield:
+                        tempitem.misc1 |= shFLAME;
+                        tempitem.misc2 |= shFIREBALL | shMAGIC;
+
+                        if (get_bit(quest_rules, qr_SWORDMIRROR))
+                        {
+                            tempitem.misc2 |= shSWORD;
+                        }
+
+                        // fallthrough
+                    case iShield:
+                        tempitem.misc1 |= shFIREBALL | shSWORD | shMAGIC;
+
+                        // fallthrough
+                    case iSShield:
+                        tempitem.misc1 |= shROCK | shARROW | shBRANG | shSCRIPT;
+
+                        if (get_bit(deprecated_rules, 102))  //qr_REFLECTROCKS
+                        {
+                            tempitem.misc2 |= shROCK;
+                        }
+
+                        break;
+
+                    case iWhispRing:
+                        tempitem.power = 1;
+                        tempitem.flags |= itemdata::IF_GAMEDATA | itemdata::IF_FLAG1;
+                        tempitem.misc1 = 3;
+                        break;
+
+                    case iL2WhispRing:
+                        tempitem.power = 0;
+                        tempitem.flags |= itemdata::IF_GAMEDATA | itemdata::IF_FLAG1;
+                        tempitem.misc1 = 3;
+                        break;
+
+                    case iL2Ladder:
+                    case iBow:
+                    case iCByrna:
+                        tempitem.power = 1;
+                        break;
+                        break;
+                    }
+                }
+
+                if (s_version < 9 && i == iClock)
+                {
+                    tempitem.misc1 = get_bit(deprecated_rules, qr_TEMPCLOCKS_DEP) ? 256 : 0;
+                }
+
+                //add the misc flag for bomb
+                if (s_version < 10 && tempitem.family == itype_bomb)
+                {
+                    tempitem.flags = (tempitem.flags & ~itemdata::IF_FLAG1) | (get_bit(quest_rules, qr_LONGBOMBBOOM_DEP) ? itemdata::IF_FLAG1 : 0);
+                }
+
+                if (s_version < 11 && tempitem.family == itype_triforcepiece)
+                {
+                    tempitem.flags = (tempitem.fam_type ? itemdata::IF_GAMEDATA : 0);
+                    tempitem.playsound = (tempitem.fam_type ? WAV_SCALE : WAV_CLEARED);
+                }
+
+                if (s_version < 12) // June 2007: More Misc. attributes.
+                {
+                    switch (i)
+                    {
+                    case iFBrang:
+                        tempitem.misc4 |= shFIREBALL | shSWORD | shMAGIC;
+
+                        //fallthrough
+                    case iMBrang:
+                        tempitem.misc3 |= shSWORD | shMAGIC;
+
+                        //fallthrough
+                    case iHookshot:
+                    case iLongshot:
+                        //fallthrough
+                        tempitem.misc3 |= shFIREBALL;
+
+                    case iBrang:
+                        tempitem.misc3 |= shBRANG | shROCK | shARROW;
+                        break;
+                    }
+
+                    switch (tempitem.family)
+                    {
+                    case itype_hoverboots:
+                        tempitem.usesound = WAV_ZN1HOVER;
+                        break;
+
+                    case itype_wand:
+                    case itype_book:
+                        tempitem.usesound = WAV_WAND;
+                        break;
+
+                    case itype_arrow:
+                        tempitem.usesound = WAV_ARROW;
+                        break;
+
+                    case itype_hookshot:
+                        tempitem.usesound = WAV_HOOKSHOT;
+                        break;
+
+                    case itype_brang:
+                        tempitem.usesound = WAV_BRANG;
+                        break;
+
+                    case itype_shield:
+                        tempitem.usesound = WAV_CHINK;
+                        break;
+
+                    case itype_sword:
+                        tempitem.usesound = WAV_SWORD;
+                        break;
+
+                    case itype_whistle:
+                        tempitem.usesound = WAV_WHISTLE;
+                        break;
+
+                    case itype_hammer:
+                        tempitem.usesound = WAV_HAMMER;
+                        break;
+
+                    case itype_dinsfire:
+                        tempitem.usesound = WAV_ZN1DINSFIRE;
+                        break;
+
+                    case itype_faroreswind:
+                        tempitem.usesound = WAV_ZN1FARORESWIND;
+                        break;
+
+                    case itype_nayruslove:
+                        tempitem.usesound = WAV_ZN1NAYRUSLOVE1;
+                        break;
+
+                    case itype_bomb:
+                    case itype_sbomb:
+                    case itype_quakescroll:
+                    case itype_quakescroll2:
+                        tempitem.usesound = WAV_BOMB;
+                        break;
+
+                    case itype_spinscroll:
+                    case itype_spinscroll2:
+                        tempitem.usesound = WAV_ZN1SPINATTACK;
+                        break;
+                    }
+                }
+
+                if (s_version < 13) // July 2007
+                {
+                    if (tempitem.family == itype_whistle)
+                    {
+                        tempitem.misc1 = (tempitem.power == 2 ? 4 : 3);
+                        tempitem.power = 1;
+                        tempitem.flags |= itemdata::IF_FLAG1;
+                    }
+                    else if (tempitem.family == itype_wand)
+                        tempitem.flags |= itemdata::IF_FLAG1;
+                    else if (tempitem.family == itype_book)
+                    {
+                        tempitem.flags |= itemdata::IF_FLAG1;
+                        tempitem.power = 2;
+                    }
+                }
+
+                if (s_version < 14) // August 2007
+                {
+                    if (tempitem.family == itype_fairy)
+                    {
+                        tempitem.usesound = WAV_SCALE;
+
+                        if (tempitem.fam_type)
+                            tempitem.misc3 = 50;
+                    }
+                    else if (tempitem.family == itype_potion)
+                    {
+                        tempitem.flags |= itemdata::IF_GAINOLD;
+                    }
+                }
+
+                if (s_version < 17) // November 2007
+                {
+                    if (tempitem.family == itype_candle && (tempitem.wpns[2] == SpriteDefinitionRef()))
+                    {
+                        tempitem.wpns[2] = SpriteDefinitionRef("CORE", OS_FIRE);
+                    }
+                    else if (tempitem.family == itype_arrow && tempitem.power > 4)
+                    {
+                        tempitem.flags |= itemdata::IF_FLAG1;
+                    }
+                }
+
+                if (s_version < 18) // New Year's Eve 2007
+                {
+                    if (tempitem.family == itype_whistle)
+                        tempitem.misc2 = 8; // Use the Whistle warp ring
+                    else if (tempitem.family == itype_bait)
+                        tempitem.misc1 = 768; // Frames until it goes
+                    else if (tempitem.family == itype_triforcepiece)
+                    {
+                        if (tempitem.flags & itemdata::IF_GAMEDATA)
+                        {
+                            tempitem.misc2 = 1; // Cutscene 1
+                            tempitem.flags |= itemdata::IF_FLAG1; // Side Warp Out
+                        }
+                    }
+                }
+
+                if (s_version < 19)  // January 2008
+                {
+                    if (tempitem.family == itype_nayruslove)
+                    {
+                        tempitem.flags |= get_bit(deprecated_rules, qr_NOBOMBPALFLASH + 1) ? itemdata::IF_FLAG3 : 0;
+                        tempitem.flags |= get_bit(deprecated_rules, qr_NOBOMBPALFLASH + 2) ? itemdata::IF_FLAG4 : 0;
+                    }
+                }
+
+                if (s_version < 20)  // October 2008
+                {
+                    if (tempitem.family == itype_nayruslove)
+                    {
+                        tempitem.wpns[5] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVE2A);
+                        tempitem.wpns[6] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVE2B);
+                        tempitem.wpns[7] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES2A);
+                        tempitem.wpns[8] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVES2B);
+                        tempitem.wpns[4] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVESHIELDFRONT);
+                        tempitem.wpns[9] = SpriteDefinitionRef("CORE", OS_NAYRUSLOVESHIELDBACK);
+                    }
+                }
+
+                if (s_version < 21)  // November 2008
+                {
+                    if (tempitem.flags & 0x0100)  // ITEM_SLASH
+                    {
+                        tempitem.flags &= ~0x0100;
+
+                        if (tempitem.family == itype_sword ||
+                            tempitem.family == itype_wand ||
+                            tempitem.family == itype_candle ||
+                            tempitem.family == itype_cbyrna)
+                        {
+                            tempitem.flags |= itemdata::IF_FLAG4;
+                        }
+                    }
+                }
+
+                if (s_version < 22)  // September 2009
+                {
+                    if (tempitem.family == itype_sbomb || tempitem.family == itype_bomb)
+                    {
+                        tempitem.misc3 = tempitem.power / 2;
+                    }
+                }
+
+                if (s_version < 23)    // March 2011
+                {
+                    if (tempitem.family == itype_dinsfire)
+                        tempitem.wpns[4] = SpriteDefinitionRef("CORE", OS_FIRE);
+                    else if (tempitem.family == itype_book)
+                        tempitem.wpns[1] = SpriteDefinitionRef("CORE", OS_FIRE);
+                }
+
+                // Version 25: Bomb bags were acting as though "super bombs also" was checked
+                // whether it was or not, and a lot of existing quests depended on the
+                // incorrect behavior.
+                if (s_version < 25)    // January 2012
+                {
+                    if (tempitem.family == itype_bombbag)
+                        tempitem.flags |= 16;
+
+                    if (tempitem.family == itype_dinsfire)
+                        tempitem.flags |= itemdata::IF_FLAG3; // Sideview gravity flag
+                }
+
+                if (tempitem.fam_type == 0)  // Always do this
+                    tempitem.fam_type = 1;
             }
         }
-            
-        if(s_version < 22)  // September 2009
-        {
-            if(tempitem.family == itype_sbomb || tempitem.family == itype_bomb)
-            {
-                tempitem.misc3 = tempitem.power/2;
-            }
-        }
-            
-        if(s_version < 23)    // March 2011
-        {
-            if(tempitem.family == itype_dinsfire)
-                tempitem.wpns[4] = SpriteDefinitionRef("CORE",OS_FIRE);
-            else if(tempitem.family == itype_book)
-                tempitem.wpns[1] = SpriteDefinitionRef("CORE",OS_FIRE);
-        }
-            
-        // Version 25: Bomb bags were acting as though "super bombs also" was checked
-        // whether it was or not, and a lot of existing quests depended on the
-        // incorrect behavior.
-        if(s_version < 25)    // January 2012
-        {
-            if(tempitem.family == itype_bombbag)
-                tempitem.flags |= 16;
-                    
-            if(tempitem.family == itype_dinsfire)
-                tempitem.flags |= itemdata::IF_FLAG3; // Sideview gravity flag
-        }
-            
-        if(tempitem.fam_type==0)  // Always do this
-            tempitem.fam_type=1;     
-    }
   
+    }
     return qe_OK;    
 }
 
@@ -5933,15 +5944,18 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
     // placeholder; this shouldn't really be here
     lens_hint_weapon.clear();
     
+    uint32_t modules_to_read;
     
     if(Header->zelda_version < 0x186)
     {
         weapons_to_read=64;
+        modules_to_read = 1; // only CORE
     }
     
     if(Header->zelda_version < 0x185)
     {
         weapons_to_read=32;
+        modules_to_read = 1;
     }
     
     if(Header->zelda_version > 0x192)
@@ -5975,248 +5989,259 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
                 return qe_invalid;
             }
             weapons_to_read = wtr;
+            modules_to_read = 1; // only CORE
         }
         else
         {
-            if (!p_igetl(&weapons_to_read, f, true))
+            if (!p_igetl(&modules_to_read, f, true))
             {
                 return qe_invalid;
             }
         }
     }
 
-    std::vector<std::string> names;
-    
-    if(s_version>2)
+    for (uint32_t module = 0; module < modules_to_read; module++)
     {
-        for(uint32_t i=0; i<weapons_to_read; i++)
-        {
-            if (s_version < 7)
-            {
-                char tempname[64];
-
-                if (!pfread(tempname, 64, f, true))
-                {
-                    return qe_invalid;
-                }
-
-                names.push_back(string(tempname));
-            }
-            else
-            {
-                uint32_t namelen;
-                if (!p_igetl(&namelen, f, true))
-                {
-                    return qe_invalid;
-                }
-                
-                char *buf = new char[namelen];
-                
-                if (!pfread(buf, namelen, f, true))
-                {
-                    return qe_invalid;
-                }
-
-                names.push_back(string(buf));
-
-                delete[] buf;
-            }
-        }
-        
-        if(s_version<4)
-        {
-            if(OS_HOVER < weapons_to_read)
-                names[OS_HOVER] = SpriteDefinitionTable::defaultSpriteName(OS_HOVER);
-            if(OS_FIREMAGIC < weapons_to_read)
-                names[OS_FIREMAGIC] = SpriteDefinitionTable::defaultSpriteName(OS_FIREMAGIC);            
-        }
-        
-        if(s_version<5)
-        {
-            if (OS_QUARTERHEARTS < weapons_to_read)
-            {
-                names[OS_QUARTERHEARTS] = SpriteDefinitionTable::defaultSpriteName(OS_QUARTERHEARTS);
-            }
-        }
-    }
-    else
-    {
-        for (uint32_t i = 0; i < weapons_to_read; i++)
-        {
-            names.push_back(SpriteDefinitionTable::defaultSpriteName(i));
-        }
-    }
-
-    // now read the weapons
-    
-    for(uint32_t i=0; i<weapons_to_read; i++)
-    {
-        std::string modname;
+        string modulename;
         if (s_version < 7)
         {
-            modname = string("CORE");
+            modulename = "CORE";
         }
         else
         {
-            uint32_t len;
-            if (!p_igetl(&len, f, true))
-            {
+            uint32_t modnamelen;
+            if (!p_igetl(&modnamelen, f, true))
                 return qe_invalid;
-            }
 
-            char *buf = new char[len];
-            if (!pfread(buf, len, f, true))
+            char *buf = new char[modnamelen];
+            if (!pfread(buf, modnamelen, f, true))
             {
                 delete[] buf;
                 return qe_invalid;
             }
-            modname = std::string(buf);
-            delete[] buf;
-        }
-        wpndata tempweapon;
 
-        if(!p_igetw(&tempweapon.tile,f,true))
-        {
-            return qe_invalid;
+            modulename = string(buf);
+            delete[] buf;
+
+            if (!p_igetl(&weapons_to_read, f, true))
+                return qe_invalid;
         }
-        
-        if(!p_getc(&tempweapon.misc,f,true))
+
+        std::vector<std::string> names;
+
+        if (s_version > 2)
         {
-            return qe_invalid;
+            for (uint32_t i = 0; i < weapons_to_read; i++)
+            {
+                if (s_version < 7)
+                {
+                    char tempname[64];
+
+                    if (!pfread(tempname, 64, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    names.push_back(string(tempname));
+                }
+                else
+                {
+                    uint32_t namelen;
+                    if (!p_igetl(&namelen, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    char *buf = new char[namelen];
+
+                    if (!pfread(buf, namelen, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    names.push_back(string(buf));
+
+                    delete[] buf;
+                }
+            }
+
+            if (s_version < 4)
+            {
+                if (OS_HOVER < weapons_to_read)
+                    names[OS_HOVER] = SpriteDefinitionTable::defaultSpriteName(OS_HOVER);
+                if (OS_FIREMAGIC < weapons_to_read)
+                    names[OS_FIREMAGIC] = SpriteDefinitionTable::defaultSpriteName(OS_FIREMAGIC);
+            }
+
+            if (s_version < 5)
+            {
+                if (OS_QUARTERHEARTS < weapons_to_read)
+                {
+                    names[OS_QUARTERHEARTS] = SpriteDefinitionTable::defaultSpriteName(OS_QUARTERHEARTS);
+                }
+            }
         }
-        
-        if(!p_getc(&tempweapon.csets,f,true))
+        else
         {
-            return qe_invalid;
+            for (uint32_t i = 0; i < weapons_to_read; i++)
+            {
+                names.push_back(SpriteDefinitionTable::defaultSpriteName(i));
+            }
         }
-        
-        if(!p_getc(&tempweapon.frames,f,true))
+
+        // now read the weapons
+
+        for (uint32_t i = 0; i < weapons_to_read; i++)
         {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempweapon.speed,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempweapon.type,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(Header->zelda_version < 0x193)
-        {
-            if(!p_getc(&padding,f,true))
+            wpndata tempweapon;
+
+            if (!p_igetw(&tempweapon.tile, f, true))
             {
                 return qe_invalid;
             }
-        }
-        
-        if(s_version < 6)
-        {
-            if(i==OS_ENEMY_FIRETRAIL)
+
+            if (!p_getc(&tempweapon.misc, f, true))
             {
-                tempweapon.misc |= wpndata::WF_BEHIND;
+                return qe_invalid;
             }
-            else
-                tempweapon.misc &= ~wpndata::WF_BEHIND;
-        }
-        
-        tables[modname].addSpriteDefinition(tempweapon, names[i]);
-    }
 
-    if (s_version < 7)
-    {
-        for (int i = weapons_to_read; i < OS_LAST; i++)
-        {
-            wpndata blank;
-            tables["CORE"].addSpriteDefinition(blank, SpriteDefinitionTable::defaultSpriteName(i));
-        }
-    }
-
-
-    
-    if(s_version<2)
-    {
-        if (OS_SBOOM < weapons_to_read && OS_BOOM < weapons_to_read)
-            tables["CORE"].getSpriteDefinition(OS_SBOOM) = tables["CORE"].getSpriteDefinition(OS_BOOM);
-    }
-        
-    if(s_version<5)
-    {
-        if (OS_QUARTERHEARTS < weapons_to_read)
-        {
-            tables["CORE"].getSpriteDefinition(OS_QUARTERHEARTS).tile = 1;
-            tables["CORE"].getSpriteDefinition(OS_QUARTERHEARTS).csets = 1;
-        }
-    }
-        
-    if(Header->zelda_version < 0x176)
-    {
-        // No, just... no
-        /*wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
-        wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
-        memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
-        memset(&itemsbuf[iMisc2],0,sizeof(itemdata));*/
-
-        if (OS_SPAWN < weapons_to_read)
-        {
-            itemdata copyitem;
-            if (iMisc1 < coreItemTable.getNumItemDefinitions())
+            if (!p_getc(&tempweapon.csets, f, true))
             {
-                copyitem = coreItemTable.getItemDefinition(iMisc1);
+                return qe_invalid;
             }
-            wpndata spawnwpn;
-            spawnwpn.tile = copyitem.tile;
-            spawnwpn.misc = copyitem.misc;
-            spawnwpn.csets = copyitem.csets;
-            spawnwpn.frames = copyitem.frames;
-            spawnwpn.speed = copyitem.speed;
-            // type and script do not need to be copied, presumably
 
-            tables["CORE"].getSpriteDefinition(OS_SPAWN) = spawnwpn;
-            if(iMisc1 < coreItemTable.getNumItemDefinitions())
-                coreItemTable.getItemDefinition(iMisc1) = itemdata();            
-        }
-            
-        if (OS_DEATH < weapons_to_read)
-        {
-            itemdata copyitem;
-            if (iMisc2 < coreItemTable.getNumItemDefinitions())
+            if (!p_getc(&tempweapon.frames, f, true))
             {
-                copyitem = coreItemTable.getItemDefinition(iMisc2);
+                return qe_invalid;
             }
-            wpndata deathwpn;
-            deathwpn.tile = copyitem.tile;
-            deathwpn.misc = copyitem.misc;
-            deathwpn.csets = copyitem.csets;
-            deathwpn.frames = copyitem.frames;
-            deathwpn.speed = copyitem.speed;
 
-            tables["CORE"].getSpriteDefinition(OS_DEATH) = deathwpn;
-            if(iMisc2 < coreItemTable.getNumItemDefinitions())
-                coreItemTable.getItemDefinition(iMisc2) = itemdata(); 
-        }            
-    }
-        
-    if((Header->zelda_version < 0x192)||
-            ((Header->zelda_version == 0x192)&&(Header->build<129)))
-    {
-        if (OS_HSCHAIN_V < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
-            tables["CORE"].getSpriteDefinition(OS_HSCHAIN_V) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_H);
-    }
-        
-    if((Header->zelda_version < 0x210))
-    {
-        if (OS_LSHEAD < weapons_to_read && OS_HSHEAD < weapons_to_read)
-            tables["CORE"].getSpriteDefinition(OS_LSHEAD) = tables["CORE"].getSpriteDefinition(OS_HSHEAD);
-        if (OS_LSCHAIN_H < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
-            tables["CORE"].getSpriteDefinition(OS_LSCHAIN_H) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_H);
-        if (OS_LSHANDLE < weapons_to_read && OS_HSHANDLE < weapons_to_read)
-            tables["CORE"].getSpriteDefinition(OS_LSHANDLE) = tables["CORE"].getSpriteDefinition(OS_HSHANDLE);
-        if (OS_LSCHAIN_V < weapons_to_read && OS_HSCHAIN_V < weapons_to_read)
-            tables["CORE"].getSpriteDefinition(OS_LSCHAIN_V) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_V);        
+            if (!p_getc(&tempweapon.speed, f, true))
+            {
+                return qe_invalid;
+            }
+
+            if (!p_getc(&tempweapon.type, f, true))
+            {
+                return qe_invalid;
+            }
+
+            if (Header->zelda_version < 0x193)
+            {
+                if (!p_getc(&padding, f, true))
+                {
+                    return qe_invalid;
+                }
+            }
+
+            if (s_version < 6)
+            {
+                if (i == OS_ENEMY_FIRETRAIL)
+                {
+                    tempweapon.misc |= wpndata::WF_BEHIND;
+                }
+                else
+                    tempweapon.misc &= ~wpndata::WF_BEHIND;
+            }
+
+            tables[modulename].addSpriteDefinition(tempweapon, names[i]);
+        }
+
+        // now fix the sprites in legacy quests. Only need to worry about this for the CORE module
+
+        if (modulename == "CORE")
+        {
+            // old quests do not define enough items for the fixes later in this section
+            if (s_version < 7)
+            {
+                for (int i = weapons_to_read; i < OS_LAST; i++)
+                {
+                    wpndata blank;
+                    tables["CORE"].addSpriteDefinition(blank, SpriteDefinitionTable::defaultSpriteName(i));
+                }
+            }
+
+            if (s_version < 2)
+            {
+                if (OS_SBOOM < weapons_to_read && OS_BOOM < weapons_to_read)
+                    tables["CORE"].getSpriteDefinition(OS_SBOOM) = tables["CORE"].getSpriteDefinition(OS_BOOM);
+            }
+
+            if (s_version < 5)
+            {
+                if (OS_QUARTERHEARTS < weapons_to_read)
+                {
+                    tables["CORE"].getSpriteDefinition(OS_QUARTERHEARTS).tile = 1;
+                    tables["CORE"].getSpriteDefinition(OS_QUARTERHEARTS).csets = 1;
+                }
+            }
+
+            if (Header->zelda_version < 0x176)
+            {
+                // No, just... no
+                /*wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
+                wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
+                memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
+                memset(&itemsbuf[iMisc2],0,sizeof(itemdata));*/
+
+                if (OS_SPAWN < weapons_to_read)
+                {
+                    itemdata copyitem;
+                    if (iMisc1 < coreItemTable.getNumItemDefinitions())
+                    {
+                        copyitem = coreItemTable.getItemDefinition(iMisc1);
+                    }
+                    wpndata spawnwpn;
+                    spawnwpn.tile = copyitem.tile;
+                    spawnwpn.misc = copyitem.misc;
+                    spawnwpn.csets = copyitem.csets;
+                    spawnwpn.frames = copyitem.frames;
+                    spawnwpn.speed = copyitem.speed;
+                    // type and script do not need to be copied, presumably
+
+                    tables["CORE"].getSpriteDefinition(OS_SPAWN) = spawnwpn;
+                    if (iMisc1 < coreItemTable.getNumItemDefinitions())
+                        coreItemTable.getItemDefinition(iMisc1) = itemdata();
+                }
+
+                if (OS_DEATH < weapons_to_read)
+                {
+                    itemdata copyitem;
+                    if (iMisc2 < coreItemTable.getNumItemDefinitions())
+                    {
+                        copyitem = coreItemTable.getItemDefinition(iMisc2);
+                    }
+                    wpndata deathwpn;
+                    deathwpn.tile = copyitem.tile;
+                    deathwpn.misc = copyitem.misc;
+                    deathwpn.csets = copyitem.csets;
+                    deathwpn.frames = copyitem.frames;
+                    deathwpn.speed = copyitem.speed;
+
+                    tables["CORE"].getSpriteDefinition(OS_DEATH) = deathwpn;
+                    if (iMisc2 < coreItemTable.getNumItemDefinitions())
+                        coreItemTable.getItemDefinition(iMisc2) = itemdata();
+                }
+            }
+
+            if ((Header->zelda_version < 0x192) ||
+                ((Header->zelda_version == 0x192) && (Header->build < 129)))
+            {
+                if (OS_HSCHAIN_V < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
+                    tables["CORE"].getSpriteDefinition(OS_HSCHAIN_V) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_H);
+            }
+
+            if ((Header->zelda_version < 0x210))
+            {
+                if (OS_LSHEAD < weapons_to_read && OS_HSHEAD < weapons_to_read)
+                    tables["CORE"].getSpriteDefinition(OS_LSHEAD) = tables["CORE"].getSpriteDefinition(OS_HSHEAD);
+                if (OS_LSCHAIN_H < weapons_to_read && OS_HSCHAIN_H < weapons_to_read)
+                    tables["CORE"].getSpriteDefinition(OS_LSCHAIN_H) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_H);
+                if (OS_LSHANDLE < weapons_to_read && OS_HSHANDLE < weapons_to_read)
+                    tables["CORE"].getSpriteDefinition(OS_LSHANDLE) = tables["CORE"].getSpriteDefinition(OS_HSHANDLE);
+                if (OS_LSCHAIN_V < weapons_to_read && OS_HSCHAIN_V < weapons_to_read)
+                    tables["CORE"].getSpriteDefinition(OS_LSCHAIN_V) = tables["CORE"].getSpriteDefinition(OS_HSCHAIN_V);
+            }
+        }
     }
 
     return qe_OK;
