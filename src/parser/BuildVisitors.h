@@ -33,7 +33,7 @@ public:
 	virtual void caseTypeDef(ASTTypeDef& host, void* param);
 	// Expressions
     virtual void caseExprConst(ASTExprConst &host, void *param);
-	virtual void caseCompileError(ASTCompileError& host, void* param);
+	virtual void caseStmtCompileError(ASTStmtCompileError& host, void* param);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);

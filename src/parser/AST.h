@@ -51,7 +51,7 @@ class ASTStmtReturnVal;
 class ASTStmtBreak;
 class ASTStmtContinue;
 class ASTStmtEmpty;
-class ASTCompileError;
+class ASTStmtCompileError;
 // Declarations
 class ASTDecl; // virtual
 class ASTScript;
@@ -151,7 +151,7 @@ public:
 		caseDefault(param);}
     virtual void caseStmtEmpty(ASTStmtEmpty&, void* param = NULL) {
 		caseDefault(param);}
-	virtual void caseCompileError(ASTCompileError& node, void* param = NULL) {
+	virtual void caseStmtCompileError(ASTStmtCompileError& node, void* param = NULL) {
 		caseDefault(param);}
 	// Declarations
     virtual void caseScript(ASTScript&, void* param = NULL) {
@@ -655,19 +655,19 @@ public:
 };
 
 class CompileError;
-class ASTCompileError : public ASTStmt
+class ASTStmtCompileError : public ASTStmt
 {
 public:
-	ASTCompileError(ASTExpr* errorId = NULL,
+	ASTStmtCompileError(ASTExpr* errorId = NULL,
 					ASTStmt* statement = NULL,
 					LocationData const& location = LocationData::NONE);
-	ASTCompileError(ASTCompileError const& base);
-	~ASTCompileError();
-	ASTCompileError& operator=(ASTCompileError const& rhs);
-	ASTCompileError* clone() const {return new ASTCompileError(*this);}
+	ASTStmtCompileError(ASTStmtCompileError const& base);
+	~ASTStmtCompileError();
+	ASTStmtCompileError& operator=(ASTStmtCompileError const& rhs);
+	ASTStmtCompileError* clone() const {return new ASTStmtCompileError(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseCompileError(*this, param);}
+		visitor.caseStmtCompileError(*this, param);}
 	
 	// The expression for the error id. If NULL, no id is specified.
 	ASTExpr* errorId;
