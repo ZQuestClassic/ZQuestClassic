@@ -8,6 +8,8 @@ command: flex -B -olex.yy.cpp ffscript.lpp
 %option never-interactive
 WS	[ \t\n\r]
 
+%x COMMENT
+
 %{
 #include <stdlib.h>
 #include "AST.h"
@@ -20,17 +22,20 @@ void doLines();
 %%
 
 script                    { doLines();return SCRIPT; }
-float				  { doLines(); return ZFLOAT; }
-int					  { doLines(); return ZFLOAT; }
+float				  { doLines(); return FLOAT; }
+int					  { doLines(); return FLOAT; }
 for				  { doLines(); return FOR; }
-bool				  { doLines();return ZBOOL; }
-void				  { doLines();return ZVOID; }
+bool				  { doLines();return BOOL; }
+void				  { doLines();return VOID; }
 if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
+switch				  { doLines(); return SWITCH; }
+case              	  { doLines(); return CASE; }
+default				  { doLines(); return DEFAULT; }
 return			  { doLines();return RETURN; }
 import			  { doLines();return IMPORT; }
-true				  { doLines();return ZTRUE; }
-false				  { doLines();return ZFALSE; }
+true				  { doLines();return TRUE; }
+false				  { doLines();return FALSE; }
 while				{doLines(); return WHILE;}
 ffc					{doLines(); return FFC;}
 itemdata			{doLines(); return ITEMCLASS;}
@@ -38,7 +43,7 @@ item				{doLines(); return ITEM;}
 global				{doLines(); return GLOBAL;}
 break				{doLines(); return BREAK;}
 continue			{doLines(); return CONTINUE;}
-const				{doLines(); return ZCONST;}
+const				{doLines(); return CONST;}
 do					{doLines(); return DO;}
 npc					{doLines(); return NPC;}
 lweapon					{doLines(); return LWEAPON;}
@@ -66,6 +71,7 @@ eweapon					{doLines(); return EWEAPON;}
 \|=			{ doLines();return BITORASSIGN; }
 \^=			{ doLines();return BITXORASSIGN; }
 \%=			{ doLines();return MODULOASSIGN; }
+\:			{ doLines();return COLON; }
 \;			{ doLines();return SEMICOLON; }
 \,			{ doLines();return COMMA; }
 \[			{ doLines();return LBRACKET; }
@@ -78,7 +84,6 @@ eweapon					{doLines(); return EWEAPON;}
 \+			{ doLines();return PLUS; }
 \-                { doLines();return MINUS; }
 \*			{ doLines();return TIMES; }
-\/\/.*            { ; }
 \/                { doLines();return DIVIDE; }
 \{                { doLines();return LBRACE; }
 \}                { doLines();return RBRACE; }
@@ -90,12 +95,26 @@ eweapon					{doLines(); return EWEAPON;}
 \^				{ doLines(); return BITXOR; }
 \!			{ doLines();return NOT; }
 \%			{ doLines(); return MODULO; }
+@       { doLines(); return ATSIGN; }
+
+"//".*                   { ; }
+"/*"                     { doLines(); BEGIN(COMMENT); }
+<COMMENT>"*/"            { doLines(); BEGIN(INITIAL); }
+<COMMENT>([^*]|\n)+|.    { ; }
+<COMMENT><<EOF>>         {
+		char temp[512];
+		sprintf(temp, "Scanner: Unterminated comment.\n");
+		box_out(temp);
+		box_eol();
+		return 0;
+ }
 
 
+								
 [_a-zA-Z]([_a-zA-Z]|[0-9])*	{
 						doLines();
 						yylval = new ASTString(yytext, yylloc);
-						return IDENTIFIER; 
+						return IDENTIFIER;
 					}
 
 ([0-9]*\.?[0-9]+) 		{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc); return NUMBER; }
@@ -114,7 +133,7 @@ eweapon					{doLines(); return EWEAPON;}
 
 .		{
 	char temp[512];
-	sprintf(temp, "Scanner, line %d: lexical error '%s'.\n", yylineno, yytext); 
+	sprintf(temp, "Scanner, line %d: lexical error '%s'.\n", yylineno, yytext);
 	box_out(temp);
 	box_eol();
 	}
@@ -128,4 +147,3 @@ void doLines()
 YYLTYPE rval = {yylineno, 0, yylineno, 0};
 yylloc = rval;
 }
- 

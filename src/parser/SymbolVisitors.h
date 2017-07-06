@@ -52,6 +52,7 @@ public:
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseStmtFor(ASTStmtFor &host, void *param);
     virtual void caseFuncCall(ASTFuncCall &host, void *param);
+    virtual void caseFuncId(ASTFuncId &host, void *param);
     virtual void caseExprDot(ASTExprDot &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprArray(ASTExprArray &host, void *param);
@@ -69,4 +70,3 @@ private:
 };
 
 #endif
-
