@@ -13,7 +13,7 @@ struct guydata
     }
 
     //only the fields needed to build the default enemy table
-    guydata::guydata(dword flags_,
+    guydata(dword flags_,
         dword flags2_,
         word tile_,
         byte width_,
