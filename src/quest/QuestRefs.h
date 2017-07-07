@@ -57,4 +57,32 @@ struct SpriteDefinitionRef
     uint32_t slot;
 };
 
+struct EnemyDefinitionRef
+{
+    EnemyDefinitionRef() : module(""), slot(0) {}
+    EnemyDefinitionRef(std::string module_, uint32_t slot_) : module(module_), slot(slot_) {}
+
+    bool operator<(const EnemyDefinitionRef &other) const
+    {
+        if (module < other.module)
+            return true;
+        else if (module > other.module)
+            return false;
+        return slot < other.slot;
+    }
+
+    bool operator==(const EnemyDefinitionRef &other) const
+    {
+        return !(*this < other) && !(other < *this);
+    }
+
+    bool operator!=(const EnemyDefinitionRef &other) const
+    {
+        return (*this < other) || (other < *this);
+    }
+
+    std::string module;
+    uint32_t slot;
+};
+
 #endif

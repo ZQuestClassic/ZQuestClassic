@@ -1,4 +1,4 @@
-#include "WeaponDefinitionTable.h"
+#include "SpriteDefinitionTable.h"
 #include "ItemDefinitionTable.h"
 #include "../defdata.h"
 #include "Quest.h"

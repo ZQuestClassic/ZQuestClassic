@@ -932,8 +932,6 @@ const char *old_guy_string[OLDMAXGUYS] =
     "Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
 
-char *guy_string[eMAXGUYS];
-
 const char *enetype_string[eeMAX] =
 {
     "-Guy",

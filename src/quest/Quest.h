@@ -3,7 +3,8 @@
 
 #include "../zdefs.h"
 #include "ItemDefinitionTable.h"
-#include "WeaponDefinitionTable.h"
+#include "SpriteDefinitionTable.h"
+#include "EnemyDefinitionTable.h"
 
 // Placeholder struct for now
 
@@ -13,13 +14,16 @@ public:
     void setItemDefTable(ItemDefinitionTable &idt) { itemDefTable_ = idt; }
     ItemDefinitionTable &itemDefTable() { return itemDefTable_; }
     
-    void setWeaponDefTable(SpriteDefinitionTable &wdt) { weaponDefTable_ = wdt; }
-    SpriteDefinitionTable &weaponDefTable() { return weaponDefTable_; }
+    void setSpriteDefTable(SpriteDefinitionTable &sdt) { spriteDefTable_ = sdt; }
+    SpriteDefinitionTable &spriteDefTable() { return spriteDefTable_; }
+
+    void setEnemyDefTable(EnemyDefinitionTable &sdt) { enemyDefTable_ = sdt; }
+    EnemyDefinitionTable &enemyDefTable() { return enemyDefTable_; }
 
 private:
     ItemDefinitionTable itemDefTable_;
-
-    SpriteDefinitionTable weaponDefTable_;
+    SpriteDefinitionTable spriteDefTable_;
+    EnemyDefinitionTable enemyDefTable_;
 };
 
 class Quest
@@ -37,13 +41,21 @@ public:
     const std::string &getSpriteName(const SpriteDefinitionRef &ref);
     void setSpriteName(const SpriteDefinitionRef &ref, const std::string &newname);
 
+    guydata &getEnemyDefinition(const EnemyDefinitionRef &ref);
+    const std::string &getEnemyName(const EnemyDefinitionRef &ref);
+    void setEnemyName(const EnemyDefinitionRef &ref, const std::string &newname);
+
     bool isValid(const ItemDefinitionRef &ref);
     bool isValid(const SpriteDefinitionRef &ref);
+    bool isValid(const EnemyDefinitionRef &ref);
 
     SpecialSpriteIndex &specialSprites() { return specialSpriteIndex_; }
     void setSpecialSpriteIndex(SpecialSpriteIndex &ssi) { specialSpriteIndex_ = ssi; }
     SpecialItemIndex &specialItems() { return specialItemIndex_; }
     void setSpecialItemIndex(SpecialItemIndex &sii) { specialItemIndex_ = sii; }
+
+    SpecialEnemyIndex &specialEnemies() { return specialEnemyIndex_; }
+    void setSpecialEnemyIndex(SpecialEnemyIndex &sei) { specialEnemyIndex_ = sei; }
 
     /* 
     * Retrieves the canonical item of a given item family: the item with 
@@ -116,6 +128,7 @@ private:
 
     SpecialSpriteIndex specialSpriteIndex_;
     SpecialItemIndex specialItemIndex_;
+    SpecialEnemyIndex specialEnemyIndex_;
 };
 
 #endif

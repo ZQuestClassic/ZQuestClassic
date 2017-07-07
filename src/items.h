@@ -22,7 +22,6 @@
 extern int fairy_cnt;
 void movefairy(fix &x,fix &y,int misc);
 void killfairy(int misc);
-int addenemy(int x,int y,int id,int clk);
 bool addfairy(fix x, fix y, int misc3, int id);
 bool can_drop(fix x, fix y);
 ItemDefinitionRef select_dropitem(int item_set, int x, int y);

@@ -96,7 +96,6 @@ extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *b
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
-extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
 extern PALETTE RAMpal;
@@ -897,21 +896,21 @@ const char *enemy_viewer(int index, int *list_size);
 
 typedef struct enemy_struct
 {
-    char *s;
-    int i;
+    std::string s;
+    EnemyDefinitionRef i;
 } enemy_struct;
 
 #define zqMAXGUYS    gDUMMY1
 
-extern enemy_struct bie[eMAXGUYS];
-extern enemy_struct big[zqMAXGUYS];
+extern std::vector<enemy_struct> bie;
+extern std::vector<enemy_struct> big;
 void build_bie_list(bool hide);
 void build_big_list(bool hide);
 const char *enemylist(int index, int *list_size);
 const char *guylist(int index, int *list_size);
-int efrontfacingtile(int id);
-int select_enemy(const char *prompt,int enemy,bool hide,bool edit,int& exit_status);
-int select_guy(const char *prompt,int guy);
+int efrontfacingtile(const EnemyDefinitionRef &ref);
+EnemyDefinitionRef select_enemy(const char *prompt,const EnemyDefinitionRef &enemy,bool hide,bool edit,int& exit_status);
+EnemyDefinitionRef select_guy(const char *prompt,const EnemyDefinitionRef &ref);
 
 //unsigned char check[2] = { ';'+128,0 };
 

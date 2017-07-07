@@ -67,7 +67,6 @@ extern byte                *colordata;
 extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
 extern comboclass          *combo_class_buf;
-extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
 extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
@@ -115,6 +114,8 @@ static byte deprecated_rules[QUESTRULES_SIZE];
 
 static int readSpecialSpritesIndex(Quest &quest, SpecialSpriteIndex &ssi);
 static int readSpecialItemIndex(Quest &quest, SpecialItemIndex &ssi);
+static int readSpecialEnemyIndex(Quest &quest, SpecialEnemyIndex &sei);
+static void update_guy_1(guydata *tempguy);
 
 void delete_combo_aliases()
 {
@@ -1008,7 +1009,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
         ret = readweapons(f, Header, curQuest->getModule("CORE").itemDefTable(), sprites);
         for (std::map<std::string, SpriteDefinitionTable>::iterator it = sprites.begin(); it != sprites.end(); ++it)
         {
-            curQuest->getModule(it->first).setWeaponDefTable(it->second);
+            curQuest->getModule(it->first).setSpriteDefTable(it->second);
         }
         ret |= readSpecialSpritesIndex(*curQuest, curQuest->specialSprites());
         break;
@@ -1029,10 +1030,17 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
         break;
         
     case ID_GUYS:
+    {
         //guys
-        ret=readguys(f, Header, true);
+        std::map<std::string, EnemyDefinitionTable> guys;
+        ret = readguys(f, Header, guys);
+        for (std::map<std::string, EnemyDefinitionTable>::iterator it = guys.begin(); it != guys.end(); ++it)
+        {
+            curQuest->getModule(it->first).setEnemyDefTable(it->second);
+        }
+        ret |= readSpecialEnemyIndex(*curQuest, curQuest->specialEnemies());
         break;
-        
+    }
     case ID_MIDIS:
         //midis
         ret=readtunes(f, Header, tunes, true);
@@ -1097,8 +1105,14 @@ bool reset_items(bool validate, zquestheader *Header)
 
 bool reset_guys()
 {
-    // The .dat file's guys definitions are always synchronised with defdata.cpp's - even the tile settings.
-    init_guys(V_GUYS);
+    // The .dat file's guys definitions are always synchronised with defdata.cpp's - even the tile settings.        
+    std::vector<std::string> modulenames;
+    curQuest->getModules(modulenames);
+    for (std::vector<std::string>::iterator it = modulenames.begin(); it != modulenames.end(); ++it)
+    {
+        curQuest->getModule(*it).enemyDefTable().clear();
+    }
+    initCoreEnemies(V_GUYS, std::vector<std::string>(), curQuest->getModule("CORE").enemyDefTable());
     return true;
 }
 
@@ -1232,15 +1246,6 @@ int get_qst_buffers()
         
     Z_message("OK\n");                                        // Allocating trash buffer...       
     
-    memrequested+=(sizeof(guydata)*MAXGUYS);
-    Z_message("Allocating guy buffer (%s)... ", byte_conversion2(sizeof(guydata)*MAXGUYS,memrequested,-1,-1));
-    
-    if((guysbuf=(guydata*)zc_malloc(sizeof(guydata)*MAXGUYS))==NULL)
-        return 0;
-        
-    memset(guysbuf,0,sizeof(guydata)*MAXGUYS);
-    Z_message("OK\n");                                        // Allocating guy buffer...
-    
     memrequested+=(sizeof(comboclass)*cMAX);
     Z_message("Allocating combo class buffer (%s)... ", byte_conversion2(sizeof(comboclass)*cMAX,memrequested,-1,-1));
     
@@ -1302,8 +1307,6 @@ void del_qst_buffers()
     al_trace("Cleaning misc. \n");
     
     if(trashbuf) zc_free(trashbuf);
-    
-    if(guysbuf) zc_free(guysbuf);
     
     if(combo_class_buf) zc_free(combo_class_buf);
 }
@@ -6329,23 +6332,35 @@ int readSpecialSpritesIndex(Quest &quest, SpecialSpriteIndex &ssi)
     return ssi.checkConsistency(quest) ? qe_OK : qe_invalid;
 }
 
-void init_guys(int guyversion)
+int readSpecialEnemyIndex(Quest &quest, SpecialEnemyIndex &sei)
 {
-    for(int i=0; i<MAXGUYS; i++)
-    {
-        guysbuf[i] = default_guys[0];
-    }
+    sei = SpecialEnemyIndex();
+
+    sei.zelda = EnemyDefinitionRef("CORE", gZELDA);
+    sei.fire = EnemyDefinitionRef("CORE", gFIRE);
+    sei.fairy = EnemyDefinitionRef("CORE", gFAIRY);
+    sei.fairyItem = EnemyDefinitionRef("CORE", eITEMFAIRY);
+    sei.fireballShooter = EnemyDefinitionRef("CORE", eSHOOTFBALL);
+    sei.spinTile1 = EnemyDefinitionRef("CORE", eSPINTILE1);
+    sei.keese = EnemyDefinitionRef("CORE", eKEESE1);
+
+    return sei.checkConsistency(quest) ? qe_OK : qe_invalid;
+}
+
+void initCoreEnemies(int guyversion, const std::vector<std::string> &names, EnemyDefinitionTable &table)
+{
+    table.clear();
     
-    for(int i=0; i<OLDMAXGUYS; i++)
+    for(uint32_t i=0; i<OLDMAXGUYS; i++)
     {
-        guysbuf[i] = default_guys[i];
+        table.addEnemyDefinition(getDefaultEnemies()[i], i < names.size() ? names[i] : old_enemy_names[i]);
         
         // Patra fix: 2.10 BSPatras used spDIG. 2.50 Patras use CSet 7.
         if(guyversion<=3 && i==ePATRABS)
         {
-            guysbuf[i].bosspal=spDIG;
-            guysbuf[i].cset=14;
-            guysbuf[i].misc9=14;
+            table.getEnemyDefinition(i).bosspal=spDIG;
+            table.getEnemyDefinition(i).cset=14;
+            table.getEnemyDefinition(i).miscs[8]=14;
         }
         
         if(guyversion<=3)
@@ -6355,7 +6370,7 @@ void init_guys(int guyversion)
             {
                 if(i==eROPE2)
                 {
-                    guysbuf[i].flags2 &= ~guy_flashing;
+                    table.getEnemyDefinition(i).flags2 &= ~guy_flashing;
                 }
             }
             
@@ -6363,7 +6378,7 @@ void init_guys(int guyversion)
             {
                 if(i==eBUBBLEST || i==eBUBBLESP || i==eBUBBLESR || i==eBUBBLEIT || i==eBUBBLEIP || i==eBUBBLEIR)
                 {
-                    guysbuf[i].flags2 &= ~guy_flashing;
+                    table.getEnemyDefinition(i).flags2 &= ~guy_flashing;
                 }
             }
             
@@ -6371,12 +6386,12 @@ void init_guys(int guyversion)
             {
                 if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
                 {
-                    guysbuf[i].flags2 |= guy_blinking;
+                    table.getEnemyDefinition(i).flags2 |= guy_blinking;
                 }
                 
                 if(get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
                 {
-                    guysbuf[i].flags2 |= guy_transparent;
+                    table.getEnemyDefinition(i).flags2 |= guy_transparent;
                 }
             }
         }
@@ -6386,22 +6401,26 @@ void init_guys(int guyversion)
         {
             if(get_bit(quest_rules,qr_NEWENEMYTILES))
             {
-                guysbuf[i].s_tile=guysbuf[i].e_tile+120;
-                guysbuf[i].s_width=guysbuf[i].e_width;
-                guysbuf[i].s_height=guysbuf[i].e_height;
+                table.getEnemyDefinition(i).s_tile=table.getEnemyDefinition(i).e_tile+120;
+                table.getEnemyDefinition(i).s_width=table.getEnemyDefinition(i).e_width;
+                table.getEnemyDefinition(i).s_height=table.getEnemyDefinition(i).e_height;
             }
-            else guysbuf[i].s_tile=860;
+            else table.getEnemyDefinition(i).s_tile=860;
             
             if(get_bit(deprecated_rules,qr_BRKBLSHLDS_DEP))
             {
-                guysbuf[i].flags |= guy_bkshield;
+                table.getEnemyDefinition(i).flags |= guy_bkshield;
             }
         }
         
         if((i==eGELTRIB || i==eFGELTRIB) && get_bit(deprecated_rules,qr_OLDTRIBBLES_DEP))
         {
-            guysbuf[i].misc3 = (i==eFGELTRIB ? eFZOL : eZOL);
-        }
+            table.getEnemyDefinition(i).miscs[2] = (i==eFGELTRIB ? eFZOL : eZOL);
+        }        
+    }
+    for (uint32_t i = OLDMAXGUYS; i < names.size(); i++)
+    {
+        table.addEnemyDefinition(guydata(), names[i]);
     }
 }
 
@@ -8595,14 +8614,15 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-extern char *guy_string[eMAXGUYS];
-extern const char *old_guy_string[OLDMAXGUYS];
-
-int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
+int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefinitionTable> &tables)
 {
     dword dummy;
     word dummy2;
     word guyversion=0;
+
+    uint32_t modules_to_read;
+
+    tables.clear();
     
     if(Header->zelda_version >= 0x193)
     {
@@ -8624,958 +8644,944 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
     }
-    
-    if(guyversion > 3)
+
+    if (guyversion < 30)
     {
-        for(int i=0; i<MAXGUYS; i++)
-        {
-            char tempname[64];
-            
-            // rev. 1511 : guyversion = 23. upped to 512 editable enemies. -Gleeok
-            // if guyversion < 23 then there is only 256 enemies in the packfile, so default the rest.
-            if(guyversion < 23 && i >= OLDBETAMAXGUYS && keepdata)
-            {
-                memset(tempname, 0, sizeof(char)*64);
-                sprintf(tempname, "e%03d", i);
-                strcpy(guy_string[i], tempname);
-                
-                continue;
-            }
-            
-            if(!pfread(tempname, 64, f, keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            // Don't retain names of uneditable enemy entries!
-            if(keepdata)
-            {
-                // for version upgrade to 2.5
-                if(guyversion < 23 && i >= 177)
-                {
-                    // some of the older builds have names such as 'zz123',
-                    // (this order gets messed up with some eXXX and some zzXXX)
-                    // so let's update to the newer naming convection. -Gleeok
-                    char tmpbuf[64];
-                    memset(tmpbuf, 0, sizeof(char)*64);
-                    sprintf(tmpbuf, "zz%03d", i);
-                    
-                    if(memcmp(tempname, tmpbuf, size_t(5)) == 0)
-                    {
-                        memset(tempname, 0, sizeof(char)*64);
-                        sprintf(tempname, "e%03d", i);
-                    }
-                }
-                
-                if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
-                {
-                    strcpy(guy_string[i], tempname);
-                }
-                else
-                {
-                    strcpy(guy_string[i],old_guy_string[i]);
-                }
-            }
-        }
+        modules_to_read = 1; // just CORE
     }
     else
     {
-        if(keepdata)
+        if (!p_igetl(&modules_to_read, f, true))
         {
-            for(int i=0; i<eMAXGUYS; i++)
-            {
-                sprintf(guy_string[i],"zz%03d",i);
-            }
-            
-            for(int i=0; i<OLDMAXGUYS; i++)
-            {
-                strcpy(guy_string[i],old_guy_string[i]);
-            }
+            return qe_invalid;
         }
     }
     
-    
-    //finally...  section data
-    if(keepdata)
+    for (uint32_t module = 0; module < modules_to_read; module++)
     {
-        init_guys(guyversion);                            //using default data for now...
-        
-        // Goriya guy fix
-        if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<7)))
+        std::string modname;
+        if (guyversion < 30)
         {
-            if(get_bit(quest_rules,qr_NEWENEMYTILES))
-            {
-                guysbuf[gGORIYA].tile=130;
-                guysbuf[gGORIYA].e_tile=130;
-            }
+            modname = "CORE";
         }
-    }
-    
-    if(Header->zelda_version < 0x193)
-    {
-        if(get_bit(deprecated_rules,46))
+        else
         {
-            guysbuf[eDODONGO].cset=14;
-            guysbuf[eDODONGO].bosspal=spDIG;
-        }
-    }
-    
-    // Not sure when this first changed, but it's necessary for 2.10, at least
-    if(Header->zelda_version <= 0x210)
-    {
-        guysbuf[eGLEEOK1F].misc6 = 16;
-        guysbuf[eGLEEOK2F].misc6 = 16;
-        guysbuf[eGLEEOK3F].misc6 = 16;
-        guysbuf[eGLEEOK4F].misc6 = 16;
-        
-        guysbuf[eWIZ1].misc4 = 1;
-        guysbuf[eBATROBE].misc4 = 1;
-        guysbuf[eSUMMONER].misc4 = 1;
-        guysbuf[eWWIZ].misc4 = 1;
-    }
-    
-    // The versions here may not be correct
-    // zelda_version>=0x211 handled at guyversion<24
-    if(Header->zelda_version <= 0x190)
-    {
-        guysbuf[eCENT1].misc3 = 0;
-        guysbuf[eCENT2].misc3 = 0;
-        guysbuf[eMOLDORM].misc2 = 0;
-    }
-    else if(Header->zelda_version <= 0x210)
-    {
-        guysbuf[eCENT1].misc3 = 1;
-        guysbuf[eCENT2].misc3 = 1;
-        guysbuf[eMOLDORM].misc2 = 0;
-    }
-    
-    if(guyversion<=2)
-    {
-        return readlinksprites2(f, guyversion==2?0:-1, 0, keepdata);
-    }
-    
-    if(guyversion > 3)
-    {
-        guydata tempguy;
-        
-        for(int i=0; i<MAXGUYS; i++)
-        {
-            if(guyversion < 23 && keepdata)   // May 2012 : 512 max enemies
-            {
-                if(i >= OLDBETAMAXGUYS)
-                {
-                    memset(&guysbuf[i], 0, sizeof(guydata));
-                    continue;
-                }
-            }
-            
-            memset(&tempguy, 0, sizeof(guydata));
-            
-            if(!p_igetl(&(tempguy.flags),f,keepdata))
+            uint32_t namelen;
+            if (!p_igetl(&namelen, f, true))
             {
                 return qe_invalid;
             }
-            
-            if(!p_igetl(&(tempguy.flags2),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.width),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.height),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.s_tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.s_width),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.s_height),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.e_tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.e_width),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.e_height),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.hp),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.family),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(guyversion < 9 && (i==eDKNUT1 || i==eDKNUT2 || i==eDKNUT3 || i==eDKNUT4 || i==eDKNUT5)) // Whoops, forgot about Darknuts...
-            {
-                if(get_bit(quest_rules,qr_NEWENEMYTILES))
-                {
-                    tempguy.s_tile=tempguy.e_tile+120;
-                    tempguy.s_width=tempguy.e_width;
-                    tempguy.s_height=tempguy.e_height;
-                }
-                else tempguy.s_tile=860;
-            }
-            
-            if(!p_igetw(&(tempguy.cset),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.anim),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.e_anim),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.frate),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.e_frate),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(guyversion < 13)  // April 2009
-            {
-                if(get_bit(deprecated_rules, qr_SLOWENEMYANIM_DEP))
-                {
-                    tempguy.frate *= 2;
-                    tempguy.e_frate *= 2;
-                }
-            }
-            
-            if(guyversion < 14)  // May 1 2009
-            {
-                if(tempguy.anim==a2FRMSLOW)
-                {
-                    tempguy.anim=a2FRM;
-                    tempguy.frate *= 2;
-                }
-                
-                if(tempguy.e_anim==a2FRMSLOW)
-                {
-                    tempguy.e_anim=a2FRM;
-                    tempguy.e_frate *= 2;
-                }
-                
-                if(tempguy.anim==aFLIPSLOW)
-                {
-                    tempguy.anim=aFLIP;
-                    tempguy.frate *= 2;
-                }
-                
-                if(tempguy.e_anim==aFLIPSLOW)
-                {
-                    tempguy.e_anim=aFLIP;
-                    tempguy.e_frate *= 2;
-                }
-                
-                if(tempguy.anim == aNEWDWALK) tempguy.anim = a4FRM4DIR;
-                
-                if(tempguy.e_anim == aNEWDWALK) tempguy.e_anim = a4FRM4DIR;
-                
-                if(tempguy.anim == aNEWPOLV || tempguy.anim == a4FRM3TRAP)
-                {
-                    tempguy.anim=a4FRM4DIR;
-                    tempguy.s_tile=(get_bit(quest_rules,qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
-                }
-                
-                if(tempguy.e_anim == aNEWPOLV || tempguy.e_anim == a4FRM3TRAP)
-                {
-                    tempguy.e_anim=a4FRM4DIR;
-                    tempguy.s_tile=(get_bit(quest_rules,qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
-                }
-            }
-            
-            if(!p_igetw(&(tempguy.dp),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            //correction for guy fire
-            if(guyversion < 6)
-            {
-                if(i == gFIRE)
-                    tempguy.dp = 2;
-            }
-            
-            if(!p_igetw(&(tempguy.wdp),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.weapon),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            //correction for bosses using triple, "rising" fireballs
-            if(guyversion < 5)
-            {
-                if(i == eLAQUAM || i == eRAQUAM || i == eGOHMA1 || i == eGOHMA2 ||
-                        i == eGOHMA3 || i == eGOHMA4)
-                {
-                    if(tempguy.weapon == ewFireball)
-                        tempguy.weapon = ewFireball2;
-                }
-            }
-            
-            if(!p_igetw(&(tempguy.rate),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.hrate),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.step),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            // HIGHLY UNORTHODOX UPDATING THING, part 2
-            if(fixpolsvoice && tempguy.family==eePOLSV)
-            {
-                tempguy.step /= 2;
-            }
-            
-            if(!p_igetw(&(tempguy.homing),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.grumble),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.item_set),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(guyversion>=22) // Version 22: Expand misc attributes to 32 bits
-            {
-                if(!p_igetl(&(tempguy.misc1),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc2),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc3),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc4),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc5),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc6),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc7),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc8),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc9),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc10),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            else
-            {
-                short tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc1=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc2=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc3=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc4=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc5=tempMisc;
-                
-                if(guyversion < 13)  // April 2009 - a tiny Wizzrobe update
-                {
-                    if(tempguy.family == eeWIZZ && !(tempguy.misc1))
-                        tempguy.misc5 = 74;
-                }
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc6=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc7=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc8=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc9=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc10=tempMisc;
-            }
-            
-            if(!p_igetw(&(tempguy.bgsfx),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.bosspal),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(tempguy.extend),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-	    //! Enemy Defences
-	    
-	    //If a 2.50 quest, use only the 2.5 defences. 
-            if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
-            {
-                for(int j=0; j<edefLAST; j++)
-                {
-                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                }
-		//then copy the generic script defence to all the new script defences
-		
-            }
-	    
-	    
-	    
-            
-            if(guyversion >= 18)
-            {
-                if(!p_getc(&(tempguy.hitsfx),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&(tempguy.deadsfx),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(guyversion >= 22)
-            {
-                if(!p_igetl(&(tempguy.misc11),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(tempguy.misc12),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            else if(guyversion >= 19)
-            {
-                short tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc11=tempMisc;
-                
-                if(!p_igetw(&tempMisc,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                tempguy.misc12=tempMisc;
-            }
-	    
-	    //If a 2.54 or later quest, use all of the defences. 
-	    if(guyversion > 24) // Add new guyversion conditional statement 
-            {
-		for(int j=edefLAST; j<edefLAST255; j++)
-                {
-                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-	    
-	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
-            {
-		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
-                {
-                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
-                }
-            }
-	    
-	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-	    if(guyversion > 25)
-	    {
-		    if(!p_igetl(&(tempguy.txsz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.tysz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hxsz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hysz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hzsz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
-		   
-		    */
-	    }
-	    //More Enemy Editor vars for 2.60
-	    if(guyversion > 26)
-	    {
-		    if(!p_igetl(&(tempguy.hxofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hyofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.xofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.yofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.zofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-	    }
-	    
-        if (guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
-        {
-            tempguy.wpnsprite = SpriteDefinitionRef();
-        }
-	    
-	    if(guyversion > 27)
-	    {
-            uint32_t modlen;
-            if (!p_igetl(&modlen, f, true))
-                return qe_invalid;
-            char *buf = new char[modlen];
-            if (!pfread(buf, modlen, f, true))
+            char *buf = new char[namelen];
+            if (!pfread(buf, namelen, f, true))
             {
                 delete[] buf;
                 return qe_invalid;
             }
-            std::string name(buf);
+            modname = string(buf);
             delete[] buf;
-            uint32_t slot;
-            if (!p_igetl(&slot, f, true))
-                return qe_invalid;
-            tempguy.wpnsprite = SpriteDefinitionRef(name, slot);
-	    }
-	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
+        }
+
+        std::vector<std::string> names;
+
+        uint32_t numguys;
+        if(guyversion > 3)
+        {
+            if (guyversion < 30)
             {
-		tempguy.SIZEflags = 0;
+                numguys = 512;
             }
-	    if(guyversion > 28)
-	    {
-		if(!p_igetl(&(tempguy.SIZEflags),f,keepdata))
-		    {
-			return qe_invalid;
-		    }
-		
-	    }
-	    
-	    
-            //miscellaneous other corrections
-            //fix the mirror wizzrobe -DD
-            if(guyversion < 7)
+            else
             {
-                if(i == eMWIZ)
+                if (!p_igetl(&numguys, f, true))
                 {
-                    tempguy.misc2 = 0;
-                    tempguy.misc4 = 1;
+                    return qe_invalid;
                 }
             }
-            
-            if(guyversion < 8)
+
+            for(uint32_t i=0; i<numguys; i++)
             {
-                if(i == eGLEEOK1 || i == eGLEEOK2 || i == eGLEEOK3 || i == eGLEEOK4 || i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
+
+            
+                // rev. 1511 : guyversion = 23. upped to 512 editable enemies. -Gleeok
+                // if guyversion < 23 then there is only 256 enemies in the packfile, so default the rest.
+                if(guyversion < 23 && i >= OLDBETAMAXGUYS)
                 {
-                    // Some of these are deliberately different to NewDefault/defdata.cpp, by the way. -L
-                    tempguy.misc5 = 4; //neck length in segments
-                    tempguy.misc6 = 8; //neck offset from first body tile
-                    tempguy.misc7 = 40; //offset for each subsequent neck tile from the first neck tile
-                    tempguy.misc8 = 168; //head offset from first body tile
-                    tempguy.misc9 = 228; //flying head offset from first body tile
-                    
-                    if(i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
+                    char tempname[64];
+                    memset(tempname, 0, sizeof(char)*64);
+                    sprintf(tempname, "e%03d", i);
+                    names.push_back(tempname);                
+                    continue;
+                }
+
+                std::string name;
+
+                if (guyversion < 30)
+                {
+                    char tempname[64];
+                    if (!pfread(tempname, 64, f, true))
                     {
-                        tempguy.misc6 += 10; //neck offset from first body tile
-                        tempguy.misc8 -= 12; //head offset from first body tile
+                        return qe_invalid;
+                    }
+
+                    // for version upgrade to 2.5
+                    if (guyversion < 23 && i >= 177)
+                    {
+                        // some of the older builds have names such as 'zz123',
+                        // (this order gets messed up with some eXXX and some zzXXX)
+                        // so let's update to the newer naming convection. -Gleeok
+                        char tmpbuf[64];
+                        memset(tmpbuf, 0, sizeof(char) * 64);
+                        sprintf(tmpbuf, "zz%03d", i);
+
+                        if (memcmp(tempname, tmpbuf, size_t(5)) == 0)
+                        {
+                            memset(tempname, 0, sizeof(char) * 64);
+                            sprintf(tempname, "e%03d", i);
+                        }
                     }
                 }
-            }
-            
-            if(guyversion < 10) // December 2007 - Dodongo CSet fix
-            {
-                if(get_bit(deprecated_rules,46) && tempguy.family==eeDONGO && tempguy.misc1==0)
-                    tempguy.bosspal = spDIG;
-            }
-            
-            if(guyversion < 11) // December 2007 - Spinning Tile fix
-            {
-                if(tempguy.family==eeSPINTILE)
-                {
-                    tempguy.flags |= guy_superman;
-                    tempguy.item_set = 0; // Don't drop items
-                    tempguy.step = 300;
-                }
-            }
-            
-            if(guyversion < 12) // October 2008 - Flashing Bubble, Rope 2, and Ghini 2 fix
-            {
-                if(get_bit(deprecated_rules, qr_NOROPE2FLASH_DEP))
-                {
-                    if(tempguy.family==eeROPE)
-                    {
-                        tempguy.flags2 &= ~guy_flashing;
-                    }
-                }
-                
-                if(get_bit(deprecated_rules, qr_NOBUBBLEFLASH_DEP))
-                {
-                    if(tempguy.family==eeBUBBLE)
-                    {
-                        tempguy.flags2 &= ~guy_flashing;
-                    }
-                }
-                
-                if((tempguy.family==eeGHINI)&&(tempguy.misc1))
-                {
-                    if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
-                    {
-                        tempguy.flags2 |= guy_blinking;
-                    }
-                    
-                    if(get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
-                    {
-                        tempguy.flags2 |= guy_transparent;
-                    }
-                }
-            }
-            
-            if(guyversion < 15) // July 2009 - Guy Fire and Fairy fix
-            {
-                if(i==gFIRE)
-                {
-                    tempguy.e_anim = aFLIP;
-                    tempguy.e_frate = 24;
-                }
-                
-                if(i==gFAIRY)
-                {
-                    tempguy.e_anim = a2FRM;
-                    tempguy.e_frate = 16;
-                }
-            }
-            
-            if(guyversion < 16)  // November 2009 - Super Enemy Editor part 1
-            {
-                if(i==0) Z_message("Updating guys to version 16...\n");
-                
-                update_guy_1(&tempguy);
-                
-                if(i==eMPOLSV)
-                {
-                    tempguy.defense[edefARROW] = edCHINK;
-                    tempguy.defense[edefMAGIC] = ed1HKO;
-                    tempguy.defense[edefREFMAGIC] = ed1HKO;
-                }
-            }
-            
-            if(guyversion < 17)  // December 2009
-            {
-                if(tempguy.family==eePROJECTILE)
-                {
-                    tempguy.misc1 = 0;
-                }
-            }
-            
-            if(guyversion < 18)  // January 2010
-            {
-                bool boss = (tempguy.family == eeAQUA || tempguy.family==eeDONGO || tempguy.family == eeMANHAN || tempguy.family == eeGHOMA || tempguy.family==eeDIG
-                             || tempguy.family == eeGLEEOK || tempguy.family==eePATRA || tempguy.family == eeGANON || tempguy.family==eeMOLD);
-                             
-                tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
-                tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.misc10 == 0)) ? WAV_GASP : WAV_EDEAD;
-                
-                if(tempguy.family == eeAQUA)
-                    for(int j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
-                else if(tempguy.family == eeMANHAN)
-                    for(int j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eMANHAN].defense[j];
-                else if(tempguy.family==eePATRA)
-                    for(int j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                else if(tempguy.family==eeGHOMA)
-                {
-                    for(int j=0; j<edefLAST; j++)
-                        tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
-                        
-                    tempguy.defense[edefARROW] = ((tempguy.misc1==3) ? edCHINKL8 : (tempguy.misc1==2) ? edCHINKL4 : 0);
-                    
-                    if(tempguy.misc1==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
-                    
-                    tempguy.misc1--;
-                }
-                else if(tempguy.family == eeGLEEOK)
-                {
-                    for(int j=0; j<edefLAST; j++)
-                        tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
-                        
-                    if(tempguy.misc3==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
-                }
-                else if(tempguy.family == eeARMOS)
-                {
-                    tempguy.family=eeWALK;
-                    tempguy.hrate = 0;
-                    tempguy.misc10 = tempguy.misc1;
-                    tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 = tempguy.misc7 = tempguy.misc8 = 0;
-                    tempguy.misc9 = e9tARMOS;
-                }
-                else if(tempguy.family == eeGHINI && !tempguy.misc1)
-                {
-                    tempguy.family=eeWALK;
-                    tempguy.hrate = 0;
-                    tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 =
-                                                        tempguy.misc7 = tempguy.misc8 = tempguy.misc9 = tempguy.misc10 = 0;
-                }
-                
-                // Spawn animation flags
-                if(tempguy.family == eeWALK && (tempguy.flags2&cmbflag_armos || tempguy.flags2&cmbflag_ghini))
-                    tempguy.flags |= guy_fadeflicker;
                 else
-                    tempguy.flags &= 0x0F00000F; // Get rid of the unused flags!
-            }
-            
-            if(guyversion < 20)  // April 2010
-            {
-                if(tempguy.family == eeTRAP)
                 {
-                    tempguy.misc2 = tempguy.misc10;
-                    
-                    if(tempguy.misc10>=1)
+                    uint32_t namelen;
+                    if (!p_igetl(&namelen, f, true))
+                        return qe_invalid;
+
+                    char *buf = new char[namelen];
+                    if (!pfread(buf, namelen, f, true))
                     {
-                        tempguy.misc1++;
+                        delete[] buf;
+                        return qe_invalid;
                     }
-                    
-                    tempguy.misc10 = 0;
+                    name = string(buf);
+                    delete[] buf;
                 }
                 
-                // Bomb Blast fix
-                if(tempguy.weapon==ewBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
-                    tempguy.weapon = ewLitBomb;
-                else if(tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
-                    tempguy.weapon = ewLitSBomb;
-            }
-            
-            if(guyversion < 21)  // September 2011
-            {
-                if(tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB)
+                if (modname == "CORE")
                 {
-                    if(tempguy.family == eeKEESETRIB)
+                    if (i >= OLDMAXGUYS || name.length() < 1 || name[name.length() - 1] != ' ')
                     {
-                        tempguy.family = eeKEESE;
-                        tempguy.misc2 = e2tKEESETRIB;
-                        tempguy.misc1 = 0;
-                    }
-                    
-                    tempguy.rate = 2;
-                    tempguy.hrate = 8;
-                    tempguy.homing = 0;
-                    tempguy.step= (tempguy.family == eeKEESE && tempguy.misc1 ? 100:62);
-                }
-                else if(tempguy.family == eePEAHAT || tempguy.family==eePATRA)
-                {
-                    if(tempguy.family == eePEAHAT)
-                    {
-                        tempguy.rate = 4;
-                        tempguy.step = 62;
+                        names.push_back(name);
                     }
                     else
-                        tempguy.step = 25;
-                        
-                    tempguy.hrate = 8;
-                    tempguy.homing = 0;
+                    {
+                        names.push_back(old_enemy_names[i]);
+                    }
                 }
-                else if(tempguy.family == eeDIG || tempguy.family == eeMANHAN)
+                else
                 {
-                    if(tempguy.family == eeMANHAN)
-                        tempguy.step=50;
-                        
-                    tempguy.hrate = 16;
-                    tempguy.homing = 0;
-                }
-                else if(tempguy.family == eeGLEEOK)
-                {
-                    tempguy.rate = 2;
-                    tempguy.homing = 0;
-                    tempguy.hrate = 9;
-                    tempguy.step=89;
-                }
-                else if(tempguy.family == eeGHINI)
-                {
-                    tempguy.rate = 4;
-                    tempguy.hrate = 12;
-                    tempguy.step=62;
-                    tempguy.homing = 0;
-                }
-                
-                // Bigdig random rate fix
-                if(tempguy.family==eeDIG && tempguy.misc10==1)
-                {
-                    tempguy.rate = 2;
+                    names.push_back(name);
                 }
             }
-            
-            if(guyversion < 24) // November 2012
+        }
+    
+        else
+        {
+            numguys = 512;
+            for (int i = 0; i < OLDMAXGUYS; i++)
             {
-                if(tempguy.family==eeLANM)
-                    tempguy.misc3 = 1;
-                else if(tempguy.family==eeMOLD)
-                    tempguy.misc2 = 0;
+                names.push_back(old_enemy_names[i]);
             }
-	    
-	    
-            
-            if(keepdata)
+
+            for (uint32_t i = OLDMAXGUYS; i < numguys; i++)
             {
-                guysbuf[i] = tempguy;
+                char temp[40];
+                sprintf(temp, "zz%03d", i);
+                names.push_back(std::string(temp));
+            }
+        }
+        
+        if (modname == "CORE")
+        {
+            initCoreEnemies(guyversion, names, tables["CORE"]);                            //using default data for now...
+
+            // Goriya guy fix
+            if ((Header->zelda_version < 0x211) || ((Header->zelda_version == 0x211) && (Header->build < 7)))
+            {
+                if (get_bit(quest_rules, qr_NEWENEMYTILES))
+                {
+                    tables["CORE"].getEnemyDefinition(gGORIYA).tile = 130;
+                    tables["CORE"].getEnemyDefinition(gGORIYA).e_tile = 130;
+                }
+            }
+
+
+            if (Header->zelda_version < 0x193)
+            {
+                if (get_bit(deprecated_rules, 46))
+                {
+                    tables["CORE"].getEnemyDefinition(eDODONGO).cset = 14;
+                    tables["CORE"].getEnemyDefinition(eDODONGO).bosspal = spDIG;
+                }
+            }
+
+            // Not sure when this first changed, but it's necessary for 2.10, at least
+            if (Header->zelda_version <= 0x210)
+            {
+                tables["CORE"].getEnemyDefinition(eGLEEOK1F).miscs[5] = 16;
+                tables["CORE"].getEnemyDefinition(eGLEEOK2F).miscs[5] = 16;
+                tables["CORE"].getEnemyDefinition(eGLEEOK3F).miscs[5] = 16;
+                tables["CORE"].getEnemyDefinition(eGLEEOK4F).miscs[5] = 16;
+
+                tables["CORE"].getEnemyDefinition(eWIZ1).miscs[3] = 1;
+                tables["CORE"].getEnemyDefinition(eBATROBE).miscs[3] = 1;
+                tables["CORE"].getEnemyDefinition(eSUMMONER).miscs[3] = 1;
+                tables["CORE"].getEnemyDefinition(eWWIZ).miscs[3] = 1;
+            }
+
+            // The versions here may not be correct
+            // zelda_version>=0x211 handled at guyversion<24
+            if (Header->zelda_version <= 0x190)
+            {
+                tables["CORE"].getEnemyDefinition(eCENT1).miscs[2] = 0;
+                tables["CORE"].getEnemyDefinition(eCENT2).miscs[2] = 0;
+                tables["CORE"].getEnemyDefinition(eMOLDORM).miscs[1] = 0;
+            }
+            else if (Header->zelda_version <= 0x210)
+            {
+                tables["CORE"].getEnemyDefinition(eCENT1).miscs[2] = 1;
+                tables["CORE"].getEnemyDefinition(eCENT2).miscs[2] = 1;
+                tables["CORE"].getEnemyDefinition(eMOLDORM).miscs[1] = 0;
+            }
+
+
+        }
+        else
+        {
+            for (uint32_t i = 0; i < numguys; i++)
+            {
+                tables[modname].addEnemyDefinition(guydata(), names[i]);
+            }
+        }
+    
+        // no custom enemy information
+        // but link sprites are randomly stuck in here -DD
+        if (guyversion <= 2)
+        {
+            assert(modules_to_read == 1);
+            return readlinksprites2(f, guyversion == 2 ? 0 : -1, 0, true);
+        }
+    
+        if (guyversion > 3)
+        {
+
+            for (uint32_t i = 0; i < numguys; i++)
+            {
+                if (guyversion < 23)   // May 2012 : 512 max enemies
+                {
+                    if (i >= OLDBETAMAXGUYS)
+                    {
+                        // if we're in here 
+                        continue;
+                    }
+                }
+
+                guydata tempguy;
+
+                if (!p_igetl(&(tempguy.flags), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetl(&(tempguy.flags2), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.tile), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&(tempguy.width), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&(tempguy.height), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.s_tile), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&(tempguy.s_width), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&(tempguy.s_height), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.e_tile), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&(tempguy.e_width), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_getc(&(tempguy.e_height), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.hp), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.family), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (guyversion < 9 && (i == eDKNUT1 || i == eDKNUT2 || i == eDKNUT3 || i == eDKNUT4 || i == eDKNUT5)) // Whoops, forgot about Darknuts...
+                {
+                    if (get_bit(quest_rules, qr_NEWENEMYTILES))
+                    {
+                        tempguy.s_tile = tempguy.e_tile + 120;
+                        tempguy.s_width = tempguy.e_width;
+                        tempguy.s_height = tempguy.e_height;
+                    }
+                    else tempguy.s_tile = 860;
+                }
+
+                if (!p_igetw(&(tempguy.cset), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.anim), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.e_anim), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.frate), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.e_frate), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (guyversion < 13)  // April 2009
+                {
+                    if (get_bit(deprecated_rules, qr_SLOWENEMYANIM_DEP))
+                    {
+                        tempguy.frate *= 2;
+                        tempguy.e_frate *= 2;
+                    }
+                }
+
+                if (guyversion < 14)  // May 1 2009
+                {
+                    if (tempguy.anim == a2FRMSLOW)
+                    {
+                        tempguy.anim = a2FRM;
+                        tempguy.frate *= 2;
+                    }
+
+                    if (tempguy.e_anim == a2FRMSLOW)
+                    {
+                        tempguy.e_anim = a2FRM;
+                        tempguy.e_frate *= 2;
+                    }
+
+                    if (tempguy.anim == aFLIPSLOW)
+                    {
+                        tempguy.anim = aFLIP;
+                        tempguy.frate *= 2;
+                    }
+
+                    if (tempguy.e_anim == aFLIPSLOW)
+                    {
+                        tempguy.e_anim = aFLIP;
+                        tempguy.e_frate *= 2;
+                    }
+
+                    if (tempguy.anim == aNEWDWALK) tempguy.anim = a4FRM4DIR;
+
+                    if (tempguy.e_anim == aNEWDWALK) tempguy.e_anim = a4FRM4DIR;
+
+                    if (tempguy.anim == aNEWPOLV || tempguy.anim == a4FRM3TRAP)
+                    {
+                        tempguy.anim = a4FRM4DIR;
+                        tempguy.s_tile = (get_bit(quest_rules, qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile) + 20;
+                    }
+
+                    if (tempguy.e_anim == aNEWPOLV || tempguy.e_anim == a4FRM3TRAP)
+                    {
+                        tempguy.e_anim = a4FRM4DIR;
+                        tempguy.s_tile = (get_bit(quest_rules, qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile) + 20;
+                    }
+                }
+
+                if (!p_igetw(&(tempguy.dp), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                //correction for guy fire
+                if (guyversion < 6)
+                {
+                    if (i == gFIRE)
+                        tempguy.dp = 2;
+                }
+
+                if (!p_igetw(&(tempguy.wdp), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.weapon), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                //correction for bosses using triple, "rising" fireballs
+                if (guyversion < 5)
+                {
+                    if (i == eLAQUAM || i == eRAQUAM || i == eGOHMA1 || i == eGOHMA2 ||
+                        i == eGOHMA3 || i == eGOHMA4)
+                    {
+                        if (tempguy.weapon == ewFireball)
+                            tempguy.weapon = ewFireball2;
+                    }
+                }
+
+                if (!p_igetw(&(tempguy.rate), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.hrate), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.step), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                // HIGHLY UNORTHODOX UPDATING THING, part 2
+                if (fixpolsvoice && tempguy.family == eePOLSV)
+                {
+                    tempguy.step /= 2;
+                }
+
+                if (!p_igetw(&(tempguy.homing), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.grumble), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.item_set), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (guyversion >= 22) // Version 22: Expand misc attributes to 32 bits
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        if (!p_igetl(&(tempguy.miscs[j]), f, true))
+                        {
+                            return qe_invalid;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        word tempMisc;
+                        if (!p_igetw(&(tempMisc), f, true))
+                        {
+                            tempguy.miscs[j] = tempMisc;
+                            return qe_invalid;
+                        }
+                    }
+                }
+
+                if (!p_igetw(&(tempguy.bgsfx), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.bosspal), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                if (!p_igetw(&(tempguy.extend), f, true))
+                {
+                    return qe_invalid;
+                }
+
+                //! Enemy Defences
+
+                //If a 2.50 quest, use only the 2.5 defences. 
+                if (guyversion >= 16)  // November 2009 - Super Enemy Editor
+                {
+                    for (int j = 0; j < edefLAST; j++)
+                    {
+                        if (!p_getc(&(tempguy.defense[j]), f, true))
+                        {
+                            return qe_invalid;
+                        }
+                    }
+                    //then copy the generic script defence to all the new script defences
+
+                }
+
+
+
+
+                if (guyversion >= 18)
+                {
+                    if (!p_getc(&(tempguy.hitsfx), f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    if (!p_getc(&(tempguy.deadsfx), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+
+                if (guyversion >= 22)
+                {
+                    if (!p_igetl(&(tempguy.miscs[10]), f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    if (!p_igetl(&(tempguy.miscs[11]), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+                else if (guyversion >= 19)
+                {
+                    short tempMisc;
+
+                    if (!p_igetw(&tempMisc, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    tempguy.miscs[10] = tempMisc;
+
+                    if (!p_igetw(&tempMisc, f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                    tempguy.miscs[11] = tempMisc;
+                }
+
+                //If a 2.54 or later quest, use all of the defences. 
+                if (guyversion > 24) // Add new guyversion conditional statement 
+                {
+                    for (int j = edefLAST; j < edefLAST255; j++)
+                    {
+                        if (!p_getc(&(tempguy.defense[j]), f, true))
+                        {
+                            return qe_invalid;
+                        }
+                    }
+                }
+
+                if (guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
+                {
+                    for (int j = edefSCRIPT01; j <= edefSCRIPT10; j++)
+                    {
+                        tempguy.defense[j] = tempguy.defense[edefSCRIPT];
+                    }
+                }
+
+                //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+                if (guyversion > 25)
+                {
+                    if (!p_igetl(&(tempguy.txsz), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.tysz), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.hxsz), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.hysz), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.hzsz), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
+
+                    */
+                }
+                //More Enemy Editor vars for 2.60
+                if (guyversion > 26)
+                {
+                    if (!p_igetl(&(tempguy.hxofs), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.hyofs), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.xofs), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.yofs), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                    if (!p_igetl(&(tempguy.zofs), f, true))
+                    {
+                        return qe_invalid;
+                    }
+                }
+
+                if (guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+                {
+                    tempguy.wpnsprite = SpriteDefinitionRef();
+                }
+
+                if (guyversion > 27)
+                {
+                    uint32_t modlen;
+                    if (!p_igetl(&modlen, f, true))
+                        return qe_invalid;
+                    char *buf = new char[modlen];
+                    if (!pfread(buf, modlen, f, true))
+                    {
+                        delete[] buf;
+                        return qe_invalid;
+                    }
+                    std::string name(buf);
+                    delete[] buf;
+                    uint32_t slot;
+                    if (!p_igetl(&slot, f, true))
+                        return qe_invalid;
+                    tempguy.wpnsprite = SpriteDefinitionRef(name, slot);
+                }
+                if (guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
+                {
+                    tempguy.SIZEflags = 0;
+                }
+                if (guyversion > 28)
+                {
+                    if (!p_igetl(&(tempguy.SIZEflags), f, true))
+                    {
+                        return qe_invalid;
+                    }
+
+                }
+
+
+                //miscellaneous other corrections
+                //fix the mirror wizzrobe -DD
+                if (guyversion < 7)
+                {
+                    if (i == eMWIZ)
+                    {
+                        tempguy.miscs[1] = 0;
+                        tempguy.miscs[3] = 1;
+                    }
+                }
+
+                if (guyversion < 8)
+                {
+                    if (i == eGLEEOK1 || i == eGLEEOK2 || i == eGLEEOK3 || i == eGLEEOK4 || i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
+                    {
+                        // Some of these are deliberately different to NewDefault/defdata.cpp, by the way. -L
+                        tempguy.miscs[4] = 4; //neck length in segments
+                        tempguy.miscs[5] = 8; //neck offset from first body tile
+                        tempguy.miscs[6] = 40; //offset for each subsequent neck tile from the first neck tile
+                        tempguy.miscs[7] = 168; //head offset from first body tile
+                        tempguy.miscs[8] = 228; //flying head offset from first body tile
+
+                        if (i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
+                        {
+                            tempguy.miscs[5] += 10; //neck offset from first body tile
+                            tempguy.miscs[7] -= 12; //head offset from first body tile
+                        }
+                    }
+                }
+
+                if (guyversion < 10) // December 2007 - Dodongo CSet fix
+                {
+                    if (get_bit(deprecated_rules, 46) && tempguy.family == eeDONGO && tempguy.miscs[0] == 0)
+                        tempguy.bosspal = spDIG;
+                }
+
+                if (guyversion < 11) // December 2007 - Spinning Tile fix
+                {
+                    if (tempguy.family == eeSPINTILE)
+                    {
+                        tempguy.flags |= guy_superman;
+                        tempguy.item_set = 0; // Don't drop items
+                        tempguy.step = 300;
+                    }
+                }
+
+                if (guyversion < 12) // October 2008 - Flashing Bubble, Rope 2, and Ghini 2 fix
+                {
+                    if (get_bit(deprecated_rules, qr_NOROPE2FLASH_DEP))
+                    {
+                        if (tempguy.family == eeROPE)
+                        {
+                            tempguy.flags2 &= ~guy_flashing;
+                        }
+                    }
+
+                    if (get_bit(deprecated_rules, qr_NOBUBBLEFLASH_DEP))
+                    {
+                        if (tempguy.family == eeBUBBLE)
+                        {
+                            tempguy.flags2 &= ~guy_flashing;
+                        }
+                    }
+
+                    if ((tempguy.family == eeGHINI) && (tempguy.miscs[0]))
+                    {
+                        if (get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
+                        {
+                            tempguy.flags2 |= guy_blinking;
+                        }
+
+                        if (get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
+                        {
+                            tempguy.flags2 |= guy_transparent;
+                        }
+                    }
+                }
+
+                if (guyversion < 15) // July 2009 - Guy Fire and Fairy fix
+                {
+                    if (i == gFIRE)
+                    {
+                        tempguy.e_anim = aFLIP;
+                        tempguy.e_frate = 24;
+                    }
+
+                    if (i == gFAIRY)
+                    {
+                        tempguy.e_anim = a2FRM;
+                        tempguy.e_frate = 16;
+                    }
+                }
+
+                if (guyversion < 16)  // November 2009 - Super Enemy Editor part 1
+                {
+                    if (i == 0) Z_message("Updating guys to version 16...\n");
+
+                    update_guy_1(&tempguy);
+
+                    if (i == eMPOLSV)
+                    {
+                        tempguy.defense[edefARROW] = edCHINK;
+                        tempguy.defense[edefMAGIC] = ed1HKO;
+                        tempguy.defense[edefREFMAGIC] = ed1HKO;
+                    }
+                }
+
+                if (guyversion < 17)  // December 2009
+                {
+                    if (tempguy.family == eePROJECTILE)
+                    {
+                        tempguy.miscs[0] = 0;
+                    }
+                }
+
+                if (guyversion < 18)  // January 2010
+                {
+                    bool boss = (tempguy.family == eeAQUA || tempguy.family == eeDONGO || tempguy.family == eeMANHAN || tempguy.family == eeGHOMA || tempguy.family == eeDIG
+                        || tempguy.family == eeGLEEOK || tempguy.family == eePATRA || tempguy.family == eeGANON || tempguy.family == eeMOLD);
+
+                    tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
+                    tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.miscs[9] == 0)) ? WAV_GASP : WAV_EDEAD;
+
+                    if (tempguy.family == eeAQUA)
+                        for (int j = 0; j < edefLAST; j++) tempguy.defense[j] = getDefaultEnemies()[eRAQUAM].defense[j];
+                    else if (tempguy.family == eeMANHAN)
+                        for (int j = 0; j < edefLAST; j++) tempguy.defense[j] = getDefaultEnemies()[eMANHAN].defense[j];
+                    else if (tempguy.family == eePATRA)
+                        for (int j = 0; j < edefLAST; j++) tempguy.defense[j] = getDefaultEnemies()[eGLEEOK1].defense[j];
+                    else if (tempguy.family == eeGHOMA)
+                    {
+                        for (int j = 0; j < edefLAST; j++)
+                            tempguy.defense[j] = getDefaultEnemies()[eGOHMA1].defense[j];
+
+                        tempguy.defense[edefARROW] = ((tempguy.miscs[0] == 3) ? edCHINKL8 : (tempguy.miscs[0] == 2) ? edCHINKL4 : 0);
+
+                        if (tempguy.miscs[0] == 3 && !tempguy.weapon) tempguy.weapon = ewFlame;
+
+                        tempguy.miscs[0]--;
+                    }
+                    else if (tempguy.family == eeGLEEOK)
+                    {
+                        for (int j = 0; j < edefLAST; j++)
+                            tempguy.defense[j] = getDefaultEnemies()[eGLEEOK1].defense[j];
+
+                        if (tempguy.miscs[2] == 1 && !tempguy.weapon) tempguy.weapon = ewFlame;
+                    }
+                    else if (tempguy.family == eeARMOS)
+                    {
+                        tempguy.family = eeWALK;
+                        tempguy.hrate = 0;
+                        tempguy.miscs[9] = tempguy.miscs[0];
+                        tempguy.miscs[0] = tempguy.miscs[1] = tempguy.miscs[2] = tempguy.miscs[3] = tempguy.miscs[4] = tempguy.miscs[5] = tempguy.miscs[6] = tempguy.miscs[7] = 0;
+                        tempguy.miscs[8] = e9tARMOS;
+                    }
+                    else if (tempguy.family == eeGHINI && !tempguy.miscs[0])
+                    {
+                        tempguy.family = eeWALK;
+                        tempguy.hrate = 0;
+                        tempguy.miscs[0] = tempguy.miscs[1] = tempguy.miscs[2] = tempguy.miscs[3] = tempguy.miscs[4] = tempguy.miscs[5] =
+                            tempguy.miscs[6] = tempguy.miscs[7] = tempguy.miscs[8] = tempguy.miscs[9] = 0;
+                    }
+
+                    // Spawn animation flags
+                    if (tempguy.family == eeWALK && (tempguy.flags2&cmbflag_armos || tempguy.flags2&cmbflag_ghini))
+                        tempguy.flags |= guy_fadeflicker;
+                    else
+                        tempguy.flags &= 0x0F00000F; // Get rid of the unused flags!
+                }
+
+                if (guyversion < 20)  // April 2010
+                {
+                    if (tempguy.family == eeTRAP)
+                    {
+                        tempguy.miscs[1] = tempguy.miscs[9];
+
+                        if (tempguy.miscs[9] >= 1)
+                        {
+                            tempguy.miscs[0]++;
+                        }
+
+                        tempguy.miscs[9] = 0;
+                    }
+
+                    // Bomb Blast fix
+                    if (tempguy.weapon == ewBomb && tempguy.family != eeROPE && (tempguy.family != eeWALK || tempguy.miscs[1] != e2tBOMBCHU))
+                        tempguy.weapon = ewLitBomb;
+                    else if (tempguy.weapon == ewSBomb && tempguy.family != eeROPE && (tempguy.family != eeWALK || tempguy.miscs[1] != e2tBOMBCHU))
+                        tempguy.weapon = ewLitSBomb;
+                }
+
+                if (guyversion < 21)  // September 2011
+                {
+                    if (tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB)
+                    {
+                        if (tempguy.family == eeKEESETRIB)
+                        {
+                            tempguy.family = eeKEESE;
+                            tempguy.miscs[1] = e2tKEESETRIB;
+                            tempguy.miscs[0] = 0;
+                        }
+
+                        tempguy.rate = 2;
+                        tempguy.hrate = 8;
+                        tempguy.homing = 0;
+                        tempguy.step = (tempguy.family == eeKEESE && tempguy.miscs[0] ? 100 : 62);
+                    }
+                    else if (tempguy.family == eePEAHAT || tempguy.family == eePATRA)
+                    {
+                        if (tempguy.family == eePEAHAT)
+                        {
+                            tempguy.rate = 4;
+                            tempguy.step = 62;
+                        }
+                        else
+                            tempguy.step = 25;
+
+                        tempguy.hrate = 8;
+                        tempguy.homing = 0;
+                    }
+                    else if (tempguy.family == eeDIG || tempguy.family == eeMANHAN)
+                    {
+                        if (tempguy.family == eeMANHAN)
+                            tempguy.step = 50;
+
+                        tempguy.hrate = 16;
+                        tempguy.homing = 0;
+                    }
+                    else if (tempguy.family == eeGLEEOK)
+                    {
+                        tempguy.rate = 2;
+                        tempguy.homing = 0;
+                        tempguy.hrate = 9;
+                        tempguy.step = 89;
+                    }
+                    else if (tempguy.family == eeGHINI)
+                    {
+                        tempguy.rate = 4;
+                        tempguy.hrate = 12;
+                        tempguy.step = 62;
+                        tempguy.homing = 0;
+                    }
+
+                    // Bigdig random rate fix
+                    if (tempguy.family == eeDIG && tempguy.miscs[9] == 1)
+                    {
+                        tempguy.rate = 2;
+                    }
+                }
+
+                if (guyversion < 24) // November 2012
+                {
+                    if (tempguy.family == eeLANM)
+                        tempguy.miscs[2] = 1;
+                    else if (tempguy.family == eeMOLD)
+                        tempguy.miscs[1] = 0;
+                }
+
+                if (guyversion < 30)
+                {
+                    if (i == eOCTO1S ||
+                        i == eOCTO2S ||
+                        i == eOCTO1F ||
+                        i == eOCTO2F ||
+                        i == eLEV1 ||
+                        i == eLEV2 ||
+                        i == eROCK ||
+                        i == eBOULDER)
+                        tempguy.flags2 |= guy_appearsslow;
+                }
+
+                tables[modname].getEnemyDefinition(i) = tempguy;
+
             }
         }
     }
@@ -9591,11 +9597,11 @@ void update_guy_1(guydata *tempguy) // November 2009
     switch(tempguy->family)
     {
     case 1: //eeWALK
-        switch(tempguy->misc10)
+        switch(tempguy->miscs[9])
         {
         case 0: //Stalfos
-            if(tempguy->misc1==1)  // Fires four projectiles at once
-                tempguy->misc1=4;
+            if (tempguy->miscs[0] == 1)  // Fires four projectiles at once
+                tempguy->miscs[0]=4;
                 
             break;
             
@@ -9604,40 +9610,40 @@ void update_guy_1(guydata *tempguy) // November 2009
             break;
         }
         
-        tempguy->misc10 = 0;
+        tempguy->miscs[9] = 0;
         break;
         
     case 2: //eeSHOOT
         tempguy->family = eeWALK;
         
-        switch(tempguy->misc10)
+        switch(tempguy->miscs[9])
         {
         case 0: //Octorok
-            if(tempguy->misc1==1||tempguy->misc1==2)
+            if(tempguy->miscs[0]==1||tempguy->miscs[0]==2)
             {
-                tempguy->misc1=e1tFIREOCTO;
-                tempguy->misc2=e2tFIREOCTO;
+                tempguy->miscs[0]=e1tFIREOCTO;
+                tempguy->miscs[1]=e2tFIREOCTO;
             }
-            else tempguy->misc1 = 0;
+            else tempguy->miscs[0] = 0;
             
-            tempguy->misc6=tempguy->misc4;
-            tempguy->misc4=tempguy->misc3;
-            tempguy->misc3=0;
+            tempguy->miscs[5]=tempguy->miscs[3];
+            tempguy->miscs[3]=tempguy->miscs[2];
+            tempguy->miscs[2]=0;
             break;
             
         case 1: // Moblin
-            tempguy->misc1 = 0;
+            tempguy->miscs[0] = 0;
             break;
             
         case 2: //Lynel
-            tempguy->misc6=tempguy->misc1+1;
-            tempguy->misc1=0;
+            tempguy->miscs[5]=tempguy->miscs[0]+1;
+            tempguy->miscs[0]=0;
             break;
             
         case 3: //Stalfos 2
-            if(tempguy->misc1==1)  // Fires four projectiles at once
-                tempguy->misc1=e1t4SHOTS;
-            else tempguy->misc1 = 0;
+            if(tempguy->miscs[0]==1)  // Fires four projectiles at once
+                tempguy->miscs[0]=e1t4SHOTS;
+            else tempguy->miscs[0] = 0;
             
             break;
             
@@ -9649,16 +9655,16 @@ darknuts:
             tempguy->defense[edefARROW] = tempguy->defense[edefBYRNA] = tempguy->defense[edefREFROCK] =
                                               tempguy->defense[edefMAGIC] = tempguy->defense[edefSTOMP] = edCHINK;
                                               
-            if(tempguy->misc1==1)
-                tempguy->misc1=2;
-            else if(tempguy->misc1==2)
+            if(tempguy->miscs[0]==1)
+                tempguy->miscs[0]=2;
+            else if(tempguy->miscs[0]==2)
             {
-                tempguy->misc4=tempguy->misc3;
-                tempguy->misc3=tempguy->misc2;
-                tempguy->misc2=e2tSPLIT;
-                tempguy->misc1 = 0;
+                tempguy->miscs[3]=tempguy->miscs[2];
+                tempguy->miscs[2]=tempguy->miscs[1];
+                tempguy->miscs[1]=e2tSPLIT;
+                tempguy->miscs[0] = 0;
             }
-            else tempguy->misc1 = 0;
+            else tempguy->miscs[0] = 0;
             
             tempguy->flags |= inv_front;
             
@@ -9668,7 +9674,7 @@ darknuts:
             break;
         }
         
-        tempguy->misc10 = 0;
+        tempguy->miscs[9] = 0;
         break;
         
         /*
@@ -9680,25 +9686,25 @@ darknuts:
     case 33: //eeGELTRIB
         if(tempguy->family==33)
         {
-            tempguy->misc4 = 1;
+            tempguy->miscs[3] = 1;
             
             if(get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP))  //Old Tribbles
-                tempguy->misc3 = tempguy->misc2;
+                tempguy->miscs[2] = tempguy->miscs[1];
                 
-            tempguy->misc2 = e2tTRIBBLE;
+            tempguy->miscs[1] = e2tTRIBBLE;
         }
         else
         {
-            tempguy->misc4 = 0;
-            tempguy->misc3 = 0;
-            tempguy->misc2 = 0;
+            tempguy->miscs[3] = 0;
+            tempguy->miscs[2] = 0;
+            tempguy->miscs[1] = 0;
         }
         
         tempguy->family = eeWALK;
         
-        if(tempguy->misc1)
+        if(tempguy->miscs[0])
         {
-            tempguy->misc1=1;
+            tempguy->miscs[0]=1;
             tempguy->weapon = ewFireTrail;
         }
         
@@ -9706,14 +9712,14 @@ darknuts:
         
     case 34: //eeZOLTRIB
     case 12: //eeZOL
-        tempguy->misc4=tempguy->misc3;
-        tempguy->misc3=tempguy->misc2;
+        tempguy->miscs[3]=tempguy->miscs[2];
+        tempguy->miscs[2]=tempguy->miscs[1];
         tempguy->family = eeWALK;
-        tempguy->misc2=e2tSPLITHIT;
+        tempguy->miscs[1]=e2tSPLITHIT;
         
-        if(tempguy->misc1)
+        if(tempguy->miscs[0])
         {
-            tempguy->misc1=1;
+            tempguy->miscs[0]=1;
             tempguy->weapon = ewFireTrail;
         }
         
@@ -9721,30 +9727,30 @@ darknuts:
         
     case 13: //eeROPE
         tempguy->family = eeWALK;
-        tempguy->misc9 = e9tROPE;
+        tempguy->miscs[8] = e9tROPE;
         
-        if(tempguy->misc1)
+        if(tempguy->miscs[0])
         {
-            tempguy->misc4 = tempguy->misc3;
-            tempguy->misc3 = tempguy->misc2;
-            tempguy->misc2 = e2tBOMBCHU;
+            tempguy->miscs[3] = tempguy->miscs[2];
+            tempguy->miscs[2] = tempguy->miscs[1];
+            tempguy->miscs[1] = e2tBOMBCHU;
         }
         
-        tempguy->misc1 = 0;
+        tempguy->miscs[0] = 0;
         break;
         
     case 14: //eeGORIYA
         tempguy->family = eeWALK;
         
-        if(tempguy->misc1!=2) tempguy->misc1 = 0;
+        if(tempguy->miscs[0]!=2) tempguy->miscs[0] = 0;
         
         break;
         
     case 17: //eeBUBBLE
         tempguy->family = eeWALK;
-        tempguy->misc8 = tempguy->misc2;
-        tempguy->misc7 = tempguy->misc1 + 1;
-        tempguy->misc1 = tempguy->misc2 = 0;
+        tempguy->miscs[7] = tempguy->miscs[1];
+        tempguy->miscs[6] = tempguy->miscs[0] + 1;
+        tempguy->miscs[0] = tempguy->miscs[1] = 0;
         
         //fallthrogh
     case eeTRAP:
@@ -9755,16 +9761,16 @@ darknuts:
     case 35: //eeVIRETRIB
     case 18: //eeVIRE
         tempguy->family = eeWALK;
-        tempguy->misc4=tempguy->misc3;
-        tempguy->misc3=tempguy->misc2;
-        tempguy->misc2=e2tSPLITHIT;
-        tempguy->misc9=e9tVIRE;
+        tempguy->miscs[3]=tempguy->miscs[2];
+        tempguy->miscs[2]=tempguy->miscs[1];
+        tempguy->miscs[1]=e2tSPLITHIT;
+        tempguy->miscs[8]=e9tVIRE;
         break;
         
     case 19: //eeLIKE
         tempguy->family = eeWALK;
-        tempguy->misc7 = e7tEATITEMS;
-        tempguy->misc8=95;
+        tempguy->miscs[6] = e7tEATITEMS;
+        tempguy->miscs[7]=95;
         break;
         
     case 20: //eePOLSV
@@ -9774,7 +9780,7 @@ darknuts:
         tempguy->defense[edefARROW] = ed1HKO;
         tempguy->defense[edefHOOKSHOT] = edSTUNONLY;
         tempguy->family = eeWALK;
-        tempguy->misc9 = e9tPOLSVOICE;
+        tempguy->miscs[8] = e9tPOLSVOICE;
         tempguy->rate = 4;
         tempguy->homing = 32;
         tempguy->hrate = 10;
@@ -9782,7 +9788,7 @@ darknuts:
         break;
         
     case eeWIZZ:
-        if(tempguy->misc4)
+        if(tempguy->miscs[3])
         {
             for(int i=0; i < edefLAST; i++)
                 tempguy->defense[i] = (i != edefREFBEAM && i != edefREFMAGIC && i != edefQUAKE) ? edIGNORE : 0;
@@ -9838,9 +9844,35 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         return qe_invalid;
     }
     
-    if(!p_getc(&(temp_mapscr->guy),f,true))
+    if (version < 19)
     {
-        return qe_invalid;
+        byte tmpguy;
+        if (!p_getc(&tmpguy, f, true))
+        {
+            return qe_invalid;
+        }
+        temp_mapscr->guy = tmpguy == 0 ? EnemyDefinitionRef() : EnemyDefinitionRef("CORE", tmpguy);
+    }
+    else
+    {
+        uint32_t len;
+        if (!p_igetl(&len, f, true))
+            return qe_invalid;
+
+        char *buf = new char[len];
+        if (!pfread(buf, len, f, true))
+        {
+            delete[] buf;
+            return qe_invalid;
+        }
+
+        string modname(buf);
+        delete[] buf;
+
+        uint32_t slot;
+        if (!p_igetl(&slot, f, true))
+            return qe_invalid;
+        temp_mapscr->guy = EnemyDefinitionRef(modname, slot);
     }
     
     if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<146)))
@@ -10174,38 +10206,66 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
             {
                 return qe_invalid;
             }
+            if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<108)))
+            {
+                if (tempbyte >= 57) //old eGOHMA1
+                    tempbyte += 5;
+                if (tempbyte >= 52) //old eGLEEOK2
+                    tempbyte += 1;                
+            }
+            if(version < 9)
+            {
+                if(tempbyte>0)
+                {
+                    tempbyte += 10;
+                }
+            }
             
-            temp_mapscr->enemy[k]=tempbyte;
+            temp_mapscr->enemy[k]= tempbyte == 0 ? EnemyDefinitionRef() : EnemyDefinitionRef("CORE",tempbyte);
         }
-        else
+        else if(version < 19)
         {
-            if(!p_igetw(&(temp_mapscr->enemy[k]),f,true))
+            word tempw;
+            if(!p_igetw(&tempw,f,true))
             {
                 return qe_invalid;
             }
+            if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<108)))
+            {
+                if (tempw >= 57) //old eGOHMA1
+                    tempw += 5;
+                if (tempw >= 52) //old eGLEEOK2
+                    tempw += 1;                
+            }
+            if(version < 9)
+            {
+                if(tempw>0)
+                {
+                    tempw += 10;
+                }
+            }
+
+            temp_mapscr->enemy[k] = tempw == 0 ? EnemyDefinitionRef() : EnemyDefinitionRef("CORE", tempw);
         }
-        
-        if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<108)))
+        else
         {
-            //using enumerations here is dangerous
-            //very easy to break old quests -DD
-            if(temp_mapscr->enemy[k]>=57)  //old eGOHMA1
+            uint32_t modlen;
+            if (!p_igetl(&modlen, f, true))
+                return qe_invalid;
+            char *buf = new char[modlen];
+            if (!pfread(buf, modlen, f, true))
             {
-                temp_mapscr->enemy[k]+=5;
+                delete[] buf;
+                return qe_invalid;
             }
-            else if(temp_mapscr->enemy[k]>=52)  //old eGLEEOK2
-            {
-                temp_mapscr->enemy[k]+=1;
-            }
-        }
+            string name(buf);
+            delete[] buf;
+            uint32_t slot;
+            if (!p_igetl(&slot, f, true))
+                return qe_invalid;
+            temp_mapscr->enemy[k] = EnemyDefinitionRef(name, slot);
+        }                       
         
-        if(version < 9)
-        {
-            if(temp_mapscr->enemy[k]>0)
-            {
-                temp_mapscr->enemy[k]+=10;
-            }
-        }
     }
     
     if(!p_getc(&(temp_mapscr->pattern),f,true))
@@ -10923,7 +10983,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     else
     {
-        temp_mapscr->screen_midi = -1;
+        temp_mapscr->screen_midi = 65535;
     }
     
     if(version>=17)
@@ -11402,7 +11462,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
                     
                     TheMaps[scr].zero_memory();
                     TheMaps[scr].valid = mVERSION;
-                    TheMaps[scr].screen_midi = -1;
+                    TheMaps[scr].screen_midi = 65535;
                     TheMaps[scr].csensitive = 1;
                 }
             }
@@ -14101,180 +14161,180 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         while(!pack_feof(f))
         {
-            switch(section_id)
+            switch (section_id)
             {
             case ID_RULES:
-            
+
                 //rules
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Rules...");
-                ret=readrules(f, &tempheader, keepall&&!get_bit(skip_flags, skip_rules));
+                ret = readrules(f, &tempheader, keepall && !get_bit(skip_flags, skip_rules));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_STRINGS:
-            
+
                 //strings
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Strings...");
-                ret=readstrings(f, &tempheader, keepall&&!get_bit(skip_flags, skip_strings));
+                ret = readstrings(f, &tempheader, keepall && !get_bit(skip_flags, skip_strings));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_MISC:
-            
+
                 //misc data
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Misc. Data...");
-                ret=readmisc(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_misc));
+                ret = readmisc(f, &tempheader, Misc, keepall && !get_bit(skip_flags, skip_misc));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_TILES:
-            
+
                 //tiles
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Tiles...");
-                ret=readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, keepall&&!get_bit(skip_flags, skip_tiles));
+                ret = readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, keepall && !get_bit(skip_flags, skip_tiles));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_COMBOS:
-            
+
                 //combos
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Combos...");
-                ret=readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, keepall&&!get_bit(skip_flags, skip_combos));
-                combosread=true;
+                ret = readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, keepall && !get_bit(skip_flags, skip_combos));
+                combosread = true;
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_COMBOALIASES:
-            
+
                 //combo aliases
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Combo Aliases...");
-                ret=readcomboaliases(f, &tempheader, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_comboaliases));
+                ret = readcomboaliases(f, &tempheader, tempheader.zelda_version, tempheader.build, keepall && !get_bit(skip_flags, skip_comboaliases));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_CSETS:
-            
+
                 //color data
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Color Data...");
-                ret=readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, keepall&&!get_bit(skip_flags, skip_csets));
+                ret = readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, keepall && !get_bit(skip_flags, skip_csets));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_MAPS:
-            
+
                 //maps
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Maps...");
-                ret=readmaps(f, &tempheader, keepall&&!get_bit(skip_flags, skip_maps));
-                mapsread=true;
+                ret = readmaps(f, &tempheader, keepall && !get_bit(skip_flags, skip_maps));
+                mapsread = true;
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_DMAPS:
-            
+
                 //dmaps
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading DMaps...");
-                ret=readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, keepall&&!get_bit(skip_flags, skip_dmaps));
+                ret = readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, keepall && !get_bit(skip_flags, skip_dmaps));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_DOORS:
-            
+
                 //door combo sets
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Doors...");
-                ret=readdoorcombosets(f, &tempheader, keepall&&!get_bit(skip_flags, skip_doors));
+                ret = readdoorcombosets(f, &tempheader, keepall && !get_bit(skip_flags, skip_doors));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_ITEMS:
             {
                 //items
@@ -14319,14 +14379,14 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 }
 
                 box_out("Reading Weapons...");
-                std::map<std::string, SpriteDefinitionTable> sdts;                
+                std::map<std::string, SpriteDefinitionTable> sdts;
                 ret = readweapons(f, &tempheader, curQuest->getModule("CORE").itemDefTable(), sdts);
                 checkstatus(ret);
                 if (keepall && !get_bit(skip_flags, skip_weapons))
                 {
                     for (std::map<std::string, SpriteDefinitionTable>::iterator it = sdts.begin(); it != sdts.end(); ++it)
                     {
-                        curQuest->getModule(it->first).setWeaponDefTable(it->second);
+                        curQuest->getModule(it->first).setSpriteDefTable(it->second);
                     }
                 }
                 SpecialSpriteIndex ssi;
@@ -14339,104 +14399,117 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 break;
             }
             case ID_COLORS:
-            
+
                 //misc. colors
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Misc. Colors...");
-                ret=readmisccolors(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_colors));
+                ret = readmisccolors(f, &tempheader, Misc, keepall && !get_bit(skip_flags, skip_colors));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_ICONS:
-            
+
                 //game icons
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Game Icons...");
-                ret=readgameicons(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_icons));
+                ret = readgameicons(f, &tempheader, Misc, keepall && !get_bit(skip_flags, skip_icons));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+
             case ID_INITDATA:
-            
+
                 //initialization data
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Init. Data...");
-                ret=readinitdata(f, &tempheader, keepall&&!get_bit(skip_flags, skip_initdata));
+                ret = readinitdata(f, &tempheader, keepall && !get_bit(skip_flags, skip_initdata));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
-                
-                if(keepall&&!get_bit(skip_flags, skip_subscreens))
+
+                if (keepall && !get_bit(skip_flags, skip_subscreens))
                 {
-                    if(zinit.subscreen!=ssdtMAX)  //not using custom subscreens
+                    if (zinit.subscreen != ssdtMAX)  //not using custom subscreens
                     {
                         setupsubscreens();
-                        
-                        for(int i=0; i<MAXDMAPS; ++i)
+
+                        for (int i = 0; i < MAXDMAPS; ++i)
                         {
-                            int type=DMaps[i].type&dmfTYPE;
-                            DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
-                            DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
+                            int type = DMaps[i].type&dmfTYPE;
+                            DMaps[i].active_subscreen = (type == dmOVERW || type == dmBSOVERW) ? 0 : 1;
+                            DMaps[i].passive_subscreen = (get_bit(quest_rules, qr_ENABLEMAGIC)) ? 0 : 1;
                         }
                     }
                 }
-                
-                if(keepall&&!get_bit(skip_flags, skip_sfx))
+
+                if (keepall && !get_bit(skip_flags, skip_sfx))
                 {
                     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
                 }
-                
-                if(keepall&&!get_bit(skip_flags, skip_itemdropsets))
+
+                if (keepall && !get_bit(skip_flags, skip_itemdropsets))
                 {
                     init_item_drop_sets();
                 }
-                
-                if(keepall&&!get_bit(skip_flags, skip_favorites))
+
+                if (keepall && !get_bit(skip_flags, skip_favorites))
                 {
                     init_favorites();
                 }
-                
+
                 break;
-                
+
             case ID_GUYS:
-            
+            {
                 //guys
-                if(catchup)
+                if (catchup)
                 {
                     box_out("found.");
                     box_eol();
-                    catchup=false;
+                    catchup = false;
                 }
-                
+
                 box_out("Reading Custom Guy Data...");
-                ret=readguys(f, &tempheader, keepall&&!get_bit(skip_flags, skip_guys));
+                std::map<std::string, EnemyDefinitionTable> edts;
+                ret = readguys(f, &tempheader, edts);
                 checkstatus(ret);
+                if (keepall && !get_bit(skip_flags, skip_guys))
+                {
+                    for (std::map<std::string, EnemyDefinitionTable>::iterator it = edts.begin(); it != edts.end(); ++it)
+                    {
+                        curQuest->getModule(it->first).setEnemyDefTable(it->second);
+                    }
+                }
+                SpecialEnemyIndex sei;
+                ret = readSpecialEnemyIndex(*curQuest, sei);
+                checkstatus(ret);
+                if (keepall && !get_bit(skip_flags, skip_guys))
+                    curQuest->setSpecialEnemyIndex(sei);
                 box_out("okay.");
                 box_eol();
                 break;
-                
+            }
             case ID_LINKSPRITES:
             
                 //link sprites
@@ -14678,7 +14751,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         {
             for (std::map<std::string, SpriteDefinitionTable>::iterator it = sdts.begin(); it != sdts.end(); ++it)
             {
-                curQuest->getModule(it->first).setWeaponDefTable(it->second);
+                curQuest->getModule(it->first).setSpriteDefTable(it->second);
             }
         }
         SpecialSpriteIndex ssi;
@@ -14691,8 +14764,21 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         
         //guys
         box_out("Reading Custom Guy Data...");
-        ret=readguys(f, &tempheader, keepall&&!get_bit(skip_flags, skip_guys));
+        std::map<std::string, EnemyDefinitionTable> edts;                
+        ret = readguys(f, &tempheader, edts);
         checkstatus(ret);
+        if (keepall && !get_bit(skip_flags, skip_guys))
+        {
+            for (std::map<std::string, EnemyDefinitionTable>::iterator it = edts.begin(); it != edts.end(); ++it)
+            {
+                curQuest->getModule(it->first).setEnemyDefTable(it->second);
+            }
+        }
+        SpecialEnemyIndex sei;
+        ret = readSpecialEnemyIndex(*curQuest, sei);
+        checkstatus(ret);
+        if (keepall && !get_bit(skip_flags, skip_guys))
+            curQuest->setSpecialEnemyIndex(sei);
         box_out("okay.");
         box_eol();
         

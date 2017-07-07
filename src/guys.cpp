@@ -37,80 +37,87 @@ int sle_x,sle_y,sle_cnt,sle_clk;
 int vhead=0;
 int guycarryingitem=0;
 
-char *guy_string[eMAXGUYS];
-
 void never_return(int index);
 void playLevelMusic();
 
+extern std::map<EnemyDefinitionRef, int> clock_zoras;
+
 // If an enemy is this far out of the playing field, just remove it.
-#define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
+#define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(enemyDefinition))?192:352) || y<-176 || x<-256 || x > 512)
 
 namespace
 {
-    int trapConstantHorizontalID;
-    int trapConstantVerticalID;
-    int trapLOSHorizontalID;
-    int trapLOSVerticalID;
-    int trapLOS4WayID;
+    EnemyDefinitionRef trapConstantHorizontalID;
+    EnemyDefinitionRef trapConstantVerticalID;
+    EnemyDefinitionRef trapLOSHorizontalID;
+    EnemyDefinitionRef trapLOSVerticalID;
+    EnemyDefinitionRef trapLOS4WayID;
     
-    int cornerTrapID;
-    int centerTrapID;
+    EnemyDefinitionRef cornerTrapID;
+    EnemyDefinitionRef centerTrapID;
     
-    int rockID;
-    int zoraID;
-    int statueID;
+    EnemyDefinitionRef rockID;
+    EnemyDefinitionRef zoraID;
+    EnemyDefinitionRef statueID;
 }
 
 int EwpnsIdCount(int id);
 
 void identifyCFEnemies()
 {
-    trapConstantHorizontalID=-1;
-    trapConstantVerticalID=-1;
-    trapLOSHorizontalID=-1;
-    trapLOSVerticalID=-1;
-    trapLOS4WayID=-1;
-    cornerTrapID=-1;
-    centerTrapID=-1;
-    rockID=-1;
-    zoraID=-1;
-    statueID=-1;
+    trapConstantHorizontalID=EnemyDefinitionRef();
+    trapConstantVerticalID=EnemyDefinitionRef();
+    trapLOSHorizontalID=EnemyDefinitionRef();
+    trapLOSVerticalID=EnemyDefinitionRef();
+    trapLOS4WayID=EnemyDefinitionRef();
+    cornerTrapID=EnemyDefinitionRef();
+    centerTrapID=EnemyDefinitionRef();
+    rockID=EnemyDefinitionRef();
+    zoraID=EnemyDefinitionRef();
+    statueID=EnemyDefinitionRef();
     
-    for(int i=0; i<eMAXGUYS; i++)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        if((guysbuf[i].flags2&cmbflag_trph) && trapLOSHorizontalID==-1)
-            trapLOSHorizontalID=i;
-        if((guysbuf[i].flags2&cmbflag_trpv) && trapLOSVerticalID==-1)
-            trapLOSVerticalID=i;
-        if((guysbuf[i].flags2&cmbflag_trp4) && trapLOS4WayID==-1)
-            trapLOS4WayID=i;
-        if((guysbuf[i].flags2&cmbflag_trplr) && trapConstantHorizontalID==-1)
-            trapConstantHorizontalID=i;
-        if((guysbuf[i].flags2&cmbflag_trpud) && trapConstantVerticalID==-1)
-            trapConstantVerticalID=i;
-        
-        if((guysbuf[i].flags2&eneflag_trap) && cornerTrapID==-1)
-            cornerTrapID=i;
-        if((guysbuf[i].flags2&eneflag_trp2) && centerTrapID==-1)
-            centerTrapID=i;
-        
-        if((guysbuf[i].flags2&eneflag_rock) && rockID==-1)
-            rockID=i;
-        if((guysbuf[i].flags2&eneflag_zora) && zoraID==-1)
-            zoraID=i;
-        
-        if((guysbuf[i].flags2 & eneflag_fire) && statueID==-1)
-            statueID=i;
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions(); i++)
+        {
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_trph) && !curQuest->isValid(trapLOSHorizontalID))
+                trapLOSHorizontalID = EnemyDefinitionRef(*it, i);
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_trpv) && !curQuest->isValid(trapLOSVerticalID))
+                trapLOSVerticalID = EnemyDefinitionRef(*it, i);
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_trp4) && !curQuest->isValid(trapLOS4WayID))
+                trapLOS4WayID = EnemyDefinitionRef(*it, i);
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_trplr) && !curQuest->isValid(trapConstantHorizontalID))
+                trapConstantHorizontalID = EnemyDefinitionRef(*it, i);
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_trpud) && !curQuest->isValid(trapConstantVerticalID))
+                trapConstantVerticalID = EnemyDefinitionRef(*it, i);
+
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&eneflag_trap) && !curQuest->isValid(cornerTrapID))
+                cornerTrapID = EnemyDefinitionRef(*it, i);
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&eneflag_trp2) && !curQuest->isValid(centerTrapID))
+                centerTrapID = EnemyDefinitionRef(*it, i);
+
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&eneflag_rock) && !curQuest->isValid(rockID))
+                rockID = EnemyDefinitionRef(*it, i);
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2&eneflag_zora) && !curQuest->isValid(zoraID))
+                zoraID = EnemyDefinitionRef(*it, i);
+
+            if ((module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_fire) && !curQuest->isValid(statueID))
+                statueID = EnemyDefinitionRef(*it, i);
+        }
     }
 }
 
-int random_layer_enemy()
+EnemyDefinitionRef random_layer_enemy()
 {
     int cnt=count_layer_enemies();
     
     if(cnt==0)
     {
-        return eNONE;
+        return EnemyDefinitionRef();
     }
     
     int ret=rand()%cnt;
@@ -124,7 +131,7 @@ int random_layer_enemy()
             
             for(int j=0; j<10; ++j)
             {
-                if(layerscreen->enemy[j]!=0)
+                if(curQuest->isValid(layerscreen->enemy[j]))
                 {
                     if(cnt==ret)
                     {
@@ -137,7 +144,7 @@ int random_layer_enemy()
         }
     }
     
-    return eNONE;
+    return EnemyDefinitionRef();
 }
 
 int count_layer_enemies()
@@ -152,7 +159,7 @@ int count_layer_enemies()
             
             for(int j=0; j<10; ++j)
             {
-                if(layerscreen->enemy[j]!=0)
+                if(curQuest->isValid(layerscreen->enemy[j]))
                 {
                     ++cnt;
                 }
@@ -265,11 +272,11 @@ bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
 
   */
 
-enemy::enemy(fix X, fix Y, int Id, int Clk) : sprite(*pool)
+enemy::enemy(fix X, fix Y, const EnemyDefinitionRef &ref, int Clk) : sprite(*pool)
 {
     x=X;
     y=Y;
-    id=Id;
+    enemyDefinition=ref;
     clk=Clk;
     floor_y=y;
     ceiling=false;
@@ -278,51 +285,52 @@ enemy::enemy(fix X, fix Y, int Id, int Clk) : sprite(*pool)
     yofs = playing_field_offset - ((tmpscr->flags7&fSIDEVIEW) ? 0 : 2);
     did_armos=true;
     script_spawned=false;
-    
-    d = guysbuf + (id & 0xFFF);
-    hp = d->hp;
+    guydata d = curQuest->getEnemyDefinition(enemyDefinition);
+    hp = d.hp;
     starting_hp = hp;
 //  cs = d->cset;
 //d variables
 
-    flags=d->flags;
-    flags2=d->flags2;
-    s_tile=d->s_tile; //secondary (additional) tile(s)
-    family=d->family;
-    dcset=d->cset;
+    flags=d.flags;
+    flags2=d.flags2;
+    s_tile=d.s_tile; //secondary (additional) tile(s)
+    family=d.family;
+    dcset=d.cset;
     cs=dcset;
-    anim=get_bit(quest_rules,qr_NEWENEMYTILES)?d->e_anim:d->anim;
-    dp=d->dp;
-    wdp=d->wdp;
-    wpn=d->weapon;
-    wpnsprite = d-> wpnsprite; //2.6 -Z
-    rate=d->rate;
-    hrate=d->hrate;
-    dstep=d->step;
-    homing=d->homing;
-    dmisc1=d->misc1;
-    dmisc2=d->misc2;
-    dmisc3=d->misc3;
-    dmisc4=d->misc4;
-    dmisc5=d->misc5;
-    dmisc6=d->misc6;
-    dmisc7=d->misc7;
-    dmisc8=d->misc8;
-    dmisc9=d->misc9;
-    dmisc10=d->misc10;
-    dmisc11=d->misc11;
-    dmisc12=d->misc12;
-    dmisc13=d->misc13;
-    dmisc14=d->misc14;
-    dmisc15=d->misc15;
+    anim=get_bit(quest_rules,qr_NEWENEMYTILES)?d.e_anim:d.anim;
+    dp=d.dp;
+    wdp=d.wdp;
+    wpn=d.weapon;
+    wpnsprite = d.wpnsprite; //2.6 -Z
+    rate=d.rate;
+    hrate=d.hrate;
+    dstep=d.step;
+    homing=d.homing;
+    dmiscs[0]=d.miscs[0];
+    dmiscs[1]=d.miscs[1];
+    dmiscs[2]=d.miscs[2];
+    dmiscs[3]=d.miscs[3];
+    dmiscs[4]=d.miscs[4];
+    dmiscs[5]=d.miscs[5];
+    dmiscs[6]=d.miscs[6];
+    dmiscs[7]=d.miscs[7];
+    dmiscs[8]=d.miscs[8];
+    dmiscs[9]=d.miscs[9];
+    dmiscs[10]=d.miscs[10];
+    dmiscs[11]=d.miscs[11];
+    dmiscs[12]=d.miscs[12];
+    dmiscs[13]=d.miscs[13];
+    dmiscs[14]=d.miscs[14];
     
     for(int i=0; i<edefLAST; i++)
-        defense[i]=d->defense[i];
+        defense[i]=d.defense[i];
 	
-    bgsfx=d->bgsfx;
-    hitsfx=d->hitsfx;
-    deadsfx=d->deadsfx;
-    bosspal=d->bosspal;
+    bgsfx=d.bgsfx;
+    hitsfx=d.hitsfx;
+    deadsfx=d.deadsfx;
+    bosspal=d.bosspal;
+
+    splitDir = 0;
     
     if(bosspal>-1)
     {
@@ -336,13 +344,13 @@ enemy::enemy(fix X, fix Y, int Id, int Clk) : sprite(*pool)
     
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
-        o_tile=d->e_tile;
-        frate = d->e_frate;
+        o_tile=d.e_tile;
+        frate = d.e_frate;
     }
     else
     {
-        o_tile=d->tile;
-        frate = d->frate;
+        o_tile=d.tile;
+        frate = d.frate;
     }
     
     tile=0;
@@ -359,8 +367,8 @@ enemy::enemy(fix X, fix Y, int Id, int Clk) : sprite(*pool)
     step = dstep/100.0;
     
     
-    item_set = d->item_set;
-    grumble = d->grumble;
+    item_set = d.item_set;
+    grumble = d.grumble;
     
     if(frate == 0)
         frate = 256;
@@ -371,26 +379,26 @@ enemy::enemy(fix X, fix Y, int Id, int Clk) : sprite(*pool)
     dir = rand()&3;
     
     //2.6 Enemy Editor Hit and TIle Sizes
-    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+    if ( ((d.SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d.txsz > 0 ) { txsz = d.txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
     //al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
-    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
-    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
-    if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-    if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
+    if ( ((d.SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d.tysz > 0 ) { tysz = d.tysz; if ( tysz > 1 ) extend = 3; }
+    if ( ((d.SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d.hxsz >= 0 ) hxsz = d.hxsz;
+    if ( ((d.SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d.hysz >= 0 ) hysz = d.hysz;
+    if ( ((d.SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d.hzsz >= 0  ) hzsz = d.hzsz;
+    if ( (d.SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d.hxofs;
+    if (  (d.SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d.hyofs;
 //    if ( (d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
-    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
-    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+    if (  (d.SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d.xofs;
+    if ( (d.SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
     {
-	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	    yofs = (int)d.yofs; //This seems to be setting to +48 or something with any value set?! -Z
 	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
     }
   
-    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
+    if (  (d.SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d.zofs;
     
-    if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
+    if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmiscs[1] != e2tBOMBCHU))
         wpn = 0;
 }
 
@@ -447,7 +455,7 @@ bool enemy::animate(int index)
         hp=-1000;
         
     //fall down
-    if(canfall(id) && fading != fade_flicker && clk>=0)
+    if(canfall(enemyDefinition) && fading != fade_flicker && clk>=0)
     {
         if(tmpscr->flags7&fSIDEVIEW)
         {
@@ -555,7 +563,7 @@ void enemy::death_sfx()
 
 void enemy::move(fix dx,fix dy)
 {
-    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM || !canfall(id)))
+    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM || !canfall(enemyDefinition)))
     {
         x+=dx;
         y+=dy;
@@ -564,7 +572,7 @@ void enemy::move(fix dx,fix dy)
 
 void enemy::move(fix s)
 {
-    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM || !canfall(id)))
+    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM || !canfall(enemyDefinition)))
         sprite::move(s);
 }
 
@@ -593,7 +601,7 @@ void enemy::FireBreath(bool seeklink)
     
     if(wpn==ewFireTrail)
     {
-        dmisc1 = e1tEACHTILE;
+        dmiscs[0] = e1tEACHTILE;
         FireWeapon();
         return;
     }
@@ -684,13 +692,13 @@ void enemy::FireWeapon()
      * 0x04: Fast projectile
      * 0x00-0x30: If 0x02, slants toward (type>>3)-1
      */
-    if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10)  // Summoning doesn't require weapons
+    if(wpn<wEnemyWeapons && dmiscs[0]!=9 && dmiscs[0]!=10)  // Summoning doesn't require weapons
         return;
         
-    if(wpn==ewFireTrail && dmisc1>=e1t3SHOTS && dmisc1<=e1t8SHOTS)
-        dmisc1 = e1tEACHTILE;
+    if(wpn==ewFireTrail && dmiscs[0]>=e1t3SHOTS && dmiscs[0]<=e1t8SHOTS)
+        dmiscs[0] = e1tEACHTILE;
         
-    switch(dmisc1)
+    switch(dmiscs[0])
     {
     case e1t5SHOTS: //BS-Aquamentus
         Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,ItemDefinitionRef(), getUID(),false));
@@ -699,12 +707,12 @@ void enemy::FireWeapon()
         //fallthrough
     case e1t3SHOTSFAST:
     case e1t3SHOTS: //Aquamentus
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,ItemDefinitionRef(), getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,ItemDefinitionRef(), getUID(),false));
+        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+1)<<3)+(dmiscs[0]==e1t3SHOTSFAST ? 4:0),wdp,dir,ItemDefinitionRef(), getUID(),false));
+        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^right)+1)<<3)+(dmiscs[0]==e1t3SHOTSFAST ? 4:0),wdp,dir,ItemDefinitionRef(), getUID(),false));
         
         //fallthrough
     default:
-        Ewpns.add(new weapon(x,y,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,ItemDefinitionRef(), getUID(),false));
+        Ewpns.add(new weapon(x,y,z,wpn,2+(dmiscs[0]==e1t3SHOTSFAST || dmiscs[0]==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,ItemDefinitionRef(), getUID(),false));
         Backend::sfx->play(wpnsfx(wpn),int(x));
         break;
         
@@ -739,13 +747,16 @@ void enemy::FireWeapon()
         
     case e1tSUMMON: // Bat Wizzrobe
     {
-        if(dmisc4==0) break;  // Summon 0
+        if(dmiscs[3]==0) break;  // Summon 0
         
         int bc=0;
+
+        //TODO module support for summoning?
+        EnemyDefinitionRef summon(enemyDefinition.module, dmiscs[2]);
         
         for(int gc=0; gc<guys.Count(); gc++)
         {
-            if((((enemy*)guys.spr(gc))->id) == dmisc3)
+            if((((enemy*)guys.spr(gc))->enemyDefinition) == summon)
             {
                 ++bc;
             }
@@ -754,11 +765,11 @@ void enemy::FireWeapon()
         if(bc<=40)  // Not too many enemies
         {
             int kids = guys.Count();
-            int bats=(rand()%zc_max(1,dmisc4))+1;
+            int bats=(rand()%zc_max(1,dmiscs[3]))+1;
             
             for(int i=0; i<bats; i++)
             {
-                if(addenemy(x,y,dmisc3,-10))
+                if(addenemy(x,y,summon,-10))
                     ((enemy*)guys.spr(kids+i))->count_enemy = false;
             }
             
@@ -784,7 +795,7 @@ void enemy::FireWeapon()
             
             for(int i=0; i<newguys; i++)
             {
-                int id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
+                EnemyDefinitionRef id2 = random_layer_enemy();
                 int x2=0;
                 int y2=0;
                 
@@ -1764,7 +1775,7 @@ int enemy::takehit(weapon *w)
                                
         // Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
         if(!(family==eePEAHAT || family==eeAQUA || family==eeMANHAN || (family==eeWIZZ && !ignorehookshot)
-                || (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right))))
+                || (family==eeWALK && dmiscs[8]==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right))))
             return 0;
             
         power = DAMAGE_MULTIPLIER;
@@ -2035,10 +2046,10 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 
         SpriteDefinitionRef shadows = curQuest->specialSprites().smallShadow;
 
-        if(canfall(id) && shadowtile == 0)
+        if(canfall(enemyDefinition) && shadowtile == 0)
             shadowtile = curQuest->getSpriteDefinition(shadows).tile;
             
-        if(z>0 || !canfall(id))
+        if(z>0 || !canfall(enemyDefinition))
             sprite::drawshadow(dest,translucent);
     }
 }
@@ -2122,7 +2133,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     {
     case 8:
     case up:
-        if(canfall(id) && tmpscr->flags7&fSIDEVIEW)
+        if(canfall(enemyDefinition) && tmpscr->flags7&fSIDEVIEW)
             return false;
             
         dy = dy1-s;
@@ -2132,7 +2143,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         
     case 12:
     case down:
-        if(canfall(id) && tmpscr->flags7&fSIDEVIEW)
+        if(canfall(enemyDefinition) && tmpscr->flags7&fSIDEVIEW)
             return false;
             
         dy = dy2+s;
@@ -3117,7 +3128,7 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
     switch(family)
     {
     case eeWALK:
-        if(dmisc9==e9tPOLSVOICE && clk2>=0)
+        if(dmiscs[8]==e9tPOLSVOICE && clk2>=0)
         {
             tile=s_tile;
             t=s_tile;
@@ -3126,7 +3137,7 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
         break;
         
     case eeTRAP:
-        if(dummy_int[1] && guysbuf[id].flags2 & eneflag_trp2)  // Just to make sure
+        if(dummy_int[1] && curQuest->getEnemyDefinition(enemyDefinition).flags2 & eneflag_trp2)  // Just to make sure
         {
             tile=s_tile;
             t=s_tile;
@@ -3671,7 +3682,7 @@ void enemy::update_enemy_frame()
     case aWIZZ:
     {
 //      if(d->misc1)
-        if(dmisc1)
+        if(dmiscs[0])
         {
             if(clk&8)
             {
@@ -3714,7 +3725,7 @@ void enemy::update_enemy_frame()
         tiledir(dir,true);
         
 //      if(d->misc1)                                            //walking wizzrobe
-        if(dmisc1)                                            //walking wizzrobe
+        if(dmiscs[0])                                            //walking wizzrobe
         {
             if(clk&8)
             {
@@ -4263,7 +4274,7 @@ waves2:
         
 //        case 5: cs = d->misc2; break;
         case 5:
-            cs = dmisc2;
+            cs = dmiscs[1];
             break;
             
         case 2:
@@ -4295,7 +4306,7 @@ waves2:
 //        case 5: tile += (f2) ? 1 : 0; cs = d->misc2; break;
         case 5:
             tile += (f2) ? 1 : 0;
-            cs = dmisc2;
+            cs = dmiscs[1];
             break;
             
         case 2:
@@ -4425,7 +4436,7 @@ int wpnsfx(int wpn)
 // good guys, fires, fairy, and other non-enemies
 // based on enemy class b/c guys in dungeons act sort of like enemies
 // also easier to manage all the guys this way
-guy::guy(fix X,fix Y,int Id,int Clk,bool mg) : enemy(X,Y,Id,Clk)
+guy::guy(fix X,fix Y,const EnemyDefinitionRef &ref, int Clk,bool mg) : enemy(X,Y,ref,Clk)
 {
     mainguy=mg;
     canfreeze=false;
@@ -4436,7 +4447,7 @@ guy::guy(fix X,fix Y,int Id,int Clk,bool mg) : enemy(X,Y,Id,Clk)
     hxsz=12;
     hysz=17;
     
-    if(!superman && (!isdungeon() || id==gFAIRY || id==gFIRE || id==gZELDA))
+    if(!superman && (!isdungeon() || ref==curQuest->specialEnemies().fairy || ref==curQuest->specialEnemies().fire || ref==curQuest->specialEnemies().zelda))
     {
         superman = 1;
         hxofs=1000;
@@ -4463,8 +4474,8 @@ bool guy::animate(int index)
         
         if(!get_bit(quest_rules,qr_NOGUYFIRES))
         {
-            addenemy(BSZ?64:72,68,eSHOOTFBALL,0);
-            addenemy(BSZ?176:168,68,eSHOOTFBALL,0);
+            addenemy(BSZ?64:72,68,curQuest->specialEnemies().fireballShooter,0);
+            addenemy(BSZ?176:168,68,curQuest->specialEnemies().fireballShooter,0);
         }
     }
     
@@ -4483,7 +4494,7 @@ void guy::draw(BITMAP *dest)
 /*********   Enemies   *********/
 /*******************************/
 
-eFire::eFire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eFire::eFire(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     clk4=0;
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
@@ -4574,7 +4585,7 @@ void eFire::break_shield()
         o_tile=s_tile;
 }
 
-eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eOther::eOther(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     clk4=0;
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
@@ -4708,7 +4719,7 @@ void enemy::removearmos(int ax,int ay)
     putcombo(scrollbuf,ax,ay,tmpscr->data[cd],tmpscr->cset[cd]);
 }
 
-eGhini::eGhini(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eGhini::eGhini(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     fading=fade_flicker;
     count_enemy=false;
@@ -4724,7 +4735,7 @@ bool eGhini::animate(int index)
     if(dying)
         return Dead(index);
         
-    if(dmisc1)
+    if(dmiscs[0])
     {
         if(misc)
         {
@@ -4760,7 +4771,7 @@ void eGhini::kickbucket()
     hp=-1000;                                                 // don't call death_sfx()
 }
 
-eTektite::eTektite(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eTektite::eTektite(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     old_y=y;
     dir=down;
@@ -4771,11 +4782,11 @@ eTektite::eTektite(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         clk*=rand()%3+1;
         
     // avoid divide by 0 errors
-    if(dmisc1 == 0)
-        dmisc1 = 24;
+    if(dmiscs[0] == 0)
+        dmiscs[0] = 24;
         
-    if(dmisc2 == 0)
-        dmisc2 = 3;
+    if(dmiscs[1] == 0)
+        dmiscs[1] = 3;
         
     //nets+760;
 }
@@ -4800,7 +4811,7 @@ bool eTektite::animate(int index)
         switch(misc)
         {
         case 0:                                               // normal
-            if(!(rand()%dmisc1))
+            if(!(rand()%dmiscs[0]))
             {
                 misc=1;
                 clk2=32;
@@ -4911,7 +4922,7 @@ bool eTektite::animate(int index)
             
             if(c<0 && step<(dstep/100.0))
             {
-                step+=(dmisc3/100.0);
+                step+=(dmiscs[2]/100.0);
             }
             
             int nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
@@ -4929,7 +4940,7 @@ bool eTektite::animate(int index)
                     step=0-step;
                     y--;
                 }
-                else if(rand()%dmisc2)                                 //land and wait
+                else if(rand()%dmiscs[1])                                 //land and wait
                 {
                     clk=misc=0;
                 }                                                   //land and jump again
@@ -5012,14 +5023,15 @@ void eTektite::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eItemFairy::eItemFairy(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eItemFairy::eItemFairy(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
-    step=(fix)(guysbuf[id&0xFFF].step)/100;
+    step=(fix)(curQuest->getEnemyDefinition(ref).step)/100;
     superman=1;
     dir=8;
     hxofs=1000;
     mainguy=false;
     count_enemy=false;
+    dmiscs[0] = Clk;
 }
 
 bool eItemFairy::animate(int index)
@@ -5048,7 +5060,7 @@ void eItemFairy::draw(BITMAP *dest)
     dest=dest;
 }
 
-ePeahat::ePeahat(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+ePeahat::ePeahat(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     //floater_walk(int rate,int newclk,fix ms,fix ss,int s,int p, int g)
     floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
@@ -5157,10 +5169,10 @@ void ePeahat::kickbucket()
     hp=-1000;                                               // don't call death_sfx()
 }
 
-eLeever::eLeever(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eLeever::eLeever(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
 //  if(d->misc1==0) { misc=-1; clk-=16; } //Line of Sight leevers
-    if(dmisc1==0)
+    if(dmiscs[0]==0)
     {
         misc=-1;    //Line of Sight leevers
         clk-=16;
@@ -5183,7 +5195,7 @@ bool eLeever::animate(int index)
     if(clk>=0 && !slide())
     {
 //    switch(d->misc1)
-        switch(dmisc1)
+        switch(dmiscs[0])
         {
         case 0:      //line of sight
         case 2:
@@ -5191,7 +5203,7 @@ bool eLeever::animate(int index)
             {
             case -1:  //submerged
             {
-                if((dmisc1==2)&&(rand()&255))
+                if((dmiscs[0]==2)&&(rand()&255))
                 {
                     break;
                 }
@@ -5200,13 +5212,13 @@ bool eLeever::animate(int index)
                 
                 for(int i=0; i<guys.Count(); i++)
                 {
-                    if(((enemy *)guys.spr(i))->id==id && (((enemy*)guys.spr(i))->misc>=0))
+                    if(((enemy *)guys.spr(i))->enemyDefinition==enemyDefinition && (((enemy*)guys.spr(i))->misc>=0))
                     {
                         ++active;
                     }
                 }
                 
-                if(active<((dmisc1==2)?1:2))
+                if(active<((dmiscs[0]==2)?1:2))
                 {
                     misc=0; //activate this one
                 }
@@ -5219,7 +5231,7 @@ bool eLeever::animate(int index)
                 
                 for(int i=0; i<guys.Count(); i++)
                 {
-                    if(((enemy *)guys.spr(i))->id==id && ((enemy*)guys.spr(i))->misc==1)
+                    if(((enemy *)guys.spr(i))->enemyDefinition==enemyDefinition && ((enemy*)guys.spr(i))->misc==1)
                     {
                         ++s;
                     }
@@ -5277,7 +5289,7 @@ bool eLeever::animate(int index)
                 break;
                 
             case 5:
-                if(--clk2==0)  misc=((dmisc1==2)?-1:0);
+                if(--clk2==0)  misc=((dmiscs[0]==2)?-1:0);
                 
                 break;
             }                                                       // switch(misc)
@@ -5286,14 +5298,14 @@ bool eLeever::animate(int index)
             
         default:  //random
 //      step=d->misc3/100.0;
-            step=dmisc3/100.0;
+            step=dmiscs[2]/100.0;
             ++clk2;
             
             if(clk2<32)    misc=1;
             else if(clk2<48)    misc=2;
             else if(clk2<300)
             {
-                /*if(misc==2 && (int)(dmisc3*0.48)%8)
+                /*if(misc==2 && (int)(dmiscs[2]*0.48)%8)
                 {
                   fix_coords();
                 }*/
@@ -5313,7 +5325,7 @@ bool eLeever::animate(int index)
             
 //      variable_walk(d->rate, d->homing, 0);
             variable_walk(rate, homing, 0);
-        }                                                         // switch(dmisc1)
+        }                                                         // switch(dmiscs[0])
     }
     
     hxofs=(misc>=2)?0:1000;
@@ -5335,24 +5347,24 @@ bool eLeever::canplace(int d2)
 //    case left:  nx-=((d->misc1==0)?32:48); break;
 //    case right: nx+=((d->misc1==0)?32:48); if(nx-LinkX()<32) nx+=((d->misc1==0)?16:0); break;
     case up:
-        ny-=((dmisc1==0||dmisc1==2)?32:48);
+        ny-=((dmiscs[0]==0||dmiscs[0]==2)?32:48);
         break;
         
     case down:
-        ny+=((dmisc1==0||dmisc1==2)?32:48);
+        ny+=((dmiscs[0]==0||dmiscs[0]==2)?32:48);
         
-        if(ny-LinkY()<32) ny+=((dmisc1==0||dmisc1==2)?16:0);
+        if(ny-LinkY()<32) ny+=((dmiscs[0]==0||dmiscs[0]==2)?16:0);
         
         break;
         
     case left:
-        nx-=((dmisc1==0||dmisc1==2)?32:48);
+        nx-=((dmiscs[0]==0||dmiscs[0]==2)?32:48);
         break;
         
     case right:
-        nx+=((dmisc1==0||dmisc1==2)?32:48);
+        nx+=((dmiscs[0]==0||dmiscs[0]==2)?32:48);
         
-        if(nx-LinkX()<32) nx+=((dmisc1==0||dmisc1==2)?16:0);
+        if(nx-LinkX()<32) nx+=((dmiscs[0]==0||dmiscs[0]==2)?16:0);
         
         break;
     }
@@ -5386,7 +5398,7 @@ void eLeever::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eWallM::eWallM(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eWallM::eWallM(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     haslink=false;
     //nets+1000;
@@ -5514,7 +5526,7 @@ void eWallM::wallm_crawl()
     watch=false;
     ++clk2;
     // Misc1: slightly different movement
-    misc=(clk2/(dmisc1==1?40:int((40.0/dstep)*40)))+1;
+    misc=(clk2/(dmiscs[0]==1?40:int((40.0/dstep)*40)))+1;
     
     if(w&&misc>=3&&misc<=5)
     {
@@ -5579,7 +5591,7 @@ void eWallM::draw(BITMAP *dest)
     //    tile = clk&8 ? 128:129;
 }
 
-eTrap::eTrap(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eTrap::eTrap(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     ox=x;                                                     //original x
     oy=y;                                                     //original y
@@ -5630,12 +5642,12 @@ bool eTrap::animate(int index)
         
         int d2=lined_up(15,true);
         
-        if(((d2<left || d2 > right) && (dmisc1==1)) ||
-                ((d2>down) && (dmisc1==2)) ||
-                ((d2>right) && (!dmisc1)) ||
-                ((d2<l_up) && (dmisc1==4)) ||
-                ((d2!=r_up) && (d2!=l_down) && (dmisc1==6)) ||
-                ((d2!=l_up) && (d2!=r_down) && (dmisc1==8)))
+        if(((d2<left || d2 > right) && (dmiscs[0]==1)) ||
+                ((d2>down) && (dmiscs[0]==2)) ||
+                ((d2>right) && (!dmiscs[0])) ||
+                ((d2<l_up) && (dmiscs[0]==4)) ||
+                ((d2!=r_up) && (d2!=l_down) && (dmiscs[0]==6)) ||
+                ((d2!=l_up) && (d2!=r_down) && (dmiscs[0]==8)))
         {
             d2=-1;
         }
@@ -5889,7 +5901,7 @@ int eTrap::takehit(weapon*)
     return 0;
 }
 
-eTrap2::eTrap2(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eTrap2::eTrap2(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     lasthit=-1;
     lasthitclk=0;
@@ -5897,7 +5909,7 @@ eTrap2::eTrap2(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     count_enemy=false;
     step=2;
     
-    if(dmisc1==1 || (dmisc1==0 && rand()&2))
+    if(dmiscs[0]==1 || (dmiscs[0]==0 && rand()&2))
     {
         dir=(x<=112)?right:left;
     }
@@ -6033,12 +6045,14 @@ int eTrap2::takehit(weapon*)
     return 0;
 }
 
-eRock::eRock(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eRock::eRock(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     //do not show "enemy appering" anim -DD
     clk=0;
     mainguy=false;
     clk2=-14;
+
+    guydata *d = &curQuest->getEnemyDefinition(enemyDefinition);
 	
 	//Enemy Editor Size Tab
 	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
@@ -6171,11 +6185,13 @@ int eRock::takehit(weapon*)
     return 0;
 }
 
-eBoulder::eBoulder(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eBoulder::eBoulder(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     clk=0;
     mainguy=false;
     clk2=-14;
+
+    guydata *d = &curQuest->getEnemyDefinition(ref);
 	
     if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
     else hxofs= -10; 
@@ -6325,7 +6341,7 @@ int eBoulder::takehit(weapon*)
     return 0;
 }
 
-eProjectile::eProjectile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk),
+eProjectile::eProjectile(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk),
     minRange(get_bit(quest_rules, qr_BROKENSTATUES) ? 0 : Clk)
 {
     /* fixing
@@ -6373,7 +6389,7 @@ bool eProjectile::animate(int index)
     
     if(++clk3>80)
     {
-        if(dmisc1==9) // Breath type
+        if(dmiscs[0]==9) // Breath type
         {
             if(timer==0)
             {
@@ -6408,7 +6424,7 @@ bool eProjectile::animate(int index)
                 FireWeapon();
                 
                 if(get_bit(quest_rules, qr_BROKENSTATUES)==0 &&
-                  ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL))
+                  ((wpn==ewFireball || wpn==ewFireball2) || dmiscs[0]==e1tNORMAL))
                 {
                     if(!((r>>7)&15))
                     {
@@ -6432,7 +6448,7 @@ void eProjectile::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eTrigger::eTrigger(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eTrigger::eTrigger(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     hxofs=1000;
 }
@@ -6448,7 +6464,7 @@ void eTrigger::death_sfx()
     //silent death
 }
 
-eNPC::eNPC(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eNPC::eNPC(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     SpriteDefinitionRef npcs = curQuest->specialSprites().npcTemplate;
     o_tile+=curQuest->getSpriteDefinition(npcs).tile;
@@ -6465,7 +6481,7 @@ bool eNPC::animate(int index)
         removearmos(x,y);
     }
     
-    switch(dmisc2)
+    switch(dmiscs[1])
     {
     case 0:
     {
@@ -6494,7 +6510,7 @@ bool eNPC::animate(int index)
     case 1:
         halting_walk(rate, homing, 0, hrate, 48);
         
-        if(clk2==1 && (misc < dmisc1) && !(rand()&15))
+        if(clk2==1 && (misc < dmiscs[0]) && !(rand()&15))
         {
             newdir(rate, homing, 0);
             clk2=48;
@@ -6521,15 +6537,13 @@ int eNPC::takehit(weapon*)
     return 0;
 }
 
-eSpinTile::eSpinTile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eSpinTile::eSpinTile(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     if(clk>0)  // clk>0 when created by a Spinning Tile combo
     {
         o_tile=clk;
-        cs=id>>12;
     }
     
-    id=id&0xFFF;
     clk=0;
     step=0;
     mainguy=false;
@@ -6634,7 +6648,7 @@ void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
     yofs -= 4;
 }
 
-eZora::eZora(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
+eZora::eZora(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,0)
 {
     //these are here to bypass compiler warnings about unused arguments
     Clk=Clk;
@@ -6705,7 +6719,7 @@ bool eZora::animate(int index)
     
     if(watch)
     {
-        ++clock_zoras[id];
+        ++clock_zoras[enemyDefinition];
         return true;
     }
     
@@ -6728,7 +6742,7 @@ bool eZora::animate(int index)
             {
                 x=(pos2&15)<<4;
                 y=pos2&0xF0;
-                hp=guysbuf[id&0xFFF].hp;                             // refill life each time
+                hp=curQuest->getEnemyDefinition(enemyDefinition).hp;                             // refill life each time
                 hxofs=1000;                                       // avoid hit detection
                 stunclk=0;
                 placed=true;
@@ -6784,16 +6798,16 @@ void eZora::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eStalfos::eStalfos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eStalfos::eStalfos(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     multishot= timer = fired = dashing = 0;
     haslink = false;
     dummy_bool[0]=false;
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
     
-    if(dmisc9==e9tARMOS && rand()&1)
+    if(dmiscs[8]==e9tARMOS && rand()&1)
     {
-        step=(dmisc10)/100.0;
+        step=(dmiscs[9])/100.0;
         
         if(anim==aARMOS4) o_tile+=20;
     }
@@ -6829,11 +6843,11 @@ bool eStalfos::animate(int index)
             haslink=false;
         }
         
-        if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && hp<=0 && hp>-1000 && wpn>wEnemyWeapons)
+        if(dmiscs[8]==e9tROPE && dmiscs[1]==e2tBOMBCHU && !fired && hp<=0 && hp>-1000 && wpn>wEnemyWeapons)
         {
             hp=-1000;
 //        weapon *ew=new weapon(x,y,z, ewBomb, 0, d->wdp, dir);
-            weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,ItemDefinitionRef(),getUID(),false);
+            weapon *ew=new weapon(x,y,z, wpn, 0, dmiscs[3], dir,ItemDefinitionRef(),getUID(),false);
             Ewpns.add(ew);
             
             if(wpn==ewSBomb || wpn==ewBomb)
@@ -6846,11 +6860,11 @@ bool eStalfos::animate(int index)
             
             fired=true;
         }
-        else if(wpn && wpn!=ewBrang && dmisc2==e2tFIREOCTO)  // Fire Octo
+        else if(wpn && wpn!=ewBrang && dmiscs[1]==e2tFIREOCTO)  // Fire Octo
         {
             if(!dummy_bool[0])
             {
-                int wpn2 = wpn+dmisc3;
+                int wpn2 = wpn+dmiscs[2];
                 
                 if(wpn2 <= wEnemyWeapons || wpn2 >= wMax)
                 {
@@ -6858,14 +6872,14 @@ bool eStalfos::animate(int index)
                 }
                 
                 dummy_bool[0]=true;
-                addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID());
-                addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],up, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],down, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],left, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],right, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],l_up, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],r_up, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],l_down, getUID());
+                addEwpn(x,y,z,wpn2,0,dmiscs[3],r_down, getUID());
                 Backend::sfx->play(wpnsfx(wpn2),int(x));
             }
         }
@@ -6873,17 +6887,20 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide()))  //Split into enemies
+    else if((hp<=0 && dmiscs[1]==e2tSPLIT) || (dmiscs[1]==e2tSPLITHIT && hp>0 && hp < curQuest->getEnemyDefinition(enemyDefinition).hp && !slide()))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
-        int id2=dmisc3;
-        
-        for(int i=0; i < dmisc4; i++)
+        //TODO module support for splitting?
+        EnemyDefinitionRef child(enemyDefinition.module, dmiscs[2]);
+        for(int i=0; i < dmiscs[3]; i++)
         {
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-            if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
-                ((enemy*)guys.spr(kids+i))->count_enemy = false;
+            int spawndir = curQuest->getEnemyDefinition(child).family == eeKEESE ? 0 : i;
+            if (addenemy(x, y, child, -21 - (i % 4)))
+            {                
+                ((enemy*)guys.spr(kids + i))->splitDir = spawndir;
+                ((enemy*)guys.spr(kids + i))->count_enemy = false;
+            }
         }
         
         if(itemguy) // Hand down the carried item
@@ -6899,7 +6916,7 @@ bool eStalfos::animate(int index)
             haslink=false;
         }
         
-        if(deadsfx > 0 && dmisc2==e2tSPLIT)
+        if(deadsfx > 0 && dmiscs[1]==e2tSPLIT)
             Backend::sfx->play(deadsfx,int(x));
             
         return true;
@@ -6931,9 +6948,9 @@ bool eStalfos::animate(int index)
         Link->setY(y);
         ++clk2;
         
-        if(clk2==(dmisc8==0 ? 95 : dmisc8))
+        if(clk2==(dmiscs[7]==0 ? 95 : dmiscs[7]))
         {
-            switch(dmisc7)
+            switch(dmiscs[6])
             {
             case e7tEATITEMS:
             {
@@ -6969,12 +6986,12 @@ bool eStalfos::animate(int index)
     else if(!(wpn==ewBrang && WeaponOut()))  //WeaponOut uses misc
     {
         // Movement engine
-        if(clk>=0) switch(id>>12)
+        if(clk>=0) switch(splitDir)
             {
             case 0: // Normal movement
             
                 /*
-                if((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && !slide()) //Leever
+                if((dmiscs[8]==e9tLEEVER || dmiscs[8]==e9tZ3LEEVER) && !slide()) //Leever
                 {
                   // Overloading clk4 (Tribble clock) here...
                   step=17/100.0;
@@ -6987,33 +7004,33 @@ bool eStalfos::animate(int index)
                   else clk4=0;
                   if(clk4==48) clk=0;
                   hxofs=(misc>=2)?0:1000;
-                  if (dmisc9==e9tLEEVER)
+                  if (dmiscs[8]==e9tLEEVER)
                 	variable_walk(rate, homing, 0);
                   else
                 	variable_walk_8(rate, homing, 4, 0);
                   break;
                 }
                 */
-                if(dmisc9==e9tVIRE || dmisc9==e9tPOLSVOICE) //Vire
+                if(dmiscs[8]==e9tVIRE || dmiscs[8]==e9tPOLSVOICE) //Vire
                 {
                     vire_hop();
                     break;
                 }
-                else if(dmisc9==e9tROPE) //Rope charge
+                else if(dmiscs[8]==e9tROPE) //Rope charge
                 {
                     if(!fired && dashing && !stunclk && !watch)
                     {
-                        if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
+                        if(dmiscs[1]==e2tBOMBCHU && LinkInRange(16) && wpn+dmiscs[2] > wEnemyWeapons) //Bombchu
                         {
                             hp=-1000;
                             
                             int wpn2;
-                            if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+                            if(wpn+dmiscs[2] > wEnemyWeapons && wpn+dmiscs[2] < wMax)
                                 wpn2=wpn;
                             else
                                 wpn2=wpn;
                             
-                            weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,ItemDefinitionRef(),getUID());
+                            weapon *ew=new weapon(x,y,z, wpn2, 0, dmiscs[3], dir,ItemDefinitionRef(),getUID());
                             Ewpns.add(ew);
                             
                             if(wpn2==ewSBomb || wpn2==ewBomb)
@@ -7043,9 +7060,9 @@ bool eStalfos::animate(int index)
                     {
                         halting_walk(rate,homing,0,hrate, 1);
                     }
-                    else if(dmisc9==e9tNORMAL && wpn==0)
+                    else if(dmiscs[8]==e9tNORMAL && wpn==0)
                     {
-                        if(dmisc2==e2tSPLITHIT) // Zol
+                        if(dmiscs[1]==e2tSPLITHIT) // Zol
                         {
                             halting_walk(rate,homing,0,hrate,(rand()&7)<<4);
                         }
@@ -7065,7 +7082,7 @@ bool eStalfos::animate(int index)
                 }
                 
                 //if not in midair, and Link's swinging sword is nearby, jump.
-                /*if (dmisc9==e9tZ3STALFOS && z==0 && (!(tmpscr->flags7&fSIDEVIEW) || !_walkflag(x,y+16,0))
+                /*if (dmiscs[8]==e9tZ3STALFOS && z==0 && (!(tmpscr->flags7&fSIDEVIEW) || !_walkflag(x,y+16,0))
                   && Link->getAttackClk()==5 && Link->getAttack()==wSword && distance(x,y,Link->getX(),Link->getY())<32)
                     {
                       facelink(false);
@@ -7150,9 +7167,9 @@ bool eStalfos::animate(int index)
                 break;
             }
             
-        if(id>>12 && misc>=4) //recently spawned by a split enemy
+        if(splitDir && misc>=4) //recently spawned by a split enemy
         {
-            id&=0xFFF;
+            splitDir = 0;
             step = dstep/100.0;
             
             if(x<32) x=32;
@@ -7173,7 +7190,7 @@ bool eStalfos::animate(int index)
     }
     
     // Fire Zol
-    if(wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
+    if(wpn && dmiscs[0]==e1tEACHTILE && clk2==1 && !hclk)
     {
         addEwpn(x,y,z,wpn,0,wdp,dir, getUID());
         Backend::sfx->play(wpnsfx(wpn),int(x));
@@ -7195,7 +7212,7 @@ bool eStalfos::animate(int index)
         Ewpns.add(new weapon(x,y,z,wpn,misc,wdp,dir, ItemDefinitionRef(),getUID(),false));
         ((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=false;
         
-        if(dmisc1==2)
+        if(dmiscs[0]==2)
         {
             int ndir=dir;
             
@@ -7233,8 +7250,8 @@ bool eStalfos::animate(int index)
             }
         }
     }
-    else if((clk2==16 || dmisc1==e1tCONSTANT) &&  dmisc1!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !watch)
-        switch(dmisc1)
+    else if((clk2==16 || dmiscs[0]==e1tCONSTANT) &&  dmiscs[0]!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !watch)
+        switch(dmiscs[0])
         {
         case e1tCONSTANT: //Deathnut
         {
@@ -7273,11 +7290,11 @@ bool eStalfos::animate(int index)
         
     /* Fire again if:
      * - clk2 about to run out
-     * - not already double-firing (dmisc1 is 1)
+     * - not already double-firing (dmiscs[0] is 1)
      * - not carrying Link
      * - one in 0xF chance
      */
-    if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(rand()&15))
+    if(clk2==1 && (multishot < dmiscs[5]) && dmiscs[0] != e1tEACHTILE && !haslink && !(rand()&15))
     {
 #if 1
         newdir(rate, homing, grumble);
@@ -7305,15 +7322,16 @@ bool eStalfos::animate(int index)
         --timer;
     }
     
-    if(dmisc2==e2tTRIBBLE)
+    if(dmiscs[1]==e2tTRIBBLE)
         ++clk4;
         
-    if(clk4==(dmisc5 ? dmisc5 : 256) && (dmisc2==e2tTRIBBLE) && dmisc3 && dmisc4)
+    if(clk4==(dmiscs[4] ? dmiscs[4] : 256) && (dmiscs[1]==e2tTRIBBLE) && dmiscs[2] && dmiscs[3])
     {
         int kids = guys.Count();
-        int id2=dmisc3;
+        //TODO module split support?        
+        EnemyDefinitionRef id2(enemyDefinition.module, dmiscs[2]);
         
-        for(int i=0; i<dmisc4; i++)
+        for(int i=0; i<dmiscs[3]; i++)
         {
             if(addenemy(x,y,id2,-24))
             {
@@ -7343,19 +7361,19 @@ bool eStalfos::animate(int index)
 
 void eStalfos::draw(BITMAP *dest)
 {
-    /*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc<=0) //Submerged
+    /*if ((dmiscs[8]==e9tLEEVER || dmiscs[8]==e9tZ3LEEVER) && misc<=0) //Submerged
     {
       clk4--; //Kludge
       return;
     }*/
     
-    /*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc>1)
+    /*if ((dmiscs[8]==e9tLEEVER || dmiscs[8]==e9tZ3LEEVER) && misc>1)
     {
       cs = dcset;
     }*/
     update_enemy_frame();
     
-    if((dmisc2==e2tBOMBCHU)&&dashing)
+    if((dmiscs[1]==e2tBOMBCHU)&&dashing)
     {
         tile+=20;
     }
@@ -7377,7 +7395,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
         yofs+=8;
       }
     */
-    if((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
+    if((dmiscs[8] == e9tPOLSVOICE || dmiscs[8]==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
     {
         SpriteDefinitionRef shadows = curQuest->specialSprites().smallShadow;
         flip = 0;
@@ -7423,7 +7441,7 @@ int eStalfos::takehit(weapon *w)
     
     int ret = enemy::takehit(w);
     
-    if(sclk && dmisc2==e2tSPLITHIT)
+    if(sclk && dmiscs[1]==e2tSPLITHIT)
         sclk+=128;
         
     return ret;
@@ -7476,7 +7494,7 @@ void eStalfos::charge_attack()
 
 void eStalfos::vire_hop()
 {
-    if(dmisc9!=e9tPOLSVOICE)
+    if(dmiscs[8]!=e9tPOLSVOICE)
     {
         if(sclk!=0)
             return;
@@ -7489,7 +7507,7 @@ void eStalfos::vire_hop()
     int jump_width;
     int jump_height;
     
-    if(dmisc9==e9tPOLSVOICE)
+    if(dmiscs[8]==e9tPOLSVOICE)
     {
         jump_width=2;
         jump_height=27;
@@ -7509,7 +7527,7 @@ void eStalfos::vire_hop()
         //z=0;
         //if we're not in the middle of a jump or if we can't complete the current jump in the current direction
         if(clk2<=0 || !canmove(dir,(fix)1,spw_floater) || (tmpscr->flags7&fSIDEVIEW && ON_SIDEPLATFORM))
-            newdir(rate,homing,dmisc9==e9tPOLSVOICE ? spw_floater : spw_none);
+            newdir(rate,homing,dmiscs[8]==e9tPOLSVOICE ? spw_floater : spw_none);
             
         if(clk2<=0)
         {
@@ -7518,7 +7536,7 @@ void eStalfos::vire_hop()
                 clk2=(wpn==ewBrang ? 1 : 16*jump_width/step);
         }
         
-        if(dmisc9!=e9tPOLSVOICE && dir>=left) //if we're moving left or right
+        if(dmiscs[8]!=e9tPOLSVOICE && dir>=left) //if we're moving left or right
         {
             clk2=16*jump_width/step;
         }
@@ -7528,14 +7546,14 @@ void eStalfos::vire_hop()
     
     --clk3;
     
-    if(dmisc9==e9tPOLSVOICE || clk2>0)
+    if(dmiscs[8]==e9tPOLSVOICE || clk2>0)
         move(step);
         
     floor_y=y;
     clk2--;
     
     //if we're in the middle of a jump
-    if(clk2>0 && (dir>=left || dmisc9==e9tPOLSVOICE))
+    if(clk2>0 && (dir>=left || dmiscs[8]==e9tPOLSVOICE))
     {
         int h = fixtoi(fixsin(itofix(clk2*128*step/(16*jump_width)))*jump_height);
         
@@ -7627,14 +7645,14 @@ void eStalfos::break_shield()
         o_tile=s_tile;
 }
 
-eKeese::eKeese(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eKeese::eKeese(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     dir=(rand()&7)+8;
     step=0;
     movestatus=1;
     c=0;
 	
-	
+    guydata *d = &curQuest->getEnemyDefinition(ref);
    
 
     if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
@@ -7680,7 +7698,7 @@ bool eKeese::animate(int index)
         removearmos(x,y);
     }
     
-    if(dmisc1)
+    if(dmiscs[0])
     {
         floater_walk(rate,hrate,dstep/100,(fix)0,10,0,0);
     }
@@ -7689,7 +7707,7 @@ bool eKeese::animate(int index)
         floater_walk(rate,hrate,dstep/100,dstep/1000,10,120,16);
     }
     
-    if(dmisc2 == e2tKEESETRIB)
+    if(dmiscs[1] == e2tKEESETRIB)
     {
         if(++clk4==256)
         {
@@ -7697,7 +7715,8 @@ bool eKeese::animate(int index)
             {
                 int kids = guys.Count();
                 bool success = false;
-                int id2=dmisc3;
+                //TODO module support for enemy splitting?
+                EnemyDefinitionRef id2(enemyDefinition.module, dmiscs[2]);
                 success = 0 != addenemy((fix)x,(fix)y,id2,-24);
                 
                 if(success)
@@ -7753,16 +7772,16 @@ void eKeese::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eWizzrobe::eWizzrobe(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eWizzrobe::eWizzrobe(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
 //  switch(d->misc1)
-    switch(dmisc1)
+    switch(dmiscs[0])
     {
     case 0:
         hxofs=1000;
         fading=fade_invisible;
         // Set clk to just before the 'reappear' threshold
-        clk=zc_min(clk+(146+zc_max(0,dmisc5))+14,(146+zc_max(0,dmisc5))-1);
+        clk=zc_min(clk+(146+zc_max(0,dmiscs[4]))+14,(146+zc_max(0,dmiscs[4]))-1);
         break;
         
     default:
@@ -7776,7 +7795,7 @@ eWizzrobe::eWizzrobe(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     firing=false;
     fclk=0;
     
-    if(!dmisc1) frate=1200+146; //1200 = 20 seconds
+    if(!dmiscs[0]) frate=1200+146; //1200 = 20 seconds
 }
 
 bool eWizzrobe::animate(int index)
@@ -7791,7 +7810,7 @@ bool eWizzrobe::animate(int index)
         removearmos(x,y);
     }
     
-    if(dmisc1) // Floating
+    if(dmiscs[0]) // Floating
     {
         wizzrobe_attack();
     }
@@ -7805,9 +7824,9 @@ bool eWizzrobe::animate(int index)
         else switch(clk)
             {
             case 0:
-                if(!dmisc2)
+                if(!dmiscs[1])
                 {
-                    place_on_axis(true, dmisc4!=0);
+                    place_on_axis(true, dmiscs[3]!=0);
                 }
                 else
                 {
@@ -7896,7 +7915,7 @@ bool eWizzrobe::animate(int index)
                 
                 //Fall through
             default:
-                if(clk>=(146+zc_max(0,dmisc5)))
+                if(clk>=(146+zc_max(0,dmiscs[4])))
                     clk=-1;
                     
                 break;
@@ -7911,12 +7930,12 @@ void eWizzrobe::wizzrobe_attack_for_real()
     if(wpn==0)  // Edited enemies
         return;
         
-    if(dmisc2 == 0)  //normal weapon
+    if(dmiscs[1] == 0)  //normal weapon
     {
         addEwpn(x,y,z,wpn,0,wdp,dir,getUID());
         Backend::sfx->play(WAV_WAND,int(x));
     }
-    else if(dmisc2 == 1) // ring of fire
+    else if(dmiscs[1] == 1) // ring of fire
     {
         addEwpn(x,y,z,wpn,0,wdp,up,getUID());
         addEwpn(x,y,z,wpn,0,wdp,down,getUID());
@@ -7928,13 +7947,16 @@ void eWizzrobe::wizzrobe_attack_for_real()
         addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
         Backend::sfx->play(WAV_FIRE,int(x));
     }
-    else if(dmisc2==2)  // summons specific enemy
+    else if(dmiscs[1]==2)  // summons specific enemy
     {
         int bc=0;
+
+        //TODO module support for summoning?
+        EnemyDefinitionRef ref(enemyDefinition.module, dmiscs[2]);
         
         for(int gc=0; gc<guys.Count(); gc++)
         {
-            if((((enemy*)guys.spr(gc))->id) == dmisc3)
+            if((((enemy*)guys.spr(gc))->enemyDefinition) == ref)
             {
                 ++bc;
             }
@@ -7948,14 +7970,14 @@ void eWizzrobe::wizzrobe_attack_for_real()
             for(int i=0; i<bats; i++)
             {
                 // Summon bats (or anything)
-                if(addenemy(x,y,dmisc3,-10))
+                if(addenemy(x,y,ref,-10))
                     ((enemy*)guys.spr(kids+i))->count_enemy = false;
             }
             
             Backend::sfx->play(WAV_FIRE,int(x));
         }
     }
-    else if(dmisc2==3)  //summon from layer
+    else if(dmiscs[1]==3)  //summon from layer
     {
         if(count_layer_enemies()==0)
         {
@@ -7971,7 +7993,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
             
             for(int i=0; i<newguys; i++)
             {
-                int id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
+                EnemyDefinitionRef id2=random_layer_enemy();
                 int x2=0;
                 int y2=0;
                 
@@ -8124,9 +8146,9 @@ void eWizzrobe::wizzrobe_attack()
     move(step);
     
 //  if(d->misc1 && misc<=0 && clk3==28)
-    if(dmisc1 && misc<=0 && clk3==28)
+    if(dmiscs[0] && misc<=0 && clk3==28)
     {
-        if(dmisc2 != 1)
+        if(dmiscs[1] != 1)
         {
             if(lined_up(8,false) == dir)
             {
@@ -8181,7 +8203,7 @@ void eWizzrobe::wizzrobe_newdir(int homing)
 void eWizzrobe::draw(BITMAP *dest)
 {
 //  if(d->misc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
-    if(dmisc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
+    if(dmiscs[0] && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
         return;
         
     int tempint=dummy_int[1];
@@ -8201,7 +8223,7 @@ void eWizzrobe::draw(BITMAP *dest)
 /**********   Bosses   ***********/
 /*********************************/
 
-eDodongo::eDodongo(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eDodongo::eDodongo(fix X,fix Y,const EnemyDefinitionRef &ref, int Clk) : enemy(X,Y,ref,Clk)
 {
     fading=fade_flash_die;
     //nets+5120;
@@ -8328,7 +8350,7 @@ int eDodongo::takehit(weapon *w)
     return 1;
 }
 
-eDodongo2::eDodongo2(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eDodongo2::eDodongo2(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     fading=fade_flash_die;
     //nets+5180;
@@ -8505,13 +8527,13 @@ int eDodongo2::takehit(weapon *w)
     return 1;
 }
 
-eAquamentus::eAquamentus(fix X,fix Y,int Id,int Clk) : enemy((fix)176,(fix)64,Id,Clk)
+eAquamentus::eAquamentus(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy((fix)176,(fix)64,ref,Clk)
 {
     //these are here to bypass compiler warnings about unused arguments
     X=X;
     Y=Y;
     
-    if(dmisc1)
+    if(dmiscs[0])
     {
         x=64;
     }
@@ -8522,7 +8544,7 @@ eAquamentus::eAquamentus(fix X,fix Y,int Id,int Clk) : enemy((fix)176,(fix)64,Id
     }
     else
     {
-        if(dmisc1)
+        if(dmiscs[0])
         {
             flip=1;
         }
@@ -8579,7 +8601,7 @@ bool eAquamentus::animate(int index)
             dir=d2;
         }
         
-        if(dmisc1)
+        if(dmiscs[0])
         {
             if(x<=40)
             {
@@ -8626,7 +8648,7 @@ void eAquamentus::draw(BITMAP *dest)
 {
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
-        xofs=(dmisc1?-16:0);
+        xofs=(dmiscs[0]?-16:0);
         tile=o_tile+((clk&24)>>2)+(clk3>-32?(clk3>0?40:80):0);
         
         if(dying)
@@ -8641,7 +8663,7 @@ void eAquamentus::draw(BITMAP *dest)
     }
     else
     {
-        int xblockofs=((dmisc1)?-16:16);
+        int xblockofs=((dmiscs[0])?-16:16);
         xofs=0;
         
         if(clk<0 || dying)
@@ -8687,7 +8709,7 @@ bool eAquamentus::hit(weapon *w)
     
 }
 
-eGohma::eGohma(fix X,fix Y,int Id,int Clk) : enemy((fix)128,(fix)48,Id,0)
+eGohma::eGohma(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy((fix)128,(fix)48,ref,0)
 {
     //these are here to bypass compiler warnings about unused arguments
     X=X;
@@ -8727,7 +8749,7 @@ bool eGohma::animate(int index)
     
     if((clk&63)==3)
     {
-        switch(dmisc1)
+        switch(dmiscs[0])
         {
         case 1:
             addEwpn(x,y+2,z,wpn,3,wdp,left,getUID());
@@ -8737,7 +8759,7 @@ bool eGohma::animate(int index)
             break;
             
         default:
-            if(dmisc1 != 1 && dmisc1 != 2)
+            if(dmiscs[0] != 1 && dmiscs[0] != 2)
             {
                 addEwpn(x,y+2,z,wpn,3,wdp,8,getUID());
                 Backend::sfx->play(wpnsfx(wpn),int(x));
@@ -8748,7 +8770,7 @@ bool eGohma::animate(int index)
         }
     }
     
-    if((dmisc1 == 2)&& clk3>=16 && clk3<116)
+    if((dmiscs[0] == 2)&& clk3>=16 && clk3<116)
     {
         if(!(clk3%8))
         {
@@ -8869,10 +8891,8 @@ int eGohma::takehit(weapon *w)
     return enemy::takehit(w);
 }
 
-eLilDig::eLilDig(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eLilDig::eLilDig(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
-    count_enemy=(id==(id&0xFFF));
-    //nets+4360+(((id&0xFF)-eDIGPUP2)*40);
 }
 
 bool eLilDig::animate(int index)
@@ -8959,7 +8979,7 @@ void eLilDig::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eBigDig::eBigDig(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eBigDig::eBigDig(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     superman=1;
     hxofs=hyofs=-8;
@@ -8977,51 +8997,75 @@ bool eBigDig::animate(int index)
         removearmos(x,y);
     }
     
-    switch(misc)
+    switch (misc)
     {
     case 0:
-        variable_walk_8(rate,homing,hrate,spw_floater,-8,-16,23,23);
+        variable_walk_8(rate, homing, hrate, spw_floater, -8, -16, 23, 23);
         break;
-        
+
     case 1:
         ++misc;
         break;
-        
+
     case 2:
-        for(int i=0; i<dmisc5; i++)
-        {
-            addenemy(x,y,dmisc1+0x1000,-15);
-        }
+    {
+        //TODO module support for splits?
         
-        for(int i=0; i<dmisc6; i++)
+
+        for (int i = 0; i < dmiscs[4]; i++)
         {
-            addenemy(x,y,dmisc2+0x1000,-15);
+            int curpos = guys.Count();
+            EnemyDefinitionRef child(enemyDefinition.module, dmiscs[0]);
+            if (addenemy(x, y, child, -15))
+            {
+                ((enemy *)guys.spr(curpos))->count_enemy = false;
+            }
         }
-        
-        for(int i=0; i<dmisc7; i++)
+
+        for (int i = 0; i < dmiscs[5]; i++)
         {
-            addenemy(x,y,dmisc3+0x1000,-15);
+            int curpos = guys.Count();
+            EnemyDefinitionRef child(enemyDefinition.module, dmiscs[1]);
+            if (addenemy(x, y, child, -15))
+            {
+                ((enemy *)guys.spr(curpos))->count_enemy = false;
+            }
         }
-        
-        for(int i=0; i<dmisc8; i++)
+
+        for (int i = 0; i < dmiscs[6]; i++)
         {
-            addenemy(x,y,dmisc4+0x1000,-15);
+            int curpos = guys.Count();
+            EnemyDefinitionRef child(enemyDefinition.module, dmiscs[2]);
+            if (addenemy(x, y, child, -15))
+            {
+                ((enemy *)guys.spr(curpos))->count_enemy = false;
+            }
         }
-        
-        if(itemguy) // Hand down the carried item
+
+        for (int i = 0; i < dmiscs[7]; i++)
         {
-            guycarryingitem = guys.Count()-1;
+            int curpos = guys.Count();
+            EnemyDefinitionRef child(enemyDefinition.module, dmiscs[3]);
+            if (addenemy(x, y, child, -15))
+            {
+                ((enemy *)guys.spr(curpos))->count_enemy = false;
+            }
+        }
+
+        if (itemguy) // Hand down the carried item
+        {
+            guycarryingitem = guys.Count() - 1;
             ((enemy*)guys.spr(guycarryingitem))->itemguy = true;
             itemguy = false;
         }
-        
+
         stop_bgsfx(index);
-        
-        if(deadsfx > 0) Backend::sfx->play(deadsfx,int(x));
-        
+
+        if (deadsfx > 0) Backend::sfx->play(deadsfx, int(x));
+
         return true;
     }
-    
+    }
     return enemy::animate(index);
 }
 
@@ -9115,7 +9159,7 @@ int eBigDig::takehit(weapon *w)
     return 0;
 }
 
-eGanon::eGanon(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eGanon::eGanon(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     hxofs=hyofs=8;
     hzsz=16; //can't be jumped.
@@ -9171,7 +9215,7 @@ bool eGanon::animate(int index)
                     x=208-x;
             }
             
-            loadpalset(csBOSS,pSprite(d->bosspal));
+            loadpalset(csBOSS,pSprite(curQuest->getEnemyDefinition(enemyDefinition).bosspal));
             misc=0;
         }
         
@@ -9244,7 +9288,7 @@ int eGanon::takehit(weapon *w)
             loadpalset(csBOSS,pSprite(spBROWN));
             misc=2;
             Stunclk=284;
-            hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+            hp=curQuest->getEnemyDefinition(enemyDefinition).hp;                              //16*DAMAGE_MULTIPLIER;
         }
         
         Backend::sfx->play(WAV_EHIT,int(x));
@@ -9401,7 +9445,7 @@ void getBigTri(const ItemDefinitionRef &id2)
 /***  Multiple-Segment Enemies  ***/
 /**********************************/
 
-eMoldorm::eMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+eMoldorm::eMoldorm(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     x=128;
     y=48;
@@ -9410,9 +9454,7 @@ eMoldorm::eMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     fading=fade_invisible;
     hxofs=1000;
     segcnt=clk;
-    segid=Id|0x1000;
     clk=0;
-    id=guys.Count();
     yofs=playing_field_offset;
     tile=o_tile;
     /*
@@ -9442,7 +9484,7 @@ bool eMoldorm::animate(int index)
             if(flags&guy_neverret)
                 never_return(index);
                 
-            if(!dmisc2)
+            if(!dmiscs[1])
                 leave_item();
                 
             stop_bgsfx(index);
@@ -9467,7 +9509,7 @@ bool eMoldorm::animate(int index)
             
             // More validation - if segcnt was wrong, this may not
             // actually be a Moldorm segment
-            if(segment->id!=segid)
+            if(segment->enemyDefinition != enemyDefinition)
             {
                 segcnt=i-index-1;
                 break;
@@ -9502,7 +9544,7 @@ bool eMoldorm::animate(int index)
                 for(int j=i; j<index+segcnt; j++)
                 {
                     // Triple-check
-                    if(((enemy*)guys.spr(j+1))->id!=segid)
+                    if(((enemy*)guys.spr(j+1))->enemyDefinition!=enemyDefinition)
                     {
                         segcnt=j-index+1; // Add 1 because of --segcnt below
                         break;
@@ -9529,7 +9571,7 @@ bool eMoldorm::animate(int index)
     return false;
 }
 
-esMoldorm::esMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+esMoldorm::esMoldorm(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     x=128;
     y=48;
@@ -9552,7 +9594,7 @@ bool esMoldorm::animate(int index)
     
     if(dying)
     {
-        if(!dmisc2)
+        if(!dmiscs[1])
             item_set=0;
             
         return Dead(index);
@@ -9664,7 +9706,7 @@ void esMoldorm::draw(BITMAP *dest)
         enemy::draw(dest);
 }
 
-eLanmola::eLanmola(fix X,fix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
+eLanmola::eLanmola(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : eBaseLanmola(X,Y,ref,Clk)
 {
     x=64;
     y=80;
@@ -9676,7 +9718,7 @@ eLanmola::eLanmola(fix X,fix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
     clk=0;
     
     //set up move history
-    for(int i=0; i <= (1<<dmisc2); i++)
+    for(int i=0; i <= (1<<dmiscs[1]); i++)
         prevState.push_back(std::pair<std::pair<fix, fix>, int>(std::pair<fix,fix>(x,y), dir));
 }
 
@@ -9691,7 +9733,7 @@ bool eLanmola::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(!dmisc3)
+            if(!dmiscs[2])
                 leave_item();
                 
             stop_bgsfx(index);
@@ -9720,7 +9762,7 @@ bool eLanmola::animate(int index)
         enemy* segment=((enemy*)guys.spr(i));
         
         // More validation in case segcnt is wrong
-        if((segment->id&0xFFF)!=(id&0xFFF))
+        if((segment->enemyDefinition)!=enemyDefinition)
         {
             segcnt=i-index-1;
             break;
@@ -9742,7 +9784,7 @@ bool eLanmola::animate(int index)
             for(int j=i; j<index+segcnt; j++)
             {
                 // Triple-check
-                if((((enemy*)guys.spr(j+1))->id&0xFFF)!=(id&0xFFF))
+                if((((enemy*)guys.spr(j+1))->enemyDefinition)!=(enemyDefinition))
                 {
                     segcnt=j-index+1; // Add 1 because of --segcnt below
                     break;
@@ -9771,21 +9813,21 @@ bool eLanmola::animate(int index)
     return enemy::animate(index);
 }
 
-esLanmola::esLanmola(fix X,fix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
+esLanmola::esLanmola(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : eBaseLanmola(X,Y,ref,Clk)
 {
     x=64;
     y=80;
     hxofs=1000;
     hxsz=8;
     mainguy=false;
-    count_enemy=(id<0x2000)?true:false;
     
     //set up move history
-    for(int i=0; i <= (1<<dmisc2); i++)
+    for(int i=0; i <= (1<<dmiscs[1]); i++)
         prevState.push_back(std::pair<std::pair<fix, fix>, int>(std::pair<fix,fix>(x,y), dir));
         
     bgsfx = -1;
     flags&=~guy_neverret;
+    isChild = false;
 }
 
 bool esLanmola::animate(int index)
@@ -9798,7 +9840,7 @@ bool esLanmola::animate(int index)
     {
         xofs=0;
         
-        if(!dmisc3)
+        if(!dmiscs[2])
             item_set=0;
             
         return Dead(index);
@@ -9841,7 +9883,7 @@ void esLanmola::draw(BITMAP *dest)
            
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
-        if(id>=0x2000)
+        if(isChild)
         {
             tile+=20;
             
@@ -9877,7 +9919,7 @@ void esLanmola::draw(BITMAP *dest)
     }
     else
     {
-        if(id>=0x2000)
+        if(isChild)
         {
             tile+=1;
         }
@@ -9887,14 +9929,14 @@ void esLanmola::draw(BITMAP *dest)
         enemy::draw(dest);
 }
 
-eManhandla::eManhandla(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
+eManhandla::eManhandla(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,0)
 {
     //these are here to bypass compiler warnings about unused arguments
     Clk=Clk;
     
     superman=1;
     dir=(rand()&7)+8;
-    armcnt=dmisc2?8:4;//((id==eMANHAN)?4:8);
+    armcnt=dmiscs[1]?8:4;//((id==eMANHAN)?4:8);
     
     for(int i=0; i<armcnt; i++)
         arm[i]=i;
@@ -9920,7 +9962,7 @@ bool eManhandla::animate(int index)
     {
         if(!adjusted)
         {
-            if(!dmisc2)
+            if(!dmiscs[1])
             {
                 ((enemy*)guys.spr(index+i+1))->o_tile=o_tile+40;
             }
@@ -9951,10 +9993,10 @@ bool eManhandla::animate(int index)
     else
     {
         // Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-        step=zc_min(4.5,(((!dmisc2)?4:8)-armcnt)*0.5+(dstep/100.0));
+        step=zc_min(4.5,(((!dmiscs[1])?4:8)-armcnt)*0.5+(dstep/100.0));
         int dx1=0, dy1=-8, dx2=15, dy2=15;
         
-        if(!dmisc2)
+        if(!dmiscs[1])
         {
             for(int i=0; i<armcnt; i++)
             {
@@ -10011,7 +10053,7 @@ bool eManhandla::animate(int index)
         {
             fix dx=(fix)0,dy=(fix)0;
             
-            if(!dmisc2)
+            if(!dmiscs[1])
             {
                 switch(arm[i])
                 {
@@ -10131,7 +10173,7 @@ void eManhandla::draw(BITMAP *dest)
            
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
-        if(!dmisc2)
+        if(!dmiscs[1])
         {
             switch(dir-8)                                         //directions get screwed up after 8.  *shrug*
             {
@@ -10233,7 +10275,7 @@ void eManhandla::draw(BITMAP *dest)
     }
     else
     {
-        if(!dmisc2)
+        if(!dmiscs[1])
         {
             enemy::draw(dest);
         }
@@ -10254,9 +10296,9 @@ void eManhandla::draw(BITMAP *dest)
     }
 }
 
-esManhandla::esManhandla(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+esManhandla::esManhandla(fix X,fix Y,const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
-    id=misc=clk;
+    misc=clk;
     
     dir = clk & 3;
     clk=0;
@@ -10347,7 +10389,7 @@ void esManhandla::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
-eGleeok::eGleeok(fix,fix,int Id,int Clk) : enemy((fix)120,(fix)48,Id,Clk)
+eGleeok::eGleeok(fix,fix,const EnemyDefinitionRef &ref,int Clk) : enemy((fix)120,(fix)48,ref,Clk)
 {
     hzsz = 32; // can't be jumped.
     flameclk=0;
@@ -10356,7 +10398,7 @@ eGleeok::eGleeok(fix,fix,int Id,int Clk) : enemy((fix)120,(fix)48,Id,Clk)
     clk=0;
     clk2=60;                                                  // fire ball clock
     //    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[eGLEEOK2+(misc-2)].hp;
-    hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*DAMAGE_MULTIPLIER+guysbuf[id&0xFFF].hp;
+    hp=(curQuest->getEnemyDefinition(ref).miscs[1])*(misc-1)*DAMAGE_MULTIPLIER+curQuest->getEnemyDefinition(ref).hp;
     dir = down;
     hxofs=4;
     hxsz=8;
@@ -10368,12 +10410,12 @@ eGleeok::eGleeok(fix,fix,int Id,int Clk) : enemy((fix)120,(fix)48,Id,Clk)
     {
         /*
             necktile=o_tile+8;
-            if (dmisc3)
+            if (dmiscs[2])
             {
               necktile+=8;
             }
         */
-        necktile=o_tile+dmisc6;
+        necktile=o_tile+dmiscs[5];
     }
     else
     {
@@ -10404,7 +10446,7 @@ bool eGleeok::animate(int index)
         {
             // I haven't seen this fail, but it seems like it ought to be
             // possible, so I'm checking for it. - Saf
-            if((((enemy*)guys.spr(index+i+1))->id&0xFFF)!=(id&0xFFF))
+            if((((enemy*)guys.spr(index+i+1))->enemyDefinition)!=(enemyDefinition))
                 break;
             ((enemy*)guys.spr(index+i+1))->hp=1;                   // re-animate each head,
             ((enemy*)guys.spr(index+i+1))->misc = -1;              // disconnect it,
@@ -10416,7 +10458,7 @@ bool eGleeok::animate(int index)
         
         for(int i=0; i<misc; i++)
         {
-            if((((enemy*)guys.spr(index+i+1))->id&0xFFF)!=(id&0xFFF))
+            if((((enemy*)guys.spr(index+i+1))->enemyDefinition)!=(enemyDefinition))
                 break;
             ((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
         }
@@ -10429,8 +10471,8 @@ bool eGleeok::animate(int index)
         
         if(get_bit(quest_rules,qr_NEWENEMYTILES))
         {
-            head->dummy_int[2]=o_tile+dmisc8; //connected head tile
-            head->dummy_int[3]=o_tile+dmisc9; //flying head tile
+            head->dummy_int[2]=o_tile+dmiscs[7]; //connected head tile
+            head->dummy_int[3]=o_tile+dmiscs[8]; //flying head tile
         }
         else
         {
@@ -10438,10 +10480,10 @@ bool eGleeok::animate(int index)
             head->dummy_int[3]=necktile+2; //flying head tile
         }
         
-        head->dmisc5=dmisc5; //neck segments
+        head->dmiscs[4]=dmiscs[4]; //neck segments
         
         /*
-            if (dmisc3)
+            if (dmiscs[2])
             {
               head->dummy_bool[0]=true;
             }
@@ -10465,13 +10507,13 @@ bool eGleeok::animate(int index)
         head->hp = 1000;
     }
     
-    if(hp<=(guysbuf[id&0xFFF].misc2)*(clk3-1)*DAMAGE_MULTIPLIER)
+    if(hp<=(curQuest->getEnemyDefinition(enemyDefinition).miscs[1])*(clk3-1)*DAMAGE_MULTIPLIER)
     {
         ((enemy*)guys.spr(index+clk3))->misc = -1;              // give signal to fly off
-        hp=(guysbuf[id&0xFFF].misc2)*(--clk3)*DAMAGE_MULTIPLIER;
+        hp=(curQuest->getEnemyDefinition(enemyDefinition).miscs[1])*(--clk3)*DAMAGE_MULTIPLIER;
     }
     
-    if(!dmisc3)
+    if(!dmiscs[2])
     {
         if(++clk2>72 && !(rand()&3))
         {
@@ -10602,12 +10644,12 @@ void eGleeok::draw2(BITMAP *dest)
     }
 }
 
-esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
+esGleeok::esGleeok(fix X,fix Y, const EnemyDefinitionRef &ref, int Clk, sprite * prnt) : enemy(X,Y,ref,Clk), parent(prnt)
 {
 	extendedData = new esGleeokExtendedData();
 
     xoffset=0;
-    yoffset=(fix)((dmisc5*4+2));
+    yoffset=(fix)((dmiscs[4]*4+2));
 //  dummy_bool[0]=false;
     timer=0;
     /*  fixing */
@@ -10626,19 +10668,19 @@ esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk
     dir=rand();
     clk3=((dir&2)>>1)+2;                                      // left or right
     dir&=1;                                                   // up or down
-    dmisc5=vbound(dmisc5,1,255);
+    dmiscs[4]=vbound(dmiscs[4],1,255);
     
 	int* nx = extendedData->nx;
 	int* ny = extendedData->ny;
 	int* nxoffset = extendedData->nxoffset;
 	int* nyoffset = extendedData->nyoffset;
 
-    for(int i=0; i<dmisc5; i++)
+    for(int i=0; i<dmiscs[4]; i++)
     {
         nxoffset[i] = 0;
         nyoffset[i] = 0;
-        nx[i] = ((((i*(int)x) + (dmisc5-i)*((int)parent->x))) /dmisc5);
-        ny[i] = ((((i*(int)y) + (dmisc5-i)*((int)parent->y))) /dmisc5);
+        nx[i] = ((((i*(int)x) + (dmiscs[4]-i)*((int)parent->x))) /dmiscs[4]);
+        ny[i] = ((((i*(int)y) + (dmiscs[4]-i)*((int)parent->y))) /dmiscs[4]);
     }
     
     necktile=0;
@@ -10662,17 +10704,17 @@ bool esGleeok::animate(int index)
 	int* nxoffset = extendedData->nxoffset;
 	int* nyoffset = extendedData->nyoffset;
 
-    dmisc5=vbound(dmisc5,1,255);
+    dmiscs[4]=vbound(dmiscs[4],1,255);
     
     if(misc == 0)
     {
         x = (xoffset+parent->x);
         y = (yoffset+parent->y);
         
-        for(int i=0; i<dmisc5; i++)
+        for(int i=0; i<dmiscs[4]; i++)
         {
-            nx[i] = ((((i*(int)x) + (dmisc5-i)*((int)parent->x))) /dmisc5) + 3 + nxoffset[i];
-            ny[i] = ((((i*(int)y) + (dmisc5-i)*((int)parent->y))) /dmisc5) + nyoffset[i];
+            nx[i] = ((((i*(int)x) + (dmiscs[4]-i)*((int)parent->x))) /dmiscs[4]) + 3 + nxoffset[i];
+            ny[i] = ((((i*(int)y) + (dmiscs[4]-i)*((int)parent->y))) /dmiscs[4]) + nyoffset[i];
         }
     }
     
@@ -10729,7 +10771,7 @@ bool esGleeok::animate(int index)
         {
             if(y<= (int)parent->y + 8) dir=down;
             
-            if(y>= (int)parent->y + dmisc5*8) dir = up;
+            if(y>= (int)parent->y + dmiscs[4]*8) dir = up;
             
             if(y<= (int)parent->y + 10 && !(rand()&31))
             {
@@ -10750,23 +10792,23 @@ bool esGleeok::animate(int index)
             }
             else
             {
-                if(x <= (int)parent->x-(dmisc5*6))
+                if(x <= (int)parent->x-(dmiscs[4]*6))
                 {
                     clk3=right;
                 }
                 
-                if(x >= (int)parent->x+(dmisc5*6))
+                if(x >= (int)parent->x+(dmiscs[4]*6))
                 {
                     clk3=left;
                 }
                 
-                if(y <= (int)parent->y+(dmisc5*6) && !(rand()&15))
+                if(y <= (int)parent->y+(dmiscs[4]*6) && !(rand()&15))
                 {
                     clk3^=1;                                        // x jig
                 }
                 else
                 {
-                    if(y<=(int)parent->y+(dmisc5*4) && !(rand()&31))
+                    if(y<=(int)parent->y+(dmiscs[4]*4) && !(rand()&31))
                     {
                         clk3^=1;                                      // x switch back
                     }
@@ -10783,7 +10825,7 @@ bool esGleeok::animate(int index)
             yoffset += (y-tempy);
             zc_swap(dir,clk3);
             
-            for(int i=1; i<dmisc5; i++)
+            for(int i=1; i<dmiscs[4]; i++)
             {
                 nxoffset[i] = (rand()%3);
                 nyoffset[i] = (rand()%3);
@@ -10845,7 +10887,7 @@ int esGleeok::takehit(weapon *w)
 
 void esGleeok::draw(BITMAP *dest)
 {
-    dmisc5=vbound(dmisc5,1,255);
+    dmiscs[4]=vbound(dmiscs[4],1,255);
     
 	int* nx = extendedData->nx;
 	int* ny = extendedData->ny;
@@ -10857,14 +10899,14 @@ void esGleeok::draw(BITMAP *dest)
     case 0:                                                 //neck
         if(!dont_draw())
         {
-            for(int i=1; i<dmisc5; i++)                              //draw the neck
+            for(int i=1; i<dmiscs[4]; i++)                              //draw the neck
             {
                 if(get_bit(quest_rules,qr_NEWENEMYTILES))
                 {
                     if((tmpscr->flags3&fINVISROOM)&& !(currentItemLevel(itype_amulet)))
-                        overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,0);
+                        overtilecloaked16(dest,necktile+(i*dmiscs[6]),nx[i]-4,ny[i]+playing_field_offset,0);
                     else
-                        overtile16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,cs,0);
+                        overtile16(dest,necktile+(i*dmiscs[6]),nx[i]-4,ny[i]+playing_field_offset,cs,0);
                 }
                 else
                 {
@@ -10902,16 +10944,16 @@ void esGleeok::draw2(BITMAP *dest)
     enemy::draw(dest);
 }
 
-ePatra::ePatra(fix ,fix ,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
+ePatra::ePatra(fix ,fix , const EnemyDefinitionRef &ref,int Clk) : enemy((fix)128,(fix)48,ref,Clk)
 {
     adjusted=false;
     dir=(rand()&7)+8;
     //step=0.25;
-    flycnt=dmisc1;
-    flycnt2=dmisc2;
+    flycnt=dmiscs[0];
+    flycnt2=dmiscs[1];
     loopcnt=0;
     
-    if(dmisc6<short(1))dmisc6=1; // ratio cannot be 0!
+    if(dmiscs[5]<short(1))dmiscs[5]=1; // ratio cannot be 0!
 }
 
 bool ePatra::animate(int index)
@@ -10941,8 +10983,8 @@ bool ePatra::animate(int index)
             --loopcnt;
         else
         {
-            if((misc%dmisc6)==0)
-                loopcnt=dmisc7;
+            if((misc%dmiscs[5])==0)
+                loopcnt=dmiscs[6];
         }
         
         ++misc;
@@ -10957,15 +10999,15 @@ bool ePatra::animate(int index)
         {
             if(get_bit(quest_rules,qr_NEWENEMYTILES))
             {
-                ((enemy*)guys.spr(i))->o_tile=o_tile+dmisc8;
+                ((enemy*)guys.spr(i))->o_tile=o_tile+dmiscs[7];
             }
             else
             {
                 ((enemy*)guys.spr(i))->o_tile=o_tile+1;
             }
             
-            ((enemy*)guys.spr(i))->cs=dmisc9;
-            ((enemy*)guys.spr(i))->hp=dmisc3;
+            ((enemy*)guys.spr(i))->cs=dmiscs[8];
+            ((enemy*)guys.spr(i))->hp=dmiscs[2];
         }
         
         if(((enemy*)guys.spr(i))->hp <= 0)
@@ -10980,15 +11022,15 @@ bool ePatra::animate(int index)
         else
         {
             int pos2 = ((enemy*)guys.spr(i))->misc;
-            double a2 = (clk2-pos2*84.0/(dmisc1 == 0 ? 1 : dmisc1))*PI/42;
+            double a2 = (clk2-pos2*84.0/(dmiscs[0] == 0 ? 1 : dmiscs[0]))*PI/42;
             
-            if(!dmisc4)
+            if(!dmiscs[3])
             {
                 //maybe playing_field_offset here?
                 if(loopcnt>0)
                 {
-                    guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
-                    guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
+                    guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmiscs[0] == 0 ? 1 : dmiscs[0]))*28*size;
+                    guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmiscs[0] == 0 ? 1 : dmiscs[0]))*28*size;
                 }
                 else
                 {
@@ -11007,7 +11049,7 @@ bool ePatra::animate(int index)
                 if(loopcnt>0)
                 {
                     guys.spr(i)->x =  cos(a2+PI/2)*42;
-                    guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*21;
+                    guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmiscs[0] == 0 ? 1 : dmiscs[0])))*21;
                 }
                 else
                 {
@@ -11059,7 +11101,7 @@ bool ePatra::animate(int index)
         }
     }
     
-    if(dmisc5==1)
+    if(dmiscs[4]==1)
     {
         if(!(rand()&127))
         {
@@ -11080,7 +11122,7 @@ bool ePatra::animate(int index)
                 
                 if(get_bit(quest_rules,qr_NEWENEMYTILES))
                 {
-                    switch(dmisc5)
+                    switch(dmiscs[4])
                     {
                         // Center eye shoots projectiles; make room for its firing tiles
                     case 1:
@@ -11099,7 +11141,7 @@ bool ePatra::animate(int index)
                     ((enemy*)guys.spr(i))->o_tile=o_tile+1;
                 }
                 
-                ((enemy*)guys.spr(i))->cs=dmisc9;
+                ((enemy*)guys.spr(i))->cs=dmiscs[8];
             }
             
             if(flycnt>0)
@@ -11122,7 +11164,7 @@ bool ePatra::animate(int index)
             }
             else
             {
-                if(dmisc5==2)
+                if(dmiscs[4]==2)
                 {
                     if(!(rand()&127))
                     {
@@ -11132,14 +11174,14 @@ bool ePatra::animate(int index)
                 }
                 
                 int pos2 = ((enemy*)guys.spr(i))->misc;
-                double a2 = ((clk2-pos2*84/(dmisc2==0 ? 1 : dmisc2))*PI/(42));
+                double a2 = ((clk2-pos2*84/(dmiscs[1]==0 ? 1 : dmiscs[1]))*PI/(42));
                 
-                if(dmisc4==0)
+                if(dmiscs[3]==0)
                 {
                     if(loopcnt>0)
                     {
-                        guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc2==0? 1 : dmisc2))*28*size;
-                        guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*28*size;
+                        guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmiscs[1]==0? 1 : dmiscs[1]))*28*size;
+                        guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmiscs[1]==0?1:dmiscs[1]))*28*size;
                     }
                     else
                     {
@@ -11158,7 +11200,7 @@ bool ePatra::animate(int index)
                     if(loopcnt>0)
                     {
                         guys.spr(i)->x =  cos(a2+PI/2)*42*size;
-                        guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*21*size;
+                        guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmiscs[1] == 0 ? 1 : dmiscs[1])))*21*size;
                     }
                     else
                     {
@@ -11233,7 +11275,7 @@ int ePatra::defend(int wpnId, int *power, int edef)
     return ret;
 }
 
-esPatra::esPatra(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+esPatra::esPatra(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     //cs=8;
     item_set=0;
@@ -11317,19 +11359,19 @@ void esPatra::draw(BITMAP *dest)
 }
 
 
-ePatraBS::ePatraBS(fix ,fix ,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
+ePatraBS::ePatraBS(fix ,fix , const EnemyDefinitionRef &ref,int Clk) : enemy((fix)128,(fix)48,ref,Clk)
 {
     adjusted=false;
     dir=(rand()&7)+8;
     step=0.25;
     //flycnt=6; flycnt2=0;
-    flycnt=dmisc1;
+    flycnt=dmiscs[0];
     flycnt2=0; // PatraBS doesn't have inner rings!
     loopcnt=0;
     hxsz = 32;
     hxofs=-8;
     
-    if(dmisc6<short(1))dmisc6=1; // ratio cannot be 0!
+    if(dmiscs[5]<short(1))dmiscs[5]=1; // ratio cannot be 0!
     
     //nets+4480;
 }
@@ -11354,8 +11396,8 @@ bool ePatraBS::animate(int index)
             --loopcnt;
         else
         {
-            if((misc%dmisc6)==0)
-                loopcnt=dmisc7;
+            if((misc%dmiscs[5])==0)
+                loopcnt=dmiscs[6];
         }
         
         ++misc;
@@ -11366,18 +11408,18 @@ bool ePatraBS::animate(int index)
     {
         if(!adjusted)
         {
-            ((enemy*)guys.spr(i))->hp=dmisc3;
+            ((enemy*)guys.spr(i))->hp=dmiscs[2];
             
             if(get_bit(quest_rules,qr_NEWENEMYTILES))
             {
-                ((enemy*)guys.spr(i))->o_tile=o_tile+dmisc8;
+                ((enemy*)guys.spr(i))->o_tile=o_tile+dmiscs[7];
             }
             else
             {
                 ((enemy*)guys.spr(i))->o_tile=o_tile+1;
             }
             
-            ((enemy*)guys.spr(i))->cs = dmisc9;
+            ((enemy*)guys.spr(i))->cs = dmiscs[8];
         }
         
         if(((enemy*)guys.spr(i))->hp <= 0)
@@ -11392,14 +11434,14 @@ bool ePatraBS::animate(int index)
         else
         {
             int pos2 = ((enemy*)guys.spr(i))->misc;
-            double a2 = (clk2-pos2*90/(dmisc1==0?1:dmisc1))*PI/45;
+            double a2 = (clk2-pos2*90/(dmiscs[0]==0?1:dmiscs[0]))*PI/45;
             temp_x =  cos(a2+PI/2)*45;
             temp_y = -sin(a2+PI/2)*45;
             
             if(loopcnt>0)
             {
                 guys.spr(i)->x =  cos(a2+PI/2)*45;
-                guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1==0?1:dmisc1)))*22.5;
+                guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmiscs[0]==0?1:dmiscs[0])))*22.5;
             }
             else
             {
@@ -11568,7 +11610,7 @@ int ePatraBS::defend(int wpnId, int *power, int edef)
     return ret;
 }
 
-esPatraBS::esPatraBS(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+esPatraBS::esPatraBS(fix X,fix Y, const EnemyDefinitionRef &ref,int Clk) : enemy(X,Y,ref,Clk)
 {
     //cs=csBOSS;
     item_set=0;
@@ -11676,9 +11718,9 @@ void enemy_scored(int index)
     ((enemy*)guys.spr(index))->scored=true;
 }
 
-void addguy(int x,int y,int id,int clk,bool mainguy)
+void addguy(int x,int y, const EnemyDefinitionRef &ref,int clk,bool mainguy)
 {
-    guy *g = new guy((fix)x,(fix)(y+(isdungeon()?1:0)),id,get_bit(quest_rules,qr_NOGUYPOOF)?0:clk,mainguy);
+    guy *g = new guy((fix)x,(fix)(y+(isdungeon()?1:0)),ref,get_bit(quest_rules,qr_NOGUYPOOF)?0:clk,mainguy);
     guys.add(g);
 }
 
@@ -11700,7 +11742,7 @@ void kill_em_all()
     {
         enemy *e = ((enemy*)guys.spr(i));
         
-        if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
+        if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmiscs[0] == 1)) continue;
         
         e->kickbucket();
     }
@@ -11714,7 +11756,7 @@ int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
         if(guys.spr(i)->hit(tx,ty,tz,txsz,tysz,tzsz))
         {
             if(((enemy*)guys.spr(i))->stunclk==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
-                    &&(((enemy*)guys.spr(i))->d->family != eeGUY || ((enemy*)guys.spr(i))->dmisc1))
+                    && (curQuest->getEnemyDefinition(((enemy*)guys.spr(i))->enemyDefinition).family != eeGUY || ((enemy*)guys.spr(i))->dmiscs[0]))
             {
                 return i;
             }
@@ -11802,10 +11844,13 @@ void movefairy(fix &x,fix &y,int misc)
     int i = -1;
     for (int j = 0; j < guys.Count(); j++)
     {
-        if (((enemy *)guys.spr(j))->id == eITEMFAIRY + 0x1000 * misc)
+        if (((enemy *)guys.spr(j))->enemyDefinition == curQuest->specialEnemies().fairyItem)
         {
-            i = j;
-            break;
+            if (((enemy *)guys.spr(j))->dmiscs[0] == misc)
+            {
+                i = j;
+                break;
+            }
         }
     }
     
@@ -11822,10 +11867,13 @@ void movefairy2(fix x,fix y,int misc)
     int i = -1;
     for (int j = 0; j < guys.Count(); j++)
     {
-        if (((enemy *)guys.spr(j))->id == eITEMFAIRY+0x1000*misc)
+        if (((enemy *)guys.spr(j))->enemyDefinition == curQuest->specialEnemies().fairyItem)
         {
-            i = j;
-            break;
+            if (((enemy *)guys.spr(j))->dmiscs[0] == misc)
+            {
+                i = j;
+                break;
+            }
         }
     }
     
@@ -11841,10 +11889,13 @@ void killfairy(int misc)
     int i = -1;
     for (int j = 0; j < guys.Count(); j++)
     {
-        if (((enemy *)guys.spr(j))->id == eITEMFAIRY+0x1000*misc)
+        if (((enemy *)guys.spr(j))->enemyDefinition == curQuest->specialEnemies().fairyItem)
         {
-            i = j;
-            break;
+            if (((enemy *)guys.spr(j))->dmiscs[0] == misc)
+            {
+                i = j;
+                break;
+            }
         }
     }
 
@@ -11852,118 +11903,118 @@ void killfairy(int misc)
         guys.del(i);
 }
 
-int addenemy(int x,int y,int id,int clk)
+int addenemy(int x,int y, const EnemyDefinitionRef &ref,int clk)
 {
-    return addenemy(x,y,0,id,clk);
+    return addenemy(x,y,0,ref,clk);
 }
 
 // Returns number of enemies/segments created
-int addenemy(int x,int y,int z,int id,int clk)
+int addenemy(int x,int y,int z, const EnemyDefinitionRef &ref,int clk)
 {
-    if(id <= 0) return 0;
+    if(!curQuest->isValid(ref)) return 0;
     
     int ret = 0;
     sprite *e=NULL;
     
-    switch(guysbuf[id&0xFFF].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
         //Fixme: possible enemy memory leak. (minor)
     case eeWALK:
-        e = new eStalfos((fix)x,(fix)y,id,clk);
+        e = new eStalfos((fix)x,(fix)y,ref,clk);
         break;
         
     case eeLEV:
-        e = new eLeever((fix)x,(fix)y,id,clk);
+        e = new eLeever((fix)x,(fix)y,ref,clk);
         break;
         
     case eeTEK:
-        e = new eTektite((fix)x,(fix)y,id,clk);
+        e = new eTektite((fix)x,(fix)y,ref,clk);
         break;
         
     case eePEAHAT:
-        e = new ePeahat((fix)x,(fix)y,id,clk);
+        e = new ePeahat((fix)x,(fix)y,ref,clk);
         break;
         
     case eeZORA:
-        e = new eZora((fix)x,(fix)y,id,clk);
+        e = new eZora((fix)x,(fix)y,ref,clk);
         break;
         
     case eeGHINI:
-        e = new eGhini((fix)x,(fix)y,id,clk);
+        e = new eGhini((fix)x,(fix)y,ref,clk);
         break;
         
     case eeKEESE:
-        e = new eKeese((fix)x,(fix)y,id,clk);
+        e = new eKeese((fix)x,(fix)y,ref,clk);
         break;
         
     case eeWIZZ:
-        e = new eWizzrobe((fix)x,(fix)y,id,clk);
+        e = new eWizzrobe((fix)x,(fix)y,ref,clk);
         break;
         
     case eePROJECTILE:
-        e = new eProjectile((fix)x,(fix)y,id,clk);
+        e = new eProjectile((fix)x,(fix)y,ref,clk);
         break;
         
     case eeWALLM:
-        e = new eWallM((fix)x,(fix)y,id,clk);
+        e = new eWallM((fix)x,(fix)y,ref,clk);
         break;
         
     case eeAQUA:
-        e = new eAquamentus((fix)x,(fix)y,id,clk);
+        e = new eAquamentus((fix)x,(fix)y,ref,clk);
         break;
         
     case eeMOLD:
-        e = new eMoldorm((fix)x,(fix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+        e = new eMoldorm((fix)x,(fix)y,ref,zc_max(1,zc_min(254,curQuest->getEnemyDefinition(ref).miscs[0])));
         break;
         
     case eeMANHAN:
-        e = new eManhandla((fix)x,(fix)y,id,clk);
+        e = new eManhandla((fix)x,(fix)y,ref,clk);
         break;
         
     case eeGLEEOK:
-        e = new eGleeok((fix)x,(fix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+        e = new eGleeok((fix)x,(fix)y,ref,zc_max(1,zc_min(254,curQuest->getEnemyDefinition(ref).miscs[0])));
         break;
         
     case eeGHOMA:
-        e = new eGohma((fix)x,(fix)y,id,clk);
+        e = new eGohma((fix)x,(fix)y,ref,clk);
         break;
         
     case eeLANM:
-        e = new eLanmola((fix)x,(fix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+        e = new eLanmola((fix)x,(fix)y,ref,zc_max(1,zc_min(253,curQuest->getEnemyDefinition(ref).miscs[0])));
         break;
         
     case eeGANON:
-        e = new eGanon((fix)x,(fix)y,id,clk);
+        e = new eGanon((fix)x,(fix)y,ref,clk);
         break;
         
     case eeFAIRY:
-        e = new eItemFairy((fix)x,(fix)y,id+0x1000*clk,clk);
+        e = new eItemFairy((fix)x,(fix)y,ref, clk);
         break;
         
     case eeFIRE:
-        e = new eFire((fix)x,(fix)y,id,clk);
+        e = new eFire((fix)x,(fix)y,ref,clk);
         break;
         
     case eeOTHER:
-        e = new eOther((fix)x,(fix)y,id,clk);
+        e = new eOther((fix)x,(fix)y,ref,clk);
         break;
         
     case eeSPINTILE:
-        e = new eSpinTile((fix)x,(fix)y,id,clk);
+        e = new eSpinTile((fix)x,(fix)y,ref,clk);
         break;
         
         // and these enemies use the misc10/misc2 value
     case eeROCK:
     {
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
-            e = new eBoulder((fix)x,(fix)y,id,clk);
+            e = new eBoulder((fix)x,(fix)y,ref,clk);
             break;
             
         case 0:
         default:
-            e = new eRock((fix)x,(fix)y,id,clk);
+            e = new eRock((fix)x,(fix)y,ref,clk);
             break;
         }
         
@@ -11972,15 +12023,15 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eeTRAP:
     {
-        switch(guysbuf[id&0xFFF].misc2)
+        switch(curQuest->getEnemyDefinition(ref).miscs[1])
         {
         case 1:
-            e = new eTrap2((fix)x,(fix)y,id,clk);
+            e = new eTrap2((fix)x,(fix)y,ref,clk);
             break;
             
         case 0:
         default:
-            e = new eTrap((fix)x,(fix)y,id,clk);
+            e = new eTrap((fix)x,(fix)y,ref,clk);
             break;
         }
         
@@ -11989,15 +12040,15 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eeDONGO:
     {
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
-            e = new eDodongo2((fix)x,(fix)y,id,clk);
+            e = new eDodongo2((fix)x,(fix)y,ref,clk);
             break;
             
         case 0:
         default:
-            e = new eDodongo((fix)x,(fix)y,id,clk);
+            e = new eDodongo((fix)x,(fix)y,ref,clk);
             break;
         }
         
@@ -12006,15 +12057,15 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eeDIG:
     {
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
-            e = new eLilDig((fix)x,(fix)y,id,clk);
+            e = new eLilDig((fix)x,(fix)y,ref,clk);
             break;
             
         case 0:
         default:
-            e = new eBigDig((fix)x,(fix)y,id,clk);
+            e = new eBigDig((fix)x,(fix)y,ref,clk);
             break;
         }
         
@@ -12023,15 +12074,15 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eePATRA:
     {
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
-            e = new ePatraBS((fix)x,(fix)y,id,clk);
+            e = new ePatraBS((fix)x,(fix)y,ref,clk);
             break;
             
         case 0:
         default:
-            e = new ePatra((fix)x,(fix)y,id,clk);
+            e = new ePatra((fix)x,(fix)y,ref,clk);
             break;
         }
         
@@ -12040,15 +12091,15 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eeGUY:
     {
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
-            e = new eTrigger((fix)x,(fix)y,id,clk);
+            e = new eTrigger((fix)x,(fix)y,ref,clk);
             break;
             
         case 0:
         default:
-            e = new eNPC((fix)x,(fix)y,id,clk);
+            e = new eNPC((fix)x,(fix)y,ref,clk);
             break;
         }
         
@@ -12056,9 +12107,9 @@ int addenemy(int x,int y,int z,int id,int clk)
     }
     
     case eeNONE:
-        if(guysbuf[id&0xFFF].misc10 ==1)
+        if(curQuest->getEnemyDefinition(ref).miscs[9] ==1)
         {
-            e = new eTrigger((fix)x,(fix)y,id,clk);
+            e = new eTrigger((fix)x,(fix)y,ref,clk);
             break;
             break;
         }
@@ -12070,12 +12121,12 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     ret++; // Made one enemy.
     
-    if(z && canfall(id))
+    if(z && canfall(ref))
     {
         e->z = (fix)z;
     }
     
-    ((enemy*)e)->ceiling = (z && canfall(id));
+    ((enemy*)e)->ceiling = (z && canfall(ref));
     
     if(!guys.add(e))
     {
@@ -12085,19 +12136,18 @@ int addenemy(int x,int y,int z,int id,int clk)
     // add segments of segmented enemies
     int c=0;
     
-    switch(guysbuf[id&0xFFF].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
     case eeMOLD:
     {
         byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
-        id &= 0xFFF;
         
-        for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
+        for(int i=0; i<zc_max(1,zc_min(254,curQuest->getEnemyDefinition(ref).miscs[0])); i++)
         {
             //christ this is messy -DD
-            int segclk = -i*((int)(8.0/(fix(guysbuf[id&0xFFF].step/100.0))));
+            int segclk = -i*((int)(8.0/(fix(curQuest->getEnemyDefinition(ref).step/100.0))));
             
-            if(!guys.add(new esMoldorm((fix)x,(fix)y,id+0x1000,segclk)))
+            if(!guys.add(new esMoldorm((fix)x,(fix)y,ref,segclk)))
             {
                 al_trace("Moldorm segment %d could not be created!\n",i+1);
                 
@@ -12118,11 +12168,10 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eeLANM:
     {
-        id &= 0xFFF;
-        int shft = guysbuf[id].misc2;
+        int shft = curQuest->getEnemyDefinition(ref).miscs[1];
         byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
         
-        if(!guys.add(new esLanmola((fix)x,(fix)y,id+0x1000,0)))
+        if(!guys.add(new esLanmola((fix)x,(fix)y,ref,0)))
         {
             al_trace("Lanmola segment 1 could not be created!\n");
             guys.del(guys.Count()-1);
@@ -12131,9 +12180,9 @@ int addenemy(int x,int y,int z,int id,int clk)
         
         ret++;
         
-        for(int i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
+        for(int i=1; i<zc_max(1,zc_min(253,curQuest->getEnemyDefinition(ref).miscs[0])); i++)
         {
-            if(!guys.add(new esLanmola((fix)x,(fix)y,id+0x2000,-(i<<shft))))
+            if(!guys.add(new esLanmola((fix)x,(fix)y,ref,-(i<<shft))))
             {
                 al_trace("Lanmola segment %d could not be created!\n",i+1);
                 
@@ -12144,17 +12193,18 @@ int addenemy(int x,int y,int z,int id,int clk)
             }
             
             ((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+            ((enemy*)guys.spr(guys.Count()-1))->count_enemy = false;
+            ((esLanmola*)guys.spr(guys.Count() - 1))->isChild = true;
             ret++;
         }
     }
     break;
     
     case eeMANHAN:
-        id &= 0xFFF;
         
-        for(int i=0; i<((!(guysbuf[id].misc2))?4:8); i++)
+        for(int i=0; i<((!(curQuest->getEnemyDefinition(ref).miscs[1]))?4:8); i++)
         {
-            if(!guys.add(new esManhandla((fix)x,(fix)y,id+0x1000,i)))
+            if(!guys.add(new esManhandla((fix)x,(fix)y,ref,i)))
             {
                 al_trace("Manhandla head %d could not be created!\n",i+1);
                 
@@ -12167,18 +12217,17 @@ int addenemy(int x,int y,int z,int id,int clk)
             }
             
             ret++;
-            ((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].misc1;
+            ((enemy*)guys.spr(guys.Count()-1))->frate=curQuest->getEnemyDefinition(ref).miscs[0];
         }
         
         break;
         
     case eeGLEEOK:
     {
-        id &= 0xFFF;
         
-        for(int i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
+        for(int i=0; i<zc_max(1,zc_min(254,curQuest->getEnemyDefinition(ref).miscs[0])); i++)
         {
-            if(!guys.add(new esGleeok((fix)x,(fix)y,id+0x1000,c, e)))
+            if(!guys.add(new esGleeok((fix)x,(fix)y,ref,c, e)))
             {
                 al_trace("Gleeok head %d could not be created!\n",i+1);
                 
@@ -12190,7 +12239,7 @@ int addenemy(int x,int y,int z,int id,int clk)
                 return false;
             }
             
-            c-=guysbuf[id].misc4;
+            c-=curQuest->getEnemyDefinition(ref).miscs[3];
             ret++;
         }
     }
@@ -12199,12 +12248,11 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     case eePATRA:
     {
-        id &= 0xFFF;
         int outeyes = 0;
         
-        for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+        for(int i=0; i<zc_min(254,curQuest->getEnemyDefinition(ref).miscs[0]); i++)
         {
-            if(!(guysbuf[id].misc10?guys.add(new esPatraBS((fix)x,(fix)y,id+0x1000,i)):guys.add(new esPatra((fix)x,(fix)y,id+0x1000,i))))
+            if(!(curQuest->getEnemyDefinition(ref).miscs[9]?guys.add(new esPatraBS((fix)x,(fix)y,ref,i)):guys.add(new esPatra((fix)x,(fix)y,ref,i))))
             {
                 al_trace("Patra outer eye %d could not be created!\n",i+1);
                 
@@ -12219,9 +12267,9 @@ int addenemy(int x,int y,int z,int id,int clk)
             ret++;
         }
         
-        for(int i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
+        for(int i=0; i<zc_min(254,curQuest->getEnemyDefinition(ref).miscs[1]); i++)
         {
-            if(!guys.add(new esPatra((fix)x,(fix)y,id+0x1000,i)))
+            if(!guys.add(new esPatra((fix)x,(fix)y,ref,i)))
             {
                 al_trace("Patra inner eye %d could not be created!\n",i+1);
                 
@@ -12241,25 +12289,25 @@ int addenemy(int x,int y,int z,int id,int clk)
     return ret;
 }
 
-bool isjumper(int id)
+bool isjumper(const EnemyDefinitionRef &ref)
 {
-    switch(guysbuf[id&0xFFF].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
     case eeROCK:
     case eeTEK:
         return true;
         
     case eeWALK:
-        if(guysbuf[id&0xFFF].misc9==e9tVIRE || guysbuf[id&0xFFF].misc9==e9tPOLSVOICE) return true;
+        if(curQuest->getEnemyDefinition(ref).miscs[8]==e9tVIRE || curQuest->getEnemyDefinition(ref).miscs[8]==e9tPOLSVOICE) return true;
     }
     
     return false;
 }
 
 
-bool isfixedtogrid(int id)
+bool isfixedtogrid(const EnemyDefinitionRef &ref)
 {
-    switch(guysbuf[id&0xFFF].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
     case eeWALK:
     case eeLEV:
@@ -12277,9 +12325,9 @@ bool isfixedtogrid(int id)
 }
 
 // Can't fall, can have Z value.
-bool isflier(int id)
+bool isflier(const EnemyDefinitionRef &ref)
 {
-    switch(guysbuf[id&0xFFF].family) //id&0x0FFF)
+    switch(curQuest->getEnemyDefinition(ref).family) //id&0x0FFF)
     {
     case eePEAHAT:
     case eeKEESE:
@@ -12297,9 +12345,9 @@ bool isflier(int id)
 }
 
 // Can't have Z position
-bool never_in_air(int id)
+bool never_in_air(const EnemyDefinitionRef &ref)
 {
-    switch(guysbuf[id&0xFFF].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
     case eeMANHAN:
     case eeMOLD:
@@ -12319,16 +12367,16 @@ bool never_in_air(int id)
     return false;
 }
 
-bool canfall(int id)
+bool canfall(const EnemyDefinitionRef &ref)
 {
-    switch(guysbuf[id&0xFFF].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
     case eeGUY:
     {
-        if(id < eOCTO1S)
-            return false;
+        /*if(id < eOCTO1S)
+            return false;*/
             
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
         case 2:
@@ -12346,7 +12394,7 @@ bool canfall(int id)
         }
     }
     
-    return !never_in_air(id) && !isflier(id) && !isjumper(id);
+    return !never_in_air(ref) && !isflier(ref) && !isjumper(ref);
 }
 
 void addfires()
@@ -12354,8 +12402,8 @@ void addfires()
     if(!get_bit(quest_rules,qr_NOGUYFIRES))
     {
         int bs = get_bit(quest_rules,qr_BSZELDA);
-        addguy(bs? 64: 72,64,gFIRE,-17,false);
-        addguy(bs?176:168,64,gFIRE,-18,false);
+        addguy(bs? 64: 72,64,curQuest->specialEnemies().fire,-17,false);
+        addguy(bs?176:168,64,curQuest->specialEnemies().fire,-18,false);
     }
 }
 
@@ -12366,7 +12414,7 @@ void loadguys()
         
     loaded_guys=true;
     
-    byte Guy=0;
+    EnemyDefinitionRef Guy;
     // When in caves/item rooms, use mBELOW and ipONETIME2
     // Else use mITEM and ipONETIME
     int mf = (currscr>=128) ? mBELOW : mITEM;
@@ -12399,25 +12447,25 @@ void loadguys()
     }
     
     // The Guy appears if 'Link is in cave' equals 'Guy is in cave'.
-    if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
+    if(curQuest->isValid(Guy) && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
     {
         if(tmpscr->room==rZELDA)
         {
             addguy(120,72,Guy,-15,true);
             guys.spr(0)->hxofs=1000;
-            addenemy(128,96,eFIRE,-15);
-            addenemy(112,96,eFIRE,-15);
-            addenemy(96,120,eFIRE,-15);
-            addenemy(144,120,eFIRE,-15);
+            addenemy(128,96,curQuest->specialEnemies().fire,-15);
+            addenemy(112,96,curQuest->specialEnemies().fire,-15);
+            addenemy(96,120,curQuest->specialEnemies().fire,-15);
+            addenemy(144,120,curQuest->specialEnemies().fire,-15);
             return;
         }
         
-        if(Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
+        if(Guy!=curQuest->specialEnemies().fairy || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
             addfires();
             
         if(currscr>=128)
             if(getmapflag())
-                Guy=0;
+                Guy=EnemyDefinitionRef();
                 
         switch(tmpscr->room)
         {
@@ -12433,7 +12481,7 @@ void loadguys()
         case rREPAIR:
         case rRP_HC:
             if(getmapflag())
-                Guy=0;
+                Guy=EnemyDefinitionRef();
                 
             break;
             
@@ -12444,20 +12492,20 @@ void loadguys()
             if(get_bit(quest_rules,qr_4TRI))
             {
                 if((get_bit(quest_rules,qr_3TRI) && tc>=3) || tc>=4)
-                    Guy=0;
+                    Guy=EnemyDefinitionRef();
             }
             else
             {
                 if((get_bit(quest_rules,qr_3TRI) && tc>=6) || tc>=8)
-                    Guy=0;
+                    Guy=EnemyDefinitionRef();
             }
         }
         break;
         }
         
-        if(Guy)
+        if(curQuest->isValid(Guy))
         {
-            if(Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
+            if(Guy!=curQuest->specialEnemies().fairy || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
                 blockpath=true;
                 
             if(currscr<128)
@@ -12467,10 +12515,10 @@ void loadguys()
             Link->Freeze();
         }
     }
-    else if(Guy==gFAIRY)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
+    else if(Guy==curQuest->specialEnemies().fairy)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
     {
         Backend::sfx->play(WAV_SCALE,128);
-        addguy(120,62,gFAIRY,-14,false);
+        addguy(120,62,curQuest->specialEnemies().fairy,-14,false);
     }
     
     loaditem();
@@ -12529,7 +12577,7 @@ void never_return(int index)
         goto doit;
         
     for(int i=0; i<guys.Count(); i++)
-        if(((((enemy*)guys.spr(i))->d->flags)&guy_neverret) && i!=index)
+        if(((curQuest->getEnemyDefinition(((enemy*)guys.spr(i))->enemyDefinition).flags)&guy_neverret) && i!=index)
         {
             goto dontdoit;
         }
@@ -12540,39 +12588,18 @@ dontdoit:
     return;
 }
 
-bool slowguy(int id)
+bool slowguy(const EnemyDefinitionRef &ref)
 {
 //return (guysbuf[id].step<100);
-    switch(id)
-    {
-    case eOCTO1S:
-    case eOCTO2S:
-    case eOCTO1F:
-    case eOCTO2F:
-    case eLEV1:
-    case eLEV2:
-    case eROCK:
-    case eBOULDER:
-        return true;
-    }
-    
-    return false;
+    return (curQuest->getEnemyDefinition(ref).flags2 & guy_appearsslow) != 0;
 }
 
-bool countguy(int id)
+bool ok2add(const EnemyDefinitionRef &ref)
 {
-    id=id; //This is here to prevent a compiler warning.
-    //The only argument this ever receives is tmpscr->enemy[i], which means
-    // an entry in the screen's enemy list. Thus, it should always be counted. Right? - L.
-    return true;
-}
-
-bool ok2add(int id)
-{
-    if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_neverret))
+    if(getmapflag(mNEVERRET) && (curQuest->getEnemyDefinition(ref).flags & guy_neverret))
         return false;
         
-    switch(guysbuf[id].family)
+    switch(curQuest->getEnemyDefinition(ref).family)
     {
         // I added a special case for shooters because having traps on the same screen
         // was preventing them from spawning due to TMPNORET. This means they will
@@ -12586,7 +12613,7 @@ bool ok2add(int id)
         
     case eeDIG:
     {
-        switch(guysbuf[id].misc10)
+        switch(curQuest->getEnemyDefinition(ref).miscs[9])
         {
         case 1:
             if(!get_bit(quest_rules,qr_NOTMPNORET))
@@ -12609,7 +12636,7 @@ bool ok2add(int id)
 
 void activate_fireball_statue(int pos)
 {
-    if(!(tmpscr->enemyflags&efFIREBALLS) || statueID<0)
+    if(!(tmpscr->enemyflags&efFIREBALLS) || !curQuest->isValid(statueID))
     {
         return;
     }
@@ -12650,7 +12677,7 @@ void activate_fireball_statue(int pos)
         {
             if((int(guys.spr(j)->x)==cx)&&(int(guys.spr(j)->y)==cy))
             {
-                if((((enemy *)guys.spr(j))->id&0xFFF) == statueID)  // There's already a matching enemy here!
+                if((((enemy *)guys.spr(j))->enemyDefinition) == statueID)  // There's already a matching enemy here!
                     return; // No point deleting it. A script might be toying with it in some way.
                 else
                     guys.del(j);
@@ -12681,13 +12708,13 @@ void load_default_enemies()
     
     if(tmpscr->enemyflags&efZORA)
     {
-        if(zoraID>=0)
+        if(curQuest->isValid(zoraID))
             addenemy(-16, -16, zoraID, 0);
     }
     
     if(tmpscr->enemyflags&efTRAP4)
     {
-        if(cornerTrapID>=0)
+        if(curQuest->isValid(cornerTrapID))
         {
             addenemy(32, 32, cornerTrapID, -14);
             addenemy(208, 32, cornerTrapID, -14);
@@ -12706,17 +12733,17 @@ void load_default_enemies()
             
             if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag2==mfTRAP_H)
             {
-                if(trapLOSHorizontalID>=0)
+                if(curQuest->isValid(trapLOSHorizontalID))
                     addenemy(x, y, trapLOSHorizontalID, -14);
             }
             else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag2==mfTRAP_V)
             {
-                if(trapLOSVerticalID>=0)
+                if(curQuest->isValid(trapLOSVerticalID))
                     addenemy(x, y, trapLOSVerticalID, -14);
             }
             else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag2==mfTRAP_4)
             {
-                if(trapLOS4WayID>=0)
+                if(curQuest->isValid(trapLOS4WayID))
                 {
                     if(addenemy(x, y, trapLOS4WayID, -14))
                         guys.spr(guys.Count()-1)->dummy_int[1]=2;
@@ -12725,12 +12752,12 @@ void load_default_enemies()
             
             else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag2==mfTRAP_LR)
             {
-                if(trapConstantHorizontalID>=0)
+                if(curQuest->isValid(trapConstantHorizontalID))
                     addenemy(x, y, trapConstantHorizontalID, -14);
             }
             else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag2==mfTRAP_UD)
             {
-                if(trapConstantVerticalID>=0)
+                if(curQuest->isValid(trapConstantVerticalID))
                     addenemy(x, y, trapConstantVerticalID, -14);
             }
             
@@ -12744,7 +12771,7 @@ void load_default_enemies()
     
     if(tmpscr->enemyflags&efTRAP2)
     {
-        if(centerTrapID>=-1)
+        if(curQuest->isValid(centerTrapID))
         {
             if(addenemy(64, 80, centerTrapID, -14))
                 guys.spr(guys.Count()-1)->dummy_int[1]=1;
@@ -12756,7 +12783,7 @@ void load_default_enemies()
     
     if(tmpscr->enemyflags&efROCKS)
     {
-        if(rockID>=0)
+        if(curQuest->isValid(rockID))
         {
             addenemy(rand()&0xF0, 0, rockID, 0);
             addenemy(rand()&0xF0, 0, rockID, 0);
@@ -12789,7 +12816,11 @@ void screen_combo_modify_postroutine(mapscr *s, int pos)
 
 void awaken_spinning_tile(mapscr *s, int pos)
 {
-    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,animated_combo_table[s->data[pos]][1]+zc_max(1,combobuf[s->data[pos]].frames));
+    int tilepos = guys.Count();
+    if (addenemy((pos & 15) << 4, pos & 0xF0, curQuest->specialEnemies().spinTile1, animated_combo_table[s->data[pos]][1] + zc_max(1, combobuf[s->data[pos]].frames)))
+    {
+        guys.spr(tilepos)->cs = s->cset[pos];
+    }
 }
 
 
@@ -12877,9 +12908,9 @@ int next_side_pos(bool random)
     return dir;
 }
 
-bool can_side_load(int id)
+bool can_side_load(const EnemyDefinitionRef &ref)
 {
-    switch(guysbuf[id].family) //id&0x0FFF)
+    switch(curQuest->getEnemyDefinition(ref).family) //id&0x0FFF)
     {
         //case eTEK1:
         //case eTEK2:
@@ -12980,7 +13011,7 @@ void side_load_enemies()
             
             if(sle_cnt==0)
             {
-                while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+                while(sle_cnt<10 && curQuest->isValid(tmpscr->enemy[sle_cnt]))
                     ++sle_cnt;
             }
             else
@@ -12992,19 +13023,18 @@ void side_load_enemies()
             sle_cnt = 0;
             reloadspecial = false;
             
-            while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+            while(sle_cnt<10 && curQuest->isValid(tmpscr->enemy[sle_cnt]))
                 ++sle_cnt;
         }
         
         if(reloadspecial)
         {
-            for(int i=0; !countguy(tmpscr->enemy[i]) && sle_cnt<10; i++)
+            for(int i=0; sle_cnt<10; i++)
                 ++sle_cnt;
         }
         
         for(int i=0; i<sle_cnt; i++)
-            if(countguy(tmpscr->enemy[i]))
-                ++guycnt;
+            ++guycnt;
                 
         game->guys[s] = guycnt;
     }
@@ -13055,7 +13085,7 @@ bool is_starting_pos(int i, int x, int y, int t)
         return false;
         
     // Can't jump onto it?
-    if(guysbuf[tmpscr->enemy[i]].family==eeTEK &&
+    if(curQuest->getEnemyDefinition(tmpscr->enemy[i]).family==eeTEK &&
             (COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
              COMBOTYPE(x+8,y+8)==cNOENEMY||
              MAPFLAG(x+8,y+8)==mfNOENEMY||
@@ -13063,9 +13093,9 @@ bool is_starting_pos(int i, int x, int y, int t)
         return false;
         
     // Other off-limit combos
-    if((!isflier(tmpscr->enemy[i])&& guysbuf[tmpscr->enemy[i]].family!=eeTEK &&
+    if((!isflier(tmpscr->enemy[i])&& curQuest->getEnemyDefinition(tmpscr->enemy[i]).family!=eeTEK &&
             (_walkflag(x,y+8,2) || groundblocked(x+8,y+8))) &&
-            guysbuf[tmpscr->enemy[i]].family!=eeZORA)
+            curQuest->getEnemyDefinition(tmpscr->enemy[i]).family!=eeZORA)
         return false;
         
     // Don't ever generate enemies on these combos!
@@ -13073,7 +13103,7 @@ bool is_starting_pos(int i, int x, int y, int t)
         return false;
         
     //BS Dodongos need at least 2 spaces.
-    if((guysbuf[tmpscr->enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr->enemy[i]].misc10==1))
+    if((curQuest->getEnemyDefinition(tmpscr->enemy[i]).family==eeDONGO)&&(curQuest->getEnemyDefinition(tmpscr->enemy[i]).miscs[9]==1))
     {
         if(((x<16) ||_walkflag(x-16,y+8, 2))&&
                 ((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -13146,7 +13176,7 @@ void loadenemies()
         if(DMaps[currdmap].flags&dmfCAVES) return;
         
         for(int i=0; i<4; i++)
-            addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int)eKEESE1,-14-i);
+            addenemy(dngn_enemy_x[i],96,curQuest->isValid(tmpscr->enemy[i])?tmpscr->enemy[i]:curQuest->specialEnemies().keese,-14-i);
             
         return;
     }
@@ -13184,7 +13214,7 @@ void loadenemies()
     if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN))
         loadcnt = 10;
         
-    for(int i=0; !countguy(tmpscr->enemy[i]) && loadcnt<10; i++)
+    for(int i=0; loadcnt<10; i++)
         ++loadcnt;
         
     // load enemies
@@ -13196,7 +13226,7 @@ void loadenemies()
     int clk=-15,x=0,y=0,fastguys=0;
     int i=0,guycnt=0;
     
-    for(; i<loadcnt && tmpscr->enemy[i]>0; i++)             /* i=0 */
+    for(; i<loadcnt && curQuest->isValid(tmpscr->enemy[i]); i++)             /* i=0 */
     {
         bool placed=false;
         int t=-1;
@@ -13219,8 +13249,7 @@ void loadenemies()
                                  (is_ceiling_pattern(tmpscr->pattern) && tmpscr->flags7&fSIDEVIEW) ? -(150+50*guycnt) : sy,
                                  (is_ceiling_pattern(tmpscr->pattern) && !(tmpscr->flags7&fSIDEVIEW)) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
                                  
-                        if(countguy(tmpscr->enemy[i]))
-                            ++guycnt;
+                        ++guycnt;
                             
                         placed=true;
                         goto placed_enemy;
@@ -13275,7 +13304,7 @@ void loadenemies()
             if(BSZ)
             {
                 // Special case for blue leevers
-                if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
+                if(curQuest->getEnemyDefinition(tmpscr->enemy[i]).family==eeLEV && curQuest->getEnemyDefinition(tmpscr->enemy[i]).miscs[0]==1)
                     c=-15*(i+1);
                 else
                     c=-15;
@@ -13288,8 +13317,7 @@ void loadenemies()
                 addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && tmpscr->flags7&fSIDEVIEW) ? -(150+50*guycnt) : y,
                          (is_ceiling_pattern(tmpscr->pattern) && !(tmpscr->flags7&fSIDEVIEW)) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
                          
-                if(countguy(tmpscr->enemy[i]))
-                    ++guycnt;
+                ++guycnt;
             }
             
             placed=true;
@@ -13310,7 +13338,7 @@ placed_enemy:
                 int index = -1;
                 for (int j = 0; j < guys.Count(); j++)
                 {
-                    if ( (((enemy *)guys.spr(j))->id & 0xFFF) == (tmpscr->enemy[i] & 0xFFF))
+                    if ( (((enemy *)guys.spr(j))->enemyDefinition) == (tmpscr->enemy[i]))
                     {
                         index = j;
                         break;
@@ -13328,7 +13356,7 @@ placed_enemy:
                 int index = -1;
                 for (int j = 0; j < guys.Count(); j++)
                 {
-                    if ((((enemy *)guys.spr(j))->id & 0xFFF) == (tmpscr->enemy[i] & 0xFFF))
+                    if ((((enemy *)guys.spr(j))->enemyDefinition) == (tmpscr->enemy[i]))
                     {
                         index = j;
                         break;
@@ -14508,75 +14536,6 @@ void roaming_item()
         }
     }
 }
-
-const char *old_guy_string[OLDMAXGUYS] =
-{
-    "(None)","Abei","Ama","Merchant","Moblin","Fire","Fairy","Goriya","Zelda","Abei 2","Empty","","","","","","","","","",
-    // 020
-    "Octorok (L1, Slow)","Octorok (L2, Slow)","Octorok (L1, Fast)","Octorok (L2, Fast)","Tektite (L1)",
-    // 025
-    "Tektite (L2)","Leever (L1)","Leever (L2)","Moblin (L1)","Moblin (L2)",
-    // 030
-    "Lynel (L1)","Lynel (L2)","Peahat (L1)","Zora","Rock",
-    // 035
-    "Ghini (L1, Normal)","Ghini (L1, Phantom)","Armos","Keese (CSet 7)","Keese (CSet 8)",
-    // 040
-    "Keese (CSet 9)","Stalfos (L1)","Gel (L1, Normal)","Zol (L1, Normal)","Rope (L1)",
-    // 045
-    "Goriya (L1)","Goriya (L2)","Trap (4-Way)","Wall Master","Darknut (L1)",
-    // 050
-    "Darknut (L2)","Bubble (Sword, Temporary Disabling)","Vire (Normal)","Like Like","Gibdo",
-    // 055
-    "Pols Voice (Arrow)","Wizzrobe (Teleporting)","Wizzrobe (Floating)","Aquamentus (Facing Left)","Moldorm",
-    // 060
-    "Dodongo","Manhandla (L1)","Gleeok (1 Head)","Gleeok (2 Heads)","Gleeok (3 Heads)",
-    // 065
-    "Gleeok (4 Heads)","Digdogger (1 Kid)","Digdogger (3 Kids)","Digdogger Kid (1)","Digdogger Kid (2)",
-    // 070
-    "Digdogger Kid (3)","Digdogger Kid (4)","Gohma (L1)","Gohma (L2)","Lanmola (L1)",
-    // 075
-    "Lanmola (L2)","Patra (L1, Big Circle)","Patra (L1, Oval)","Ganon","Stalfos (L2)",
-    // 080
-    "Rope (L2)","Bubble (Sword, Permanent Disabling)","Bubble (Sword, Re-enabling)","Shooter (Fireball)","Item Fairy ",
-    // 085
-    "Fire","Octorok (Magic)", "Darknut (Death Knight)", "Gel (L1, Tribble)", "Zol (L1, Tribble)",
-    // 090
-    "Keese (Tribble)", "Vire (Tribble)", "Darknut (Splitting)", "Aquamentus (Facing Right)", "Manhandla (L2)",
-    // 095
-    "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Wizzrobe (Fire)",
-    // 100
-    "Wizzrobe (Wind)", "Ceiling Master ", "Floor Master ", "Patra (BS Zelda)", "Patra (L2)",
-    // 105
-    "Patra (L3)", "Bat", "Wizzrobe (Bat)", "Wizzrobe (Bat 2) ", "Gleeok (Fire, 1 Head)",
-    // 110
-    "Gleeok (Fire, 2 Heads)",  "Gleeok (Fire, 3 Heads)","Gleeok (Fire, 4 Heads)", "Wizzrobe (Mirror)", "Dodongo (BS Zelda)",
-    // 115
-    "Dodongo (Fire) ","Trigger", "Bubble (Item, Temporary Disabling)", "Bubble (Item, Permanent Disabling)", "Bubble (Item, Re-enabling)",
-    // 120
-    "Stalfos (L3)", "Gohma (L3)", "Gohma (L4)", "NPC 1 (Standing) ", "NPC 2 (Standing) ",
-    // 125
-    "NPC 3 (Standing) ", "NPC 4 (Standing) ", "NPC 5 (Standing) ", "NPC 6 (Standing) ", "NPC 1 (Walking) ",
-    // 130
-    "NPC 2 (Walking) ", "NPC 3 (Walking) ", "NPC 4 (Walking) ", "NPC 5 (Walking) ", "NPC 6 (Walking) ",
-    // 135
-    "Boulder", "Goriya (L3)", "Leever (L3)", "Octorok (L3, Slow)", "Octorok (L3, Fast)",
-    // 140
-    "Octorok (L4, Slow)", "Octorok (L4, Fast)", "Trap (8-Way) ", "Trap (Diagonal) ", "Trap (/, Constant) ",
-    // 145
-    "Trap (/, Line of Sight) ", "Trap (\\, Constant) ", "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ",
-    // 150
-    "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Wizzrobe (Summoner)", "Wizzrobe (Ice) ", "Shooter (Magic)",
-    // 155
-    "Shooter (Rock)", "Shooter (Spear)", "Shooter (Sword)", "Shooter (Fire)", "Shooter (Fire 2)",
-    // 160
-    "Bombchu", "Gel (L2, Normal)", "Zol (L2, Normal)", "Gel (L2, Tribble)", "Zol (L2, Tribble)",
-    // 165
-    "Tektite (L3) ", "Spinning Tile (Combo)", "Spinning Tile (Enemy Sprite)", "Lynel (L3) ", "Peahat (L2) ",
-    // 170
-    "Pols Voice (Magic) ", "Pols Voice (Whistle) ", "Darknut (Mirror) ", "Ghini (L2, Fire) ", "Ghini (L2, Magic) ",
-    // 175
-    "Grappler Bug (HP) ", "Grappler Bug (MP) "
-};
 
 /*** end of guys.cc ***/
 

@@ -50,7 +50,6 @@ using std::string;
 
 extern sprite_list particles;
 extern LinkClass *Link;
-extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern std::map<int, std::pair<string,string> > itemmap;
@@ -346,7 +345,8 @@ public:
     
     static INLINE int checkGuyID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXGUYS-1, str);
+        // TODO quest module scripting support
+        return checkBounds(ID, 0, curQuest->getModule("CORE").enemyDefTable().getNumEnemyDefinitions()-1, str);
     }
     
     static INLINE int checkItemID(const long ID, const char * const str)
@@ -358,13 +358,13 @@ public:
     static INLINE int checkWeaponID(const long ID, const char * const str)
     {
         // TODO quest module scripting support
-        return checkBounds(ID, 0, curQuest->getModule("CORE").weaponDefTable().getNumSpriteDefinitions()-1, str);
+        return checkBounds(ID, 0, curQuest->getModule("CORE").spriteDefTable().getNumSpriteDefinitions()-1, str);
     }
     
     static INLINE int checkWeaponMiscSprite(const long ID, const char * const str)
     {
         // TODO quest module scripting support
-        return checkBounds(ID, 0, curQuest->getModule("CORE").weaponDefTable().getNumSpriteDefinitions()-1, str);
+        return checkBounds(ID, 0, curQuest->getModule("CORE").spriteDefTable().getNumSpriteDefinitions()-1, str);
     }
     
     static INLINE int checkSFXID(const long ID, const char * const str)
@@ -443,52 +443,13 @@ public:
     //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     static long getNPCDMisc(const byte a)
     {
-        switch(a)
+        if (a < 0 || a >= 15)
         {
-        case 0:
-            return tempenemy->dmisc1;
-            
-        case 1:
-            return tempenemy->dmisc2;
-            
-        case 2:
-            return tempenemy->dmisc3;
-            
-        case 3:
-            return tempenemy->dmisc4;
-            
-        case 4:
-            return tempenemy->dmisc5;
-            
-        case 5:
-            return tempenemy->dmisc6;
-            
-        case 6:
-            return tempenemy->dmisc7;
-            
-        case 7:
-            return tempenemy->dmisc8;
-            
-        case 8:
-            return tempenemy->dmisc9;
-            
-        case 9:
-            return tempenemy->dmisc10;
-            
-        case 10:
-            return tempenemy->dmisc11;
-            
-        case 11:
-            return tempenemy->dmisc12;
-        
-	case 12:
-            return tempenemy->dmisc13;
-        
-	case 13:
-            return tempenemy->dmisc14;
-        
-	case 14:
-            return tempenemy->dmisc15;
+            Z_scripterrlog("Enemy misc index out of bounds: %d\n", a);
+        }
+        else
+        {
+            return tempenemy->dmiscs[a];
         }
         
         return 0;
@@ -1944,10 +1905,11 @@ long get_register(const long arg)
         break;
         
     case NPCID:
+        //TODO script support for modules
         if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
             ret = -10000;
         else
-            ret = (GuyH::getNPC()->id & 0xFFF) * 10000;
+            ret = (GuyH::getNPC()->enemyDefinition.slot) * 10000;
             
         break;
         
@@ -4734,7 +4696,7 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Z") == SH::_NoError)
         {
-            if(!never_in_air(GuyH::getNPC()->id))
+            if(!never_in_air(GuyH::getNPC()->enemyDefinition))
             {
                 if(value < 0)
                     GuyH::getNPC()->z = fix(0);
@@ -4752,7 +4714,7 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
         {
-            if(canfall(GuyH::getNPC()->id))
+            if(canfall(GuyH::getNPC()->enemyDefinition))
                 GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
                 
             if(GuyH::hasLink())
@@ -4980,31 +4942,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case NPCDD:
     {
         long a = ri->d[0] / 10000;
-        
-        if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
-	
-	switch(a){
-		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
-		case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
-		case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
-		case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
-		case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
-		case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
-		case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
-		case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
-		case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
-		case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
-		case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
-		case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
-		case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
-		case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
-		case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
-		default: break;
-	}
 
+        if (GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
+            BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+            GuyH::getNPC()->dmiscs[a] = value / 10000;
+        break;
     }
-    break;
+       
     
         
     case NPCINVINC:
@@ -6708,7 +6652,8 @@ long get_screenViewX(mapscr *m)
 //One too many inputs here. -Z
 long get_screenGuy(mapscr *m)
 {
-    int f = m->guy;
+    //TODO script module support
+    int f = m->guy.slot;
     return f*10000;
 }
 //One too many inputs here. -Z
@@ -7089,8 +7034,10 @@ void do_getscreendoor()
 
 long get_screennpc(mapscr *m, int index)
 {
-    int f = m->enemy[index];
-    return f*10000;
+    //TODO module support for scripts
+
+    EnemyDefinitionRef f = m->enemy[index];
+    return f.slot*10000;
 }
 
 
@@ -7377,14 +7324,24 @@ void do_createnpc(const bool v)
     
     if(BC::checkGuyID(ID, "Screen->CreateNPC") != SH::_NoError)
         return;
+
+    //TODO module support for scripts
+
+    EnemyDefinitionRef ref("CORE", ID);
+
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Couldn't create NPC with invalid ID %ld\n", ID);
+        return;
+    }
         
     //If we make a segmented enemy there'll be more than one sprite created
-    word numcreated = addenemy(0, 0, ID, -10);
+    word numcreated = addenemy(0, 0, ref, -10);
     
     if(numcreated == 0)
     {
         ri->guyref = LONG_MAX;
-        Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[ID]);
+        Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", curQuest->getEnemyName(ref).c_str());
     }
     else
     {
@@ -7394,7 +7351,7 @@ void do_createnpc(const bool v)
         for(; index<guys.Count(); index++)
             ((enemy*)guys.spr(index))->script_spawned=true;
             
-        Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[ID], ri->guyref);
+        Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", curQuest->getEnemyName(ref).c_str(), ri->guyref);
     }
 }
 
@@ -8056,9 +8013,12 @@ void do_getnpcname()
     if(GuyH::loadNPC(ri->guyref, "npc->GetName") != SH::_NoError)
         return;
         
-    word ID = (GuyH::getNPC()->id & 0xFFF);
-    
-    if(ArrayH::setArray(arrayptr, guy_string[ID]) == SH::_Overflow)
+    EnemyDefinitionRef ref = (GuyH::getNPC()->enemyDefinition);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Invalid enemy ID: %ld\n", ri->guyref);
+    }
+    else if(ArrayH::setArray(arrayptr, curQuest->getEnemyName(ref)) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
 }
 
@@ -9512,7 +9472,9 @@ void FFScript::set_screendoor(mapscr *m, int d, int value)
 void FFScript::set_screenenemy(mapscr *m, int index, int value)
 {
     int enem_indx = vbound(index,0,9);
-    m->enemy[enem_indx] = vbound(value,0,511);
+    //TODO script support for modules
+    EnemyDefinitionRef ref("CORE", value);
+    m->enemy[enem_indx] = ref;
 }
 void FFScript::set_screenlayeropacity(mapscr *m, int d, int value)
 {
@@ -9586,8 +9548,10 @@ void FFScript::set_screenViewY(mapscr *m, int value)
 }
 void FFScript::set_screenGuy(mapscr *m, int value)
 {
+    // TODO script module support
     int bloke = vbound(value,0,9); 
-    m->guy = bloke ;
+    EnemyDefinitionRef guyref("CORE", bloke);
+    m->guy = guyref;
 }
 void FFScript::set_screenString(mapscr *m, int value)
 {

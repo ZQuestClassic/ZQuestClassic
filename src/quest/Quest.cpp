@@ -24,7 +24,16 @@ wpndata &Quest::getSpriteDefinition(const SpriteDefinitionRef &ref)
     {
         assert(!"Invalid item ref");
     }
-    return questModules_[ref.module].weaponDefTable().getSpriteDefinition(ref.slot);
+    return questModules_[ref.module].spriteDefTable().getSpriteDefinition(ref.slot);
+}
+
+guydata &Quest::getEnemyDefinition(const EnemyDefinitionRef &ref)
+{
+    if (!isValid(ref))
+    {
+        assert(!"Invalid item ref");
+    }
+    return questModules_[ref.module].enemyDefTable().getEnemyDefinition(ref.slot);
 }
 
 
@@ -43,7 +52,16 @@ const std::string &Quest::getSpriteName(const SpriteDefinitionRef &ref)
     {
         assert(!"Invalid item ref");
     }
-    return questModules_[ref.module].weaponDefTable().getSpriteName(ref.slot);
+    return questModules_[ref.module].spriteDefTable().getSpriteName(ref.slot);
+}
+
+const std::string &Quest::getEnemyName(const EnemyDefinitionRef &ref)
+{
+    if (!isValid(ref))
+    {
+        assert(!"Invalid enemy ref");
+    }
+    return questModules_[ref.module].enemyDefTable().getEnemyName(ref.slot);
 }
 
 void Quest::setItemName(const ItemDefinitionRef &ref, const std::string &newname)
@@ -59,9 +77,18 @@ void Quest::setSpriteName(const SpriteDefinitionRef &ref, const std::string &new
 {
     if (!isValid(ref))
     {
-        assert(!"Invalid item ref");
+        assert(!"Invalid sprite ref");
     }
-    questModules_[ref.module].weaponDefTable().setSpriteName(ref.slot, newname);
+    questModules_[ref.module].spriteDefTable().setSpriteName(ref.slot, newname);
+}
+
+void Quest::setEnemyName(const EnemyDefinitionRef &ref, const std::string &newname)
+{
+    if (!isValid(ref))
+    {
+        assert(!"Invalid enemy ref");
+    }
+    questModules_[ref.module].enemyDefTable().setEnemyName(ref.slot, newname);
 }
 
 bool Quest::isValid(const ItemDefinitionRef &ref)
@@ -75,8 +102,16 @@ bool Quest::isValid(const SpriteDefinitionRef &ref)
 {
     if (ref.module.length() == 0)               
         return false;
-    return questModules_[ref.module].weaponDefTable().isValid(ref.slot);
+    return questModules_[ref.module].spriteDefTable().isValid(ref.slot);
 }
+
+bool Quest::isValid(const EnemyDefinitionRef &ref)
+{
+    if (ref.module.length() == 0)               
+        return false;
+    return questModules_[ref.module].enemyDefTable().isValid(ref.slot);
+}
+
 
 ItemDefinitionRef Quest::getCanonicalItemID(int family)
 {

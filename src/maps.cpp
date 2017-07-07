@@ -135,7 +135,7 @@ void debugging_box(int x1, int y1, int x2, int y2)
 
 void clear_dmap(word i)
 {
-    memset(&DMaps[i],0,sizeof(dmap));
+    DMaps[i] = dmap();
 }
 
 void clear_dmaps()
@@ -730,7 +730,11 @@ void update_combo_cycling()
                     if(combobuf[c].type==cSPINTILE1)
                     {
                         // Uses animated_combo_table2
-                        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table2[c][1]+zc_max(1,combobuf[c].frames));
+                        int tilepos = guys.Count();
+                        if (addenemy((i & 15) << 4, i & 0xF0, curQuest->specialEnemies().spinTile1, animated_combo_table2[c][1] + zc_max(1, combobuf[c].frames)))
+                        {
+                            guys.spr(tilepos)->cs = cs;
+                        }
                     }
                 }
             }
@@ -945,7 +949,7 @@ void delete_fireball_shooter(mapscr *s, int i)
     for(int j=0; j<guys.Count(); j++)
     {
         // Finds the smallest enemy ID
-        if((int(guys.spr(j)->x)==cx)&&(int(guys.spr(j)->y)==cy)&&(guysbuf[(((enemy *)guys.spr(j))->id)&0xFFF].flags2 & eneflag_fire))
+        if((int(guys.spr(j)->x)==cx)&&(int(guys.spr(j)->y)==cy)&&(curQuest->getEnemyDefinition(((enemy *)guys.spr(j))->enemyDefinition).flags2 & eneflag_fire))
         {
             guys.del(j);
         }
@@ -1346,8 +1350,14 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
                         int c=t[j].data[i];
                         int cs=t[j].cset[i];
                         
-                        if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-                            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+zc_max(1,combobuf[c].frames));
+                        if (combobuf[c].type == cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
+                        {
+                            int pos = guys.Count();
+                            if (addenemy((i & 15) << 4, i & 0xF0, curQuest->specialEnemies().spinTile1, animated_combo_table[c][1] + zc_max(1, combobuf[c].frames)))
+                            {
+                                ((enemy *)guys.spr(pos))->cs = cs;
+                            }
+                        }
                     }
                 }
                 
@@ -3237,7 +3247,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
         {
-            if((isflier(((enemy *)guys.spr(i))->id)) || guys.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
+            if((isflier(((enemy *)guys.spr(i))->enemyDefinition)) || guys.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
             {
                 guys.spr(i)->draw(framebuf);
             }
@@ -3246,7 +3256,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     {
         for(int i=0; i<guys.Count(); i++)
         {
-            if((isflier(((enemy *)guys.spr(i))->id)) || guys.spr(i)->z > 0)
+            if((isflier(((enemy *)guys.spr(i))->enemyDefinition)) || guys.spr(i)->z > 0)
             {
                 guys.spr(i)->draw(framebuf);
             }

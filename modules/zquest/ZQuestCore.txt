@@ -15,7 +15,8 @@ src/md5.cpp
 src/particles.cpp
 src/qst.cpp
 src/quest/ItemDefinitionTable.cpp
-src/quest/WeaponDefinitionTable.cpp
+src/quest/SpriteDefinitionTable.cpp
+src/quest/EnemyDefinitionTable.cpp
 src/quest/Quest.cpp
 src/save_gif.cpp
 src/sprite.cpp

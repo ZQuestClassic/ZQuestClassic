@@ -80,7 +80,6 @@ extern const char *flag_help_string[(mfMAX)*3];
 extern const char *itemclass_help_string[(itype_last-20)*3];
 extern const char *combotype_help_string[cMAX*3];
 extern const char	*old_guy_string[OLDMAXGUYS];
-extern char *guy_string[eMAXGUYS];
 extern const char *pattern_string[MAXPATTERNS];
 extern const char *short_pattern_string[MAXPATTERNS];
 extern const char *walkmisc1_string[e1tLAST];

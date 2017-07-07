@@ -169,7 +169,6 @@ PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
 comboclass *combo_class_buf;
-guydata    *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 ZCHEATS    zcheats;
 byte       use_cheats;
@@ -242,7 +241,8 @@ int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
 int js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 int DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
+int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
+std::map<EnemyDefinitionRef, int> clock_zoras;
 int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
 int gfc, gfc2, pitx, pity, refill_what, heart_beep_timer=0, new_enemy_tile_start=1580;
 ItemDefinitionRef refill_why;
@@ -642,9 +642,7 @@ bool bad_version(int version)
     return false;
 }
 
-extern char *weapon_string[];
 extern char *sfx_string[];
-extern char *guy_string[];
 
 
 /**********************************/
@@ -906,11 +904,11 @@ fix  GuyY(int j)
 {
     return guys.getY(j);
 }
-int  GuyID(int j)
+EnemyDefinitionRef  GuyID(int j)
 {
     if (j < 0 || j >= guys.Count())
-        return -1;
-    return ((enemy *)guys.spr(j))->id;
+        return EnemyDefinitionRef();
+    return ((enemy *)guys.spr(j))->enemyDefinition;
 }
 int  GuyMisc(int j)
 {
@@ -934,7 +932,7 @@ void StunGuy(int j,int stun)
 {
     if(stun<=0) return;
     
-    if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->id))
+    if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->enemyDefinition))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
         ((enemy*)guys.spr(j))->fall=-zc_min(FEATHERJUMP,(stun*8)+rand()%5);
@@ -1719,8 +1717,8 @@ void show_details()
 //    for(int i=0; i<items.Count(); i++)
 //      textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d",((weapon*)Lwpns.spr(i))->tile, ((weapon*)Lwpns.spr(i))->dir, ((weapon*)Lwpns.spr(i))->flip);
 
-    for(int i=0; i<guys.Count(); i++)
-        textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int)((enemy*)guys.spr(i))->id);
+    /*for(int i=0; i<guys.Count(); i++)
+        textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int)((enemy*)guys.spr(i))->enemyDefinition.slot);*/
         
 //      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int(LinkModifiedX()),int(LinkModifiedY()));
     //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
@@ -3116,12 +3114,7 @@ int main(int argc, char* argv[])
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
-    for(int i=0; i<eMAXGUYS; i++)
-    {
-        guy_string[i] = new char[64];
-    }
-    
-	//script drawing bitmap allocation
+    //script drawing bitmap allocation
     zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
     
     
@@ -3473,11 +3466,6 @@ void quit_game()
     zcmusic_exit();      
         
     al_trace("Misc... \n");
-    
-    for(int i=0; i<eMAXGUYS; i++)
-    {
-        delete [] guy_string[i];
-    }
     
     al_trace("Script buffers... \n");
     

@@ -7667,15 +7667,11 @@ void play_DmapMusic()
 
 void playLevelMusic()
 {
-    int m=tmpscr->screen_midi;
+    uint16_t m=tmpscr->screen_midi;
     
     switch(m)
     {
-    case -2:
-        music_stop();
-        break;
-        
-    case -1:
+    case 65535:
         play_DmapMusic();
         break;
         

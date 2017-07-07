@@ -36,10 +36,10 @@ int onCustomItems();
 
 enum { ws_2_frame, ws_3_frame, ws_max };
 
-void edit_weapondata(int index);
+void edit_weapondata(const SpriteDefinitionRef &index);
 int onCustomWpns();
 int onCustomEnemies();
-void edit_enemydata(int index);
+void edit_enemydata(const EnemyDefinitionRef &index);
 int onCustomGuys();
 int d_ltile_proc(int msg,DIALOG *d,int c);
 int onCustomLink();

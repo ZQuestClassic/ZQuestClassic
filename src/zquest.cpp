@@ -616,7 +616,6 @@ BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_M
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 comboclass *combo_class_buf;
-guydata  *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 newcombo curr_combo;
 PALETTE RAMpal;
@@ -3737,11 +3736,11 @@ void drawpanel(int pnl)
             jwin_draw_frame(menu1, epx-2,epy-2, 16*4+4,16*3+4,FR_DEEP);
             rectfill(menu1, epx, epy, -1+epx+16*4,-1+epy+16*3,vc(0));
             
-            for(int i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+            for(int i=0; i< 10 && curQuest->isValid(Map.CurrScr()->enemy[i]); i++)
             {
-                int id = Map.CurrScr()->enemy[i];
-                int tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
-                int cset = guysbuf[id].cset;
+                EnemyDefinitionRef id = Map.CurrScr()->enemy[i];
+                int tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? curQuest->getEnemyDefinition(id).e_tile : curQuest->getEnemyDefinition(id).tile;
+                int cset = curQuest->getEnemyDefinition(id).cset;
                 
                 if(tile)
                     overtile16(menu1, tile+efrontfacingtile(id),epx+(i%4)*16,epy+((i/4)*16),cset,0);
@@ -3929,7 +3928,7 @@ void drawpanel(int pnl)
             textprintf_disabled(menu1,pfont,panel(3).x+6,panel(0).y+8,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Guy:");
             textprintf_disabled(menu1,pfont,panel(3).x+6,panel(0).y+16,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"String:");
             textprintf_disabled(menu1,pfont,panel(3).x+6,panel(0).y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Room:");
-            textprintf_ex(menu1,pfont,panel(3).x+40-16,panel(3).y+8,jwin_pal[jcBOXFG],-1,"%s",guy_string[scr->guy]);
+            textprintf_ex(menu1,pfont,panel(3).x+40-16,panel(3).y+8,jwin_pal[jcBOXFG],-1,"%s",curQuest->getEnemyName(scr->guy));
             textprintf_ex(menu1,pfont,panel(3).x+40-6,panel(3).y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
             textprintf_ex(menu1,pfont,panel(3).x+40-10,panel(3).y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
             int rtype=scr->room;
@@ -10067,14 +10066,14 @@ void build_biw_list()
     curQuest->getModules(modules);
 
     for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-        numsprites += curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+        numsprites += curQuest->getModule(*it).spriteDefTable().getNumSpriteDefinitions();
      
     biw = new weapon_struct[numsprites];
     
     for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
         QuestModule &module = curQuest->getModule(*it);
-        for(uint32_t i=0; i<module.weaponDefTable().getNumSpriteDefinitions(); i++)
+        for(uint32_t i=0; i<module.spriteDefTable().getNumSpriteDefinitions(); i++)
         {
             SpriteDefinitionRef ref(*it, i);
             biw[biw_cnt].s = curQuest->getSpriteName(ref);
@@ -10750,37 +10749,45 @@ int onScrData()
         bool foundmtraps = false;
         bool foundfallrocks = false;
         bool foundstatues = false;
-        
-        for(int i=0; i<eMAXGUYS && !(foundzora && foundctraps && foundmtraps && foundfallrocks && foundstatues); i++)
+
+        std::vector<std::string> modules;
+        curQuest->getModules(modules);
+
+        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
         {
-            if(!foundzora && guysbuf[i].flags2 & eneflag_zora)
+            QuestModule &module = curQuest->getModule(*it);
+
+            for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions(); i++)
             {
-                sprintf(zora_str, "Zora (1 x %s)", guy_string[i]);
-                foundzora = true;
-            }
-            
-            if(!foundctraps && guysbuf[i].flags2 & eneflag_trap)
-            {
-                sprintf(ctraps_str, "Corner Traps (4 x %s)", guy_string[i]);
-                foundctraps = true;
-            }
-            
-            if(!foundmtraps && guysbuf[i].flags2 & eneflag_trp2)
-            {
-                sprintf(mtraps_str, "Middle Traps (2 x %s)", guy_string[i]);
-                foundmtraps = true;
-            }
-            
-            if(!foundfallrocks && guysbuf[i].flags2 & eneflag_rock)
-            {
-                sprintf(fallrocks_str, "Falling Rocks (3 x %s)", guy_string[i]);
-                foundfallrocks = true;
-            }
-            
-            if(!foundstatues && guysbuf[i].flags2 & eneflag_fire)
-            {
-                sprintf(statues_str, "Shooting Statues (%s per combo)", guy_string[i]);
-                foundstatues = true;
+                if (!foundzora && module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_zora)
+                {
+                    sprintf(zora_str, "Zora (1 x %s)",  module.enemyDefTable().getEnemyName(i).c_str());
+                    foundzora = true;
+                }
+
+                if (!foundctraps && module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_trap)
+                {
+                    sprintf(ctraps_str, "Corner Traps (4 x %s)",module.enemyDefTable().getEnemyName(i).c_str());
+                    foundctraps = true;
+                }
+
+                if (!foundmtraps && module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_trp2)
+                {
+                    sprintf(mtraps_str, "Middle Traps (2 x %s)", module.enemyDefTable().getEnemyName(i).c_str());
+                    foundmtraps = true;
+                }
+
+                if (!foundfallrocks &&  module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_rock)
+                {
+                    sprintf(fallrocks_str, "Falling Rocks (3 x %s)", module.enemyDefTable().getEnemyName(i).c_str());
+                    foundfallrocks = true;
+                }
+
+                if (!foundstatues &&  module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_fire)
+                {
+                    sprintf(statues_str, "Shooting Statues (%s per combo)", module.enemyDefTable().getEnemyName(i).c_str());
+                    foundstatues = true;
+                }
             }
         }
     }
@@ -11582,9 +11589,9 @@ int onGuy()
 {
     restore_mouse();
     build_big_list(true);
-    int ret=select_guy("Select Guy",Map.CurrScr()->guy);
+    EnemyDefinitionRef ret=select_guy("Select Guy",Map.CurrScr()->guy);
     
-    if(ret>=0)
+    if(curQuest->isValid(ret))
     {
         saved=false;
         Map.CurrScr()->guy=ret;
@@ -16453,39 +16460,52 @@ const char *enemy_viewer(int index, int *list_size)
         return NULL;
     }
     
-    int guy=Map.CurrScr()->enemy[index];
-    return guy>=eOCTO1S ? guy_string[guy] : (char *) "(None)";
+    EnemyDefinitionRef guy=Map.CurrScr()->enemy[index];
+    return (curQuest->isValid(guy) && curQuest->getEnemyDefinition(guy).family != eeGUY) ? curQuest->getEnemyName(guy).c_str() : (char *) "(None)";
 }
 
-enemy_struct bie[eMAXGUYS];
-enemy_struct ce[100];
-int enemy_type=0,bie_cnt=-1,ce_cnt;
+vector<enemy_struct> bie;
+int bie_cnt=-1;
 
-enemy_struct big[zqMAXGUYS];
-enemy_struct cg[100];
-int guy_type=0,big_cnt=-1,cg_cnt;
+vector<enemy_struct> big;
+int big_cnt=-1;
 
 void build_bie_list(bool hide)
 {
-    bie[0].s = (char *)"(None)";
-    bie[0].i = 0;
+    bie.clear();
+    enemy_struct toadd;
+    toadd.s = (char *)"(None)";
+    toadd.i = EnemyDefinitionRef();
+    bie.push_back(toadd);
     bie_cnt=1;
     
-    for(int i=eOCTO1S; i<eMAXGUYS; i++)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        if(i >= OLDMAXGUYS || old_guy_string[i][strlen(old_guy_string[i])-1]!=' ' || !hide)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions(); i++)
         {
-            bie[bie_cnt].s = (char *)guy_string[i];
-            bie[bie_cnt].i = i;
-            ++bie_cnt;
+            if (module.enemyDefTable().getEnemyDefinition(i).family != eeGUY && module.enemyDefTable().getEnemyDefinition(i).family != eeNONE)
+            {
+                std::string name = module.enemyDefTable().getEnemyName(i);
+                if (!hide || (name.length() > 0 && name[name.length() - 1] != ' '))
+                {
+                    enemy_struct toadd;
+                    toadd.s = module.enemyDefTable().getEnemyName(i);
+                    toadd.i = EnemyDefinitionRef(*it, i);
+                    bie.push_back(toadd);
+                    ++bie_cnt;
+                }
+            }
         }
     }
-    
+
     for(int i=0; i<bie_cnt-1; i++)
     {
         for(int j=i+1; j<bie_cnt; j++)
         {
-            if(strcmp(bie[i].s,bie[j].s)>0)
+            if(strcmp(bie[i].s.c_str(),bie[j].s.c_str())>0)
             {
                 zc_swap(bie[i],bie[j]);
             }
@@ -16495,17 +16515,32 @@ void build_bie_list(bool hide)
 
 void build_big_list(bool hide)
 {
-    big[0].s = (char *)"(None)";
-    big[0].i = 0;
+    big.clear();
+    enemy_struct toadd;
+    toadd.s = (char *)"(None)";
+    toadd.i = EnemyDefinitionRef();
+    big.push_back(toadd);
     big_cnt=1;
     
-    for(int i=gABEI; i<gDUMMY1; i++)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        if(guy_string[i][strlen(guy_string[i])-1]!=' ' || !hide)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions(); i++)
         {
-            big[big_cnt].s = (char *)guy_string[i];
-            big[big_cnt].i = i;
-            ++big_cnt;
+            if (module.enemyDefTable().getEnemyDefinition(i).family == eeGUY)
+            {
+                std::string name = module.enemyDefTable().getEnemyName(i);
+                if (!hide || (name.length() > 0 && name[name.length() - 1] != ' '))
+                {
+                    enemy_struct toadd;
+                    toadd.s = module.enemyDefTable().getEnemyName(i);
+                    toadd.i = EnemyDefinitionRef(*it, i);
+                    big.push_back(toadd);
+                    ++big_cnt;
+                }
+            }
         }
     }
     
@@ -16513,7 +16548,7 @@ void build_big_list(bool hide)
     {
         for(int j=i+1; j<big_cnt; j++)
         {
-            if(strcmp(big[i].s,big[j].s)>0)
+            if(strcmp(big[i].s.c_str(),big[j].s.c_str())>0)
             {
                 zc_swap(big[i],big[j]);
             }
@@ -16525,22 +16560,22 @@ const char *enemylist(int index, int *list_size)
 {
     if(index<0)
     {
-        *list_size = enemy_type ? ce_cnt : bie_cnt;
+        *list_size = bie_cnt;
         return NULL;
     }
     
-    return enemy_type ? ce[index].s : bie[index].s;
+    return bie[index].s.c_str();
 }
 
 const char *guylist(int index, int *list_size)
 {
     if(index<0)
     {
-        *list_size = guy_type ? cg_cnt : big_cnt;
+        *list_size = big_cnt;
         return NULL;
     }
     
-    return guy_type ? cg[index].s : big[index].s;
+    return big[index].s.c_str();
 }
 
 void elist_rclick_func(int index, int x, int y);
@@ -16568,15 +16603,15 @@ static DIALOG glist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int efrontfacingtile(int id)
+int efrontfacingtile(const EnemyDefinitionRef &id)
 {
-    int anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
+    int anim = get_bit(quest_rules,qr_NEWENEMYTILES)?curQuest->getEnemyDefinition(id).e_anim:curQuest->getEnemyDefinition(id).anim;
     int usetile = 0;
     
     switch(anim)
     {
     case aAQUA:
-        if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && guysbuf[id].misc1))
+        if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && curQuest->getEnemyDefinition(id).miscs[0]))
             break;
             
     case aWALLM:
@@ -16628,22 +16663,22 @@ int efrontfacingtile(int id)
         break;
         
     case aNEWZORA:
-        if(guysbuf[id].family==eeZORA)
+        if(curQuest->getEnemyDefinition(id).family==eeZORA)
             usetile=44;
             
         break;
         
     case aGLEEOK:
         if(!get_bit(quest_rules,qr_NEWENEMYTILES))
-            usetile = (guysbuf[id].s_tile - guysbuf[id].tile)+1;
+            usetile = (curQuest->getEnemyDefinition(id).s_tile -curQuest->getEnemyDefinition(id).tile)+1;
         else
-            usetile = (guysbuf[id].misc8);
+            usetile = (curQuest->getEnemyDefinition(id).miscs[7]);
             
         break;
     }
     
-    return zc_max(get_bit(quest_rules, qr_NEWENEMYTILES) ? -guysbuf[id].e_tile
-                  : -guysbuf[id].tile, usetile);
+    return zc_max(get_bit(quest_rules, qr_NEWENEMYTILES) ? -curQuest->getEnemyDefinition(id).e_tile
+                  : -curQuest->getEnemyDefinition(id).tile, usetile);
 }
 
 static ListData enemy_dlg_list(enemy_viewer, &font);
@@ -16660,7 +16695,7 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
         
     if(msg==MSG_DRAW||msg==MSG_CHAR)
     {
-        int id;
+        EnemyDefinitionRef id;
         
         // Conveniently hacking the Select Enemy and Screen Enemy dialogs together -L
         if(d->dp == &enemy_dlg_list)
@@ -16672,9 +16707,15 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
             id = bie[d->d1].i;
         }
         
-        int tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile
-                   : guysbuf[id].tile;
-        int cset = guysbuf[id].cset;
+        int tile = 0;
+        int cset = 0;
+        if (curQuest->isValid(id))
+        {
+            tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? curQuest->getEnemyDefinition(id).e_tile
+                : curQuest->getEnemyDefinition(id).tile;
+            cset = curQuest->getEnemyDefinition(id).cset;
+        }
+        
         int x = d->x + int(195 * (is_large() ? 1.5:1));
         int y = d->y + int(2 * (is_large() ? 1.5:1));
         int w = 20;
@@ -16706,19 +16747,28 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
         /*
             rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
         */
-        textprintf_ex(screen,is_large()?font:spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id);
+        textprintf_ex(screen,is_large()?font:spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id.slot);
         
         textprintf_ex(screen,is_large()?font:spfont,x,y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP :");
-        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
+
+        int hp = 0;
+        int dp = 0;
+        if (curQuest->isValid(id))
+        {
+            hp = curQuest->getEnemyDefinition(id).hp;
+            dp = curQuest->getEnemyDefinition(id).dp;
+        }
+
+        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",hp);
         
         textprintf_ex(screen,is_large()?font:spfont,x,y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg:");
-        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",dp);
     }
     
     return ret;
 }
 
-int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit_status)
+EnemyDefinitionRef select_enemy(const char *prompt,const EnemyDefinitionRef &enemy,bool hide,bool is_editor,int &exit_status)
 {
     //if(bie_cnt==-1)
     {
@@ -16768,7 +16818,7 @@ int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit
     if(exit_status==0||exit_status==4)
     {
 		delete[] elist_cpy;
-        return -1;
+        return EnemyDefinitionRef();
     }
     
     index = elist_cpy[2].d1;
@@ -16776,7 +16826,7 @@ int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit
     return bie[index].i;
 }
 
-int select_guy(const char *prompt,int guy)
+EnemyDefinitionRef select_guy(const char *prompt,const EnemyDefinitionRef &guy)
 {
     //  if(bie_cnt==-1)
     {
@@ -16806,65 +16856,13 @@ int select_guy(const char *prompt,int guy)
     do
     {
         ret=zc_popup_dialog(glist_cpy,2);
-        
-        if(ret==5)
-        {
-            int id = big[glist_cpy[2].d1].i;
-            
-            switch(id)
-            {
-            case gABEI:
-                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gAMA:
-                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gDUDE:
-                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gMOBLIN:
-                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gGORIYA:
-                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gFIRE:
-                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gFAIRY:
-                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gZELDA:
-                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gABEI2:
-                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gEMPTY:
-                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-            }
-        }
     }
     while(ret==5);
     
     if(ret==0||ret==4)
     {
 		delete[] glist_cpy;
-        return -1;
+        return EnemyDefinitionRef();
     }
     
     
@@ -16955,12 +16953,12 @@ int onEnemies()
             
             do
             {
-                int enemy = Map.CurrScr()->enemy[i];
+                EnemyDefinitionRef enemy = Map.CurrScr()->enemy[i];
                 enemy = select_enemy("Select Enemy",enemy,true,false,exit_status);
                 
-                if(enemy>=0)
+                if(curQuest->isValid(enemy))
                 {
-                    if(exit_status==5 && enemy > 0)
+                    if(exit_status==5)
                     {
                         edit_enemydata(enemy);
                     }
@@ -17004,7 +17002,7 @@ int onEnemies()
             
         case 9:
             saved=false;
-            Map.CurrScr()->enemy[enemy_cpy[2].d1] = 0;
+            Map.CurrScr()->enemy[enemy_cpy[2].d1] = EnemyDefinitionRef();
             break;
             
         case 0:
@@ -17018,7 +17016,7 @@ int onEnemies()
             
             for(int i=0; i<10; i++)
             {
-                if(Map.CurrScr()->enemy[i]==0)
+                if(!curQuest->isValid(Map.CurrScr()->enemy[i]))
                     end = true;
                 else if(end)
                 {
@@ -22283,13 +22281,7 @@ int main(int argc, char **argv)
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
-    for(int i=0; i<eMAXGUYS; i++)
-    {
-        guy_string[i] = new char[64];
-        memset(guy_string[i], 0, 64);
-    }
-    
-	scripts = GameScripts();
+    scripts = GameScripts();
     
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
@@ -22701,11 +22693,6 @@ void quit_game()
     al_trace("Cleaning sfx. \n");
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
-    
-    for(int i=0; i<eMAXGUYS; i++)
-    {
-        delete [] guy_string[i];
-    }
     
     al_trace("Cleaning script buffer. \n");
     

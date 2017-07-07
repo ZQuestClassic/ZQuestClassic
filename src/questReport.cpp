@@ -379,14 +379,14 @@ bool integrityBoolEnemiesItem(mapscr *ts)
         case rLEARNSLASH:
         case rTAKEONE:
         case rTRIFORCE:
-            if(ts->guy) return false;
+            if(curQuest->isValid(ts->guy)) return false;
         }
         
         bool problem_found=true;
         
         for(int e=0; e<10; ++e)
         {
-            if(ts->enemy[e]!=0)
+            if(!curQuest->isValid(ts->enemy[e]))
             {
                 problem_found=false;
                 break;
@@ -456,14 +456,14 @@ bool integrityBoolEnemiesSecret(mapscr *ts)
         case rLEARNSLASH:
         case rTAKEONE:
         case rTRIFORCE:
-            if(ts->guy) return false;
+            if(curQuest->isValid(ts->guy)) return false;
         }
         
         bool problem_found=true;
         
         for(int e=0; e<10; ++e)
         {
-            if(ts->enemy[e]!=0)
+            if(!curQuest->isValid(ts->enemy[e]))
             {
                 problem_found=false;
                 break;
@@ -979,7 +979,7 @@ void integrityCheckSaveCombo()
 
 bool integrityBoolStringNoGuy(mapscr *ts)
 {
-    return (ts->str!=0&&ts->guy==0&&ts->room==0);
+    return (ts->str!=0&& !curQuest->isValid(ts->guy) &&ts->room==0);
 }
 
 void integrityCheckStringNoGuy()
@@ -1018,7 +1018,7 @@ void integrityCheckStringNoGuy()
 
 bool integrityBoolGuyNoString(mapscr *ts)
 {
-    return (ts->guy!=0&&ts->guy!=gFAIRY&&ts->room==0&&ts->str==0);
+    return (curQuest->isValid(ts->guy) && ts->room==0 && ts->str==0);
 }
 
 
@@ -1085,7 +1085,7 @@ bool integrityBoolRoomNoGuy(mapscr *ts)
     case rARROWS:
     case rTAKEONE:
     default:
-        if(ts->guy==0&&ts->str!=0)
+        if(!curQuest->isValid(ts->guy) && ts->str!=0)
             return true;
     }
     
@@ -1155,7 +1155,7 @@ bool integrityBoolRoomNoString(mapscr *ts)
     case rARROWS:
     case rTAKEONE:
     default:
-        if(ts->str==0&&ts->guy!=0)
+        if(ts->str==0&& curQuest->isValid(ts->guy))
             return true;
     }
     
@@ -1226,7 +1226,7 @@ bool integrityBoolRoomNoGuyNoString(mapscr *ts)
     case rARROWS:
     case rTAKEONE:
     default:
-        if(ts->str==0&&ts->guy==0) return true;
+        if(ts->str==0 && !curQuest->isValid(ts->guy)) return true;
     }
     
     return false;
@@ -1616,7 +1616,7 @@ typedef struct item_location_node
     int screen;
     int extra1;
     int extra2;
-    int enemy;
+    EnemyDefinitionRef enemy;
     int pal;
     item_location_node* next;
 } item_location_node;
@@ -1654,7 +1654,7 @@ void itemLocationReport()
                 item_location_grid[ref][j].screen = -1;
                 item_location_grid[ref][j].extra1 = -1;
                 item_location_grid[ref][j].extra2 = -1;
-                item_location_grid[ref][j].enemy = -1;
+                item_location_grid[ref][j].enemy = EnemyDefinitionRef();
                 item_location_grid[ref][j].pal = 0;
                 item_location_grid[ref][j].next = NULL;
             }
@@ -1688,13 +1688,13 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode = new item_location_node;
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
                 newnode->extra1=-1;
                 newnode->extra2=-1;
-                newnode->enemy=(ts->flags&fITEM ? -1 : (ts->enemyflags&efCARRYITEM) ? ts->enemy[0] : 0);
+                newnode->enemy=(ts->flags&fITEM ? EnemyDefinitionRef() : (ts->enemyflags&efCARRYITEM) ? ts->enemy[0] : EnemyDefinitionRef());
                 newnode->pal=ts->color;
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -1714,13 +1714,13 @@ void itemLocationReport()
                     }
 
                     //make a new node
-                    newnode = (item_location_node*)zc_malloc(sizeof(item_location_node));
+                    newnode = new item_location_node;
                     //insert the map and screen data
                     newnode->map = m + 1;
                     newnode->screen = s;
                     newnode->extra1 = -1;
                     newnode->extra2 = -1;
-                    newnode->enemy = -1;
+                    newnode->enemy = EnemyDefinitionRef();
                     newnode->pal = ts->color;
                     newnode->next = NULL;
                     tempnode->next = newnode;
@@ -1739,13 +1739,13 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode = new item_location_node;
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
                 newnode->extra1=-1;
                 newnode->extra2=-1;
-                newnode->enemy=-1;
+                newnode->enemy=EnemyDefinitionRef();
                 newnode->pal=ts->color;
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -1759,13 +1759,13 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode = new item_location_node;
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
                 newnode->extra1=-1;
                 newnode->extra2=-1;
-                newnode->enemy=-1;
+                newnode->enemy=EnemyDefinitionRef();
                 newnode->pal=ts->color;
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -1788,13 +1788,13 @@ void itemLocationReport()
                         }
                         
                         //make a new node
-                        newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                        newnode = new item_location_node;
                         //insert the map and screen data
                         newnode->map=m+1;
                         newnode->screen=s;
                         newnode->extra1=ts->catchall;
                         newnode->extra2=misc.shop[ts->catchall].price[si];
-                        newnode->enemy=-1;
+                        newnode->enemy=EnemyDefinitionRef();
                         newnode->pal=ts->color;
                         newnode->next=NULL;
                         tempnode->next=newnode;
@@ -1864,8 +1864,8 @@ void itemLocationReport()
                     case 0:
                     default:
                         sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
-                                tempnode->enemy==-1 ? ", enemies -> item" : tempnode->enemy ? ", carried by " : "",
-                                tempnode->enemy>0 ? guy_string[tempnode->enemy] : "");
+                                !curQuest->isValid(tempnode->enemy) ? ", enemies -> item" : curQuest->isValid(tempnode->enemy) ? ", carried by " : "",
+                                curQuest->isValid(tempnode->enemy) ? curQuest->getEnemyName(tempnode->enemy).c_str() : "");
                         break;
                     }
                     
@@ -1892,7 +1892,7 @@ void itemLocationReport()
                     while (tempnode != NULL)
                     {
                         tempnode2 = tempnode->next;
-                        zc_free(tempnode);
+                        delete tempnode;
                         tempnode = tempnode2;
                     }
                 }
@@ -1927,6 +1927,7 @@ int onItemLocationReport()
 
 typedef struct enemy_location_node
 {
+    enemy_location_node() : map(-1), screen(-1), pal(0), list(0), eflag(0), comboflag(0), combotype(0), ganonscr(0), next(NULL) {}
     int map;
     int screen;
     int pal;
@@ -1944,24 +1945,8 @@ void enemyLocationReport()
     int sc=0;
     char buf[255];
     
-    enemy_location_node *enemy_location_grid;
+    std::map<EnemyDefinitionRef, enemy_location_node> enemy_location_grid;
     
-    enemy_location_grid = new enemy_location_node[MAXGUYS];
-    
-    for(int i=0; i<MAXGUYS; i++)
-    {
-        enemy_location_grid[i].map=-1;
-        enemy_location_grid[i].screen=-1;
-        enemy_location_grid[i].pal=0;
-        enemy_location_grid[i].list=0;
-        enemy_location_grid[i].eflag=0;
-        enemy_location_grid[i].comboflag=0;
-        enemy_location_grid[i].combotype=0;
-        enemy_location_grid[i].ganonscr=0;
-        enemy_location_grid[i].next=NULL;
-    }
-    
-    enemy_location_node *tempnode=NULL;
     enemy_location_node *tempnode2=NULL;
     enemy_location_node *newnode=NULL;
     
@@ -1976,23 +1961,20 @@ void enemyLocationReport()
         {
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
-            int enemytally[MAXGUYS];
-            memset(enemytally,0,sizeof(enemytally));
+            std::map<EnemyDefinitionRef, int> enemytally;
             
             for(int i=0; i<10; i++)
             {
-                int enemy = ts->enemy[i];
+                EnemyDefinitionRef enemy = ts->enemy[i];
                 
-                if(!enemy) continue;
+                if(!curQuest->isValid(enemy)) continue;
                 
                 enemytally[enemy]++;
             }
             
-            for(int i=0; i<MAXGUYS; ++i)
+            for(std::map<EnemyDefinitionRef, int>::iterator it = enemytally.begin(); it != enemytally.end(); ++it)
             {
-                if(enemytally[i]==0) continue;
-                
-                tempnode=&(enemy_location_grid[i]);
+                enemy_location_node *tempnode = &enemy_location_grid[it->first];
                 
                 //loop to the end of the list
                 while(tempnode->next!=NULL)
@@ -2001,12 +1983,12 @@ void enemyLocationReport()
                 }
                 
                 //make a new node
-                newnode=(enemy_location_node*)zc_malloc(sizeof(enemy_location_node));
+                newnode = new enemy_location_node;
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
                 newnode->pal=ts->color;
-                newnode->list=enemytally[i];
+                newnode->list=it->second;
                 newnode->eflag=0;
                 newnode->comboflag=0;
                 newnode->combotype=0;
@@ -2021,10 +2003,10 @@ void enemyLocationReport()
     
     for(int i2=1; i2<bie_cnt; ++i2)
     {
-        int i=bie[i2].i;
+        EnemyDefinitionRef i=bie[i2].i;
         enemy_found=false;
         //set the tempnode at the start
-        tempnode=&(enemy_location_grid[i]);
+        enemy_location_node *tempnode=&(enemy_location_grid[i]);
         
         //if there is location data
         if(tempnode->next!=NULL)
@@ -2034,7 +2016,7 @@ void enemyLocationReport()
             if(!enemy_found)
             {
                 buf[0]=0;
-                sprintf(buf, "\n--- %s ---\n", guy_string[i]);
+                sprintf(buf, "\n--- %s ---\n", curQuest->getEnemyName(i).c_str());
                 quest_report_str+=buf;
             }
             
@@ -2057,23 +2039,21 @@ void enemyLocationReport()
         }
     }
     
-    for(int i=0; i<MAXGUYS; ++i)
+    for(std::map<EnemyDefinitionRef, enemy_location_node>::iterator it = enemy_location_grid.begin(); it != enemy_location_grid.end(); ++it)
     {
-        if(enemy_location_grid[i].next!=NULL)
+        if(it->second.next!=NULL)
         {
-            tempnode=&(enemy_location_grid[i]);
+            enemy_location_node *tempnode = &it->second;
             tempnode=tempnode->next;
             
             while(tempnode!=NULL)
             {
                 tempnode2=tempnode->next;
-                zc_free(tempnode);
+                delete tempnode;
                 tempnode=tempnode2;
             }
         }
     }
-    
-    delete[] enemy_location_grid;
     
     if(!type_found)
     {

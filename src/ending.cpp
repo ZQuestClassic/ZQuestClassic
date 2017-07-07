@@ -236,7 +236,7 @@ void ending()
             
             for(int i = guys.Count() - 1; i >= 0; i--)
             {
-                if(((enemy *)guys.spr(i))->id > gDUMMY9)
+                if(((enemy *)guys.spr(i))->family != eeGUY)
                 {
                     guys.del(i);
                 }

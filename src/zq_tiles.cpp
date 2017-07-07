@@ -5533,7 +5533,7 @@ void register_used_tiles()
     for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
         QuestModule &module = curQuest->getModule(*it);
-        for (uint32_t u = 0; u < module.weaponDefTable().getNumSpriteDefinitions(); u++)
+        for (uint32_t u = 0; u < module.spriteDefTable().getNumSpriteDefinitions(); u++)
         {
             int m = 0;
             ignore_frames = false;
@@ -5624,7 +5624,7 @@ void register_used_tiles()
             }*/
 
 
-            for (int t = zc_max(module.weaponDefTable().getSpriteDefinition(u).tile, 0); t < zc_min(module.weaponDefTable().getSpriteDefinition(u).tile + zc_max((ignore_frames ? 0 : module.weaponDefTable().getSpriteDefinition(u).frames), 1) + m, NEWMAXTILES); ++t)
+            for (int t = zc_max(module.spriteDefTable().getSpriteDefinition(u).tile, 0); t < zc_min(module.spriteDefTable().getSpriteDefinition(u).tile + zc_max((ignore_frames ? 0 : module.spriteDefTable().getSpriteDefinition(u).frames), 1) + m, NEWMAXTILES); ++t)
             {
                 used_tile_table[t] = true;
             }
@@ -5703,151 +5703,142 @@ void register_used_tiles()
     }
     
     bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-    int u;
     
-    for(u=0; u<eMAXGUYS; u++)
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        bool darknut=false;
-        int gleeok=0;
-        
-        switch(u)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t u = 0; u < module.enemyDefTable().getNumEnemyDefinitions(); u++)
         {
-        case eDKNUT1:
-        case eDKNUT2:
-        case eDKNUT3:
-        case eDKNUT5:
-            darknut=true;
-            break;
-        }
-        
-        if(u>=eGLEEOK1 && u<=eGLEEOK4)
-        {
-            gleeok=1;
-        }
-        else if(u>=eGLEEOK1F && u<=eGLEEOK4F)
-        {
-            gleeok=2;
-        }
-        
-        if(newtiles)
-        {
-            if(guysbuf[u].e_tile==0)
-            {
-                continue;
-            }
+            bool darknut = false;
             
-            if(guysbuf[u].e_height==0)
+            if (module.enemyDefTable().getEnemyDefinition(u).anim == aDWALK)
+                darknut = true;
+
+            if (module.enemyDefTable().getEnemyDefinition(u).family == eeGLEEOK)
             {
-                for(int t=zc_max(guysbuf[u].e_tile,0); t<zc_min(guysbuf[u].e_tile+zc_max(guysbuf[u].e_width, 0),NEWMAXTILES); ++t)
-                {
-                    used_tile_table[t]=true;
-                }
+
             }
-            else
+
+            if (newtiles)
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                if (module.enemyDefTable().getEnemyDefinition(u).e_tile == 0)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
+                    continue;
                 }
-            }
-            
-            if(darknut)
-            {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile+120),0); r<zc_min(tile_row(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+
+                if (module.enemyDefTable().getEnemyDefinition(u).e_height == 0)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile+120),0); c<zc_min(tile_col(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for (int t = zc_max(module.enemyDefTable().getEnemyDefinition(u).e_tile, 0); t < zc_min(module.enemyDefTable().getEnemyDefinition(u).e_tile + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_width, 0), NEWMAXTILES); ++t)
                     {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-            else if(u==eGANON)
-            {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-            else if(gleeok)
-            {
-                for(int j=0; j<4; ++j)
-                {
-                    for(int r=zc_max(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                    {
-                        for(int c=zc_max(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
-                        {
-                            used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                        }
-                    }
-                }
-                
-                int c3=tile_col(guysbuf[u].e_tile)+(gleeok>1?-12:0);
-                int r3=tile_row(guysbuf[u].e_tile)+(gleeok>1?17:8);
-                
-                for(int r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(c3,0); c<zc_min(c3+20,TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-                
-                for(int r=zc_max(r3+3,0); r<zc_min(r3+3+6,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(c3,0); c<zc_min(c3+16,TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-        }
-        else
-        {
-            if(guysbuf[u].tile==0)
-            {
-                continue;
-            }
-            
-            if(guysbuf[u].height==0)
-            {
-                for(int t=zc_max(guysbuf[u].tile,0); t<zc_min(guysbuf[u].tile+zc_max(guysbuf[u].width, 0),NEWMAXTILES); ++t)
-                {
-                    used_tile_table[t]=true;
-                }
-            }
-            else
-            {
-                for(int r=zc_max(tile_row(guysbuf[u].tile),0); r<zc_min(tile_row(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(tile_col(guysbuf[u].tile),0); c<zc_min(tile_col(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-            
-            if(guysbuf[u].s_tile!=0)
-            {
-                if(guysbuf[u].s_height==0)
-                {
-                    for(int t=zc_max(guysbuf[u].s_tile,0); t<zc_min(guysbuf[u].s_tile+zc_max(guysbuf[u].s_width, 0),NEWMAXTILES); ++t)
-                    {
-                        used_tile_table[t]=true;
+                        used_tile_table[t] = true;
                     }
                 }
                 else
                 {
-                    for(int r=zc_max(tile_row(guysbuf[u].s_tile),0); r<zc_min(tile_row(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(tile_col(guysbuf[u].s_tile),0); c<zc_min(tile_col(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_width, 1), TILES_PER_ROW); ++c)
                         {
-                            used_tile_table[(r*TILES_PER_ROW)+c]=true;
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+
+                if (darknut)
+                {
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_width, 1), TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+                else if (module.enemyDefTable().getEnemyDefinition(u).family == eeGANON)
+                {
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 4, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 20, TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+                else if (module.enemyDefTable().getEnemyDefinition(u).family == eeGLEEOK)
+                {
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8) + (j << 1), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8) + (j << 1) + 1, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                        {
+                            for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8) + 4, TILES_PER_ROW); ++c)
+                            {
+                                used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                            }
+                        }
+                    }
+
+                    int c3 = tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 0;
+                    int r3 = tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 8;
+
+                    for (int r = zc_max(r3, 0); r < zc_min(r3 + 3, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(c3, 0); c < zc_min(c3 + 20, TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+
+                    for (int r = zc_max(r3 + 3, 0); r < zc_min(r3 + 3 + 6, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(c3, 0); c < zc_min(c3 + 16, TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (module.enemyDefTable().getEnemyDefinition(u).tile == 0)
+                {
+                    continue;
+                }
+
+                if (module.enemyDefTable().getEnemyDefinition(u).height == 0)
+                {
+                    for (int t = zc_max(module.enemyDefTable().getEnemyDefinition(u).tile, 0); t < zc_min(module.enemyDefTable().getEnemyDefinition(u).tile + zc_max(module.enemyDefTable().getEnemyDefinition(u).width, 0), NEWMAXTILES); ++t)
+                    {
+                        used_tile_table[t] = true;
+                    }
+                }
+                else
+                {
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).width, 1), TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+
+                if (module.enemyDefTable().getEnemyDefinition(u).s_tile != 0)
+                {
+                    if (module.enemyDefTable().getEnemyDefinition(u).s_height == 0)
+                    {
+                        for (int t = zc_max(module.enemyDefTable().getEnemyDefinition(u).s_tile, 0); t < zc_min(module.enemyDefTable().getEnemyDefinition(u).s_tile + zc_max(module.enemyDefTable().getEnemyDefinition(u).s_width, 0), NEWMAXTILES); ++t)
+                        {
+                            used_tile_table[t] = true;
+                        }
+                    }
+                    else
+                    {
+                        for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).s_tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).s_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).s_height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                        {
+                            for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).s_tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).s_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).s_width, 1), TILES_PER_ROW); ++c)
+                            {
+                                used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                            }
                         }
                     }
                 }
@@ -5860,6 +5851,7 @@ extern item_struct *bii;
 extern int bii_cnt;
 extern weapon_struct *biw;
 extern int biw_cnt;
+extern int bie_cnt;
 
 bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
 {
@@ -6926,9 +6918,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
                 int u;
                 
-                for(u=0; u<eMAXGUYS; u++)
+                for(u=0; u<bie_cnt; u++)
                 {
-                    const guydata& enemy=guysbuf[bie[u].i];
+                    const guydata& enemy=curQuest->getEnemyDefinition(bie[u].i);
                     bool darknut=false;
                     int gleeok=0;
                     
@@ -6937,54 +6929,45 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     else if(enemy.family==eeGLEEOK)
                     {
                         // Not certain this is the right thing to check...
-                        if(enemy.misc3==0)
+                        if(enemy.miscs[2]==0)
                             gleeok=1;
                         else
                             gleeok=2;
                     }
                     
-                    // Dummied out enemies
-                    if(bie[u].i>=eOCTO1S && bie[u].i<e177)
-                    {
-                        if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
-                        {
-                            continue;
-                        }
-                    }
-                    
                     if(newtiles)
                     {
-                        if(guysbuf[bie[u].i].e_tile==0)
+                        if(curQuest->getEnemyDefinition(bie[u].i).e_tile==0)
                         {
                             continue;
                         }
                         
-                        if(guysbuf[bie[u].i].e_height==0)
+                        if(curQuest->getEnemyDefinition(bie[u].i).e_height==0)
                         {
                             if(rect)
                             {
-                                i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_sr(curQuest->getEnemyDefinition(bie[u].i).e_tile, curQuest->getEnemyDefinition(bie[u].i).e_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_ss(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_first, selection_last);
+                                i=move_intersection_ss(curQuest->getEnemyDefinition(bie[u].i).e_tile, curQuest->getEnemyDefinition(bie[u].i).e_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).e_width-1, 0), selection_first, selection_last);
                             }
                         }
                         else
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_first, selection_last);
                             }
                         }
                         
                         if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
                         {
-                            sprintf(temptext, "%s\n", bie[u].s);
+                            sprintf(temptext, "%s\n", bie[u].s.c_str());
                             
                             if(strlen(tile_move_list_text)<65000)
                             {
@@ -7006,16 +6989,16 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_first, selection_last);
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
                             {
-                                sprintf(temptext, "%s (broken shield)\n", bie[u].s);
+                                sprintf(temptext, "%s (broken shield)\n", bie[u].s.c_str());
                                 
                                 if(strlen(tile_move_list_text)<65000)
                                 {
@@ -7037,16 +7020,16 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
+                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile)+2, 20, 4, selection_first, selection_last);
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
                             {
-                                sprintf(temptext, "%s\n", bie[u].s);
+                                sprintf(temptext, "%s\n", bie[u].s.c_str());
                                 
                                 if(strlen(tile_move_list_text)<65000)
                                 {
@@ -7070,18 +7053,18 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+(gleeok>1?-4:8)), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
+                                    i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+(gleeok>1?-4:8)), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
                                 }
                             }
                             
                             if(i==ti_none)
                             {
-                                int c=tile_col(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=tile_row(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
+                                int c=tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile)+(gleeok>1?-12:0);
+                                int r=tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile)+(gleeok>1?17:8);
                                 
                                 if(rect)
                                 {
@@ -7107,7 +7090,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
                             {
-                                sprintf(temptext, "%s\n", bie[u].s);
+                                sprintf(temptext, "%s\n", bie[u].s.c_str());
                                 
                                 if(strlen(tile_move_list_text)<65000)
                                 {
@@ -7128,36 +7111,36 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                     }
                     else
                     {
-                        if((guysbuf[bie[u].i].tile==0))
+                        if((curQuest->getEnemyDefinition(bie[u].i).tile==0))
                         {
                             continue;
                         }
-                        else if(guysbuf[bie[u].i].height==0)
+                        else if(curQuest->getEnemyDefinition(bie[u].i).height==0)
                         {
                             if(rect)
                             {
-                                i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_sr(curQuest->getEnemyDefinition(bie[u].i).tile, curQuest->getEnemyDefinition(bie[u].i).tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).width-1, 0), selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_ss(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_first, selection_last);
+                                i=move_intersection_ss(curQuest->getEnemyDefinition(bie[u].i).tile, curQuest->getEnemyDefinition(bie[u].i).tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).width-1, 0), selection_first, selection_last);
                             }
                         }
                         else
                         {
                             if(rect)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
+                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).tile), curQuest->getEnemyDefinition(bie[u].i).width, curQuest->getEnemyDefinition(bie[u].i).height, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
+                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).tile),curQuest->getEnemyDefinition(bie[u].i).width, curQuest->getEnemyDefinition(bie[u].i).height, selection_first, selection_last);
                             }
                         }
                         
                         if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
                         {
-                            sprintf(temptext, "%s\n", bie[u].s);
+                            sprintf(temptext, "%s\n", bie[u].s.c_str());
                             
                             if(strlen(tile_move_list_text)<65000)
                             {
@@ -7175,34 +7158,34 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                             found=true;
                         }
                         
-                        if(guysbuf[bie[u].i].s_tile!=0)
+                        if(curQuest->getEnemyDefinition(bie[u].i).s_tile!=0)
                         {
-                            if(guysbuf[bie[u].i].s_height==0)
+                            if(curQuest->getEnemyDefinition(bie[u].i).s_height==0)
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_sr(curQuest->getEnemyDefinition(bie[u].i).s_tile, curQuest->getEnemyDefinition(bie[u].i).s_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_ss(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_first, selection_last);
+                                    i=move_intersection_ss(curQuest->getEnemyDefinition(bie[u].i).s_tile, curQuest->getEnemyDefinition(bie[u].i).s_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).s_width-1, 0), selection_first, selection_last);
                                 }
                             }
                             else
                             {
                                 if(rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
+                                    i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).s_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).s_tile), curQuest->getEnemyDefinition(bie[u].i).s_width, curQuest->getEnemyDefinition(bie[u].i).s_height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
+                                    i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).s_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).s_tile), curQuest->getEnemyDefinition(bie[u].i).s_width, curQuest->getEnemyDefinition(bie[u].i).s_height, selection_first, selection_last);
                                 }
                             }
                             
                             if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
                             {
-                                sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
+                                sprintf(temptext, "%s (%s)\n", bie[u].s.c_str(), darknut?"broken shield":"secondary tiles");
                                 
                                 if(strlen(tile_move_list_text)<65000)
                                 {

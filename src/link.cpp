@@ -59,6 +59,7 @@ const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 // placeholder for now
 extern std::map<ItemDefinitionRef, LensItemAnim > lens_hint_item;
+extern std::map<EnemyDefinitionRef, int> clock_zoras;
 
 static inline bool isSideview()
 {
@@ -571,7 +572,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         for(int i=0; i<Ewpns.Count(); i++)
         {
             wind=Ewpns.spr(i);
-            if(((enemy *)wind)->id==ewWind && wind->misc==999)
+            if(((weapon *)wind)->id==ewWind && wind->misc==999)
             {
                 foundWind=true;
                 break;
@@ -3530,8 +3531,8 @@ void LinkClass::hitlink(int hit2)
     }
     
     enemy_scored(hit2);
-    int dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
-    int dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
+    int dm7 = ((enemy*)guys.spr(hit2))->dmiscs[6];
+    int dm8 = ((enemy*)guys.spr(hit2))->dmiscs[7];
     
     switch(((enemy*)guys.spr(hit2))->family)
     {
@@ -3999,11 +4000,11 @@ bool LinkClass::animate(int)
             
             watch=false;
             
-            for(int i=0; i<eMAXGUYS; i++)
+            for (std::map<EnemyDefinitionRef, int>::iterator it = clock_zoras.begin(); it != clock_zoras.end(); ++it)
             {
-                for(int zoras=0; zoras<clock_zoras[i]; zoras++)
+                for (int zoras = 0; zoras < it->second; zoras++)
                 {
-                    addenemy(0,0,i,0);
+                    addenemy(0, 0, it->first, 0);
                 }
             }
         }
@@ -4855,7 +4856,7 @@ bool LinkClass::startwpn(const ItemDefinitionRef &itemid)
     {
         if(currentItemLevel(itype_letter)==i_letter &&
                 tmpscr[currscr<128?0:1].room==rP_SHOP &&
-                tmpscr[currscr<128?0:1].guy &&
+                curQuest->isValid(tmpscr[currscr<128?0:1].guy) &&
                 ((currscr<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))||(currscr>=128&&DMaps[currdmap].flags&dmfGUYCAVES))
           )
         {
@@ -9500,46 +9501,66 @@ void LinkClass::checktouchblk()
             if((getAction() != hopping || isSideview()))
             {
                 guygrid[di]=61; //Note: not 60.
-                int id2=0;
+                EnemyDefinitionRef id2;
                 
-                switch(combobuf[MAPCOMBO(tx,ty)].type)
+                switch (combobuf[MAPCOMBO(tx, ty)].type)
                 {
                 case cARMOS: //id2=eARMOS; break;
-                    for(int i=0; i<eMAXGUYS; i++)
+                {
+                    std::vector<std::string> modules;
+                    curQuest->getModules(modules);
+
+                    bool done = false;
+                    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end() && !done; ++it)
                     {
-                        if(guysbuf[i].flags2&cmbflag_armos)
+                        QuestModule &module = curQuest->getModule(*it);
+                        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions() && !done; i++)
                         {
-                            id2=i;
-                            
-                            // This is mostly for backwards-compatability
-                            if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+                            if (module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_armos)
                             {
-                                eclk=0;
+                                id2 = EnemyDefinitionRef(*it, i);
+                                done = true;
+                                // This is mostly for backwards-compatability
+                                if (module.enemyDefTable().getEnemyDefinition(i).family == eeWALK && module.enemyDefTable().getEnemyDefinition(i).miscs[8] == e9tARMOS)
+                                {
+                                    eclk = 0;
+                                }
+
+                                break;
                             }
-                            
-                            break;
                         }
                     }
-                    
+
                     break;
-                    
+                }
                 case cBSGRAVE:
                     tmpscr->data[di]++;
-                    
+
                     //fall through
                 case cGRAVE:
-                    for(int i=0; i<eMAXGUYS; i++)
+                {
+                    std::vector<std::string> modules;
+                    curQuest->getModules(modules);
+
+                    bool done = false;
+                    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end() && !done; ++it)
                     {
-                        if(guysbuf[i].flags2&cmbflag_ghini)
+                        QuestModule &module = curQuest->getModule(*it);
+                        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions() && !done; i++)
                         {
-                            id2=i;
-                            eclk=0; // This is mostly for backwards-compatability
-                            break;
+                            if (module.enemyDefTable().getEnemyDefinition(i).flags2&cmbflag_ghini)
+                            {
+                                id2 = EnemyDefinitionRef(*it, i);
+                                done = true;
+                                // This is mostly for backwards-compatability
+                                clk = 0;
+                                break;
+                            }
                         }
                     }
-                    
-                    //id2=eGHINI2;
+
                     break;
+                }
                 }
                 
                 addenemy(tx,ty+3,id2,eclk);
@@ -9700,21 +9721,16 @@ void LinkClass::checkspecial()
         // after beating enemies
         
         // if room has traps, guys don't come back
-        for(int i=0; i<eMAXGUYS; i++)
+        for (int j = 0; j < guys.Count(); j++)
         {
-            if (guysbuf[i].family == eeTRAP&&guysbuf[i].misc2)
+            EnemyDefinitionRef ref = ((enemy *)guys.spr(j))->enemyDefinition;
+            if (curQuest->getEnemyDefinition(ref).family == eeTRAP && curQuest->getEnemyDefinition(ref).miscs[1])
             {
-                for (int j = 0; j < guys.Count(); j++)
-                {
-                    if (((enemy *)guys.spr(j))->id == i)
-                    {
-                        setmapflag(mTMPNORET);
-                        break;
-                    }
-                }
+                setmapflag(mTMPNORET);
+                break;
             }
         }
-        
+
         // item
         if(hasitem)
         {
@@ -14230,8 +14246,7 @@ void getitem(const ItemDefinitionRef &id, bool nosound)
     {
         setClock(watch=true);
         
-        for(int i=0; i<eMAXGUYS; i++)
-            clock_zoras[i]=0;
+        clock_zoras.clear();
             
         clockclk=curQuest->getItemDefinition(id).misc1;
     }
@@ -15427,17 +15442,24 @@ void LinkClass::ganon_intro()
             Backend::sfx->stop(WAV_ROAR);
             Backend::sfx->play(WAV_GASP,128);
             Backend::sfx->play(WAV_GANON,128);
-            int Id=0;
+            EnemyDefinitionRef Id;
             
-            for(int i=0; i<eMAXGUYS; i++)
+            std::vector<std::string> modules;
+            curQuest->getModules(modules);
+            bool done = false;
+            for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end() &&!done; ++it)
             {
-                if(guysbuf[i].flags2&eneflag_ganon)
+                QuestModule &module = curQuest->getModule(*it);
+                for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions() && !done; i++)
                 {
-                    Id=i;
-                    break;
+                    if (module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_ganon)
+                    {
+                        Id = EnemyDefinitionRef(*it, i);
+                        done = true;
+                    }
                 }
             }
-            
+                        
             if(currentItemLevel(itype_ring))
             {
                 addenemy(160,96,Id,0);

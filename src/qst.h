@@ -17,6 +17,7 @@
 
 class ItemDefinitionTable;
 class SpriteDefinitionTable;
+class EnemyDefinitionTable;
 
 // define these in main code
 //extern bool init_tiles(bool validate);
@@ -113,7 +114,6 @@ bool init_combos(bool validate, zquestheader *Header);
 void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd);
 bool check_questpwd(zquestheader *Header, char *pwd);
 
-void update_guy_1(guydata *tempguy);
 void initMsgStr(MsgStr *str);
 void init_msgstrings(int start, int end);
 
@@ -128,7 +128,7 @@ int readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepd
 int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::map<std::string, ItemDefinitionTable> &idts);
 int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItemTable, std::map<std::string, SpriteDefinitionTable> &wdts);
-int readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
+int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefinitionTable> &tables);
 int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
 int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata);
@@ -185,7 +185,7 @@ extern void delete_combo_aliases();
 void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int setupsubscreens();
-void init_guys(int guyversion);
+void initCoreEnemies(int guyversion, const std::vector<std::string> &names, EnemyDefinitionTable &table);
 void init_item_drop_sets();
 void init_favorites();
 

@@ -133,7 +133,9 @@ void weapon::seekEnemy(int j)
             //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
             tempdistance=distance(x,y,GuyX(i),GuyY(i));
             
-            if((tempdistance<mindistance)&&(GuyID(i)>=10) && !GuySuperman(i))
+            if((tempdistance<mindistance)
+                &&
+                curQuest->getEnemyDefinition(GuyID(i)).family != eeGUY && !GuySuperman(i))
             {
                 mindistance=tempdistance;
                 j=i;
@@ -173,7 +175,8 @@ int weapon::seekEnemy2(int j)
             //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
             tempdistance=distance(dummy_fix[0],dummy_fix[1],GuyX(i),GuyY(i));
             
-            if((tempdistance<mindistance)&&(GuyID(i)>=10) && !GuySuperman(i))
+            if((tempdistance<mindistance)
+                && curQuest->getEnemyDefinition(GuyID(i)).family != eeGUY && !GuySuperman(i))
             {
                 mindistance=tempdistance;
                 j=i;
@@ -1207,8 +1210,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) )
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef ebombs = curQuest->specialSprites().defaultEnemyBomb;
@@ -1259,8 +1262,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite)) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite)) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef esbombs = curQuest->specialSprites().defaultEnemySuperBomb;
@@ -1324,8 +1327,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
         if (parentid > -1)
         {
             sprite *e = (sprite *)pool->getFromUID(parentid);
-            if (curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite)) 
-                LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+            if (curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite)) 
+                LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
             else 
                 LOADGFX(wid);
         }
@@ -1348,8 +1351,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite) ) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite) ) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef fireballs = curQuest->specialSprites().defaultEnemyFireball;
@@ -1377,7 +1380,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite)) LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite)) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef rocks = curQuest->specialSprites().defaultEnemyRock;
@@ -1411,8 +1415,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite )) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite )) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef arrows = curQuest->specialSprites().defaultEnemyArrow;
@@ -1451,8 +1455,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) ) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef swords = curQuest->specialSprites().defaultEnemySwordBeamSprite;
@@ -1504,8 +1508,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) ) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef magics = curQuest->specialSprites().defaultEnemyMagic;
@@ -1563,8 +1567,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 		if ( parentid > -1 )
 		{
 			sprite *e = (sprite *)pool->getFromUID(parentid);
-			if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-                LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+			if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) ) 
+                LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
             else
             {
                 SpriteDefinitionRef flames = curQuest->specialSprites().flickeringFlame;
@@ -1582,8 +1586,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 		if ( parentid > -1 )
 		{
 			sprite *e = (sprite *)pool->getFromUID(parentid);
-			if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-                LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+			if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) ) 
+                LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
             else
             {
                 SpriteDefinitionRef flames = curQuest->specialSprites().flickeringFlame2;
@@ -1638,8 +1642,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) ) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef firetrails = curQuest->specialSprites().flickeringFireTrail;
@@ -1680,8 +1684,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, const ItemDefi
 	if ( parentid > -1 )
 	{
 		sprite *e = (sprite *)pool->getFromUID(parentid);
-		if ( curQuest->isValid(guysbuf[((enemy *)e)->id].wpnsprite ) ) 
-            LOADGFX(guysbuf[((enemy *)e)->id].wpnsprite);
+		if ( curQuest->isValid(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite ) ) 
+            LOADGFX(curQuest->getEnemyDefinition(((enemy *)e)->enemyDefinition).wpnsprite);
         else
         {
             SpriteDefinitionRef winds = curQuest->specialSprites().defaultEnemyWind;

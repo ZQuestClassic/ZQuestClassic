@@ -123,7 +123,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        19
-#define V_GUYS            29
+#define V_GUYS            30
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        12
@@ -252,7 +252,6 @@ extern bool fake_pack_writing;
 #define OLDMAXLEVELS	 256
 #define OLDMAXDMAPS		 256
 #define OLDBETAMAXGUYS   256								//max 2.5 guys through beta 20
-#define MAXGUYS          512
 #define MAXITEMDROPSETS  256
 #define COMBOS_PER_PAGE  256
 #define COMBO_PAGES      255
@@ -935,9 +934,7 @@ enum
     eTEK3, eSPINTILE1, eSPINTILE2, eLYNEL3, eFPEAHAT,
     //170
     eMPOLSV, eWPOLSV, eDKNUT4, eFGHINI, eMGHINI,
-    eGRAPBUGHP, eGRAPBUGMP, e177,
-    
-    eMAXGUYS = MAXGUYS
+    eGRAPBUGHP, eGRAPBUGMP, e177
 };
 
 #define OLDMAXGUYS	e177
@@ -1261,30 +1258,7 @@ struct item_drop_object
 
 #define guy_fadeflicker 0x00000010
 #define guy_fadeinstant 0x00000020
-/*
-#define inv_bomb        0x00000040
-#define inv_sbomb       0x00000080
 
-#define inv_arrow       0x00000100
-#define inv_L2arrow     0x00000200
-#define inv_fire        0x00000400
-#define inv_wand        0x00000800
-
-#define inv_magic       0x00001000
-#define inv_hookshot    0x00002000
-#define inv_hammer      0x00004000
-#define inv_L3brang     0x00008000
-
-#define inv_L1sword     0x00010000
-#define inv_L3sword     0x00020000
-#define inv_L1beam      0x00040000
-#define inv_L3beam      0x00080000
-
-#define inv_refbeam     0x00100000
-#define inv_refmagic    0x00200000
-#define inv_refball     0x00400000
-#define inv_extra       0x00800000
-*/
 #define inv_front       0x01000000
 #define inv_left        0x02000000
 #define inv_right       0x04000000
@@ -1315,6 +1289,8 @@ struct item_drop_object
 #define eneflag_ganon   0x00002000
 #define guy_blinking    0x00004000
 #define guy_transparent 0x00008000
+
+#define guy_appearsslow 0x00010000
 
 // Old flags
 #define weak_arrow		0x20000000
@@ -1355,47 +1331,6 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_X_OFFSET	0x00000080
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
-
-
-struct guydata
-{
-    dword flags;
-    dword flags2;
-    word  tile;
-    byte  width;
-    byte  height; //0=striped, 1+=rectangular
-    word  s_tile; //secondary (additional) tile(s)
-    byte  s_width;
-    byte  s_height;  //0=striped, 1+=rectangular
-    word  e_tile;
-    byte  e_width;
-    byte  e_height;
-    
-    short hp;
-    
-    short  family, cset, anim, e_anim, frate, e_frate;
-    short  dp, wdp, weapon;
-    
-    short  rate, hrate, step, homing, grumble, item_set;
-    long   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
-    short  bgsfx, bosspal, extend;
-    byte defense[edefLAST255];
-   // byte scriptdefense[
-    //  short  startx, starty;
-    //  short  foo1,foo2,foo3,foo4,foo5,foo6;
-    byte  hitsfx, deadsfx;
-    //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
-    //Adding earlier will offset defdata arrays. -Z
-    
-    //2.6 enemy editor tile and hit sizes. -Z
-    int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions. 
-    // no hzofs - it's always equal to zofs.
-    int hxofs,hyofs,hxsz,hysz,hzsz;
-    int txsz,tysz;
-    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
-    SpriteDefinitionRef wpnsprite; //wpnsprite is new for 2.6 -Z
-    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
-};
 
 class refInfo
 {
@@ -1491,7 +1426,7 @@ struct mapscr
 	byte path[4];
 	byte sidewarpscr[4];
 
-    word enemy[10]; //GetSetScreenEnemies()
+    EnemyDefinitionRef enemy[10]; //GetSetScreenEnemies()
 	word tilewarpdmap[4];
 	word sidewarpdmap[4];
 	word warpreturnc;
@@ -1508,7 +1443,7 @@ struct mapscr
     byte sidewarpindex;
     byte undercset;
 	byte valid;
-	byte guy;
+	EnemyDefinitionRef guy;
 	byte room;
 	byte hasitem;
 	byte tilewarpoverlayflags;
@@ -1625,7 +1560,7 @@ struct mapscr
         }
 
         for(int i=0; i<10; i++)
-            enemy[i] = 0;
+            enemy[i] = EnemyDefinitionRef();
 
         for (int i = 0; i < 4; i++)
         {
@@ -1647,7 +1582,7 @@ struct mapscr
         sidewarpindex = 0;
         undercset = 0;
         valid = 0;
-        guy = 0;
+        guy = EnemyDefinitionRef();
         room = 0;
         hasitem = 0;
         tilewarpoverlayflags = 0;

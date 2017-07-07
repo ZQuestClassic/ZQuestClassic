@@ -816,7 +816,7 @@ void zmap::clearscr(int scr)
         screens[scr].layeropacity[i]=255;
         
     screens[scr].valid=mVERSION;
-    screens[scr].screen_midi=-1;
+    screens[scr].screen_midi=65535;
     screens[scr].csensitive=1;
     screens[scr].bosssfx=screens[scr].oceansfx=0;
     screens[scr].secretsfx=27; // WAV_SECRET
@@ -5108,10 +5108,15 @@ bool load_guys(const char *path)
     
     if(section_id==ID_GUYS)
     {
-        if(readguys(f, &h, true)==0)
+        std::map<std::string, EnemyDefinitionTable> edts;
+        if(readguys(f, &h, edts)==0)
         {
             pack_fclose(f);
             return true;
+        }
+        for (std::map<std::string, EnemyDefinitionTable>::iterator it = edts.begin(); it != edts.end(); ++it)
+        {
+            curQuest->getModule(it->first).setEnemyDefTable(it->second);
         }
     }
     
@@ -7208,7 +7213,7 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
 
         for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
         {
-            uint32_t numsprites = curQuest->getModule(*it).weaponDefTable().getNumSpriteDefinitions();
+            uint32_t numsprites = curQuest->getModule(*it).spriteDefTable().getNumSpriteDefinitions();
 
             uint32_t modlen = it->length() + 1;
             if (!p_iputl(modlen, f))
@@ -7227,10 +7232,10 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
 
             for (uint32_t i = 0; i < numsprites; i++)
             {
-                uint32_t len = curQuest->getModule(*it).weaponDefTable().getSpriteName(i).length() + 1;
+                uint32_t len = curQuest->getModule(*it).spriteDefTable().getSpriteName(i).length() + 1;
                 if (!p_iputl(len, f))
                     new_return(5);
-                if (!pfwrite((void *)curQuest->getModule(*it).weaponDefTable().getSpriteName(i).c_str(), len, f))
+                if (!pfwrite((void *)curQuest->getModule(*it).spriteDefTable().getSpriteName(i).c_str(), len, f))
                 {
                     new_return(5);
                 }
@@ -7240,32 +7245,32 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
             for (uint32_t i = 0; i < numsprites; i++)
             {
 
-                if (!p_iputw(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).tile, f))
+                if (!p_iputw(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).tile, f))
                 {
                     new_return(6);
                 }
 
-                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).misc, f))
+                if (!p_putc(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).misc, f))
                 {
                     new_return(7);
                 }
 
-                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).csets, f))
+                if (!p_putc(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).csets, f))
                 {
                     new_return(8);
                 }
 
-                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).frames, f))
+                if (!p_putc(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).frames, f))
                 {
                     new_return(9);
                 }
 
-                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).speed, f))
+                if (!p_putc(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).speed, f))
                 {
                     new_return(10);
                 }
 
-                if (!p_putc(curQuest->getModule(*it).weaponDefTable().getSpriteDefinition(i).type, f))
+                if (!p_putc(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).type, f))
                 {
                     new_return(11);
                 }
@@ -7303,7 +7308,12 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    if(!p_putc(screen.guy,f))
+    uint32_t guylen = screen.guy.module.length() + 1;
+    if (!p_iputl(guylen, f))
+        return qe_invalid;
+    if (!pfwrite((void *)screen.guy.module.c_str(), guylen, f))
+        return qe_invalid;
+    if(!p_iputl(screen.guy.slot,f))
     {
         return qe_invalid;
     }
@@ -7435,13 +7445,18 @@ int writemapscreen(PACKFILE *f, int i, int j)
         return qe_invalid;
     }
     
-    for(int k=0; k<10; k++)
+    for (int k = 0; k < 10; k++)
     {
+        uint32_t modnamelen = screen.enemy[k].module.length() + 1;
+        if (!p_iputl(modnamelen, f))
+            return qe_invalid;
+
+        if (!pfwrite((void *)screen.enemy[k].module.c_str(), modnamelen, f))
+            return qe_invalid;
+
+        if (!p_iputl(screen.enemy[k].slot, f))
         {
-            if(!p_iputw(screen.enemy[k],f))
-            {
-                return qe_invalid;
-            }
+            return qe_invalid;
         }
     }
     
@@ -8813,315 +8828,350 @@ int writeguys(PACKFILE *f, zquestheader *Header)
         }
         
         writesize=0;
-        
-        //finally...  section data
-        for(int i=0; i<MAXGUYS; i++)
+
+        std::vector<std::string> modules;
+        curQuest->getModules(modules);
+        uint32_t nummodules = modules.size();
+
+        if (!p_iputl(nummodules, f))
         {
-            if(!pfwrite((char *)guy_string[i], 64, f))
+            new_return(4);
+        }
+
+        for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
+        {
+            QuestModule &module = curQuest->getModule(*it);
+
+            uint32_t modnamelen = it->length() + 1;
+            if (!p_iputl(modnamelen, f))
             {
                 new_return(5);
             }
-        }
-        
-        for(int i=0; i<MAXGUYS; i++)
-        {
-            if(!p_iputl(guysbuf[i].flags,f))
+            if (!pfwrite((void *)it->c_str(), modnamelen, f))
             {
-                new_return(6);
+                new_return(5);
             }
-            
-            if(!p_iputl(guysbuf[i].flags2,f))
+
+            uint32_t numguys = module.enemyDefTable().getNumEnemyDefinitions();
+            if (!p_iputl(numguys, f))
             {
-                new_return(7);
+                new_return(5);
             }
-            
-            if(!p_iputw(guysbuf[i].tile,f))
+
+            //finally...  section data
+            for (uint32_t i = 0; i < numguys; i++)
             {
-                new_return(8);
-            }
-            
-            if(!p_putc(guysbuf[i].width,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(guysbuf[i].height,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_iputw(guysbuf[i].s_tile,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_putc(guysbuf[i].s_width,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_putc(guysbuf[i].s_height,f))
-            {
-                new_return(13);
-            }
-            
-            if(!p_iputw(guysbuf[i].e_tile,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_putc(guysbuf[i].e_width,f))
-            {
-                new_return(15);
-            }
-            
-            if(!p_putc(guysbuf[i].e_height,f))
-            {
-                new_return(16);
-            }
-            
-            if(!p_iputw(guysbuf[i].hp,f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_iputw(guysbuf[i].family,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_iputw(guysbuf[i].cset,f))
-            {
-                new_return(19);
-            }
-            
-            if(!p_iputw(guysbuf[i].anim,f))
-            {
-                new_return(20);
-            }
-            
-            if(!p_iputw(guysbuf[i].e_anim,f))
-            {
-                new_return(21);
-            }
-            
-            if(!p_iputw(guysbuf[i].frate,f))
-            {
-                new_return(22);
-            }
-            
-            if(!p_iputw(guysbuf[i].e_frate,f))
-            {
-                new_return(23);
-            }
-            
-            if(!p_iputw(guysbuf[i].dp,f))
-            {
-                new_return(24);
-            }
-            
-            if(!p_iputw(guysbuf[i].wdp,f))
-            {
-                new_return(25);
-            }
-            
-            if(!p_iputw(guysbuf[i].weapon,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_iputw(guysbuf[i].rate,f))
-            {
-                new_return(27);
-            }
-            
-            if(!p_iputw(guysbuf[i].hrate,f))
-            {
-                new_return(28);
-            }
-            
-            if(!p_iputw(guysbuf[i].step,f))
-            {
-                new_return(29);
-            }
-            
-            if(!p_iputw(guysbuf[i].homing,f))
-            {
-                new_return(30);
-            }
-            
-            if(!p_iputw(guysbuf[i].grumble,f))
-            {
-                new_return(31);
-            }
-            
-            if(!p_iputw(guysbuf[i].item_set,f))
-            {
-                new_return(32);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc1,f))
-            {
-                new_return(33);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc2,f))
-            {
-                new_return(34);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc3,f))
-            {
-                new_return(35);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc4,f))
-            {
-                new_return(36);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc5,f))
-            {
-                new_return(37);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc6,f))
-            {
-                new_return(38);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc7,f))
-            {
-                new_return(39);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc8,f))
-            {
-                new_return(40);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc9,f))
-            {
-                new_return(41);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc10,f))
-            {
-                new_return(42);
-            }
-            
-            if(!p_iputw(guysbuf[i].bgsfx,f))
-            {
-                new_return(43);
-            }
-            
-            if(!p_iputw(guysbuf[i].bosspal,f))
-            {
-                new_return(44);
-            }
-            
-            if(!p_iputw(guysbuf[i].extend,f))
-            {
-                new_return(45);
-            }
-            
-            for(int j=0; j < edefLAST; j++)
-            {
-                if(!p_putc(guysbuf[i].defense[j],f))
+                uint32_t namelen = module.enemyDefTable().getEnemyName(i).length() + 1;
+                if (!p_iputl(namelen, f))
                 {
-                    new_return(46);
+                    new_return(5);
+                }
+                if (!pfwrite((char *)module.enemyDefTable().getEnemyName(i).c_str(), namelen, f))
+                {
+                    new_return(5);
                 }
             }
-            
-            if(!p_putc(guysbuf[i].hitsfx,f))
+
+            for (uint32_t i = 0; i < numguys; i++)
             {
-                new_return(47);
-            }
-            
-            if(!p_putc(guysbuf[i].deadsfx,f))
-            {
-                new_return(48);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc11,f))
-            {
-                new_return(49);
-            }
-            
-            if(!p_iputl(guysbuf[i].misc12,f))
-            {
-                new_return(50);
-            }
-	    
-	    //New 2.6 defences
-	    for(int j=edefLAST; j < edefLAST255; j++)
-            {
-                if(!p_putc(guysbuf[i].defense[j],f))
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).flags, f))
                 {
-                    new_return(51);
+                    new_return(6);
                 }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).flags2, f))
+                {
+                    new_return(7);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).tile, f))
+                {
+                    new_return(8);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).width, f))
+                {
+                    new_return(9);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).height, f))
+                {
+                    new_return(10);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).s_tile, f))
+                {
+                    new_return(11);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).s_width, f))
+                {
+                    new_return(12);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).s_height, f))
+                {
+                    new_return(13);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).e_tile, f))
+                {
+                    new_return(14);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).e_width, f))
+                {
+                    new_return(15);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).e_height, f))
+                {
+                    new_return(16);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).hp, f))
+                {
+                    new_return(17);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).family, f))
+                {
+                    new_return(18);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).cset, f))
+                {
+                    new_return(19);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).anim, f))
+                {
+                    new_return(20);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).e_anim, f))
+                {
+                    new_return(21);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).frate, f))
+                {
+                    new_return(22);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).e_frate, f))
+                {
+                    new_return(23);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).dp, f))
+                {
+                    new_return(24);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).wdp, f))
+                {
+                    new_return(25);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).weapon, f))
+                {
+                    new_return(26);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).rate, f))
+                {
+                    new_return(27);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).hrate, f))
+                {
+                    new_return(28);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).step, f))
+                {
+                    new_return(29);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).homing, f))
+                {
+                    new_return(30);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).grumble, f))
+                {
+                    new_return(31);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).item_set, f))
+                {
+                    new_return(32);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[0], f))
+                {
+                    new_return(33);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[1], f))
+                {
+                    new_return(34);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[2], f))
+                {
+                    new_return(35);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[3], f))
+                {
+                    new_return(36);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[4], f))
+                {
+                    new_return(37);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[5], f))
+                {
+                    new_return(38);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[6], f))
+                {
+                    new_return(39);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[7], f))
+                {
+                    new_return(40);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[8], f))
+                {
+                    new_return(41);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[9], f))
+                {
+                    new_return(42);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).bgsfx, f))
+                {
+                    new_return(43);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).bosspal, f))
+                {
+                    new_return(44);
+                }
+
+                if (!p_iputw(module.enemyDefTable().getEnemyDefinition(i).extend, f))
+                {
+                    new_return(45);
+                }
+
+                for (int j = 0; j < edefLAST; j++)
+                {
+                    if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).defense[j], f))
+                    {
+                        new_return(46);
+                    }
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).hitsfx, f))
+                {
+                    new_return(47);
+                }
+
+                if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).deadsfx, f))
+                {
+                    new_return(48);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[10], f))
+                {
+                    new_return(49);
+                }
+
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).miscs[11], f))
+                {
+                    new_return(50);
+                }
+
+                //New 2.6 defences
+                for (int j = edefLAST; j < edefLAST255; j++)
+                {
+                    if (!p_putc(module.enemyDefTable().getEnemyDefinition(i).defense[j], f))
+                    {
+                        new_return(51);
+                    }
+                }
+
+                //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).txsz, f))
+                {
+                    new_return(52);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).tysz, f))
+                {
+                    new_return(53);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).hxsz, f))
+                {
+                    new_return(54);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).hysz, f))
+                {
+                    new_return(55);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).hzsz, f))
+                {
+                    new_return(56);
+                }
+                // These are not fixed types, but ints, so they are safe to use here. 
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).hxofs, f))
+                {
+                    new_return(57);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).hyofs, f))
+                {
+                    new_return(58);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).xofs, f))
+                {
+                    new_return(59);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).yofs, f))
+                {
+                    new_return(60);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).zofs, f))
+                {
+                    new_return(61);
+                }
+                uint32_t len = module.enemyDefTable().getEnemyDefinition(i).wpnsprite.module.length() + 1;
+                if (!p_iputl(len, f))
+                {
+                    new_return(62);
+                }
+                if (!pfwrite((void *)module.enemyDefTable().getEnemyDefinition(i).wpnsprite.module.c_str(), len, f))
+                {
+                    new_return(62);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).wpnsprite.slot, f))
+                {
+                    new_return(62);
+                }
+                if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).SIZEflags, f))
+                {
+                    new_return(62);
+                }
+
             }
-	    
-	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-	    if(!p_iputl(guysbuf[i].txsz,f))
-            {
-                new_return(52);
-            }
-	    if(!p_iputl(guysbuf[i].tysz,f))
-            {
-                new_return(53);
-            }
-	    if(!p_iputl(guysbuf[i].hxsz,f))
-            {
-                new_return(54);
-            }
-	    if(!p_iputl(guysbuf[i].hysz,f))
-            {
-                new_return(55);
-            }
-	    if(!p_iputl(guysbuf[i].hzsz,f))
-            {
-                new_return(56);
-            }
-	    // These are not fixed types, but ints, so they are safe to use here. 
-	    if(!p_iputl(guysbuf[i].hxofs,f))
-            {
-                new_return(57);
-            }
-	    if(!p_iputl(guysbuf[i].hyofs,f))
-            {
-                new_return(58);
-            }
-	    if(!p_iputl(guysbuf[i].xofs,f))
-            {
-                new_return(59);
-            }
-	    if(!p_iputl(guysbuf[i].yofs,f))
-            {
-                new_return(60);
-            }
-	    if(!p_iputl(guysbuf[i].zofs,f))
-            {
-                new_return(61);
-            }
-        uint32_t len = guysbuf[i].wpnsprite.module.length() + 1;
-        if (!p_iputl(len, f))
-        {
-            new_return(62);
-        }
-        if (!pfwrite((void *)guysbuf[i].wpnsprite.module.c_str(), len, f))
-        {
-            new_return(62);
-        }
-        if (!p_iputl(guysbuf[i].wpnsprite.slot, f))
-        {
-            new_return(62);
-        }
-	    if(!p_iputl(guysbuf[i].SIZEflags,f))
-            {
-                new_return(62);
-            }
-	    
         }
         
         if(writecycle==0)

@@ -43,7 +43,7 @@ extern sprite_list  items;
   */
 bool addfairy(fix x, fix y, int misc3, int id)
 {
-    addenemy(x,y,eITEMFAIRY,id);
+    addenemy(x,y,curQuest->specialEnemies().fairyItem,id);
     ((enemy*)guys.spr(guys.Count()-1))->dstep=misc3;
     ((enemy*)guys.spr(guys.Count()-1))->step=(misc3/100.0);
     movefairy(x,y,id);

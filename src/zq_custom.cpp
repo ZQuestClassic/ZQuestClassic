@@ -3476,7 +3476,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-void edit_enemydata(int index)
+void edit_enemydata(const EnemyDefinitionRef &index)
 {
     char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
          frt[8], efr[8], bsp[8];
@@ -3500,18 +3500,18 @@ void edit_enemydata(int index)
         enedata_dlg[enedata_flags2_list[i]].h = 0;
     }
     
-    sprintf(enemynumstr,"Enemy %d: %s", index, guy_string[index]);
+    sprintf(enemynumstr,"Enemy %d: %s", index.slot, curQuest->getEnemyName(index).c_str());
     enedata_dlg[0].dp = enemynumstr;
     enedata_dlg[0].dp2 = lfont;
-    enedata_dlg[2].d1 = guysbuf[index].tile;
-    enedata_dlg[2].d2 = guysbuf[index].cset;
-    enedata_dlg[3].d1 = guysbuf[index].s_tile;
-    enedata_dlg[3].d2 = guysbuf[index].cset;
-    enedata_dlg[4].d1 = guysbuf[index].e_tile;
-    enedata_dlg[4].d2 = guysbuf[index].cset;
+    enedata_dlg[2].d1 = curQuest->getEnemyDefinition(index).tile;
+    enedata_dlg[2].d2 = curQuest->getEnemyDefinition(index).cset;
+    enedata_dlg[3].d1 = curQuest->getEnemyDefinition(index).s_tile;
+    enedata_dlg[3].d2 = curQuest->getEnemyDefinition(index).cset;
+    enedata_dlg[4].d1 = curQuest->getEnemyDefinition(index).e_tile;
+    enedata_dlg[4].d2 = curQuest->getEnemyDefinition(index).cset;
     
     // Enemy weapon list
-    if(guysbuf[index].weapon==wNone)
+    if(curQuest->getEnemyDefinition(index).weapon==wNone)
     {
         enedata_dlg[45].d1 = 0;
     }
@@ -3524,7 +3524,7 @@ void edit_enemydata(int index)
         
         for(int j=0; j<biew_cnt; j++)
         {
-            if(biew[j].i == guysbuf[index].weapon - wEnemyWeapons)
+            if(biew[j].i == curQuest->getEnemyDefinition(index).weapon - wEnemyWeapons)
                 enedata_dlg[45].d1 = j;
         }
     }
@@ -3537,7 +3537,7 @@ void edit_enemydata(int index)
     
     for(int j=0; j<bief_cnt; j++)
     {
-        if(bief[j].i == guysbuf[index].family)
+        if(bief[j].i == curQuest->getEnemyDefinition(index).family)
             enedata_dlg[46].d1 = j;
     }
     
@@ -3549,22 +3549,22 @@ void edit_enemydata(int index)
     
     for(int j=0; j<biea_cnt; j++)
     {
-        if(biea[j].i == guysbuf[index].anim)
+        if(biea[j].i == curQuest->getEnemyDefinition(index).anim)
             enedata_dlg[47].d1 = j;
             
-        if(biea[j].i == guysbuf[index].e_anim)
+        if(biea[j].i == curQuest->getEnemyDefinition(index).e_anim)
             enedata_dlg[48].d1 = j;
     }
     
     
-    enedata_dlg[49].d1 = guysbuf[index].item_set;
+    enedata_dlg[49].d1 = curQuest->getEnemyDefinition(index).item_set;
     
-    sprintf(w,"%d",guysbuf[index].width);
-    sprintf(h,"%d",guysbuf[index].height);
-    sprintf(sw,"%d",guysbuf[index].s_width);
-    sprintf(sh,"%d",guysbuf[index].s_height);
-    sprintf(ew,"%d",guysbuf[index].e_width);
-    sprintf(eh,"%d",guysbuf[index].e_height);
+    sprintf(w,"%d",curQuest->getEnemyDefinition(index).width);
+    sprintf(h,"%d",curQuest->getEnemyDefinition(index).height);
+    sprintf(sw,"%d",curQuest->getEnemyDefinition(index).s_width);
+    sprintf(sh,"%d",curQuest->getEnemyDefinition(index).s_height);
+    sprintf(ew,"%d",curQuest->getEnemyDefinition(index).e_width);
+    sprintf(eh,"%d",curQuest->getEnemyDefinition(index).e_height);
     
     
     enedata_dlg[30].dp = w;
@@ -3574,67 +3574,59 @@ void edit_enemydata(int index)
     enedata_dlg[34].dp = ew;
     enedata_dlg[35].dp = eh;
     
-    sprintf(hp,"%d",guysbuf[index].hp);
-    sprintf(dp,"%d",guysbuf[index].dp);
-    sprintf(wdp,"%d",guysbuf[index].wdp);
-    sprintf(grm,"%d",guysbuf[index].grumble);
+    sprintf(hp,"%d",curQuest->getEnemyDefinition(index).hp);
+    sprintf(dp,"%d",curQuest->getEnemyDefinition(index).dp);
+    sprintf(wdp,"%d",curQuest->getEnemyDefinition(index).wdp);
+    sprintf(grm,"%d",curQuest->getEnemyDefinition(index).grumble);
     enedata_dlg[37].dp = hp;
     enedata_dlg[38].dp = dp;
     enedata_dlg[39].dp = wdp;
     enedata_dlg[40].dp = grm;
     
-    sprintf(rat,"%d",guysbuf[index].rate);
-    sprintf(hrt,"%d",guysbuf[index].hrate);
-    sprintf(hom,"%d",guysbuf[index].homing);
-    sprintf(spd,"%d",guysbuf[index].step);
+    sprintf(rat,"%d",curQuest->getEnemyDefinition(index).rate);
+    sprintf(hrt,"%d",curQuest->getEnemyDefinition(index).hrate);
+    sprintf(hom,"%d",curQuest->getEnemyDefinition(index).homing);
+    sprintf(spd,"%d",curQuest->getEnemyDefinition(index).step);
     enedata_dlg[41].dp = rat;
     enedata_dlg[42].dp = hrt;
     enedata_dlg[43].dp = hom;
     enedata_dlg[44].dp = spd;
     
-    sprintf(name,"%s",guy_string[index]);
+    sprintf(name,"%s",curQuest->getEnemyName(index).c_str());
     enedata_dlg[36].dp = name;
     
-    sprintf(ms[0],"%ld",guysbuf[index].misc1);
-    sprintf(ms[1],"%ld",guysbuf[index].misc2);
-    sprintf(ms[2],"%ld",guysbuf[index].misc3);
-    sprintf(ms[3],"%ld",guysbuf[index].misc4);
-    sprintf(ms[4],"%ld",guysbuf[index].misc5);
-    sprintf(ms[5],"%ld",guysbuf[index].misc6);
-    sprintf(ms[6],"%ld",guysbuf[index].misc7);
-    sprintf(ms[7],"%ld",guysbuf[index].misc8);
-    sprintf(ms[8],"%ld",guysbuf[index].misc9);
-    sprintf(ms[9],"%ld",guysbuf[index].misc10);
-    sprintf(ms[10],"%ld",guysbuf[index].misc11);
-    sprintf(ms[11],"%ld",guysbuf[index].misc12);
+    for (int i = 0; i < 12; i++)
+    {
+        sprintf(ms[i], "%ld", curQuest->getEnemyDefinition(index).miscs[i]);
+    }
     
     
     
     for(int j=0; j <= edefBYRNA; j++)
     {
-        enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
+        enedata_dlg[j+161].d1 = curQuest->getEnemyDefinition(index).defense[j];
     }
     
-    enedata_dlg[192].d1 = guysbuf[index].defense[edefSCRIPT];
+    enedata_dlg[192].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT];
     
     //Script Defences
-    enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
-     enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
-     enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
-     enedata_dlg[206].d1 = guysbuf[index].defense[edefSCRIPT04];
-     enedata_dlg[207].d1 = guysbuf[index].defense[edefSCRIPT05];
-     enedata_dlg[208].d1 = guysbuf[index].defense[edefSCRIPT06];
-     enedata_dlg[209].d1 = guysbuf[index].defense[edefSCRIPT07];
-     enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
-     enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
-     enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
+    enedata_dlg[203].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT01];
+     enedata_dlg[204].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT02];
+     enedata_dlg[205].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT03];
+     enedata_dlg[206].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT04];
+     enedata_dlg[207].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT05];
+     enedata_dlg[208].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT06];
+     enedata_dlg[209].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT07];
+     enedata_dlg[210].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT08];
+     enedata_dlg[211].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT09];
+     enedata_dlg[212].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT10];
     
     //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-    sprintf(tilex,"%ld",guysbuf[index].txsz);
-    sprintf(tiley,"%ld",guysbuf[index].tysz);
-    sprintf(hitx,"%ld",guysbuf[index].hxsz);
-    sprintf(hity,"%ld",guysbuf[index].hysz);
-    sprintf(hitz,"%ld",guysbuf[index].hzsz);
+    sprintf(tilex,"%ld",curQuest->getEnemyDefinition(index).txsz);
+    sprintf(tiley,"%ld",curQuest->getEnemyDefinition(index).tysz);
+    sprintf(hitx,"%ld",curQuest->getEnemyDefinition(index).hxsz);
+    sprintf(hity,"%ld",curQuest->getEnemyDefinition(index).hysz);
+    sprintf(hitz,"%ld",curQuest->getEnemyDefinition(index).hzsz);
   
     enedata_dlg[214].dp = tilex;
     enedata_dlg[216].dp = tiley;
@@ -3643,11 +3635,11 @@ void edit_enemydata(int index)
     enedata_dlg[222].dp = hitz;
     
     //HitXOffset, HitYOFfset, hitZOffset, DrawXOffsrt, DrawYOffset
-    sprintf(hitofsx,"%ld",guysbuf[index].hxofs);
-    sprintf(hitofsy,"%ld",guysbuf[index].hyofs);
-    sprintf(hitofsz,"%ld",guysbuf[index].zofs);
-    sprintf(drawofsx,"%ld",guysbuf[index].xofs);
-    sprintf(drawofsy,"%ld",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
+    sprintf(hitofsx,"%ld",curQuest->getEnemyDefinition(index).hxofs);
+    sprintf(hitofsy,"%ld",curQuest->getEnemyDefinition(index).hyofs);
+    sprintf(hitofsz,"%ld",curQuest->getEnemyDefinition(index).zofs);
+    sprintf(drawofsx,"%ld",curQuest->getEnemyDefinition(index).xofs);
+    sprintf(drawofsy,"%ld",curQuest->getEnemyDefinition(index).yofs); //This seems to be setting to +48 or something with any value set?! -Z
     
     enedata_dlg[224].dp = hitofsx;
     enedata_dlg[226].dp = hitofsy;
@@ -3656,26 +3648,26 @@ void edit_enemydata(int index)
     enedata_dlg[232].dp = drawofsy; //This seems to be setting to +48 or something with any value set?! -Z
     
     //Override flags
-    enedata_dlg[237].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
-    enedata_dlg[238].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
-    enedata_dlg[239].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
-    enedata_dlg[240].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[241].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[242].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[243].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[244].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[245].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
-    enedata_dlg[246].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[237].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
+    enedata_dlg[238].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[239].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[240].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[241].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[242].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[243].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[244].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[245].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
+    enedata_dlg[246].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
     
-    sprintf(frt,"%d",guysbuf[index].frate);
-    sprintf(efr,"%d",guysbuf[index].e_frate);
+    sprintf(frt,"%d",curQuest->getEnemyDefinition(index).frate);
+    sprintf(efr,"%d",curQuest->getEnemyDefinition(index).e_frate);
     enedata_dlg[140].dp = frt;
     enedata_dlg[141].dp = efr;
     
     //sprintf(sfx,"%d",guysbuf[index].bgsfx);
-    enedata_dlg[182].d1= (int)guysbuf[index].bgsfx;
-    enedata_dlg[183].d1= (int)guysbuf[index].hitsfx;
-    enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
+    enedata_dlg[182].d1= (int)curQuest->getEnemyDefinition(index).bgsfx;
+    enedata_dlg[183].d1= (int)curQuest->getEnemyDefinition(index).hitsfx;
+    enedata_dlg[184].d1= (int)curQuest->getEnemyDefinition(index).deadsfx;
     
    
     
@@ -3773,7 +3765,7 @@ void edit_enemydata(int index)
     }*/
     
     //Set the dialogue. 
-    sprintf(weapsprite,"%d",guysbuf[index].wpnsprite.slot);
+    sprintf(weapsprite,"%d",curQuest->getEnemyDefinition(index).wpnsprite.slot);
     enedata_dlg[236].dp = weapsprite;
     
     /* Sprite list pulldown. 
@@ -3843,9 +3835,9 @@ void edit_enemydata(int index)
     
     //enedata_dlg[236].d1= (int)guysbuf[index].wpnsprite;
     
-    sprintf(bsp,"%d",guysbuf[index].bosspal);
+    sprintf(bsp,"%d",curQuest->getEnemyDefinition(index).bosspal);
     
-    if(guysbuf[index].cset == 14)
+    if(curQuest->getEnemyDefinition(index).cset == 14)
     {
         enedata_dlg[143].flags = D_SELECTED;
     }
@@ -3857,13 +3849,13 @@ void edit_enemydata(int index)
     enedata_dlg[53].dp = bsp;
     
     for(int i=0; i<32; i++)
-        enedata_dlg[74+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
+        enedata_dlg[74+i].flags = (curQuest->getEnemyDefinition(index).flags & (1<<i)) ? D_SELECTED : 0;
         
-    enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
-                           : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
+    enedata_dlg[186].d1 = (curQuest->getEnemyDefinition(index).flags & guy_fadeinstant ? 2
+                           : curQuest->getEnemyDefinition(index).flags & guy_fadeflicker ? 1 : 0);
                            
     for(int i=0; i<16; i++)
-        enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
+        enedata_dlg[106+i].flags = (curQuest->getEnemyDefinition(index).flags2 & (1<<i)) ? D_SELECTED : 0;
 
     /*
     enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
@@ -3884,7 +3876,7 @@ void edit_enemydata(int index)
 
 	DIALOG *enedata_cpy = resizeDialog(enedata_dlg, 1.5);
     
-    setEnemyLabels(guysbuf[index].family);
+    setEnemyLabels(curQuest->getEnemyDefinition(index).family);
     
     do
     {
@@ -3947,19 +3939,10 @@ void edit_enemydata(int index)
 	//test.wpnsprite = atoi(weapsprite);
 	
    
-        
-        test.misc1 = (enedata_cpy[64].proc==jwin_droplist_proc) ? enedata_cpy[64].d1 : atol(ms[0]);
-        test.misc2 = (enedata_cpy[65].proc==jwin_droplist_proc) ? enedata_cpy[65].d1 : atol(ms[1]);
-        test.misc3 = (enedata_cpy[66].proc==jwin_droplist_proc) ? enedata_cpy[66].d1 : atol(ms[2]);
-        test.misc4 = (enedata_cpy[67].proc==jwin_droplist_proc) ? enedata_cpy[67].d1 : atol(ms[3]);
-        test.misc5 = (enedata_cpy[68].proc==jwin_droplist_proc) ? enedata_cpy[68].d1 : atol(ms[4]);
-        test.misc6 = (enedata_cpy[69].proc==jwin_droplist_proc) ? enedata_cpy[69].d1 : atol(ms[5]);
-        test.misc7 = (enedata_cpy[70].proc==jwin_droplist_proc) ? enedata_cpy[70].d1 : atol(ms[6]);
-        test.misc8 = (enedata_cpy[71].proc==jwin_droplist_proc) ? enedata_cpy[71].d1 : atol(ms[7]);
-        test.misc9 = (enedata_cpy[72].proc==jwin_droplist_proc) ? enedata_cpy[72].d1 : atol(ms[8]);
-        test.misc10 = (enedata_cpy[73].proc==jwin_droplist_proc) ? enedata_cpy[73].d1 : atol(ms[9]);
-        test.misc11 = atol(ms[10]);
-        test.misc12 = atol(ms[11]);
+        for(int j=0; j<10;j++)
+            test.miscs[j] = (enedata_cpy[64+j].proc==jwin_droplist_proc) ? enedata_cpy[64+j].d1 : atol(ms[j]);
+        test.miscs[10] = atol(ms[10]);
+        test.miscs[11] = atol(ms[11]);
 	
 	
 	
@@ -4040,8 +4023,8 @@ void edit_enemydata(int index)
 	    
         if(ret==5)
         {
-            strcpy(guy_string[index],name);
-            guysbuf[index] = test;
+            curQuest->setEnemyName(index,name);
+            curQuest->getEnemyDefinition(index) = test;
             saved = false;
         }
         else if(ret==46)
@@ -4075,7 +4058,7 @@ void edit_enemydata(int index)
 }
 
 extern DIALOG elist_dlg[];
-static int copiedGuy;
+static EnemyDefinitionRef copiedGuy;
 static MENU elist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
@@ -4088,7 +4071,7 @@ void elist_rclick_func(int index, int x, int y)
     if(index==0)
         return;
     
-    if(copiedGuy<=0)
+    if(!curQuest->isValid(copiedGuy))
         elist_rclick_menu[1].flags|=D_DISABLED;
     else
         elist_rclick_menu[1].flags&=~D_DISABLED;
@@ -4099,7 +4082,7 @@ void elist_rclick_func(int index, int x, int y)
         copiedGuy=bie[index].i;
     else if(ret==1) // paste
     {
-        guysbuf[bie[index].i]=guysbuf[copiedGuy];
+        curQuest->getEnemyDefinition(bie[index].i)=curQuest->getEnemyDefinition(copiedGuy);
         elist_dlg[2].flags|=D_DIRTY;
         saved=false;
     }
@@ -4113,9 +4096,10 @@ int onCustomEnemies()
       */
     
     int foo;
-    int index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
+    build_bie_list(true);
+    EnemyDefinitionRef index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
     
-    while(index >= 0)
+    while(curQuest->isValid(index))
     {
         //I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
         //,,.Someone feel free to fix the thing properly later on.
@@ -4123,21 +4107,19 @@ int onCustomEnemies()
         //-Two cents worth. -Gleeok
         if(key[KEY_OPENBRACE])   //copy
         {
-            if(index != 0)
-                copiedGuy=index;
+            copiedGuy=index;
         }
         else if(key[KEY_CLOSEBRACE])   //paste
         {
-            if(copiedGuy>0 && index!=0)
+            if(curQuest->isValid(copiedGuy))
             {
-                guysbuf[index]=guysbuf[copiedGuy];
+                curQuest->getEnemyDefinition(index) = curQuest->getEnemyDefinition(copiedGuy);
                 saved=false;
             }
         }
         else
         {
-            if(index != 0)
-                edit_enemydata(index);
+            edit_enemydata(index);
         }
         
         index = select_enemy("Select Enemy",index,true,true,foo);
