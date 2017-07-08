@@ -54,11 +54,12 @@ bool SpecialItemIndex::checkConsistency(Quest &quest)
     return true;
 }
 
-itemdata::itemdata(byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_, 
+itemdata::itemdata(const std::string &name_, byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_, 
     uint32_t wpn_, uint32_t wpn2_, uint32_t wpn3_, uint32_t wpn4_, uint32_t wpn5_, uint32_t wpn6_, uint32_t wpn7_, uint32_t wpn8_, uint32_t wpn9_, uint32_t wpn10_, 
     byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_)
 {        
     clear();
+    name = name_;
     family = family_;
     fam_type = fam_type_;
     power = power_;
@@ -90,7 +91,7 @@ itemdata::itemdata(byte family_, byte fam_type_, byte power_, word flags_, char 
  string ItemDefinitionTable::defaultItemName(int slot)
 {
      if (slot < iLast)
-         return string(old_item_names[slot]);
+         return getDefaultItems()[slot].name;
      else
      {
          char buf[40];
@@ -112,17 +113,9 @@ itemdata ItemDefinitionTable::defaultItemData(int slot)
 void ItemDefinitionTable::clear()
 {
     itemData_.clear();
-    itemNames_.clear();
 }
 
-void ItemDefinitionTable::addItemDefinition(const itemdata &data, const std::string &name)
+void ItemDefinitionTable::addItemDefinition(const itemdata &data)
 {
     itemData_.push_back(data);
-    itemNames_.push_back(name);
-}
-
-void ItemDefinitionTable::setItemName(int idx, const std::string &name)
-{
-    assert(idx >= 0 && idx < (int)itemNames_.size());
-    itemNames_[idx] = name;
 }

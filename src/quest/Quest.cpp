@@ -36,16 +36,6 @@ guydata &Quest::getEnemyDefinition(const EnemyDefinitionRef &ref)
     return questModules_[ref.module].enemyDefTable().getEnemyDefinition(ref.slot);
 }
 
-
-const std::string &Quest::getItemName(const ItemDefinitionRef &ref)
-{
-    if (!isValid(ref))
-    {
-        assert(!"Invalid item ref");
-    }
-    return questModules_[ref.module].itemDefTable().getItemName(ref.slot);
-}
-
 const std::string &Quest::getEnemyName(const EnemyDefinitionRef &ref)
 {
     if (!isValid(ref))
@@ -53,15 +43,6 @@ const std::string &Quest::getEnemyName(const EnemyDefinitionRef &ref)
         assert(!"Invalid enemy ref");
     }
     return questModules_[ref.module].enemyDefTable().getEnemyName(ref.slot);
-}
-
-void Quest::setItemName(const ItemDefinitionRef &ref, const std::string &newname)
-{
-    if (!isValid(ref))
-    {
-        assert(!"Invalid item ref");
-    }
-    questModules_[ref.module].itemDefTable().setItemName(ref.slot, newname);
 }
 
 void Quest::setEnemyName(const EnemyDefinitionRef &ref, const std::string &newname)

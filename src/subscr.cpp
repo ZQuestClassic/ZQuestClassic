@@ -3655,7 +3655,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     break;
                     
                 char itemname[140]="";
-                sprintf(itemname, "%s", curQuest->getItemName(itemid).c_str());
+                sprintf(itemname, "%s", curQuest->getItemDefinition(itemid).name.c_str());
                 
                 switch(curQuest->getItemDefinition(itemid).family)
                 {
@@ -3665,7 +3665,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                         if(curQuest->isValid(current_item_id(itype_bow)))
                         {
                             bool hasarrows=((get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_arrows()))||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_rupies())));
-                            sprintf(itemname, "%s%s%s", curQuest->getItemName(current_item_id(itype_bow)).c_str(), hasarrows?" & ":"",hasarrows?curQuest->getItemName(Bitem->itemDefinition).c_str() : "");
+                            sprintf(itemname, "%s%s%s", curQuest->getItemDefinition(current_item_id(itype_bow)).name.c_str(), hasarrows?" & ":"",hasarrows?curQuest->getItemDefinition(Bitem->itemDefinition).name.c_str() : "");
                             /*switch (current_item_power(itype_bow))
                             {
                               case 1:

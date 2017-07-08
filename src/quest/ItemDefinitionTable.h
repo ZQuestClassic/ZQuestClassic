@@ -65,12 +65,13 @@ struct itemdata
     }
 
     // just enough to initialize the default items
-    itemdata(byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_,
+    itemdata(const std::string &name, byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_,
         uint32_t wpn_, uint32_t wpn2_, uint32_t wpn3_, uint32_t wpn4_, uint32_t wpn5_, uint32_t wpn6_, uint32_t wpn7_, uint32_t wpn8_, uint32_t wpn9_, uint32_t wpn10_,
         byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_);
 
     void clear()
     {
+        name = "";
         tile = 0;
         misc = 0;
         csets = 0;
@@ -144,6 +145,7 @@ struct itemdata
         wpnsprite = 0;
     }
 
+    std::string name;
     word tile;
     byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
     byte csets;                                               // ffffcccc (f:flash cset, c:cset)
@@ -237,7 +239,7 @@ public:
      * Adds a new item at the end of the item definition table, with given
      * settings and name.
      */
-    void addItemDefinition(const itemdata &data, const std::string &name);
+    void addItemDefinition(const itemdata &data);
 
     /*
      * Retrives the item definition with given index from the table. Given
@@ -250,18 +252,6 @@ public:
     const itemdata &getItemDefinition(int idx) const { return itemData_[idx]; }
 
     /*
-     * Retrives the name of the item with given index in the item
-     * definition table. Crashes if the index is invalid.
-     */
-    const std::string &getItemName(int idx) { return itemNames_[idx]; }
-
-    /*
-     * Overwrites the name of hte item in the given slot in the definition
-     * table with a new name. The index must be valid (crashes otherwise).
-     */
-    void setItemName(int idx, const std::string &name);
-
-    /*
      * The number of items currently in the items definition table.
      */
     uint32_t getNumItemDefinitions() const { return itemData_.size(); }
@@ -270,10 +260,10 @@ public:
     * Returns whether the given item index is valid (in the table).
     */
     bool isValid(int slot) { return slot >= 0 && slot < (int)itemData_.size(); }
+
 private:
 
-    std::vector<itemdata> itemData_;
-    std::vector<std::string> itemNames_;
+    std::vector<itemdata> itemData_;    
 };
 
 #endif

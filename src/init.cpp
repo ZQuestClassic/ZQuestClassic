@@ -1868,7 +1868,7 @@ void doFamily(int biicindx, zinitdata *local_zinit, DIALOG *d)
     {
         d[i].proc = jwin_checkfont_proc;
         d[i].dp2 = is_large() ? lfont_l : pfont;
-        d[i].dp = (void *)curQuest->getItemName(it->itemid).c_str();
+        d[i].dp = (void *)curQuest->getItemDefinition(it->itemid).name.c_str();
         d[i].flags = (local_zinit->inventoryItems.count(it->itemid) > 0) ? D_SELECTED : 0;
     }
     

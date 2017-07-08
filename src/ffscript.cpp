@@ -8001,7 +8001,7 @@ void do_getitemname()
     }
     else
     {
-        if (ArrayH::setArray(arrayptr, curQuest->getItemName(ref)) == SH::_Overflow)
+        if (ArrayH::setArray(arrayptr, curQuest->getItemDefinition(ref).name) == SH::_Overflow)
             Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
     }
 }

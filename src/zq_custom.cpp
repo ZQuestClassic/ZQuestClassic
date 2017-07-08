@@ -1520,7 +1520,7 @@ void test_item(itemdata test, int x, int y)
     Quest *oldquest = curQuest;
     Quest tmp;
     curQuest = &tmp;
-    tmp.getModule("TMP").itemDefTable().addItemDefinition(test, std::string("Test Item"));
+    tmp.getModule("TMP").itemDefTable().addItemDefinition(test);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     BITMAP *buf2 = create_bitmap_ex(8,64,64);
     
@@ -1607,7 +1607,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
     char itemnumstr[75];
     char da[10][13];
     
-    sprintf(itemnumstr,"Item %d: %s", itemref.slot, curQuest->getItemName(itemref).c_str());
+    sprintf(itemnumstr,"Item %d: %s", itemref.slot, curQuest->getItemDefinition(itemref).name.c_str());
     sprintf(fcs,"%d",curQuest->getItemDefinition(itemref).csets>>4);
     sprintf(frm,"%d",curQuest->getItemDefinition(itemref).frames);
     sprintf(spd,"%d",curQuest->getItemDefinition(itemref).speed);
@@ -1647,7 +1647,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
     sprintf(warg6,"%d",curQuest->getItemDefinition(itemref).weap_pattern[6]);
   
     
-    snprintf(name, 63, "%s",curQuest->getItemName(itemref).c_str());
+    snprintf(name, 63, "%s",curQuest->getItemDefinition(itemref).name.c_str());
     
     
     
@@ -2013,7 +2013,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
 	    sprintf(warg1,"%d",test.weap_pattern[1]);
 	    sprintf(warg2,"%d",test.weap_pattern[2]);
 	    
-            sprintf(name,"%s",curQuest->getItemName(itemref).c_str());
+            sprintf(name,"%s",curQuest->getItemDefinition(itemref).name.c_str());
             
             for(int j=0; j<8; j++)
                 sprintf(da[j],"%.4f",test.initiald[j]/10000.0);
@@ -2135,7 +2135,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
     
     if(ret==3)
     {
-        curQuest->setItemName(itemref,name);
+        test.name = name;
         curQuest->getItemDefinition(itemref) = test;
         saved = false;
     }
@@ -2191,7 +2191,9 @@ int onCustomItems()
         if (ret == 5)
         {
             //TODO GUI module support
-            curQuest->getModule("CORE").itemDefTable().addItemDefinition(itemdata(), "(New Item)");            
+            itemdata newitem;
+            newitem.name = "(New Item)";
+            curQuest->getModule("CORE").itemDefTable().addItemDefinition(newitem);            
         }
         else
         {

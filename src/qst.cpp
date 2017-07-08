@@ -4788,14 +4788,14 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
 
         std::vector<string> names;
     
-        if(s_version>1)
+        // names used to be in a separate array at the beginning
+        if (s_version < 27)
         {
-            for(uint32_t i=0; i<items_to_read; i++)
+            if (s_version > 1)
             {
-                string name;
-
-                if (s_version < 27)
+                for (uint32_t i = 0; i < items_to_read; i++)
                 {
+                   
                     char tempname[64];
 
                     if (!pfread(tempname, 64, f, true))
@@ -4803,32 +4803,15 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                         return qe_invalid;
                     }
 
-                    names.push_back(string(tempname));
-                }
-                else
-                {
-                    uint32_t namelen;
-                    if (!p_igetl(&namelen, f, true))
-                        return qe_invalid;
-
-                    char *buf = new char[namelen];
-                    if (!pfread(buf, namelen, f, true))
-                    {
-                        delete[] buf;
-                        return qe_invalid;
-                    }
-
-                    names.push_back(string(buf));
-
-                    delete[] buf;
+                    names.push_back(string(tempname));                                        
                 }
             }
-        }
-        else
-        {
-            for(int i=0; i<256; i++)
+            else
             {
-                names.push_back(ItemDefinitionTable::defaultItemName(i));
+                for (int i = 0; i < 256; i++)
+                {
+                    names.push_back(ItemDefinitionTable::defaultItemName(i));
+                }
             }
         }
  
@@ -4836,6 +4819,27 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
         {
             itemdata tempitem = ItemDefinitionTable::defaultItemData(i);
 
+            if (s_version < 27)
+            {
+                tempitem.name = names[i];
+            }
+            else
+            {
+                uint32_t namelen;
+                if (!p_igetl(&namelen, f, true))
+                    return qe_invalid;
+
+                char *buf = new char[namelen];
+                if (!pfread(buf, namelen, f, true))
+                {
+                    delete[] buf;
+                    return qe_invalid;
+                }
+
+                tempitem.name = string(buf);
+                delete[] buf;
+            }
+            
             if(!p_igetw(&tempitem.tile,f,true))
             {
                 return qe_invalid;
@@ -4896,8 +4900,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                     tempitem.family=0xFF;
                     tempitem.playsound=WAV_SCALE;
                     reset_itembuf(&tempitem,ItemDefinitionRef("CORE",i));
-                
-                    tables[modulename].addItemDefinition(tempitem, names[i]);
+                    tables[modulename].addItemDefinition(tempitem);
                 
                     continue;
                 }
@@ -5248,7 +5251,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
             }
         
 
-            tables[modulename].addItemDefinition(tempitem, names[i]);
+            tables[modulename].addItemDefinition(tempitem);
         }
     
         //////////////////////////////////////////////////////
@@ -5270,7 +5273,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                 if (s_version < 2 && i == iLetterUsed && iLetter < numitems)
                 {
                     reset_itembuf(&tempitem, ItemDefinitionRef("CORE", iLetterUsed));
-                    tables["CORE"].setItemName(i, old_item_names[i]);
+                    tempitem.name = ItemDefinitionTable::defaultItemName(i);
                     tempitem.tile = tables["CORE"].getItemDefinition(iLetter).tile;
                     tempitem.csets = tables["CORE"].getItemDefinition(iLetter).csets;
                     tempitem.misc = tables["CORE"].getItemDefinition(iLetter).misc;
@@ -5306,16 +5309,18 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                     case iL2WealthMedal:
                     case iL3WealthMedal:
                         reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
-                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        tempitem.name = ItemDefinitionTable::defaultItemName(i);
+                        tables["CORE"].getItemDefinition(i) = tempitem;
                         break;
 
                     case iSShield:
                         reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
-                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        tempitem.name = ItemDefinitionTable::defaultItemName(i);
+                        tables["CORE"].getItemDefinition(i) = tempitem;
                         if (iShield < numitems)
-                            tables["CORE"].setItemName(iShield, old_item_names[iShield]);
+                            tables["CORE"].getItemDefinition(iShield).name = ItemDefinitionTable::defaultItemName(iShield);
                         if (iMShield < numitems)
-                            tables["CORE"].setItemName(iMShield, old_item_names[iMShield]);
+                            tables["CORE"].getItemDefinition(iMShield).name = ItemDefinitionTable::defaultItemName(iMShield);
                         break;
                     }
                 }
@@ -5332,7 +5337,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                     case iL3MagicRing:
                     case iL4MagicRing:
                         reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
-                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        tempitem.name = ItemDefinitionTable::defaultItemName(i);
+                        tables["CORE"].getItemDefinition(i) = tempitem;
                         break;
                     }
                 }
@@ -5642,7 +5648,8 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                     case iWhimsicalRing:
                     {
                         reset_itembuf(&tempitem, ItemDefinitionRef("CORE", i));
-                        tables["CORE"].setItemName(i, old_item_names[i]);
+                        tempitem.name = ItemDefinitionTable::defaultItemName(i);                        
+                        tables["CORE"].getItemDefinition(i) = tempitem;
                         break;
                     }
                     }

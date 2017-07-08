@@ -6915,18 +6915,17 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 
             for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
             {
-                uint32_t namelen = 1 + module.itemDefTable().getItemName(i).length();
+                const itemdata &itemd = module.itemDefTable().getItemDefinition(i);
+
+                uint32_t namelen = 1 + itemd.name.length();
                 if (!p_iputl(namelen, f))
                     new_return(5);
 
-                if (!pfwrite((void *)module.itemDefTable().getItemName(i).c_str(), namelen, f))
+                if (!pfwrite((void *)itemd.name.c_str(), namelen, f))
                 {
                     new_return(5);
                 }
-            }
-            for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
-            {
-                const itemdata &itemd = module.itemDefTable().getItemDefinition(i);
+
                 if (!p_iputw(itemd.tile, f))
                 {
                     new_return(6);

@@ -3942,7 +3942,7 @@ void drawpanel(int pnl)
                 switch(rtype)
                 {
                 case rSP_ITEM:
-                    textprintf_ex(menu1,pfont,panel(3).x+7+xofs,panel(3).y+32,jwin_pal[jcBOXFG],-1,"%s",curQuest->getItemName(scr->catchallItem).c_str());
+                    textprintf_ex(menu1,pfont,panel(3).x+7+xofs,panel(3).y+32,jwin_pal[jcBOXFG],-1,"%s",curQuest->getItemDefinition(scr->catchallItem).name.c_str());
                     break;
                     
                 case rINFO:
@@ -5184,7 +5184,7 @@ void refresh(int flags)
         switch(Map.CurrScr()->room)
         {
         case rSP_ITEM:
-            sprintf(buf,"Special Item is %s",curQuest->getItemName(Map.CurrScr()->catchallItem).c_str());
+            sprintf(buf,"Special Item is %s",curQuest->getItemDefinition(Map.CurrScr()->catchallItem).name.c_str());
             show_screen_error(buf,i++, vc(15));
             break;
             
@@ -5212,7 +5212,7 @@ void refresh(int flags)
             break;
             
         case rRP_HC:
-            sprintf(buf,"Take %s or %s", curQuest->getItemName(curQuest->specialItems().redPotion).c_str(), curQuest->getItemName(curQuest->specialItems().heartContainer).c_str());
+            sprintf(buf,"Take %s or %s", curQuest->getItemDefinition(curQuest->specialItems().redPotion).name.c_str(), curQuest->getItemDefinition(curQuest->specialItems().heartContainer).name.c_str());
             show_screen_error(buf,i++, vc(15));
             break;
             
@@ -5234,7 +5234,7 @@ void refresh(int flags)
             for(int j=0; j<3; j++) 
                 if(curQuest->isValid(misc.shop[shop].item[j]))  // Print the 3 items and prices
                 {
-                    strcat(buf,curQuest->getItemName(misc.shop[shop].item[j]).c_str());
+                    strcat(buf,curQuest->getItemDefinition(misc.shop[shop].item[j]).name.c_str());
                     strcat(buf,":");
                     char pricebuf[4];
                     sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
@@ -5252,9 +5252,9 @@ void refresh(int flags)
         {
             int shop = Map.CurrScr()->catchall;
             sprintf(buf,"Take Only One: %s%s%s%s%s",
-                    misc.shop[shop].hasitem[0]<1?"":curQuest->getItemName(misc.shop[shop].item[0]).c_str(), (misc.shop[shop].hasitem[1]>0 ? ", " : ""),
-                    misc.shop[shop].hasitem[1]<1?"":curQuest->getItemName(misc.shop[shop].item[1]).c_str(), ((misc.shop[shop].hasitem[1]>0 && misc.shop[shop].hasitem[2] > 0) ? ", " : ""),
-                    misc.shop[shop].hasitem[2]<1?"":curQuest->getItemName(misc.shop[shop].item[2]).c_str());
+                    misc.shop[shop].hasitem[0]<1?"":curQuest->getItemDefinition(misc.shop[shop].item[0]).name.c_str(), (misc.shop[shop].hasitem[1]>0 ? ", " : ""),
+                    misc.shop[shop].hasitem[1]<1?"":curQuest->getItemDefinition(misc.shop[shop].item[1]).name.c_str(), ((misc.shop[shop].hasitem[1]>0 && misc.shop[shop].hasitem[2] > 0) ? ", " : ""),
+                    misc.shop[shop].hasitem[2]<1?"":curQuest->getItemDefinition(misc.shop[shop].item[2]).name.c_str());
             show_screen_error(buf,i++, vc(15));
         }
         break;
@@ -9886,7 +9886,7 @@ void build_bii_list(bool usenone)
         QuestModule &module = curQuest->getModule(*it);
         for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
         {
-            bii[bii_cnt].s = module.itemDefTable().getItemName(i);
+            bii[bii_cnt].s = module.itemDefTable().getItemDefinition(i).name;
             bii[bii_cnt].i = ItemDefinitionRef(*it,i);
             ++bii_cnt;
         }

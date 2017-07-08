@@ -19,7 +19,6 @@
 #include "guys.h"
 extern comboclass default_combo_classes[cMAX];
 
-extern const char *old_item_names[];
 const std::vector<itemdata> &getDefaultItems();
 
 enum OldSpriteID

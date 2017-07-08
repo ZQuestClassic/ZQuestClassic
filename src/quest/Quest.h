@@ -34,9 +34,7 @@ public:
 
     // convenience methods
     itemdata &getItemDefinition(const ItemDefinitionRef &ref);
-    const std::string &getItemName(const ItemDefinitionRef &ref);
-    void setItemName(const ItemDefinitionRef &ref, const std::string &newname);
-
+    
     wpndata &getSpriteDefinition(const SpriteDefinitionRef &ref);
 
     guydata &getEnemyDefinition(const EnemyDefinitionRef &ref);

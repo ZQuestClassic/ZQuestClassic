@@ -1826,7 +1826,7 @@ void itemLocationReport()
                 if(!item_found)
                 {
                     buf[0]=0;
-                    sprintf(buf, "\n--- %s ---\n", curQuest->getItemName(i).c_str());
+                    sprintf(buf, "\n--- %s ---\n", curQuest->getItemDefinition(i).name.c_str());
                     quest_report_str+=buf;
                 }
                 
