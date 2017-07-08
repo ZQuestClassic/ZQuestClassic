@@ -8739,6 +8739,8 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
                             sprintf(tempname, "e%03d", i);
                         }
                     }
+
+                    name = string(tempname);
                 }
                 else
                 {
