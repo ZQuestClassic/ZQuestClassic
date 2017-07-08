@@ -112,39 +112,5 @@ protected:
 	
 };
 
-class CheckForExtraneousImports : public RecursiveVisitor
-{
-public:
-    CheckForExtraneousImports() : ok(true) {}
-
-    void caseDefault(void *param);
-    void caseImportDecl(ASTImportDecl &host, void *param);
-
-	bool isOK() const {return ok;}
-private:
-    bool ok;
-};
-
-class IsBlock : public ASTVisitor
-{
-public:
-    void caseDefault(void *param) {*(bool *)param = false;}
-    void caseBlock(ASTBlock &, void *param) {*(bool *)param = true;}
-};
-
-class IsFuncDecl : public ASTVisitor
-{
-public:
-    void caseDefault(void *param) {*(bool *)param = false;}
-    virtual void caseFuncDecl(ASTFuncDecl &, void *param) {*(bool *)param = true;}
-};
-
-class IsTypeDef : public ASTVisitor
-{
-public:
-    void caseDefault(void *param) {*(bool*)param = false;}
-    void caseTypeDef(ASTTypeDef &, void *param) {*(bool*)param = true;}
-};
-
 #endif
 

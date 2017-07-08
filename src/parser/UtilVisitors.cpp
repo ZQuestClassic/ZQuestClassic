@@ -440,14 +440,3 @@ void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	if (breakRecursion(host)) return;
 	recurse(host, param, host.elements);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// CheckForExtraneousImports
-
-void CheckForExtraneousImports::caseDefault(void *) {}
-
-void CheckForExtraneousImports::caseImportDecl(ASTImportDecl &host, void *)
-{
-    ok = false;
-	CompileError::ImportBadScope.print(&host);
-}
