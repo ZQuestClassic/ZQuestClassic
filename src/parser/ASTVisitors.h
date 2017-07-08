@@ -238,8 +238,9 @@ public:
 protected:
 
 	// Returns true if we have failed or for some other reason must break out
-	// of recursion. Should be passed the current node.
-	bool breakRecursion(AST& host) const;
+	// of recursion. Should be called with the current node and param between
+	// each action that can fail.
+	bool breakRecursion(AST& host, void* param = NULL) const;
 
 	// Recurse on a single node.
 	void recurse(AST& node, void* param);
