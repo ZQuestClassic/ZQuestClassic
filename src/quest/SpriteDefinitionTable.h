@@ -10,8 +10,26 @@ class Quest;
 
 struct wpndata
 {
+    wpndata()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        name = std::string("");
+        tile = 0;
+        misc = 0;
+        csets = 0;
+        frames = 0;
+        speed = 0;
+        type = 0;
+        script = 0;
+    }
+
     const static int WF_BEHIND = 0x10;	//Weapon renders behind other sprites
 
+    std::string name;
     word tile;
     byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
     byte csets;                                               // ffffcccc (f:flash cset, c:cset)
@@ -103,13 +121,6 @@ public:
      */
     void clear();
 
-    /*
-     * Computes the default sprite name for the sprite with given slot ID in the
-     * sprite definition table.
-     * These names are based on the order sprites were hard-coded in very old
-     * versions of ZC. Sprite with slots that don't correspond to legacy 
-     * sprites get a procedurally-generated name.
-     */
     static std::string defaultSpriteName(int slot);
 
     /*
@@ -119,22 +130,10 @@ public:
     wpndata &getSpriteDefinition(int idx) { return spriteData_[idx]; }
 
     /*
-     * Retrives the name of the sprite with given index in the sprite
-     * definition table. Crashes if the index is invalid.
-     */
-    const std::string &getSpriteName(int idx) { return spriteNames_[idx]; }
-
-    /*
      * Adds a new sprite at the end of the sprite definition table, with given
      * settings and name.
      */
-    void addSpriteDefinition(const wpndata &data, const std::string &name);
-
-    /*
-     * Overwrites the name of the sprite in the given slot in the definition
-     * table with a new name. The index must be valid (crashes otherwise).
-     */
-    void setSpriteName(int idx, const std::string &name);
+    void addSpriteDefinition(const wpndata &data);
 
     /*
      * The number of sprites currently in the weapon definition table.
@@ -149,8 +148,6 @@ public:
 private:
 
     std::vector<wpndata> spriteData_;
-    std::vector<std::string> spriteNames_;
-
 };
 
 

@@ -46,15 +46,6 @@ const std::string &Quest::getItemName(const ItemDefinitionRef &ref)
     return questModules_[ref.module].itemDefTable().getItemName(ref.slot);
 }
 
-const std::string &Quest::getSpriteName(const SpriteDefinitionRef &ref)
-{
-    if (!isValid(ref))
-    {
-        assert(!"Invalid item ref");
-    }
-    return questModules_[ref.module].spriteDefTable().getSpriteName(ref.slot);
-}
-
 const std::string &Quest::getEnemyName(const EnemyDefinitionRef &ref)
 {
     if (!isValid(ref))
@@ -71,15 +62,6 @@ void Quest::setItemName(const ItemDefinitionRef &ref, const std::string &newname
         assert(!"Invalid item ref");
     }
     questModules_[ref.module].itemDefTable().setItemName(ref.slot, newname);
-}
-
-void Quest::setSpriteName(const SpriteDefinitionRef &ref, const std::string &newname)
-{
-    if (!isValid(ref))
-    {
-        assert(!"Invalid sprite ref");
-    }
-    questModules_[ref.module].spriteDefTable().setSpriteName(ref.slot, newname);
 }
 
 void Quest::setEnemyName(const EnemyDefinitionRef &ref, const std::string &newname)

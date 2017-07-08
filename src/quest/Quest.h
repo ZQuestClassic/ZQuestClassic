@@ -38,8 +38,6 @@ public:
     void setItemName(const ItemDefinitionRef &ref, const std::string &newname);
 
     wpndata &getSpriteDefinition(const SpriteDefinitionRef &ref);
-    const std::string &getSpriteName(const SpriteDefinitionRef &ref);
-    void setSpriteName(const SpriteDefinitionRef &ref, const std::string &newname);
 
     guydata &getEnemyDefinition(const EnemyDefinitionRef &ref);
     const std::string &getEnemyName(const EnemyDefinitionRef &ref);

@@ -6032,11 +6032,12 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
 
         std::vector<std::string> names;
 
-        if (s_version > 2)
+        // names used to be stored at the beginnign in a separate list
+        if (s_version < 7) 
         {
-            for (uint32_t i = 0; i < weapons_to_read; i++)
+            if (s_version > 2)
             {
-                if (s_version < 7)
+                for (uint32_t i = 0; i < weapons_to_read; i++)
                 {
                     char tempname[64];
 
@@ -6044,51 +6045,32 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
                     {
                         return qe_invalid;
                     }
-
                     names.push_back(string(tempname));
+
                 }
-                else
+
+                if (s_version < 4)
                 {
-                    uint32_t namelen;
-                    if (!p_igetl(&namelen, f, true))
-                    {
-                        return qe_invalid;
-                    }
-
-                    char *buf = new char[namelen];
-
-                    if (!pfread(buf, namelen, f, true))
-                    {
-                        return qe_invalid;
-                    }
-
-                    names.push_back(string(buf));
-
-                    delete[] buf;
+                    if (OS_HOVER < weapons_to_read)
+                        names[OS_HOVER] = SpriteDefinitionTable::defaultSpriteName(OS_HOVER);
+                    if (OS_FIREMAGIC < weapons_to_read)
+                        names[OS_FIREMAGIC] = SpriteDefinitionTable::defaultSpriteName(OS_FIREMAGIC);
                 }
-            }
 
-            if (s_version < 4)
-            {
-                if (OS_HOVER < weapons_to_read)
-                    names[OS_HOVER] = SpriteDefinitionTable::defaultSpriteName(OS_HOVER);
-                if (OS_FIREMAGIC < weapons_to_read)
-                    names[OS_FIREMAGIC] = SpriteDefinitionTable::defaultSpriteName(OS_FIREMAGIC);
-            }
-
-            if (s_version < 5)
-            {
-                if (OS_QUARTERHEARTS < weapons_to_read)
+                if (s_version < 5)
                 {
-                    names[OS_QUARTERHEARTS] = SpriteDefinitionTable::defaultSpriteName(OS_QUARTERHEARTS);
+                    if (OS_QUARTERHEARTS < weapons_to_read)
+                    {
+                        names[OS_QUARTERHEARTS] = SpriteDefinitionTable::defaultSpriteName(OS_QUARTERHEARTS);
+                    }
                 }
             }
-        }
-        else
-        {
-            for (uint32_t i = 0; i < weapons_to_read; i++)
+            else
             {
-                names.push_back(SpriteDefinitionTable::defaultSpriteName(i));
+                for (uint32_t i = 0; i < weapons_to_read; i++)
+                {
+                    names.push_back(SpriteDefinitionTable::defaultSpriteName(i));
+                }
             }
         }
 
@@ -6097,6 +6079,29 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
         for (uint32_t i = 0; i < weapons_to_read; i++)
         {
             wpndata tempweapon;
+
+            if (s_version < 7)
+            {
+                tempweapon.name = names[i];
+            }
+            else
+            {
+                uint32_t namelen;
+                if (!p_igetl(&namelen, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                char *buf = new char[namelen];
+
+                if (!pfread(buf, namelen, f, true))
+                {
+                    delete[] buf;
+                    return qe_invalid;
+                }
+                tempweapon.name = std::string(buf);
+                delete[] buf;
+            }
 
             if (!p_igetw(&tempweapon.tile, f, true))
             {
@@ -6146,7 +6151,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
                     tempweapon.misc &= ~wpndata::WF_BEHIND;
             }
 
-            tables[modulename].addSpriteDefinition(tempweapon, names[i]);
+            tables[modulename].addSpriteDefinition(tempweapon);
         }
 
         // now fix the sprites in legacy quests. Only need to worry about this for the CORE module
@@ -6159,7 +6164,8 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
                 for (int i = weapons_to_read; i < OS_LAST; i++)
                 {
                     wpndata blank;
-                    tables["CORE"].addSpriteDefinition(blank, SpriteDefinitionTable::defaultSpriteName(i));
+                    blank.name = SpriteDefinitionTable::defaultSpriteName(i);
+                    tables["CORE"].addSpriteDefinition(blank);
                 }
             }
 

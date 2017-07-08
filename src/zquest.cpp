@@ -10077,7 +10077,7 @@ void build_biw_list()
         for(uint32_t i=0; i<module.spriteDefTable().getNumSpriteDefinitions(); i++)
         {
             SpriteDefinitionRef ref(*it, i);
-            biw[biw_cnt].s = curQuest->getSpriteName(ref);
+            biw[biw_cnt].s = curQuest->getSpriteDefinition(ref).name;
             biw[biw_cnt].i = ref;
             ++biw_cnt;
         }

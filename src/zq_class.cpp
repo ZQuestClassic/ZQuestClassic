@@ -7232,18 +7232,16 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
 
             for (uint32_t i = 0; i < numsprites; i++)
             {
-                uint32_t len = curQuest->getModule(*it).spriteDefTable().getSpriteName(i).length() + 1;
-                if (!p_iputl(len, f))
-                    new_return(5);
-                if (!pfwrite((void *)curQuest->getModule(*it).spriteDefTable().getSpriteName(i).c_str(), len, f))
+                uint32_t namelen = curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).name.length() + 1;
+                if (!p_iputl(namelen , f))
                 {
-                    new_return(5);
+                    new_return(6);
                 }
-            }
 
-
-            for (uint32_t i = 0; i < numsprites; i++)
-            {
+                if (!pfwrite((void *)curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).name.c_str(), namelen, f))
+                {
+                    new_return(6);
+                }
 
                 if (!p_iputw(curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(i).tile, f))
                 {

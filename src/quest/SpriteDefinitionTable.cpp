@@ -111,7 +111,6 @@ bool SpecialSpriteIndex::checkConsistency(Quest &quest)
 void SpriteDefinitionTable::clear()
 {
     spriteData_.clear();
-    spriteNames_.clear();
 }
 
 string SpriteDefinitionTable::defaultSpriteName(int slot)
@@ -126,13 +125,7 @@ string SpriteDefinitionTable::defaultSpriteName(int slot)
     }
 }
 
-void SpriteDefinitionTable::addSpriteDefinition(const wpndata &data, const std::string &name)
+void SpriteDefinitionTable::addSpriteDefinition(const wpndata &data)
 {
     spriteData_.push_back(data);
-    spriteNames_.push_back(name);
-}
-
-void SpriteDefinitionTable::setSpriteName(int idx, const std::string &name)
-{
-    spriteNames_[idx] = name;
 }

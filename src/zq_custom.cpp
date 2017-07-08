@@ -2246,7 +2246,7 @@ void edit_weapondata(const SpriteDefinitionRef &spriteref)
     char name[64];
     char wpnnumstr[75];
     
-    sprintf(wpnnumstr, "Sprite %d: %s", spriteref.slot, curQuest->getSpriteName(spriteref).c_str());
+    sprintf(wpnnumstr, "Sprite %d: %s", spriteref.slot, curQuest->getSpriteDefinition(spriteref).name.c_str());
     wpndata_dlg[0].dp  = wpnnumstr;
     wpndata_dlg[0].dp2 = lfont;
     wpndata_dlg[2].d1  = curQuest->getSpriteDefinition(spriteref).tile;
@@ -2265,7 +2265,7 @@ void edit_weapondata(const SpriteDefinitionRef &spriteref)
     wpndata_dlg[14].dp = frm;
     wpndata_dlg[15].dp = spd;
     wpndata_dlg[16].dp = typ;
-    sprintf(name,"%s",curQuest->getSpriteName(spriteref).c_str());
+    sprintf(name,"%s",curQuest->getSpriteDefinition(spriteref).name.c_str());
     wpndata_dlg[18].dp = name;
 
 	DIALOG *wpndata_cpy = resizeDialog(wpndata_dlg, 1.5);
@@ -2298,7 +2298,7 @@ void edit_weapondata(const SpriteDefinitionRef &spriteref)
     
     if(ret==3)
     {
-        curQuest->setSpriteName(spriteref, std::string(name));
+        test.name = std::string(name);
         curQuest->getSpriteDefinition(spriteref) = test;
         saved = false;
     }
