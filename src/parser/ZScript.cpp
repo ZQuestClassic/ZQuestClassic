@@ -1,12 +1,17 @@
-#include "ZScript.h"
 #include "CompileError.h"
+#include "DataStructs.h"
+#include "Scope.h"
+#include "ZScript.h"
 
 using namespace std;
 using namespace ZScript;
 
 // ZScript::Program
 
-Program::Program(ASTProgram* program) : node(program), globalScope(table)
+Program::Program(ASTProgram* node)
+	: node(node),
+	  table(*new SymbolTable()),
+	  globalScope(*new GlobalScope(table))
 {
 	assert(node);
 
@@ -25,6 +30,8 @@ Program::~Program()
 {
 	for (vector<Script*>::iterator it = scripts.begin(); it != scripts.end(); ++it)
 		delete *it;
+	delete &table;
+	delete &globalScope;
 }
 
 Script* Program::getScript(string const& name) const
@@ -160,9 +167,40 @@ Literal::Literal(ASTLiteral* node, ZVarType const* type, int id)
 // ZScript::Variable
 
 Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)
-	: node(node), type(type), name(name), id(id), inlined(false)
+	: node(node), type(type), name(name), id(id)
 {
 	if (node) node->manager = this;
+}
+
+// ZScript::Function::Signature
+
+Function::Signature::Signature(
+		string const& name, vector<ZVarType const*> const& parameterTypes)
+	: name(name), parameterTypes(parameterTypes)
+{}
+
+int Function::Signature::compare(Function::Signature const& other) const
+{
+	int c = name.compare(other.name);
+	if (c) return c;
+	c = parameterTypes.size() - other.parameterTypes.size();
+	if (c) return c;
+	for (int i = 0; i < (int)parameterTypes.size(); ++i)
+	{
+		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		if (c) return c;
+	}
+	return 0;
+}
+
+bool Function::Signature::operator==(Function::Signature const& other) const
+{
+	return compare(other) == 0;
+}
+
+bool Function::Signature::operator<(Function::Signature const& other) const
+{
+	return compare(other) < 0;
 }
 
 // ZScript::Function
@@ -176,3 +214,4 @@ Script* Function::getScript() const
 	ScriptScope* scriptScope = (ScriptScope*)parentScope;
 	return &scriptScope->script;
 }
+

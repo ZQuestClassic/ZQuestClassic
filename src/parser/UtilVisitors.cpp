@@ -17,19 +17,20 @@ bool RecursiveVisitor::breakRecursion(AST& host) const
 	return false;
 }
 
-void RecursiveVisitor::compileError(AST& host, CompileError const* error, ...)
+void RecursiveVisitor::handleError(
+		CompileError const& error, AST const* node, ...)
 {
 	// Scan through the error handlers backwards to see if we can find
 	// one matching this error.
-	for (vector<ASTCompileError*>::reverse_iterator it
+	for (vector<ASTStmtCompileError*>::reverse_iterator it
 			 = compileErrorHandlers.rbegin();
 		 it != compileErrorHandlers.rend(); ++it)
 	{
 		// When we find a valid handler, save the error as the current one and
 		// return.
-		if ((*it)->canHandle(*error))
+		if ((*it)->canHandle(error))
 		{
-			currentCompileError = error;
+			currentCompileError = &error;
 			return;
 		}
 	}
@@ -37,9 +38,9 @@ void RecursiveVisitor::compileError(AST& host, CompileError const* error, ...)
 	// If there was no handler, fail if it's not a warning and then print it
 	// out.
 	va_list args;
-	va_start(args, error);
-	error->vprint(&host, args);
-	if (!error->warning) failure = true;
+	va_start(args, node);
+	error.vprint(node, args);
+	if (!error.warning) failure = true;
 	va_end(args);
 }
 
@@ -77,7 +78,7 @@ template <class Node> void RecursiveVisitor::recurse(
 
 ////
 
-void RecursiveVisitor::caseCompileError(ASTCompileError& host, void* param)
+void RecursiveVisitor::caseStmtCompileError(ASTStmtCompileError& host, void* param)
 {
 	// If we've already been triggered, don't run.
 	if (host.errorTriggered) return;

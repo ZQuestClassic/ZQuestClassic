@@ -79,9 +79,8 @@ void TypeCheck::caseStmtWhile(ASTStmtWhile& host, void*)
 void TypeCheck::caseStmtReturn(ASTStmtReturn& host, void*)
 {
     if (returnType != ZVarType::ZVOID)
-        compileError(
-				host, &CompileError::FuncBadReturn,
-				returnType.getName().c_str());
+	    handleError(CompileError::FuncBadReturn, &host,
+	                returnType.getName().c_str());
 }
 
 void TypeCheck::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
@@ -108,15 +107,15 @@ void TypeCheck::caseDataDecl(ASTDataDecl& host, void*)
 		// A constant without an initializer doesn't make sense.
 		if (!host.initializer())
 		{
-			compileError(host, &CompileError::ConstUninitialized);
+			handleError(CompileError::ConstUninitialized, &host);
 			return;
 		}
 
 		// Inline the constant if possible.
-		if (host.initializer()->hasDataValue())
+		if (host.initializer()->getCompileTimeValue(this))
 		{
-			symbolTable.inlineConstant(&host, host.initializer()->getDataValue());
-			variable.inlined = true;
+			symbolTable.inlineConstant(&host, *host.initializer()->getCompileTimeValue(this));
+			variable.compileTimeValue = host.initializer()->getCompileTimeValue(this);
 		}
 	}
 
@@ -137,7 +136,7 @@ void TypeCheck::caseDataDecl(ASTDataDecl& host, void*)
 			if (*variable.type != initType)
 			{
 				string msg = initType.getName() + " to " + variable.type->getName();
-				compileError(host, &CompileError::IllegalCast, msg.c_str());
+				handleError(CompileError::IllegalCast, &host, msg.c_str());
 				failure = true;
 				return;
 			}
@@ -159,14 +158,14 @@ void TypeCheck::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void*)
 		// Make sure each size can cast to float.
 		if (!size.getVarType()->canCastTo(ZVarType::FLOAT))
 		{
-			compileError(host, &CompileError::NonIntegerArraySize);
+			handleError(CompileError::NonIntegerArraySize, &host);
 			return;
 		}
 
 		// Make sure that the size is constant.
-		if (!size.hasDataValue())
+		if (!size.getCompileTimeValue(this))
 		{
-			compileError(host, &CompileError::ExprNotConstant);
+			handleError(CompileError::ExprNotConstant, &host);
 			return;
 		}
 	}
@@ -182,13 +181,11 @@ void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 	if (!host.isConstant())
 	{
 		failure = true;
-        compileError(host, &CompileError::ExprNotConstant);
+		handleError(CompileError::ExprNotConstant, &host);
 		return;
 	}
 
 	host.setVarType(content->getVarType());
-	if (!host.hasDataValue() && content->hasDataValue())
-		host.setDataValue(content->getDataValue());
 }
 
 void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
@@ -206,20 +203,12 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
         failure = true;
 
 	if (ltypeid == ZVARTYPEID_CONST_FLOAT)
-		compileError(host, &CompileError::ConstAssign);
+		handleError(CompileError::ConstAssign, &host);
 }
 
 void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
-    if (symbolTable.isInlinedConstant(&host))
-	{
-        host.setVarType(symbolTable.getType(symbolTable.getTypeId(ZVarType::CONST_FLOAT)));
-		host.setDataValue(symbolTable.getInlinedValue(&host));
-	}
-    else
-    {
-        host.setVarType(symbolTable.getType(symbolTable.getVarTypeId(&host)));
-    }
+	host.setVarType(host.binding->type);
 }
 
 void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
@@ -236,7 +225,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
     ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getVarType());
 	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
-        compileError(host, &CompileError::ArrowNotPointer);
+		handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
 
@@ -246,15 +235,15 @@ void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
 	Function* function = leftClass.getGetter(host.right);
 	if (!function)
 	{
-        compileError(host, &CompileError::ArrowNoVar,
-					 (host.right + (isIndexed ? "[]" : "")).c_str());
+		handleError(CompileError::ArrowNoVar, &host,
+		            (host.right + (isIndexed ? "[]" : "")).c_str());
         return;
 	}
 	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(function->id);
     if (functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != leftTypeId)
     {
-        compileError(host, &CompileError::ArrowNoVar,
-					 (host.right + (isIndexed ? "[]" : "")).c_str());
+	    handleError(CompileError::ArrowNoVar, &host,
+	                (host.right + (isIndexed ? "[]" : "")).c_str());
         return;
     }
 
@@ -301,7 +290,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
 
 		if (lvaltype.typeClassId() != ZVARTYPE_CLASSID_CLASS)
         {
-            compileError(*lval, &CompileError::ArrowNotPointer);
+	        handleError(CompileError::ArrowNotPointer, lval);
             return;
         }
 
@@ -388,14 +377,14 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
 
         if (bestmatch.size() == 0)
         {
-            compileError(host, &CompileError::NoFuncMatch,
-						 (fullname + paramstring).c_str());
+	        handleError(CompileError::NoFuncMatch, &host,
+                        (fullname + paramstring).c_str());
             return;
         }
         else if (bestmatch.size() > 1)
         {
-            compileError(host, &CompileError::TooFuncMatch,
-						 (fullname + paramstring).c_str());
+	        handleError(CompileError::TooFuncMatch, &host,
+	                    (fullname + paramstring).c_str());
             return;
         }
 
@@ -414,7 +403,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
         ZVarTypeId leftTypeId = symbolTable.getTypeId(*arrow.left->getVarType());
 		if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
 		{
-			compileError(host, &CompileError::ArrowNotPointer);
+			handleError(CompileError::ArrowNotPointer, &host);
 			return;
 		}
 
@@ -426,15 +415,15 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
 		if (functionIds.size() > 0) functionId = functionIds[0];
 		if (functionId == -1)
 		{
-			compileError(host, &CompileError::ArrowNoFunc, name.c_str());
+			handleError(CompileError::ArrowNoFunc, &host, name.c_str());
 			return;
 		}
 
 		vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
         if (paramtypes.size() != functionParams.size())
         {
-            compileError(host, &CompileError::NoFuncMatch,
-						 (name + paramstring).c_str());
+	        handleError(CompileError::NoFuncMatch, &host,
+	                    (name + paramstring).c_str());
             return;
         }
 
@@ -442,8 +431,8 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
         {
             if (!standardCheck(functionParams[i], paramtypes[i], NULL))
             {
-                compileError(host, &CompileError::NoFuncMatch,
-							 (name + paramstring).c_str());
+	            handleError(CompileError::NoFuncMatch, &host,
+	                        (name + paramstring).c_str());
                 return;
             }
         }
@@ -457,36 +446,18 @@ void TypeCheck::caseExprNegate(ASTExprNegate& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.operand->hasDataValue())
-    {
-        long val = host.operand->getDataValue();
-        host.setDataValue(-val);
-    }
 }
 
 void TypeCheck::caseExprNot(ASTExprNot& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.operand->hasDataValue())
-    {
-        long val = host.operand->getDataValue();
-		host.setDataValue(!host.operand->getDataValue());
-    }
 }
 
 void TypeCheck::caseExprBitNot(ASTExprBitNot& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.operand->hasDataValue())
-    {
-        long val = host.operand->getDataValue();
-        host.setDataValue((~(val/10000))*10000);
-    }
 }
 
 void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
@@ -601,78 +572,36 @@ void TypeCheck::caseExprAnd(ASTExprAnd& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
 	host.setVarType(ZVarType::BOOL);
-
-	if (host.left->hasDataValue() && host.right->hasDataValue())
-	{
-		long firstval = host.left->getDataValue();
-		long secondval = host.right->getDataValue();
-		host.setDataValue(firstval && secondval);
-	}
 }
 
 void TypeCheck::caseExprOr(ASTExprOr& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
 	host.setVarType(ZVarType::BOOL);
-
-	if (host.left->hasDataValue() && host.right->hasDataValue())
-	{
-		long firstval = host.left->getDataValue();
-		long secondval = host.right->getDataValue();
-		host.setDataValue(firstval || secondval);
-	}
 }
 
 void TypeCheck::caseExprGT(ASTExprGT& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-		host.setDataValue(firstval > secondval);
-    }
 }
 
 void TypeCheck::caseExprGE(ASTExprGE& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-		host.setDataValue(firstval >= secondval);
-    }
 }
 
 void TypeCheck::caseExprLT(ASTExprLT& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-		host.setDataValue(firstval < secondval);
-    }
 }
 
 void TypeCheck::caseExprLE(ASTExprLE& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-		host.setDataValue(firstval <= secondval);
-    }
 }
 
 void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
@@ -689,13 +618,6 @@ void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
 	}
 
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-		host.setDataValue(firstval == secondval);
-    }
 }
 
 void TypeCheck::caseExprNE(ASTExprNE& host, void*)
@@ -712,175 +634,66 @@ void TypeCheck::caseExprNE(ASTExprNE& host, void*)
 	}
 
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-		host.setDataValue(firstval != secondval);
-    }
 }
 
 void TypeCheck::caseExprPlus(ASTExprPlus& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-        host.setDataValue(firstval + secondval);
-    }
 }
 
 void TypeCheck::caseExprMinus(ASTExprMinus& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-        host.setDataValue(firstval - secondval);
-    }
 }
 
 void TypeCheck::caseExprTimes(ASTExprTimes& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-        double temp = ((double)secondval)/10000.0;
-        host.setDataValue((long)(firstval * temp));
-    }
 }
 
 void TypeCheck::caseExprDivide(ASTExprDivide& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-
-        if (secondval == 0)
-        {
-            compileError(host, &CompileError::DivByZero);
-            return;
-        }
-
-        host.setDataValue((firstval / secondval) * 10000);
-    }
 }
 
 void TypeCheck::caseExprModulo(ASTExprModulo& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-
-        if (secondval == 0)
-        {
-            compileError(host, &CompileError::DivByZero);
-            failure = true;
-            return;
-        }
-
-        host.setDataValue(firstval % secondval);
-    }
 }
 
 void TypeCheck::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-        host.setDataValue(((firstval/10000)&(secondval/10000))*10000);
-    }
 }
 
 void TypeCheck::caseExprBitOr(ASTExprBitOr& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-        host.setDataValue(((firstval/10000)|(secondval/10000))*10000);
-    }
 }
 
 void TypeCheck::caseExprBitXor(ASTExprBitXor& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        long secondval = host.right->getDataValue();
-        host.setDataValue(((firstval/10000)^(secondval/10000))*10000);
-    }
 }
+
 void TypeCheck::caseExprLShift(ASTExprLShift& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-
-    if (host.right->hasDataValue())
-    {
-        if (host.right->getDataValue() % 10000)
-        {
-            compileError(host, &CompileError::ShiftNotInt);
-            host.right->setDataValue(10000*(host.right->getDataValue()/10000));
-        }
-    }
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        int secondval = host.right->getDataValue();
-        host.setDataValue(((firstval/10000)<<(secondval/10000))*10000);
-    }
 }
+
 void TypeCheck::caseExprRShift(ASTExprRShift& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-
-    if (host.right->hasDataValue())
-    {
-        if (host.right->getDataValue() % 10000)
-        {
-            compileError(host, &CompileError::ShiftNotInt);
-            host.right->setDataValue(10000*(host.right->getDataValue()/10000));
-        }
-    }
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->hasDataValue() && host.right->hasDataValue())
-    {
-        long firstval = host.left->getDataValue();
-        int secondval = host.right->getDataValue();
-        host.setDataValue(((firstval/10000)>>(secondval/10000))*10000);
-    }
 }
 
 // Literals
@@ -897,14 +710,14 @@ void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	ASTExpr* size = host.getSize();
 	if (size && !size->getVarType()->canCastTo(ZVarType::FLOAT))
 	{
-		compileError(host, &CompileError::NonIntegerArraySize);
+		handleError(CompileError::NonIntegerArraySize, &host);
 		return;
 	}
 
 	// Don't allow an explicit size if we're part of a declaration.
 	if (size && host.declaration)
 	{
-		compileError(host, &CompileError::ArrayLiteralResize);
+		handleError(CompileError::ArrayLiteralResize, &host);
 		return;
 	}
 
@@ -964,7 +777,7 @@ bool TypeCheck::standardCheck(ZVarType const& targetType, ZVarType const& source
 	if (toBlame)
 	{
 		string msg = sourceType.getName() + " to " + targetType.getName();
-		compileError(*toBlame, &CompileError::IllegalCast, msg.c_str());
+		handleError(CompileError::IllegalCast, toBlame, msg.c_str());
 	}
 	return false;
 }
@@ -1029,7 +842,7 @@ void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
     ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getVarType());
 	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
-        typeCheck.compileError(host, &CompileError::ArrowNotPointer);
+		typeCheck.handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
 
@@ -1039,16 +852,16 @@ void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
 	Function* function = leftClass.getSetter(host.right);
     if (!function)
     {
-        typeCheck.compileError(
-				host, &CompileError::ArrowNoVar,
-				(host.right + (isIndexed ? "[]" : "")).c_str());
+        typeCheck.handleError(
+		        CompileError::ArrowNoVar, &host,
+		        (host.right + (isIndexed ? "[]" : "")).c_str());
         return;
     }
 	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(function->id);
     if (functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != leftTypeId)
     {
-        typeCheck.compileError(
-				host, &CompileError::ArrowNoVar,
+        typeCheck.handleError(
+		        CompileError::ArrowNoVar, &host,
 				(host.right + (isIndexed ? "[]" : "")).c_str());
         return;
     }
@@ -1065,8 +878,8 @@ void GetLValType::caseExprIdentifier(ASTExprIdentifier& host, void*)
 
     if (vid == -1)
     {
-        typeCheck.compileError(host, &CompileError::LValConst,
-							   host.asString().c_str());
+	    typeCheck.handleError(CompileError::LValConst, &host,
+	                          host.asString().c_str());
         return;
     }
 

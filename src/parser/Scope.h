@@ -59,7 +59,7 @@ public:
 	// Functions
 	virtual void getLocalFunctions(vector<ZScript::Function*>&) const = 0;
 	virtual void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const = 0;
-	virtual ZScript::Function* getLocalFunction(FunctionSignature const& signature) const = 0;
+	virtual ZScript::Function* getLocalFunction(ZScript::Function::Signature const& signature) const = 0;
 	virtual ZScript::Function* addFunction(
 			ZVarType const* returnType, string const& name,
 			vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
@@ -105,8 +105,8 @@ public:
 	vector<int> getFunctionIds(string const& name) const;
 	vector<ZScript::Function*> getFunctions(vector<string> const& names)const;
 	vector<int> getFunctionIds(vector<string> const& names)const;
-	ZScript::Function* getFunction(FunctionSignature const& signature) const;
-	int getFunctionId(FunctionSignature const& signature) const;
+	ZScript::Function* getFunction(ZScript::Function::Signature const& signature) const;
+	int getFunctionId(ZScript::Function::Signature const& signature) const;
 	ZScript::Function* addFunction(ZVarTypeId returnTypeId, string const& name, vector<ZVarTypeId> const& paramTypeIds, AST* node = NULL);
 
 	bool varDeclsDeprecated;
@@ -152,7 +152,8 @@ public:
 	using Scope::getLocalFunctions;
 	void getLocalFunctions(vector<ZScript::Function*>&) const;
 	void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const;
-	ZScript::Function* getLocalFunction(FunctionSignature const& signature) const;
+	ZScript::Function* getLocalFunction(
+			ZScript::Function::Signature const& signature) const;
 	using Scope::addFunction;
 	ZScript::Function* addFunction(ZVarType const* returnType, string const& name,
 						  vector<ZVarType const*> const& paramTypes, AST* node = NULL);
@@ -167,7 +168,7 @@ protected:
 	map<string, ZScript::Function*> getters;
 	map<string, ZScript::Function*> setters;
 	map<string, vector<ZScript::Function*> > functionsByName;
-	map<FunctionSignature, ZScript::Function*> functionsBySignature;
+	map<ZScript::Function::Signature, ZScript::Function*> functionsBySignature;
 
 	// Disabled since it's easy to call by accident instead of the Scope*
 	// constructor.
