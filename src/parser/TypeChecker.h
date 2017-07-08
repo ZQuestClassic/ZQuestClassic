@@ -15,7 +15,6 @@ public:
 	TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId);
 	TypeCheck(SymbolTable& symbolTable, ZVarType const& returnType);
 
-    void caseDefault(void*) {}
 	// Statements
     void caseStmtIf(ASTStmtIf& host, void* = NULL);
     void caseStmtIfElse(ASTStmtIfElse& host, void* = NULL);
