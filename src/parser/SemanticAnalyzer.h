@@ -1,9 +1,8 @@
 #ifndef ZPARSER_SEMANTIC_ANALYZER_H
 #define ZPARSER_SEMANTIC_ANALYZER_H
 
-#include "AST.h"
+#include "ASTVisitors.h"
 #include "DataStructs.h"
-#include "UtilVisitors.h"
 #include "ZScript.h"
 
 class SemanticAnalyzer : public RecursiveVisitor

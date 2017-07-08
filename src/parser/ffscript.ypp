@@ -12,8 +12,7 @@ command: bison -b y -v -d ffscript.ypp
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
-#include "AST.h"
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;

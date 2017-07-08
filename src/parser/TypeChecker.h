@@ -1,7 +1,7 @@
 #ifndef TYPECHECKER_H
 #define TYPECHECKER_H
 
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "DataStructs.h"
 #include <assert.h>
 

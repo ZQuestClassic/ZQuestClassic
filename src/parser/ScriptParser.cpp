@@ -12,11 +12,10 @@
 #include <string>
 #include <cstdlib>
 
+#include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Scope.h"
 #include "SemanticAnalyzer.h"
-#include "UtilVisitors.h"
-#include "AST.h"
 #include "BuildVisitors.h"
 #include "ZScript.h"
 using namespace std;
