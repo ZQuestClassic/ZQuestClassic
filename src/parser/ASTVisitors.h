@@ -171,6 +171,30 @@ public:
 	// Used to signal that a compile error has occured.
 	void handleError(CompileError const& error, AST const* node, ...);
 	
+	// Visits a single node. The only virtual visit function as all others
+	// defer to this one.
+	virtual void visit(AST& node, void* param = NULL);
+
+	////////////////////////////////////////////////////////////////
+	// Convenience Functions
+	
+	// Visits a single node if it exists.
+	void visit(AST* node, void* param = NULL);
+	// Visit a group of nodes.
+	template <class Container>
+	void visit(AST& host, Container const& nodes, void* param = NULL)
+	{
+		for (typename Container::const_iterator it = nodes.begin();
+			 it != nodes.end(); ++it)
+		{
+			if (breakRecursion(host, param)) return;
+			visit(**it, param);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Cases
+	
     virtual void caseDefault(AST&, void*) {}
 	virtual void caseStmtCompileError(
 			ASTStmtCompileError& host, void* param = NULL);
@@ -236,22 +260,10 @@ public:
 	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 
 protected:
-
 	// Returns true if we have failed or for some other reason must break out
 	// of recursion. Should be called with the current node and param between
 	// each action that can fail.
-	bool breakRecursion(AST& host, void* param = NULL) const;
-
-	// Recurse on a single node.
-	void recurse(AST& node, void* param);
-	// Recurse on a single node. Does nothing if it's null.
-	void recurse(AST* node, void* param);
-	// Recurse on a vector of nodes.
-	template <class Node> void recurse(
-			AST& host, void* param, vector<Node*> nodes);
-	// Recurse on a list of nodes.
-	template <class Node> void recurse(
-			AST& host, void* param, list<Node*> nodes);
+	virtual bool breakRecursion(AST& host, void* param = NULL) const;
 
 	// A stack of active ASTStmtCompileErrors.
 	vector<ASTStmtCompileError*> compileErrorHandlers;

@@ -43,7 +43,7 @@ void TypeCheck::caseStmtIf(ASTStmtIf& host, void*)
 void TypeCheck::caseStmtIfElse(ASTStmtIfElse& host, void*)
 {
     caseStmtIf(host);
-    host.elseStatement->execute(*this);
+    visit(host.elseStatement);
 }
 
 void TypeCheck::caseStmtSwitch(ASTStmtSwitch& host, void*)
@@ -85,7 +85,7 @@ void TypeCheck::caseStmtReturn(ASTStmtReturn& host, void*)
 
 void TypeCheck::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 {
-    host.value->execute(*this);
+    visit(host.value);
     if (breakRecursion(host)) return;
 
     if (!standardCheck(symbolTable.getTypeId(returnType), *host.value->getVarType(), &host))
@@ -176,7 +176,7 @@ void TypeCheck::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void*)
 void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 {
 	ASTExpr* content = host.content;
-	content->execute(*this);
+	visit(content);
 
 	if (!host.isConstant())
 	{
@@ -190,7 +190,7 @@ void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 
 void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
 {
-    host.right->execute(*this);
+    visit(host.right);
     if (breakRecursion(host)) return;
 
 	ZVarTypeId ltypeid = getLValTypeId(*host.left);
@@ -214,7 +214,7 @@ void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void*)
 void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
 {
     // Recurse on left.
-    host.left->execute(*this);
+    visit(host.left);
     if (breakRecursion(host)) return;
 
 	// Don't need to check index here, since it'll be checked in the above
@@ -253,13 +253,13 @@ void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
 
 void TypeCheck::caseExprIndex(ASTExprIndex& host, void*)
 {
-	host.array->execute(*this);
+	visit(host.array);
 	host.setVarType(host.array->getVarType());
 
 	// The index must be a number.
     if (host.index)
     {
-        host.index->execute(*this);
+        visit(host.index);
         if (breakRecursion(host)) return;
 
         if (!standardCheck(ZVARTYPEID_FLOAT, *host.index->getVarType(), host.index))
@@ -284,7 +284,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
     if (host.left->isTypeArrow())
     {
         ASTExprArrow* lval = (ASTExprArrow*)host.left;
-        lval->left->execute(*this);
+        visit(lval->left);
         if (breakRecursion(host)) return;
         ZVarType const& lvaltype = *lval->left->getVarType();
 
@@ -301,7 +301,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
     // Now add the normal parameters.
     for (vector<ASTExpr*>::iterator it = params.begin(); it != params.end(); it++)
     {
-        (*it)->execute(*this);
+        visit(*it);
         if (breakRecursion(host)) return;
 
         paramtypes.push_back(symbolTable.getTypeId(*(*it)->getVarType()));
@@ -462,7 +462,7 @@ void TypeCheck::caseExprBitNot(ASTExprBitNot& host, void*)
 
 void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
 {
-    host.operand->execute(*this);
+    visit(host.operand);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
@@ -489,7 +489,7 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
 
 void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement& host, void*)
 {
-    host.operand->execute(*this);
+    visit(host.operand);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
@@ -516,7 +516,7 @@ void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement& host, void*)
 
 void TypeCheck::caseExprDecrement(ASTExprDecrement& host, void*)
 {
-    host.operand->execute(*this);
+    visit(host.operand);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
@@ -543,7 +543,7 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement& host, void*)
 
 void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
 {
-    host.operand->execute(*this);
+    visit(host.operand);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
@@ -606,9 +606,9 @@ void TypeCheck::caseExprLE(ASTExprLE& host, void*)
 
 void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
 {
-	host.left->execute(*this);
+	visit(host.left);
 	if (breakRecursion(host)) return;
-	host.right->execute(*this);
+	visit(host.right);
 	if (breakRecursion(host)) return;
 
 	if (!standardCheck(*host.left->getVarType(), *host.right->getVarType(), &host))
@@ -622,9 +622,9 @@ void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
 
 void TypeCheck::caseExprNE(ASTExprNE& host, void*)
 {
-	host.left->execute(*this);
+	visit(host.left);
 	if (breakRecursion(host)) return;
-	host.right->execute(*this);
+	visit(host.right);
 	if (breakRecursion(host)) return;
 
 	if (!standardCheck(*host.left->getVarType(), *host.right->getVarType(), &host))
@@ -784,7 +784,7 @@ bool TypeCheck::standardCheck(ZVarType const& targetType, ZVarType const& source
 
 bool TypeCheck::checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type)
 {
-	expr.operand->execute(*this);
+	visit(expr.operand);
 	if (failure) return false;
 	failure = !standardCheck(type, *expr.operand->getVarType(), &expr);
 	return !failure;
@@ -792,12 +792,12 @@ bool TypeCheck::checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type)
 
 bool TypeCheck::checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType)
 {
-	expr.left->execute(*this);
+	visit(expr.left);
 	if (failure) return false;
 	failure = !standardCheck(firstType, *expr.left->getVarType(), &expr);
 	if (failure) return false;
 
-	expr.right->execute(*this);
+	visit(expr.right);
 	if (failure) return false;
 	failure = !standardCheck(secondType, *expr.right->getVarType(), &expr);
 	return !failure;
@@ -813,7 +813,7 @@ ZVarTypeId TypeCheck::getLValTypeId(AST& lval)
 bool TypeCheck::check(SymbolTable& symbolTable, ZVarTypeId returnTypeId, AST& node)
 {
 	TypeCheck tc(symbolTable, returnTypeId);
-	node.execute(tc);
+	tc.visit(node);
 	return !tc.hasFailed();
 }
 
@@ -831,7 +831,7 @@ void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
 {
 	SymbolTable& symbolTable = typeCheck.symbolTable;
 
-    host.left->execute(typeCheck);
+    typeCheck.visit(host.left);
     if (typeCheck.hasFailed()) return;
 
 	// Don't need to check index here, since it'll be checked in the above
@@ -873,7 +873,7 @@ void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
 
 void GetLValType::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
-    host.execute(typeCheck);
+    typeCheck.visit(host);
     int vid = typeCheck.symbolTable.getNodeId(&host);
 
     if (vid == -1)
@@ -893,14 +893,14 @@ void GetLValType::caseExprIndex(ASTExprIndex& host, void*)
 
 	else
 	{
-		host.execute(typeCheck);
+		typeCheck.visit(host);
 		typeId = typeCheck.symbolTable.getTypeId(*host.array->getVarType());
 	}
 
 	// The index must be a number.
 	if (host.index)
 	{
-		host.index->execute(typeCheck);
+		typeCheck.visit(host.index);
 
 		if (typeCheck.hasFailed()) return;
 
