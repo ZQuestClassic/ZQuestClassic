@@ -12,6 +12,9 @@ class BuildOpcodes : public RecursiveVisitor
 public:
     BuildOpcodes();
 
+	using RecursiveVisitor::visit;
+	void visit(AST& node, void* param = NULL);
+	
     virtual void caseDefault(AST& host, void* param);
 	// Statements
     virtual void caseBlock(ASTBlock &host, void *param);
@@ -31,7 +34,6 @@ public:
 	virtual void caseDataDecl(ASTDataDecl& host, void* param);
 	virtual void caseTypeDef(ASTTypeDef& host, void* param);
 	// Expressions
-	virtual void caseStmtCompileError(ASTStmtCompileError& host, void* param);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);

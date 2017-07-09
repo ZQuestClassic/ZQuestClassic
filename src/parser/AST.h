@@ -54,7 +54,6 @@ class ASTStmtReturnVal;
 class ASTStmtBreak;
 class ASTStmtContinue;
 class ASTStmtEmpty;
-class ASTStmtCompileError;
 // Declarations
 class ASTDecl; // virtual
 class ASTScript;
@@ -146,7 +145,8 @@ class AST
 {
 public:
 	AST(LocationData const& location = LocationData::NONE);
-	AST(AST const& base);
+	AST(AST const& rhs);
+	virtual ~AST();
 	// Calls subclass's copy constructor on self.
 	virtual AST* clone() const = 0;
 
@@ -156,6 +156,13 @@ public:
 	// Filename and linenumber.
     LocationData location;
 
+	// List of expected compile error ids for this node. They are removed as
+	// they are encountered.
+	list<ASTExpr*> compileErrorCatches;
+
+	// If this node has been disabled due to an error.
+	bool disabled;
+	
 	// Subclass Predicates (replacing typeof and such).
 	virtual bool isTypeArrow() const {return false;}
 	virtual bool isTypeIndex() const {return false;}
@@ -502,35 +509,6 @@ public:
 	ASTStmtEmpty* clone() const {return new ASTStmtEmpty(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
-};
-
-class ASTStmtCompileError : public ASTStmt
-{
-public:
-	ASTStmtCompileError(ASTExpr* errorId = NULL,
-					ASTStmt* statement = NULL,
-					LocationData const& location = LocationData::NONE);
-	ASTStmtCompileError(ASTStmtCompileError const& base);
-	~ASTStmtCompileError();
-	ASTStmtCompileError& operator=(ASTStmtCompileError const& rhs);
-	ASTStmtCompileError* clone() const {return new ASTStmtCompileError(*this);}
-
-	void execute(ASTVisitor& visitor, void* param = NULL);
-	
-	// The expression for the error id. If NULL, no id is specified.
-	ASTExpr* errorId;
-
-	// The statement to execute while catching the compile error.
-	ASTStmt* statement;
-
-	// If the specified error has been triggered.
-	bool errorTriggered;
-	
-	// Get the error id as an integer. -1 for invalid.
-	int getErrorId() const;
-
-	// Does this node handle the given error?
-	bool canHandle(CompileError const& error) const;
 };
 
 ////////////////////////////////////////////////////////////////

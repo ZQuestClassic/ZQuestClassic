@@ -46,9 +46,6 @@ public:
 		caseDefault(host, param);}
     virtual void caseStmtEmpty(ASTStmtEmpty& host, void* param = NULL) {
 		caseDefault(host, param);}
-	virtual void caseStmtCompileError(
-			ASTStmtCompileError& host, void* param = NULL) {
-		caseDefault(host, param);}
 	// Declarations
     virtual void caseScript(ASTScript& host, void* param = NULL) {
 		caseDefault(host, param);}
@@ -160,7 +157,7 @@ public:
 class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 {
 public:
-	RecursiveVisitor() : failure(false), currentCompileError(NULL) {}
+	RecursiveVisitor() : failure(false), breakNode(NULL) {}
 	
 	// If any errors have occured.
 	bool hasFailed() const {return failure;}
@@ -196,9 +193,6 @@ public:
 	// Cases
 	
     virtual void caseDefault(AST&, void*) {}
-	virtual void caseStmtCompileError(
-			ASTStmtCompileError& host, void* param = NULL);
-
     virtual void caseProgram(ASTProgram& host, void* param = NULL);
 	// Statements
     virtual void caseBlock(ASTBlock& host, void* param = NULL);
@@ -265,17 +259,14 @@ protected:
 	// each action that can fail.
 	virtual bool breakRecursion(AST& host, void* param = NULL) const;
 
-	// A stack of active ASTStmtCompileErrors.
-	vector<ASTStmtCompileError*> compileErrorHandlers;
+	// Current stack of visited nodes.
+	vector<AST*> recursionStack;
 
-	// The current compile error. While this is set breakRecursion will return
-	// true. This lets us move up the call stack until we reach the proper
-	// handler for it.
-	CompileError const* currentCompileError;
-
+	// Node which we are breaking recursion until we reach.
+	AST* breakNode;
+	
 	// Set to true if any errors have occured.
 	bool failure;
-	
 };
 
 #endif
