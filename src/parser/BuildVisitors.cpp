@@ -926,7 +926,7 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.left->getVarType() == ZVarType::BOOL);
+    bool isBoolean = (*host.left->getReadType() == ZVarType::BOOL);
 
     if (host.getCompileTimeValue())
     {
@@ -953,7 +953,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.left->getVarType() == ZVarType::BOOL);
+    bool isBoolean = (*host.left->getReadType() == ZVarType::BOOL);
 
     if (host.getCompileTimeValue())
     {

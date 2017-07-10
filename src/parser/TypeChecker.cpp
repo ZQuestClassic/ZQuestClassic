@@ -34,7 +34,7 @@ void TypeCheck::caseStmtIf(ASTStmtIf& host, void*)
     RecursiveVisitor::caseStmtIf(host);
     if (breakRecursion(host)) return;
 
-    ZVarType const& type = *host.condition->getVarType();
+    ZVarType const& type = *host.condition->getReadType();
 
     if (!standardCheck(ZVARTYPEID_BOOL, type, &host))
         failure = true;
@@ -51,7 +51,7 @@ void TypeCheck::caseStmtSwitch(ASTStmtSwitch& host, void*)
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
 
-	ZVarType const& type = *host.key->getVarType();
+	ZVarType const& type = *host.key->getReadType();
 	if (!standardCheck(ZVARTYPEID_FLOAT, type, &host))
 		failure = true;
 }
@@ -61,7 +61,7 @@ void TypeCheck::caseStmtFor(ASTStmtFor& host, void*)
     RecursiveVisitor::caseStmtFor(host);
     if (breakRecursion(host)) return;
 
-    ZVarType const& type = *host.test->getVarType();
+    ZVarType const& type = *host.test->getReadType();
     if (!standardCheck(ZVARTYPEID_BOOL, type, &host))
         failure = true;
 }
@@ -71,7 +71,7 @@ void TypeCheck::caseStmtWhile(ASTStmtWhile& host, void*)
     RecursiveVisitor::caseStmtWhile(host);
     if (breakRecursion(host)) return;
 
-    ZVarType const& type = *host.test->getVarType();
+    ZVarType const& type = *host.test->getReadType();
     if (!standardCheck(ZVARTYPEID_BOOL, type, &host))
         failure = true;
 }
@@ -88,7 +88,8 @@ void TypeCheck::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
     visit(host.value);
     if (breakRecursion(host)) return;
 
-    if (!standardCheck(symbolTable.getTypeId(returnType), *host.value->getVarType(), &host))
+    if (!standardCheck(symbolTable.getTypeId(returnType),
+					   *host.value->getReadType(), &host))
         failure = true;
 }
 
@@ -123,7 +124,7 @@ void TypeCheck::caseDataDecl(ASTDataDecl& host, void*)
 	if (host.initializer())
 	{
 		// Make sure we can cast the initializer to the type.
-		ZVarType const& initType = *host.initializer()->getVarType();
+		ZVarType const& initType = *host.initializer()->getReadType();
 		if (!standardCheck(*variable.type, initType, &host))
 		{
 			failure = true;
@@ -156,7 +157,7 @@ void TypeCheck::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void*)
 		ASTExpr& size = **it;
 
 		// Make sure each size can cast to float.
-		if (!size.getVarType()->canCastTo(ZVarType::FLOAT))
+		if (!size.getReadType()->canCastTo(ZVarType::FLOAT))
 		{
 			handleError(CompileError::NonIntegerArraySize, &host);
 			return;
@@ -185,7 +186,7 @@ void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 		return;
 	}
 
-	host.setVarType(content->getVarType());
+	host.setVarType(content->getReadType());
 }
 
 void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
@@ -196,7 +197,7 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
 	ZVarTypeId ltypeid = getLValTypeId(*host.left);
     if (breakRecursion(host)) return;
 
-    ZVarType const& rtype = *host.right->getVarType();
+    ZVarType const& rtype = *host.right->getReadType();
 	host.setVarType(rtype);
 
     if (!standardCheck(ltypeid, rtype, &host))
@@ -222,7 +223,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
 	bool isIndexed = host.index != NULL;
 
 	// Make sure the left side is an object.
-    ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getVarType());
+    ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getReadType());
 	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
 		handleError(CompileError::ArrowNotPointer, &host);
@@ -254,7 +255,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
 void TypeCheck::caseExprIndex(ASTExprIndex& host, void*)
 {
 	visit(host.array);
-	host.setVarType(host.array->getVarType());
+	host.setVarType(host.array->getReadType());
 
 	// The index must be a number.
     if (host.index)
@@ -262,7 +263,7 @@ void TypeCheck::caseExprIndex(ASTExprIndex& host, void*)
         visit(host.index);
         if (breakRecursion(host)) return;
 
-        if (!standardCheck(ZVARTYPEID_FLOAT, *host.index->getVarType(), host.index))
+        if (!standardCheck(ZVARTYPEID_FLOAT, *host.index->getReadType(), host.index))
         {
             failure = true;
             return;
@@ -286,7 +287,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
         ASTExprArrow* lval = (ASTExprArrow*)host.left;
         visit(lval->left);
         if (breakRecursion(host)) return;
-        ZVarType const& lvaltype = *lval->left->getVarType();
+        ZVarType const& lvaltype = *lval->left->getReadType();
 
 		if (lvaltype.typeClassId() != ZVARTYPE_CLASSID_CLASS)
         {
@@ -304,7 +305,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
         visit(*it);
         if (breakRecursion(host)) return;
 
-        paramtypes.push_back(symbolTable.getTypeId(*(*it)->getVarType()));
+        paramtypes.push_back(symbolTable.getTypeId(*(*it)->getReadType()));
     }
 
     string paramstring = "(";
@@ -400,7 +401,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
         string name = arrow.right;
 
 		// Make sure the left side is an object.
-        ZVarTypeId leftTypeId = symbolTable.getTypeId(*arrow.left->getVarType());
+        ZVarTypeId leftTypeId = symbolTable.getTypeId(*arrow.left->getReadType());
 		if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
 		{
 			handleError(CompileError::ArrowNotPointer, &host);
@@ -611,7 +612,8 @@ void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
 	visit(host.right);
 	if (breakRecursion(host)) return;
 
-	if (!standardCheck(*host.left->getVarType(), *host.right->getVarType(), &host))
+	if (!standardCheck(*host.left->getReadType(), *host.right->getReadType(),
+					   &host))
 	{
 		failure = true;
 		return;
@@ -627,7 +629,8 @@ void TypeCheck::caseExprNE(ASTExprNE& host, void*)
 	visit(host.right);
 	if (breakRecursion(host)) return;
 
-	if (!standardCheck(*host.left->getVarType(), *host.right->getVarType(), &host))
+	if (!standardCheck(*host.left->getReadType(), *host.right->getReadType(),
+					   &host))
 	{
 		failure = true;
 		return;
@@ -708,7 +711,7 @@ void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host, void*)
 
 	// Check the explicit size is a number, if present.
 	ASTExpr* size = host.getSize();
-	if (size && !size->getVarType()->canCastTo(ZVarType::FLOAT))
+	if (size && !size->getReadType()->canCastTo(ZVarType::FLOAT))
 	{
 		handleError(CompileError::NonIntegerArraySize, &host);
 		return;
@@ -722,13 +725,13 @@ void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 
 	// If we don't have a type assigned, grab it from the first element.
-	ZVarTypeArray const* type = (ZVarTypeArray const*)host.getVarType();
+	ZVarTypeArray const* type = (ZVarTypeArray const*)host.getReadType();
 	ZVarType const* elementType;
 	if (type)
 		elementType = &type->getElementType();
 	else
 	{
-		elementType = host.getElements()[0]->getVarType();
+		elementType = host.getElements()[0]->getReadType();
 		type = (ZVarTypeArray const*)symbolTable.getCanonicalType(ZVarTypeArray(*elementType));
 		host.setVarType(type);
 	}
@@ -738,7 +741,7 @@ void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	for (vector<ASTExpr*>::iterator it = elements.begin();
 		 it != elements.end(); ++it)
 	{
-		if (!standardCheck(*elementType, *(*it)->getVarType(), &host))
+		if (!standardCheck(*elementType, *(*it)->getReadType(), &host))
 		{
 			failure = true;
 			return;
@@ -786,7 +789,7 @@ bool TypeCheck::checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type)
 {
 	visit(expr.operand);
 	if (failure) return false;
-	failure = !standardCheck(type, *expr.operand->getVarType(), &expr);
+	failure = !standardCheck(type, *expr.operand->getReadType(), &expr);
 	return !failure;
 }
 
@@ -794,12 +797,12 @@ bool TypeCheck::checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTy
 {
 	visit(expr.left);
 	if (failure) return false;
-	failure = !standardCheck(firstType, *expr.left->getVarType(), &expr);
+	failure = !standardCheck(firstType, *expr.left->getReadType(), &expr);
 	if (failure) return false;
 
 	visit(expr.right);
 	if (failure) return false;
-	failure = !standardCheck(secondType, *expr.right->getVarType(), &expr);
+	failure = !standardCheck(secondType, *expr.right->getReadType(), &expr);
 	return !failure;
 }
 
@@ -839,7 +842,7 @@ void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
 	bool isIndexed = host.index != NULL;
 
 	// Make sure the left side is an object.
-    ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getVarType());
+    ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getReadType());
 	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
 		typeCheck.handleError(CompileError::ArrowNotPointer, &host);
@@ -894,7 +897,7 @@ void GetLValType::caseExprIndex(ASTExprIndex& host, void*)
 	else
 	{
 		typeCheck.visit(host);
-		typeId = typeCheck.symbolTable.getTypeId(*host.array->getVarType());
+		typeId = typeCheck.symbolTable.getTypeId(*host.array->getReadType());
 	}
 
 	// The index must be a number.
@@ -904,7 +907,8 @@ void GetLValType::caseExprIndex(ASTExprIndex& host, void*)
 
 		if (typeCheck.hasFailed()) return;
 
-		if (!typeCheck.standardCheck(ZVARTYPEID_FLOAT, *host.index->getVarType(), host.index))
+		if (!typeCheck.standardCheck(
+					ZVARTYPEID_FLOAT, *host.index->getReadType(), host.index))
 		{
 			typeCheck.fail();
 			return;
