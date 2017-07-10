@@ -1,4 +1,4 @@
-#include "ScriptParser.h"
+#include "ScriptParser.h" //2.53 Updated to 16th Jan, 2017, scoped variables are destroyed when their scope exits. 
 #include <map>
 #include <string>
 #include <iostream>

@@ -51,6 +51,7 @@
 #include "title.h"
 #include "particles.h"
 #include "mem_debug.h"
+#include "zconsole.h"
 
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
@@ -4654,6 +4655,22 @@ int onClickToFreeze()
     return D_O_K;
 }
 
+int onDebugConsole()
+{
+	if ( !zconsole ) {
+		DebugConsole::Open();
+
+		zconsole = true;
+		return D_O_K;
+	}
+	else { 
+		
+		zconsole = false;
+		DebugConsole::Close();
+		return D_O_K;
+	}
+}
+
 int onFrameSkip()
 {
     FrameSkip = !FrameSkip;
@@ -5152,8 +5169,7 @@ static DIALOG about_dlg[] =
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
     { jwin_win_proc,       68,   52,   184,  154,  0,       0,       0,       D_EXIT,    0,        0, (void *) "About", NULL,  NULL },
     { jwin_button_proc,    140,  176,  41,   21,   vc(14),  0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_ctext_proc,        160,  76,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Zelda Classic", NULL,  NULL },
-    { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Version " ZELDA_VERSION_STR, NULL,  NULL },
+    { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Zelda Classic", NULL,  NULL },
     { jwin_ctext_proc,        160,  92,   0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
     { jwin_ctext_proc,        160,  100,  0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, (void *) DATE_STR, NULL,  NULL },
     { jwin_text_proc,         88,   124,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Coded by:", NULL,  NULL },
@@ -6709,6 +6725,7 @@ static MENU misc_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+     { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 

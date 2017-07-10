@@ -1,6 +1,6 @@
 /*
  Parser for the scripting language compiler. Inteded for use with Flex and Bison;
- use this file to generate y.tab.cpp
+ use this file to generate y.tab.cpp //2.53 Updated to 16th Jan, 2017
 
 command: bison -b y -v -d ffscript.ypp
 

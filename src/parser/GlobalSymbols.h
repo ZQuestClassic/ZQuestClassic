@@ -1,4 +1,4 @@
-#ifndef GLOBALSYMBOLS_H
+#ifndef GLOBALSYMBOLS_H //2.53 Updated to 16th Jan, 2017
 #define GLOBALSYMBOLS_H
 
 #include "DataStructs.h"

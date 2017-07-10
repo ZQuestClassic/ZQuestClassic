@@ -2953,7 +2953,7 @@ void set_register(const long arg, const long value)
         break;
         
     case FFLINK:
-        (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 1, 32);
+        (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); //Needs to be 0 to be able to clear it. 
         break;
         
     case FFMISCD:
@@ -3025,13 +3025,16 @@ void set_register(const long arg, const long value)
         
     case LINKITEMD:
         {
-            int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
+           int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
             
             // If the Cane of Byrna is being removed, cancel its effect.
             if(value==0 && itemID==current_item_id(itype_cbyrna))
                 stopCaneOfByrna();
             
-            game->set_item(itemID,(value != 0));
+            bool settrue = ( value != 0 );
+		    
+	    //Sanity check to prevent setting the item if the value would be the same. -Z
+	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
@@ -4709,17 +4712,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     case COMBOSDM:
     {
-        int pos = (ri->d[0])/10000;
-        int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
-        
-        if(pos<0 || pos>=176 ||
-          sc<0 || sc>=MAPSCRS ||
-          m<0 || m>=map_count)
-            break;
-        
-        long scr = m*MAPSCRS+sc;
-        combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
+	    if ( !get_bit(quest_rules,qr_NEWCOMBOSDM) )
+	    {
+	    //This is how it was in 2.50.1-2
+		int pos = (ri->d[0])/10000;
+		long scr = (ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000);
+
+		if(pos < 0 || pos >= 176 || scr < 0) break;
+
+		combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
+	    }
+	    if ( get_bit(quest_rules,qr_NEWCOMBOSDM) )
+	    {
+	    
+		int pos = (ri->d[0])/10000;
+		int sc = (ri->d[2]/10000);
+		int m = (ri->d[1]/10000)-1;
+		
+		if(pos<0 || pos>=176 ||
+		  sc<0 || sc>=MAPSCRS ||
+		  m<0 || m>=map_count)
+		    break;
+		
+		long scr = m*MAPSCRS+sc;
+		combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
+	    }
     }
     break;
     
@@ -5349,34 +5366,16 @@ void do_rshift(const bool v)
 
 void do_warp(bool v)
 {
-    int dmap=SH::get_arg(sarg1, v) / 10000;
-    if(dmap<0 || dmap>=MAXDMAPS)
-        return;
-    int screen=SH::get_arg(sarg2, v) / 10000;
-    if(screen<0 || screen>=MAPSCRS) // Should this be MAPSCRSNORMAL?
-        return;
-    // A shifted DMap can still go past the end of the maps, so check that
-    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>=TheMaps.size())
-        return;
-    
-    tmpscr->sidewarpdmap[0] = dmap;
-    tmpscr->sidewarpscr[0]  = screen;
+    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
+    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
     tmpscr->sidewarptype[0] = wtIWARP;
     Link.ffwarp = true;
 }
 
 void do_pitwarp(bool v)
 {
-    int dmap=SH::get_arg(sarg1, v) / 10000;
-    if(dmap<0 || dmap>=MAXDMAPS)
-        return;
-    int screen=SH::get_arg(sarg2, v) / 10000;
-    if(screen<0 || screen>=MAPSCRS)
-        return;
-    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>=TheMaps.size())
-        return;
-    tmpscr->sidewarpdmap[0] = dmap;
-    tmpscr->sidewarpscr[0]  = screen;
+    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
+    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
     tmpscr->sidewarptype[0] = wtIWARP;
     Link.ffwarp = true;
     Link.ffpit = true;

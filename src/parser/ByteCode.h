@@ -1,4 +1,4 @@
-#ifndef BYTECODE_H
+#ifndef BYTECODE_H //2.53 Updated to 16th Jan, 2017
 #define BYTECODE_H
 
 //#include "ScriptParser.h"
@@ -10,7 +10,7 @@
 
 #include <string>
 
-//using namespace std;
+using namespace std;
 
 /*
  I will reserve the registers in the following scheme:
@@ -2062,6 +2062,17 @@ public:
     Opcode *clone()
     {
         return new OCopyTileRegister(a->clone(),b->clone());
+    }
+};
+
+class OOverlayTileRegister : public BinaryOpcode
+{
+public:
+    OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OOverlayTileRegister(a->clone(),b->clone());
     }
 };
 

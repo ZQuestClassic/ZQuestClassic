@@ -1,4 +1,4 @@
-
+//2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
 
 #include "ParseError.h"
@@ -53,7 +53,7 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case VOIDARR:
-        oss << "Error S39: Array " << param << " can't have type void." ;
+        oss << "Error A39: Array " << param << " can't have type void." ;
         break;
         
     case VARREDEF:
@@ -61,7 +61,7 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case ARRREDEF:
-        oss << "Error S41: There is already an array with name " << param << " defined in this scope." ;
+        oss << "Error A41: There is already an array with name " << param << " defined in this scope." ;
         break;
         
     case VARUNDECLARED:
@@ -185,7 +185,7 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case REFARR:
-        oss << "Error S40: Pointer types (ffc, etc) cannot be declared as global arrays." ;
+        oss << "Error A40: Pointer types (ffc, etc) cannot be declared as global arrays." ;
         break;
         
     case ARRAYTOOSMALL:
@@ -201,7 +201,7 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case NONINTEGERARRAYSIZE:
-        oss << "Error T38: Arrays can only be initialized to numerical values" ;
+        oss << "Error A38: Arrays can only be initialized to numerical values" ;
         
     default:
         oss << "FATAL FATAL ERROR I0: bad internal error code" ;
