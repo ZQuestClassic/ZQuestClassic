@@ -1,4 +1,4 @@
-#ifndef PARSEERROR_H
+#ifndef PARSEERROR_H //2.53 Updated to 16th Jan, 2017
 #define PARSEERROR_H
 
 #include "AST.h"
@@ -54,5 +54,5 @@ void printErrorMsg(AST *offender, int errorID, string param=string());
 #define ARRAYLISTTOOLARGE 43
 #define ARRAYLISTSTRINGTOOLARGE 44
 #define NONINTEGERARRAYSIZE 45
-#define VARNOTFUNCTIONTYPE 46
 #endif
+

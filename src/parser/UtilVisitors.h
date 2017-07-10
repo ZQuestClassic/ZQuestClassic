@@ -1,4 +1,4 @@
-#ifndef UTILVISITORS_H
+#ifndef UTILVISITORS_H //2.53 Updated to 16th Jan, 2017
 #define UTILVISITORS_H
 
 #include "AST.h"
@@ -8,19 +8,8 @@ class Clone : public ASTVisitor
 public:
     virtual void caseDefault(void *param);
     virtual void caseProgram(ASTProgram &host, void *param);
-	// Statements
-    virtual void caseBlock(ASTBlock &host, void *param);
-    virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
-    virtual void caseStmtIf(ASTStmtIf &host, void *param);
-    virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
-	virtual void caseStmtSwitch(ASTStmtSwitch & host, void* param);
-	virtual void caseSwitchCases(ASTSwitchCases & host, void* param);
-    virtual void caseStmtFor(ASTStmtFor &host, void *param);
-    virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
-    virtual void caseStmtDo(ASTStmtDo &host, void *param);
-    virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
-	// Declarations
-    virtual void caseScript(ASTScript &host, void *param);
+    virtual void caseFloat(ASTFloat &host, void *param);
+    virtual void caseString(ASTString &host, void *param);
     virtual void caseDeclList(ASTDeclList &host, void *param);
     virtual void caseImportDecl(ASTImportDecl &host, void *param);
     virtual void caseConstDecl(ASTConstDecl &host, void *param);
@@ -54,7 +43,6 @@ public:
     virtual void caseExprNegate(ASTExprNegate &host, void *param);
     virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseFuncCall(ASTFuncCall &host, void *param);
-    virtual void caseFuncId(ASTFuncId &host, void *param);
     virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
@@ -83,7 +71,7 @@ public:
     virtual void caseExprPreDecrement(ASTExprPreDecrement &host, void *param);
     virtual void caseStmtBreak(ASTStmtBreak &host, void *param);
     virtual void caseStmtContinue(ASTStmtContinue &host, void *param);
-
+    
     AST *getResult()
     {
         return result;
@@ -106,7 +94,7 @@ public:
     virtual void caseDeclList(ASTDeclList &host, void *param)
     {
         list<ASTDecl *> l = host.getDeclarations();
-
+        
         for(list<ASTDecl *>::iterator it = l.begin(); it != l.end(); it++)
         {
             (*it)->execute(*this,param);
@@ -116,12 +104,12 @@ public:
     {
         host.getReturnType()->execute(*this,param);
         list<ASTVarDecl *> l = host.getParams();
-
+        
         for(list<ASTVarDecl *>::iterator it = l.begin(); it != l.end(); it++)
         {
             (*it)->execute(*this,param);
         }
-
+        
         host.getBlock()->execute(*this,param);
     }
     virtual void caseVarDecl(ASTVarDecl &host, void *param)
@@ -136,10 +124,10 @@ public:
     virtual void caseArrayDecl(ASTArrayDecl &host, void *param)
     {
         host.getType()->execute(*this,param);
-
+        
         if(host.isRegister())
             ((ASTExpr *) host.getSize())->execute(*this, param);
-
+            
         if(host.getList() != NULL)
         {
             for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
@@ -269,7 +257,7 @@ public:
     virtual void caseExprArrow(ASTExprArrow &host, void*param)
     {
         host.getLVal()->execute(*this,param);
-
+        
         if(host.getIndex())
             host.getIndex()->execute(*this,param);
     }
@@ -284,19 +272,16 @@ public:
     virtual void caseFuncCall(ASTFuncCall &host, void *param)
     {
         list<ASTExpr *> l = host.getParams();
-
+        
         for(list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
         {
             (*it)->execute(*this,param);
         }
     }
-    virtual void caseFuncId(ASTNumConstant &host, void *param)
-    {
-    }
     virtual void caseBlock(ASTBlock &host, void *param)
     {
         list<ASTStmt *> l = host.getStatements();
-
+        
         for(list<ASTStmt *>::iterator it = l.begin(); it != l.end(); it++)
             (*it)->execute(*this,param);
     }
@@ -529,3 +514,4 @@ public:
 };
 
 #endif
+

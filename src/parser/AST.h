@@ -1,9 +1,15 @@
-#ifndef AST_H
+#ifndef AST_H //2.53 Updated to 16th Jan, 2017
 #define AST_H
 
 class AST;
 // for flex and bison
 #define YYSTYPE AST*
+
+#ifdef _MSC_VER
+#if (_MSC_VER <= 1600)
+#define snprintf _snprintf
+#endif
+#endif
 
 #include "y.tab.hpp"
 #include "Compiler.h"
@@ -12,36 +18,17 @@ class AST;
 #include <map>
 #include <string>
 
-using namespace std;
+using std::string;
+using std::pair;
+using std::map;
+using std::vector;
+using std::list;
 
 #define RECURSIONLIMIT 30
 
 extern string curfilename;
 int go(const char *f);
 
-// AST Subclasses.
-class AST; // virtual
-class ASTProgram;
-class ASTFloat;
-class ASTString;
-// Statements
-class ASTStmt; // virtual
-class ASTBlock;
-class ASTStmtAssign;
-class ASTStmtIf;
-class ASTStmtIfElse;
-class ASTStmtSwitch;
-class ASTSwitchCases;
-class ASTStmtFor;
-class ASTStmtWhile;
-class ASTStmtDo;
-class ASTStmtReturn;
-class ASTStmtReturnVal;
-class ASTStmtBreak;
-class ASTStmtContinue;
-class ASTStmtEmpty;
-// Declarations
-class ASTDecl; // virtual
 class ASTScript;
 class ASTImportDecl;
 class ASTConstDecl;
@@ -86,7 +73,6 @@ class ASTExprArrow;
 class ASTExprArray;
 class ASTNumConstant;
 class ASTFuncCall;
-class ASTFuncId;
 class ASTBoolConstant;
 class ASTBlock;
 class ASTStmt;
@@ -271,10 +257,6 @@ public:
     {
         caseDefault(param);
     }
-    virtual void caseFuncId(ASTFuncId &, void *param)
-    {
-        caseDefault(param);
-    }
     virtual void caseBoolConstant(ASTBoolConstant &, void *param)
     {
         caseDefault(param);
@@ -380,81 +362,6 @@ public:
         caseDefault(param);
     }
     virtual ~ASTVisitor() {}
-    virtual void caseDefault(void *param) = 0;
-	// AST Subclasses
-    virtual void caseProgram(ASTProgram &, void *param) {caseDefault(param);}
-    virtual void caseFloat(ASTFloat &, void *param) {caseDefault(param);}
-    virtual void caseString(ASTString &, void *param) {caseDefault(param);}
-	// Statements
-    virtual void caseBlock(ASTBlock &, void *param) {caseDefault(param);}
-    virtual void caseStmtAssign(ASTStmtAssign &, void *param) {caseDefault(param);}
-    virtual void caseStmtIf(ASTStmtIf &, void *param) {caseDefault(param);}
-    virtual void caseStmtIfElse(ASTStmtIfElse &, void *param) {caseDefault(param);}
-	virtual void caseStmtSwitch(ASTStmtSwitch &, void* param) {caseDefault(param);}
-	virtual void caseSwitchCases(ASTSwitchCases &, void* param) {caseDefault(param);}
-    virtual void caseStmtFor(ASTStmtFor &, void *param) {caseDefault(param);}
-    virtual void caseStmtWhile(ASTStmtWhile &, void *param) {caseDefault(param);}
-    virtual void caseStmtDo(ASTStmtDo &, void *param) {caseDefault(param);}
-    virtual void caseStmtReturn(ASTStmtReturn &, void *param) {caseDefault(param);}
-    virtual void caseStmtReturnVal(ASTStmtReturnVal &, void *param) {caseDefault(param);}
-    virtual void caseStmtBreak(ASTStmtBreak &, void *param) {caseDefault(param);}
-    virtual void caseStmtContinue(ASTStmtContinue &, void *param) {caseDefault(param);}
-    virtual void caseStmtEmpty(ASTStmtEmpty &, void *param) {caseDefault(param);}
-	// Declarations
-    virtual void caseScript(ASTScript &, void *param) {caseDefault(param);}
-    virtual void caseDeclList(ASTDeclList &, void *param) {caseDefault(param);}
-    virtual void caseImportDecl(ASTImportDecl &, void *param) {caseDefault(param);}
-    virtual void caseConstDecl(ASTConstDecl &, void *param) {caseDefault(param);}
-    virtual void caseFuncDecl(ASTFuncDecl &, void *param) {caseDefault(param);}
-    virtual void caseArrayDecl(ASTArrayDecl &, void *param) {caseDefault(param);}
-    virtual void caseArrayList(ASTArrayList &, void *param) {caseDefault(param);}
-    virtual void caseVarDecl(ASTVarDecl &, void *param) {caseDefault(param);}
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer &, void *param) {caseDefault(param);}
-	// Expressions
-    virtual void caseExprConst(ASTExprConst &, void *param) {caseDefault(param);}
-    virtual void caseNumConstant(ASTNumConstant &, void *param) {caseDefault(param);}
-    virtual void caseBoolConstant(ASTBoolConstant &, void *param) {caseDefault(param);}
-    virtual void caseExprDot(ASTExprDot &, void *param) {caseDefault(param);}
-    virtual void caseExprArrow(ASTExprArrow &, void *param) {caseDefault(param);}
-    virtual void caseExprArray(ASTExprArray &, void *param) {caseDefault(param);}
-    virtual void caseFuncCall(ASTFuncCall &, void *param) {caseDefault(param);}
-    virtual void caseExprNegate(ASTExprNegate &, void *param) {caseDefault(param);}
-    virtual void caseExprNot(ASTExprNot &, void *param) {caseDefault(param);}
-    virtual void caseExprBitNot(ASTExprBitNot &, void *param) {caseDefault(param);}
-    virtual void caseExprIncrement(ASTExprIncrement &, void *param) {caseDefault(param);}
-    virtual void caseExprPreIncrement(ASTExprPreIncrement &, void *param) {caseDefault(param);}
-    virtual void caseExprDecrement(ASTExprDecrement &, void *param) {caseDefault(param);}
-    virtual void caseExprPreDecrement(ASTExprPreDecrement &, void *param) {caseDefault(param);}
-    virtual void caseExprAnd(ASTExprAnd &, void *param) {caseDefault(param);}
-    virtual void caseExprOr(ASTExprOr &, void *param) {caseDefault(param);}
-    virtual void caseExprGT(ASTExprGT &, void *param) {caseDefault(param);}
-    virtual void caseExprGE(ASTExprGE &, void *param) {caseDefault(param);}
-    virtual void caseExprLT(ASTExprLT &, void *param) {caseDefault(param);}
-    virtual void caseExprLE(ASTExprLE &, void *param) {caseDefault(param);}
-    virtual void caseExprEQ(ASTExprEQ &, void *param) {caseDefault(param);}
-    virtual void caseExprNE(ASTExprNE &, void *param) {caseDefault(param);}
-    virtual void caseExprPlus(ASTExprPlus &, void *param) {caseDefault(param);}
-    virtual void caseExprMinus(ASTExprMinus &, void *param) {caseDefault(param);}
-    virtual void caseExprTimes(ASTExprTimes &, void *param) {caseDefault(param);}
-    virtual void caseExprDivide(ASTExprDivide &, void *param) {caseDefault(param);}
-    virtual void caseExprModulo(ASTExprModulo &, void *param) {caseDefault(param);}
-    virtual void caseExprBitAnd(ASTExprBitAnd &, void *param) {caseDefault(param);}
-    virtual void caseExprBitOr(ASTExprBitOr &, void *param) {caseDefault(param);}
-    virtual void caseExprBitXor(ASTExprBitXor &, void *param) {caseDefault(param);}
-    virtual void caseExprLShift(ASTExprLShift &, void *param) {caseDefault(param);}
-    virtual void caseExprRShift(ASTExprRShift &, void *param) {caseDefault(param);}
-	// Types
-	virtual void caseScriptType(ASTScriptType &, void* param) {caseDefault(param);}
-    virtual void caseTypeVoid(ASTTypeVoid &, void *param) {caseDefault(param);}
-    virtual void caseTypeGlobal(ASTTypeGlobal &, void *param) {caseDefault(param);}
-    virtual void caseTypeFloat(ASTTypeFloat &, void *param) {caseDefault(param);}
-    virtual void caseTypeBool(ASTTypeBool &, void *param) {caseDefault(param);}
-    virtual void caseTypeFFC(ASTTypeFFC &, void *param) {caseDefault(param);}
-    virtual void caseTypeItem(ASTTypeItem &, void *param) {caseDefault(param);}
-    virtual void caseTypeItemclass(ASTTypeItemclass &, void *param) {caseDefault(param);}
-    virtual void caseTypeNPC(ASTTypeNPC &, void *param) {caseDefault(param);}
-    virtual void caseTypeLWpn(ASTTypeLWpn &, void *param) {caseDefault(param);}
-    virtual void caseTypeEWpn(ASTTypeEWpn &, void *param) {caseDefault(param);}
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -504,14 +411,14 @@ class ASTProgram : public AST
 {
 public:
     ASTProgram(ASTDeclList *Decls, LocationData Loc) : AST(Loc), decls(Decls) {};
-
+    
     ASTDeclList *getDeclarations()
     {
         return decls;
     }
-
+    
     ~ASTProgram();
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseProgram(*this,param);
@@ -566,232 +473,15 @@ private:
 class ASTString : public AST
 {
 public:
-	ASTString(const char *strval, LocationData Loc);
-    ASTString(string Str, LocationData Loc);
-	ASTString* clone() const;
-    string getValue() const {return str;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseString(*this, param);}
-private:
-    string str;
-};
-
-////////////////////////////////////////////////////////////////
-// Statements
-
-class ASTStmt : public AST
-{
-public:
-    ASTStmt(LocationData Loc) : AST(Loc) {}
-    virtual ~ASTStmt() {}
-	virtual ASTStmt* clone() const = 0;
-};
+    ASTString(const char *strval, LocationData Loc) : AST(Loc)
+    {
+        str = string(strval);
+    }
+    string getValue()
+    {
+        return str;
+    }
     
-class ASTBlock : public ASTStmt
-{
-public:
-    ASTBlock(LocationData Loc) : ASTStmt(Loc), statements() {}
-    ~ASTBlock();
-	ASTBlock* clone() const;
-    
-    list<ASTStmt *> const &getStatements() const {return statements;}
-    list<ASTStmt *> &getStatements() {return statements;}
-    list<long> const *getArrayRefs() const {return &arrayRefs;}
-    list<long> *getArrayRefs() {return &arrayRefs;}
-    void addStatement(ASTStmt *Stmt);
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseBlock(*this, param);}
-private:
-    list<ASTStmt *> statements;
-    list<long> arrayRefs;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTBlock(ASTBlock &);
-    ASTBlock &operator=(ASTBlock &);
-};
-    
-class ASTStmtAssign : public ASTStmt
-{
-public:
-    ASTStmtAssign(ASTStmt *Lval, ASTExpr *Rval, LocationData Loc) : ASTStmt(Loc), lval(Lval), rval(Rval) {}
-    ~ASTStmtAssign();
-	ASTStmtAssign* clone() const;
-
-    ASTStmt *getLVal() const {return lval;}
-    ASTExpr *getRVal() const {return rval;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtAssign(*this, param);}
-private:
-    ASTStmt *lval;
-    ASTExpr *rval;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtAssign(ASTStmtAssign &);
-    ASTStmtAssign &operator=(ASTStmtAssign &);
-};
-
-class ASTStmtIf : public ASTStmt
-{
-public:
-    ASTStmtIf(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc) : ASTStmt(Loc), cond(Cond), stmt(Stmt) {}
-    virtual ~ASTStmtIf();
-	ASTStmtIf* clone() const;
-
-    ASTExpr *getCondition() const {return cond;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {return visitor.caseStmtIf(*this, param);}
-private:
-    ASTExpr *cond;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtIf(ASTStmtIf &);
-    ASTStmtIf &operator=(ASTStmtIf &);
-};
-
-class ASTStmtIfElse : public ASTStmtIf
-{
-public:
-    ASTStmtIfElse(ASTExpr *Cond, ASTStmt *Ifstmt, ASTStmt *Elsestmt, LocationData Loc);
-    ~ASTStmtIfElse();
-	ASTStmtIfElse* clone() const;
-
-    ASTStmt *getElseStmt() const {return elsestmt;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtIfElse(*this, param);}
-private:
-    ASTStmt *elsestmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtIfElse(ASTStmtIfElse &);
-    ASTStmtIfElse &operator=(ASTStmtIfElse &);
-};
-
-class ASTStmtSwitch : public ASTStmt
-{
-public:
-	ASTStmtSwitch(LocationData Loc) : ASTStmt(Loc), key(NULL), cases() {}
-	~ASTStmtSwitch();
-	ASTStmtSwitch* clone() const;
-
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseStmtSwitch(*this, param);}
-	void setKey(ASTExpr* k) {key = k;}
-	ASTExpr* getKey() const {return key;}
-	void addCases(ASTSwitchCases* c) {cases.push_back(c);}
-	vector<ASTSwitchCases*> & getCases() {return cases;}
-	vector<ASTSwitchCases*> const & getCases() const {return cases;}
-private:
-	ASTExpr* key;
-	vector<ASTSwitchCases*> cases;
-};
-
-class ASTSwitchCases : public AST
-{
-public:
-	ASTSwitchCases(LocationData Loc) : AST(Loc), isDefault(false), cases() {}
-	~ASTSwitchCases();
-	ASTSwitchCases* clone() const;
-
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseSwitchCases(*this, param);}
-	void addCase(ASTExprConst* expr) {cases.push_back(expr);}
-	vector<ASTExprConst*> & getCases() {return cases;}
-	vector<ASTExprConst*> const & getCases() const {return cases;}
-	void addDefaultCase() {isDefault = true;}
-	bool isDefaultCase() const {return isDefault;}
-	void setBlock(ASTBlock* b) {block = b;}
-	ASTBlock* getBlock() const {return block;}
-private:
-	bool isDefault;
-	vector<ASTExprConst*> cases;
-	ASTBlock* block;
-};
-
-
-class ASTStmtFor : public ASTStmt
-{
-public:
-    ASTStmtFor(ASTStmt *Prec, ASTExpr *Term, ASTStmt *Incr, ASTStmt *Stmt, LocationData Loc);
-    ~ASTStmtFor();
-	ASTStmtFor* clone() const;
-
-    ASTStmt *getPrecondition() const {return prec;}
-    ASTExpr *getTerminationCondition() const {return term;}
-    ASTStmt *getIncrement() const {return incr;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {return visitor.caseStmtFor(*this, param);}
-private:
-    ASTStmt *prec;
-    ASTExpr *term;
-    ASTStmt *incr;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtFor(ASTStmtFor &);
-    ASTStmtFor &operator=(ASTStmtFor &);
-};
-
-class ASTStmtWhile : public ASTStmt
-{
-public:
-    ASTStmtWhile(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc);
-    ~ASTStmtWhile();
-	ASTStmtWhile* clone() const;
-
-    ASTExpr *getCond() const {return cond;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtWhile(*this, param);}
-private:
-    ASTExpr *cond;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtWhile(ASTStmtWhile &);
-    ASTStmtWhile &operator=(ASTStmtWhile &);
-};
-
-class ASTStmtDo : public ASTStmt
-{
-public:
-    ASTStmtDo(ASTExpr *Cond, ASTStmt *Stmt, LocationData Loc);
-    ~ASTStmtDo();
-	ASTStmtDo* clone() const;
-	
-    ASTExpr *getCond() const {return cond;}
-    ASTStmt *getStmt() const {return stmt;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtDo(*this, param);}
-private:
-    ASTExpr *cond;
-    ASTStmt *stmt;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtDo(ASTStmtDo &);
-    ASTStmtDo &operator=(ASTStmtDo &);
-};
-
-class ASTStmtReturn : public ASTStmt
-{
-public:
-    ASTStmtReturn(LocationData Loc) : ASTStmt(Loc) {}
-	ASTStmtReturn* clone() const;
-
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtReturn(*this, param);}
-private:
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtReturn(ASTStmtReturn &);
-    ASTStmtReturn &operator=(ASTStmtReturn &);
-};
-
-class ASTStmtReturnVal : public ASTStmt
-{
-public:
-    ASTStmtReturnVal(ASTExpr *Retval, LocationData Loc) : ASTStmt(Loc), retval(Retval) {}
-    ~ASTStmtReturnVal();
-	ASTStmtReturnVal* clone() const;
-
-    ASTExpr *getReturnValue() const {return retval;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseStmtReturnVal(*this, param);}
-private:
-    ASTExpr *retval;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtReturnVal(ASTStmtReturnVal &);
-    ASTStmtReturnVal &operator=(ASTStmtReturnVal &);
-};
-
-class ASTStmtBreak : public ASTStmt
-{
-public:
-    ASTStmtBreak(LocationData Loc) : ASTStmt(Loc) {}
-	ASTStmtBreak* clone() const;
-
     void execute(ASTVisitor &visitor, void *param)
     {
         return visitor.caseString(*this,param);
@@ -805,14 +495,14 @@ class ASTDeclList : public AST
 public:
     ASTDeclList(LocationData Loc) : AST(Loc), decls() {}
     ~ASTDeclList();
-
+    
     void addDeclaration(ASTDecl *newdecl);
-
+    
     list<ASTDecl *> &getDeclarations()
     {
         return decls;
     }
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseDeclList(*this, param);
@@ -836,12 +526,12 @@ class ASTImportDecl : public ASTDecl
 {
 public:
     ASTImportDecl(string file, LocationData Loc) : ASTDecl(Loc), filename(file) {}
-
+    
     string getFilename()
     {
         return filename;
     }
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseImportDecl(*this,param);
@@ -886,9 +576,9 @@ class ASTFuncDecl : public ASTDecl
 public:
     ASTFuncDecl(LocationData Loc) : ASTDecl(Loc), params()
     {
-
+    
     }
-
+    
     void setName(string n)
     {
         name=n;
@@ -901,7 +591,7 @@ public:
     {
         block=b;
     }
-
+    
     ~ASTFuncDecl();
     void addParam(ASTVarDecl *param);
     list<ASTVarDecl *> &getParams()
@@ -920,7 +610,7 @@ public:
     {
         return name;
     }
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseFuncDecl(*this,param);
@@ -968,9 +658,9 @@ private:
     ASTArrayList *list;
     AST *size;
     ASTType *type;
-
+    
     bool reg;
-
+    
     //NOT IMPLEMENTED; DO NOT USE
     ASTArrayDecl(ASTArrayDecl &);
     ASTArrayDecl &operator=(ASTArrayDecl &);
@@ -999,7 +689,7 @@ public:
 private:
     list<ASTExpr *> exprs;
     bool listIsString;
-
+    
     //NOT IMPLEMENTED
     ASTArrayList(ASTArrayList &);
     ASTArrayList &operator=(ASTArrayList &);
@@ -1183,7 +873,7 @@ public:
     {
         return initial;
     }
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseVarDeclInitializer(*this,param);
@@ -1238,7 +928,7 @@ public:
     {
         delete operand;
     }
-
+    
     void setOperand(ASTExpr *e)
     {
         operand=e;
@@ -1318,7 +1008,7 @@ class ASTExprAnd : public ASTLogExpr
 {
 public:
     ASTExprAnd(LocationData Loc) : ASTLogExpr(Loc) {}
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseExprAnd(*this,param);
@@ -1333,7 +1023,7 @@ class ASTExprOr : public ASTLogExpr
 {
 public:
     ASTExprOr(LocationData Loc) : ASTLogExpr(Loc) {}
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseExprOr(*this,param);
@@ -1536,7 +1226,7 @@ class ASTExprNegate : public ASTUnaryExpr
 {
 public:
     ASTExprNegate(LocationData Loc) : ASTUnaryExpr(Loc) {}
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseExprNegate(*this,param);
@@ -1547,7 +1237,7 @@ class ASTExprNot : public ASTUnaryExpr
 {
 public:
     ASTExprNot(LocationData Loc) : ASTUnaryExpr(Loc) {}
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseExprNot(*this,param);
@@ -1618,17 +1308,17 @@ class ASTNumConstant : public ASTExpr
 {
 public:
     ASTNumConstant(ASTFloat *value, LocationData Loc) : ASTExpr(Loc), val(value) {}
-
+    
     ASTFloat *getValue()
     {
         return val;
     }
-
+    
     ~ASTNumConstant()
     {
         delete val;
     }
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseNumConstant(*this,param);
@@ -1641,12 +1331,12 @@ class ASTFuncCall : public ASTExpr
 {
 public:
     ASTFuncCall(LocationData Loc) : ASTExpr(Loc), params() {}
-
+    
     list<ASTExpr *> &getParams()
     {
         return params;
     }
-
+    
     void setName(ASTExpr *n)
     {
         name=n;
@@ -1659,18 +1349,9 @@ public:
     {
         params.push_front(param);
     }
-
-		bool getIsVar()
-		{
-			return isVar;
-		}
-		void setIsVar(bool value)
-		{
-			isVar = value;
-		}
-
+    
     ~ASTFuncCall();
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseFuncCall(*this,param);
@@ -1678,38 +1359,6 @@ public:
 private:
     ASTExpr *name;
     list<ASTExpr *> params;
-		bool isVar = false;
-};
-
-class ASTFuncId : public ASTExpr
-{
-public:
-	ASTFuncId(string Name, LocationData Loc) : ASTExpr(Loc), name(Name), params() {}
-	ASTFuncId(LocationData Loc) : ASTExpr(Loc), params() {}
-	~ASTFuncId();
-
-	string getName()
-	{
-		return name;
-	}
-	void setName(string n)
-	{
-		name = n;
-	}
-
-	void addParam(ASTType *param);
-	list<ASTType *> &getParams()
-	{
-		return params;
-	}
-
-	void execute(ASTVisitor &visitor, void *param)
-	{
-		visitor.caseFuncId(*this,param);
-	}
-private:
-	string name;
-	list<ASTType *> params;
 };
 
 class ASTBoolConstant : public ASTExpr
@@ -1733,7 +1382,7 @@ class ASTBlock : public ASTStmt
 public:
     ASTBlock(LocationData Loc) : ASTStmt(Loc), statements() {}
     ~ASTBlock();
-
+    
     list<ASTStmt *> &getStatements()
     {
         return statements;
@@ -1743,7 +1392,7 @@ public:
         return &arrayRefs;
     }
     void addStatement(ASTStmt *Stmt);
-
+    
     void execute(ASTVisitor &visitor, void *param)
     {
         visitor.caseBlock(*this,param);
@@ -1821,7 +1470,7 @@ public:
     ~ASTExprArrow()
     {
         delete lval;
-
+        
         if(index) delete index;
     }
     void execute(ASTVisitor &visitor, void *param)
@@ -2135,3 +1784,4 @@ private:
     ASTStmtDo &operator=(ASTStmtDo &);
 };
 #endif
+

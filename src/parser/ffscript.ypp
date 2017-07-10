@@ -1,6 +1,6 @@
 /*
  Parser for the scripting language compiler. Inteded for use with Flex and Bison;
- use this file to generate y.tab.cpp
+ use this file to generate y.tab.cpp //2.53 Updated to 16th Jan, 2017
 
 command: bison -b y -v -d ffscript.ypp
 
@@ -8,6 +8,7 @@ command: bison -b y -v -d ffscript.ypp
 
 /* declarations */
 %{
+#include "../precompiled.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
@@ -39,19 +40,16 @@ extern YYLTYPE noloc;
 %start Init
 
 %token SCRIPT
-%token FLOAT
+%token ZFLOAT
 %token FOR
-%token BOOL
-%token VOID
+%token ZBOOL
+%token ZVOID
 %token IF
 %token ELSE
-%token SWITCH
-%token CASE
-%token DEFAULT
 %token RETURN
 %token IMPORT
-%token TRUE
-%token FALSE
+%token ZTRUE
+%token ZFALSE
 %token WHILE
 %token FFC
 %token ITEM
@@ -59,14 +57,13 @@ extern YYLTYPE noloc;
 %token GLOBAL
 %token BREAK
 %token CONTINUE
-%token CONST
+%token ZCONST
 %token DO
 %token NPC
 %token LWEAPON
 %token EWEAPON
 
 %token ASSIGN
-%token COLON
 %token SEMICOLON
 %token COMMA
 %token LBRACKET
@@ -94,7 +91,6 @@ extern YYLTYPE noloc;
 %token IDENTIFIER
 %token QUOTEDSTRING
 %token SINGLECHAR
-%token ATSIGN
 
 %left LSHIFT RSHIFT
 %left BITAND BITOR BITXOR
@@ -105,6 +101,7 @@ extern YYLTYPE noloc;
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left MODULO
+
 
 %%
 
@@ -130,11 +127,11 @@ GlobalStmt : Script {$$ = $1;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	;
 
-ConstDecl : CONST FLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 															ASTFloat *val = (ASTFloat *)$5;
 															$$ = new ASTConstDecl(name->getValue(), val,@1);
 															delete name;}
-          | CONST FLOAT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+          | ZCONST ZFLOAT IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 																  ASTFloat *val = (ASTFloat *)$6;
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
@@ -253,9 +250,9 @@ VarDecl : Type IDENTIFIER {ASTType *type = (ASTType *)$1;
 				   delete name;}
 	;
 
-Type : FLOAT {$$ = new ASTTypeFloat(@1);}
-	| BOOL {$$ = new ASTTypeBool(@1);}
-	| VOID {$$ = new ASTTypeVoid(@1);}
+Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
+	| ZBOOL {$$ = new ASTTypeBool(@1);}
+	| ZVOID {$$ = new ASTTypeVoid(@1);}
 	| FFC {$$ = new ASTTypeFFC(@1);}
 	| ITEM {$$ = new ASTTypeItem(@1);}
 	| ITEMCLASS {$$ = new ASTTypeItemclass(@1);}
@@ -292,20 +289,18 @@ ParamList : VarDecl COMMA ParamList {ASTFuncDecl *fd = (ASTFuncDecl *)$3;
 		     $$=fd;}
 	;
 
-Block : LBRACE StmtList RBRACE  {$$ = $2;}
+Block : LBRACE StmtList RBRACE  {$$=$2;}
 	| LBRACE RBRACE {$$ = new ASTBlock(@1);}
 	;
 
-StmtList : Stmt {
-			ASTStmt* stmt = (ASTStmt*)$1;
-			ASTBlock *block = new ASTBlock(@1);
-			block->addStatement(stmt);
-			$$ = block;}
-  | StmtList Stmt {
-			ASTBlock *block = (ASTBlock *)$1;
-			ASTStmt *stmt = (ASTStmt *)$2;
-			block->addStatement(stmt);
-			$$ = block;}
+StmtList : StmtList Stmt {ASTBlock *block = (ASTBlock *)$1;
+				  ASTStmt *stmt = (ASTStmt *)$2;
+				  block->addStatement(stmt);
+				  $$ = block;}
+	| Stmt {ASTBlock *block = new ASTBlock(@1);
+		  ASTStmt *stmt = (ASTStmt *)$1;
+		  block->addStatement(stmt);
+		  $$ = block;}
 	;
 
 Stmt : VarDecl SEMICOLON {$$ = $1;}
@@ -314,7 +309,6 @@ Stmt : VarDecl SEMICOLON {$$ = $1;}
 	| ShortcutAssignStmt SEMICOLON {$$=$1;}
 	| ForStmt {$$ = $1;}
 	| IfStmt {$$ = $1;}
-	| SwitchStmt {$$ = $1;}
 	| Block {$$ = $1;}
 	| ReturnStmt SEMICOLON {$$ = $1;}
 	| WhileStmt {$$ = $1;}
@@ -331,7 +325,6 @@ StmtNoSemi : VarDecl {$$ = $1;}
 	| ShortcutAssignStmt {$$=$1;}
 	| ForStmt {$$ = $1;}
 	| IfStmt {$$ = $1;}
-	| SwitchStmt {$$ = $1;}
 	| Block {$$ = $1;}
 	| ReturnStmt {$$ = $1;}
 	| WhileStmt {$$ = $1;}
@@ -540,11 +533,10 @@ Factor : LPAREN Expr RPAREN {$$=$2;}
 			$$ = new ASTNumConstant(new ASTFloat(val,0,@1),@1);}
 	| BoolConstant {$$ = $1;}
 	| FuncCall {$$=$1;}
-	|	FuncId {$$=$1;}
 	;
 
-BoolConstant : TRUE {$$ = new ASTBoolConstant(true,@1);}
-		 | FALSE {$$ = new ASTBoolConstant(false,@1);}
+BoolConstant : ZTRUE {$$ = new ASTBoolConstant(true,@1);}
+		 | ZFALSE {$$ = new ASTBoolConstant(false,@1);}
 		 ;
 
 FuncCall : DotExpr LPAREN ExprList RPAREN {ASTFuncCall *fc = (ASTFuncCall *)$3;
@@ -566,32 +558,6 @@ ExprList : Expr COMMA ExprList {ASTFuncCall *fc = (ASTFuncCall *)$3;
 		  fc->addParam(e);
 		  $$ = fc;}
 	;
-
-FuncId : ATSIGN IDENTIFIER {
-		ASTString *name = (ASTString *)$2;
-		$$ = new ASTFuncId(name->getValue(), @2);
-		delete name;}
-	| ATSIGN IDENTIFIER LPAREN RPAREN {
-		ASTString *name = (ASTString *)$2;
-		$$ = new ASTFuncId(name->getValue(), @2);
-		delete name;}
-	| ATSIGN IDENTIFIER LPAREN TypeList RPAREN {
-		ASTFuncId *fid = (ASTFuncId *)$4;
-		ASTString *name = (ASTString *)$2;
-		fid->setName(name->getValue());
-		delete name;
-		$$ = fid;}
-	;
-
-TypeList : Type COMMA TypeList {
-		ASTFuncId *fid = (ASTFuncId *)$3;
-		fid->addParam((ASTType *)$1);
-		$$ = fid;}
-	| Type {
-		ASTFuncId *fid = new ASTFuncId(@1);
-		fid->addParam((ASTType *)$1);
-		$$ = fid;}
-  ;
 
 ForStmt : FOR LPAREN StmtNoSemi SEMICOLON Expr SEMICOLON StmtNoSemi RPAREN Stmt {ASTStmt *prec = (ASTStmt *)$3;
 												ASTExpr *term = (ASTExpr *)$5;
@@ -616,48 +582,6 @@ IfStmt : IF LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
 										ASTStmt *elsestmt = (ASTStmt *)$7;
 										$$ = new ASTStmtIfElse(cond,ifstmt,elsestmt,@1);}
 	;
-
-SwitchStmt : SWITCH LPAREN Expr RPAREN LBRACE SwitchStmt1 RBRACE {
-		ASTExpr* key = (ASTExpr*)$3;
-		ASTStmtSwitch* sw = (ASTStmtSwitch*)$6;
-		sw->setKey(key);
-		$$ = sw;}
-	;
-SwitchStmt1 : SwitchCases StmtList {
-			ASTStmtSwitch* sw = new ASTStmtSwitch(@$);
-			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
-			ASTBlock* block = (ASTBlock*)$2;
-			cases->setBlock(block);
-			sw->addCases(cases);
-			$$ = sw;}
-	| SwitchStmt1 SwitchCases StmtList {
-			ASTStmtSwitch* sw = (ASTStmtSwitch*)$1;
-			ASTSwitchCases* cases = (ASTSwitchCases*)$2;
-			ASTBlock* block = (ASTBlock*)$3;
-			cases->setBlock(block);
-			sw->addCases(cases);
-			$$ = sw;}
-	;
-SwitchCases : CASE ConstExpr COLON {
-			ASTSwitchCases* cases = new ASTSwitchCases(@$);
-			ASTExprConst* key = (ASTExprConst*)$2;
-			cases->addCase(key);
-			$$ = cases;}
-	| DEFAULT COLON {
-			ASTSwitchCases* cases = new ASTSwitchCases(@$);
-			cases->addDefaultCase();
-			$$ = cases;}
-	| SwitchCases CASE ConstExpr COLON {
-			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
-			ASTExprConst* key = (ASTExprConst*)$3;
-			cases->addCase(key);
-			$$ = cases;}
-	| SwitchCases DEFAULT COLON {
-			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
-			cases->addDefaultCase();
-			$$ = cases;}
-	;
-
 
 ReturnStmt : RETURN Expr {$$ = new ASTStmtReturnVal((ASTExpr *)$2,@1);}
 	| RETURN {$$ = new ASTStmtReturn(@1);}
@@ -690,3 +614,4 @@ if(!yyin)
 	fclose(yyin);
 	return result;
 }
+

@@ -1,4 +1,4 @@
-
+//2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
 
 #include "UtilVisitors.h"
@@ -10,7 +10,7 @@ void Clone::caseDefault(void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     //unreachable
     assert(false);
 }
@@ -24,37 +24,14 @@ void Clone::caseFloat(ASTFloat &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTFloat(host.getValue().c_str(),host.getType(),host.getLocation());
 }
-
-void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch & host, void* param)
-{
-	host.getKey()->execute(*this, param);
-
-	vector<ASTSwitchCases*> & cases = host.getCases();
-	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
-		(*it)->execute(*this, param);
-}
-
-void RecursiveVisitor::caseSwitchCases(ASTSwitchCases & host, void* param)
-{
-	vector<ASTExprConst*> & cases = host.getCases();
-	for (vector<ASTExprConst*>::iterator it = cases.begin();
-		 it != cases.end();
-		 ++it)
-	{
-		(*it)->execute(*this, param);
-	}
-
-	host.getBlock()->execute(*this, param);
-}
-
-void RecursiveVisitor::caseStmtFor(ASTStmtFor &host, void *param)
+void Clone::caseString(ASTString &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTString(host.getValue().c_str(),host.getLocation());
 }
 void Clone::caseDeclList(ASTDeclList &host, void *param)
@@ -62,20 +39,20 @@ void Clone::caseDeclList(ASTDeclList &host, void *param)
     ASTDeclList *dl = new ASTDeclList(host.getLocation());
     list<ASTDecl *> decls = host.getDeclarations();
     list<ASTDecl *>::reverse_iterator it;
-
+    
     for(it = decls.rbegin(); it != decls.rend(); it++)
     {
         (*it)->execute(*this,param);
         dl->addDeclaration((ASTDecl *)result);
     }
-
+    
     result = dl;
 }
 void Clone::caseImportDecl(ASTImportDecl &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTImportDecl(host.getFilename(),host.getLocation());
 }
 void Clone::caseConstDecl(ASTConstDecl &host, void *param)
@@ -95,62 +72,62 @@ void Clone::caseFuncDecl(ASTFuncDecl &host, void *param)
     af->setReturnType(rettype);
     list<ASTVarDecl *> params = host.getParams();
     list<ASTVarDecl *>::reverse_iterator it;
-
+    
     for(it = params.rbegin(); it != params.rend(); it++)
     {
         (*it)->execute(*this,param);
         af->addParam((ASTVarDecl *)result);
     }
-
+    
     result = af;
 }
 void Clone::caseTypeFloat(ASTTypeFloat &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeFloat(host.getLocation());
 }
 void Clone::caseTypeBool(ASTTypeBool &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeBool(host.getLocation());
 }
 void Clone::caseTypeVoid(ASTTypeVoid &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeVoid(host.getLocation());
 }
 void Clone::caseTypeFFC(ASTTypeFFC &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeFFC(host.getLocation());
 }
 void Clone::caseTypeGlobal(ASTTypeGlobal &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeGlobal(host.getLocation());
 }
 void Clone::caseTypeItem(ASTTypeItem &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeItem(host.getLocation());
 }
 void Clone::caseTypeItemclass(ASTTypeItemclass &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTTypeItemclass(host.getLocation());
 }
 void Clone::caseTypeNPC(ASTTypeNPC &host, void *)
@@ -179,20 +156,20 @@ void Clone::caseArrayDecl(ASTArrayDecl &host, void *param)
     ASTArrayList *l = NULL;
     host.getType()->execute(*this,param);
     ASTType *t = (ASTType *) result;
-
+    
     if(host.getList())
     {
         l = new ASTArrayList(host.getLocation());
-
+        
         for(list<ASTExpr *>::iterator it = host.getList()->getList().begin(); it != host.getList()->getList().end(); it++)
         {
             (*it)->execute(*this,param);
             l->addParam((ASTExpr *) result);
         }
     }
-
+    
     AST *s;
-
+    
     if(host.isRegister())
     {
         ((ASTExpr *) host.getSize())->execute(*this, param);
@@ -203,7 +180,7 @@ void Clone::caseArrayDecl(ASTArrayDecl &host, void *param)
         ((ASTFloat *) host.getSize())->execute(*this, param);
         s = (ASTFloat *) result;
     }
-
+    
     result = new ASTArrayDecl(t,host.getName(),s,host.isRegister(),l,host.getLocation());
 }
 
@@ -484,27 +461,21 @@ void Clone::caseFuncCall(ASTFuncCall &host, void *param)
     fc->setName(name);
     list<ASTExpr *> params = host.getParams();
     list<ASTExpr *>::reverse_iterator it;
-		fc->setIsVar(host.getIsVar());
-
+    
     for(it = params.rbegin(); it != params.rend(); it++)
     {
         (*it)->execute(*this,param);
         fc->addParam((ASTExpr *)result);
     }
-
+    
     result = fc;
 }
-void Clone::caseFuncId(ASTFuncId &host, void *param)
-{
-	result = new ASTFuncId(host.getName(), host.getLocation());
-}
-
 
 void Clone::caseBoolConstant(ASTBoolConstant &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTBoolConstant(host.getValue(),host.getLocation());
 }
 
@@ -513,13 +484,13 @@ void Clone::caseBlock(ASTBlock &host, void *param)
     ASTBlock *b = new ASTBlock(host.getLocation());
     list<ASTStmt *> stmts = host.getStatements();
     list<ASTStmt *>::reverse_iterator it;
-
+    
     for(it = stmts.rbegin(); it != stmts.rend(); it++)
     {
         (*it)->execute(*this,param);
         b->addStatement((ASTStmt *)result);
     }
-
+    
     result = b;
 }
 
@@ -536,7 +507,7 @@ void Clone::caseExprDot(ASTExprDot &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTExprDot(host.getNamespace(),host.getName(),host.getLocation());
 }
 
@@ -544,13 +515,13 @@ void Clone::caseExprArrow(ASTExprArrow &host, void *param)
 {
     host.getLVal()->execute(*this,param);
     ASTExprArrow *arrow = new ASTExprArrow((ASTExpr *)result, host.getName(), host.getLocation());
-
+    
     if(host.getIndex())
     {
         host.getIndex()->execute(*this,param);
         arrow->setIndex((ASTExpr *)result);
     }
-
+    
     result = arrow;
 }
 
@@ -558,15 +529,15 @@ void Clone::caseExprArray(ASTExprArray &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     ASTExprArray *arr = new ASTExprArray(host.getNamespace(), host.getName(), host.getLocation());
-
+    
     if(host.getIndex())
     {
         host.getIndex()->execute(*this,param);
         arr->setIndex((ASTExpr *)result);
     }
-
+    
     result = arr; //new ASTExprArray(host.getNamespace(),host.getName(),host.getLocation());
 }
 
@@ -603,7 +574,7 @@ void Clone::caseStmtReturn(ASTStmtReturn &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTStmtReturn(host.getLocation());
 }
 
@@ -617,7 +588,7 @@ void Clone::caseStmtEmpty(ASTStmtEmpty &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTStmtEmpty(host.getLocation());
 }
 
@@ -649,7 +620,7 @@ void Clone::caseStmtBreak(ASTStmtBreak &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTStmtBreak(host.getLocation());
 }
 
@@ -657,7 +628,7 @@ void Clone::caseStmtContinue(ASTStmtContinue &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     result = new ASTStmtContinue(host.getLocation());
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -676,12 +647,12 @@ void GetImports::caseImportDecl(ASTImportDecl &, void *param)
 void GetImports::caseDeclList(ASTDeclList &host, void *)
 {
     list<ASTDecl *> &l = host.getDeclarations();
-
+    
     for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
     {
         bool isimport;
         (*it)->execute(*this, &isimport);
-
+        
         if(isimport)
         {
             result.push_back((ASTImportDecl *)*it);
@@ -696,7 +667,7 @@ void GetImports::caseProgram(ASTProgram &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     host.getDeclarations()->execute(*this,NULL);
 }
 
@@ -712,7 +683,7 @@ void GetConsts::caseConstDecl(ASTConstDecl &host, void *param)
     //these are here to bypass compiler warnings about unused arguments
     void *temp;
     temp=&host;
-
+    
     if(param != NULL)
         *(bool *)param = true;
 }
@@ -721,14 +692,14 @@ void GetConsts::caseDeclList(ASTDeclList &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     list<ASTDecl *> &l = host.getDeclarations();
-
+    
     for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
     {
         bool isconst;
         (*it)->execute(*this, &isconst);
-
+        
         if(isconst)
         {
             result.push_back((ASTConstDecl *)*it);
@@ -743,7 +714,7 @@ void GetConsts::caseProgram(ASTProgram &host, void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     host.getDeclarations()->execute(*this,NULL);
 }
 
@@ -779,12 +750,12 @@ void GetGlobalVars::caseProgram(ASTProgram &host, void *)
 void GetGlobalVars::caseDeclList(ASTDeclList &host, void *)
 {
     list<ASTDecl *> &l = host.getDeclarations();
-
+    
     for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
     {
         int dectype;
         (*it)->execute(*this, &dectype);
-
+        
         if(dectype==1)
         {
             result.push_back((ASTVarDecl *)(*it));
@@ -815,12 +786,12 @@ void GetGlobalFuncs::caseFuncDecl(ASTFuncDecl &, void *param)
 void GetGlobalFuncs::caseDeclList(ASTDeclList &host, void *)
 {
     list<ASTDecl *> &l = host.getDeclarations();
-
+    
     for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
     {
         bool isfuncdecl;
         (*it)->execute(*this, &isfuncdecl);
-
+        
         if(isfuncdecl)
         {
             result.push_back((ASTFuncDecl *)*it);
@@ -840,7 +811,7 @@ void GetScripts::caseDefault(void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     //there should be nothing left in here now
     assert(false);
 }
@@ -853,7 +824,7 @@ void GetScripts::caseProgram(ASTProgram &host, void *param)
 void GetScripts::caseDeclList(ASTDeclList &host, void *param)
 {
     list<ASTDecl *> &l = host.getDeclarations();
-
+    
     for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
     {
         (*it)->execute(*this, param);
@@ -873,7 +844,7 @@ void MergeASTs::caseDefault(void *param)
 {
     //these are here to bypass compiler warnings about unused arguments
     param=param;
-
+    
     box_out("Something BAD BROKEN in the parser code!");
     box_eol();
     assert(false);
@@ -884,13 +855,13 @@ void MergeASTs::caseProgram(ASTProgram &host, void *param)
     assert(param);
     ASTProgram *other = (ASTProgram *)param;
     list<ASTDecl *> &decls = other->getDeclarations()->getDeclarations();
-
+    
     for(list<ASTDecl *>::iterator it = decls.begin(); it != decls.end();)
     {
         host.getDeclarations()->addDeclaration((*it));
         it = decls.erase(it);
     }
-
+    
     delete other;
 }
 
@@ -960,3 +931,4 @@ void ExtractType::caseTypeEWpn(ASTTypeEWpn &, void *param)
 {
     *(int *)param = ScriptParser::TYPE_EWPN;
 }
+

@@ -1,10 +1,13 @@
-
+//2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
 
 #include "DataStructs.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
+
+using std::cout;
+using std::endl;
 
 int StackFrame::getOffset(int vid)
 {
