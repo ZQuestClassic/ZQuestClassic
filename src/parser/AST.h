@@ -783,6 +783,9 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
+	ZVarType const* getReadType() const {
+		return content ? content->getReadType() : NULL;}
+	ZVarType const* getWriteType() const {return NULL;}
 	
 	ASTExpr* content;
 };
@@ -805,6 +808,10 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
+	ZVarType const* getReadType() const {
+		return right ? right->getReadType() : NULL;}
+	ZVarType const* getWriteType() const {
+		return right ? right->getWriteType() : NULL;}
 	
 	ASTExpr* left;
 	ASTExpr* right;
@@ -829,7 +836,9 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	
+	ZVarType const* getReadType() const;
+	ZVarType const* getWriteType() const;
+		
 	// The identifier components separated by '.'.
 	vector<string> components;
 
@@ -928,6 +937,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {return NULL;}
 };
 
 class ASTExprNot : public ASTUnaryExpr
@@ -943,6 +954,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
+	ZVarType const* getReadType() const {return &ZVarType::BOOL;}
+	ZVarType const* getWriteType() const {return NULL;}
 };
 
 class ASTExprBitNot : public ASTUnaryExpr
@@ -958,6 +971,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {return NULL;}
 };
 
 class ASTExprIncrement : public ASTUnaryExpr
@@ -971,6 +986,10 @@ public:
     void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
+
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {
+		return operand ? operand->getWriteType() : NULL;}
 };
 
 class ASTExprPreIncrement : public ASTUnaryExpr
@@ -984,6 +1003,10 @@ public:
     void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
+
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {
+		return operand ? operand->getWriteType() : NULL;}
 };
 
 class ASTExprDecrement : public ASTUnaryExpr
@@ -997,6 +1020,10 @@ public:
     void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
+
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {
+		return operand ? operand->getWriteType() : NULL;}
 };
 
 class ASTExprPreDecrement : public ASTUnaryExpr
@@ -1011,6 +1038,10 @@ public:
     void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
+
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {
+		return operand ? operand->getWriteType() : NULL;}
 };
 
 // virtual
@@ -1043,6 +1074,8 @@ public:
 	ASTLogExpr(ASTLogExpr const& base);
 	virtual ASTLogExpr* clone() const = 0;
 
+	ZVarType const* getReadType() const {return &ZVarType::BOOL;}
+	ZVarType const* getWriteType() const {return NULL;}
 protected:
 	ASTLogExpr& operator=(ASTLogExpr const& rhs);
 };
@@ -1091,6 +1124,8 @@ public:
 	ASTRelExpr(ASTRelExpr const& base);
 	virtual ASTRelExpr* clone() const = 0;
 
+	ZVarType const* getReadType() const {return &ZVarType::BOOL;}
+	ZVarType const* getWriteType() const {return NULL;}
 protected:
 	ASTRelExpr& operator=(ASTRelExpr const& rhs);
 };
@@ -1207,6 +1242,8 @@ public:
 	ASTAddExpr(ASTAddExpr const& base);
 	virtual ASTAddExpr* clone() const = 0;
 
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {return NULL;}
 protected:
 	ASTAddExpr& operator=(ASTAddExpr const& rhs);
 };
@@ -1255,6 +1292,8 @@ public:
 	ASTMultExpr(ASTMultExpr const& base);
 	virtual ASTMultExpr* clone() const = 0;
 
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {return NULL;}
 protected:
 	ASTMultExpr& operator=(ASTMultExpr const& rhs);
 };
@@ -1319,6 +1358,8 @@ public:
 	ASTBitExpr(ASTBitExpr const& base);
 	virtual ASTBitExpr* clone() const = 0;
 
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {return NULL;}
 protected:
 	ASTBitExpr& operator=(ASTBitExpr const& rhs);
 };
@@ -1381,6 +1422,8 @@ public:
 	ASTShiftExpr(ASTShiftExpr const& base);
 	virtual ASTShiftExpr* clone() const = 0;
 
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
+	ZVarType const* getWriteType() const {return NULL;}
 protected:
 	ASTShiftExpr& operator=(ASTShiftExpr const& rhs);
 };
@@ -1434,6 +1477,8 @@ public:
 	
 	ZScript::Literal* manager;
 
+	ZVarType const* getWriteType() const {return NULL;}
+
 protected:
 	ASTLiteral& operator=(ASTLiteral const& rhs);
 };
@@ -1456,6 +1501,7 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
+	ZVarType const* getReadType() const {return &ZVarType::FLOAT;}
 	
     ASTFloat* value;
 };
@@ -1478,6 +1524,7 @@ public:
 			CompileErrorHandler* errorHandler = NULL)
 			const
 	{return value ? 10000L : 0L;}
+	ZVarType const* getReadType() const {return &ZVarType::BOOL;}
 	
     bool value;
 };

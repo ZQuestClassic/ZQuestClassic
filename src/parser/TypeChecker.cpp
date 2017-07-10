@@ -185,8 +185,6 @@ void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 		handleError(CompileError::ExprNotConstant, &host);
 		return;
 	}
-
-	host.setVarType(content->getReadType());
 }
 
 void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
@@ -198,18 +196,12 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
     if (breakRecursion(host)) return;
 
     ZVarType const& rtype = *host.right->getReadType();
-	host.setVarType(rtype);
 
     if (!standardCheck(ltypeid, rtype, &host))
         failure = true;
 
 	if (ltypeid == ZVARTYPEID_CONST_FLOAT)
 		handleError(CompileError::ConstAssign, &host);
-}
-
-void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void*)
-{
-	host.setVarType(host.binding->type);
 }
 
 void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
@@ -446,19 +438,16 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
 void TypeCheck::caseExprNegate(ASTExprNegate& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprNot(ASTExprNot& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL)) return;
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprBitNot(ASTExprBitNot& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
@@ -484,8 +473,6 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
         failure = true;
         return;
     }
-
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement& host, void*)
@@ -511,8 +498,6 @@ void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement& host, void*)
         failure = true;
         return;
     }
-
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprDecrement(ASTExprDecrement& host, void*)
@@ -538,8 +523,6 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement& host, void*)
         failure = true;
         return;
     }
-
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
@@ -565,44 +548,36 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
         failure = true;
         return;
     }
-
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprAnd(ASTExprAnd& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
-	host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprOr(ASTExprOr& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
-	host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprGT(ASTExprGT& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprGE(ASTExprGE& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprLT(ASTExprLT& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprLE(ASTExprLE& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
@@ -618,8 +593,6 @@ void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
 		failure = true;
 		return;
 	}
-
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprNE(ASTExprNE& host, void*)
@@ -635,68 +608,56 @@ void TypeCheck::caseExprNE(ASTExprNE& host, void*)
 		failure = true;
 		return;
 	}
-
-    host.setVarType(ZVarType::BOOL);
 }
 
 void TypeCheck::caseExprPlus(ASTExprPlus& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprMinus(ASTExprMinus& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprTimes(ASTExprTimes& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprDivide(ASTExprDivide& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprModulo(ASTExprModulo& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprBitOr(ASTExprBitOr& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprBitXor(ASTExprBitXor& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprLShift(ASTExprLShift& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 void TypeCheck::caseExprRShift(ASTExprRShift& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-    host.setVarType(ZVarType::FLOAT);
 }
 
 // Literals

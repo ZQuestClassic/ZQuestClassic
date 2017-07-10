@@ -1218,6 +1218,17 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 	return binding ? binding->compileTimeValue : nullopt;
 }
 
+ZVarType const* ASTExprIdentifier::getReadType() const
+{
+	return binding ? binding->type : NULL;
+}
+
+ZVarType const* ASTExprIdentifier::getWriteType() const
+{
+	return binding ? binding->type : NULL;
+}
+
+
 // ASTExprArrow
 
 ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,

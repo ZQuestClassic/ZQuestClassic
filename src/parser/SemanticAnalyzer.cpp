@@ -345,16 +345,6 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void*)
 
 // Literals
 
-void SemanticAnalyzer::caseNumberLiteral(ASTNumberLiteral& host, void*)
-{
-    host.setVarType(ZVarType::FLOAT);
-}
-
-void SemanticAnalyzer::caseBoolLiteral(ASTBoolLiteral& host, void*)
-{
-    host.setVarType(ZVarType::BOOL);
-}
-
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
 	// Assign type.

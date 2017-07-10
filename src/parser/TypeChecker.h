@@ -29,7 +29,6 @@ public:
 	// Expressions
 	void caseExprConst(ASTExprConst& host, void* = NULL);
     void caseExprAssign(ASTExprAssign& host, void* = NULL);
-    void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
     void caseExprArrow(ASTExprArrow& host, void* = NULL);
     void caseExprIndex(ASTExprIndex& host, void* = NULL);
     void caseExprCall(ASTExprCall& host, void* = NULL);
