@@ -23674,6 +23674,8 @@ bool screenIsScrolling()
 
 int save_config_file()
 {
+    packfile_password("");
+
     char cmdnametitle[20];
     char qtnametitle[20];
     char qtpathtitle[20];
