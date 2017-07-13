@@ -43,7 +43,8 @@
 
 
 //MSVC does not provide a log2 funcion in <cmath>
-#ifdef _MSC_VER
+// adjust version number as needed. MSVC 2015 (1900) does *not* need these functions
+#if _MSC_VER < 1900
 double log2(double n)
 {
     return log(n) / log(2.0);

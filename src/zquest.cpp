@@ -131,6 +131,12 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #endif
 #endif
 
+// MSVC fix
+#if _MSC_VER >= 1900
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+
 
 void do_previewtext();
 
