@@ -105,7 +105,7 @@ namespace
         { "You finished a",   72, 816, white },
         { "custom quest.",    76, 832, white },
         { "ZELDA CLASSIC",    76, 880, white },
-        { "\2741999-" COPYRIGHT_YEAR,    88, 896, white },
+        { "\2741999-2017",    88, 896, white },
         { "Armageddon Games", 64, 912, blue }
     };
 }
@@ -566,7 +566,7 @@ void ending()
     }
     while(!rSbtn());
     
-    if(game->get_quest()>0 && game->get_quest()<3)
+    if(game->get_quest()>0 && game->get_quest()<=5)
     {
         inc_quest();
         removeItemsOfFamily(game, itemsbuf, itype_ring);
@@ -579,6 +579,8 @@ void ending()
         
         ringcolor(false);
     }
+    
+    
     
     stop_midi();
     

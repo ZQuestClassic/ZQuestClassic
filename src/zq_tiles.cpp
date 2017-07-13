@@ -38,6 +38,7 @@
 #define stricmp _stricmp
 #endif
 
+
 extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
 static void massRecolorReset8Bit();

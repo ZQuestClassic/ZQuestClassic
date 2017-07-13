@@ -1,5 +1,5 @@
 /*
- use this file to generate lex.yy.c
+ use this file to generate lex.yy.c //2.53 Updated to 16th Jan, 2017
 command: flex -B -olex.yy.cpp ffscript.lpp
 */
 

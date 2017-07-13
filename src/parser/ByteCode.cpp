@@ -1,4 +1,4 @@
-
+//2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
 
 #include "ByteCode.h"
@@ -1729,6 +1729,11 @@ string OIsValidNPC::toString()
 string OCopyTileRegister::toString()
 {
     return "COPYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OOverlayTileRegister::toString()
+{
+    return "OVERLAYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OSwapTileRegister::toString()

@@ -119,18 +119,18 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #include <crtdbg.h>
 #define stricmp _stricmp
 #define unlink _unlink
-#define snprintf _snprintf
 
-#endif
-
-// MSVC fix
-#if _MSC_VER >= 1900
-FILE _iob[] = { *stdin, *stdout, *stderr };
-extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
+
+#ifdef _MSC_VER
+#if (_MSC_VER <= 1600)
+#define snprintf _snprintf
+#endif
+#endif
+
 
 void do_previewtext();
 
@@ -499,6 +499,8 @@ static MENU import_menu[] =
     { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
+   // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
+   
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -822,7 +824,7 @@ static MENU etc_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU zquest_menu[] =
+static MENU the_menu[] =
 {
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
@@ -991,7 +993,7 @@ static DIALOG dialogs[] =
 {
     // still unused:  jm
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-    { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) zquest_menu, NULL, NULL },
+    { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
@@ -1236,63 +1238,22 @@ const char *autosavelist(int index, int *list_size)
 {
     if(index>=0)
     {
+        bound(index,0,10);
+        
         if(index==0)
-            sprintf(autosave_str_buf, "Disabled");
-        else if(index<=10)
-            sprintf(autosave_str_buf, "%d Minute%c", index, index>1 ? 's' : 0);
-        else if(index==11)
-            sprintf(autosave_str_buf, "15 Minutes");
-        else if(index==12)
-            sprintf(autosave_str_buf, "30 Minutes");
-        else if(index==13)
-            sprintf(autosave_str_buf, "45 Minutes");
-        else if(index==14)
-            sprintf(autosave_str_buf, "1 Hour");
-        else if(index==15)
-            sprintf(autosave_str_buf, "90 Minutes");
-        else if(index==16)
-            sprintf(autosave_str_buf, "2 Hours");
+        {
+            sprintf(autosave_str_buf,"Disabled");
+        }
+        else
+        {
+            sprintf(autosave_str_buf,"%2d Minute%c",index,index>1?'s':0);
+        }
         
         return autosave_str_buf;
     }
     
-    *list_size=17;
+    *list_size=11;
     return NULL;
-}
-
-int autosaveListToMinutes(int index)
-{
-    switch(index)
-    {
-        case 11: return 15;
-        case 12: return 30;
-        case 13: return 45;
-        case 14: return 60;
-        case 15: return 90;
-        case 16: return 120;
-        default: return index;
-    }
-}
-
-int autosaveMinutesToList(int time)
-{
-    if(time<=0)
-        return 0;
-    if(time<10)
-        return time;
-    
-    // Use <= so, say, 12 minutes doesn't become 2 hours
-    if(time<=15)
-        return 11;
-    if(time<=30)
-        return 12;
-    if(time<=45)
-        return 13;
-    if(time<=60)
-        return 14;
-    if(time<=90)
-        return 15;
-    return 16;
 }
 
 const char *autosavelist2(int index, int *list_size)
@@ -1433,7 +1394,7 @@ int onOptions()
     options_dlg[18].flags = RulesetDialog ? D_SELECTED : 0;
     options_dlg[19].flags = EnableTooltips ? D_SELECTED : 0;
     options_dlg[32].d1 = AutoBackupRetention;
-    options_dlg[34].d1 = autosaveMinutesToList(AutoSaveInterval);
+    options_dlg[34].d1 = AutoSaveInterval;
     options_dlg[36].d1 = AutoSaveRetention;
     options_dlg[37].flags = UncompressedAutoSaves ? D_SELECTED : 0;
     options_dlg[39].d1 = GridColor;
@@ -1463,7 +1424,7 @@ int onOptions()
         RulesetDialog              = options_dlg[18].flags & D_SELECTED ? 1 : 0;
         EnableTooltips             = options_dlg[19].flags & D_SELECTED ? 1 : 0;
         AutoBackupRetention        = options_dlg[32].d1;
-        AutoSaveInterval           = autosaveListToMinutes(options_dlg[34].d1);
+        AutoSaveInterval           = options_dlg[34].d1;
         AutoSaveRetention          = options_dlg[36].d1;
         UncompressedAutoSaves      = options_dlg[37].flags & D_SELECTED ? 1 : 0;
         GridColor                  = options_dlg[39].d1;
@@ -15572,7 +15533,7 @@ static DIALOG edititemdropset_dlg[] =
     { jwin_text_proc,      37,  162+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
     { d_idroplist_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,      37,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,      39,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL, NULL,  NULL }
 };
 
@@ -15714,26 +15675,16 @@ int count_item_drop_sets()
     return count+1;
 }
 
-static void copyDropSet(int src, int dest)
-{
-    for(int i=0; i<11; i++)
-    {
-        if(i<10)
-            item_drop_sets[dest].item[i]=item_drop_sets[src].item[i];
-        item_drop_sets[dest].chance[i]=item_drop_sets[src].chance[i];
-    }
-}
-
 int onItemDropSets()
 {
     item_drop_set_list_size = MAXITEMDROPSETS;
     
-    int index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont, copyDropSet);
+    int index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont);
     
     while(index!=-1)
     {
         EditItemDropSet(index);
-        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",lfont, copyDropSet);
+        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",lfont);
     }
     
     return D_O_K;
@@ -19384,6 +19335,10 @@ int onCompileScript()
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
                     build_biitems_list();
+		    //COMBOSDM - If we compile in this version, assign the combosdm values. 
+		    //set_bit(quest_rules,qr_NEWCOMBOSDM, 1);
+		    
+		    //No, this cannot be automatic? The inputs would be wrong. 
                     
                     for(map<string, vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
                     {
@@ -24103,7 +24058,8 @@ command_pair commands[cmdMAX]=
     { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Rules - Compatibility",              0, (intF) onCompatRules                                    }
+    { "Rules - Compatibility",              0, (intF) onCompatRules                                    } 
+
 };
 
 /********************************/
@@ -24285,11 +24241,7 @@ void clear_tooltip()
     update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
 
-
-
-
-
-
+ 
 
 
 

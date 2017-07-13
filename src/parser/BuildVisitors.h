@@ -1,9 +1,11 @@
-#ifndef BUILDVISITORS_H
+#ifndef BUILDVISITORS_H //2.53 Updated to 16th Jan, 2017
 #define BUILDVISITORS_H
 
 #include "AST.h"
 #include "UtilVisitors.h"
 #include "ByteCode.h"
+#include <stack>
+#include <algorithm>
 
 class BuildOpcodes : public RecursiveVisitor
 {
@@ -84,26 +86,67 @@ private:
     bool failure;
 };
 
-class CountStackSymbols : public RecursiveVisitor
+class AssignStackSymbols : public RecursiveVisitor
 {
 public:
+	AssignStackSymbols(StackFrame *sf, SymbolTable *st, int baseoffset) : sf(sf), st(st), curoffset(baseoffset), highWaterOffset(baseoffset)
+	{
+	}
+
     virtual void caseDefault(void *) { }
-    virtual void caseVarDecl(ASTVarDecl &host, void *param)
+    virtual void caseVarDecl(ASTVarDecl &host, void *)
     {
-        pair<vector<int> *, SymbolTable *> *p = (pair<vector<int> *, SymbolTable *> *)param;
-        int vid = p->second->getID(&host);
-        p->first->push_back(vid);
+
+        int vid = st->getID(&host);
+		sf->addToFrame(vid, curoffset);
+		curoffset += 10000;
+		highWaterOffset = std::max(highWaterOffset, curoffset);
     }
-    virtual void caseArrayDecl(ASTArrayDecl &host, void *param)
-    {
-        pair<vector<int> *, SymbolTable *> *p = (pair<vector<int> *, SymbolTable *> *)param;
-        int vid = p->second->getID(&host);
-        p->first->push_back(vid);
+    virtual void caseArrayDecl(ASTArrayDecl &host, void *)
+    {        
+        int vid = st->getID(&host);
+		sf->addToFrame(vid, curoffset);
+		curoffset += 10000;
+		highWaterOffset = std::max(highWaterOffset, curoffset);
     }
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
     {
         caseVarDecl(host, param);
     }
+
+	virtual void caseBlock(ASTBlock &host, void *param)
+	{
+		prevframes.push(curoffset);
+		list<ASTStmt *> l = host.getStatements();
+
+		for (list<ASTStmt *>::iterator it = l.begin(); it != l.end(); it++)
+			(*it)->execute(*this, param);
+
+		curoffset = prevframes.top();
+		prevframes.pop();
+	}
+
+	virtual void caseStmtFor(ASTStmtFor &host, void *param)
+	{
+		prevframes.push(curoffset);
+
+		host.getPrecondition()->execute(*this, param);
+		host.getIncrement()->execute(*this, param);
+		host.getTerminationCondition()->execute(*this, param);
+		host.getStmt()->execute(*this, param);
+
+		curoffset = prevframes.top();
+		prevframes.pop();
+	}
+
+	int getHighWaterOffset() { return highWaterOffset; }
+
+private:
+	StackFrame *sf;
+	SymbolTable *st;
+	int curoffset;
+	int highWaterOffset;
+	std::stack<int> prevframes;
 };
 
 class LValBOHelper : public ASTVisitor

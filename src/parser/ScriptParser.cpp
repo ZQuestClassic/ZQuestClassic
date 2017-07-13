@@ -1,4 +1,4 @@
-
+//2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
 
 #include "ParseError.h"
@@ -1051,36 +1051,44 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         }
         
         vector<Opcode *> funccode;
-        //count the number of stack-allocated variables
-        vector<int> stackvars;
-        pair<vector<int> *, SymbolTable *> param = pair<vector<int> *, SymbolTable *>(&stackvars, symbols);
-        CountStackSymbols temp;
-        (*it)->execute(temp, &param);
-        int offset = 0;
-        StackFrame sf;
+		// generate a mapping from local variables to stack offests
+		StackFrame sf;
+
+		int offset = 0;
+		//if this is a run, there is the this pointer
+		if (isarun)
+		{
+			sf.addToFrame(thisptr[scriptname], offset);
+			offset += 10000;
+		}
+
+        //assign the local, non-parameters to slots on the stack
         
-        //if this is a run, there is the this pointer
-        if(isarun)
-        {
-            sf.addToFrame(thisptr[scriptname], offset);
-            offset += 10000;
-        }
+        AssignStackSymbols assign(&sf, symbols, offset);
+        (*it)->getBlock()->execute(assign, NULL);
         
-        //the params are now the first elements of this list
-        //so assign them depths in reverse order
-        for(vector<int>::reverse_iterator it2 = stackvars.rbegin(); it2 != stackvars.rend(); it2++)
-        {
-            sf.addToFrame(*it2, offset);
-            offset += 10000;
-        }
+		offset = assign.getHighWaterOffset();
         
+        //finally, assign the parameters, in reverse order
+		for (list<ASTVarDecl *>::reverse_iterator paramit = (*it)->getParams().rbegin(); paramit != (*it)->getParams().rend(); ++paramit)
+		{
+			int vid = symbols->getID(*paramit);
+			sf.addToFrame(vid, offset);
+			offset += 10000;
+		}
+
+		int totvars = offset / 10000;
+
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
         first->setLabel(lt.functionToLabel(symbols->getID(*it)));
         funccode.push_back(first);
         //push on the 0s
-        int numtoallocate = (unsigned int)stackvars.size()-(unsigned int)symbols->getFuncParams(symbols->getID(*it)).size();
-        
+        int numtoallocate = totvars-(unsigned int)symbols->getFuncParams(symbols->getID(*it)).size();
+		
+	//Skip the runline: Fix for run() params being eaten. 
+	if (isarun) numtoallocate--;
+
         for(int i = 0; i < numtoallocate; i++)
         {
             funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
@@ -1133,16 +1141,24 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         funccode.push_back(next);
         
         //pop off everything
-        for(unsigned int i=0; i< stackvars.size(); i++)
+        for(int i=0; i< totvars; i++)
         {
             funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
         }
         
         //if it's a main script, quit.
-        if(isarun)
-            funccode.push_back(new OQuit());
+		if (isarun)
+		{
+			// Note: the stack still contains the "this" pointer
+			// But since the script is about to terminate, we don't
+			// care about popping it off.
+			funccode.push_back(new OQuit());
+		}
         else
         {
+			// Not a script's run method, so no "this" pointer to
+			// pop off. The top of the stack is now the function
+			// return address (pushed on by the caller).
             //pop off the return address
             funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
             //and return

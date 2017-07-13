@@ -1,4 +1,4 @@
-#ifndef SYMBOLVISITORS_H
+#ifndef SYMBOLVISITORS_H //2.53 Updated to 16th Jan, 2017
 #define SYMBOLVISITORS_H
 
 #include "AST.h"
