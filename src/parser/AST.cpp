@@ -1325,6 +1325,18 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
+ZVarType const* ASTExprIndex::getReadType() const
+{
+	if (array->isTypeArrow()) return array->getReadType();
+	return ASTExpr::getReadType();
+}
+
+ZVarType const* ASTExprIndex::getWriteType() const
+{
+	if (array->isTypeArrow()) return array->getWriteType();
+	return ASTExpr::getWriteType();
+}
+	
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)

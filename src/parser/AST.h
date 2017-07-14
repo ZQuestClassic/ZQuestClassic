@@ -893,6 +893,9 @@ public:
 
 	bool isConstant() const;
 
+	ZVarType const* getReadType() const;
+	ZVarType const* getWriteType() const;
+	
 	ASTExpr* array;
 	ASTExpr* index;
 };
