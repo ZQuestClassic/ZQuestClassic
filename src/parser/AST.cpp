@@ -1233,15 +1233,22 @@ ZVarType const* ASTExprIdentifier::getWriteType() const
 
 ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
 						   LocationData const& location)
-	: ASTExpr(location), left(left), right(right), index(NULL)
+	: ASTExpr(location), left(left), right(right), index(NULL),
+	  readFunction(NULL), writeFunction(NULL)
 {}
 
 ASTExprArrow::ASTExprArrow(ASTExprArrow const& base)
 	: ASTExpr(base),
 	  left(AST::clone(base.left)),
 	  right(base.right),
-	  index(AST::clone(base.index))
+	  index(AST::clone(base.index)),
+	  readFunction(NULL), writeFunction(NULL)
 {}
+
+ASTExprArrow::~ASTExprArrow()
+{
+	delete left;
+}
 
 ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 {
@@ -1253,6 +1260,8 @@ ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 	left = AST::clone(rhs.left);
 	right = rhs.right;
 	index = AST::clone(rhs.index);
+	readFunction = NULL;
+	writeFunction = NULL;
 
 	return *this;
 }
@@ -1262,16 +1271,21 @@ void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprArrow(*this, param);
 }
 
-ASTExprArrow::~ASTExprArrow()
-{
-	delete left;
-}
-
 string ASTExprArrow::asString() const
 {
 	string s = left->asString() + "->" + right;
 	if (index != NULL) s += "[" + index->asString() + "]";
 	return s;
+}
+
+ZVarType const* ASTExprArrow::getReadType() const
+{
+	return readFunction ? readFunction->returnType : NULL;
+}
+
+ZVarType const* ASTExprArrow::getWriteType() const
+{
+	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
 
 // ASTExprIndex
@@ -1345,6 +1359,17 @@ ASTExprCall& ASTExprCall::operator=(ASTExprCall const& rhs)
 void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprCall(*this, param);
+}
+
+ZVarType const* ASTExprCall::getReadType() const
+{
+	if (left->isTypeArrow()) return left->getReadType();
+	else return ASTExpr::getReadType();
+}
+
+ZVarType const* ASTExprCall::getWriteType() const
+{
+	return NULL;
 }
 
 // ASTUnaryExpr

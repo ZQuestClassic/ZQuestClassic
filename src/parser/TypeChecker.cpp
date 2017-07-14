@@ -210,38 +210,33 @@ void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
     visit(host.left);
     if (breakRecursion(host)) return;
 
-	// Don't need to check index here, since it'll be checked in the above
-	// ASTExprIndex.
-	bool isIndexed = host.index != NULL;
-
 	// Make sure the left side is an object.
-    ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getReadType());
-	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
+    ZVarType const& leftType = *host.left->getReadType();
+	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
 		handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
 
-	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
-	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
+	ZClass& leftClass = *symbolTable.getClass(
+			static_cast<ZVarTypeClass const&>(leftType).getClassId());
 
-	Function* function = leftClass.getGetter(host.right);
-	if (!function)
+	host.readFunction = leftClass.getGetter(host.right);
+	if (!host.readFunction)
 	{
 		handleError(CompileError::ArrowNoVar, &host,
-		            (host.right + (isIndexed ? "[]" : "")).c_str());
+		            (host.right + (host.index ? "[]" : "")).c_str());
         return;
 	}
-	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(function->id);
-    if (functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != leftTypeId)
+	vector<ZVarType const*>& paramTypes = host.readFunction->paramTypes;
+    if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != leftType)
     {
 	    handleError(CompileError::ArrowNoVar, &host,
-	                (host.right + (isIndexed ? "[]" : "")).c_str());
+	                (host.right + (host.index ? "[]" : "")).c_str());
         return;
     }
 
-    symbolTable.putNodeId(&host, function->id);
-    host.setVarType(symbolTable.getType(symbolTable.getFuncReturnTypeId(function->id)));
+    symbolTable.putNodeId(&host, host.readFunction->id);
 }
 
 void TypeCheck::caseExprIndex(ASTExprIndex& host, void*)
@@ -389,31 +384,29 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
     {
         // Still have to deal with the (%&# arrow functions
         // Luckily I will here assert that each type's functions MUST be unique
-		ASTExprArrow& arrow = *(ASTExprArrow*)host.left;
+		ASTExprArrow& arrow = *static_cast<ASTExprArrow*>(host.left);
         string name = arrow.right;
 
 		// Make sure the left side is an object.
-        ZVarTypeId leftTypeId = symbolTable.getTypeId(*arrow.left->getReadType());
-		if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
+        ZVarType const& leftType = *arrow.left->getReadType();
+		if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
 		{
 			handleError(CompileError::ArrowNotPointer, &host);
 			return;
 		}
 
-		ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
-		ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
+		ZClass& leftClass = *symbolTable.getClass(
+				static_cast<ZVarTypeClass const&>(leftType).getClassId());
 
-		int functionId = -1;
-		vector<int> functionIds = leftClass.getFunctionIds(name);
-		if (functionIds.size() > 0) functionId = functionIds[0];
-		if (functionId == -1)
+		vector<Function*> functions = leftClass.getFunctions(name);
+		if (functions.size() == 1) arrow.readFunction = functions[0];
+		else
 		{
 			handleError(CompileError::ArrowNoFunc, &host, name.c_str());
 			return;
 		}
 
-		vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-        if (paramtypes.size() != functionParams.size())
+        if (paramtypes.size() != arrow.readFunction->paramTypes.size())
         {
 	        handleError(CompileError::NoFuncMatch, &host,
 	                    (name + paramstring).c_str());
@@ -422,7 +415,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
 
         for (unsigned int i = 0; i < paramtypes.size(); i++)
         {
-            if (!standardCheck(functionParams[i], paramtypes[i], NULL))
+            if (!standardCheck(*arrow.readFunction->paramTypes[i], paramtypes[i], NULL))
             {
 	            handleError(CompileError::NoFuncMatch, &host,
 	                        (name + paramstring).c_str());
@@ -430,8 +423,7 @@ void TypeCheck::caseExprCall(ASTExprCall& host, void*)
             }
         }
 
-        symbolTable.putNodeId(&host, functionId);
-        host.setVarType(symbolTable.getType(symbolTable.getFuncReturnTypeId(functionId)));
+        symbolTable.putNodeId(&host, arrow.readFunction->id);
     }
 }
 
@@ -798,41 +790,34 @@ void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
     typeCheck.visit(host.left);
     if (typeCheck.hasFailed()) return;
 
-	// Don't need to check index here, since it'll be checked in the above
-	// ASTExprIndex.
-	bool isIndexed = host.index != NULL;
-
 	// Make sure the left side is an object.
-    ZVarTypeId leftTypeId = symbolTable.getTypeId(*host.left->getReadType());
-	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
+    ZVarType const& leftType = *host.left->getReadType();
+	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
 		typeCheck.handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
 
-	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
-	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
+	ZClass& leftClass = *symbolTable.getClass(
+			static_cast<ZVarTypeClass const&>(leftType).getClassId());
 
-	Function* function = leftClass.getSetter(host.right);
-    if (!function)
-    {
-        typeCheck.handleError(
-		        CompileError::ArrowNoVar, &host,
-		        (host.right + (isIndexed ? "[]" : "")).c_str());
+	host.writeFunction = leftClass.getSetter(host.right);
+	if (!host.writeFunction)
+	{
+		typeCheck.handleError(CompileError::ArrowNoVar, &host,
+							  (host.right + (host.index ? "[]" : "")).c_str());
         return;
-    }
-	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(function->id);
-    if (functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != leftTypeId)
+	}
+	vector<ZVarType const*>& paramTypes = host.writeFunction->paramTypes;
+    if (paramTypes.size() != (host.index ? 3 : 2) || *paramTypes[0] != leftType)
     {
-        typeCheck.handleError(
-		        CompileError::ArrowNoVar, &host,
-				(host.right + (isIndexed ? "[]" : "")).c_str());
+	    typeCheck.handleError(CompileError::ArrowNoVar, &host,
+							  (host.right + (host.index ? "[]" : "")).c_str());
         return;
     }
 
-    symbolTable.putNodeId(&host, function->id);
-    typeId = functionParams[isIndexed ? 2 : 1];
-	host.setVarType(symbolTable.getType(typeId));
+    symbolTable.putNodeId(&host, host.writeFunction->id);
+    typeId = symbolTable.getTypeId(*host.getWriteType());
 }
 
 void GetLValType::caseExprIdentifier(ASTExprIdentifier& host, void*)
