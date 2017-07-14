@@ -131,6 +131,7 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #endif
 #endif
 
+
 void do_previewtext();
 
 int startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
@@ -2517,6 +2518,7 @@ int playMusic()
         
         if(ismidi)
         {
+            //packfile_password("");
             if((song=load_midi(midipath))!=NULL)
             {
                 if(play_midi(song,true)==0)
@@ -13287,7 +13289,9 @@ void edit_tune(int i)
                 {
                     destroy_midi((MIDI*)data);
                 }
-                
+
+                //packfile_password(""); //Might cause issues. -Z
+
                 if((data=load_midi(temppath))==NULL)
                 {
                     jwin_alert("Error","Error loading tune:",temppath,NULL,"Dang",NULL,13,27,lfont);
@@ -23679,6 +23683,8 @@ int save_config_file()
     chop_path(midipath2);
     chop_path(imagepath2);
     chop_path(tmusicpath2);
+	
+	packfile_password(""); //Needed to prevent corrupting ag.cfg.
     
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
