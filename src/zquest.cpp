@@ -13290,7 +13290,7 @@ void edit_tune(int i)
                     destroy_midi((MIDI*)data);
                 }
 
-                //packfile_password(""); //Might cause issues. -Z
+                packfile_password(""); //Might cause issues. -Z
 
                 if((data=load_midi(temppath))==NULL)
                 {
