@@ -104,7 +104,7 @@ CompileError const CompileError::ScriptNumRedef(
 CompileError const CompileError::ImplictCast(
 		16, 'T', true, "Cast from %s.");
 CompileError const CompileError::IllegalCast(
-		17, 'T', false, "Cannot cast from %s.");
+		17, 'T', false, "Cannot cast from %s to %s.");
 // DEPRECATED
 CompileError const CompileError::VoidExpr(
 		18, 'T', false, "Operand is void.");

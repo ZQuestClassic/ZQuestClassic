@@ -1267,23 +1267,22 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	}
 
 	// If there's an explicit size, grab it.
-	else if (host.getSize())
+	else if (host.size)
 	{
-		ASTExpr& sizeExpr = *host.getSize();
-		if (optional<long> s = sizeExpr.getCompileTimeValue(this))
+		if (optional<long> s = host.size->getCompileTimeValue(this))
 			size = *s / 10000L;
 		else
 		{
-			handleError(CompileError::ExprNotConstant, &sizeExpr);
+			handleError(CompileError::ExprNotConstant, host.size);
 			return;
 		}
 	}
 
 	// Otherwise, grab the number of elements.
-	if (size == -1) size = host.getElements().size();
+	if (size == -1) size = host.elements.size();
 
 	// Make sure the chosen size has enough space.
-	if (size < (int)host.getElements().size())
+	if (size < int(host.elements.size()))
 	{
 		handleError(CompileError::ArrayListTooLarge, &host);
 		return;
@@ -1310,7 +1309,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	// Initialize.
 	context.initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
 	long i = 0;
-	vector<ASTExpr*> elements = host.getElements();
+	vector<ASTExpr*> elements = host.elements;
 	for (vector<ASTExpr*>::iterator it = elements.begin();
 		 it != elements.end(); ++it, i += 10000L)
 	{

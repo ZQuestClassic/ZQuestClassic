@@ -1075,22 +1075,17 @@ void ASTTypeDef::execute(ASTVisitor& visitor, void* param)
 // ASTExpr
 
 ASTExpr::ASTExpr(LocationData const& location)
-	: ASTStmt(location),
-	  varType(NULL),
-	  lval(false)
+	: ASTStmt(location), varType(NULL)
 {}
 
 ASTExpr::ASTExpr(ASTExpr const& base)
-	: ASTStmt(base),
-	  varType(base.varType),
-	  lval(false)
+	: ASTStmt(base), varType(base.varType)
 {}
 
 ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 {
 	ASTStmt::operator=(rhs);
 	
-	lval = rhs.lval;
 	varType = rhs.varType;
 
 	return *this;
@@ -1234,7 +1229,7 @@ ZVarType const* ASTExprIdentifier::getWriteType() const
 ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
-	  readFunction(NULL), writeFunction(NULL)
+	  readFunction(NULL), writeFunction(NULL), leftClass(NULL)
 {}
 
 ASTExprArrow::ASTExprArrow(ASTExprArrow const& base)
@@ -1242,7 +1237,7 @@ ASTExprArrow::ASTExprArrow(ASTExprArrow const& base)
 	  left(AST::clone(base.left)),
 	  right(base.right),
 	  index(AST::clone(base.index)),
-	  readFunction(NULL), writeFunction(NULL)
+	  readFunction(NULL), writeFunction(NULL), leftClass(NULL)
 {}
 
 ASTExprArrow::~ASTExprArrow()
@@ -1262,6 +1257,7 @@ ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 	index = AST::clone(rhs.index);
 	readFunction = NULL;
 	writeFunction = NULL;
+	leftClass = NULL;
 
 	return *this;
 }
@@ -1340,13 +1336,14 @@ ZVarType const* ASTExprIndex::getWriteType() const
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
-	: ASTExpr(location), left(NULL)
+	: ASTExpr(location), left(NULL), binding(NULL)
 {}
 
 ASTExprCall::ASTExprCall(ASTExprCall const& base)
 	: ASTExpr(base),
 	  left(AST::clone(base.left)),
-	  parameters(AST::clone(base.parameters))
+	  parameters(AST::clone(base.parameters)),
+	  binding(NULL)
 {}
 
 ASTExprCall::~ASTExprCall()
@@ -1364,6 +1361,7 @@ ASTExprCall& ASTExprCall::operator=(ASTExprCall const& rhs)
 
 	left = AST::clone(rhs.left);
 	parameters = AST::clone(rhs.parameters);
+	binding = NULL;
 
 	return *this;
 }
@@ -1375,8 +1373,7 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 
 ZVarType const* ASTExprCall::getReadType() const
 {
-	if (left->isTypeArrow()) return left->getReadType();
-	else return ASTExpr::getReadType();
+	return binding ? binding->returnType : NULL;
 }
 
 ZVarType const* ASTExprCall::getWriteType() const
@@ -2474,7 +2471,8 @@ void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 // ASTArrayLiteral
 
 ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
-	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL)
+	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL),
+	  iReadType(NULL)
 {}
 
 ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
@@ -2482,9 +2480,7 @@ ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
 	  type(AST::clone(base.type)),
 	  size(AST::clone(base.size)),
 	  elements(AST::clone(base.elements)),
-	  // declaration field is managed by the declaration itself, so it stays
-	  // NULL regardless.
-	  declaration(NULL)
+	  declaration(NULL), iReadType(NULL)
 {}
 
 ASTArrayLiteral::~ASTArrayLiteral()
@@ -2506,11 +2502,12 @@ ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
 	size = AST::clone(rhs.size);
 	elements = AST::clone(rhs.elements);
 	declaration = NULL;
+	iReadType = NULL;
 
 	return *this;
 }
 
-void ASTArrayLiteral::execute (ASTVisitor& visitor, void* param)
+void ASTArrayLiteral::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseArrayLiteral(*this, param);
 }

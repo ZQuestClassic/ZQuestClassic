@@ -179,6 +179,10 @@ Function::Signature::Signature(
 	: name(name), parameterTypes(parameterTypes)
 {}
 
+Function::Signature::Signature(Function const& function)
+	: name(function.name), parameterTypes(function.paramTypes)
+{}
+		
 int Function::Signature::compare(Function::Signature const& other) const
 {
 	int c = name.compare(other.name);
@@ -201,6 +205,22 @@ bool Function::Signature::operator==(Function::Signature const& other) const
 bool Function::Signature::operator<(Function::Signature const& other) const
 {
 	return compare(other) < 0;
+}
+
+string Function::Signature::asString() const
+{
+	string result;
+	result += name;
+	result += "(";
+	bool comma = false;
+	for (vector<ZVarType const*>::const_iterator it = parameterTypes.begin();
+		 it != parameterTypes.end(); ++it)
+	{
+		if (comma) {result += ", "; comma = true;}
+		result += (*it)->getName();
+	}
+	result += ")";
+	return result;
 }
 
 // ZScript::Function
