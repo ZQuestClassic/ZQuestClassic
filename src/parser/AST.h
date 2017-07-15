@@ -24,6 +24,9 @@ using std::map;
 using std::vector;
 using std::list;
 
+// Forward Declarations
+class ASTVisitor;
+class CompileError;
 class CompileErrorHandler;
 
 #define RECURSIONLIMIT 30
@@ -51,7 +54,6 @@ class ASTStmtReturnVal;
 class ASTStmtBreak;
 class ASTStmtContinue;
 class ASTStmtEmpty;
-class ASTStmtCompileError;
 // Declarations
 class ASTDecl; // virtual
 class ASTScript;
@@ -112,143 +114,6 @@ class ASTArrayLiteral;
 class ASTScriptType;
 class ASTVarType;
 
-class ASTVisitor
-{
-public:
-    virtual ~ASTVisitor() {}
-    virtual void caseDefault(void *param) = 0;
-	// AST Subclasses
-    virtual void caseProgram(ASTProgram&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseFloat(ASTFloat&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseString(ASTString&, void* param = NULL) {
-		caseDefault(param);}
-	// Statements
-    virtual void caseBlock(ASTBlock&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtIf(ASTStmtIf&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtIfElse(ASTStmtIfElse&, void* param = NULL) {
-		caseDefault(param);}
-	virtual void caseStmtSwitch(ASTStmtSwitch&, void* param = NULL) {
-		caseDefault(param);}
-	virtual void caseSwitchCases(ASTSwitchCases&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtFor(ASTStmtFor&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtWhile(ASTStmtWhile&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtDo(ASTStmtDo&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtReturn(ASTStmtReturn&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtReturnVal(ASTStmtReturnVal&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtBreak(ASTStmtBreak&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtContinue(ASTStmtContinue&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStmtEmpty(ASTStmtEmpty&, void* param = NULL) {
-		caseDefault(param);}
-	virtual void caseStmtCompileError(ASTStmtCompileError& node, void* param = NULL) {
-		caseDefault(param);}
-	// Declarations
-    virtual void caseScript(ASTScript&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseImportDecl(ASTImportDecl&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseFuncDecl(ASTFuncDecl&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseDataDeclList(ASTDataDeclList&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseDataDecl(ASTDataDecl&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseDataDeclExtraArray(
-			ASTDataDeclExtraArray&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseTypeDef(ASTTypeDef&, void* param = NULL) {
-		caseDefault(param);}
-	// Expressions
-    virtual void caseExprConst(ASTExprConst&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprAssign(ASTExprAssign&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprIdentifier(ASTExprIdentifier&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprArrow(ASTExprArrow&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprIndex(ASTExprIndex&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprCall(ASTExprCall&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprNegate(ASTExprNegate&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprNot(ASTExprNot&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprBitNot(ASTExprBitNot&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprIncrement(ASTExprIncrement&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprPreIncrement(
-			ASTExprPreIncrement&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprDecrement(ASTExprDecrement&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprPreDecrement(ASTExprPreDecrement&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprAnd(ASTExprAnd&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprOr(ASTExprOr&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprGT(ASTExprGT&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprGE(ASTExprGE&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprLT(ASTExprLT&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprLE(ASTExprLE&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprEQ(ASTExprEQ&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprNE(ASTExprNE&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprPlus(ASTExprPlus&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprMinus(ASTExprMinus&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprTimes(ASTExprTimes&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprDivide(ASTExprDivide&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprModulo(ASTExprModulo&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprBitAnd(ASTExprBitAnd&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprBitOr(ASTExprBitOr&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprBitXor(ASTExprBitXor&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprLShift(ASTExprLShift&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseExprRShift(ASTExprRShift&, void* param = NULL) {
-		caseDefault(param);}
-	// Literals
-    virtual void caseNumberLiteral(ASTNumberLiteral&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseBoolLiteral(ASTBoolLiteral&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseStringLiteral(ASTStringLiteral&, void* param = NULL) {
-		caseDefault(param);}
-	virtual void caseArrayLiteral(ASTArrayLiteral& node, void* param = NULL) {
-		caseDefault(param);}
-	// Types
-	virtual void caseScriptType(ASTScriptType&, void* param = NULL) {
-		caseDefault(param);}
-    virtual void caseVarType(ASTVarType&, void* param = NULL) {
-		caseDefault(param);}
-};
-
 //////////////////////////////////////////////////////////////////////////////
 class LocationData
 {
@@ -280,7 +145,8 @@ class AST
 {
 public:
 	AST(LocationData const& location = LocationData::NONE);
-	AST(AST const& base);
+	AST(AST const& rhs);
+	virtual ~AST();
 	// Calls subclass's copy constructor on self.
 	virtual AST* clone() const = 0;
 
@@ -290,6 +156,13 @@ public:
 	// Filename and linenumber.
     LocationData location;
 
+	// List of expected compile error ids for this node. They are removed as
+	// they are encountered.
+	list<ASTExpr*> compileErrorCatches;
+
+	// If this node has been disabled due to an error.
+	bool disabled;
+	
 	// Subclass Predicates (replacing typeof and such).
 	virtual bool isTypeArrow() const {return false;}
 	virtual bool isTypeIndex() const {return false;}
@@ -365,8 +238,7 @@ public:
 	ASTProgram& operator=(ASTProgram const& rhs);
 	ASTProgram* clone() const {return new ASTProgram(*this);}
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseProgram(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseProgram(*this);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// Add a declaration to the proper list based on its type.
 	void addDeclaration(ASTDecl* declaration);
@@ -398,8 +270,7 @@ public:
 	ASTFloat& operator=(ASTFloat const& rhs);
 	ASTFloat* clone() const {return new ASTFloat(*this);}
 	
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseFloat(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
     	
     pair<string,string> parseValue();
 
@@ -419,8 +290,7 @@ public:
 	ASTString& operator=(ASTString const& rhs);
 	ASTString* clone() const {return new ASTString(*this);}
 	
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseString(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
     string getValue() const {return str;}
 private:
@@ -449,8 +319,7 @@ public:
 	ASTBlock& operator=(ASTBlock const& rhs);
 	ASTBlock* clone() const {return new ASTBlock(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseBlock(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// List of statements this block contains.
     vector<ASTStmt*> statements;
@@ -466,8 +335,7 @@ public:
 	ASTStmtIf& operator=(ASTStmtIf const& rhs);
 	ASTStmtIf* clone() const {return new ASTStmtIf(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		return visitor.caseStmtIf(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ASTExpr* condition;
 	ASTStmt* thenStatement;
@@ -484,8 +352,7 @@ public:
 	ASTStmtIfElse& operator=(ASTStmtIfElse const& rhs);
 	ASTStmtIfElse* clone() const {return new ASTStmtIfElse(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtIfElse(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
     ASTStmt* elseStatement;
 };
@@ -500,8 +367,7 @@ public:
 	ASTStmtSwitch& operator=(ASTStmtSwitch const& rhs);
 	ASTStmtSwitch* clone() const {return new ASTStmtSwitch(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtSwitch(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// The key expression used to switch.
 	ASTExpr* key;
@@ -520,8 +386,7 @@ public:
 	ASTSwitchCases& operator=(ASTSwitchCases const& rhs);
 	ASTSwitchCases* clone() const {return new ASTSwitchCases(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseSwitchCases(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// The list of case labels.
 	vector<ASTExprConst*> cases;
@@ -545,8 +410,7 @@ public:
 	ASTStmtFor& operator=(ASTStmtFor const& rhs);
 	ASTStmtFor* clone() const {return new ASTStmtFor(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		return visitor.caseStmtFor(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
     ASTStmt* setup;
     ASTExpr* test;
@@ -565,8 +429,7 @@ public:
 	ASTStmtWhile& operator=(ASTStmtWhile const& rhs);
 	ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtWhile(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
     ASTExpr* test;
     ASTStmt* body;
@@ -583,8 +446,7 @@ public:
 	ASTStmtDo& operator=(ASTStmtDo const& rhs);
 	ASTStmtDo* clone() const {return new ASTStmtDo(*this);}
 	
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtDo(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
     ASTExpr* test;
     ASTStmt* body;
@@ -598,8 +460,7 @@ public:
 	ASTStmtReturn& operator=(ASTStmtReturn const& rhs);
 	ASTStmtReturn* clone() const {return new ASTStmtReturn(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtReturn(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 };
 
 class ASTStmtReturnVal : public ASTStmtReturn
@@ -612,8 +473,7 @@ public:
 	ASTStmtReturnVal& operator=(ASTStmtReturnVal const& rhs);
 	ASTStmtReturnVal* clone() const {return new ASTStmtReturnVal(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtReturnVal(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
     ASTExpr* value;
 };
@@ -626,8 +486,7 @@ public:
 	ASTStmtBreak& operator=(ASTStmtBreak const& rhs);
 	ASTStmtBreak* clone() const {return new ASTStmtBreak(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtBreak(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 };
 
 class ASTStmtContinue : public ASTStmt
@@ -638,8 +497,7 @@ public:
 	ASTStmtContinue& operator=(ASTStmtContinue const& rhs);
 	ASTStmtContinue* clone() const {return new ASTStmtContinue(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtContinue(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 };
 
 class ASTStmtEmpty : public ASTStmt
@@ -650,39 +508,7 @@ public:
 	ASTStmtEmpty& operator=(ASTStmtEmpty const& rhs);
 	ASTStmtEmpty* clone() const {return new ASTStmtEmpty(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtEmpty(*this, param);}
-};
-
-class CompileError;
-class ASTStmtCompileError : public ASTStmt
-{
-public:
-	ASTStmtCompileError(ASTExpr* errorId = NULL,
-					ASTStmt* statement = NULL,
-					LocationData const& location = LocationData::NONE);
-	ASTStmtCompileError(ASTStmtCompileError const& base);
-	~ASTStmtCompileError();
-	ASTStmtCompileError& operator=(ASTStmtCompileError const& rhs);
-	ASTStmtCompileError* clone() const {return new ASTStmtCompileError(*this);}
-
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStmtCompileError(*this, param);}
-	
-	// The expression for the error id. If NULL, no id is specified.
-	ASTExpr* errorId;
-
-	// The statement to execute while catching the compile error.
-	ASTStmt* statement;
-
-	// If the specified error has been triggered.
-	bool errorTriggered;
-	
-	// Get the error id as an integer. -1 for invalid.
-	int getErrorId() const;
-
-	// Does this node handle the given error?
-	bool canHandle(CompileError const& error) const;
+    void execute(ASTVisitor& visitor, void* param = NULL);
 };
 
 ////////////////////////////////////////////////////////////////
@@ -726,8 +552,7 @@ public:
 	ASTScript& operator=(ASTScript const& rhs);
 	ASTScript* clone() const {return new ASTScript(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseScript(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ASTDeclClassId declarationClassId() const {
 		return ASTDECL_CLASSID_SCRIPT;}
@@ -751,8 +576,7 @@ public:
 	ASTImportDecl& operator=(ASTImportDecl const& rhs);
 	ASTImportDecl* clone() const {return new ASTImportDecl(*this);}
     
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseImportDecl(*this,param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ASTDeclClassId declarationClassId() const {
 		return ASTDECL_CLASSID_IMPORT;}
@@ -769,8 +593,7 @@ public:
 	ASTFuncDecl& operator=(ASTFuncDecl const& rhs);
 	ASTFuncDecl* clone() const {return new ASTFuncDecl(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseFuncDecl(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ASTDeclClassId declarationClassId() const {
 		return ASTDECL_CLASSID_FUNCTION;}
@@ -797,8 +620,7 @@ public:
 	ASTDataDeclList& operator=(ASTDataDeclList const& rhs);
 	ASTDataDeclList* clone() const {return new ASTDataDeclList(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclList(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseDataDeclList(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATALIST;}
 
 	// The base type at the start of the line shared by all the declarations.
@@ -823,8 +645,7 @@ public:
 	ASTDataDecl& operator=(ASTDataDecl const& rhs);
 	ASTDataDecl* clone() const {return new ASTDataDecl(*this);}
 
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDecl(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseDataDecl(*this);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATA;}
 
 	// The list containing this declaration. Should be set by that list when
@@ -869,8 +690,7 @@ public:
 	ASTDataDeclExtraArray& operator=(ASTDataDeclExtraArray const& rhs);
 	ASTDataDeclExtraArray* clone() const {return new ASTDataDeclExtraArray(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseDataDeclExtraArray(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// The vector of array dimensions. Empty means unspecified.
 	vector<ASTExpr*> dimensions;
@@ -895,8 +715,7 @@ public:
 	ASTTypeDef& operator=(ASTTypeDef const& rhs);
 	ASTTypeDef* clone() const {return new ASTTypeDef(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseTypeDef(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_TYPE;}
 
@@ -951,8 +770,7 @@ public:
 	ASTExprConst& operator=(ASTExprConst const& rhs);
 	ASTExprConst* clone() const {return new ASTExprConst(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprConst(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return true;}
 
@@ -974,8 +792,7 @@ public:
 	ASTExprAssign& operator=(ASTExprAssign const& rhs);
 	ASTExprAssign* clone() const {return new ASTExprAssign(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprAssign(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return right && right->isConstant();}
 
@@ -996,8 +813,7 @@ public:
 	ASTExprIdentifier& operator=(ASTExprIdentifier const& base);
 	ASTExprIdentifier* clone() const {return new ASTExprIdentifier(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprIdentifier(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 	string asString() const;
 	bool isTypeIdentifier() const {return true;}
 
@@ -1028,8 +844,7 @@ public:
 	~ASTExprArrow();
 	ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprArrow(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 	string asString() const;
 	bool isTypeArrow() const {return true;}
 
@@ -1051,8 +866,7 @@ public:
 	ASTExprIndex& operator=(ASTExprIndex const& rhs);
 	ASTExprIndex* clone() const {return new ASTExprIndex(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprIndex(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 	bool isTypeIndex() const {return true;}
 
 	bool isConstant() const;
@@ -1070,8 +884,7 @@ public:
 	ASTExprCall& operator=(ASTExprCall const& rhs);
 	ASTExprCall* clone() const {return new ASTExprCall(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprCall(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
 
@@ -1104,8 +917,7 @@ public:
 	ASTExprNegate& operator=(ASTExprNegate const& rhs);
 	ASTExprNegate* clone() const {return new ASTExprNegate(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprNegate(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1120,8 +932,7 @@ public:
 	ASTExprNot& operator=(ASTExprNot const& rhs);
 	ASTExprNot* clone() const {return new ASTExprNot(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprNot(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1136,8 +947,7 @@ public:
 	ASTExprBitNot& operator=(ASTExprBitNot const& rhs);
 	ASTExprBitNot* clone() const {return new ASTExprBitNot(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprBitNot(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1152,8 +962,7 @@ public:
 	ASTExprIncrement& operator=(ASTExprIncrement const& rhs);
 	ASTExprIncrement* clone() const {return new ASTExprIncrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprIncrement(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
 };
@@ -1166,8 +975,7 @@ public:
 	ASTExprPreIncrement& operator=(ASTExprPreIncrement const& rhs);
 	ASTExprPreIncrement* clone() const {return new ASTExprPreIncrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprPreIncrement(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
 };
@@ -1180,8 +988,7 @@ public:
 	ASTExprDecrement& operator=(ASTExprDecrement const& rhs);
 	ASTExprDecrement* clone() const {return new ASTExprDecrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprDecrement(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
 };
@@ -1195,8 +1002,7 @@ public:
 	ASTExprPreDecrement* clone() const {
 		return new ASTExprPreDecrement(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprPreDecrement(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return false;}
 };
@@ -1245,8 +1051,7 @@ public:
 	ASTExprAnd& operator=(ASTExprAnd const& rhs);
 	ASTExprAnd* clone() const {return new ASTExprAnd(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprAnd(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1263,8 +1068,7 @@ public:
 	ASTExprOr& operator=(ASTExprOr const& rhs);
 	ASTExprOr* clone() const {return new ASTExprOr(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprOr(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1295,8 +1099,7 @@ public:
 	ASTExprGT& operator=(ASTExprGT const& rhs);
 	ASTExprGT* clone() const {return new ASTExprGT(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprGT(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1313,8 +1116,7 @@ public:
 	ASTExprGE& operator=(ASTExprGE const& rhs);
 	ASTExprGE* clone() const {return new ASTExprGE(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprGE(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1331,8 +1133,7 @@ public:
 	ASTExprLT& operator=(ASTExprLT const& rhs);
 	ASTExprLT* clone() const {return new ASTExprLT(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprLT(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1349,8 +1150,7 @@ public:
 	ASTExprLE& operator=(ASTExprLE const& rhs);
 	ASTExprLE* clone() const {return new ASTExprLE(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprLE(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1367,8 +1167,7 @@ public:
 	ASTExprEQ& operator=(ASTExprEQ const& rhs);
 	ASTExprEQ* clone() const {return new ASTExprEQ(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprEQ(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1385,8 +1184,7 @@ public:
 	ASTExprNE& operator=(ASTExprNE const& rhs);
 	ASTExprNE* clone() const {return new ASTExprNE(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprNE(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1417,8 +1215,7 @@ public:
 	ASTExprPlus& operator=(ASTExprPlus const& rhs);
 	ASTExprPlus* clone() const {return new ASTExprPlus(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprPlus(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1435,8 +1232,7 @@ public:
 	ASTExprMinus& operator=(ASTExprMinus const& rhs);
 	ASTExprMinus* clone() const {return new ASTExprMinus(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprMinus(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1467,8 +1263,7 @@ public:
 	ASTExprTimes& operator=(ASTExprTimes const& rhs);
 	ASTExprTimes* clone() const {return new ASTExprTimes(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprTimes(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1485,8 +1280,7 @@ public:
 	ASTExprDivide& operator=(ASTExprDivide const& rhs);
 	ASTExprDivide* clone() const {return new ASTExprDivide(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprDivide(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1503,8 +1297,7 @@ public:
 	ASTExprModulo& operator=(ASTExprModulo const& rhs);
 	ASTExprModulo* clone() const {return new ASTExprModulo(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprModulo(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1533,8 +1326,7 @@ public:
 	ASTExprBitAnd& operator=(ASTExprBitAnd const& rhs);
 	ASTExprBitAnd* clone() const {return new ASTExprBitAnd(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprBitAnd(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1550,8 +1342,7 @@ public:
 	ASTExprBitOr& operator=(ASTExprBitOr const& rhs);
 	ASTExprBitOr* clone() const {return new ASTExprBitOr(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprBitOr(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1567,8 +1358,7 @@ public:
 	ASTExprBitXor& operator=(ASTExprBitXor const& rhs);
 	ASTExprBitXor* clone() const {return new ASTExprBitXor(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprBitXor(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1598,8 +1388,7 @@ public:
 	ASTExprLShift& operator=(ASTExprLShift const& rhs);
 	ASTExprLShift* clone() const {return new ASTExprLShift(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprLShift(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1615,8 +1404,7 @@ public:
 	ASTExprRShift& operator=(ASTExprRShift const& rhs);
 	ASTExprRShift* clone() const {return new ASTExprRShift(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseExprRShift(*this, param);}
+	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1655,8 +1443,7 @@ public:
 	ASTNumberLiteral& operator=(ASTNumberLiteral const& rhs);
 	ASTNumberLiteral* clone() const {return new ASTNumberLiteral(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseNumberLiteral(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return true;}
 
@@ -1677,8 +1464,7 @@ public:
 	ASTBoolLiteral& operator=(ASTBoolLiteral const& base);
 	ASTBoolLiteral* clone() const {return new ASTBoolLiteral(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseBoolLiteral(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	bool isConstant() const {return true;}
 
@@ -1704,8 +1490,7 @@ public:
 	ASTStringLiteral& operator=(ASTStringLiteral const& rhs);
 	ASTStringLiteral* clone() const {return new ASTStringLiteral(*this);}
 
-	void execute (ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseStringLiteral(*this, param);}
+	void execute (ASTVisitor& visitor, void* param = NULL);
 	bool isStringLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
@@ -1727,8 +1512,7 @@ public:
 	ASTArrayLiteral& operator=(ASTArrayLiteral const& rhs);
 	ASTArrayLiteral* clone() const {return new ASTArrayLiteral(*this);}
 
-	void execute (ASTVisitor& visitor, void* param) {visitor.caseArrayLiteral(*this, param);}
-	void execute (ASTVisitor& visitor) {visitor.caseArrayLiteral(*this);}
+	void execute (ASTVisitor& visitor, void* param = NULL);
 	bool isArrayLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
@@ -1765,8 +1549,7 @@ public:
 	ASTScriptType& operator=(ASTScriptType const& rhs);
 	ASTScriptType* clone() const {return new ASTScriptType(*this);}
 
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseScriptType(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ScriptType type;
 };
@@ -1787,8 +1570,7 @@ public:
 	ASTVarType& operator=(ASTVarType const& rhs);
 	ASTVarType* clone() const {return new ASTVarType(*this);}
 	
-    void execute(ASTVisitor& visitor, void* param = NULL) {
-		visitor.caseVarType(*this, param);}
+    void execute(ASTVisitor& visitor, void* param = NULL);
 
 	ZVarType const& resolve(Scope& scope);
 

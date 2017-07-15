@@ -12,11 +12,10 @@
 #include <string>
 #include <cstdlib>
 
+#include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Scope.h"
 #include "SemanticAnalyzer.h"
-#include "UtilVisitors.h"
-#include "AST.h"
 #include "BuildVisitors.h"
 #include "ZScript.h"
 using namespace std;
@@ -172,11 +171,6 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 
 		delete *it;
     }
-
-    // Check that there are no more stupidly placed imports in the file
-    CheckForExtraneousImports c;
-    theAST->execute(c, NULL);
-    if (!c.isOK()) return false;
 
     return true;
 }

@@ -1,8 +1,7 @@
 #ifndef BUILDVISITORS_H
 #define BUILDVISITORS_H
 
-#include "AST.h"
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
 #include <stack>
@@ -13,7 +12,10 @@ class BuildOpcodes : public RecursiveVisitor
 public:
     BuildOpcodes();
 
-    virtual void caseDefault(void *param);
+	using RecursiveVisitor::visit;
+	void visit(AST& node, void* param = NULL);
+	
+    virtual void caseDefault(AST& host, void* param);
 	// Statements
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);
@@ -32,8 +34,6 @@ public:
 	virtual void caseDataDecl(ASTDataDecl& host, void* param);
 	virtual void caseTypeDef(ASTTypeDef& host, void* param);
 	// Expressions
-    virtual void caseExprConst(ASTExprConst &host, void *param);
-	virtual void caseStmtCompileError(ASTStmtCompileError& host, void* param);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);

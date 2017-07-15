@@ -1,7 +1,7 @@
 #ifndef TYPECHECKER_H
 #define TYPECHECKER_H
 
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "DataStructs.h"
 #include <assert.h>
 
@@ -15,7 +15,6 @@ public:
 	TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId);
 	TypeCheck(SymbolTable& symbolTable, ZVarType const& returnType);
 
-    void caseDefault(void*) {}
 	// Statements
     void caseStmtIf(ASTStmtIf& host, void* = NULL);
     void caseStmtIfElse(ASTStmtIfElse& host, void* = NULL);

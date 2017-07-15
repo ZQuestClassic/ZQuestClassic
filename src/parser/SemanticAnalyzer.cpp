@@ -48,7 +48,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 	// Evaluate the function block under its scope.
 	scope = &functionScope;
-	AST::execute(functionDecl->block->statements, *this);
+	visit(*functionDecl, functionDecl->block->statements);
 	scope = scope->getParent();
 }
 
@@ -146,7 +146,7 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	}
 
 	// Recurse on list contents.
-	recurse(host, NULL, host.declarations());
+	visit(host, host.declarations());
 }
 
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
@@ -212,7 +212,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		return;
 	}
 
-	// Gather the paramater types.
+	// Gather the parameter types.
 	vector<ZVarType const*> paramTypes;
 	vector<ASTDataDecl*> const& params = host.parameters;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
@@ -243,12 +243,16 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, &host);
-	function->node = &host;
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
+	{
 		handleError(CompileError::FunctionRedef, &host, host.name.c_str());
+		return;
+	}
+
+	function->node = &host;
 }
 
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
@@ -274,12 +278,6 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 
 // Expressions
 
-void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
-{
-	ASTExpr* content = host.content;
-	content->execute(*this);
-}
-
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 {
 	host.left->markAsLVal();
@@ -291,7 +289,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	ASTExpr* left = host.left;
 
 	// If it's an arrow, recurse normally.
-	if (left->isTypeArrow()) left->execute(*this);
+	if (left->isTypeArrow()) visit(left);
 
 	// If it's an identifier.
 	if (left->isTypeIdentifier())

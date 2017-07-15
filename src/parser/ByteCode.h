@@ -2,8 +2,7 @@
 #define BYTECODE_H
 
 //#include "ScriptParser.h"
-#include "AST.h"
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Compiler.h"
 #include "../zsyssimple.h"
