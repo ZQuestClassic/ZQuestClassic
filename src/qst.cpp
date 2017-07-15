@@ -752,7 +752,7 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
             if(ret)
             {
                 oldquest = true;
-                passwd="";
+                //passwd="";
             }
         }
         
@@ -1889,7 +1889,6 @@ bool check_questpwd(zquestheader *Header, char *pwd)
     return (memcmp(Header->pwd_hash,md5sum,16)==0);
     
 }
-
 
 int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -4123,19 +4122,22 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
-        if(Header->zelda_version < 0x193)
-        {
-            if(!p_getc(&tempbyte,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
         for(int j=0; j<3; j++)
         {
-            if(!p_igetw(&temp_misc.shop[i].price[j],f,true))
+            if(Header->zelda_version < 0x193)
             {
-                return qe_invalid;
+                if(!p_getc(&tempbyte,f,true))
+                {
+                    return qe_invalid;
+                }
+                temp_misc.shop[i].price[j] = tempbyte;
+            }
+            else
+            {
+                if (!p_igetw(&temp_misc.shop[i].price[j], f, true))
+                {
+                    return qe_invalid;
+                }
             }
         }
         
@@ -4605,7 +4607,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         {
             *Misc = temp_misc;
         }
-        
+
         return 0;
     }
     
@@ -5263,6 +5265,11 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
         // only update items in the CORE module (i.e. default items in old quests)
         if (modulename == "CORE")
         {
+            for (int i = items_to_read; i < OS_LAST; i++)
+            {
+                tables["CORE"].addItemDefinition(ItemDefinitionTable::defaultItemData(i));
+            }
+
             int numitems = tables["CORE"].getNumItemDefinitions();
 
             for (int i = 0; i < numitems; i++)
@@ -11435,7 +11442,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
         //}
         for(int j=0; j<screens_to_read; j++)
         {
-            scr=i*MAPSCRS+j;
+            scr=i*MAPSCRS+j;            
             clear_screen(&temp_mapscr);
             readmapscreen(f, Header, &temp_mapscr, &temp_map, version);
             
@@ -11453,25 +11460,18 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
             map_count = temp_map_count;
             
             if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
-            {
-                int index = (i*MAPSCRS+132);
-                //.....hmmm. todo: test this. >_>
+            {                
+                int index = (i*MAPSCRS+TEMPLATE2);
                 
-//		delete_theMaps_data(index);
                 TheMaps[index]=TheMaps[index-1];
                 
                 const int _mapsSize = (temp_map.tileWidth)*(temp_map.tileHeight);
                 
-                //err...what? @_@
                 TheMaps[index].data.resize(_mapsSize, 0);
                 TheMaps[index].sflag.resize(_mapsSize, 0);
                 TheMaps[index].cset.resize(_mapsSize, 0);
                 
-                TheMaps[i*MAPSCRS+132].data = TheMaps[i*MAPSCRS+131].data;
-                TheMaps[i*MAPSCRS+132].sflag = TheMaps[i*MAPSCRS+131].sflag;
-                TheMaps[i*MAPSCRS+132].cset = TheMaps[i*MAPSCRS+131].cset;
-                
-                for(int j=133; j<MAPSCRS; j++)
+                for(int j=TEMPLATE2+1; j<MAPSCRS; j++)
                 {
                     scr=i*MAPSCRS+j;
                     
@@ -11481,19 +11481,20 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
                     TheMaps[scr].csensitive = 1;
                 }
             }
-            
+
             if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
             {
                 for(int j=0; j<MAPSCRS; j++)
                 {
-                    scr=i*MAPSCRS+j;
+                    scr=i*MAPSCRS+j;                    
                     TheMaps[scr].door_combo_set=MakeDoors(i, j);
                     
                     for(int k=0; k<128; k++)
                     {
-                        TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
-                        TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
-                        TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
+                        int comboidx = TheMaps[scr].secretcombo[k];
+                        TheMaps[scr].secretcset[k]=tcmbcset2(i, comboidx);
+                        TheMaps[scr].secretflag[k]=tcmbflag2(i, comboidx);
+                        TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, comboidx);
                     }
                 }
             }
