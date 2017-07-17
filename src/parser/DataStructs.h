@@ -43,7 +43,14 @@ public:
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
-	ZVarType const* getCanonicalType(ZVarType const& type);
+
+	template <typename Type>
+	Type const* getCanonicalType(Type const& type)
+	{
+		return static_cast<Type const*>(
+				types[getOrAssignTypeId(type)]);
+	}
+	
 	// Classes
 	ZClass* getClass(int classId) const;
 	ZClass* createClass(string const& name);
