@@ -27,6 +27,7 @@
 #include <assert.h>
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
+#include "selectors.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -1027,11 +1028,6 @@ static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
 static ListData colortype_list(colortypelist, &font);
 
-//TODO fix
-const char *itemlist(int index, int *list_size);
-
-static ListData item_list(itemlist, &font);
-
 static DIALOG sso_master_properties_dlg[] =
 {
     // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
@@ -1252,7 +1248,7 @@ static DIALOG sso_master_properties_dlg[] =
     { jwin_text_proc,         8,   51,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0, (void *) "Rows:", NULL, NULL },
     // 175
     { jwin_droplist_proc,    57,   47,    68,     16,  0,                  0,                0,       0,          0,             0, (void *) &rows_list, NULL, NULL },
-    { jwin_droplist_proc,    68,  159,     128,     16,  0,                  0,                0,       0,          3,             0, (void *) &item_list, NULL, NULL },
+    { jwin_button_proc,      68,  159,     128,     16,  0,                  0,                0,     D_EXIT,     3,             0,  NULL, NULL, NULL },
     { jwin_text_proc,         8,  163,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Item Override:", NULL, NULL },
     { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
     { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
@@ -2144,16 +2140,13 @@ int sso_properties(subscreen_object *tempsso)
         //TODO module support in subscreen
         int index=tempsso->d10;
         ItemDefinitionRef iref("CORE", index);
-        //TODO fix
-        int itemid = 0;
-        
-        
-        
-		sso_properties_cpy[126].proc=jwin_droplist_proc;
-        replacedp(sso_properties_cpy[126],(char *)&item_list);
-		sso_properties_cpy[126].d1=itemid;
+        const char *nonestr = "(None)";
+		sso_properties_cpy[126].proc=jwin_button_proc;
+        replacedp(sso_properties_cpy[126],curQuest->isValid(iref) ? curQuest->getItemDefinition(iref).name.c_str() : nonestr);
+		
 		sso_properties_cpy[126].x-=8;
 		sso_properties_cpy[126].w+=24;
+        sso_properties_cpy[126].flags |= D_EXIT;
         
         replacedp(sso_properties_cpy[130],item_1_caption);
         replacedp(sso_properties_cpy[131],item_2_caption);
@@ -2550,13 +2543,9 @@ int sso_properties(subscreen_object *tempsso)
         int index=tempsso->d8-1;
         //TODO module support for subscreen
         ItemDefinitionRef iref("CORE", index);
-        int itemid = 0;
-
-        //TODO fix
-
-		sso_properties_cpy[176].proc=jwin_droplist_proc;
-        replacedp(sso_properties_cpy[176],(char *)&item_list);
-		sso_properties_cpy[176].d1 = itemid;
+        const char *nonestr = "(None)";
+		sso_properties_cpy[176].proc=jwin_button_proc;
+        replacedp(sso_properties_cpy[176],curQuest->isValid(iref) ? curQuest->getItemDefinition(iref).name.c_str() : nonestr);
         
         for(int j=0; j<biic_cnt; j++)
         {
@@ -3340,14 +3329,32 @@ int sso_properties(subscreen_object *tempsso)
     break;
     }
     
-    ret=zc_popup_dialog(sso_properties_cpy,2);
-    
-    //Bad idea
-    //leaks memory -DD
-    /*if (ret==2)
+    do
     {
-      return -1;
-    }*/
+        ret = zc_popup_dialog(sso_properties_cpy, 2);
+        if (ret == 176)
+        {
+            int status;
+            ItemDefinitionRef ref = select_item("Select Item", ItemDefinitionRef("CORE", tempsso->d8 - 1), false, status);
+            if (status == 4)
+            {
+                tempsso->d8 = 1 + ref.slot;
+                const char *nonestr = "(None)";
+                replacedp(sso_properties_cpy[176], (curQuest->isValid(ref) ? curQuest->getItemDefinition(ref).name.c_str() : nonestr));
+            }
+        }
+        if (ret == 126)
+        {
+            int status;
+            ItemDefinitionRef ref = select_item("Select Item", ItemDefinitionRef("CORE", tempsso->d10), false, status);
+            if (status == 4)
+            {
+                tempsso->d10 = ref.slot;
+                const char *nonestr = "(None)";
+                replacedp(sso_properties_cpy[126], (curQuest->isValid(ref) ? curQuest->getItemDefinition(ref).name.c_str() : nonestr));
+            }
+        }
+    } while (ret == 176 || ret == 126);
     
     if(ret != 2)
     {
@@ -3578,8 +3585,6 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d7= sso_properties_cpy[136].d1;
             tempsso->d8= sso_properties_cpy[137].d1;
             tempsso->d9= sso_properties_cpy[138].d1;
-            //TODO fix module support
-            tempsso->d10 = 0;// bii[sso_properties_cpy[126].d1].i.slot;
         }
         break;
         
@@ -3687,12 +3692,9 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d5=atoi((char *)sso_properties_cpy[buf3i].dp);
             tempsso->d6=atoi((char *)sso_properties_cpy[buf4i].dp);
             tempsso->d7=atoi((char *)sso_properties_cpy[buf5i].dp);
-            //TODO module support for subscreen
-            tempsso->d8 = 0;// vbound(bii[sso_properties_cpy[176].d1].i.slot + 1, 0, 255);
             
             tempsso->d1=vbound(biic[sso_properties_cpy[133].d1].i, 0, 255);
             tempsso->d2= sso_properties_cpy[139].flags&D_SELECTED?0:1;
-            tempsso->d8=vbound(tempsso->d8,0,256);
         }
         break;
         
@@ -3980,9 +3982,17 @@ int sso_properties(subscreen_object *tempsso)
         
     }
 
-	delete[] sso_properties_cpy;
-    
+    // oy vey -DD
+    for (int i = 0; sso_properties_cpy[i].proc; i++)
+    {
+        sso_properties_dlg[i].proc = sso_properties_cpy[i].proc;
+        sso_properties_dlg[i].dp = sso_properties_cpy[i].dp;
+    }
+    delete[] sso_properties_cpy;
+
     free_dialog(&sso_properties_dlg);
+
+    
     //for(map<int, char *>::iterator it = itemclassnames.begin(); it != itemclassnames.end(); it++)
     //  delete[] it->second;
     //itemclassnames.clear();

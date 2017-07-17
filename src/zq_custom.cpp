@@ -208,7 +208,7 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 			{
 				newd[i].h = int((double)newd[i].h*1.5);
 			}
-			else if (newd[i].proc == jwin_droplist_proc || newd[i].proc == d_ndroplist_proc || newd[i].proc == d_idroplist_proc || newd[i].proc == d_nidroplist_proc || newd[i].proc == d_dropdmaplist_proc
+			else if (newd[i].proc == jwin_droplist_proc || newd[i].proc == d_ndroplist_proc || newd[i].proc == d_dropdmaplist_proc
 				|| newd[i].proc == d_dropdmaptypelist_proc || newd[i].proc == jwin_as_droplist_proc || newd[i].proc == d_ffcombolist_proc || newd[i].proc == sstype_drop_proc || newd[i].proc == d_ctl_proc
 				|| newd[i].proc == jwin_fontdrop_proc || newd[i].proc == d_csl_proc || newd[i].proc == d_csl2_proc || newd[i].proc == d_stilelist_proc || newd[i].proc == d_comboalist_proc)
 			{
@@ -254,7 +254,7 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 			// Bigger font
 			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != jwin_list_proc && newd[i].proc != d_dmaplist_proc
 				&& newd[i].proc != d_dropdmaplist_proc && newd[i].proc != d_xmaplist_proc && newd[i].proc != d_dropdmaptypelist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_wclist_proc && newd[i].proc != d_ndroplist_proc
-				&& newd[i].proc != d_idroplist_proc && newd[i].proc != d_nidroplist_proc && newd[i].proc != jwin_as_droplist_proc && newd[i].proc != d_ffcombolist_proc && newd[i].proc != d_enelist_proc && newd[i].proc != sstype_drop_proc && newd[i].proc != d_ctl_proc
+				&& newd[i].proc != jwin_as_droplist_proc && newd[i].proc != d_ffcombolist_proc && newd[i].proc != d_enelist_proc && newd[i].proc != sstype_drop_proc && newd[i].proc != d_ctl_proc
 				&& newd[i].proc != jwin_fontdrop_proc && newd[i].proc != d_csl_proc && newd[i].proc != d_csl2_proc && newd[i].proc != d_stilelist_proc && newd[i].proc != d_comboalist_proc && d_modlist_proc != newd[i].proc && d_ilist_proc != newd[i].proc 
                 && d_wlist_proc != newd[i].proc && d_en_modlist_proc != newd[i].proc);
 
@@ -2070,18 +2070,6 @@ void edit_itemdata(ItemDefinitionRef itemref)
             itemdata_cpy[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
             itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
             itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
-
-                                         // TODO fix
-/*
-            for(int j=0; j<biw_cnt; j++)
-            {
-                for (int k = 0; k < 10; k++)
-                {
-                    if (biw[j].i == test.wpns[k])
-                        itemdata_cpy[140 + 2*k].d1 = j;
-                }
-            }
-                        */
 
             for (int j = 0; j < 8; j++)
                 itemdata_cpy[187 + j].dp = da[j];

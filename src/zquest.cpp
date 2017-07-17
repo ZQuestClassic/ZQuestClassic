@@ -71,6 +71,8 @@
 #include "questReport.h"
 #include "backend/AllBackends.h"
 #include "quest/QuestRefs.h"
+#include <algorithm>
+#include "selectors.h"
 
 #ifdef ALLEGRO_DOS
 static const char *data_path_name   = "dos_data_path";
@@ -9837,62 +9839,60 @@ static DIALOG rlist_dlg[] =
 
 
 // disable items on dmaps stuff
-/*int *DI = NULL;
-int nDI;
+struct item_struct
+{
+    std::string s;
+    ItemDefinitionRef i;
+
+    bool operator<(const item_struct &other) const
+    {
+        bool isnone = (s == std::string("(None)"));
+        bool otherisnone = (other.s == std::string("(None)"));
+        if (isnone && !otherisnone)
+            return true;
+        else if (otherisnone && !isnone)
+            return false;
+        return s < other.s;
+    }
+};
+
+std::vector<item_struct> DI;
 
 void initDI(int index)
 {
-    if (DI)
-        delete[] DI;
-    DI = new int[DMaps[index].disabledItems.size()];
-
-    int j=0;
-    
-    for(int i=0; i<bii_cnt; i++)
+    DI.clear();
+    for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
     {
-        ItemDefinitionRef index1=bii[i].i; // true index of item in dmap's DI list
-        
-        for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
-        {
-            if (*it == index1)
-            {
-                DI[j]=i;
-                j++;
-                break;
-            }
-        }        
+        item_struct di;
+        di.i = *it;
+        di.s = curQuest->getItemDefinition(*it).name;
+        DI.push_back(di);
     }
-    
-    nDI=j;
-    
-    return;
+    std::sort(DI.begin(), DI.end());
 }
 
-void insertDI(int id, int index)
+void insertDI(const ItemDefinitionRef &ref, int index)
 {
-    ItemDefinitionRef trueid=bii[id].i;
     bool alreadyin = false;
     for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
     {
-        if (*it == trueid)
+        if (*it == ref)
         {
             alreadyin = true;
             break;
         }
     }
     if (!alreadyin)
-        DMaps[index].disabledItems.push_back(trueid);
+        DMaps[index].disabledItems.push_back(ref);
     initDI(index);
     return;
 }
 
-void deleteDI(int id, int index)
+void deleteDI(const ItemDefinitionRef &ref, int index)
 {
-    int i=DI[id];
-    ItemDefinitionRef trueid=bii[i].i;
     for (std::vector<ItemDefinitionRef>::iterator it = DMaps[index].disabledItems.begin(); it != DMaps[index].disabledItems.end(); ++it)
     {
-        if (*it == trueid)
+        if (*it == ref)
         {
             DMaps[index].disabledItems.erase(it);
             break;
@@ -9900,24 +9900,17 @@ void deleteDI(int id, int index)
     }
     initDI(index);
     return;
-}*/
+}
 
 const char *DIlist(int index, int *list_size)
 {
-    //TODO fix
-    *list_size = 0;
-    return NULL;
-    /*
     if(index<0)
     {
-        *list_size = nDI;
+        *list_size = DI.size();
         return NULL;
     }
     
-    int i=DI[index];
-    return bii[i].s.c_str();
-    */
-    
+    return DI[index].s.c_str();    
 }
 
 
@@ -10209,7 +10202,7 @@ int select_data(const char *prompt,int index,const char *(proc)(int,int*), const
     }
     
 	Backend::mouse->setWheelPosition(0);
-	int retval = list_dlg[2].d1;
+	int retval = list_cpy[2].d1;
 	delete[] list_cpy;
 	return retval;
 }
@@ -11583,68 +11576,6 @@ int d_ndroplist_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-int d_idroplist_proc(int msg,DIALOG *d,int c)
-{
-    int ret = jwin_droplist_proc(msg,d,c);
-    //TODO fix
-    /*
-	switch (msg)
-	{
-	case MSG_DRAW:
-	case MSG_CHAR:
-	case MSG_CLICK:
-		int tile = curQuest->isValid(bii[d->d1].i) ? curQuest->getItemDefinition(bii[d->d1].i).tile : 0;
-		int cset = curQuest->isValid(bii[d->d1].i) ? curQuest->getItemDefinition(bii[d->d1].i).csets & 15 : 0;
-		int x = d->x + d->w + 4;
-		int y = d->y - 2;
-		int w = 16;
-		int h = 16;
-
-		if (is_large())
-		{
-			w = 32;
-			h = 32;
-			y -= 6;
-		}
-
-		BITMAP *buf = create_bitmap_ex(8, 16, 16);
-		BITMAP *bigbmp = create_bitmap_ex(8, w, h);
-
-		if (buf && bigbmp)
-		{
-			clear_bitmap(buf);
-
-			if (tile)
-				overtile16(buf, tile, 0, 0, cset, 0);
-
-			stretch_blit(buf, bigbmp, 0, 0, 16, 16, 0, 0, w, h);
-			destroy_bitmap(buf);
-			jwin_draw_frame(screen, x, y, w + 4, h + 4, FR_DEEP);
-			blit(bigbmp, screen, 0, 0, x + 2, y + 2, w, h);
-			destroy_bitmap(bigbmp);
-		}
-
-	}
-    */
-    return ret;
-}
-
-int d_nidroplist_proc(int msg,DIALOG *d,int c)
-{
-    int ret = d_idroplist_proc(msg,d,c);
-    // TODO fix
-    /*
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii[d->d1].i);
-    }
-    */
-    return ret;
-}
-
 /**********************************/
 //        Triforce Pieces         //
 /**********************************/
@@ -12795,12 +12726,12 @@ static DIALOG editdmap_dlg[] =
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     //100
     {  jwin_text_proc,               12,     69,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Disabled Items:",                            NULL,                 NULL                  },
-    {  jwin_abclist_proc,            12,     81,    120,    104,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    D_EXIT,      0,             0,  NULL,                                                  NULL,                 NULL                  },
-    {  jwin_abclist_proc,           177,     81,    120,    104,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    D_EXIT,      0,             0,  NULL,                                                  NULL,                 NULL                  },
-    {  jwin_text_proc,              177,     69,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "All Items:",                                 NULL,                 NULL                  },
-    {  jwin_button_proc,            146,    105,     20,     20,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "->",                                         NULL,                 NULL                  },
+    {  jwin_abclist_proc,            12,     81,    240,    104,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    D_EXIT,      0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  jwin_button_proc,            266,    105,     20,     20,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "->",                                         NULL,                 NULL                  },
     //105
-    {  jwin_button_proc,            146,    145,     20,     20,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "<-",                                         NULL,                 NULL                  },
+    {  jwin_button_proc,            266,    145,     20,     20,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "<-",                                         NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -12826,13 +12757,6 @@ static DIALOG editdmap_dlg[] =
     {  d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
-
-const char *itemlist(int index, int *list_size)
-{
-    //TODO fix
-    *list_size = 0;
-    return NULL;
-}
 
 void editdmap(int index)
 {
@@ -12911,14 +12835,10 @@ void editdmap(int index)
     editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
     editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
     
-    //TODO fix
-    //initDI(index);
+    initDI(index);
     ListData DI_list(DIlist, &font);
-    ListData item_list(itemlist, &font);
     editdmap_dlg[101].dp = (void*)&DI_list;
     editdmap_dlg[101].d1 = 0;
-    editdmap_dlg[102].dp = (void*)&item_list;
-    editdmap_dlg[102].d1 = 0;
     
     editdmap_dlg[110].flags = (DMaps[index].flags& dmfCAVES)? D_SELECTED : 0;
     editdmap_dlg[111].flags = (DMaps[index].flags& dmf3STAIR)? D_SELECTED : 0;
@@ -13026,15 +12946,15 @@ void editdmap(int index)
             break;
             
         case 104: 											// item disable "->"
-            //TODO fix
-            //            deleteDI(editdmap_cpy[101].d1, index);
+            deleteDI(DI[editdmap_cpy[101].d1].i, index);
             break;
             
         case 105: 											// item disable "<-"
         {
-            // 101 is the disabled list, 102 the item list
-            //TODO fix
-            //insertDI(editdmap_cpy[102].d1, index);
+            int status;
+            ItemDefinitionRef ref = select_item("Select Disabled Item", ItemDefinitionRef(), false, status);
+            if(curQuest->isValid(ref))
+                insertDI(ref, index);
         }
         break;
         }
@@ -15344,11 +15264,11 @@ static DIALOG editshop_dlg[] =
     { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
     // 8
     { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
     { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
     
@@ -15378,39 +15298,45 @@ void EditShopType(int index)
     editshop_dlg[12].dp = ps3;
     editshop_dlg[15].dp = shopname;
     
-//  ListData item_list(itemlist, is_large ? &sfont3 : &font);
-    ListData item_list(itemlist, is_large() ? &lfont_l : &font);
-    
-    editshop_dlg[9].dp  = (void *) &item_list;
-    editshop_dlg[11].dp  = (void *) &item_list;
-    editshop_dlg[13].dp  = (void *) &item_list;
-    
+    const char *nonestr = "(None)";
     for(int i=0; i<3; ++i)
     {
         if(misc.shop[index].hasitem[i])
         {
-            //TODO fix
-            /*
-            for(int j=0; j<bii_cnt; j++)
-            {
-                if(bii[j].i == misc.shop[index].item[i])
-                {
-                    editshop_dlg[9+(i<<1)].d1  = j;
-                }
-            }*/
+            editshop_dlg[9 + 2 * i].dp = (void *)curQuest->getItemDefinition(misc.shop[index].item[i]).name.c_str();
         }
         else
         {
-            editshop_dlg[9+(i<<1)].d1 = -2;
+            editshop_dlg[9 + 2 * i].dp = (void *)nonestr;
         }
     }
 
 	DIALOG *editshop_cpy = resizeDialog(editshop_dlg, 1.5);
+
+    shoptype tmpshop = misc.shop[index];
     
-    int ret = zc_popup_dialog(editshop_cpy,-1);
+    int ret;
+    do
+    {
+        ret = zc_popup_dialog(editshop_cpy, -1);
+        for (int i = 0; i < 3; i++)
+        {
+            if (ret == 9 + 2 * i)
+            {
+                int status;
+                ItemDefinitionRef ref = select_item("Select Shop Item", tmpshop.item[i], false, status);
+                if (status == 4)
+                {
+                    tmpshop.item[i] = ref;
+                    editshop_cpy[9 + 2 * i].dp = (void *)(curQuest->isValid(ref) ? curQuest->getItemDefinition(ref).name.c_str() : nonestr);
+                }
+            }
+        }
+    } while (ret != 0 && ret != 16 && ret != 17);
     
     if(ret==16)
     {
+        misc.shop[index] = tmpshop;
         saved=false;
         misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
         misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
@@ -15419,20 +15345,15 @@ void EditShopType(int index)
         
         for(int i=0; i<3; ++i)
         {
-            //TODO fix
-            /*
-            if(!curQuest->isValid(bii[editshop_cpy[9+(i<<1)].d1].i))
+            if (!curQuest->isValid(misc.shop[index].item[i]))
             {
-                misc.shop[index].hasitem[i] = 0;
-                misc.shop[index].item[i] = ItemDefinitionRef();
+                misc.shop[index].hasitem[i] = false;
                 misc.shop[index].price[i] = 0;
             }
             else
             {
-                misc.shop[index].hasitem[i] = 1;
-                misc.shop[index].item[i] = bii[editshop_cpy[9+(i<<1)].d1].i;
+                misc.shop[index].hasitem[i] = true;
             }
-            */
         }
         
         //filter all the 0 items to the end (yeah, bubble sort; sue me)
@@ -15543,35 +15464,35 @@ static DIALOG edititemdropset_dlg[] =
     
     // 14
     { d_itemdropedit_proc,      9,   96,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,   96,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,   96,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,   96+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  118,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  118,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  118,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,  118+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  140,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  140,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  140,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,  140+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  162,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  162,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  162,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       37,  162+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       37,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
 // 29
     { d_itemdropedit_proc,      9,   96,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,   96,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,   96,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     37,   96+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  118,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  118,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  118,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  118+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  140,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  140,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  140,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  140+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  162,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  162,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  162,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  162+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { d_itemdropedit_proc,      9,  184,   26,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, (void *)edititemdropset_dlg },
-    { d_idroplist_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,   55,  184,  233,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      37,  184+4,   26,   16,  vc(14),              vc(1),                  0,           0,     0,             0,       NULL, NULL, NULL },
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL, NULL,  NULL }
 };
@@ -15625,43 +15546,54 @@ void EditItemDropSet(int index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-    ListData item_list(itemlist, is_large() ? &lfont_l : &font);
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
+
+    const char *nonestr = "(None)";
     
     for(int i=0; i<10; ++i)
     {
         sprintf(chance[i+1],"%d",item_drop_sets[index].chance[i+1]);
         edititemdropset_dlg[14+(i*3)].dp  = chance[i+1];
-        edititemdropset_dlg[15+(i*3)].dp  = (void *) &item_list;
+
+
+
+        edititemdropset_dlg[15+(i*3)].dp  = (void *)(curQuest->isValid(item_drop_sets[index].item[i]) ? curQuest->getItemDefinition(item_drop_sets[index].item[i]).name.c_str() : nonestr);
         sprintf(percent_str[i+1],"    ");
         edititemdropset_dlg[16+(i*3)].dp  = percent_str[i+1];
         
         if(item_drop_sets[index].chance[i+1]==0)
         {
-            edititemdropset_dlg[15+(i*3)].d1  = -2;
-        }
-        else
-        {
-            //TODO fix
-            /*
-            for(int j=0; j<bii_cnt; j++)
-            {
-                if(bii[j].i == item_drop_sets[index].item[i])
-                {
-                    edititemdropset_dlg[15+(i*3)].d1  = j;
-                }
-            }
-            */
-        }
+            edititemdropset_dlg[15 + (i * 3)].dp = (void *)nonestr;
+        }        
     }
 
 	DIALOG *edititemdropset_cpy = resizeDialog(edititemdropset_dlg, 1.5);
     
-    int ret = zc_popup_dialog(edititemdropset_cpy,-1);
+    item_drop_object tmpdrop = item_drop_sets[index];
+
+    int ret;
+    do
+    {
+        ret = zc_popup_dialog(edititemdropset_cpy, -1);
+        for (int i = 0; i < 10; i++)
+        {
+            if (ret == 15 + i * 3)
+            {
+                int status;
+                ItemDefinitionRef ref = select_item("Select Drop Item", tmpdrop.item[i + 1], false, status);
+                if (status == 4)
+                {
+                    tmpdrop.item[i] = ref;
+                    edititemdropset_cpy[15 + 3 * i].dp = (void *)(curQuest->isValid(ref) ? curQuest->getItemDefinition(ref).name.c_str() : nonestr);
+                }
+            }
+        }
+    } while (ret != 0 && ret != 2 && ret != 3);
     
     if(ret==2)
     {
+        item_drop_sets[index] = tmpdrop;
         saved=false;
         
         sprintf(item_drop_sets[index].name,"%s",itemdropsetname);
@@ -15669,25 +15601,18 @@ void EditItemDropSet(int index)
         item_drop_sets[index].chance[0]=atoi(chance[0]);
         
         for(int i=0; i<10; ++i)
-        {
-            // TODO fix
-            /*
+        {            
             item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
             
-            if(!curQuest->isValid(bii[edititemdropset_cpy[15+(i*3)].d1].i))
+            if(!curQuest->isValid(item_drop_sets[index].item[i]))
             {
                 item_drop_sets[index].chance[i+1]=0;
-            }
-            else
-            {
-                item_drop_sets[index].item[i] = bii[edititemdropset_cpy[15+(i*3)].d1].i;
             }
             
             if(item_drop_sets[index].chance[i+1]==0)
             {
                 item_drop_sets[index].item[i] = ItemDefinitionRef();
-            }
-            */
+            }            
         }
     }
 

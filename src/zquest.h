@@ -689,8 +689,6 @@ int onToggleShowInfo();
 //char msgbuf[MSGSTRS*3];
 
 int d_ndroplist_proc(int msg,DIALOG *d,int c);
-int d_idroplist_proc(int msg,DIALOG *d,int c);
-int d_nidroplist_proc(int msg,DIALOG *d,int c);
 
 
 /**********************************/

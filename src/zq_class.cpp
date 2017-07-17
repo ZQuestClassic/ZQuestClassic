@@ -4114,6 +4114,7 @@ void zmap::PasteRoom()
         Ugo();
         screens[currscr].room = copymapscr.room;
         screens[currscr].catchall = copymapscr.catchall;
+        screens[currscr].catchallItem = copymapscr.catchallItem;
         saved=false;
     }
 }
