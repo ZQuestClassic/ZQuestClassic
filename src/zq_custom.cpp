@@ -1024,27 +1024,27 @@ static DIALOG itemdata_dlg[] =
     
     //139
     { jwin_text_proc,           8,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[0]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[1]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[2]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[3]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[4]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     
     //149
     { jwin_text_proc,         161,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[5]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,         161,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[6]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,         161,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[7]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,         161,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[8]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,         161,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[9]:",                          NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
+    { jwin_text_proc,         161,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[9]:",                           NULL,   NULL                  },
+    { jwin_button_proc,       161,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     
     //159
     { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
@@ -1728,47 +1728,14 @@ void edit_itemdata(ItemDefinitionRef itemref)
     itemdata_dlg[137].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
     itemdata_dlg[138].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
     
+    const char *nonestring = "(None)";
+
     for(int i=0; i<10; ++i)
     {
-//    itemdata_dlg[140+(i*2)].dp3 = is_large ? sfont3 : pfont;
         itemdata_dlg[140+(i*2)].dp3 = is_large() ? lfont_l : pfont;
+        itemdata_dlg[140 + (i * 2)].dp = (void *)(curQuest->isValid(curQuest->getItemDefinition(itemref).wpns[i]) ? curQuest->getSpriteDefinition(curQuest->getItemDefinition(itemref).wpns[i]).name.c_str() : nonestring);
     }
-    
-    //TODO fix
-    /*
-    for(int j=0; j<biw_cnt; j++)
-    {
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[0])
-            itemdata_dlg[140].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[1])
-            itemdata_dlg[142].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[2])
-            itemdata_dlg[144].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[3])
-            itemdata_dlg[146].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[4])
-            itemdata_dlg[148].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[5])
-            itemdata_dlg[150].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[6])
-            itemdata_dlg[152].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[7])
-            itemdata_dlg[154].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[8])
-            itemdata_dlg[156].d1 = j;
-            
-        if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[9])
-            itemdata_dlg[158].d1 = j;
-    }*/
-    
+        
     for(int j=0; j<8; j++)
         itemdata_dlg[187+j].dp = da[j];
         
@@ -1819,15 +1786,14 @@ void edit_itemdata(ItemDefinitionRef itemref)
     itemdata_dlg[210].dp = wrange; //itemsbuf[index].weaprange;
     itemdata_dlg[212].dp = wdur; //itemsbuf[index].weapduration;
     
-     itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
+    itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
     itemdata_dlg[216].dp = warg4; //itemsbuf[index].weap_pattern[2];
     itemdata_dlg[218].dp = warg5; //itemsbuf[index].weaprange;
     itemdata_dlg[220].dp = warg6; //itemsbuf[index].weapduration;
     
     
     int ret;
-    itemdata test;
-    memset(&test, 0, sizeof(itemdata));
+    itemdata test = curQuest->getItemDefinition(itemref);
     test.playsound = 25;
     
     setLabels(curQuest->getItemDefinition(itemref).family, itemdata_dlg);
@@ -1839,276 +1805,290 @@ void edit_itemdata(ItemDefinitionRef itemref)
             
     do
     {
-        ret = zc_popup_dialog(itemdata_cpy,3);
-        test.misc  = 0;
+        ret = zc_popup_dialog(itemdata_cpy, 3);
+        test.misc = 0;
         test.flags = 0;
-        
+
         test.fam_type = vbound(atoi(cll), 1, 255);
-        test.count = itemdata_cpy[96].d1-1;
-        test.amount = atoi(amt)<0?-(vbound(atoi(amt), -0x3FFF, 0))|0x4000:vbound(atoi(amt), 0, 0x3FFF);
+        test.count = itemdata_cpy[96].d1 - 1;
+        test.amount = atoi(amt) < 0 ? -(vbound(atoi(amt), -0x3FFF, 0)) | 0x4000 : vbound(atoi(amt), 0, 0x3FFF);
         test.setmax = atoi(max);
         test.max = atoi(fmx);
         test.script = biitems[itemdata_cpy[132].d1].second + 1;
         test.playsound = vbound(atoi(snd), 0, 127);
         test.collect_script = biitems[itemdata_cpy[102].d1].second + 1;
-        test.misc1  = atoi(ms1);
-        test.misc2  = atoi(ms2);
-        test.misc3  = atoi(ms3);
-        test.misc4  = atoi(ms4);
-        test.misc5  = atoi(ms5);
-        test.misc6  = atoi(ms6);
-        test.misc7  = atoi(ms7);
-        test.misc8  = atoi(ms8);
-        test.misc9  = atoi(ms9);
+        test.misc1 = atoi(ms1);
+        test.misc2 = atoi(ms2);
+        test.misc3 = atoi(ms3);
+        test.misc4 = atoi(ms4);
+        test.misc5 = atoi(ms5);
+        test.misc6 = atoi(ms6);
+        test.misc7 = atoi(ms7);
+        test.misc8 = atoi(ms8);
+        test.misc9 = atoi(ms9);
         test.misc10 = atoi(ms10);
         test.magic = vbound(atoi(mgc), 0, 255);
         test.pickup_hearts = vbound(atoi(hrt), 0, 255);
         test.power = vbound(atoi(pow), 0, 255);
         test.usesound = vbound(atoi(asn), 0, 127);
-        
+
         test.family = vbound(biic[itemdata_cpy[9].d1].i, 0, 255);
-	
-	//New itemdata vars -Z
-	
-	//! These now store in the editor, but if you change the values, save the quest, and reload, 
-	//! ZQuest crashes on reading items (bad token)
-	test.usedefence =  itemdata_cpy[202].d1; //atoi(wdef);
-	test.weaprange = vbound(atoi(wrange),0,214747);
-	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_cpy[200].d1;; //atoi(wweap);
-	test.weap_pattern[0] = itemdata_cpy[204].d1;; //atoi(wptrn);
-	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
-	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
-	
-	test.weap_pattern[3] =  vbound(atoi(warg3),-214747, 214747);
-	test.weap_pattern[4] =  vbound(atoi(warg4),-214747, 214747);
-	test.weap_pattern[5] =  vbound(atoi(warg5),-214747, 214747);
-	test.weap_pattern[6] =  vbound(atoi(warg6),-214747, 214747);
-        
-        if(itemdata_cpy[14].flags & D_SELECTED)
+
+        //New itemdata vars -Z
+
+        //! These now store in the editor, but if you change the values, save the quest, and reload, 
+        //! ZQuest crashes on reading items (bad token)
+        test.usedefence = itemdata_cpy[202].d1; //atoi(wdef);
+        test.weaprange = vbound(atoi(wrange), 0, 214747);
+        test.weapduration = vbound(atoi(wdur), 0, 214747);
+        test.useweapon = itemdata_cpy[200].d1;; //atoi(wweap);
+        test.weap_pattern[0] = itemdata_cpy[204].d1;; //atoi(wptrn);
+        test.weap_pattern[1] = vbound(atoi(warg1), -214747, 214747);
+        test.weap_pattern[2] = vbound(atoi(warg2), -214747, 214747);
+
+        test.weap_pattern[3] = vbound(atoi(warg3), -214747, 214747);
+        test.weap_pattern[4] = vbound(atoi(warg4), -214747, 214747);
+        test.weap_pattern[5] = vbound(atoi(warg5), -214747, 214747);
+        test.weap_pattern[6] = vbound(atoi(warg6), -214747, 214747);
+
+        if (itemdata_cpy[14].flags & D_SELECTED)
             test.flags |= itemdata::IF_GAMEDATA;
-            
-        if(itemdata_cpy[15].flags & D_SELECTED)
+
+        if (itemdata_cpy[15].flags & D_SELECTED)
             test.flags |= itemdata::IF_FLAG1;
-            
-        if(itemdata_cpy[16].flags & D_SELECTED)
+
+        if (itemdata_cpy[16].flags & D_SELECTED)
             test.flags |= itemdata::IF_FLAG2;
-            
-        if(itemdata_cpy[17].flags & D_SELECTED)
+
+        if (itemdata_cpy[17].flags & D_SELECTED)
             test.flags |= itemdata::IF_FLAG3;
-            
-        if(itemdata_cpy[18].flags & D_SELECTED)
+
+        if (itemdata_cpy[18].flags & D_SELECTED)
             test.flags |= itemdata::IF_FLAG4;
-            
-        if(itemdata_cpy[19].flags & D_SELECTED)
+
+        if (itemdata_cpy[19].flags & D_SELECTED)
             test.flags |= itemdata::IF_FLAG5;
-            
-        test.tile  = itemdata_cpy[68].d1;
+
+        test.tile = itemdata_cpy[68].d1;
         test.csets = itemdata_cpy[68].d2;
-	
-	//New itemdata -Z
-	
-	
-        
-        if(itemdata_cpy[69].flags & D_SELECTED)
+
+        //New itemdata -Z
+
+
+
+        if (itemdata_cpy[69].flags & D_SELECTED)
             test.misc |= 1;
-            
-        if(itemdata_cpy[70].flags & D_SELECTED)
+
+        if (itemdata_cpy[70].flags & D_SELECTED)
             test.misc |= 2;
-            
+
         test.amount |= (itemdata_cpy[94].flags & D_SELECTED) ? 0x8000 : 0;
-        
-        if(itemdata_cpy[107].flags & D_SELECTED)
+
+        if (itemdata_cpy[107].flags & D_SELECTED)
             test.flags |= itemdata::IF_KEEPOLD;
-            
-        if(itemdata_cpy[108].flags & D_SELECTED)
+
+        if (itemdata_cpy[108].flags & D_SELECTED)
             test.flags |= itemdata::IF_GAINOLD;
-            
-        if(itemdata_cpy[109].flags & D_SELECTED)
+
+        if (itemdata_cpy[109].flags & D_SELECTED)
             test.flags |= itemdata::IF_EDIBLE;
-            
-        if(itemdata_cpy[110].flags & D_SELECTED)
+
+        if (itemdata_cpy[110].flags & D_SELECTED)
             test.flags |= itemdata::IF_COMBINE;
-            
-        if(itemdata_cpy[137].flags & D_SELECTED)
+
+        if (itemdata_cpy[137].flags & D_SELECTED)
             test.flags |= itemdata::IF_DOWNGRADE;
-            
-        if(itemdata_cpy[138].flags & D_SELECTED)
+
+        if (itemdata_cpy[138].flags & D_SELECTED)
             test.flags |= itemdata::IF_RUPEE_MAGIC;
-            
-        test.csets  |= (atoi(fcs)&15)<<4;
-        test.frames = zc_min(atoi(frm),255);
-        test.speed  = zc_min(atoi(spd),255);
-        test.delay  = zc_min(atoi(dly),255);
-        test.ltm    = zc_max(zc_min(atol(ltm),NEWMAXTILES-1),0-(NEWMAXTILES-1));
 
-        // TODO fix
-        /*
+        test.csets |= (atoi(fcs) & 15) << 4;
+        test.frames = zc_min(atoi(frm), 255);
+        test.speed = zc_min(atoi(spd), 255);
+        test.delay = zc_min(atoi(dly), 255);
+        test.ltm = zc_max(zc_min(atol(ltm), NEWMAXTILES - 1), 0 - (NEWMAXTILES - 1));
+
+
         for (int j = 0; j < 10; j++)
-            test.wpns[j] = biw[itemdata_cpy[140 + 2 * j].d1].i;
-        */
+        {
+            if (ret == 140 + 2 * j)
+            {
+                int status;
+                SpriteDefinitionRef ref = select_sprite("Select Weapon Sprite", test.wpns[j], false, status);
+                if (status == 4)
+                {
+                    test.wpns[j] = ref;
+                    itemdata_cpy[140 + (j * 2)].dp = (void *)(curQuest->isValid(test.wpns[j]) ? curQuest->getSpriteDefinition(test.wpns[j]).name.c_str() : nonestring);
+                }
+            }
+        }
 
-        for(int j=0; j<8; j++)
-            test.initiald[j] = vbound(ffparse(da[j]),-327680000, 327680000);
-            
-        test.initiala[0] = vbound(atoi(da[8])*10000,0,320000);
-        test.initiala[1] = vbound(atoi(da[9])*10000,0,320000);
-        
-        if(ret == 40)
+        for (int j = 0; j < 8; j++)
+            test.initiald[j] = vbound(ffparse(da[j]), -327680000, 327680000);
+
+        test.initiala[0] = vbound(atoi(da[8]) * 10000, 0, 320000);
+        test.initiala[1] = vbound(atoi(da[9]) * 10000, 0, 320000);
+
+        if (ret == 40)
         {
             itemdata_help(test.family);
         }
-        
-        if(ret==71)
+
+        if (ret == 71)
         {
-            test_item(test, itemdata_cpy[0].x+ itemdata_cpy[0].w/2-(is_large()?34:10), itemdata_cpy[0].y+ itemdata_cpy[0].h/2-(is_large()?34:10));
-            sprintf(fcs,"%d",test.csets>>4);
-            sprintf(frm,"%d",test.frames);
-            sprintf(spd,"%d",test.speed);
-            sprintf(dly,"%d",test.delay);
-            sprintf(ltm,"%ld",test.ltm);
-            
-            sprintf(cll,"%d",test.fam_type);
-            sprintf(amt,"%d",test.amount&0x4000?-(test.amount&0x3FFF):test.amount&0x3FFF);
-            sprintf(fmx,"%d",test.max);
-            sprintf(max,"%d",test.setmax);
+            test_item(test, itemdata_cpy[0].x + itemdata_cpy[0].w / 2 - (is_large() ? 34 : 10), itemdata_cpy[0].y + itemdata_cpy[0].h / 2 - (is_large() ? 34 : 10));
+            sprintf(fcs, "%d", test.csets >> 4);
+            sprintf(frm, "%d", test.frames);
+            sprintf(spd, "%d", test.speed);
+            sprintf(dly, "%d", test.delay);
+            sprintf(ltm, "%ld", test.ltm);
+
+            sprintf(cll, "%d", test.fam_type);
+            sprintf(amt, "%d", test.amount & 0x4000 ? -(test.amount & 0x3FFF) : test.amount & 0x3FFF);
+            sprintf(fmx, "%d", test.max);
+            sprintf(max, "%d", test.setmax);
         }
-        
-        if(ret==5)
+
+        if (ret == 5)
         {
             //do not reset graphics fields! -DD
             //memset(&test, 0, sizeof(itemdata));
             //test.family=0xFF;
-            
+
             reset_itembuf(&test, itemref);
-            
-            sprintf(fcs,"%d",test.csets>>4);
-            sprintf(frm,"%d",test.frames);
-            sprintf(spd,"%d",test.speed);
-            sprintf(dly,"%d",test.delay);
-            sprintf(ltm,"%ld",test.ltm);
-            sprintf(cll,"%d",test.fam_type);
-            sprintf(amt,"%d",test.amount&0x4000?-(test.amount&0x3FFF):test.amount&0x3FFF);
-            sprintf(fmx,"%d",test.max);
-            sprintf(max,"%d",test.setmax);
+
+            sprintf(fcs, "%d", test.csets >> 4);
+            sprintf(frm, "%d", test.frames);
+            sprintf(spd, "%d", test.speed);
+            sprintf(dly, "%d", test.delay);
+            sprintf(ltm, "%ld", test.ltm);
+            sprintf(cll, "%d", test.fam_type);
+            sprintf(amt, "%d", test.amount & 0x4000 ? -(test.amount & 0x3FFF) : test.amount & 0x3FFF);
+            sprintf(fmx, "%d", test.max);
+            sprintf(max, "%d", test.setmax);
             pickupscript = test.script;
-            sprintf(snd,"%d",test.playsound);
+            sprintf(snd, "%d", test.playsound);
             pickupscript = test.collect_script;
-            sprintf(ms1,"%ld",test.misc1);
-            sprintf(ms2,"%ld",test.misc2);
-            sprintf(ms3,"%ld",test.misc3);
-            sprintf(ms4,"%ld",test.misc4);
-            sprintf(ms5,"%ld",test.misc5);
-            sprintf(ms6,"%ld",test.misc6);
-            sprintf(ms7,"%ld",test.misc7);
-            sprintf(ms8,"%ld",test.misc8);
-            sprintf(ms9,"%ld",test.misc9);
-            sprintf(ms10,"%ld",test.misc10);
-            sprintf(mgc,"%d",test.magic);
-            sprintf(hrt,"%d",test.pickup_hearts);
-            sprintf(pow,"%d",test.power);
-            sprintf(asn,"%d",test.usesound);
-	    
-	    //New itemdata vars -Z
-	    
-	    sprintf(wrange,"%d",test.weaprange);
-	    sprintf(wdur,"%d",test.weapduration);
-	    sprintf(wdef,"%d",test.usedefence);
-	    sprintf(wweap,"%d",test.useweapon);
-	    sprintf(wptrn,"%d",test.weap_pattern[0]);
-	    sprintf(warg1,"%d",test.weap_pattern[1]);
-	    sprintf(warg2,"%d",test.weap_pattern[2]);
-	    
-            sprintf(name,"%s",curQuest->getItemDefinition(itemref).name.c_str());
-            
-            for(int j=0; j<8; j++)
-                sprintf(da[j],"%.4f",test.initiald[j]/10000.0);
-                
-            sprintf(da[8],"%d",test.initiala[0]/10000);
-            sprintf(da[9],"%d",test.initiala[1]/10000);
-            sprintf(itemnumstr,"Item %d: %s", itemref.slot, name);
-            
-			itemdata_cpy[0].dp = itemnumstr;
-			itemdata_cpy[0].dp2 = lfont;
-            
-            if(biic_cnt==-1)
+            sprintf(ms1, "%ld", test.misc1);
+            sprintf(ms2, "%ld", test.misc2);
+            sprintf(ms3, "%ld", test.misc3);
+            sprintf(ms4, "%ld", test.misc4);
+            sprintf(ms5, "%ld", test.misc5);
+            sprintf(ms6, "%ld", test.misc6);
+            sprintf(ms7, "%ld", test.misc7);
+            sprintf(ms8, "%ld", test.misc8);
+            sprintf(ms9, "%ld", test.misc9);
+            sprintf(ms10, "%ld", test.misc10);
+            sprintf(mgc, "%d", test.magic);
+            sprintf(hrt, "%d", test.pickup_hearts);
+            sprintf(pow, "%d", test.power);
+            sprintf(asn, "%d", test.usesound);
+
+            //New itemdata vars -Z
+
+            sprintf(wrange, "%d", test.weaprange);
+            sprintf(wdur, "%d", test.weapduration);
+            sprintf(wdef, "%d", test.usedefence);
+            sprintf(wweap, "%d", test.useweapon);
+            sprintf(wptrn, "%d", test.weap_pattern[0]);
+            sprintf(warg1, "%d", test.weap_pattern[1]);
+            sprintf(warg2, "%d", test.weap_pattern[2]);
+
+            sprintf(name, "%s", curQuest->getItemDefinition(itemref).name.c_str());
+
+            for (int j = 0; j < 8; j++)
+                sprintf(da[j], "%.4f", test.initiald[j] / 10000.0);
+
+            sprintf(da[8], "%d", test.initiala[0] / 10000);
+            sprintf(da[9], "%d", test.initiala[1] / 10000);
+            sprintf(itemnumstr, "Item %d: %s", itemref.slot, name);
+
+            itemdata_cpy[0].dp = itemnumstr;
+            itemdata_cpy[0].dp2 = lfont;
+
+            if (biic_cnt == -1)
             {
                 build_biic_list();
             }
-            
+
             itemdata_cpy[7].dp = name;
-            
-            for(int j=0; j<biic_cnt; j++)
+
+            for (int j = 0; j < biic_cnt; j++)
             {
-                if(biic[j].i == test.family)
-					itemdata_cpy[9].d1 = j;
+                if (biic[j].i == test.family)
+                    itemdata_cpy[9].d1 = j;
             }
-            
-			itemdata_cpy[11].dp = cll;
-			itemdata_cpy[13].dp = pow;
-			itemdata_cpy[14].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
-			itemdata_cpy[15].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
-			itemdata_cpy[16].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
-			itemdata_cpy[17].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
-			itemdata_cpy[18].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
-			itemdata_cpy[19].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
-			itemdata_cpy[21].dp = ms1;
-			itemdata_cpy[23].dp = ms2;
-			itemdata_cpy[25].dp = ms3;
-			itemdata_cpy[27].dp = ms4;
-			itemdata_cpy[29].dp = ms5;
-			itemdata_cpy[31].dp = ms6;
-			itemdata_cpy[33].dp = ms7;
-			itemdata_cpy[35].dp = ms8;
-			itemdata_cpy[37].dp = ms9;
-			itemdata_cpy[39].dp = ms10;
-            
-			itemdata_cpy[58].dp = fcs;
-			itemdata_cpy[60].dp = frm;
-			itemdata_cpy[62].dp = spd;
-			itemdata_cpy[64].dp = dly;
-			itemdata_cpy[66].dp = ltm;
-			itemdata_cpy[68].d1 = test.tile;
-			itemdata_cpy[68].d2 = test.csets&15;
-			itemdata_cpy[69].flags = (test.misc&1) ? D_SELECTED : 0;
-			itemdata_cpy[70].flags = (test.misc&2) ? D_SELECTED : 0;
-            
-			itemdata_cpy[93].dp = amt;
-			itemdata_cpy[94].flags = (test.amount & 0x8000)  ? D_SELECTED : 0;
-			itemdata_cpy[96].d1 = curQuest->getItemDefinition(itemref).count+1;
-			itemdata_cpy[98].dp = fmx;
-			itemdata_cpy[100].dp = max;
-			itemdata_cpy[102].d1 = pickupscript;
-			itemdata_cpy[104].dp = snd;
-			itemdata_cpy[106].dp = hrt;
-            
-			itemdata_cpy[107].flags = (test.flags & itemdata::IF_KEEPOLD) ? D_SELECTED : 0;
-			itemdata_cpy[108].flags = (test.flags & itemdata::IF_GAINOLD) ? D_SELECTED : 0;
-			itemdata_cpy[109].flags = (test.flags & itemdata::IF_EDIBLE) ? D_SELECTED : 0;
-			itemdata_cpy[110].flags = (test.flags & itemdata::IF_COMBINE) ? D_SELECTED : 0;
-            
-			itemdata_cpy[132].d1 = script;
-			itemdata_cpy[134].dp = mgc;
-			itemdata_cpy[136].dp = asn;
-			itemdata_cpy[137].flags = (test.flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
-			itemdata_cpy[138].flags = (test.flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
-			
-			//! These now store in the editor, but if you change the values, save the quest, and reload, 
-	//! ZQuest crashes on reading items (bad token)
-			//string or int here? -Z
-			itemdata_cpy[200].d1 = test.useweapon; //atoi(wweap);
-			    itemdata_cpy[202].d1 = test.usedefence; //atoi(wdef);
-			    itemdata_cpy[204].d1 = test.weap_pattern[0]; //atoi(wptrn);
-			    itemdata_cpy[206].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_cpy[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_cpy[210].dp = wrange; //test.weaprange; //atoi(wrange);
-			    itemdata_cpy[212].dp = wdur;// = test.weapduration; //atoi(wdur);
-			    itemdata_cpy[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_cpy[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
-			    itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
-            
-                                             // TODO fix
+
+            itemdata_cpy[11].dp = cll;
+            itemdata_cpy[13].dp = pow;
+            itemdata_cpy[14].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
+            itemdata_cpy[15].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
+            itemdata_cpy[16].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
+            itemdata_cpy[17].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
+            itemdata_cpy[18].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
+            itemdata_cpy[19].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
+            itemdata_cpy[21].dp = ms1;
+            itemdata_cpy[23].dp = ms2;
+            itemdata_cpy[25].dp = ms3;
+            itemdata_cpy[27].dp = ms4;
+            itemdata_cpy[29].dp = ms5;
+            itemdata_cpy[31].dp = ms6;
+            itemdata_cpy[33].dp = ms7;
+            itemdata_cpy[35].dp = ms8;
+            itemdata_cpy[37].dp = ms9;
+            itemdata_cpy[39].dp = ms10;
+
+            itemdata_cpy[58].dp = fcs;
+            itemdata_cpy[60].dp = frm;
+            itemdata_cpy[62].dp = spd;
+            itemdata_cpy[64].dp = dly;
+            itemdata_cpy[66].dp = ltm;
+            itemdata_cpy[68].d1 = test.tile;
+            itemdata_cpy[68].d2 = test.csets & 15;
+            itemdata_cpy[69].flags = (test.misc & 1) ? D_SELECTED : 0;
+            itemdata_cpy[70].flags = (test.misc & 2) ? D_SELECTED : 0;
+
+            itemdata_cpy[93].dp = amt;
+            itemdata_cpy[94].flags = (test.amount & 0x8000) ? D_SELECTED : 0;
+            itemdata_cpy[96].d1 = curQuest->getItemDefinition(itemref).count + 1;
+            itemdata_cpy[98].dp = fmx;
+            itemdata_cpy[100].dp = max;
+            itemdata_cpy[102].d1 = pickupscript;
+            itemdata_cpy[104].dp = snd;
+            itemdata_cpy[106].dp = hrt;
+
+            itemdata_cpy[107].flags = (test.flags & itemdata::IF_KEEPOLD) ? D_SELECTED : 0;
+            itemdata_cpy[108].flags = (test.flags & itemdata::IF_GAINOLD) ? D_SELECTED : 0;
+            itemdata_cpy[109].flags = (test.flags & itemdata::IF_EDIBLE) ? D_SELECTED : 0;
+            itemdata_cpy[110].flags = (test.flags & itemdata::IF_COMBINE) ? D_SELECTED : 0;
+
+            itemdata_cpy[132].d1 = script;
+            itemdata_cpy[134].dp = mgc;
+            itemdata_cpy[136].dp = asn;
+            itemdata_cpy[137].flags = (test.flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
+            itemdata_cpy[138].flags = (test.flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
+
+            for (int i = 0; i < 10; ++i)
+            {
+                itemdata_cpy[140 + (i * 2)].dp = (void *)(curQuest->isValid(test.wpns[i]) ? curQuest->getSpriteDefinition(test.wpns[i]).name.c_str() : nonestring);
+            }
+
+            //! These now store in the editor, but if you change the values, save the quest, and reload, 
+    //! ZQuest crashes on reading items (bad token)
+            //string or int here? -Z
+            itemdata_cpy[200].d1 = test.useweapon; //atoi(wweap);
+            itemdata_cpy[202].d1 = test.usedefence; //atoi(wdef);
+            itemdata_cpy[204].d1 = test.weap_pattern[0]; //atoi(wptrn);
+            itemdata_cpy[206].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
+            itemdata_cpy[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
+            itemdata_cpy[210].dp = wrange; //test.weaprange; //atoi(wrange);
+            itemdata_cpy[212].dp = wdur;// = test.weapduration; //atoi(wdur);
+            itemdata_cpy[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
+            itemdata_cpy[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
+            itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
+            itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
+
+                                         // TODO fix
 /*
             for(int j=0; j<biw_cnt; j++)
             {
@@ -2116,23 +2096,23 @@ void edit_itemdata(ItemDefinitionRef itemref)
                 {
                     if (biw[j].i == test.wpns[k])
                         itemdata_cpy[140 + 2*k].d1 = j;
-                }                
+                }
             }
                         */
-            
-            for(int j=0; j<8; j++)
-				itemdata_cpy[187+j].dp = da[j];
-                
-			itemdata_cpy[197].dp = da[8];
-			itemdata_cpy[198].dp = da[9];
-            
+
+            for (int j = 0; j < 8; j++)
+                itemdata_cpy[187 + j].dp = da[j];
+
+            itemdata_cpy[197].dp = da[8];
+            itemdata_cpy[198].dp = da[9];
+
             setLabels(test.family, itemdata_cpy);
         }
-        
-        if(ret==9)
+
+        if (ret == 9)
             setLabels(test.family, itemdata_cpy);
     }
-    while(ret==5 || ret==9 || ret==71 || ret==40);
+    while(ret != 0 && ret != 3 && ret != 4);
     
 	delete[] itemdata_cpy;
     font=tfont;
