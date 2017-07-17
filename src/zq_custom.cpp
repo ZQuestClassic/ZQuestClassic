@@ -458,16 +458,6 @@ static TABPANEL itemdata_tabs[] =
 
 static ListData item_class__list(item_class_list, &pfont);
 
-//TODO fix
-const char *weaponlist(int index, int *list_size)
-{
-    *list_size = 0;
-    return NULL;    
-}
-
-static ListData weapon_list(weaponlist, &pfont);
-
-
 static char itemdata_weaponlist_str_buf[14];
 
 const char *itemdata_weaponlist(int index, int *list_size)
@@ -822,13 +812,6 @@ const char *itemscriptdroplist(int index, int *list_size)
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
-
-static DIALOG itemdata_special_dlg[] =
-{
-    { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     44,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_list,						 NULL,   NULL 				   },
-};
-	
 
 static DIALOG itemdata_dlg[] =
 {
@@ -3196,8 +3179,7 @@ static DIALOG enedata_dlg[] =
 	{ jwin_text_proc,         96,      67,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	//235 : Weapon Sprite Pulldown
 	{  jwin_text_proc,          8,    193-4+12,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
-	//{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+	{  jwin_button_proc,        86, 189-4+13,    151,     14,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,    0, NULL,                            NULL,   NULL                  },
 	//237 HitWidth Override
 	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
 	//238 HitHeight override
@@ -3415,8 +3397,7 @@ void edit_enemydata(const EnemyDefinitionRef &index)
     char name[64];
     char ms[12][8];
     char enemynumstr[75];
-	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8];
+	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];	
     
     //disable the missing dialog items!
     //else they will lurk in the background
@@ -3695,27 +3676,10 @@ void edit_enemydata(const EnemyDefinitionRef &index)
     }*/
     
     //Set the dialogue. 
-    sprintf(weapsprite,"%d",curQuest->getEnemyDefinition(index).wpnsprite.slot);
-    enedata_dlg[236].dp = weapsprite;
-    
-    /* Sprite list pulldown. 
-    enedata_dlg[236].dp3 = is_large() ? lfont_l : pfont;
-    sprintf(efr,"%d",guysbuf[index].wpnsprite);
-    */
-    //enedata_dlg[236].dp = wpnsp;
-    
-    //make the sprites list. 
-    /*
-    bool foundwpnsprite; //char wpnsp_def[10];
-    //build_biw_list(); //built in weapons
-    if(biw_cnt==-1)
-    {
-        build_biw_list(); //built-in weapons
-    }
-    
-    */
-    
-    
+
+    const char *nonestr = "(None)";    
+    enedata_dlg[236].dp = (void *)(curQuest->isValid(curQuest->getEnemyDefinition(index).wpnsprite) ? curQuest->getSpriteDefinition(curQuest->getEnemyDefinition(index).wpnsprite).name.c_str() : nonestr);
+        
     /*
     if ( guysbuf[index].wpnsprite <= 0 ) {
         for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
@@ -3801,8 +3765,7 @@ void edit_enemydata(const EnemyDefinitionRef &index)
     */
 
     int ret;
-    guydata test;
-    memset(&test, 0, sizeof(guydata));
+    guydata test = curQuest->getEnemyDefinition(index);
 
 	DIALOG *enedata_cpy = resizeDialog(enedata_dlg, 1.5);
     
@@ -3864,10 +3827,16 @@ void edit_enemydata(const EnemyDefinitionRef &index)
         test.hitsfx = enedata_cpy[183].d1;
         test.deadsfx = enedata_cpy[184].d1;
 	
-	//2.6 Enemy Weapon Sprite
-	//test.wpnsprite = biw[enedata_cpy[236].d1].i;
-	//test.wpnsprite = atoi(weapsprite);
-	
+        if (ret == 236)
+        {
+            int status;
+            SpriteDefinitionRef ref = select_sprite("Select Weapon Sprite", test.wpnsprite, false, status);
+            if (status == 4)
+            {
+                test.wpnsprite = ref;
+                enedata_cpy[236].dp = (void *)(curQuest->isValid(test.wpnsprite) ? curQuest->getSpriteDefinition(test.wpnsprite).name.c_str() : nonestr);
+            }
+        }
    
         for(int j=0; j<10;j++)
             test.miscs[j] = (enedata_cpy[64+j].proc==jwin_droplist_proc) ? enedata_cpy[64+j].d1 : atol(ms[j]);
