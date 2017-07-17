@@ -11299,26 +11299,22 @@ int onItem()
     int exit_status;
     ItemDefinitionRef current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->screenItem : ItemDefinitionRef();
     
-    do
-    {
-        ItemDefinitionRef ret=select_item("Select Item",current_item,false,exit_status);
+    ItemDefinitionRef ret=select_item("Select Item",current_item,false,exit_status);
         
-        if(exit_status==2 || exit_status==3)   // Double-click or OK
+    if(exit_status==4)   
+    {
+        if(curQuest->isValid(ret))
         {
-            if(curQuest->isValid(ret))
-            {
-                saved=false;
-                Map.CurrScr()->screenItem=ret;
-                Map.CurrScr()->hasitem = true;
-            }
-            else
-            {
-                saved=false;
-                Map.CurrScr()->hasitem=false;
-            }
+            saved=false;
+            Map.CurrScr()->screenItem=ret;
+            Map.CurrScr()->hasitem = true;
+        }
+        else
+        {
+            saved=false;
+            Map.CurrScr()->hasitem=false;
         }
     }
-    while(exit_status == 5);
     
     refresh(rMAP+rMENU);
     return D_O_K;
