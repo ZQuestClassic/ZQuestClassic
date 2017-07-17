@@ -275,3 +275,8 @@ void Quest::removeItemsOfFamily(gamedata *g, int family)
         }
     }
 }
+
+void Quest::deleteModule(const std::string &moduleName)
+{
+    questModules_.erase(moduleName);
+}

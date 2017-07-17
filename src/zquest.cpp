@@ -63,6 +63,7 @@
 #include "zq_subscr.h"
 #include "EditboxNew.h"
 #include "sfx.h"
+#include "selectors.h"
 
 #include "zq_custom.h" // custom items and guys
 #include "zq_strings.h"
@@ -975,6 +976,7 @@ static MENU quest_menu[] =
     { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
     { (char *)"S&cripts\t ",                NULL,                      script_menu,              0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"M&odules",                   onModules,                 NULL,                     0,            NULL   },
     { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
     { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -3077,6 +3079,12 @@ int stopMusic()
 int onTemplates()
 {
     edit_qt();
+    return D_O_K;
+}
+
+int onModules()
+{
+    edit_modules();
     return D_O_K;
 }
 
@@ -9812,29 +9820,6 @@ static DIALOG list_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void ilist_rclick_func(int index, int x, int y);
-DIALOG ilist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,            0,       NULL, NULL, NULL },
-    { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   163,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL,  NULL }
-};
-
-static DIALOG wlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_wlist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
 
 static DIALOG rlist_dlg[] =
 {
@@ -9851,72 +9836,8 @@ static DIALOG rlist_dlg[] =
 
 
 
-item_struct *bii = NULL;
-int bii_cnt=-1;
-
-void build_bii_list(bool usenone)
-{
-    if (bii)
-        delete[] bii;
-    bii_cnt=0;
-
-    int numitems = 0;
-    std::vector<std::string> modules;
-    curQuest->getModules(modules);
-    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-    {
-        numitems += curQuest->getModule(*it).itemDefTable().getNumItemDefinitions();
-    }
-
-    if(usenone)
-    {
-        bii = new item_struct[1 + numitems];
-
-        bii[0].s = string("(None)");
-        bii[0].i = ItemDefinitionRef();
-        bii_cnt=1;
-    }
-    else
-    {
-        bii = new item_struct[numitems];
-    }
-    
-    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-    {
-        QuestModule &module = curQuest->getModule(*it);
-        for (uint32_t i = 0; i < module.itemDefTable().getNumItemDefinitions(); i++)
-        {
-            bii[bii_cnt].s = module.itemDefTable().getItemDefinition(i).name;
-            bii[bii_cnt].i = ItemDefinitionRef(*it,i);
-            ++bii_cnt;
-        }
-    }
-    
-    for(int i=0; i<bii_cnt-1; i++)
-    {
-        for(int j=i+1; j<bii_cnt; j++)
-        {
-            if(stricmp(bii[i].s.c_str(),bii[j].s.c_str())>0 && strcmp(bii[j].s.c_str(),""))
-            {
-                zc_swap(bii[i],bii[j]);
-            }
-        }
-    }
-}
-
-const char *itemlist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bii_cnt;
-        return NULL;
-    }
-    
-    return bii[index].s.c_str();
-}
-
 // disable items on dmaps stuff
-int *DI = NULL;
+/*int *DI = NULL;
 int nDI;
 
 void initDI(int index)
@@ -9979,10 +9900,14 @@ void deleteDI(int id, int index)
     }
     initDI(index);
     return;
-}
+}*/
 
 const char *DIlist(int index, int *list_size)
 {
+    //TODO fix
+    *list_size = 0;
+    return NULL;
+    /*
     if(index<0)
     {
         *list_size = nDI;
@@ -9991,153 +9916,8 @@ const char *DIlist(int index, int *list_size)
     
     int i=DI[index];
     return bii[i].s.c_str();
+    */
     
-}
-
-ItemDefinitionRef select_item(const char *prompt,const ItemDefinitionRef &item,bool is_editor,int &exit_status)
-{
-    int index=0;
-    
-    for(int j=0; j<bii_cnt; j++)
-    {
-        if(bii[j].i == item)
-        {
-            index=j;
-        }
-    }
-    
-    ilist_dlg[0].dp=(void *)prompt;
-    ilist_dlg[0].dp2=lfont;
-    ilist_dlg[2].d1=index;
-    ListData item_list(itemlist, &font);
-    ilist_dlg[2].dp=(void *) &item_list;
-
-	DIALOG *ilist_cpy = resizeDialog(ilist_dlg, 1.5);
-        
-    if(is_editor)
-    {
-		ilist_cpy[2].dp3 = (void *)&ilist_rclick_func;
-		ilist_cpy[2].flags|=(D_USER<<1);
-		ilist_cpy[3].dp = (void *)"Edit";
-		ilist_cpy[4].dp = (void *)"Done";
-        ilist_cpy[5].dp = (void *)"New";
-        ilist_cpy[3].x = is_large()?240:60;
-        ilist_cpy[4].x = is_large()?350:135;
-        ilist_cpy[5].flags &= ~D_HIDDEN;
-    }
-    else
-    {
-		ilist_cpy[2].dp3 = NULL;
-		ilist_cpy[2].flags&=~(D_USER<<1);
-		ilist_cpy[3].dp = (void *)"OK";
-		ilist_cpy[4].dp = (void *)"Cancel";
-		ilist_cpy[3].x = is_large()?240:60;
-		ilist_cpy[4].x = is_large()?350:135;
-		ilist_cpy[5].flags &= ~D_HIDDEN;
-    }
-    
-    exit_status=zc_popup_dialog(ilist_cpy,2);
-    
-    if(exit_status==0||exit_status==4)
-    {
-		Backend::mouse->setWheelPosition(0);
-		delete[] ilist_cpy;
-        return ItemDefinitionRef();
-    }
-    
-    index = ilist_cpy[2].d1;
-	delete[] ilist_cpy;
-	Backend::mouse->setWheelPosition(0);
-    return bii[index].i;
-}
-
-weapon_struct *biw = NULL;
-int biw_cnt=-1;
-
-void build_biw_list()
-{
-    if (biw)
-        delete[] biw;
-
-    biw_cnt=0;
-
-    uint32_t numsprites=0;
-    
-    std::vector<std::string> modules;
-    curQuest->getModules(modules);
-
-    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-        numsprites += curQuest->getModule(*it).spriteDefTable().getNumSpriteDefinitions();
-     
-    biw = new weapon_struct[numsprites];
-    
-    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-    {
-        QuestModule &module = curQuest->getModule(*it);
-        for(uint32_t i=0; i<module.spriteDefTable().getNumSpriteDefinitions(); i++)
-        {
-            SpriteDefinitionRef ref(*it, i);
-            biw[biw_cnt].s = curQuest->getSpriteDefinition(ref).name;
-            biw[biw_cnt].i = ref;
-            ++biw_cnt;
-        }
-    }
-    
-    for(int i=0; i<biw_cnt-1; i++)
-    {
-        for(int j=i+1; j<biw_cnt; j++)
-            if(stricmp(biw[i].s.c_str(),biw[j].s.c_str())>0 && strcmp(biw[j].s.c_str(),""))
-                zc_swap(biw[i],biw[j]);
-    }
-}
-
-const char *weaponlist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = biw_cnt;
-        return NULL;
-    }
-    
-    return biw[index].s.c_str();
-}
-
-SpriteDefinitionRef select_weapon(const char *prompt, const SpriteDefinitionRef &weapon)
-{
-    if(biw_cnt==-1)
-        build_biw_list();
-        
-    int index=0;
-    
-    for(int j=0; j<biw_cnt; j++)
-    {
-        if(biw[j].i == weapon)
-        {
-            index=j;
-        }
-    }
-    
-    wlist_dlg[0].dp=(void *)prompt;
-    wlist_dlg[0].dp2=lfont;
-    wlist_dlg[2].d1=index;
-    ListData weapon_list(weaponlist, &font);
-    wlist_dlg[2].dp=(void *) &weapon_list;
-
-	DIALOG *wlist_cpy = resizeDialog(wlist_dlg, 1.5);
-        
-    int ret=zc_popup_dialog(wlist_cpy,2);
-    
-    if(ret==0||ret==4)
-    {
-		Backend::mouse->setWheelPosition(0);
-		delete[] wlist_cpy;
-        return SpriteDefinitionRef();
-    }
-    
-    index = wlist_cpy[2].d1;
-	delete[] wlist_cpy;
-	Backend::mouse->setWheelPosition(0);
-    return biw[index].i;
 }
 
 
@@ -11523,7 +11303,6 @@ int onUsedCombos()
 int onItem()
 {
     restore_mouse();
-    build_bii_list(true);
     int exit_status;
     ItemDefinitionRef current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->screenItem : ItemDefinitionRef();
     
@@ -11531,17 +11310,7 @@ int onItem()
     {
         ItemDefinitionRef ret=select_item("Select Item",current_item,false,exit_status);
         
-        if(exit_status == 5)
-        {
-            if(curQuest->isValid(ret))  // Edit
-            {
-                current_item=ret;
-                build_biw_list();
-                edit_itemdata(ret);
-            }
-            else exit_status = -1;
-        }
-        else  if(exit_status==2 || exit_status==3)   // Double-click or OK
+        if(exit_status==2 || exit_status==3)   // Double-click or OK
         {
             if(curQuest->isValid(ret))
             {
@@ -11589,13 +11358,16 @@ int onRType()
 int onGuy()
 {
     restore_mouse();
-    build_big_list(true);
-    EnemyDefinitionRef ret=select_guy("Select Guy",Map.CurrScr()->guy);
+    int exit_status;
+    EnemyDefinitionRef ret=select_enemy("Select Guy",Map.CurrScr()->guy, EnemySelectFlags::ESF_GOODGUYS, false, exit_status);
     
-    if(curQuest->isValid(ret))
+    if (exit_status == 2 || exit_status == 3)   // Double-click or OK
     {
-        saved=false;
-        Map.CurrScr()->guy=ret;
+        if (curQuest->isValid(ret))
+        {
+            saved = false;
+            Map.CurrScr()->guy = ret;
+        }
     }
     
     refresh(rMAP+rMENU);
@@ -11659,19 +11431,9 @@ int onCatchall()
     case rSP_ITEM:
     {
         int exit_status;
-        build_bii_list(false);
         ItemDefinitionRef ret;
-        do
-        {
-            ret = select_item("Select Special Item", Map.CurrScr()->catchallItem, false, exit_status);
-
-            if (exit_status == 5 && curQuest->isValid(ret))
-            {
-                build_biw_list();
-                edit_itemdata(ret);
-            }
-            else exit_status = -1;
-        } while (exit_status == 5);
+        
+        ret = select_item("Select Special Item", Map.CurrScr()->catchallItem, false, exit_status);
 
         if (curQuest->isValid(ret))
         {
@@ -11824,7 +11586,8 @@ int d_ndroplist_proc(int msg,DIALOG *d,int c)
 int d_idroplist_proc(int msg,DIALOG *d,int c)
 {
     int ret = jwin_droplist_proc(msg,d,c);
-    
+    //TODO fix
+    /*
 	switch (msg)
 	{
 	case MSG_DRAW:
@@ -11862,14 +11625,15 @@ int d_idroplist_proc(int msg,DIALOG *d,int c)
 		}
 
 	}
-    
+    */
     return ret;
 }
 
 int d_nidroplist_proc(int msg,DIALOG *d,int c)
 {
     int ret = d_idroplist_proc(msg,d,c);
-    
+    // TODO fix
+    /*
     switch(msg)
     {
     case MSG_DRAW:
@@ -11877,125 +11641,9 @@ int d_nidroplist_proc(int msg,DIALOG *d,int c)
     case MSG_CLICK:
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii[d->d1].i);
     }
-    
+    */
     return ret;
 }
-
-int d_ilist_proc(int msg,DIALOG *d,int c)
-{
-    int ret = jwin_abclist_proc(msg,d,c);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        
-        int tile = 0;
-        int cset = 0;
-        
-        if(curQuest->isValid(bii[d->d1].i))
-        {
-            tile= curQuest->getItemDefinition(bii[d->d1].i).tile;
-            cset= curQuest->getItemDefinition(bii[d->d1].i).csets&15;
-        }
-        
-        int x = d->x + d->w + 4;
-        int y = d->y;
-        int w = 16;
-        int h = 16;
-        
-        if(is_large())
-        {
-            w = 32;
-            h = 32;
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile,0,0,cset,0);
-                
-            stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-            destroy_bitmap(buf);
-            jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-            blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-            destroy_bitmap(bigbmp);
-        }
-        if(curQuest->isValid(bii[d->d1].i))
-        {
-            textprintf_ex(screen,spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i.slot);
-            
-            textprintf_ex(screen,spfont,x,y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x+int(16*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",curQuest->getItemDefinition(bii[d->d1].i).power);
-        }
-        
-        // Might be a bit confusing for new users
-        /*textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Cost:   ");
-        textprintf_ex(screen,is_large?font:spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
-        
-    }
-    
-    return ret;
-}
-
-int d_wlist_proc(int msg,DIALOG *d,int c)
-{
-    int ret = jwin_abclist_proc(msg,d,c);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        
-        int tile = 0;
-        int cset = 0;
-        tile= curQuest->getSpriteDefinition(biw[d->d1].i).tile;
-        cset= curQuest->getSpriteDefinition(biw[d->d1].i).csets&15;
-        int x = d->x + d->w + 4;
-        int y = d->y;
-        int w = 16;
-        int h = 16;
-        
-        if(is_large())
-        {
-            w = 32;
-            h = 32;
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile,0,0,cset,0);
-                
-            stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-            destroy_bitmap(buf);
-            jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-            blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-            destroy_bitmap(bigbmp);
-        }
-
-		if (curQuest->isValid(biw[d->d1].i))
-		{
-			textprintf_ex(screen, is_large() ? font : spfont, x, y + 20 * (is_large() ? 2 : 1), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
-		}
-        
-    }
-    
-    return ret;
-}
-
 
 /**********************************/
 //        Triforce Pieces         //
@@ -13179,6 +12827,13 @@ static DIALOG editdmap_dlg[] =
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
+const char *itemlist(int index, int *list_size)
+{
+    //TODO fix
+    *list_size = 0;
+    return NULL;
+}
+
 void editdmap(int index)
 {
     char levelstr[4], compassstr[4], contstr[4], tmusicstr[56], dmapnumstr[60];
@@ -13256,8 +12911,8 @@ void editdmap(int index)
     editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
     editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
     
-    build_bii_list(false);
-    initDI(index);
+    //TODO fix
+    //initDI(index);
     ListData DI_list(DIlist, &font);
     ListData item_list(itemlist, &font);
     editdmap_dlg[101].dp = (void*)&DI_list;
@@ -13371,13 +13026,15 @@ void editdmap(int index)
             break;
             
         case 104: 											// item disable "->"
-            deleteDI(editdmap_cpy[101].d1, index);
+            //TODO fix
+            //            deleteDI(editdmap_cpy[101].d1, index);
             break;
             
         case 105: 											// item disable "<-"
         {
             // 101 is the disabled list, 102 the item list
-            insertDI(editdmap_cpy[102].d1, index);
+            //TODO fix
+            //insertDI(editdmap_cpy[102].d1, index);
         }
         break;
         }
@@ -15704,7 +15361,6 @@ static DIALOG editshop_dlg[] =
 void EditShopType(int index)
 {
 
-    build_bii_list(true);
     char ps1[6],ps2[6],ps3[6];
     char shopname[32];
     char caption[40];
@@ -15733,13 +15389,15 @@ void EditShopType(int index)
     {
         if(misc.shop[index].hasitem[i])
         {
+            //TODO fix
+            /*
             for(int j=0; j<bii_cnt; j++)
             {
                 if(bii[j].i == misc.shop[index].item[i])
                 {
                     editshop_dlg[9+(i<<1)].d1  = j;
                 }
-            }
+            }*/
         }
         else
         {
@@ -15761,6 +15419,8 @@ void EditShopType(int index)
         
         for(int i=0; i<3; ++i)
         {
+            //TODO fix
+            /*
             if(!curQuest->isValid(bii[editshop_cpy[9+(i<<1)].d1].i))
             {
                 misc.shop[index].hasitem[i] = 0;
@@ -15772,6 +15432,7 @@ void EditShopType(int index)
                 misc.shop[index].hasitem[i] = 1;
                 misc.shop[index].item[i] = bii[editshop_cpy[9+(i<<1)].d1].i;
             }
+            */
         }
         
         //filter all the 0 items to the end (yeah, bubble sort; sue me)
@@ -15949,7 +15610,6 @@ int d_itemdropedit_proc(int msg,DIALOG *d,int c)
 
 void EditItemDropSet(int index)
 {
-    build_bii_list(true);
     char chance[11][10];
     char itemdropsetname[64];
     char caption[40];
@@ -15983,6 +15643,8 @@ void EditItemDropSet(int index)
         }
         else
         {
+            //TODO fix
+            /*
             for(int j=0; j<bii_cnt; j++)
             {
                 if(bii[j].i == item_drop_sets[index].item[i])
@@ -15990,6 +15652,7 @@ void EditItemDropSet(int index)
                     edititemdropset_dlg[15+(i*3)].d1  = j;
                 }
             }
+            */
         }
     }
 
@@ -16007,6 +15670,8 @@ void EditItemDropSet(int index)
         
         for(int i=0; i<10; ++i)
         {
+            // TODO fix
+            /*
             item_drop_sets[index].chance[i+1]=atoi(chance[i+1]);
             
             if(!curQuest->isValid(bii[edititemdropset_cpy[15+(i*3)].d1].i))
@@ -16022,6 +15687,7 @@ void EditItemDropSet(int index)
             {
                 item_drop_sets[index].item[i] = ItemDefinitionRef();
             }
+            */
         }
     }
 
@@ -16467,133 +16133,6 @@ const char *enemy_viewer(int index, int *list_size)
     return (curQuest->isValid(guy) && curQuest->getEnemyDefinition(guy).family != eeGUY) ? curQuest->getEnemyName(guy).c_str() : (char *) "(None)";
 }
 
-vector<enemy_struct> bie;
-int bie_cnt=-1;
-
-vector<enemy_struct> big;
-int big_cnt=-1;
-
-void build_bie_list(bool hide)
-{
-    bie.clear();
-    enemy_struct toadd;
-    toadd.s = (char *)"(None)";
-    toadd.i = EnemyDefinitionRef();
-    bie.push_back(toadd);
-    bie_cnt=1;
-    
-    std::vector<std::string> modules;
-    curQuest->getModules(modules);
-    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-    {
-        QuestModule &module = curQuest->getModule(*it);
-        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions(); i++)
-        {
-            if (module.enemyDefTable().getEnemyDefinition(i).family != eeGUY && module.enemyDefTable().getEnemyDefinition(i).family != eeNONE)
-            {
-                std::string name = module.enemyDefTable().getEnemyName(i);
-                if (!hide || (name.length() > 0 && name[name.length() - 1] != ' '))
-                {
-                    enemy_struct toadd;
-                    toadd.s = module.enemyDefTable().getEnemyName(i);
-                    toadd.i = EnemyDefinitionRef(*it, i);
-                    bie.push_back(toadd);
-                    ++bie_cnt;
-                }
-            }
-        }
-    }
-
-    for(int i=0; i<bie_cnt-1; i++)
-    {
-        for(int j=i+1; j<bie_cnt; j++)
-        {
-            if(strcmp(bie[i].s.c_str(),bie[j].s.c_str())>0)
-            {
-                zc_swap(bie[i],bie[j]);
-            }
-        }
-    }
-}
-
-void build_big_list(bool hide)
-{
-    big.clear();
-    enemy_struct toadd;
-    toadd.s = (char *)"(None)";
-    toadd.i = EnemyDefinitionRef();
-    big.push_back(toadd);
-    big_cnt=1;
-    
-    std::vector<std::string> modules;
-    curQuest->getModules(modules);
-    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
-    {
-        QuestModule &module = curQuest->getModule(*it);
-        for (uint32_t i = 0; i < module.enemyDefTable().getNumEnemyDefinitions(); i++)
-        {
-            if (module.enemyDefTable().getEnemyDefinition(i).family == eeGUY)
-            {
-                std::string name = module.enemyDefTable().getEnemyName(i);
-                if (!hide || (name.length() > 0 && name[name.length() - 1] != ' '))
-                {
-                    enemy_struct toadd;
-                    toadd.s = module.enemyDefTable().getEnemyName(i);
-                    toadd.i = EnemyDefinitionRef(*it, i);
-                    big.push_back(toadd);
-                    ++big_cnt;
-                }
-            }
-        }
-    }
-    
-    for(int i=0; i<big_cnt-1; i++)
-    {
-        for(int j=i+1; j<big_cnt; j++)
-        {
-            if(strcmp(big[i].s.c_str(),big[j].s.c_str())>0)
-            {
-                zc_swap(big[i],big[j]);
-            }
-        }
-    }
-}
-
-const char *enemylist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bie_cnt;
-        return NULL;
-    }
-    
-    return bie[index].s.c_str();
-}
-
-const char *guylist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = big_cnt;
-        return NULL;
-    }
-    
-    return big[index].s.c_str();
-}
-
-void elist_rclick_func(int index, int x, int y);
-DIALOG elist_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   200+24+24,  145,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_enelist_proc,    62,   68,   188,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 static DIALOG glist_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -16686,194 +16225,6 @@ int efrontfacingtile(const EnemyDefinitionRef &id)
 
 static ListData enemy_dlg_list(enemy_viewer, &font);
 
-int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
-{
-    int ret;
-    
-    /* copy/paste enemy dialog bug. -Don't change this unless you test it first! -Gleeok */
-    if(use_abc_list)
-        ret= jwin_abclist_proc(msg,d,c); // This one's better for the full list
-    else
-        ret= jwin_list_proc(msg,d,c);
-        
-    if(msg==MSG_DRAW||msg==MSG_CHAR)
-    {
-        EnemyDefinitionRef id;
-        
-        // Conveniently hacking the Select Enemy and Screen Enemy dialogs together -L
-        if(d->dp == &enemy_dlg_list)
-        {
-            id = Map.CurrScr()->enemy[d->d1];
-        }
-        else
-        {
-            id = bie[d->d1].i;
-        }
-        
-        int tile = 0;
-        int cset = 0;
-        if (curQuest->isValid(id))
-        {
-            tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? curQuest->getEnemyDefinition(id).e_tile
-                : curQuest->getEnemyDefinition(id).tile;
-            cset = curQuest->getEnemyDefinition(id).cset;
-        }
-        
-        int x = d->x + int(195 * (is_large() ? 1.5:1));
-        int y = d->y + int(2 * (is_large() ? 1.5:1));
-        int w = 20;
-        int h = 20;
-        
-        if(is_large())
-        {
-            w = 36;
-            h = 36;
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,20,20);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile+efrontfacingtile(id),2,2,cset,0);
-                
-            stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2,w-2, h-2);
-            destroy_bitmap(buf);
-            jwin_draw_frame(bigbmp,0,0,w,h,FR_DEEP);
-            blit(bigbmp,screen,0,0,x,y,w,h);
-            destroy_bitmap(bigbmp);
-        }
-        
-        /*
-            rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
-        */
-        textprintf_ex(screen,is_large()?font:spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id.slot);
-        
-        textprintf_ex(screen,is_large()?font:spfont,x,y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP :");
-
-        int hp = 0;
-        int dp = 0;
-        if (curQuest->isValid(id))
-        {
-            hp = curQuest->getEnemyDefinition(id).hp;
-            dp = curQuest->getEnemyDefinition(id).dp;
-        }
-
-        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",hp);
-        
-        textprintf_ex(screen,is_large()?font:spfont,x,y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg:");
-        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",dp);
-    }
-    
-    return ret;
-}
-
-EnemyDefinitionRef select_enemy(const char *prompt,const EnemyDefinitionRef &enemy,bool hide,bool is_editor,int &exit_status)
-{
-    //if(bie_cnt==-1)
-    {
-        build_bie_list(hide);
-    }
-    int index=0;
-    
-    for(int j=0; j<bie_cnt; j++)
-    {
-        if(bie[j].i == enemy)
-        {
-            index=j;
-        }
-    }
-    
-    elist_dlg[0].dp=(void *)prompt;
-    elist_dlg[0].dp2=lfont;
-    elist_dlg[2].d1=index;
-    ListData enemy_list(enemylist, &font);
-    elist_dlg[2].dp=(void *) &enemy_list;
-
-	DIALOG *elist_cpy = resizeDialog(elist_dlg, 1.5);
-    
-	if(is_editor)
-    {
-		elist_cpy[2].dp3 = (void *)&elist_rclick_func;
-		elist_cpy[2].flags|=(D_USER<<1);
-		elist_cpy[3].dp = (void *)"Edit";
-		elist_cpy[4].dp = (void *)"Done";
-		elist_cpy[3].x = is_large()?285:90;
-		elist_cpy[4].x = is_large()?405:170;
-		elist_cpy[5].flags |= D_HIDDEN;
-    }
-    else
-    {
-		elist_cpy[2].dp3 = NULL;
-		elist_cpy[2].flags&=~(D_USER<<1);
-		elist_cpy[3].dp = (void *)"OK";
-		elist_cpy[4].dp = (void *)"Cancel";
-		elist_cpy[3].x = is_large()?240:60;
-		elist_cpy[4].x = is_large()?350:135;
-		elist_cpy[5].flags &= ~D_HIDDEN;
-    }
-    
-    exit_status=zc_popup_dialog(elist_cpy,2);
-    
-    if(exit_status==0||exit_status==4)
-    {
-		delete[] elist_cpy;
-        return EnemyDefinitionRef();
-    }
-    
-    index = elist_cpy[2].d1;
-	delete[] elist_cpy;
-    return bie[index].i;
-}
-
-EnemyDefinitionRef select_guy(const char *prompt,const EnemyDefinitionRef &guy)
-{
-    //  if(bie_cnt==-1)
-    {
-        build_big_list(true);
-    }
-    
-    int index=0;
-    
-    for(int j=0; j<big_cnt; j++)
-    {
-        if(big[j].i == guy)
-        {
-            index=j;
-        }
-    }
-    
-    glist_dlg[0].dp=(void *)prompt;
-    glist_dlg[0].dp2=lfont;
-    glist_dlg[2].d1=index;
-    ListData guy_list(guylist, &font);
-    glist_dlg[2].dp=(void *) &guy_list;
-
-	DIALOG *glist_cpy = resizeDialog(glist_dlg, 1.5);
-    
-    int ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(glist_cpy,2);
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-		delete[] glist_cpy;
-        return EnemyDefinitionRef();
-    }
-    
-    
-    index = glist_cpy[2].d1;
-	delete[] glist_cpy;
-    return big[index].i;
-}
-
 unsigned char check[2] = { (unsigned char)'\x81',0 };
 
 static DIALOG enemy_dlg[] =
@@ -16881,7 +16232,8 @@ static DIALOG enemy_dlg[] =
     /* (dialog proc)         (x)     (y)    (w)     (h)     (fg)                    (bg)                   (key)    (flags)      (d1)        (d2)  (dp) */
     { jwin_win_proc,          0,      0,    240,    190,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
     { d_timer_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  },
-    { d_enelistnoabc_proc,        14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *) &enemy_dlg_list,    NULL,   NULL  },
+    //TODO fix
+    { d_dummy_proc,        14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *) &enemy_dlg_list,    NULL,   NULL  },
     { jwin_button_proc,      12,    130,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
     { d_dummy_proc,          210,    24,     20,     20,    vc(11),                 vc(1),                   0,       0,          0,           0,  NULL,                        NULL,   NULL  },
     { jwin_button_proc,     127,    130,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
@@ -16906,8 +16258,6 @@ int onEnemies()
     char buf[24] = " ";
     int ret;
     int copy=-1;
-    
-    build_bie_list(true);
     
     enemy_dlg[0].dp2=lfont;
     
@@ -22767,7 +22117,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editmsg_dlg);
     jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
-    jwin_center_dialog(elist_dlg);
     jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
@@ -22777,7 +22126,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(gscript_sel_dlg);
     jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
-    jwin_center_dialog(ilist_dlg);
     center_zq_init_dialog();
     jwin_center_dialog(itemscript_sel_dlg);
     jwin_center_dialog(layerdata_dlg);
@@ -22810,7 +22158,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(under_dlg);
     jwin_center_dialog(warp_dlg);
     jwin_center_dialog(warpring_dlg);
-    jwin_center_dialog(wlist_dlg);
 }
 
 

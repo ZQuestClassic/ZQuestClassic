@@ -32,6 +32,7 @@
 #include "init.h"
 #include "ffasm.h"
 #include "defdata.h"
+#include "selectors.h"
 #include "zc_malloc.h"
 #include "backend/AllBackends.h"
 
@@ -51,7 +52,6 @@ extern int jwin_fontdrop_proc(int msg,DIALOG *d,int c);
 extern int jwin_tflpcheck_proc(int msg,DIALOG *d,int c);
 extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
 
-extern int biw_cnt;
 extern int biic_cnt;
 
 
@@ -252,10 +252,11 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 				continue;
 
 			// Bigger font
-			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != d_ilist_proc && newd[i].proc != d_wlist_proc && newd[i].proc != jwin_list_proc && newd[i].proc != d_dmaplist_proc
+			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != jwin_list_proc && newd[i].proc != d_dmaplist_proc
 				&& newd[i].proc != d_dropdmaplist_proc && newd[i].proc != d_xmaplist_proc && newd[i].proc != d_dropdmaptypelist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_wclist_proc && newd[i].proc != d_ndroplist_proc
 				&& newd[i].proc != d_idroplist_proc && newd[i].proc != d_nidroplist_proc && newd[i].proc != jwin_as_droplist_proc && newd[i].proc != d_ffcombolist_proc && newd[i].proc != d_enelist_proc && newd[i].proc != sstype_drop_proc && newd[i].proc != d_ctl_proc
-				&& newd[i].proc != jwin_fontdrop_proc && newd[i].proc != d_csl_proc && newd[i].proc != d_csl2_proc && newd[i].proc != d_stilelist_proc && newd[i].proc != d_comboalist_proc);
+				&& newd[i].proc != jwin_fontdrop_proc && newd[i].proc != d_csl_proc && newd[i].proc != d_csl2_proc && newd[i].proc != d_stilelist_proc && newd[i].proc != d_comboalist_proc && d_modlist_proc != newd[i].proc && d_ilist_proc != newd[i].proc 
+                && d_wlist_proc != newd[i].proc && d_en_modlist_proc != newd[i].proc);
 
 			if (bigfontproc && !newd[i].dp2)
 			{
@@ -456,6 +457,14 @@ static TABPANEL itemdata_tabs[] =
 };
 
 static ListData item_class__list(item_class_list, &pfont);
+
+//TODO fix
+const char *weaponlist(int index, int *list_size)
+{
+    *list_size = 0;
+    return NULL;    
+}
+
 static ListData weapon_list(weaponlist, &pfont);
 
 
@@ -1592,9 +1601,6 @@ void test_item(itemdata test, int x, int y)
 }
 
 
-extern weapon_struct *biw;
-
-
 void edit_itemdata(ItemDefinitionRef itemref)
 {
     
@@ -1667,11 +1673,6 @@ void edit_itemdata(ItemDefinitionRef itemref)
         build_biic_list();
     }
     
-    if(biw_cnt==-1)
-    {
-        build_biw_list(); //built-in weapons
-    }
-    
     itemdata_dlg[7].dp = name;
     
     for(int j=0; j<biic_cnt; j++)
@@ -1733,7 +1734,8 @@ void edit_itemdata(ItemDefinitionRef itemref)
         itemdata_dlg[140+(i*2)].dp3 = is_large() ? lfont_l : pfont;
     }
     
-    
+    //TODO fix
+    /*
     for(int j=0; j<biw_cnt; j++)
     {
         if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[0])
@@ -1765,7 +1767,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
             
         if(biw[j].i == curQuest->getItemDefinition(itemref).wpns[9])
             itemdata_dlg[158].d1 = j;
-    }
+    }*/
     
     for(int j=0; j<8; j++)
         itemdata_dlg[187+j].dp = da[j];
@@ -1939,9 +1941,13 @@ void edit_itemdata(ItemDefinitionRef itemref)
         test.speed  = zc_min(atoi(spd),255);
         test.delay  = zc_min(atoi(dly),255);
         test.ltm    = zc_max(zc_min(atol(ltm),NEWMAXTILES-1),0-(NEWMAXTILES-1));
+
+        // TODO fix
+        /*
         for (int j = 0; j < 10; j++)
             test.wpns[j] = biw[itemdata_cpy[140 + 2 * j].d1].i;
-        
+        */
+
         for(int j=0; j<8; j++)
             test.initiald[j] = vbound(ffparse(da[j]),-327680000, 327680000);
             
@@ -2030,12 +2036,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
                 build_biic_list();
             }
             
-            if(biw_cnt==-1)
-            {
-                build_biw_list();
-            }
-            
-			itemdata_cpy[7].dp = name;
+            itemdata_cpy[7].dp = name;
             
             for(int j=0; j<biic_cnt; j++)
             {
@@ -2107,6 +2108,8 @@ void edit_itemdata(ItemDefinitionRef itemref)
 			    itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
 			    itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
             
+                                             // TODO fix
+/*
             for(int j=0; j<biw_cnt; j++)
             {
                 for (int k = 0; k < 10; k++)
@@ -2115,6 +2118,7 @@ void edit_itemdata(ItemDefinitionRef itemref)
                         itemdata_cpy[140 + 2*k].d1 = j;
                 }                
             }
+                        */
             
             for(int j=0; j<8; j++)
 				itemdata_cpy[187+j].dp = da[j];
@@ -2142,66 +2146,17 @@ void edit_itemdata(ItemDefinitionRef itemref)
     
 }
 
-extern item_struct *bii;
-extern DIALOG ilist_dlg[];
-static ItemDefinitionRef copiedItem;
-static MENU ilist_rclick_menu[] =
-{
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
-};
-
-void ilist_rclick_func(int index, int x, int y)
-{
-    if(!curQuest->isValid(bii[index].i)) // Clicked (none)?
-        return;
-    
-    if(!curQuest->isValid(copiedItem))
-        ilist_rclick_menu[1].flags|=D_DISABLED;
-    else
-        ilist_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int ret=popup_menu(ilist_rclick_menu, x, y);
-    
-    if(ret==0) // copy
-        copiedItem=bii[index].i;
-    else if(ret==1) // paste
-    {
-        curQuest->getItemDefinition(bii[index].i) = curQuest->getItemDefinition(copiedItem);
-        ilist_dlg[2].flags|=D_DIRTY;
-        saved=false;
-    }
-}
-
 int onCustomItems()
 {
-    /*
-      char *hold = item_string[0];
-      item_string[0] = "rupee (1)";
-      */
-    
-    build_bii_list(false);
     int ret;
-    ItemDefinitionRef index = select_item("Select Item",bii[0].i,true,ret);
-    copiedItem=ItemDefinitionRef();
+    ItemDefinitionRef index = select_item("Select Item",ItemDefinitionRef(),true,ret);
     
-    while(curQuest->isValid(index) || ret == 5)
+    
+    while (curQuest->isValid(index))
     {
-        if (ret == 5)
-        {
-            //TODO GUI module support
-            itemdata newitem;
-            newitem.name = "(New Item)";
-            curQuest->getModule("CORE").itemDefTable().addItemDefinition(newitem);            
-        }
-        else
-        {
-            build_biw_list();
-            edit_itemdata(index);
-        }
-        build_bii_list(false);
-        index = select_item("Select Item",index,true,ret);
+        
+        edit_itemdata(index);
+        index = select_item("Select Item", index, true, ret);
     }
     
     refresh(rMAP+rCOMBOS);
@@ -2310,19 +2265,13 @@ void edit_weapondata(const SpriteDefinitionRef &spriteref)
 
 int onCustomWpns()
 {
-    /*
-      char *hold = item_string[0];
-      item_string[0] = "rupee (1)";
-      */
-    
-    build_biw_list();
-    
-    SpriteDefinitionRef index = select_weapon("Select Weapon",biw[0].i);
+    int dummy;
+    SpriteDefinitionRef index = select_sprite("Select Sprite",SpriteDefinitionRef(), true, dummy);
     
     while(curQuest->isValid(index))
     {
         edit_weapondata(index);
-        index = select_weapon("Select Weapon",index);
+        index = select_sprite("Select Sprite",index, true, dummy);
     }
     
     refresh(rMAP+rCOMBOS);
@@ -3488,8 +3437,7 @@ void edit_enemydata(const EnemyDefinitionRef &index)
     char enemynumstr[75];
 	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
 	char weapsprite[8];
-    build_biw_list();
-	
+    
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -4059,37 +4007,6 @@ void edit_enemydata(const EnemyDefinitionRef &index)
 	delete[] enedata_cpy;
 }
 
-extern DIALOG elist_dlg[];
-static EnemyDefinitionRef copiedGuy;
-static MENU elist_rclick_menu[] =
-{
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
-};
-
-void elist_rclick_func(int index, int x, int y)
-{
-    if(index==0)
-        return;
-    
-    if(!curQuest->isValid(copiedGuy))
-        elist_rclick_menu[1].flags|=D_DISABLED;
-    else
-        elist_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int ret=popup_menu(elist_rclick_menu, x, y);
-    
-    if(ret==0) // copy
-        copiedGuy=bie[index].i;
-    else if(ret==1) // paste
-    {
-        curQuest->getEnemyDefinition(bie[index].i)=curQuest->getEnemyDefinition(copiedGuy);
-        elist_dlg[2].flags|=D_DIRTY;
-        saved=false;
-    }
-}
-
 int onCustomEnemies()
 {
     /*
@@ -4098,33 +4015,13 @@ int onCustomEnemies()
       */
     
     int foo;
-    build_bie_list(true);
-    EnemyDefinitionRef index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
+    EnemyDefinitionRef index = select_enemy("Select Enemy", EnemyDefinitionRef(), EnemySelectFlags::ESF_BADGUYS, true, foo);
     
     while(curQuest->isValid(index))
     {
-        //I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
-        //,,.Someone feel free to fix the thing properly later on.
-        //Right now creating custom enemies remains a long painful process, but it shouldn't be this hard for users to use.
-        //-Two cents worth. -Gleeok
-        if(key[KEY_OPENBRACE])   //copy
-        {
-            copiedGuy=index;
-        }
-        else if(key[KEY_CLOSEBRACE])   //paste
-        {
-            if(curQuest->isValid(copiedGuy))
-            {
-                curQuest->getEnemyDefinition(index) = curQuest->getEnemyDefinition(copiedGuy);
-                saved=false;
-            }
-        }
-        else
-        {
-            edit_enemydata(index);
-        }
+        edit_enemydata(index);
         
-        index = select_enemy("Select Enemy",index,true,true,foo);
+        index = select_enemy("Select Enemy", index, EnemySelectFlags::ESF_BADGUYS, true, foo);
     }
     
     refresh(rMAP+rCOMBOS);

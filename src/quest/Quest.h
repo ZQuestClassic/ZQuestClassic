@@ -30,6 +30,7 @@ class Quest
 {
 public:
     QuestModule &getModule(const std::string &name);
+    void deleteModule(const std::string &moduleName);
     void getModules(std::vector<std::string> &moduleNames);
 
     // convenience methods

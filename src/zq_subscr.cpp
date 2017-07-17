@@ -47,10 +47,6 @@ void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
 gamedata *game;
 
-extern item_struct *bii;
-//extern char *itemlist(int index, int *list_size)
-extern int bii_cnt;
-
 void delete_subscreen(int subscreenidx);
 
 
@@ -1030,6 +1026,10 @@ static ListData misccolor_list(misccolorlist, &font);
 static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
 static ListData colortype_list(colortypelist, &font);
+
+//TODO fix
+const char *itemlist(int index, int *list_size);
+
 static ListData item_list(itemlist, &font);
 
 static DIALOG sso_master_properties_dlg[] =
@@ -2141,24 +2141,13 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[125].w+=24;
         
         //Infinite Item
-        if(bii_cnt==-1)
-        {
-            build_bii_list(true);
-        }
-        
         //TODO module support in subscreen
         int index=tempsso->d10;
         ItemDefinitionRef iref("CORE", index);
+        //TODO fix
         int itemid = 0;
         
-        for(int i=0; i<bii_cnt; i++)
-        {
-            if(bii[i].i == iref)
-            {
-                itemid = i;
-                break;
-            }
-        }
+        
         
 		sso_properties_cpy[126].proc=jwin_droplist_proc;
         replacedp(sso_properties_cpy[126],(char *)&item_list);
@@ -2558,21 +2547,13 @@ int sso_properties(subscreen_object *tempsso)
         buf5i=138;
         // Item Override droplist
         
-        build_bii_list(true);
         int index=tempsso->d8-1;
         //TODO module support for subscreen
         ItemDefinitionRef iref("CORE", index);
         int itemid = 0;
-        
-        for(int i=0; i<bii_cnt; i++)
-        {
-            if(bii[i].i == iref)
-            {
-                itemid = i;
-                break;
-            }
-        }
-        
+
+        //TODO fix
+
 		sso_properties_cpy[176].proc=jwin_droplist_proc;
         replacedp(sso_properties_cpy[176],(char *)&item_list);
 		sso_properties_cpy[176].d1 = itemid;
@@ -3598,7 +3579,7 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d8= sso_properties_cpy[137].d1;
             tempsso->d9= sso_properties_cpy[138].d1;
             //TODO fix module support
-            tempsso->d10=bii[sso_properties_cpy[126].d1].i.slot;
+            tempsso->d10 = 0;// bii[sso_properties_cpy[126].d1].i.slot;
         }
         break;
         
@@ -3707,7 +3688,7 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d6=atoi((char *)sso_properties_cpy[buf4i].dp);
             tempsso->d7=atoi((char *)sso_properties_cpy[buf5i].dp);
             //TODO module support for subscreen
-            tempsso->d8=vbound(bii[sso_properties_cpy[176].d1].i.slot+1, 0, 255);
+            tempsso->d8 = 0;// vbound(bii[sso_properties_cpy[176].d1].i.slot + 1, 0, 255);
             
             tempsso->d1=vbound(biic[sso_properties_cpy[133].d1].i, 0, 255);
             tempsso->d2= sso_properties_cpy[139].flags&D_SELECTED?0:1;

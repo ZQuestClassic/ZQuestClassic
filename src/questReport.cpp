@@ -17,7 +17,6 @@
 #include "zq_misc.h"
 #include "zquest.h"
 
-extern int bie_cnt;
 extern std::map<int, pair<std::string,std::string> > ffcmap;
 
 std::string quest_report_str;
@@ -1621,10 +1620,6 @@ typedef struct item_location_node
     item_location_node* next;
 } item_location_node;
 
-extern item_struct *bii;
-extern int bii_cnt;
-
-
 void itemLocationReport()
 {
     mapscr *ts=NULL;
@@ -1804,74 +1799,76 @@ void itemLocationReport()
         }
     }
     
-    build_bii_list(false);
-    
-    //for each item
-    for(int i2=0; i2<bii_cnt; ++i2)
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        ItemDefinitionRef i=bii[i2].i;
-        item_found=false;
-        
-        //check each item location type (room item, special item, shop item, choose any item, etc.)
-        for(int type=0; type<location_types; ++type)
+
+        uint32_t numitems = curQuest->getModule(*it).itemDefTable().getNumItemDefinitions();
+        //for each item
+        for (uint32_t i2 = 0; i2 < numitems; ++i2)
         {
-            //set the tempnode at the start
-            tempnode=&(item_location_grid[i][type]);
-            
-            //if there is item location data
-            if(tempnode->next!=NULL)
+            ItemDefinitionRef i(*it, i2);
+            item_found = false;
+
+            //check each item location type (room item, special item, shop item, choose any item, etc.)
+            for (int type = 0; type < location_types; ++type)
             {
-                type_found=true;
-                
-                if(!item_found)
+                //set the tempnode at the start
+                tempnode = &(item_location_grid[i][type]);
+
+                //if there is item location data
+                if (tempnode->next != NULL)
                 {
-                    buf[0]=0;
-                    sprintf(buf, "\n--- %s ---\n", curQuest->getItemDefinition(i).name.c_str());
-                    quest_report_str+=buf;
-                }
-                
-                item_found=true;
-                
-                //loop through each item location for this item/type
-                do
-                {
-                    tempnode=tempnode->next;
-                    //add it to the list
-                    buf[0]=0;
-                    
-                    switch(type)
+                    type_found = true;
+
+                    if (!item_found)
                     {
-                    case 1:
-                        sprintf(buf, "%s %3d:%02X (special item)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
-                        break;
-                        
-                    case 2:
-                        sprintf(buf, "%s %3d:%02X (Heart Container / Red Potion room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
-                        break;
-                        
-                    case 3:
-                        sprintf(buf, "%s %3d:%02X (shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
-                        break;
-                        
-                    case 4:
-                        sprintf(buf, "%s %3d:%02X (potion shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
-                        break;
-                        
-                    case 5:
-                        sprintf(buf, "%s %3d:%02X (take one item room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
-                        break;
-                        
-                    case 0:
-                    default:
-                        sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
+                        buf[0] = 0;
+                        sprintf(buf, "\n--- %s ---\n", curQuest->getItemDefinition(i).name.c_str());
+                        quest_report_str += buf;
+                    }
+
+                    item_found = true;
+
+                    //loop through each item location for this item/type
+                    do
+                    {
+                        tempnode = tempnode->next;
+                        //add it to the list
+                        buf[0] = 0;
+
+                        switch (type)
+                        {
+                        case 1:
+                            sprintf(buf, "%s %3d:%02X (special item)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
+                            break;
+
+                        case 2:
+                            sprintf(buf, "%s %3d:%02X (Heart Container / Red Potion room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
+                            break;
+
+                        case 3:
+                            sprintf(buf, "%s %3d:%02X (shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
+                            break;
+
+                        case 4:
+                            sprintf(buf, "%s %3d:%02X (potion shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
+                            break;
+
+                        case 5:
+                            sprintf(buf, "%s %3d:%02X (take one item room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
+                            break;
+
+                        case 0:
+                        default:
+                            sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
                                 !curQuest->isValid(tempnode->enemy) ? ", enemies -> item" : curQuest->isValid(tempnode->enemy) ? ", carried by " : "",
                                 curQuest->isValid(tempnode->enemy) ? curQuest->getEnemyName(tempnode->enemy).c_str() : "");
-                        break;
-                    }
-                    
-                    quest_report_str+=buf;
+                            break;
+                        }
+
+                        quest_report_str += buf;
+                    } while (tempnode->next != NULL);
                 }
-                while(tempnode->next!=NULL);
             }
         }
     }
@@ -1999,43 +1996,47 @@ void enemyLocationReport()
         }
     }
     
-    build_bie_list(false);
-    
-    for(int i2=1; i2<bie_cnt; ++i2)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        EnemyDefinitionRef i=bie[i2].i;
-        enemy_found=false;
-        //set the tempnode at the start
-        enemy_location_node *tempnode=&(enemy_location_grid[i]);
-        
-        //if there is location data
-        if(tempnode->next!=NULL)
+        uint32_t numenemies = curQuest->getModule(*it).enemyDefTable().getNumEnemyDefinitions();
+
+        for (uint32_t i2 = 1; i2 < numenemies; ++i2)
         {
-            type_found=true;
-            
-            if(!enemy_found)
+            EnemyDefinitionRef i(*it, i2);
+            enemy_found = false;
+            //set the tempnode at the start
+            enemy_location_node *tempnode = &(enemy_location_grid[i]);
+
+            //if there is location data
+            if (tempnode->next != NULL)
             {
-                buf[0]=0;
-                sprintf(buf, "\n--- %s ---\n", curQuest->getEnemyName(i).c_str());
-                quest_report_str+=buf;
-            }
-            
-            enemy_found=true;
-            
-            //loop through each location for this script
-            do
-            {
-                tempnode=tempnode->next;
-                //add it to the list
-                buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (%d)\n",
+                type_found = true;
+
+                if (!enemy_found)
+                {
+                    buf[0] = 0;
+                    sprintf(buf, "\n--- %s ---\n", curQuest->getEnemyName(i).c_str());
+                    quest_report_str += buf;
+                }
+
+                enemy_found = true;
+
+                //loop through each location for this script
+                do
+                {
+                    tempnode = tempnode->next;
+                    //add it to the list
+                    buf[0] = 0;
+                    sprintf(buf, "%s %3d:%02X (%d)\n",
                         palname_spaced(tempnode->pal),
                         tempnode->map,
                         tempnode->screen,
                         tempnode->list /* Possibly add more details later/never */);
-                quest_report_str+=buf;
+                    quest_report_str += buf;
+                } while (tempnode->next != NULL);
             }
-            while(tempnode->next!=NULL);
         }
     }
     

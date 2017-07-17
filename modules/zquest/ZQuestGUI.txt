@@ -19,6 +19,7 @@ src/zq_tiles.cpp
 src/zsys.cpp
 src/zq_rules.cpp
 src/jwin.cpp
+src/selectors.cpp
 src/backend/Backend.cpp
 src/backend/GraphicsBackend.cpp
 src/backend/MouseBackend.cpp

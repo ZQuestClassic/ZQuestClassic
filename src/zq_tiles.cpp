@@ -5847,12 +5847,6 @@ void register_used_tiles()
     }
 }
 
-extern item_struct *bii;
-extern int bii_cnt;
-extern weapon_struct *biw;
-extern int biw_cnt;
-extern int bie_cnt;
-
 bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, bool move)
 {
     bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
@@ -6065,8 +6059,8 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     int i;
     bool *move_combo_list = new bool[MAXCOMBOS];
-    bool *move_items_list = new bool[bii_cnt];
-    bool *move_weapons_list = new bool[biw_cnt];
+    std::vector<ItemDefinitionRef> move_items_list;
+    std::vector<SpriteDefinitionRef> move_sprite_list;
     bool move_link_sprites_list[41];
     bool move_mapstyles_list[6];
     //bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -6201,45 +6195,55 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 tile_move_list_text[0]=0;
                 found=false;
                 flood=false;
-                build_bii_list(false);
                 
-                for(int u=0; u<bii_cnt; u++)
+                move_items_list.clear();
+                
+                std::vector<std::string> modules;
+                curQuest->getModules(modules);
+
+                for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
                 {
-                    move_items_list[u]=false;
-                    
-                    if(rect)
+                    uint32_t numitems = curQuest->getModule(*it).itemDefTable().getNumItemDefinitions();
+
+
+                    for (uint32_t u = 0; u < numitems; u++)
                     {
-                        i=move_intersection_sr(curQuest->getItemDefinition(bii[u].i).tile, curQuest->getItemDefinition(bii[u].i).tile+zc_max(curQuest->getItemDefinition(bii[u].i).frames,1)-1, selection_left, selection_top, selection_width, selection_height);
-                    }
-                    else
-                    {
-                        i=move_intersection_ss(curQuest->getItemDefinition(bii[u].i).tile, curQuest->getItemDefinition(bii[u].i).tile+zc_max(curQuest->getItemDefinition(bii[u].i).frames,1)-1, selection_first, selection_last);
-                    }
-                    
-                    if((i!=ti_none)&&(curQuest->getItemDefinition(bii[u].i).tile!=0))
-                    {
-                        if(i==ti_broken || q==0)
+                        itemdata &itemd = curQuest->getModule(*it).itemDefTable().getItemDefinition(u);
+
+                        if (rect)
                         {
-                            sprintf(temptext, "%s\n", bii[u].s.c_str());
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
-                                {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
-                            }
-                            
-                            found=true;
+                            i = move_intersection_sr(itemd.tile, itemd.tile + zc_max(itemd.frames, 1) - 1, selection_left, selection_top, selection_width, selection_height);
                         }
-                        else if(i==ti_encompass)
+                        else
                         {
-                            move_items_list[u]=true;
+                            i = move_intersection_ss(itemd.tile, itemd.tile + zc_max(itemd.frames, 1) - 1, selection_first, selection_last);
+                        }
+
+                        if ((i != ti_none) && (itemd.tile != 0))
+                        {
+                            if (i == ti_broken || q == 0)
+                            {
+                                sprintf(temptext, "%s\n", itemd.name.c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if (!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood = true;
+                                    }
+                                }
+
+                                found = true;
+                            }
+                            else if (i == ti_encompass)
+                            {
+                                move_items_list.push_back(ItemDefinitionRef(*it, u));
+                            }
                         }
                     }
                 }
@@ -6290,162 +6294,171 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 tile_move_list_text[0]=0;
                 found=false;
                 flood=false;
-                build_biw_list();
-                bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<biw_cnt; u++)
+                move_sprite_list.clear();
+
+                bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+
+                std::vector<std::string> modules;
+                curQuest->getModules(modules);
+                
+                for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
                 {
-                    ignore_frames=false;
-                    move_weapons_list[u]=false;
-                    int m=0;
-                    
-                    /*switch(biw[u].i)
+                    uint32_t numsprites = curQuest->getModule(*it).spriteDefTable().getNumSpriteDefinitions();
+                    for (uint32_t u = 0; u < numsprites; u++)
                     {
-                    case wSWORD:
-                    case wWSWORD:
-                    case wMSWORD:
-                    case wXSWORD:
-                        m=3+((curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).type==3)?1:0);
-                        break;
-                        
-                    case wSWORDSLASH:
-                    case wWSWORDSLASH:
-                    case wMSWORDSLASH:
-                    case wXSWORDSLASH:
-                        m=4;
-                        break;
-                        
-                    case iwMMeter:
-                        m=9;
-                        break;
-                        
-                    case wBRANG:
-                    case wMBRANG:
-                    case wFBRANG:
-                        m=BSZ2?1:3;
-                        break;
-                        
-                    case wBOOM:
-                    case wSBOOM:
-                    case ewBOOM:
-                    case ewSBOOM:
-                        ignore_frames=true;
-                        m=2;
-                        break;
-                        
-                    case wWAND:
-                        m=1;
-                        break;
-                        
-                    case wMAGIC:
-                        m=1;
-                        break;
-                        
-                    case wARROW:
-                    case wSARROW:
-                    case wGARROW:
-                    case ewARROW:
-                        m=1;
-                        break;
-                        
-                    case wHAMMER:
-                        m=8;
-                        break;
-                        
-                    case wHSHEAD:
-                        m=1;
-                        break;
-                        
-                    case wHSCHAIN_H:
-                        m=1;
-                        break;
-                        
-                    case wHSCHAIN_V:
-                        m=1;
-                        break;
-                        
-                    case wHSHANDLE:
-                        m=1;
-                        break;
-                        
-                    case iwDeath:
-                        m=BSZ2?4:2;
-                        break;
-                        
-                    case iwSpawn:
-                        m=3;
-                        break;
-                        
-                    default:
-                        m=0;
-                        break;
-                    }*/
-                    
-                    if(rect)
-                    {
-                        i=move_intersection_sr(curQuest->getSpriteDefinition(biw[u].i).tile, curQuest->getSpriteDefinition(biw[u].i).tile+zc_max((ignore_frames?0:curQuest->getSpriteDefinition(biw[u].i).frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
-                    }
-                    else
-                    {
-                        i=move_intersection_ss(curQuest->getSpriteDefinition(biw[u].i).tile, curQuest->getSpriteDefinition(biw[u].i).tile+zc_max((ignore_frames?0:curQuest->getSpriteDefinition(biw[u].i).frames),1)-1+m, selection_first, selection_last);
-                    }
-                    
-                    if((i!=ti_none)&&(curQuest->getSpriteDefinition(biw[u].i).tile!=0))
-                    {
-                        if(i==ti_broken || q==0)
+                        wpndata sprited = curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(u);
+                        ignore_frames = false;
+                        int m = 0;
+
+                        /*switch(biw[u].i)
                         {
-                            sprintf(temptext, "%s\n", biw[u].s.c_str());
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
-                                {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
-                            }
-                            
-                            found=true;
-                        }
-                        else if(i==ti_encompass)
+                        case wSWORD:
+                        case wWSWORD:
+                        case wMSWORD:
+                        case wXSWORD:
+                            m=3+((curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).type==3)?1:0);
+                            break;
+
+                        case wSWORDSLASH:
+                        case wWSWORDSLASH:
+                        case wMSWORDSLASH:
+                        case wXSWORDSLASH:
+                            m=4;
+                            break;
+
+                        case iwMMeter:
+                            m=9;
+                            break;
+
+                        case wBRANG:
+                        case wMBRANG:
+                        case wFBRANG:
+                            m=BSZ2?1:3;
+                            break;
+
+                        case wBOOM:
+                        case wSBOOM:
+                        case ewBOOM:
+                        case ewSBOOM:
+                            ignore_frames=true;
+                            m=2;
+                            break;
+
+                        case wWAND:
+                            m=1;
+                            break;
+
+                        case wMAGIC:
+                            m=1;
+                            break;
+
+                        case wARROW:
+                        case wSARROW:
+                        case wGARROW:
+                        case ewARROW:
+                            m=1;
+                            break;
+
+                        case wHAMMER:
+                            m=8;
+                            break;
+
+                        case wHSHEAD:
+                            m=1;
+                            break;
+
+                        case wHSCHAIN_H:
+                            m=1;
+                            break;
+
+                        case wHSCHAIN_V:
+                            m=1;
+                            break;
+
+                        case wHSHANDLE:
+                            m=1;
+                            break;
+
+                        case iwDeath:
+                            m=BSZ2?4:2;
+                            break;
+
+                        case iwSpawn:
+                            m=3;
+                            break;
+
+                        default:
+                            m=0;
+                            break;
+                        }*/
+
+                        if (rect)
                         {
-                            move_weapons_list[u]=true;
-                        }
-                    }
-                    
-                    if((u==3)||(u==9))
-                    {
-                        if(rect)
-                        {
-                            i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
+                            i = move_intersection_sr(sprited.tile, sprited.tile + zc_max((ignore_frames ? 0 : sprited.frames), 1) - 1 + m, selection_left, selection_top, selection_width, selection_height);
                         }
                         else
                         {
-                            i=move_intersection_ss(54, 55, selection_first, selection_last);
+                            i = move_intersection_ss(sprited.tile, sprited.tile + zc_max((ignore_frames ? 0 : sprited.frames), 1) - 1 + m, selection_first, selection_last);
                         }
-                        
-                        if(i!=ti_none)
+
+                        if ((i != ti_none) && (sprited.tile != 0))
                         {
-                            sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-                            
-                            if(strlen(tile_move_list_text)<65000)
+                            if (i == ti_broken || q == 0)
                             {
-                                strcat(tile_move_list_text, temptext);
+                                sprintf(temptext, "%s\n", sprited.name.c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if (!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood = true;
+                                    }
+                                }
+
+                                found = true;
+                            }
+                            else if (i == ti_encompass)
+                            {
+                                move_sprite_list.push_back(SpriteDefinitionRef(*it, u));
+                            }
+                        }
+
+                        if ((u == 3) || (u == 9))
+                        {
+                            if (rect)
+                            {
+                                i = move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                if(!flood)
-                                {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
+                                i = move_intersection_ss(54, 55, selection_first, selection_last);
                             }
-                            
-                            found=true;
+
+                            if (i != ti_none)
+                            {
+                                sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u == 3) ? "Arrow" : "Boomerang");
+
+                                if (strlen(tile_move_list_text) < 65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if (!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood = true;
+                                    }
+                                }
+
+                                found = true;
+                            }
                         }
                     }
                 }
@@ -6914,293 +6927,300 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 tile_move_list_text[0]=0;
                 found=false;
                 flood=false;
-                build_bie_list(false);
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-                int u;
                 
-                for(u=0; u<bie_cnt; u++)
+                
+                std::vector<std::string> modules;
+                curQuest->getModules(modules);
+                for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
                 {
-                    const guydata& enemy=curQuest->getEnemyDefinition(bie[u].i);
-                    bool darknut=false;
-                    int gleeok=0;
-                    
-                    if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
-                        darknut=true;
-                    else if(enemy.family==eeGLEEOK)
+                    uint32_t numenemies = curQuest->getModule(*it).enemyDefTable().getNumEnemyDefinitions();
+
+
+                    for (uint32_t u = 0; u < numenemies; u++)
                     {
-                        // Not certain this is the right thing to check...
-                        if(enemy.miscs[2]==0)
-                            gleeok=1;
-                        else
-                            gleeok=2;
-                    }
-                    
-                    if(newtiles)
-                    {
-                        if(curQuest->getEnemyDefinition(bie[u].i).e_tile==0)
+                        const guydata& enemy = curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u);
+                        bool darknut = false;
+                        int gleeok = 0;
+
+                        if (enemy.family == eeWALK && ((enemy.flags&(inv_back | inv_front | inv_left | inv_right)) != 0))
+                            darknut = true;
+                        else if (enemy.family == eeGLEEOK)
                         {
-                            continue;
-                        }
-                        
-                        if(curQuest->getEnemyDefinition(bie[u].i).e_height==0)
-                        {
-                            if(rect)
-                            {
-                                i=move_intersection_sr(curQuest->getEnemyDefinition(bie[u].i).e_tile, curQuest->getEnemyDefinition(bie[u].i).e_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-                            }
+                            // Not certain this is the right thing to check...
+                            if (enemy.miscs[2] == 0)
+                                gleeok = 1;
                             else
-                            {
-                                i=move_intersection_ss(curQuest->getEnemyDefinition(bie[u].i).e_tile, curQuest->getEnemyDefinition(bie[u].i).e_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).e_width-1, 0), selection_first, selection_last);
-                            }
+                                gleeok = 2;
                         }
-                        else
+
+                        if (newtiles)
                         {
-                            if(rect)
+                            if (enemy.e_tile == 0)
                             {
-                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_left, selection_top, selection_width, selection_height);
+                                continue;
                             }
-                            else
+
+                            if (enemy.e_height == 0)
                             {
-                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_first, selection_last);
-                            }
-                        }
-                        
-                        if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-                        {
-                            sprintf(temptext, "%s\n", bie[u].s.c_str());
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
+                                    i = move_intersection_sr(enemy.e_tile, enemy.e_tile + zc_max(enemy.e_width - 1, 0), selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i = move_intersection_ss(enemy.e_tile, enemy.e_tile + zc_max(enemy.e_width - 1, 0), selection_first, selection_last);
                                 }
                             }
-                            
-                            found=true;
-                        }
-                        
-                        if(darknut)
-                        {
-                            if(rect)
-                            {
-                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_left, selection_top, selection_width, selection_height);
-                            }
                             else
                             {
-                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+120), curQuest->getEnemyDefinition(bie[u].i).e_width, curQuest->getEnemyDefinition(bie[u].i).e_height, selection_first, selection_last);
+                                if (rect)
+                                {
+                                    i = move_intersection_rr(tile_col(enemy.e_tile), tile_row(enemy.e_tile), enemy.e_width, enemy.e_height, selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i = move_intersection_rs(tile_col(enemy.e_tile), tile_row(enemy.e_tile), enemy.e_width, enemy.e_height, selection_first, selection_last);
+                                }
                             }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+
+                            if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                             {
-                                sprintf(temptext, "%s (broken shield)\n", bie[u].s.c_str());
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
                                 {
                                     strcat(tile_move_list_text, temptext);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    if (!flood)
                                     {
                                         strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
+                                        flood = true;
                                     }
                                 }
-                                
-                                found=true;
+
+                                found = true;
                             }
-                        }
-                        else if(enemy.family==eeGANON && i==ti_none)
-                        {
-                            if(rect)
+
+                            if (darknut)
                             {
-                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
-                            }
-                            else
-                            {
-                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile)+2, 20, 4, selection_first, selection_last);
-                            }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-                            {
-                                sprintf(temptext, "%s\n", bie[u].s.c_str());
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, temptext);
+                                    i = move_intersection_rr(tile_col(enemy.e_tile + 120), tile_row(enemy.e_tile + 120), enemy.e_width, enemy.e_height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    i = move_intersection_rs(tile_col(enemy.e_tile + 120), tile_row(enemy.e_tile + 120), enemy.e_width, enemy.e_height, selection_first, selection_last);
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s (broken shield)\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+
+                                    if (strlen(tile_move_list_text) < 65000)
                                     {
-                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
-                                    }
-                                }
-                                
-                                found=true;
-                            }
-                        }
-                        else if(gleeok && i==ti_none)
-                        {
-                            for(int j=0; j<4 && i==ti_none; ++j)
-                            {
-                                if(rect)
-                                {
-                                    i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+(gleeok>1?-4:8)), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
-                                }
-                                else
-                                {
-                                    i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile+(gleeok>1?-4:8)), tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
-                                }
-                            }
-                            
-                            if(i==ti_none)
-                            {
-                                int c=tile_col(curQuest->getEnemyDefinition(bie[u].i).e_tile)+(gleeok>1?-12:0);
-                                int r=tile_row(curQuest->getEnemyDefinition(bie[u].i).e_tile)+(gleeok>1?17:8);
-                                
-                                if(rect)
-                                {
-                                    i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
-                                }
-                                else
-                                {
-                                    i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
-                                }
-                                
-                                if(i==ti_none)
-                                {
-                                    if(rect)
-                                    {
-                                        i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
+                                        strcat(tile_move_list_text, temptext);
                                     }
                                     else
                                     {
-                                        i=move_intersection_rs(c, r+3, 16, 6, selection_first, selection_last);
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
                                     }
+
+                                    found = true;
                                 }
                             }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                            else if (enemy.family == eeGANON && i == ti_none)
                             {
-                                sprintf(temptext, "%s\n", bie[u].s.c_str());
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, temptext);
+                                    i = move_intersection_rr(tile_col(enemy.e_tile), tile_row(enemy.e_tile) + 2, 20, 4, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    i = move_intersection_rs(tile_col(enemy.e_tile), tile_row(enemy.e_tile) + 2, 20, 4, selection_first, selection_last);
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+
+                                    if (strlen(tile_move_list_text) < 65000)
                                     {
-                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
+                                        strcat(tile_move_list_text, temptext);
+                                    }
+                                    else
+                                    {
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
+                                    }
+
+                                    found = true;
+                                }
+                            }
+                            else if (gleeok && i == ti_none)
+                            {
+                                for (int j = 0; j < 4 && i == ti_none; ++j)
+                                {
+                                    if (rect)
+                                    {
+                                        i = move_intersection_rr(tile_col(enemy.e_tile + (gleeok > 1 ? -4 : 8)), tile_row(enemy.e_tile + 8) + (j << 1) + (gleeok > 1 ? 1 : 0), 4, 1, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_rs(tile_col(enemy.e_tile + (gleeok > 1 ? -4 : 8)), tile_row(enemy.e_tile + 8) + (j << 1) + (gleeok > 1 ? 1 : 0), 4, 1, selection_first, selection_last);
                                     }
                                 }
-                                
-                                found=true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if((curQuest->getEnemyDefinition(bie[u].i).tile==0))
-                        {
-                            continue;
-                        }
-                        else if(curQuest->getEnemyDefinition(bie[u].i).height==0)
-                        {
-                            if(rect)
-                            {
-                                i=move_intersection_sr(curQuest->getEnemyDefinition(bie[u].i).tile, curQuest->getEnemyDefinition(bie[u].i).tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).width-1, 0), selection_left, selection_top, selection_width, selection_height);
-                            }
-                            else
-                            {
-                                i=move_intersection_ss(curQuest->getEnemyDefinition(bie[u].i).tile, curQuest->getEnemyDefinition(bie[u].i).tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).width-1, 0), selection_first, selection_last);
+
+                                if (i == ti_none)
+                                {
+                                    int c = tile_col(enemy.e_tile) + (gleeok > 1 ? -12 : 0);
+                                    int r = tile_row(enemy.e_tile) + (gleeok > 1 ? 17 : 8);
+
+                                    if (rect)
+                                    {
+                                        i = move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
+                                    }
+
+                                    if (i == ti_none)
+                                    {
+                                        if (rect)
+                                        {
+                                            i = move_intersection_rr(c, r + 3, 16, 6, selection_left, selection_top, selection_width, selection_height);
+                                        }
+                                        else
+                                        {
+                                            i = move_intersection_rs(c, r + 3, 16, 6, selection_first, selection_last);
+                                        }
+                                    }
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+
+                                    if (strlen(tile_move_list_text) < 65000)
+                                    {
+                                        strcat(tile_move_list_text, temptext);
+                                    }
+                                    else
+                                    {
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
+                                    }
+
+                                    found = true;
+                                }
                             }
                         }
                         else
                         {
-                            if(rect)
+                            if ((enemy.tile == 0))
                             {
-                                i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).tile), curQuest->getEnemyDefinition(bie[u].i).width, curQuest->getEnemyDefinition(bie[u].i).height, selection_left, selection_top, selection_width, selection_height);
+                                continue;
                             }
-                            else
+                            else if (enemy.height == 0)
                             {
-                                i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).tile),curQuest->getEnemyDefinition(bie[u].i).width, curQuest->getEnemyDefinition(bie[u].i).height, selection_first, selection_last);
-                            }
-                        }
-                        
-                        if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-                        {
-                            sprintf(temptext, "%s\n", bie[u].s.c_str());
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
-                            }
-                            
-                            found=true;
-                        }
-                        
-                        if(curQuest->getEnemyDefinition(bie[u].i).s_tile!=0)
-                        {
-                            if(curQuest->getEnemyDefinition(bie[u].i).s_height==0)
-                            {
-                                if(rect)
-                                {
-                                    i=move_intersection_sr(curQuest->getEnemyDefinition(bie[u].i).s_tile, curQuest->getEnemyDefinition(bie[u].i).s_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                                    i = move_intersection_sr(enemy.tile, enemy.tile + zc_max(enemy.width - 1, 0), selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_ss(curQuest->getEnemyDefinition(bie[u].i).s_tile, curQuest->getEnemyDefinition(bie[u].i).s_tile+zc_max(curQuest->getEnemyDefinition(bie[u].i).s_width-1, 0), selection_first, selection_last);
+                                    i = move_intersection_ss(enemy.tile, enemy.tile + zc_max(enemy.width - 1, 0), selection_first, selection_last);
                                 }
                             }
                             else
                             {
-                                if(rect)
+                                if (rect)
                                 {
-                                    i=move_intersection_rr(tile_col(curQuest->getEnemyDefinition(bie[u].i).s_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).s_tile), curQuest->getEnemyDefinition(bie[u].i).s_width, curQuest->getEnemyDefinition(bie[u].i).s_height, selection_left, selection_top, selection_width, selection_height);
+                                    i = move_intersection_rr(tile_col(enemy.tile), tile_row(enemy.tile), enemy.width, enemy.height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(curQuest->getEnemyDefinition(bie[u].i).s_tile), tile_row(curQuest->getEnemyDefinition(bie[u].i).s_tile), curQuest->getEnemyDefinition(bie[u].i).s_width, curQuest->getEnemyDefinition(bie[u].i).s_height, selection_first, selection_last);
+                                    i = move_intersection_rs(tile_col(enemy.tile), tile_row(enemy.tile), enemy.width, enemy.height, selection_first, selection_last);
                                 }
                             }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+
+                            if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                             {
-                                sprintf(temptext, "%s (%s)\n", bie[u].s.c_str(), darknut?"broken shield":"secondary tiles");
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
                                 {
                                     strcat(tile_move_list_text, temptext);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    if (!flood)
                                     {
                                         strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
+                                        flood = true;
                                     }
                                 }
-                                
-                                found=true;
+
+                                found = true;
+                            }
+
+                            if (enemy.s_tile != 0)
+                            {
+                                if (enemy.s_height == 0)
+                                {
+                                    if (rect)
+                                    {
+                                        i = move_intersection_sr(enemy.s_tile, enemy.s_tile + zc_max(enemy.s_width - 1, 0), selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_ss(enemy.s_tile, enemy.s_tile + zc_max(enemy.s_width - 1, 0), selection_first, selection_last);
+                                    }
+                                }
+                                else
+                                {
+                                    if (rect)
+                                    {
+                                        i = move_intersection_rr(tile_col(enemy.s_tile), tile_row(enemy.s_tile), enemy.s_width, enemy.s_height, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_rs(tile_col(enemy.s_tile), tile_row(enemy.s_tile), enemy.s_width, enemy.s_height, selection_first, selection_last);
+                                    }
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s (%s)\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str(), darknut ? "broken shield" : "secondary tiles");
+
+                                    if (strlen(tile_move_list_text) < 65000)
+                                    {
+                                        strcat(tile_move_list_text, temptext);
+                                    }
+                                    else
+                                    {
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
+                                    }
+
+                                    found = true;
+                                }
                             }
                         }
                     }
@@ -7332,20 +7352,14 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<bii_cnt; u++)
+            for (std::vector<ItemDefinitionRef>::iterator it = move_items_list.begin(); it != move_items_list.end(); ++it)
             {
-                if(move_items_list[u])
-                {
-                    curQuest->getItemDefinition(bii[u].i).tile+=diff;
-                }
+                curQuest->getItemDefinition(*it).tile += diff;
             }
-            
-            for(int u=0; u<biw_cnt; u++)
+
+            for(std::vector<SpriteDefinitionRef>::iterator it = move_sprite_list.begin(); it != move_sprite_list.end(); ++it)
             {
-                if(move_weapons_list[u])
-                {
-                    curQuest->getSpriteDefinition(biw[u].i).tile+=diff;
-                }
+                curQuest->getSpriteDefinition(*it).tile += diff;
             }
             
             for(int u=0; u<41; u++)
@@ -7513,8 +7527,6 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     delete[] tile_move_list_text;
     delete[] move_combo_list;
-    delete[] move_items_list;
-    delete[] move_weapons_list;
     
     if(done)
         return false;

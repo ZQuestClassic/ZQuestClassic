@@ -17,6 +17,7 @@ extern char qtbuf[31];
 
 void reset_qt(int index);
 void init_qts();
+void edit_modules();
 void edit_qt();                                             //this is used to set the quest template for the current quest
 void edit_qt(int index);
 const char *qtlist(int index, int *list_size);
