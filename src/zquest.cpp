@@ -16148,13 +16148,84 @@ static ListData enemy_dlg_list(enemy_viewer, &font);
 
 unsigned char check[2] = { (unsigned char)'\x81',0 };
 
+int d_screenemy_proc(int msg,DIALOG *d,int c)
+{
+    int ret = jwin_abclist_proc(msg,d,c); 
+
+    switch (msg)
+    {
+    case MSG_DRAW:
+    case MSG_CHAR:
+    case MSG_CLICK:        
+        EnemyDefinitionRef id = Map.CurrScr()->enemy[d->d1];
+
+        int tile = 0;
+        int cset = 0;
+        if (curQuest->isValid(id))
+        {
+            tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? curQuest->getEnemyDefinition(id).e_tile
+                : curQuest->getEnemyDefinition(id).tile;
+            cset = curQuest->getEnemyDefinition(id).cset;
+        }
+
+        int x = d->x + int(192 * (is_large() ? 1.5:1));
+        int y = d->y + int(2 * (is_large() ? 1.5:1));
+        int w = 20;
+        int h = 20;
+
+        if(is_large())
+        {
+            w = 36;
+            h = 36;
+        }
+
+        BITMAP *buf = create_bitmap_ex(8,20,20);
+        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
+
+        if(buf && bigbmp)
+        {
+            clear_bitmap(buf);
+
+            if(tile)
+                overtile16(buf, tile+efrontfacingtile(id),2,2,cset,0);
+
+            stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2,w-2, h-2);
+            destroy_bitmap(buf);
+            jwin_draw_frame(bigbmp,0,0,w,h,FR_DEEP);
+            blit(bigbmp,screen,0,0,x,y,w,h);
+            destroy_bitmap(bigbmp);
+        }
+
+        /*
+        rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
+        */
+        textprintf_ex(screen,is_large()?font:spfont,x,y+20*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id.slot);
+
+        textprintf_ex(screen,is_large()?font:spfont,x,y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP :");
+
+        int hp = 0;
+        int dp = 0;
+        if (curQuest->isValid(id))
+        {
+            hp = curQuest->getEnemyDefinition(id).hp;
+            dp = curQuest->getEnemyDefinition(id).dp;
+        }
+
+        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+26*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",hp);
+
+        textprintf_ex(screen,is_large()?font:spfont,x,y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg:");
+        textprintf_ex(screen,is_large()?font:spfont,x+int(14*(is_large()?1.5:1)),y+32*(is_large()?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",dp);
+    }
+
+    return ret;
+}
+
 static DIALOG enemy_dlg[] =
 {
     /* (dialog proc)         (x)     (y)    (w)     (h)     (fg)                    (bg)                   (key)    (flags)      (d1)        (d2)  (dp) */
     { jwin_win_proc,          0,      0,    240,    190,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
     { d_timer_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  },
-    //TODO fix
-    { d_dummy_proc,        14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *) &enemy_dlg_list,    NULL,   NULL  },
+    { d_screenemy_proc,      14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *)&enemy_dlg_list,    NULL,   NULL  },
     { jwin_button_proc,      12,    130,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
     { d_dummy_proc,          210,    24,     20,     20,    vc(11),                 vc(1),                   0,       0,          0,           0,  NULL,                        NULL,   NULL  },
     { jwin_button_proc,     127,    130,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
@@ -16225,25 +16296,15 @@ int onEnemies()
             int exit_status;
             int i = enemy_cpy[2].d1;
             
-            do
-            {
-                EnemyDefinitionRef enemy = Map.CurrScr()->enemy[i];
-                enemy = select_enemy("Select Enemy",enemy,true,false,exit_status);
+            EnemyDefinitionRef enemy = Map.CurrScr()->enemy[i];
+            enemy = select_enemy("Select Enemy",enemy, ESF_BADGUYS, false,exit_status);
                 
-                if(curQuest->isValid(enemy))
-                {
-                    if(exit_status==5)
-                    {
-                        edit_enemydata(enemy);
-                    }
-                    else
-                    {
-                        saved=false;
-                        Map.CurrScr()->enemy[i] = enemy;
-                    }
-                }
+            if(curQuest->isValid(enemy))
+            {
+                saved=false;
+                Map.CurrScr()->enemy[i] = enemy;
+                    
             }
-            while(exit_status==5);
         }
         break;
         
