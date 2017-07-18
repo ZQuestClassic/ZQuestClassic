@@ -337,14 +337,14 @@ static void rebuild_ilist(const std::string &module)
 static DIALOG ilist_dlg[] =
 {
     // (dialog proc)        (x)         (y)         (w)                 (h)         (fg)                (bg)                (key)       (flags)         (d1)    (d2)    (dp)                (dp2)   (d3)
-    { jwin_win_proc,        60 - 12,    40,         200 + 24 + 24,      194+12,     vc(14),             vc(1),              0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL            },
-    { d_timer_proc,         0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL            },
-    { d_modlist_proc,       72 - 12 - 4,60 + 4,     176 + 24 + 8,       46 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   &rebuild_ilist  },
-    { d_ilist_proc,         72 - 12 - 4,60 + 50 + 4,176 + 24 + 8,       92 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL            },
-    { jwin_button_proc,     60,         213,        61,                 21,         vc(14),             vc(1),              13,         D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL            },
-    { jwin_button_proc,     135,        213,        61,                 21,         vc(14),             vc(1),              27,         D_EXIT,         0,      0,      (void *) "Done",    NULL,   NULL            },
-    { jwin_button_proc,     210,        213,        61,                 21,         vc(14),             vc(1),              0,          D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL            },
-    { NULL,                 0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL            }
+    { jwin_win_proc,        60 - 12,    40,         200 + 24 + 24,      194+12,     vc(14),             vc(1),              0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL                   },
+    { d_timer_proc,         0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL                   },
+    { d_modlist_proc,       72 - 12 - 4,60 + 4,     176 + 24 + 8,       46 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   (void*)&rebuild_ilist  },
+    { d_ilist_proc,         72 - 12 - 4,60 + 50 + 4,176 + 24 + 8,       92 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL                   },
+    { jwin_button_proc,     60,         213,        61,                 21,         vc(14),             vc(1),              13,         D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL                   },
+    { jwin_button_proc,     135,        213,        61,                 21,         vc(14),             vc(1),              27,         D_EXIT,         0,      0,      (void *) "Done",    NULL,   NULL                   },
+    { jwin_button_proc,     210,        213,        61,                 21,         vc(14),             vc(1),              0,          D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL                   },
+    { NULL,                 0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL                   }
 };
 
 ItemDefinitionRef select_item(const char *prompt, const ItemDefinitionRef &item, bool is_editor, int &exit_status)
@@ -598,14 +598,14 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
 static DIALOG wlist_dlg[] =
 {
     // (dialog proc)        (x)         (y)         (w)                 (h)         (fg)                (bg)                (key)       (flags)         (d1)    (d2)    (dp)                (dp2)   (d3)
-    { jwin_win_proc,        60 - 12,    40,         200 + 24 + 24,      194+12,     vc(14),             vc(1),              0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL            },
-    { d_timer_proc,         0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL            },
-    { d_modlist_proc,       72 - 12 - 4,60 + 4,     176 + 24 + 8,       46 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   &rebuild_slist  },
-    { d_wlist_proc,         72 - 12 - 4,60 + 50 + 4,176 + 24 + 8,       92 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL            },
-    { jwin_button_proc,     60,         213,        61,                 21,         vc(14),             vc(1),              13,         D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL            },
-    { jwin_button_proc,     135,        213,        61,                 21,         vc(14),             vc(1),              27,         D_EXIT,         0,      0,      (void *) "Done",    NULL,   NULL            },
-    { jwin_button_proc,     210,        213,        61,                 21,         vc(14),             vc(1),              0,          D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL            },
-    { NULL,                 0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL            }
+    { jwin_win_proc,        60 - 12,    40,         200 + 24 + 24,      194+12,     vc(14),             vc(1),              0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL                   },
+    { d_timer_proc,         0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL                   },
+    { d_modlist_proc,       72 - 12 - 4,60 + 4,     176 + 24 + 8,       46 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   (void*)&rebuild_slist  },
+    { d_wlist_proc,         72 - 12 - 4,60 + 50 + 4,176 + 24 + 8,       92 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL                   },
+    { jwin_button_proc,     60,         213,        61,                 21,         vc(14),             vc(1),              13,         D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL                   },
+    { jwin_button_proc,     135,        213,        61,                 21,         vc(14),             vc(1),              27,         D_EXIT,         0,      0,      (void *) "Done",    NULL,   NULL                   },
+    { jwin_button_proc,     210,        213,        61,                 21,         vc(14),             vc(1),              0,          D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL                   },
+    { NULL,                 0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL                   }
 };
 
 SpriteDefinitionRef select_sprite(const char *prompt, const SpriteDefinitionRef &selectedSprite, bool is_editor, int &exit_status)
@@ -898,14 +898,14 @@ int d_enelist_proc(int msg,DIALOG *d,int c)
 static DIALOG elist_dlg[] =
 {
     // (dialog proc)        (x)         (y)         (w)                 (h)         (fg)                (bg)                (key)       (flags)         (d1)    (d2)    (dp)                (dp2)   (d3)
-    { jwin_win_proc,        60 - 12,    40,         200 + 24 + 24,      194+12,     vc(14),             vc(1),              0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL            },
-    { d_timer_proc,         0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL            },
-    { d_modlist_proc,       72 - 12 - 4,60 + 4,     176 + 24 + 8,       46 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   &rebuild_elist  },
-    { d_enelist_proc,       72 - 12 - 4,60 + 50 + 4,176 + 24 + 8,       92 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL            },
-    { jwin_button_proc,     60,         213,        61,                 21,         vc(14),             vc(1),              13,         D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL            },
-    { jwin_button_proc,     135,        213,        61,                 21,         vc(14),             vc(1),              27,         D_EXIT,         0,      0,      (void *) "Done",    NULL,   NULL            },
-    { jwin_button_proc,     210,        213,        61,                 21,         vc(14),             vc(1),              0,          D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL            },
-    { NULL,                 0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL            }
+    { jwin_win_proc,        60 - 12,    40,         200 + 24 + 24,      194+12,     vc(14),             vc(1),              0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL                  },
+    { d_timer_proc,         0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL                  },
+    { d_modlist_proc,       72 - 12 - 4,60 + 4,     176 + 24 + 8,       46 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   (void*)&rebuild_elist },
+    { d_enelist_proc,       72 - 12 - 4,60 + 50 + 4,176 + 24 + 8,       92 + 3,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,          D_EXIT,         0,      0,      NULL,               NULL,   NULL                  },
+    { jwin_button_proc,     60,         213,        61,                 21,         vc(14),             vc(1),              13,         D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL                  },
+    { jwin_button_proc,     135,        213,        61,                 21,         vc(14),             vc(1),              27,         D_EXIT,         0,      0,      (void *) "Done",    NULL,   NULL                  },
+    { jwin_button_proc,     210,        213,        61,                 21,         vc(14),             vc(1),              0,          D_EXIT,         0,      0,      (void *) "Edit",    NULL,   NULL                  },
+    { NULL,                 0,          0,          0,                  0,          0,                  0,                  0,          0,              0,      0,      NULL,               NULL,   NULL                  }
 };
 
 EnemyDefinitionRef select_enemy(const char *prompt, const EnemyDefinitionRef &selectedEnemy, int enemySelectFlags, bool is_editor, int &exit_status)
