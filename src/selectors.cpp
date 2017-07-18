@@ -739,7 +739,7 @@ static void build_enemies_list(const std::string &module)
     for (uint32_t i = 0; i < numenemies; i++)
     {
         bool keep = false;
-        if (enemyfilter & EnemySelectFlags::ESF_BADGUYS)
+        if (enemyfilter & ESF_BADGUYS)
         {
 
             if (curQuest->getModule(module).enemyDefTable().getEnemyDefinition(i).family != eeGUY && curQuest->getModule(module).enemyDefTable().getEnemyDefinition(i).family != eeNONE)
@@ -748,7 +748,7 @@ static void build_enemies_list(const std::string &module)
             }
         }
 
-        if (enemyfilter & EnemySelectFlags::ESF_GOODGUYS)
+        if (enemyfilter & ESF_GOODGUYS)
         {
             if (curQuest->getModule(module).enemyDefTable().getEnemyDefinition(i).family == eeGUY)
             {

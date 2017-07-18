@@ -3947,13 +3947,13 @@ void edit_enemydata(const EnemyDefinitionRef &index)
 int onCustomEnemies()
 {
     int foo;
-    EnemyDefinitionRef index = select_enemy("Select Enemy", EnemyDefinitionRef(), EnemySelectFlags::ESF_BADGUYS | EnemySelectFlags::ESF_GOODGUYS, true, foo);
+    EnemyDefinitionRef index = select_enemy("Select Enemy", EnemyDefinitionRef(), ESF_BADGUYS | ESF_GOODGUYS, true, foo);
     
     while(curQuest->isValid(index))
     {
         edit_enemydata(index);
         
-        index = select_enemy("Select Enemy", index, EnemySelectFlags::ESF_BADGUYS | EnemySelectFlags::ESF_GOODGUYS, true, foo);
+        index = select_enemy("Select Enemy", index, ESF_BADGUYS | ESF_GOODGUYS, true, foo);
     }
     
     refresh(rMAP+rCOMBOS);

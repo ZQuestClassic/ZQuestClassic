@@ -11348,7 +11348,7 @@ int onGuy()
 {
     restore_mouse();
     int exit_status;
-    EnemyDefinitionRef ret=select_enemy("Select Guy",Map.CurrScr()->guy, EnemySelectFlags::ESF_GOODGUYS, false, exit_status);
+    EnemyDefinitionRef ret=select_enemy("Select Guy",Map.CurrScr()->guy, ESF_GOODGUYS, false, exit_status);
     
     if (exit_status == 2 || exit_status == 3)   // Double-click or OK
     {
