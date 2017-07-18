@@ -6986,7 +6986,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
                             if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                             {
-                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
 
                                 if (strlen(tile_move_list_text) < 65000)
                                 {
@@ -7017,7 +7017,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
                                 if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                                 {
-                                    sprintf(temptext, "%s (broken shield)\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+                                    sprintf(temptext, "%s (broken shield)\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
 
                                     if (strlen(tile_move_list_text) < 65000)
                                     {
@@ -7048,7 +7048,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
                                 if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                                 {
-                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
 
                                     if (strlen(tile_move_list_text) < 65000)
                                     {
@@ -7109,7 +7109,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
                                 if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                                 {
-                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
 
                                     if (strlen(tile_move_list_text) < 65000)
                                     {
@@ -7159,7 +7159,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
                             if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                             {
-                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str());
+                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
 
                                 if (strlen(tile_move_list_text) < 65000)
                                 {
@@ -7204,7 +7204,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
                                 if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                                 {
-                                    sprintf(temptext, "%s (%s)\n", curQuest->getModule(*it).enemyDefTable().getEnemyName(u).c_str(), darknut ? "broken shield" : "secondary tiles");
+                                    sprintf(temptext, "%s (%s)\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str(), darknut ? "broken shield" : "secondary tiles");
 
                                     if (strlen(tile_move_list_text) < 65000)
                                     {

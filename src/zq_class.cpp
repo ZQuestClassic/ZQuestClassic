@@ -8856,22 +8856,18 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(5);
             }
 
-            //finally...  section data
             for (uint32_t i = 0; i < numguys; i++)
             {
-                uint32_t namelen = module.enemyDefTable().getEnemyName(i).length() + 1;
+                uint32_t namelen = module.enemyDefTable().getEnemyDefinition(i).name.length() + 1;
                 if (!p_iputl(namelen, f))
                 {
                     new_return(5);
                 }
-                if (!pfwrite((char *)module.enemyDefTable().getEnemyName(i).c_str(), namelen, f))
+                if (!pfwrite((char *)module.enemyDefTable().getEnemyDefinition(i).name.c_str(), namelen, f))
                 {
                     new_return(5);
                 }
-            }
 
-            for (uint32_t i = 0; i < numguys; i++)
-            {
                 if (!p_iputl(module.enemyDefTable().getEnemyDefinition(i).flags, f))
                 {
                     new_return(6);

@@ -759,7 +759,7 @@ static void build_enemies_list(const std::string &module)
         if (keep)
         {
             enemy_struct toadd;
-            toadd.s = curQuest->getModule(module).enemyDefTable().getEnemyName(i);
+            toadd.s = curQuest->getModule(module).enemyDefTable().getEnemyDefinition(i).name;
             toadd.i = EnemyDefinitionRef(module, i);
             enemies_list.push_back(toadd);
         }
@@ -986,18 +986,17 @@ EnemyDefinitionRef select_enemy(const char *prompt, const EnemyDefinitionRef &se
                 modindex = 0;
             elist_cpy[2].d1 = modindex;
             guydata gdata;
-            std::string name;
-            if (enemyfilter & ESF_GOODGUYS)
+            if (enemyfilter & ESF_BADGUYS)
             {
-                gdata.family = eeGUY;
-                name = std::string("(New Guy)");
+                gdata.family = eeWALK;
+                gdata.name = std::string("(New Enemy)");
             }
             else
             {
-                gdata.family = eeWALK;
-                name = std::string("(New Enemy)");
+                gdata.family = eeGUY;
+                gdata.name = std::string("(New Guy)");
             }
-            curQuest->getModule(modules_list[modindex].s).enemyDefTable().addEnemyDefinition(gdata, name);
+            curQuest->getModule(modules_list[modindex].s).enemyDefTable().addEnemyDefinition(gdata);
             build_enemies_list(modules_list[modindex].s);
             saved = false;
         }

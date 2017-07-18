@@ -1862,7 +1862,7 @@ void itemLocationReport()
                         default:
                             sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
                                 !curQuest->isValid(tempnode->enemy) ? ", enemies -> item" : curQuest->isValid(tempnode->enemy) ? ", carried by " : "",
-                                curQuest->isValid(tempnode->enemy) ? curQuest->getEnemyName(tempnode->enemy).c_str() : "");
+                                curQuest->isValid(tempnode->enemy) ? curQuest->getEnemyDefinition(tempnode->enemy).name.c_str() : "");
                             break;
                         }
 
@@ -2017,7 +2017,7 @@ void enemyLocationReport()
                 if (!enemy_found)
                 {
                     buf[0] = 0;
-                    sprintf(buf, "\n--- %s ---\n", curQuest->getEnemyName(i).c_str());
+                    sprintf(buf, "\n--- %s ---\n", curQuest->getEnemyDefinition(i).name.c_str());
                     quest_report_str += buf;
                 }
 

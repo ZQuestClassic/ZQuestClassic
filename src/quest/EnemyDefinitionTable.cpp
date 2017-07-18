@@ -25,14 +25,13 @@ bool SpecialEnemyIndex::checkConsistency(Quest &quest)
 
 void EnemyDefinitionTable::clear()
 {
-    guyData_.clear();
-    guyNames_.clear();
+    guyData_.clear();    
 }
 
 string EnemyDefinitionTable::defaultEnemyName(int slot)
 {
     if (slot < OLDMAXGUYS)
-        return string(old_enemy_names[slot]);
+        return getDefaultEnemies()[slot].name;
     else
     {
         char buf[40];
@@ -41,13 +40,7 @@ string EnemyDefinitionTable::defaultEnemyName(int slot)
     }
 }
 
-void EnemyDefinitionTable::addEnemyDefinition(const guydata &data, const std::string &name)
+void EnemyDefinitionTable::addEnemyDefinition(const guydata &data)
 {
     guyData_.push_back(data);
-    guyNames_.push_back(name);
-}
-
-void EnemyDefinitionTable::setEnemyName(int idx, const std::string &name)
-{
-    guyNames_[idx] = name;
 }

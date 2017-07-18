@@ -39,8 +39,6 @@ public:
     wpndata &getSpriteDefinition(const SpriteDefinitionRef &ref);
 
     guydata &getEnemyDefinition(const EnemyDefinitionRef &ref);
-    const std::string &getEnemyName(const EnemyDefinitionRef &ref);
-    void setEnemyName(const EnemyDefinitionRef &ref, const std::string &newname);
 
     bool isValid(const ItemDefinitionRef &ref);
     bool isValid(const SpriteDefinitionRef &ref);

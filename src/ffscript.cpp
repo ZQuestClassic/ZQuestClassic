@@ -7341,7 +7341,7 @@ void do_createnpc(const bool v)
     if(numcreated == 0)
     {
         ri->guyref = LONG_MAX;
-        Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", curQuest->getEnemyName(ref).c_str());
+        Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", curQuest->getEnemyDefinition(ref).name.c_str());
     }
     else
     {
@@ -7351,7 +7351,7 @@ void do_createnpc(const bool v)
         for(; index<guys.Count(); index++)
             ((enemy*)guys.spr(index))->script_spawned=true;
             
-        Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", curQuest->getEnemyName(ref).c_str(), ri->guyref);
+        Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", curQuest->getEnemyDefinition(ref).name.c_str(), ri->guyref);
     }
 }
 
@@ -8018,7 +8018,7 @@ void do_getnpcname()
     {
         Z_scripterrlog("Invalid enemy ID: %ld\n", ri->guyref);
     }
-    else if(ArrayH::setArray(arrayptr, curQuest->getEnemyName(ref)) == SH::_Overflow)
+    else if(ArrayH::setArray(arrayptr, curQuest->getEnemyDefinition(ref).name) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
 }
 

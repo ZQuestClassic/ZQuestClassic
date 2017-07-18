@@ -13,7 +13,8 @@ struct guydata
     }
 
     //only the fields needed to build the default enemy table
-    guydata(dword flags_,
+    guydata(const std::string &name_,
+        dword flags_,
         dword flags2_,
         word tile_,
         byte width_,
@@ -82,6 +83,7 @@ struct guydata
     {
         clear();
 
+        name = name_;
         flags = flags_;
         flags2 = flags2_;
         tile = tile_;
@@ -209,6 +211,7 @@ struct guydata
         SIZEflags = 0;
     }
 
+    std::string name;
     dword flags;
     dword flags2;
     word  tile;
@@ -281,38 +284,20 @@ public:
     */
     void clear();
 
-    /*
-    * Computes the default sprite name for the sprite with given slot ID in the
-    * sprite definition table.
-    * These names are based on the order sprites were hard-coded in very old
-    * versions of ZC. Sprite with slots that don't correspond to legacy 
-    * sprites get a procedurally-generated name.
-    */
     static std::string defaultEnemyName(int slot);
 
     /*
     * Retrives the sprite definition with given index from the table. The
     * given index must be valid.
     */
-    guydata &getEnemyDefinition(int idx) { return guyData_[idx]; }
 
-    /*
-    * Retrives the name of the sprite with given index in the sprite
-    * definition table. Crashes if the index is invalid.
-    */
-    const std::string &getEnemyName(int idx) { return guyNames_[idx]; }
+    guydata &getEnemyDefinition(int idx) { return guyData_[idx]; }
 
     /*
     * Adds a new sprite at the end of the sprite definition table, with given
     * settings and name.
     */
-    void addEnemyDefinition(const guydata &data, const std::string &name);
-
-    /*
-    * Overwrites the name of the sprite in the given slot in the definition
-    * table with a new name. The index must be valid (crashes otherwise).
-    */
-    void setEnemyName(int idx, const std::string &name);
+    void addEnemyDefinition(const guydata &data);
 
     /*
     * The number of sprites currently in the weapon definition table.
@@ -326,8 +311,7 @@ public:
 
 private:
 
-    std::vector<guydata> guyData_;
-    std::vector<std::string> guyNames_;
+    std::vector<guydata> guyData_;    
 
 };
 

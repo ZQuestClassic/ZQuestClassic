@@ -3939,7 +3939,7 @@ void drawpanel(int pnl)
             textprintf_disabled(menu1,pfont,panel(3).x+6,panel(0).y+8,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Guy:");
             textprintf_disabled(menu1,pfont,panel(3).x+6,panel(0).y+16,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"String:");
             textprintf_disabled(menu1,pfont,panel(3).x+6,panel(0).y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Room:");
-            textprintf_ex(menu1,pfont,panel(3).x+40-16,panel(3).y+8,jwin_pal[jcBOXFG],-1,"%s",curQuest->getEnemyName(scr->guy));
+            textprintf_ex(menu1,pfont,panel(3).x+40-16,panel(3).y+8,jwin_pal[jcBOXFG],-1,"%s",curQuest->getEnemyDefinition(scr->guy).name.c_str());
             textprintf_ex(menu1,pfont,panel(3).x+40-6,panel(3).y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
             textprintf_ex(menu1,pfont,panel(3).x+40-10,panel(3).y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
             int rtype=scr->room;
@@ -10535,31 +10535,31 @@ int onScrData()
             {
                 if (!foundzora && module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_zora)
                 {
-                    sprintf(zora_str, "Zora (1 x %s)",  module.enemyDefTable().getEnemyName(i).c_str());
+                    sprintf(zora_str, "Zora (1 x %s)",  module.enemyDefTable().getEnemyDefinition(i).name.c_str());
                     foundzora = true;
                 }
 
                 if (!foundctraps && module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_trap)
                 {
-                    sprintf(ctraps_str, "Corner Traps (4 x %s)",module.enemyDefTable().getEnemyName(i).c_str());
+                    sprintf(ctraps_str, "Corner Traps (4 x %s)",module.enemyDefTable().getEnemyDefinition(i).name.c_str());
                     foundctraps = true;
                 }
 
                 if (!foundmtraps && module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_trp2)
                 {
-                    sprintf(mtraps_str, "Middle Traps (2 x %s)", module.enemyDefTable().getEnemyName(i).c_str());
+                    sprintf(mtraps_str, "Middle Traps (2 x %s)", module.enemyDefTable().getEnemyDefinition(i).name.c_str());
                     foundmtraps = true;
                 }
 
                 if (!foundfallrocks &&  module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_rock)
                 {
-                    sprintf(fallrocks_str, "Falling Rocks (3 x %s)", module.enemyDefTable().getEnemyName(i).c_str());
+                    sprintf(fallrocks_str, "Falling Rocks (3 x %s)", module.enemyDefTable().getEnemyDefinition(i).name.c_str());
                     foundfallrocks = true;
                 }
 
                 if (!foundstatues &&  module.enemyDefTable().getEnemyDefinition(i).flags2 & eneflag_fire)
                 {
-                    sprintf(statues_str, "Shooting Statues (%s per combo)", module.enemyDefTable().getEnemyName(i).c_str());
+                    sprintf(statues_str, "Shooting Statues (%s per combo)", module.enemyDefTable().getEnemyDefinition(i).name.c_str());
                     foundstatues = true;
                 }
             }
@@ -16051,7 +16051,7 @@ const char *enemy_viewer(int index, int *list_size)
     }
     
     EnemyDefinitionRef guy=Map.CurrScr()->enemy[index];
-    return (curQuest->isValid(guy) && curQuest->getEnemyDefinition(guy).family != eeGUY) ? curQuest->getEnemyName(guy).c_str() : (char *) "(None)";
+    return (curQuest->isValid(guy) && curQuest->getEnemyDefinition(guy).family != eeGUY) ? curQuest->getEnemyDefinition(guy).name.c_str() : (char *) "(None)";
 }
 
 static DIALOG glist_dlg[] =

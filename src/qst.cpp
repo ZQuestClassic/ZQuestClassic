@@ -6373,7 +6373,10 @@ void initCoreEnemies(int guyversion, const std::vector<std::string> &names, Enem
     
     for(uint32_t i=0; i<OLDMAXGUYS; i++)
     {
-        table.addEnemyDefinition(getDefaultEnemies()[i], i < names.size() ? names[i] : old_enemy_names[i]);
+        guydata edata = getDefaultEnemies()[i];
+        if (i < names.size()) 
+            edata.name = names[i];
+        table.addEnemyDefinition(edata);
         
         // Patra fix: 2.10 BSPatras used spDIG. 2.50 Patras use CSet 7.
         if(guyversion<=3 && i==ePATRABS)
@@ -6440,7 +6443,9 @@ void initCoreEnemies(int guyversion, const std::vector<std::string> &names, Enem
     }
     for (uint32_t i = OLDMAXGUYS; i < names.size(); i++)
     {
-        table.addEnemyDefinition(guydata(), names[i]);
+        guydata edata;
+        edata.name = names[i];
+        table.addEnemyDefinition(edata);
     }
 }
 
@@ -8733,8 +8738,6 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
                     continue;
                 }
 
-                std::string name;
-
                 if (guyversion < 30)
                 {
                     char tempname[64];
@@ -8760,48 +8763,28 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
                         }
                     }
 
-                    name = string(tempname);
-                }
-                else
-                {
-                    uint32_t namelen;
-                    if (!p_igetl(&namelen, f, true))
-                        return qe_invalid;
+                    std::string name(tempname);
 
-                    char *buf = new char[namelen];
-                    if (!pfread(buf, namelen, f, true))
+                    if (name.length() == 0 || name[name.length() - 1] == ' ')
                     {
-                        delete[] buf;
-                        return qe_invalid;
+                        name = EnemyDefinitionTable::defaultEnemyName(i);
                     }
-                    name = string(buf);
-                    delete[] buf;
-                }
-                
-                if (modname == "CORE")
-                {
-                    if (i >= OLDMAXGUYS || name.length() < 1 || name[name.length() - 1] != ' ')
-                    {
-                        names.push_back(name);
-                    }
-                    else
-                    {
-                        names.push_back(old_enemy_names[i]);
-                    }
+
+                    names.push_back(name);                    
                 }
                 else
                 {
-                    names.push_back(name);
+                    // will be filled in when enemies are read in
+                    names.push_back("");
                 }
             }
-        }
-    
+        }  
         else
         {
             numguys = 512;
             for (int i = 0; i < OLDMAXGUYS; i++)
             {
-                names.push_back(old_enemy_names[i]);
+                names.push_back(getDefaultEnemies()[i].name);
             }
 
             for (uint32_t i = OLDMAXGUYS; i < numguys; i++)
@@ -8871,7 +8854,9 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
         {
             for (uint32_t i = 0; i < numguys; i++)
             {
-                tables[modname].addEnemyDefinition(guydata(), names[i]);
+                guydata edata;
+                edata.name = (i < names.size() ? names[i] : EnemyDefinitionTable::defaultEnemyName(i));
+                tables[modname].addEnemyDefinition(edata);
             }
         }
     
@@ -8898,6 +8883,26 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
                 }
 
                 guydata tempguy;
+
+                if (guyversion < 30)
+                {
+                    tempguy.name = tables[modname].getEnemyDefinition(i).name;
+                }
+                else
+                {
+                    uint32_t namelen;
+                    if (!p_igetl(&namelen, f, true))
+                        return qe_invalid;
+
+                    char *buf = new char[namelen];
+                    if (!pfread(buf, namelen, f, true))
+                    {
+                        delete[] buf;
+                        return qe_invalid;
+                    }
+                    tempguy.name = string(buf);
+                    delete[] buf;
+                }                
 
                 if (!p_igetl(&(tempguy.flags), f, true))
                 {

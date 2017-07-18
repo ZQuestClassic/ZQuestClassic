@@ -54,7 +54,6 @@ enum OldSpriteID
 };
 extern const char *old_weapon_names[];
 
-extern const char *old_enemy_names[];
 const std::vector<guydata> &getDefaultEnemies();
 
 const std::vector<item_drop_object> &getDefaultItemDropSets();

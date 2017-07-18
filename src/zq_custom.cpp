@@ -3399,7 +3399,7 @@ void edit_enemydata(const EnemyDefinitionRef &index)
         enedata_dlg[enedata_flags2_list[i]].h = 0;
     }
     
-    sprintf(enemynumstr,"Enemy %d: %s", index.slot, curQuest->getEnemyName(index).c_str());
+    sprintf(enemynumstr,"Enemy %d: %s", index.slot, curQuest->getEnemyDefinition(index).name.c_str());
     enedata_dlg[0].dp = enemynumstr;
     enedata_dlg[0].dp2 = lfont;
     enedata_dlg[2].d1 = curQuest->getEnemyDefinition(index).tile;
@@ -3491,7 +3491,7 @@ void edit_enemydata(const EnemyDefinitionRef &index)
     enedata_dlg[43].dp = hom;
     enedata_dlg[44].dp = spd;
     
-    sprintf(name,"%s",curQuest->getEnemyName(index).c_str());
+    sprintf(name,"%s",curQuest->getEnemyDefinition(index).name.c_str());
     enedata_dlg[36].dp = name;
     
     for (int i = 0; i < 12; i++)
@@ -3761,60 +3761,60 @@ void edit_enemydata(const EnemyDefinitionRef &index)
     
     do
     {
-        for(int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
-            if(enedata_cpy[64+i].proc==jwin_droplist_proc)
+            if (enedata_cpy[64 + i].proc == jwin_droplist_proc)
             {
                 int size = 0;
-                ((ListData*)enedata_cpy[64+i].dp)->listFunc(-1,&size);
+                ((ListData*)enedata_cpy[64 + i].dp)->listFunc(-1, &size);
                 // Bound ms[i] as well as enedata_dlg[64+i].d1
-                sprintf(ms[i],"%d",vbound(atoi(ms[i]), 0, size));
-				enedata_cpy[64+i].d1 = atoi(ms[i]);
+                sprintf(ms[i], "%d", vbound(atoi(ms[i]), 0, size));
+                enedata_cpy[64 + i].d1 = atoi(ms[i]);
             }
             else
-				enedata_cpy[64+i].dp = ms[i];
+                enedata_cpy[64 + i].dp = ms[i];
         }
-        
-		enedata_cpy[189].dp = ms[10];
-		enedata_cpy[190].dp = ms[11]; //!
-        
-        ret = zc_popup_dialog(enedata_cpy,3);
-        
-        test.tile  = enedata_cpy[2].d1;
+
+        enedata_cpy[189].dp = ms[10];
+        enedata_cpy[190].dp = ms[11]; //!
+
+        ret = zc_popup_dialog(enedata_cpy, 3);
+
+        test.tile = enedata_cpy[2].d1;
         test.cset = enedata_cpy[2].d2;
-        test.s_tile  = enedata_cpy[3].d1;
-        test.e_tile  = enedata_cpy[4].d1;
-        
-        test.width = vbound(atoi(w),0,20);
-        test.height = vbound(atoi(h),0,20);
-        test.s_width = vbound(atoi(sw),0,20);
-        test.s_height = vbound(atoi(sh),0,20);
-        test.e_width = vbound(atoi(ew),0,20);
-        test.e_height = vbound(atoi(eh),0,20);
-        
+        test.s_tile = enedata_cpy[3].d1;
+        test.e_tile = enedata_cpy[4].d1;
+
+        test.width = vbound(atoi(w), 0, 20);
+        test.height = vbound(atoi(h), 0, 20);
+        test.s_width = vbound(atoi(sw), 0, 20);
+        test.s_height = vbound(atoi(sh), 0, 20);
+        test.e_width = vbound(atoi(ew), 0, 20);
+        test.e_height = vbound(atoi(eh), 0, 20);
+
         test.weapon = enedata_cpy[45].d1 != 0 ? biew[enedata_cpy[45].d1].i + wEnemyWeapons : wNone;
         test.family = bief[enedata_cpy[46].d1].i;
         test.anim = biea[enedata_cpy[47].d1].i;
         test.e_anim = biea[enedata_cpy[48].d1].i;
         test.item_set = enedata_cpy[49].d1;
-        
+
         test.hp = vbound(atoi(hp), 0, 32767); //0x7FFF, not 0xFFFF?
         test.dp = vbound(atoi(dp), 0, 32767);
         test.wdp = vbound(atoi(wdp), 0, 32767);
         test.grumble = vbound(atoi(grm), 0, 4);
-        
-        test.rate = vbound(atoi(rat), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
-        test.hrate = vbound(atoi(hrt), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
-        test.homing = vbound(atoi(hom), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:256);
-        test.step = vbound(atoi(spd),0, (test.family == eeFIRE || test.family == eeOTHER)?32767:1000);
-        
-        test.frate = vbound(atoi(frt),0,256);
-        test.e_frate = vbound(atoi(efr),0,256);
-        test.bosspal = vbound(atoi(bsp),-1,29);
+
+        test.rate = vbound(atoi(rat), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 16);
+        test.hrate = vbound(atoi(hrt), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 16);
+        test.homing = vbound(atoi(hom), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 256);
+        test.step = vbound(atoi(spd), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 1000);
+
+        test.frate = vbound(atoi(frt), 0, 256);
+        test.e_frate = vbound(atoi(efr), 0, 256);
+        test.bosspal = vbound(atoi(bsp), -1, 29);
         test.bgsfx = enedata_cpy[182].d1;
         test.hitsfx = enedata_cpy[183].d1;
         test.deadsfx = enedata_cpy[184].d1;
-	
+
         if (ret == 236)
         {
             int status;
@@ -3825,118 +3825,118 @@ void edit_enemydata(const EnemyDefinitionRef &index)
                 enedata_cpy[236].dp = (void *)(curQuest->isValid(test.wpnsprite) ? curQuest->getSpriteDefinition(test.wpnsprite).name.c_str() : nonestr);
             }
         }
-   
-        for(int j=0; j<10;j++)
-            test.miscs[j] = (enedata_cpy[64+j].proc==jwin_droplist_proc) ? enedata_cpy[64+j].d1 : atol(ms[j]);
+
+        for (int j = 0; j < 10; j++)
+            test.miscs[j] = (enedata_cpy[64 + j].proc == jwin_droplist_proc) ? enedata_cpy[64 + j].d1 : atol(ms[j]);
         test.miscs[10] = atol(ms[10]);
         test.miscs[11] = atol(ms[11]);
-	
-	
-	
-        
-        for(int j=0; j <= edefBYRNA; j++)
+
+
+
+
+        for (int j = 0; j <= edefBYRNA; j++)
         {
-            test.defense[j] = enedata_cpy[j+161].d1;
+            test.defense[j] = enedata_cpy[j + 161].d1;
         }
-        
+
         test.defense[edefSCRIPT] = enedata_cpy[192].d1;
-        
-        
-        for(int i=0; i<32; i++)
-            test.flags |= (enedata_cpy[74+i].flags & D_SELECTED) ? (1<<i) : 0;
-            
-        test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
-        test.flags |= (enedata_cpy[186].d1==2 ? guy_fadeinstant : enedata_cpy[186].d1==1 ? guy_fadeflicker : 0);
-        
-        for(int i=0; i<16; i++)
-            test.flags2 |= (enedata_cpy[106+i].flags & D_SELECTED) ? (1<<i) : 0;
-            
-        if(enedata_cpy[143].flags & D_SELECTED)
+
+
+        for (int i = 0; i < 32; i++)
+            test.flags |= (enedata_cpy[74 + i].flags & D_SELECTED) ? (1 << i) : 0;
+
+        test.flags &= ~(guy_fadeinstant | guy_fadeflicker);
+        test.flags |= (enedata_cpy[186].d1 == 2 ? guy_fadeinstant : enedata_cpy[186].d1 == 1 ? guy_fadeflicker : 0);
+
+        for (int i = 0; i < 16; i++)
+            test.flags2 |= (enedata_cpy[106 + i].flags & D_SELECTED) ? (1 << i) : 0;
+
+        if (enedata_cpy[143].flags & D_SELECTED)
             test.cset = 14;
-	
-	
-	test.defense[edefSCRIPT01] = enedata_cpy[203].d1;
-	test.defense[edefSCRIPT02] = enedata_cpy[204].d1;
-	test.defense[edefSCRIPT03] = enedata_cpy[205].d1;
-	test.defense[edefSCRIPT04] = enedata_cpy[206].d1;
-	test.defense[edefSCRIPT05] = enedata_cpy[207].d1;
-	test.defense[edefSCRIPT06] = enedata_cpy[208].d1;
-	test.defense[edefSCRIPT07] = enedata_cpy[209].d1;
-	test.defense[edefSCRIPT08] = enedata_cpy[210].d1;
-	test.defense[edefSCRIPT09] = enedata_cpy[211].d1;
-	test.defense[edefSCRIPT10] = enedata_cpy[212].d1;
-	
-	//tilewidth, tileheight, hitwidth, hitheight, 
-	test.txsz = atoi(tilex);
-	test.tysz = atoi(tiley);
-	test.hxsz = atoi(hitx);
-	test.hysz = atoi(hity);
-	test.hzsz = atoi(hitz);
-	test.hxofs = atoi(hitofsx);
-	test.hyofs = atoi(hitofsy);
-	test.zofs = atoi(hitofsz);
-	test.xofs = atoi(drawofsx);
-	test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
-	
-	//override flags
-	if(enedata_cpy[237].flags & D_SELECTED)
+
+
+        test.defense[edefSCRIPT01] = enedata_cpy[203].d1;
+        test.defense[edefSCRIPT02] = enedata_cpy[204].d1;
+        test.defense[edefSCRIPT03] = enedata_cpy[205].d1;
+        test.defense[edefSCRIPT04] = enedata_cpy[206].d1;
+        test.defense[edefSCRIPT05] = enedata_cpy[207].d1;
+        test.defense[edefSCRIPT06] = enedata_cpy[208].d1;
+        test.defense[edefSCRIPT07] = enedata_cpy[209].d1;
+        test.defense[edefSCRIPT08] = enedata_cpy[210].d1;
+        test.defense[edefSCRIPT09] = enedata_cpy[211].d1;
+        test.defense[edefSCRIPT10] = enedata_cpy[212].d1;
+
+        //tilewidth, tileheight, hitwidth, hitheight, 
+        test.txsz = atoi(tilex);
+        test.tysz = atoi(tiley);
+        test.hxsz = atoi(hitx);
+        test.hysz = atoi(hity);
+        test.hzsz = atoi(hitz);
+        test.hxofs = atoi(hitofsx);
+        test.hyofs = atoi(hitofsy);
+        test.zofs = atoi(hitofsz);
+        test.xofs = atoi(drawofsx);
+        test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
+
+        //override flags
+        if (enedata_cpy[237].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_WIDTH;
-            
-        if(enedata_cpy[238].flags & D_SELECTED)
+
+        if (enedata_cpy[238].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_HEIGHT;
-            
-        if(enedata_cpy[239].flags & D_SELECTED)
+
+        if (enedata_cpy[239].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_Z_HEIGHT;
-            
-        if(enedata_cpy[240].flags & D_SELECTED)
+
+        if (enedata_cpy[240].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_X_OFFSET;
-            
-        if(enedata_cpy[241].flags & D_SELECTED)
+
+        if (enedata_cpy[241].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_Y_OFFSET;
-            
-        if(enedata_cpy[242].flags & D_SELECTED)
+
+        if (enedata_cpy[242].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_DRAW_Z_OFFSET;
-	if(enedata_cpy[243].flags & D_SELECTED)
+        if (enedata_cpy[243].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_DRAW_X_OFFSET;
-            
-        if(enedata_cpy[244].flags & D_SELECTED)
+
+        if (enedata_cpy[244].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_DRAW_Y_OFFSET;
-	if(enedata_cpy[245].flags & D_SELECTED)
+        if (enedata_cpy[245].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_TILE_WIDTH;
-	if(enedata_cpy[246].flags & D_SELECTED)
+        if (enedata_cpy[246].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_TILE_HEIGHT;
 
-	    
-	    
-        if(ret==5)
+
+
+        if (ret == 5)
         {
-            curQuest->setEnemyName(index,name);
+            test.name = std::string(name);
             curQuest->getEnemyDefinition(index) = test;
             saved = false;
         }
-        else if(ret==46)
+        else if (ret == 46)
         {
             setEnemyLabels(bief[enedata_cpy[46].d1].i);
         }
-        else if(ret==178)
+        else if (ret == 178)
         {
-            for(int j=1; j <= edefBYRNA; j++)
+            for (int j = 1; j <= edefBYRNA; j++)
             {
-				enedata_cpy[j+161].d1 = enedata_cpy[161].d1;
+                enedata_cpy[j + 161].d1 = enedata_cpy[161].d1;
             }
-            
-			enedata_cpy[192].d1 = enedata_cpy[161].d1;
-	     //Clear to 0
-	    enedata_cpy[203].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[204].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[205].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[206].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[207].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[208].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[209].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[210].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[211].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[212].d1 = enedata_cpy[161].d1;
+
+            enedata_cpy[192].d1 = enedata_cpy[161].d1;
+            //Clear to 0
+            enedata_cpy[203].d1 = enedata_cpy[161].d1;
+            enedata_cpy[204].d1 = enedata_cpy[161].d1;
+            enedata_cpy[205].d1 = enedata_cpy[161].d1;
+            enedata_cpy[206].d1 = enedata_cpy[161].d1;
+            enedata_cpy[207].d1 = enedata_cpy[161].d1;
+            enedata_cpy[208].d1 = enedata_cpy[161].d1;
+            enedata_cpy[209].d1 = enedata_cpy[161].d1;
+            enedata_cpy[210].d1 = enedata_cpy[161].d1;
+            enedata_cpy[211].d1 = enedata_cpy[161].d1;
+            enedata_cpy[212].d1 = enedata_cpy[161].d1;
         }
     }
     while(ret != 5 && ret != 6 && ret != 0);
@@ -3946,19 +3946,14 @@ void edit_enemydata(const EnemyDefinitionRef &index)
 
 int onCustomEnemies()
 {
-    /*
-      char *hold = item_string[0];
-      item_string[0] = "rupee (1)";
-      */
-    
     int foo;
-    EnemyDefinitionRef index = select_enemy("Select Enemy", EnemyDefinitionRef(), EnemySelectFlags::ESF_BADGUYS, true, foo);
+    EnemyDefinitionRef index = select_enemy("Select Enemy", EnemyDefinitionRef(), EnemySelectFlags::ESF_BADGUYS | EnemySelectFlags::ESF_GOODGUYS, true, foo);
     
     while(curQuest->isValid(index))
     {
         edit_enemydata(index);
         
-        index = select_enemy("Select Enemy", index, EnemySelectFlags::ESF_BADGUYS, true, foo);
+        index = select_enemy("Select Enemy", index, EnemySelectFlags::ESF_BADGUYS | EnemySelectFlags::ESF_GOODGUYS, true, foo);
     }
     
     refresh(rMAP+rCOMBOS);
