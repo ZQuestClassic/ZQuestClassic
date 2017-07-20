@@ -9788,7 +9788,7 @@ int writescripts(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(7);
 		}
-        for(int i=0; i<NUMSCRIPTGUYS; i++)
+        for(int i=0; i<(int)scripts.guyscripts.size(); i++)
         {
             int ret = write_one_script(f, Header, i, scripts.guyscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -9845,7 +9845,7 @@ int writescripts(PACKFILE *f, zquestheader *Header)
 			new_return(10);
 		}
 
-        for(int i=0; i<NUMSCRIPTLINK; i++)
+        for(int i=0; i<(int)scripts.linkscripts.size(); i++)
         {
             int ret = write_one_script(f, Header, i, scripts.linkscripts[i]);
             fake_pack_writing=(writecycle==0);

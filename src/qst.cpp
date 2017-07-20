@@ -4122,23 +4122,20 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
         
+        if(Header->zelda_version < 0x193)
+        {
+            if(!p_getc(&tempbyte,f,true))
+            {
+                return qe_invalid;
+            }
+        }
+
         for(int j=0; j<3; j++)
         {
-            if(Header->zelda_version < 0x193)
+            if (!p_igetw(&temp_misc.shop[i].price[j], f, true))
             {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-                temp_misc.shop[i].price[j] = tempbyte;
-            }
-            else
-            {
-                if (!p_igetw(&temp_misc.shop[i].price[j], f, true))
-                {
-                    return qe_invalid;
-                }
-            }
+                return qe_invalid;
+            }            
         }
         
         if(s_version > 3)
