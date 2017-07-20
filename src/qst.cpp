@@ -4722,8 +4722,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
         items_to_read=64;
         modules_to_read = 1; // only CORE
     }
-    
-    if(version > 0x192)
+    else if(version > 0x192)
     {
         items_to_read=0;
         
@@ -4761,6 +4760,11 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
             if (!p_igetl(&modules_to_read, f, true))
                 return qe_invalid;
         }
+    }
+    else
+    {
+        items_to_read = 256;
+        modules_to_read = 1; // only CORE
     }
 
     for (uint32_t module = 0; module < modules_to_read; module++)
@@ -5963,19 +5967,17 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
     
     uint32_t modules_to_read;
     
-    if(Header->zelda_version < 0x186)
-    {
-        weapons_to_read=64;
-        modules_to_read = 1; // only CORE
-    }
-    
     if(Header->zelda_version < 0x185)
     {
         weapons_to_read=32;
         modules_to_read = 1;
     }
-    
-    if(Header->zelda_version > 0x192)
+    else if(Header->zelda_version < 0x186)
+    {
+        weapons_to_read=64;
+        modules_to_read = 1; // only CORE
+    }
+    else if(Header->zelda_version > 0x192)
     {
         weapons_to_read=0;
         
@@ -6015,6 +6017,11 @@ int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItem
                 return qe_invalid;
             }
         }
+    }
+    else
+    {
+        weapons_to_read = 256;
+        modules_to_read = 1; // only CORE
     }
 
     for (uint32_t module = 0; module < modules_to_read; module++)
