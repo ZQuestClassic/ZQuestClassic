@@ -14048,8 +14048,13 @@ void LinkClass::checkitems(int index)
             break;
         }
         
-    if(pickup&ipONETIME)                                      // set mITEM for one-time-only items
+    if (pickup&ipONETIME)                                      // set mITEM for one-time-only items
+    {
         setmapflag(mITEM);
+        // some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
+        if (get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
+            setmapflag();
+    }
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
         setmapflag();
         

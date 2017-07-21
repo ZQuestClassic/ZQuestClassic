@@ -4712,31 +4712,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     case COMBOSDM:
     {
-	    if ( !get_bit(quest_rules,qr_NEWCOMBOSDM) )
-	    {
 	    //This is how it was in 2.50.1-2
 		int pos = (ri->d[0])/10000;
 		long scr = (ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000);
 
 		if(pos < 0 || pos >= 176 || scr < 0) break;
 
-		combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
-	    }
-	    if ( get_bit(quest_rules,qr_NEWCOMBOSDM) )
-	    {
-	    
-		int pos = (ri->d[0])/10000;
-		int sc = (ri->d[2]/10000);
-		int m = (ri->d[1]/10000)-1;
-		
-		if(pos<0 || pos>=176 ||
-		  sc<0 || sc>=MAPSCRS ||
-		  m<0 || m>=map_count)
-		    break;
-		
-		long scr = m*MAPSCRS+sc;
-		combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
-	    }
+		combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;	    
     }
     break;
     

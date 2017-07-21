@@ -2444,6 +2444,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build < 18))
     {
         set_bit(quest_rules,qr_NOSOLIDDAMAGECOMBOS, 1);
+        set_bit(quest_rules, qr_ITEMPICKUPSETSBELOW, 1); // broke around build 400
     }
     
     if(tempheader.zelda_version < 0x250) // version<0x250 checks for beta 18; build was set to 18 prematurely
@@ -2551,17 +2552,6 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(tempheader.zelda_version < 0x193)
     {
         set_bit(extra_rules, er_SHORTDGNWALK, 1);
-    }
-    
-    //COMBOSDM
-    //COMBOSDM
-    if(tempheader.zelda_version == 0x250 && tempheader.build < 30) //2.50.2 or earlier
-    {
-        set_bit(quest_rules,qr_NEWCOMBOSDM, 0);
-    }
-    if(tempheader.zelda_version == 0x250 && tempheader.build == 30) //2.50.3RC1
-    {
-        set_bit(quest_rules,qr_NEWCOMBOSDM, 1);
     }
     
     if(keepdata==true)

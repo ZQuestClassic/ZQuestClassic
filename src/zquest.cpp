@@ -19341,10 +19341,6 @@ int onCompileScript()
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
                     build_biitems_list();
-		    //COMBOSDM - If we compile in this version, assign the combosdm values. 
-		    //set_bit(quest_rules,qr_NEWCOMBOSDM, 1);
-		    
-		    //No, this cannot be automatic? The inputs would be wrong. 
                     
                     for(map<string, vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
                     {
