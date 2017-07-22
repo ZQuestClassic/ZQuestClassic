@@ -51,10 +51,8 @@ void CompileError::vprint(AST const* offender, va_list args) const
 	vsprintf(msg, format.c_str(), args);
 	oss << msg;
 	
-#ifndef SCRIPTPARSER_COMPILE
     box_out(oss.str().c_str());
     box_eol();
-#endif
 }
 	
 ////////////////////////////////////////////////////////////////
