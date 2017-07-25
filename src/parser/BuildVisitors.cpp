@@ -553,7 +553,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
     }
 
     //call the function
-    int label = c->linktable->functionToLabel(host.readFunction->id);
+    int label = host.readFunction->getLabel();
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
     //pop the stack frame
     Opcode *next = new OPopRegister(new VarArgument(SFRAME));
@@ -590,7 +590,7 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    int funclabel = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
+    int funclabel = host.binding->getLabel();
     //push the stack frame pointer
     addOpcode(new OPushRegister(new VarArgument(SFRAME)));
     //push the return address
@@ -1377,7 +1377,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     }
     
     //finally, goto!
-    int label = c->linktable->functionToLabel(host.writeFunction->id);
+    int label = host.writeFunction->getLabel();
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
 
     // Pop the stack frame

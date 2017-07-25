@@ -225,6 +225,13 @@ string Function::Signature::asString() const
 
 // ZScript::Function
 
+Function::Function(ZVarType const* returnType, string const& name,
+				   vector<ZVarType const*> paramTypes, int id)
+	: node(NULL), internalScope(NULL), thisVar(NULL),
+	  returnType(returnType), name(name), paramTypes(paramTypes),
+	  id(id), label(nullopt)
+{}
+
 Script* Function::getScript() const
 {
 	if (!internalScope) return NULL;
@@ -235,3 +242,8 @@ Script* Function::getScript() const
 	return &scriptScope->script;
 }
 
+int Function::getLabel() const
+{
+	if (!label) label = ScriptParser::getUniqueLabelID();
+	return *label;
+}

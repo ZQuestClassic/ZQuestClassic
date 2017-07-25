@@ -49,11 +49,6 @@ protected:
 	map<string, ZScript::Function*> setters;
 
 	ZScript::Function* getFunction(string const& name) const;
-    virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> getIndexedVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setIndexedVariable(LinkTable &lt, int id, int var);
 };
 
 class GlobalSymbols : public LibrarySymbols

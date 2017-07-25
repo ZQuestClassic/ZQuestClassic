@@ -343,18 +343,6 @@ IntermediateData::IntermediateData(FunctionData const& functionData)
 ////////////////////////////////////////////////////////////////
 // LinkTable
 
-int LinkTable::functionToLabel(int fid)
-{
-    map<int,int>::iterator it = funcLabels.find(fid);
-
-    if (it != funcLabels.end())
-        return (*it).second;
-
-    int newid = ScriptParser::getUniqueLabelID();
-    funcLabels[fid] = newid;
-    return newid;
-}
-
 int LinkTable::getGlobalID(int vid)
 {
     map<int, int>::iterator it = globalIDs.find(vid);

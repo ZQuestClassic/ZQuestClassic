@@ -188,19 +188,12 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         lt.addGlobalVar(nodeId);
     }
 
-    //Z_message("yes");
     //and add the this pointers
     for(vector<int>::iterator it = symbols->getGlobalPointers().begin(); it != symbols->getGlobalPointers().end(); it++)
     {
         lt.addGlobalPointer(*it);
     }
 
-	vector<Function*> funs = program.getUserFunctions();
-    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
-        lt.functionToLabel(symbols->getNodeId((*it)->node));
-
-    //Z_message("yes");
-    
     //we now have labels for the functions and ids for the global variables.
     //we can now generate the code to intialize the globals
     IntermediateData *rval = new IntermediateData(fdata);
@@ -322,7 +315,8 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     //Z_message("yes");
 
     //globals have been initialized, now we repeat for the functions
-    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
+	vector<Function*> funs = program.getUserFunctions();
+	for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
     {
 		Function& function = **it;
 		ASTFuncDecl& node = *function.node;
@@ -370,7 +364,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(lt.functionToLabel(nodeId));
+        first->setLabel(function.getLabel());
         funccode.push_back(first);
         //push on the 0s
         int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(nodeId).size();
@@ -452,7 +446,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
             funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
         }
         
-        rval->funcs[lt.functionToLabel(nodeId)]=funccode;
+        rval->funcs[function.getLabel()] = funccode;
     }
     
     //Z_message("yes");
@@ -465,7 +459,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		Function* run = (*it)->getRun();
 		string name = (*it)->getName();
 		int id = run->id;
-        int labelid = lt.functionToLabel(id);
+        int labelid = run->getLabel();
         rval->scriptRunLabels[name] = labelid;
     }
     

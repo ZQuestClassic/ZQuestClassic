@@ -121,10 +121,8 @@ namespace ZScript
 			vector<ZVarType const*> parameterTypes;
 		};
 		
-		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
-				: node(NULL), internalScope(NULL), thisVar(NULL),
-				  returnType(returnType), name(name), paramTypes(paramTypes), id(id)
-			{}
+		Function(ZVarType const* returnType, string const& name,
+				 vector<ZVarType const*> paramTypes, int id);
 		ZVarType const* returnType;
 		string name;
 		vector<ZVarType const*> paramTypes;
@@ -133,11 +131,16 @@ namespace ZScript
 		ASTFuncDecl* node;
 		Scope* internalScope;
 		Variable* thisVar;
-
+		
 		Signature getSignature() const {return Signature(*this);}
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
+
+		int getLabel() const;
+		
+	private:
+		mutable optional<int> label;
 	};
 }
 
