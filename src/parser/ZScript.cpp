@@ -84,7 +84,7 @@ vector<Function*> Program::getUserGlobalFunctions() const
 
 vector<Function*> Program::getUserFunctions() const
 {
-	vector<Function*> functions = globalScope.getAllFunctions();
+	vector<Function*> functions = getFunctionsInBranch(globalScope);
 	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
 	{
 		Function& function = **it;

@@ -10,11 +10,11 @@ using std::string;
 using std::map;
 using std::vector;
 
-class Scope;
 class SymbolTable;
 namespace ZScript
 {
 	class Function;
+	class Scope;
 }
 
 static const int SETTER = 0;
@@ -36,7 +36,7 @@ class LibrarySymbols
 public:
 	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
 
-    virtual void addSymbolsToScope(Scope& scope);
+	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
     virtual ~LibrarySymbols();
 protected:

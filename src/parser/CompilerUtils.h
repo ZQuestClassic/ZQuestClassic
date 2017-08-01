@@ -7,25 +7,6 @@
 #include <list>
 #include <vector>
 
-// Delete all the elements in a vector of pointers.
-template<class Element>
-void deleteElements(std::vector<Element*>& container)
-{
-	for (typename std::vector<Element*>::iterator it = container.begin();
-		 it != container.end(); ++it)
-		delete *it;
-}
-
-// Delete all the elements in a std::list of pointers.
-template<class Element>
-void deleteElements(std::list<Element*>& container)
-{
-	for (typename std::list<Element*>::iterator it = container.begin();
-		 it != container.end(); ++it)
-		delete *it;
-}
-
-
 ////////////////////////////////////////////////////////////////
 // Simple std::optional (from C++17).
 
@@ -103,11 +84,19 @@ public:
 	}
 
 	template <typename U>
-	Type value_or(U const& v) const
+	Type const value_or(U const& v) const
 	{
 		return has_value_
-			? reinterpret_cast<Type>(data)
-			: static_cast<Type>(v);
+			? *reinterpret_cast<Type const*>(&data)
+			: *reinterpret_cast<Type const*>(&v);
+	}
+
+	template <typename U>
+	Type value_or(U& v)
+	{
+		return has_value_
+			? *reinterpret_cast<Type*>(&data)
+			: *reinterpret_cast<Type*>(&v);
 	}
 
 	// Destroys the value if present.
@@ -134,4 +123,52 @@ public:
     }
 };
 
+////////////////////////////////////////////////////////////////
+// Containers
+
+// Append the contents of the second container to the first.
+template <typename TargetContainer, typename SourceContainer>
+void appendElements(TargetContainer& target, SourceContainer const& source)
+{
+	target.insert(target.end(), source.begin(), source.end());
+}
+
+// Delete all the elements in a container.
+template <typename Container>
+void deleteElements(Container const& container)
+{
+	for (typename Container::const_iterator it = container.begin();
+	     it != container.end(); ++it)
+		delete *it;
+}
+
+////////////////////////////////////////////////////////////////
+// Maps
+
+template <typename Value, typename Map>
+std::vector<Value> getSeconds(Map const& map)
+{
+	std::vector<Value> seconds;
+	for (typename Map::const_iterator it = map.begin();
+	     it != map.end(); ++it)
+		seconds.push_back(it->second);
+	return seconds;
+}
+
+template <typename Map>
+void deleteSeconds(Map const& map)
+{
+	for (typename Map::const_iterator it = map.begin(); it != map.end(); ++it)
+		delete it->second;
+}
+
+template <typename Element, typename Map, typename Key>
+optional<Element> find(Map const& map, Key const& key)
+{
+	typename Map::const_iterator it = map.find(key);
+	if (it == map.end()) return nullopt;
+	Element const& element = it->second;
+	return element;
+}
+	
 #endif

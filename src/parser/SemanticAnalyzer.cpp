@@ -171,7 +171,7 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 	}
 
 	// Add type to the current scope under its new name.
-	scope->addType(host.name, type, &host);
+	scope->addType(host.name, &type, &host);
 }
 
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
@@ -441,7 +441,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
 {
 	// Bind to named variable.
-	host.binding = scope->getVariable(host.components);
+	host.binding = lookupVariable(*scope, host.components);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared, &host,
@@ -481,7 +481,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
 	{
-		host.readFunction = host.leftClass->getGetter(host.right);
+		host.readFunction = lookupGetter(*host.leftClass, host.right);
 		if (!host.readFunction)
 		{
 			handleError(CompileError::ArrowNoVar, &host,
@@ -501,7 +501,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	// Find write function.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		host.writeFunction = host.leftClass->getSetter(host.right);
+		host.writeFunction = lookupSetter(*host.leftClass, host.right);
 		if (!host.writeFunction)
 		{
 			handleError(CompileError::ArrowNoVar, &host,
@@ -583,8 +583,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	// Grab functions with the proper name.
 	vector<Function*> functions =
 		identifier
-		? scope->getFunctions(identifier->components)
-		: arrow->leftClass->getFunctions(arrow->right);
+		? lookupFunctions(*scope, identifier->components)
+		: lookupFunctions(*arrow->leftClass, arrow->right);
 
 	// Filter out invalid functions.
 	for (vector<Function*>::iterator it = functions.begin();

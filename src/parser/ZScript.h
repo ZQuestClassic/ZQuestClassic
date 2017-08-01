@@ -11,8 +11,6 @@ using std::vector;
 using std::map;
 
 class SymbolTable;
-class GlobalScope;
-class ScriptScope;
 
 namespace ZScript
 {
@@ -20,6 +18,8 @@ namespace ZScript
 	class Script;
 	class Variable;
 	class Function;
+	class GlobalScope;
+	class ScriptScope;
 	
 	class Program
 	{

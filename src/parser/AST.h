@@ -32,9 +32,9 @@ namespace ZScript
 {
 	class Function;
 	class Variable;
+	class Scope;
+	class ZClass;
 }
-class ZClass;
-
 
 #define RECURSIONLIMIT 30
 
@@ -675,7 +675,7 @@ public:
 
 	// Resolves the type, using either the list's or this node's own base type
 	// as appropriate.
-	ZVarType const* resolveType(Scope* scope) const;
+	ZVarType const* resolveType(ZScript::Scope* scope) const;
 
 private:
 	// The initialization expression. Optional.
@@ -870,7 +870,7 @@ public:
 	string right;
 	ASTExpr* index;
 
-	ZClass* leftClass;
+	ZScript::ZClass* leftClass;
 	ZScript::Function* readFunction;
 	ZScript::Function* writeFunction;
 };
@@ -1638,7 +1638,7 @@ public:
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
 
-	ZVarType const& resolve(Scope& scope);
+	ZVarType const& resolve(ZScript::Scope& scope);
 
 	// Owned by this object.
 	ZVarType* type;
