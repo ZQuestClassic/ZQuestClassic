@@ -6,8 +6,8 @@
 
 namespace ZScript
 {
-	class Literal;
-	class Variable;
+	class Script;
+	class Datum;
 	class Function;
 
 	class Scope
@@ -36,7 +36,7 @@ namespace ZScript
 		// Lookup Local
 		virtual ZVarType const* getLocalType(string const& name) const = 0;
 		virtual ZClass* getLocalClass(string const& name) const = 0;
-		virtual Variable* getLocalVariable(string const& name) const = 0;
+		virtual Datum* getLocalDatum(string const& name) const = 0;
 		virtual Function* getLocalGetter(string const& name) const = 0;
 		virtual Function* getLocalSetter(string const& name) const = 0;
 		virtual Function* getLocalFunction(
@@ -45,8 +45,7 @@ namespace ZScript
 				string const& name) const = 0;
 	
 		// Get All Local.
-		virtual vector<Literal*> getLocalLiterals() const = 0;
-		virtual vector<Variable*> getLocalVariables() const = 0;
+		virtual vector<Datum*> getLocalData() const = 0;
 		virtual vector<Function*> getLocalFunctions() const = 0;
 
 		// Add
@@ -55,20 +54,16 @@ namespace ZScript
 		virtual ZVarType const* addType(
 				string const& name, ZVarType const* type, AST* node) = 0;
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
-		virtual ZScript::Literal* addLiteral(
-				ASTLiteral& literal, ZVarType const* type = NULL) = 0;
-		virtual ZScript::Variable* addVariable(
-				ZVarType const& type, string const& name, AST* node = NULL)
-				= 0;
-		virtual ZScript::Function* addGetter(
+		virtual bool add(ZScript::Datum*) = 0;
+		virtual Function* addGetter(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
 				= 0;
-		virtual ZScript::Function* addSetter(
+		virtual Function* addSetter(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
 				= 0;
-		virtual ZScript::Function* addFunction(
+		virtual Function* addFunction(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
 				= 0;
@@ -108,8 +103,8 @@ namespace ZScript
 	ZClass* lookupClass(Scope const&, string const& name);
 
 	// Attempt to resolve name to a variable under scope.
-	Variable* lookupVariable(Scope const&, string const& name);
-	Variable* lookupVariable(Scope const&, vector<string> const& name);
+	Datum* lookupDatum(Scope const&, string const& name);
+	Datum* lookupDatum(Scope const&, vector<string> const& name);
 	
 	// Attempt to resolve name to a getter under scope.
 	Function* lookupGetter(Scope const&, string const& name);
@@ -148,7 +143,7 @@ namespace ZScript
 	}
 
 	vector<Function*> getFunctionsInBranch(Scope const& scope);
-	
+
 	////////////////////////////////////////////////////////////////
 	// BasicScope - Primary Scope implementation.
 	
@@ -167,7 +162,7 @@ namespace ZScript
 		// Lookup Local
 		ZVarType const* getLocalType(string const& name) const;
 		ZClass* getLocalClass(string const& name) const;
-		Variable* getLocalVariable(string const& name) const;
+		Datum* getLocalDatum(string const& name) const;
 		Function* getLocalGetter(string const& name) const;
 		Function* getLocalSetter(string const& name) const;
 		Function* getLocalFunction(Function::Signature const& signature)
@@ -175,8 +170,7 @@ namespace ZScript
 		vector<Function*> getLocalFunctions(string const& name) const;
 	
 		// Get All Local
-		vector<ZScript::Literal*> getLocalLiterals() const;
-		vector<ZScript::Variable*> getLocalVariables() const;
+		vector<ZScript::Datum*> getLocalData() const;
 		vector<ZScript::Function*> getLocalFunctions() const;
 
 		// Add
@@ -184,9 +178,7 @@ namespace ZScript
 		Scope* makeChild(string const& name);
 		ZVarType const* addType(
 				string const& name, ZVarType const* type, AST* node = NULL);
-		Literal* addLiteral(ASTLiteral& literal, ZVarType const* type = NULL);
-		Variable* addVariable(
-				ZVarType const& type, string const& name, AST* node = NULL);
+		bool add(Datum*);
 		Function* addGetter(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL);
@@ -203,8 +195,8 @@ namespace ZScript
 		vector<Scope*> anonymousChildren;
 		map<string, ZVarType const*> types;
 		map<string, ZClass*> classes;
-		vector<Literal*> literals;
-		map<string, Variable*> variables;
+		vector<Datum*> anonymousData;
+		map<string, Datum*> namedData;
 		map<string, Function*> getters;
 		map<string, Function*> setters;
 		map<string, vector<Function*> > functionsByName;
@@ -212,10 +204,11 @@ namespace ZScript
 
 		BasicScope(SymbolTable& table);
 		BasicScope(SymbolTable& table, string const& name);
-		
+
+	private:
 		// Disabled since it's easy to call by accident instead of the Scope*
 		// constructor.
-		BasicScope(BasicScope const& base) : Scope(base.table) {assert(false);}
+		BasicScope(BasicScope const& base);
 	};
 
 	class ScriptScope;
@@ -224,16 +217,16 @@ namespace ZScript
 	public:
 		GlobalScope(SymbolTable& table);
 		bool isGlobal() const {return true;}
-		ScriptScope* makeScriptChild(ZScript::Script& script);
+		ScriptScope* makeScriptChild(Script& script);
 	};
 
 	class ScriptScope : public BasicScope
 	{
 	public:
-		ScriptScope(GlobalScope* scope, ZScript::Script& script)
+		ScriptScope(GlobalScope* scope, Script& script)
 			: BasicScope(scope, script.getName()), script(script) {}
 		bool isScript() const {return true;}
-		ZScript::Script& script;
+		Script& script;
 	};
 
 	enum ZClassIdBuiltin

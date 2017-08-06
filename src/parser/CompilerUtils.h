@@ -105,7 +105,7 @@ public:
 		if (has_value_) reinterpret_cast<Type>(data).~Type();
 		has_value_ = false;
 	}
-	
+
 private:
 	bool has_value_;
 	union {char data[1 + (sizeof(Type) - 1) / sizeof(char)];};
@@ -122,6 +122,8 @@ public:
 			: 0;
     }
 };
+
+
 
 ////////////////////////////////////////////////////////////////
 // Containers
@@ -170,5 +172,5 @@ optional<Element> find(Map const& map, Key const& key)
 	Element const& element = it->second;
 	return element;
 }
-	
+
 #endif

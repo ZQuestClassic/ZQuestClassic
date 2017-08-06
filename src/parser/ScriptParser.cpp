@@ -81,7 +81,7 @@ ScriptsData* compile(const char *filename)
     box_out("Pass 4: Generating object code");
     box_eol();
 
-    IntermediateData *id = ScriptParser::generateOCode(fd);
+    IntermediateData* id = ScriptParser::generateOCode(fd);
 
     if (id == NULL)
 	{
@@ -164,27 +164,18 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
     SymbolTable* symbols = &program.table;
-	vector<Literal*>& globalLiterals = fdata.globalLiterals;
-	vector<Variable*>& globalVariables = fdata.globalVariables;
+	vector<Datum*>& globalVariables = fdata.globalVariables;
 
     // Z_message("yes");
     bool failure = false;
 
     LinkTable lt;
 
-	for (vector<Literal*>::iterator it = globalLiterals.begin();
-		 it != globalLiterals.end(); ++it)
-	{
-		Literal& literal = **it;
-		int nodeId = symbols->getNodeId(literal.node);
-		lt.addGlobalVar(nodeId);
-	}
-
-    for (vector<Variable*>::iterator it = globalVariables.begin();
+    for (vector<Datum*>::iterator it = globalVariables.begin();
 		 it != globalVariables.end(); ++it)
     {
-		Variable& variable = **it;
-        int nodeId = symbols->getNodeId(variable.node);
+		Datum& variable = **it;
+		int nodeId = symbols->getNodeId(variable.getNode());
         lt.addGlobalVar(nodeId);
     }
 
@@ -292,11 +283,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     }
     //Z_message("yes");
 
-    for (vector<Variable*>::iterator it = globalVariables.begin();
+    for (vector<Datum*>::iterator it = globalVariables.begin();
 		 it != globalVariables.end(); ++it)
     {
-		Variable& variable = **it;
-		ASTDataDecl& node = *variable.node;
+		Datum& variable = **it;
+		AST& node = *variable.getNode();
 
         OpcodeContext oc;
         oc.linktable = &lt;

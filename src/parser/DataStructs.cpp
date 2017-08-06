@@ -320,16 +320,23 @@ void SymbolTable::printDiagnostics()
 
 FunctionData::FunctionData(Program& program)
 	: program(program),
-	  globalLiterals(program.globalScope.getLocalLiterals())
+	  globalData(program.globalScope.getLocalData())
 {
-	// Sort global variables into vars and constants.
-	vector<Variable*> vars = program.getUserGlobalVariables();
-	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
+	for (vector<Datum*>::const_iterator it = globalData.begin();
+	     it != globalData.end(); ++it)
 	{
-		if (program.table.isInlinedConstant((*it)->node))
-			globalConstants.push_back(*it);
-		else
-			globalVariables.push_back(*it);
+		Datum& datum = **it;
+		if (!datum.getCompileTimeValue())
+			globalVariables.push_back(&datum);
+	}
+
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+	     it != program.scripts.end(); ++it)
+	{
+		ScriptScope& scope = *(*it)->scope;
+		vector<Datum*> data = scope.getLocalData();
+		globalVariables.insert(globalVariables.end(),
+		                       data.begin(), data.end());
 	}
 }
 

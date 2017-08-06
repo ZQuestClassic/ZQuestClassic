@@ -382,13 +382,13 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
     OpcodeContext& context = *(OpcodeContext*)param;
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Ignore inlined values.
-	if (manager.compileTimeValue) return;
+	if (manager.getCompileTimeValue()) return;
 
 	// Switch off to the proper helper function.
-	if (manager.type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+	if (manager.type.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
 	{
 		if (host.initializer()) buildArrayInit(host, context);
 		else buildArrayUninit(host, context);
@@ -398,13 +398,13 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 
 void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 {
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Load initializer into EXP1, if present.
 	visit(host.initializer(), &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
-	if (manager.global)
+	if (isGlobal(manager))
 	{
 		int globalid = context.linktable->getGlobalID(manager.id);
 		if (host.initializer())
@@ -425,13 +425,13 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 
 void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 {
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Initializer creates the array and loads the array id into EXP1.
 	visit(host.initializer(), &context);
 
 	// Set variable to EXP1.
-	if (manager.global)
+	if (isGlobal(manager))
 	{
 		int globalid = context.linktable->getGlobalID(manager.id);
 		addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
@@ -447,7 +447,7 @@ void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 
 void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 {
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
@@ -467,7 +467,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	}
 
 	// Allocate the array.
-	if (manager.global)
+	if (isGlobal(manager))
 	{
 		int globalid = context.linktable->getGlobalID(manager.id);
 		addOpcode(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));

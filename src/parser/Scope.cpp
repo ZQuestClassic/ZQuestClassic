@@ -89,25 +89,25 @@ ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
 	return NULL;
 }
 
-Variable* ZScript::lookupVariable(Scope const& scope, string const& name)
+Datum* ZScript::lookupDatum(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (Variable* variable = current->getLocalVariable(name))
-			return variable;
+		if (Datum* datum = current->getLocalDatum(name))
+			return datum;
 	return NULL;
 }
 
-Variable* ZScript::lookupVariable(Scope const& scope, vector<string> const& names)
+Datum* ZScript::lookupDatum(Scope const& scope, vector<string> const& names)
 {
 	if (names.size() == 0)
 		return NULL;
 	else if (names.size() == 1)
-		return lookupVariable(scope, names[0]);
+		return lookupDatum(scope, names[0]);
 
 	vector<string> childNames(names.begin(), --names.end());
 	if (Scope* child = lookupScope(scope, childNames))
-		return lookupVariable(*child, names.back());
+		return lookupDatum(*child, names.back());
 
 	return NULL;
 }
@@ -210,8 +210,8 @@ BasicScope::~BasicScope()
 {
 	deleteSeconds(children);
 	deleteElements(anonymousChildren);
-	deleteElements(literals);
-	deleteSeconds(variables);
+	deleteElements(anonymousData);
+	deleteSeconds(namedData);
 	deleteSeconds(getters);
 	deleteSeconds(setters);
 	deleteSeconds(functionsBySignature);
@@ -243,9 +243,9 @@ ZClass* BasicScope::getLocalClass(string const& name) const
 	return find<ZClass*>(classes, name).value_or(NULL);
 }
 
-Variable* BasicScope::getLocalVariable(string const& name) const
+Datum* BasicScope::getLocalDatum(string const& name) const
 {
-	return find<Variable*>(variables, name).value_or(NULL);
+	return find<Datum*>(namedData, name).value_or(NULL);
 }
 
 Function* BasicScope::getLocalGetter(string const& name) const
@@ -272,14 +272,11 @@ vector<Function*> BasicScope::getLocalFunctions(string const& name) const
 	
 // Get All Local
 
-vector<Literal*> BasicScope::getLocalLiterals() const
+vector<Datum*> BasicScope::getLocalData() const
 {
-	return literals;
-}
-
-vector<Variable*> BasicScope::getLocalVariables() const
-{
-	return getSeconds<Variable*>(variables);
+	vector<Datum*> results = getSeconds<Datum*>(namedData);
+	appendElements(results, anonymousData);
+	return results;
 }
 
 vector<Function*> BasicScope::getLocalFunctions() const
@@ -313,28 +310,24 @@ ZVarType const* BasicScope::addType(
 	return type;
 }
 
-Literal* BasicScope::addLiteral(ASTLiteral& node, ZVarType const* type)
+bool BasicScope::add(Datum* datum)
 {
-	int id = ScriptParser::getUniqueVarID();
-	getTable().putNodeId(&node, id);
-	Literal* literal = new Literal(&node, type, id);
-	literals.push_back(literal);
-	return literal;
-}
+	if (optional<string> name = datum->getName())
+	{
+		if (find<Datum*>(namedData, *name)) return false;
+		namedData[*name] = datum;
+	}
+	else anonymousData.push_back(datum);
 
-Variable* BasicScope::addVariable(
-		ZVarType const& type, string const& name, AST* node)
-{
-	if (find<Variable*>(variables, name)) return NULL;
+	if (AST* node = datum->getNode())
+	{
+		table.putNodeId(node, datum->id);
+	
+		if (optional<long> value = datum->getCompileTimeValue())
+			table.inlineConstant(node, *value);
+	}
 
-	Variable* var = new Variable(
-			static_cast<ASTDataDecl*>(node), &type, name,
-			ScriptParser::getUniqueVarID());
-	variables[name] = var;
-	table.putVarTypeId(var->id, table.getOrAssignTypeId(type));
-	if (node) table.putNodeId(node, var->id);
-	var->global = isGlobal() || isScript();
-	return var;
+	return true;
 }
 
 Function* BasicScope::addGetter(
@@ -399,12 +392,23 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 		library.addSymbolsToScope(klass);
 	}
 
-	// Add global pointers.
-    table.addGlobalPointer(addVariable(ZVarType::_LINK, "Link")->id);
-    table.addGlobalPointer(addVariable(ZVarType::SCREEN, "Screen")->id);
-    table.addGlobalPointer(addVariable(ZVarType::GAME, "Game")->id);
-	table.addGlobalPointer(addVariable(ZVarType::AUDIO, "Audio")->id);
-	table.addGlobalPointer(addVariable(ZVarType::DEBUG, "Debug")->id);
+	// Add builtin pointers.
+	BuiltinConstant* builtin;
+	builtin = new BuiltinConstant(*this, ZVarType::_LINK, "Link", 0);
+	add(builtin);
+	table.addGlobalPointer(builtin->id);
+	builtin = new BuiltinConstant(*this, ZVarType::SCREEN, "Screen", 0);
+	add(builtin);
+	table.addGlobalPointer(builtin->id);
+	builtin = new BuiltinConstant(*this, ZVarType::GAME, "Game", 0);
+	add(builtin);
+	table.addGlobalPointer(builtin->id);
+	builtin = new BuiltinConstant(*this, ZVarType::AUDIO, "Audio", 0);
+	add(builtin);
+	table.addGlobalPointer(builtin->id);
+	builtin = new BuiltinConstant(*this, ZVarType::DEBUG, "Debug", 0);
+	add(builtin);
+	table.addGlobalPointer(builtin->id);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
