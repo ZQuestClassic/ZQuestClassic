@@ -182,7 +182,7 @@ INLINE int skipdmaps(PACKFILE *f, zquestheader *Header, word version, word build
 }
 
 extern void delete_combo_aliases();
-void reset_subscreen(subscreen_group *tempss);
+void reset_subscreen(subscreen_group &tempss);
 void reset_subscreens();
 int setupsubscreens();
 void initCoreEnemies(int guyversion, const std::vector<std::string> &names, EnemyDefinitionTable &table);

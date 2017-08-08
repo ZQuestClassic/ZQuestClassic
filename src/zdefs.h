@@ -129,7 +129,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SAVEGAME        12
 #define V_COMBOALIASES     2
 #define V_LINKSPRITES      5
-#define V_SUBSCREEN        6
+#define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     3
 #define V_FFSCRIPT         7
 #define V_SFX              7
@@ -256,7 +256,6 @@ extern bool fake_pack_writing;
 #define COMBOS_PER_PAGE  256
 #define COMBO_PAGES      255
 #define MAXCOMBOS        COMBO_PAGES*COMBOS_PER_PAGE
-#define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
 #define MAX_FLAGS 512

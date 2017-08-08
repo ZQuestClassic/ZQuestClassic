@@ -12596,6 +12596,9 @@ bool slowguy(const EnemyDefinitionRef &ref)
 
 bool ok2add(const EnemyDefinitionRef &ref)
 {
+    if (!curQuest->isValid(ref))
+        return false;
+
     if(getmapflag(mNEVERRET) && (curQuest->getEnemyDefinition(ref).flags & guy_neverret))
         return false;
         

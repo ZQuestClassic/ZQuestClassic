@@ -7037,14 +7037,10 @@ int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s_version, word)
 {
-    GarbageCollector gc;
-    
-    int numsub=0;
+    uint32_t numsub=0;
     byte temp_ss=0;
-    subscreen_object *temp_sub = gc(new subscreen_object);
     
     char tempname[64];
-    
     if(!pfread(tempname,64,f,true))
     {
         return qe_invalid;
@@ -7081,584 +7077,782 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
         numsub = (int)tmp;
     }
     
-    int j;
-    
-    for(j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
+    if (keepdata)
     {
-        if(keepdata)
-        {
-            memset(temp_sub,0,sizeof(subscreen_object));
-            
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
-                
-                //fall through
-            default:
-                memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        if(!p_getc(&(temp_sub->type),f,true))
+        reset_subscreen(custom_subscreen[i]);
+        custom_subscreen[i].ss_name = std::string(tempname);
+        custom_subscreen[i].ss_type = temp_ss;
+    }
+
+    for(uint32_t j=0; j<numsub; j++)
+    {
+        byte type;
+        if(!p_getc(&type,f,true))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_sub->pos),f,keepdata))
+        if (s_version < 7)
         {
-            return qe_invalid;
-        }
-        
-        if(s_version < 5)
-        {
-            switch(temp_sub->pos)
-            {
-            case 0:
-                temp_sub->pos = sspUP | sspDOWN | sspSCROLLING;
-                break;
-                
-            case 1:
-                temp_sub->pos = sspUP;
-                break;
-                
-            case 2:
-                temp_sub->pos = sspDOWN;
-                break;
-                
-            default:
-                temp_sub->pos = 0;
-            }
-        }
-        
-        if(!p_igetw(&(temp_sub->x),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&(temp_sub->y),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&(temp_sub->w),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&(temp_sub->h),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&(temp_sub->colortype1),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&(temp_sub->color1),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&(temp_sub->colortype2),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&(temp_sub->color2),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&(temp_sub->colortype3),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&(temp_sub->color3),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d1),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d2),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d3),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d4),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d5),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d6),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d7),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d8),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d9),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetd(&(temp_sub->d10),f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(s_version < 2)
-        {
-            if(!p_igetl(&(temp_sub->speed),f,keepdata))
+            // old subscreen loading code
+            byte pos;
+            if(!p_getc(&(pos),f,keepdata))
             {
                 return qe_invalid;
             }
-            
-            if(!p_igetl(&(temp_sub->delay),f,keepdata))
+            if(s_version < 5)
             {
-                return qe_invalid;
-            }
-            
-            if(!p_igetl(&(temp_sub->frame),f,keepdata))
-            {
-                return qe_invalid;
-            }
-        }
-        else
-        {
-            if(!p_getc(&(temp_sub->speed),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(temp_sub->delay),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&(temp_sub->frame),f,keepdata))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        int temp_size=0;
-        
-        // bool deletets = false;
-        switch(temp_sub->type)
-        {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
-            word temptempsize;
-            /*unsigned char temp1;
-            unsigned char temp2;
-            temp2 = 0;
-            if(!p_getc(&temp1,f,true))
+                switch(pos)
                 {
-                  return qe_invalid;
+                case 0:
+                    pos = sspUP | sspDOWN | sspSCROLLING;
+                    break;
+
+                case 1:
+                    pos = sspUP;
+                    break;
+
+                case 2:
+                    pos = sspDOWN;
+                    break;
+
+                default:
+                    pos = 0;
                 }
-            if(temp1)
-            {
-            
-            if(!p_getc(&temp2,f,true))
-                {
-                  return qe_invalid;
-                }
-            }*/
-            
-            if(!p_igetw(&temptempsize,f,true))
+            }
+
+            word x, y, w, h;
+
+            if(!p_igetw(&x,f,keepdata))
             {
                 return qe_invalid;
             }
-            
-            //temptempsize = temp1 + (temp2 << 8);
-            temp_size = (int)temptempsize;
-            
-            //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
-            if(keepdata)
+
+            if(!p_igetw(&y,f,keepdata))
             {
-                unsigned int char_length = temp_size+1;
-                temp_sub->dp1 = new char[char_length]; //memory not freed
-                
-                //deletets = true; //obsolete
+                return qe_invalid;
             }
-            
-            if(temp_size)
+
+            if(!p_igetw(&w,f,keepdata))
             {
-                if(!pfread(temp_sub->dp1,temp_size+1,f,keepdata))
+                return qe_invalid;
+            }
+
+            if(!p_igetw(&h,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            byte colortype1, colortype2, colortype3;
+            short color1, color2, color3;
+            if(!p_getc(&colortype1,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetw(&color1,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_getc(&colortype2,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetw(&color2,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_getc(&colortype3,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetw(&color3,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            int32_t d1, d2, d3, d4, d5, d6, d7, d8, d9, d10;
+
+            if(!p_igetd(&d1,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d2,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d3,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d4,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d5,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d6,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d7,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d8,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d9,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(!p_igetd(&d10,f,keepdata))
+            {
+                return qe_invalid;
+            }
+
+            if(s_version < 2)
+            {
+                uint32_t tmp;
+                //speed 
+                if(!p_igetl(&tmp,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+
+                //delay
+                if(!p_igetl(&tmp,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+
+                //frame
+                if(!p_igetl(&tmp,f,keepdata))
                 {
                     return qe_invalid;
                 }
             }
-            
-            break;
-            
-        case ssoLIFEMETER:
-            if(get_bit(deprecated_rules, 12) != 0) // qr_24HC
-                temp_sub->d3 = 1;
-                
-            if(!p_getc(&(temp_sub->dp1),f,keepdata))
+            else
             {
-                return qe_invalid;
-            }
-            
-            break;
-            
-            
-        case ssoCURRENTITEM:
-        
-            if(s_version < 6)
-            {
-                switch(temp_sub->d1)
+                byte tmpb;
+                //speed
+                if(!p_getc(&tmpb,f,keepdata))
                 {
-                case ssiBOMB:
-                    temp_sub->d1 = itype_bomb;
-                    break;
-                    
-                case ssiSWORD:
-                    temp_sub->d1 = itype_sword;
-                    break;
-                    
-                case ssiSHIELD:
-                    temp_sub->d1 = itype_shield;
-                    break;
-                    
-                case ssiCANDLE:
-                    temp_sub->d1 = itype_candle;
-                    break;
-                    
-                case ssiLETTER:
-                    temp_sub->d1 = itype_letter;
-                    break;
-                    
-                case ssiPOTION:
-                    temp_sub->d1 = itype_potion;
-                    break;
-                    
-                case ssiLETTERPOTION:
-                    temp_sub->d1 = itype_letterpotion;
-                    break;
-                    
-                case ssiBOW:
-                    temp_sub->d1 = itype_bow;
-                    break;
-                    
-                case ssiARROW:
-                    temp_sub->d1 = itype_arrow;
-                    break;
-                    
-                case ssiBOWANDARROW:
-                    temp_sub->d1 = itype_bowandarrow;
-                    break;
-                    
-                case ssiBAIT:
-                    temp_sub->d1 = itype_bait;
-                    break;
-                    
-                case ssiRING:
-                    temp_sub->d1 = itype_ring;
-                    break;
-                    
-                case ssiBRACELET:
-                    temp_sub->d1 = itype_bracelet;
-                    break;
-                    
-                case ssiMAP:
-                    temp_sub->d1 = itype_map;
-                    break;
-                    
-                case ssiCOMPASS:
-                    temp_sub->d1 = itype_compass;
-                    break;
-                    
-                case ssiBOSSKEY:
-                    temp_sub->d1 = itype_bosskey;
-                    break;
-                    
-                case ssiMAGICKEY:
-                    temp_sub->d1 = itype_magickey;
-                    break;
-                    
-                case ssiBRANG:
-                    temp_sub->d1 = itype_brang;
-                    break;
-                    
-                case ssiWAND:
-                    temp_sub->d1 = itype_wand;
-                    break;
-                    
-                case ssiRAFT:
-                    temp_sub->d1 = itype_raft;
-                    break;
-                    
-                case ssiLADDER:
-                    temp_sub->d1 = itype_ladder;
-                    break;
-                    
-                case ssiWHISTLE:
-                    temp_sub->d1 = itype_whistle;
-                    break;
-                    
-                case ssiBOOK:
-                    temp_sub->d1 = itype_book;
-                    break;
-                    
-                case ssiWALLET:
-                    temp_sub->d1 = itype_wallet;
-                    break;
-                    
-                case ssiSBOMB:
-                    temp_sub->d1 = itype_sbomb;
-                    break;
-                    
-                case ssiHCPIECE:
-                    temp_sub->d1 = itype_heartpiece;
-                    break;
-                    
-                case ssiAMULET:
-                    temp_sub->d1 = itype_amulet;
-                    break;
-                    
-                case ssiFLIPPERS:
-                    temp_sub->d1 = itype_flippers;
-                    break;
-                    
-                case ssiHOOKSHOT:
-                    temp_sub->d1 = itype_hookshot;
-                    break;
-                    
-                case ssiLENS:
-                    temp_sub->d1 = itype_lens;
-                    break;
-                    
-                case ssiHAMMER:
-                    temp_sub->d1 = itype_hammer;
-                    break;
-                    
-                case ssiBOOTS:
-                    temp_sub->d1 = itype_boots;
-                    break;
-                    
-                case ssiDINSFIRE:
-                    temp_sub->d1 = itype_dinsfire;
-                    break;
-                    
-                case ssiFARORESWIND:
-                    temp_sub->d1 = itype_faroreswind;
-                    break;
-                    
-                case ssiNAYRUSLOVE:
-                    temp_sub->d1 = itype_nayruslove;
-                    break;
-                    
-                case ssiQUIVER:
-                    temp_sub->d1 = itype_quiver;
-                    break;
-                    
-                case ssiBOMBBAG:
-                    temp_sub->d1 = itype_bombbag;
-                    break;
-                    
-                case ssiCBYRNA:
-                    temp_sub->d1 = itype_cbyrna;
-                    break;
-                    
-                case ssiROCS:
-                    temp_sub->d1 = itype_rocs;
-                    break;
-                    
-                case ssiHOVERBOOTS:
-                    temp_sub->d1 = itype_hoverboots;
-                    break;
-                    
-                case ssiSPINSCROLL:
-                    temp_sub->d1 = itype_spinscroll;
-                    break;
-                    
-                case ssiCROSSSCROLL:
-                    temp_sub->d1 = itype_crossscroll;
-                    break;
-                    
-                case ssiQUAKESCROLL:
-                    temp_sub->d1 = itype_quakescroll;
-                    break;
-                    
-                case ssiWHISPRING:
-                    temp_sub->d1 = itype_whispring;
-                    break;
-                    
-                case ssiCHARGERING:
-                    temp_sub->d1 = itype_chargering;
-                    break;
-                    
-                case ssiPERILSCROLL:
-                    temp_sub->d1 = itype_perilscroll;
-                    break;
-                    
-                case ssiWEALTHMEDAL:
-                    temp_sub->d1 = itype_wealthmedal;
-                    break;
-                    
-                case ssiHEARTRING:
-                    temp_sub->d1 = itype_heartring;
-                    break;
-                    
-                case ssiMAGICRING:
-                    temp_sub->d1 = itype_magicring;
-                    break;
-                    
-                case ssiSPINSCROLL2:
-                    temp_sub->d1 = itype_spinscroll2;
-                    break;
-                    
-                case ssiQUAKESCROLL2:
-                    temp_sub->d1 = itype_quakescroll2;
-                    break;
-                    
-                case ssiAGONY:
-                    temp_sub->d1 = itype_agony;
-                    break;
-                    
-                case ssiSTOMPBOOTS:
-                    temp_sub->d1 = itype_stompboots;
-                    break;
-                    
-                case ssiWHIMSICALRING:
-                    temp_sub->d1 = itype_whimsicalring;
-                    break;
-                    
-                case ssiPERILRING:
-                    temp_sub->d1 = itype_perilring;
-                    break;
-                    
-                default:
-                    temp_sub->d1 += itype_custom1 - ssiMAX;
+                    return qe_invalid;
+                }
+
+                //delay
+                if(!p_getc(&tmpb,f,keepdata))
+                {
+                    return qe_invalid;
+                }
+
+                word tmpw;
+                //frame
+                if(!p_igetw(&tmpw,f,keepdata))
+                {
+                    return qe_invalid;
                 }
             }
-            
-            //fall-through
-        default:
-            if(!p_getc(&(temp_sub->dp1),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            break;
-        }
-        
-        if(keepdata)
-        {
-            switch(temp_sub->type)
+            int temp_size=0;
+            char *dp1;
+
+            switch (type)
             {
             case ssoTEXT:
             case ssoTEXTBOX:
             case ssoCURRENTITEMTEXT:
             case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
-                custom_subscreen[i].objects[j].dp1 = NULL;
-                custom_subscreen[i].objects[j].dp1 = new char[temp_size+1];
-                strcpy((char*)custom_subscreen[i].objects[j].dp1,(char*)temp_sub->dp1);
+                word temptempsize;
+
+
+                if (!p_igetw(&temptempsize, f, true))
+                {
+                    return qe_invalid;
+                }
+
+                temp_size = (int)temptempsize;
+
+                if (keepdata)
+                {
+                    unsigned int char_length = temp_size + 1;
+                    dp1 = new char[char_length];
+                }
+
+                if (temp_size)
+                {
+                    if (!pfread(dp1, temp_size + 1, f, keepdata))
+                    {
+                        delete[] dp1;
+                        return qe_invalid;
+                    }
+                }
+
                 break;
-                
+
+            case ssoLIFEMETER:
+                if (get_bit(deprecated_rules, 12) != 0) // qr_24HC
+                    d3 = 1;
+
+                if (!p_getc(&dp1, f, keepdata))
+                {
+                    return qe_invalid;
+                }
+
+                break;
+
+
+            case ssoCURRENTITEM:
+
+                if (s_version < 6)
+                {
+                    switch (d1)
+                    {
+                    case ssiBOMB:
+                        d1 = itype_bomb;
+                        break;
+
+                    case ssiSWORD:
+                        d1 = itype_sword;
+                        break;
+
+                    case ssiSHIELD:
+                        d1 = itype_shield;
+                        break;
+
+                    case ssiCANDLE:
+                        d1 = itype_candle;
+                        break;
+
+                    case ssiLETTER:
+                        d1 = itype_letter;
+                        break;
+
+                    case ssiPOTION:
+                        d1 = itype_potion;
+                        break;
+
+                    case ssiLETTERPOTION:
+                        d1 = itype_letterpotion;
+                        break;
+
+                    case ssiBOW:
+                        d1 = itype_bow;
+                        break;
+
+                    case ssiARROW:
+                        d1 = itype_arrow;
+                        break;
+
+                    case ssiBOWANDARROW:
+                        d1 = itype_bowandarrow;
+                        break;
+
+                    case ssiBAIT:
+                        d1 = itype_bait;
+                        break;
+
+                    case ssiRING:
+                        d1 = itype_ring;
+                        break;
+
+                    case ssiBRACELET:
+                        d1 = itype_bracelet;
+                        break;
+
+                    case ssiMAP:
+                        d1 = itype_map;
+                        break;
+
+                    case ssiCOMPASS:
+                        d1 = itype_compass;
+                        break;
+
+                    case ssiBOSSKEY:
+                        d1 = itype_bosskey;
+                        break;
+
+                    case ssiMAGICKEY:
+                        d1 = itype_magickey;
+                        break;
+
+                    case ssiBRANG:
+                        d1 = itype_brang;
+                        break;
+
+                    case ssiWAND:
+                        d1 = itype_wand;
+                        break;
+
+                    case ssiRAFT:
+                        d1 = itype_raft;
+                        break;
+
+                    case ssiLADDER:
+                        d1 = itype_ladder;
+                        break;
+
+                    case ssiWHISTLE:
+                        d1 = itype_whistle;
+                        break;
+
+                    case ssiBOOK:
+                        d1 = itype_book;
+                        break;
+
+                    case ssiWALLET:
+                        d1 = itype_wallet;
+                        break;
+
+                    case ssiSBOMB:
+                        d1 = itype_sbomb;
+                        break;
+
+                    case ssiHCPIECE:
+                        d1 = itype_heartpiece;
+                        break;
+
+                    case ssiAMULET:
+                        d1 = itype_amulet;
+                        break;
+
+                    case ssiFLIPPERS:
+                        d1 = itype_flippers;
+                        break;
+
+                    case ssiHOOKSHOT:
+                        d1 = itype_hookshot;
+                        break;
+
+                    case ssiLENS:
+                        d1 = itype_lens;
+                        break;
+
+                    case ssiHAMMER:
+                        d1 = itype_hammer;
+                        break;
+
+                    case ssiBOOTS:
+                        d1 = itype_boots;
+                        break;
+
+                    case ssiDINSFIRE:
+                        d1 = itype_dinsfire;
+                        break;
+
+                    case ssiFARORESWIND:
+                        d1 = itype_faroreswind;
+                        break;
+
+                    case ssiNAYRUSLOVE:
+                        d1 = itype_nayruslove;
+                        break;
+
+                    case ssiQUIVER:
+                        d1 = itype_quiver;
+                        break;
+
+                    case ssiBOMBBAG:
+                        d1 = itype_bombbag;
+                        break;
+
+                    case ssiCBYRNA:
+                        d1 = itype_cbyrna;
+                        break;
+
+                    case ssiROCS:
+                        d1 = itype_rocs;
+                        break;
+
+                    case ssiHOVERBOOTS:
+                        d1 = itype_hoverboots;
+                        break;
+
+                    case ssiSPINSCROLL:
+                        d1 = itype_spinscroll;
+                        break;
+
+                    case ssiCROSSSCROLL:
+                        d1 = itype_crossscroll;
+                        break;
+
+                    case ssiQUAKESCROLL:
+                        d1 = itype_quakescroll;
+                        break;
+
+                    case ssiWHISPRING:
+                        d1 = itype_whispring;
+                        break;
+
+                    case ssiCHARGERING:
+                        d1 = itype_chargering;
+                        break;
+
+                    case ssiPERILSCROLL:
+                        d1 = itype_perilscroll;
+                        break;
+
+                    case ssiWEALTHMEDAL:
+                        d1 = itype_wealthmedal;
+                        break;
+
+                    case ssiHEARTRING:
+                        d1 = itype_heartring;
+                        break;
+
+                    case ssiMAGICRING:
+                        d1 = itype_magicring;
+                        break;
+
+                    case ssiSPINSCROLL2:
+                        d1 = itype_spinscroll2;
+                        break;
+
+                    case ssiQUAKESCROLL2:
+                        d1 = itype_quakescroll2;
+                        break;
+
+                    case ssiAGONY:
+                        d1 = itype_agony;
+                        break;
+
+                    case ssiSTOMPBOOTS:
+                        d1 = itype_stompboots;
+                        break;
+
+                    case ssiWHIMSICALRING:
+                        d1 = itype_whimsicalring;
+                        break;
+
+                    case ssiPERILRING:
+                        d1 = itype_perilring;
+                        break;
+
+                    default:
+                        d1 += itype_custom1 - ssiMAX;
+                    }
+                }
+
+                //fall-through
+            default:
+                // this is crazy uynless dp1 is always 0, right? -DD
+                if (!p_getc(&dp1, f, keepdata))
+                {
+                    return qe_invalid;
+                }
+
+                break;
+            }
+
+            if(keepdata)
+            {
+                switch(type)
+                {
+                    case ssoNULL:
+                        // I don't think we need to do anything here?
+                        break;
+
+                    case ssoNONE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_none(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3));
+                        break;
+
+                    case sso2X2FRAME:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_2x2frame(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3 != 0, d4 != 0));
+                        break;
+
+                    case ssoTEXT:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_text(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, dp1));
+                        delete[] dp1;
+                        break;
+
+                    case ssoLINE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_line(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1 != 0, d2 != 0));
+                        break;
+
+                    case ssoRECT:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_rect(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1 != 0, d2 != 0));
+                        break;
+
+                    case ssoBSTIME:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_bstime(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3));
+                        break;
+
+                    case ssoTIME:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_time(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3));
+                        break;
+
+                    case ssoSSTIME:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_sstime(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3));
+                        break;
+
+                    case ssoMAGICMETER:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_magicmeter(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3));
+                        break;
+
+                    case ssoLIFEMETER:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_lifemeter(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2 != 0, d3 != 0));
+                        break;
+
+                    case ssoBUTTONITEM:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_buttonitem(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2 != 0));
+                        break;
+
+                    case ssoCOUNTER:
+                        if(s_version<3)
+                        {
+                            d6=(d6?1:0)+(d8?2:0);
+                            d8=0;
+                        }
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_counter(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4, d5, d6, d7, d8, d9, ItemDefinitionRef("CORE", d10)));
+                        break;
+
+                    case ssoCOUNTERS:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_counters(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2 != 0, d3, d4, d5));
+                        break;
+
+                    case ssoMINIMAPTITLE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_minimaptitle(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4 != 0));
+                        break;
+
+                    case ssoMINIMAP:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_minimap(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1 != 0, d2 != 0, d3 != 0));
+                        break;
+
+                    case ssoLARGEMAP:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_largemap(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1 != 0, d2 != 0, d3 != 0, d10 != 0));
+                        break;
+
+                    case ssoCLEAR:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_clear(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3));
+                        break;
+
+                    case ssoCURRENTITEM:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_currentitem(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2 != 0, d3, d4, d5, d6, d7, d8 > 0 ? ItemDefinitionRef("CORE",d8-1) : ItemDefinitionRef()));
+                        break;
+
+                    case ssoTRIFRAME:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_triframe(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4, d5 != 0, d6 != 0, d7 != 0));
+                        break;
+
+                    case ssoTRIFORCE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_triforce(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3 != 0, d4 != 0, d5));
+                        break;
+
+                    case ssoTILEBLOCK:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_tileblock(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3 != 0, d4 != 0));
+                        break;
+
+                    case ssoMINITILE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_minitile(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4, d5 != 0, d6 != 0));
+                        break;
+
+                    case ssoSELECTOR1:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_selector1(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3 != 0, d4 != 0, d5 != 0));
+                        break;
+
+                    case ssoSELECTOR2:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_selector2(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3 != 0, d4 != 0, d5 != 0));
+                        break;
+
+                    case ssoMAGICGAUGE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_magicgauge(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10));
+                        break;
+
+                    case ssoLIFEGAUGE:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_lifegauge(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10));
+                        break;
+
+                    case ssoTEXTBOX:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_textbox(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4 != 0, d5, dp1));
+                        delete[] dp1;
+                        break;
+                        
+                    case ssoSELECTEDITEMNAME:
+                        custom_subscreen[i].ss_objects.push_back(new subscreen_object_selecteditemname(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, d1, d2, d3, d4 != 0, d5));
+                        break;
+                    
+                    case ssoICON:
+                    case ssoITEM:
+                    case ssoCURRENTITEMTILE:
+                    case ssoSELECTEDITEMTILE:
+                    case ssoCURRENTITEMTEXT:
+                    case ssoCURRENTITEMNAME:
+                    case ssoCURRENTITEMCLASSTEXT:
+                    case ssoCURRENTITEMCLASSNAME:
+                    case ssoSELECTEDITEMCLASSNAME:
+                    default:
+
+                        assert(!"Unsupported subscreen object");
+                }
+            }
+        }
+        else
+        {
+            int status;
+            // new subscreen loading code
+            switch(type)
+            {
+            case ssoNONE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_none(f, status));
+                break;
+
+            case sso2X2FRAME:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_2x2frame(f, status));
+                break;
+
+            case ssoTEXT:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_text(f, status));
+                break;
+
+            case ssoLINE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_line(f, status));
+                break;
+
+            case ssoRECT:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_rect(f, status));
+                break;
+
+            case ssoBSTIME:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_bstime(f, status));
+                break;
+
+            case ssoTIME:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_time(f, status));
+                break;
+
+            case ssoSSTIME:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_sstime(f, status));
+                break;
+
+            case ssoMAGICMETER:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_magicmeter(f, status));
+                break;
+
+            case ssoLIFEMETER:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_lifemeter(f, status));
+                break;
+
+            case ssoBUTTONITEM:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_buttonitem(f, status));
+                break;
+
             case ssoCOUNTER:
-                if(s_version<3)
-                {
-                    temp_sub->d6=(temp_sub->d6?1:0)+(temp_sub->d8?2:0);
-                    temp_sub->d8=0;
-                }
-                
-            default:
-                memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_counter(f, status));
                 break;
-            }
-            
-            strcpy(custom_subscreen[i].name, tempname);
-            custom_subscreen[i].ss_type = temp_ss;
-        }
-    }
-    
-    for(j=numsub; j<MAXSUBSCREENITEMS; j++)
-    {
-        if(keepdata)
-        {
-            //clear all unused object in this subscreen -DD
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
+
+            case ssoCOUNTERS:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_counters(f, status));
+                break;
+
+            case ssoMINIMAPTITLE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_minimaptitle(f, status));
+                break;
+
+            case ssoMINIMAP:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_minimap(f, status));
+                break;
+
+            case ssoLARGEMAP:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_largemap(f, status));
+                break;
+
+            case ssoCLEAR:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_clear(f, status));
+                break;
+
+            case ssoCURRENTITEM:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_currentitem(f, status));
+                break;
+
+            case ssoTRIFRAME:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_triframe(f, status));
+                break;
+
+            case ssoTRIFORCE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_triforce(f, status));
+                break;
+
+            case ssoTILEBLOCK:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_tileblock(f, status));
+                break;
+
+            case ssoMINITILE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_minitile(f, status));
+                break;
+
+            case ssoSELECTOR1:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_selector1(f, status));
+                break;
+
+            case ssoSELECTOR2:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_selector2(f, status));
+                break;
+
+            case ssoMAGICGAUGE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_magicgauge(f, status));
+                break;
+
+            case ssoLIFEGAUGE:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_lifegauge(f, status));
+                break;
+
             case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
-                
-                //fall through
-            default:
-                memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_textbox(f, status));
                 break;
-            }
-        }
+
+            case ssoSELECTEDITEMNAME:
+                custom_subscreen[i].ss_objects.push_back(new subscreen_object_selecteditemname(f, status));
+
+            case ssoNULL:
+            case ssoICON:
+            case ssoITEM:
+            case ssoCURRENTITEMTILE:
+            case ssoSELECTEDITEMTILE:
+            case ssoCURRENTITEMTEXT:
+            case ssoCURRENTITEMNAME:
+            case ssoCURRENTITEMCLASSTEXT:
+            case ssoCURRENTITEMCLASSNAME:
+            case ssoSELECTEDITEMCLASSNAME:
+            default:
+
+                assert(!"Unsupported subscreen object");
+            }        
+        }        
     }
     
-    //delete temp_sub; //wtf
     return 0;
 }
 
-void reset_subscreen(subscreen_group *tempss)
+void reset_subscreen(subscreen_group &tempss)
 {
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(uint32_t i=0; i < tempss.ss_objects.size(); i++)
     {
-        switch(tempss->objects[i].type)
-        {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
-            if(tempss->objects[i].dp1 != NULL) delete [](char *)tempss->objects[i].dp1;
-            
-            //fall through
-        default:
-            memset(&tempss->objects[i],0,sizeof(subscreen_object));
-            break;
-        }
+        delete tempss.ss_objects[i];        
     }
+    tempss.ss_objects.clear();
 }
 
 void reset_subscreens()
 {
     for(int i=0; i<MAXCUSTOMSUBSCREENS; ++i)
     {
-        reset_subscreen(&custom_subscreen[i]);
+        reset_subscreen(custom_subscreen[i]);
     }
 }
 
@@ -7666,7 +7860,6 @@ int setupsubscreens()
 {
     reset_subscreens();
     int tempsubscreen=zinit.subscreen;
-    subscreen_object *tempsub;
     
     if(tempsubscreen>=ssdtMAX)
     {
@@ -7683,320 +7876,141 @@ int setupsubscreens()
     case ssdtBSZELDAENHANCED:
     case ssdtBSZELDACOMPLETE:
     {
-        tempsub = default_subscreen_active[tempsubscreen][0];
-        int i;
+        const subscreen_group &tempsub = get_default_subscreen_active(tempsubscreen,0);
+        uint32_t i;
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for (i = 0; i < tempsub.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[0].ss_objects.push_back(tempsub.ss_objects[i]->clone());
+
+            if (tempsub.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[0].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[0].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[0].objects[i].dp1 = NULL;
-                custom_subscreen[0].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[0].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[0].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[0].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[0].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[0].ss_objects[i])->threerows = false;
+            }        
         }
         
         custom_subscreen[0].ss_type=sstACTIVE;
-        sprintf(custom_subscreen[0].name, "Active Subscreen (Triforce)");
-        tempsub = default_subscreen_active[tempsubscreen][1];
+        custom_subscreen[0].ss_name = std::string("Active Subscreen (Triforce)");
+        const subscreen_group &tempsub2 = get_default_subscreen_active(tempsubscreen,1);
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i < tempsub2.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[1].ss_objects.push_back(tempsub2.ss_objects[i]->clone());
+
+            if (tempsub2.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[1].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[1].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[1].objects[i].dp1 = NULL;
-                custom_subscreen[1].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[1].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[1].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[1].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[1].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
+                    ((subscreen_object_lifemeter *)custom_subscreen[1].ss_objects[i])->threerows = false;
             }
         }
         
         custom_subscreen[1].ss_type=sstACTIVE;
-        sprintf(custom_subscreen[1].name, "Active Subscreen (Dungeon Map)");
-//      memset(&custom_subscreen[1].objects[i],0,sizeof(subscreen_object));
-        tempsub = default_subscreen_passive[tempsubscreen][0];
+        custom_subscreen[1].ss_name = std::string("Active Subscreen (Dungeon Map)");
+
+        const subscreen_group &tempsub3 = get_default_subscreen_passive(tempsubscreen,0);
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i<tempsub3.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[2].ss_objects.push_back(tempsub3.ss_objects[i]->clone());
+            if(tempsub3.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[2].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[2].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[2].objects[i].dp1 = NULL;
-                custom_subscreen[2].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[2].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[2].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[2].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[2].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[2].ss_objects[i])->threerows = false;
+            }            
         }
         
         custom_subscreen[2].ss_type=sstPASSIVE;
-        sprintf(custom_subscreen[2].name, "Passive Subscreen (Magic)");
-//      memset(&custom_subscreen[2].objects[i],0,sizeof(subscreen_object));
-        tempsub = default_subscreen_passive[tempsubscreen][1];
+        custom_subscreen[2].ss_name = std::string("Passive Subscreen (Magic)");
+        const subscreen_group &tempsub4 = get_default_subscreen_passive(tempsubscreen,1);
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i<tempsub4.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[3].ss_objects.push_back(tempsub4.ss_objects[i]->clone());
+            if(tempsub4.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[3].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[3].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[3].objects[i].dp1 = NULL;
-                custom_subscreen[3].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[3].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[3].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[3].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[3].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[3].ss_objects[i])->threerows = false;
+            }                   
         }
         
         custom_subscreen[3].ss_type=sstPASSIVE;
-        sprintf(custom_subscreen[3].name, "Passive Subscreen (No Magic)");
-//      memset(&custom_subscreen[3].objects[i],0,sizeof(subscreen_object));
+        custom_subscreen[3].ss_name = std::string("Passive Subscreen (No Magic)");
         break;
     }
     
     case ssdtZ3:
     {
-        tempsub = z3_active_a;
-        int i;
+        const subscreen_group &tempsub = get_z3_active_a();
+        uint32_t i;
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i<tempsub.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[0].ss_objects.push_back(tempsub.ss_objects[i]->clone());
+            if(tempsub.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[0].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[0].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[0].objects[i].dp1 = NULL;
-                custom_subscreen[0].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[0].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[0].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[0].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[0].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[0].ss_objects[i])->threerows = false;
+            }          
         }
         
         custom_subscreen[0].ss_type=sstACTIVE;
-//      memset(&custom_subscreen[0].objects[i],0,sizeof(subscreen_object));
-        tempsub = z3_active_ab;
+        const subscreen_group &tempsub2 = get_z3_active_ab();
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i<tempsub2.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[1].ss_objects.push_back(tempsub2.ss_objects[i]->clone());
+            if(tempsub2.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[1].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[1].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[1].objects[i].dp1 = NULL;
-                custom_subscreen[1].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[1].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[1].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[1].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[1].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[1].ss_objects[i])->threerows = false;
+            }          
         }
         
         custom_subscreen[1].ss_type=sstACTIVE;
 //      memset(&custom_subscreen[1].objects[i],0,sizeof(subscreen_object));
-        tempsub = z3_passive_a;
+        const subscreen_group &tempsub3 = get_z3_passive_a();
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i<tempsub3.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[2].ss_objects.push_back(tempsub3.ss_objects[i]->clone());
+            if(tempsub3.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[2].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[2].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[2].objects[i].dp1 = NULL;
-                custom_subscreen[2].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[2].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[2].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[2].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[2].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[2].ss_objects[i])->threerows = false;
+            }      
         }
         
         custom_subscreen[2].ss_type=sstPASSIVE;
-//      memset(&custom_subscreen[2].objects[i],0,sizeof(subscreen_object));
-        tempsub = z3_passive_ab;
+        const subscreen_group &tempsub4 = get_z3_passive_ab();
         
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+        for(i=0; i<tempsub4.ss_objects.size(); i++)
         {
-            switch(tempsub[i].type)
+            custom_subscreen[3].ss_objects.push_back(tempsub4.ss_objects[i]->clone());
+            if(tempsub4.ss_objects[i]->type == ssoLIFEMETER)
             {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[3].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[3].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[3].objects[i].dp1 = NULL;
-                custom_subscreen[3].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[3].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[3].objects[i].d3=1;
+                if (get_bit(deprecated_rules, 12) != 0)
+                    ((subscreen_object_lifemeter *)custom_subscreen[3].ss_objects[i])->threerows = true;
                 else
-                    custom_subscreen[3].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
+                    ((subscreen_object_lifemeter *)custom_subscreen[3].ss_objects[i])->threerows = false;
+            }      
         }
         
         custom_subscreen[3].ss_type=sstPASSIVE;
-//      memset(&custom_subscreen[3].objects[i],0,sizeof(subscreen_object));
         break;
     }
     }

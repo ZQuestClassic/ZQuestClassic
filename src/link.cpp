@@ -13590,9 +13590,9 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
     
     int p=-1;
     
-    for(int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+    for(uint32_t i=0; i < current_subscreen_active->ss_objects.size() && current_subscreen_active->ss_objects[i]->type!=ssoNULL; ++i)
     {
-        if(current_subscreen_active->objects[i].type==ssoCURRENTITEM && current_subscreen_active->objects[i].d3==pos)
+        if(current_subscreen_active->ss_objects[i]->type==ssoCURRENTITEM && ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[i])->posselect==pos)
         {
             p=i;
             break;
@@ -13605,21 +13605,20 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
     }
     
     //TODO module support for subscreens
-    int actualItem = current_subscreen_active->objects[p].d8;
+    ItemDefinitionRef actualItem = ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->itemref;
     //int familyCheck = actualItem ? itemsbuf[actualItem].family : current_subscreen_active->objects[p].d1
     int family = -1;
     
-    if(actualItem)
+    if(curQuest->isValid(actualItem))
     {
-        ItemDefinitionRef ref("CORE", actualItem - 1);
         bool select = false;
         
-        switch(curQuest->getItemDefinition(ref).family)
+        switch(curQuest->getItemDefinition(actualItem).family)
         {
         case itype_bomb:
             if((game->get_bombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (curQuest->isValid(ref) && curQuest->getItemDefinition(ref).misc1==0 && LwpnsIdCount(wLitBomb)>0)) ||
+                    curQuest->getItemDefinition(actualItem).misc1==0 && LwpnsIdCount(wLitBomb)>0) ||
                     current_item_power(itype_bombbag))
             {
                 select=true;
@@ -13629,7 +13628,7 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
             
         case itype_bowandarrow:
         case itype_arrow:
-            if(curQuest->isValid(ref) && curQuest->isValid(current_item_id(itype_bow)))
+            if(curQuest->isValid(current_item_id(itype_bow)))
             {
                 //bow=(current_subscreen_active->objects[p].d1==itype_bowandarrow);
                 select=true;
@@ -13654,7 +13653,7 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
             
             if((game->get_sbombs() ||
                     // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (curQuest->isValid(ref) && curQuest->getItemDefinition(ref).misc1==0 && LwpnsIdCount(wLitSBomb)>0)) ||
+                    curQuest->getItemDefinition(actualItem).misc1==0 && LwpnsIdCount(wLitSBomb)>0) ||
                     (current_item_power(itype_bombbag) && curQuest->isValid(bombbagid) && (curQuest->getItemDefinition(bombbagid).flags & itemdata::IF_FLAG1)))
             {
                 select=true;
@@ -13676,19 +13675,19 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
             select=true;
         }
         
-        if(!game->get_disabled_item(ref) && game->get_item(ref) && select)
+        if(!game->get_disabled_item(actualItem) && game->get_item(actualItem) && select)
         {
-            if (curQuest->getItemDefinition(ref).family == itype_arrow)
+            if (curQuest->getItemDefinition(actualItem).family == itype_arrow)
                 combinedBowArrow = true;
             
-            return ref;
+            return actualItem;
         }
         else return ItemDefinitionRef();
     }
 
     bool bow = false;
     
-    switch(current_subscreen_active->objects[p].d1)
+    switch(((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->itemfamily)
     {
     case itype_bomb:
     {
@@ -13709,7 +13708,7 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
     case itype_arrow:
         if(curQuest->isValid(current_item_id(itype_bow)) && curQuest->isValid(current_item_id(itype_arrow)))
         {
-            bow=(current_subscreen_active->objects[p].d1==itype_bowandarrow);
+            bow=(((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->itemfamily==itype_bowandarrow);
             family=itype_arrow;
         }
         
@@ -13753,7 +13752,7 @@ ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
     break;
     
     default:
-        family=current_subscreen_active->objects[p].d1;
+        family=((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->itemfamily;
     }
     
     if(family==-1)
@@ -13872,16 +13871,16 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
     int curpos = startpos;
     int firstValidPos=-1;
     
-    for(int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+    for (uint32_t i = 0; i < current_subscreen_active->ss_objects.size() && current_subscreen_active->ss_objects[i]->type != ssoNULL; ++i)
     {
-        if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
+        if(current_subscreen_active->ss_objects[i]->type==ssoCURRENTITEM)
         {
-            if(firstValidPos==-1 && current_subscreen_active->objects[i].d3>=0)
+            if(firstValidPos==-1 && ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[i])->posselect >=0 )
             {
                 firstValidPos=i;
             }
             
-            if(current_subscreen_active->objects[i].d3==curpos)
+            if(((subscreen_object_currentitem *)current_subscreen_active->ss_objects[i])->posselect==curpos)
             {
                 p=i;
                 break;
@@ -13896,7 +13895,7 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
         // the selector can simply disappear
         if(firstValidPos>=0)
         {
-            return current_subscreen_active->objects[firstValidPos].d3;
+            return ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[firstValidPos])->posselect;
         }
         //FAILURE
         else
@@ -13922,31 +13921,31 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
         {
         case SEL_LEFT:
         case SEL_VERIFY_LEFT:
-            curpos = current_subscreen_active->objects[p].d6;
+            curpos = ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->leftselect;;
             break;
             
         case SEL_RIGHT:
         case SEL_VERIFY_RIGHT:
-            curpos = current_subscreen_active->objects[p].d7;
+            curpos = ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->rightselect;;
             break;
             
         case SEL_DOWN:
-            curpos = current_subscreen_active->objects[p].d5;
+            curpos = ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->downselect;;
             break;
             
         case SEL_UP:
-            curpos = current_subscreen_active->objects[p].d4;
+            curpos = ((subscreen_object_currentitem *)current_subscreen_active->ss_objects[p])->upselect;;
             break;
         }
         
         //find our new position
         p = -1;
         
-        for(int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+        for(uint32_t i=0; i < current_subscreen_active->ss_objects.size() && current_subscreen_active->ss_objects[i]->type!=ssoNULL; ++i)
         {
-            if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
+            if(current_subscreen_active->ss_objects[i]->type==ssoCURRENTITEM)
             {
-                if(current_subscreen_active->objects[i].d3==curpos)
+                if(((subscreen_object_currentitem *)current_subscreen_active->ss_objects[i])->posselect==curpos)
                 {
                     p=i;
                     break;

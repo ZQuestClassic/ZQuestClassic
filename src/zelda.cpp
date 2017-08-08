@@ -3104,13 +3104,7 @@ int main(int argc, char* argv[])
     dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
     dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
     
-    for(int i=0; i<4; i++)
-    {
-        for(int j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-        }
-    }
+    reset_subscreens();
     
     Backend::sfx->loadDefaultSamples(Z35, sfxdata, old_sfx_string);
     
@@ -3447,20 +3441,7 @@ void quit_game()
     
     al_trace("Subscreens... \n");
     
-    for(int i=0; i<4; i++)
-    {
-        for(int j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-            }
-        }
-    }
+    reset_subscreens();
     
     al_trace("SFX... \n");
     zcmusic_exit();      
