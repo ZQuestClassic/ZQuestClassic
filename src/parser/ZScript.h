@@ -11,15 +11,17 @@ using std::vector;
 using std::map;
 
 class SymbolTable;
-class GlobalScope;
-class ScriptScope;
 
 namespace ZScript
 {
 	class Program;
 	class Script;
 	class Variable;
+	class BuiltinVariable;
 	class Function;
+	class Scope;
+	class GlobalScope;
+	class ScriptScope;
 	
 	class Program
 	{
@@ -33,9 +35,6 @@ namespace ZScript
 		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
-
-		// Gets the global user-defined and (deprecated) script level variables.
-		vector<Variable*> getUserGlobalVariables() const;
 
 		// Gets the non-internal (user-defined) global scope functions.
 		vector<Function*> getUserGlobalFunctions() const;
@@ -75,31 +74,110 @@ namespace ZScript
 		bool hasError() const {return getErrors().size() > 0;}
 	};
 
-	class Literal
+	// Something that can be resolved to a data value.
+	class Datum
 	{
 	public:
-		Literal(ASTLiteral* node, ZVarType const* type, int id);
-		ASTLiteral* node;
-		ZVarType const* type;
-		int id;
+		// The containing scope.
+		Scope& scope;
+
+		// The type of this data.
+		ZVarType const& type;
+
+		// Id for lookup tables.
+		int const id;
+
+		// Get the data's name.
+		virtual optional<string> getName() const {return nullopt;}
+		
+		// Get the value at compile time.
+		virtual optional<long> getCompileTimeValue() const {return nullopt;}
+
+		// Get the declaring node.
+		virtual AST* getNode() const {return NULL;}
+		
+	protected:
+		Datum(Scope& scope, ZVarType const& type);
 	};
 
-	class Variable
+	bool isGlobal(Datum const& data);
+
+	// A literal value that requires memory management.
+	class Literal : public Datum
 	{
 	public:
-		Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id);
-		ASTDataDecl* node;
-		ZVarType const* type;
+		Literal(Scope& scope, ASTLiteral& node, ZVarType const& type);
+
+		ASTLiteral& node;
+
+		ASTLiteral* getNode() const {return &node;}
+	};
+
+	Literal* addLiteral(Scope& scope, ASTLiteral& node, ZVarType const& type);
+
+	// A variable.
+	class Variable : public Datum
+	{
+	public:
+		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
+
+		ASTDataDecl& node;
+		
+		optional<string> getName() const;
+
+		ASTDataDecl* getNode() const {return &node;}
+	};
+
+	Variable* addVariable(Scope&, ASTDataDecl&, ZVarType const&);
+
+	// A compiler generated variable.
+	class BuiltinVariable : public Datum
+	{
+	public:
+		BuiltinVariable(Scope&, ZVarType const&, string const& name);
+
+		optional<string> getName() const {return name;}
+
+	private:
+		string const name;
+	};
+
+	// An inlined constant.
+	class Constant : public Datum
+	{
+	public:
+		Constant(Scope& scope, ASTDataDecl& node, ZVarType const& type,
+		         long value);
+
+		ASTDataDecl& node;
+		long const value;
+
+		optional<string> getName() const;
+
+		optional<long> getCompileTimeValue() const {return value;}
+
+		ASTDataDecl* getNode() const {return &node;}
+	};
+	
+	Constant* addConstant(Scope&, ASTDataDecl&, ZVarType const&, long value);
+
+	// A builtin data value.
+	class BuiltinConstant : public Datum
+	{
+	public:
+		BuiltinConstant(Scope& scope, ZVarType const& type,
+		                string const& name, long value);
+
+		long value;
+
+		optional<string> getName() const {return name;}
+		
+		optional<long> getCompileTimeValue() const {return value;}
+
+	private:
 		string name;
-		int id;
-
-		// Is this a global variable?
-		bool global;
-
-		// If this is a compile time constant, and its value.
-		optional<long> compileTimeValue;
 	};
-
+	
 	class Function
 	{
 	public:
@@ -121,10 +199,8 @@ namespace ZScript
 			vector<ZVarType const*> parameterTypes;
 		};
 		
-		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
-				: node(NULL), internalScope(NULL), thisVar(NULL),
-				  returnType(returnType), name(name), paramTypes(paramTypes), id(id)
-			{}
+		Function(ZVarType const* returnType, string const& name,
+				 vector<ZVarType const*> paramTypes, int id);
 		ZVarType const* returnType;
 		string name;
 		vector<ZVarType const*> paramTypes;
@@ -132,12 +208,17 @@ namespace ZScript
 
 		ASTFuncDecl* node;
 		Scope* internalScope;
-		Variable* thisVar;
-
+		BuiltinVariable* thisVar;
+		
 		Signature getSignature() const {return Signature(*this);}
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
+
+		int getLabel() const;
+		
+	private:
+		mutable optional<int> label;
 	};
 }
 

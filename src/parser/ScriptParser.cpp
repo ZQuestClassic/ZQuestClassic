@@ -37,10 +37,8 @@ ScriptsData* compile(const char *filename)
 {
     ScriptParser::resetState();
 
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 1: Parsing");
     box_eol();
-#endif
 
     if (go(filename) != 0 || !resAST)
     {
@@ -50,10 +48,8 @@ ScriptsData* compile(const char *filename)
 
     ASTProgram* theAST = resAST;
 
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 2: Preprocessing");
     box_eol();
-#endif
 
     if (!ScriptParser::preprocess(theAST, RECURSIONLIMIT))
     {
@@ -61,10 +57,8 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
 
-#ifndef SCRIPTPARSER_COMPILE
-    box_out("Pass 3: Building symbol tables");
+    box_out("Pass 3: Analyzing Code");
     box_eol();
-#endif
 
 	ZScript::Program program(theAST);
 	SemanticAnalyzer semanticAnalyzer(program);
@@ -75,26 +69,19 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
 
-#ifndef SCRIPTPARSER_COMPILE
-    box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
-    box_eol();
-#endif
+    FunctionData fd(program);
 
-    FunctionData* fd = ScriptParser::typeCheck(program);
-
-    if (fd == NULL)
+    if (fd.globalVariables.size() > 256)
 	{
+		CompileError::TooManyGlobal.print(NULL);
 		delete theAST;
 		return NULL;
 	}
 
-#ifndef SCRIPTPARSER_COMPILE
-    box_out("Pass 5: Generating object code");
+    box_out("Pass 4: Generating object code");
     box_eol();
-#endif
 
-    IntermediateData *id = ScriptParser::generateOCode(fd);
-    delete fd;
+    IntermediateData* id = ScriptParser::generateOCode(fd);
 
     if (id == NULL)
 	{
@@ -102,13 +89,12 @@ ScriptsData* compile(const char *filename)
 		return NULL;
 	}
 
-#ifndef SCRIPTPARSER_COMPILE
-    box_out("Pass 6: Assembling");
+    box_out("Pass 5: Assembling");
     box_eol();
-#endif
 
     ScriptsData* final = ScriptParser::assemble(id);
     delete id;
+
     box_out("Success!");
     box_eol();
 
@@ -174,91 +160,34 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
     return true;
 }
 
-FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
+IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
-	SymbolTable& table = program.table;
-
-    //build the functiondata
-    FunctionData *fd = new FunctionData(program);
-    vector<ASTFuncDecl *> funcs;
-    bool failure = false;
-    map<int, bool> usednums;
-
-    if (failure)
-    {
-        delete fd;
-        return NULL;
-    }
-
-	// Sort global variables into vars and constants.
-	vector<Variable*> vars = program.getUserGlobalVariables();
-	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
-	{
-		if (program.table.isInlinedConstant((*it)->node))
-			fd->globalConstants.push_back(*it);
-		else
-			fd->globalVariables.push_back(*it);
-	}
-
-    if (fd->globalVariables.size() > 256)
-	{
-		CompileError::TooManyGlobal.print(NULL);
-		failure = true;
-	}
-
-    if (failure)
-    {
-        delete fd;
-        return NULL;
-    }
-
-    return fd;
-}
-
-IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
-{
-	Program& program = fdata->program;
+	Program& program = fdata.program;
     SymbolTable* symbols = &program.table;
-	vector<Literal*>& globalLiterals = fdata->globalLiterals;
-	vector<Variable*>& globalVariables = fdata->globalVariables;
+	vector<Datum*>& globalVariables = fdata.globalVariables;
 
     // Z_message("yes");
     bool failure = false;
 
     LinkTable lt;
 
-	for (vector<Literal*>::iterator it = globalLiterals.begin();
-		 it != globalLiterals.end(); ++it)
-	{
-		Literal& literal = **it;
-		int nodeId = symbols->getNodeId(literal.node);
-		lt.addGlobalVar(nodeId);
-	}
-
-    for (vector<Variable*>::iterator it = globalVariables.begin();
+    for (vector<Datum*>::iterator it = globalVariables.begin();
 		 it != globalVariables.end(); ++it)
     {
-		Variable& variable = **it;
-        int nodeId = symbols->getNodeId(variable.node);
+		Datum& variable = **it;
+		int nodeId = symbols->getNodeId(variable.getNode());
         lt.addGlobalVar(nodeId);
     }
 
-    //Z_message("yes");
     //and add the this pointers
     for(vector<int>::iterator it = symbols->getGlobalPointers().begin(); it != symbols->getGlobalPointers().end(); it++)
     {
         lt.addGlobalPointer(*it);
     }
 
-	vector<Function*> funs = program.getUserFunctions();
-    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
-        lt.functionToLabel(symbols->getNodeId((*it)->node));
-
-    //Z_message("yes");
-    
     //we now have labels for the functions and ids for the global variables.
     //we can now generate the code to intialize the globals
-    IntermediateData *rval = new IntermediateData(*fdata);
+    IntermediateData *rval = new IntermediateData(fdata);
     
     //Link against the global symbols, and add their labels
     map<int, vector<Opcode *> > globalcode = GlobalSymbols::getInst().addSymbolsCode(lt);
@@ -354,11 +283,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     }
     //Z_message("yes");
 
-    for (vector<Variable*>::iterator it = globalVariables.begin();
+    for (vector<Datum*>::iterator it = globalVariables.begin();
 		 it != globalVariables.end(); ++it)
     {
-		Variable& variable = **it;
-		ASTDataDecl& node = *variable.node;
+		Datum& variable = **it;
+		AST& node = *variable.getNode();
 
         OpcodeContext oc;
         oc.linktable = &lt;
@@ -377,7 +306,8 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     //Z_message("yes");
 
     //globals have been initialized, now we repeat for the functions
-    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
+	vector<Function*> funs = program.getUserFunctions();
+	for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
     {
 		Function& function = **it;
 		ASTFuncDecl& node = *function.node;
@@ -425,7 +355,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(lt.functionToLabel(nodeId));
+        first->setLabel(function.getLabel());
         funccode.push_back(first);
         //push on the 0s
         int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(nodeId).size();
@@ -507,21 +437,20 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
             funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
         }
         
-        rval->funcs[lt.functionToLabel(nodeId)]=funccode;
+        rval->funcs[function.getLabel()] = funccode;
     }
     
     //Z_message("yes");
     
     //update the run symbols
-	for (vector<Script*>::const_iterator it = fdata->program.scripts.begin();
-		 it != fdata->program.scripts.end();
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+		 it != program.scripts.end();
 		 ++it)
-		//for (map<string, int>::iterator it = runsymbols.begin(); it != runsymbols.end(); it++)
     {
 		Function* run = (*it)->getRun();
 		string name = (*it)->getName();
 		int id = run->id;
-        int labelid = lt.functionToLabel(id);
+        int labelid = run->getLabel();
         rval->scriptRunLabels[name] = labelid;
     }
     

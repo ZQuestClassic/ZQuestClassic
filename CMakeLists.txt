@@ -4,11 +4,18 @@ project (ZeldaClassic)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
+set(TIME_INDIVIDUAL FALSE CACHE BOOL "Time compiling and linking each file")
+
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
+endif()
+
+if(TIME_INDIVIDUAL)
+	set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
+	set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CMAKE_COMMAND} -E time")
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
@@ -25,7 +32,7 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
     FILE( APPEND ${unit_build_file} "#include <${CMAKE_CURRENT_SOURCE_DIR}/${source_file}>\n")
   endforeach(source_file)
   # Complement list of translation units with the name of ub
-  set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)    
+  set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)
 endfunction(enable_unity_build)
 
 #############################################################
@@ -86,7 +93,7 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	endif()
 	FLEX_TARGET(ZScriptLexer ${CMAKE_SOURCE_DIR}/src/parser/ffscript.lpp ${CMAKE_SOURCE_DIR}/src/parser/lex.yy.cpp COMPILE_FLAGS ${FLEXFLAGS})
 	BISON_TARGET(ZScriptParser ${CMAKE_SOURCE_DIR}/src/parser/ffscript.ypp ${CMAKE_SOURCE_DIR}/src/parser/y.tab.cpp)
-	add_flex_bison_dependency(ZScriptLexer ZScriptParser)		
+	add_flex_bison_dependency(ZScriptLexer ZScriptParser)
 else()
 	message(WARNING "Flex and Bison not found. ZQuest will be compiled without the ZScript parser.")
 	set(ZQUEST_ZSCRIPT_SOURCES ${ZQUEST_ZSCRIPT_SOURCES_NOPARSER})
@@ -101,24 +108,24 @@ endif()
 # Windows
 
 if(MSVC)
-	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>" 
+	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
 				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg44.lib>")
-	
+
 	add_definitions(-DALLEGRO_MSVC)
-	
+
 	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
-	
+
 	set(SOUNDLIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/aldmd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/dumbd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/gme.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
 
-	if(MSVC_VERSION GREATER 1500) 
+	if(MSVC_VERSION GREATER 1500)
 		add_definitions(-DALLEGRO_HAVE_STDINT_H)
 	endif()
-		
+
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
-		
+
 	# REQUIRED or else MSVC throws internal compiler error(!)
 	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -141,11 +148,11 @@ elseif(LINUX)
 	set(ALLEGROLIB alleg)
 	add_definitions(-DALLEGRO_UNIX)
 	execute_process(COMMAND "${CMAKE_COMMAND}" "-H${CMAKE_SOURCE_DIR}/allegro" "-B${CMAKE_SOURCE_DIR}/allegro" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
-	
+
 	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
-	
+
 	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
@@ -183,7 +190,7 @@ if(UNITY_BUILD)
 	enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
 	enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
 endif()
-	
+
 add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
 
 target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
@@ -205,7 +212,7 @@ if(UNITY_BUILD)
 	enable_unity_build(ZeldaSprite ZELDA_SPRITE_SOURCES)
 	enable_unity_build(ZeldaSubscreen ZELDA_SUBSCREEN_SOURCES)
 endif()
-	
+
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
 target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
@@ -231,7 +238,7 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestMisc ZQUEST_MISC_SOURCES)
 	enable_unity_build(ZQuestZScript ZQUEST_ZSCRIPT_SOURCES)
 endif()
-	
+
 add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
 
 target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})

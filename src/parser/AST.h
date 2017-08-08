@@ -30,11 +30,14 @@ class CompileError;
 class CompileErrorHandler;
 namespace ZScript
 {
-	class Function;
+	class Scope;
+	class ZClass;
+	class Datum;
+	class Literal;
 	class Variable;
+	class Constant;
+	class Function;
 }
-class ZClass;
-
 
 #define RECURSIONLIMIT 30
 
@@ -656,7 +659,7 @@ public:
 
 	// Reference back to the variable manager for this node. Should be set by
 	// that Variable when it is created.
-	ZScript::Variable* manager;
+	ZScript::Datum* manager;
 
 	// This type of this data (minus the extra arrays). This should only be
 	// set if this declaration is not part of a list, as the list's base type
@@ -675,7 +678,7 @@ public:
 
 	// Resolves the type, using either the list's or this node's own base type
 	// as appropriate.
-	ZVarType const* resolveType(Scope* scope) const;
+	ZVarType const* resolveType(ZScript::Scope* scope) const;
 
 private:
 	// The initialization expression. Optional.
@@ -841,7 +844,7 @@ public:
 	vector<string> components;
 
 	// What this identifier refers to.
-	ZScript::Variable* binding;
+	ZScript::Datum* binding;
 private:
 	bool mIsConstant;
 };
@@ -870,7 +873,7 @@ public:
 	string right;
 	ASTExpr* index;
 
-	ZClass* leftClass;
+	ZScript::ZClass* leftClass;
 	ZScript::Function* readFunction;
 	ZScript::Function* writeFunction;
 };
@@ -1638,7 +1641,7 @@ public:
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
 
-	ZVarType const& resolve(Scope& scope);
+	ZVarType const& resolve(ZScript::Scope& scope);
 
 	// Owned by this object.
 	ZVarType* type;

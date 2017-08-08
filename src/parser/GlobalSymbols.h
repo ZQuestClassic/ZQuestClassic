@@ -10,8 +10,12 @@ using std::string;
 using std::map;
 using std::vector;
 
-class Scope;
 class SymbolTable;
+namespace ZScript
+{
+	class Function;
+	class Scope;
+}
 
 static const int SETTER = 0;
 static const int GETTER = 1;
@@ -32,26 +36,19 @@ class LibrarySymbols
 public:
 	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
 
-    virtual void addSymbolsToScope(Scope& scope);
+	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
-    virtual int matchFunction(string const& name);
-    virtual int matchGetter(string const& name);
-    virtual int matchSetter(string const& name);
     virtual ~LibrarySymbols();
 protected:
     AccessorTable *table;
     LibrarySymbols() {}
     int firstid;
     int refVar;
-    map<string, int> functions;
-	map<string, int> getters;
-	map<string, int> setters;
-	int getFunctionId(string const& name) const;
-    virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> getIndexedVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setIndexedVariable(LinkTable &lt, int id, int var);
+    map<string, ZScript::Function*> functions;
+	map<string, ZScript::Function*> getters;
+	map<string, ZScript::Function*> setters;
+
+	ZScript::Function* getFunction(string const& name) const;
 };
 
 class GlobalSymbols : public LibrarySymbols

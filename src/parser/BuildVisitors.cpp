@@ -43,6 +43,14 @@ void BuildOpcodes::addOpcode(Opcode* code)
 	opcodeTargets.back()->push_back(code);
 }
 
+template <class Container>
+void BuildOpcodes::addOpcodes(Container const& container)
+{
+	for (typename Container::const_iterator it = container.begin();
+		 it != container.end(); ++it)
+		addOpcode(*it);
+}
+
 void BuildOpcodes::deallocateArrayRef(long arrayRef)
 {
 	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
@@ -374,13 +382,13 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
     OpcodeContext& context = *(OpcodeContext*)param;
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Ignore inlined values.
-	if (manager.compileTimeValue) return;
+	if (manager.getCompileTimeValue()) return;
 
 	// Switch off to the proper helper function.
-	if (manager.type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+	if (manager.type.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
 	{
 		if (host.initializer()) buildArrayInit(host, context);
 		else buildArrayUninit(host, context);
@@ -390,13 +398,13 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 
 void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 {
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Load initializer into EXP1, if present.
 	visit(host.initializer(), &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
-	if (manager.global)
+	if (isGlobal(manager))
 	{
 		int globalid = context.linktable->getGlobalID(manager.id);
 		if (host.initializer())
@@ -417,13 +425,13 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 
 void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 {
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Initializer creates the array and loads the array id into EXP1.
 	visit(host.initializer(), &context);
 
 	// Set variable to EXP1.
-	if (manager.global)
+	if (isGlobal(manager))
 	{
 		int globalid = context.linktable->getGlobalID(manager.id);
 		addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
@@ -439,7 +447,7 @@ void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 
 void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 {
-	Variable& manager = *host.manager;
+	Datum& manager = *host.manager;
 
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
@@ -459,7 +467,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	}
 
 	// Allocate the array.
-	if (manager.global)
+	if (isGlobal(manager))
 	{
 		int globalid = context.linktable->getGlobalID(manager.id);
 		addOpcode(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
@@ -488,12 +496,7 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     //and store it
     LValBOHelper helper;
     host.left->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
@@ -550,7 +553,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
     }
 
     //call the function
-    int label = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
+    int label = host.readFunction->getLabel();
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
     //pop the stack frame
     Opcode *next = new OPopRegister(new VarArgument(SFRAME));
@@ -563,7 +566,7 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	// If the left hand side is an arrow, then we'll let it run instead.
 	if (host.array->isTypeArrow())
 	{
-		visit(host.array, param);
+		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
 	}
 
@@ -587,7 +590,7 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    int funclabel = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
+    int funclabel = host.binding->getLabel();
     //push the stack frame pointer
     addOpcode(new OPushRegister(new VarArgument(SFRAME)));
     //push the return address
@@ -665,40 +668,20 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
 
-    // Load value of the variable into EXP1.  Except if it is an arrow expr, in
-    // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
-	{
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-
-        int oldid = c->symbols->getNodeId(arrow);
-        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        visit(host.operand, param);
-        c->symbols->putNodeId(arrow, oldid);
-    }
-    else if (host.operand->isTypeIdentifier())
-    {
-        visit(host.operand, param);
-    }
-
+    // Load value of the variable into EXP1 and push.
+	visit(host.operand, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
-    //increment EXP1
-    addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-    //store it
+    // Increment EXP1
+    addOpcode(new OAddImmediate(new VarArgument(EXP1),
+								new LiteralArgument(10000)));
+	
+    // Store it
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
-
-    //pop EXP1
+    addOpcodes(helper.getResult());
+	
+    // Pop EXP1
     addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
@@ -706,110 +689,52 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
 
-    // Load value of the variable into EXP1.  Except if it is an arrow expr, in
-    // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
-	{
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
+    // Load value of the variable into EXP1.
+	visit(host.operand, param);
 
-        int oldid = c->symbols->getNodeId(arrow);
-        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        visit(host.operand, param);
-        c->symbols->putNodeId(arrow, oldid);
-    }
-    else if (host.operand->isTypeIdentifier())
-    {
-        visit(host.operand, param);
-    }
-
-    //increment EXP1
+    // Increment EXP1
     addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-    //store it
+
+    // Store it
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    // Load value of the variable into EXP1 Except if it is an arrow expr, in
-    // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
-	{
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
 
-        int oldid = c->symbols->getNodeId(arrow);
-        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        visit(host.operand, param);
-        c->symbols->putNodeId(arrow, oldid);
-    }
-    else if (host.operand->isTypeIdentifier())
-    {
-        visit(host.operand, param);
-    }
+    // Load value of the variable into EXP1.
+	visit(host.operand, param);
 
-    //dencrement EXP1
-    addOpcode(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-    //store it
+    // Decrement EXP1.
+    addOpcode(new OSubImmediate(new VarArgument(EXP1),
+								new LiteralArgument(10000)));
+
+    // Store it.
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    // Load value of the variable into EXP1 except if it is an arrow expr, in
-    // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
-	{
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
 
-        int oldid = c->symbols->getNodeId(arrow);
-        c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        visit(host.operand, param);
-        c->symbols->putNodeId(arrow, oldid);
-    }
-    else if (host.operand->isTypeIdentifier())
-    {
-        visit(host.operand, param);
-    }
-
+    // Load value of the variable into EXP1 and push.
+	visit(host.operand, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
-    //decrement EXP1
-    addOpcode(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-    //store it
+    // Decrement EXP1.
+    addOpcode(new OSubImmediate(new VarArgument(EXP1),
+								new LiteralArgument(10000)));
+    // Store it.
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
+	addOpcodes(helper.getResult());
 
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
-
-    //pop EXP1
+    // Pop EXP1.
     addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
@@ -1372,6 +1297,13 @@ void LValBOHelper::addOpcode(Opcode* code)
 	result.push_back(code);
 }
 
+template <class Container>
+void LValBOHelper::addOpcodes(Container const& container)
+{
+	for (typename Container::const_iterator it = container.begin();
+		 it != container.end(); ++it)
+		addOpcode(*it);
+}
 
 /*
 void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
@@ -1423,15 +1355,10 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //push the lhs of the arrow
     //but first save the value of EXP1
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    vector<Opcode *> toadd;
+
     BuildOpcodes oc;
     oc.visit(host.left, param);
-    toadd = oc.getResult();
-    
-    for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(oc.getResult());
     
     //pop the old value of EXP1
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
@@ -1445,18 +1372,12 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     {
         BuildOpcodes oc2;
         oc2.visit(host.index, param);
-        toadd = oc2.getResult();
-        
-        for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
-        {
-            addOpcode(*it);
-        }
-        
+		addOpcodes(oc2.getResult());
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }
     
     //finally, goto!
-    int label = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
+    int label = host.writeFunction->getLabel();
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
 
     // Pop the stack frame
@@ -1470,7 +1391,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	// Arrows just fall back on the arrow implementation.
 	if (host.array->isTypeArrow())
 	{
-		host.array->execute(*this, param);
+		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
 	}
 

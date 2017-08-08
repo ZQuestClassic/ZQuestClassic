@@ -319,8 +319,26 @@ void SymbolTable::printDiagnostics()
 // FunctionData
 
 FunctionData::FunctionData(Program& program)
-	: program(program), globalLiterals(program.globalScope.getLocalLiterals())
-{}
+	: program(program),
+	  globalData(program.globalScope.getLocalData())
+{
+	for (vector<Datum*>::const_iterator it = globalData.begin();
+	     it != globalData.end(); ++it)
+	{
+		Datum& datum = **it;
+		if (!datum.getCompileTimeValue())
+			globalVariables.push_back(&datum);
+	}
+
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+	     it != program.scripts.end(); ++it)
+	{
+		ScriptScope& scope = *(*it)->scope;
+		vector<Datum*> data = scope.getLocalData();
+		globalVariables.insert(globalVariables.end(),
+		                       data.begin(), data.end());
+	}
+}
 
 ////////////////////////////////////////////////////////////////
 // IntermediateData
@@ -331,18 +349,6 @@ IntermediateData::IntermediateData(FunctionData const& functionData)
 
 ////////////////////////////////////////////////////////////////
 // LinkTable
-
-int LinkTable::functionToLabel(int fid)
-{
-    map<int,int>::iterator it = funcLabels.find(fid);
-
-    if (it != funcLabels.end())
-        return (*it).second;
-
-    int newid = ScriptParser::getUniqueLabelID();
-    funcLabels[fid] = newid;
-    return newid;
-}
 
 int LinkTable::getGlobalID(int vid)
 {
