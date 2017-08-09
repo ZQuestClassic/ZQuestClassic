@@ -95,6 +95,9 @@ namespace ZScript
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
+
+		// Get the global register this uses.
+		virtual optional<int> getGlobalId() const {return nullopt;}
 		
 	protected:
 		Datum(Scope& scope, ZVarType const& type);
@@ -121,11 +124,13 @@ namespace ZScript
 	public:
 		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
 
-		ASTDataDecl& node;
-		
-		optional<string> getName() const;
-
+		optional<string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
+		optional<int> getGlobalId() const {return globalId;}
+
+	private:
+		ASTDataDecl& node;
+		optional<int> globalId;
 	};
 
 	Variable* addVariable(Scope&, ASTDataDecl&, ZVarType const&);
@@ -137,9 +142,11 @@ namespace ZScript
 		BuiltinVariable(Scope&, ZVarType const&, string const& name);
 
 		optional<string> getName() const {return name;}
+		optional<int> getGlobalId() const {return globalId;}
 
 	private:
 		string const name;
+		optional<int> globalId;
 	};
 
 	// An inlined constant.

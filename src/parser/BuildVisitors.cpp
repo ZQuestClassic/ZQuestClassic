@@ -404,13 +404,14 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	visit(host.initializer(), &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
-	if (isGlobal(manager))
+	if (optional<int> globalId = manager.getGlobalId())
 	{
-		int globalid = context.linktable->getGlobalID(manager.id);
 		if (host.initializer())
-			addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+			addOpcode(new OSetRegister(new GlobalArgument(*globalId),
+			                           new VarArgument(EXP1)));
 		else
-			addOpcode(new OSetImmediate(new GlobalArgument(globalid), new LiteralArgument(0)));
+			addOpcode(new OSetImmediate(new GlobalArgument(*globalId),
+			                            new LiteralArgument(0)));
 	}
 	else
 	{
@@ -431,21 +432,25 @@ void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 	visit(host.initializer(), &context);
 
 	// Set variable to EXP1.
-	if (isGlobal(manager))
+	if (optional<int> globalId = manager.getGlobalId())
 	{
-		int globalid = context.linktable->getGlobalID(manager.id);
-		addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
+		                           new VarArgument(EXP1)));
 	}
 	else
 	{
 		int offset = context.stackframe->getOffset(manager.id);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP),
+		                           new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
+		                            new LiteralArgument(offset)));
+		addOpcode(new OStoreIndirect(new VarArgument(EXP1),
+		                             new VarArgument(SFTEMP)));
 	}
 }
 
-void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
+void BuildOpcodes::buildArrayUninit(
+		ASTDataDecl& host, OpcodeContext& context)
 {
 	Datum& manager = *host.manager;
 
@@ -467,11 +472,13 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	}
 
 	// Allocate the array.
-	if (isGlobal(manager))
+	if (optional<int> globalId = manager.getGlobalId())
 	{
-		int globalid = context.linktable->getGlobalID(manager.id);
-		addOpcode(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
-		addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+		addOpcode(new OAllocateGlobalMemImmediate(
+				          new VarArgument(EXP1),
+				          new LiteralArgument(totalSize)));
+		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
+		                           new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -504,20 +511,21 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
 
 	// If a constant, just load its value.
-    if (c->symbols->isInlinedConstant(&host))
+    if (optional<long> value = host.binding->getCompileTimeValue())
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(c->symbols->getInlinedValue(&host))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1),
+                                    new LiteralArgument(*value)));
 		host.markConstant();
         return;
     }
 
-    int vid = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(vid);
+    int vid = host.binding->id;
 
-    if (globalid != -1)
+    if (optional<int> globalId = host.binding->getGlobalId())
     {
         // Global variable, so just get its value.
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+        addOpcode(new OSetRegister(new VarArgument(EXP1),
+                                   new GlobalArgument(*globalId)));
         return;
     }
 
@@ -1090,12 +1098,13 @@ void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
 }
 
+// TODO add implicit stackframe to global case for literals.
 void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
 	int id = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(id);
-    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+	bool isGlobal = !c->stackframe;
+    int RAMtype = isGlobal ? SCRIPTRAM: GLOBALRAM;
 
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
@@ -1117,18 +1126,28 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 	}
 
 	// Allocate.
-	if (RAMtype == GLOBALRAM)
+	if (isGlobal)
 	{
-		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
-		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+		c->initCode.push_back(
+				new OAllocateGlobalMemImmediate(new VarArgument(EXP1),
+				                                new LiteralArgument(size)));
+		c->initCode.push_back(
+				new OSetRegister(new GlobalArgument(0),
+				                 new VarArgument(EXP1)));
 	}
 	else
 	{
-		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		c->initCode.push_back(
+				new OAllocateMemImmediate(new VarArgument(EXP1),
+				                          new LiteralArgument(size)));
 		int offset = c->stackframe->getOffset(id);
-		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP),
+		                                       new VarArgument(SFRAME)));
+		c->initCode.push_back(
+				new OAddImmediate(new VarArgument(SFTEMP),
+				                  new LiteralArgument(offset)));
+		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1),
+		                                         new VarArgument(SFTEMP)));
 	}
 
 	// Initialize.
@@ -1145,10 +1164,11 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 	////////////////////////////////////////////////////////////////
 	// Actual Code.
 
-	if (globalid != -1)
+	if (isGlobal)
 	{
         // Global variable, so just get its value.
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+        addOpcode(new OSetRegister(new VarArgument(EXP1),
+                                   new GlobalArgument(0)));
 	}
 	else
 	{
@@ -1162,7 +1182,7 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
 
-	if (globalid == -1)
+	if (!isGlobal)
 	{
 		int offset = c->stackframe->getOffset(id);
 		arrayRefs.push_back(offset);
@@ -1173,8 +1193,8 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 {
 	OpcodeContext& context = *(OpcodeContext*)param;
 	Literal& manager = *host.manager;
-    int globalid = context.linktable->getGlobalID(manager.id);
-    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+	bool isGlobal = !context.stackframe;
+    int RAMtype = isGlobal ? SCRIPTRAM: GLOBALRAM;
 
 	int size = -1;
 
@@ -1217,10 +1237,14 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	// Initialization Code.
 
 	// Allocate.
-	if (RAMtype == GLOBALRAM)
+	if (isGlobal)
 	{
-		context.initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size * 10000L)));
-		context.initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+		context.initCode.push_back(
+				new OAllocateGlobalMemImmediate(
+						new VarArgument(EXP1),
+						new LiteralArgument(size * 10000L)));
+		context.initCode.push_back(new OSetRegister(new GlobalArgument(0),
+		                                            new VarArgument(EXP1)));
 	}
 	else
 	{
@@ -1250,10 +1274,10 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	////////////////////////////////////////////////////////////////
 	// Actual Code.
 
-	if (globalid != -1)
+	if (isGlobal)
 	{
         // Global variable, so just get its value.
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(0)));
 	}
 	else
 	{
@@ -1267,7 +1291,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
 
-	if (globalid == -1)
+	if (!isGlobal)
 	{
 		int offset = context.stackframe->getOffset(manager.id);
 		arrayRefs.push_back(offset);
@@ -1322,12 +1346,12 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
     int vid = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(vid);
 
-    if (globalid != -1)
+    if (optional<int> globalId = host.binding->getGlobalId())
     {
         // Global variable.
-        addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+        addOpcode(new OSetRegister(new GlobalArgument(*globalId),
+                                   new VarArgument(EXP1)));
         return;
     }
 

@@ -396,19 +396,14 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	BuiltinConstant* builtin;
 	builtin = new BuiltinConstant(*this, ZVarType::_LINK, "Link", 0);
 	add(builtin);
-	table.addGlobalPointer(builtin->id);
 	builtin = new BuiltinConstant(*this, ZVarType::SCREEN, "Screen", 0);
 	add(builtin);
-	table.addGlobalPointer(builtin->id);
 	builtin = new BuiltinConstant(*this, ZVarType::GAME, "Game", 0);
 	add(builtin);
-	table.addGlobalPointer(builtin->id);
 	builtin = new BuiltinConstant(*this, ZVarType::AUDIO, "Audio", 0);
 	add(builtin);
-	table.addGlobalPointer(builtin->id);
 	builtin = new BuiltinConstant(*this, ZVarType::DEBUG, "Debug", 0);
 	add(builtin);
-	table.addGlobalPointer(builtin->id);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
