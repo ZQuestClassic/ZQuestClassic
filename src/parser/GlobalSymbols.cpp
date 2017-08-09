@@ -225,11 +225,11 @@ vector<Opcode*> setIndexedVariable(int refVar, Function* function, int var)
     return code;
 }
 
-map<int, vector<Opcode *> > LibrarySymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode*> > LibrarySymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval;
+    map<int, vector<Opcode*> > rval;
     
-    for(int i=0; table[i].name != ""; i++)
+    for (int i = 0; table[i].name != ""; ++i)
     {
         int var = table[i].var;
         string name = table[i].name;
@@ -344,7 +344,7 @@ GlobalSymbols::GlobalSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode*> > GlobalSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id;
@@ -1063,9 +1063,9 @@ FFCSymbols::FFCSymbols()
     refVar = REFFFC;
 }
 
-map<int, vector<Opcode *> > FFCSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > FFCSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
 	
 	
 //void ChangeFFCScript(ffc, int)
@@ -1312,9 +1312,9 @@ LinkSymbols::LinkSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > LinkSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //Warp(link, int, int)
     {
 	    Function* function = functions["Warp"];
@@ -1559,9 +1559,9 @@ ScreenSymbols::ScreenSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ScreenSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //item LoadItem(screen, int)
     {
 	    Function* function = functions["LoadItem"];
@@ -2527,9 +2527,9 @@ ItemSymbols::ItemSymbols()
     refVar = REFITEM;
 }
 
-map<int, vector<Opcode *> > ItemSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ItemSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //bool isValid(item)
     {
 	    Function* function = functions["isValid"];
@@ -2690,9 +2690,9 @@ ItemclassSymbols::ItemclassSymbols()
     table = itemclassTable;
     refVar = REFITEMCLASS;
 }
-map<int, vector<Opcode *> > ItemclassSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ItemclassSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //void GetName(itemclass, int)
     {
 	    Function* function = functions["GetName"];
@@ -2910,9 +2910,9 @@ GameSymbols::GameSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > GameSymbols::generateCode()
 {
-    map<int,vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int,vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //itemclass LoadItemData(game, int)
     {
 	    Function* function = functions["LoadItemData"];
@@ -4718,9 +4718,9 @@ NPCSymbols::NPCSymbols()
     refVar = REFNPC;
 }
 
-map<int, vector<Opcode *> > NPCSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > NPCSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //bool isValid(npc)
     {
 	    Function* function = functions["isValid"];
@@ -4864,9 +4864,9 @@ LinkWeaponSymbols::LinkWeaponSymbols()
     refVar = REFLWPN;
 }
 
-map<int, vector<Opcode *> > LinkWeaponSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > LinkWeaponSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
     //bool isValid(lweapon)
     {
@@ -4991,9 +4991,9 @@ EnemyWeaponSymbols::EnemyWeaponSymbols()
     refVar = REFEWPN;
 }
 
-map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > EnemyWeaponSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
     //bool isValid(eweapon)
     {
@@ -5059,7 +5059,7 @@ AudioSymbols::AudioSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > AudioSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -5296,7 +5296,7 @@ DebugSymbols::DebugSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > DebugSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -5581,7 +5581,7 @@ NPCDataSymbols::NPCDataSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > NPCDataSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;

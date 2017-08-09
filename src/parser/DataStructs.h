@@ -79,10 +79,6 @@ public:
                         vector<ZVarTypeId> const& paramTypeIds);
     void putFuncTypes(int funcId, ZVarType const* returnType,
                       vector<ZVarType const*> const& paramTypes);
-	// Global Pointers
-    vector<int> const& getGlobalPointers() const {return globalPointers;}
-    vector<int>& getGlobalPointers() {return globalPointers;}
-    void addGlobalPointer(int varId) {globalPointers.push_back(varId);}
 	// Other
     void printDiagnostics();
 private:
@@ -94,7 +90,6 @@ private:
     map<int, ZVarTypeId> varTypes;
     map<int, long> inlinedConstants;
     map<int, FunctionTypeIds> funcTypes;
-    vector<int> globalPointers;
 };
 
 struct FunctionData
@@ -114,19 +109,6 @@ struct IntermediateData
     map<string, int> scriptRunLabels;
 };
 
-class LinkTable
-{
-public:
-    int getGlobalID(int vid);
-    int addGlobalVar(int vid);
-    void addGlobalPointer(int vid)
-    {
-        globalIDs[vid]=0;
-    }
-private:
-    map<int, int> globalIDs;
-};
-
 class StackFrame
 {
 public:
@@ -142,7 +124,6 @@ private:
 struct OpcodeContext
 {
     StackFrame *stackframe;
-    LinkTable *linktable;
     SymbolTable *symbols;
 	vector<Opcode*> initCode;
 };

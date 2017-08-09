@@ -166,12 +166,14 @@ Literal* ZScript::addLiteral(
 
 Variable::Variable(
 		Scope& scope, ASTDataDecl& node, ZVarType const& type)
-	: Datum(scope, type), node(node)
+	: Datum(scope, type),
+	  node(node),
+	  globalId((scope.isGlobal() || scope.isScript())
+	           ? optional<int>(ScriptParser::getUniqueGlobalID())
+	           : nullopt)
 {
 	node.manager = this;
 }
-
-optional<string> Variable::getName() const {return node.name;}
 
 Variable* ZScript::addVariable(
 		Scope& scope, ASTDataDecl& node, ZVarType const& type)
@@ -186,7 +188,11 @@ Variable* ZScript::addVariable(
 
 BuiltinVariable::BuiltinVariable(
 		Scope& scope, ZVarType const& type, string const& name)
-	: Datum(scope, type), name(name)
+	: Datum(scope, type),
+	  name(name),
+	  globalId((scope.isGlobal() || scope.isScript())
+	           ? optional<int>(ScriptParser::getUniqueGlobalID())
+	           : nullopt)
 {}
 
 // ZScript::Constant
