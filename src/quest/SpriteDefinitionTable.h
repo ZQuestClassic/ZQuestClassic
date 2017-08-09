@@ -108,19 +108,26 @@ public:
 
 
 /*
-* Stores all sprite definitions in the quest. These are the properties stored
-* in the .qst file (*not* temporary instances of weapon sprites).
-* Each sprite has a name and an itemdata structure associated to it, the latter
-* of which contains all of the non-name data.
-*/
+ * Stores all sprite definitions in the quest. These are the properties stored
+ * in the .qst file (*not* temporary instances of weapon sprites).
+ * Each sprite has a wpndata structure associated to it, which contains all of 
+ * the sprite data including the name.
+ */
 class SpriteDefinitionTable
 {
 public:
     /*
-     * Removes all item definitions.
+     * Removes all sprite definitions.
      */
     void clear();
 
+    /*
+     * Retrives the name of the default sprite located in the given slot. This
+     * name only really makes sense for sprites in the CORE module in a blank
+     * (empty) quest that hasn't been edited. Returns a 
+     * programatically-generated name if no descriptive name exists for the
+     * given slot.
+     */
     static std::string defaultSpriteName(int slot);
 
     /*
@@ -131,12 +138,12 @@ public:
 
     /*
      * Adds a new sprite at the end of the sprite definition table, with given
-     * settings and name.
+     * sprite data.
      */
     void addSpriteDefinition(const wpndata &data);
 
     /*
-     * The number of sprites currently in the weapon definition table.
+     * The number of sprites currently in the sprite definition table.
      */
     uint32_t getNumSpriteDefinitions() const { return (int)spriteData_.size(); }
 

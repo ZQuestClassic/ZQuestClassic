@@ -271,41 +271,46 @@ public:
 };
 
 /*
-* Stores all enemy definitions in the quest. These are the properties stored
-* in the .qst file (*not* temporary instances of enemies).
-* Each eme,y has a name and an guysdata structure associated to it, the latter
-* of which contains all of the non-name data.
-*/
+ * Stores all enemy definitions in the quest. These are the properties stored
+ * in the .qst file (*not* temporary instances of enemies).
+ * Each enemy has a guysdata structure associated to it which contains all of 
+ * enemy data (including name).
+ */
 class EnemyDefinitionTable
 {
 public:
     /*
-    * Removes all item definitions.
+    * Removes all enemy definitions.
     */
     void clear();
 
+    /*
+     * Returns the name of the deafault hard-coded enemy in the given enemy
+     * slot. Note that this name doesn't make much sense except for the CORE
+     * module in an empty quest. Returns a procedurally-generated name if no
+     * descriptive name exists for the given slot.
+     */
     static std::string defaultEnemyName(int slot);
 
     /*
-    * Retrives the sprite definition with given index from the table. The
+    * Retrives the enemy definition with given index from the table. The
     * given index must be valid.
     */
-
     guydata &getEnemyDefinition(int idx) { return guyData_[idx]; }
 
     /*
-    * Adds a new sprite at the end of the sprite definition table, with given
-    * settings and name.
+    * Adds a new enemy at the end of the enemy definition table, with given
+    * settings.
     */
     void addEnemyDefinition(const guydata &data);
 
     /*
-    * The number of sprites currently in the weapon definition table.
+    * The number of enemies currently in the enemy definition table.
     */
     uint32_t getNumEnemyDefinitions() const { return (int)guyData_.size(); }
 
     /*
-    * Returns whether the given sprite index is valid (in the table).
+    * Returns whether the given enemy index is valid (in the table).
     */
     bool isValid(int slot) { return slot >= 0 && slot < (int)guyData_.size(); }
 

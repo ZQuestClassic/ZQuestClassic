@@ -612,7 +612,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 
 		// Check parameter types.
 		bool parametersMatch = true;
-		for (int i = 0; i < parameterTypes.size(); ++i)
+		for (uint32_t i = 0; i < parameterTypes.size(); ++i)
 		{
 			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
 			{
@@ -639,7 +639,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		// Count number of casts.
 		Function& function = **it;
 		int castCount = 0;
-		for (int i = 0; i < parameterTypes.size(); ++i)
+		for (uint32_t i = 0; i < parameterTypes.size(); ++i)
 			if (*parameterTypes[i] != *function.paramTypes[i]) ++castCount;
 
 		// If this beats the record, keep it.

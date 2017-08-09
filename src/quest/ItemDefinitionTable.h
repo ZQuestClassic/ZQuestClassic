@@ -208,8 +208,8 @@ struct itemdata
  * Stores all item definitions in the quest. These are the properties specified
  * in the item editor and stored in the .qst file (*not* temporary instances of 
  * item sprites.
- * Each item has a name and an itemdata structure associated to it, the latter
- * of which contains all of the non-name data.
+ * Each item has an itemdata structure associated to it, which contains all of 
+ * item data (including name).
  */
 class ItemDefinitionTable
 {
@@ -237,7 +237,7 @@ public:
 
     /*
      * Adds a new item at the end of the item definition table, with given
-     * settings and name.
+     * settings.
      */
     void addItemDefinition(const itemdata &data);
 

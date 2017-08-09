@@ -347,7 +347,6 @@ GlobalSymbols::GlobalSymbols()
 map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
 {
     map<int, vector<Opcode *> > rval;
-    int id;
     //int Rand(int maxval)
     {
 	    Function* function = functions["Rand"];
