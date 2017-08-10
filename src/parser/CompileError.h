@@ -95,7 +95,9 @@ class CompileErrorHandler
 public:
 	virtual void handleError(
 			CompileError const& error, AST const* node, ...)
-		= 0;
+	{}
+
+	static CompileErrorHandler NONE;
 };
 
 #endif

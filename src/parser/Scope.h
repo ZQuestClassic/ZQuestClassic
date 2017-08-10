@@ -4,6 +4,8 @@
 #include <assert.h>
 #include "DataStructs.h"
 
+class CompileErrorHandler;
+
 namespace ZScript
 {
 	class Script;
@@ -12,6 +14,9 @@ namespace ZScript
 
 	class Scope
 	{
+		// So Datum classes can only be generated in tandem with a scope.
+		friend class Datum;
+		
 	public:
 		static Scope* makeGlobalScope(SymbolTable& table);
 
@@ -54,7 +59,6 @@ namespace ZScript
 		virtual ZVarType const* addType(
 				string const& name, ZVarType const* type, AST* node) = 0;
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
-		virtual bool add(ZScript::Datum*) = 0;
 		virtual Function* addGetter(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
@@ -73,7 +77,10 @@ namespace ZScript
 	protected:
 		SymbolTable& table;
 		optional<string> name;
-	
+
+	private:
+		virtual bool add(ZScript::Datum&, CompileErrorHandler&) = 0;
+		
 	};
 
 	////////////////
@@ -178,7 +185,6 @@ namespace ZScript
 		Scope* makeChild(string const& name);
 		ZVarType const* addType(
 				string const& name, ZVarType const* type, AST* node = NULL);
-		bool add(Datum*);
 		Function* addGetter(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL);
@@ -209,6 +215,8 @@ namespace ZScript
 		// Disabled since it's easy to call by accident instead of the Scope*
 		// constructor.
 		BasicScope(BasicScope const& base);
+
+		bool add(Datum&, CompileErrorHandler&);
 	};
 
 	class ScriptScope;

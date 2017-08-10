@@ -192,4 +192,4 @@ CompileError const CompileError::MissingCompileError(
 CompileError const CompileError::UnimplementedFeature(
 		54, 'C', false, "Feature unimplemented: %s.");
 
-
+CompileErrorHandler CompileErrorHandler::NONE;

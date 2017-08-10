@@ -1,4 +1,5 @@
-
+#include "../precompiled.h"
+#include "CompileError.h"
 #include "GlobalSymbols.h"
 #include "Scope.h"
 #include "Types.h"
@@ -310,20 +311,25 @@ ZVarType const* BasicScope::addType(
 	return type;
 }
 
-bool BasicScope::add(Datum* datum)
+bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 {
-	if (optional<string> name = datum->getName())
+	if (optional<string> name = datum.getName())
 	{
-		if (find<Datum*>(namedData, *name)) return false;
-		namedData[*name] = datum;
+		if (find<Datum*>(namedData, *name))
+		{
+			errorHandler.handleError(CompileError::VarRedef,
+			                         datum.getNode(), name->c_str());
+			return false;
+		}
+		namedData[*name] = &datum;
 	}
-	else anonymousData.push_back(datum);
+	else anonymousData.push_back(&datum);
 
-	if (AST* node = datum->getNode())
+	if (AST* node = datum.getNode())
 	{
-		table.putNodeId(node, datum->id);
+		table.putNodeId(node, datum.id);
 	
-		if (optional<long> value = datum->getCompileTimeValue())
+		if (optional<long> value = datum.getCompileTimeValue())
 			table.inlineConstant(node, *value);
 	}
 
@@ -393,17 +399,11 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant* builtin;
-	builtin = new BuiltinConstant(*this, ZVarType::_LINK, "Link", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::SCREEN, "Screen", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::GAME, "Game", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::AUDIO, "Audio", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::DEBUG, "Debug", 0);
-	add(builtin);
+	BuiltinConstant::create(*this, ZVarType::_LINK, "Link", 0);
+	BuiltinConstant::create(*this, ZVarType::SCREEN, "Screen", 0);
+	BuiltinConstant::create(*this, ZVarType::GAME, "Game", 0);
+	BuiltinConstant::create(*this, ZVarType::AUDIO, "Audio", 0);
+	BuiltinConstant::create(*this, ZVarType::DEBUG, "Debug", 0);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
