@@ -12487,7 +12487,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         {
             action = rafting;
         }
-        else if(iswater(ahead) && (current_item_level(itype_flippers)))
+        else if(iswater(ahead) && (current_item(itype_flippers)))
         {
             if(lastaction==swimming)
             {
