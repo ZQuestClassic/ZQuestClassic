@@ -242,8 +242,8 @@ class LinkClass : public sprite
     int  nextflag(int cx,int cy,int cdir, bool comboflag);
     bool nextcombo_wf(int d);
     bool nextcombo_solid(int d);
-    int  lookahead(int destscr = -1, int d=up);
-    int  lookaheadflag(int destscr = -1, int d=up);
+    int  lookahead(int d);
+    int  lookaheadflag(int d);
     void checkhit();
     bool checkdamagecombos(int dx, int dy);
     bool checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer = -1, bool solid = false);

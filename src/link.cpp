@@ -12066,12 +12066,11 @@ bool LinkClass::edge_of_dmap(int side)
     return false;
 }
 
-int LinkClass::lookahead(int destscr, int d2)                       // Helper for scrollscr that gets next combo on next screen.
+int LinkClass::lookahead(int d2)                       // Helper for scrollscr that gets next combo on next screen.
 {
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int s = currscr;
 	int cx = x;
     int cy = y + 8;
 	bound(cx, 0, 240);
@@ -12080,90 +12079,69 @@ int LinkClass::lookahead(int destscr, int d2)                       // Helper fo
     switch(d2)
     {
     case up:
-        s-=16;
         cy=160;
         break;
         
     case down:
-        s+=16;
         cy=0;
         break;
         
     case left:
-        --s;
         cx=240;
         break;
         
     case right:
-        ++s;
         cx=0;
         break;
     }
     
-    if(s < 0 || s >= 0x80)
-        return 0;
-        
-    if(destscr != -1)
-        s = destscr;
-        
     int combo = (cy&0xF0)+(cx>>4);
     
     if(combo>175)
         return 0;
         
-    return TheMaps[currmap*MAPSCRS+s].data[combo];            // entire combo code
+    return tmpscr[0].data[combo];            // entire combo code
 }
 
-int LinkClass::lookaheadflag(int destscr, int d2)
+int LinkClass::lookaheadflag(int d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int s = currscr;
     int cx = x;
     int cy = y + 8;
     
     switch(d2)
     {
     case up:
-        s-=16;
         cy=160;
         break;
         
     case down:
-        s+=16;
         cy=0;
         break;
         
     case left:
-        --s;
         cx=240;
         break;
         
     case right:
-        ++s;
         cx=0;
         break;
     }
     
-    if(s < 0 || s >= 0x80)
-        return 0;
-        
-    if(destscr != -1)
-        s = destscr;
-        
     int combo = (cy&0xF0)+(cx>>4);
     
     if(combo>175)
         return 0;
         
-    if(!TheMaps[currmap*MAPSCRS+s].sflag[combo])
+    if(!tmpscr[0].sflag[combo])
     {
-        return combobuf[TheMaps[currmap*MAPSCRS+s].data[combo]].flag;           // flag
+        return combobuf[tmpscr[0].data[combo]].flag;           // flag
     }
     
-    return TheMaps[currmap*MAPSCRS+s].sflag[combo];           // flag
+    return tmpscr[0].sflag[combo];           // flag
 }
 
 //Bit of a messy kludge to give the correct Link->X/Link->Y in the script
@@ -12381,34 +12359,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     actiontype lastaction = action;
     ALLOFF(false, false);
-    
-    int ahead = lookahead(destscr, scrolldir);
-    int aheadflag = lookaheadflag(destscr, scrolldir);
-    
-    bool nowinwater = false;
-    
-    if(lastaction != inwind)
-    {
-        if(lastaction == rafting && isRaftFlag(aheadflag))
-        {
-            action = rafting;
-        }
-        else if(iswater(ahead) && (current_item(itype_flippers)))
-        {
-            if(lastaction==swimming)
-            {
-                action = swimming;
-                hopclk = 0xFF;
-                nowinwater = true;
-            }
-            else
-            {
-                action = hopping;
-                hopclk = 2;
-                nowinwater = true;
-            }
-        }
-    }
+    // for now, restore Link's previous action
+    action = lastaction;
     
     lstep = (lstep + 6) % 12;
     cx = scx;
@@ -12522,6 +12474,39 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     }
     break;
     }
+
+    // change Link's state if entering water
+    int ahead = lookahead(scrolldir);
+    int aheadflag = lookaheadflag(scrolldir);
+
+    bool nowinwater = false;
+
+    if(lastaction != inwind)
+    {
+        if(lastaction == rafting && isRaftFlag(aheadflag))
+        {
+            action = rafting;
+        }
+        else if(iswater(ahead) && (current_item_level(itype_flippers)))
+        {
+            if(lastaction==swimming)
+            {
+                action = swimming;
+                hopclk = 0xFF;
+                nowinwater = true;
+            }
+            else
+            {
+                action = hopping;
+                hopclk = 2;
+                nowinwater = true;
+            }
+        }
+        else
+        {
+            action = none;
+        }
+    }
     
     // The naturaldark state can be read/set by an FFC script before
     // fade() or lighting() is called.
@@ -12575,6 +12560,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         // For rafting (and possibly other esoteric things)
         // Link's action should remain unchanged while scrolling,
         // but for the sake of scripts, here's an eye-watering kludge.
+        lastaction = action;
         action = scrolling;
         ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
         action = lastaction;
@@ -12658,6 +12644,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         if(global_wait)
         {
             // And now to injure your other eye
+            lastaction = action;
             action = scrolling;
             ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
             action = lastaction;
