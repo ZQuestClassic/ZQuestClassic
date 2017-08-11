@@ -1168,6 +1168,9 @@ void init_dmap()
     }
     
     flushItemCache();
+    // also update subscreens
+    update_subscreens();
+    verifyBothWeapons();
     
     return;
 }
