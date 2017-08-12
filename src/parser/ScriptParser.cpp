@@ -188,6 +188,16 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     overwritePairs(rval->funcs, DebugSymbols::getInst().generateCode());
     overwritePairs(rval->funcs, NPCDataSymbols::getInst().generateCode());
 
+    // Push 0s for init stack space.
+    rval->globalsInit.push_back(
+		    new OSetImmediate(new VarArgument(EXP1),
+		                      new LiteralArgument(0)));
+    int globalStackSize = *program.globalScope.getRootStackSize();
+    for (int i = 0; i < globalStackSize; ++i)
+	    rval->globalsInit.push_back(
+			    new OPushRegister(new VarArgument(EXP1)));
+    
+    // Generate variable init code.
     for (vector<Datum*>::iterator it = globalVariables.begin();
 		 it != globalVariables.end(); ++it)
     {
@@ -196,9 +206,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 
         OpcodeContext oc;
         oc.symbols = symbols;
-        oc.stackframe = NULL;
 
-		// Generate variable init code.
         BuildOpcodes bo;
         node.execute(bo, &oc);
         if (bo.hasFailed()) failure = true;
@@ -206,6 +214,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         appendElements(rval->globalsInit, bo.getResult());
     }
 
+    // Pop off everything.
+    for (int i = 0; i < globalStackSize; ++i)
+	    rval->globalsInit.push_back(
+			    new OPopRegister(new VarArgument(EXP2)));
+        
     //globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
 	for (vector<Function*>::iterator it = funs.begin();
@@ -215,63 +228,28 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		ASTFuncDecl& node = *function.node;
 		int nodeId = symbols->getNodeId(&node);
 
-		bool isarun = false;
+		bool isRun = ZScript::isRun(function);
 		string scriptname;
 		Script* functionScript = function.getScript();
 		if (functionScript)
-		{
 			scriptname = functionScript->getName();
-			isarun = function.name == "run";
-		}
 
         vector<Opcode *> funccode;
-		// generate a mapping from local variables to stack offests
-		StackFrame sf;
 
-		int offset = 0;
+		int stackSize = getStackSize(function);
 
-		// If this is a run, add the this pointer to the frame.
-		if (isarun)
-		{
-			sf.addToFrame(functionScript->getRun()->thisVar->id, offset);
-			offset += 10000;
-		}
-
-        //assign the local, non-parameters to slots on the stack
-        
-        AssignStackSymbols assign(&sf, symbols, offset);
-        node.block->execute(assign, NULL);
-        
-		offset = assign.getHighWaterOffset();
-        
-        //finally, assign the parameters, in reverse order
-		for (vector<ASTDataDecl*>::const_reverse_iterator it = node.parameters.rbegin();
-			 it != node.parameters.rend(); ++it)
-		{
-			int vid = symbols->getNodeId(*it);
-			sf.addToFrame(vid, offset);
-			offset += 10000;
-		}
-
-		int totvars = offset / 10000;
-
-        //start of the function
-        Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+        // Start of the function.
+        Opcode* first = new OSetImmediate(new VarArgument(EXP1),
+                                          new LiteralArgument(0));
         first->setLabel(function.getLabel());
         funccode.push_back(first);
-        //push on the 0s
-        int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(nodeId).size();
-		//also don't count the "this"
-		if (isarun)
-			numtoallocate--;
-        
-        for(int i = 0; i < numtoallocate; i++)
-        {
+
+        // Push 0s for the local variables.
+        for (int i = stackSize - getParameterCount(function); i > 0; --i)
             funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
-        }
         
-        //push on the this, if a script
-        if(isarun)
+        // Push on the this, if a script
+        if (isRun)
         {
             switch (program.getScript(scriptname)->getType())
             {
@@ -291,36 +269,32 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
             funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
         }
         
-        //set up the stack frame register
-        funccode.push_back(new OSetRegister(new VarArgument(SFRAME), new VarArgument(SP)));
+        // Set up the stack frame register
+        funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
+                                            new VarArgument(SP)));
         OpcodeContext oc;
         oc.symbols = symbols;
-        oc.stackframe = &sf;
         BuildOpcodes bo;
         node.execute(bo, &oc);
 
         if (bo.hasFailed()) failure = true;
 
-        vector<Opcode *> code = bo.getResult();
-
-        for(vector<Opcode *>::iterator it2 = code.begin(); it2 != code.end(); it2++)
-        {
-            funccode.push_back(*it2);
-        }
+        appendElements(funccode, bo.getResult());
         
         // Add appendix code.
-        Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+        Opcode* next = new OSetImmediate(new VarArgument(EXP2),
+                                         new LiteralArgument(0));
         next->setLabel(bo.getReturnLabelID());
         funccode.push_back(next);
         
-        //pop off everything
-        for(int i=0; i< totvars; i++)
+        // Pop off everything.
+        for (int i = 0; i < stackSize; ++i)
         {
             funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
         }
         
         //if it's a main script, quit.
-		if (isarun)
+		if (isRun)
 		{
 			// Note: the stack still contains the "this" pointer
 			// But since the script is about to terminate, we don't

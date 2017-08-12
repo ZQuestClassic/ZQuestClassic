@@ -23,6 +23,7 @@ namespace ZScript
 	class Scope;
 	class GlobalScope;
 	class ScriptScope;
+	class FunctionScope;
 	
 	class Program
 	{
@@ -99,7 +100,7 @@ namespace ZScript
 
 		// Get the global register this uses.
 		virtual optional<int> getGlobalId() const {return nullopt;}
-		
+
 	protected:
 		Datum(Scope& scope, ZVarType const& type);
 
@@ -107,7 +108,11 @@ namespace ZScript
 		bool tryAddToScope(CompileErrorHandler&);
 	};
 
+	// Is this datum a global value?
 	bool isGlobal(Datum const& data);
+
+	// Return the stack offset of the value.
+	optional<int> getStackOffset(Datum const&);
 
 	// A literal value that requires memory management.
 	class Literal : public Datum
@@ -231,7 +236,7 @@ namespace ZScript
 		int id;
 
 		ASTFuncDecl* node;
-		Scope* internalScope;
+		FunctionScope* internalScope;
 		BuiltinVariable* thisVar;
 		
 		Signature getSignature() const {return Signature(*this);}
@@ -244,6 +249,15 @@ namespace ZScript
 	private:
 		mutable optional<int> label;
 	};
+
+	// Is this function a "run" function?
+	bool isRun(Function const&);
+
+	// Get the size of the function stack.
+	int getStackSize(Function const&);
+
+	// Get the function's parameter count, including "this" if present.
+	int getParameterCount(Function const&);
 }
 
 #endif

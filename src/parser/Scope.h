@@ -32,6 +32,7 @@ namespace ZScript
 		// Scope Type
 		virtual bool isGlobal() const {return false;}
 		virtual bool isScript() const {return false;}
+		virtual bool isFunction() const {return false;}
 
 		// Inheritance
 		virtual Scope* getParent() const = 0;
@@ -56,6 +57,7 @@ namespace ZScript
 		// Add
 		virtual Scope* makeChild() = 0;
 		virtual Scope* makeChild(string const& name) = 0;
+		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
 		virtual ZVarType const* addType(
 				string const& name, ZVarType const* type, AST* node) = 0;
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
@@ -72,6 +74,24 @@ namespace ZScript
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
 				= 0;
 
+		////////////////
+		// Stack
+
+		// If this scope starts a new stack frame, return its total stack
+		// size.
+		virtual optional<int> getRootStackSize() const {return nullopt;}
+
+		// Let this scope know that it needs to recalculate the stack size.
+		virtual void invalidateStackSize();
+		
+		// Get the depth of the stack for this scope, not considering its
+		// children.
+		virtual int getLocalStackDepth() const {return 0;}
+
+		// Get the stack offset for this local datum.
+		virtual optional<int> getLocalStackOffset(Datum const&) const {
+			return nullopt;}
+		
 		bool varDeclsDeprecated;
 
 	protected:
@@ -79,8 +99,9 @@ namespace ZScript
 		optional<string> name;
 
 	private:
+		// Add the datum to this scope, returning if successful. Called by
+		// the Datum classes ::create functions.
 		virtual bool add(ZScript::Datum&, CompileErrorHandler&) = 0;
-		
 	};
 
 	////////////////
@@ -128,6 +149,23 @@ namespace ZScript
 			Scope const&, vector<string> const& name);
 
 	////////////////
+	// Stack
+
+	// Does this scope start a new stack frame?
+	bool isStackRoot(Scope const&);
+
+	// Get the stack offset for a datum, checking parents until we hit a
+	// root.
+	optional<int> lookupStackOffset(Scope const&, Datum const&);
+
+	// Find the total size of the stack scope is in.
+	optional<int> lookupStackSize(Scope const&);
+	
+	// Lookup the stack offset and then subtract it from the root stack
+	// size.
+	optional<int> lookupStackPosition(Scope const&, Datum const&);
+	
+	////////////////
 	// Get all in branch
 
 	// Recursively get all of something for a scope and its children.
@@ -153,13 +191,14 @@ namespace ZScript
 
 	////////////////////////////////////////////////////////////////
 	// BasicScope - Primary Scope implementation.
-	
+
+	class FunctionScope;
 	class BasicScope : public Scope
 	{
 	public:
 		BasicScope(Scope* parent);
 		BasicScope(Scope* parent, string const& name);
-		~BasicScope();
+		virtual ~BasicScope();
 
 		// Inheritance
 		Scope* getParent() const {return parent;}
@@ -183,6 +222,7 @@ namespace ZScript
 		// Add
 		Scope* makeChild();
 		Scope* makeChild(string const& name);
+		FunctionScope* makeFunctionChild(Function& function);
 		ZVarType const* addType(
 				string const& name, ZVarType const* type, AST* node = NULL);
 		Function* addGetter(
@@ -194,6 +234,10 @@ namespace ZScript
 		Function* addFunction(
 				ZVarType const* returnType, string const& name,
 				vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+
+		// Stack
+		int getLocalStackDepth() const {return stackDepth;}
+		optional<int> getLocalStackOffset(Datum const& datum) const;
 		
 	protected:
 		Scope* parent;
@@ -203,14 +247,16 @@ namespace ZScript
 		map<string, ZClass*> classes;
 		vector<Datum*> anonymousData;
 		map<string, Datum*> namedData;
+		map<Datum*, int> stackOffsets;
+		int stackDepth;
 		map<string, Function*> getters;
 		map<string, Function*> setters;
 		map<string, vector<Function*> > functionsByName;
 		map<Function::Signature, Function*> functionsBySignature;
 
-		BasicScope(SymbolTable& table);
-		BasicScope(SymbolTable& table, string const& name);
-
+		BasicScope(SymbolTable&);
+		BasicScope(SymbolTable&, string const& name);
+		
 	private:
 		// Disabled since it's easy to call by accident instead of the Scope*
 		// constructor.
@@ -226,15 +272,28 @@ namespace ZScript
 		GlobalScope(SymbolTable& table);
 		bool isGlobal() const {return true;}
 		ScriptScope* makeScriptChild(Script& script);
+		optional<int> getRootStackSize() const;
+	private:
+		mutable optional<int> stackSize;
 	};
 
 	class ScriptScope : public BasicScope
 	{
 	public:
-		ScriptScope(GlobalScope* scope, Script& script)
-			: BasicScope(scope, script.getName()), script(script) {}
+		ScriptScope(GlobalScope* parent, Script& script);
 		bool isScript() const {return true;}
 		Script& script;
+	};
+
+	class FunctionScope : public BasicScope
+	{
+	public:
+		FunctionScope(Scope* parent, Function& function);
+		bool isFunction() const {return true;}
+		Function& function;
+		optional<int> getRootStackSize() const;
+	private:
+		mutable optional<int> stackSize;
 	};
 
 	enum ZClassIdBuiltin
