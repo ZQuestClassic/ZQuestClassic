@@ -1,5 +1,5 @@
+#include <stdint.h>
 #include "SemanticAnalyzer.h"
-
 #include "Scope.h"
 #include "CompileError.h"
 
