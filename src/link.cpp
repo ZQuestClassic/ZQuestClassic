@@ -13995,7 +13995,7 @@ void dospecialmoney(int index)
     {
         if (prices[priceindex] != 100000) // 100000 is a placeholder price for free items
         {
-            if (game->get_spendable_rupies() < abs(prices[priceindex]))
+            if (game->get_spendable_rupies() < abs(prices[priceindex])  && !current_item_power(itype_wallet))
                 return;
 
             if (!current_item_power(itype_wallet))
@@ -14022,8 +14022,9 @@ void dospecialmoney(int index)
     {
         ((item*)items.spr(0))->pickup = ipDUMMY;
 
+        prices[0] = tmpscr[tmp].catchall;
         if (!current_item_power(itype_wallet))
-            game->change_drupy((prices[0] = tmpscr[tmp].catchall));
+            game->change_drupy(prices[0]);
 
         putprices(false);
         setmapflag();
@@ -14478,7 +14479,8 @@ void LinkClass::checkitems(int index)
                 if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
                     return;
                 
-                game->change_drupy(-abs(prices[PriceIndex]));
+                if(current_item_power(itype_wallet))
+                    game->change_drupy(-abs(prices[PriceIndex]));
             }
             boughtsomething=true;
             //make the other shop items untouchable after
