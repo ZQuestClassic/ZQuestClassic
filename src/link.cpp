@@ -132,7 +132,12 @@ void LinkClass::resetflags(bool all)
 
 void LinkClass::Freeze()
 {
-    if(action!=inwind) action=freeze;
+    if (action != inwind)
+    {
+        action = freeze;
+        // also cancel Link's attack
+        attackclk = 0;
+    }
 }
 void LinkClass::unfreeze()
 {
