@@ -1062,7 +1062,7 @@ void LinkClass::positionSword(weapon *w, const ItemDefinitionRef &itemid)
     
     if(game->get_canslash() && (curQuest->getItemDefinition(itemid).flags & itemdata::IF_FLAG4) && attackclk<11)
     {
-        SpriteDefinitionRef wpnsprite = curQuest->getItemDefinition(itemid).wpns[2];
+        SpriteDefinitionRef wpnsprite = curQuest->getItemDefinition(itemid).wpns[1];
         
         if (curQuest->isValid(wpnsprite))
         {
