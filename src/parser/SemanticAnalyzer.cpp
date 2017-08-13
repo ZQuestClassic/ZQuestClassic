@@ -1,5 +1,5 @@
+#include <stdint.h>
 #include "SemanticAnalyzer.h"
-
 #include "Scope.h"
 #include "CompileError.h"
 
@@ -26,35 +26,32 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	ASTFuncDecl* functionDecl = function.node;
 
 	// Create function scope.
-	function.internalScope = scope->makeChild();
+	function.internalScope = scope->makeFunctionChild(function);
 	Scope& functionScope = *function.internalScope;
 
 	// Grab the script.
 	Script* script = NULL;
-	if (scope->isScript()) script = &((ScriptScope*)scope)->script;
-
-	// If this is the script's run method, add "this" to the scope.
-	if (script && function.name == "run" && *function.returnType == ZVarType::ZVOID)
-	{
-		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
-		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
-		function.thisVar = new BuiltinVariable(*scope, thisType, "this");
-		functionScope.add(function.thisVar);
-	}
+	if (scope->isScript())
+		script = &dynamic_cast<ScriptScope*>(scope)->script;
 
 	// Add the parameters to the scope.
 	vector<ASTDataDecl*>& parameters = functionDecl->parameters;
-	for (vector<ASTDataDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
+	for (vector<ASTDataDecl*>::iterator it = parameters.begin();
+	     it != parameters.end(); ++it)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
 		ZVarType const& type = *parameter.resolveType(&functionScope);
-		Variable* var = new Variable(functionScope, parameter, type);
-		if (!functionScope.add(var))
-		{
-			handleError(CompileError::VarRedef, &parameter, name.c_str());
-			delete var;
-		}
+		Variable::create(functionScope, parameter, type, *this);
+	}
+
+	// If this is the script's run method, add "this" to the scope.
+	if (isRun(function))
+	{
+		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
+		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
+		function.thisVar =
+			BuiltinVariable::create(functionScope, thisType, "this", *this);
 	}
 
 	// Evaluate the function block under its scope and return type.
@@ -271,7 +268,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		}
 		
 		long value = *host.initializer()->getCompileTimeValue(this);
-		addConstant(*scope, host, type, value);
+		Constant::create(*scope, host, type, value, *this);
 	}
 	
 	else
@@ -282,7 +279,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			return;
 		}
 
-		addVariable(*scope, host, type);
+		Variable::create(*scope, host, type, *this);
 	}
 
 	// Special message for deprecated global variables.
@@ -813,8 +810,7 @@ void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 	host.setVarType(type);
 
 	// Add to scope as a managed literal.
-	Literal* literal = new Literal(*scope, host, *type);
-	if (!scope->add(literal)) delete literal;
+	Literal::create(*scope, host, *type, *this);
 }
 
 void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
@@ -886,7 +882,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 	
 	// Add to scope as a managed literal.
-	addLiteral(*scope, host, *host.getReadType());
+	Literal::create(*scope, host, *host.getReadType(), *this);
 }
 
 void SemanticAnalyzer::checkCast(

@@ -1,4 +1,5 @@
-
+#include "../precompiled.h"
+#include "CompileError.h"
 #include "GlobalSymbols.h"
 #include "Scope.h"
 #include "Types.h"
@@ -17,6 +18,12 @@ Scope::Scope(SymbolTable& table)
 Scope::Scope(SymbolTable& table, string const& name)
 	: table(table), name(name), varDeclsDeprecated(false)
 {}
+
+void Scope::invalidateStackSize()
+{
+	if (Scope* parent = getParent())
+		parent->invalidateStackSize();
+}
 
 // Inheritance
 
@@ -178,6 +185,52 @@ vector<Function*> ZScript::lookupFunctions(
 	return functions;
 }
 
+// Stack
+
+bool ZScript::isStackRoot(Scope const& scope)
+{
+	return scope.getRootStackSize();
+}
+
+optional<int> ZScript::lookupStackOffset(
+		Scope const& scope, Datum const& datum)
+{
+	Scope* s = const_cast<Scope*>(&scope);
+	while (s)
+	{
+		if (optional<int> offset = s->getLocalStackOffset(datum))
+			return offset;
+
+		if (isStackRoot(*s)) return nullopt;
+
+		s = s->getParent();
+	}
+	return nullopt;
+}
+
+optional<int> ZScript::lookupStackSize(Scope const& scope)
+{
+	Scope* s = const_cast<Scope*>(&scope);
+	while (s)
+	{
+		if (optional<int> size = s->getRootStackSize())
+			return size;
+
+		s = s->getParent();
+	}
+	return nullopt;
+}
+
+optional<int> ZScript::lookupStackPosition(
+		Scope const& scope, Datum const& datum)
+{
+	optional<int> offset = lookupStackOffset(scope, datum);
+	optional<int> size = lookupStackSize(scope);
+	if (offset && size)
+		return *size - 1 - *offset;
+	return nullopt;
+}
+
 // Get all in branch
 
 vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
@@ -191,19 +244,21 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 // Basic Scope
 
 BasicScope::BasicScope(Scope* parent)
-	: Scope(parent->getTable()), parent(parent)
+	: Scope(parent->getTable()), parent(parent),
+	  stackDepth(parent->getLocalStackDepth())
 {}
 
 BasicScope::BasicScope(Scope* parent, string const& name)
-	: Scope(parent->getTable(), name), parent(parent)
+	: Scope(parent->getTable(), name), parent(parent),
+	  stackDepth(parent->getLocalStackDepth())
 {}
 
 BasicScope::BasicScope(SymbolTable& table)
-	: Scope(table), parent(NULL)
+	: Scope(table), parent(NULL), stackDepth(0)
 {}
 
 BasicScope::BasicScope(SymbolTable& table, string const& name)
-	: Scope(table, name), parent(NULL)
+	: Scope(table, name), parent(NULL), stackDepth(0)
 {}
 
 BasicScope::~BasicScope()
@@ -301,6 +356,13 @@ Scope* BasicScope::makeChild(string const& name)
 	return child;
 }
 
+FunctionScope* BasicScope::makeFunctionChild(Function& function)
+{
+	FunctionScope* child = new FunctionScope(this, function);
+	anonymousChildren.push_back(child);
+	return child;
+}
+
 ZVarType const* BasicScope::addType(
 		string const& name, ZVarType const* type, AST* node)
 {
@@ -310,23 +372,34 @@ ZVarType const* BasicScope::addType(
 	return type;
 }
 
-bool BasicScope::add(Datum* datum)
+bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 {
-	if (optional<string> name = datum->getName())
+	if (optional<string> name = datum.getName())
 	{
-		if (find<Datum*>(namedData, *name)) return false;
-		namedData[*name] = datum;
+		if (find<Datum*>(namedData, *name))
+		{
+			errorHandler.handleError(CompileError::VarRedef,
+			                         datum.getNode(), name->c_str());
+			return false;
+		}
+		namedData[*name] = &datum;
 	}
-	else anonymousData.push_back(datum);
+	else anonymousData.push_back(&datum);
 
-	if (AST* node = datum->getNode())
+	if (AST* node = datum.getNode())
 	{
-		table.putNodeId(node, datum->id);
+		table.putNodeId(node, datum.id);
 	
-		if (optional<long> value = datum->getCompileTimeValue())
+		if (optional<long> value = datum.getCompileTimeValue())
 			table.inlineConstant(node, *value);
 	}
 
+	if (!ZScript::isGlobal(datum))
+	{
+		stackOffsets[&datum] = stackDepth++;
+		invalidateStackSize();
+	}
+	
 	return true;
 }
 
@@ -375,10 +448,35 @@ Function* BasicScope::addFunction(
 	return fun;
 }
 
+// Stack
+
+optional<int> BasicScope::getLocalStackOffset(Datum const& datum) const
+{
+	Datum* key = const_cast<Datum*>(&datum);
+	return find<int>(stackOffsets, key);
+}
+
+////////////////////////////////////////////////////////////////
+// StackRoot
+
+int calculateStackSize(Scope* scope)
+{
+	int greatestSize = scope->getLocalStackDepth();
+	vector<Scope*> children = scope->getChildren();
+	for (vector<Scope*>::const_iterator it = children.begin();
+	     it != children.end(); ++it)
+	{
+		int size = calculateStackSize(*it);
+		if (greatestSize < size) greatestSize = size;
+	}
+	return greatestSize;
+}
+
 ////////////////////////////////////////////////////////////////
 // GlobalScope
 
-GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
+GlobalScope::GlobalScope(SymbolTable& table)
+	: BasicScope(table, "global")
 {
 	// Add global library functions.
     GlobalSymbols::getInst().addSymbolsToScope(*this);
@@ -393,17 +491,11 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant* builtin;
-	builtin = new BuiltinConstant(*this, ZVarType::_LINK, "Link", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::SCREEN, "Screen", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::GAME, "Game", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::AUDIO, "Audio", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::DEBUG, "Debug", 0);
-	add(builtin);
+	BuiltinConstant::create(*this, ZVarType::_LINK, "Link", 0);
+	BuiltinConstant::create(*this, ZVarType::SCREEN, "Screen", 0);
+	BuiltinConstant::create(*this, ZVarType::GAME, "Game", 0);
+	BuiltinConstant::create(*this, ZVarType::AUDIO, "Audio", 0);
+	BuiltinConstant::create(*this, ZVarType::DEBUG, "Debug", 0);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
@@ -415,9 +507,42 @@ ScriptScope* GlobalScope::makeScriptChild(Script& script)
 	return child;
 }
 
+optional<int> GlobalScope::getRootStackSize() const
+{
+	if (!stackSize)
+	{
+		GlobalScope* mutableThis = const_cast<GlobalScope*>(this);
+		stackSize = calculateStackSize(mutableThis);
+	}
+	return stackSize;
+}
 
 ////////////////////////////////////////////////////////////////
 // ScriptScope
+
+ScriptScope::ScriptScope(GlobalScope* parent, Script& script)
+	: BasicScope(parent, script.getName()), script(script)
+{}
+
+////////////////////////////////////////////////////////////////
+// FunctionScope
+
+FunctionScope::FunctionScope(Scope* parent, Function& function)
+	: BasicScope(parent, function.name), function(function)
+{
+	// Functions have their own stack.
+	stackDepth = 0;
+}
+
+optional<int> FunctionScope::getRootStackSize() const
+{
+	if (!stackSize)
+	{
+		FunctionScope* mutableThis = const_cast<FunctionScope*>(this);
+		stackSize = calculateStackSize(mutableThis);
+	}
+	return stackSize;
+}
 
 ////////////////////////////////////////////////////////////////
 // ZClass

@@ -137,15 +137,36 @@ vector<CompileError const*> Script::getErrors() const
 // ZScript::Datum
 
 Datum::Datum(Scope& scope, ZVarType const& type)
-	: id(ScriptParser::getUniqueVarID()), type(type), scope(scope)
+	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
 {}
+
+bool Datum::tryAddToScope(CompileErrorHandler& errorHandler)
+{
+	scope.add(*this, errorHandler);
+}
 
 bool ZScript::isGlobal(Datum const& datum)
 {
-	return datum.scope.isGlobal() || datum.scope.isScript();
+	return (datum.scope.isGlobal() || datum.scope.isScript())
+		&& datum.getName();
+}
+
+optional<int> ZScript::getStackOffset(Datum const& datum)
+{
+	return lookupStackPosition(datum.scope, datum);
 }
 
 // ZScript::Literal
+
+Literal* Literal::create(
+		Scope& scope, ASTLiteral& node, ZVarType const& type,
+		CompileErrorHandler& errorHandler)
+{
+	Literal* literal = new Literal(scope, node, type);
+	if (literal->tryAddToScope(errorHandler)) return literal;
+	delete literal;
+	return NULL;
+}
 
 Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
 	: Datum(scope, type), node(node)
@@ -153,16 +174,17 @@ Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
 	node.manager = this;
 }
 
-Literal* ZScript::addLiteral(
-		Scope& scope, ASTLiteral& node, ZVarType const& type)
+// ZScript::Variable
+
+Variable* Variable::create(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type,
+		CompileErrorHandler& errorHandler)
 {
-	Literal* literal = new Literal(scope, node, type);
-	if (scope.add(literal)) return literal;
-	delete literal;
+	Variable* variable = new Variable(scope, node, type);
+	if (variable->tryAddToScope(errorHandler)) return variable;
+	delete variable;
 	return NULL;
 }
-
-// ZScript::Variable
 
 Variable::Variable(
 		Scope& scope, ASTDataDecl& node, ZVarType const& type)
@@ -175,16 +197,17 @@ Variable::Variable(
 	node.manager = this;
 }
 
-Variable* ZScript::addVariable(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type)
+// ZScript::BuiltinVariable
+
+BuiltinVariable* BuiltinVariable::create(
+		Scope& scope, ZVarType const& type, string const& name,
+		CompileErrorHandler& errorHandler)
 {
-	Variable* variable = new Variable(scope, node, type);
-	if (scope.add(variable)) return variable;
-	delete variable;
+	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name);
+	if (builtin->tryAddToScope(errorHandler)) return builtin;
+	delete builtin;
 	return NULL;
 }
-
-// ZScript::BuiltinVariable
 
 BuiltinVariable::BuiltinVariable(
 		Scope& scope, ZVarType const& type, string const& name)
@@ -197,6 +220,16 @@ BuiltinVariable::BuiltinVariable(
 
 // ZScript::Constant
 
+Constant* Constant::create(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value,
+		CompileErrorHandler& errorHandler)
+{
+	Constant* constant = new Constant(scope, node, type, value);
+	if (constant->tryAddToScope(errorHandler)) return constant;
+	delete constant;
+	return NULL;
+}
+
 Constant::Constant(
 		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
 	: Datum(scope, type), node(node), value(value)
@@ -206,16 +239,18 @@ Constant::Constant(
 
 optional<string> Constant::getName() const {return node.name;}
 
-Constant* ZScript::addConstant(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
+// ZScript::BuiltinConstant
+
+
+BuiltinConstant* BuiltinConstant::create(
+		Scope& scope, ZVarType const& type, string const& name, long value,
+		CompileErrorHandler& errorHandler)
 {
-	Constant* constant = new Constant(scope, node, type, value);
-	if (scope.add(constant)) return constant;
-	delete constant;
+	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
+	if (builtin->tryAddToScope(errorHandler)) return builtin;
+	delete builtin;
 	return NULL;
 }
-
-// ZScript::BuiltinConstant
 
 BuiltinConstant::BuiltinConstant(
 		Scope& scope, ZVarType const& type, string const& name, long value)
@@ -288,7 +323,8 @@ Script* Function::getScript() const
 	Scope* parentScope = internalScope->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isScript()) return NULL;
-	ScriptScope* scriptScope = (ScriptScope*)parentScope;
+	ScriptScope* scriptScope =
+		dynamic_cast<ScriptScope*>(parentScope);
 	return &scriptScope->script;
 }
 
@@ -296,4 +332,21 @@ int Function::getLabel() const
 {
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
+}
+
+bool ZScript::isRun(Function const& function)
+{
+	return function.internalScope->getParent()->isScript()
+		&& *function.returnType == ZVarType::ZVOID
+		&& function.name == "run";
+}
+
+int ZScript::getStackSize(Function const& function)
+{
+	return *lookupStackSize(*function.internalScope);
+}
+
+int ZScript::getParameterCount(Function const& function)
+{
+	return function.paramTypes.size() + (isRun(function) ? 1 : 0);
 }

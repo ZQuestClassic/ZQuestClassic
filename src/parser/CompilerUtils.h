@@ -123,8 +123,6 @@ public:
     }
 };
 
-
-
 ////////////////////////////////////////////////////////////////
 // Containers
 
@@ -181,6 +179,37 @@ optional<Element> find(Map const& map, Key const& key)
 	if (it == map.end()) return nullopt;
 	Element const& element = it->second;
 	return element;
+}
+
+template <typename Element, typename Map, typename Key>
+optional<Element> find(Map const& map, Key const* const& key)
+{
+	typename Map::const_iterator it = map.find(const_cast<Key*>(key));
+	if (it == map.end()) return nullopt;
+	Element const& element = it->second;
+	return element;
+}
+
+////////////////////////////////////////////////////////////////
+// Trees
+
+template <typename Value, typename Node, typename ChildContainer>
+Value findLargest(
+		Node* root,
+		ChildContainer (*getChildren)(Node*),
+		Value (*accessor)(Node*))
+{
+	Value largest = (*accessor)(root);
+	ChildContainer children = (*getChildren)(root);
+	for (typename ChildContainer::const_iterator it = children.begin();
+	     it != children.end(); ++it)
+	{
+		Node* child = *it;
+		Value current = findLargest(child, getChildren, accessor);
+		if (largest < current)
+			largest = current;
+	}
+	return largest;
 }
 
 #endif
