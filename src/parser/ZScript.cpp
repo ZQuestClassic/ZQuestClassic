@@ -142,7 +142,7 @@ Datum::Datum(Scope& scope, ZVarType const& type)
 
 bool Datum::tryAddToScope(CompileErrorHandler& errorHandler)
 {
-	scope.add(*this, errorHandler);
+	return scope.add(*this, errorHandler);
 }
 
 bool ZScript::isGlobal(Datum const& datum)
