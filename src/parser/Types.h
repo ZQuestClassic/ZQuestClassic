@@ -5,22 +5,17 @@
 #include <functional>
 #include <iostream>
 
+using std::string;
+
+typedef int ZVarTypeId;
+
 namespace ZScript
 {
 	class Scope;
 }
 
-using std::string;
-
-////////////////////////////////////////////////////////////////
-// Script Types
-
-enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
-
 ////////////////////////////////////////////////////////////////
 // Variable Types
-
-typedef int ZVarTypeId;
 
 // I can't figure out a better way to do this in C++98.
 enum ZVarTypeClassId
@@ -204,5 +199,41 @@ protected:
 private:
 	ZVarType const& elementType;
 };
+
+namespace ZScript
+{
+	////////////////////////////////////////////////////////////////
+	// Script Types
+
+	// Basically an enum.
+	class ScriptType
+	{
+	public:
+		ScriptType()
+			: id(ID_NULL), name("null"), thisTypeId(ZVARTYPEID_VOID)
+		{}
+		
+		bool operator==(ScriptType const& other) const {
+			return id == other.id;}
+		string const& getName() const {return name;}
+		ZVarTypeId getThisTypeId() const {return thisTypeId;}
+		bool isNull() const {return id == ID_NULL;}
+
+		static ScriptType const GLOBAL;
+		static ScriptType const FFC;
+		static ScriptType const ITEM;
+		
+	private:
+		enum Id {ID_NULL, ID_GLOBAL, ID_FFC, ID_ITEM};
+		
+		ScriptType(Id id, string const& name, ZVarTypeId thisTypeId)
+			: id(id), name(name), thisTypeId(thisTypeId)
+		{}
+
+		int id;
+		string name;
+		ZVarTypeId thisTypeId;
+	};
+}
 
 #endif

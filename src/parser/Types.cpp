@@ -5,6 +5,7 @@
 
 using namespace ZScript;
 
+////////////////////////////////////////////////////////////////
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
@@ -182,3 +183,14 @@ int ZVarTypeArray::selfCompare(ZVarType const& other) const
 	ZVarTypeArray const& o = (ZVarTypeArray const&)other;
 	return elementType.compare(o.elementType);
 }
+
+////////////////////////////////////////////////////////////////
+// Script Types
+
+ScriptType const ScriptType::GLOBAL(
+		ScriptType::ID_GLOBAL, "global", ZVARTYPEID_VOID);
+ScriptType const ScriptType::FFC(
+		ScriptType::ID_FFC, "ffc", ZVARTYPEID_FFC);
+ScriptType const ScriptType::ITEM(
+		ScriptType::ID_ITEM, "item", ZVARTYPEID_ITEMCLASS);
+

@@ -24,6 +24,8 @@ using std::map;
 using std::vector;
 using std::list;
 
+using namespace ZScript;
+
 // Forward Declarations
 class ASTVisitor;
 class CompileError;
@@ -1612,7 +1614,7 @@ class ASTScriptType : public AST
 {
 public:
 	ASTScriptType(
-			ScriptType type = SCRIPTTYPE_VOID,
+			ScriptType type = ScriptType(),
 			LocationData const& location = LocationData::NONE);
 	ASTScriptType(ASTScriptType const& base);
 	ASTScriptType& operator=(ASTScriptType const& rhs);

@@ -114,10 +114,7 @@ vector<CompileError const*> Script::getErrors() const
 	if (!scope) errors.push_back(&CompileError::ScriptRedef);
 
 	// Invalid script type.
-	ScriptType scriptType = getType();
-	if (scriptType != SCRIPTTYPE_GLOBAL
-		&& scriptType != SCRIPTTYPE_ITEM
-		&& scriptType != SCRIPTTYPE_FFC)
+	if (getType().isNull())
 	{
 		errors.push_back(&CompileError::ScriptBadType);
 	}

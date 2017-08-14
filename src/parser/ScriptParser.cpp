@@ -251,20 +251,15 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         // Push on the this, if a script
         if (isRun)
         {
-            switch (program.getScript(scriptname)->getType())
-            {
-            case SCRIPTTYPE_FFC:
-                funccode.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(REFFFC)));
-                break;
-                
-            case SCRIPTTYPE_ITEM:
-                funccode.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(REFITEMCLASS)));
-                break;
-                
-            case SCRIPTTYPE_GLOBAL:
-                //don't care, we don't have a valid this pointer
-                break;
-            }
+	        ScriptType type = program.getScript(scriptname)->getType();
+	        if (type == ScriptType::FFC)
+                funccode.push_back(
+		                new OSetRegister(new VarArgument(EXP2),
+		                                 new VarArgument(REFFFC)));
+	        else if (type == ScriptType::ITEM)
+                funccode.push_back(
+		                new OSetRegister(new VarArgument(EXP2),
+		                                 new VarArgument(REFITEMCLASS)));
             
             funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
         }
@@ -361,7 +356,7 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     //if there's a global script called "Init", append it to ~Init:
     map<string, int>::iterator it = scripts.find("Init");
     
-    if (it != scripts.end() && scripttypes["Init"] == SCRIPTTYPE_GLOBAL)
+    if (it != scripts.end() && scripttypes["Init"] == ScriptType::GLOBAL)
     {
         //append
         //get label
@@ -370,7 +365,7 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
     }
     
     rval->theScripts["~Init"] = assembleOne(ginit, funcs, 0);
-    rval->scriptTypes["~Init"] = SCRIPTTYPE_GLOBAL;
+    rval->scriptTypes["~Init"] = ScriptType::GLOBAL;
     
     for(map<string, int>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
     {
