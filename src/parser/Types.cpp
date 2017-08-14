@@ -5,7 +5,6 @@
 
 using namespace ZScript;
 
-////////////////////////////////////////////////////////////////
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");

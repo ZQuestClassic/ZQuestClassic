@@ -28,12 +28,13 @@ namespace ZScript
 	class Program
 	{
 	public:
-		Program(ASTProgram* ast);
+		Program(ASTProgram&, CompileErrorHandler&);
 		~Program();
-		ASTProgram* node;
-		SymbolTable& table;
-		GlobalScope& globalScope;
 
+		ASTProgram& getNode() {return node;}
+		SymbolTable& getTable() {return *table;}
+		GlobalScope& getScope() {return *globalScope;}
+		
 		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
@@ -49,10 +50,14 @@ namespace ZScript
 		// Does this script have a declaration error?
 		bool hasError() const {return getErrors().size() > 0;}
 
-	private:
+	private:		
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
 
+		ASTProgram& node;
+		SymbolTable* table;
+		GlobalScope* globalScope;
+		
 		// Disabled.
 		Program(Program const&);
 		Program& operator=(Program const&);
@@ -61,11 +66,14 @@ namespace ZScript
 	class Script
 	{
 	public:
-		Script(Program& program, ASTScript* script);
+		// Create a new script, possibly failing.
+		static Script* create(Program&, ASTScript&, CompileErrorHandler&);
+		
+		ScriptScope& getScope() {return *scope;}
 
-		ASTScript* node;
-		ScriptScope* scope;
-
+		ASTScript const& getNode() const {return node;}
+		ASTScript& getNode() {return node;}
+		
 		string getName() const;
 		ScriptType getType() const;
 		Function* getRun() const;
@@ -74,6 +82,13 @@ namespace ZScript
 		vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
 		bool hasError() const {return getErrors().size() > 0;}
+
+	private:
+		Script(Program& program, ASTScript& node);
+
+		Program& program;
+		ASTScript& node;
+		ScriptScope* scope;
 	};
 
 	// Something that can be resolved to a data value.

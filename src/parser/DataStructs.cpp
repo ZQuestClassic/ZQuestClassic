@@ -320,7 +320,7 @@ void SymbolTable::printDiagnostics()
 
 FunctionData::FunctionData(Program& program)
 	: program(program),
-	  globalData(program.globalScope.getLocalData())
+	  globalData(program.getScope().getLocalData())
 {
 	for (vector<Datum*>::const_iterator it = globalData.begin();
 	     it != globalData.end(); ++it)
@@ -333,7 +333,7 @@ FunctionData::FunctionData(Program& program)
 	for (vector<Script*>::const_iterator it = program.scripts.begin();
 	     it != program.scripts.end(); ++it)
 	{
-		ScriptScope& scope = *(*it)->scope;
+		ScriptScope& scope = (*it)->getScope();
 		vector<Datum*> data = scope.getLocalData();
 		globalVariables.insert(globalVariables.end(),
 		                       data.begin(), data.end());

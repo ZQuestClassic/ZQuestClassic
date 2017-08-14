@@ -60,9 +60,15 @@ ScriptsData* compile(const char *filename)
     box_out("Pass 3: Analyzing Code");
     box_eol();
 
-	ZScript::Program program(theAST);
+    SimpleCompileErrorHandler handler;
+    Program program(*theAST, handler);
+    if (handler.hasError())
+    {
+	    delete theAST;
+	    return NULL;
+    }
+	
 	SemanticAnalyzer semanticAnalyzer(program);
-
     if (semanticAnalyzer.hasFailed())
     {
         delete theAST;
@@ -163,7 +169,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
-    SymbolTable* symbols = &program.table;
+	SymbolTable* symbols = &program.getTable();
 	vector<Datum*>& globalVariables = fdata.globalVariables;
 
     // Z_message("yes");
@@ -192,7 +198,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     rval->globalsInit.push_back(
 		    new OSetImmediate(new VarArgument(EXP1),
 		                      new LiteralArgument(0)));
-    int globalStackSize = *program.globalScope.getRootStackSize();
+    int globalStackSize = *program.getScope().getRootStackSize();
     for (int i = 0; i < globalStackSize; ++i)
 	    rval->globalsInit.push_back(
 			    new OPushRegister(new VarArgument(EXP1)));
