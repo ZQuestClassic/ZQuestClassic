@@ -19,6 +19,11 @@ using std::pair;
 
 class ArgumentVisitor;
 
+namespace ZScript
+{
+	class Program;
+}
+
 class Opcode
 {
 public:
@@ -56,8 +61,10 @@ private:
     int label;
 };
 
-struct ScriptsData
+class ScriptsData
 {
+public:
+	ScriptsData(ZScript::Program&);
     std::map<string, vector<Opcode *> > theScripts;
 	std::map<string, ZScript::ScriptType> scriptTypes;
 };
@@ -97,7 +104,7 @@ public:
     static bool preprocess(ASTProgram* theAST, int reclevel);
     static SymbolData* buildSymbolTable(ASTProgram* theAST);
     static IntermediateData* generateOCode(FunctionData& fdata);
-    static ScriptsData* assemble(IntermediateData* id);
+    static void assemble(IntermediateData* id);
     static void resetState()
     {
         vid=0;
