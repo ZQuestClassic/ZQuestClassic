@@ -234,7 +234,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     {
 		Function& function = **it;
 		ASTFuncDecl& node = *function.node;
-		int nodeId = symbols->getNodeId(&node);
 
 		bool isRun = ZScript::isRun(function);
 		string scriptname;

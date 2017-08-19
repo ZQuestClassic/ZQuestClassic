@@ -466,7 +466,6 @@ void SemanticAnalyzer::caseExprIdentifier(
 		            host.asString().c_str());
 		return;
 	}
-	scope->getTable().putNodeId(&host, host.binding->id);
 
 	// Can't write to a constant.
 	if (param == paramWrite || param == paramReadWrite)
@@ -513,7 +512,6 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		program.getTable().putNodeId(&host, host.readFunction->id);
 	}
 
 	// Find write function.
@@ -533,7 +531,6 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		program.getTable().putNodeId(&host, host.writeFunction->id);
 	}
 
 	if (host.index)
@@ -674,7 +671,6 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 
 	host.binding = bestFunction;
-	program.getTable().putNodeId(&host, bestFunction->id);	
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
@@ -927,7 +923,6 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
 			? static_cast<ASTExprArrow&>(operand)
 			: static_cast<ASTExprArrow&>(
 					*static_cast<ASTExprIndex&>(operand).array);
-        program.getTable().putNodeId(&host, arrow.readFunction->id);
     }
 
     checkCast(*operand.getReadType(), ZVarType::FLOAT, &host);
