@@ -5937,10 +5937,10 @@ void do_lens()
         
         paymagiccost(itemid);
         
-        if(curQuest->isValid(dowpn) && curQuest->getItemDefinition(dowpn).script != 0 && !did_scriptl)
+        if(curQuest->isValid(itemid) && curQuest->getItemDefinition(itemid).script != 0 && !did_scriptl)
         {
             //TODO module support for scripts
-			run_script(SCRIPT_ITEM, curQuest->getItemDefinition(dowpn).script, dowpn.slot);
+			run_script(SCRIPT_ITEM, curQuest->getItemDefinition(itemid).script, itemid.slot);
             did_scriptl=true;
         }
         
