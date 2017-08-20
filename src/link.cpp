@@ -5519,9 +5519,9 @@ void do_lens()
         
         paymagiccost(itemid);
         
-        if(dowpn>=0 && itemsbuf[dowpn].script != 0 && !did_scriptl)
+        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
         {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
             did_scriptl=true;
         }
         
