@@ -8,6 +8,21 @@
 #include <vector>
 
 ////////////////////////////////////////////////////////////////
+// No Copy Mixin
+
+// Mixin that disables the auto-generated copy constructor and assignment
+// operator.
+class NoCopy
+{
+public:
+	NoCopy() {}
+	~NoCopy() {}
+private:
+	NoCopy(NoCopy const&);
+	NoCopy& operator=(NoCopy const&);
+};
+
+////////////////////////////////////////////////////////////////
 // Safe Bool Idiom
 
 // Mixin for the safe bool idiom.
@@ -180,6 +195,18 @@ optional<Element> getOnly(Container const& container)
 	typename Container::size_type size = container.size();
 	if (size != 1) return nullopt;
 	return container.front();
+}
+
+// Return a new container with all the elements in the original container
+// cloned.
+template <typename Container>
+Container cloneElements(Container const& base)
+{
+	Container results;
+	for (typename Container::const_iterator it = base.begin();
+	     it != base.end(); ++it)
+		results.push_back((*it)->clone());
+	return results;
 }
 
 ////////////////////////////////////////////////////////////////

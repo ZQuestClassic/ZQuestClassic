@@ -12,17 +12,15 @@ namespace ZScript
 	class Datum;
 	class Function;
 
-	class Scope
+	class Scope : private NoCopy
 	{
 		// So Datum classes can only be generated in tandem with a scope.
 		friend class Datum;
 		
 	public:
-		static Scope* makeGlobalScope(SymbolTable& table);
-
 		Scope(SymbolTable& table);
 		Scope(SymbolTable& table, string const& name);
-
+		
 		// Accessors
 		SymbolTable const& getTable() const {return table;}
 		SymbolTable& getTable() {return table;}
@@ -269,11 +267,22 @@ namespace ZScript
 	class GlobalScope : public BasicScope
 	{
 	public:
-		GlobalScope(SymbolTable& table);
+		// Gets the single scope instance for the starting setup.
+		static GlobalScope const& getTemplate();
+
+		// Creates the starting global scope.
+		GlobalScope();
+		
+		~GlobalScope();
+		
 		bool isGlobal() const {return true;}
 		ScriptScope* makeScriptChild(Script& script);
 		optional<int> getRootStackSize() const;
+
 	private:
+		// Cached template for creating scopes.
+		static GlobalScope* _template;
+		
 		mutable optional<int> stackSize;
 	};
 

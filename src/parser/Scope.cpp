@@ -461,16 +461,26 @@ int calculateStackSize(Scope* scope)
 ////////////////////////////////////////////////////////////////
 // GlobalScope
 
-GlobalScope::GlobalScope(SymbolTable& table)
-	: BasicScope(table, "global")
+GlobalScope* GlobalScope::_template = NULL;
+
+GlobalScope const& GlobalScope::getTemplate()
+{
+	if (!_template) _template = new GlobalScope();
+	return *_template;
+}
+
+GlobalScope::GlobalScope()
+	: BasicScope(*new SymbolTable(), "global")
 {
 	// Add global library functions.
     GlobalSymbols::getInst().addSymbolsToScope(*this);
 
 	// Create builtin classes (skip void, float, and bool).
-	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
+	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START;
+	     typeId < ZVARTYPEID_CLASS_END; ++typeId)
 	{
-		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
+		ZVarTypeClass const& type =
+			*static_cast<ZVarTypeClass const*>(ZVarType::get(typeId));
 		ZClass& klass = *table.getClass(type.getClassId());
 		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
 		library.addSymbolsToScope(klass);
@@ -482,6 +492,11 @@ GlobalScope::GlobalScope(SymbolTable& table)
 	BuiltinConstant::create(*this, ZVarType::GAME, "Game", 0);
 	BuiltinConstant::create(*this, ZVarType::AUDIO, "Audio", 0);
 	BuiltinConstant::create(*this, ZVarType::DEBUG, "Debug", 0);
+}
+
+GlobalScope::~GlobalScope()
+{
+	delete &table;
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
