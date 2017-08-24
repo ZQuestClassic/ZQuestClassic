@@ -5,8 +5,12 @@ project (ZeldaClassic)
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
+  add_definitions(-DALLEGRO_LINUX)
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
