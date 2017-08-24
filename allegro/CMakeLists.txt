@@ -429,6 +429,6 @@ endif(WANT_LINUX_CONSOLE AND CMAKE_SYSTEM_NAME STREQUAL Linux)
 if(UNIX)
     configure_file(
         ${CMAKE_SOURCE_DIR}/include/allegro/platform/alunixac.h.cmake
-        ${CMAKE_SOURCE_DIR}/extra/alunixac.h
+        ${CMAKE_SOURCE_DIR}/extra/allegro/platform/alunixac.h
         )
 endif(UNIX)
