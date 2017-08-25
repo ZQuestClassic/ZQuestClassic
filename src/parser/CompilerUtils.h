@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstddef>
 #include <vector>
+#include <set>
 
 ////////////////////////////////////////////////////////////////
 // No Copy Mixin
@@ -172,6 +173,13 @@ private:
 ////////////////////////////////////////////////////////////////
 // Containers
 
+// Insert the contents of the second container into the first.
+template <typename TargetContainer, typename SourceContainer>
+void insertElements(TargetContainer& target, SourceContainer const& source)
+{
+	target.insert(source.begin(), source.end());
+}
+
 // Append the contents of the second container to the first.
 template <typename TargetContainer, typename SourceContainer>
 void appendElements(TargetContainer& target, SourceContainer const& source)
@@ -239,22 +247,36 @@ void overwritePairs(Map& target, Map const& source)
 		target[it->first] = it->second;
 }
 
+// Partial function specialization workaround.
+namespace detail {
+	template <typename Element, typename Map, typename Key>
+	struct find_impl {
+		static optional<Element> _(Map const& map, Key const& key)
+		{
+			typename Map::const_iterator it = map.find(key);
+			if (it == map.end()) return nullopt;
+			Element const& element = it->second;
+			return element;
+		}
+	};
+
+	template <typename Element, typename Key>
+	struct find_impl<Element, std::set<Element>, Key> {
+		static optional<Element> _(
+				std::set<Element> const& set, Key const& key)
+		{
+			typename std::set<Element>::const_iterator it = set.find(key);
+			if (it == set.end()) return nullopt;
+			return *it;
+		}
+	};
+}
+
+// Find an element in a map.
 template <typename Element, typename Map, typename Key>
 optional<Element> find(Map const& map, Key const& key)
 {
-	typename Map::const_iterator it = map.find(key);
-	if (it == map.end()) return nullopt;
-	Element const& element = it->second;
-	return element;
-}
-
-template <typename Element, typename Map, typename Key>
-optional<Element> find(Map const& map, Key const* const& key)
-{
-	typename Map::const_iterator it = map.find(const_cast<Key*>(key));
-	if (it == map.end()) return nullopt;
-	Element const& element = it->second;
-	return element;
+	return detail::find_impl<Element, Map, Key>::_(map, key);
 }
 
 ////////////////////////////////////////////////////////////////

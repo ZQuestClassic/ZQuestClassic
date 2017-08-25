@@ -339,6 +339,16 @@ vector<Function*> BasicScope::getLocalFunctions() const
 	return getSeconds<Function*>(functionsBySignature);
 }
 
+vector<Function*> BasicScope::getLocalGetters() const
+{
+	return getSeconds<Function*>(getters);
+}
+
+vector<Function*> BasicScope::getLocalSetters() const
+{
+	return getSeconds<Function*>(setters);
+}
+
 // Add
 
 Scope* BasicScope::makeChild()

@@ -36,20 +36,21 @@ class LibrarySymbols
 public:
 	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
 
-    virtual map<int, vector<Opcode*> > generateCode();
-	
 	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual ~LibrarySymbols();
+
 protected:
     AccessorTable *table;
-    LibrarySymbols() {}
-    int firstid;
+	LibrarySymbols() : refVar(0) {}
     int refVar;
-    map<string, ZScript::Function*> functions;
-	map<string, ZScript::Function*> getters;
-	map<string, ZScript::Function*> setters;
 
 	ZScript::Function* getFunction(string const& name) const;
+
+private:
+    map<string, ZScript::Function*> functions;
+	
+	// Generates the code for functions which can't be auto generated.
+	virtual void generateCode() = 0;
 };
 
 class GlobalSymbols : public LibrarySymbols
@@ -60,10 +61,10 @@ public:
         return singleton;
     }
 
-	map<int, vector<Opcode*> > generateCode();
 private:
     static GlobalSymbols singleton;
     GlobalSymbols();
+	void generateCode();
 };
 
 class FFCSymbols : public LibrarySymbols
@@ -73,10 +74,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static FFCSymbols singleton;
     FFCSymbols();
+	void generateCode();
 };
 
 class LinkSymbols : public LibrarySymbols
@@ -86,10 +87,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static LinkSymbols singleton;
     LinkSymbols();
+	void generateCode();
 };
 
 class ScreenSymbols : public LibrarySymbols
@@ -99,10 +100,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static ScreenSymbols singleton;
     ScreenSymbols();
+	void generateCode();
 };
 
 class ItemSymbols : public LibrarySymbols
@@ -112,11 +113,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static ItemSymbols singleton;
     ItemSymbols();
+	void generateCode();
 };
 
 class ItemclassSymbols : public LibrarySymbols
@@ -126,10 +126,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static ItemclassSymbols singleton;
     ItemclassSymbols();
+	void generateCode();
 };
 
 class GameSymbols : public LibrarySymbols
@@ -139,10 +139,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static GameSymbols singleton;
     GameSymbols();
+	void generateCode();
 };
 
 class NPCSymbols : public LibrarySymbols
@@ -152,11 +152,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static NPCSymbols singleton;
     NPCSymbols();
+	void generateCode();
 };
 
 class LinkWeaponSymbols : public LibrarySymbols
@@ -166,11 +165,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static LinkWeaponSymbols singleton;
     LinkWeaponSymbols();
+	void generateCode();
 };
 
 class EnemyWeaponSymbols : public LibrarySymbols
@@ -180,11 +178,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static EnemyWeaponSymbols singleton;
     EnemyWeaponSymbols();
+	void generateCode();
 };
 
 
@@ -195,11 +192,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static AudioSymbols singleton;
     AudioSymbols();
+	void generateCode();
 };
 
 class DebugSymbols : public LibrarySymbols
@@ -209,11 +205,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static DebugSymbols singleton;
     DebugSymbols();
+	void generateCode();
 };
 
 class NPCDataSymbols : public LibrarySymbols
@@ -223,11 +218,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static NPCDataSymbols singleton;
     NPCDataSymbols();
+	void generateCode();
 };
 
 #endif

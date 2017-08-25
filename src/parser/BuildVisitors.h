@@ -4,8 +4,9 @@
 #include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
-#include <stack>
 #include <algorithm>
+#include <vector>
+#include <set>
 
 class BuildOpcodes : public RecursiveVisitor
 {
@@ -125,13 +126,22 @@ private:
     vector<Opcode *> result;
 };
 
+
+
 class GetLabels : public ArgumentVisitor
 {
 public:
-    void caseLabel(LabelArgument &host, void *param)
+	GetLabels(std::set<int>& usedLabels) : usedLabels(usedLabels) {}
+
+	std::set<int>& usedLabels;
+	std::vector<int> newLabels;
+			
+	void caseLabel(LabelArgument& host, void*)
     {
-        map<int,bool> *labels = (map<int,bool> *)param;
-        (*labels)[host.getID()] = true;
+	    int id = host.getID();
+	    if (find<int>(usedLabels, id)) return;
+	    usedLabels.insert(id);
+	    newLabels.push_back(id);
     }
 };
 

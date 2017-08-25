@@ -35,8 +35,9 @@ namespace ZScript
 		~Program();
 
 		ASTProgram& getNode() {return node;}
+		SymbolTable const& getTable() const;
 		SymbolTable& getTable();
-		GlobalScope& getScope() {return *globalScope;}
+		GlobalScope& getScope() const {return *globalScope;}
 		
 		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
@@ -64,6 +65,9 @@ namespace ZScript
 		Program(Program const&);
 		Program& operator=(Program const&);
 	};
+
+	// Gets all defined functions.
+	vector<Function*> getFunctions(Program const&);
 
 	////////////////////////////////////////////////////////////////
 	// Script
@@ -298,6 +302,8 @@ namespace ZScript
 		
 		Function(ZVarType const* returnType, string const& name,
 				 vector<ZVarType const*> paramTypes, int id);
+		~Function();
+		
 		ZVarType const* returnType;
 		string name;
 		vector<ZVarType const*> paramTypes;
@@ -306,6 +312,14 @@ namespace ZScript
 		ASTFuncDecl* node;
 		FunctionScope* internalScope;
 		BuiltinVariable* thisVar;
+
+		// Get the opcodes.
+		vector<Opcode*> const& getCode() const {return ownedCode;}
+		// Get and remove the code for this function.
+		vector<Opcode*> takeCode();
+		// Add code for this function, transferring ownership.
+		// Clears the input vector.
+		void giveCode(vector<Opcode*>& code);
 		
 		Signature getSignature() const {return Signature(*this);}
 		
@@ -316,6 +330,9 @@ namespace ZScript
 		
 	private:
 		mutable optional<int> label;
+
+		// Code implementing this function.
+		vector<Opcode*> ownedCode;
 	};
 
 	// Is this function a "run" function?

@@ -49,14 +49,17 @@ public:
 	}
 	
 	// Classes
+	vector<ZScript::ZClass*> getClasses() const {return classes;}
 	ZScript::ZClass* getClass(int classId) const;
 	ZScript::ZClass* createClass(string const& name);
-
+	
 private:
 	vector<ZVarType*> types;
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
 	vector<ZScript::ZClass*> classes;
 };
+
+vector<ZScript::Function*> getClassFunctions(SymbolTable const&);
 
 struct FunctionData
 {
@@ -70,7 +73,6 @@ struct IntermediateData
 {
 	IntermediateData(FunctionData const& functionData);
 	ZScript::Program& program;
-    map<int, vector<Opcode *> > funcs;
     vector<Opcode *> globalsInit;
 };
 

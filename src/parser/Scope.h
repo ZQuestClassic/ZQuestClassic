@@ -51,6 +51,8 @@ namespace ZScript
 		// Get All Local.
 		virtual vector<Datum*> getLocalData() const = 0;
 		virtual vector<Function*> getLocalFunctions() const = 0;
+		virtual vector<Function*> getLocalGetters() const = 0;
+		virtual vector<Function*> getLocalSetters() const = 0;
 
 		// Add
 		virtual Scope* makeChild() = 0;
@@ -216,6 +218,8 @@ namespace ZScript
 		// Get All Local
 		vector<ZScript::Datum*> getLocalData() const;
 		vector<ZScript::Function*> getLocalFunctions() const;
+		vector<ZScript::Function*> getLocalGetters() const;
+		vector<ZScript::Function*> getLocalSetters() const;
 
 		// Add
 		Scope* makeChild();
