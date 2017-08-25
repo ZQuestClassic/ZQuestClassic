@@ -7840,8 +7840,10 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             pfread(buf, bufsize, f, true);
             buf[bufsize]=0;
             
-            //nothing needed here
-            if(keepdata)
+			// id in principle should be valid, since slot assignment cannot assign a global script to a bogus slot.
+			// However, because of a corruption bug, some 2.50.x quests contain bogus entries in the global bindings table.
+			// Ignore these. -DD
+            if(keepdata && id >= 0 && id < NUMSCRIPTGLOBAL)
             {
                 //Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
                 if(strcmp(buf,"~Continue") == 0)
