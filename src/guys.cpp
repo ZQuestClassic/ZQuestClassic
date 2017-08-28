@@ -7235,6 +7235,10 @@ bool eWizzrobe::animate(int index)
             case 0:
                 if(!dmisc2)
                 {
+		    //@TODO: @BUG: So.. In one(?) old quest wizzrobes may be required to teleport to solid combos, or inside walls,
+			//..maybe only one or the other, I don't know. In order to fix this properly we need to know the exact case.
+			//I don't even know the old ZC version that allowed this bug.... dmisc4 should NOT be set unless it has to be though..
+			// ~Gleeok
                     place_on_axis(true, dmisc4!=0);
                 }
                 else
