@@ -1344,6 +1344,7 @@ int init_game()
     
     //Script-related nonsense
     script_drawing_commands.Clear();
+    zscriptDrawingRenderTarget.FreeAllMemory();
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();

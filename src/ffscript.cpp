@@ -443,13 +443,13 @@ public:
     //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     static long getNPCDMisc(const byte a)
     {
-        if (a < 0 || a >= 15)
+        if (a <= 15)
         {
-            Z_scripterrlog("Enemy misc index out of bounds: %d\n", a);
+            return tempenemy->dmiscs[a];
         }
         else
         {
-            return tempenemy->dmiscs[a];
+            Z_scripterrlog("Enemy misc index out of bounds: %d\n", a);
         }
         
         return 0;

@@ -41,10 +41,18 @@ public:
     
     ~ZScriptDrawingRenderTarget()
     {
+        FreeAllMemory();
+    }
+
+    void FreeAllMemory()
+    {
         for(int i(0); i < MaxBuffers; ++i)
         {
             if(_bitmap[i])
+            {
                 destroy_bitmap(_bitmap[i]);
+                _bitmap[i] = 0;
+            }
         }
     }
     
