@@ -2468,7 +2468,9 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         // All 'official' quests need this disabled.
         // All 2.10 and lower quests need this enabled to preseve compatability.
         // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
-		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1);
+
+	    //~Gleeok
+		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1); //This has to be set!!!!
 		
 		// Broke in build 695
 		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
@@ -8486,10 +8488,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eGLEEOK3F].misc6 = 16;
         guysbuf[eGLEEOK4F].misc6 = 16;
         
-        guysbuf[eWIZ1].misc4 = 1;
-        guysbuf[eBATROBE].misc4 = 1;
-        guysbuf[eSUMMONER].misc4 = 1;
-        guysbuf[eWWIZ].misc4 = 1;
+	    // @TODO: @BUG: Backwards compatability with only quests that need it, not all of them.
+	    // I would rather break one old quest that relies on weird behavior for now than all the old quests.
+	    // Sue me. ~Gleeok
+        //guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
+        ////guysbuf[eBATROBE].misc4 = 1;
+        ////guysbuf[eSUMMONER].misc4 = 1;
+        ////guysbuf[eWWIZ].misc4 = 1;
     }
     
     // The versions here may not be correct
