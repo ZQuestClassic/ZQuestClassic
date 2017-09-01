@@ -11,10 +11,14 @@
 
 PACKFILE *pack_fopen_password(const char *filename, const char *mode, const char *password) {
 	packfile_password(password);
-	return pack_fopen(filename, mode);
+	PACKFILE *result = pack_fopen(filename, mode);
+	packfile_password(NULL);
+	return result;
 }
 
 uint64_t file_size_ex_password(const char *filename, const char *password) {
 	packfile_password(password);
-	return file_size_ex(filename);
+	uint64_t result = file_size_ex(filename);
+	packfile_password(NULL);
+	return result;
 }
