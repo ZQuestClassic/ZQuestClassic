@@ -2468,6 +2468,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         // All 'official' quests need this disabled.
         // All 2.10 and lower quests need this enabled to preseve compatability.
         // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
+
 	    //~Gleeok
 		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1); //This has to be set!!!!
 		
