@@ -3633,7 +3633,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                 switch(itemsbuf[itemid].family)
                 {
                 case itype_arrow:
-                    if(if Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
+                    if(Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
                     {
                         if(current_item_id(itype_bow))
                         {
