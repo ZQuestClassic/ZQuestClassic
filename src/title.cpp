@@ -2827,7 +2827,7 @@ int custom_game(int file)
     zquestheader h;
     char infostr[200];
     char path[2048];
-    int ret=0; where the butto
+    int ret=0; 
 	 int focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
     
     if(is_relative_filename(saves[file].qstpath))
