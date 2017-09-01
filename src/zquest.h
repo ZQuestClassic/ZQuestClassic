@@ -572,7 +572,6 @@ enum
     cmdIntegrityCheckRooms,
     cmdIntegrityCheckWarps,
     cmdItem,
-    cmdItemLocationReport,
     cmdCustomItems,
     cmdLayers,
     cmdPasteLayers,
@@ -655,6 +654,13 @@ enum
     cmdItemDropSets,
     cmdPastePalette,
     cmdCompatRules,
+    cmdComboLocations,
+    cmdComboTypeLocations,
+    cmdEnemyLocations,
+    cmdItemLocations,
+    cmdScriptLocations,
+    cmdWhatLinksHere,
+    cmdIntegrityCheck,
     cmdMAX
 };
 
