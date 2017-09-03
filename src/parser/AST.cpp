@@ -971,7 +971,7 @@ ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 
 ZVarType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 {
-	SymbolTable& table = scope->getTable();
+	TypeStore& typeStore = scope->getTypeStore();
 
 	// First resolve the base type.
 	ASTVarType* baseTypeNode = list ? list->baseType : baseType;
@@ -982,7 +982,7 @@ ZVarType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 		 it != extraArrays.end(); ++it)
 	{
 		ZVarTypeArray arrayType(*type);
-		type = table.getCanonicalType(arrayType);
+		type = typeStore.getCanonicalType(arrayType);
 	}
 
 	return type;

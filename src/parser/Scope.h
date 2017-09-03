@@ -8,6 +8,7 @@ class CompileErrorHandler;
 
 namespace ZScript
 {
+	class TypeStore;
 	class Script;
 	class Datum;
 	class Function;
@@ -16,17 +17,17 @@ namespace ZScript
 	{
 		// So Datum classes can only be generated in tandem with a scope.
 		friend class Datum;
-		
+
 	public:
-		Scope(SymbolTable& table);
-		Scope(SymbolTable& table, string const& name);
-		
+		Scope(TypeStore&);
+		Scope(TypeStore&, string const& name);
+
 		// Accessors
-		SymbolTable const& getTable() const {return table;}
-		SymbolTable& getTable() {return table;}
+		TypeStore const& getTypeStore() const {return typeStore;}
+		TypeStore& getTypeStore() {return typeStore;}
 		optional<string> const& getName() const {return name;}
 		optional<string>& getName() {return name;}
-		
+
 		// Scope Type
 		virtual bool isGlobal() const {return false;}
 		virtual bool isScript() const {return false;}
@@ -36,7 +37,7 @@ namespace ZScript
 		virtual Scope* getParent() const = 0;
 		virtual Scope* getChild(string const& name) const = 0;
 		virtual vector<Scope*> getChildren() const = 0;
-	
+
 		// Lookup Local
 		virtual ZVarType const* getLocalType(string const& name) const = 0;
 		virtual ZClass* getLocalClass(string const& name) const = 0;
@@ -47,7 +48,7 @@ namespace ZScript
 				Function::Signature const& signature) const = 0;
 		virtual vector<Function*> getLocalFunctions(
 				string const& name) const = 0;
-	
+
 		// Get All Local.
 		virtual vector<Datum*> getLocalData() const = 0;
 		virtual vector<Function*> getLocalFunctions() const = 0;
@@ -83,7 +84,7 @@ namespace ZScript
 
 		// Let this scope know that it needs to recalculate the stack size.
 		virtual void invalidateStackSize();
-		
+
 		// Get the depth of the stack for this scope, not considering its
 		// children.
 		virtual int getLocalStackDepth() const {return 0;}
@@ -91,26 +92,26 @@ namespace ZScript
 		// Get the stack offset for this local datum.
 		virtual optional<int> getLocalStackOffset(Datum const&) const {
 			return nullopt;}
-		
+
 		bool varDeclsDeprecated;
 
 	protected:
-		SymbolTable& table;
+		TypeStore& typeStore;
 		optional<string> name;
 
 	private:
 		// Add the datum to this scope, returning if successful. Called by
-		// the Datum classes ::create functions.
+		// the Datum classes' ::create functions.
 		virtual bool add(ZScript::Datum&, CompileErrorHandler&) = 0;
 	};
 
 	////////////////
 	// Inheritance
-	
+
 	// Repeatedly get a child namespace with the names in order. Fail if any
 	// name does not resolve.
 	Scope* getDescendant(Scope const&, vector<string> const& names);
-	
+
 	// Find a scope with the given name in this scope.
 	Scope* lookupScope(Scope const&, string const& name);
 
@@ -120,20 +121,20 @@ namespace ZScript
 	// Find all scopes with the given ancestry in this scope. Note than an
 	// empty name list will the current scope and its ancestry.
 	vector<Scope*> lookupScopes(Scope const&, vector<string> const& names);
-	
+
 	////////////////
 	// Lookup
 
 	// Attempt to resolve name to a type id under scope.
 	ZVarType const* lookupType(Scope const&, string const& name);
-	
+
 	// Attempt to resolve name to a class id under scope.
 	ZClass* lookupClass(Scope const&, string const& name);
 
 	// Attempt to resolve name to a variable under scope.
 	Datum* lookupDatum(Scope const&, string const& name);
 	Datum* lookupDatum(Scope const&, vector<string> const& name);
-	
+
 	// Attempt to resolve name to a getter under scope.
 	Function* lookupGetter(Scope const&, string const& name);
 
@@ -142,7 +143,7 @@ namespace ZScript
 
 	// Attempt to resolve signature to a function under scope.
 	Function* lookupFunction(Scope const&, Function::Signature const&);
-	
+
 	// Attempt to resolve name to possible functions under scope.
 	vector<Function*> lookupFunctions(Scope const&, string const& name);
 	vector<Function*> lookupFunctions(
@@ -160,11 +161,11 @@ namespace ZScript
 
 	// Find the total size of the stack scope is in.
 	optional<int> lookupStackSize(Scope const&);
-	
+
 	// Lookup the stack offset and then subtract it from the root stack
 	// size.
 	optional<int> lookupStackPosition(Scope const&, Datum const&);
-	
+
 	////////////////
 	// Get all in branch
 
@@ -204,7 +205,7 @@ namespace ZScript
 		Scope* getParent() const {return parent;}
 		Scope* getChild(string const& name) const;
 		vector<Scope*> getChildren() const;
-	
+
 		// Lookup Local
 		ZVarType const* getLocalType(string const& name) const;
 		ZClass* getLocalClass(string const& name) const;
@@ -214,7 +215,7 @@ namespace ZScript
 		Function* getLocalFunction(Function::Signature const& signature)
 				const;
 		vector<Function*> getLocalFunctions(string const& name) const;
-	
+
 		// Get All Local
 		vector<ZScript::Datum*> getLocalData() const;
 		vector<ZScript::Function*> getLocalFunctions() const;
@@ -240,7 +241,7 @@ namespace ZScript
 		// Stack
 		int getLocalStackDepth() const {return stackDepth;}
 		optional<int> getLocalStackOffset(Datum const& datum) const;
-		
+
 	protected:
 		Scope* parent;
 		map<string, Scope*> children;
@@ -256,9 +257,9 @@ namespace ZScript
 		map<string, vector<Function*> > functionsByName;
 		map<Function::Signature, Function*> functionsBySignature;
 
-		BasicScope(SymbolTable&);
-		BasicScope(SymbolTable&, string const& name);
-		
+		BasicScope(TypeStore&);
+		BasicScope(TypeStore&, string const& name);
+
 	private:
 		// Disabled since it's easy to call by accident instead of the Scope*
 		// constructor.
@@ -276,9 +277,9 @@ namespace ZScript
 
 		// Creates the starting global scope.
 		GlobalScope();
-		
+
 		~GlobalScope();
-		
+
 		bool isGlobal() const {return true;}
 		ScriptScope* makeScriptChild(Script& script);
 		optional<int> getRootStackSize() const;
@@ -286,7 +287,7 @@ namespace ZScript
 	private:
 		// Cached template for creating scopes.
 		static GlobalScope* _template;
-		
+
 		mutable optional<int> stackSize;
 	};
 
@@ -321,7 +322,7 @@ namespace ZScript
 	class ZClass : public BasicScope
 	{
 	public:
-		ZClass(SymbolTable& table, string const& name, int id);
+		ZClass(TypeStore&, string const& name, int id);
 		string const name;
 		int const id;
 	};

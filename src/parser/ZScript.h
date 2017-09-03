@@ -11,10 +11,9 @@
 using std::vector;
 using std::map;
 
-class SymbolTable;
-
 namespace ZScript
 {
+	class TypeStore;
 	class Program;
 	class Script;
 	class Variable;
@@ -35,8 +34,8 @@ namespace ZScript
 		~Program();
 
 		ASTProgram& getNode() {return node;}
-		SymbolTable const& getTable() const;
-		SymbolTable& getTable();
+		TypeStore const& getTypeStore() const;
+		TypeStore& getTypeStore();
 		GlobalScope& getScope() const {return *globalScope;}
 		
 		vector<Script*> scripts;

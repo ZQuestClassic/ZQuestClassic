@@ -4,14 +4,20 @@
 #include <string>
 #include <functional>
 #include <iostream>
+#include <vector>
+#include <map>
+#include "CompilerUtils.h"
 
 using std::string;
 
 typedef int ZVarTypeId;
 
+// Forward Declarations
 namespace ZScript
 {
+	class Function;
 	class Scope;
+	class ZClass;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -41,7 +47,7 @@ enum ZVarTypeIdBuiltin
 	ZVARTYPEID_CLASS_START,
     ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START, ZVARTYPEID_LINK, ZVARTYPEID_SCREEN,
     ZVARTYPEID_FFC, ZVARTYPEID_ITEM, ZVARTYPEID_ITEMCLASS, ZVARTYPEID_NPC, ZVARTYPEID_LWPN, ZVARTYPEID_EWPN,
-	ZVARTYPEID_AUDIO, ZVARTYPEID_DEBUG, ZVARTYPEID_NPCDATA, 
+	ZVARTYPEID_AUDIO, ZVARTYPEID_DEBUG, ZVARTYPEID_NPCDATA,
 	ZVARTYPEID_CLASS_END,
 
 	ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -76,6 +82,13 @@ public:
 			if (a == NULL) return true;
 			return *a < *b;
 		}
+		bool operator() (
+				ZVarType const* const& a, ZVarType const* const& b) const
+		{
+			if (b == NULL) return false;
+			if (a == NULL) return true;
+			return *a < *b;
+		}
 	};
 
 	// This comes up so often I'm adding in this shortcut.
@@ -83,7 +96,7 @@ public:
 
 	// Get the number of nested arrays at top level.
 	int getArrayDepth() const;
-	
+
 protected:
 	virtual int selfCompare(ZVarType const& other) const = 0;
 
@@ -202,6 +215,41 @@ private:
 
 namespace ZScript
 {
+	// Stores and lookup types and classes.
+	class TypeStore
+	{
+	public:
+		TypeStore();
+		~TypeStore();
+
+		// Types
+		ZVarType const* getType(ZVarTypeId typeId) const;
+		optional<ZVarTypeId> getTypeId(ZVarType const& type) const;
+		optional<ZVarTypeId> assignTypeId(ZVarType const& type);
+		optional<ZVarTypeId> getOrAssignTypeId(ZVarType const& type);
+
+		template <typename Type>
+		Type const* getCanonicalType(Type const& type)
+		{
+			return static_cast<Type const*>(
+					ownedTypes[*getOrAssignTypeId(type)]);
+		}
+	
+		// Classes
+		std::vector<ZScript::ZClass*> getClasses() const {
+			return ownedClasses;}
+		ZScript::ZClass* getClass(int classId) const;
+		ZScript::ZClass* createClass(string const& name);
+
+	private:
+		std::vector<ZVarType const*> ownedTypes;
+		std::map<ZVarType const*, ZVarTypeId, ZVarType::PointerLess>
+			typeIdMap;
+		std::vector<ZClass*> ownedClasses;
+	};
+
+	std::vector<Function*> getClassFunctions(TypeStore const&);
+
 	////////////////////////////////////////////////////////////////
 	// Script Types
 
@@ -212,7 +260,7 @@ namespace ZScript
 		ScriptType()
 			: id(ID_NULL), name("null"), thisTypeId(ZVARTYPEID_VOID)
 		{}
-		
+
 		bool operator==(ScriptType const& other) const {
 			return id == other.id;}
 		string const& getName() const {return name;}
@@ -222,10 +270,10 @@ namespace ZScript
 		static ScriptType const GLOBAL;
 		static ScriptType const FFC;
 		static ScriptType const ITEM;
-		
+
 	private:
 		enum Id {ID_NULL, ID_GLOBAL, ID_FFC, ID_ITEM};
-		
+
 		ScriptType(Id id, string const& name, ZVarTypeId thisTypeId)
 			: id(id), name(name), thisTypeId(thisTypeId)
 		{}

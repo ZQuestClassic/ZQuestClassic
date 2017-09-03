@@ -2,6 +2,7 @@
 #include "CompilerUtils.h"
 #include "CompileError.h"
 #include "DataStructs.h"
+#include "Types.h"
 #include "Scope.h"
 #include "ZScript.h"
 
@@ -41,14 +42,14 @@ Program::~Program()
 	delete globalScope;
 }
 
-SymbolTable const& Program::getTable() const
+TypeStore const& Program::getTypeStore() const
 {
-	return globalScope->getTable();
+	return globalScope->getTypeStore();
 }
 
-SymbolTable& Program::getTable()
+TypeStore& Program::getTypeStore()
 {
-	return globalScope->getTable();
+	return globalScope->getTypeStore();
 }
 
 Script* Program::getScript(string const& name) const
@@ -93,7 +94,7 @@ vector<Function*> Program::getUserFunctions() const
 vector<Function*> ZScript::getFunctions(Program const& program)
 {
 	vector<Function*> functions = getFunctionsInBranch(program.getScope());
-	appendElements(functions, getClassFunctions(program.getTable()));
+	appendElements(functions, getClassFunctions(program.getTypeStore()));
 	return functions;
 }
 

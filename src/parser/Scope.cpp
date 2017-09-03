@@ -11,12 +11,12 @@ using namespace ZScript;
 ////////////////////////////////////////////////////////////////
 // Scope
 
-Scope::Scope(SymbolTable& table)
-	: table(table), name(nullopt), varDeclsDeprecated(false)
+Scope::Scope(TypeStore& typeStore)
+	: typeStore(typeStore), name(nullopt), varDeclsDeprecated(false)
 {}
 
-Scope::Scope(SymbolTable& table, string const& name)
-	: table(table), name(name), varDeclsDeprecated(false)
+Scope::Scope(TypeStore& typeStore, string const& name)
+	: typeStore(typeStore), name(name), varDeclsDeprecated(false)
 {}
 
 void Scope::invalidateStackSize()
@@ -244,21 +244,21 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 // Basic Scope
 
 BasicScope::BasicScope(Scope* parent)
-	: Scope(parent->getTable()), parent(parent),
+	: Scope(parent->getTypeStore()), parent(parent),
 	  stackDepth(parent->getLocalStackDepth())
 {}
 
 BasicScope::BasicScope(Scope* parent, string const& name)
-	: Scope(parent->getTable(), name), parent(parent),
+	: Scope(parent->getTypeStore(), name), parent(parent),
 	  stackDepth(parent->getLocalStackDepth())
 {}
 
-BasicScope::BasicScope(SymbolTable& table)
-	: Scope(table), parent(NULL), stackDepth(0)
+BasicScope::BasicScope(TypeStore& typeStore)
+	: Scope(typeStore), parent(NULL), stackDepth(0)
 {}
 
-BasicScope::BasicScope(SymbolTable& table, string const& name)
-	: Scope(table, name), parent(NULL), stackDepth(0)
+BasicScope::BasicScope(TypeStore& typeStore, string const& name)
+	: Scope(typeStore, name), parent(NULL), stackDepth(0)
 {}
 
 BasicScope::~BasicScope()
@@ -377,7 +377,7 @@ ZVarType const* BasicScope::addType(
 		string const& name, ZVarType const* type, AST* node)
 {
 	if (find<ZVarType const*>(types, name)) return NULL;
-	type = table.getCanonicalType(*type);
+	type = typeStore.getCanonicalType(*type);
 	types[name] = type;
 	return type;
 }
@@ -480,7 +480,7 @@ GlobalScope const& GlobalScope::getTemplate()
 }
 
 GlobalScope::GlobalScope()
-	: BasicScope(*new SymbolTable(), "global")
+	: BasicScope(*new TypeStore(), "global")
 {
 	// Add global library functions.
     GlobalSymbols::getInst().addSymbolsToScope(*this);
@@ -491,7 +491,7 @@ GlobalScope::GlobalScope()
 	{
 		ZVarTypeClass const& type =
 			*static_cast<ZVarTypeClass const*>(ZVarType::get(typeId));
-		ZClass& klass = *table.getClass(type.getClassId());
+		ZClass& klass = *typeStore.getClass(type.getClassId());
 		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
 		library.addSymbolsToScope(klass);
 	}
@@ -506,7 +506,7 @@ GlobalScope::GlobalScope()
 
 GlobalScope::~GlobalScope()
 {
-	delete &table;
+	delete &typeStore;
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
@@ -558,8 +558,8 @@ optional<int> FunctionScope::getRootStackSize() const
 ////////////////////////////////////////////////////////////////
 // ZClass
 
-ZClass::ZClass(SymbolTable& table, string const& name, int id)
-	: BasicScope(table), name(name), id(id)
+ZClass::ZClass(TypeStore& typeStore, string const& name, int id)
+	: BasicScope(typeStore), name(name), id(id)
 {}
 
 

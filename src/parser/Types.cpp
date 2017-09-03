@@ -5,6 +5,110 @@
 
 using namespace ZScript;
 
+////////////////////////////////////////////////////////////////
+// TypeStore
+
+TypeStore::TypeStore()
+{
+	// Assign builtin types.
+	for (ZVarTypeId id = ZVARTYPEID_START; id < ZVARTYPEID_END; ++id)
+		assignTypeId(*ZVarType::get(id));
+
+	// Assign builtin classes.
+	for (int id = ZVARTYPEID_CLASS_START; id < ZVARTYPEID_CLASS_END; ++id)
+	{
+		ZVarTypeClass& type = *(ZVarTypeClass*)ZVarType::get(id);
+		assert(type.getClassId() == ownedClasses.size());
+		ownedClasses.push_back(
+				new ZClass(*this, type.getClassName(), type.getClassId()));
+	}
+}
+
+TypeStore::~TypeStore()
+{
+	deleteElements(ownedTypes);
+	deleteElements(ownedClasses);
+}
+
+// Types
+
+ZVarType const* TypeStore::getType(ZVarTypeId typeId) const
+{
+	if (typeId < 0 || typeId > (int)ownedTypes.size()) return NULL;
+	return ownedTypes[typeId];
+}
+
+optional<ZVarTypeId> TypeStore::getTypeId(ZVarType const& type) const
+{
+	return find<ZVarTypeId>(typeIdMap, &type);
+}
+
+optional<ZVarTypeId> TypeStore::assignTypeId(ZVarType const& type)
+{
+	if (!type.isResolved())
+	{
+		CompileError::UnresolvedType.print(NULL, type.getName());
+		return nullopt;
+	}
+
+	if (find<ZVarTypeId>(typeIdMap, &type)) return nullopt;
+
+	ZVarTypeId id = ownedTypes.size();
+	ZVarType const* storedType = type.clone();
+	ownedTypes.push_back(storedType);
+	typeIdMap[storedType] = id;
+	return id;
+}
+
+optional<ZVarTypeId> TypeStore::getOrAssignTypeId(ZVarType const& type)
+{
+	if (!type.isResolved())
+	{
+		CompileError::UnresolvedType.print(NULL, type.getName());
+		return nullopt;
+	}
+
+	if (optional<ZVarTypeId> typeId = find<ZVarTypeId>(typeIdMap, &type))
+		return typeId;
+	
+	ZVarTypeId id = ownedTypes.size();
+	ZVarType* storedType = type.clone();
+	ownedTypes.push_back(storedType);
+	typeIdMap[storedType] = id;
+	return id;
+}
+
+// Classes
+
+ZClass* TypeStore::getClass(int classId) const
+{
+	if (classId < 0 || classId > int(ownedClasses.size())) return NULL;
+	return ownedClasses[classId];
+}
+
+ZClass* TypeStore::createClass(string const& name)
+{
+	ZClass* klass = new ZClass(*this, name, ownedClasses.size());
+	ownedClasses.push_back(klass);
+	return klass;
+}
+
+vector<Function*> ZScript::getClassFunctions(TypeStore const& store)
+{
+	vector<Function*> functions;
+	vector<ZClass*> classes = store.getClasses();
+	for (vector<ZClass*>::const_iterator it = classes.begin();
+	     it != classes.end(); ++it)
+	{
+		appendElements(functions, (*it)->getLocalFunctions());
+		appendElements(functions, (*it)->getLocalGetters());
+		appendElements(functions, (*it)->getLocalSetters());
+	}
+	return functions;
+}
+
+////////////////////////////////////////////////////////////////
+
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
@@ -148,7 +252,7 @@ ZVarType* ZVarTypeClass::resolve(Scope& scope)
 {
 	// Grab the proper name for the class the first time it's resolved.
 	if (className == "")
-		className = scope.getTable().getClass(classId)->name;
+		className = scope.getTypeStore().getClass(classId)->name;
 
 	return this;
 }
