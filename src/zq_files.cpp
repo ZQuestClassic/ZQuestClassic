@@ -29,6 +29,7 @@
 #include "zq_tiles.h"
 #include "zq_custom.h"
 #include "zc_malloc.h"
+#include "selectors.h"
 
 #ifdef _MSC_VER
 #define getcwd _getcwd
@@ -1367,49 +1368,6 @@ int onExport_ComboAlias()
     return D_O_K;
 }
 
-int onImport_ZGP()
-{
-    if(!getname("Import Graphics Pack (.zgp)","zgp",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    
-    // usetiles=true;
-    if(!load_zgp(temppath))
-    {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    }
-    
-    refresh(rALL);
-    return D_O_K;
-}
-
-int onExport_ZGP()
-{
-    if(!getname("Export Graphics Pack (.zgp)","zgp",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
-    
-    if(save_zgp(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    return D_O_K;
-}
-
 int onImport_Subscreen()
 {
     if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))
@@ -1570,3 +1528,96 @@ void center_zq_files_dialogs()
     jwin_center_dialog(qtlist_dlg);
 }
 
+static DIALOG modname_dlg[] =
+{
+    /* (dialog proc)        (x)     (y)     (w)     (h)     (fg)    (bg)    (key)   (flags)     (d1)    (d2)    (dp)                        (dp2)   (dp3)*/
+    { jwin_win_proc,        32,     44,     256,    77,     vc(14), vc(1),  0,      D_EXIT,     0,      0,      (void *) "Create Module",   NULL,   NULL    },
+    { d_timer_proc,         0,      0,      0,      0,      0,      0,      0,      0,          0,      0,      NULL,                       NULL,   NULL    },
+    { jwin_button_proc,     90,     92,     61,     21,     vc(14), vc(1),  13,     D_EXIT,     0,      0,      (void *) "OK",              NULL,   NULL    },
+    { jwin_button_proc,     170,    92,     61,     21,     vc(14), vc(1),  27,     D_EXIT,     0,      0,      (void *) "Cancel",          NULL,   NULL    },
+    { jwin_edit_proc,       69,     68,     202,    16,     vc(12), vc(1),  0,      0,          40,     0,      NULL,                       NULL,   NULL    },
+    { jwin_text_proc,       40,     70,     24,     12,     vc(14), vc(1),  0,      0,          0,      0,      (void *)"Name",             NULL,   NULL    },
+    { NULL,                 0,      0,      0,      0,      0,      0,      0,      0,          0,      0,      NULL,                       NULL,   NULL    }
+};
+
+void edit_modules()
+{
+    int status;
+    std::string selected("CORE");
+    do
+    {
+        selected = select_module("Quest Modules", selected, true, status);
+
+        switch (status)
+        {
+        case 4:
+        {
+            // create
+            char newname[40];
+            memset(newname, 0, 40);
+            modname_dlg[4].dp = newname;
+            modname_dlg[0].dp2 = lfont;
+            DIALOG *cpy = resizeDialog(modname_dlg, 1.5);
+            int ret = zc_popup_dialog(cpy, 2);
+            if (ret == 2)
+            {
+                std::string modname(newname);
+                if (modname.length() == 0)
+                {
+                    jwin_alert("Invalid Module Name","Cannot create module with empty name.",NULL, NULL, "O&K",NULL,'k',0,lfont);
+                }
+                else
+                {
+                    // check for duplicates
+                    std::vector<std::string> modules;
+                    curQuest->getModules(modules);
+                    bool found = false;
+                    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
+                    {
+                        if (*it == modname)
+                        {
+                            found = true;
+                        }
+                    }
+                    if (found)
+                    {
+                        jwin_alert("Invalid Module Name","Module with that name already exists.",NULL, NULL, "O&K",NULL,'k',0,lfont);
+                    }
+                    else
+                    {
+                        curQuest->getModule(modname);
+                    }
+                }
+            }
+            delete[] cpy;
+            break;
+        }
+        case 5:
+        {
+            // delete
+            if (selected == std::string("CORE"))
+            {
+                jwin_alert("ZQuest","You cannot delete the core module.",NULL, NULL, "O&K",NULL,'k',0,lfont);
+            }
+            else if (selected.length() > 0 && jwin_alert("Confirm Deletion", "Are you SURE you want to delete this module?", "This will delete all module assets!", NULL, "Yes", "No", 'y', 27, lfont) == 1)
+            {
+                curQuest->deleteModule(selected);
+                selected = std::string("CORE");
+            }
+            break;
+        }
+        case 6:
+        {
+            // import
+            // TODO
+            break;
+        }
+        case 7:
+        {
+            // export
+            // TODO
+            break;
+        }
+        }
+    } while (status != 0 && status != 3);
+}

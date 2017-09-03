@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////
 // Create a new quest and load this script in it to test various aspects of
-// ZScript. It should compile cleanly (except for 1 deprecation warning), and
-// report no errors when the quest is run.
+// ZScript. It should compile cleanly and report no errors when the quest is
+// run.
 
 import "std.zh"
 import "string.zh"
@@ -51,6 +51,12 @@ int test_Variables_g3 = test_Variables_g2 * 5;
 
 ////////////////////////////////////////////////////////////////
 
+// Error for function redefinition.
+void compile_error_func() {}
+compile_error (4) int compile_error_func() {return 0;}
+
+////////////////////////////////////////////////////////////////
+
 // Typedef for constants.
 typedef const int define;
 define TYPEDEF_CONST = 100;
@@ -70,6 +76,7 @@ global script Init {
 		test_ArrayCasts();
 		test_BuiltIns();
 		test_Constants();
+		test_Operations();
 		test_ScriptStrip();
 		test_Strings();
 		test_Variables();
@@ -129,6 +136,13 @@ global script Init {
 	}
 
 	void test_BuiltIns() {
+		// Read/Write a non-existent builtin.
+		compile_error(29) bool x = Link->PressEx0;
+		compile_error(29) Link->PressEx0 = true;
+
+		// Call a non-existent builtin function.
+		compile_error(21) Link->Warp(1, 2, 3);
+		
 		test_group("Read/Write Bulitin Variable");
 		Link->Dir = DIR_LEFT;
 		test(DIR_LEFT, Link->Dir);
@@ -301,6 +315,51 @@ global script Init {
 		test(100, LOCAL);
 	}
 
+	void test_Operations() {
+		test_group("Math Operations");
+		int val = 100;
+		test(-100, -val);
+		test(-1, ~0);
+		test(101, ++val);
+		test(100, --val);
+		test(100, val++);
+		test(101, val--);
+		test(150, val + 50);
+		test(50, val - 50);
+		test(300, val * 3);
+		test(10, val / 10);
+		test(4, val % 32);
+		test(7, 255 & 7);
+		test(3, 1 | 2);
+		test(1, 3 ^ 2);
+		test(4, 1 << 2);
+		test(1, 4 >> 2);
+
+		test_group("Math Comparisons");
+		test(false, 0 > 0);
+		test(true, 0 >= 0);
+		test(false, 0 < 0);
+ 		test(true, 0 <= 0);
+ 		test(true, 0 == 0);
+ 		test(false, 0 != 0);
+		test(true, 10 > 0);
+		test(true, 10 >= 0);
+		test(false, 10 < 0);
+ 		test(false, 10 <= 0);
+ 		test(false, 10 == 0);
+ 		test(true, 10 != 0);
+
+		test_group("Boolean Operations");
+		test(true, true && true);
+		test(false, false && true);
+		test(false, true && false);
+		test(false, false && false);
+		test(true, true || true);
+		test(true, false || true);
+		test(true, true || false);
+		test(false, false || false);
+	}
+	
 	void test_ScriptStrip() {
 		test_group("Script Level Variable");
 		test(100, TestStrip.testStripVar);
@@ -397,7 +456,7 @@ global script Init {
 global script TestStrip
 {
 	void run() {}
-	int testStripVar = 100;
+	compile_error(38) int testStripVar = 100;
 	void testStripFunction(int x) {testStripVar = x;}
 }
 

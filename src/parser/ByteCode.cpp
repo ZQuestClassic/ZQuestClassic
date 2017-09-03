@@ -262,15 +262,15 @@ string VarArgument::toString()
     
     case LINKEATEN: return "LINKEATEN";
     
-    case LINKITEMB: return "LINKITEMB";
+//    case LINKITEMB: return "LINKITEMB";
 
-    case LINKITEMA: return "LINKITEMA";
+    //case LINKITEMA: return "LINKITEMA";
     case SETITEMSLOT: return "SETITEMSLOT";
     case GAMESETB: return "GAMESETB";
     case GAMESETA: return "GAMESETA";
-    case LINKUSINGITEM: return "LINKUSINGITEM";
-    case LINKUSINGITEMA: return "LINKUSINGITEMA";
-    case LINKUSINGITEMB: return "LINKUSINGITEMB";
+    //case LINKUSINGITEM: return "LINKUSINGITEM";
+    //case LINKUSINGITEMA: return "LINKUSINGITEMA";
+    //case LINKUSINGITEMB: return "LINKUSINGITEMB";
     
     case SDD:
         return "SDD";

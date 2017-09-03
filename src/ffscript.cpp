@@ -4,7 +4,7 @@
 
 #include "precompiled.h" //always first
 
-#include <deque>
+//#include <deque>
 //#include <algorithm>
 #include <string>
 #include <sstream>
@@ -50,7 +50,6 @@ using std::string;
 
 extern sprite_list particles;
 extern LinkClass *Link;
-extern char *guy_string[];
 extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern std::map<int, std::pair<string,string> > itemmap;
@@ -346,22 +345,26 @@ public:
     
     static INLINE int checkGuyID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXGUYS-1, str);
+        // TODO quest module scripting support
+        return checkBounds(ID, 0, curQuest->getModule("CORE").enemyDefTable().getNumEnemyDefinitions()-1, str);
     }
     
     static INLINE int checkItemID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, ITEMCNT-1, str);
+        // TODO quest module scripting support
+        return checkBounds(ID, 0, curQuest->getModule("CORE").itemDefTable().getNumItemDefinitions()-1, str);
     }
     
     static INLINE int checkWeaponID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, WPNCNT-1, str);
+        // TODO quest module scripting support
+        return checkBounds(ID, 0, curQuest->getModule("CORE").spriteDefTable().getNumSpriteDefinitions()-1, str);
     }
     
     static INLINE int checkWeaponMiscSprite(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXWPNS-1, str);
+        // TODO quest module scripting support
+        return checkBounds(ID, 0, curQuest->getModule("CORE").spriteDefTable().getNumSpriteDefinitions()-1, str);
     }
     
     static INLINE int checkSFXID(const long ID, const char * const str)
@@ -440,52 +443,13 @@ public:
     //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     static long getNPCDMisc(const byte a)
     {
-        switch(a)
+        if (a <= 15)
         {
-        case 0:
-            return tempenemy->dmisc1;
-            
-        case 1:
-            return tempenemy->dmisc2;
-            
-        case 2:
-            return tempenemy->dmisc3;
-            
-        case 3:
-            return tempenemy->dmisc4;
-            
-        case 4:
-            return tempenemy->dmisc5;
-            
-        case 5:
-            return tempenemy->dmisc6;
-            
-        case 6:
-            return tempenemy->dmisc7;
-            
-        case 7:
-            return tempenemy->dmisc8;
-            
-        case 8:
-            return tempenemy->dmisc9;
-            
-        case 9:
-            return tempenemy->dmisc10;
-            
-        case 10:
-            return tempenemy->dmisc11;
-            
-        case 11:
-            return tempenemy->dmisc12;
-        
-	case 12:
-            return tempenemy->dmisc13;
-        
-	case 13:
-            return tempenemy->dmisc14;
-        
-	case 14:
-            return tempenemy->dmisc15;
+            return tempenemy->dmiscs[a];
+        }
+        else
+        {
+            Z_scripterrlog("Enemy misc index out of bounds: %d\n", a);
         }
         
         return 0;
@@ -737,6 +701,23 @@ public:
             num_chars--;
         }
     }
+
+	// Non std::string version. Requires exact length, array must be valid.
+	static void uncheckedGetCString(const long ptr, char* str, int stringLength)
+	{
+		ZScriptArray& a = getArray(ptr);
+
+		int i = 0;
+		if(a != INVALIDARRAY)
+		{
+			for( ; i < stringLength; ++i)
+			{
+				str[i] = char(a[i] / 10000);
+			}
+		}
+
+		str[i] = 0; //null terminate.
+	}
     
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
     static void getValues(const long ptr, long* arrayPtr, word num_values)
@@ -964,7 +945,8 @@ weapon *checkEWpn(long eid, const char *what)
 sprite *s;
 
 
-
+long get_itemdata_register(long arg);
+void set_itemdata_register(long arg, long value);
 
 
 long get_register(const long arg)
@@ -1112,16 +1094,28 @@ long get_register(const long arg)
         break;
         
     case LINKHELD:
-        ret = (int)(Link->getHeldItem())*10000;
+    {
+        //TODO script support for modules
+        ret = (int)(Link->getHeldItem().slot) * 10000;
         break;
+    }
         
     case LINKITEMD:
-        ret = game->item[vbound(ri->d[0]/10000, 0, MAXITEMS-1)] ? 10000 : 0;
+    {
+        ItemDefinitionRef ref("CORE", vbound(ri->d[0] / 10000, 0, curQuest->getModule("CORE").itemDefTable().getNumItemDefinitions() - 1));
+        // TODO quest module support
+        ret = game->get_item(ref) ? 10000 : 0;
         break;
+    }
         
     case LINKEQUIP:
-        ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
+    {
+        //TODO this is a pretty useless function, and should only be used in old quests
+        // first of all, it doesn't work if Link is wielding an item with id > 255
+        // second, module support is missing
+        ret = ((Awpn.slot & 0xFF) | ((Bwpn.slot & 0xFF) << 8)) * 10000;
         break;
+    }
         
     case LINKINVIS:
         ret = (int)(Link->getDontDraw())*10000;
@@ -1214,34 +1208,10 @@ long get_register(const long arg)
 	ret = (int)Link->getHurtSFX()*10000;
 	break;
     
-    
-    case LINKUSINGITEM:
-	ret = (int)Link->getDirectItem()*10000;
-        break;
-    
-    case LINKUSINGITEMA:
-	ret = (int)Link->getDirectItemA()*10000;
-        break;
-    
-    case LINKUSINGITEMB:
-	ret = (int)Link->getDirectItemB()*10000;
-        break;
-        
     case LINKEATEN:
 	ret=(int)Link->getEaten()*10000;
 	break;
         
-        
-    case LINKITEMB:
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	ret = Bwpn*10000;
-	break;
-    
-    case LINKITEMA:
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	ret = Awpn *10000;
-	break;
-    
     case LINKDIAG:
 	ret=Link->getDiagMove()?10000:0;
 	break;
@@ -1521,13 +1491,14 @@ long get_register(const long arg)
         break;
         
     case ITEMID:
-        if(0!=(s=checkItem(ri->itemref)))
+    {
+        //TODO script module support
+        if (0 != (s = checkItem(ri->itemref)))
         {
-            ret=((item*)(s))->id*10000;
+            ret = ((item*)(s))->itemDefinition.slot * 10000;
         }
-        
         break;
-        
+    }
     case ITEMTILE:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -1717,299 +1688,66 @@ long get_register(const long arg)
         }
         
 ///----------------------------------------------------------------------------------------------------//
-//Itemdata Variables
+//Itemdata Variables	
 	
-	
-    case IDATAUSEWPN:
-        ret=(itemsbuf[ri->idata].useweapon)*10000;
-        break;
-    case IDATAUSEDEF:
-        ret=(itemsbuf[ri->idata].usedefence)*10000;
-        break;
-    case IDATAWRANGE:
-        ret=(itemsbuf[ri->idata].weaprange)*10000;
-        break;
-    case IDATAUSEMVT:
-    {
-	long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
-	    
-        ret=(itemsbuf[ri->idata].weap_pattern[a])*10000;
-        
-    }
-    break;
-    
-    case IDATADURATION:
-        ret=(itemsbuf[ri->idata].weapduration)*10000;
-        break;
-    
-    case IDATADUPLICATES:
-        ret=(itemsbuf[ri->idata].duplicates)*10000;
-        break;
-    case IDATADRAWLAYER:
-        ret=(itemsbuf[ri->idata].drawlayer)*10000;
-        break;
-    case IDATACOLLECTFLAGS:
-        ret=(itemsbuf[ri->idata].collectflags)*10000;
-        break;
-    case IDATAWEAPONSCRIPT:
-        ret=(itemsbuf[ri->idata].weaponscript)*10000;
-        break;
-    case IDATAMISCD:
-    {
-	    
-	int a = vbound((ri->d[0] / 10000),0,31);
-        ret=(itemsbuf[ri->idata].wpn_misc_d[a])*10000;
-    }
-    break;
-    case IDATAWPNINITD:
-    {
-	    
-	int a = vbound((ri->d[0] / 10000),0,7);
-        ret=(itemsbuf[ri->idata].weap_initiald[a])*10000;
-    }
-    break;
-    case IDATAWEAPHXOFS:
-        ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
-        break;
-    case IDATAWEAPHYOFS:
-        ret=(itemsbuf[ri->idata].weap_yxofs)*10000;
-        break;
-    case IDATAWEAPHXSZ:
-        ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
-        break;
-    case IDATAWEAPHYSZ:
-        ret=(itemsbuf[ri->idata].weap_hysz)*10000;
-        break;
-    case IDATAWEAPHZSZ:
-        ret=(itemsbuf[ri->idata].weap_hzsz)*10000;
-        break;
-    case IDATAWEAPXOFS:
-        ret=(itemsbuf[ri->idata].weap_xofs)*10000;
-        break;
-    case IDATAWEAPYOFS:
-        ret=(itemsbuf[ri->idata].weap_yofs)*10000;
-        break;
-    
-    
-    
-    case IDATAFAMILY:
-        ret=(itemsbuf[ri->idata].family)*10000;
-        break;
-        
-    case IDATALEVEL:
-        ret=(itemsbuf[ri->idata].fam_type)*10000;
-        break;
-        
-    case IDATAKEEP:
-        ret=(itemsbuf[ri->idata].flags & ITEM_GAMEDATA)?10000:0;
-        break;
-        
-    case IDATAAMOUNT:
-        ret=(itemsbuf[ri->idata].amount)*10000;
-        break;
-        
-    case IDATASETMAX:
-        ret=(itemsbuf[ri->idata].setmax)*10000;
-        break;
-        
-    case IDATAMAX:
-        ret=(itemsbuf[ri->idata].max)*10000;
-        break;
-        
-    case IDATACOUNTER:
-        ret=(itemsbuf[ri->idata].count)*10000;
-        break;
-        
-    case IDATAUSESOUND:
-        ret=(itemsbuf[ri->idata].usesound)*10000;
-        break;
-        
-    case IDATAPOWER:
-        ret=(itemsbuf[ri->idata].power)*10000;
-        break;
-        
-    //2.54
-	//Get the ID of an item.
-        case IDATAID:
+//2.54
+//Get the ID of an item.
+    case IDATAID:
         ret=ri->idata*10000;
         break;
-    
-	//Get the script assigned to an item (active)
+
+    case IDATAUSEWPN:
+    case IDATAUSEDEF:
+    case IDATAWRANGE:
+    case IDATAUSEMVT:
+    case IDATADURATION:
+    case IDATADUPLICATES:
+    case IDATADRAWLAYER:
+    case IDATACOLLECTFLAGS:
+    case IDATAWEAPONSCRIPT:
+    case IDATAMISCD:
+    case IDATAWPNINITD:
+    case IDATAWEAPHXOFS:
+    case IDATAWEAPHYOFS:
+    case IDATAWEAPHXSZ:
+    case IDATAWEAPHYSZ:
+    case IDATAWEAPHZSZ:
+    case IDATAWEAPXOFS:
+    case IDATAWEAPYOFS:
+    case IDATAFAMILY:
+    case IDATALEVEL:
+    case IDATAKEEP:
+    case IDATAAMOUNT:
+    case IDATASETMAX:
+    case IDATAMAX:
+    case IDATACOUNTER:
+    case IDATAUSESOUND:
+    case IDATAPOWER:
     case IDATASCRIPT:
-        ret=(itemsbuf[ri->idata].script)*10000;
-        break;
-    //Get the ->Attributes[] of an item
     case IDATAATTRIB:
-    {
-	    int index = vbound(ri->d[0]/10000,0,9);
-		switch(index){
-		    case 0:
-			ret=(itemsbuf[ri->idata].misc1)*10000;
-		    break;
-		    case 1:
-			ret=(itemsbuf[ri->idata].misc2)*10000; break;
-		    case 2:
-			ret=(itemsbuf[ri->idata].misc3)*10000; break;
-		    case 3:
-			ret=(itemsbuf[ri->idata].misc4)*10000; break;
-		    case 4:
-			ret=(itemsbuf[ri->idata].misc5)*10000; break;
-		    case 5:
-			ret=(itemsbuf[ri->idata].misc6)*10000; break;
-		    case 6:
-			ret=(itemsbuf[ri->idata].misc7)*10000; break;
-		    case 7:
-			ret=(itemsbuf[ri->idata].misc8)*10000; break;
-		    case 8:
-			ret=(itemsbuf[ri->idata].misc9)*10000; break;
-		    case 9:
-			ret=(itemsbuf[ri->idata].misc10)*10000; break;
-		    default: 
-			   ret = -10000; break;
-		}
-		   
-        break;
-	
-	}
-		//Get the ->Sprite[] of an item.
-	case IDATASPRITE: {
-	    int index = vbound(ri->d[0]/10000,0,9);
-		switch(index){
-		    case 0:
-			ret=(itemsbuf[ri->idata].wpn)*10000;
-		    break;
-		    case 1:
-			ret=(itemsbuf[ri->idata].wpn2)*10000; break;
-		    case 2:
-			ret=(itemsbuf[ri->idata].wpn3)*10000; break;
-		    case 3:
-			ret=(itemsbuf[ri->idata].wpn4)*10000; break;
-		    case 4:
-			ret=(itemsbuf[ri->idata].wpn5)*10000; break;
-		    case 5:
-			ret=(itemsbuf[ri->idata].wpn6)*10000; break;
-		    case 6:
-			ret=(itemsbuf[ri->idata].wpn7)*10000; break;
-		    case 7:
-			ret=(itemsbuf[ri->idata].wpn8)*10000; break;
-		    case 8:
-			ret=(itemsbuf[ri->idata].wpn9)*10000; break;
-		    case 9:
-			ret=(itemsbuf[ri->idata].wpn10)*10000; break;
-		    default: 
-			   ret = -10000; break;
-		}
-		   
-		break;
-	}
-	//Link TIle modifier
+    case IDATASPRITE: 
     case IDATALTM:
-        ret=(itemsbuf[ri->idata].ltm)*10000;
-        break;
-    //Pickup script
     case IDATAPSCRIPT:
-        ret=(itemsbuf[ri->idata].collect_script)*10000;
-        break;
-    //Magic cost
-     case IDATAMAGCOST:
-        ret=(itemsbuf[ri->idata].magic)*10000;
-        break;
-     //Min Hearts to Pick Up
-     case IDATAMINHEARTS:
-        ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
-        break;
-     //Tile used by the item
-     case IDATATILE:
-        ret=(itemsbuf[ri->idata].tile)*10000;
-        break;
-     //itemdata->Flash
-     case IDATAMISC:
-        ret=(itemsbuf[ri->idata].misc)*10000;
-        break;
-     //->CSet
-     case IDATACSET:
-        ret=(itemsbuf[ri->idata].csets)*10000;
-        break;
-     //->A.Frames
-     case IDATAFRAMES:
-        ret=(itemsbuf[ri->idata].frames)*10000;
-        break;
-     /*
-     case IDATAFRAME:
-        ret=(itemsbuf[ri->idata].frame)*10000;
-        break;
-    */ 
-     //->A.Speed
-     case IDATAASPEED:
-        ret=(itemsbuf[ri->idata].speed)*10000;
-        break;
-     //->Delay
-     case IDATADELAY:
-        ret=(itemsbuf[ri->idata].delay)*10000;
-        break;
-     // teo of this item upgrades
-      case IDATACOMBINE:
-        ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
-        break;
-      //Use item, and get the lower level one
-      case IDATADOWNGRADE:
-        ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
-        break;
-      //->Flags[5]
-      case IDATAFLAGS: {
-	    int index = vbound(ri->d[0]/10000,0,4);
-		switch(index){
-		    case 0:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0;
-		    break;
-		    case 1:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG2)?10000:0; break;
-		    case 2:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG3)?10000:0; break;
-		    case 3:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG4)?10000:0; break;
-		    case 4:
-			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG5)?10000:0; break;
-		   
-		    default: 
-			   ret = 0; break;
-		}
-		   
-		break;
-	}
-		
-	//->Keep Old
-      case IDATAKEEPOLD:
-        ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
-        break;
-      //Use rupees instead of magic
-      case IDATARUPEECOST:
-        ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
-        break;
-      //Can be eaten
-      case IDATAEDIBLE:
-        ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
-        break;
-      //Not int he editor, could become flags[6], but I'm reserving this one for other item uses. 
-      case IDATAFLAGUNUSED:
-        ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
-        break;
-      //Gain lower level items when collected
-      case IDATAGAINLOWER:
-        ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
-        break;
-	//Unchanged from master
+    case IDATAMAGCOST:
+    case IDATAMINHEARTS:
+    case IDATATILE:
+    case IDATAMISC:
+    case IDATACSET:
+    case IDATAFRAMES:
+    case IDATAASPEED:
+    case IDATADELAY:
+    case IDATACOMBINE:
+    case IDATADOWNGRADE:
+    case IDATAFLAGS: 
+    case IDATAKEEPOLD:
+    case IDATARUPEECOST:
+    case IDATAEDIBLE:
+    case IDATAFLAGUNUSED:
+    case IDATAGAINLOWER:
     case IDATAINITDD:
-    {
-        int a = ri->d[0] / 10000;
-        
-        if(BC::checkBounds(a, 0, 7, "itemdata->InitD") != SH::_NoError)
-            ret = -10000;
-        else
-            ret = itemsbuf[ri->idata].initiald[a];
-    }
-    break;
     
+        get_itemdata_register(arg);
+        break;
 ///----------------------------------------------------------------------------------------------------//
 //NPC Variables
 
@@ -2058,7 +1796,14 @@ long get_register(const long arg)
         GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
     
     case NPCWEAPSPRITE:
-        GET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
+    {
+        //TODO module support for scripts
+        if(GuyH::loadNPC(ri->guyref, "npc->WeaponSprite") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->wpnsprite.slot * 10000;
+        break;
+    }
         
     case NPCTYPE:
         GET_NPC_VAR_INT(family, "npc->Type") break;
@@ -2160,10 +1905,11 @@ long get_register(const long arg)
         break;
         
     case NPCID:
+        //TODO script support for modules
         if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
             ret = -10000;
         else
-            ret = (GuyH::getNPC()->id & 0xFFF) * 10000;
+            ret = (GuyH::getNPC()->enemyDefinition.slot) * 10000;
             
         break;
         
@@ -2809,11 +2555,19 @@ long get_register(const long arg)
         break;
         
     case GAMEITEMSD:
-        ret=(game->item[(ri->d[0])/10000] ? 10000 : 0);
+    {
+        //TODO script support for modules
+        ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
+        ret = (game->get_item(ref) ? 10000 : 0);
         break;
+    }
     case DISABLEDITEM:
-	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
-	break;
+    {
+        //TODO script support for modules
+        ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
+        ret = (game->get_disabled_item(ref) ? 10000 : 0);
+        break;
+    }
         
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
@@ -3342,13 +3096,13 @@ case SETSCREENCATCH:
     
     //Creates an lweapon using an iemdata struct values to generate its properties.
 	//Useful in conjunction with the new weapon editor. 
-        case CREATELWPNDX:
+    case CREATELWPNDX:
 	{
 		//Z_message("Trying to get Link->SetExtend().\n");
-		long ID = (ri->d[0] / 10000);
-		int itemid = (ri->d[1]/10000);
-		itemid = vbound(itemid,0,(MAXITEMS-1));
-		
+        long ID = (ri->d[0] / 10000);
+        // TODO script support for modules
+        ItemDefinitionRef itemid("CORE", ri->d[1]/10000);
+        
 		//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[2], "ri->d[2]");
 	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
 	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
@@ -3537,397 +3291,386 @@ case SETSCREENCATCH:
 void set_register(const long arg, const long value)
 {
 
-    switch(arg)
+    switch (arg)
     {
-///----------------------------------------------------------------------------------------------------//
-//FFC Variables
+        ///----------------------------------------------------------------------------------------------------//
+        //FFC Variables
     case DATA:
-        tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
+        tmpscr->ffdata[ri->ffcref] = vbound(value / 10000, 0, MAXCOMBOS - 1);
         break;
-        
-     case CHANGEFFSCRIPTR:
+
+    case CHANGEFFSCRIPTR:
         FFScript::do_changeffcscript(false);
         break;
-    
+
     case CHANGEFFSCRIPTV:
         FFScript::do_changeffcscript(true);
         break;
-    
+
     case FFSCRIPT:
-        for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+        for (long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
-            if(arrayOwner[i]==ri->ffcref)
+            if (arrayOwner[i] == ri->ffcref)
                 FFScript::deallocateZScriptArray(i);
         }
-        
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, scripts.ffscripts.size()-1);
-        
-        for(int i=0; i<16; i++)
+
+        tmpscr->ffscript[ri->ffcref] = vbound(value / 10000, 0, scripts.ffscripts.size() - 1);
+
+        for (int i = 0; i < 16; i++)
             ffmisc[ri->ffcref][i] = 0;
-            
-        for(int i=0; i<2; i++)
+
+        for (int i = 0; i < 2; i++)
             tmpscr->inita[ri->ffcref][i] = 0;
-            
-        for(int i=0; i<8; i++)
+
+        for (int i = 0; i < 8; i++)
             tmpscr->initd[ri->ffcref][i] = 0;
-            
+
         ffcScriptData[ri->ffcref].Clear();
         tmpscr->initialized[ri->ffcref] = false;
         break;
-        
+
     case FCSET:
-        tmpscr->ffcset[ri->ffcref] = (value/10000)&15;
+        tmpscr->ffcset[ri->ffcref] = (value / 10000) & 15;
         break;
-        
+
     case DELAY:
-        tmpscr->ffdelay[ri->ffcref] = value/10000;
+        tmpscr->ffdelay[ri->ffcref] = value / 10000;
         break;
-        
+
     case FX:
         tmpscr->ffx[ri->ffcref] = value;
         break;
-        
+
     case FY:
-        tmpscr->ffy[ri->ffcref]=value;
+        tmpscr->ffy[ri->ffcref] = value;
         break;
-        
+
     case XD:
-        tmpscr->ffxdelta[ri->ffcref]=value;
+        tmpscr->ffxdelta[ri->ffcref] = value;
         break;
-        
+
     case YD:
-        tmpscr->ffydelta[ri->ffcref]=value;
+        tmpscr->ffydelta[ri->ffcref] = value;
         break;
-    
+
     case FFCID:
-        ri->ffcref = vbound((value-10000)/10000, 0, 31);
+        ri->ffcref = vbound((value - 10000) / 10000, 0, 31);
         break;
-        
+
     case XD2:
-        tmpscr->ffxdelta2[ri->ffcref]=value;
+        tmpscr->ffxdelta2[ri->ffcref] = value;
         break;
-        
+
     case YD2:
-        tmpscr->ffydelta2[ri->ffcref]=value;
+        tmpscr->ffydelta2[ri->ffcref] = value;
         break;
-        
+
     case FFFLAGSD:
-        value ? tmpscr->ffflags[ri->ffcref] |=   1<<((ri->d[0])/10000)
-                : tmpscr->ffflags[ri->ffcref] &= ~(1<<((ri->d[0])/10000));
+        value ? tmpscr->ffflags[ri->ffcref] |= 1 << ((ri->d[0]) / 10000)
+            : tmpscr->ffflags[ri->ffcref] &= ~(1 << ((ri->d[0]) / 10000));
         break;
-        
+
     case FFCWIDTH:
-        tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+        tmpscr->ffwidth[ri->ffcref] = (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value / 10000) - 1) & 63);
         break;
-        
+
     case FFCHEIGHT:
-        tmpscr->ffheight[ri->ffcref]= (tmpscr->ffheight[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+        tmpscr->ffheight[ri->ffcref] = (tmpscr->ffheight[ri->ffcref] & ~63) | (((value / 10000) - 1) & 63);
         break;
-        
+
     case FFTWIDTH:
-        tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+        tmpscr->ffwidth[ri->ffcref] = (tmpscr->ffwidth[ri->ffcref] & 63) | ((((value / 10000) - 1) & 3) << 6);
         break;
-        
+
     case FFTHEIGHT:
-        tmpscr->ffheight[ri->ffcref]=(tmpscr->ffheight[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+        tmpscr->ffheight[ri->ffcref] = (tmpscr->ffheight[ri->ffcref] & 63) | ((((value / 10000) - 1) & 3) << 6);
         break;
-        
+
     case FFLINK:
-        (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
-	//0 is none, setting this before made it impssible to clear it. -Z
+        (tmpscr->fflink[ri->ffcref]) = vbound(value / 10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
+    //0 is none, setting this before made it impssible to clear it. -Z
         break;
-        
+
     case FFMISCD:
     {
-        int a = vbound(ri->d[0]/10000,0,15);
-        ffmisc[ri->ffcref][a]=value;
+        int a = vbound(ri->d[0] / 10000, 0, 15);
+        ffmisc[ri->ffcref][a] = value;
         break;
     }
-    
+
     case FFINITDD:
-        (tmpscr->initd[ri->ffcref][vbound(ri->d[0]/10000,0,7)])=value;
+        (tmpscr->initd[ri->ffcref][vbound(ri->d[0] / 10000, 0, 7)]) = value;
         break;
-        
-        
-///----------------------------------------------------------------------------------------------------//
-//Link's Variables
+
+
+        ///----------------------------------------------------------------------------------------------------//
+        //Link's Variables
     case LINKX:
-        Link->setX(value/10000);
+        Link->setX(value / 10000);
         break;
-        
+
     case LINKY:
-        Link->setY(value/10000);
+        Link->setY(value / 10000);
         break;
-        
+
     case LINKZ:
-        Link->setZ(value/10000);
+        Link->setZ(value / 10000);
         break;
-        
+
     case LINKJUMP:
         Link->setFall(fix((-value * (100.0)) / 10000.0));
         break;
-        
+
     case LINKDIR:
     {
         //Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-        if(Link->getAction() == attacking) Link->dir = (value/10000);
-        else Link->setDir(value/10000);
-        
+        if (Link->getAction() == attacking) Link->dir = (value / 10000);
+        else Link->setDir(value / 10000);
+
         break;
     }
-    
+
     case LINKHITDIR:
         Link->setHitDir(value / 10000);
         break;
-        
+
     case LINKHP:
-        game->set_life(zc_max(0, zc_min(value/10000,game->get_maxlife())));
+        game->set_life(zc_max(0, zc_min(value / 10000, game->get_maxlife())));
         break;
-        
+
     case LINKMP:
-        game->set_magic(zc_max(0, zc_min(value/10000,game->get_maxmagic())));
+        game->set_magic(zc_max(0, zc_min(value / 10000, game->get_maxmagic())));
         break;
-        
+
     case LINKMAXHP:
-        game->set_maxlife(value/10000);
+        game->set_maxlife(value / 10000);
         break;
-        
+
     case LINKMAXMP:
-        game->set_maxmagic(value/10000);
+        game->set_maxmagic(value / 10000);
         break;
-        
+
     case LINKACTION:
-        Link->setAction((actiontype)(value/10000));
+        Link->setAction((actiontype)(value / 10000));
         break;
-        
+
     case LINKHELD:
-        Link->setHeldItem(vbound(value/10000,0,MAXITEMS-1));
+    {
+        //TODO script support for modules
+        ItemDefinitionRef ref("CORE", value / 10000);
+        if (curQuest->isValid(ref))
+            Link->setHeldItem(ref);
         break;
-        
+    }
+
     case LINKITEMD:
+    {
+        //TODO script support for modules
+        ItemDefinitionRef itemref("CORE", ri->d[0] / 10000);
+        if (!curQuest->isValid(itemref))
         {
-            int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
-            
-            // If the Cane of Byrna is being removed, cancel its effect.
-            if(value==0 && itemID==current_item_id(itype_cbyrna))
-                stopCaneOfByrna();
-            
-            bool settrue = ( value != 0 );
-		    
-	    //Sanity check to prevent setting the item if the value would be the same. -Z
-	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
-                    
-            //resetItems(game); - Is this really necessary? ~Joe123
-            if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
+            Z_scripterrlog("Cannot give link item with invalid item id %ld\n", ri->d[0] / 10000);
+            break;
+        }
+        // If the Cane of Byrna is being removed, cancel its effect.
+        if (value == 0 && itemref == current_item_id(itype_cbyrna))
+            stopCaneOfByrna();
+
+        bool settrue = (value != 0);
+
+        //Sanity check to prevent setting the item if the value would be the same. -Z
+        if (game->get_item(itemref) != settrue) game->set_item(itemref, (value != 0));
+
+        //resetItems(game); - Is this really necessary? ~Joe123
+        if ((get_bit(quest_rules, qr_OVERWORLDTUNIC) != 0) || (currscr < 128 || dlevel)) ringcolor(false);
+
+        break;
+    }
+
+    case LINKEQUIP:
+    {
+        //TODO only supports items up to 255, also need scripting support for modules
+        int setb = ((value / 10000) & 0xFF00) >> 8, seta = (value / 10000) & 0xFF;
+
+        ItemDefinitionRef refa("CORE", seta);
+        ItemDefinitionRef refb("CORE", seta);
+
+        if (seta && get_bit(quest_rules, qr_SELECTAWPN) && game->get_item(refa)) {
+            Awpn = refa;
+        }
+        if (setb && game->get_item(refb)) {
+            Bwpn = refb;
         }
         break;
-        
-         case LINKEQUIP:
-          {
-        
-        	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
-        	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
-			Awpn = value/10000;
-        	}
-        	if(setb && game->item[setb]){
-			Bwpn = value/10000;
-        	}
-          }
-         break;
-	  
-	  case SETITEMSLOT:
-	{
-		//ri->d[1] = 1st arg
-		//ri->d[0] = 2nd arg
-		//value = third arg
-		//int item, int slot, int force
-		int itm = ri->d[0]/10000;
-		
-		int slot = ri->d[1]/10000;
-		int force = ri->d[2]/10000;
-		
-	    Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
-	    Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
-		Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
-		
-		//If we add more item buttons, slot should be an int
-		//and force shuld be an int
-		
-		/*
-			For zScript, 
-				const int ITM_REQUIRE_NONE = 0
-				const int ITM_REQUIRE_INVENTORY = 1
-				const int ITM_REQUIRE_A_SLOT_RULE = 2
-				//Combine as flags
-		
-		
-		*/
-		if ( force == 0 ) {
-			if ( slot == 1 ) {
-				Awpn = itm;
-			}
-			else Bwpn = itm;
-		}
-		if ( force == 1 ) {
-			if(slot == 1 && game->item[itm]){
-				Awpn = itm;
-			}
-			else { 
-				if ( game->item[itm] ) Bwpn = itm;
-			}
-		}
+    }
 
-		if ( force == 2 ) {
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) ){
-				Awpn = itm;
-			}
-			else { 
-				Bwpn = itm;
-			}
-		}
-		
-		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm]){
-				Awpn = itm;
-			}
-			else { 
-				if ( game->item[itm] ) Bwpn = itm;
-			}
-		}
-	}
-	break;
-	  
+    case SETITEMSLOT:
+    {
+        //ri->d[1] = 1st arg
+        //ri->d[0] = 2nd arg
+        //value = third arg
+        //int item, int slot, int force
+        int itm = ri->d[0] / 10000;
+
+        int slot = ri->d[1] / 10000;
+        int force = ri->d[2] / 10000;
+
+        Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
+        Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
+        Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
+
+        //TODO needs module support
+        ItemDefinitionRef itmref("CORE", itm);
+
+        if (!curQuest->isValid(itmref))
+        {
+            Z_scripterrlog("Cannot SetItemSlot with invalid item id %d\n", itm);
+        }
+        else
+        {
+            if (force == 0) {
+                if (slot == 1) {
+                    Awpn = itmref;
+                }
+                else Bwpn = itmref;
+            }
+            if (force == 1) {
+                if (slot == 1 && game->get_item(itmref)) {
+                    Awpn = itmref;
+                }
+                else {
+                    if (game->get_item(itmref)) Bwpn = itmref;
+                }
+            }
+
+            if (force == 2) {
+                if (slot == 1 && get_bit(quest_rules, qr_SELECTAWPN)) {
+                    Awpn = itmref;
+                }
+                else {
+                    Bwpn = itmref;
+                }
+            }
+
+            if (force == 3) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+                if (slot == 1 && get_bit(quest_rules, qr_SELECTAWPN) && game->get_item(itmref)) {
+                    Awpn = itmref;
+                }
+                else {
+                    if (game->get_item(itmref)) Bwpn = itmref;
+                }
+            }
+        }
+    }
+    break;
+
     case LINKINVIS:
-        Link->setDontDraw(value/10000);
+        Link->setDontDraw(value / 10000);
         break;
-        
+
     case LINKINVINC:
-        Link->scriptcoldet=(value/10000);
+        Link->scriptcoldet = (value / 10000);
         break;
-        
+
     case LINKSWORDJINX:
-        Link->setSwordClk(value/10000);
+        Link->setSwordClk(value / 10000);
         break;
-        
+
     case LINKITEMJINX:
-        Link->setItemClk(value/10000);
+        Link->setItemClk(value / 10000);
         break;
-        
+
     case LINKDRUNK:
-        Link->setDrunkClock(value/10000);
+        Link->setDrunkClock(value / 10000);
         break;
-        
+
     case LINKMISCD:
-        Link->miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
+        Link->miscellaneous[vbound(ri->d[0] / 10000, 0, 31)] = value;
         break;
-        
+
     case LINKHXOFS:
-        (Link->hxofs)=(fix)(value/10000);
+        (Link->hxofs) = (fix)(value / 10000);
         break;
-        
+
     case LINKHYOFS:
-        (Link->hyofs)=(fix)(value/10000);
+        (Link->hyofs) = (fix)(value / 10000);
         break;
-        
+
     case LINKXOFS:
-        (Link->xofs)=(fix)(value/10000);
+        (Link->xofs) = (fix)(value / 10000);
         break;
-        
+
     case LINKYOFS:
-        (Link->yofs)=(fix)(value/10000)+playing_field_offset;
+        (Link->yofs) = (fix)(value / 10000) + playing_field_offset;
         break;
-        
+
     case LINKZOFS:
-        (Link->zofs)=(fix)(value/10000);
+        (Link->zofs) = (fix)(value / 10000);
         break;
-        
+
     case LINKHXSZ:
-        (Link->hxsz)=(fix)(value/10000);
+        (Link->hxsz) = (fix)(value / 10000);
         break;
-        
+
     case LINKHYSZ:
-        (Link->hysz)=(fix)(value/10000);
+        (Link->hysz) = (fix)(value / 10000);
         break;
-        
+
     case LINKHZSZ:
-        (Link->hzsz)=(fix)(value/10000);
+        (Link->hzsz) = (fix)(value / 10000);
         break;
-        
+
     case LINKTXSZ:
-        (Link->txsz)=(fix)(value/10000);
+        (Link->txsz) = (fix)(value / 10000);
         break;
-        
+
     case LINKTYSZ:
-        (Link->tysz)=(fix)(value/10000);
+        (Link->tysz) = (fix)(value / 10000);
         break;
-        
+
     case LINKTILE:
-        (Link->tile)=(fix)(value/10000);
+        (Link->tile) = (fix)(value / 10000);
         break;
-        
+
     case LINKFLIP:
-        (Link->flip)=(fix)(value/10000);
+        (Link->flip) = (fix)(value / 10000);
         break;
-    
-    
-    
+
+
+
     case LINKINVFRAME:
-	Link->setHClk( (int)vbound((value/10000), 0, 214747) );
-	break;
-    
+        Link->setHClk((int)vbound((value / 10000), 0, 214747));
+        break;
+
     case LINKCANFLICKER:
-	Link->setCanLinkFlicker((value/10000)?1:0);
-	break;
-    
+        Link->setCanLinkFlicker((value / 10000) ? 1 : 0);
+        break;
+
     case LINKHURTSFX:
-	Link->setHurtSFX( (int)vbound((value/10000), 0, 255) );
-	break;
-        
+        Link->setHurtSFX((int)vbound((value / 10000), 0, 255));
+        break;
+
+    case LINKEATEN:
+    {
+        Link->setEaten(value / 10000);
+        break;
+    }
     
-     case LINKITEMB:
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-    /*
-	Link->directItem = vbound((value/10000),0,(MAXITEMS-1));
-	Link->directItemB = Link->directItem;
-	Bwpn = vbound((value/10000),0,(MAXITEMS-1));
-    */
-	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link->setDirectItemB(Link->getDirectItem());
-	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	break;
-    
-    case LINKITEMA:
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link->setDirectItemA(Link->getDirectItem());
-	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	break;
-    
-      case LINKEATEN:
-	Link->setEaten(value/10000);
-	break;
-    
-      case GAMESETA:
+    case GAMESETA:
 	{
-		//int state   = (ri->d[1]/10000);
-		//int extend = (ri->d[1]/10000);
-		//int dir = (ri->d[0]/10000);
-		Z_message("Trying to force-set the A-button item().\n");
-		Link->setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+        int slot = value / 10000;
+        Link->setAButtonItem(slot);
+        verifyAWpn();
+        break;
 	}
-	break;
 	
 	case GAMESETB:
 	{
-		//int state   = (ri->d[1]/10000);
-		//int extend = (ri->d[1]/10000);
-		//int dir = (ri->d[0]/10000);
-		Z_message("Trying to force-set the A-button item().\n");
-		Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	}
-	break;
+        int slot = value / 10000;
+        Link->setBButtonItem(slot);
+        verifyBWpn();
+        break;
+    }
 	
 	//Set Link Diagonal
         case LINKDIAG:
@@ -4110,7 +3853,7 @@ void set_register(const long arg, const long value)
             (s->x)=(fix)(value/10000);
             
             // Move the Fairy enemy as well.
-            if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
+            if(curQuest->getItemDefinition(((item*)(s))->itemDefinition).family==itype_fairy && curQuest->getItemDefinition(((item*)(s))->itemDefinition).misc3)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
         }
         
@@ -4122,7 +3865,7 @@ void set_register(const long arg, const long value)
             (s->y)=(fix)(value/10000);
             
             // Move the Fairy enemy as well.
-            if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
+            if(curQuest->getItemDefinition(((item*)(s))->itemDefinition).family==itype_fairy && curQuest->getItemDefinition(((item*)(s))->itemDefinition).misc3)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
         }
         
@@ -4156,14 +3899,25 @@ void set_register(const long arg, const long value)
         break;
         
     case ITEMID:
-        if(0!=(s=checkItem(ri->itemref)))
+    {
+        //TODO script module support        
+        if (0 != (s = checkItem(ri->itemref)))
         {
-            (((item *)s)->id)=value/10000;
-            flushItemCache();
+            ItemDefinitionRef newref(((item *)s)->itemDefinition.module, value / 10000);
+            if (!curQuest->isValid(newref))
+            {
+                Z_scripterrlog("Cannot set item to invalid item ID %ld", value / 10000);
+            }
+            else
+            {
+                ((item *)s)->itemDefinition = newref;
+                flushItemCache();
+            }
         }
-        
+
         break;
-        
+    }
+
     case ITEMTILE:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -4410,301 +4164,55 @@ void set_register(const long arg, const long value)
 	//not mine, but let;s guard some of them all the same -Z
 	//item class
     case IDATAFAMILY:
-        (itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
-        flushItemCache();
-        break;
-    
     case IDATAUSEWPN:
-        (itemsbuf[ri->idata].useweapon)=vbound(value/10000, 0, 255);
-        break;
     case IDATAUSEDEF:
-        (itemsbuf[ri->idata].usedefence)=vbound(value/10000, 0, 255);
-        break;
     case IDATAWRANGE:
-        (itemsbuf[ri->idata].weaprange)=vbound(value/10000, 0, 255);
-        break;
      case IDATADURATION:
-        (itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);
-        break;
-     
      case IDATADUPLICATES:
-	(itemsbuf[ri->idata].duplicates)=vbound(value/10000, 0, 255);
-        break;
     case IDATADRAWLAYER:
-	(itemsbuf[ri->idata].drawlayer)=vbound(value/10000, 0, 7);
-        break;
     case IDATACOLLECTFLAGS:
-	//int a = ri->d[0] / 10000;
-        (itemsbuf[ri->idata].collectflags)=vbound(value/10000, 0, 214747);
-        break;
     case IDATAWEAPONSCRIPT:
-	(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
-        break;
     case IDATAMISCD:
-    {
-	    
-	int a = vbound((ri->d[0] / 10000),0,31);
-	(itemsbuf[ri->idata].wpn_misc_d[a])=(value/10000);
-    }
-    break;
     case IDATAWPNINITD:
-    {
-	    
-	int a = vbound((ri->d[0] / 10000),0,7);
-	(itemsbuf[ri->idata].weap_initiald[a])=(value/10000);
-    }
-    break;
     case IDATAWEAPHXOFS:
-	(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
-        break;
     case IDATAWEAPHYOFS:
-	(itemsbuf[ri->idata].weap_yxofs)=(value/10000);
-        break;
     case IDATAWEAPHXSZ:
-	(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
-        break;
     case IDATAWEAPHYSZ:
-	(itemsbuf[ri->idata].weap_hysz)=(value/10000);
-        break;
     case IDATAWEAPHZSZ:
-	(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
-        break;
     case IDATAWEAPXOFS:
-	(itemsbuf[ri->idata].weap_xofs)=(value/10000);
-        break;
     case IDATAWEAPYOFS:
-	(itemsbuf[ri->idata].weap_yofs)=(value/10000);
-        break;
-
-    
     case IDATAUSEMVT:
-	{
-	    long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
-	    (itemsbuf[ri->idata].weap_pattern[a])=vbound(value/10000, 0, 255);
-	}
-        break;
-    
-    
-    //item level
     case IDATALEVEL:
-        (itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
-        flushItemCache();
-        break;
-        //bool keep
     case IDATAKEEP:
-        (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
-        break;
-        //Need the legal range -Z
     case IDATAAMOUNT:
-        (itemsbuf[ri->idata].amount)=value/10000;
-        break;
-        
     case IDATASETMAX:
-        (itemsbuf[ri->idata].setmax)=value/10000;
-        break;
-        
     case IDATAMAX:
-        (itemsbuf[ri->idata].max)=value/10000;
-        break;
-        
     case IDATAPOWER:
-        (itemsbuf[ri->idata].power)=value/10000;
-        break;
-        
     case IDATACOUNTER:
-        (itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
-        break;
-        
     case IDATAUSESOUND:
-        (itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
-        break;
-    
-    //2.54
-    //My additions begin here. -Z
-    //Stack item to gain next level
     case IDATACOMBINE:
-		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
-		break;
-    //using a level of an item downgrades to a lower one
 	case IDATADOWNGRADE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
-		break;
-
-	//Flags[5]
-	case IDATAFLAGS: {
-	    int index = vbound(ri->d[0]/10000,0,4);
-		switch(index){
-		    case 0:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
-		    break;
-		    case 1:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:0; 
-		    case 2:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:0; 
-		    case 3:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:0; 
-		    case 4:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:0; 
-		    
-		    
-		    default: 
-			    break;
-		}
-		   
-		break;
-	}
-	//Keep Old in editor
+	case IDATAFLAGS: 
 	case IDATAKEEPOLD:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
-		break;
-	//Ruppes for magic
 	case IDATARUPEECOST:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
-		break;
-	//can be eaten
 	case IDATAEDIBLE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
-		break;
-	//Reserving this for item editor stuff. 
 	case IDATAFLAGUNUSED:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
-		break;
-	//gain lower level items
 	case IDATAGAINLOWER:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
-		break;
-	//Set the action script
 	case IDATASCRIPT:
-        itemsbuf[ri->idata].script=vbound(value/10000,1,255);
-        break;
-    
-      /*
-      case ITEMMISCD:
-        if(0!=(s=checkItem(ri->itemref)))
-        {
-            int a = vbound(ri->d[0]/10000,0,31);
-            (((item*)(s))->miscellaneous[a])=value;
-        }
-        
-        break;*/
-	//Attributes[10]
-	case IDATAATTRIB: {
-	    int index = vbound(ri->d[0]/10000,0,9);
-		switch(index){
-		    case 0:
-			itemsbuf[ri->idata].misc1=value/10000;
-		    break;
-		    case 1:
-			itemsbuf[ri->idata].misc2=value/10000; break;
-		    case 2:
-			itemsbuf[ri->idata].misc3=value/10000; break;
-		    case 3:
-			itemsbuf[ri->idata].misc4=value/10000; break;
-		    case 4:
-			itemsbuf[ri->idata].misc5=value/10000; break;
-		    case 5:
-			itemsbuf[ri->idata].misc6=value/10000; break;
-		    case 6:
-			itemsbuf[ri->idata].misc7=value/10000; break;
-		    case 7:
-			itemsbuf[ri->idata].misc8=value/10000; break;
-		    case 8:
-			itemsbuf[ri->idata].misc9=value/10000; break;
-		    case 9:
-			itemsbuf[ri->idata].misc10=value/10000; break;
-
-		    default: 
-			    break;
-		}
-		   
-		break;
-	}
-	//Sprites[10]
-	case IDATASPRITE: {
-	    int index = vbound(ri->d[0]/10000,0,9);
-		switch(index){
-		    case 0:
-			itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
-		    break;
-		    case 1:
-			itemsbuf[ri->idata].wpn2=(value/10000, 0, 255); break;
-		    case 2:
-			itemsbuf[ri->idata].wpn3=(value/10000, 0, 255); break;
-		    case 3:
-			itemsbuf[ri->idata].wpn4=(value/10000, 0, 255); break;
-		    case 4:
-			itemsbuf[ri->idata].wpn5=(value/10000, 0, 255); break;
-		    case 5:
-			itemsbuf[ri->idata].wpn6=(value/10000, 0, 255); break;
-		    case 6:
-			itemsbuf[ri->idata].wpn7=(value/10000, 0, 255); break;
-		    case 7:
-			itemsbuf[ri->idata].wpn8=(value/10000, 0, 255); break;
-		    case 8:
-			itemsbuf[ri->idata].wpn9=(value/10000, 0, 255); break;
-		    case 9:
-			itemsbuf[ri->idata].wpn10=(value/10000, 0, 255); break;
-		    
-		    default: 
-			    break;
-		}
-		   
-		break;
-	}
-	//Link tile modifier. 
+	case IDATAATTRIB: 
+	case IDATASPRITE: 
 	case IDATALTM:
-        itemsbuf[ri->idata].ltm=value/10000;
-        break;
-	//Pickup script
     case IDATAPSCRIPT:
-        itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
-        break;
-    //magic cost
      case IDATAMAGCOST:
-        itemsbuf[ri->idata].magic=value/10000;
-        break;
-     //min hearts to pick up
      case IDATAMINHEARTS:
-        itemsbuf[ri->idata].pickup_hearts=vbound(value/10000, 0, 214748);
-        break;
-     //item tile
      case IDATATILE:
-        itemsbuf[ri->idata].tile=vbound(value/10000, 0, 65519);
-        break;
-     //flash
      case IDATAMISC:
-        itemsbuf[ri->idata].misc=value/10000;
-        break;
-     //cset
      case IDATACSET:
-        itemsbuf[ri->idata].csets=vbound(value/10000,0,13);
-        break;
-     /*
-     case IDATAFRAME:
-        itemsbuf[ri->idata].frame=value/10000;
-        break;
-     */
-     //A.Frames
      case IDATAFRAMES:
-	(itemsbuf[ri->idata].frames)=vbound(value/10000, 0, 214748);
-        break;
-	//A.speed
      case IDATAASPEED:
-        itemsbuf[ri->idata].speed=vbound(value/10000, 0, 214748);
-        break;
-     //Anim delay
      case IDATADELAY:
-        itemsbuf[ri->idata].delay=vbound(value/10000, 0, 214748);
-        break;
-     
-        //not one of mine. 
     case IDATAINITDD:
-    {
-        int a = ri->d[0] / 10000;
-        
-        if(BC::checkBounds(a, 0, 7, "itemdata->InitD") == SH::_NoError)
-            itemsbuf[ri->idata].initiald[a] = value;
-    }
+        set_itemdata_register(arg, value);
     break;
     
 ///----------------------------------------------------------------------------------------------------//
@@ -5188,7 +4696,7 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Z") == SH::_NoError)
         {
-            if(!never_in_air(GuyH::getNPC()->id))
+            if(!never_in_air(GuyH::getNPC()->enemyDefinition))
             {
                 if(value < 0)
                     GuyH::getNPC()->z = fix(0);
@@ -5206,7 +4714,7 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
         {
-            if(canfall(GuyH::getNPC()->id))
+            if(canfall(GuyH::getNPC()->enemyDefinition))
                 GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
                 
             if(GuyH::hasLink())
@@ -5328,7 +4836,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
     
     case NPCWEAPSPRITE:
-        SET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
+    {
+        //TODO module support for scripts
+        SpriteDefinitionRef ref("CORE", value / 10000);
+        if(GuyH::loadNPC(ri->guyref, "npc->WeaponSprite") == SH::_NoError) \
+            GuyH::getNPC()->wpnsprite = ref;
+        break;
+    }
         
     case NPCCSET:
     {
@@ -5383,7 +4897,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long weapon = value / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Weapon") == SH::_NoError &&
-                BC::checkBounds(weapon, 0, MAXWPNS-1, "npc->Weapon") == SH::_NoError)
+                BC::checkBounds(weapon, 0, wMax-1, "npc->Weapon") == SH::_NoError)
             GuyH::getNPC()->wpn = weapon;
     }
     break;
@@ -5428,31 +4942,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case NPCDD:
     {
         long a = ri->d[0] / 10000;
-        
-        if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
-	
-	switch(a){
-		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
-		case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
-		case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
-		case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
-		case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
-		case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
-		case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
-		case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
-		case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
-		case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
-		case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
-		case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
-		case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
-		case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
-		case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
-		default: break;
-	}
 
+        if (GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
+            BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+            GuyH::getNPC()->dmiscs[a] = value / 10000;
+        break;
     }
-    break;
+       
     
         
     case NPCINVINC:
@@ -5569,12 +5065,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
         
     case GAMEITEMSD:
-        game->set_item((ri->d[0])/10000,(value!=0));
+    {
+        //TODO module support for scripts
+        ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
+        game->set_item(ref, (value != 0));
         break;
-    
+    }
     case DISABLEDITEM:
-	game->items_off[(ri->d[0])/10000]=value/10000;
-	break;
+    {
+        //TODO module support for scripts
+        ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
+        game->set_disabled_item(ref, value / 10000);
+        break;
+    }
         
     case GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=value/10000;
@@ -7149,7 +6652,8 @@ long get_screenViewX(mapscr *m)
 //One too many inputs here. -Z
 long get_screenGuy(mapscr *m)
 {
-    int f = m->guy;
+    //TODO script module support
+    int f = m->guy.slot;
     return f*10000;
 }
 //One too many inputs here. -Z
@@ -7185,7 +6689,8 @@ long get_screenEntryY(mapscr *m)
 //One too many inputs here. -Z
 long get_screenitem(mapscr *m)
 {
-    int f = m->item;
+    //TODO module support for scripts
+    int f = m->screenItem.slot;
     return f*10000;
 }
 //One too many inputs here. -Z
@@ -7529,8 +7034,10 @@ void do_getscreendoor()
 
 long get_screennpc(mapscr *m, int index)
 {
-    int f = m->enemy[index];
-    return f*10000;
+    //TODO module support for scripts
+
+    EnemyDefinitionRef f = m->enemy[index];
+    return f.slot*10000;
 }
 
 
@@ -7615,8 +7122,12 @@ void do_lwpnusesprite(const bool v)
     if(BC::checkWeaponMiscSprite(ID, "lweapon->UseSprite") != SH::_NoError)
         return;
         
-    if(LwpnH::loadWeapon(ri->lwpn, "lweapon->UseSprite") == SH::_NoError)
-        LwpnH::getWeapon()->LOADGFX(ID);
+    if (LwpnH::loadWeapon(ri->lwpn, "lweapon->UseSprite") == SH::_NoError)
+    {
+        //TODO module support for scripts
+        SpriteDefinitionRef ref("CORE", ID);
+        LwpnH::getWeapon()->LOADGFX(ref);
+    }
 }
 
 void do_ewpnusesprite(const bool v)
@@ -7626,8 +7137,12 @@ void do_ewpnusesprite(const bool v)
     if(BC::checkWeaponMiscSprite(ID, "eweapon->UseSprite") != SH::_NoError)
         return;
         
-    if(EwpnH::loadWeapon(ri->ewpn, "eweapon->UseSprite") == SH::_NoError)
-        EwpnH::getWeapon()->LOADGFX(ID);
+    if (EwpnH::loadWeapon(ri->ewpn, "eweapon->UseSprite") == SH::_NoError)
+    {
+        //TODO module support for scripts
+        SpriteDefinitionRef ref("CORE", ID);
+        EwpnH::getWeapon()->LOADGFX(ref);
+    }
 }
 
 void do_clearsprites(const bool v)
@@ -7779,18 +7294,27 @@ void do_createitem(const bool v)
     
     if(BC::checkItemID(ID, "Screen->CreateItem") != SH::_NoError)
         return;
-        
-    additem(0, (get_bit(quest_rules, qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
+
+    //TODO module support for scripts
+    ItemDefinitionRef ref("CORE", ri->idata);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Cannot create invalid item %ld\n", ri->idata);
+    }
+    else
+    {
+        additem(0, (get_bit(quest_rules, qr_NOITEMOFFSET) ? 1 : 0), ref, ipBIGRANGE);
+    }
     
     if(items.Count() < 1)
     {
         ri->itemref = LONG_MAX;
-        Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
+        Z_scripterrlog("Couldn't create item \"%ld\", screen item limit reached\n", ri->idata);
     }
     else
     {
         ri->itemref = items.spr(items.Count() - 1)->getUID();
-        Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
+        Z_eventlog("Script created item \"%ld\" with UID = %ld\n", ri->idata, ri->itemref);
     }
 }
 
@@ -7800,14 +7324,24 @@ void do_createnpc(const bool v)
     
     if(BC::checkGuyID(ID, "Screen->CreateNPC") != SH::_NoError)
         return;
+
+    //TODO module support for scripts
+
+    EnemyDefinitionRef ref("CORE", ID);
+
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Couldn't create NPC with invalid ID %ld\n", ID);
+        return;
+    }
         
     //If we make a segmented enemy there'll be more than one sprite created
-    word numcreated = addenemy(0, 0, ID, -10);
+    word numcreated = addenemy(0, 0, ref, -10);
     
     if(numcreated == 0)
     {
         ri->guyref = LONG_MAX;
-        Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[ID]);
+        Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", curQuest->getEnemyDefinition(ref).name.c_str());
     }
     else
     {
@@ -7817,7 +7351,7 @@ void do_createnpc(const bool v)
         for(; index<guys.Count(); index++)
             ((enemy*)guys.spr(index))->script_spawned=true;
             
-        Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[ID], ri->guyref);
+        Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", curQuest->getEnemyDefinition(ref).name.c_str(), ri->guyref);
     }
 }
 
@@ -7941,13 +7475,12 @@ void do_drawing_command(const int script_command)
         
     case QUAD3DR:
     {
-        std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(26, 0);
+        long* v = script_drawing_commands[j].AllocateDrawBuffer(26 * sizeof(long));
         
-        long* pos = &v->at(0);
-        long* uv = &v->at(12);
-        long* col = &v->at(20);
-        long* size = &v->at(24);
+        long* pos = v + 0;
+        long* uv = v + 12;
+        long* col = v + 20;
+        long* size = v + 24;
         
         set_drawing_command_args(j, 8);
         ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
@@ -7955,19 +7488,18 @@ void do_drawing_command(const int script_command)
         ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
         ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
         
-        script_drawing_commands[j].SetVector(v);
+       // script_drawing_commands[j].SetPtr(v);
     }
     break;
     
     case TRIANGLE3DR:
     {
-        std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(20, 0);
+        long *v = script_drawing_commands[j].AllocateDrawBuffer(20 * sizeof(long));
         
-        long* pos = &v->at(0);
-        long* uv = &v->at(9);
-        long* col = &v->at(15);
-        long* size = &v->at(18);
+        long* pos = v + 0;
+        long* uv = v + 9;
+        long* col = v + 15;
+        long* size = v + 18;
         
         set_drawing_command_args(j, 8);
         ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
@@ -7975,22 +7507,99 @@ void do_drawing_command(const int script_command)
         ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
         ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
         
-        script_drawing_commands[j].SetVector(v);
+        //script_drawing_commands[j].SetVector(v);
     }
     break;
     
     case DRAWSTRINGR:
     {
         set_drawing_command_args(j, 9);
-        // Unused
-        //const int index = script_drawing_commands[j][19] = j;
-        
-        string *str = script_drawing_commands.GetString();
-        ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
-        script_drawing_commands[j].SetString(str);
+
+		long arrayID = script_drawing_commands[j][8] / 10000;
+		int length = ArrayH::strlen(arrayID);
+		if(length > 0)
+		{
+			char *str = (char*)script_drawing_commands[j].AllocateDrawBuffer(length + 1);
+			ArrayH::uncheckedGetCString(arrayID, str, length);
+		}
+		else
+		{
+			script_drawing_commands.AbortDrawingCommand();
+		}
     }
     break;
-    }
+
+
+	//case BITMAPEXR:
+	//{
+	//}
+	//break;
+
+	//case POLYGONR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//		long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//		script_drawing_commands[j].SetPtr(ptr);
+	//	}
+	//break;
+
+	//case PIXELARRAYR:
+	//{
+	//	set_drawing_command_args(j, 5);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	//case TILEARRAYR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	//case COMBOARRAYR:
+	//{
+	//	set_drawing_command_args(j, 6);
+	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+	//	long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
+	//	long* p = ptr;
+
+	//	ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+	//	script_drawing_commands[j].SetPtr(ptr);
+	//}
+	//break;
+
+	} //switch
 }
 
 void do_set_rendertarget(bool)
@@ -8384,9 +7993,17 @@ void do_setdmapintro(const bool v)
 void do_getitemname()
 {
     long arrayptr = get_register(sarg1) / 10000;
-    
-    if(ArrayH::setArray(arrayptr, item_string[ri->idata]) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
+    //TODO module support for scripts
+    ItemDefinitionRef ref("CORE", ri->idata);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Cannot get name of invalid item ref %ld\n", ri->idata);
+    }
+    else
+    {
+        if (ArrayH::setArray(arrayptr, curQuest->getItemDefinition(ref).name) == SH::_Overflow)
+            Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
+    }
 }
 
 void do_getnpcname()
@@ -8396,9 +8013,12 @@ void do_getnpcname()
     if(GuyH::loadNPC(ri->guyref, "npc->GetName") != SH::_NoError)
         return;
         
-    word ID = (GuyH::getNPC()->id & 0xFFF);
-    
-    if(ArrayH::setArray(arrayptr, guy_string[ID]) == SH::_Overflow)
+    EnemyDefinitionRef ref = (GuyH::getNPC()->enemyDefinition);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Invalid enemy ID: %ld\n", ri->guyref);
+    }
+    else if(ArrayH::setArray(arrayptr, curQuest->getEnemyDefinition(ref).name) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
 }
 
@@ -8593,9 +8213,12 @@ int run_script(const byte type, const word script, const byte i)
         curscript = &scripts.itemscripts[script];
         stack = &item_stack;
         memset(stack, 0, 256 * sizeof(long)); //zero here too
+
+        //TODO module support for scripts
+        ItemDefinitionRef ref("CORE", i);
         
-        memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
-        memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
+        memcpy(ri->d, curQuest->getItemDefinition(ref).initiald, 8 * sizeof(long));
+        memcpy(ri->a, curQuest->getItemDefinition(ref).initiala, 2 * sizeof(long));
         
         ri->idata = i; //'this' pointer
         
@@ -9542,9 +9165,14 @@ int run_script(const byte type, const word script, const byte i)
         case DRAWSTRINGR:
         case SPLINER:
         case BITMAPR:
-	case BITMAPEXR:
+		case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
+		//case BITMAPEXR:
+		//case POLYGONR:
+		//case PIXELARRAYR:
+		//case TILEARRAYR:
+		//case COMBOARRAYR:
             do_drawing_command(scommand);
             break;
             
@@ -9844,7 +9472,9 @@ void FFScript::set_screendoor(mapscr *m, int d, int value)
 void FFScript::set_screenenemy(mapscr *m, int index, int value)
 {
     int enem_indx = vbound(index,0,9);
-    m->enemy[enem_indx] = vbound(value,0,511);
+    //TODO script support for modules
+    EnemyDefinitionRef ref("CORE", value);
+    m->enemy[enem_indx] = ref;
 }
 void FFScript::set_screenlayeropacity(mapscr *m, int d, int value)
 {
@@ -9918,8 +9548,10 @@ void FFScript::set_screenViewY(mapscr *m, int value)
 }
 void FFScript::set_screenGuy(mapscr *m, int value)
 {
+    // TODO script module support
     int bloke = vbound(value,0,9); 
-    m->guy = bloke ;
+    EnemyDefinitionRef guyref("CORE", bloke);
+    m->guy = guyref;
 }
 void FFScript::set_screenString(mapscr *m, int value)
 {
@@ -9943,8 +9575,16 @@ void FFScript::set_screenEntryY(mapscr *m, int value)
 }
 void FFScript::set_screenitem(mapscr *m, int value)
 {
-    int itm = vbound(value,0,MAXITEMS);
-    m->item = itm;
+    //TODO module support for scripts
+    ItemDefinitionRef ref("CORE", value);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Cannot set screen item to invalid item id %ld\n", ref.slot);
+    }
+    else
+    {
+        m->screenItem = ref;
+    }
 }
 void FFScript::set_screenundercombo(mapscr *m, int value)
 {
@@ -9961,6 +9601,12 @@ void FFScript::set_screenatchall(mapscr *m, int value)
     //What are ALL of the catchalls and their max (used) values?
     int ctch = vbound(value, 0, 65535); //It is a word type. 
     m->catchall = ctch;
+
+    //TODO module support for scripts
+    // also, the fact that this function does so many different things (depending on room type) is not good.
+    // should be split into one function per room type
+    ItemDefinitionRef ref("CORE", ctch);
+    m->catchallItem = ref;
 }
 
 
@@ -10241,4 +9887,627 @@ void FFScript::do_changeffcscript(const bool v){
 	    
 	ffcScriptData[ri->ffcref].Clear();
 	tmpscr->initialized[ri->ffcref] = true;
+}
+
+long get_itemdata_register(long arg)
+{
+    long ret = -1;
+    ItemDefinitionRef ref("CORE", ri->idata);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Invalid itemdata index = %ld\n", ri->idata);
+        return -10000;
+    }
+
+    const itemdata &idata = curQuest->getItemDefinition(ref);
+
+    switch (arg)
+    {
+    case IDATAUSEWPN:
+        ret = (idata.useweapon) * 10000;
+        break;
+
+    case IDATAUSEDEF:
+        ret = (idata.usedefence) * 10000;
+        break;
+
+    case IDATAWRANGE:
+        ret = (idata.weaprange) * 10000;
+        break;
+
+    case IDATAUSEMVT:
+    {
+        long a = vbound((ri->d[0] / 10000), 0, (ITEM_MOVEMENT_PATTERNS - 1));
+        ret = (idata.weap_pattern[a]) * 10000;
+        break;
+    }
+
+    case IDATADURATION:
+        ret = (idata.weapduration) * 10000;
+        break;
+
+    case IDATADUPLICATES:
+        ret = (idata.duplicates) * 10000;
+        break;
+
+    case IDATADRAWLAYER:
+        ret = (idata.drawlayer) * 10000;
+        break;
+
+    case IDATACOLLECTFLAGS:
+        ret = (idata.collectflags) * 10000;
+        break;
+
+    case IDATAWEAPONSCRIPT:
+        ret = (idata.weaponscript) * 10000;
+        break;
+
+    case IDATAMISCD:
+    {
+        int a = vbound((ri->d[0] / 10000), 0, 31);
+        ret = (idata.wpn_misc_d[a]) * 10000;
+        break;
+    }
+
+    case IDATAWPNINITD:
+    {
+        int a = vbound((ri->d[0] / 10000), 0, 7);
+        ret = (idata.weap_initiald[a]) * 10000;
+        break;
+    }
+
+    case IDATAWEAPHXOFS:
+    {
+        ret = (idata.weap_hxofs) * 10000;
+        break;
+    }
+
+    case IDATAWEAPHYOFS:
+    {
+        ret = (idata.weap_yxofs) * 10000;
+        break;
+    }
+
+    case IDATAWEAPHXSZ:
+    {
+        ret = (idata.weap_hxsz) * 10000;
+        break;
+    }
+
+    case IDATAWEAPHYSZ:
+    {
+        ret = (idata.weap_hysz) * 10000;
+        break;
+    }
+
+    case IDATAWEAPHZSZ:
+    {
+        ret = (idata.weap_hzsz) * 10000;
+        break;
+    }
+
+    case IDATAWEAPXOFS:
+    {
+        ret = (idata.weap_xofs) * 10000;
+        break;
+    }
+
+    case IDATAWEAPYOFS:
+    {
+        ret = (idata.weap_yofs) * 10000;
+        break;
+    }
+
+    case IDATAFAMILY:
+        ret = (idata.family) * 10000;
+        break;
+
+    case IDATALEVEL:
+        ret = (idata.fam_type) * 10000;
+        break;
+
+    case IDATAKEEP:
+        ret = (idata.flags & itemdata::IF_GAMEDATA) ? 10000 : 0;
+        break;
+
+    case IDATAAMOUNT:
+        ret = (idata.amount) * 10000;
+        break;
+
+    case IDATASETMAX:
+        ret = (idata.setmax) * 10000;
+        break;
+
+    case IDATAMAX:
+        ret = (idata.max) * 10000;
+        break;
+
+    case IDATACOUNTER:
+        ret = (idata.count) * 10000;
+        break;
+
+    case IDATAUSESOUND:
+        ret = (idata.usesound) * 10000;
+        break;
+
+    case IDATAPOWER:
+        ret = (idata.power) * 10000;
+        break;
+
+        //Get the script assigned to an item (active)
+    case IDATASCRIPT:
+        ret = (idata.script) * 10000;
+        break;
+
+        //Get the ->Attributes[] of an item
+    case IDATAATTRIB:
+    {
+        int index = vbound(ri->d[0] / 10000, 0, 9);
+        switch (index) {
+        case 0:
+            ret = (idata.misc1) * 10000;
+            break;
+        case 1:
+            ret = (idata.misc2) * 10000; break;
+        case 2:
+            ret = (idata.misc3) * 10000; break;
+        case 3:
+            ret = (idata.misc4) * 10000; break;
+        case 4:
+            ret = (idata.misc5) * 10000; break;
+        case 5:
+            ret = (idata.misc6) * 10000; break;
+        case 6:
+            ret = (idata.misc7) * 10000; break;
+        case 7:
+            ret = (idata.misc8) * 10000; break;
+        case 8:
+            ret = (idata.misc9) * 10000; break;
+        case 9:
+            ret = (idata.misc10) * 10000; break;
+        default:
+            ret = -10000; break;
+        }
+        break;
+    }
+
+    //Get the ->Sprite[] of an item.
+    case IDATASPRITE:
+    {
+        //TODO: script support for modules
+        int index = vbound(ri->d[0] / 10000, 0, 9);
+        ret = (idata.wpns[index]).slot * 10000;
+
+        break;
+    }
+    //Link TIle modifier
+    case IDATALTM:
+        ret = (idata.ltm) * 10000;
+        break;
+
+        //Pickup script
+    case IDATAPSCRIPT:
+        ret = (idata.collect_script) * 10000;
+        break;
+
+        //Magic cost
+    case IDATAMAGCOST:
+        ret = (idata.magic) * 10000;
+        break;
+
+        //Min Hearts to Pick Up
+    case IDATAMINHEARTS:
+        ret = (idata.pickup_hearts) * 10000;
+        break;
+
+        //Tile used by the item
+    case IDATATILE:
+        ret = (idata.tile) * 10000;
+        break;
+
+        //itemdata->Flash
+    case IDATAMISC:
+        ret = (idata.misc) * 10000;
+        break;
+
+        //->CSet
+    case IDATACSET:
+        ret = (idata.csets) * 10000;
+        break;
+
+        //->A.Frames
+    case IDATAFRAMES:
+        ret = (idata.frames) * 10000;
+        break;
+
+        //->A.Speed
+    case IDATAASPEED:
+        ret = (idata.speed) * 10000;
+        break;
+
+        //->Delay
+    case IDATADELAY:
+        ret = (idata.delay) * 10000;
+        break;
+
+        // teo of this item upgrades
+    case IDATACOMBINE:
+        ret = (idata.flags & itemdata::IF_COMBINE) ? 10000 : 0;
+        break;
+
+        //Use item, and get the lower level one
+    case IDATADOWNGRADE:
+        ret = (idata.flags & itemdata::IF_DOWNGRADE) ? 10000 : 0;
+        break;
+
+        //->Flags[5]
+    case IDATAFLAGS:
+    {
+        int index = vbound(ri->d[0] / 10000, 0, 4);
+        switch (index) {
+        case 0:
+            ret = (idata.flags & itemdata::IF_FLAG1) ? 10000 : 0;
+            break;
+        case 1:
+            ret = (idata.flags & itemdata::IF_FLAG2) ? 10000 : 0; break;
+        case 2:
+            ret = (idata.flags & itemdata::IF_FLAG3) ? 10000 : 0; break;
+        case 3:
+            ret = (idata.flags & itemdata::IF_FLAG4) ? 10000 : 0; break;
+        case 4:
+            ret = (idata.flags & itemdata::IF_FLAG5) ? 10000 : 0; break;
+
+        default:
+            ret = 0; break;
+        }
+
+        break;
+    }
+
+    //->Keep Old
+    case IDATAKEEPOLD:
+        ret = (idata.flags & itemdata::IF_KEEPOLD) ? 10000 : 0;
+        break;
+
+        //Use rupees instead of magic
+    case IDATARUPEECOST:
+        ret = (idata.flags & itemdata::IF_RUPEE_MAGIC) ? 10000 : 0;
+        break;
+
+        //Can be eaten
+    case IDATAEDIBLE:
+        ret = (idata.flags & itemdata::IF_EDIBLE) ? 10000 : 0;
+        break;
+
+        //Not int he editor, could become flags[6], but I'm reserving this one for other item uses. 
+    case IDATAFLAGUNUSED:
+        ret = (idata.flags & itemdata::IF_UNUSED) ? 10000 : 0;
+        break;
+
+        //Gain lower level items when collected
+    case IDATAGAINLOWER:
+        ret = (idata.flags & itemdata::IF_GAINOLD) ? 10000 : 0;
+        break;
+
+        //Unchanged from master
+    case IDATAINITDD:
+    {
+        int a = ri->d[0] / 10000;
+
+        if (BC::checkBounds(a, 0, 7, "itemdata->InitD") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = idata.initiald[a];
+
+        break;
+    }    
+    }
+    return ret;
+}
+
+void set_itemdata_register(long arg, long value)
+{
+    ItemDefinitionRef ref("CORE", ri->idata);
+    if (!curQuest->isValid(ref))
+    {
+        Z_scripterrlog("Invalid itemdata index = %ld\n", ri->idata);
+        return;
+    }
+
+    itemdata &idata = curQuest->getItemDefinition(ref);
+
+    switch (arg)
+    {
+    case IDATAFAMILY:
+        idata.family = vbound(value / 10000, 0, 254);
+        flushItemCache();
+        break;
+
+    case IDATAUSEWPN:
+        idata.useweapon = vbound(value / 10000, 0, 255);
+        break;
+    case IDATAUSEDEF:
+        idata.usedefence = vbound(value / 10000, 0, 255);
+        break;
+    case IDATAWRANGE:
+        idata.weaprange = vbound(value / 10000, 0, 255);
+        break;
+    case IDATADURATION:
+        idata.weapduration = vbound(value / 10000, 0, 255);
+        break;
+
+    case IDATADUPLICATES:
+        idata.duplicates = vbound(value / 10000, 0, 255);
+        break;
+    case IDATADRAWLAYER:
+        idata.drawlayer = vbound(value / 10000, 0, 7);
+        break;
+    case IDATACOLLECTFLAGS:
+        //int a = ri->d[0] / 10000;
+        idata.collectflags = vbound(value / 10000, 0, 214747);
+        break;
+    case IDATAWEAPONSCRIPT:
+        idata.weaponscript = vbound(value / 10000, 0, 255);
+        break;
+    case IDATAMISCD:
+    {
+
+        int a = vbound((ri->d[0] / 10000), 0, 31);
+        idata.wpn_misc_d[a] = (value / 10000);
+    }
+    break;
+    case IDATAWPNINITD:
+    {
+
+        int a = vbound((ri->d[0] / 10000), 0, 7);
+        idata.weap_initiald[a] = (value / 10000);
+    }
+    break;
+    case IDATAWEAPHXOFS:
+        idata.weap_hxofs = (value / 10000);
+        break;
+    case IDATAWEAPHYOFS:
+        idata.weap_yxofs = (value / 10000);
+        break;
+    case IDATAWEAPHXSZ:
+        idata.weap_hxsz = (value / 10000);
+        break;
+    case IDATAWEAPHYSZ:
+        idata.weap_hysz = (value / 10000);
+        break;
+    case IDATAWEAPHZSZ:
+        idata.weap_hzsz = (value / 10000);
+        break;
+    case IDATAWEAPXOFS:
+        idata.weap_xofs = (value / 10000);
+        break;
+    case IDATAWEAPYOFS:
+        idata.weap_yofs = (value / 10000);
+        break;
+
+
+    case IDATAUSEMVT:
+    {
+        long a = vbound((ri->d[0] / 10000), 0, (ITEM_MOVEMENT_PATTERNS - 1));
+        idata.weap_pattern[a] = vbound(value / 10000, 0, 255);
+    }
+    break;
+
+
+    //item level
+    case IDATALEVEL:
+        idata.fam_type = vbound(value / 10000, 0, 512);
+        flushItemCache();
+        break;
+        //bool keep
+    case IDATAKEEP:
+        idata.flags |= (value / 10000) ? itemdata::IF_GAMEDATA : 0;
+        break;
+        //Need the legal range -Z
+    case IDATAAMOUNT:
+        idata.amount = value / 10000;
+        break;
+
+    case IDATASETMAX:
+        idata.setmax = value / 10000;
+        break;
+
+    case IDATAMAX:
+        idata.max = value / 10000;
+        break;
+
+    case IDATAPOWER:
+        idata.power = value / 10000;
+        break;
+
+    case IDATACOUNTER:
+        idata.count = vbound(value / 10000, 0, 31);
+        break;
+
+    case IDATAUSESOUND:
+        idata.usesound = vbound(value / 10000, 0, 255);
+        break;
+
+        //2.54
+        //My additions begin here. -Z
+        //Stack item to gain next level
+    case IDATACOMBINE:
+        idata.flags |= (value / 10000) ? itemdata::IF_COMBINE : 0;
+        break;
+        //using a level of an item downgrades to a lower one
+    case IDATADOWNGRADE:
+        idata.flags |= (value / 10000) ? itemdata::IF_DOWNGRADE : 0;
+        break;
+
+        //Flags[5]
+    case IDATAFLAGS: {
+        int index = vbound(ri->d[0] / 10000, 0, 4);
+        switch (index) {
+        case 0:
+            idata.flags |= (value / 10000) ? itemdata::IF_FLAG1 : 0;
+            break;
+        case 1:
+            idata.flags |= (value / 10000) ? itemdata::IF_FLAG2 : 0;
+            break;
+        case 2:
+            idata.flags |= (value / 10000) ? itemdata::IF_FLAG3 : 0;
+            break;
+        case 3:
+            idata.flags |= (value / 10000) ? itemdata::IF_FLAG4 : 0;
+            break;
+        case 4:
+            idata.flags |= (value / 10000) ? itemdata::IF_FLAG5 : 0;
+            break;
+
+
+        default:
+            break;
+        }
+
+        break;
+    }
+                     //Keep Old in editor
+    case IDATAKEEPOLD:
+        idata.flags |= (value / 10000) ? itemdata::IF_KEEPOLD : 0;
+        break;
+        //Ruppes for magic
+    case IDATARUPEECOST:
+        idata.flags |= (value / 10000) ? itemdata::IF_RUPEE_MAGIC : 0;
+        break;
+        //can be eaten
+    case IDATAEDIBLE:
+        idata.flags |= (value / 10000) ? itemdata::IF_EDIBLE : 0;
+        break;
+        //Reserving this for item editor stuff. 
+    case IDATAFLAGUNUSED:
+        idata.flags |= (value / 10000) ? itemdata::IF_UNUSED : 0;
+        break;
+        //gain lower level items
+    case IDATAGAINLOWER:
+        idata.flags |= (value / 10000) ? itemdata::IF_GAINOLD : 0;
+        break;
+        //Set the action script
+    case IDATASCRIPT:
+        idata.script = vbound(value / 10000, 1, 255);
+        break;
+
+        /*
+        case ITEMMISCD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+        int a = vbound(ri->d[0]/10000,0,31);
+        (((item*)(s))->miscellaneous[a])=value;
+        }
+
+        break;*/
+        //Attributes[10]
+    case IDATAATTRIB: {
+        int index = vbound(ri->d[0] / 10000, 0, 9);
+        switch (index) {
+        case 0:
+            idata.misc1 = value / 10000;
+            break;
+        case 1:
+            idata.misc2 = value / 10000; 
+            break;
+        case 2:
+            idata.misc3 = value / 10000; 
+            break;
+        case 3:
+            idata.misc4 = value / 10000; 
+            break;
+        case 4:
+            idata.misc5 = value / 10000; 
+            break;
+        case 5:
+            idata.misc6 = value / 10000; 
+            break;
+        case 6:
+            idata.misc7 = value / 10000;
+            break;
+        case 7:
+            idata.misc8 = value / 10000;
+            break;
+        case 8:
+            idata.misc9 = value / 10000;
+            break;
+        case 9:
+            idata.misc10 = value / 10000; 
+            break;
+
+        default:
+            break;
+        }
+
+        break;
+    }
+                      //Sprites[10]
+    case IDATASPRITE: {
+        int index = vbound(ri->d[0] / 10000, 0, 9);
+        //TODO script module support
+        SpriteDefinitionRef newref("CORE", value / 10000);
+        if (!curQuest->isValid(newref))
+        {
+            Z_scripterrlog("Cannot set sprite to invalid slot %ld", value / 10000);
+        }
+        else
+        {
+            idata.wpns[index] = newref;
+        }
+        break;
+    }
+                      //Link tile modifier. 
+    case IDATALTM:
+        idata.ltm = value / 10000;
+        break;
+        //Pickup script
+    case IDATAPSCRIPT:
+        idata.collect_script = (value / 10000, 1, 255);
+        break;
+        //magic cost
+    case IDATAMAGCOST:
+        idata.magic = value / 10000;
+        break;
+        //min hearts to pick up
+    case IDATAMINHEARTS:
+        idata.pickup_hearts = vbound(value / 10000, 0, 214748);
+        break;
+        //item tile
+    case IDATATILE:
+        idata.tile = vbound(value / 10000, 0, 65519);
+        break;
+        //flash
+    case IDATAMISC:
+        idata.misc = value / 10000;
+        break;
+        //cset
+    case IDATACSET:
+        idata.csets = vbound(value / 10000, 0, 13);
+        break;
+        //A.Frames
+    case IDATAFRAMES:
+        idata.frames = vbound(value / 10000, 0, 214748);
+        break;
+        //A.speed
+    case IDATAASPEED:
+        idata.speed = vbound(value / 10000, 0, 214748);
+        break;
+        //Anim delay
+    case IDATADELAY:
+        idata.delay = vbound(value / 10000, 0, 214748);
+        break;
+
+        //not one of mine. 
+    case IDATAINITDD:
+    {
+        int a = ri->d[0] / 10000;
+
+        if (BC::checkBounds(a, 0, 7, "itemdata->InitD") == SH::_NoError)
+            idata.initiald[a] = value;
+    }
+    break;
+
+    default:
+        assert(false);
+    }
 }

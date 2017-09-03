@@ -25,9 +25,9 @@ public:
 	string format;
 
 	// Print out the error message. Optional format arguments.
-	void print(AST* offender, ...) const;
+	void print(AST const* offender, ...) const;
 	// Print by directly passing varargs list.
-	void vprint(AST* offender, std::va_list args) const;
+	void vprint(AST const* offender, std::va_list args) const;
 
 	// Comparison on id.
 	bool operator==(CompileError const& rhs) const {return id == rhs.id;}
@@ -88,6 +88,16 @@ public:
 	static CompileError const ArrayLiteralResize;
 	static CompileError const MissingCompileError;
 	static CompileError const UnimplementedFeature;
+};
+
+class CompileErrorHandler
+{
+public:
+	virtual void handleError(
+			CompileError const& error, AST const* node, ...)
+	{}
+
+	static CompileErrorHandler NONE;
 };
 
 #endif

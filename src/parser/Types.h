@@ -5,7 +5,10 @@
 #include <functional>
 #include <iostream>
 
-class Scope;
+namespace ZScript
+{
+	class Scope;
+}
 
 using std::string;
 
@@ -59,7 +62,7 @@ class ZVarType
 public:
 	virtual ZVarType* clone() const = 0;
 	virtual string getName() const = 0;
-	virtual ZVarType* resolve(Scope& scope) {return this;}
+	virtual ZVarType* resolve(ZScript::Scope& scope) {return this;}
 	virtual bool isResolved() const {return true;}
 	virtual bool canBeGlobal() const {return false;}
 	virtual bool canCastTo(ZVarType const& target) const = 0;
@@ -102,7 +105,7 @@ public:
 	static ZVarTypeClass const LWPN;
 	static ZVarTypeClass const EWPN;
 	static ZVarTypeClass const GAME;
-	static ZVarTypeClass const LINK;
+	static ZVarTypeClass const _LINK; //Rename this. "LINK" is still constant somewhere.
 	static ZVarTypeClass const SCREEN;
 	static ZVarTypeClass const AUDIO;
 	static ZVarTypeClass const DEBUG;
@@ -136,7 +139,7 @@ public:
 	ZVarTypeUnresolved(string const& name) : name(name) {}
 	ZVarTypeUnresolved* clone() const {return new ZVarTypeUnresolved(*this);}
 	string getName() const {return name;}
-	ZVarType* resolve(Scope& scope);
+	ZVarType* resolve(ZScript::Scope& scope);
 	bool isResolved() const {return false;}
 	bool canCastTo(ZVarType const& target) const {return false;}
 	int typeClassId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
@@ -153,7 +156,7 @@ public:
 	ZVarTypeConstFloat() {}
 	ZVarType* clone() const {return new ZVarTypeConstFloat(*this);}
 	string getName() const {return "const float";}
-	ZVarType* resolve(Scope& scope) {return this;}
+	ZVarType* resolve(ZScript::Scope& scope) {return this;}
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
 	int typeClassId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
@@ -170,7 +173,7 @@ public:
 	string getName() const;
 	string getClassName() const {return className;}
 	int getClassId() const {return classId;}
-	ZVarType* resolve(Scope& scope);
+	ZVarType* resolve(ZScript::Scope& scope);
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
 	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;}
@@ -190,7 +193,7 @@ public:
 	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
 
 	string getName() const {return elementType.getName() + "[]";}
-	ZVarType* resolve(Scope& scope) {return this;}
+	ZVarType* resolve(ZScript::Scope& scope) {return this;}
 
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;

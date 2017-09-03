@@ -24,6 +24,8 @@ class decoration : public sprite
 public:
     decoration(fix X,fix Y,int Id,int Clk);
     virtual ~decoration();
+
+    int id;
 };
 
 /*******************************/
@@ -64,7 +66,8 @@ class dHammerSmack : public decoration
 {
 public:
     static int ft[2][4][3]; //[leaf][frame][x/y/icon(0=spark, 1=star)]
-    int ox, oy, wpnid;
+    int ox, oy;
+    SpriteDefinitionRef wpnid;
     dHammerSmack(fix X,fix Y,int Id,int Clk);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
@@ -88,7 +91,7 @@ public:
 
 class dHover : public decoration
 {
-    int wpnid;
+    SpriteDefinitionRef wpnid;
 public:
     dHover(fix X,fix Y,int Id,int Clk);
     virtual bool animate(int index);

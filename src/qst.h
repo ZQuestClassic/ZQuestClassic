@@ -15,6 +15,10 @@
 #include "subscr.h"
 #include "scripting/ZASMdefs.h"
 
+class ItemDefinitionTable;
+class SpriteDefinitionTable;
+class EnemyDefinitionTable;
+
 // define these in main code
 //extern bool init_tiles(bool validate);
 //extern bool init_combos(bool validate);
@@ -110,7 +114,6 @@ bool init_combos(bool validate, zquestheader *Header);
 void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd);
 bool check_questpwd(zquestheader *Header, char *pwd);
 
-void update_guy_1(guydata *tempguy);
 void initMsgStr(MsgStr *str);
 void init_msgstrings(int start, int end);
 
@@ -123,9 +126,9 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word 
 int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
-int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool keepdata, bool zgpmode=false);
-int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata);
-int readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
+int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::map<std::string, ItemDefinitionTable> &idts);
+int readweapons(PACKFILE *f, zquestheader *Header, ItemDefinitionTable &coreItemTable, std::map<std::string, SpriteDefinitionTable> &wdts);
+int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefinitionTable> &tables);
 int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
 int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata);
@@ -179,13 +182,10 @@ INLINE int skipdmaps(PACKFILE *f, zquestheader *Header, word version, word build
 }
 
 extern void delete_combo_aliases();
-void reset_subscreen(subscreen_group *tempss);
+void reset_subscreen(subscreen_group &tempss);
 void reset_subscreens();
 int setupsubscreens();
-void reset_itembuf(itemdata *item, int id);
-void reset_itemname(int id);
-void reset_weaponname(int i);
-void init_guys(int guyversion);
+void initCoreEnemies(int guyversion, const std::vector<std::string> &names, EnemyDefinitionTable &table);
 void init_item_drop_sets();
 void init_favorites();
 

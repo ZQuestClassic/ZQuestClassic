@@ -21,7 +21,9 @@
 #include "zdefs.h"
 #include "sprite.h"
 #include "tiles.h"
+#include "quest/Quest.h"
 
+extern Quest *curQuest;
 extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
@@ -39,7 +41,6 @@ sprite::sprite(ObjectPool &pool) : GameObject(pool)
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
     txsz=1;
     tysz=1;
-    id=-1;
     hxsz=hysz=16;
     hzsz=1;
 	
@@ -113,7 +114,6 @@ sprite::sprite(sprite const & other) : GameObject(other),
     hzsz(other.hzsz),
     txsz(other.txsz),
     tysz(other.tysz),
-    id(other.id),
     dir(other.dir),
     angular(other.angular),
     canfreeze(other.canfreeze),
@@ -158,7 +158,6 @@ sprite::sprite(ObjectPool &pool, fix X,fix Y,int T,int CS,int F,int Clk,int Yofs
 	//if ( hysz == 0 ) hysz = 16;
     txsz=1;
     tysz=1;
-    id=-1;
     dir=down;
     angular=canfreeze=false;
     extend=0;
@@ -244,7 +243,7 @@ bool sprite::hit(sprite *s)
 {
     if(!(scriptcoldet&1)) return false;
     
-    if(id<0 || s->id<0 || clk<0) return false;
+    if(clk<0) return false;
     
     if(halt)
     {
@@ -257,7 +256,7 @@ bool sprite::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 {
     if(!(scriptcoldet&1)) return false;
     
-    if(id<0 || clk<0) return false;
+    if(clk<0) return false;
     
     return tx+txsz2>x+hxofs &&
            ty+tysz2>y+hyofs &&
@@ -359,9 +358,6 @@ void sprite::draw(BITMAP* dest)
     int sx = real_x(x+xofs);
     int sy = real_y(y+yofs)-real_z(z+zofs);
     
-    if(id<0)
-        return;
-        
     int e = extend>=3 ? 3 : extend;
     
     if(clk>=0)
@@ -531,8 +527,9 @@ void sprite::draw(BITMAP* dest)
     {
         if(e!=3)
         {
-            int t  = wpnsbuf[iwSpawn].tile;
-            int cs2 = wpnsbuf[iwSpawn].csets&15;
+            SpriteDefinitionRef spawns = curQuest->specialSprites().enemySpawnCloud;
+            int t  = curQuest->getSpriteDefinition(spawns).tile;
+            int cs2 = curQuest->getSpriteDefinition(spawns).csets&15;
             
             if(BSZ)
             {
@@ -551,7 +548,9 @@ void sprite::draw(BITMAP* dest)
         }
         else
         {
-            sprite w(*pool, (fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            //TODO: wtf??
+            SpriteDefinitionRef ref("CORE", extend);
+            sprite w(*pool, (fix)sx,(fix)sy,curQuest->getSpriteDefinition(ref).tile,curQuest->getSpriteDefinition(ref).csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -600,8 +599,9 @@ void sprite::draw(BITMAP* dest)
         }
     }
     
-    if(show_hitboxes && !is_zquest())
-        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+    // changed the color modulation to be based on UID -DD
+    if (show_hitboxes && !is_zquest())
+        rect(dest, x + hxofs, y + playing_field_offset + hyofs - (z + zofs), x + hxofs + hxsz - 1, (y + playing_field_offset + hyofs + hysz - (z + zofs)) - 1, vc((getUID()) % 255));
 }
 
 void sprite::draw8(BITMAP* dest)
@@ -609,9 +609,6 @@ void sprite::draw8(BITMAP* dest)
     int sx = real_x(x+xofs);
     int sy = real_y(y+yofs)-real_z(z+zofs);
     
-    if(id<0)
-        return;
-        
     if(clk>=0)
     {
         switch(drawstyle)
@@ -632,17 +629,15 @@ void sprite::drawcloaked(BITMAP* dest)
     int sx = real_x(x+xofs);
     int sy = real_y(y+yofs)-real_z(z+zofs);
     
-    if(id<0)
-        return;
-        
     if(clk>=0)
     {
         overtilecloaked16(dest,tile,sx,sy,flip);
     }
     else
     {
-        int t  = wpnsbuf[iwSpawn].tile;
-        int cs2 = wpnsbuf[iwSpawn].csets&15;
+        SpriteDefinitionRef spawns = curQuest->specialSprites().enemySpawnCloud;
+        int t  = curQuest->getSpriteDefinition(spawns).tile;
+        int cs2 = curQuest->getSpriteDefinition(spawns).csets&15;
         
         if(BSZ)
         {
@@ -660,19 +655,22 @@ void sprite::drawcloaked(BITMAP* dest)
         overtile16(dest,t,x,sy,cs2,0);
     }
     
+    // changed color modulation to base on UID -DD
     if(get_debug() && key[KEY_O])
-        rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(id));
+        rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(getUID()));
 }
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)
 {
-    if(extend == 4 || shadowtile==0 || id<0)
+    if(extend == 4 || shadowtile==0)
     {
         return;
     }
     
-    int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
-    int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
+    SpriteDefinitionRef shadows = curQuest->specialSprites().smallShadow;
+
+    int shadowcs = curQuest->getSpriteDefinition(shadows).csets & 0xFFFF;
+    int shadowflip = curQuest->getSpriteDefinition(shadows).misc & 0xFF;
     
     int sx = real_x(x+xofs)+(txsz-1)*8;
     int sy = real_y(y+yofs+(tysz-1)*16);
@@ -780,16 +778,6 @@ fix sprite_list::getY(int j)
     }
     
     return sprites[j]->y;
-}
-
-int sprite_list::getID(int j)
-{
-    if((j>=count)||(j<0))
-    {
-        return -1;
-    }
-    
-    return sprites[j]->id;
 }
 
 int sprite_list::getMisc(int j)
@@ -949,75 +937,12 @@ int sprite_list::hit(int x,int y,int z, int xsize, int ysize, int zsize)
     return -1;
 }
 
-// returns the number of sprites with matching id
-int sprite_list::idCount(int id, int mask)
-{
-    int c=0;
-    
-    for(int i=0; i<count; i++)
-    {
-        if(((sprites[i]->id)&mask) == (id&mask))
-        {
-            ++c;
-        }
-    }
-    
-    return c;
-}
-
-// returns index of first sprite with matching id, -1 if none found
-int sprite_list::idFirst(int id, int mask)
-{
-    for(int i=0; i<count; i++)
-    {
-        if(((sprites[i]->id)&mask) == (id&mask))
-        {
-            return i;
-        }
-    }
-    
-    return -1;
-}
-
-// returns index of last sprite with matching id, -1 if none found
-int sprite_list::idLast(int id, int mask)
-{
-    for(int i=count-1; i>=0; i--)
-    {
-        if(((sprites[i]->id)&mask) == (id&mask))
-        {
-            return i;
-        }
-    }
-    
-    return -1;
-}
-
-// returns the number of sprites with matching id
-int sprite_list::idCount(int id)
-{
-    return idCount(id,0xFFFF);
-}
-
-// returns index of first sprite with matching id, -1 if none found
-int sprite_list::idFirst(int id)
-{
-    return idFirst(id,0xFFFF);
-}
-
-// returns index of last sprite with matching id, -1 if none found
-int sprite_list::idLast(int id)
-{
-    return idLast(id,0xFFFF);
-}
-
 /**********************************/
 /********** Moving Block **********/
 /**********************************/
 
 movingblock::movingblock() : sprite(*pool)
 {
-    id=1;
 }
 
 void movingblock::draw(BITMAP *dest)

@@ -1,6 +1,7 @@
 
 #include "../precompiled.h" //always first
-
+#include <assert.h>
+#include <iostream>
 #include "../zsyssimple.h"
 #include "CompileError.h"
 #include "DataStructs.h"
@@ -8,44 +9,10 @@
 #include "Scope.h"
 #include "Types.h"
 #include "ZScript.h"
-#include <assert.h>
-#include <iostream>
 
 using std::cout;
 using std::endl;
 using namespace ZScript;
-
-////////////////////////////////////////////////////////////////
-// FunctionSignature
-
-FunctionSignature::FunctionSignature(string const& name_, vector<ZVarType const*> const& paramTypes)
-	: paramTypes(paramTypes)
-{
-	name.push_back(name_);
-}
-
-FunctionSignature::FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes)
-	: name(name), paramTypes(paramTypes)
-{}
-
-int FunctionSignature::compare(FunctionSignature const& other) const
-{
-	int c = name.size() - other.name.size();
-	if (c) return c;
-	for (int i = 0; i < (int)name.size(); ++i)
-	{
-		c = name[i].compare(other.name[i]);
-		if (c) return c;
-	}
-	c = paramTypes.size() - other.paramTypes.size();
-	if (c) return c;
-	for (int i = 0; i < (int)paramTypes.size(); ++i)
-	{
-		c = paramTypes[i]->compare(*other.paramTypes[i]);
-		if (c) return c;
-	}
-	return 0;
-}
 
 ////////////////////////////////////////////////////////////////
 // FunctionTypeIds
@@ -112,7 +79,7 @@ void SymbolTable::putNodeId(AST* node, int id)
 
 vector<int> SymbolTable::getPossibleNodeFuncIds(AST* node) const
 {
-	map<AST*, vector<int>>::const_iterator it = possibleNodeFuncIds.find(node);
+	map<AST*, vector<int> >::const_iterator it = possibleNodeFuncIds.find(node);
 	if (it == possibleNodeFuncIds.end()) return vector<int>();
 	return it->second;
 }
@@ -174,12 +141,6 @@ ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 	types.push_back(storedType);
 	typeIds[storedType] = id;
 	return id;
-}
-
-ZVarType const* SymbolTable::getCanonicalType(ZVarType const& type)
-{
-	int id = getOrAssignTypeId(type);
-	return (ZVarType const*)types[id];
 }
 
 // Classes
@@ -358,8 +319,26 @@ void SymbolTable::printDiagnostics()
 // FunctionData
 
 FunctionData::FunctionData(Program& program)
-	: program(program), globalLiterals(program.globalScope.getLocalLiterals())
-{}
+	: program(program),
+	  globalData(program.globalScope.getLocalData())
+{
+	for (vector<Datum*>::const_iterator it = globalData.begin();
+	     it != globalData.end(); ++it)
+	{
+		Datum& datum = **it;
+		if (!datum.getCompileTimeValue())
+			globalVariables.push_back(&datum);
+	}
+
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+	     it != program.scripts.end(); ++it)
+	{
+		ScriptScope& scope = *(*it)->scope;
+		vector<Datum*> data = scope.getLocalData();
+		globalVariables.insert(globalVariables.end(),
+		                       data.begin(), data.end());
+	}
+}
 
 ////////////////////////////////////////////////////////////////
 // IntermediateData
@@ -367,53 +346,4 @@ FunctionData::FunctionData(Program& program)
 IntermediateData::IntermediateData(FunctionData const& functionData)
 	: program(functionData.program)
 {}
-
-////////////////////////////////////////////////////////////////
-// LinkTable
-
-int LinkTable::functionToLabel(int fid)
-{
-    map<int,int>::iterator it = funcLabels.find(fid);
-
-    if (it != funcLabels.end())
-        return (*it).second;
-
-    int newid = ScriptParser::getUniqueLabelID();
-    funcLabels[fid] = newid;
-    return newid;
-}
-
-int LinkTable::getGlobalID(int vid)
-{
-    map<int, int>::iterator it = globalIDs.find(vid);
-
-    if (it == globalIDs.end())
-        return -1;
-
-    return it->second;
-}
-
-int LinkTable::addGlobalVar(int vid)
-{
-    int newid = ScriptParser::getUniqueGlobalID();
-    globalIDs[vid] = newid;
-    return newid;
-}
-
-////////////////////////////////////////////////////////////////
-
-int StackFrame::getOffset(int vid)
-{
-    map<int, int>::iterator it = stackoffset.find(vid);
-    
-    if(it == stackoffset.end())
-    {
-        box_out("Internal Error: Can't find stack offset for variable!");
-        box_eol();
-        return 0;
-    }
-    
-    return stackoffset[vid];
-}
-
 

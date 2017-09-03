@@ -27,6 +27,7 @@
 #include "zdefs.h"
 #include "maps.h"
 #include <stdio.h>
+#include "items.h"
 
 extern sprite_list  guys;
 extern sprite_list  items;
@@ -42,7 +43,7 @@ extern sprite_list  items;
   */
 bool addfairy(fix x, fix y, int misc3, int id)
 {
-    addenemy(x,y,eITEMFAIRY,id);
+    addenemy(x,y,curQuest->specialEnemies().fairyItem,id);
     ((enemy*)guys.spr(guys.Count()-1))->dstep=misc3;
     ((enemy*)guys.spr(guys.Count()-1))->step=(misc3/100.0);
     movefairy(x,y,id);
@@ -54,7 +55,7 @@ bool can_drop(fix x, fix y)
     return !_walkflag(x,y+16,0);
 }
 
-int select_dropitem(int item_set, int x, int y)
+ItemDefinitionRef select_dropitem(int item_set, int x, int y)
 {
     int total_chance=0;
     
@@ -64,16 +65,18 @@ int select_dropitem(int item_set, int x, int y)
         
         if(k>0)
         {
-            int current_item=item_drop_sets[item_set].item[k-1];
-            
-            if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
+            ItemDefinitionRef current_item=item_drop_sets[item_set].item[k-1];
+            if (curQuest->isValid(current_item))
             {
-                current_chance=0;
-            }
-            
-            if((!get_bit(quest_rules,qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
-            {
-                current_chance=0;
+                if ((!get_bit(quest_rules, qr_ENABLEMAGIC) || (game->get_maxmagic() <= 0)) && (curQuest->getItemDefinition(current_item).family == itype_magic))
+                {
+                    current_chance = 0;
+                }
+
+                if ((!get_bit(quest_rules, qr_TRUEARROWS)) && (curQuest->getItemDefinition(current_item).family == itype_arrowammo))
+                {
+                    current_chance = 0;
+                }
             }
         }
         
@@ -81,24 +84,26 @@ int select_dropitem(int item_set, int x, int y)
     }
     
     if(total_chance==0)
-        return -1;
+        return ItemDefinitionRef();
         
     int item_chance=(rand()%total_chance)+1;
     
-    int drop_item=-1;
+    ItemDefinitionRef drop_item;
     
     for(int k=10; k>=0; --k)
     {
     
         int current_chance=item_drop_sets[item_set].chance[k];
-        int current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
+        ItemDefinitionRef current_item=(k==0 ? ItemDefinitionRef() : item_drop_sets[item_set].item[k-1]);
         
-        if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
+        if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0)) && 
+            (curQuest->isValid(current_item) && curQuest->getItemDefinition(current_item).family == itype_magic))
         {
             current_chance=0;
         }
         
-        if((!get_bit(quest_rules,qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
+        if((!get_bit(quest_rules,qr_TRUEARROWS)) &&
+            (curQuest->isValid(current_item) && curQuest->getItemDefinition(current_item).family == itype_arrowammo))
         {
             current_chance=0;
         }
@@ -114,13 +119,14 @@ int select_dropitem(int item_set, int x, int y)
         }
     }
     
-    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy)
+    if(curQuest->isValid(drop_item) && curQuest->getItemDefinition(drop_item).family==itype_fairy)
     {
         for(int j=0; j<items.Count(); ++j)
         {
-            if((itemsbuf[items.spr(j)->id].family==itype_fairy)&&((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
+            if((curQuest->getItemDefinition(((item *)items.spr(j))->itemDefinition).family==itype_fairy)
+                && ((abs(items.spr(j)->x-x)<32)||(abs(items.spr(j)->y-y)<32)))
             {
-                drop_item=-1;
+                drop_item=ItemDefinitionRef();
                 break;
             }
         }

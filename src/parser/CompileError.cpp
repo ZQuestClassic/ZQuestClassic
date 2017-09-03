@@ -18,7 +18,7 @@ CompileError::CompileError(int id, char code, bool warning, string const& format
 	: id(id), code(code), warning(warning), format(format)
 {}
 
-void CompileError::print(AST* offender, ...) const
+void CompileError::print(AST const* offender, ...) const
 {
 	va_list args;
 	va_start(args, offender);
@@ -26,7 +26,7 @@ void CompileError::print(AST* offender, ...) const
 	va_end(args);
 }
 
-void CompileError::vprint(AST* offender, va_list args) const
+void CompileError::vprint(AST const* offender, va_list args) const
 {
     ostringstream oss;
 
@@ -51,10 +51,8 @@ void CompileError::vprint(AST* offender, va_list args) const
 	vsprintf(msg, format.c_str(), args);
 	oss << msg;
 	
-#ifndef SCRIPTPARSER_COMPILE
     box_out(oss.str().c_str());
     box_eol();
-#endif
 }
 	
 ////////////////////////////////////////////////////////////////
@@ -104,7 +102,7 @@ CompileError const CompileError::ScriptNumRedef(
 CompileError const CompileError::ImplictCast(
 		16, 'T', true, "Cast from %s.");
 CompileError const CompileError::IllegalCast(
-		17, 'T', false, "Cannot cast from %s.");
+		17, 'T', false, "Cannot cast from %s to %s.");
 // DEPRECATED
 CompileError const CompileError::VoidExpr(
 		18, 'T', false, "Operand is void.");
@@ -192,6 +190,6 @@ CompileError const CompileError::ArrayLiteralResize(
 CompileError const CompileError::MissingCompileError(
 		53, 'C', true, "Expected error %d did not occur.");
 CompileError const CompileError::UnimplementedFeature(
-		54, 'C', true, "Feature unimplemented: %s.");
+		54, 'C', false, "Feature unimplemented: %s.");
 
-
+CompileErrorHandler CompileErrorHandler::NONE;

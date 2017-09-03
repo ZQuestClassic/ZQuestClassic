@@ -24,9 +24,6 @@
 #include "backend/AllBackends.h"
 
 extern LinkClass   *Link;
-extern int directItem;
-extern int directItemA;
-extern int directItemB;
 
 //DIALOG *sso_properties_dlg;
 
@@ -60,11 +57,11 @@ void dosubscr(miscQdata *misc)
     
     Backend::sfx->pause(WAV_BRANG);
     
-    if(current_item_id(itype_brang)>=0)
-        Backend::sfx->pause(itemsbuf[current_item_id(itype_brang)].usesound);
+    if(curQuest->isValid(current_item_id(itype_brang)))
+        Backend::sfx->pause(curQuest->getItemDefinition(current_item_id(itype_brang)).usesound);
         
-    if(current_item_id(itype_hookshot)>=0)
-        Backend::sfx->pause(itemsbuf[current_item_id(itype_hookshot)].usesound);
+    if(curQuest->isValid(current_item_id(itype_hookshot)))
+        Backend::sfx->pause(curQuest->getItemDefinition(current_item_id(itype_hookshot)).usesound);
         
     Backend::sfx->unloop(WAV_ER);
     Backend::sfx->unloop(WAV_MSG);
@@ -81,7 +78,7 @@ void dosubscr(miscQdata *misc)
     //Set the selector to the correct position before bringing up the subscreen -DD
     if(get_bit(quest_rules,qr_SELECTAWPN))
     {
-        if(Bwpn==0 && Awpn!=0)
+        if(!curQuest->isValid(Bwpn) && curQuest->isValid(Awpn))
             Bpos = zc_max(game->awpn,0);
         else
             Bpos = zc_max(game->bwpn,0);
@@ -135,39 +132,36 @@ void dosubscr(miscQdata *misc)
         {
             if(rBbtn())
             {
-                if(Awpn == Bweapon(Bpos))
+                bool bowandarrow;
+                if(Awpn == weaponFromSlot(Bpos,bowandarrow))
                 {
                     Awpn = Bwpn;
                     game->awpn = game->bwpn;
-                    directItemA = directItemB;
                 }
                 
-                Bwpn = Bweapon(Bpos);
+                Bwpn = weaponFromSlot(Bpos, combinedBowArrowB);
                 Backend::sfx->play(WAV_PLACE,128);
                 
                 game->bwpn = Bpos;
-                directItemB = directItem;
             }
             else if(rAbtn())
             {
-                if(Bwpn == Bweapon(Bpos))
+                bool bowandarrow;
+                if(Bwpn == weaponFromSlot(Bpos, bowandarrow))
                 {
                     Bwpn = Awpn;
                     game->bwpn = game->awpn;
-                    directItemB = directItemA;
                 }
                 
-                Awpn = Bweapon(Bpos);
+                Awpn = weaponFromSlot(Bpos, combinedBowArrowA);
                 Backend::sfx->play(WAV_PLACE,128);
                 game->awpn = Bpos;
-                directItemA = directItem;
             }
         }
         else
         {
-            Bwpn = Bweapon(Bpos);
+            Bwpn = weaponFromSlot(Bpos, combinedBowArrowB);
             game->bwpn = Bpos;
-            directItemB = directItem;
         }
         
         if(pos!=Bpos)

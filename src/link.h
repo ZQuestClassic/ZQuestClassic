@@ -181,7 +181,7 @@ class LinkClass : public sprite
         laddery,
         stepnext,  //location of step->next just triggered (don't recursively trigger it)
         stepsecret,  //location of step->secrets just triggered (don't recursively trigger it)
-        warpx,warpy, //location of warp just arrived at (don't recursively enter it)
+        warpx, warpy, //location of warp just arrived at (don't recursively enter it)
         pushing,  //incremental time spent pushing.
         jumping,  //incremental time spent airborne.
         charging, //incremental time spent charging weapon.
@@ -192,12 +192,12 @@ class LinkClass : public sprite
         NayrusLoveShieldClk, // Nayru's Love timeout.
         hoverclk, //hover boots timeout.
         hclk,     //damage blinking timeout.
-        holdclk,  //"hold up item" timeout.
-        holditem, //item being held.
-        attackclk,//attack timeout.
-        attack,   //current attack wpnid.
-        attackid, //current attack itemid.
-        swordclk, //sword jinx timeout.
+        holdclk;  //"hold up item" timeout.
+    ItemDefinitionRef holditem; //item being held.
+    int attack;   //the weapon type Link is currently attacking with
+    ItemDefinitionRef attackid; // the actual item Link is attacking with
+    int attackclk;//attack timeout.
+    int swordclk, //sword jinx timeout.
         itemclk,  //item jinx timeout.
         didstuff, //played the whistle? used the blue candle?
         blowcnt,  //number of times whistle blown on this screen.
@@ -245,8 +245,8 @@ class LinkClass : public sprite
     int  nextflag(int cx,int cy,int cdir, bool comboflag);
     bool nextcombo_wf(int d);
     bool nextcombo_solid(int d);
-    int  lookahead(int destscr = -1, int d=up);
-    int  lookaheadflag(int destscr = -1, int d=up);
+    int  lookahead(int d);
+    int  lookaheadflag(int d);
     void checkhit();
     bool checkdamagecombos(int dx, int dy);
     bool checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer = -1, bool solid = false);
@@ -262,7 +262,7 @@ class LinkClass : public sprite
     void checktouchblk();
     void checklocked();
     void deselectbombs(int super); // switch Link's weapon if his current weapon (bombs) was depleted.
-    bool startwpn(int itemid);
+    bool startwpn(const ItemDefinitionRef &itemid);
     bool doattack();
     bool can_attack();
     void do_rafting();
@@ -287,9 +287,9 @@ private:
     void exitcave();
     void stepout();
     void masked_draw(BITMAP *dest);
-    void getTriforce(int id);
+    void getTriforce(const ItemDefinitionRef &id);
     int weaponattackpower();
-    void positionSword(weapon* w,int itemid);
+    void positionSword(weapon* w, const ItemDefinitionRef &itemref);
     void checkstab();
     void fairycircle(int type);
     void StartRefill(int refillWhat);
@@ -383,8 +383,8 @@ public:
     void setClock(bool state);
     int  getAction();
     void setAction(actiontype new_action);
-    int getHeldItem();
-    void setHeldItem(int newitem);
+    ItemDefinitionRef getHeldItem();
+    void setHeldItem(const ItemDefinitionRef &newitem);
     bool isDiving();
     bool isSwimming();
     void setDontDraw(bool new_dontdraw);
@@ -398,8 +398,6 @@ public:
     int getSpecialCave(); // used only by maps.cpp
     bool ffwarp;
     bool ffpit;
-    void setscriptnohit(bool);
-    bool getscriptnohit();
     
     //2.6
     
@@ -409,20 +407,13 @@ public:
     void setHurtSFX(int sfx); //Set Link;s hurt sfx
     int getHurtSFX();
     
-     int getDirectItem();
-    int getDirectItemA();
-    int getDirectItemB();
-    
-    void setDirectItem(int itm);
-    void setDirectItemA(int itm);
-    void setDirectItemB(int itm);
       //Prevent the subscreen from falling by script.
     bool stopSubscreenFalling();
     void stopSubscreenFalling(bool v);
     
     //Set the button items by brute force
-    void setAButtonItem(int itm);
-    void setBButtonItem(int itm);
+    void setAButtonItem(int subscreenslot);
+    void setBButtonItem(int subscreenslot);
     
     bool getDiagMove(); //Diagonal movement.
     void setDiagMove(bool newdiag);
@@ -435,7 +426,6 @@ void do_lens();
 int touchcombo(int x,int y);
 extern bool did_secret;
 int selectWlevel(int d);
-void computeMaxArrows();
 
 /************************************/
 /********  More Items Code  *********/
@@ -444,9 +434,9 @@ void computeMaxArrows();
 int enemy_dp(int index);
 int ewpn_dp(int index);
 int lwpn_dp(int index);
-bool checkmagiccost(int itemid);
-void paymagiccost(int itemid);
-int Bweapon(int pos);
+bool checkmagiccost(const ItemDefinitionRef &itemdef);
+void paymagiccost(const ItemDefinitionRef &itemdef);
+ItemDefinitionRef weaponFromSlot(int pos, bool &bowandarrow);
 void stopCaneOfByrna();
 //void selectWpn(int xstep, int ystep, bool b);
 const int SEL_UP = 0;
@@ -457,16 +447,16 @@ const int SEL_VERIFY_LEFT = 4;
 const int SEL_VERIFY_RIGHT = 5;
 int selectWpn_new(int type, int startpos, int forbiddenpos = -1);
 bool isWpnPressed(int wpn);
-int selectSword();
+ItemDefinitionRef selectSword();
 void selectNextAWpn(int type);
 void selectNextBWpn(int type);
 void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
-bool canget(int id);
+bool canget(const ItemDefinitionRef &itemref);
 void dospecialmoney(int index);
-void getitem(int id, bool nosound=false);
-void takeitem(int id);
+void getitem(const ItemDefinitionRef &id, bool nosound=false);
+void takeitem(const ItemDefinitionRef &id);
 void red_shift();
 void slide_in_color(int color);
 #endif

@@ -1,12 +1,17 @@
-#include "ZScript.h"
 #include "CompileError.h"
+#include "DataStructs.h"
+#include "Scope.h"
+#include "ZScript.h"
 
 using namespace std;
 using namespace ZScript;
 
 // ZScript::Program
 
-Program::Program(ASTProgram* program) : node(program), globalScope(table)
+Program::Program(ASTProgram* node)
+	: node(node),
+	  table(*new SymbolTable()),
+	  globalScope(*new GlobalScope(table))
 {
 	assert(node);
 
@@ -25,6 +30,8 @@ Program::~Program()
 {
 	for (vector<Script*>::iterator it = scripts.begin(); it != scripts.end(); ++it)
 		delete *it;
+	delete &table;
+	delete &globalScope;
 }
 
 Script* Program::getScript(string const& name) const
@@ -41,28 +48,6 @@ Script* Program::getScript(ASTScript* node) const
 	return it->second;
 }
 
-vector<Variable*> Program::getUserGlobalVariables() const
-{
-	// Grab user-defined global variables.
-	vector<Variable*> variables = globalScope.getLocalVariables();
-	for (vector<Variable*>::iterator it = variables.begin(); it != variables.end();)
-	{
-		Variable& variable = **it;
-		if (!variable.node) it = variables.erase(it);
-		else ++it;
-	}
-
-	// Append all script level variables.
-	for (vector<Script*>::const_iterator it = scripts.begin();
-		 it != scripts.end(); ++it)
-	{
-		Script& script = **it;
-		vector<Variable*> scriptVariables = script.scope->getLocalVariables();
-		variables.insert(variables.end(), scriptVariables.begin(), scriptVariables.end());
-	}
-	return variables;
-}
-
 vector<Function*> Program::getUserGlobalFunctions() const
 {
 	vector<Function*> functions = globalScope.getLocalFunctions();
@@ -77,7 +62,7 @@ vector<Function*> Program::getUserGlobalFunctions() const
 
 vector<Function*> Program::getUserFunctions() const
 {
-	vector<Function*> functions = globalScope.getAllFunctions();
+	vector<Function*> functions = getFunctionsInBranch(globalScope);
 	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
 	{
 		Function& function = **it;
@@ -149,23 +134,188 @@ vector<CompileError const*> Script::getErrors() const
 	return errors;
 }
 
+// ZScript::Datum
+
+Datum::Datum(Scope& scope, ZVarType const& type)
+	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
+{}
+
+bool Datum::tryAddToScope(CompileErrorHandler& errorHandler)
+{
+	return scope.add(*this, errorHandler);
+}
+
+bool ZScript::isGlobal(Datum const& datum)
+{
+	return (datum.scope.isGlobal() || datum.scope.isScript())
+		&& datum.getName();
+}
+
+optional<int> ZScript::getStackOffset(Datum const& datum)
+{
+	return lookupStackPosition(datum.scope, datum);
+}
+
 // ZScript::Literal
 
-Literal::Literal(ASTLiteral* node, ZVarType const* type, int id)
-	: node(node), type(type), id(id)
+Literal* Literal::create(
+		Scope& scope, ASTLiteral& node, ZVarType const& type,
+		CompileErrorHandler& errorHandler)
 {
-	if (node) node->manager = this;
+	Literal* literal = new Literal(scope, node, type);
+	if (literal->tryAddToScope(errorHandler)) return literal;
+	delete literal;
+	return NULL;
+}
+
+Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
+	: Datum(scope, type), node(node)
+{
+	node.manager = this;
 }
 
 // ZScript::Variable
 
-Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)
-	: node(node), type(type), name(name), id(id), inlined(false)
+Variable* Variable::create(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type,
+		CompileErrorHandler& errorHandler)
 {
-	if (node) node->manager = this;
+	Variable* variable = new Variable(scope, node, type);
+	if (variable->tryAddToScope(errorHandler)) return variable;
+	delete variable;
+	return NULL;
+}
+
+Variable::Variable(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type)
+	: Datum(scope, type),
+	  node(node),
+	  globalId((scope.isGlobal() || scope.isScript())
+	           ? optional<int>(ScriptParser::getUniqueGlobalID())
+	           : nullopt)
+{
+	node.manager = this;
+}
+
+// ZScript::BuiltinVariable
+
+BuiltinVariable* BuiltinVariable::create(
+		Scope& scope, ZVarType const& type, string const& name,
+		CompileErrorHandler& errorHandler)
+{
+	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name);
+	if (builtin->tryAddToScope(errorHandler)) return builtin;
+	delete builtin;
+	return NULL;
+}
+
+BuiltinVariable::BuiltinVariable(
+		Scope& scope, ZVarType const& type, string const& name)
+	: Datum(scope, type),
+	  name(name),
+	  globalId((scope.isGlobal() || scope.isScript())
+	           ? optional<int>(ScriptParser::getUniqueGlobalID())
+	           : nullopt)
+{}
+
+// ZScript::Constant
+
+Constant* Constant::create(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value,
+		CompileErrorHandler& errorHandler)
+{
+	Constant* constant = new Constant(scope, node, type, value);
+	if (constant->tryAddToScope(errorHandler)) return constant;
+	delete constant;
+	return NULL;
+}
+
+Constant::Constant(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
+	: Datum(scope, type), node(node), value(value)
+{
+	node.manager = this;
+}
+
+optional<string> Constant::getName() const {return node.name;}
+
+// ZScript::BuiltinConstant
+
+
+BuiltinConstant* BuiltinConstant::create(
+		Scope& scope, ZVarType const& type, string const& name, long value,
+		CompileErrorHandler& errorHandler)
+{
+	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
+	if (builtin->tryAddToScope(errorHandler)) return builtin;
+	delete builtin;
+	return NULL;
+}
+
+BuiltinConstant::BuiltinConstant(
+		Scope& scope, ZVarType const& type, string const& name, long value)
+	: Datum(scope, type), name(name), value(value)
+{}
+
+// ZScript::Function::Signature
+
+Function::Signature::Signature(
+		string const& name, vector<ZVarType const*> const& parameterTypes)
+	: name(name), parameterTypes(parameterTypes)
+{}
+
+Function::Signature::Signature(Function const& function)
+	: name(function.name), parameterTypes(function.paramTypes)
+{}
+		
+int Function::Signature::compare(Function::Signature const& other) const
+{
+	int c = name.compare(other.name);
+	if (c) return c;
+	c = parameterTypes.size() - other.parameterTypes.size();
+	if (c) return c;
+	for (int i = 0; i < (int)parameterTypes.size(); ++i)
+	{
+		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		if (c) return c;
+	}
+	return 0;
+}
+
+bool Function::Signature::operator==(Function::Signature const& other) const
+{
+	return compare(other) == 0;
+}
+
+bool Function::Signature::operator<(Function::Signature const& other) const
+{
+	return compare(other) < 0;
+}
+
+string Function::Signature::asString() const
+{
+	string result;
+	result += name;
+	result += "(";
+	bool comma = false;
+	for (vector<ZVarType const*>::const_iterator it = parameterTypes.begin();
+		 it != parameterTypes.end(); ++it)
+	{
+		if (comma) {result += ", "; comma = true;}
+		result += (*it)->getName();
+	}
+	result += ")";
+	return result;
 }
 
 // ZScript::Function
+
+Function::Function(ZVarType const* returnType, string const& name,
+				   vector<ZVarType const*> paramTypes, int id)
+	: node(NULL), internalScope(NULL), thisVar(NULL),
+	  returnType(returnType), name(name), paramTypes(paramTypes),
+	  id(id), label(nullopt)
+{}
 
 Script* Function::getScript() const
 {
@@ -173,6 +323,30 @@ Script* Function::getScript() const
 	Scope* parentScope = internalScope->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isScript()) return NULL;
-	ScriptScope* scriptScope = (ScriptScope*)parentScope;
+	ScriptScope* scriptScope =
+		dynamic_cast<ScriptScope*>(parentScope);
 	return &scriptScope->script;
+}
+
+int Function::getLabel() const
+{
+	if (!label) label = ScriptParser::getUniqueLabelID();
+	return *label;
+}
+
+bool ZScript::isRun(Function const& function)
+{
+	return function.internalScope->getParent()->isScript()
+		&& *function.returnType == ZVarType::ZVOID
+		&& function.name == "run";
+}
+
+int ZScript::getStackSize(Function const& function)
+{
+	return *lookupStackSize(*function.internalScope);
+}
+
+int ZScript::getParameterCount(Function const& function)
+{
+	return function.paramTypes.size() + (isRun(function) ? 1 : 0);
 }

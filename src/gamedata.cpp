@@ -38,8 +38,8 @@ void gamedata::Clear()
     _quest=0;
     _deaths=0;
     _cheat=0;
-    std::fill(item, item+MAXITEMS, false);
-    std::fill(items_off, items_off+MAXITEMS, 0);
+    inventoryItems.clear();
+    disabledItems.clear();
     std::fill(_maxcounter, _maxcounter+32, 0);
     std::fill(_counter, _counter+32, 0);
     std::fill(_dcounter, _dcounter+32, 0);
@@ -79,11 +79,8 @@ void gamedata::Copy(const gamedata& g)
     _deaths = g._deaths;
     _cheat = g._cheat;
     
-    for(word i = 0; i < MAXITEMS; i++)
-    {
-        item[i] = g.item[i];
-        items_off[i] = g.items_off[i];
-    }
+    inventoryItems = g.inventoryItems;
+    disabledItems = g.disabledItems;
     
     for(byte i = 0; i < 32; i++)
     {
@@ -191,7 +188,7 @@ void gamedata::set_counter(word change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        ItemDefinitionRef ringID=current_item_id(itype_ring, true);
         _counter[c]=zc_max(change, 0);
         
         // ringcolor is very slow, so make sure the ring has actually changed
@@ -215,7 +212,7 @@ void gamedata::change_counter(short change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        ItemDefinitionRef ringID=current_item_id(itype_ring, true);
         _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
         
         if(ringID!=current_item_id(itype_ring, true))
@@ -297,7 +294,7 @@ void gamedata::set_dcounter(short change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        ItemDefinitionRef ringID=current_item_id(itype_ring, true);
         _dcounter[c]=change;
         
         if(ringID!=current_item_id(itype_ring, true))
@@ -322,7 +319,7 @@ void gamedata::change_dcounter(short change, byte c)
         
     if(game!=NULL)
     {
-        int ringID=current_item_id(itype_ring, true);
+        ItemDefinitionRef ringID=current_item_id(itype_ring, true);
         _dcounter[c]+=change;
         
         if(ringID!=current_item_id(itype_ring, true))
@@ -786,18 +783,44 @@ void gamedata::set_cont_percent(bool ispercent)
 {
     set_generic(ispercent ? 1 : 0, 6);
 }
-void gamedata::set_item(int id, bool value)
+void gamedata::set_item(const ItemDefinitionRef &itemref, bool value)
 {
-    set_item_no_flush(id, value);
+    set_item_no_flush(itemref, value);
     flushItemCache();
 }
 
-void gamedata::set_item_no_flush(int id, bool value)
+void gamedata::set_disabled_item(const ItemDefinitionRef &itemref, uint8_t value)
 {
-    if(!isclearing && !(value == item[id]))
-        Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, item_string[id]);
-        
-    item[id]=value;
+    if (value)
+        disabledItems[itemref] = value;
+    else
+    {
+        std::map<ItemDefinitionRef, uint8_t>::iterator it = disabledItems.find(itemref);
+        if (it != disabledItems.end())
+            disabledItems.erase(it);
+    }
+}
+
+uint8_t gamedata::get_disabled_item(const ItemDefinitionRef &itemref)
+{
+    std::map<ItemDefinitionRef, uint8_t>::iterator it = disabledItems.find(itemref);
+    if (it == disabledItems.end())
+        return 0;
+    return disabledItems[itemref];
+}
+
+void gamedata::set_item_no_flush(const ItemDefinitionRef &itemref, bool value)
+{
+    bool curvalue = inventoryItems.count(itemref) > 0;
+    
+    if (value)
+        inventoryItems.insert(itemref);
+    else
+    {
+        std::set<ItemDefinitionRef>::iterator it = inventoryItems.find(itemref);
+        if (it != inventoryItems.end())
+            inventoryItems.erase(it);
+    }
 }
 
 /*** end of gamedata.cpp ***/

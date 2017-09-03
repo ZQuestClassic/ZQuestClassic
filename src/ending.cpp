@@ -39,6 +39,9 @@ extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
 //extern bool draw_screen_clip_rect_show_guys;
 
+// placeholder for now
+extern std::map<ItemDefinitionRef, LensItemAnim > lens_hint_item;
+
 namespace
 {
     const int white = WHITE;
@@ -116,13 +119,13 @@ void put_triforce()
 {
     if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
     {
-        putitem2(framebuf,120,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
-        putitem2(framebuf,136,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
+        putitem2(framebuf,120,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),curQuest->specialItems().triforce,lens_hint_item[curQuest->specialItems().triforce].aclk,lens_hint_item[curQuest->specialItems().triforce].aframe, 0);
+        putitem2(framebuf,136,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),curQuest->specialItems().triforce,lens_hint_item[curQuest->specialItems().triforce].aclk,lens_hint_item[curQuest->specialItems().triforce].aframe, 0);
     }
     else
     {
-        putitem(framebuf,120,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce);
-        putitem(framebuf,136,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce);
+        putitem(framebuf,120,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),curQuest->specialItems().triforce);
+        putitem(framebuf,136,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),curQuest->specialItems().triforce);
     }
 }
 
@@ -233,7 +236,7 @@ void ending()
             
             for(int i = guys.Count() - 1; i >= 0; i--)
             {
-                if(guys.spr(i)->id > gDUMMY9)
+                if(((enemy *)guys.spr(i))->family != eeGUY)
                 {
                     guys.del(i);
                 }
@@ -570,10 +573,10 @@ void ending()
     if(game->get_quest()>0 && game->get_quest()<=5)
     {
         inc_quest();
-        removeItemsOfFamily(game, itemsbuf, itype_ring);
-        int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+        curQuest->removeItemsOfFamily(game, itype_ring);
+        ItemDefinitionRef maxring = curQuest->getHighestLevelOfFamily(&zinit,itype_ring);
         
-        if(maxring != -1)
+        if(curQuest->isValid(maxring))
         {
             getitem(maxring,true);
         }

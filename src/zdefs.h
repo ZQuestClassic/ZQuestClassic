@@ -22,13 +22,17 @@
 //Other
 //#define _SKIPPASSWORDCHECK
 
+#include <cstdio>
 #include <math.h>
 #include <string.h>
 #include <vector>
 #include <set>
+#include <map>
 #include <assert.h>
 #include "zc_alleg.h"
 #include "zc_array.h"
+#include "quest/QuestRefs.h"
+#include "zc_malloc.h"
 
 #define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
@@ -106,27 +110,27 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           3
 #define V_RULES           14
 #define V_STRINGS          5
-#define V_MISC             7
+#define V_MISC             8
 #define V_TILES            1
 #define V_COMBOS           7
 #define V_CSETS            4
-#define V_MAPS            18
-#define V_DMAPS            9
+#define V_MAPS            19
+#define V_DMAPS           10
 #define V_DOORS            1
-#define V_ITEMS           26
-#define V_WEAPONS          6
+#define V_ITEMS           27
+#define V_WEAPONS          7
 #define V_COLORS           2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        18
-#define V_GUYS            29
+#define V_INITDATA        19
+#define V_GUYS            30
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        11
+#define V_SAVEGAME        12
 #define V_COMBOALIASES     2
 #define V_LINKSPRITES      5
-#define V_SUBSCREEN        6
-#define V_ITEMDROPSETS     2
+#define V_SUBSCREEN        7
+#define V_ITEMDROPSETS     3
 #define V_FFSCRIPT         7
 #define V_SFX              7
 #define V_FAVORITES        1
@@ -247,15 +251,11 @@ extern bool fake_pack_writing;
 #define MAXLEVELS        512								 //this should be the same number (was 32)
 #define OLDMAXLEVELS	 256
 #define OLDMAXDMAPS		 256
-#define MAXITEMS         256
-#define MAXWPNS          256
 #define OLDBETAMAXGUYS   256								//max 2.5 guys through beta 20
-#define MAXGUYS          512
 #define MAXITEMDROPSETS  256
 #define COMBOS_PER_PAGE  256
 #define COMBO_PAGES      255
 #define MAXCOMBOS        COMBO_PAGES*COMBOS_PER_PAGE
-#define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
 #define MAX_FLAGS 512
@@ -702,7 +702,7 @@ enum
     qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
-    qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Compatibility */,
+    qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Compatibility */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     qr_MAX
 };
 
@@ -727,7 +727,9 @@ enum direction { up, down, left, right, l_up, r_up, l_down, r_down };
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
-#define REFILL_FAIRY -1
+
+//probably safe? -DD
+#define REFILL_FAIRY ItemDefinitionRef("CORE", iFairyMoving)
 
 //Z-axis related
 #define FEATHERJUMP 80
@@ -785,8 +787,7 @@ enum                                                        // value matters bec
     iCustom6, iCustom7, iCustom8, iCustom9, iCustom10,
     iCustom11, iCustom12, iCustom13, iCustom14, iCustom15,
     iCustom16, iCustom17, iCustom18, iCustom19, iCustom20,
-    iLast,
-    iMax=256
+    iLast
 };
 
 // Shield projectile blocking
@@ -806,39 +807,6 @@ enum
 {
     isNONE, isDEFAULT, isBOMBS, isMONEY, isLIFE, isBOMB100, isSBOMB100,
     isMAGIC, isMAGICBOMBS, isMAGICMONEY, isMAGICLIFE, isMAGIC2, isTALLGRASS, isMAX
-};
-
-// weapons (in qst data)
-enum
-{
-    wSWORD, wWSWORD, wMSWORD, wXSWORD, wBRANG,
-    wMBRANG, wFBRANG, wBOMB, wSBOMB, wBOOM,
-// 10
-    wARROW, wSARROW, wFIRE, wWIND, wBAIT,
-    wWAND, wMAGIC, ewFIREBALL, ewROCK, ewARROW,
-// 20
-    ewSWORD, ewMAGIC, iwSpawn, iwDeath, iwSwim,
-    wHAMMER, wHSHEAD, wHSCHAIN_H, wHSHANDLE, wSSPARKLE,
-// 30
-    wGSPARKLE, wMSPARKLE, wFSPARKLE, iwHammerSmack, wGARROW,
-    ewFLAME, ewWIND, iwMMeter, wDINSFIRE1A, wDINSFIRE1B,
-// 40
-    wDINSFIRES1A, wDINSFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
-    iwLinkSlash, wSWORDSLASH, wWSWORDSLASH, wMSWORDSLASH, wXSWORDSLASH,
-// 50
-    iwShadow, iwLargeShadow, iwBushLeaves, iwFlowerClippings, iwGrassClippings,
-    iwTallGrass, iwRipples, iwNPCs, wNAYRUSLOVE1A, wNAYRUSLOVE1B,
-// 60
-    wNAYRUSLOVES1A, wNAYRUSLOVES1B, wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A,
-    wNAYRUSLOVES2B, iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA,
-// 70
-    wCBYRNASLASH, wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V,
-    wSBOOM, ewBOMB, ewSBOMB, ewBOOM, ewSBOOM,
-// 80
-    ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
-    wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
-    
-    wLast, wMAX=256
 };
 
 // weapon types in game engine
@@ -965,9 +933,7 @@ enum
     eTEK3, eSPINTILE1, eSPINTILE2, eLYNEL3, eFPEAHAT,
     //170
     eMPOLSV, eWPOLSV, eDKNUT4, eFGHINI, eMGHINI,
-    eGRAPBUGHP, eGRAPBUGMP, e177,
-    
-    eMAXGUYS = MAXGUYS
+    eGRAPBUGHP, eGRAPBUGMP, e177
 };
 
 #define OLDMAXGUYS	e177
@@ -1158,8 +1124,6 @@ struct size_and_pos
 
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
-#define ITEMCNT   iMax
-#define WPNCNT    wMAX
 
 struct tiledata
 {
@@ -1222,109 +1186,6 @@ enum
 
 //Holds the movement pattern, and its args.
 
-struct itemdata
-{
-    word tile;
-    byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte delay;                                               // extra delay factor (-1) for first frame
-    long ltm;                                                 // Link Tile Modifier
-    byte family;												// What family the item is in
-    byte fam_type;	//level										// What type in this family the item is
-    byte power;	// Damage, height, etc.
-    word flags;
-#define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
-#define ITEM_COMBINE     0x0004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE   0x0008
-#define ITEM_FLAG1   0x0010
-#define ITEM_FLAG2   0x0020
-#define ITEM_KEEPOLD     0x0040
-#define ITEM_RUPEE_MAGIC 0x0080
-#define ITEM_UNUSED       0x0100
-#define ITEM_GAINOLD     0x0200
-#define ITEM_FLAG3     0x0400
-#define ITEM_FLAG4     0x0800
-#define ITEM_FLAG5     0x1000
-
-
-
-
-    word script;												// Which script the item is using
-    char count;
-    word amount;
-    short setmax;
-    word max;
-    byte playsound;
-    word collect_script;
-//  byte exp[10];                                             // not used
-    long initiald[INITIAL_D];
-    byte initiala[INITIAL_A];
-    byte wpn;
-    byte wpn2;
-    byte wpn3;
-    byte wpn4;
-    byte wpn5;
-    byte wpn6;
-    byte wpn7;
-    byte wpn8;
-    byte wpn9;
-    byte wpn10;
-    byte pickup_hearts;
-    long misc1;
-    long misc2;
-    long misc3;
-    long misc4;
-    long misc5;
-    long misc6;
-    long misc7;
-    long misc8;
-    long misc9;
-    long misc10;
-    byte magic; // Magic usage!
-    byte usesound;
-    byte useweapon; //lweapon id type -Z
-    byte usedefence; //default defence type -Z
-    int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
-    int weaprange; //default range -Z
-    int weapduration; //default duration, 0 = infinite. 
- 
-    
-    //To implement next;
-    int duplicates; //Number of duplicate weapons generated.
-    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
-    
-    long weap_initiald[INITIAL_D];
-    byte weap_initiala[INITIAL_A];
-    
-    byte drawlayer;
-    long collectflags;
-    int hxofs, yxofs, hxsz, hysz, hzsz, xofs, yofs; //item
-    int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
-    
-    word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
-    int wpnsprite; //enemy weapon sprite. 
-    
-    
-};
-
-struct wpndata
-{
-    word tile;
-    byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte type;                                                // used by certain weapons
-//  byte wpn_type;
-    word script;
-//  byte exp;                                                 // not used
-};
-
-#define		WF_BEHIND			0x10	//Weapon renders behind other sprites
-
 struct quest_template
 {
     char name[31];
@@ -1334,8 +1195,58 @@ struct quest_template
 
 struct item_drop_object
 {
+    item_drop_object()
+    {
+        clear();
+    }
+
+    item_drop_object(const char *name_, ItemDefinitionRef item0,
+        ItemDefinitionRef item1,
+        ItemDefinitionRef item2,
+        ItemDefinitionRef item3,
+        ItemDefinitionRef item4,
+        ItemDefinitionRef item5,
+        ItemDefinitionRef item6,
+        ItemDefinitionRef item7,
+        ItemDefinitionRef item8,
+        ItemDefinitionRef item9,
+        word chance0, word chance1, word chance2, word chance3, word chance4, word chance5, word chance6, word chance7, word chance8, word chance9, word chance10)
+    {
+        memcpy(name, name_, strlen(name_)+1);
+        item[0] = item0;
+        item[1] = item1;
+        item[2] = item2;
+        item[3] = item3;
+        item[4] = item4;
+        item[5] = item5;
+        item[6] = item6;
+        item[7] = item7;
+        item[8] = item8;
+        item[9] = item9;
+        chance[0] = chance0;
+        chance[1] = chance1;
+        chance[2] = chance2;
+        chance[3] = chance3;
+        chance[4] = chance4;
+        chance[5] = chance5;
+        chance[6] = chance6;
+        chance[7] = chance7;
+        chance[8] = chance8;
+        chance[9] = chance9;
+        chance[10] = chance10;
+    }
+
+    void clear()
+    {
+        memset(name, 0, 64);
+        for (int i = 0; i < 10; i++)
+            item[i] = ItemDefinitionRef();
+        for (int i = 0; i < 11; i++)
+            chance[i] = 0;
+    }
+
     char name[64];
-    word item[10];
+    ItemDefinitionRef item[10];
     word chance[11]; //0=none
 };
 
@@ -1346,30 +1257,7 @@ struct item_drop_object
 
 #define guy_fadeflicker 0x00000010
 #define guy_fadeinstant 0x00000020
-/*
-#define inv_bomb        0x00000040
-#define inv_sbomb       0x00000080
 
-#define inv_arrow       0x00000100
-#define inv_L2arrow     0x00000200
-#define inv_fire        0x00000400
-#define inv_wand        0x00000800
-
-#define inv_magic       0x00001000
-#define inv_hookshot    0x00002000
-#define inv_hammer      0x00004000
-#define inv_L3brang     0x00008000
-
-#define inv_L1sword     0x00010000
-#define inv_L3sword     0x00020000
-#define inv_L1beam      0x00040000
-#define inv_L3beam      0x00080000
-
-#define inv_refbeam     0x00100000
-#define inv_refmagic    0x00200000
-#define inv_refball     0x00400000
-#define inv_extra       0x00800000
-*/
 #define inv_front       0x01000000
 #define inv_left        0x02000000
 #define inv_right       0x04000000
@@ -1400,6 +1288,8 @@ struct item_drop_object
 #define eneflag_ganon   0x00002000
 #define guy_blinking    0x00004000
 #define guy_transparent 0x00008000
+
+#define guy_appearsslow 0x00010000
 
 // Old flags
 #define weak_arrow		0x20000000
@@ -1441,47 +1331,6 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-
-struct guydata
-{
-    dword flags;
-    dword flags2;
-    word  tile;
-    byte  width;
-    byte  height; //0=striped, 1+=rectangular
-    word  s_tile; //secondary (additional) tile(s)
-    byte  s_width;
-    byte  s_height;  //0=striped, 1+=rectangular
-    word  e_tile;
-    byte  e_width;
-    byte  e_height;
-    
-    short hp;
-    
-    short  family, cset, anim, e_anim, frate, e_frate;
-    short  dp, wdp, weapon;
-    
-    short  rate, hrate, step, homing, grumble, item_set;
-    long   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
-    short  bgsfx, bosspal, extend;
-    byte defense[edefLAST255];
-   // byte scriptdefense[
-    //  short  startx, starty;
-    //  short  foo1,foo2,foo3,foo4,foo5,foo6;
-    byte  hitsfx, deadsfx;
-    //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
-    //Adding earlier will offset defdata arrays. -Z
-    
-    //2.6 enemy editor tile and hit sizes. -Z
-    int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions. 
-    // no hzofs - it's always equal to zofs.
-    int hxofs,hyofs,hxsz,hysz,hzsz;
-    int txsz,tysz;
-    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
-    int wpnsprite; //wpnsprite is new for 2.6 -Z
-    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
-};
-
 class refInfo
 {
 public:
@@ -1493,7 +1342,7 @@ public:
     byte sp; //stack pointer for current script
     dword scriptflag; //stores whether various operations were true/false etc.
     
-    byte ffcref, idata; //current object pointers
+    int32_t ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1528,43 +1377,82 @@ public:
 };
 
 
+struct ScreenFFCSet
+{
+	dword numff;
+	word ffdata[NUM_FFCS];
+	byte ffcset[NUM_FFCS];
+	word ffdelay[NUM_FFCS];
+	long ffx[NUM_FFCS];
+	long ffy[NUM_FFCS];
+	long ffxdelta[NUM_FFCS];
+	long ffydelta[NUM_FFCS];
+	long ffxdelta2[NUM_FFCS];
+	long ffydelta2[NUM_FFCS];
+	dword ffflags[NUM_FFCS];
+	byte ffwidth[NUM_FFCS];
+	byte ffheight[NUM_FFCS];
+	byte fflink[NUM_FFCS];
+
+	//ffc script attachments
+	word ffscript[NUM_FFCS];
+	long initd[NUM_FFCS][INITIAL_D];
+	long inita[NUM_FFCS][INITIAL_A];
+	bool initialized[NUM_FFCS];
+
+	void clear()
+	{
+		memset(this, 0, sizeof(ScreenFFCSet));
+	}
+};
+
+//extern ScreenFFCSet tempscrFFCSet[2];
+//extern ScreenFFCSet currentFFCSet;
+
+
 struct mapscr
 {
-    byte valid;
-    byte guy;
+    ItemDefinitionRef screenItem;
     word str;
-    byte room;
-    byte item;
-    byte hasitem;
+	word door_combo_set;
+
     byte tilewarptype[4];
-    byte tilewarpoverlayflags;
-    word door_combo_set;
     byte warpreturnx[4];
     byte warpreturny[4];
-    word warpreturnc;
-    byte stairx;
-    byte stairy;
-    byte itemx;
-    byte itemy;
-    word color;
-    byte enemyflags;
-    byte door[4]; //need to add a dmapscreendoor command.
-    word tilewarpdmap[4];
-    byte tilewarpscr[4];
-    byte exitdir;
-    word enemy[10]; //GetSetScreenEnemies()
+	byte tilewarpscr[4];
+	byte door[4]; //need to add a dmapscreendoor command.
+	byte sidewarptype[4];
+	byte path[4];
+	byte sidewarpscr[4];
+
+    EnemyDefinitionRef enemy[10]; //GetSetScreenEnemies()
+	word tilewarpdmap[4];
+	word sidewarpdmap[4];
+	word warpreturnc;
+	word color;
+	word undercombo;
+	word catchall;
+    ItemDefinitionRef catchallItem;
+
+	byte exitdir;
     byte pattern;
-    byte sidewarptype[4];
     byte sidewarpoverlayflags;
     byte warparrivalx;
     byte warparrivaly;
-    byte path[4];
-    byte sidewarpscr[4];
-    word sidewarpdmap[4];
     byte sidewarpindex;
-    word undercombo;
     byte undercset;
-    word catchall;
+	byte valid;
+	EnemyDefinitionRef guy;
+	byte room;
+	byte hasitem;
+	byte tilewarpoverlayflags;
+	//byte item;
+	byte stairx;
+	byte stairy;
+	byte itemx;
+	byte itemy;
+	byte enemyflags;
+
     byte flags;
     byte flags2;
     byte flags3;
@@ -1576,35 +1464,46 @@ struct mapscr
     byte flags9;
     byte flags10;
     byte csensitive;
-    word noreset;
-    word nocarry;
+	byte nextmap;
+	byte nextscr;
+
     byte layermap[6];
+	word noreset;
     byte layerscreen[6];
+	word nocarry;
+	byte layeropacity[6];
+	word timedwarptics;
+
+	word script_entry;
+	word script_occupancy;
+	word script_exit;
+	word screen_midi;
+	word viewX;
+	word viewY;
+
+	byte scrWidth;
+	byte scrHeight;
+	byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
+
+	byte oceansfx;
+	byte bosssfx;
+	byte secretsfx;
+	byte holdupsfx;
+
+	// for importing older quests...
+	byte old_cpage;
+	byte lens_layer;
+
     //  byte layerxsize[6];
     //  byte layerxspeed[6];
     //  byte layerxdelay[6];
     //  byte layerysize[6];
     //  byte layeryspeed[6];
     //  byte layerydelay[6];
-    byte layeropacity[6]; //should be available to zscript.-Z
-    word timedwarptics;
-    byte nextmap;
-    byte nextscr;
-    word secretcombo[128]; //should be available to zscript.-Z
-    byte secretcset[128]; //should be available to zscript.-Z
-    byte secretflag[128]; //should be available to zscript.-Z
-    // you're listening to ptr radio, the sounds of insane. ;)
-    std::vector<word> data;
-    std::vector<byte> sflag;
-    std::vector<byte> cset;
-    word viewX;
-    word viewY;
-    byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
-    byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
-    
-    byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
-    
+
     //Why doesn't ffc get to be its own class?
+	//Warning: ffc refactoring in progress.
+	// ---
     dword numff;
     word ffdata[NUM_FFCS];
     byte ffcset[NUM_FFCS];
@@ -1625,158 +1524,126 @@ struct mapscr
     long initd[NUM_FFCS][INITIAL_D];
     long inita[NUM_FFCS][INITIAL_A];
     bool initialized[NUM_FFCS];
-    
-    /*long d[32][8];
-    long a[32][2];
-    word pc[32];
-    dword scriptflag[32];
-    byte sp[32]; //stack pointer
-    byte ffcref[32];
-    dword itemref[32];
-    byte itemclass[32];
-    dword lwpnref[32];
-    dword ewpnref[32];
-    dword guyref[32];*/
-    //byte lwpnclass[32]; Not implemented
-    //byte ewpnclass[32]; Not implemented
-    //byte guyclass[32]; Not implemented
-    
-    /*long map_stack[256];
-    long map_d[8];
-    word map_pc;
-    dword map_scriptflag;
-    byte map_sp;
-    byte map_itemref;
-    byte map_itemclass;
-    byte map_lwpnref;
-    byte map_lwpnclass;
-    byte map_ewpnref;
-    byte map_ewpnclass;
-    byte map_guyref;
-    byte map_guyclass;
-    byte map_ffcref;*/ //All this is trash because we don't have map scripts, waste of memory
-    word script_entry;
-    word script_occupancy;
-    word script_exit;
-    
-    byte oceansfx;
-    byte bosssfx;
-    byte secretsfx;
-    byte holdupsfx;
-    
-    // for importing older quests...
-    byte old_cpage;
-    short screen_midi;
-    byte lens_layer;
-    
-    
-    void zero_memory()
-    {
-        //oh joy, this will be fun...
-        valid=0;
-        guy=0;
-        str=0;
-        room=0;
-        item=0;
-        hasitem=0;
-        tilewarpoverlayflags=0;
-        door_combo_set=0;
-        warpreturnc=0;
-        stairx=0;
-        stairy=0;
-        itemx=0;
-        itemy=0;
-        color=0;
-        enemyflags=0;
+
+	// --
+
+	word secretcombo[128];
+	byte secretcset[128];
+	byte secretflag[128];
+
+	// Must be last.
+	std::vector<word> data;
+	std::vector<byte> sflag;
+	std::vector<byte> cset;
+
+	void zero_memory()
+	{
+        // This is unsafe due to having no guarantees about how the C++ compiler packs and pads structs in memory
+        // I know it's painful but let's avoid memset'ing or memcpy'ing any nontrivial data structures -DD
+		//memset(this, 0, sizeof(mapscr) - (sizeof(std::vector<byte>) * 3));
+
+        screenItem = ItemDefinitionRef();
+        str = 0;
+        door_combo_set = 0;
+
+        for (int i = 0; i < 4; i++)
+        {
+            tilewarptype[i] = 0;
+            warpreturnx[i] = 0;
+            warpreturny[i] = 0;
+            tilewarpscr[i] = 0;
+            door[i] = 0;
+            sidewarptype[i] = 0;
+            path[i] = 0;
+            sidewarpscr[i] = 0;
+        }
+
+        for(int i=0; i<10; i++)
+            enemy[i] = EnemyDefinitionRef();
+
+        for (int i = 0; i < 4; i++)
+        {
+            tilewarpdmap[i] = 0;
+            sidewarpdmap[i] = 0;
+        }
+
+        warpreturnc = 0;
+        color = 0;
+        undercombo = 0;
+        catchall = 0;
+        ItemDefinitionRef catchallItem = ItemDefinitionRef();
+
+        exitdir = 0;
+        pattern = 0;
+        sidewarpoverlayflags = 0;
+        warparrivalx = 0;
+        warparrivaly = 0;
+        sidewarpindex = 0;
+        undercset = 0;
+        valid = 0;
+        guy = EnemyDefinitionRef();
+        room = 0;
+        hasitem = 0;
+        tilewarpoverlayflags = 0;
         
-        exitdir=0;
-        pattern=0;
-        sidewarpoverlayflags=0;
-        warparrivalx=0;
-        warparrivaly=0;
-        
-        sidewarpindex=0;
-        undercombo=0;
-        undercset=0;
-        catchall=0;
-        flags=0;
-        flags2=0;
-        flags3=0;
-        flags4=0;
-        flags5=0;
-        flags6=0;
-        flags7=0;
-        flags8=0;
-        flags9=0;
-        flags10=0;
-        csensitive=0;
+        stairx = 0;
+        stairy = 0;
+        itemx = 0;
+        itemy = 0;
+        enemyflags = 0;
+
+        flags = 0;
+        flags2 = 0;
+        flags3 = 0;
+        flags4 = 0;
+        flags5 = 0;
+        flags6 = 0;
+        flags7 = 0;
+        flags8 = 0;
+        flags9 = 0;
+        flags10 = 0;
+        csensitive = 0;
+        nextmap = 0;
+        nextscr = 0;
+
+        for(int i=0; i<6; i++)
+            layermap[i]=0;
         noreset=0;
-        nocarry=0;
+        for(int i=0; i<6; i++)
+            layerscreen[i]=0;
+        nocarry = 0;
+        for(int i=0; i<6; i++)
+            layeropacity[i]=0;
         timedwarptics=0;
-        nextmap=0;
-        nextscr=0;
-	 // new for 2.6
-        entry_x = entry_y = 0; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
-    
-        
+
+        script_entry=0;
+        script_occupancy=0;
+        script_exit=0;
+        screen_midi=0;
         viewX=0;
         viewY=0;
+
         scrWidth=0;
         scrHeight=0;
-        numff=0;
+        entry_x = 0;
+        entry_y=0;
+
+        oceansfx=0;
+        bosssfx=0;
+        secretsfx=0;
+        holdupsfx=0;
+
+        // for importing older quests...
+        old_cpage=0;
+        lens_layer=0;
+
         
-        for(int i(0); i<4; i++)
+        //Why doesn't ffc get to be its own class?
+        //Warning: ffc refactoring in progress.
+        // ---
+        dword numffc=0;
+        for (int i = 0; i < NUM_FFCS; i++)
         {
-            door[i]=0;
-            tilewarpdmap[i]=0;
-            tilewarpscr[i]=0;
-            tilewarptype[i]=0;
-            warpreturnx[i]=0;
-            warpreturny[i]=0;
-            path[i]=0;
-            sidewarpscr[i]=0;
-            sidewarpdmap[i]=0;
-            sidewarptype[i]=0;
-        }
-        
-        for(int i(0); i<10; i++)
-            enemy[i]=0;
-            
-        for(int i(0); i<128; i++)
-        {
-            secretcombo[i]=0;
-            secretcset[i]=0;
-            secretflag[i]=0;
-        }
-        
-        for(int i(0); i<6; i++)
-        {
-            layermap[i]=0;
-            layerscreen[i]=0;
-            layeropacity[i]=0;
-        }
-        
-        for(int i(0); i<32; i++)
-        {
-            for(int j(0); j<8; j++)
-            {
-                //d[i][j]=0;
-                initd[i][j]=0;
-            }
-            
-            for(int j(0); j<2; j++)
-            {
-                inita[i][j]=0;
-                //a[i][j]=0;
-            }
-            
-            initialized[i]=0;
-            /*pc[i]=0;
-            scriptflag[i]=0;
-            sp[i]=0;
-            ffcref[i]=0;
-            itemref[i]=0;
-            itemclass[i]=0;*/
             ffdata[i]=0;
             ffcset[i]=0;
             ffdelay[i]=0;
@@ -1790,54 +1657,34 @@ struct mapscr
             ffwidth[i]=0;
             ffheight[i]=0;
             fflink[i]=0;
+
+            //ffc script attachments
             ffscript[i]=0;
+            for(int j=0; j<INITIAL_D; j++)
+                initd[i][j]=0;
+            for(int j=0; j<INITIAL_A; j++)
+                inita[i][j] = 0;  // Apparently this needs to be 10000?
+            initialized[i] = false;
+        }
+
+        for (int i = 0; i < 128; i++)
+        {
+            secretcombo[i] = 0;
+            secretcset[i]=0;
+            secretflag[i]=0;
         }
         
-        /*	  for(int i(0);i<256;i++)
-        	  {
-        	   map_stack[i]=0;
-        	  }
-        	   for(int i(0);i<8;i++)
-        	  {
-        	   map_d[i]=0;
-        	  }
-           map_pc=0;
-           map_scriptflag=0;
-           map_sp=map_itemref=map_itemclass=0;
-           map_lwpnref=0;
-           map_lwpnclass=0;
-           map_ewpnref=0;
-           map_ewpnclass=0;
-           map_guyref=0;
-           map_guyclass=0;
-           map_ffcref=0;*/
-        script_entry=0;
-        script_occupancy=0;
-        script_exit=0;
-        oceansfx=0;
-        bosssfx=0;
-        secretsfx=0;
-        holdupsfx=0;
-        lens_layer=0;
-        
-        data.assign(176,0);
-        sflag.assign(176,0);
-        cset.assign(176,0);
-        //data.assign(data.size(),0);
-        //sflag.assign(sflag.size(),0);
-        //cset.assign(cset.size(),0);
-    }
-    
-    
-    mapscr()
-    {
-        data.resize(176,0);
-        sflag.resize(176,0);
-        cset.resize(176,0);
-        zero_memory();
-    }
-    
+        data.assign(176, 0);
+		sflag.assign(176, 0);
+		cset.assign(176, 0);
+	}
+
+	mapscr()
+	{
+		zero_memory();
+	}
 };
+
 
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
@@ -2173,6 +2020,44 @@ struct DoorComboSet
 
 struct dmap
 {
+    dmap()
+    {
+        map = 0;
+        level = 0;
+        xoff = 0;
+        compass = 0;
+        color = 0;
+        midi = 0;
+        cont = 0;
+        type = dmCAVE;
+        for (int i = 0; i < 8; i++)
+            grid[i] = 0;
+
+        memset(name, 0, 21);
+        sprintf(title, "                    ");
+        sprintf(intro, "                                                                        ");
+
+        minimap_1_tile = 0;
+        minimap_1_cset = 0;
+
+        minimap_2_tile = 0;
+        minimap_2_cset = 0;
+
+        largemap_1_tile = 0;
+        largemap_1_cset = 0;
+
+        largemap_2_tile = 0;
+        largemap_2_cset = 0;
+
+        memset(tmusic, 0, 56);
+        tmusictrack = 0;
+        active_subscreen = 0;
+        passive_subscreen = 0;
+        disabledItems.clear();
+
+        flags = 0;
+    }
+
     byte map;
     word level;
     char xoff;
@@ -2208,7 +2093,7 @@ struct dmap
     // int emusic;
     //byte padding;
     //204
-    byte disableditems[iMax];
+    std::vector<ItemDefinitionRef> disabledItems;
     // 460
     long flags;
 };
@@ -2256,8 +2141,24 @@ struct combo_alias
 
 struct shoptype
 {
+    shoptype()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        memset(name, 0, 32);
+        for (int i = 0; i < 3; i++)
+        {
+            item[i] = ItemDefinitionRef();
+            hasitem[i] = false;
+            price[i] = 0;
+        }
+    }
+
     char name[32];
-    byte item[3];
+    ItemDefinitionRef item[3];
     byte hasitem[3];
     word price[3];
     //10
@@ -2277,6 +2178,21 @@ struct pondtype
 
 struct infotype
 {
+    infotype()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        memset(name, 0, 32);
+        for (int i = 0; i < 3; i++)
+        {
+            str[i] = 0;
+            price[i] = 0;
+        }
+    }
+
     char name[32];
     word str[3];
     //byte padding;
@@ -2286,6 +2202,22 @@ struct infotype
 
 struct warpring
 {
+    warpring()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        memset(name, 0, 32);
+        for (int i = 0; i < 9; i++)
+        {
+            dmap[i] = 0;
+            scr[i] = 0;
+        }
+        size = 0;
+    }
+
     char name[32];
     word dmap[9];
     byte scr[9];
@@ -2295,6 +2227,54 @@ struct warpring
 
 struct zcolors
 {
+    zcolors()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        text = 0;
+        caption = 0;
+        overw_bg = 0;
+        dngn_bg = 0;
+        dngn_fg = 0;
+        cave_fg = 0;
+        bs_dk = 0;
+        bs_goal = 0;
+        compass_lt = 0;
+        compass_dk = 0;
+        //10
+        subscr_bg = 0;
+        subscr_shadow = 0;
+        triframe_color = 0;
+        bmap_bg = 0;
+        bmap_fg = 0;
+        link_dot = 0;
+        //15
+        triforce_cset = 0;
+        triframe_cset = 0;
+        overworld_map_cset = 0;
+        dungeon_map_cset = 0;
+        blueframe_cset = 0;
+        //20
+        triforce_tile = 0;
+        triframe_tile = 0;
+        overworld_map_tile = 0;
+        dungeon_map_tile = 0;
+        blueframe_tile = 0;
+        //30
+        HCpieces_tile = 0;
+        HCpieces_cset = 0;
+        msgtext = 0;
+        for(int i=0; i<6; i++)
+            foo[i] = 0;
+        //40
+        for(int i=0; i<256; i++)
+            foo2[i] = 0;
+        //296 bytes
+    }
+
     byte text, caption;
     byte overw_bg, dngn_bg;
     byte dngn_fg, cave_fg;
@@ -2328,12 +2308,41 @@ struct zcolors
 
 struct palcycle
 {
+    palcycle() : first(0), count(0), speed(0) {}
     byte first,count,speed;
     //3
 };
 
 struct miscQdata
 {
+    miscQdata()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            shop[i] = shoptype();
+            info[i] = infotype();
+            for (int j = 0; j < 3; j++)
+                cycles[i][j] = palcycle();
+        }
+
+        for (int i = 0; i < 8; i++)
+        {
+            triforce[i] = 0;
+        }
+
+        colors = zcolors();
+
+        for (int i = 0; i < 4; i++)
+            icons[i] = 0;
+
+        endstring = 0;
+    }
+
     shoptype shop[256];
     //160 (160=10*16)
     infotype info[256];
@@ -2561,8 +2570,8 @@ struct gamedata
     //byte  _keys,_maxbombs,
     byte  /*_wlevel,*/_cheat;
     //24
-    bool  item[MAXITEMS];
-    byte  items_off[MAXITEMS];
+    std::set<ItemDefinitionRef> inventoryItems;
+    std::map<ItemDefinitionRef, uint8_t> disabledItems;
     //280
     word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
     word _counter[32];
@@ -2762,11 +2771,13 @@ struct gamedata
     
     byte get_lkeys();
     
-    void set_item(int id, bool value);
-    void set_item_no_flush(int id, bool value);
-    inline bool get_item(int id)
+    void set_item(const ItemDefinitionRef &id, bool value);
+    void set_disabled_item(const ItemDefinitionRef &id, uint8_t value); // bit 1: set by DMaps. Everything else: set by scripts
+    uint8_t get_disabled_item(const ItemDefinitionRef &id);
+    void set_item_no_flush(const ItemDefinitionRef &id, bool value);
+    inline bool get_item(const ItemDefinitionRef &id)
     {
-        return item[id];
+        return inventoryItems.count(id)>0;
     }
     
 };
@@ -2793,8 +2804,70 @@ enum
 
 struct zinitdata
 {
+    zinitdata()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        bombs = 0;
+        super_bombs = 0;
+        inventoryItems.clear();
+        hc = 0;
+        start_heart = 0;
+        cont_heart = 0;
+        hcp = 0;
+        hcp_per_hc = 0;
+        max_bombs = 0;
+        keys = 0;
+        arrows = 0;
+        max_arrows = 0;
+        rupies = 0;
+        triforce = 0;
+        for (int i = 0; i < 64; i++)
+        {
+            map[i] = 0;
+            compass[i] = 0;
+            boss_key[i] = 0;
+        }
+        for (int i = 0; i < 16; i++)
+            misc[i] = 0;
+        last_map = 0;
+        last_screen = 0;
+        max_magic = 0;
+        magic = 0;
+        bomb_ratio = 0;
+        msg_more_x = 0;
+        msg_more_y = 0;
+        msg_more_is_offset = 0;
+        subscreen = 0;
+        start_dmap = 0;
+        linkanimationstyle = 0;
+        for (int i = 0; i < MAXLEVELS; i++)
+            level_keys[i] = 0;
+        ss_grid_x = 0;
+        ss_grid_y = 0;
+        ss_grid_xofs = 0;
+        ss_grid_yofs = 0;
+        ss_grid_color = 0;
+        ss_bbox_1_color = 0;
+        ss_bbox_2_color = 0;
+        ss_flags = 0;
+        subscreen_style = 0;
+        usecustomsfx = 0;
+        max_rupees = 0;
+        max_keys = 0;
+        gravity = 0;
+        terminalv = 0;
+        msg_speed = 0;
+        transition_type = 0;
+        jump_link_layer_threshold = 0;
+        link_swim_speed = 0;
+    }
+
     byte bombs, super_bombs;
-    bool items[256];
+    std::set<ItemDefinitionRef> inventoryItems;
     //94
     byte hc;
     word start_heart, cont_heart;
@@ -3368,19 +3441,6 @@ INLINE void SCRFIX()
 //INLINE int new_return(int x) { fake_pack_writing=false; return x; }
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
-//some methods for dealing with items
-int getItemFamily(itemdata *items, int item);
-void removeItemsOfFamily(gamedata *g, itemdata *items, int family);
-void removeItemsOfFamily(zinitdata *i, itemdata *items, int family);
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int level);
-int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family);
-int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool checkenabled = false);
-int getItemID(itemdata *items, int family, int level);
-int getCanonicalItemID(itemdata *items, int family);
-int getItemIDPower(itemdata *items, int family, int power);
-void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels);
-int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
-
 extern void flushItemCache();
 extern void removeFromItemCache(int itemid);
 
@@ -3398,6 +3458,23 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_GAME		1
 #define GLOBAL_SCRIPT_END		2
 #define GLOBAL_SCRIPT_CONTINUE 	3
+
+
+//placeholder for now
+struct LensItemAnim
+{
+    int aclk;
+    int aframe;
+};
+
+struct LensWeaponAnim
+{
+    int aclk;
+    int aframe;
+    int dir;
+    int x;
+    int y;
+};
 
 
 #endif                                                      //_ZDEFS_H_

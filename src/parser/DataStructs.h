@@ -1,36 +1,21 @@
 #ifndef DATASTRUCTS_H
 #define DATASTRUCTS_H
 
-#include "AST.h"
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
+#include "AST.h"
+#include "ZScript.h"
 
 using std::string;
 using std::map;
 using std::vector;
 using std::pair;
 
-// Forward declare ZScript.h
 namespace ZScript
 {
-	class Program;
-	class Script;
-	class Variable;
-	class Function;
+	class ZClass;
 }
-
-class FunctionSignature
-{
-public:
-	FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes);
-	FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes);
-	int compare(FunctionSignature const& other) const;
-	bool operator==(FunctionSignature const& other) const {return compare(other) == 0;}
-	bool operator<(FunctionSignature const& other) const {return compare(other) < 0;}
-	vector<string> name;
-	vector<ZVarType const*> paramTypes;
-};
 
 class FunctionTypeIds
 {
@@ -44,8 +29,6 @@ public:
 	vector<ZVarTypeId> paramTypeIds;
 	static FunctionTypeIds const null;
 };
-
-class ZClass;
 
 class SymbolTable
 {
@@ -63,10 +46,17 @@ public:
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
-	ZVarType const* getCanonicalType(ZVarType const& type);
+
+	template <typename Type>
+	Type const* getCanonicalType(Type const& type)
+	{
+		return static_cast<Type const*>(
+				types[getOrAssignTypeId(type)]);
+	}
+	
 	// Classes
-	ZClass* getClass(int classId) const;
-	ZClass* createClass(string const& name);
+	ZScript::ZClass* getClass(int classId) const;
+	ZScript::ZClass* createClass(string const& name);
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
@@ -85,33 +75,29 @@ public:
     ZVarTypeId getFuncReturnTypeId(int funcId) const;
     ZVarTypeId getFuncReturnTypeId(AST *node) const;
     vector<ZVarTypeId> getFuncParamTypeIds(int funcId) const;
-    void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
-    void putFuncTypes(int funcId, ZVarType const* returnType, vector<ZVarType const*> const& paramTypes);
-	// Global Pointers
-    vector<int> const& getGlobalPointers() const {return globalPointers;}
-    vector<int>& getGlobalPointers() {return globalPointers;}
-    void addGlobalPointer(int varId) {globalPointers.push_back(varId);}
+    void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId,
+                        vector<ZVarTypeId> const& paramTypeIds);
+    void putFuncTypes(int funcId, ZVarType const* returnType,
+                      vector<ZVarType const*> const& paramTypes);
 	// Other
     void printDiagnostics();
 private:
     map<AST*, int> nodeIds;
 	vector<ZVarType*> types;
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
-	vector<ZClass*> classes;
+	vector<ZScript::ZClass*> classes;
     map<AST*, vector<int> > possibleNodeFuncIds;
     map<int, ZVarTypeId> varTypes;
     map<int, long> inlinedConstants;
     map<int, FunctionTypeIds> funcTypes;
-    vector<int> globalPointers;
 };
 
 struct FunctionData
 {
 	FunctionData(ZScript::Program& program);
 	ZScript::Program& program;
-	vector<ZScript::Literal*> globalLiterals;
-	vector<ZScript::Variable*> globalVariables;
-	vector<ZScript::Variable*> globalConstants;
+	vector<ZScript::Datum*> globalData;
+	vector<ZScript::Datum*> globalVariables;
 };
 
 struct IntermediateData
@@ -123,37 +109,8 @@ struct IntermediateData
     map<string, int> scriptRunLabels;
 };
 
-class LinkTable
-{
-public:
-    int functionToLabel(int fid);
-    int getGlobalID(int vid);
-    int addGlobalVar(int vid);
-    void addGlobalPointer(int vid)
-    {
-        globalIDs[vid]=0;
-    }
-private:
-    map<int, int> funcLabels;
-    map<int, int> globalIDs;
-};
-
-class StackFrame
-{
-public:
-    void addToFrame(int vid, int offset)
-    {
-        stackoffset[vid] = offset;
-    }
-    int getOffset(int vid);
-private:
-    map<int, int> stackoffset;
-};
-
 struct OpcodeContext
 {
-    StackFrame *stackframe;
-    LinkTable *linktable;
     SymbolTable *symbols;
 	vector<Opcode*> initCode;
 };

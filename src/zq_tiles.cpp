@@ -5512,112 +5512,127 @@ void register_used_tiles()
         }
     }
     
-    for(int u=0; u<iLast; u++)
+    std::vector<std::string> modules;
+    curQuest->getModules(modules);
+
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        for(int t=zc_max(itemsbuf[u].tile,0); t<zc_min(itemsbuf[u].tile+zc_max(itemsbuf[u].frames,1),NEWMAXTILES); ++t)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t u = 0; u < module.itemDefTable().getNumItemDefinitions(); u++)
         {
-            used_tile_table[t]=true;
+            ItemDefinitionRef ref(*it, u);
+            for (int t = zc_max(curQuest->getItemDefinition(ref).tile, 0); t < zc_min(curQuest->getItemDefinition(ref).tile + zc_max(curQuest->getItemDefinition(ref).frames, 1), NEWMAXTILES); ++t)
+            {
+                used_tile_table[t] = true;
+            }
         }
     }
     
     bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
     
-    for(int u=0; u<wLast; u++)
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        int m=0;
-        ignore_frames=false;
-        
-        switch(u)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t u = 0; u < module.spriteDefTable().getNumSpriteDefinitions(); u++)
         {
-        case wSWORD:
-        case wWSWORD:
-        case wMSWORD:
-        case wXSWORD:
-            m=3+((wpnsbuf[u].type==3)?1:0);
-            break;
-            
-        case wSWORDSLASH:
-        case wWSWORDSLASH:
-        case wMSWORDSLASH:
-        case wXSWORDSLASH:
-            m=4;
-            break;
-            
-        case iwMMeter:
-            m=9;
-            break;
-            
-        case wBRANG:
-        case wMBRANG:
-        case wFBRANG:
-            m=BSZ2?1:3;
-            break;
-            
-        case wBOOM:
-        case wSBOOM:
-        case ewBOOM:
-        case ewSBOOM:
-            ignore_frames=true;
-            m=2;
-            break;
-            
-        case wWAND:
-            m=1;
-            break;
-            
-        case wMAGIC:
-            m=1;
-            break;
-            
-        case wARROW:
-        case wSARROW:
-        case wGARROW:
-        case ewARROW:
-            m=1;
-            break;
-            
-        case wHAMMER:
-            m=8;
-            break;
-            
-        case wHSHEAD:
-            m=1;
-            break;
-            
-        case wHSCHAIN_H:
-            m=1;
-            break;
-            
-        case wHSCHAIN_V:
-            m=1;
-            break;
-            
-        case wHSHANDLE:
-            m=1;
-            break;
-            
-        case iwDeath:
-            m=BSZ2?4:2;
-            break;
-            
-        case iwSpawn:
-            m=3;
-            break;
-            
-        default:
-            m=0;
-            break;
+            int m = 0;
+            ignore_frames = false;
+
+            // with weapons and items customizable this logic is no longer reliable.
+            // TODO (probably not a simple task): have sprites take into account their reserved tiles
+
+            /*switch(u)
+            {
+            case wSWORD:
+            case wWSWORD:
+            case wMSWORD:
+            case wXSWORD:
+                m=3+((curQuest->weaponDefTable().getWeaponDefinition(u).type==3)?1:0);
+                break;
+
+            case wSWORDSLASH:
+            case wWSWORDSLASH:
+            case wMSWORDSLASH:
+            case wXSWORDSLASH:
+                m=4;
+                break;
+
+            case iwMMeter:
+                m=9;
+                break;
+
+            case wBRANG:
+            case wMBRANG:
+            case wFBRANG:
+                m=BSZ2?1:3;
+                break;
+
+            case wBOOM:
+            case wSBOOM:
+            case ewBOOM:
+            case ewSBOOM:
+                ignore_frames=true;
+                m=2;
+                break;
+
+            case wWAND:
+                m=1;
+                break;
+
+            case wMAGIC:
+                m=1;
+                break;
+
+            case wARROW:
+            case wSARROW:
+            case wGARROW:
+            case ewARROW:
+                m=1;
+                break;
+
+            case wHAMMER:
+                m=8;
+                break;
+
+            case wHSHEAD:
+                m=1;
+                break;
+
+            case wHSCHAIN_H:
+                m=1;
+                break;
+
+            case wHSCHAIN_V:
+                m=1;
+                break;
+
+            case wHSHANDLE:
+                m=1;
+                break;
+
+            case iwDeath:
+                m=BSZ2?4:2;
+                break;
+
+            case iwSpawn:
+                m=3;
+                break;
+
+            default:
+                m=0;
+                break;
+            }*/
+
+
+            for (int t = zc_max(module.spriteDefTable().getSpriteDefinition(u).tile, 0); t < zc_min(module.spriteDefTable().getSpriteDefinition(u).tile + zc_max((ignore_frames ? 0 : module.spriteDefTable().getSpriteDefinition(u).frames), 1) + m, NEWMAXTILES); ++t)
+            {
+                used_tile_table[t] = true;
+            }
+
+            used_tile_table[54] = true;
+            used_tile_table[55] = true;
         }
-        
-        for(int t=zc_max(wpnsbuf[u].tile,0); t<zc_min(wpnsbuf[u].tile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
-        {
-            used_tile_table[t]=true;
-        }
-        
-        used_tile_table[54]=true;
-        used_tile_table[55]=true;
     }
-    
     setup_link_sprite_items();
     
 //  i=move_intersection_rs(tile_col(link_sprite_items[u].tile), tile_row(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
@@ -5688,151 +5703,142 @@ void register_used_tiles()
     }
     
     bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-    int u;
     
-    for(u=0; u<eMAXGUYS; u++)
+    for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
-        bool darknut=false;
-        int gleeok=0;
-        
-        switch(u)
+        QuestModule &module = curQuest->getModule(*it);
+        for (uint32_t u = 0; u < module.enemyDefTable().getNumEnemyDefinitions(); u++)
         {
-        case eDKNUT1:
-        case eDKNUT2:
-        case eDKNUT3:
-        case eDKNUT5:
-            darknut=true;
-            break;
-        }
-        
-        if(u>=eGLEEOK1 && u<=eGLEEOK4)
-        {
-            gleeok=1;
-        }
-        else if(u>=eGLEEOK1F && u<=eGLEEOK4F)
-        {
-            gleeok=2;
-        }
-        
-        if(newtiles)
-        {
-            if(guysbuf[u].e_tile==0)
-            {
-                continue;
-            }
+            bool darknut = false;
             
-            if(guysbuf[u].e_height==0)
+            if (module.enemyDefTable().getEnemyDefinition(u).anim == aDWALK)
+                darknut = true;
+
+            if (module.enemyDefTable().getEnemyDefinition(u).family == eeGLEEOK)
             {
-                for(int t=zc_max(guysbuf[u].e_tile,0); t<zc_min(guysbuf[u].e_tile+zc_max(guysbuf[u].e_width, 0),NEWMAXTILES); ++t)
-                {
-                    used_tile_table[t]=true;
-                }
+
             }
-            else
+
+            if (newtiles)
             {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                if (module.enemyDefTable().getEnemyDefinition(u).e_tile == 0)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
+                    continue;
                 }
-            }
-            
-            if(darknut)
-            {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile+120),0); r<zc_min(tile_row(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+
+                if (module.enemyDefTable().getEnemyDefinition(u).e_height == 0)
                 {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile+120),0); c<zc_min(tile_col(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_width,1),TILES_PER_ROW); ++c)
+                    for (int t = zc_max(module.enemyDefTable().getEnemyDefinition(u).e_tile, 0); t < zc_min(module.enemyDefTable().getEnemyDefinition(u).e_tile + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_width, 0), NEWMAXTILES); ++t)
                     {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-            else if(u==eGANON)
-            {
-                for(int r=zc_max(tile_row(guysbuf[u].e_tile),0); r<zc_min(tile_row(guysbuf[u].e_tile)+4,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(tile_col(guysbuf[u].e_tile),0); c<zc_min(tile_col(guysbuf[u].e_tile)+20,TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-            else if(gleeok)
-            {
-                for(int j=0; j<4; ++j)
-                {
-                    for(int r=zc_max(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0),0); r<zc_min(tile_row(guysbuf[u].e_tile+8)+(j<<1)+(gleeok>1?1:0)+1,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                    {
-                        for(int c=zc_max(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8)),0); c<zc_min(tile_col(guysbuf[u].e_tile+(gleeok>1?-4:8))+4,TILES_PER_ROW); ++c)
-                        {
-                            used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                        }
-                    }
-                }
-                
-                int c3=tile_col(guysbuf[u].e_tile)+(gleeok>1?-12:0);
-                int r3=tile_row(guysbuf[u].e_tile)+(gleeok>1?17:8);
-                
-                for(int r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(c3,0); c<zc_min(c3+20,TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-                
-                for(int r=zc_max(r3+3,0); r<zc_min(r3+3+6,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(c3,0); c<zc_min(c3+16,TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-        }
-        else
-        {
-            if(guysbuf[u].tile==0)
-            {
-                continue;
-            }
-            
-            if(guysbuf[u].height==0)
-            {
-                for(int t=zc_max(guysbuf[u].tile,0); t<zc_min(guysbuf[u].tile+zc_max(guysbuf[u].width, 0),NEWMAXTILES); ++t)
-                {
-                    used_tile_table[t]=true;
-                }
-            }
-            else
-            {
-                for(int r=zc_max(tile_row(guysbuf[u].tile),0); r<zc_min(tile_row(guysbuf[u].tile)+zc_max(guysbuf[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
-                {
-                    for(int c=zc_max(tile_col(guysbuf[u].tile),0); c<zc_min(tile_col(guysbuf[u].tile)+zc_max(guysbuf[u].width,1),TILES_PER_ROW); ++c)
-                    {
-                        used_tile_table[(r*TILES_PER_ROW)+c]=true;
-                    }
-                }
-            }
-            
-            if(guysbuf[u].s_tile!=0)
-            {
-                if(guysbuf[u].s_height==0)
-                {
-                    for(int t=zc_max(guysbuf[u].s_tile,0); t<zc_min(guysbuf[u].s_tile+zc_max(guysbuf[u].s_width, 0),NEWMAXTILES); ++t)
-                    {
-                        used_tile_table[t]=true;
+                        used_tile_table[t] = true;
                     }
                 }
                 else
                 {
-                    for(int r=zc_max(tile_row(guysbuf[u].s_tile),0); r<zc_min(tile_row(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
                     {
-                        for(int c=zc_max(tile_col(guysbuf[u].s_tile),0); c<zc_min(tile_col(guysbuf[u].s_tile)+zc_max(guysbuf[u].s_width,1),TILES_PER_ROW); ++c)
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_width, 1), TILES_PER_ROW); ++c)
                         {
-                            used_tile_table[(r*TILES_PER_ROW)+c]=true;
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+
+                if (darknut)
+                {
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 120) + zc_max(module.enemyDefTable().getEnemyDefinition(u).e_width, 1), TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+                else if (module.enemyDefTable().getEnemyDefinition(u).family == eeGANON)
+                {
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 4, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 20, TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+                else if (module.enemyDefTable().getEnemyDefinition(u).family == eeGLEEOK)
+                {
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8) + (j << 1), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8) + (j << 1) + 1, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                        {
+                            for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile + 8) + 4, TILES_PER_ROW); ++c)
+                            {
+                                used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                            }
+                        }
+                    }
+
+                    int c3 = tile_col(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 0;
+                    int r3 = tile_row(module.enemyDefTable().getEnemyDefinition(u).e_tile) + 8;
+
+                    for (int r = zc_max(r3, 0); r < zc_min(r3 + 3, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(c3, 0); c < zc_min(c3 + 20, TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+
+                    for (int r = zc_max(r3 + 3, 0); r < zc_min(r3 + 3 + 6, TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(c3, 0); c < zc_min(c3 + 16, TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (module.enemyDefTable().getEnemyDefinition(u).tile == 0)
+                {
+                    continue;
+                }
+
+                if (module.enemyDefTable().getEnemyDefinition(u).height == 0)
+                {
+                    for (int t = zc_max(module.enemyDefTable().getEnemyDefinition(u).tile, 0); t < zc_min(module.enemyDefTable().getEnemyDefinition(u).tile + zc_max(module.enemyDefTable().getEnemyDefinition(u).width, 0), NEWMAXTILES); ++t)
+                    {
+                        used_tile_table[t] = true;
+                    }
+                }
+                else
+                {
+                    for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                    {
+                        for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).width, 1), TILES_PER_ROW); ++c)
+                        {
+                            used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                        }
+                    }
+                }
+
+                if (module.enemyDefTable().getEnemyDefinition(u).s_tile != 0)
+                {
+                    if (module.enemyDefTable().getEnemyDefinition(u).s_height == 0)
+                    {
+                        for (int t = zc_max(module.enemyDefTable().getEnemyDefinition(u).s_tile, 0); t < zc_min(module.enemyDefTable().getEnemyDefinition(u).s_tile + zc_max(module.enemyDefTable().getEnemyDefinition(u).s_width, 0), NEWMAXTILES); ++t)
+                        {
+                            used_tile_table[t] = true;
+                        }
+                    }
+                    else
+                    {
+                        for (int r = zc_max(tile_row(module.enemyDefTable().getEnemyDefinition(u).s_tile), 0); r < zc_min(tile_row(module.enemyDefTable().getEnemyDefinition(u).s_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).s_height, 1), TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+                        {
+                            for (int c = zc_max(tile_col(module.enemyDefTable().getEnemyDefinition(u).s_tile), 0); c < zc_min(tile_col(module.enemyDefTable().getEnemyDefinition(u).s_tile) + zc_max(module.enemyDefTable().getEnemyDefinition(u).s_width, 1), TILES_PER_ROW); ++c)
+                            {
+                                used_tile_table[(r*TILES_PER_ROW) + c] = true;
+                            }
                         }
                     }
                 }
@@ -6053,8 +6059,8 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     int i;
     bool *move_combo_list = new bool[MAXCOMBOS];
-    bool *move_items_list = new bool[iMax];
-    bool *move_weapons_list = new bool[wMAX];
+    std::vector<ItemDefinitionRef> move_items_list;
+    std::vector<SpriteDefinitionRef> move_sprite_list;
     bool move_link_sprites_list[41];
     bool move_mapstyles_list[6];
     //bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -6189,45 +6195,55 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 tile_move_list_text[0]=0;
                 found=false;
                 flood=false;
-                build_bii_list(false);
                 
-                for(int u=0; u<iMax; u++)
+                move_items_list.clear();
+                
+                std::vector<std::string> modules;
+                curQuest->getModules(modules);
+
+                for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
                 {
-                    move_items_list[u]=false;
-                    
-                    if(rect)
+                    uint32_t numitems = curQuest->getModule(*it).itemDefTable().getNumItemDefinitions();
+
+
+                    for (uint32_t u = 0; u < numitems; u++)
                     {
-                        i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
-                    }
-                    else
-                    {
-                        i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
-                    }
-                    
-                    if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
-                    {
-                        if(i==ti_broken || q==0)
+                        itemdata &itemd = curQuest->getModule(*it).itemDefTable().getItemDefinition(u);
+
+                        if (rect)
                         {
-                            sprintf(temptext, "%s\n", bii[u].s);
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
-                                {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
-                            }
-                            
-                            found=true;
+                            i = move_intersection_sr(itemd.tile, itemd.tile + zc_max(itemd.frames, 1) - 1, selection_left, selection_top, selection_width, selection_height);
                         }
-                        else if(i==ti_encompass)
+                        else
                         {
-                            move_items_list[u]=true;
+                            i = move_intersection_ss(itemd.tile, itemd.tile + zc_max(itemd.frames, 1) - 1, selection_first, selection_last);
+                        }
+
+                        if ((i != ti_none) && (itemd.tile != 0))
+                        {
+                            if (i == ti_broken || q == 0)
+                            {
+                                sprintf(temptext, "%s\n", itemd.name.c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if (!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood = true;
+                                    }
+                                }
+
+                                found = true;
+                            }
+                            else if (i == ti_encompass)
+                            {
+                                move_items_list.push_back(ItemDefinitionRef(*it, u));
+                            }
                         }
                     }
                 }
@@ -6278,162 +6294,171 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 tile_move_list_text[0]=0;
                 found=false;
                 flood=false;
-                build_biw_list();
-                bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
                 
-                for(int u=0; u<wMAX; u++)
+                move_sprite_list.clear();
+
+                bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+
+                std::vector<std::string> modules;
+                curQuest->getModules(modules);
+                
+                for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
                 {
-                    ignore_frames=false;
-                    move_weapons_list[u]=false;
-                    int m=0;
-                    
-                    switch(biw[u].i)
+                    uint32_t numsprites = curQuest->getModule(*it).spriteDefTable().getNumSpriteDefinitions();
+                    for (uint32_t u = 0; u < numsprites; u++)
                     {
-                    case wSWORD:
-                    case wWSWORD:
-                    case wMSWORD:
-                    case wXSWORD:
-                        m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
-                        break;
-                        
-                    case wSWORDSLASH:
-                    case wWSWORDSLASH:
-                    case wMSWORDSLASH:
-                    case wXSWORDSLASH:
-                        m=4;
-                        break;
-                        
-                    case iwMMeter:
-                        m=9;
-                        break;
-                        
-                    case wBRANG:
-                    case wMBRANG:
-                    case wFBRANG:
-                        m=BSZ2?1:3;
-                        break;
-                        
-                    case wBOOM:
-                    case wSBOOM:
-                    case ewBOOM:
-                    case ewSBOOM:
-                        ignore_frames=true;
-                        m=2;
-                        break;
-                        
-                    case wWAND:
-                        m=1;
-                        break;
-                        
-                    case wMAGIC:
-                        m=1;
-                        break;
-                        
-                    case wARROW:
-                    case wSARROW:
-                    case wGARROW:
-                    case ewARROW:
-                        m=1;
-                        break;
-                        
-                    case wHAMMER:
-                        m=8;
-                        break;
-                        
-                    case wHSHEAD:
-                        m=1;
-                        break;
-                        
-                    case wHSCHAIN_H:
-                        m=1;
-                        break;
-                        
-                    case wHSCHAIN_V:
-                        m=1;
-                        break;
-                        
-                    case wHSHANDLE:
-                        m=1;
-                        break;
-                        
-                    case iwDeath:
-                        m=BSZ2?4:2;
-                        break;
-                        
-                    case iwSpawn:
-                        m=3;
-                        break;
-                        
-                    default:
-                        m=0;
-                        break;
-                    }
-                    
-                    if(rect)
-                    {
-                        i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
-                    }
-                    else
-                    {
-                        i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
-                    }
-                    
-                    if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
-                    {
-                        if(i==ti_broken || q==0)
+                        wpndata sprited = curQuest->getModule(*it).spriteDefTable().getSpriteDefinition(u);
+                        ignore_frames = false;
+                        int m = 0;
+
+                        /*switch(biw[u].i)
                         {
-                            sprintf(temptext, "%s\n", biw[u].s);
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
-                                {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
-                            }
-                            
-                            found=true;
-                        }
-                        else if(i==ti_encompass)
+                        case wSWORD:
+                        case wWSWORD:
+                        case wMSWORD:
+                        case wXSWORD:
+                            m=3+((curQuest->weaponDefTable().getWeaponDefinition(biw[u].i).type==3)?1:0);
+                            break;
+
+                        case wSWORDSLASH:
+                        case wWSWORDSLASH:
+                        case wMSWORDSLASH:
+                        case wXSWORDSLASH:
+                            m=4;
+                            break;
+
+                        case iwMMeter:
+                            m=9;
+                            break;
+
+                        case wBRANG:
+                        case wMBRANG:
+                        case wFBRANG:
+                            m=BSZ2?1:3;
+                            break;
+
+                        case wBOOM:
+                        case wSBOOM:
+                        case ewBOOM:
+                        case ewSBOOM:
+                            ignore_frames=true;
+                            m=2;
+                            break;
+
+                        case wWAND:
+                            m=1;
+                            break;
+
+                        case wMAGIC:
+                            m=1;
+                            break;
+
+                        case wARROW:
+                        case wSARROW:
+                        case wGARROW:
+                        case ewARROW:
+                            m=1;
+                            break;
+
+                        case wHAMMER:
+                            m=8;
+                            break;
+
+                        case wHSHEAD:
+                            m=1;
+                            break;
+
+                        case wHSCHAIN_H:
+                            m=1;
+                            break;
+
+                        case wHSCHAIN_V:
+                            m=1;
+                            break;
+
+                        case wHSHANDLE:
+                            m=1;
+                            break;
+
+                        case iwDeath:
+                            m=BSZ2?4:2;
+                            break;
+
+                        case iwSpawn:
+                            m=3;
+                            break;
+
+                        default:
+                            m=0;
+                            break;
+                        }*/
+
+                        if (rect)
                         {
-                            move_weapons_list[u]=true;
-                        }
-                    }
-                    
-                    if((u==3)||(u==9))
-                    {
-                        if(rect)
-                        {
-                            i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
+                            i = move_intersection_sr(sprited.tile, sprited.tile + zc_max((ignore_frames ? 0 : sprited.frames), 1) - 1 + m, selection_left, selection_top, selection_width, selection_height);
                         }
                         else
                         {
-                            i=move_intersection_ss(54, 55, selection_first, selection_last);
+                            i = move_intersection_ss(sprited.tile, sprited.tile + zc_max((ignore_frames ? 0 : sprited.frames), 1) - 1 + m, selection_first, selection_last);
                         }
-                        
-                        if(i!=ti_none)
+
+                        if ((i != ti_none) && (sprited.tile != 0))
                         {
-                            sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-                            
-                            if(strlen(tile_move_list_text)<65000)
+                            if (i == ti_broken || q == 0)
                             {
-                                strcat(tile_move_list_text, temptext);
+                                sprintf(temptext, "%s\n", sprited.name.c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if (!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood = true;
+                                    }
+                                }
+
+                                found = true;
+                            }
+                            else if (i == ti_encompass)
+                            {
+                                move_sprite_list.push_back(SpriteDefinitionRef(*it, u));
+                            }
+                        }
+
+                        if ((u == 3) || (u == 9))
+                        {
+                            if (rect)
+                            {
+                                i = move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
                             }
                             else
                             {
-                                if(!flood)
-                                {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
+                                i = move_intersection_ss(54, 55, selection_first, selection_last);
                             }
-                            
-                            found=true;
+
+                            if (i != ti_none)
+                            {
+                                sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u == 3) ? "Arrow" : "Boomerang");
+
+                                if (strlen(tile_move_list_text) < 65000)
+                                {
+                                    strcat(tile_move_list_text, temptext);
+                                }
+                                else
+                                {
+                                    if (!flood)
+                                    {
+                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                        flood = true;
+                                    }
+                                }
+
+                                found = true;
+                            }
                         }
                     }
                 }
@@ -6902,302 +6927,300 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 tile_move_list_text[0]=0;
                 found=false;
                 flood=false;
-                build_bie_list(false);
                 bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
-                int u;
                 
-                for(u=0; u<eMAXGUYS; u++)
+                
+                std::vector<std::string> modules;
+                curQuest->getModules(modules);
+                for (std::vector<std::string>::iterator it = modules.begin(); it != modules.end(); ++it)
                 {
-                    const guydata& enemy=guysbuf[bie[u].i];
-                    bool darknut=false;
-                    int gleeok=0;
-                    
-                    if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
-                        darknut=true;
-                    else if(enemy.family==eeGLEEOK)
+                    uint32_t numenemies = curQuest->getModule(*it).enemyDefTable().getNumEnemyDefinitions();
+
+
+                    for (uint32_t u = 0; u < numenemies; u++)
                     {
-                        // Not certain this is the right thing to check...
-                        if(enemy.misc3==0)
-                            gleeok=1;
-                        else
-                            gleeok=2;
-                    }
-                    
-                    // Dummied out enemies
-                    if(bie[u].i>=eOCTO1S && bie[u].i<e177)
-                    {
-                        if(old_guy_string[bie[u].i][strlen(old_guy_string[bie[u].i])-1]==' ')
+                        const guydata& enemy = curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u);
+                        bool darknut = false;
+                        int gleeok = 0;
+
+                        if (enemy.family == eeWALK && ((enemy.flags&(inv_back | inv_front | inv_left | inv_right)) != 0))
+                            darknut = true;
+                        else if (enemy.family == eeGLEEOK)
                         {
-                            continue;
-                        }
-                    }
-                    
-                    if(newtiles)
-                    {
-                        if(guysbuf[bie[u].i].e_tile==0)
-                        {
-                            continue;
-                        }
-                        
-                        if(guysbuf[bie[u].i].e_height==0)
-                        {
-                            if(rect)
-                            {
-                                i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
-                            }
+                            // Not certain this is the right thing to check...
+                            if (enemy.miscs[2] == 0)
+                                gleeok = 1;
                             else
-                            {
-                                i=move_intersection_ss(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_first, selection_last);
-                            }
+                                gleeok = 2;
                         }
-                        else
+
+                        if (newtiles)
                         {
-                            if(rect)
+                            if (enemy.e_tile == 0)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
+                                continue;
                             }
-                            else
+
+                            if (enemy.e_height == 0)
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
-                            }
-                        }
-                        
-                        if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-                        {
-                            sprintf(temptext, "%s\n", bie[u].s);
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
+                                    i = move_intersection_sr(enemy.e_tile, enemy.e_tile + zc_max(enemy.e_width - 1, 0), selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i = move_intersection_ss(enemy.e_tile, enemy.e_tile + zc_max(enemy.e_width - 1, 0), selection_first, selection_last);
                                 }
                             }
-                            
-                            found=true;
-                        }
-                        
-                        if(darknut)
-                        {
-                            if(rect)
-                            {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
-                            }
                             else
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+120), tile_row(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
+                                if (rect)
+                                {
+                                    i = move_intersection_rr(tile_col(enemy.e_tile), tile_row(enemy.e_tile), enemy.e_width, enemy.e_height, selection_left, selection_top, selection_width, selection_height);
+                                }
+                                else
+                                {
+                                    i = move_intersection_rs(tile_col(enemy.e_tile), tile_row(enemy.e_tile), enemy.e_width, enemy.e_height, selection_first, selection_last);
+                                }
                             }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+
+                            if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                             {
-                                sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
                                 {
                                     strcat(tile_move_list_text, temptext);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    if (!flood)
                                     {
                                         strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
+                                        flood = true;
                                     }
                                 }
-                                
-                                found=true;
+
+                                found = true;
                             }
-                        }
-                        else if(enemy.family==eeGANON && i==ti_none)
-                        {
-                            if(rect)
+
+                            if (darknut)
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
-                            }
-                            else
-                            {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile), tile_row(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
-                            }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-                            {
-                                sprintf(temptext, "%s\n", bie[u].s);
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, temptext);
+                                    i = move_intersection_rr(tile_col(enemy.e_tile + 120), tile_row(enemy.e_tile + 120), enemy.e_width, enemy.e_height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    i = move_intersection_rs(tile_col(enemy.e_tile + 120), tile_row(enemy.e_tile + 120), enemy.e_width, enemy.e_height, selection_first, selection_last);
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s (broken shield)\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
+
+                                    if (strlen(tile_move_list_text) < 65000)
                                     {
-                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
-                                    }
-                                }
-                                
-                                found=true;
-                            }
-                        }
-                        else if(gleeok && i==ti_none)
-                        {
-                            for(int j=0; j<4 && i==ti_none; ++j)
-                            {
-                                if(rect)
-                                {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
-                                }
-                                else
-                                {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), tile_row(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
-                                }
-                            }
-                            
-                            if(i==ti_none)
-                            {
-                                int c=tile_col(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-                                int r=tile_row(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-                                
-                                if(rect)
-                                {
-                                    i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
-                                }
-                                else
-                                {
-                                    i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
-                                }
-                                
-                                if(i==ti_none)
-                                {
-                                    if(rect)
-                                    {
-                                        i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
+                                        strcat(tile_move_list_text, temptext);
                                     }
                                     else
                                     {
-                                        i=move_intersection_rs(c, r+3, 16, 6, selection_first, selection_last);
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
                                     }
+
+                                    found = true;
                                 }
                             }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+                            else if (enemy.family == eeGANON && i == ti_none)
                             {
-                                sprintf(temptext, "%s\n", bie[u].s);
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, temptext);
+                                    i = move_intersection_rr(tile_col(enemy.e_tile), tile_row(enemy.e_tile) + 2, 20, 4, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    i = move_intersection_rs(tile_col(enemy.e_tile), tile_row(enemy.e_tile) + 2, 20, 4, selection_first, selection_last);
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
+
+                                    if (strlen(tile_move_list_text) < 65000)
                                     {
-                                        strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
+                                        strcat(tile_move_list_text, temptext);
+                                    }
+                                    else
+                                    {
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
+                                    }
+
+                                    found = true;
+                                }
+                            }
+                            else if (gleeok && i == ti_none)
+                            {
+                                for (int j = 0; j < 4 && i == ti_none; ++j)
+                                {
+                                    if (rect)
+                                    {
+                                        i = move_intersection_rr(tile_col(enemy.e_tile + (gleeok > 1 ? -4 : 8)), tile_row(enemy.e_tile + 8) + (j << 1) + (gleeok > 1 ? 1 : 0), 4, 1, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_rs(tile_col(enemy.e_tile + (gleeok > 1 ? -4 : 8)), tile_row(enemy.e_tile + 8) + (j << 1) + (gleeok > 1 ? 1 : 0), 4, 1, selection_first, selection_last);
                                     }
                                 }
-                                
-                                found=true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if((guysbuf[bie[u].i].tile==0))
-                        {
-                            continue;
-                        }
-                        else if(guysbuf[bie[u].i].height==0)
-                        {
-                            if(rect)
-                            {
-                                i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
-                            }
-                            else
-                            {
-                                i=move_intersection_ss(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_first, selection_last);
+
+                                if (i == ti_none)
+                                {
+                                    int c = tile_col(enemy.e_tile) + (gleeok > 1 ? -12 : 0);
+                                    int r = tile_row(enemy.e_tile) + (gleeok > 1 ? 17 : 8);
+
+                                    if (rect)
+                                    {
+                                        i = move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
+                                    }
+
+                                    if (i == ti_none)
+                                    {
+                                        if (rect)
+                                        {
+                                            i = move_intersection_rr(c, r + 3, 16, 6, selection_left, selection_top, selection_width, selection_height);
+                                        }
+                                        else
+                                        {
+                                            i = move_intersection_rs(c, r + 3, 16, 6, selection_first, selection_last);
+                                        }
+                                    }
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
+
+                                    if (strlen(tile_move_list_text) < 65000)
+                                    {
+                                        strcat(tile_move_list_text, temptext);
+                                    }
+                                    else
+                                    {
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
+                                    }
+
+                                    found = true;
+                                }
                             }
                         }
                         else
                         {
-                            if(rect)
+                            if ((enemy.tile == 0))
                             {
-                                i=move_intersection_rr(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
+                                continue;
                             }
-                            else
+                            else if (enemy.height == 0)
                             {
-                                i=move_intersection_rs(tile_col(guysbuf[bie[u].i].tile), tile_row(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
-                            }
-                        }
-                        
-                        if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
-                        {
-                            sprintf(temptext, "%s\n", bie[u].s);
-                            
-                            if(strlen(tile_move_list_text)<65000)
-                            {
-                                strcat(tile_move_list_text, temptext);
-                            }
-                            else
-                            {
-                                if(!flood)
+                                if (rect)
                                 {
-                                    strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                    flood=true;
-                                }
-                            }
-                            
-                            found=true;
-                        }
-                        
-                        if(guysbuf[bie[u].i].s_tile!=0)
-                        {
-                            if(guysbuf[bie[u].i].s_height==0)
-                            {
-                                if(rect)
-                                {
-                                    i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
+                                    i = move_intersection_sr(enemy.tile, enemy.tile + zc_max(enemy.width - 1, 0), selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_ss(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_first, selection_last);
+                                    i = move_intersection_ss(enemy.tile, enemy.tile + zc_max(enemy.width - 1, 0), selection_first, selection_last);
                                 }
                             }
                             else
                             {
-                                if(rect)
+                                if (rect)
                                 {
-                                    i=move_intersection_rr(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
+                                    i = move_intersection_rr(tile_col(enemy.tile), tile_row(enemy.tile), enemy.width, enemy.height, selection_left, selection_top, selection_width, selection_height);
                                 }
                                 else
                                 {
-                                    i=move_intersection_rs(tile_col(guysbuf[bie[u].i].s_tile), tile_row(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
+                                    i = move_intersection_rs(tile_col(enemy.tile), tile_row(enemy.tile), enemy.width, enemy.height, selection_first, selection_last);
                                 }
                             }
-                            
-                            if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
+
+                            if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
                             {
-                                sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-                                
-                                if(strlen(tile_move_list_text)<65000)
+                                sprintf(temptext, "%s\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str());
+
+                                if (strlen(tile_move_list_text) < 65000)
                                 {
                                     strcat(tile_move_list_text, temptext);
                                 }
                                 else
                                 {
-                                    if(!flood)
+                                    if (!flood)
                                     {
                                         strcat(tile_move_list_text, "...\n...\n...\nmany others");
-                                        flood=true;
+                                        flood = true;
                                     }
                                 }
-                                
-                                found=true;
+
+                                found = true;
+                            }
+
+                            if (enemy.s_tile != 0)
+                            {
+                                if (enemy.s_height == 0)
+                                {
+                                    if (rect)
+                                    {
+                                        i = move_intersection_sr(enemy.s_tile, enemy.s_tile + zc_max(enemy.s_width - 1, 0), selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_ss(enemy.s_tile, enemy.s_tile + zc_max(enemy.s_width - 1, 0), selection_first, selection_last);
+                                    }
+                                }
+                                else
+                                {
+                                    if (rect)
+                                    {
+                                        i = move_intersection_rr(tile_col(enemy.s_tile), tile_row(enemy.s_tile), enemy.s_width, enemy.s_height, selection_left, selection_top, selection_width, selection_height);
+                                    }
+                                    else
+                                    {
+                                        i = move_intersection_rs(tile_col(enemy.s_tile), tile_row(enemy.s_tile), enemy.s_width, enemy.s_height, selection_first, selection_last);
+                                    }
+                                }
+
+                                if (((q == 1) && i == ti_broken) || (q == 0 && i != ti_none))
+                                {
+                                    sprintf(temptext, "%s (%s)\n", curQuest->getModule(*it).enemyDefTable().getEnemyDefinition(u).name.c_str(), darknut ? "broken shield" : "secondary tiles");
+
+                                    if (strlen(tile_move_list_text) < 65000)
+                                    {
+                                        strcat(tile_move_list_text, temptext);
+                                    }
+                                    else
+                                    {
+                                        if (!flood)
+                                        {
+                                            strcat(tile_move_list_text, "...\n...\n...\nmany others");
+                                            flood = true;
+                                        }
+                                    }
+
+                                    found = true;
+                                }
                             }
                         }
                     }
@@ -7329,20 +7352,14 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
                 }
             }
             
-            for(int u=0; u<iMax; u++)
+            for (std::vector<ItemDefinitionRef>::iterator it = move_items_list.begin(); it != move_items_list.end(); ++it)
             {
-                if(move_items_list[u])
-                {
-                    itemsbuf[bii[u].i].tile+=diff;
-                }
+                curQuest->getItemDefinition(*it).tile += diff;
             }
-            
-            for(int u=0; u<wMAX; u++)
+
+            for(std::vector<SpriteDefinitionRef>::iterator it = move_sprite_list.begin(); it != move_sprite_list.end(); ++it)
             {
-                if(move_weapons_list[u])
-                {
-                    wpnsbuf[biw[u].i].tile+=diff;
-                }
+                curQuest->getSpriteDefinition(*it).tile += diff;
             }
             
             for(int u=0; u<41; u++)
@@ -7510,8 +7527,6 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     
     delete[] tile_move_list_text;
     delete[] move_combo_list;
-    delete[] move_items_list;
-    delete[] move_weapons_list;
     
     if(done)
         return false;

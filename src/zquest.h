@@ -8,6 +8,7 @@
 #include "jwinfsel.h"
 #include "zcmusic.h"
 #include "sprite.h"
+#include "quest/Quest.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -80,9 +81,8 @@ extern int tooltip_timer, tooltip_maxtimer;
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
 extern bool resize_mouse_pos;                               //for eyeball combos
 
-extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
-extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 //extern int mode, switch_mode, orig_mode;
+extern Quest *curQuest;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern char *datafile_str;
@@ -96,9 +96,6 @@ extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *b
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
-extern itemdata *itemsbuf;
-extern wpndata  *wpnsbuf;
-extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
 extern PALETTE RAMpal;
@@ -329,6 +326,7 @@ int playTune(int pos);
 int stopMusic();
 
 int onTemplates();
+int onModules();
 
 //  +----------+
 //  |          |
@@ -448,21 +446,12 @@ int onCompileScript();
 
 void printZAsm();
 
-typedef struct item_struct
+typedef struct room_struct
 {
-    char *s;
+    std::string s;
     int i;
-} item_struct;
+} room_struct;
 
-extern item_struct bii[iMax+1];
-
-typedef struct weapon_struct
-{
-    char *s;
-    int i;
-} weapon_struct;
-
-extern weapon_struct biw[wMAX];
 
 typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
@@ -514,7 +503,6 @@ enum
     cmdExport_Subscreen,
     cmdExport_Tiles,
     cmdExport_UnencodedQuest,
-    cmdExport_ZGP,
     cmdFlags,
     cmdPasteFFCombos,
     cmdSelectFFCombo,
@@ -529,7 +517,6 @@ enum
     cmdImportItemScript,
     cmdImport_Combos,
     cmdImport_DMaps,
-    cmdImport_ZGP,
     cmdImport_Map,
     cmdImport_Pals,
     cmdImport_ZQT,
@@ -640,14 +627,6 @@ int set_comboaradio(byte layermask);
 extern int alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, int size);
 
-void build_bii_list(bool usenone);
-const char *itemlist(int index, int *list_size);
-int select_item(const char *prompt,int item,bool is_editor,int &exit_status);
-
-void build_biw_list();
-const char *weaponlist(int index, int *list_size);
-int select_weapon(const char *prompt,int weapon);
-
 void build_bir_list();
 const char *roomlist(int index, int *list_size);
 int select_room(const char *prompt,int room);
@@ -710,19 +689,6 @@ int onToggleShowInfo();
 //char msgbuf[MSGSTRS*3];
 
 int d_ndroplist_proc(int msg,DIALOG *d,int c);
-int d_idroplist_proc(int msg,DIALOG *d,int c);
-int d_nidroplist_proc(int msg,DIALOG *d,int c);
-int d_ilist_proc(int msg,DIALOG *d,int c);
-int d_wlist_proc(int msg,DIALOG *d,int c);
-int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list);
-INLINE int d_enelist_proc(int msg,DIALOG *d,int c)
-{
-    return enelist_proc(msg,d,c,true);
-}
-INLINE int d_enelistnoabc_proc(int msg,DIALOG *d,int c)
-{
-    return enelist_proc(msg,d,c,false);
-}
 
 
 /**********************************/
@@ -897,23 +863,9 @@ int onPattern();
 int onEnemyFlags();
 const char *enemy_viewer(int index, int *list_size);
 
-typedef struct enemy_struct
-{
-    char *s;
-    int i;
-} enemy_struct;
-
 #define zqMAXGUYS    gDUMMY1
 
-extern enemy_struct bie[eMAXGUYS];
-extern enemy_struct big[zqMAXGUYS];
-void build_bie_list(bool hide);
-void build_big_list(bool hide);
-const char *enemylist(int index, int *list_size);
-const char *guylist(int index, int *list_size);
-int efrontfacingtile(int id);
-int select_enemy(const char *prompt,int enemy,bool hide,bool edit,int& exit_status);
-int select_guy(const char *prompt,int guy);
+int efrontfacingtile(const EnemyDefinitionRef &ref);
 
 //unsigned char check[2] = { ';'+128,0 };
 
@@ -1031,16 +983,17 @@ void switch_in();
 void Z_eventlog(const char *format,...);
 void Z_scripterrlog(const char * const format,...);
 int get_currdmap();
-int current_item(int item_type);
+int currentItemLevel(int item_type);
 int current_item_power(int item_type);
-int current_item_id(int item_type, bool checkmagic);
+ItemDefinitionRef current_item_id(int item_type, bool checkmagic);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int it);
 int get_bmaps(int si);
 
 bool no_subscreen();
 
-extern int Awpn, Bwpn, Bpos;
+extern ItemDefinitionRef Awpn, Bwpn;
+extern int Bpos;
 extern sprite_list Sitems;
 
 int main(int argc,char **argv);

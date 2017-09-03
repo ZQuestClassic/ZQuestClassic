@@ -27,6 +27,7 @@
 #include <assert.h>
 #include "mem_debug.h"
 #include "backend/AllBackends.h"
+#include "selectors.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -40,15 +41,12 @@
 int curr_subscreen_object;
 char *str_oname;
 subscreen_group *css;
-bool sso_selection[MAXSUBSCREENITEMS];
+std::set<int> sso_selection;
 static int ss_propCopySrc=-1;
 
 void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
 gamedata *game;
-
-//extern char *itemlist(int index, int *list_size)
-extern int bii_cnt;
 
 void delete_subscreen(int subscreenidx);
 
@@ -483,17 +481,21 @@ int d_stilelist_proc(int msg,DIALOG *d,int c)
         switch(d->d1-1)
         {
         case ssmstSSVINETILE:
-            (d-15)->w=52;
-            (d-14)->w=48;
-            (d-14)->d1=wpnsbuf[iwSubscreenVine].tile;
+        {
+            (d - 15)->w = 52;
+            (d - 14)->w = 48;
+            SpriteDefinitionRef vines = curQuest->specialSprites().subscreenVine;
+            (d - 14)->d1 = curQuest->getSpriteDefinition(vines).tile;
             break;
-            
+        }
         case ssmstMAGICMETER:
-            (d-15)->w=148;
-            (d-14)->w=144;
-            (d-14)->d1=wpnsbuf[iwMMeter].tile;
+        {
+            (d - 15)->w = 148;
+            (d - 14)->w = 144;
+            SpriteDefinitionRef mmeters = curQuest->specialSprites().magicMeter;
+            (d - 14)->d1 = curQuest->getSpriteDefinition(mmeters).tile;
             break;
-            
+        }
         case -1:
         default:
             (d-15)->w=20;
@@ -1001,13 +1003,11 @@ static ListData itemclass_list(item_class_list, &font);
 
 int sso_raw_data(subscreen_object *tempsso)
 {
-    char raw_text[65535];
     char title[80];
     sprintf(title, "Raw Data for Object #%d", curr_subscreen_object);
-    sprintf(raw_text, "Type:  %d\nPosition:  %d\nX:  %d\nY:  %d\nW:  %d\nH:  %d\nColor Type 1:  %d\nColor 1:  %d\nColor Type 2:  %d\nColor 2:  %d\nColor Type 3:  %d\nColor 3:  %d\nD1:  %d\nD2:  %d\nD3:  %d\nD4:  %d\nD5:  %d\nD6:  %d\nD7:  %d\nD8:  %d\nD9:  %d\nD10:  %d\nFrames:  %d\nSpeed:  %d\nDelay:  %d\nFrame:  %d\nDp1:  %s",
-            tempsso->type, tempsso->pos, tempsso->x, tempsso->y, tempsso->w, tempsso->h, tempsso->colortype1, tempsso->color1, tempsso->colortype2, tempsso->color2, tempsso->colortype3, tempsso->color3, tempsso->d1, tempsso->d2, tempsso->d3, tempsso->d4, tempsso->d5, tempsso->d6, tempsso->d7, tempsso->d8, tempsso->d9, tempsso->d10, tempsso->frames, tempsso->speed, tempsso->delay, tempsso->frame, tempsso->dp1!=NULL?(char *)tempsso->dp1:"NULL");
+    std::string text = tempsso->toString();    
     sso_raw_data_dlg[0].dp2=lfont;
-    sso_raw_data_dlg[2].dp=raw_text;
+    sso_raw_data_dlg[2].dp=(void *)text.c_str();
     sso_raw_data_dlg[2].d2=0;
 
 	DIALOG *sso_raw_data_cpy = resizeDialog(sso_raw_data_dlg, 1.5);
@@ -1025,7 +1025,6 @@ static ListData misccolor_list(misccolorlist, &font);
 static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
 static ListData colortype_list(colortypelist, &font);
-static ListData item_list(itemlist, &font);
 
 static DIALOG sso_master_properties_dlg[] =
 {
@@ -1247,7 +1246,7 @@ static DIALOG sso_master_properties_dlg[] =
     { jwin_text_proc,         8,   51,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0, (void *) "Rows:", NULL, NULL },
     // 175
     { jwin_droplist_proc,    57,   47,    68,     16,  0,                  0,                0,       0,          0,             0, (void *) &rows_list, NULL, NULL },
-    { jwin_droplist_proc,    68,  159,     128,     16,  0,                  0,                0,       0,          3,             0, (void *) &item_list, NULL, NULL },
+    { jwin_button_proc,      68,  159,     128,     16,  0,                  0,                0,     D_EXIT,     3,             0,  NULL, NULL, NULL },
     { jwin_text_proc,         8,  163,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Item Override:", NULL, NULL },
     { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
     { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1391,8 +1390,8 @@ int sso_properties(subscreen_object *tempsso)
     
     sprintf(x_str, "%d", tempsso->x);
     sprintf(y_str, "%d", tempsso->y);
-    sprintf(w_str, "%d", sso_w(tempsso));
-    sprintf(h_str, "%d", sso_h(tempsso));
+    sprintf(w_str, "%d", tempsso->sso_w());
+    sprintf(h_str, "%d", tempsso->sso_h());
     replacedp(sso_properties_dlg[8],x_str);
     x_stri=8;
     replacedp(sso_properties_dlg[10],y_str);
@@ -1547,15 +1546,15 @@ int sso_properties(subscreen_object *tempsso)
         //sso_properties_dlg[98].fg=sso_properties_dlg[38].d1?sso_properties_dlg[38].d1-1:sso_properties_dlg[40].d1;
 		sso_properties_cpy[98].fg=subscreen_cset(&misc, sso_properties_cpy[38].d1? sso_properties_cpy[38].d1-1:ssctMISC, sso_properties_cpy[40].d1);
         
-		sso_properties_cpy[98].d1=tempsso->d1;
-		sso_properties_cpy[98].d2=tempsso->d2;
+        sso_properties_cpy[98].d1 = ((subscreen_object_2x2frame *)tempsso)->tile;
+        sso_properties_cpy[98].d2 = ((subscreen_object_2x2frame *)tempsso)->flip;
 		sso_properties_cpy[98].proc=d_tileblock_proc;
 		sso_properties_cpy[98].w=is_large()?64:32;
 		sso_properties_cpy[98].h=is_large()?64:32;
 		sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
 		sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
-		sso_properties_cpy[102].flags=tempsso->d3?D_SELECTED:0;
-		sso_properties_cpy[103].flags=tempsso->d4?D_SELECTED:0;
+        sso_properties_cpy[102].flags = ((subscreen_object_2x2frame *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags = ((subscreen_object_2x2frame *)tempsso)->transparent ? D_SELECTED : 0;
     }
     break;
     
@@ -1584,15 +1583,12 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(b_color_caption, " Background Color ");
         buf[0]=0;
         
-        if(tempsso->dp1!=NULL)
-        {
-            strcpy(buf, (char *)tempsso->dp1);
-        }
+        strcpy(buf, ((subscreen_object_text *)tempsso)->text.c_str());
         
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -1618,13 +1614,13 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+		sso_properties_cpy[119].d1=((subscreen_object_text *)tempsso)->fontnum;
+		sso_properties_cpy[120].d1=((subscreen_object_text *)tempsso)->textstyle;
+		sso_properties_cpy[121].d1=((subscreen_object_text *)tempsso)->alignment;
         replacedp(sso_properties_cpy[122],buf);
         bufi=122;
-		sso_properties_cpy[122].dp2=ss_font(tempsso->d1);
-		sso_properties_cpy[122].h=text_height(ss_font(tempsso->d1))+8;
+		sso_properties_cpy[122].dp2=ss_font(((subscreen_object_text *)tempsso)->fontnum);
+		sso_properties_cpy[122].h=text_height(ss_font(((subscreen_object_text *)tempsso)->fontnum))+8;
     }
     break;
     
@@ -1649,8 +1645,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(lc_color_caption, " Line Color ");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -1666,8 +1662,8 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[40].d1=tempsso->color1;
         update_ctl_proc(sso_properties_cpy +40, sso_properties_cpy[38].d1);
         
-		sso_properties_cpy[102].flags|=(tempsso->d3)?D_SELECTED:0;
-		sso_properties_cpy[103].flags|=(tempsso->d4)?D_SELECTED:0;
+        sso_properties_cpy[102].flags |= ((subscreen_object_line *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags |= ((subscreen_object_line *)tempsso)->transparent ? D_SELECTED : 0;
     }
     break;
     
@@ -1696,8 +1692,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(filled_caption, "Filled");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -1718,9 +1714,9 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[46].d1=tempsso->color2;
         update_ctl_proc(sso_properties_cpy +46, sso_properties_cpy[44].d1);
         
-		sso_properties_cpy[102].flags|=(tempsso->d1)?D_SELECTED:0;
+        sso_properties_cpy[102].flags |= ((subscreen_object_rect *)tempsso)->filled ? D_SELECTED : 0;
         replacedp(sso_properties_cpy[102],filled_caption);
-		sso_properties_cpy[103].flags|=(tempsso->d2)?D_SELECTED:0;
+        sso_properties_cpy[103].flags |= ((subscreen_object_rect *)tempsso)->transparent ? D_SELECTED : 0;
     }
     break;
     
@@ -1751,8 +1747,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(b_color_caption, " Background Color ");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -1778,9 +1774,9 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+		sso_properties_cpy[119].d1=((subscreen_object_bstime *)tempsso)->fontnum;
+		sso_properties_cpy[120].d1=((subscreen_object_bstime *)tempsso)->textstyle;
+		sso_properties_cpy[121].d1=((subscreen_object_bstime *)tempsso)->alignment;
     }
     break;
     
@@ -1811,8 +1807,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(b_color_caption, " Background Color ");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -1838,9 +1834,9 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+        sso_properties_cpy[119].d1 = ((subscreen_object_time *)tempsso)->fontnum;
+        sso_properties_cpy[120].d1 = ((subscreen_object_time *)tempsso)->textstyle;
+        sso_properties_cpy[121].d1 = ((subscreen_object_time *)tempsso)->alignment;
     }
     break;
     
@@ -1871,8 +1867,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(b_color_caption, " Background Color ");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -1897,9 +1893,9 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+        sso_properties_cpy[119].d1 = ((subscreen_object_sstime *)tempsso)->fontnum;
+        sso_properties_cpy[120].d1 = ((subscreen_object_sstime *)tempsso)->textstyle;
+        sso_properties_cpy[121].d1 = ((subscreen_object_sstime *)tempsso)->alignment;
     }
     break;
     
@@ -1971,8 +1967,8 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_cpy[10],y_str);
         y_stri=10;
         replacedp(sso_properties_cpy[139],bs_style);
-		sso_properties_cpy[139].flags=tempsso->d2?D_SELECTED:0;
-		sso_properties_cpy[175].d1 = tempsso->d3;
+        sso_properties_cpy[139].flags = ((subscreen_object_lifemeter *)tempsso)->bsstyle ? D_SELECTED : 0;
+        sso_properties_cpy[175].d1 = ((subscreen_object_lifemeter *)tempsso)->threerows;
     }
     break;
     
@@ -2002,8 +1998,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(button_caption, "Button:");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -2013,13 +2009,13 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_cpy[14],h_str);
         h_stri=14;
         
-		sso_properties_cpy[103].flags|=(tempsso->d2)?D_SELECTED:0;
+		sso_properties_cpy[103].flags|=((subscreen_object_buttonitem *)tempsso)->transparent ? D_SELECTED:0;
         
         replacedp(sso_properties_cpy[115],button_caption);
         ListData button_list(buttonlist, is_large()? &lfont_l : &font);
         replacedp(sso_properties_cpy[119],(char *)&button_list);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
+		sso_properties_cpy[119].d1=((subscreen_object_buttonitem *)tempsso)->button;
     }
     break;
     
@@ -2090,11 +2086,11 @@ int sso_properties(subscreen_object *tempsso)
         
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         
-        sprintf(buf, "%d", tempsso->d4);
-        sprintf(buf2, "%c", tempsso->d5);
+        sprintf(buf, "%d", ((subscreen_object_counter *)tempsso)->digits);
+        sprintf(buf2, "%c", ((subscreen_object_counter *)tempsso)->infdigit);
         
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
@@ -2120,9 +2116,9 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+		sso_properties_cpy[119].d1=((subscreen_object_counter *)tempsso)->fontnum;
+        sso_properties_cpy[120].d1 = ((subscreen_object_counter *)tempsso)->textstyle;
+        sso_properties_cpy[121].d1 = ((subscreen_object_counter *)tempsso)->alignment;
         replacedp(sso_properties_cpy[123],digits_caption);
         replacedp(sso_properties_cpy[124],infinite_caption);
         
@@ -2136,28 +2132,16 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[125].w+=24;
         
         //Infinite Item
-        if(bii_cnt==-1)
-        {
-            build_bii_list(true);
-        }
+        //TODO module support in subscreen
         
-        int index=tempsso->d10;
-        int itemid = 0;
-        
-        for(int i=0; i<bii_cnt; i++)
-        {
-            if(bii[i].i == index)
-            {
-                itemid = i;
-                break;
-            }
-        }
-        
-		sso_properties_cpy[126].proc=jwin_droplist_proc;
-        replacedp(sso_properties_cpy[126],(char *)&item_list);
-		sso_properties_cpy[126].d1=itemid;
+        ItemDefinitionRef &iref = ((subscreen_object_counter *)tempsso)->itemref;
+        const char *nonestr = "(None)";
+		sso_properties_cpy[126].proc=jwin_button_proc;
+        replacedp(sso_properties_cpy[126],curQuest->isValid(iref) ? curQuest->getItemDefinition(iref).name.c_str() : nonestr);
+		
 		sso_properties_cpy[126].x-=8;
 		sso_properties_cpy[126].w+=24;
+        sso_properties_cpy[126].flags |= D_EXIT;
         
         replacedp(sso_properties_cpy[130],item_1_caption);
         replacedp(sso_properties_cpy[131],item_2_caption);
@@ -2165,28 +2149,28 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[136].proc=jwin_droplist_proc;
         ListData icounter_list(icounterlist, is_large() ? &lfont_l : &font);
         replacedp(sso_properties_cpy[136],(char *)&icounter_list);
-		sso_properties_cpy[136].d1=tempsso->d7;
+		sso_properties_cpy[136].d1=((subscreen_object_counter *)tempsso)->countertype1;
 		sso_properties_cpy[136].x-=13;
 		sso_properties_cpy[136].w+=56;
 		sso_properties_cpy[137].proc=jwin_droplist_proc;
         replacedp(sso_properties_cpy[137],(char *)&icounter_list);
-		sso_properties_cpy[137].d1=tempsso->d8;
+		sso_properties_cpy[137].d1=((subscreen_object_counter *)tempsso)->countertype2;
 		sso_properties_cpy[137].x-=13;
 		sso_properties_cpy[137].w+=56;
 		sso_properties_cpy[138].proc=jwin_droplist_proc;
         replacedp(sso_properties_cpy[138],(char *)&icounter_list);
-		sso_properties_cpy[138].d1=tempsso->d9;
+		sso_properties_cpy[138].d1=((subscreen_object_counter *)tempsso)->countertype3;
 		sso_properties_cpy[138].x-=13;
 		sso_properties_cpy[138].w+=56;
         replacedp(sso_properties_cpy[168],buf2);
         buf2i=168;
-		sso_properties_cpy[168].dp2=ss_font(tempsso->d1);
-		sso_properties_cpy[168].h=text_height(ss_font(tempsso->d1))+8;
+		sso_properties_cpy[168].dp2=ss_font(((subscreen_object_counter *)tempsso)->fontnum);
+		sso_properties_cpy[168].h=text_height(ss_font(((subscreen_object_counter *)tempsso)->fontnum))+8;
         replacedp(sso_properties_cpy[140],zero_caption);
-		sso_properties_cpy[140].flags=tempsso->d6&1?D_SELECTED:0;
+        sso_properties_cpy[140].flags = ((subscreen_object_counter *)tempsso)->flags & 1 ? D_SELECTED : 0;
 		sso_properties_cpy[140].x += 40;
         replacedp(sso_properties_cpy[141],selected_caption);
-		sso_properties_cpy[141].flags=tempsso->d6&2?D_SELECTED:0;
+        sso_properties_cpy[141].flags = ((subscreen_object_counter *)tempsso)->flags & 2 ? D_SELECTED : 0;
 		sso_properties_cpy[141].x += 40;
         
     }
@@ -2243,11 +2227,11 @@ int sso_properties(subscreen_object *tempsso)
         
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         
-        sprintf(buf, "%d", tempsso->d4);
-        sprintf(buf2, "%c", tempsso->d5);
+        sprintf(buf, "%d", ((subscreen_object_counters *)tempsso)->digits);
+        sprintf(buf2, "%c", ((subscreen_object_counters *)tempsso)->idigit);
         
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
@@ -2273,8 +2257,8 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
+		sso_properties_cpy[119].d1=((subscreen_object_counters *)tempsso)->fontnum;
+		sso_properties_cpy[120].d1=((subscreen_object_counters *)tempsso)->textstyle;
         replacedp(sso_properties_cpy[124],digits_caption);
         replacedp(sso_properties_cpy[126],buf);
         bufi=126;
@@ -2282,10 +2266,10 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[126].w+=24;
         replacedp(sso_properties_cpy[168],buf2);
         buf2i=168;
-		sso_properties_cpy[168].dp2=ss_font(tempsso->d1);
-		sso_properties_cpy[168].h=text_height(ss_font(tempsso->d1))+8;
+		sso_properties_cpy[168].dp2=ss_font(((subscreen_object_counters *)tempsso)->fontnum);
+        sso_properties_cpy[168].h = text_height(ss_font(((subscreen_object_counters *)tempsso)->fontnum)) + 8;
         replacedp(sso_properties_cpy[140],x_caption);
-		sso_properties_cpy[140].flags=tempsso->d2?D_SELECTED:0;
+        sso_properties_cpy[140].flags = ((subscreen_object_counters *)tempsso)->usex ? D_SELECTED : 0;
         
     }
     break;
@@ -2319,8 +2303,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(map_rule_caption, "Invisible w/o Dungeon Map");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -2346,10 +2330,10 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
-		sso_properties_cpy[139].flags=tempsso->d4?D_SELECTED:0;
+		sso_properties_cpy[119].d1=((subscreen_object_minimaptitle *)tempsso)->fontnum;
+		sso_properties_cpy[120].d1=((subscreen_object_minimaptitle *)tempsso)->textstyle;
+		sso_properties_cpy[121].d1=((subscreen_object_minimaptitle *)tempsso)->alignment;
+        sso_properties_cpy[139].flags = ((subscreen_object_minimaptitle *)tempsso)->needmap ? D_SELECTED : 0;
     }
     break;
     
@@ -2407,9 +2391,9 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[171].flags=tempsso->d1?D_SELECTED:0;
-		sso_properties_cpy[172].flags=tempsso->d2?D_SELECTED:0;
-		sso_properties_cpy[173].flags=tempsso->d3?D_SELECTED:0;
+        sso_properties_cpy[171].flags = ((subscreen_object_minimap *)tempsso)->showmap ? D_SELECTED : 0;
+        sso_properties_cpy[172].flags = ((subscreen_object_minimap *)tempsso)->showlink ? D_SELECTED : 0;
+        sso_properties_cpy[173].flags = ((subscreen_object_minimap *)tempsso)->showcompass ? D_SELECTED : 0;
     }
     break;
     
@@ -2468,11 +2452,11 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[46].d1=tempsso->color2;
         update_ctl_proc(sso_properties_cpy +46, sso_properties_cpy[44].d1);
         
-		sso_properties_cpy[171].flags=tempsso->d1?D_SELECTED:0;
-		sso_properties_cpy[172].flags=tempsso->d2?D_SELECTED:0;
-		sso_properties_cpy[173].flags=tempsso->d3?D_SELECTED:0;
+        sso_properties_cpy[171].flags = ((subscreen_object_largemap *)tempsso)->showmap ? D_SELECTED : 0;
+        sso_properties_cpy[172].flags = ((subscreen_object_largemap *)tempsso)->showlink ? D_SELECTED : 0;
+        sso_properties_cpy[173].flags = ((subscreen_object_largemap *)tempsso)->showrooms ? D_SELECTED : 0;
         
-		sso_properties_cpy[139].flags=tempsso->d10?D_SELECTED:0;
+        sso_properties_cpy[139].flags = ((subscreen_object_largemap *)tempsso)->large ? D_SELECTED : 0;
     }
     break;
     
@@ -2524,11 +2508,11 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(w_str, "%d", tempsso->w);
         sprintf(h_str, "%d", tempsso->h);
         
-        sprintf(buf,  "%d", tempsso->d3);
-        sprintf(buf2, "%d", tempsso->d4);
-        sprintf(buf3, "%d", tempsso->d5);
-        sprintf(buf4, "%d", tempsso->d6);
-        sprintf(buf5, "%d", tempsso->d7);
+        sprintf(buf,  "%d", ((subscreen_object_currentitem *)tempsso)->posselect);
+        sprintf(buf2, "%d", ((subscreen_object_currentitem *)tempsso)->upselect);
+        sprintf(buf3, "%d", ((subscreen_object_currentitem *)tempsso)->downselect);
+        sprintf(buf4, "%d",((subscreen_object_currentitem *)tempsso)->leftselect);
+        sprintf(buf5, "%d", ((subscreen_object_currentitem *)tempsso)->rightselect);
         
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
@@ -2550,31 +2534,19 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_cpy[138],buf5);
         buf5i=138;
         // Item Override droplist
-        
-        build_bii_list(true);
-        int index=tempsso->d8-1;
-        int itemid = 0;
-        
-        for(int i=0; i<bii_cnt; i++)
-        {
-            if(bii[i].i == index)
-            {
-                itemid = i;
-                break;
-            }
-        }
-        
-		sso_properties_cpy[176].proc=jwin_droplist_proc;
-        replacedp(sso_properties_cpy[176],(char *)&item_list);
-		sso_properties_cpy[176].d1 = itemid;
+                
+        ItemDefinitionRef &iref = ((subscreen_object_currentitem *)tempsso)->itemref;
+        const char *nonestr = "(None)";
+		sso_properties_cpy[176].proc=jwin_button_proc;
+        replacedp(sso_properties_cpy[176],curQuest->isValid(iref) ? curQuest->getItemDefinition(iref).name.c_str() : nonestr);
         
         for(int j=0; j<biic_cnt; j++)
         {
-            if(biic[j].i == tempsso->d1)
+            if(biic[j].i == ((subscreen_object_currentitem *)tempsso)->itemfamily)
 				sso_properties_cpy[133].d1 = j;
         }
         
-		sso_properties_cpy[139].flags=tempsso->d2?0:D_SELECTED;
+        sso_properties_cpy[139].flags = ((subscreen_object_currentitem *)tempsso)->visible ? 0 : D_SELECTED;
     }
     break;
     
@@ -2610,8 +2582,8 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(show_pieces_caption, "Show Pieces");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -2631,23 +2603,23 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[46].d1=tempsso->color2;
         update_ctl_proc(sso_properties_cpy +46, sso_properties_cpy[44].d1);
         
-		sso_properties_cpy[98].w=(tempsso->d7?112:96)*(is_large() ? 2 : 1);
-		sso_properties_cpy[98].h=(tempsso->d7?112:48)*(is_large() ? 2 : 1);
+        sso_properties_cpy[98].w = (((subscreen_object_triframe *)tempsso)->largepieces ? 112 : 96)*(is_large() ? 2 : 1);
+        sso_properties_cpy[98].h = (((subscreen_object_triframe *)tempsso)->largepieces ? 112 : 48)*(is_large() ? 2 : 1);
 		sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
 		sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
-		sso_properties_cpy[98].d1=tempsso->d1;
-		sso_properties_cpy[98].fg=tempsso->d2;
-		sso_properties_cpy[101].w=(tempsso->d7?32:16)*(is_large() ? 2 : 1);
-		sso_properties_cpy[101].h=(tempsso->d7?48:16)*(is_large() ? 2 : 1);
+        sso_properties_cpy[98].d1 = ((subscreen_object_triframe *)tempsso)->triframe_tile;
+        sso_properties_cpy[98].fg = ((subscreen_object_triframe *)tempsso)->triframe_cset;
+        sso_properties_cpy[101].w = (((subscreen_object_triframe *)tempsso)->largepieces ? 32 : 16)*(is_large() ? 2 : 1);
+        sso_properties_cpy[101].h = (((subscreen_object_triframe *)tempsso)->largepieces ? 48 : 16)*(is_large() ? 2 : 1);
 		sso_properties_cpy[100].w= sso_properties_cpy[101].w+4;
 		sso_properties_cpy[100].h= sso_properties_cpy[101].h+4;
-		sso_properties_cpy[101].d1=tempsso->d3;
-		sso_properties_cpy[101].fg=tempsso->d4;
+        sso_properties_cpy[101].d1 = ((subscreen_object_triframe *)tempsso)->triforce_tile;
+        sso_properties_cpy[101].fg = ((subscreen_object_triframe *)tempsso)->triforce_cset;
         replacedp(sso_properties_cpy[102],show_frame_caption);
-		sso_properties_cpy[102].flags=tempsso->d5?D_SELECTED:0;
+        sso_properties_cpy[102].flags = ((subscreen_object_triframe *)tempsso)->showframe ? D_SELECTED : 0;
         replacedp(sso_properties_cpy[103],show_pieces_caption);
-		sso_properties_cpy[103].flags=tempsso->d6?D_SELECTED:0;
-		sso_properties_cpy[104].flags=tempsso->d7?D_SELECTED:0;
+        sso_properties_cpy[103].flags = ((subscreen_object_triframe *)tempsso)->showpieces ? D_SELECTED : 0;
+        sso_properties_cpy[104].flags = ((subscreen_object_triframe *)tempsso)->largepieces ? D_SELECTED : 0;
     }
     break;
     
@@ -2690,7 +2662,7 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(y_str, "%d", tempsso->y);
         sprintf(w_str, "%d", tempsso->w);
         sprintf(h_str, "%d", tempsso->h);
-        sprintf(buf, "%d", tempsso->d5);
+        sprintf(buf, "%d", ((subscreen_object_triforce *)tempsso)->triforcenum);
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -2716,15 +2688,15 @@ int sso_properties(subscreen_object *tempsso)
         //sso_properties_dlg[98].fg=sso_properties_dlg[38].d1?sso_properties_dlg[38].d1-1:sso_properties_dlg[40].d1;
 		sso_properties_cpy[98].fg=subscreen_cset(&misc, sso_properties_cpy[38].d1? sso_properties_cpy[38].d1-1:ssctMISC, sso_properties_cpy[40].d1);
         
-		sso_properties_cpy[98].d1=tempsso->d1;
-		sso_properties_cpy[98].d2=tempsso->d2;
+		sso_properties_cpy[98].d1=((subscreen_object_triforce *)tempsso)->tile;
+		sso_properties_cpy[98].d2=((subscreen_object_triforce *)tempsso)->flip;
 		sso_properties_cpy[98].w=is_large()?32:16;
 		sso_properties_cpy[98].h=is_large()?32:16;
 		sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
 		sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
 		sso_properties_cpy[98].proc=d_tileblock_proc;
-		sso_properties_cpy[102].flags=tempsso->d3?D_SELECTED:0;
-		sso_properties_cpy[103].flags=tempsso->d4?D_SELECTED:0;
+        sso_properties_cpy[102].flags = ((subscreen_object_triforce *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags = ((subscreen_object_triforce *)tempsso)->transparent ? D_SELECTED : 0;
         replacedp(sso_properties_cpy[164],piece_caption);
         replacedp(sso_properties_cpy[165],buf);
         bufi=165;
@@ -2788,15 +2760,15 @@ int sso_properties(subscreen_object *tempsso)
         update_csl_proc(sso_properties_cpy +39, sso_properties_cpy[38].d1);
 		sso_properties_cpy[98].fg=subscreen_cset(&misc, sso_properties_cpy[38].d1? sso_properties_cpy[38].d1-1:ssctMISC, sso_properties_cpy[40].d1);
         
-		sso_properties_cpy[98].d1=tempsso->d1;
-		sso_properties_cpy[98].d2=tempsso->d2;
+        sso_properties_cpy[98].d1 = ((subscreen_object_tileblock *)tempsso)->tile;
+        sso_properties_cpy[98].d2 = ((subscreen_object_tileblock *)tempsso)->flip;
 		sso_properties_cpy[98].w=is_large()?32:16;
 		sso_properties_cpy[98].h=is_large()?32:16;
 		sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
 		sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
 		sso_properties_cpy[98].proc=d_tileblock_proc;
-		sso_properties_cpy[102].flags=tempsso->d3?D_SELECTED:0;
-		sso_properties_cpy[103].flags=tempsso->d4?D_SELECTED:0;
+        sso_properties_cpy[102].flags = ((subscreen_object_tileblock *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags = ((subscreen_object_tileblock *)tempsso)->transparent ? D_SELECTED : 0;
     }
     break;
     
@@ -2864,10 +2836,10 @@ int sso_properties(subscreen_object *tempsso)
         //sso_properties_dlg[98].fg=sso_properties_dlg[38].d1?sso_properties_dlg[38].d1-1:sso_properties_dlg[40].d1;
 		sso_properties_cpy[98].fg=subscreen_cset(&misc, sso_properties_cpy[38].d1? sso_properties_cpy[38].d1-1:ssctMISC, sso_properties_cpy[40].d1);
         
-        if(tempsso->d1!=-1)
+        if(((subscreen_object_minitile *)tempsso)->tile!=-1)
         {
-			sso_properties_cpy[98].d1=tempsso->d1>>2;
-			sso_properties_cpy[98].bg=vbound(tempsso->d1-(sso_properties_cpy[98].d1<<2)+tempsso->d3,0,3);
+			sso_properties_cpy[98].d1=((subscreen_object_minitile *)tempsso)->tile>>2;
+			sso_properties_cpy[98].bg=vbound(((subscreen_object_minitile *)tempsso)->tile-(sso_properties_cpy[98].d1<<2)+((subscreen_object_minitile *)tempsso)->tileoffset,0,3);
 			sso_properties_cpy[112].d1=0;
 			sso_properties_cpy[112].d2=0;
 			sso_properties_cpy[97].w=20;
@@ -2875,27 +2847,32 @@ int sso_properties(subscreen_object *tempsso)
         }
         else
         {
-            switch(tempsso->d2)
+            switch(((subscreen_object_minitile *)tempsso)->specialtile)
             {
             case ssmstSSVINETILE:
-				sso_properties_cpy[98].d1=wpnsbuf[iwSubscreenVine].tile;
-				sso_properties_cpy[97].w=52;
-				sso_properties_cpy[98].w=48;
+            {
+                SpriteDefinitionRef vines = curQuest->specialSprites().subscreenVine;
+                sso_properties_cpy[98].d1 = curQuest->getSpriteDefinition(vines).tile;
+                sso_properties_cpy[97].w = 52;
+                sso_properties_cpy[98].w = 48;
                 break;
-                
+            }
             case ssmstMAGICMETER:
-				sso_properties_cpy[98].d1=wpnsbuf[iwMMeter].tile;
-				sso_properties_cpy[97].w=148;
-				sso_properties_cpy[98].w=144;
+            {
+                SpriteDefinitionRef mmeters = curQuest->specialSprites().magicMeter;
+                sso_properties_cpy[98].d1 = curQuest->getSpriteDefinition(mmeters).tile;
+                sso_properties_cpy[97].w = 148;
+                sso_properties_cpy[98].w = 144;
                 break;
-                
+            }
+
             default:
 				sso_properties_cpy[97].w=20;
 				sso_properties_cpy[98].w=16;
             }
             
-			sso_properties_cpy[98].bg=tempsso->d3;
-			sso_properties_cpy[112].d1=tempsso->d2+1;
+			sso_properties_cpy[98].bg=((subscreen_object_minitile *)tempsso)->tileoffset;
+			sso_properties_cpy[112].d1=((subscreen_object_minitile *)tempsso)->specialtile+1;
 			sso_properties_cpy[112].d2= sso_properties_cpy[112].d1;
         }
         
@@ -2903,15 +2880,14 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
 		sso_properties_cpy[98].h=is_large()?32:16;
 		sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
-		sso_properties_cpy[98].d2=tempsso->d4;
+        sso_properties_cpy[98].d2 = ((subscreen_object_minitile *)tempsso)->flip;
 		sso_properties_cpy[98].proc=d_spectile_proc;
-		sso_properties_cpy[102].flags=tempsso->d5?D_SELECTED:0;
-		sso_properties_cpy[103].flags=tempsso->d6?D_SELECTED:0;
+        sso_properties_cpy[102].flags = ((subscreen_object_minitile *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags = ((subscreen_object_minitile *)tempsso)->transparent ? D_SELECTED : 0;
     }
     break;
     
     case ssoSELECTOR1:
-    case ssoSELECTOR2:
     {
         for(int i=11; i<=34; ++i)
         {
@@ -2965,18 +2941,87 @@ int sso_properties(subscreen_object *tempsso)
         //sso_properties_dlg[98].fg=sso_properties_dlg[38].d1?sso_properties_dlg[38].d1-1:sso_properties_dlg[40].d1;
 		sso_properties_cpy[98].fg=subscreen_cset(&misc, sso_properties_cpy[38].d1? sso_properties_cpy[38].d1-1:ssctMISC, sso_properties_cpy[40].d1);
         
-		sso_properties_cpy[98].d1=tempsso->d1;
-		sso_properties_cpy[98].d2=tempsso->d2;
+		sso_properties_cpy[98].d1=((subscreen_object_selector1 *)tempsso)->tile;
+		sso_properties_cpy[98].d2=((subscreen_object_selector1 *)tempsso)->flip;
 		sso_properties_cpy[98].proc=d_tileblock_proc;
 		sso_properties_cpy[98].w=is_large()?64:32;
 		sso_properties_cpy[98].h=is_large()?64:32;
 		sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
 		sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
-		sso_properties_cpy[102].flags=tempsso->d3?D_SELECTED:0;
-		sso_properties_cpy[103].flags=tempsso->d4?D_SELECTED:0;
+        sso_properties_cpy[102].flags = ((subscreen_object_selector1 *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags = ((subscreen_object_selector1 *)tempsso)->transparent ? D_SELECTED : 0;
         replacedp(sso_properties_cpy[104],large_caption);
 		sso_properties_cpy[104].proc=jwin_lscheck_proc;
-		sso_properties_cpy[104].flags=tempsso->d5?D_SELECTED:0;
+        sso_properties_cpy[104].flags = ((subscreen_object_selector1 *)tempsso)->large ? D_SELECTED : 0;
+    }
+    break;
+
+    case ssoSELECTOR2:
+    {
+        for(int i=11; i<=34; ++i)
+        {
+            dummy_dialog_proc(sso_properties_cpy +i);
+        }
+
+        for(int i=41; i<=94; ++i)
+        {
+            dummy_dialog_proc(sso_properties_cpy +i);
+        }
+
+        for(int i=99; i<=101; ++i)
+        {
+            dummy_dialog_proc(sso_properties_cpy +i);
+        }
+
+        for(int i=105; i<=210; ++i)
+        {
+            dummy_dialog_proc(sso_properties_cpy +i);
+        }
+
+        //      draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3,css->objects[i].d4);
+        char cset_caption1[80];
+        char cset_caption2[80];
+        char scset_caption[80];
+        char large_caption[80];
+        sprintf(cset_caption1, " CSet ");
+        sprintf(cset_caption2, "CSet:");
+        sprintf(scset_caption, "Type:");
+        sprintf(large_caption, "Large");
+        sprintf(x_str, "%d", tempsso->x);
+        sprintf(y_str, "%d", tempsso->y);
+        replacedp(sso_properties_cpy[8],x_str);
+        x_stri=8;
+        replacedp(sso_properties_cpy[10],y_str);
+        y_stri=10;
+
+        ListData csettype_list(csettypelist, is_large() ? &lfont_l : &font);
+        sso_properties_cpy[38].proc=d_csl_proc;
+        replacedp(sso_properties_cpy[36],cset_caption1);
+        replacedp(sso_properties_cpy[37],cset_caption2);
+        replacedp(sso_properties_cpy[38],(char *)&csettype_list);
+        replacedp(sso_properties_cpy[39],scset_caption);
+
+        extract_cset(sso_properties_cpy +38, tempsso, 1);
+        ListData misccset_list(misccsetlist,is_large() ? &lfont_l : &font);
+        sso_properties_cpy[40].proc=d_csl2_proc;
+        replacedp(sso_properties_cpy[40],(char *)&misccset_list);
+        sso_properties_cpy[40].d1=tempsso->color1;
+        update_csl_proc(sso_properties_cpy +39, sso_properties_cpy[38].d1);
+        //sso_properties_dlg[98].fg=sso_properties_dlg[38].d1?sso_properties_dlg[38].d1-1:sso_properties_dlg[40].d1;
+        sso_properties_cpy[98].fg=subscreen_cset(&misc, sso_properties_cpy[38].d1? sso_properties_cpy[38].d1-1:ssctMISC, sso_properties_cpy[40].d1);
+
+        sso_properties_cpy[98].d1=((subscreen_object_selector2 *)tempsso)->tile;
+        sso_properties_cpy[98].d2=((subscreen_object_selector2 *)tempsso)->flip;
+        sso_properties_cpy[98].proc=d_tileblock_proc;
+        sso_properties_cpy[98].w=is_large()?64:32;
+        sso_properties_cpy[98].h=is_large()?64:32;
+        sso_properties_cpy[97].w= sso_properties_cpy[98].w+4;
+        sso_properties_cpy[97].h= sso_properties_cpy[98].h+4;
+        sso_properties_cpy[102].flags = ((subscreen_object_selector2 *)tempsso)->overlay ? D_SELECTED : 0;
+        sso_properties_cpy[103].flags = ((subscreen_object_selector2 *)tempsso)->transparent ? D_SELECTED : 0;
+        replacedp(sso_properties_cpy[104],large_caption);
+        sso_properties_cpy[104].proc=jwin_lscheck_proc;
+        sso_properties_cpy[104].flags = ((subscreen_object_selector2 *)tempsso)->large ? D_SELECTED : 0;
     }
     break;
     
@@ -3004,14 +3049,14 @@ int sso_properties(subscreen_object *tempsso)
         
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         
-        sprintf(f_str, "%d", tempsso->d6);
-        sprintf(s_str, "%d", tempsso->d7);
-        sprintf(d_str, "%d", tempsso->d8);
+        sprintf(f_str, "%d", ((subscreen_object_magicgauge *)tempsso)->frames);
+        sprintf(s_str, "%d", ((subscreen_object_magicgauge *)tempsso)->speed);
+        sprintf(d_str, "%d", ((subscreen_object_magicgauge *)tempsso)->delay);
         // container
-        sprintf(buf, "%d", tempsso->d1);
+        sprintf(buf, "%d",((subscreen_object_magicgauge *)tempsso)->containernum);
         
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
@@ -3029,50 +3074,50 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_cpy[110],d_str);
         d_stri=110;
         
-		sso_properties_cpy[145].d1=(tempsso->d2)>>2;
+		sso_properties_cpy[145].d1=(((subscreen_object_magicgauge *)tempsso)->notlast_tile)>>2;
 		sso_properties_cpy[145].d2=0;
 		sso_properties_cpy[145].fg=tempsso->colortype1;
-		sso_properties_cpy[145].bg=(tempsso->d2)%4;
+		sso_properties_cpy[145].bg=(((subscreen_object_magicgauge *)tempsso)->notlast_tile)%4;
 		sso_properties_cpy[144].w = sso_properties_cpy[145].w+4;
 		sso_properties_cpy[144].h = sso_properties_cpy[145].h+4;
 		sso_properties_cpy[144].x = sso_properties_cpy[145].x-3;
 		sso_properties_cpy[144].y = sso_properties_cpy[145].y-3;
         
-		sso_properties_cpy[149].d1=(tempsso->d3)>>2;
+		sso_properties_cpy[149].d1=(((subscreen_object_magicgauge *)tempsso)->last_tile)>>2;
 		sso_properties_cpy[149].d2=0;
 		sso_properties_cpy[149].fg=tempsso->color1;
-		sso_properties_cpy[149].bg=(tempsso->d3)%4;
+		sso_properties_cpy[149].bg=(((subscreen_object_magicgauge *)tempsso)->last_tile)%4;
 		sso_properties_cpy[148].w = sso_properties_cpy[149].w+4;
 		sso_properties_cpy[148].h = sso_properties_cpy[149].h+4;
 		sso_properties_cpy[148].x = sso_properties_cpy[149].x-3;
 		sso_properties_cpy[148].y = sso_properties_cpy[149].y-3;
         
-		sso_properties_cpy[153].d1=(tempsso->d4)>>2;
+		sso_properties_cpy[153].d1=(((subscreen_object_magicgauge *)tempsso)->cap_tile)>>2;
 		sso_properties_cpy[153].d2=0;
 		sso_properties_cpy[153].fg=tempsso->colortype2;
-		sso_properties_cpy[153].bg=(tempsso->d4)%4;
+		sso_properties_cpy[153].bg=(((subscreen_object_magicgauge *)tempsso)->cap_tile)%4;
 		sso_properties_cpy[152].w = sso_properties_cpy[153].w+4;
 		sso_properties_cpy[152].h = sso_properties_cpy[153].h+4;
 		sso_properties_cpy[152].x = sso_properties_cpy[153].x-3;
 		sso_properties_cpy[152].y = sso_properties_cpy[153].y-3;
         
-		sso_properties_cpy[157].d1=(tempsso->d5)>>2;
+		sso_properties_cpy[157].d1=(((subscreen_object_magicgauge *)tempsso)->aftercap_tile)>>2;
 		sso_properties_cpy[157].d2=0;
 		sso_properties_cpy[157].fg=tempsso->color2;
-		sso_properties_cpy[157].bg=(tempsso->d5)%4;
+		sso_properties_cpy[157].bg=(((subscreen_object_magicgauge *)tempsso)->aftercap_tile)%4;
 		sso_properties_cpy[156].w = sso_properties_cpy[157].w+4;
 		sso_properties_cpy[156].h = sso_properties_cpy[157].h+4;
 		sso_properties_cpy[156].x = sso_properties_cpy[157].x-3;
 		sso_properties_cpy[156].y = sso_properties_cpy[157].y-3;
         
-		sso_properties_cpy[158].flags=((tempsso->d10)&1)?D_SELECTED:0;
-		sso_properties_cpy[159].flags=((tempsso->d10)&2)?D_SELECTED:0;
-		sso_properties_cpy[160].flags=((tempsso->d10)&4)?D_SELECTED:0;
-		sso_properties_cpy[161].flags=((tempsso->d10)&8)?D_SELECTED:0;
-		sso_properties_cpy[163].d1=tempsso->d9;
+		sso_properties_cpy[158].flags=((((subscreen_object_magicgauge *)tempsso)->flags)&1)?D_SELECTED:0;
+		sso_properties_cpy[159].flags=((((subscreen_object_magicgauge *)tempsso)->flags)&2)?D_SELECTED:0;
+		sso_properties_cpy[160].flags=((((subscreen_object_magicgauge *)tempsso)->flags)&4)?D_SELECTED:0;
+		sso_properties_cpy[161].flags=((((subscreen_object_magicgauge *)tempsso)->flags)&8)?D_SELECTED:0;
+		sso_properties_cpy[163].d1=((subscreen_object_magicgauge *)tempsso)->showflag;
         replacedp(sso_properties_cpy[165],buf);
         bufi=165;
-		sso_properties_cpy[166].flags=((tempsso->d10)&16)?D_SELECTED:0;
+		sso_properties_cpy[166].flags=((((subscreen_object_magicgauge *)tempsso)->flags)&16)?D_SELECTED:0;
     }
     break;
     
@@ -3100,14 +3145,14 @@ int sso_properties(subscreen_object *tempsso)
         
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         
-        sprintf(f_str, "%d", tempsso->d6);
-        sprintf(s_str, "%d", tempsso->d7);
-        sprintf(d_str, "%d", tempsso->d8);
+        sprintf(f_str, "%d", ((subscreen_object_lifegauge *)tempsso)->frames);
+        sprintf(s_str, "%d", ((subscreen_object_lifegauge *)tempsso)->speed);
+        sprintf(d_str, "%d", ((subscreen_object_lifegauge *)tempsso)->delay);
         // container
-        sprintf(buf, "%d", tempsso->d1);
+        sprintf(buf, "%d", ((subscreen_object_lifegauge *)tempsso)->containernum);
         
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
@@ -3125,50 +3170,50 @@ int sso_properties(subscreen_object *tempsso)
         replacedp(sso_properties_cpy[110],d_str);
         d_stri=110;
         
-		sso_properties_cpy[145].d1=(tempsso->d2)>>2;
+		sso_properties_cpy[145].d1=(((subscreen_object_lifegauge *)tempsso)->notlast_tile)>>2;
 		sso_properties_cpy[145].d2=0;
 		sso_properties_cpy[145].fg=tempsso->colortype1;
-		sso_properties_cpy[145].bg=(tempsso->d2)%4;
+		sso_properties_cpy[145].bg=(((subscreen_object_lifegauge *)tempsso)->notlast_tile)%4;
 		sso_properties_cpy[144].w = sso_properties_cpy[145].w+4;
 		sso_properties_cpy[144].h = sso_properties_cpy[145].h+4;
 		sso_properties_cpy[144].x = sso_properties_cpy[145].x-3;
 		sso_properties_cpy[144].y = sso_properties_cpy[145].y-3;
         
-		sso_properties_cpy[149].d1=(tempsso->d3)>>2;
+		sso_properties_cpy[149].d1=(((subscreen_object_lifegauge *)tempsso)->last_tile)>>2;
 		sso_properties_cpy[149].d2=0;
 		sso_properties_cpy[149].fg=tempsso->color1;
-		sso_properties_cpy[149].bg=(tempsso->d3)%4;
+		sso_properties_cpy[149].bg=(((subscreen_object_lifegauge *)tempsso)->last_tile)%4;
 		sso_properties_cpy[148].w = sso_properties_cpy[149].w+4;
 		sso_properties_cpy[148].h = sso_properties_cpy[149].h+4;
 		sso_properties_cpy[148].x = sso_properties_cpy[149].x-3;
 		sso_properties_cpy[148].y = sso_properties_cpy[149].y-3;
         
-		sso_properties_cpy[153].d1=(tempsso->d4)>>2;
+		sso_properties_cpy[153].d1=(((subscreen_object_lifegauge *)tempsso)->cap_tile)>>2;
 		sso_properties_cpy[153].d2=0;
 		sso_properties_cpy[153].fg=tempsso->colortype2;
-		sso_properties_cpy[153].bg=(tempsso->d4)%4;
+		sso_properties_cpy[153].bg=(((subscreen_object_lifegauge *)tempsso)->cap_tile)%4;
 		sso_properties_cpy[152].w = sso_properties_cpy[153].w+4;
 		sso_properties_cpy[152].h = sso_properties_cpy[153].h+4;
 		sso_properties_cpy[152].x = sso_properties_cpy[153].x-3;
 		sso_properties_cpy[152].y = sso_properties_cpy[153].y-3;
         
-		sso_properties_cpy[157].d1=(tempsso->d5)>>2;
+		sso_properties_cpy[157].d1=(((subscreen_object_lifegauge *)tempsso)->aftercap_tile)>>2;
 		sso_properties_cpy[157].d2=0;
 		sso_properties_cpy[157].fg=tempsso->color2;
-		sso_properties_cpy[157].bg=(tempsso->d5)%4;
+		sso_properties_cpy[157].bg=(((subscreen_object_lifegauge *)tempsso)->aftercap_tile)%4;
 		sso_properties_cpy[156].w = sso_properties_cpy[157].w+4;
 		sso_properties_cpy[156].h = sso_properties_cpy[157].h+4;
 		sso_properties_cpy[156].x = sso_properties_cpy[157].x-3;
 		sso_properties_cpy[156].y = sso_properties_cpy[157].y-3;
         
-		sso_properties_cpy[158].flags=((tempsso->d10)&1)?D_SELECTED:0;
-		sso_properties_cpy[159].flags=((tempsso->d10)&2)?D_SELECTED:0;
-		sso_properties_cpy[160].flags=((tempsso->d10)&4)?D_SELECTED:0;
-		sso_properties_cpy[161].flags=((tempsso->d10)&8)?D_SELECTED:0;
-		sso_properties_cpy[163].d1=tempsso->d9;
+		sso_properties_cpy[158].flags=((((subscreen_object_lifegauge *)tempsso)->flags)&1)?D_SELECTED:0;
+		sso_properties_cpy[159].flags=((((subscreen_object_lifegauge *)tempsso)->flags)&2)?D_SELECTED:0;
+		sso_properties_cpy[160].flags=((((subscreen_object_lifegauge *)tempsso)->flags)&4)?D_SELECTED:0;
+		sso_properties_cpy[161].flags=((((subscreen_object_lifegauge *)tempsso)->flags)&8)?D_SELECTED:0;
+		sso_properties_cpy[163].d1=((subscreen_object_lifegauge *)tempsso)->showflag;
         replacedp(sso_properties_cpy[165],buf);
         bufi=165;
-		sso_properties_cpy[166].flags=((tempsso->d10)&16)?D_SELECTED:0;
+		sso_properties_cpy[166].flags=((((subscreen_object_lifegauge *)tempsso)->flags)&16)?D_SELECTED:0;
     }
     break;
     
@@ -3195,7 +3240,7 @@ int sso_properties(subscreen_object *tempsso)
         sprintf(t_color_caption, " Text Color ");
         sprintf(s_color_caption, " Shadow Color ");
         sprintf(b_color_caption, " Background Color ");
-        strcpy(buf, (char *)tempsso->dp1);
+        strcpy(buf, ((subscreen_object_textbox *)tempsso)->thetext.c_str());
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
         sprintf(w_str, "%d", tempsso->w);
@@ -3224,15 +3269,15 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+        sso_properties_cpy[119].d1 = ((subscreen_object_textbox *)tempsso)->fontnum;
+        sso_properties_cpy[120].d1 = ((subscreen_object_textbox *)tempsso)->textstyle;
+        sso_properties_cpy[121].d1 = ((subscreen_object_textbox *)tempsso)->alignment;
         replacedp(sso_properties_cpy[122],buf);
         bufi=122;
-		sso_properties_cpy[122].dp2=ss_font(tempsso->d1);
-		sso_properties_cpy[122].h=text_height(ss_font(tempsso->d1))+8;
-		sso_properties_cpy[125].d1=tempsso->d4;
-        sprintf(buf2, "%d", tempsso->d5);
+		sso_properties_cpy[122].dp2=ss_font(((subscreen_object_textbox *)tempsso)->fontnum);
+		sso_properties_cpy[122].h=text_height(ss_font(((subscreen_object_textbox *)tempsso)->fontnum))+8;
+		sso_properties_cpy[125].d1=((subscreen_object_textbox *)tempsso)->wword;
+        sprintf(buf2, "%d", ((subscreen_object_textbox *)tempsso)->tabsize);
         replacedp(sso_properties_cpy[126],buf2);
         buf2i=126;
     }
@@ -3284,8 +3329,8 @@ int sso_properties(subscreen_object *tempsso)
         buf[0]=0;
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
-        sprintf(w_str, "%d", sso_w(tempsso));
-        sprintf(h_str, "%d", sso_h(tempsso));
+        sprintf(w_str, "%d", tempsso->sso_w());
+        sprintf(h_str, "%d", tempsso->sso_h());
         replacedp(sso_properties_cpy[8],x_str);
         x_stri=8;
         replacedp(sso_properties_cpy[10],y_str);
@@ -3310,15 +3355,15 @@ int sso_properties(subscreen_object *tempsso)
 		sso_properties_cpy[52].d1=tempsso->color3;
         update_ctl_proc(sso_properties_cpy +52, sso_properties_cpy[50].d1);
         
-		sso_properties_cpy[119].d1=tempsso->d1;
-		sso_properties_cpy[120].d1=tempsso->d3;
-		sso_properties_cpy[121].d1=tempsso->d2;
+        sso_properties_cpy[119].d1 = ((subscreen_object_selecteditemname *)tempsso)->fontnum;
+        sso_properties_cpy[120].d1 = ((subscreen_object_selecteditemname *)tempsso)->textstyle;
+        sso_properties_cpy[121].d1 = ((subscreen_object_selecteditemname *)tempsso)->alignment;
         replacedp(sso_properties_cpy[122],buf);
         bufi=122;
-		sso_properties_cpy[122].dp2=ss_font(tempsso->d1);
-		sso_properties_cpy[122].h=text_height(ss_font(tempsso->d1))+8;
-		sso_properties_cpy[125].d1=tempsso->d4;
-        sprintf(buf2, "%d", tempsso->d5);
+        sso_properties_cpy[122].dp2 = ss_font(((subscreen_object_selecteditemname *)tempsso)->fontnum);
+        sso_properties_cpy[122].h = text_height(ss_font(((subscreen_object_selecteditemname *)tempsso)->fontnum)) + 8;
+        sso_properties_cpy[125].d1 = ((subscreen_object_selecteditemname *)tempsso)->wword;
+        sprintf(buf2, "%d", ((subscreen_object_selecteditemname *)tempsso)->tabsize);
         replacedp(sso_properties_cpy[126],buf2);
         buf2i=126;
     }
@@ -3345,14 +3390,32 @@ int sso_properties(subscreen_object *tempsso)
     break;
     }
     
-    ret=zc_popup_dialog(sso_properties_cpy,2);
-    
-    //Bad idea
-    //leaks memory -DD
-    /*if (ret==2)
+    do
     {
-      return -1;
-    }*/
+        ret = zc_popup_dialog(sso_properties_cpy, 2);
+        if (ret == 176)
+        {
+            int status;
+            ItemDefinitionRef ref = select_item("Select Item", ((subscreen_object_currentitem *)tempsso)->itemref, false, status);
+            if (status == 4)
+            {
+                ((subscreen_object_currentitem *)tempsso)->itemref = ref;
+                const char *nonestr = "(None)";
+                replacedp(sso_properties_cpy[176], (curQuest->isValid(ref) ? curQuest->getItemDefinition(ref).name.c_str() : nonestr));
+            }
+        }
+        if (ret == 126)
+        {
+            int status;
+            ItemDefinitionRef ref = select_item("Select Item", ((subscreen_object_counter *)tempsso)->itemref, false, status);
+            if (status == 4)
+            {
+                ((subscreen_object_counter *)tempsso)->itemref = ref;
+                const char *nonestr = "(None)";
+                replacedp(sso_properties_cpy[126], (curQuest->isValid(ref) ? curQuest->getItemDefinition(ref).name.c_str() : nonestr));
+            }
+        }
+    } while (ret == 176 || ret == 126);
     
     if(ret != 2)
     {
@@ -3386,10 +3449,10 @@ int sso_properties(subscreen_object *tempsso)
             
             insert_cset(sso_properties_cpy +38, tempsso, 1);
             tempsso->color1= sso_properties_cpy[40].d1;
-            tempsso->d1= sso_properties_cpy[98].d1;
-            tempsso->d2= sso_properties_cpy[98].d2;
-            tempsso->d3= sso_properties_cpy[102].flags&D_SELECTED?1:0;
-            tempsso->d4= sso_properties_cpy[103].flags&D_SELECTED?1:0;
+            ((subscreen_object_2x2frame *)tempsso)->tile = sso_properties_cpy[98].d1;
+            ((subscreen_object_2x2frame *)tempsso)->flip = sso_properties_cpy[98].d2;
+            ((subscreen_object_2x2frame *)tempsso)->overlay = sso_properties_cpy[102].flags&D_SELECTED ? 1 : 0;
+            ((subscreen_object_2x2frame *)tempsso)->transparent = sso_properties_cpy[103].flags&D_SELECTED ? 1 : 0;
         }
         break;
         
@@ -3409,19 +3472,11 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
+            ((subscreen_object_text *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_text *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_text *)tempsso)->alignment = sso_properties_cpy[121].d1;
             
-            if(tempsso->dp1!=NULL)
-            {
-                //zc_free((char *)(tempsso->dp1));
-                delete[]((char *)(tempsso->dp1));
-            }
-            
-            //(tempsso->dp1)=(char *)zc_malloc(strlen((char *)sso_properties_dlg[bufi].dp)+1);
-            tempsso->dp1 = new char[strlen((char *)sso_properties_cpy[bufi].dp)+1];
-            strcpy((char *)tempsso->dp1, (char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_text *)tempsso)->text = std::string((char *)sso_properties_cpy[bufi].dp);
         }
         break;
         
@@ -3435,8 +3490,8 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +38, tempsso, 1);
             tempsso->color1= sso_properties_cpy[40].d1;
             
-            tempsso->d1=(sso_properties_cpy[102].flags&D_SELECTED)?1:0;
-            tempsso->d2=(sso_properties_cpy[103].flags&D_SELECTED)?1:0;
+            ((subscreen_object_line *)tempsso)->overlay = (sso_properties_cpy[102].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_line *)tempsso)->transparent = (sso_properties_cpy[103].flags&D_SELECTED) ? 1 : 0;
         }
         break;
         
@@ -3453,8 +3508,8 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +44, tempsso, 2);
             tempsso->color2= sso_properties_cpy[46].d1;
             
-            tempsso->d1=(sso_properties_cpy[102].flags&D_SELECTED)?1:0;
-            tempsso->d2=(sso_properties_cpy[103].flags&D_SELECTED)?1:0;
+            ((subscreen_object_rect *)tempsso)->filled = (sso_properties_cpy[102].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_rect *)tempsso)->transparent = (sso_properties_cpy[103].flags&D_SELECTED) ? 1 : 0;
         }
         break;
         
@@ -3474,9 +3529,9 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
+            ((subscreen_object_bstime *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_bstime *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_bstime *)tempsso)->alignment = sso_properties_cpy[121].d1;
         }
         break;
         
@@ -3496,9 +3551,9 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
+            ((subscreen_object_time *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_time *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_time *)tempsso)->alignment = sso_properties_cpy[121].d1;
         }
         break;
         
@@ -3518,9 +3573,9 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
+            ((subscreen_object_sstime *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_sstime *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_sstime *)tempsso)->alignment = sso_properties_cpy[121].d1;
         }
         break;
         
@@ -3535,8 +3590,8 @@ int sso_properties(subscreen_object *tempsso)
         {
             tempsso->x=atoi((char *)sso_properties_cpy[x_stri].dp);
             tempsso->y=atoi((char *)sso_properties_cpy[y_stri].dp);
-            tempsso->d2=(sso_properties_cpy[139].flags&D_SELECTED)?1:0;
-            tempsso->d3= sso_properties_cpy[175].d1;
+            ((subscreen_object_lifemeter *)tempsso)->bsstyle = (sso_properties_cpy[139].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_lifemeter *)tempsso)->threerows = sso_properties_cpy[175].d1 != 0;
         }
         break;
         
@@ -3547,8 +3602,8 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->w=atoi((char *)sso_properties_cpy[w_stri].dp);
             tempsso->h=atoi((char *)sso_properties_cpy[h_stri].dp);
             
-            tempsso->d2=(sso_properties_cpy[103].flags&D_SELECTED)?1:0;
-            tempsso->d1= sso_properties_cpy[119].d1;
+            ((subscreen_object_buttonitem *)tempsso)->transparent = (sso_properties_cpy[103].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_buttonitem *)tempsso)->button = sso_properties_cpy[119].d1;
         }
         break;
         
@@ -3573,17 +3628,16 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
+            ((subscreen_object_counter *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_counter *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_counter *)tempsso)->alignment = sso_properties_cpy[121].d1;
             
-            tempsso->d4=atoi((char *)sso_properties_cpy[bufi].dp);
-            tempsso->d5=((char *)sso_properties_cpy[buf2i].dp)[0];
-            tempsso->d6=(sso_properties_cpy[140].flags&D_SELECTED?1:0)+(sso_properties_cpy[141].flags&D_SELECTED?2:0);
-            tempsso->d7= sso_properties_cpy[136].d1;
-            tempsso->d8= sso_properties_cpy[137].d1;
-            tempsso->d9= sso_properties_cpy[138].d1;
-            tempsso->d10=bii[sso_properties_cpy[126].d1].i;
+            ((subscreen_object_counter *)tempsso)->digits = atoi((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_counter *)tempsso)->infdigit = ((char *)sso_properties_cpy[buf2i].dp)[0];
+            ((subscreen_object_counter *)tempsso)->flags = (sso_properties_cpy[140].flags&D_SELECTED ? 1 : 0) + (sso_properties_cpy[141].flags&D_SELECTED ? 2 : 0);
+            ((subscreen_object_counter *)tempsso)->countertype1 = sso_properties_cpy[136].d1;
+            ((subscreen_object_counter *)tempsso)->countertype2 = sso_properties_cpy[137].d1;
+            ((subscreen_object_counter *)tempsso)->countertype3 = sso_properties_cpy[138].d1;
         }
         break;
         
@@ -3603,12 +3657,12 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
+            ((subscreen_object_counters *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_counters *)tempsso)->textstyle = sso_properties_cpy[120].d1;
             
-            tempsso->d4=atoi((char *)sso_properties_cpy[bufi].dp);
-            tempsso->d5=((char *)sso_properties_cpy[buf2i].dp)[0];
-            tempsso->d2= sso_properties_cpy[140].flags&D_SELECTED?1:0;
+            ((subscreen_object_counters *)tempsso)->digits = atoi((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_counters *)tempsso)->idigit = ((char *)sso_properties_cpy[buf2i].dp)[0];
+            ((subscreen_object_counters *)tempsso)->usex = sso_properties_cpy[140].flags&D_SELECTED ? 1 : 0;
         }
         break;
         
@@ -3628,10 +3682,10 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
-            tempsso->d4=(sso_properties_cpy[139].flags&D_SELECTED)?1:0;
+            ((subscreen_object_minimaptitle *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_minimaptitle *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_minimaptitle *)tempsso)->alignment = sso_properties_cpy[121].d1;
+            ((subscreen_object_minimaptitle *)tempsso)->needmap = (sso_properties_cpy[139].flags&D_SELECTED) ? 1 : 0;
         }
         break;
         
@@ -3649,9 +3703,9 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1=(sso_properties_cpy[171].flags&D_SELECTED)?1:0;
-            tempsso->d2=(sso_properties_cpy[172].flags&D_SELECTED)?1:0;
-            tempsso->d3=(sso_properties_cpy[173].flags&D_SELECTED)?1:0;
+            ((subscreen_object_minimap *)tempsso)->showmap = (sso_properties_cpy[171].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_minimap *)tempsso)->showlink = (sso_properties_cpy[172].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_minimap *)tempsso)->showcompass = (sso_properties_cpy[173].flags&D_SELECTED) ? 1 : 0;
         }
         break;
         
@@ -3665,10 +3719,10 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +44, tempsso, 2);
             tempsso->color2= sso_properties_cpy[46].d1;
             
-            tempsso->d1=(sso_properties_cpy[171].flags&D_SELECTED)?1:0;
-            tempsso->d2=(sso_properties_cpy[172].flags&D_SELECTED)?1:0;
-            tempsso->d3=(sso_properties_cpy[173].flags&D_SELECTED)?1:0;
-            tempsso->d10=(sso_properties_cpy[139].flags&D_SELECTED)?1:0;
+            ((subscreen_object_largemap *)tempsso)->showmap = (sso_properties_cpy[171].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_largemap *)tempsso)->showlink = (sso_properties_cpy[172].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_largemap *)tempsso)->showrooms = (sso_properties_cpy[173].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_largemap *)tempsso)->large = (sso_properties_cpy[139].flags&D_SELECTED) ? 1 : 0;
         }
         break;
         
@@ -3686,16 +3740,14 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->w=atoi((char *)sso_properties_cpy[w_stri].dp);
             tempsso->h=atoi((char *)sso_properties_cpy[h_stri].dp);
             
-            tempsso->d3=atoi((char *)sso_properties_cpy[bufi].dp);
-            tempsso->d4=atoi((char *)sso_properties_cpy[buf2i].dp);
-            tempsso->d5=atoi((char *)sso_properties_cpy[buf3i].dp);
-            tempsso->d6=atoi((char *)sso_properties_cpy[buf4i].dp);
-            tempsso->d7=atoi((char *)sso_properties_cpy[buf5i].dp);
-            tempsso->d8=vbound(bii[sso_properties_cpy[176].d1].i+1, 0, 255);
+            ((subscreen_object_currentitem *)tempsso)->posselect = atoi((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_currentitem *)tempsso)->upselect = atoi((char *)sso_properties_cpy[buf2i].dp);
+            ((subscreen_object_currentitem *)tempsso)->downselect = atoi((char *)sso_properties_cpy[buf3i].dp);
+            ((subscreen_object_currentitem *)tempsso)->leftselect = atoi((char *)sso_properties_cpy[buf4i].dp);
+            ((subscreen_object_currentitem *)tempsso)->rightselect = atoi((char *)sso_properties_cpy[buf5i].dp);
             
-            tempsso->d1=vbound(biic[sso_properties_cpy[133].d1].i, 0, 255);
-            tempsso->d2= sso_properties_cpy[139].flags&D_SELECTED?0:1;
-            tempsso->d8=vbound(tempsso->d8,0,256);
+            ((subscreen_object_currentitem *)tempsso)->itemfamily = vbound(biic[sso_properties_cpy[133].d1].i, 0, 255);
+            ((subscreen_object_currentitem *)tempsso)->visible = sso_properties_cpy[139].flags&D_SELECTED ? 0 : 1;
         }
         break;
         
@@ -3717,13 +3769,13 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +44, tempsso, 2);
             tempsso->color2= sso_properties_cpy[46].d1;
             
-            tempsso->d1= sso_properties_cpy[98].d1;
-            tempsso->d2= sso_properties_cpy[98].fg;
-            tempsso->d3= sso_properties_cpy[101].d1;
-            tempsso->d4= sso_properties_cpy[101].fg;
-            tempsso->d5=(sso_properties_cpy[102].flags&D_SELECTED)?1:0;
-            tempsso->d6=(sso_properties_cpy[103].flags&D_SELECTED)?1:0;
-            tempsso->d7=(sso_properties_cpy[104].flags&D_SELECTED)?1:0;
+            ((subscreen_object_triframe *)tempsso)->triframe_tile = sso_properties_cpy[98].d1;
+            ((subscreen_object_triframe *)tempsso)->triframe_cset = sso_properties_cpy[98].fg;
+            ((subscreen_object_triframe *)tempsso)->triforce_tile = sso_properties_cpy[101].d1;
+            ((subscreen_object_triframe *)tempsso)->triforce_cset = sso_properties_cpy[101].fg;
+            ((subscreen_object_triframe *)tempsso)->showframe = (sso_properties_cpy[102].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_triframe *)tempsso)->showpieces = (sso_properties_cpy[103].flags&D_SELECTED) ? 1 : 0;
+            ((subscreen_object_triframe *)tempsso)->largepieces = (sso_properties_cpy[104].flags&D_SELECTED) ? 1 : 0;
         }
         break;
         
@@ -3737,11 +3789,11 @@ int sso_properties(subscreen_object *tempsso)
             
             insert_cset(sso_properties_cpy +38, tempsso, 1);
             tempsso->color1= sso_properties_cpy[40].d1;
-            tempsso->d1= sso_properties_cpy[98].d1;
-            tempsso->d2= sso_properties_cpy[98].d2;
-            tempsso->d3= sso_properties_cpy[102].flags&D_SELECTED?1:0;
-            tempsso->d4= sso_properties_cpy[103].flags&D_SELECTED?1:0;
-            tempsso->d5=atoi((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_triforce *)tempsso)->tile = sso_properties_cpy[98].d1;
+            ((subscreen_object_triforce *)tempsso)->flip = sso_properties_cpy[98].d2;
+            ((subscreen_object_triforce *)tempsso)->overlay = sso_properties_cpy[102].flags&D_SELECTED?1:0;
+            ((subscreen_object_triforce *)tempsso)->transparent = sso_properties_cpy[103].flags&D_SELECTED?1:0;
+            ((subscreen_object_triforce *)tempsso)->triforcenum = atoi((char *)sso_properties_cpy[bufi].dp);
         }
         break;
         
@@ -3755,10 +3807,10 @@ int sso_properties(subscreen_object *tempsso)
             
             insert_cset(sso_properties_cpy +38, tempsso, 1);
             tempsso->color1= sso_properties_cpy[40].d1;
-            tempsso->d1= sso_properties_cpy[98].d1;
-            tempsso->d2= sso_properties_cpy[98].d2;
-            tempsso->d3= sso_properties_cpy[102].flags&D_SELECTED?1:0;
-            tempsso->d4= sso_properties_cpy[103].flags&D_SELECTED?1:0;
+            ((subscreen_object_tileblock *)tempsso)->tile = sso_properties_cpy[98].d1;
+            ((subscreen_object_tileblock *)tempsso)->flip = sso_properties_cpy[98].d2;
+            ((subscreen_object_tileblock *)tempsso)->overlay = sso_properties_cpy[102].flags&D_SELECTED?1:0;
+            ((subscreen_object_tileblock *)tempsso)->transparent = sso_properties_cpy[103].flags&D_SELECTED?1:0;
         }
         break;
         
@@ -3776,27 +3828,26 @@ int sso_properties(subscreen_object *tempsso)
             {
             case ssmstSSVINETILE:
             case ssmstMAGICMETER:
-                tempsso->d1=-1;
-                tempsso->d2= sso_properties_cpy[112].d1-1;
-                tempsso->d3= sso_properties_cpy[98].bg;
+                ((subscreen_object_minitile *)tempsso)->tile = -1;
+                ((subscreen_object_minitile *)tempsso)->specialtile = sso_properties_cpy[112].d1-1;
+                ((subscreen_object_minitile *)tempsso)->tileoffset = sso_properties_cpy[98].bg;
                 break;
                 
             case -1:
             default:
-                tempsso->d1=(sso_properties_cpy[98].d1<<2)+ sso_properties_cpy[98].bg;
-                tempsso->d2=0;
-                tempsso->d3=0;
+                ((subscreen_object_minitile *)tempsso)->tile = (sso_properties_cpy[98].d1<<2)+ sso_properties_cpy[98].bg;
+                ((subscreen_object_minitile *)tempsso)->specialtile = 0;
+                ((subscreen_object_minitile *)tempsso)->tileoffset = 0;
                 break;
             }
             
-            tempsso->d4= sso_properties_cpy[98].d2;
-            tempsso->d5= sso_properties_cpy[102].flags&D_SELECTED?1:0;
-            tempsso->d6= sso_properties_cpy[103].flags&D_SELECTED?1:0;
+            ((subscreen_object_minitile *)tempsso)->flip = sso_properties_cpy[98].d2;
+            ((subscreen_object_minitile *)tempsso)->overlay = sso_properties_cpy[102].flags&D_SELECTED?1:0;
+            ((subscreen_object_minitile *)tempsso)->transparent = sso_properties_cpy[103].flags&D_SELECTED?1:0;
         }
         break;
         
         case ssoSELECTOR1:
-        case ssoSELECTOR2:
         {
             tempsso->x=atoi((char *)sso_properties_cpy[x_stri].dp);
             tempsso->y=atoi((char *)sso_properties_cpy[y_stri].dp);
@@ -3806,11 +3857,29 @@ int sso_properties(subscreen_object *tempsso)
             
             insert_cset(sso_properties_cpy +38, tempsso, 1);
             tempsso->color1= sso_properties_cpy[40].d1;
-            tempsso->d1= sso_properties_cpy[98].d1;
-            tempsso->d2= sso_properties_cpy[98].d2;
-            tempsso->d3= sso_properties_cpy[102].flags&D_SELECTED?1:0;
-            tempsso->d4= sso_properties_cpy[103].flags&D_SELECTED?1:0;
-            tempsso->d5= sso_properties_cpy[104].flags&D_SELECTED?1:0;
+            ((subscreen_object_selector1 *)tempsso)->tile = sso_properties_cpy[98].d1;
+            ((subscreen_object_selector1 *)tempsso)->flip = sso_properties_cpy[98].d2;
+            ((subscreen_object_selector1 *)tempsso)->overlay = sso_properties_cpy[102].flags&D_SELECTED?1:0;
+            ((subscreen_object_selector1 *)tempsso)->transparent = sso_properties_cpy[103].flags&D_SELECTED?1:0;
+            ((subscreen_object_selector1 *)tempsso)->large = sso_properties_cpy[104].flags&D_SELECTED?1:0;
+        }
+        break;
+
+        case ssoSELECTOR2:
+        {
+            tempsso->x=atoi((char *)sso_properties_cpy[x_stri].dp);
+            tempsso->y=atoi((char *)sso_properties_cpy[y_stri].dp);
+            //tempsso->w=atoi((char *)sso_properties_dlg[w_stri].dp);
+            //tempsso->h=atoi((char *)sso_properties_dlg[h_stri].dp);
+
+
+            insert_cset(sso_properties_cpy +38, tempsso, 1);
+            tempsso->color1= sso_properties_cpy[40].d1;
+            ((subscreen_object_selector2 *)tempsso)->tile = sso_properties_cpy[98].d1;
+            ((subscreen_object_selector2 *)tempsso)->flip = sso_properties_cpy[98].d2;
+            ((subscreen_object_selector2 *)tempsso)->overlay = sso_properties_cpy[102].flags&D_SELECTED?1:0;
+            ((subscreen_object_selector2 *)tempsso)->transparent = sso_properties_cpy[103].flags&D_SELECTED?1:0;
+            ((subscreen_object_selector2 *)tempsso)->large = sso_properties_cpy[104].flags&D_SELECTED?1:0;
         }
         break;
         
@@ -3821,30 +3890,30 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->w=atoi((char *)sso_properties_cpy[w_stri].dp);
             tempsso->h=atoi((char *)sso_properties_cpy[h_stri].dp);
             
-            tempsso->d6=atoi((char *)sso_properties_cpy[f_stri].dp);
-            tempsso->d7=atoi((char *)sso_properties_cpy[s_stri].dp);
-            tempsso->d8=atoi((char *)sso_properties_cpy[d_stri].dp);
+            ((subscreen_object_magicgauge *)tempsso)->frames = atoi((char *)sso_properties_cpy[f_stri].dp);
+            ((subscreen_object_magicgauge *)tempsso)->speed = atoi((char *)sso_properties_cpy[s_stri].dp);
+            ((subscreen_object_magicgauge *)tempsso)->delay = atoi((char *)sso_properties_cpy[d_stri].dp);
             
-            tempsso->d2=(sso_properties_cpy[145].d1<<2)+ sso_properties_cpy[145].bg;
+            ((subscreen_object_magicgauge *)tempsso)->notlast_tile = (sso_properties_cpy[145].d1 << 2) + sso_properties_cpy[145].bg;
             tempsso->colortype1= sso_properties_cpy[145].fg;
             
-            tempsso->d3=(sso_properties_cpy[149].d1<<2)+ sso_properties_cpy[149].bg;
+            ((subscreen_object_magicgauge *)tempsso)->last_tile = (sso_properties_cpy[149].d1 << 2) + sso_properties_cpy[149].bg;
             tempsso->color1= sso_properties_cpy[149].fg;
             
-            tempsso->d4=(sso_properties_cpy[153].d1<<2)+ sso_properties_cpy[153].bg;
+            ((subscreen_object_magicgauge *)tempsso)->cap_tile = (sso_properties_cpy[153].d1 << 2) + sso_properties_cpy[153].bg;
             tempsso->colortype2= sso_properties_cpy[153].fg;
             
-            tempsso->d5=(sso_properties_cpy[157].d1<<2)+ sso_properties_cpy[157].bg;
+            ((subscreen_object_magicgauge *)tempsso)->aftercap_tile = (sso_properties_cpy[157].d1 << 2) + sso_properties_cpy[157].bg;
             tempsso->color2= sso_properties_cpy[157].fg;
             
-            tempsso->d10=((sso_properties_cpy[158].flags&D_SELECTED)?1:0)+
-                         ((sso_properties_cpy[159].flags&D_SELECTED)?2:0)+
-                         ((sso_properties_cpy[160].flags&D_SELECTED)?4:0)+
-                         ((sso_properties_cpy[161].flags&D_SELECTED)?8:0)+
-                         ((sso_properties_cpy[166].flags&D_SELECTED)?16:0);
+            ((subscreen_object_magicgauge *)tempsso)->flags = ((sso_properties_cpy[158].flags&D_SELECTED) ? 1 : 0) +
+                ((sso_properties_cpy[159].flags&D_SELECTED) ? 2 : 0) +
+                ((sso_properties_cpy[160].flags&D_SELECTED) ? 4 : 0) +
+                ((sso_properties_cpy[161].flags&D_SELECTED) ? 8 : 0) +
+                ((sso_properties_cpy[166].flags&D_SELECTED) ? 16 : 0);
                          
-            tempsso->d9= sso_properties_cpy[163].d1;
-            tempsso->d1=atoi((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_magicgauge *)tempsso)->showflag = sso_properties_cpy[163].d1;
+            ((subscreen_object_magicgauge *)tempsso)->containernum = atoi((char *)sso_properties_cpy[bufi].dp);
         }
         break;
         
@@ -3855,30 +3924,30 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->w=atoi((char *)sso_properties_cpy[w_stri].dp);
             tempsso->h=atoi((char *)sso_properties_cpy[h_stri].dp);
             
-            tempsso->d6=atoi((char *)sso_properties_cpy[f_stri].dp);
-            tempsso->d7=atoi((char *)sso_properties_cpy[s_stri].dp);
-            tempsso->d8=atoi((char *)sso_properties_cpy[d_stri].dp);
+            ((subscreen_object_lifegauge *)tempsso)->frames = atoi((char *)sso_properties_cpy[f_stri].dp);
+            ((subscreen_object_lifegauge *)tempsso)->speed = atoi((char *)sso_properties_cpy[s_stri].dp);
+            ((subscreen_object_lifegauge *)tempsso)->delay = atoi((char *)sso_properties_cpy[d_stri].dp);
             
-            tempsso->d2=(sso_properties_cpy[145].d1<<2)+ sso_properties_cpy[145].bg;
+            ((subscreen_object_lifegauge *)tempsso)->notlast_tile = (sso_properties_cpy[145].d1 << 2) + sso_properties_cpy[145].bg;
             tempsso->colortype1= sso_properties_cpy[145].fg;
             
-            tempsso->d3=(sso_properties_cpy[149].d1<<2)+ sso_properties_cpy[149].bg;
+            ((subscreen_object_lifegauge *)tempsso)->last_tile = (sso_properties_cpy[149].d1 << 2) + sso_properties_cpy[149].bg;
             tempsso->color1= sso_properties_cpy[149].fg;
             
-            tempsso->d4=(sso_properties_cpy[153].d1<<2)+ sso_properties_cpy[153].bg;
+            ((subscreen_object_lifegauge *)tempsso)->cap_tile = (sso_properties_cpy[153].d1 << 2) + sso_properties_cpy[153].bg;
             tempsso->colortype2= sso_properties_cpy[153].fg;
             
-            tempsso->d5=(sso_properties_cpy[157].d1<<2)+ sso_properties_cpy[157].bg;
+            ((subscreen_object_lifegauge *)tempsso)->aftercap_tile = (sso_properties_cpy[157].d1 << 2) + sso_properties_cpy[157].bg;
             tempsso->color2= sso_properties_cpy[157].fg;
             
-            tempsso->d10=((sso_properties_cpy[158].flags&D_SELECTED)?1:0)+
-                         ((sso_properties_cpy[159].flags&D_SELECTED)?2:0)+
-                         ((sso_properties_cpy[160].flags&D_SELECTED)?4:0)+
-                         ((sso_properties_cpy[161].flags&D_SELECTED)?8:0)+
-                         ((sso_properties_cpy[166].flags&D_SELECTED)?16:0);
+            ((subscreen_object_lifegauge *)tempsso)->flags = ((sso_properties_cpy[158].flags&D_SELECTED) ? 1 : 0) +
+                ((sso_properties_cpy[159].flags&D_SELECTED) ? 2 : 0) +
+                ((sso_properties_cpy[160].flags&D_SELECTED) ? 4 : 0) +
+                ((sso_properties_cpy[161].flags&D_SELECTED) ? 8 : 0) +
+                ((sso_properties_cpy[166].flags&D_SELECTED) ? 16 : 0);
                          
-            tempsso->d9= sso_properties_cpy[163].d1;
-            tempsso->d1=atoi((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_lifegauge *)tempsso)->showflag = sso_properties_cpy[163].d1;
+            ((subscreen_object_lifegauge *)tempsso)->containernum = atoi((char *)sso_properties_cpy[bufi].dp);
         }
         break;
         
@@ -3898,21 +3967,13 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
+            ((subscreen_object_textbox *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_textbox *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_textbox *)tempsso)->alignment = sso_properties_cpy[121].d1;
             
-            if(tempsso->dp1!=NULL)
-            {
-                //zc_free((char *)(tempsso->dp1));
-                delete[]((char *)(tempsso->dp1));
-            }
-            
-            //(tempsso->dp1)=(char *)zc_malloc(strlen((char *)sso_properties_dlg[bufi].dp)+1);
-            tempsso->dp1 = new char[strlen((char *)sso_properties_cpy[bufi].dp)+1];
-            strcpy((char *)tempsso->dp1, (char *)sso_properties_cpy[bufi].dp);
-            tempsso->d4= sso_properties_cpy[125].d1;
-            tempsso->d5=atoi((char *)sso_properties_cpy[buf2i].dp);
+            ((subscreen_object_textbox *)tempsso)->thetext = std::string((char *)sso_properties_cpy[bufi].dp);
+            ((subscreen_object_textbox *)tempsso)->wword = sso_properties_cpy[125].d1 != 0;
+            ((subscreen_object_textbox *)tempsso)->tabsize = atoi((char *)sso_properties_cpy[buf2i].dp);
         }
         break;
         
@@ -3952,11 +4013,11 @@ int sso_properties(subscreen_object *tempsso)
             insert_colortype(sso_properties_cpy +50, tempsso, 3);
             tempsso->color3= sso_properties_cpy[52].d1;
             
-            tempsso->d1= sso_properties_cpy[119].d1;
-            tempsso->d3= sso_properties_cpy[120].d1;
-            tempsso->d2= sso_properties_cpy[121].d1;
-            tempsso->d4= sso_properties_cpy[125].d1;
-            tempsso->d5=atoi((char *)sso_properties_cpy[buf2i].dp);
+            ((subscreen_object_selecteditemname *)tempsso)->fontnum = sso_properties_cpy[119].d1;
+            ((subscreen_object_selecteditemname *)tempsso)->textstyle = sso_properties_cpy[120].d1;
+            ((subscreen_object_selecteditemname *)tempsso)->alignment = sso_properties_cpy[121].d1;
+            ((subscreen_object_selecteditemname *)tempsso)->wword = sso_properties_cpy[125].d1 != 0;
+            ((subscreen_object_selecteditemname *)tempsso)->tabsize = atoi((char *)sso_properties_cpy[buf2i].dp);
         }
         break;
         
@@ -3983,9 +4044,17 @@ int sso_properties(subscreen_object *tempsso)
         
     }
 
-	delete[] sso_properties_cpy;
-    
+    // oy vey -DD
+    for (int i = 0; sso_properties_cpy[i].proc; i++)
+    {
+        sso_properties_dlg[i].proc = sso_properties_cpy[i].proc;
+        sso_properties_dlg[i].dp = sso_properties_cpy[i].dp;
+    }
+    delete[] sso_properties_cpy;
+
     free_dialog(&sso_properties_dlg);
+
+    
     //for(map<int, char *>::iterator it = itemclassnames.begin(); it != itemclassnames.end(); it++)
     //  delete[] it->second;
     //itemclassnames.clear();
@@ -4021,14 +4090,11 @@ int onSubscreenObjectProperties()
 {
     if(curr_subscreen_object >= 0)
     {
-        if(sso_properties(&(css->objects[curr_subscreen_object]))!=-1)
+        if(sso_properties(css->ss_objects[curr_subscreen_object])!=-1)
         {
-            for(int i=0; i<MAXSUBSCREENITEMS; i++)
+            for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
             {
-                if(!sso_selection[i])
-                    continue;
-                
-                copySSOProperties(css->objects[curr_subscreen_object], css->objects[i]);
+                copySSOProperties(*css->ss_objects[curr_subscreen_object], *css->ss_objects[*it]);
             }
         }
     }
@@ -4040,7 +4106,7 @@ int onSubscreenObjectRawProperties()
 {
     if(curr_subscreen_object >= 0)
     {
-        sso_raw_data(&(css->objects[curr_subscreen_object]));
+        sso_raw_data(css->ss_objects[curr_subscreen_object]);
     }
     
     return D_O_K;
@@ -4050,28 +4116,31 @@ int onNewSubscreenObject();
 
 int onDeleteSubscreenObject()
 {
-    int objs=ss_objects(css);
+    int objs=css->ss_objects.size();
     
     if(objs==0)
     {
         return D_O_K;
     }
     
+    std::set<int> newselection;
+    for (std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
+    {
+        if (*it < curr_subscreen_object)
+            newselection.insert(*it);
+        else if(*it > curr_subscreen_object)
+            newselection.insert(*it - 1);
+    }
+    sso_selection = newselection;
+
+    delete css->ss_objects[curr_subscreen_object];
+
     for(int i=curr_subscreen_object; i<objs-1; ++i)
     {
-        css->objects[i]=css->objects[i+1];
-        sso_selection[i]=sso_selection[i+1];
+        css->ss_objects[i]=css->ss_objects[i+1];        
     }
-    
-    if(css->objects[objs-1].dp1!=NULL)
-    {
-        //No, don't do this.  css->objects[objs-2] is pointing at this.  Leave it be.
-        //delete [] (char *)css->objects[objs-1].dp1;
-        css->objects[objs-1].dp1=NULL;
-    }
-    
-    css->objects[objs-1].type=ssoNULL;
-    sso_selection[objs-1]=false;
+
+    css->ss_objects.pop_back();
     
     if(ss_propCopySrc==curr_subscreen_object)
         ss_propCopySrc=-1;
@@ -4093,7 +4162,7 @@ int onAddToSelection()
 {
     if(curr_subscreen_object >= 0)
     {
-        sso_selection[curr_subscreen_object]=true;
+        sso_selection.insert(curr_subscreen_object);
     }
     
     return D_O_K;
@@ -4103,7 +4172,7 @@ int onRemoveFromSelection()
 {
     if(curr_subscreen_object >= 0)
     {
-        sso_selection[curr_subscreen_object]=false;
+        sso_selection.erase(curr_subscreen_object);
     }
     
     return D_O_K;
@@ -4111,72 +4180,40 @@ int onRemoveFromSelection()
 
 int onInvertSelection()
 {
-    for(int i=0; i<ss_objects(css); ++i)
+    std::set<int> newselection;
+    for(uint32_t i=0; i<css->ss_objects.size(); ++i)
     {
-        sso_selection[i]=!sso_selection[i];
+        if (sso_selection.count(i) == 0)
+            newselection.insert(i);
     }
+    sso_selection = newselection;
     
     return D_O_K;
 }
 
 int onClearSelection()
 {
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
-    {
-        sso_selection[i]=false;
-    }
+    sso_selection.clear();
     
     return D_O_K;
 }
 
 int onDuplicateSubscreenObject()
 {
-    int objs=ss_objects(css);
+    uint32_t objs = css->ss_objects.size();
     
     if(objs==0)
     {
         return D_O_K;
     }
     
-    int counter=0;
-    
-    for(int i=0; i<objs; ++i)
+    std::set<int> aug = sso_selection;
+    aug.insert(curr_subscreen_object);
+    for (std::set<int>::iterator it = aug.begin(); it != aug.end(); ++it)
     {
-        int c=objs+counter;
-        
-        if(sso_selection[i]||i==curr_subscreen_object)
-        {
-            if(css->objects[c].dp1!=NULL)
-            {
-                delete [](char *)css->objects[c].dp1;
-            }
-            
-            css->objects[c]=css->objects[i];
-            
-            if(css->objects[c].dp1!=NULL)
-            {
-                //No, don't do this.  css->objects[i] is pointing at this.  Leave it be.
-                //delete [] (char *)css->objects[c].dp1;
-                css->objects[c].dp1=NULL;
-            }
-            
-            if(css->objects[i].dp1!=NULL)
-            {
-                //css->objects[c].dp1=zc_malloc(strlen((char *)css->objects[i].dp1)+1);
-                css->objects[c].dp1= new char[strlen((char *)css->objects[i].dp1)+1];
-                strcpy((char *)css->objects[c].dp1,(char *)css->objects[i].dp1);
-            }
-            else
-            {
-                //css->objects[c].dp1=zc_malloc(2);
-                css->objects[c].dp1 = new char[2];
-                ((char *)css->objects[c].dp1)[0]=0;
-            }
-            
-            css->objects[c].x+=zc_max(zinit.ss_grid_x>>1,4);
-            css->objects[c].y+=zc_max(zinit.ss_grid_y>>1,4);
-            ++counter;
-        }
+        css->ss_objects.push_back(css->ss_objects[*it]->clone());
+        css->ss_objects.back()->x += zc_max(zinit.ss_grid_x >> 1, 4);
+        css->ss_objects.back()->y += zc_max(zinit.ss_grid_y >> 1, 4);
     }
     
     update_sso_name();
@@ -4207,14 +4244,14 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
     {
     case MSG_CLICK:
     {
-        for(int i=ss_objects(css)-1; i>=0; --i)
+        for(int i=(int)css->ss_objects.size()-1; i>=0; --i)
         {
-			int x = sso_x(&css->objects[i])*(is_large() ? 2 : 1);
-            int y=sso_y(&css->objects[i])*(is_large() ? 2 : 1);
-            int w=sso_w(&css->objects[i])*(is_large() ? 2 : 1);
-            int h=sso_h(&css->objects[i])*(is_large() ? 2 : 1);
+			int x = css->ss_objects[i]->sso_x()*(is_large() ? 2 : 1);
+            int y=css->ss_objects[i]->sso_y()*(is_large() ? 2 : 1);
+            int w=css->ss_objects[i]->sso_w()*(is_large() ? 2 : 1);
+            int h=css->ss_objects[i]->sso_h()*(is_large() ? 2 : 1);
             
-            switch(get_alignment(&css->objects[i]))
+            switch(css->ss_objects[i]->get_alignment())
             {
             case sstaCENTER:
                 x-=(w/2);
@@ -4233,13 +4270,13 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             {
                 if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
                 {
-                    if(sso_selection[i]==true)
+                    if(sso_selection.count(i) > 0)
                     {
-                        sso_selection[i]=false;
+                        sso_selection.erase(i);
                     }
                     else
                     {
-                        sso_selection[curr_subscreen_object]=true;
+                        sso_selection.insert(curr_subscreen_object);
                         curr_subscreen_object=i;
                         update_sso_name();
                         update_up_dn_btns();
@@ -4262,7 +4299,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             object_message(d,MSG_DRAW,0);
             
             // Disable "Paste Properties" if the copy source is invalid
-            if(ss_propCopySrc<0 || css->objects[ss_propCopySrc].type==ssoNULL)
+            if(ss_propCopySrc<0 || css->ss_objects[ss_propCopySrc]->type==ssoNULL)
                 subscreen_rc_menu[3].flags|=D_DISABLED;
             else
                 subscreen_rc_menu[3].flags&=~D_DISABLED;
@@ -4286,14 +4323,10 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             case 3: // Paste Properties
                 if(ss_propCopySrc>=0) // Hopefully unnecessary)
                 {
-                    copySSOProperties(css->objects[ss_propCopySrc], css->objects[curr_subscreen_object]);
-                    for(int i=0; i<MAXSUBSCREENITEMS; i++)
-                    {
-                        if(!sso_selection[i])
-                            continue;
-                        
-                        copySSOProperties(css->objects[ss_propCopySrc], css->objects[i]);
-                    }
+                    copySSOProperties(*css->ss_objects[ss_propCopySrc], *css->ss_objects[curr_subscreen_object]);
+                    for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
+                        copySSOProperties(*css->ss_objects[ss_propCopySrc], *css->ss_objects[*it]);
+                    
                 }
                 break;
             }
@@ -4317,12 +4350,9 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             clear_bitmap(buf);
             show_custom_subscreen(buf, &misc, (subscreen_group *)(d->dp), 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
             
-            for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+            for (std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
             {
-                if(sso_selection[i])
-                {
-                    sso_bounding_box(buf, css, i, vc(zinit.ss_bbox_2_color));
-                }
+                sso_bounding_box(buf, css, *it, vc(zinit.ss_bbox_2_color));
             }
             
             sso_bounding_box(buf, css, curr_subscreen_object, vc(zinit.ss_bbox_1_color));
@@ -4376,28 +4406,28 @@ int onSSUp()
 {
     int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_y:-1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)    
     {
-        if(sso_selection[i]&&i!=curr_subscreen_object)
+        if (*it != curr_subscreen_object)
         {
-            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+            if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
             {
-                css->objects[i].h+=delta;
+                css->ss_objects[*it]->h += delta;
             }
             else
             {
-                css->objects[i].y+=delta;
+                css->ss_objects[*it]->y += delta;
             }
         }
     }
     
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
-        css->objects[curr_subscreen_object].h+=delta;
+        css->ss_objects[curr_subscreen_object]->h+=delta;
     }
     else
     {
-        css->objects[curr_subscreen_object].y+=delta;
+        css->ss_objects[curr_subscreen_object]->y+=delta;
     }
     
     return D_O_K;
@@ -4407,28 +4437,28 @@ int onSSDown()
 {
     int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_y:1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for (std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
     {
-        if(sso_selection[i]&&i!=curr_subscreen_object)
+        if (*it != curr_subscreen_object)
         {
-            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+            if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
             {
-                css->objects[i].h+=delta;
+                css->ss_objects[*it]->h += delta;
             }
             else
             {
-                css->objects[i].y+=delta;
+                css->ss_objects[*it]->y += delta;
             }
         }
     }
     
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
-        css->objects[curr_subscreen_object].h+=delta;
+        css->ss_objects[curr_subscreen_object]->h+=delta;
     }
     else
     {
-        css->objects[curr_subscreen_object].y+=delta;
+        css->ss_objects[curr_subscreen_object]->y+=delta;
     }
     
     return D_O_K;
@@ -4438,28 +4468,28 @@ int onSSLeft()
 {
     int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_x:-1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for (std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
     {
-        if(sso_selection[i]&&i!=curr_subscreen_object)
+        if (*it != curr_subscreen_object)
         {
-            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+            if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
             {
-                css->objects[i].w+=delta;
+                css->ss_objects[*it]->w += delta;
             }
             else
             {
-                css->objects[i].x+=delta;
+                css->ss_objects[*it]->x += delta;
             }
         }
     }
     
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
-        css->objects[curr_subscreen_object].w+=delta;
+        css->ss_objects[curr_subscreen_object]->w+=delta;
     }
     else
     {
-        css->objects[curr_subscreen_object].x+=delta;
+        css->ss_objects[curr_subscreen_object]->x+=delta;
     }
     
     return D_O_K;
@@ -4469,28 +4499,28 @@ int onSSRight()
 {
     int delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_x:1;
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
     {
-        if(sso_selection[i]&&i!=curr_subscreen_object)
+        if(*it!=curr_subscreen_object)
         {
             if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
             {
-                css->objects[i].w+=delta;
+                css->ss_objects[*it]->w+=delta;
             }
             else
             {
-                css->objects[i].x+=delta;
+                css->ss_objects[*it]->x+=delta;
             }
         }
     }
     
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
-        css->objects[curr_subscreen_object].w+=delta;
+        css->ss_objects[curr_subscreen_object]->w+=delta;
     }
     else
     {
-        css->objects[curr_subscreen_object].x+=delta;
+        css->ss_objects[curr_subscreen_object]->x+=delta;
     }
     
     return D_O_K;
@@ -4568,15 +4598,15 @@ int d_ssup_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
         {
-            if(sso_selection[i]&&i!=curr_subscreen_object)
+            if(*it!=curr_subscreen_object)
             {
-                --css->objects[i].h;
+                --css->ss_objects[*it]->h;
             }
         }
         
-        --css->objects[curr_subscreen_object].h;
+        --css->ss_objects[curr_subscreen_object]->h;
         return D_O_K;
     }
     break;
@@ -4593,15 +4623,15 @@ int d_ssdn_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
         {
-            if(sso_selection[i]&&i!=curr_subscreen_object)
+            if(*it!=curr_subscreen_object)
             {
-                ++css->objects[i].h;
+                ++css->ss_objects[*it]->h;
             }
         }
         
-        ++css->objects[curr_subscreen_object].h;
+        ++css->ss_objects[curr_subscreen_object]->h;
         return D_O_K;
     }
     break;
@@ -4618,15 +4648,15 @@ int d_sslt_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
         {
-            if(sso_selection[i]&&i!=curr_subscreen_object)
+            if(*it!=curr_subscreen_object)
             {
-                --css->objects[i].w;
+                --css->ss_objects[*it]->w;
             }
         }
         
-        --css->objects[curr_subscreen_object].w;
+        --css->ss_objects[curr_subscreen_object]->w;
         return D_O_K;
     }
     break;
@@ -4643,15 +4673,15 @@ int d_ssrt_btn3_proc(int msg,DIALOG *d,int c)
     {
         jwin_button_proc(msg, d, c);
         
-        for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+        for(std::set<int>::iterator it = sso_selection.begin(); it != sso_selection.end(); ++it)
         {
-            if(sso_selection[i]&&i!=curr_subscreen_object)
+            if(*it!=curr_subscreen_object)
             {
-                ++css->objects[i].w;
+                ++css->ss_objects[*it]->w;
             }
         }
         
-        ++css->objects[curr_subscreen_object].w;
+        ++css->ss_objects[curr_subscreen_object]->w;
         return D_O_K;
     }
     break;
@@ -4660,13 +4690,14 @@ int d_ssrt_btn3_proc(int msg,DIALOG *d,int c)
     return jwin_button_proc(msg, d, c);
 }
 
-int Bweapon(int pos)
+ItemDefinitionRef weaponFromSlot(int pos, bool &combinedBowArrow)
 {
     int p=-1;
+    combinedBowArrow = false;
     
-    for(int i=0; css->objects[i].type!=ssoNULL; ++i)
+    for(uint32_t i=0; i<css->ss_objects.size(); ++i)
     {
-        if(css->objects[i].type==ssoCURRENTITEM && css->objects[i].d3==pos)
+        if(css->ss_objects[i]->type==ssoCURRENTITEM && ((subscreen_object_currentitem *)css->ss_objects[i])->posselect==pos)
         {
             p=i;
             break;
@@ -4675,28 +4706,27 @@ int Bweapon(int pos)
     
     if(p==-1)
     {
-        return 0;
+        return ItemDefinitionRef();
     }
     
     int family = 0;
-    bool bow = false;
     
-    switch(css->objects[p].d1)
+    switch(((subscreen_object_currentitem *)css->ss_objects[p])->itemfamily)
     {
     case itype_arrow:
     case itype_bowandarrow:
-        if(current_item(itype_bow) && current_item(itype_arrow))
+        if(currentItemLevel(itype_bow) && currentItemLevel(itype_arrow))
         {
-            bow=(css->objects[p].d1==itype_bowandarrow);
+            combinedBowArrow=(((subscreen_object_currentitem *)css->ss_objects[p])->itemfamily==itype_bowandarrow);
             family=itype_arrow;
         }
         
         break;
         
     case itype_letterpotion:
-        if(current_item(itype_potion))
+        if(currentItemLevel(itype_potion))
             family=itype_potion;
-        else if(current_item(itype_letter))
+        else if(currentItemLevel(itype_letter))
             family=itype_letter;
         
         break;
@@ -4711,25 +4741,21 @@ int Bweapon(int pos)
     break;
     
     default:
-        family=css->objects[p].d1;
+        family=((subscreen_object_currentitem *)css->ss_objects[p])->itemfamily;
     }
     
-    for(int i=0; i<MAXITEMS; i++)
-    {
-        if(itemsbuf[i].family==family) return i+(bow ? 0xF000 : 0);
-    }
-    
-    return 0;
+    return curQuest->getCanonicalItemID(family);
 }
 
 void selectBwpn(int xstep, int ystep)
 {
     if((xstep==0)&&(ystep==0))
     {
-        Bwpn=Bweapon(Bpos);
+        bool bowandarrow;
+        Bwpn=weaponFromSlot(Bpos,bowandarrow);
         update_subscr_items();
         
-        if(Bwpn)
+        if(curQuest->isValid(Bwpn))
         {
             return;
         }
@@ -4739,10 +4765,11 @@ void selectBwpn(int xstep, int ystep)
     
     if((xstep==8)&&(ystep==8))
     {
-        Bwpn=Bweapon(Bpos);
+        bool bowandarrow;
+        Bwpn=weaponFromSlot(Bpos,bowandarrow);
         update_subscr_items();
         
-        if(Bwpn)
+        if(curQuest->isValid(Bwpn))
         {
             return;
         }
@@ -4757,11 +4784,11 @@ void selectBwpn(int xstep, int ystep)
     {
         int p=-1;
         
-        for(int i=0; css->objects[i].type!=ssoNULL; ++i)
+        for(uint32_t i=0; i<css->ss_objects.size(); ++i)
         {
-            if(css->objects[i].type==ssoCURRENTITEM)
+            if(css->ss_objects[i]->type==ssoCURRENTITEM)
             {
-                if(css->objects[i].d3==Bpos)
+                if(((subscreen_object_currentitem *)css->ss_objects[i])->posselect==Bpos)
                 {
                     p=i;
                     break;
@@ -4773,25 +4800,26 @@ void selectBwpn(int xstep, int ystep)
         {
             if(xstep!=0)
             {
-                Bpos=xstep<0?css->objects[p].d6:css->objects[p].d7;
+                Bpos = xstep < 0 ? ((subscreen_object_currentitem *)css->ss_objects[p])->leftselect : ((subscreen_object_currentitem *)css->ss_objects[p])->rightselect;
             }
             else
             {
-                Bpos=ystep<0?css->objects[p].d4:css->objects[p].d5;
+                Bpos = ystep < 0 ? ((subscreen_object_currentitem *)css->ss_objects[p])->upselect : ((subscreen_object_currentitem *)css->ss_objects[p])->downselect;
             }
         }
         
-        Bwpn = Bweapon(Bpos);
+        bool bowandarrow;
+        Bwpn = weaponFromSlot(Bpos,bowandarrow);
         update_subscr_items();
         
-        if(Bwpn)
+        if(curQuest->isValid(Bwpn))
         {
             return;
         }
     }
     while(Bpos!=pos && ++tries<0x100);
     
-    if(!Bwpn)
+    if(!curQuest->isValid(Bwpn))
         Bpos=0;
 }
 
@@ -4914,542 +4942,6 @@ const char *sso_alignment[3]=
 };
 
 
-bool save_subscreen_code(char *path)
-{
-    PACKFILE *f = pack_fopen_password(path,F_WRITE,"");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    int ssobjs=ss_objects(css);
-    char buf[512];
-    memset(buf,0,512);
-    sprintf(buf, "subscreen_object exported_subscreen[%d]=\n", ssobjs);
-    pack_fputs(buf, f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    pack_fputs("{\n", f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    for(int i=0; i<ssobjs; ++i)
-    {
-//    pack_fputs("{\n", f);
-        sprintf(buf, "  { %s, %d, %d, %d, %d, %d, ",
-                sso_type[css->objects[i].type], css->objects[i].pos, css->objects[i].x, css->objects[i].y, css->objects[i].w, css->objects[i].h);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        if(css->objects[i].colortype1>=ssctSYSTEM)
-        {
-            sprintf(buf, "%s, ", sso_colortype[css->objects[i].colortype1==ssctSYSTEM?0:1]);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            if(css->objects[i].colortype1==ssctMISC)
-            {
-                int t=css->objects[i].type;
-                
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
-                {
-                    sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color1]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-                else
-                {
-                    sprintf(buf, "%s, ", sso_specialcolor[css->objects[i].color1]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].color1);
-                pack_fputs(buf, f);
-                
-                if(pack_ferror(f))
-                {
-                    pack_fclose(f);
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            sprintf(buf, "%d, %d, ", css->objects[i].colortype1, css->objects[i].color1);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        if(css->objects[i].colortype2>=ssctSYSTEM)
-        {
-            sprintf(buf, "%s, ", sso_colortype[css->objects[i].colortype2==ssctSYSTEM?0:1]);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            if(css->objects[i].colortype2==ssctMISC)
-            {
-                int t=css->objects[i].type;
-                
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
-                {
-                    sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color2]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-                else
-                {
-                    sprintf(buf, "%s, ", sso_specialcolor[css->objects[i].color2]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].color2);
-                pack_fputs(buf, f);
-                
-                if(pack_ferror(f))
-                {
-                    pack_fclose(f);
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            sprintf(buf, "%d, %d, ", css->objects[i].colortype2, css->objects[i].color2);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        if(css->objects[i].colortype3>=ssctSYSTEM)
-        {
-            sprintf(buf, "%s, ", sso_colortype[css->objects[i].colortype3==ssctSYSTEM?0:1]);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            if(css->objects[i].colortype3==ssctMISC)
-            {
-                int t=css->objects[i].type;
-                
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
-                {
-                    sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color3]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-                else
-                {
-                    sprintf(buf, "%s, ", sso_specialcolor[css->objects[i].color3]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].color3);
-                pack_fputs(buf, f);
-                
-                if(pack_ferror(f))
-                {
-                    pack_fclose(f);
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            sprintf(buf, "%d, %d, ", css->objects[i].colortype3, css->objects[i].color3);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCURRENTITEM:
-            sprintf(buf, "%s, ", itype_names[css->objects[i].d1]);
-            break;
-            
-        case ssoCOUNTER:
-        case ssoCOUNTERS:
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoMINIMAPTITLE:
-        case ssoSELECTEDITEMNAME:
-        case ssoTIME:
-        case ssoSSTIME:
-        case ssoBSTIME:
-            sprintf(buf, "%s, ", sso_fontname[css->objects[i].d1]);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d1);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoMINIMAPTITLE:
-        case ssoSELECTEDITEMNAME:
-        case ssoTIME:
-        case ssoSSTIME:
-        case ssoBSTIME:
-            sprintf(buf, "%s, ", sso_alignment[css->objects[i].d2]);
-            break;
-            
-        case ssoMINITILE:
-            if(css->objects[i].d1==-1)
-            {
-                sprintf(buf, "%s, ", sso_specialtile[css->objects[i].d2]);
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].d2);
-            }
-            
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d2);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-        case ssoCOUNTERS:
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoMINIMAPTITLE:
-        case ssoSELECTEDITEMNAME:
-        case ssoTIME:
-        case ssoSSTIME:
-        case ssoBSTIME:
-            sprintf(buf, "%s, ", (char *)sso_textstyle[css->objects[i].d3]);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d3);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d4);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-        case ssoCOUNTERS:
-            sprintf(buf, "\'%c\', ", css->objects[i].d5);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d5);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d6);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-            sprintf(buf, "%s, ", sso_counterobject[css->objects[i].d7]);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d7);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d8);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d9);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d10);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].frames);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].speed);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].delay);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].frame);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        
-        if(!css->objects[i].dp1)
-        {
-            pack_fputs("NULL", f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        else
-        {
-            pack_fputs("(void *)\"", f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            pack_fputs((char *)css->objects[i].dp1, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            pack_fputs("\"", f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        pack_fputs(" },\n", f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    
-    pack_fputs("  { ssoNULL }\n", f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    pack_fputs("};\n", f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    pack_fclose(f);
-    return true;
-}
-
-
-
-int onExport_Subscreen_Code()
-{
-    if(!getname("Export Subscreen Code (.zss)","zss",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[80],buf2[80],name[13];
-    extract_name(temppath,name,FILENAME8_3);
-    
-    if(save_subscreen_code(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    return D_O_K;
-}
-
 int onActivePassive();
 
 static MENU ss_arrange_menu[] =
@@ -5516,8 +5008,6 @@ static MENU ss_edit_menu[] =
     { (char *)"Switch Active/Passive",              onActivePassive,                      NULL, 0, NULL },
     { (char *)"",                    NULL,                                 NULL, 0, NULL },
     { (char *)"&Take Snapshot\tZ",   onSnapshot,                           NULL, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"E&xport as Code\tX",  onExport_Subscreen_Code,              NULL, 0, NULL },
     { NULL,                          NULL,                                 NULL, 0, NULL }
 };
 
@@ -5599,7 +5089,6 @@ static DIALOG subscreen_dlg[] =
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,             0, (void *) onDuplicateSubscreenObject, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,             0, (void *) onSubscreenObjectProperties, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,             0, (void *) onSnapshot, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'x',     0,          0,             0, (void *) onExport_Subscreen_Code, NULL, NULL },
     { d_vsync_proc,         0,     0,     0,       0,    0,                 0,                0,       0,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -5708,11 +5197,6 @@ char *sso_name(int type)
     return tempname;
 }
 
-char *sso_name(subscreen_object *tempss, int id)
-{
-    return sso_name(tempss[id].type);
-}
-
 sso_struct bisso[ssoMAX];
 int bisso_cnt=-1;
 
@@ -5769,7 +5253,6 @@ static DIALOG ssolist_dlg[] =
 
 int onNewSubscreenObject()
 {
-    subscreen_object tempsso;
     int ret=-1;
     ssolist_dlg[0].dp2=lfont;
     build_bisso_list();
@@ -5780,36 +5263,162 @@ int onNewSubscreenObject()
     
     if(ret!=0&&ret!=4)
     {
-        memset(&tempsso,0,sizeof(subscreen_object));
         //tempsso.dp1=(char *)zc_malloc(2);
-        tempsso.dp1 = new char[2];
-        ((char *)tempsso.dp1)[0]=0;
-        tempsso.type=bisso[ssolist_cpy[2].d1].i;
-        tempsso.pos = sspUP | sspDOWN | sspSCROLLING;
-        tempsso.w=1;
-        tempsso.h=1;
-        
-        if(tempsso.type==ssoCURRENTITEM)  // Should not be invisible!
-            tempsso.d2 = 1;
-            
-        int temp_cso=curr_subscreen_object;
-        curr_subscreen_object=ss_objects(css);
-        
-        if(sso_properties(&tempsso)!=-1)
+        int type=bisso[ssolist_cpy[2].d1].i;
+        int pos = sspUP | sspDOWN | sspSCROLLING;
+        int x = 0;
+        int y = 0;
+        int colortype1 = 0;
+        int color1 = 0;
+        int colortype2 = 0;
+        int color2 = 0;
+        int colortype3 = 0;
+        int color3 = 0;
+        int w=1;
+        int h=1;
+        subscreen_object *tempsso;
+        switch (type)
         {
-            if(css->objects[curr_subscreen_object].dp1!=NULL)
-            {
-                delete [](char *)css->objects[curr_subscreen_object].dp1;
-                css->objects[curr_subscreen_object].dp1=NULL;
-            }
-            
-            css->objects[curr_subscreen_object]=tempsso;
+        case ssoNONE:
+            tempsso = new subscreen_object_none(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3);
+            break;
+
+        case sso2X2FRAME:
+            tempsso = new subscreen_object_2x2frame(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, false, false);
+            break;
+
+        case ssoTEXT:
+            tempsso = new subscreen_object_text(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, std::string());
+            break;
+
+        case ssoLINE:
+            tempsso = new subscreen_object_line(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, false, false);
+            break;
+
+        case ssoRECT:
+            tempsso = new subscreen_object_rect(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, false, false);
+            break;
+
+        case ssoBSTIME:
+            tempsso = new subscreen_object_bstime(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0);
+            break;
+
+        case ssoTIME:
+            tempsso = new subscreen_object_time(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0);
+            break;
+
+        case ssoSSTIME:
+            tempsso = new subscreen_object_sstime(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0);
+            break;
+
+        case ssoMAGICMETER:
+            tempsso = new subscreen_object_magicmeter(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3);
+            break;
+
+        case ssoLIFEMETER:
+            tempsso = new subscreen_object_lifemeter(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, false, false);
+            break;
+
+        case ssoBUTTONITEM:
+            tempsso = new subscreen_object_buttonitem(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, false);
+            break;
+
+        case ssoCOUNTER:
+            tempsso = new subscreen_object_counter(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, 0, 0, 0, 0, 0, 0, ItemDefinitionRef());
+            break;
+
+        case ssoCOUNTERS:
+            tempsso = new subscreen_object_counters(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, false, 0, 0, 0);
+            break;
+
+        case ssoMINIMAPTITLE:
+            tempsso = new subscreen_object_minimaptitle(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, false);
+            break;
+
+        case ssoMINIMAP:
+            tempsso = new subscreen_object_minimap(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, false, false, false);
+            break;
+
+        case ssoLARGEMAP:
+            tempsso = new subscreen_object_largemap(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, false, false, false, false);
+            break;
+
+        case ssoCLEAR:
+            tempsso = new subscreen_object_clear(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3);
+            break;
+
+        case ssoCURRENTITEM:
+            tempsso = new subscreen_object_currentitem(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, true, 0, 0, 0, 0, 0, ItemDefinitionRef());
+            break;
+
+        case ssoTRIFRAME:
+            tempsso = new subscreen_object_triframe(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, 0, false, false, false);
+            break;
+
+        case ssoTRIFORCE:
+            tempsso = new subscreen_object_triforce(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, false, false, 0);
+            break;
+
+        case ssoTILEBLOCK:
+            tempsso = new subscreen_object_tileblock(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, false, false);
+            break;
+
+        case ssoMINITILE:
+            tempsso = new subscreen_object_minitile(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, 0, false, false);
+            break;
+
+        case ssoSELECTOR1:
+            tempsso = new subscreen_object_selector1(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, false, false, false);
+            break;
+
+        case ssoSELECTOR2:
+            tempsso = new subscreen_object_selector2(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, false, false, false);
+            break;
+
+        case ssoMAGICGAUGE:
+            tempsso = new subscreen_object_magicgauge(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            break;
+
+        case ssoLIFEGAUGE:
+            tempsso = new subscreen_object_lifegauge(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            break;
+
+        case ssoTEXTBOX:
+            tempsso = new subscreen_object_textbox(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, false, 0, std::string());
+            break;
+
+        case ssoSELECTEDITEMNAME:
+            tempsso = new subscreen_object_selecteditemname(pos, x, y, w, h, colortype1, color1, colortype2, color2, colortype3, color3, 0, 0, 0, false, 0);
+            break;
+
+        case ssoICON:
+        case ssoITEM:
+        case ssoCURRENTITEMTILE:
+        case ssoSELECTEDITEMTILE:
+        case ssoCURRENTITEMTEXT:
+        case ssoCURRENTITEMNAME:
+        case ssoCURRENTITEMCLASSTEXT:
+        case ssoCURRENTITEMCLASSNAME:
+        case ssoSELECTEDITEMCLASSNAME:
+        default:
+
+            assert(!"Unsupported subscreen object");
+            tempsso = NULL;
+        }
+        
+        int temp_cso=curr_subscreen_object;
+        curr_subscreen_object=css->ss_objects.size();
+        
+        if(sso_properties(tempsso)!=-1)
+        {
+            css->ss_objects.push_back(tempsso);
             update_sso_name();
             update_up_dn_btns();
         }
         else
         {
             curr_subscreen_object=temp_cso;
+            delete tempsso;
         }
     }
 
@@ -5819,14 +5428,14 @@ int onNewSubscreenObject()
 }
 
 
-void align_objects(subscreen_group *tempss, bool *selection, int align_type)
+void align_objects(subscreen_group *tempss, const std::set<int> &selection, int align_type)
 {
-    int l=sso_x(&tempss->objects[curr_subscreen_object]);
-    int t=sso_y(&tempss->objects[curr_subscreen_object]);
-    int w=sso_w(&tempss->objects[curr_subscreen_object]);
-    int h=sso_h(&tempss->objects[curr_subscreen_object]);
+    int l=tempss->ss_objects[curr_subscreen_object]->sso_x();
+    int t=tempss->ss_objects[curr_subscreen_object]->sso_y();
+    int w=tempss->ss_objects[curr_subscreen_object]->sso_w();
+    int h=tempss->ss_objects[curr_subscreen_object]->sso_h();
     
-    switch(get_alignment(&tempss->objects[curr_subscreen_object]))
+    switch(tempss->ss_objects[curr_subscreen_object]->get_alignment())
     {
     case sstaCENTER:
         l-=(w/2);
@@ -5845,17 +5454,17 @@ void align_objects(subscreen_group *tempss, bool *selection, int align_type)
     int b=t+h-1;
     int c=l+w/2;
     int m=t+h/2;
-    
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+
+    for(std::set<int>::iterator it = selection.begin(); it != selection.end(); ++it)
     {
-        if(selection[i]&&i!=curr_subscreen_object)
+        if(*it!=curr_subscreen_object)
         {
-            int tl=sso_x(&tempss->objects[i]);
-            int tt=sso_y(&tempss->objects[i]);
-            int tw=sso_w(&tempss->objects[i]);
-            int th=sso_h(&tempss->objects[i]);
+            int tl=tempss->ss_objects[*it]->sso_x();
+            int tt=tempss->ss_objects[*it]->sso_y();
+            int tw=tempss->ss_objects[*it]->sso_w();
+            int th=tempss->ss_objects[*it]->sso_h();
             
-            switch(get_alignment(&tempss->objects[i]))
+            switch(tempss->ss_objects[*it]->get_alignment())
             {
             case sstaCENTER:
                 tl-=(tw/2);
@@ -5878,105 +5487,104 @@ void align_objects(subscreen_group *tempss, bool *selection, int align_type)
             switch(align_type)
             {
             case ssoaBOTTOM:
-                tempss->objects[i].y+=b-tb;
+                tempss->ss_objects[*it]->y+=b-tb;
                 break;
                 
             case ssoaMIDDLE:
-                tempss->objects[i].y+=m-tm;
+                tempss->ss_objects[*it]->y+=m-tm;
                 break;
                 
             case ssoaTOP:
-                tempss->objects[i].y+=t-tt;
+                tempss->ss_objects[*it]->y+=t-tt;
                 break;
                 
             case ssoaRIGHT:
-                tempss->objects[i].x+=r-tr;
+                tempss->ss_objects[*it]->x+=r-tr;
                 break;
                 
             case ssoaCENTER:
-                tempss->objects[i].x+=c-tc;
+                tempss->ss_objects[*it]->x+=c-tc;
                 break;
                 
             case ssoaLEFT:
             default:
-                tempss->objects[i].x+=l-tl;
+                tempss->ss_objects[*it]->x+=l-tl;
                 break;
             }
         }
     }
 }
 
-void grid_snap_objects(subscreen_group *tempss, bool *selection, int snap_type)
+void grid_snap_objects(subscreen_group *tempss, const std::set<int> &selection, int snap_type)
 {
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    std::set<int> aug = selection;
+    aug.insert(curr_subscreen_object);
+    for (std::set<int>::iterator it = aug.begin(); it != aug.begin(); ++it)
     {
-        if(selection[i]||i==curr_subscreen_object)
+        int tl = tempss->ss_objects[*it]->sso_x();
+        int tt = tempss->ss_objects[*it]->sso_y();
+        int tw = tempss->ss_objects[*it]->sso_w();
+        int th = tempss->ss_objects[*it]->sso_h();
+
+        switch (tempss->ss_objects[*it]->get_alignment())
         {
-            int tl=sso_x(&tempss->objects[i]);
-            int tt=sso_y(&tempss->objects[i]);
-            int tw=sso_w(&tempss->objects[i]);
-            int th=sso_h(&tempss->objects[i]);
-            
-            switch(get_alignment(&tempss->objects[i]))
-            {
-            case sstaCENTER:
-                tl-=(tw/2);
-                break;
-                
-            case sstaRIGHT:
-                tl-=tw;
-                break;
-                
-            case sstaLEFT:
-            default:
-                break;
-            }
-            
-            int tr=tl+tw-1;
-            int tb=tt+th-1;
-            int tc=tl+tw/2;
-            int tm=tt+th/2;
-            int l1=(tl-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int l2=l1+zinit.ss_grid_x;
-            int c1=(tc-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int c2=c1+zinit.ss_grid_x;
-            int r1=(tr-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int r2=r1+zinit.ss_grid_x;
-            
-            int t1=(tt-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int t2=t1+zinit.ss_grid_y;
-            int m1=(tm-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int m2=m1+zinit.ss_grid_y;
-            int b1=(tb-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int b2=b1+zinit.ss_grid_y;
-            
-            switch(snap_type)
-            {
-            case ssosBOTTOM:
-                tempss->objects[i].y+=(abs(b1-tb)>abs(b2-tb))?(b2-tb):(b1-tb);
-                break;
-                
-            case ssosMIDDLE:
-                tempss->objects[i].y+=(abs(m1-tm)>abs(m2-tm))?(m2-tm):(m1-tm);
-                break;
-                
-            case ssosTOP:
-                tempss->objects[i].y+=(abs(t1-tt)>abs(t2-tt))?(t2-tt):(t1-tt);
-                break;
-                
-            case ssosRIGHT:
-                tempss->objects[i].x+=(abs(r1-tr)>abs(r2-tr))?(r2-tr):(r1-tr);
-                break;
-                
-            case ssosCENTER:
-                tempss->objects[i].x+=(abs(c1-tc)>abs(c2-tc))?(c2-tc):(c1-tc);
-                break;
-                
-            case ssosLEFT:
-            default:
-                tempss->objects[i].x+=(abs(l1-tl)>abs(l2-tl))?(l2-tl):(l1-tl);
-                break;
-            }
+        case sstaCENTER:
+            tl -= (tw / 2);
+            break;
+
+        case sstaRIGHT:
+            tl -= tw;
+            break;
+
+        case sstaLEFT:
+        default:
+            break;
+        }
+
+        int tr = tl + tw - 1;
+        int tb = tt + th - 1;
+        int tc = tl + tw / 2;
+        int tm = tt + th / 2;
+        int l1 = (tl - zinit.ss_grid_xofs) / zinit.ss_grid_x*zinit.ss_grid_x + zinit.ss_grid_xofs;
+        int l2 = l1 + zinit.ss_grid_x;
+        int c1 = (tc - zinit.ss_grid_xofs) / zinit.ss_grid_x*zinit.ss_grid_x + zinit.ss_grid_xofs;
+        int c2 = c1 + zinit.ss_grid_x;
+        int r1 = (tr - zinit.ss_grid_xofs) / zinit.ss_grid_x*zinit.ss_grid_x + zinit.ss_grid_xofs;
+        int r2 = r1 + zinit.ss_grid_x;
+
+        int t1 = (tt - zinit.ss_grid_yofs) / zinit.ss_grid_y*zinit.ss_grid_y + zinit.ss_grid_yofs;
+        int t2 = t1 + zinit.ss_grid_y;
+        int m1 = (tm - zinit.ss_grid_yofs) / zinit.ss_grid_y*zinit.ss_grid_y + zinit.ss_grid_yofs;
+        int m2 = m1 + zinit.ss_grid_y;
+        int b1 = (tb - zinit.ss_grid_yofs) / zinit.ss_grid_y*zinit.ss_grid_y + zinit.ss_grid_yofs;
+        int b2 = b1 + zinit.ss_grid_y;
+
+        switch (snap_type)
+        {
+        case ssosBOTTOM:
+            tempss->ss_objects[*it]->y += (abs(b1 - tb) > abs(b2 - tb)) ? (b2 - tb) : (b1 - tb);
+            break;
+
+        case ssosMIDDLE:
+            tempss->ss_objects[*it]->y += (abs(m1 - tm) > abs(m2 - tm)) ? (m2 - tm) : (m1 - tm);
+            break;
+
+        case ssosTOP:
+            tempss->ss_objects[*it]->y += (abs(t1 - tt) > abs(t2 - tt)) ? (t2 - tt) : (t1 - tt);
+            break;
+
+        case ssosRIGHT:
+            tempss->ss_objects[*it]->x += (abs(r1 - tr) > abs(r2 - tr)) ? (r2 - tr) : (r1 - tr);
+            break;
+
+        case ssosCENTER:
+            tempss->ss_objects[*it]->x += (abs(c1 - tc) > abs(c2 - tc)) ? (c2 - tc) : (c1 - tc);
+            break;
+
+        case ssosLEFT:
+        default:
+            tempss->ss_objects[*it]->x += (abs(l1 - tl) > abs(l2 - tl)) ? (l2 - tl) : (l1 - tl);
+            break;
         }
     }
 }
@@ -5994,49 +5602,47 @@ typedef struct dist_obj
     int m;
 } dist_obj;
 
-void distribute_objects(subscreen_group *tempss, bool *selection, int distribute_type)
+void distribute_objects(subscreen_group *tempss, const std::set<int> &selection, int distribute_type)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    selection=selection;
-    
     int count=0;
-    dist_obj temp_do[MAXSUBSCREENITEMS];
+    std::set<int> aug = selection;
+    aug.insert(curr_subscreen_object);
+
+    dist_obj *temp_do = new dist_obj[aug.size()];
     
-    for(int i=0; i<MAXSUBSCREENITEMS; ++i)
+    for (std::set<int>::iterator it = aug.begin(); it != aug.end(); ++it)
     {
-        if(sso_selection[i]==true||i==curr_subscreen_object)
+        temp_do[count].index = *it;
+        temp_do[count].l = tempss->ss_objects[*it]->sso_x();
+        temp_do[count].t = tempss->ss_objects[*it]->sso_y();
+        temp_do[count].w = tempss->ss_objects[*it]->sso_w();
+        temp_do[count].h = tempss->ss_objects[*it]->sso_h();
+
+        switch (tempss->ss_objects[*it]->get_alignment())
         {
-            temp_do[count].index=i;
-            temp_do[count].l=sso_x(&tempss->objects[i]);
-            temp_do[count].t=sso_y(&tempss->objects[i]);
-            temp_do[count].w=sso_w(&tempss->objects[i]);
-            temp_do[count].h=sso_h(&tempss->objects[i]);
-            
-            switch(get_alignment(&tempss->objects[i]))
-            {
-            case sstaCENTER:
-                temp_do[count].l-=(temp_do[count].w/2);
-                break;
-                
-            case sstaRIGHT:
-                temp_do[count].l-=temp_do[count].w;
-                break;
-                
-            case sstaLEFT:
-            default:
-                break;
-            }
-            
-            temp_do[count].r=temp_do[count].l+temp_do[count].w-1;
-            temp_do[count].b=temp_do[count].t+temp_do[count].h-1;
-            temp_do[count].c=temp_do[count].l+temp_do[count].w/2;
-            temp_do[count].m=temp_do[count].t+temp_do[count].h/2;
-            ++count;
+        case sstaCENTER:
+            temp_do[count].l -= (temp_do[count].w / 2);
+            break;
+
+        case sstaRIGHT:
+            temp_do[count].l -= temp_do[count].w;
+            break;
+
+        case sstaLEFT:
+        default:
+            break;
         }
+
+        temp_do[count].r = temp_do[count].l + temp_do[count].w - 1;
+        temp_do[count].b = temp_do[count].t + temp_do[count].h - 1;
+        temp_do[count].c = temp_do[count].l + temp_do[count].w / 2;
+        temp_do[count].m = temp_do[count].t + temp_do[count].h / 2;
+        ++count;
     }
     
     if(count<3)
     {
+        delete[] temp_do;
         return;
     }
     
@@ -6125,37 +5731,37 @@ void distribute_objects(subscreen_group *tempss, bool *selection, int distribute
         switch(distribute_type)
         {
         case ssodBOTTOM:
-            tempss->objects[temp_do[i].index].y+=bd*i/(count-1)-temp_do[i].b+temp_do[0].b;
+            tempss->ss_objects[temp_do[i].index]->y+=bd*i/(count-1)-temp_do[i].b+temp_do[0].b;
             break;
             
         case ssodMIDDLE:
-            tempss->objects[temp_do[i].index].y+=md*i/(count-1)-temp_do[i].m+temp_do[0].m;
+            tempss->ss_objects[temp_do[i].index]->y+=md*i/(count-1)-temp_do[i].m+temp_do[0].m;
             break;
             
         case ssodTOP:
-            tempss->objects[temp_do[i].index].y+=td*i/(count-1)-temp_do[i].t+temp_do[0].t;
+            tempss->ss_objects[temp_do[i].index]->y+=td*i/(count-1)-temp_do[i].t+temp_do[0].t;
             break;
             
         case ssodRIGHT:
-            tempss->objects[temp_do[i].index].x+=rd*i/(count-1)-temp_do[i].r+temp_do[0].r;
+            tempss->ss_objects[temp_do[i].index]->x+=rd*i/(count-1)-temp_do[i].r+temp_do[0].r;
             break;
             
         case ssodCENTER:
-            tempss->objects[temp_do[i].index].x+=cd*i/(count-1)-temp_do[i].c+temp_do[0].c;
+            tempss->ss_objects[temp_do[i].index]->x+=cd*i/(count-1)-temp_do[i].c+temp_do[0].c;
             break;
             
         case ssodLEFT:
         default:
-            tempss->objects[temp_do[i].index].x+=ld*i/(count-1)-temp_do[i].l+temp_do[0].l;
+            tempss->ss_objects[temp_do[i].index]->x+=ld*i/(count-1)-temp_do[i].l+temp_do[0].l;
             break;
         }
     }
-    
+    delete[] temp_do;
 }
 
 int onBringToFront()
 {
-    while(curr_subscreen_object<ss_objects(css)-1)
+    while(curr_subscreen_object<(int)css->ss_objects.size()-1)
     {
         onBringForward();
     }
@@ -6176,22 +5782,21 @@ int onSendToBack()
 int onReverseArrangement()
 {
     int i=0;
-    int j=MAXSUBSCREENITEMS-1;
-    subscreen_object tempsso;
+    int j=(int)css->ss_objects.size()-1;
     
-    sso_selection[curr_subscreen_object]=true;
+    sso_selection.insert(curr_subscreen_object);
     
     while(true)
     {
-        while(i<MAXSUBSCREENITEMS && !sso_selection[i])
+        while(i<(int)css->ss_objects.size() && sso_selection.count(i)==0)
             i++;
             
-        while(j>=0 && !sso_selection[j])
+        while(j>=0 && sso_selection.count(j)==0)
             j--;
             
         if(i>=j)
         {
-            sso_selection[curr_subscreen_object]=false;
+            sso_selection.erase(curr_subscreen_object);
             return D_O_K;
         }
         
@@ -6200,9 +5805,9 @@ int onReverseArrangement()
         else if(curr_subscreen_object==j)
             curr_subscreen_object=i;
             
-        tempsso=css->objects[i];
-        css->objects[i]=css->objects[j];
-        css->objects[j]=tempsso;
+        subscreen_object *tempsso=css->ss_objects[i];
+        css->ss_objects[i]=css->ss_objects[j];
+        css->ss_objects[j]=tempsso;
         
         i++;
         j--;
@@ -6403,7 +6008,7 @@ void update_up_dn_btns()
         subscreen_dlg[10].flags&=~D_DISABLED;
     }
     
-    if(curr_subscreen_object>=ss_objects(css)-1)
+    if(curr_subscreen_object>=(int)css->ss_objects.size()-1)
     {
         subscreen_dlg[9].flags|=D_DISABLED;
     }
@@ -6428,19 +6033,22 @@ int onSSCtrlPgDn()
 
 int onSendBackward()
 {
-    subscreen_object tempsso;
-    bool tempsel;
-    
     if(curr_subscreen_object>0)
     {
-        tempsso=css->objects[curr_subscreen_object];
-        tempsel=sso_selection[curr_subscreen_object];
+        subscreen_object *tempsso=css->ss_objects[curr_subscreen_object];
+        bool tempsel=sso_selection.count(curr_subscreen_object) != 0;
         
-        css->objects[curr_subscreen_object]=css->objects[curr_subscreen_object-1];
-        sso_selection[curr_subscreen_object]=sso_selection[curr_subscreen_object-1];
+        css->ss_objects[curr_subscreen_object]=css->ss_objects[curr_subscreen_object-1];
+        if (sso_selection.count(curr_subscreen_object - 1) > 0)
+            sso_selection.insert(curr_subscreen_object);
+        else
+            sso_selection.erase(curr_subscreen_object);
         
-        css->objects[curr_subscreen_object-1]=tempsso;
-        sso_selection[curr_subscreen_object-1]=tempsel;
+        css->ss_objects[curr_subscreen_object-1]=tempsso;
+        if (tempsel)
+            sso_selection.insert(curr_subscreen_object - 1);
+        else
+            sso_selection.erase(curr_subscreen_object - 1);
         
         --curr_subscreen_object;
         update_sso_name();
@@ -6462,7 +6070,7 @@ int onSSPgDn()
         
         if(curr_subscreen_object<0)
         {
-            curr_subscreen_object=ss_objects(css)-1;
+            curr_subscreen_object=(int)css->ss_objects.size()-1;
         }
         
         update_sso_name();
@@ -6475,19 +6083,22 @@ int onSSPgDn()
 // Send forward
 int onBringForward()
 {
-    subscreen_object tempsso;
-    bool tempsel;
-    
-    if(curr_subscreen_object<ss_objects(css)-1)
+    if(curr_subscreen_object < (int)css->ss_objects.size()-1)
     {
-        tempsso=css->objects[curr_subscreen_object];
-        tempsel=sso_selection[curr_subscreen_object];
+        subscreen_object *tempsso=css->ss_objects[curr_subscreen_object];
+        bool tempsel=sso_selection.count(curr_subscreen_object) > 0;
         
-        css->objects[curr_subscreen_object]=css->objects[curr_subscreen_object+1];
-        sso_selection[curr_subscreen_object]=sso_selection[curr_subscreen_object+1];
+        css->ss_objects[curr_subscreen_object]=css->ss_objects[curr_subscreen_object+1];
+        if (sso_selection.count(curr_subscreen_object + 1) > 0)
+            sso_selection.insert(curr_subscreen_object);
+        else
+            sso_selection.erase(curr_subscreen_object);
         
-        css->objects[curr_subscreen_object+1]=tempsso;
-        sso_selection[curr_subscreen_object+1]=tempsel;
+        css->ss_objects[curr_subscreen_object+1]=tempsso;
+        if (tempsel)
+            sso_selection.insert(curr_subscreen_object + 1);
+        else
+            sso_selection.erase(curr_subscreen_object + 1);
         
         ++curr_subscreen_object;
         update_sso_name();
@@ -6506,11 +6117,11 @@ int onSSPgUp()
     }
     else
     {
-        if(ss_objects(css)>0)
+        if (css->ss_objects.size() > 0)
         {
             ++curr_subscreen_object;
             
-            if(curr_subscreen_object>=ss_objects(css))
+            if(curr_subscreen_object>=(int)css->ss_objects.size())
             {
                 curr_subscreen_object=0;
             }
@@ -6609,33 +6220,17 @@ void edit_subscreen()
     curr_subscreen_object=0;
     ss_propCopySrc=-1;
     subscreen_group tempss;
-    memset(&tempss, 0, sizeof(subscreen_group));
-    int i;
+    uint32_t i;
     
-    for(i=0; i<MAXSUBSCREENITEMS; i++)
+    for(i=0; i<css->ss_objects.size(); i++)
     {
-        memcpy(&tempss.objects[i],&css->objects[i],sizeof(subscreen_object));
-        
-        switch(css->objects[i].type)
-        {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
-            tempss.objects[i].dp1 = NULL;
-            tempss.objects[i].dp1 = new char[strlen((char*)css->objects[i].dp1)+1];
-            strcpy((char*)tempss.objects[i].dp1,(char*)css->objects[i].dp1);
-            break;
-            
-        default:
-            break;
-        }
+        tempss.ss_objects.push_back(css->ss_objects[i]->clone());
     }
     
-    tempss.ss_type=css->ss_type;
-    sprintf(tempss.name, css->name);
+    tempss.ss_type = css->ss_type;
+    tempss.ss_name = css->ss_name;
     
-    if(ss_objects(css)==0)
+    if(css->ss_objects.size()==0)
     {
         curr_subscreen_object=-1;
     }
@@ -6644,9 +6239,9 @@ void edit_subscreen()
     ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
     ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
     
-    if(css->objects[0].type==ssoNULL)
+    if(css->ss_objects[0]->type==ssoNULL)
     {
-        css->objects[0].type=ssoNONE;
+        css->ss_objects[0]->type=ssoNONE;
     }
     
     subscreen_dlg[4].dp=(void *)css;
@@ -6654,7 +6249,7 @@ void edit_subscreen()
     subscreen_dlg[5].bg=jwin_pal[jcBOX];
     str_oname=(char *)zc_malloc(255);
     subscreen_dlg[6].dp=(void *)str_oname;
-    subscreen_dlg[8].dp=(void *)(css->name);
+    subscreen_dlg[8].dp=(void *)(css->ss_name.c_str());
     update_sso_name();
     subscreen_dlg[10].flags|=D_DISABLED;
     
@@ -6700,32 +6295,17 @@ void edit_subscreen()
     }
     else
     {
-        reset_subscreen(css);
-        int j;
+        reset_subscreen(*css);
+        uint32_t j;
         
-        for(j=0; j<MAXSUBSCREENITEMS; j++)
+        for(j=0; j<tempss.ss_objects.size(); j++)
         {
-            memcpy(&css->objects[j],&tempss.objects[j],sizeof(subscreen_object));
-            
-            switch(tempss.objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                css->objects[j].dp1 = NULL;
-                css->objects[j].dp1 = new char[strlen((char*)tempss.objects[j].dp1)+1];
-                strcpy((char*)css->objects[j].dp1,(char*)tempss.objects[j].dp1);
-                break;
-                
-            default:
-                break;
-            }
+            css->ss_objects.push_back(tempss.ss_objects[j]->clone());            
         }
         
         css->ss_type=tempss.ss_type;
-        sprintf(css->name, tempss.name);
-        reset_subscreen(&tempss);
+        css->ss_name = tempss.ss_name;
+        reset_subscreen(tempss);
     }
 
 	delete[] subscreen_cpy;
@@ -6860,17 +6440,17 @@ const char *subscreenlist(int index, int *list_size)
     {
         int j=0;
         
-        while(custom_subscreen[j].objects[0].type!=ssoNULL)
+        while(custom_subscreen[j].ss_objects.size() > 0 && custom_subscreen[j].ss_objects[0]->type!=ssoNULL)
         {
             ++j;
         }
         
         *list_size = j+(show_new_ss?1:0);
-        sprintf(custom_subscreen[j].name, "<New>");
+        custom_subscreen[j].ss_name = std::string("<New>");
         return NULL;
     }
     
-    return custom_subscreen[index].name;
+    return custom_subscreen[index].ss_name.c_str();
 }
 
 const char *subscreenlist_a(int index, int *list_size)
@@ -6879,7 +6459,7 @@ const char *subscreenlist_a(int index, int *list_size)
     {
         int i=0, j=0;
         
-        while(custom_subscreen[j].objects[0].type!=ssoNULL)
+        while(custom_subscreen[j].ss_objects.size() > 0 && custom_subscreen[j].ss_objects[0]->type!=ssoNULL)
         {
             if(custom_subscreen[j].ss_type==sstACTIVE)
             {
@@ -6896,7 +6476,7 @@ const char *subscreenlist_a(int index, int *list_size)
 //  return custsubscrtype_str[index];
     int i=-1, j=0;
     
-    while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
+    while(custom_subscreen[j].ss_objects[0]->type!=ssoNULL&&i!=index)
     {
         if(custom_subscreen[j].ss_type==sstACTIVE)
         {
@@ -6906,7 +6486,7 @@ const char *subscreenlist_a(int index, int *list_size)
         ++j;
     }
     
-    return custom_subscreen[j-1].name;
+    return custom_subscreen[j-1].ss_name.c_str();
 }
 
 const char *subscreenlist_b(int index, int *list_size)
@@ -6915,7 +6495,7 @@ const char *subscreenlist_b(int index, int *list_size)
     {
         int i=0, j=0;
         
-        while(custom_subscreen[j].objects[0].type!=ssoNULL)
+        while(custom_subscreen[j].ss_objects.size() > 0 && custom_subscreen[j].ss_objects[0]->type!=ssoNULL)
         {
             if(custom_subscreen[j].ss_type==sstPASSIVE)
             {
@@ -6932,7 +6512,7 @@ const char *subscreenlist_b(int index, int *list_size)
 //  return custsubscrtype_str[index];
     int i=-1, j=0;
     
-    while(custom_subscreen[j].name[0]&&i!=index)
+    while(custom_subscreen[j].ss_name.length() > 0 &&i!=index)
     {
         if(custom_subscreen[j].ss_type==sstPASSIVE)
         {
@@ -6942,7 +6522,7 @@ const char *subscreenlist_b(int index, int *list_size)
         ++j;
     }
     
-    return custom_subscreen[j-1].name;
+    return custom_subscreen[j-1].ss_name.c_str();
 }
 
 static ListData subscreen_list(subscreenlist, &font);
@@ -7003,8 +6583,8 @@ int onEditSubscreens()
             css = &custom_subscreen[sslist_cpy[2].d1];
             bool edit_it=true;
             
-            if(css->objects[0].type==ssoNULL)
-            {
+            if(css->ss_objects.size()==0 || css->ss_objects[0]->type==ssoNULL)
+            {                
 				DIALOG *sstemplatelist_cpy = resizeDialog(sstemplatelist_dlg, 1.5);
                     
                 ret=zc_popup_dialog(sstemplatelist_cpy,4);
@@ -7013,100 +6593,78 @@ int onEditSubscreens()
                 {
                     if(sstemplatelist_cpy[5].d1<15)
                     {
-                        if(sstemplatelist_cpy[5].d1 != 0)
+                        if (sstemplatelist_cpy[5].d1 != 0)
                         {
-                            subscreen_object *tempsub;
-                            
-                            if(sstemplatelist_cpy[4].d1==0)
+                            const subscreen_group *tempsub;
+
+                            if (sstemplatelist_cpy[4].d1 == 0)
                             {
-                                tempsub = default_subscreen_active[(sstemplatelist_cpy[5].d1-1)/2][(sstemplatelist_cpy[5].d1-1)&1];
+                                tempsub = &get_default_subscreen_active((sstemplatelist_cpy[5].d1 - 1) / 2, (sstemplatelist_cpy[5].d1 - 1) & 1);
                             }
                             else
                             {
-                                tempsub = default_subscreen_passive[(sstemplatelist_cpy[5].d1-1)/2][(sstemplatelist_cpy[5].d1-1)&1];
+                                tempsub = &get_default_subscreen_passive((sstemplatelist_cpy[5].d1 - 1) / 2, (sstemplatelist_cpy[5].d1 - 1) & 1);
                             }
-                            
-                            int i;
-                            
-                            for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+
+                            uint32_t i;
+
+                            for (i = 0; i < css->ss_objects.size(); i++)
                             {
-                                switch(tempsub[i].type)
-                                {
-                                case ssoTEXT:
-                                case ssoTEXTBOX:
-                                case ssoCURRENTITEMTEXT:
-                                case ssoCURRENTITEMCLASSTEXT:
-                                    if(css->objects[i].dp1 != NULL) delete [](char *)css->objects[i].dp1;
-                                    
-                                    memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                    css->objects[i].dp1 = NULL;
-                                    css->objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                                    strcpy((char*)css->objects[i].dp1,(char*)tempsub[i].dp1);
-                                    break;
-                                    
-                                default:
-                                    memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                    break;
-                                }
+                                delete css->ss_objects[i];
+                            }
+                            css->ss_objects.clear();
+
+                            for (i = 0; i < tempsub->ss_objects.size(); i++)
+                            {
+                                css->ss_objects.push_back(tempsub->ss_objects[i]->clone());
                             }
                         }
                         
                         if(sstemplatelist_cpy[4].d1==0)
                         {
                             css->ss_type=sstACTIVE;
-                            sprintf(css->name, activesubscrtype_str[sstemplatelist_cpy[5].d1]);
+                            css->ss_name = std::string(activesubscrtype_str[sstemplatelist_cpy[5].d1]);
                             subscreen_dlg[3].h=172*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                         else
                         {
                             css->ss_type=sstPASSIVE;
-                            sprintf(css->name, passivesubscrtype_str[sstemplatelist_cpy[5].d1]);
+                            css->ss_name = std::string(passivesubscrtype_str[sstemplatelist_cpy[5].d1]);
                             subscreen_dlg[3].h=60*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                     }
                     else //Z3
                     {
-                        subscreen_object *tempsub;
+                        const subscreen_group *tempsub;
                         
                         if(sstemplatelist_cpy[4].d1==0)
                         {
-                            tempsub = z3_active_a;
+                            tempsub = &get_z3_active_a();
                         }
                         else
                         {
-                            tempsub = z3_passive_a;
+                            tempsub = &get_z3_passive_a();
                         }
                         
-                        int i;
-                        
-                        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
+                        uint32_t i;
+
+                        for (i = 0; i < css->ss_objects.size(); i++)
                         {
-                            switch(tempsub[i].type)
-                            {
-                            case ssoTEXT:
-                            case ssoTEXTBOX:
-                            case ssoCURRENTITEMTEXT:
-                            case ssoCURRENTITEMCLASSTEXT:
-                                if(css->objects[i].dp1 != NULL) delete [](char *)css->objects[i].dp1;
-                                
-                                memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                css->objects[i].dp1 = NULL;
-                                css->objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                                strcpy((char*)css->objects[i].dp1,(char*)tempsub[i].dp1);
-                                break;
-                                
-                            default:
-                                memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                break;
-                            }
+                            delete css->ss_objects[i];
+                        }
+                        css->ss_objects.clear();
+                        
+                        for(i=0; i<tempsub->ss_objects.size(); i++)
+                        {
+                            css->ss_objects.push_back(tempsub->ss_objects[i]->clone());
                         }
                         
                         if(sstemplatelist_cpy[4].d1==0)
                         {
                             css->ss_type=sstACTIVE;
-                            sprintf(css->name, activesubscrtype_str[sstemplatelist_cpy[5].d1]);
+                            css->ss_name = std::string(activesubscrtype_str[sstemplatelist_cpy[5].d1]);
                             subscreen_dlg[3].h=172*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                             
@@ -7114,7 +6672,7 @@ int onEditSubscreens()
                         else
                         {
                             css->ss_type=sstPASSIVE;
-                            sprintf(css->name, passivesubscrtype_str[sstemplatelist_cpy[5].d1]);
+                            css->ss_name = std::string(passivesubscrtype_str[sstemplatelist_cpy[5].d1]);
                             subscreen_dlg[3].h=60*(is_large() ? 2 : 1);
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
@@ -7149,7 +6707,7 @@ void update_sso_name()
     }
     else
     {
-        sprintf(str_oname, "%3d:  %s", curr_subscreen_object, sso_name(css->objects, curr_subscreen_object));
+        sprintf(str_oname, "%3d:  %s", curr_subscreen_object, sso_name(css->ss_objects[curr_subscreen_object]->type));
     }
     
     subscreen_dlg[5].flags|=D_DIRTY;
@@ -7169,17 +6727,18 @@ void center_zq_subscreen_dialogs()
 
 void delete_subscreen(int subscreenidx)
 {
-    if(custom_subscreen[subscreenidx].objects[0].type == ssoNULL)
+    if(custom_subscreen[subscreenidx].ss_objects.size() == 0 || custom_subscreen[subscreenidx].ss_objects[0]->type == ssoNULL)
         return;
         
-    //delete
-    reset_subscreen(&custom_subscreen[subscreenidx]);
-    
-    //and move all other subscreens up
+   
+    //move all other subscreens up
     for(int i=subscreenidx+1; i<MAXCUSTOMSUBSCREENS; i++)
     {
-        memcpy(&custom_subscreen[i-1], &custom_subscreen[i], sizeof(subscreen_group));
+        custom_subscreen[i-1] = custom_subscreen[i];
     }
+    //delete
+    reset_subscreen(custom_subscreen[MAXCUSTOMSUBSCREENS-1]);
+
     
     //fix dmaps
     int dmap_count=count_dmaps();
@@ -7195,95 +6754,6 @@ void delete_subscreen(int subscreenidx)
     }
 }
 
-// These were defined in ffscript.h; no need for them here
-#undef DELAY
-#undef WIDTH
-#undef HEIGHT
-
-#define D1        0x00000001
-#define D2        0x00000002
-#define D3        0x00000004
-#define D4        0x00000008
-#define D5        0x00000010
-#define D6        0x00000020
-#define D7        0x00000040
-#define D8        0x00000080
-#define D9        0x00000100
-#define D10       0x00000200
-#define D1_TO_D10 0x000003FF
-#define COLOR1    0x00000400
-#define COLOR2    0x00000800
-#define COLOR3    0x00001000
-#define FRAMES    0x00002000
-#define FRAME     0x00004000
-#define SPEED     0x00008000
-#define DELAY     0x00010000
-#define WIDTH     0x00020000
-#define HEIGHT    0x00040000
-
-// This function does the actual copying. Name sucks, but whatever.
-// what controls which properties are copied. Type, x, y, and dp1
-// are never copied. The active up/down/scrolling flags from pos
-// are always copied, but the rest of it is not.
-void doCopySSOProperties(subscreen_object& src, subscreen_object& dest, int what)
-{
-    dest.pos&=~(sspUP|sspDOWN|sspSCROLLING);
-    dest.pos|=src.pos&(sspUP|sspDOWN|sspSCROLLING);
-    
-    // Actually, I think pos is nothing but those three flags...
-    
-    if(what&WIDTH)
-        dest.w=src.w;
-    if(what&HEIGHT)
-        dest.h=src.h;
-    
-    if(what&D1)
-        dest.d1=src.d1;
-    if(what&D2)
-        dest.d2=src.d2;
-    if(what&D3)
-        dest.d3=src.d3;
-    if(what&D4)
-        dest.d4=src.d4;
-    if(what&D5)
-        dest.d5=src.d5;
-    if(what&D6)
-        dest.d6=src.d6;
-    if(what&D7)
-        dest.d7=src.d7;
-    if(what&D8)
-        dest.d8=src.d8;
-    if(what&D9)
-        dest.d9=src.d9;
-    if(what&D10)
-        dest.d10=src.d10;
-    
-    if(what&COLOR1)
-    {
-        dest.colortype1=src.colortype1;
-        dest.color1=src.color1;
-    }
-    if(what&COLOR2)
-    {
-        dest.colortype2=src.colortype2;
-        dest.color2=src.color2;
-    }
-    if(what&COLOR3)
-    {
-        dest.colortype3=src.colortype3;
-        dest.color3=src.color3;
-    }
-    
-    if(what&FRAMES)
-        dest.frames=src.frames;
-    if(what&FRAME)
-        dest.frame=src.frame;
-    if(what&SPEED)
-        dest.speed=src.speed;
-    if(what&DELAY)
-        dest.delay=src.delay;
-}
-
 // Copies one object's properties to another. Selects properties depending on
 // the object type; some things are deliberately skipped, like which heart
 // container a life gauge piece corresponds to.
@@ -7292,109 +6762,7 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
     if(src.type!=dest.type || &src==&dest)
         return;
     
-    switch(src.type)
-    {
-        case sso2X2FRAME:
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1);
-            break;
-            
-        case ssoTEXT:
-            doCopySSOProperties(src, dest, D1|D2|D3|COLOR1|COLOR2|COLOR3);
-            break;
-            
-        case ssoLINE:
-            doCopySSOProperties(src, dest, D1|D2|COLOR1|WIDTH|HEIGHT);
-            break;
-            
-        case ssoRECT:
-            doCopySSOProperties(src, dest, D1|D2|COLOR1|COLOR2|WIDTH|HEIGHT);
-            break;
-            
-        case ssoBSTIME:
-        case ssoTIME:
-        case ssoSSTIME:
-            doCopySSOProperties(src, dest, D1|D2|D3|COLOR1|COLOR2|COLOR3);
-            break;
-            
-        case ssoMAGICMETER: // Full meter
-            // No properties but pos
-            doCopySSOProperties(src, dest, 0);
-            break;
-            
-        case ssoLIFEMETER:
-            doCopySSOProperties(src, dest, D2|D3);
-            break;
-            
-        case ssoBUTTONITEM:
-            doCopySSOProperties(src, dest, D2);
-            break;
-            
-        case ssoCOUNTER: // Single counter
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|COLOR1|COLOR2|COLOR3);
-            break;
-            
-        case ssoCOUNTERS: // Counter block
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|COLOR1|COLOR2|COLOR3);
-            break;
-            
-        case ssoMINIMAPTITLE:
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1|COLOR2|COLOR3);
-            break;
-            
-        case ssoMINIMAP:
-            doCopySSOProperties(src, dest, D1|D2|D3|COLOR1|COLOR2|COLOR3);
-            break;
-            
-        case ssoLARGEMAP:
-            doCopySSOProperties(src, dest, D1|D2|D3|D10|COLOR1|COLOR2);
-            break;
-            
-        case ssoCLEAR:
-            doCopySSOProperties(src, dest, COLOR1);
-            break;
-            
-        case ssoCURRENTITEM:
-            // Only the invisible flag
-            doCopySSOProperties(src, dest, D2);
-            break;
-            
-        case ssoTRIFRAME:
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|D7|COLOR1|COLOR2);
-            break;
-            
-        case ssoTRIFORCE: // Single piece
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1);
-            break;
-            
-        case ssoTILEBLOCK:
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1|WIDTH|HEIGHT);
-            break;
-            
-        case ssoMINITILE:
-            // Does this one work at all?
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|COLOR1|WIDTH|HEIGHT);
-            break;
-            
-        case ssoSELECTOR1:
-        case ssoSELECTOR2:
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|COLOR1);
-            break;
-            
-        case ssoMAGICGAUGE: // Single piece
-            // Skip magic container (d1)
-            doCopySSOProperties(src, dest, (D1_TO_D10&~D1)|COLOR1|COLOR2|WIDTH|HEIGHT);
-            break;
-            
-        case ssoLIFEGAUGE: // Single piece
-            // Skip heart container (d1)
-            doCopySSOProperties(src, dest, (D1_TO_D10&~D1)|COLOR1|COLOR2|WIDTH|HEIGHT);
-            break;
-            
-        case ssoTEXTBOX:
-        case ssoSELECTEDITEMNAME:
-            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|COLOR1|COLOR2|COLOR3|WIDTH|HEIGHT);
-            break;
-    }
+    dest.copyFrom(src);
 }
 
 /*** end of subscr.cc ***/

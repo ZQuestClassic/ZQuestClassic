@@ -2,8 +2,7 @@
 #define BYTECODE_H
 
 //#include "ScriptParser.h"
-#include "AST.h"
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Compiler.h"
 #include "../zsyssimple.h"
@@ -412,9 +411,9 @@
 #define _DEPRECATED_IDATAFLAG5 382
 
 #define __RESERVED_FOR_LINKRETSQUARE 383
-#define LINKUSINGITEM 384
-#define LINKUSINGITEMA 385
-#define LINKUSINGITEMB 386
+//#define LINKUSINGITEM 384
+//#define LINKUSINGITEMA 385
+//#define LINKUSINGITEMB 386
 #define __RESERVED_FOR_LINKWARPSOUND 387
 #define __RESERVED_FOR_PLAYWARPSOUND 388
 #define __RESERVED_FOR_WARPEFFECT 389
@@ -448,8 +447,8 @@
 #define RESERVED000D 417
 #define RESERVED000E 418
 #define RESERVED000F 419
-#define LINKITEMB 420 
-#define LINKITEMA 421
+//#define LINKITEMB 420 
+//#define LINKITEMA 421
 #define __RESERVED_FOR_LINKWALKTILE 422
 #define	__RESERVED_FOR_LINKFLOATTILE 423
 #define __RESERVED_FOR_LINKSWIMTILE 424

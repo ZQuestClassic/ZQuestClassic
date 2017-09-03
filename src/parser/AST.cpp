@@ -1,23 +1,38 @@
 #include "../precompiled.h" //always first
-#include "AST.h"
-#include "CompileError.h"
+#include "ASTVisitors.h"
 #include "CompilerUtils.h"
 #include "DataStructs.h"
 #include "Scope.h"
 
 #include <assert.h>
 
+using namespace ZScript;
+
 ////////////////////////////////////////////////////////////////
 
 // AST
 
-AST::AST(LocationData const& location) : location(location) {}
+AST::AST(LocationData const& location)
+	: location(location), disabled(false)
+{}
 
-AST::AST(AST const& base) : location(base.location) {}
+AST::AST(AST const& rhs) :
+	location(rhs.location), disabled(rhs.disabled)
+{}
+
+AST::~AST()
+{
+	deleteElements(compileErrorCatches);
+}
 
 AST& AST::operator=(AST const& rhs)
 {
+	deleteElements(compileErrorCatches);
+	
 	location = rhs.location;
+	compileErrorCatches = AST::clone(compileErrorCatches);
+	disabled = rhs.disabled;
+	
 	return *this;
 }
 
@@ -62,6 +77,10 @@ ASTProgram& ASTProgram::operator=(ASTProgram const& rhs)
 	return *this;
 }
 
+void ASTProgram::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseProgram(*this, param);
+}
 
 void ASTProgram::addDeclaration(ASTDecl* declaration)
 {
@@ -138,6 +157,11 @@ ASTFloat& ASTFloat::operator=(ASTFloat const& rhs)
 	negative = rhs.negative;
 
 	return *this;
+}
+
+void ASTFloat::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseFloat(*this, param);
 }
 
 pair<string, string> ASTFloat::parseValue()
@@ -252,6 +276,11 @@ ASTString& ASTString::operator=(ASTString const& rhs)
 	return *this;
 }
 
+void ASTString::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseString(*this, param);
+}
+
 ////////////////////////////////////////////////////////////////
 // Statements
 
@@ -290,6 +319,11 @@ ASTBlock& ASTBlock::operator=(ASTBlock const& rhs)
 	return *this;
 }
 
+void ASTBlock::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseBlock(*this, param);
+}
+
 // ASTStmtIf
 
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
@@ -323,6 +357,13 @@ ASTStmtIf& ASTStmtIf::operator=(ASTStmtIf const& rhs)
 	return *this;
 }
 
+void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseStmtIf(*this, param);
+}
+
+
+
 // ASTStmtIfElse
 
 ASTStmtIfElse::ASTStmtIfElse(
@@ -352,6 +393,11 @@ ASTStmtIfElse& ASTStmtIfElse::operator=(ASTStmtIfElse const& rhs)
 	return *this;
 }
 
+void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtIfElse(*this, param);
+}
+
 // ASTStmtSwitch
 
 ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
@@ -379,6 +425,11 @@ ASTStmtSwitch& ASTStmtSwitch::operator=(ASTStmtSwitch const& rhs)
 	cases = AST::clone(rhs.cases);
 
 	return *this;
+}
+
+void ASTStmtSwitch::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtSwitch(*this, param);
 }
 
 // ASTSwitchCases
@@ -412,6 +463,11 @@ ASTSwitchCases& ASTSwitchCases::operator=(ASTSwitchCases const& rhs)
 	block = AST::clone(rhs.block);
 
 	return *this;
+}
+
+void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseSwitchCases(*this, param);
 }
 
 // ASTStmtFor
@@ -456,6 +512,11 @@ ASTStmtFor& ASTStmtFor::operator=(ASTStmtFor const& rhs)
 	return *this;
 }
 
+void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseStmtFor(*this, param);
+}
+
 // ASTStmtWhile
 
 ASTStmtWhile::ASTStmtWhile(
@@ -486,6 +547,11 @@ ASTStmtWhile& ASTStmtWhile::operator=(ASTStmtWhile const& rhs)
 	body = AST::clone(rhs.body);
 
 	return *this;
+}
+
+void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtWhile(*this, param);
 }
 
 // ASTStmtDo
@@ -520,6 +586,11 @@ ASTStmtDo& ASTStmtDo::operator=(ASTStmtDo const& rhs)
 	return *this;
 }
 
+void ASTStmtDo::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtDo(*this, param);
+}
+
 // ASTStmtReturn
 
 ASTStmtReturn::ASTStmtReturn(LocationData const& location)
@@ -535,6 +606,11 @@ ASTStmtReturn& ASTStmtReturn::operator=(ASTStmtReturn const& rhs)
 	ASTStmt::operator=(rhs);
 
 	return *this;
+}
+
+void ASTStmtReturn::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtReturn(*this, param);
 }
 
 // ASTStmtReturnVal
@@ -564,6 +640,11 @@ ASTStmtReturnVal& ASTStmtReturnVal::operator=(ASTStmtReturnVal const& rhs)
 	return *this;
 }
 
+void ASTStmtReturnVal::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtReturnVal(*this, param);
+}
+
 // ASTStmtBreak
 
 ASTStmtBreak::ASTStmtBreak(LocationData const& location)
@@ -579,6 +660,11 @@ ASTStmtBreak& ASTStmtBreak::operator=(ASTStmtBreak const& rhs)
 	ASTStmt::operator=(rhs);
 
 	return *this;
+}
+
+void ASTStmtBreak::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtBreak(*this, param);
 }
 
 // ASTStmtContinue
@@ -598,6 +684,11 @@ ASTStmtContinue& ASTStmtContinue::operator=(ASTStmtContinue const& rhs)
 	return *this;
 }
 
+void ASTStmtContinue::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtContinue(*this, param);
+}
+
 // ASTStmtEmpty
 
 ASTStmtEmpty::ASTStmtEmpty(LocationData const& location)
@@ -615,52 +706,9 @@ ASTStmtEmpty& ASTStmtEmpty::operator=(ASTStmtEmpty const& rhs)
 	return *this;
 }
 
-// ASTCompileError
-
-ASTCompileError::ASTCompileError(
-		ASTExpr* errorId, ASTStmt* statement,
-		LocationData const& location)
-	: ASTStmt(location), errorId(errorId), statement(statement),
-	  errorTriggered(false)
-{}
-
-ASTCompileError::ASTCompileError(ASTCompileError const& base)
-	: ASTStmt(base),
-	  errorId(AST::clone(base.errorId)),
-	  statement(AST::clone(base.statement)),
-	  errorTriggered(base.errorTriggered)
-{}
-
-ASTCompileError::~ASTCompileError()
+void ASTStmtEmpty::execute(ASTVisitor& visitor, void* param)
 {
-	delete errorId;
-	delete statement;
-}
-
-ASTCompileError& ASTCompileError::operator=(ASTCompileError const& rhs)
-{
-	ASTStmt::operator=(rhs);
-
-	delete errorId;
-	delete statement;
-
-	errorId = AST::clone(rhs.errorId);
-	statement = AST::clone(rhs.statement);
-	errorTriggered = rhs.errorTriggered;
-
-	return *this;
-}
-
-int ASTCompileError::getErrorId() const
-{
-	if (!errorId) return -1;
-	if (!errorId->hasDataValue()) return -1;
-	return errorId->getDataValue() / 10000;
-}
-
-bool ASTCompileError::canHandle(CompileError const& error) const
-{
-	return error.id == getErrorId();
+	visitor.caseStmtEmpty(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -718,6 +766,11 @@ ASTScript& ASTScript::operator=(ASTScript const& rhs)
 	return *this;
 }
 
+void ASTScript::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseScript(*this, param);
+}
+
 void ASTScript::addDeclaration(ASTDecl& declaration)
 {
 	switch (declaration.declarationClassId())
@@ -752,6 +805,11 @@ ASTImportDecl& ASTImportDecl::operator=(ASTImportDecl const& rhs)
 	filename = rhs.filename;
 
 	return *this;
+}
+
+void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseImportDecl(*this,param);
 }
 
 // ASTFuncDecl
@@ -791,6 +849,11 @@ ASTFuncDecl& ASTFuncDecl::operator=(ASTFuncDecl const& rhs)
 	return *this;
 }
 
+void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseFuncDecl(*this, param);
+}
+
 // ASTDataDeclList
 
 ASTDataDeclList::ASTDataDeclList(LocationData const& location)
@@ -819,6 +882,11 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 	mDeclarations = AST::clone(rhs.mDeclarations);
 	
 	return *this;
+}
+
+void ASTDataDeclList::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseDataDeclList(*this, param);
 }
 
 void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
@@ -873,6 +941,11 @@ ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 	return *this;
 }
 
+void ASTDataDecl::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseDataDecl(*this, param);
+}
+
 ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 {
 	mInitializer = initializer;
@@ -896,7 +969,7 @@ ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 	return initializer;
 }
 
-ZVarType const* ASTDataDecl::resolveType(Scope* scope) const
+ZVarType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 {
 	SymbolTable& table = scope->getTable();
 
@@ -943,24 +1016,25 @@ ASTDataDeclExtraArray& ASTDataDeclExtraArray::operator=(
 	return *this;
 }
 
-bool ASTDataDeclExtraArray::isConstant() const
+void ASTDataDeclExtraArray::execute(ASTVisitor& visitor, void* param)
 {
-	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
-		 it != dimensions.end(); ++it)
-		if (!(*it)->hasDataValue()) return false;
-	return true;
+	visitor.caseDataDeclExtraArray(*this, param);
 }
 
-int ASTDataDeclExtraArray::getTotalSize() const
+optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
+		CompileErrorHandler* errorHandler)
+		const
 {
-	if (dimensions.size() == 0) return -1;
-	long size = 1;
+	if (dimensions.size() == 0) return nullopt;
+	int size = 1;
 	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
 		 it != dimensions.end(); ++it)
 	{
 		ASTExpr& expr = **it;
-		if (!expr.hasDataValue()) return -1;
-		size *= expr.getDataValue() / 10000L;
+		if (optional<long> value = expr.getCompileTimeValue(errorHandler))
+			size *= *value / 10000L;
+		else
+			return nullopt;
 	}
 	return size;
 }
@@ -992,39 +1066,32 @@ ASTTypeDef& ASTTypeDef::operator=(ASTTypeDef const& rhs)
 	return *this;
 }
 
+void ASTTypeDef::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseTypeDef(*this, param);
+}
+
 ////////////////////////////////////////////////////////////////
 // Expressions
 
 // ASTExpr
 
 ASTExpr::ASTExpr(LocationData const& location)
-	: ASTStmt(location),
-	  hasValue(false),
-	  value(0L),
-	  varType(NULL),
-	  lval(false)
+	: ASTStmt(location), varType(NULL)
 {}
 
 ASTExpr::ASTExpr(ASTExpr const& base)
-	: ASTStmt(base),
-	  hasValue(base.hasValue),
-	  value(base.value),
-	  varType(base.varType),
-	  lval(false)
+	: ASTStmt(base), varType(base.varType)
 {}
 
 ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 {
 	ASTStmt::operator=(rhs);
 	
-	lval = rhs.lval;
-	hasValue = rhs.hasValue;
-	value = rhs.value;
 	varType = rhs.varType;
 
 	return *this;
 }
-
 
 // ASTExprConst
 
@@ -1043,6 +1110,18 @@ ASTExprConst& ASTExprConst::operator=(ASTExprConst const& rhs)
 	content = AST::clone(rhs.content);
 	
 	return *this;
+}
+
+void ASTExprConst::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprConst(*this, param);
+}
+
+optional<long> ASTExprConst::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	return content ? content->getCompileTimeValue(errorHandler) : nullopt;
 }
 
 // ASTExprAssign
@@ -1074,17 +1153,29 @@ ASTExprAssign& ASTExprAssign::operator=(ASTExprAssign const& rhs)
 	return *this;
 }
 
+void ASTExprAssign::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprAssign(*this, param);
+}
+
+optional<long> ASTExprAssign::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	return right ? right->getCompileTimeValue(errorHandler) : nullopt;
+}
+
 // ASTExprIdentifier
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
 									 LocationData const& location)
-	: ASTExpr(location), mIsConstant(false)
+	: ASTExpr(location), binding(NULL), mIsConstant(false)
 {
 	if (name != "") components.push_back(name);
 }
 
 ASTExprIdentifier::ASTExprIdentifier(ASTExprIdentifier const& base)
-	: ASTExpr(base), mIsConstant(base.mIsConstant),
+	: ASTExpr(base), binding(NULL), mIsConstant(base.mIsConstant),
 	  components(base.components)
 {}
 
@@ -1094,8 +1185,14 @@ ASTExprIdentifier& ASTExprIdentifier::operator=(ASTExprIdentifier const& base)
 	
 	components = base.components;
 	mIsConstant = base.mIsConstant;
+	binding = NULL;
 	
 	return *this;
+}
+
+void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprIdentifier(*this, param);
 }
 
 string ASTExprIdentifier::asString() const
@@ -1111,19 +1208,43 @@ string ASTExprIdentifier::asString() const
 	return s;
 }
 
+optional<long> ASTExprIdentifier::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	return binding ? binding->getCompileTimeValue() : nullopt;
+}
+
+ZVarType const* ASTExprIdentifier::getReadType() const
+{
+	return binding ? &binding->type : NULL;
+}
+
+ZVarType const* ASTExprIdentifier::getWriteType() const
+{
+	return binding ? &binding->type : NULL;
+}
+
 // ASTExprArrow
 
 ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
 						   LocationData const& location)
-	: ASTExpr(location), left(left), right(right), index(NULL)
+	: ASTExpr(location), left(left), right(right), index(NULL),
+	  readFunction(NULL), writeFunction(NULL), leftClass(NULL)
 {}
 
 ASTExprArrow::ASTExprArrow(ASTExprArrow const& base)
 	: ASTExpr(base),
 	  left(AST::clone(base.left)),
 	  right(base.right),
-	  index(AST::clone(base.index))
+	  index(AST::clone(base.index)),
+	  readFunction(NULL), writeFunction(NULL), leftClass(NULL)
 {}
+
+ASTExprArrow::~ASTExprArrow()
+{
+	delete left;
+}
 
 ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 {
@@ -1135,14 +1256,16 @@ ASTExprArrow& ASTExprArrow::operator=(ASTExprArrow const& rhs)
 	left = AST::clone(rhs.left);
 	right = rhs.right;
 	index = AST::clone(rhs.index);
+	readFunction = NULL;
+	writeFunction = NULL;
+	leftClass = NULL;
 
 	return *this;
 }
 
-ASTExprArrow::~ASTExprArrow()
+void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
 {
-	delete left;
-	delete index;
+	visitor.caseExprArrow(*this, param);
 }
 
 string ASTExprArrow::asString() const
@@ -1150,6 +1273,16 @@ string ASTExprArrow::asString() const
 	string s = left->asString() + "->" + right;
 	if (index != NULL) s += "[" + index->asString() + "]";
 	return s;
+}
+
+ZVarType const* ASTExprArrow::getReadType() const
+{
+	return readFunction ? readFunction->returnType : NULL;
+}
+
+ZVarType const* ASTExprArrow::getWriteType() const
+{
+	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
 
 // ASTExprIndex
@@ -1178,22 +1311,40 @@ ASTExprIndex& ASTExprIndex::operator=(ASTExprIndex const& rhs)
 	return *this;
 }
 
+void ASTExprIndex::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprIndex(*this, param);
+}
+
 bool ASTExprIndex::isConstant() const
 {
 	if (array == NULL || index == NULL) return false;
 	return array->isConstant() && index->isConstant();
 }
 
+ZVarType const* ASTExprIndex::getReadType() const
+{
+	if (array->isTypeArrow()) return array->getReadType();
+	return ASTExpr::getReadType();
+}
+
+ZVarType const* ASTExprIndex::getWriteType() const
+{
+	if (array->isTypeArrow()) return array->getWriteType();
+	return ASTExpr::getWriteType();
+}
+	
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
-	: ASTExpr(location), left(NULL)
+	: ASTExpr(location), left(NULL), binding(NULL)
 {}
 
 ASTExprCall::ASTExprCall(ASTExprCall const& base)
 	: ASTExpr(base),
 	  left(AST::clone(base.left)),
-	  parameters(AST::clone(base.parameters))
+	  parameters(AST::clone(base.parameters)),
+	  binding(NULL)
 {}
 
 ASTExprCall::~ASTExprCall()
@@ -1211,8 +1362,24 @@ ASTExprCall& ASTExprCall::operator=(ASTExprCall const& rhs)
 
 	left = AST::clone(rhs.left);
 	parameters = AST::clone(rhs.parameters);
+	binding = NULL;
 
 	return *this;
+}
+
+void ASTExprCall::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprCall(*this, param);
+}
+
+ZVarType const* ASTExprCall::getReadType() const
+{
+	return binding ? binding->returnType : NULL;
+}
+
+ZVarType const* ASTExprCall::getWriteType() const
+{
+	return NULL;
 }
 
 // ASTUnaryExpr
@@ -1253,6 +1420,21 @@ ASTExprNegate& ASTExprNegate::operator=(ASTExprNegate const& rhs)
 	return *this;
 }
 
+void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprNegate(*this, param);
+}
+
+optional<long> ASTExprNegate::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!operand) return nullopt;
+	if (optional<long> value = operand->getCompileTimeValue())
+		return -*value;
+	return nullopt;
+}
+
 // ASTExprNot
 
 ASTExprNot::ASTExprNot(LocationData const& location)
@@ -1268,6 +1450,21 @@ ASTExprNot& ASTExprNot::operator=(ASTExprNot const& rhs)
 	ASTUnaryExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprNot::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprNot(*this, param);
+}
+
+optional<long> ASTExprNot::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!operand) return nullopt;
+	if (optional<long> value = operand->getCompileTimeValue())
+		return *value ? 0L : 10000L;
+	return nullopt;
 }
 
 // ASTExprBitNot
@@ -1287,6 +1484,21 @@ ASTExprBitNot& ASTExprBitNot::operator=(ASTExprBitNot const& rhs)
 	return *this;
 }
 
+void ASTExprBitNot::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBitNot(*this, param);
+}
+
+optional<long> ASTExprBitNot::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!operand) return nullopt;
+	if (optional<long> value = operand->getCompileTimeValue())
+		return ~(*value / 10000L) * 10000L;
+	return nullopt;
+}
+
 // ASTExprIncrement
 
 ASTExprIncrement::ASTExprIncrement(LocationData const& location)
@@ -1302,6 +1514,11 @@ ASTExprIncrement& ASTExprIncrement::operator=(ASTExprIncrement const& rhs)
 	ASTUnaryExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprIncrement::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprIncrement(*this, param);
 }
 
 // ASTExprPreIncrement
@@ -1322,6 +1539,11 @@ ASTExprPreIncrement& ASTExprPreIncrement::operator=(
 	return *this;
 }
 
+void ASTExprPreIncrement::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprPreIncrement(*this, param);
+}
+
 // ASTExprDecrement
 
 ASTExprDecrement::ASTExprDecrement(LocationData const& location)
@@ -1337,6 +1559,11 @@ ASTExprDecrement& ASTExprDecrement::operator=(ASTExprDecrement const& rhs)
 	ASTUnaryExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprDecrement::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprDecrement(*this, param);
 }
 
 // ASTExprPreDecrement
@@ -1355,6 +1582,11 @@ ASTExprPreDecrement& ASTExprPreDecrement::operator=(
 	ASTUnaryExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprPreDecrement(*this, param);
 }
 
 // ASTBinaryExpr
@@ -1427,6 +1659,23 @@ ASTExprAnd& ASTExprAnd::operator=(ASTExprAnd const& rhs)
 	return *this;
 }
 
+void ASTExprAnd::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprAnd(*this, param);
+}
+
+optional<long> ASTExprAnd::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue && *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprOr
 
 ASTExprOr::ASTExprOr(
@@ -1441,6 +1690,23 @@ ASTExprOr& ASTExprOr::operator=(ASTExprOr const& rhs)
 	ASTLogExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprOr::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprOr(*this, param);
+}
+
+optional<long> ASTExprOr::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue || *rightValue) ? 10000L : 0L;
 }
 
 // ASTRelExpr
@@ -1475,6 +1741,23 @@ ASTExprGT& ASTExprGT::operator=(ASTExprGT const& rhs)
 	return *this;
 }
 
+void ASTExprGT::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprGT(*this, param);
+}
+
+optional<long> ASTExprGT::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue > *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprGE
 
 ASTExprGE::ASTExprGE(
@@ -1489,6 +1772,23 @@ ASTExprGE& ASTExprGE::operator=(ASTExprGE const& rhs)
 	ASTRelExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprGE::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprGE(*this, param);
+}
+
+optional<long> ASTExprGE::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue >= *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprLT
@@ -1507,6 +1807,23 @@ ASTExprLT& ASTExprLT::operator=(ASTExprLT const& rhs)
 	return *this;
 }
 
+void ASTExprLT::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprLT(*this, param);
+}
+
+optional<long> ASTExprLT::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue < *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprLE
 
 ASTExprLE::ASTExprLE(
@@ -1521,6 +1838,23 @@ ASTExprLE& ASTExprLE::operator=(ASTExprLE const& rhs)
 	ASTRelExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprLE::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprLE(*this, param);
+}
+
+optional<long> ASTExprLE::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue <= *rightValue) ? 10000L : 0L;
 }
 
 // ASTExprEQ
@@ -1539,6 +1873,23 @@ ASTExprEQ& ASTExprEQ::operator=(ASTExprEQ const& rhs)
 	return *this;
 }
 
+void ASTExprEQ::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprEQ(*this, param);
+}
+
+optional<long> ASTExprEQ::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue == *rightValue) ? 10000L : 0L;
+}
+
 // ASTExprNE
 
 ASTExprNE::ASTExprNE(
@@ -1553,6 +1904,23 @@ ASTExprNE& ASTExprNE::operator=(ASTExprNE const& rhs)
 	ASTRelExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprNE::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprNE(*this, param);
+}
+
+optional<long> ASTExprNE::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return (*leftValue != *rightValue) ? 10000L : 0L;
 }
 
 // ASTAddExpr
@@ -1587,6 +1955,23 @@ ASTExprPlus& ASTExprPlus::operator=(ASTExprPlus const& rhs)
 	return *this;
 }
 
+void ASTExprPlus::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprPlus(*this, param);
+}
+
+optional<long> ASTExprPlus::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return *leftValue + *rightValue;
+}
+
 // ASTExprMinus
 
 ASTExprMinus::ASTExprMinus(
@@ -1601,6 +1986,23 @@ ASTExprMinus& ASTExprMinus::operator=(ASTExprMinus const& rhs)
 	ASTAddExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprMinus::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprMinus(*this, param);
+}
+
+optional<long> ASTExprMinus::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+	return *leftValue - *rightValue;
 }
 
 // ASTMultExpr
@@ -1635,6 +2037,24 @@ ASTExprTimes& ASTExprTimes::operator=(ASTExprTimes const& rhs)
 	return *this;
 }
 
+void ASTExprTimes::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprTimes(*this, param);
+}
+
+optional<long> ASTExprTimes::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return long(*leftValue * (*rightValue / 10000.0));
+}
+
 // ASTExprDivide
 
 ASTExprDivide::ASTExprDivide(
@@ -1651,6 +2071,30 @@ ASTExprDivide& ASTExprDivide::operator=(ASTExprDivide const& rhs)
 	return *this;
 }
 
+void ASTExprDivide::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprDivide(*this, param);
+}
+
+optional<long> ASTExprDivide::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue == 0)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::DivByZero, this);
+		return nullopt;
+	}
+	return *leftValue / *rightValue * 10000L;
+}
+
 // ASTExprModulo
 
 ASTExprModulo::ASTExprModulo(
@@ -1665,6 +2109,30 @@ ASTExprModulo& ASTExprModulo::operator=(ASTExprModulo const& rhs)
 	ASTMultExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprModulo::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprModulo(*this, param);
+}
+
+optional<long> ASTExprModulo::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue == 0)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::DivByZero, this);
+		return nullopt;
+	}
+	return *leftValue % *rightValue;
 }
 
 // ASTBitExpr
@@ -1699,6 +2167,24 @@ ASTExprBitAnd& ASTExprBitAnd::operator=(ASTExprBitAnd const& rhs)
 	return *this;
 }
 
+void ASTExprBitAnd::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBitAnd(*this, param);
+}
+
+optional<long> ASTExprBitAnd::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return ((*leftValue / 10000L) & (*rightValue / 10000L)) * 10000L;
+}
+
 // ASTExprBitOr
 
 ASTExprBitOr::ASTExprBitOr(
@@ -1715,6 +2201,24 @@ ASTExprBitOr& ASTExprBitOr::operator=(ASTExprBitOr const& rhs)
 	return *this;
 }
 
+void ASTExprBitOr::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBitOr(*this, param);
+}
+
+optional<long> ASTExprBitOr::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return ((*leftValue / 10000L) | (*rightValue / 10000L)) * 10000L;
+}
+
 // ASTExprBitXor
 
 ASTExprBitXor::ASTExprBitXor(
@@ -1729,6 +2233,24 @@ ASTExprBitXor& ASTExprBitXor::operator=(ASTExprBitXor const& rhs)
 	ASTBitExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprBitXor::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprBitXor(*this, param);
+}
+
+optional<long> ASTExprBitXor::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	return ((*leftValue / 10000L) ^ (*rightValue / 10000L)) * 10000L;
 }
 
 // ASTShiftExpr
@@ -1763,6 +2285,31 @@ ASTExprLShift& ASTExprLShift::operator=(ASTExprLShift const& rhs)
 	return *this;
 }
 
+void ASTExprLShift::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprLShift(*this, param);
+}
+
+optional<long> ASTExprLShift::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue % 10000L)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::ShiftNotInt, this);
+		rightValue = (*rightValue / 10000L) * 10000L;
+	}
+	
+	return ((*leftValue / 10000L) << (*rightValue / 10000L)) * 10000L;
+}
+
 // ASTExprRShift
 
 ASTExprRShift::ASTExprRShift(
@@ -1777,6 +2324,31 @@ ASTExprRShift& ASTExprRShift::operator=(ASTExprRShift const& rhs)
 	ASTShiftExpr::operator=(rhs);
 
 	return *this;
+}
+
+void ASTExprRShift::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprRShift(*this, param);
+}
+
+optional<long> ASTExprRShift::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if (!rightValue) return nullopt;
+
+	if (*rightValue % 10000L)
+	{
+		if (errorHandler)
+			errorHandler->handleError(CompileError::ShiftNotInt, this);
+		rightValue = (*rightValue / 10000L) * 10000L;
+	}
+	
+	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1817,6 +2389,25 @@ ASTNumberLiteral& ASTNumberLiteral::operator=(ASTNumberLiteral const& rhs)
 	return *this;
 }
 
+void ASTNumberLiteral::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseNumberLiteral(*this, param);
+}
+
+optional<long> ASTNumberLiteral::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!value) return nullopt;
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue());
+
+    if (!val.second && errorHandler)
+	    errorHandler->handleError(
+				CompileError::ConstTrunc, this, value->value);
+
+	return val.first;
+}
+
 // ASTBoolLiteral
 
 ASTBoolLiteral::ASTBoolLiteral(bool value, LocationData const& location)
@@ -1834,6 +2425,11 @@ ASTBoolLiteral& ASTBoolLiteral::operator=(ASTBoolLiteral const& rhs)
 	value = rhs.value;
 
 	return *this;
+}
+
+void ASTBoolLiteral::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseBoolLiteral(*this, param);
 }
 
 // ASTStringLiteral
@@ -1868,10 +2464,16 @@ ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
 	return *this;
 }
 
+void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
+{
+	visitor.caseStringLiteral(*this, param);
+}
+
 // ASTArrayLiteral
 
 ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
-	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL)
+	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL),
+	  iReadType(NULL)
 {}
 
 ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
@@ -1879,9 +2481,7 @@ ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
 	  type(AST::clone(base.type)),
 	  size(AST::clone(base.size)),
 	  elements(AST::clone(base.elements)),
-	  // declaration field is managed by the declaration itself, so it stays
-	  // NULL regardless.
-	  declaration(NULL)
+	  declaration(NULL), iReadType(NULL)
 {}
 
 ASTArrayLiteral::~ASTArrayLiteral()
@@ -1903,8 +2503,14 @@ ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
 	size = AST::clone(rhs.size);
 	elements = AST::clone(rhs.elements);
 	declaration = NULL;
+	iReadType = NULL;
 
 	return *this;
+}
+
+void ASTArrayLiteral::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseArrayLiteral(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1927,6 +2533,11 @@ ASTScriptType& ASTScriptType::operator=(ASTScriptType const& rhs)
 	type = rhs.type;
 
 	return *this;
+}
+
+void ASTScriptType::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseScriptType(*this, param);
 }
 
 // ASTVarType
@@ -1952,7 +2563,12 @@ ASTVarType& ASTVarType::operator=(ASTVarType const& rhs)
 	return *this;
 }
 
-ZVarType const& ASTVarType::resolve(Scope& scope)
+void ASTVarType::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseVarType(*this, param);
+}
+
+ZVarType const& ASTVarType::resolve(ZScript::Scope& scope)
 {
 	ZVarType* resolved = type->resolve(scope);
 	if (type != resolved)

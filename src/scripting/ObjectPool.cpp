@@ -1,7 +1,7 @@
 #include "ObjectPool.h"
 #include <cassert>
 
-using namespace std;
+//using namespace std;
 
 ObjectPool::ObjectPool() : nextuid_(0)
 {	
@@ -20,7 +20,7 @@ int ObjectPool::addToPool(GameObject *obj)
 
 void ObjectPool::removeFromPool(int uid)
 {
-	map<int, GameObject *>::iterator it = pool_.find(uid);
+	std::map<int, GameObject *>::iterator it = pool_.find(uid);
 	if (it != pool_.end())
 		pool_.erase(it);
 }

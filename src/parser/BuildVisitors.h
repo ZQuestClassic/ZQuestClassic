@@ -1,8 +1,7 @@
 #ifndef BUILDVISITORS_H
 #define BUILDVISITORS_H
 
-#include "AST.h"
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
 #include <stack>
@@ -13,7 +12,10 @@ class BuildOpcodes : public RecursiveVisitor
 public:
     BuildOpcodes();
 
-    virtual void caseDefault(void *param);
+	using RecursiveVisitor::visit;
+	void visit(AST& node, void* param = NULL);
+	
+    virtual void caseDefault(AST& host, void* param);
 	// Statements
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);
@@ -32,8 +34,6 @@ public:
 	virtual void caseDataDecl(ASTDataDecl& host, void* param);
 	virtual void caseTypeDef(ASTTypeDef& host, void* param);
 	// Expressions
-    virtual void caseExprConst(ASTExprConst &host, void *param);
-	virtual void caseCompileError(ASTCompileError& host, void* param);
     virtual void caseExprAssign(ASTExprAssign &host, void *param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
@@ -79,6 +79,10 @@ public:
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
 	void addOpcode(Opcode* code);
+
+	template <class Container>
+	void addOpcodes(Container const& container);
+	
 	void deallocateArrayRef(long arrayRef);
 	void deallocateRefsUntilCount(int count);
 
@@ -103,75 +107,6 @@ private:
 	void buildArrayUninit(ASTDataDecl& host, OpcodeContext& context);
 };
 
-class AssignStackSymbols : public RecursiveVisitor
-{
-public:
-	AssignStackSymbols(StackFrame *sf, SymbolTable *st, int baseoffset) : sf(sf), st(st), curoffset(baseoffset), highWaterOffset(baseoffset)
-	{
-	}
-
-    virtual void caseDefault(void *) { }
-
-	void caseDataDecl(ASTDataDecl& host, void* param)
-	{
-		RecursiveVisitor::caseDataDecl(host, param);
-		int id = host.manager->id;
-
-		sf->addToFrame(id, curoffset);
-		curoffset += 10000;
-		if (highWaterOffset < curoffset)
-			highWaterOffset = curoffset;
-	}
-
-	virtual void caseBlock(ASTBlock &host, void *param)
-	{
-		prevframes.push(curoffset);
-		AST::execute(host.statements, *this, param);
-		curoffset = prevframes.top();
-		prevframes.pop();
-	}
-
-	virtual void caseStmtFor(ASTStmtFor &host, void *param)
-	{
-		prevframes.push(curoffset);
-
-		host.setup->execute(*this, param);
-		host.increment->execute(*this, param);
-		host.test->execute(*this, param);
-		host.body->execute(*this, param);
-
-		curoffset = prevframes.top();
-		prevframes.pop();
-	}
-
-	virtual void caseStringLiteral(ASTStringLiteral& host, void* param)
-	{
-		int vid = st->getNodeId(&host);
-		sf->addToFrame(vid, curoffset);
-		curoffset += 10000;
-		if (highWaterOffset < curoffset)
-			highWaterOffset = curoffset;
-	}
-
-	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param)
-	{
-		int vid = st->getNodeId(&host);
-		sf->addToFrame(vid, curoffset);
-		curoffset += 10000;
-		if (highWaterOffset < curoffset)
-			highWaterOffset = curoffset;
-	}
-
-	int getHighWaterOffset() { return highWaterOffset; }
-
-private:
-	StackFrame *sf;
-	SymbolTable *st;
-	int curoffset;
-	int highWaterOffset;
-	std::stack<int> prevframes;
-};
-
 class LValBOHelper : public ASTVisitor
 {
 public:
@@ -183,6 +118,10 @@ public:
     vector<Opcode *> getResult() {return result;}
 private:
 	void addOpcode(Opcode* code);
+
+	template <class Container>
+	void addOpcodes(Container const& container);
+	
     vector<Opcode *> result;
 };
 

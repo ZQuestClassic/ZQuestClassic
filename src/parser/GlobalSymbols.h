@@ -10,8 +10,12 @@ using std::string;
 using std::map;
 using std::vector;
 
-class Scope;
 class SymbolTable;
+namespace ZScript
+{
+	class Function;
+	class Scope;
+}
 
 static const int SETTER = 0;
 static const int GETTER = 1;
@@ -32,26 +36,20 @@ class LibrarySymbols
 public:
 	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
 
-    virtual void addSymbolsToScope(Scope& scope);
-    virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
-    virtual int matchFunction(string const& name);
-    virtual int matchGetter(string const& name);
-    virtual int matchSetter(string const& name);
+    virtual map<int, vector<Opcode*> > generateCode();
+	
+	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual ~LibrarySymbols();
 protected:
     AccessorTable *table;
     LibrarySymbols() {}
     int firstid;
     int refVar;
-    map<string, int> functions;
-	map<string, int> getters;
-	map<string, int> setters;
-	int getFunctionId(string const& name) const;
-    virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> getIndexedVariable(LinkTable &lt, int id, int var);
-    virtual vector<Opcode *> setIndexedVariable(LinkTable &lt, int id, int var);
+    map<string, ZScript::Function*> functions;
+	map<string, ZScript::Function*> getters;
+	map<string, ZScript::Function*> setters;
+
+	ZScript::Function* getFunction(string const& name) const;
 };
 
 class GlobalSymbols : public LibrarySymbols
@@ -61,7 +59,8 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+
+	map<int, vector<Opcode*> > generateCode();
 private:
     static GlobalSymbols singleton;
     GlobalSymbols();
@@ -74,7 +73,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 private:
     static FFCSymbols singleton;
     FFCSymbols();
@@ -87,7 +86,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 private:
     static LinkSymbols singleton;
     LinkSymbols();
@@ -100,7 +99,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 private:
     static ScreenSymbols singleton;
     ScreenSymbols();
@@ -113,7 +112,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static ItemSymbols singleton;
@@ -127,7 +126,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 private:
     static ItemclassSymbols singleton;
     ItemclassSymbols();
@@ -140,7 +139,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 private:
     static GameSymbols singleton;
     GameSymbols();
@@ -153,7 +152,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static NPCSymbols singleton;
@@ -167,7 +166,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static LinkWeaponSymbols singleton;
@@ -181,7 +180,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static EnemyWeaponSymbols singleton;
@@ -196,7 +195,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static AudioSymbols singleton;
@@ -210,7 +209,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static DebugSymbols singleton;
@@ -224,7 +223,7 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static NPCDataSymbols singleton;

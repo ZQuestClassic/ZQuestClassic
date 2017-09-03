@@ -32,11 +32,12 @@
 #include "init.h"
 #include "ffasm.h"
 #include "defdata.h"
+#include "selectors.h"
 #include "zc_malloc.h"
 #include "backend/AllBackends.h"
 
 extern int ex;
-extern void reset_itembuf(itemdata *item, int id);
+extern void reset_itembuf(itemdata *item, const ItemDefinitionRef &id);
 extern const char *item_class_list(int index, int *list_size);
 extern const char *sfxlist(int index, int *list_size);
 // zq_subscr.cpp
@@ -51,13 +52,13 @@ extern int jwin_fontdrop_proc(int msg,DIALOG *d,int c);
 extern int jwin_tflpcheck_proc(int msg,DIALOG *d,int c);
 extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
 
-extern int biw_cnt;
 extern int biic_cnt;
 
 
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
+#define snprintf _snprintf
 #endif
 
 
@@ -207,7 +208,7 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 			{
 				newd[i].h = int((double)newd[i].h*1.5);
 			}
-			else if (newd[i].proc == jwin_droplist_proc || newd[i].proc == d_ndroplist_proc || newd[i].proc == d_idroplist_proc || newd[i].proc == d_nidroplist_proc || newd[i].proc == d_dropdmaplist_proc
+			else if (newd[i].proc == jwin_droplist_proc || newd[i].proc == d_ndroplist_proc || newd[i].proc == d_dropdmaplist_proc
 				|| newd[i].proc == d_dropdmaptypelist_proc || newd[i].proc == jwin_as_droplist_proc || newd[i].proc == d_ffcombolist_proc || newd[i].proc == sstype_drop_proc || newd[i].proc == d_ctl_proc
 				|| newd[i].proc == jwin_fontdrop_proc || newd[i].proc == d_csl_proc || newd[i].proc == d_csl2_proc || newd[i].proc == d_stilelist_proc || newd[i].proc == d_comboalist_proc)
 			{
@@ -251,10 +252,11 @@ DIALOG *resizeDialog(DIALOG *d, float largeSize)
 				continue;
 
 			// Bigger font
-			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != d_ilist_proc && newd[i].proc != d_wlist_proc && newd[i].proc != jwin_list_proc && newd[i].proc != d_dmaplist_proc
+			bool bigfontproc = (newd[i].proc != jwin_initlist_proc && newd[i].proc != jwin_droplist_proc && newd[i].proc != jwin_abclist_proc && newd[i].proc != jwin_list_proc && newd[i].proc != d_dmaplist_proc
 				&& newd[i].proc != d_dropdmaplist_proc && newd[i].proc != d_xmaplist_proc && newd[i].proc != d_dropdmaptypelist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_warplist_proc && newd[i].proc != d_wclist_proc && newd[i].proc != d_ndroplist_proc
-				&& newd[i].proc != d_idroplist_proc && newd[i].proc != d_nidroplist_proc && newd[i].proc != jwin_as_droplist_proc && newd[i].proc != d_ffcombolist_proc && newd[i].proc != d_enelist_proc && newd[i].proc != sstype_drop_proc && newd[i].proc != d_ctl_proc
-				&& newd[i].proc != jwin_fontdrop_proc && newd[i].proc != d_csl_proc && newd[i].proc != d_csl2_proc && newd[i].proc != d_stilelist_proc && newd[i].proc != d_comboalist_proc);
+				&& newd[i].proc != jwin_as_droplist_proc && newd[i].proc != d_ffcombolist_proc && newd[i].proc != d_enelist_proc && newd[i].proc != sstype_drop_proc && newd[i].proc != d_ctl_proc
+				&& newd[i].proc != jwin_fontdrop_proc && newd[i].proc != d_csl_proc && newd[i].proc != d_csl2_proc && newd[i].proc != d_stilelist_proc && newd[i].proc != d_comboalist_proc && d_modlist_proc != newd[i].proc && d_ilist_proc != newd[i].proc 
+                && d_wlist_proc != newd[i].proc && d_en_modlist_proc != newd[i].proc);
 
 			if (bigfontproc && !newd[i].dp2)
 			{
@@ -455,8 +457,6 @@ static TABPANEL itemdata_tabs[] =
 };
 
 static ListData item_class__list(item_class_list, &pfont);
-static ListData weapon_list(weaponlist, &pfont);
-
 
 static char itemdata_weaponlist_str_buf[14];
 
@@ -813,13 +813,6 @@ const char *itemscriptdroplist(int index, int *list_size)
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
 
-static DIALOG itemdata_special_dlg[] =
-{
-    { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     44,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_list,						 NULL,   NULL 				   },
-};
-	
-
 static DIALOG itemdata_dlg[] =
 {
     // (dialog proc)           (x)     (y)     (w)     (h)        (fg)                   (bg)                   (key)       (flags)     (d1)     (d2)    (dp)                                            (dp2)               (dp3)
@@ -1014,27 +1007,27 @@ static DIALOG itemdata_dlg[] =
     
     //139
     { jwin_text_proc,           8,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[0]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[1]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[2]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[3]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,           8,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[4]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,       8,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,         8,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     
     //149
     { jwin_text_proc,         161,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[5]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,         161,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[6]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,         161,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[7]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     { jwin_text_proc,         161,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[8]:",                           NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,         161,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[9]:",                          NULL,   NULL                  },
-    { jwin_droplist_proc,     161,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
+    { jwin_button_proc,       161,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
+    { jwin_text_proc,         161,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[9]:",                           NULL,   NULL                  },
+    { jwin_button_proc,       161,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,      0,    0, NULL,                                             NULL,   NULL                  },
     
     //159
     { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
@@ -1513,12 +1506,17 @@ void itemdata_help(int id)
 
 void test_item(itemdata test, int x, int y)
 {
-    itemdata *hold = itemsbuf;
-    itemsbuf = &test;
+    //TODO FIX THIS SUPER DIRTY HACK!!
+    //itemdata *hold = itemsbuf;
+    //itemsbuf = &test;
+    Quest *oldquest = curQuest;
+    Quest tmp;
+    curQuest = &tmp;
+    tmp.getModule("TMP").itemDefTable().addItemDefinition(test);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     BITMAP *buf2 = create_bitmap_ex(8,64,64);
     
-    item temp((fix)0,(fix)0,(fix)0,0,0,0);
+    item temp((fix)0,(fix)0,(fix)0,ItemDefinitionRef("TMP",0),0,0);
     temp.yofs = 0;
     go();
     itemdata_dlg[0].flags=0;
@@ -1582,72 +1580,73 @@ void test_item(itemdata test, int x, int y)
     
     destroy_bitmap(buf);
     destroy_bitmap(buf2);
-    itemsbuf = hold;
+    curQuest = oldquest;
 }
 
 
-void edit_itemdata(int index)
+void edit_itemdata(ItemDefinitionRef itemref)
 {
-    char frm[8], spd[8], fcs[8], dly[8], ltm[8];
-    char /*cls[8],*/ cll[8], amt[8], fmx[8], max[8], asn[8];
-    char snd[8], mgc[8], hrt[8], pow[8];
-    char name[64], zname[64];
-    char ms1[8], ms2[8], ms3[8], ms4[8], ms5[8], ms6[8], ms7[8], ms8[8], ms9[8], ms10[8];
-	char wrange[8], wdur[8], wdef[8], wweap[8], wptrn[8], warg1[8], warg2[8], warg3[8], warg4[8], warg5[8], warg6[8];
+    
+    char frm[32], spd[32], fcs[32], dly[32], ltm[32];
+    char /*cls[8],*/ cll[32], amt[32], fmx[32], max[32], asn[32];
+    char snd[32], mgc[32], hrt[32], pow[32];
+    char name[64];
+    char ms1[32], ms2[32], ms3[32], ms4[32], ms5[32], ms6[32], ms7[32], ms8[32], ms9[32], ms10[32];
+	char wrange[32], wdur[32], wdef[32], wweap[32], wptrn[32], warg1[32], warg2[32], warg3[32], warg4[32], warg5[32], warg6[32];
     char itemnumstr[75];
     char da[10][13];
     
-    sprintf(itemnumstr,"Item %d: %s", index, item_string[index]);
-    sprintf(fcs,"%d",itemsbuf[index].csets>>4);
-    sprintf(frm,"%d",itemsbuf[index].frames);
-    sprintf(spd,"%d",itemsbuf[index].speed);
-    sprintf(dly,"%d",itemsbuf[index].delay);
-    sprintf(ltm,"%ld",itemsbuf[index].ltm);
-    sprintf(cll,"%d",itemsbuf[index].fam_type);
-    sprintf(amt,"%d",(itemsbuf[index].amount&0x4000)?(-(itemsbuf[index].amount&0x3FFF)):(itemsbuf[index].amount&0x3FFF));
-    sprintf(fmx,"%d",itemsbuf[index].max);
-    sprintf(max,"%d",itemsbuf[index].setmax);
-    sprintf(snd,"%d",itemsbuf[index].playsound);
-    sprintf(ms1,"%ld",itemsbuf[index].misc1);
-    sprintf(ms2,"%ld",itemsbuf[index].misc2);
-    sprintf(ms3,"%ld",itemsbuf[index].misc3);
-    sprintf(ms4,"%ld",itemsbuf[index].misc4);
-    sprintf(ms5,"%ld",itemsbuf[index].misc5);
-    sprintf(ms6,"%ld",itemsbuf[index].misc6);
-    sprintf(ms7,"%ld",itemsbuf[index].misc7);
-    sprintf(ms8,"%ld",itemsbuf[index].misc8);
-    sprintf(ms9,"%ld",itemsbuf[index].misc9);
-    sprintf(ms10,"%ld",itemsbuf[index].misc10);
-    sprintf(mgc,"%d",itemsbuf[index].magic);
-    sprintf(hrt,"%d",itemsbuf[index].pickup_hearts);
-    sprintf(pow,"%d",itemsbuf[index].power);
-    sprintf(asn,"%d",itemsbuf[index].usesound);
+    sprintf(itemnumstr,"Item %d: %s", itemref.slot, curQuest->getItemDefinition(itemref).name.c_str());
+    sprintf(fcs,"%d",curQuest->getItemDefinition(itemref).csets>>4);
+    sprintf(frm,"%d",curQuest->getItemDefinition(itemref).frames);
+    sprintf(spd,"%d",curQuest->getItemDefinition(itemref).speed);
+    sprintf(dly,"%d",curQuest->getItemDefinition(itemref).delay);
+    sprintf(ltm,"%ld",curQuest->getItemDefinition(itemref).ltm);
+    sprintf(cll,"%d",curQuest->getItemDefinition(itemref).fam_type);
+    sprintf(amt,"%d",(curQuest->getItemDefinition(itemref).amount&0x4000)?(-(curQuest->getItemDefinition(itemref).amount&0x3FFF)):(curQuest->getItemDefinition(itemref).amount&0x3FFF));
+    sprintf(fmx,"%d",curQuest->getItemDefinition(itemref).max);
+    sprintf(max,"%d",curQuest->getItemDefinition(itemref).setmax);
+    sprintf(snd,"%d",curQuest->getItemDefinition(itemref).playsound);
+    sprintf(ms1,"%ld",curQuest->getItemDefinition(itemref).misc1);
+    sprintf(ms2,"%ld",curQuest->getItemDefinition(itemref).misc2);
+    sprintf(ms3,"%ld",curQuest->getItemDefinition(itemref).misc3);
+    sprintf(ms4,"%ld",curQuest->getItemDefinition(itemref).misc4);
+    sprintf(ms5,"%ld",curQuest->getItemDefinition(itemref).misc5);
+    sprintf(ms6,"%ld",curQuest->getItemDefinition(itemref).misc6);
+    sprintf(ms7,"%ld",curQuest->getItemDefinition(itemref).misc7);
+    sprintf(ms8,"%ld",curQuest->getItemDefinition(itemref).misc8);
+    sprintf(ms9,"%ld",curQuest->getItemDefinition(itemref).misc9);
+    sprintf(ms10,"%ld",curQuest->getItemDefinition(itemref).misc10);
+    sprintf(mgc,"%d",curQuest->getItemDefinition(itemref).magic);
+    sprintf(hrt,"%d",curQuest->getItemDefinition(itemref).pickup_hearts);
+    sprintf(pow,"%d",curQuest->getItemDefinition(itemref).power);
+    sprintf(asn,"%d",curQuest->getItemDefinition(itemref).usesound);
     
     //New itemdata vars
-    sprintf(wrange,"%d",itemsbuf[index].weaprange);
-    sprintf(wdur,"%d",itemsbuf[index].weapduration);
-    sprintf(wdef,"%d",itemsbuf[index].usedefence);
-    sprintf(wweap,"%d",itemsbuf[index].useweapon);
-    sprintf(wptrn,"%d",itemsbuf[index].weap_pattern[0]);
-    sprintf(warg1,"%d",itemsbuf[index].weap_pattern[1]);
-    sprintf(warg2,"%d",itemsbuf[index].weap_pattern[2]);
-    sprintf(warg3,"%d",itemsbuf[index].weap_pattern[3]);
-    sprintf(warg4,"%d",itemsbuf[index].weap_pattern[4]);
-    sprintf(warg5,"%d",itemsbuf[index].weap_pattern[5]);
-    sprintf(warg6,"%d",itemsbuf[index].weap_pattern[6]);
+    sprintf(wrange,"%d",curQuest->getItemDefinition(itemref).weaprange);
+    sprintf(wdur,"%d",curQuest->getItemDefinition(itemref).weapduration);
+    sprintf(wdef,"%d",curQuest->getItemDefinition(itemref).usedefence);
+    sprintf(wweap,"%d",curQuest->getItemDefinition(itemref).useweapon);
+    sprintf(wptrn,"%d",curQuest->getItemDefinition(itemref).weap_pattern[0]);
+    sprintf(warg1,"%d",curQuest->getItemDefinition(itemref).weap_pattern[1]);
+    sprintf(warg2,"%d",curQuest->getItemDefinition(itemref).weap_pattern[2]);
+    sprintf(warg3,"%d",curQuest->getItemDefinition(itemref).weap_pattern[3]);
+    sprintf(warg4,"%d",curQuest->getItemDefinition(itemref).weap_pattern[4]);
+    sprintf(warg5,"%d",curQuest->getItemDefinition(itemref).weap_pattern[5]);
+    sprintf(warg6,"%d",curQuest->getItemDefinition(itemref).weap_pattern[6]);
   
     
-    sprintf(name,"%s",item_string[index]);
+    snprintf(name, 63, "%s",curQuest->getItemDefinition(itemref).name.c_str());
     
     
     
     
     
     for(int j=0; j<8; j++)
-        sprintf(da[j],"%.4f",itemsbuf[index].initiald[j]/10000.0);
+        sprintf(da[j],"%.4f",curQuest->getItemDefinition(itemref).initiald[j]/10000.0);
         
-    sprintf(da[8],"%d",itemsbuf[index].initiala[0]/10000);
-    sprintf(da[9],"%d",itemsbuf[index].initiala[1]/10000);
+    sprintf(da[8],"%d",curQuest->getItemDefinition(itemref).initiala[0]/10000);
+    sprintf(da[9],"%d",curQuest->getItemDefinition(itemref).initiala[1]/10000);
     
     itemdata_dlg[0].dp = itemnumstr;
     itemdata_dlg[0].dp2 = lfont;
@@ -1657,27 +1656,22 @@ void edit_itemdata(int index)
         build_biic_list();
     }
     
-    if(biw_cnt==-1)
-    {
-        build_biw_list(); //built-in weapons
-    }
-    
     itemdata_dlg[7].dp = name;
     
     for(int j=0; j<biic_cnt; j++)
     {
-        if(biic[j].i == itemsbuf[index].family)
+        if(biic[j].i == curQuest->getItemDefinition(itemref).family)
             itemdata_dlg[9].d1 = j;
     }
     
     itemdata_dlg[11].dp = cll;
     itemdata_dlg[13].dp = pow;
-    itemdata_dlg[14].flags = (itemsbuf[index].flags&ITEM_GAMEDATA) ? D_SELECTED : 0;
-    itemdata_dlg[15].flags = (itemsbuf[index].flags&ITEM_FLAG1) ? D_SELECTED : 0;
-    itemdata_dlg[16].flags = (itemsbuf[index].flags&ITEM_FLAG2) ? D_SELECTED : 0;
-    itemdata_dlg[17].flags = (itemsbuf[index].flags&ITEM_FLAG3) ? D_SELECTED : 0;
-    itemdata_dlg[18].flags = (itemsbuf[index].flags&ITEM_FLAG4) ? D_SELECTED : 0;
-    itemdata_dlg[19].flags = (itemsbuf[index].flags&ITEM_FLAG5) ? D_SELECTED : 0;
+    itemdata_dlg[14].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
+    itemdata_dlg[15].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
+    itemdata_dlg[16].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
+    itemdata_dlg[17].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
+    itemdata_dlg[18].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
+    itemdata_dlg[19].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
     itemdata_dlg[21].dp = ms1;
     itemdata_dlg[23].dp = ms2;
     itemdata_dlg[25].dp = ms3;
@@ -1694,69 +1688,37 @@ void edit_itemdata(int index)
     itemdata_dlg[62].dp = spd;
     itemdata_dlg[64].dp = dly;
     itemdata_dlg[66].dp = ltm;
-    itemdata_dlg[68].d1 = itemsbuf[index].tile;
-    itemdata_dlg[68].d2 = itemsbuf[index].csets&15;
-    itemdata_dlg[69].flags = (itemsbuf[index].misc&1) ? D_SELECTED : 0;
-    itemdata_dlg[70].flags = (itemsbuf[index].misc&2) ? D_SELECTED : 0;
+    itemdata_dlg[68].d1 = curQuest->getItemDefinition(itemref).tile;
+    itemdata_dlg[68].d2 = curQuest->getItemDefinition(itemref).csets&15;
+    itemdata_dlg[69].flags = (curQuest->getItemDefinition(itemref).misc&1) ? D_SELECTED : 0;
+    itemdata_dlg[70].flags = (curQuest->getItemDefinition(itemref).misc&2) ? D_SELECTED : 0;
     
     itemdata_dlg[93].dp = amt;
-    itemdata_dlg[94].flags = (itemsbuf[index].amount & 0x8000)  ? D_SELECTED : 0;
-    itemdata_dlg[96].d1 = itemsbuf[index].count+1;
+    itemdata_dlg[94].flags = (curQuest->getItemDefinition(itemref).amount & 0x8000)  ? D_SELECTED : 0;
+    itemdata_dlg[96].d1 = curQuest->getItemDefinition(itemref).count+1;
     itemdata_dlg[98].dp = fmx;
     itemdata_dlg[100].dp = max;
     itemdata_dlg[104].dp = snd;
     itemdata_dlg[106].dp = hrt;
     
-    itemdata_dlg[107].flags = (itemsbuf[index].flags&ITEM_KEEPOLD) ? D_SELECTED : 0;
-    itemdata_dlg[108].flags = (itemsbuf[index].flags&ITEM_GAINOLD) ? D_SELECTED : 0;
-    itemdata_dlg[109].flags = (itemsbuf[index].flags&ITEM_EDIBLE) ? D_SELECTED : 0;
-    itemdata_dlg[110].flags = (itemsbuf[index].flags&ITEM_COMBINE) ? D_SELECTED : 0;
+    itemdata_dlg[107].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_KEEPOLD) ? D_SELECTED : 0;
+    itemdata_dlg[108].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAINOLD) ? D_SELECTED : 0;
+    itemdata_dlg[109].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_EDIBLE) ? D_SELECTED : 0;
+    itemdata_dlg[110].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_COMBINE) ? D_SELECTED : 0;
     
     itemdata_dlg[134].dp = mgc;
     itemdata_dlg[136].dp = asn;
-    itemdata_dlg[137].flags = (itemsbuf[index].flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
-    itemdata_dlg[138].flags = (itemsbuf[index].flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
+    itemdata_dlg[137].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
+    itemdata_dlg[138].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
     
+    const char *nonestring = "(None)";
+
     for(int i=0; i<10; ++i)
     {
-//    itemdata_dlg[140+(i*2)].dp3 = is_large ? sfont3 : pfont;
         itemdata_dlg[140+(i*2)].dp3 = is_large() ? lfont_l : pfont;
+        itemdata_dlg[140 + (i * 2)].dp = (void *)(curQuest->isValid(curQuest->getItemDefinition(itemref).wpns[i]) ? curQuest->getSpriteDefinition(curQuest->getItemDefinition(itemref).wpns[i]).name.c_str() : nonestring);
     }
-    
-    
-    for(int j=0; j<biw_cnt; j++)
-    {
-        if(biw[j].i == itemsbuf[index].wpn)
-            itemdata_dlg[140].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn2)
-            itemdata_dlg[142].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn3)
-            itemdata_dlg[144].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn4)
-            itemdata_dlg[146].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn5)
-            itemdata_dlg[148].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn6)
-            itemdata_dlg[150].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn7)
-            itemdata_dlg[152].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn8)
-            itemdata_dlg[154].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn9)
-            itemdata_dlg[156].d1 = j;
-            
-        if(biw[j].i == itemsbuf[index].wpn10)
-            itemdata_dlg[158].d1 = j;
-    }
-    
+        
     for(int j=0; j<8; j++)
         itemdata_dlg[187+j].dp = da[j];
         
@@ -1768,10 +1730,10 @@ void edit_itemdata(int index)
     
     for(int j = 0; j < biitems_cnt; j++)
     {
-        if(biitems[j].second == itemsbuf[index].script - 1)
+        if(biitems[j].second == curQuest->getItemDefinition(itemref).script - 1)
             script = j;
             
-        if(biitems[j].second == itemsbuf[index].collect_script - 1)
+        if(biitems[j].second == curQuest->getItemDefinition(itemref).collect_script - 1)
             pickupscript = j;
     }
     
@@ -1797,9 +1759,9 @@ void edit_itemdata(int index)
     
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[200].d1 = itemsbuf[index].useweapon;
-    itemdata_dlg[202].d1 = itemsbuf[index].usedefence;
-    itemdata_dlg[204].d1 = itemsbuf[index].weap_pattern[0];
+     itemdata_dlg[200].d1 = curQuest->getItemDefinition(itemref).useweapon;
+    itemdata_dlg[202].d1 = curQuest->getItemDefinition(itemref).usedefence;
+    itemdata_dlg[204].d1 = curQuest->getItemDefinition(itemref).weap_pattern[0];
     
     //.dp is correcxt here, and these now work, and are retained. -Z
     itemdata_dlg[206].dp = warg1; //itemsbuf[index].weap_pattern[1];
@@ -1807,18 +1769,17 @@ void edit_itemdata(int index)
     itemdata_dlg[210].dp = wrange; //itemsbuf[index].weaprange;
     itemdata_dlg[212].dp = wdur; //itemsbuf[index].weapduration;
     
-     itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
+    itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
     itemdata_dlg[216].dp = warg4; //itemsbuf[index].weap_pattern[2];
     itemdata_dlg[218].dp = warg5; //itemsbuf[index].weaprange;
     itemdata_dlg[220].dp = warg6; //itemsbuf[index].weapduration;
     
     
     int ret;
-    itemdata test;
-    memset(&test, 0, sizeof(itemdata));
+    itemdata test = curQuest->getItemDefinition(itemref);
     test.playsound = 25;
     
-    setLabels(itemsbuf[index].family, itemdata_dlg);
+    setLabels(curQuest->getItemDefinition(itemref).family, itemdata_dlg);
     FONT *tfont=font;
     font=pfont;
 
@@ -1827,392 +1788,326 @@ void edit_itemdata(int index)
             
     do
     {
-        ret = zc_popup_dialog(itemdata_cpy,3);
-        test.misc  = 0;
+        ret = zc_popup_dialog(itemdata_cpy, 3);
+        test.misc = 0;
         test.flags = 0;
-        
+
         test.fam_type = vbound(atoi(cll), 1, 255);
-        test.count = itemdata_cpy[96].d1-1;
-        test.amount = atoi(amt)<0?-(vbound(atoi(amt), -0x3FFF, 0))|0x4000:vbound(atoi(amt), 0, 0x3FFF);
+        test.count = itemdata_cpy[96].d1 - 1;
+        test.amount = atoi(amt) < 0 ? -(vbound(atoi(amt), -0x3FFF, 0)) | 0x4000 : vbound(atoi(amt), 0, 0x3FFF);
         test.setmax = atoi(max);
         test.max = atoi(fmx);
         test.script = biitems[itemdata_cpy[132].d1].second + 1;
         test.playsound = vbound(atoi(snd), 0, 127);
         test.collect_script = biitems[itemdata_cpy[102].d1].second + 1;
-        test.misc1  = atoi(ms1);
-        test.misc2  = atoi(ms2);
-        test.misc3  = atoi(ms3);
-        test.misc4  = atoi(ms4);
-        test.misc5  = atoi(ms5);
-        test.misc6  = atoi(ms6);
-        test.misc7  = atoi(ms7);
-        test.misc8  = atoi(ms8);
-        test.misc9  = atoi(ms9);
+        test.misc1 = atoi(ms1);
+        test.misc2 = atoi(ms2);
+        test.misc3 = atoi(ms3);
+        test.misc4 = atoi(ms4);
+        test.misc5 = atoi(ms5);
+        test.misc6 = atoi(ms6);
+        test.misc7 = atoi(ms7);
+        test.misc8 = atoi(ms8);
+        test.misc9 = atoi(ms9);
         test.misc10 = atoi(ms10);
         test.magic = vbound(atoi(mgc), 0, 255);
         test.pickup_hearts = vbound(atoi(hrt), 0, 255);
         test.power = vbound(atoi(pow), 0, 255);
         test.usesound = vbound(atoi(asn), 0, 127);
-        
+
         test.family = vbound(biic[itemdata_cpy[9].d1].i, 0, 255);
-	
-	//New itemdata vars -Z
-	
-	//! These now store in the editor, but if you change the values, save the quest, and reload, 
-	//! ZQuest crashes on reading items (bad token)
-	test.usedefence =  itemdata_cpy[202].d1; //atoi(wdef);
-	test.weaprange = vbound(atoi(wrange),0,214747);
-	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_cpy[200].d1;; //atoi(wweap);
-	test.weap_pattern[0] = itemdata_cpy[204].d1;; //atoi(wptrn);
-	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
-	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
-	
-	test.weap_pattern[3] =  vbound(atoi(warg3),-214747, 214747);
-	test.weap_pattern[4] =  vbound(atoi(warg4),-214747, 214747);
-	test.weap_pattern[5] =  vbound(atoi(warg5),-214747, 214747);
-	test.weap_pattern[6] =  vbound(atoi(warg6),-214747, 214747);
-        
-        if(itemdata_cpy[14].flags & D_SELECTED)
-            test.flags |= ITEM_GAMEDATA;
-            
-        if(itemdata_cpy[15].flags & D_SELECTED)
-            test.flags |= ITEM_FLAG1;
-            
-        if(itemdata_cpy[16].flags & D_SELECTED)
-            test.flags |= ITEM_FLAG2;
-            
-        if(itemdata_cpy[17].flags & D_SELECTED)
-            test.flags |= ITEM_FLAG3;
-            
-        if(itemdata_cpy[18].flags & D_SELECTED)
-            test.flags |= ITEM_FLAG4;
-            
-        if(itemdata_cpy[19].flags & D_SELECTED)
-            test.flags |= ITEM_FLAG5;
-            
-        test.tile  = itemdata_cpy[68].d1;
+
+        //New itemdata vars -Z
+
+        //! These now store in the editor, but if you change the values, save the quest, and reload, 
+        //! ZQuest crashes on reading items (bad token)
+        test.usedefence = itemdata_cpy[202].d1; //atoi(wdef);
+        test.weaprange = vbound(atoi(wrange), 0, 214747);
+        test.weapduration = vbound(atoi(wdur), 0, 214747);
+        test.useweapon = itemdata_cpy[200].d1;; //atoi(wweap);
+        test.weap_pattern[0] = itemdata_cpy[204].d1;; //atoi(wptrn);
+        test.weap_pattern[1] = vbound(atoi(warg1), -214747, 214747);
+        test.weap_pattern[2] = vbound(atoi(warg2), -214747, 214747);
+
+        test.weap_pattern[3] = vbound(atoi(warg3), -214747, 214747);
+        test.weap_pattern[4] = vbound(atoi(warg4), -214747, 214747);
+        test.weap_pattern[5] = vbound(atoi(warg5), -214747, 214747);
+        test.weap_pattern[6] = vbound(atoi(warg6), -214747, 214747);
+
+        if (itemdata_cpy[14].flags & D_SELECTED)
+            test.flags |= itemdata::IF_GAMEDATA;
+
+        if (itemdata_cpy[15].flags & D_SELECTED)
+            test.flags |= itemdata::IF_FLAG1;
+
+        if (itemdata_cpy[16].flags & D_SELECTED)
+            test.flags |= itemdata::IF_FLAG2;
+
+        if (itemdata_cpy[17].flags & D_SELECTED)
+            test.flags |= itemdata::IF_FLAG3;
+
+        if (itemdata_cpy[18].flags & D_SELECTED)
+            test.flags |= itemdata::IF_FLAG4;
+
+        if (itemdata_cpy[19].flags & D_SELECTED)
+            test.flags |= itemdata::IF_FLAG5;
+
+        test.tile = itemdata_cpy[68].d1;
         test.csets = itemdata_cpy[68].d2;
-	
-	//New itemdata -Z
-	
-	
-        
-        if(itemdata_cpy[69].flags & D_SELECTED)
+
+        //New itemdata -Z
+
+
+
+        if (itemdata_cpy[69].flags & D_SELECTED)
             test.misc |= 1;
-            
-        if(itemdata_cpy[70].flags & D_SELECTED)
+
+        if (itemdata_cpy[70].flags & D_SELECTED)
             test.misc |= 2;
-            
+
         test.amount |= (itemdata_cpy[94].flags & D_SELECTED) ? 0x8000 : 0;
-        
-        if(itemdata_cpy[107].flags & D_SELECTED)
-            test.flags |= ITEM_KEEPOLD;
-            
-        if(itemdata_cpy[108].flags & D_SELECTED)
-            test.flags |= ITEM_GAINOLD;
-            
-        if(itemdata_cpy[109].flags & D_SELECTED)
-            test.flags |= ITEM_EDIBLE;
-            
-        if(itemdata_cpy[110].flags & D_SELECTED)
-            test.flags |= ITEM_COMBINE;
-            
-        if(itemdata_cpy[137].flags & D_SELECTED)
-            test.flags |= ITEM_DOWNGRADE;
-            
-        if(itemdata_cpy[138].flags & D_SELECTED)
-            test.flags |= ITEM_RUPEE_MAGIC;
-            
-        test.csets  |= (atoi(fcs)&15)<<4;
-        test.frames = zc_min(atoi(frm),255);
-        test.speed  = zc_min(atoi(spd),255);
-        test.delay  = zc_min(atoi(dly),255);
-        test.ltm    = zc_max(zc_min(atol(ltm),NEWMAXTILES-1),0-(NEWMAXTILES-1));
-        test.wpn   = biw[itemdata_cpy[140].d1].i;
-        test.wpn2  = biw[itemdata_cpy[142].d1].i;
-        test.wpn3  = biw[itemdata_cpy[144].d1].i;
-        test.wpn4  = biw[itemdata_cpy[146].d1].i;
-        test.wpn5  = biw[itemdata_cpy[148].d1].i;
-        test.wpn6  = biw[itemdata_cpy[150].d1].i;
-        test.wpn7  = biw[itemdata_cpy[152].d1].i;
-        test.wpn8  = biw[itemdata_cpy[154].d1].i;
-        test.wpn9  = biw[itemdata_cpy[156].d1].i;
-        test.wpn10 = biw[itemdata_cpy[158].d1].i;
-        
-        for(int j=0; j<8; j++)
-            test.initiald[j] = vbound(ffparse(da[j]),-327680000, 327680000);
-            
-        test.initiala[0] = vbound(atoi(da[8])*10000,0,320000);
-        test.initiala[1] = vbound(atoi(da[9])*10000,0,320000);
-        
-        if(ret == 40)
+
+        if (itemdata_cpy[107].flags & D_SELECTED)
+            test.flags |= itemdata::IF_KEEPOLD;
+
+        if (itemdata_cpy[108].flags & D_SELECTED)
+            test.flags |= itemdata::IF_GAINOLD;
+
+        if (itemdata_cpy[109].flags & D_SELECTED)
+            test.flags |= itemdata::IF_EDIBLE;
+
+        if (itemdata_cpy[110].flags & D_SELECTED)
+            test.flags |= itemdata::IF_COMBINE;
+
+        if (itemdata_cpy[137].flags & D_SELECTED)
+            test.flags |= itemdata::IF_DOWNGRADE;
+
+        if (itemdata_cpy[138].flags & D_SELECTED)
+            test.flags |= itemdata::IF_RUPEE_MAGIC;
+
+        test.csets |= (atoi(fcs) & 15) << 4;
+        test.frames = zc_min(atoi(frm), 255);
+        test.speed = zc_min(atoi(spd), 255);
+        test.delay = zc_min(atoi(dly), 255);
+        test.ltm = zc_max(zc_min(atol(ltm), NEWMAXTILES - 1), 0 - (NEWMAXTILES - 1));
+
+
+        for (int j = 0; j < 10; j++)
+        {
+            if (ret == 140 + 2 * j)
+            {
+                int status;
+                SpriteDefinitionRef ref = select_sprite("Select Weapon Sprite", test.wpns[j], false, status);
+                if (status == 4)
+                {
+                    test.wpns[j] = ref;
+                    itemdata_cpy[140 + (j * 2)].dp = (void *)(curQuest->isValid(test.wpns[j]) ? curQuest->getSpriteDefinition(test.wpns[j]).name.c_str() : nonestring);
+                }
+            }
+        }
+
+        for (int j = 0; j < 8; j++)
+            test.initiald[j] = vbound(ffparse(da[j]), -327680000, 327680000);
+
+        test.initiala[0] = vbound(atoi(da[8]) * 10000, 0, 320000);
+        test.initiala[1] = vbound(atoi(da[9]) * 10000, 0, 320000);
+
+        if (ret == 40)
         {
             itemdata_help(test.family);
         }
-        
-        if(ret==71)
+
+        if (ret == 71)
         {
-            test_item(test, itemdata_cpy[0].x+ itemdata_cpy[0].w/2-(is_large()?34:10), itemdata_cpy[0].y+ itemdata_cpy[0].h/2-(is_large()?34:10));
-            sprintf(fcs,"%d",test.csets>>4);
-            sprintf(frm,"%d",test.frames);
-            sprintf(spd,"%d",test.speed);
-            sprintf(dly,"%d",test.delay);
-            sprintf(ltm,"%ld",test.ltm);
-            
-            sprintf(cll,"%d",test.fam_type);
-            sprintf(amt,"%d",test.amount&0x4000?-(test.amount&0x3FFF):test.amount&0x3FFF);
-            sprintf(fmx,"%d",test.max);
-            sprintf(max,"%d",test.setmax);
+            test_item(test, itemdata_cpy[0].x + itemdata_cpy[0].w / 2 - (is_large() ? 34 : 10), itemdata_cpy[0].y + itemdata_cpy[0].h / 2 - (is_large() ? 34 : 10));
+            sprintf(fcs, "%d", test.csets >> 4);
+            sprintf(frm, "%d", test.frames);
+            sprintf(spd, "%d", test.speed);
+            sprintf(dly, "%d", test.delay);
+            sprintf(ltm, "%ld", test.ltm);
+
+            sprintf(cll, "%d", test.fam_type);
+            sprintf(amt, "%d", test.amount & 0x4000 ? -(test.amount & 0x3FFF) : test.amount & 0x3FFF);
+            sprintf(fmx, "%d", test.max);
+            sprintf(max, "%d", test.setmax);
         }
-        
-        if(ret==5)
+
+        if (ret == 5)
         {
             //do not reset graphics fields! -DD
             //memset(&test, 0, sizeof(itemdata));
             //test.family=0xFF;
-            
-            reset_itembuf(&test, index);
-            
-            sprintf(fcs,"%d",test.csets>>4);
-            sprintf(frm,"%d",test.frames);
-            sprintf(spd,"%d",test.speed);
-            sprintf(dly,"%d",test.delay);
-            sprintf(ltm,"%ld",test.ltm);
-            sprintf(cll,"%d",test.fam_type);
-            sprintf(amt,"%d",test.amount&0x4000?-(test.amount&0x3FFF):test.amount&0x3FFF);
-            sprintf(fmx,"%d",test.max);
-            sprintf(max,"%d",test.setmax);
+
+            reset_itembuf(&test, itemref);
+
+            sprintf(fcs, "%d", test.csets >> 4);
+            sprintf(frm, "%d", test.frames);
+            sprintf(spd, "%d", test.speed);
+            sprintf(dly, "%d", test.delay);
+            sprintf(ltm, "%ld", test.ltm);
+            sprintf(cll, "%d", test.fam_type);
+            sprintf(amt, "%d", test.amount & 0x4000 ? -(test.amount & 0x3FFF) : test.amount & 0x3FFF);
+            sprintf(fmx, "%d", test.max);
+            sprintf(max, "%d", test.setmax);
             pickupscript = test.script;
-            sprintf(snd,"%d",test.playsound);
+            sprintf(snd, "%d", test.playsound);
             pickupscript = test.collect_script;
-            sprintf(ms1,"%ld",test.misc1);
-            sprintf(ms2,"%ld",test.misc2);
-            sprintf(ms3,"%ld",test.misc3);
-            sprintf(ms4,"%ld",test.misc4);
-            sprintf(ms5,"%ld",test.misc5);
-            sprintf(ms6,"%ld",test.misc6);
-            sprintf(ms7,"%ld",test.misc7);
-            sprintf(ms8,"%ld",test.misc8);
-            sprintf(ms9,"%ld",test.misc9);
-            sprintf(ms10,"%ld",test.misc10);
-            sprintf(mgc,"%d",test.magic);
-            sprintf(hrt,"%d",test.pickup_hearts);
-            sprintf(pow,"%d",test.power);
-            sprintf(asn,"%d",test.usesound);
-	    
-	    //New itemdata vars -Z
-	    
-	    sprintf(wrange,"%d",test.weaprange);
-	    sprintf(wdur,"%d",test.weapduration);
-	    sprintf(wdef,"%d",test.usedefence);
-	    sprintf(wweap,"%d",test.useweapon);
-	    sprintf(wptrn,"%d",test.weap_pattern[0]);
-	    sprintf(warg1,"%d",test.weap_pattern[1]);
-	    sprintf(warg2,"%d",test.weap_pattern[2]);
-	    
-            sprintf(zname, "zz%03d", index);
-            sprintf(name,"%s",index<iLast?old_item_string[index]:zname);
-            
-            for(int j=0; j<8; j++)
-                sprintf(da[j],"%.4f",test.initiald[j]/10000.0);
-                
-            sprintf(da[8],"%d",test.initiala[0]/10000);
-            sprintf(da[9],"%d",test.initiala[1]/10000);
-            sprintf(itemnumstr,"Item %d: %s", index, name);
-            
-			itemdata_cpy[0].dp = itemnumstr;
-			itemdata_cpy[0].dp2 = lfont;
-            
-            if(biic_cnt==-1)
+            sprintf(ms1, "%ld", test.misc1);
+            sprintf(ms2, "%ld", test.misc2);
+            sprintf(ms3, "%ld", test.misc3);
+            sprintf(ms4, "%ld", test.misc4);
+            sprintf(ms5, "%ld", test.misc5);
+            sprintf(ms6, "%ld", test.misc6);
+            sprintf(ms7, "%ld", test.misc7);
+            sprintf(ms8, "%ld", test.misc8);
+            sprintf(ms9, "%ld", test.misc9);
+            sprintf(ms10, "%ld", test.misc10);
+            sprintf(mgc, "%d", test.magic);
+            sprintf(hrt, "%d", test.pickup_hearts);
+            sprintf(pow, "%d", test.power);
+            sprintf(asn, "%d", test.usesound);
+
+            //New itemdata vars -Z
+
+            sprintf(wrange, "%d", test.weaprange);
+            sprintf(wdur, "%d", test.weapduration);
+            sprintf(wdef, "%d", test.usedefence);
+            sprintf(wweap, "%d", test.useweapon);
+            sprintf(wptrn, "%d", test.weap_pattern[0]);
+            sprintf(warg1, "%d", test.weap_pattern[1]);
+            sprintf(warg2, "%d", test.weap_pattern[2]);
+
+            sprintf(name, "%s", curQuest->getItemDefinition(itemref).name.c_str());
+
+            for (int j = 0; j < 8; j++)
+                sprintf(da[j], "%.4f", test.initiald[j] / 10000.0);
+
+            sprintf(da[8], "%d", test.initiala[0] / 10000);
+            sprintf(da[9], "%d", test.initiala[1] / 10000);
+            sprintf(itemnumstr, "Item %d: %s", itemref.slot, name);
+
+            itemdata_cpy[0].dp = itemnumstr;
+            itemdata_cpy[0].dp2 = lfont;
+
+            if (biic_cnt == -1)
             {
                 build_biic_list();
             }
-            
-            if(biw_cnt==-1)
+
+            itemdata_cpy[7].dp = name;
+
+            for (int j = 0; j < biic_cnt; j++)
             {
-                build_biw_list();
+                if (biic[j].i == test.family)
+                    itemdata_cpy[9].d1 = j;
             }
-            
-			itemdata_cpy[7].dp = name;
-            
-            for(int j=0; j<biic_cnt; j++)
+
+            itemdata_cpy[11].dp = cll;
+            itemdata_cpy[13].dp = pow;
+            itemdata_cpy[14].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_GAMEDATA) ? D_SELECTED : 0;
+            itemdata_cpy[15].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG1) ? D_SELECTED : 0;
+            itemdata_cpy[16].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG2) ? D_SELECTED : 0;
+            itemdata_cpy[17].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG3) ? D_SELECTED : 0;
+            itemdata_cpy[18].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG4) ? D_SELECTED : 0;
+            itemdata_cpy[19].flags = (curQuest->getItemDefinition(itemref).flags & itemdata::IF_FLAG5) ? D_SELECTED : 0;
+            itemdata_cpy[21].dp = ms1;
+            itemdata_cpy[23].dp = ms2;
+            itemdata_cpy[25].dp = ms3;
+            itemdata_cpy[27].dp = ms4;
+            itemdata_cpy[29].dp = ms5;
+            itemdata_cpy[31].dp = ms6;
+            itemdata_cpy[33].dp = ms7;
+            itemdata_cpy[35].dp = ms8;
+            itemdata_cpy[37].dp = ms9;
+            itemdata_cpy[39].dp = ms10;
+
+            itemdata_cpy[58].dp = fcs;
+            itemdata_cpy[60].dp = frm;
+            itemdata_cpy[62].dp = spd;
+            itemdata_cpy[64].dp = dly;
+            itemdata_cpy[66].dp = ltm;
+            itemdata_cpy[68].d1 = test.tile;
+            itemdata_cpy[68].d2 = test.csets & 15;
+            itemdata_cpy[69].flags = (test.misc & 1) ? D_SELECTED : 0;
+            itemdata_cpy[70].flags = (test.misc & 2) ? D_SELECTED : 0;
+
+            itemdata_cpy[93].dp = amt;
+            itemdata_cpy[94].flags = (test.amount & 0x8000) ? D_SELECTED : 0;
+            itemdata_cpy[96].d1 = curQuest->getItemDefinition(itemref).count + 1;
+            itemdata_cpy[98].dp = fmx;
+            itemdata_cpy[100].dp = max;
+            itemdata_cpy[102].d1 = pickupscript;
+            itemdata_cpy[104].dp = snd;
+            itemdata_cpy[106].dp = hrt;
+
+            itemdata_cpy[107].flags = (test.flags & itemdata::IF_KEEPOLD) ? D_SELECTED : 0;
+            itemdata_cpy[108].flags = (test.flags & itemdata::IF_GAINOLD) ? D_SELECTED : 0;
+            itemdata_cpy[109].flags = (test.flags & itemdata::IF_EDIBLE) ? D_SELECTED : 0;
+            itemdata_cpy[110].flags = (test.flags & itemdata::IF_COMBINE) ? D_SELECTED : 0;
+
+            itemdata_cpy[132].d1 = script;
+            itemdata_cpy[134].dp = mgc;
+            itemdata_cpy[136].dp = asn;
+            itemdata_cpy[137].flags = (test.flags & itemdata::IF_DOWNGRADE) ? D_SELECTED : 0;
+            itemdata_cpy[138].flags = (test.flags & itemdata::IF_RUPEE_MAGIC) ? D_SELECTED : 0;
+
+            for (int i = 0; i < 10; ++i)
             {
-                if(biic[j].i == test.family)
-					itemdata_cpy[9].d1 = j;
+                itemdata_cpy[140 + (i * 2)].dp = (void *)(curQuest->isValid(test.wpns[i]) ? curQuest->getSpriteDefinition(test.wpns[i]).name.c_str() : nonestring);
             }
-            
-			itemdata_cpy[11].dp = cll;
-			itemdata_cpy[13].dp = pow;
-			itemdata_cpy[14].flags = (itemsbuf[index].flags&ITEM_GAMEDATA) ? D_SELECTED : 0;
-			itemdata_cpy[15].flags = (itemsbuf[index].flags&ITEM_FLAG1) ? D_SELECTED : 0;
-			itemdata_cpy[16].flags = (itemsbuf[index].flags&ITEM_FLAG2) ? D_SELECTED : 0;
-			itemdata_cpy[17].flags = (itemsbuf[index].flags&ITEM_FLAG3) ? D_SELECTED : 0;
-			itemdata_cpy[18].flags = (itemsbuf[index].flags&ITEM_FLAG4) ? D_SELECTED : 0;
-			itemdata_cpy[19].flags = (itemsbuf[index].flags&ITEM_FLAG5) ? D_SELECTED : 0;
-			itemdata_cpy[21].dp = ms1;
-			itemdata_cpy[23].dp = ms2;
-			itemdata_cpy[25].dp = ms3;
-			itemdata_cpy[27].dp = ms4;
-			itemdata_cpy[29].dp = ms5;
-			itemdata_cpy[31].dp = ms6;
-			itemdata_cpy[33].dp = ms7;
-			itemdata_cpy[35].dp = ms8;
-			itemdata_cpy[37].dp = ms9;
-			itemdata_cpy[39].dp = ms10;
-            
-			itemdata_cpy[58].dp = fcs;
-			itemdata_cpy[60].dp = frm;
-			itemdata_cpy[62].dp = spd;
-			itemdata_cpy[64].dp = dly;
-			itemdata_cpy[66].dp = ltm;
-			itemdata_cpy[68].d1 = test.tile;
-			itemdata_cpy[68].d2 = test.csets&15;
-			itemdata_cpy[69].flags = (test.misc&1) ? D_SELECTED : 0;
-			itemdata_cpy[70].flags = (test.misc&2) ? D_SELECTED : 0;
-            
-			itemdata_cpy[93].dp = amt;
-			itemdata_cpy[94].flags = (test.amount & 0x8000)  ? D_SELECTED : 0;
-			itemdata_cpy[96].d1 = itemsbuf[index].count+1;
-			itemdata_cpy[98].dp = fmx;
-			itemdata_cpy[100].dp = max;
-			itemdata_cpy[102].d1 = pickupscript;
-			itemdata_cpy[104].dp = snd;
-			itemdata_cpy[106].dp = hrt;
-            
-			itemdata_cpy[107].flags = (test.flags&ITEM_KEEPOLD) ? D_SELECTED : 0;
-			itemdata_cpy[108].flags = (test.flags&ITEM_GAINOLD) ? D_SELECTED : 0;
-			itemdata_cpy[109].flags = (test.flags&ITEM_EDIBLE) ? D_SELECTED : 0;
-			itemdata_cpy[110].flags = (test.flags&ITEM_COMBINE) ? D_SELECTED : 0;
-            
-			itemdata_cpy[132].d1 = script;
-			itemdata_cpy[134].dp = mgc;
-			itemdata_cpy[136].dp = asn;
-			itemdata_cpy[137].flags = (test.flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
-			itemdata_cpy[138].flags = (test.flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
-			
-			//! These now store in the editor, but if you change the values, save the quest, and reload, 
-	//! ZQuest crashes on reading items (bad token)
-			//string or int here? -Z
-			itemdata_cpy[200].d1 = test.useweapon; //atoi(wweap);
-			    itemdata_cpy[202].d1 = test.usedefence; //atoi(wdef);
-			    itemdata_cpy[204].d1 = test.weap_pattern[0]; //atoi(wptrn);
-			    itemdata_cpy[206].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_cpy[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_cpy[210].dp = wrange; //test.weaprange; //atoi(wrange);
-			    itemdata_cpy[212].dp = wdur;// = test.weapduration; //atoi(wdur);
-			    itemdata_cpy[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_cpy[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
-			    itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
-            
-            for(int j=0; j<biw_cnt; j++)
-            {
-                if(biw[j].i == test.wpn)
-					itemdata_cpy[140].d1 = j;
-                    
-                if(biw[j].i == test.wpn2)
-					itemdata_cpy[142].d1 = j;
-                    
-                if(biw[j].i == test.wpn3)
-					itemdata_cpy[144].d1 = j;
-                    
-                if(biw[j].i == test.wpn4)
-					itemdata_cpy[146].d1 = j;
-                    
-                if(biw[j].i == test.wpn5)
-					itemdata_cpy[148].d1 = j;
-                    
-                if(biw[j].i == test.wpn6)
-					itemdata_cpy[150].d1 = j;
-                    
-                if(biw[j].i == test.wpn7)
-					itemdata_cpy[152].d1 = j;
-                    
-                if(biw[j].i == test.wpn8)
-					itemdata_cpy[154].d1 = j;
-                    
-                if(biw[j].i == test.wpn9)
-					itemdata_cpy[156].d1 = j;
-                    
-                if(biw[j].i == test.wpn10)
-					itemdata_cpy[158].d1 = j;
-            }
-            
-            for(int j=0; j<8; j++)
-				itemdata_cpy[187+j].dp = da[j];
-                
-			itemdata_cpy[197].dp = da[8];
-			itemdata_cpy[198].dp = da[9];
-            
+
+            //! These now store in the editor, but if you change the values, save the quest, and reload, 
+    //! ZQuest crashes on reading items (bad token)
+            //string or int here? -Z
+            itemdata_cpy[200].d1 = test.useweapon; //atoi(wweap);
+            itemdata_cpy[202].d1 = test.usedefence; //atoi(wdef);
+            itemdata_cpy[204].d1 = test.weap_pattern[0]; //atoi(wptrn);
+            itemdata_cpy[206].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
+            itemdata_cpy[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
+            itemdata_cpy[210].dp = wrange; //test.weaprange; //atoi(wrange);
+            itemdata_cpy[212].dp = wdur;// = test.weapduration; //atoi(wdur);
+            itemdata_cpy[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
+            itemdata_cpy[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
+            itemdata_cpy[218].dp = warg5; //test.weaprange; //atoi(wrange);
+            itemdata_cpy[220].dp = warg6;// = test.weapduration; //atoi(wdur);
+
+            for (int j = 0; j < 8; j++)
+                itemdata_cpy[187 + j].dp = da[j];
+
+            itemdata_cpy[197].dp = da[8];
+            itemdata_cpy[198].dp = da[9];
+
             setLabels(test.family, itemdata_cpy);
         }
-        
-        if(ret==9)
+
+        if (ret == 9)
             setLabels(test.family, itemdata_cpy);
     }
-    while(ret==5 || ret==9 || ret==71 || ret==40);
+    while(ret != 0 && ret != 3 && ret != 4);
     
 	delete[] itemdata_cpy;
     font=tfont;
     
     if(ret==3)
     {
-        strcpy(item_string[index],name);
-        itemsbuf[index] = test;
+        test.name = name;
+        curQuest->getItemDefinition(itemref) = test;
         saved = false;
     }
     
 }
 
-extern DIALOG ilist_dlg[];
-static int copiedItem;
-static MENU ilist_rclick_menu[] =
-{
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
-};
-
-void ilist_rclick_func(int index, int x, int y)
-{
-    if(bii[index].i<0) // Clicked (none)?
-        return;
-    
-    if(copiedItem<0)
-        ilist_rclick_menu[1].flags|=D_DISABLED;
-    else
-        ilist_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int ret=popup_menu(ilist_rclick_menu, x, y);
-    
-    if(ret==0) // copy
-        copiedItem=bii[index].i;
-    else if(ret==1) // paste
-    {
-        itemsbuf[bii[index].i]=itemsbuf[copiedItem];
-        ilist_dlg[2].flags|=D_DIRTY;
-        saved=false;
-    }
-}
-
 int onCustomItems()
 {
-    /*
-      char *hold = item_string[0];
-      item_string[0] = "rupee (1)";
-      */
+    int ret;
+    ItemDefinitionRef index = select_item("Select Item",ItemDefinitionRef(),true,ret);
     
-    build_bii_list(false);
-    int foo;
-    int index = select_item("Select Item",bii[0].i,true,foo);
-    copiedItem=-1;
     
-    while(index >= 0)
+    while (curQuest->isValid(index))
     {
-        build_biw_list();
+        
         edit_itemdata(index);
-        index = select_item("Select Item",index,true,foo);
+        index = select_item("Select Item", index, true, ret);
     }
     
     refresh(rMAP+rCOMBOS);
@@ -2253,32 +2148,32 @@ static DIALOG wpndata_dlg[] =
 
 
 
-void edit_weapondata(int index)
+void edit_weapondata(const SpriteDefinitionRef &spriteref)
 {
     char frm[8], spd[8], fcs[8], typ[8];
     char name[64];
     char wpnnumstr[75];
     
-    sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
+    sprintf(wpnnumstr, "Sprite %d: %s", spriteref.slot, curQuest->getSpriteDefinition(spriteref).name.c_str());
     wpndata_dlg[0].dp  = wpnnumstr;
     wpndata_dlg[0].dp2 = lfont;
-    wpndata_dlg[2].d1  = wpnsbuf[index].tile;
-    wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
+    wpndata_dlg[2].d1  = curQuest->getSpriteDefinition(spriteref).tile;
+    wpndata_dlg[2].d2  = curQuest->getSpriteDefinition(spriteref).csets&15;
     
     for(int i=0; i<4; i++)
-        wpndata_dlg[i+5].flags = (wpnsbuf[index].misc&(1<<i)) ? D_SELECTED : 0;
+        wpndata_dlg[i+5].flags = (curQuest->getSpriteDefinition(spriteref).misc&(1<<i)) ? D_SELECTED : 0;
         
-    wpndata_dlg[17].flags = (wpnsbuf[index].misc & WF_BEHIND) ? D_SELECTED : 0;
+    wpndata_dlg[17].flags = (curQuest->getSpriteDefinition(spriteref).misc & wpndata::WF_BEHIND) ? D_SELECTED : 0;
     
-    sprintf(fcs,"%d",wpnsbuf[index].csets>>4);
-    sprintf(frm,"%d",wpnsbuf[index].frames);
-    sprintf(spd,"%d",wpnsbuf[index].speed);
-    sprintf(typ,"%d",wpnsbuf[index].type);
+    sprintf(fcs,"%d",curQuest->getSpriteDefinition(spriteref).csets>>4);
+    sprintf(frm,"%d",curQuest->getSpriteDefinition(spriteref).frames);
+    sprintf(spd,"%d",curQuest->getSpriteDefinition(spriteref).speed);
+    sprintf(typ,"%d",curQuest->getSpriteDefinition(spriteref).type);
     wpndata_dlg[13].dp = fcs;
     wpndata_dlg[14].dp = frm;
     wpndata_dlg[15].dp = spd;
     wpndata_dlg[16].dp = typ;
-    sprintf(name,"%s",weapon_string[index]);
+    sprintf(name,"%s",curQuest->getSpriteDefinition(spriteref).name.c_str());
     wpndata_dlg[18].dp = name;
 
 	DIALOG *wpndata_cpy = resizeDialog(wpndata_dlg, 1.5);
@@ -2299,7 +2194,7 @@ void edit_weapondata(int index)
             if(wpndata_cpy[i+5].flags & D_SELECTED)
                 test.misc |= 1<<i;
                 
-        test.misc |= (wpndata_cpy[17].flags & D_SELECTED) ? WF_BEHIND : 0;
+        test.misc |= (wpndata_cpy[17].flags & D_SELECTED) ? wpndata::WF_BEHIND : 0;
         
         test.csets  |= (atoi(fcs)&15)<<4;
         test.frames = atoi(frm);
@@ -2311,8 +2206,8 @@ void edit_weapondata(int index)
     
     if(ret==3)
     {
-        strcpy(weapon_string[index],name);
-        wpnsbuf[index] = test;
+        test.name = std::string(name);
+        curQuest->getSpriteDefinition(spriteref) = test;
         saved = false;
     }
 
@@ -2321,19 +2216,13 @@ void edit_weapondata(int index)
 
 int onCustomWpns()
 {
-    /*
-      char *hold = item_string[0];
-      item_string[0] = "rupee (1)";
-      */
+    int dummy;
+    SpriteDefinitionRef index = select_sprite("Select Sprite",SpriteDefinitionRef(), true, dummy);
     
-    build_biw_list();
-    
-    int index = select_weapon("Select Weapon",biw[0].i);
-    
-    while(index >= 0)
+    while(curQuest->isValid(index))
     {
         edit_weapondata(index);
-        index = select_weapon("Select Weapon",index);
+        index = select_sprite("Select Sprite",index, true, dummy);
     }
     
     refresh(rMAP+rCOMBOS);
@@ -2446,7 +2335,7 @@ const char *enetypelist(int index, int *list_size)
     return bief[index].s;
 }
 
-list_data_struct biea[wMAX];
+list_data_struct biea[aMAX];
 int biea_cnt=-1;
 
 void build_biea_list()
@@ -3278,8 +3167,7 @@ static DIALOG enedata_dlg[] =
 	{ jwin_text_proc,         96,      67,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	//235 : Weapon Sprite Pulldown
 	{  jwin_text_proc,          8,    193-4+12,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Weapon Sprite:",                              NULL,   NULL                 },
-	//{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+	{  jwin_button_proc,        86, 189-4+13,    151,     14,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,    0, NULL,                            NULL,   NULL                  },
 	//237 HitWidth Override
 	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
 	//238 HitHeight override
@@ -3489,7 +3377,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
     return D_O_K;
 }
 
-void edit_enemydata(int index)
+void edit_enemydata(const EnemyDefinitionRef &index)
 {
     char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
          frt[8], efr[8], bsp[8];
@@ -3497,10 +3385,8 @@ void edit_enemydata(int index)
     char name[64];
     char ms[12][8];
     char enemynumstr[75];
-	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8];
-    build_biw_list();
-	
+	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];	
+    
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -3513,18 +3399,18 @@ void edit_enemydata(int index)
         enedata_dlg[enedata_flags2_list[i]].h = 0;
     }
     
-    sprintf(enemynumstr,"Enemy %d: %s", index, guy_string[index]);
+    sprintf(enemynumstr,"Enemy %d: %s", index.slot, curQuest->getEnemyDefinition(index).name.c_str());
     enedata_dlg[0].dp = enemynumstr;
     enedata_dlg[0].dp2 = lfont;
-    enedata_dlg[2].d1 = guysbuf[index].tile;
-    enedata_dlg[2].d2 = guysbuf[index].cset;
-    enedata_dlg[3].d1 = guysbuf[index].s_tile;
-    enedata_dlg[3].d2 = guysbuf[index].cset;
-    enedata_dlg[4].d1 = guysbuf[index].e_tile;
-    enedata_dlg[4].d2 = guysbuf[index].cset;
+    enedata_dlg[2].d1 = curQuest->getEnemyDefinition(index).tile;
+    enedata_dlg[2].d2 = curQuest->getEnemyDefinition(index).cset;
+    enedata_dlg[3].d1 = curQuest->getEnemyDefinition(index).s_tile;
+    enedata_dlg[3].d2 = curQuest->getEnemyDefinition(index).cset;
+    enedata_dlg[4].d1 = curQuest->getEnemyDefinition(index).e_tile;
+    enedata_dlg[4].d2 = curQuest->getEnemyDefinition(index).cset;
     
     // Enemy weapon list
-    if(guysbuf[index].weapon==wNone)
+    if(curQuest->getEnemyDefinition(index).weapon==wNone)
     {
         enedata_dlg[45].d1 = 0;
     }
@@ -3537,7 +3423,7 @@ void edit_enemydata(int index)
         
         for(int j=0; j<biew_cnt; j++)
         {
-            if(biew[j].i == guysbuf[index].weapon - wEnemyWeapons)
+            if(biew[j].i == curQuest->getEnemyDefinition(index).weapon - wEnemyWeapons)
                 enedata_dlg[45].d1 = j;
         }
     }
@@ -3550,7 +3436,7 @@ void edit_enemydata(int index)
     
     for(int j=0; j<bief_cnt; j++)
     {
-        if(bief[j].i == guysbuf[index].family)
+        if(bief[j].i == curQuest->getEnemyDefinition(index).family)
             enedata_dlg[46].d1 = j;
     }
     
@@ -3562,22 +3448,22 @@ void edit_enemydata(int index)
     
     for(int j=0; j<biea_cnt; j++)
     {
-        if(biea[j].i == guysbuf[index].anim)
+        if(biea[j].i == curQuest->getEnemyDefinition(index).anim)
             enedata_dlg[47].d1 = j;
             
-        if(biea[j].i == guysbuf[index].e_anim)
+        if(biea[j].i == curQuest->getEnemyDefinition(index).e_anim)
             enedata_dlg[48].d1 = j;
     }
     
     
-    enedata_dlg[49].d1 = guysbuf[index].item_set;
+    enedata_dlg[49].d1 = curQuest->getEnemyDefinition(index).item_set;
     
-    sprintf(w,"%d",guysbuf[index].width);
-    sprintf(h,"%d",guysbuf[index].height);
-    sprintf(sw,"%d",guysbuf[index].s_width);
-    sprintf(sh,"%d",guysbuf[index].s_height);
-    sprintf(ew,"%d",guysbuf[index].e_width);
-    sprintf(eh,"%d",guysbuf[index].e_height);
+    sprintf(w,"%d",curQuest->getEnemyDefinition(index).width);
+    sprintf(h,"%d",curQuest->getEnemyDefinition(index).height);
+    sprintf(sw,"%d",curQuest->getEnemyDefinition(index).s_width);
+    sprintf(sh,"%d",curQuest->getEnemyDefinition(index).s_height);
+    sprintf(ew,"%d",curQuest->getEnemyDefinition(index).e_width);
+    sprintf(eh,"%d",curQuest->getEnemyDefinition(index).e_height);
     
     
     enedata_dlg[30].dp = w;
@@ -3587,67 +3473,59 @@ void edit_enemydata(int index)
     enedata_dlg[34].dp = ew;
     enedata_dlg[35].dp = eh;
     
-    sprintf(hp,"%d",guysbuf[index].hp);
-    sprintf(dp,"%d",guysbuf[index].dp);
-    sprintf(wdp,"%d",guysbuf[index].wdp);
-    sprintf(grm,"%d",guysbuf[index].grumble);
+    sprintf(hp,"%d",curQuest->getEnemyDefinition(index).hp);
+    sprintf(dp,"%d",curQuest->getEnemyDefinition(index).dp);
+    sprintf(wdp,"%d",curQuest->getEnemyDefinition(index).wdp);
+    sprintf(grm,"%d",curQuest->getEnemyDefinition(index).grumble);
     enedata_dlg[37].dp = hp;
     enedata_dlg[38].dp = dp;
     enedata_dlg[39].dp = wdp;
     enedata_dlg[40].dp = grm;
     
-    sprintf(rat,"%d",guysbuf[index].rate);
-    sprintf(hrt,"%d",guysbuf[index].hrate);
-    sprintf(hom,"%d",guysbuf[index].homing);
-    sprintf(spd,"%d",guysbuf[index].step);
+    sprintf(rat,"%d",curQuest->getEnemyDefinition(index).rate);
+    sprintf(hrt,"%d",curQuest->getEnemyDefinition(index).hrate);
+    sprintf(hom,"%d",curQuest->getEnemyDefinition(index).homing);
+    sprintf(spd,"%d",curQuest->getEnemyDefinition(index).step);
     enedata_dlg[41].dp = rat;
     enedata_dlg[42].dp = hrt;
     enedata_dlg[43].dp = hom;
     enedata_dlg[44].dp = spd;
     
-    sprintf(name,"%s",guy_string[index]);
+    sprintf(name,"%s",curQuest->getEnemyDefinition(index).name.c_str());
     enedata_dlg[36].dp = name;
     
-    sprintf(ms[0],"%ld",guysbuf[index].misc1);
-    sprintf(ms[1],"%ld",guysbuf[index].misc2);
-    sprintf(ms[2],"%ld",guysbuf[index].misc3);
-    sprintf(ms[3],"%ld",guysbuf[index].misc4);
-    sprintf(ms[4],"%ld",guysbuf[index].misc5);
-    sprintf(ms[5],"%ld",guysbuf[index].misc6);
-    sprintf(ms[6],"%ld",guysbuf[index].misc7);
-    sprintf(ms[7],"%ld",guysbuf[index].misc8);
-    sprintf(ms[8],"%ld",guysbuf[index].misc9);
-    sprintf(ms[9],"%ld",guysbuf[index].misc10);
-    sprintf(ms[10],"%ld",guysbuf[index].misc11);
-    sprintf(ms[11],"%ld",guysbuf[index].misc12);
+    for (int i = 0; i < 12; i++)
+    {
+        sprintf(ms[i], "%ld", curQuest->getEnemyDefinition(index).miscs[i]);
+    }
     
     
     
     for(int j=0; j <= edefBYRNA; j++)
     {
-        enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
+        enedata_dlg[j+161].d1 = curQuest->getEnemyDefinition(index).defense[j];
     }
     
-    enedata_dlg[192].d1 = guysbuf[index].defense[edefSCRIPT];
+    enedata_dlg[192].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT];
     
     //Script Defences
-    enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
-     enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
-     enedata_dlg[205].d1 = guysbuf[index].defense[edefSCRIPT03];
-     enedata_dlg[206].d1 = guysbuf[index].defense[edefSCRIPT04];
-     enedata_dlg[207].d1 = guysbuf[index].defense[edefSCRIPT05];
-     enedata_dlg[208].d1 = guysbuf[index].defense[edefSCRIPT06];
-     enedata_dlg[209].d1 = guysbuf[index].defense[edefSCRIPT07];
-     enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
-     enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
-     enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
+    enedata_dlg[203].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT01];
+     enedata_dlg[204].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT02];
+     enedata_dlg[205].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT03];
+     enedata_dlg[206].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT04];
+     enedata_dlg[207].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT05];
+     enedata_dlg[208].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT06];
+     enedata_dlg[209].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT07];
+     enedata_dlg[210].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT08];
+     enedata_dlg[211].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT09];
+     enedata_dlg[212].d1 = curQuest->getEnemyDefinition(index).defense[edefSCRIPT10];
     
     //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-    sprintf(tilex,"%ld",guysbuf[index].txsz);
-    sprintf(tiley,"%ld",guysbuf[index].tysz);
-    sprintf(hitx,"%ld",guysbuf[index].hxsz);
-    sprintf(hity,"%ld",guysbuf[index].hysz);
-    sprintf(hitz,"%ld",guysbuf[index].hzsz);
+    sprintf(tilex,"%ld",curQuest->getEnemyDefinition(index).txsz);
+    sprintf(tiley,"%ld",curQuest->getEnemyDefinition(index).tysz);
+    sprintf(hitx,"%ld",curQuest->getEnemyDefinition(index).hxsz);
+    sprintf(hity,"%ld",curQuest->getEnemyDefinition(index).hysz);
+    sprintf(hitz,"%ld",curQuest->getEnemyDefinition(index).hzsz);
   
     enedata_dlg[214].dp = tilex;
     enedata_dlg[216].dp = tiley;
@@ -3656,11 +3534,11 @@ void edit_enemydata(int index)
     enedata_dlg[222].dp = hitz;
     
     //HitXOffset, HitYOFfset, hitZOffset, DrawXOffsrt, DrawYOffset
-    sprintf(hitofsx,"%ld",guysbuf[index].hxofs);
-    sprintf(hitofsy,"%ld",guysbuf[index].hyofs);
-    sprintf(hitofsz,"%ld",guysbuf[index].zofs);
-    sprintf(drawofsx,"%ld",guysbuf[index].xofs);
-    sprintf(drawofsy,"%ld",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
+    sprintf(hitofsx,"%ld",curQuest->getEnemyDefinition(index).hxofs);
+    sprintf(hitofsy,"%ld",curQuest->getEnemyDefinition(index).hyofs);
+    sprintf(hitofsz,"%ld",curQuest->getEnemyDefinition(index).zofs);
+    sprintf(drawofsx,"%ld",curQuest->getEnemyDefinition(index).xofs);
+    sprintf(drawofsy,"%ld",curQuest->getEnemyDefinition(index).yofs); //This seems to be setting to +48 or something with any value set?! -Z
     
     enedata_dlg[224].dp = hitofsx;
     enedata_dlg[226].dp = hitofsy;
@@ -3669,26 +3547,26 @@ void edit_enemydata(int index)
     enedata_dlg[232].dp = drawofsy; //This seems to be setting to +48 or something with any value set?! -Z
     
     //Override flags
-    enedata_dlg[237].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
-    enedata_dlg[238].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
-    enedata_dlg[239].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
-    enedata_dlg[240].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[241].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[242].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[243].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[244].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
-    enedata_dlg[245].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
-    enedata_dlg[246].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[237].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
+    enedata_dlg[238].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[239].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
+    enedata_dlg[240].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[241].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[242].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[243].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[244].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
+    enedata_dlg[245].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
+    enedata_dlg[246].flags = (curQuest->getEnemyDefinition(index).SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
     
-    sprintf(frt,"%d",guysbuf[index].frate);
-    sprintf(efr,"%d",guysbuf[index].e_frate);
+    sprintf(frt,"%d",curQuest->getEnemyDefinition(index).frate);
+    sprintf(efr,"%d",curQuest->getEnemyDefinition(index).e_frate);
     enedata_dlg[140].dp = frt;
     enedata_dlg[141].dp = efr;
     
     //sprintf(sfx,"%d",guysbuf[index].bgsfx);
-    enedata_dlg[182].d1= (int)guysbuf[index].bgsfx;
-    enedata_dlg[183].d1= (int)guysbuf[index].hitsfx;
-    enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
+    enedata_dlg[182].d1= (int)curQuest->getEnemyDefinition(index).bgsfx;
+    enedata_dlg[183].d1= (int)curQuest->getEnemyDefinition(index).hitsfx;
+    enedata_dlg[184].d1= (int)curQuest->getEnemyDefinition(index).deadsfx;
     
    
     
@@ -3733,8 +3611,11 @@ void edit_enemydata(int index)
     
     */
     
+    // I don't know what's going on here; if you want to assign weapon sprites,
+    // use curQuest->specialSprites(). not random numerical constants -DD
+
     //If the weapon sprite is 0, assign it here. 
-    if ( guysbuf[index].wpnsprite <= 0 ) {
+/*    if ( !curQuest->isValid(guysbuf[index].wpnsprite)) {
 	    int wspr = -1;
 	    switch(guysbuf[index].weapon)
 	    {
@@ -3774,37 +3655,19 @@ void edit_enemydata(int index)
 		    
 		    
 	    }
-	    if ( wspr > -1 ) guysbuf[index].wpnsprite = wspr;
-	  /*  
+*  
         for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
         {
 	    if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; break; }
         }
-	    */
-    }
+	    
+    }*/
     
     //Set the dialogue. 
-    sprintf(weapsprite,"%d",guysbuf[index].wpnsprite);
-    enedata_dlg[236].dp = weapsprite;
-    
-    /* Sprite list pulldown. 
-    enedata_dlg[236].dp3 = is_large() ? lfont_l : pfont;
-    sprintf(efr,"%d",guysbuf[index].wpnsprite);
-    */
-    //enedata_dlg[236].dp = wpnsp;
-    
-    //make the sprites list. 
-    /*
-    bool foundwpnsprite; //char wpnsp_def[10];
-    //build_biw_list(); //built in weapons
-    if(biw_cnt==-1)
-    {
-        build_biw_list(); //built-in weapons
-    }
-    
-    */
-    
-    
+
+    const char *nonestr = "(None)";    
+    enedata_dlg[236].dp = (void *)(curQuest->isValid(curQuest->getEnemyDefinition(index).wpnsprite) ? curQuest->getSpriteDefinition(curQuest->getEnemyDefinition(index).wpnsprite).name.c_str() : nonestr);
+        
     /*
     if ( guysbuf[index].wpnsprite <= 0 ) {
         for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
@@ -3854,9 +3717,9 @@ void edit_enemydata(int index)
     
     //enedata_dlg[236].d1= (int)guysbuf[index].wpnsprite;
     
-    sprintf(bsp,"%d",guysbuf[index].bosspal);
+    sprintf(bsp,"%d",curQuest->getEnemyDefinition(index).bosspal);
     
-    if(guysbuf[index].cset == 14)
+    if(curQuest->getEnemyDefinition(index).cset == 14)
     {
         enedata_dlg[143].flags = D_SELECTED;
     }
@@ -3868,13 +3731,13 @@ void edit_enemydata(int index)
     enedata_dlg[53].dp = bsp;
     
     for(int i=0; i<32; i++)
-        enedata_dlg[74+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
+        enedata_dlg[74+i].flags = (curQuest->getEnemyDefinition(index).flags & (1<<i)) ? D_SELECTED : 0;
         
-    enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
-                           : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
+    enedata_dlg[186].d1 = (curQuest->getEnemyDefinition(index).flags & guy_fadeinstant ? 2
+                           : curQuest->getEnemyDefinition(index).flags & guy_fadeflicker ? 1 : 0);
                            
     for(int i=0; i<16; i++)
-        enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
+        enedata_dlg[106+i].flags = (curQuest->getEnemyDefinition(index).flags2 & (1<<i)) ? D_SELECTED : 0;
 
     /*
     enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
@@ -3890,194 +3753,190 @@ void edit_enemydata(int index)
     */
 
     int ret;
-    guydata test;
-    memset(&test, 0, sizeof(guydata));
+    guydata test = curQuest->getEnemyDefinition(index);
 
 	DIALOG *enedata_cpy = resizeDialog(enedata_dlg, 1.5);
     
-    setEnemyLabels(guysbuf[index].family);
+    setEnemyLabels(curQuest->getEnemyDefinition(index).family);
     
     do
     {
-        for(int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
-            if(enedata_cpy[64+i].proc==jwin_droplist_proc)
+            if (enedata_cpy[64 + i].proc == jwin_droplist_proc)
             {
                 int size = 0;
-                ((ListData*)enedata_cpy[64+i].dp)->listFunc(-1,&size);
+                ((ListData*)enedata_cpy[64 + i].dp)->listFunc(-1, &size);
                 // Bound ms[i] as well as enedata_dlg[64+i].d1
-                sprintf(ms[i],"%d",vbound(atoi(ms[i]), 0, size));
-				enedata_cpy[64+i].d1 = atoi(ms[i]);
+                sprintf(ms[i], "%d", vbound(atoi(ms[i]), 0, size));
+                enedata_cpy[64 + i].d1 = atoi(ms[i]);
             }
             else
-				enedata_cpy[64+i].dp = ms[i];
+                enedata_cpy[64 + i].dp = ms[i];
         }
-        
-		enedata_cpy[189].dp = ms[10];
-		enedata_cpy[190].dp = ms[11]; //!
-        
-        ret = zc_popup_dialog(enedata_cpy,3);
-        
-        test.tile  = enedata_cpy[2].d1;
+
+        enedata_cpy[189].dp = ms[10];
+        enedata_cpy[190].dp = ms[11]; //!
+
+        ret = zc_popup_dialog(enedata_cpy, 3);
+
+        test.tile = enedata_cpy[2].d1;
         test.cset = enedata_cpy[2].d2;
-        test.s_tile  = enedata_cpy[3].d1;
-        test.e_tile  = enedata_cpy[4].d1;
-        
-        test.width = vbound(atoi(w),0,20);
-        test.height = vbound(atoi(h),0,20);
-        test.s_width = vbound(atoi(sw),0,20);
-        test.s_height = vbound(atoi(sh),0,20);
-        test.e_width = vbound(atoi(ew),0,20);
-        test.e_height = vbound(atoi(eh),0,20);
-        
+        test.s_tile = enedata_cpy[3].d1;
+        test.e_tile = enedata_cpy[4].d1;
+
+        test.width = vbound(atoi(w), 0, 20);
+        test.height = vbound(atoi(h), 0, 20);
+        test.s_width = vbound(atoi(sw), 0, 20);
+        test.s_height = vbound(atoi(sh), 0, 20);
+        test.e_width = vbound(atoi(ew), 0, 20);
+        test.e_height = vbound(atoi(eh), 0, 20);
+
         test.weapon = enedata_cpy[45].d1 != 0 ? biew[enedata_cpy[45].d1].i + wEnemyWeapons : wNone;
         test.family = bief[enedata_cpy[46].d1].i;
         test.anim = biea[enedata_cpy[47].d1].i;
         test.e_anim = biea[enedata_cpy[48].d1].i;
         test.item_set = enedata_cpy[49].d1;
-        
+
         test.hp = vbound(atoi(hp), 0, 32767); //0x7FFF, not 0xFFFF?
         test.dp = vbound(atoi(dp), 0, 32767);
         test.wdp = vbound(atoi(wdp), 0, 32767);
         test.grumble = vbound(atoi(grm), 0, 4);
-        
-        test.rate = vbound(atoi(rat), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
-        test.hrate = vbound(atoi(hrt), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
-        test.homing = vbound(atoi(hom), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:256);
-        test.step = vbound(atoi(spd),0, (test.family == eeFIRE || test.family == eeOTHER)?32767:1000);
-        
-        test.frate = vbound(atoi(frt),0,256);
-        test.e_frate = vbound(atoi(efr),0,256);
-        test.bosspal = vbound(atoi(bsp),-1,29);
+
+        test.rate = vbound(atoi(rat), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 16);
+        test.hrate = vbound(atoi(hrt), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 16);
+        test.homing = vbound(atoi(hom), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 256);
+        test.step = vbound(atoi(spd), 0, (test.family == eeFIRE || test.family == eeOTHER) ? 32767 : 1000);
+
+        test.frate = vbound(atoi(frt), 0, 256);
+        test.e_frate = vbound(atoi(efr), 0, 256);
+        test.bosspal = vbound(atoi(bsp), -1, 29);
         test.bgsfx = enedata_cpy[182].d1;
         test.hitsfx = enedata_cpy[183].d1;
         test.deadsfx = enedata_cpy[184].d1;
-	
-	//2.6 Enemy Weapon Sprite
-	//test.wpnsprite = biw[enedata_cpy[236].d1].i;
-	test.wpnsprite = atoi(weapsprite);
-	
-   
-        
-        test.misc1 = (enedata_cpy[64].proc==jwin_droplist_proc) ? enedata_cpy[64].d1 : atol(ms[0]);
-        test.misc2 = (enedata_cpy[65].proc==jwin_droplist_proc) ? enedata_cpy[65].d1 : atol(ms[1]);
-        test.misc3 = (enedata_cpy[66].proc==jwin_droplist_proc) ? enedata_cpy[66].d1 : atol(ms[2]);
-        test.misc4 = (enedata_cpy[67].proc==jwin_droplist_proc) ? enedata_cpy[67].d1 : atol(ms[3]);
-        test.misc5 = (enedata_cpy[68].proc==jwin_droplist_proc) ? enedata_cpy[68].d1 : atol(ms[4]);
-        test.misc6 = (enedata_cpy[69].proc==jwin_droplist_proc) ? enedata_cpy[69].d1 : atol(ms[5]);
-        test.misc7 = (enedata_cpy[70].proc==jwin_droplist_proc) ? enedata_cpy[70].d1 : atol(ms[6]);
-        test.misc8 = (enedata_cpy[71].proc==jwin_droplist_proc) ? enedata_cpy[71].d1 : atol(ms[7]);
-        test.misc9 = (enedata_cpy[72].proc==jwin_droplist_proc) ? enedata_cpy[72].d1 : atol(ms[8]);
-        test.misc10 = (enedata_cpy[73].proc==jwin_droplist_proc) ? enedata_cpy[73].d1 : atol(ms[9]);
-        test.misc11 = atol(ms[10]);
-        test.misc12 = atol(ms[11]);
-	
-	
-	
-        
-        for(int j=0; j <= edefBYRNA; j++)
+
+        if (ret == 236)
         {
-            test.defense[j] = enedata_cpy[j+161].d1;
+            int status;
+            SpriteDefinitionRef ref = select_sprite("Select Weapon Sprite", test.wpnsprite, false, status);
+            if (status == 4)
+            {
+                test.wpnsprite = ref;
+                enedata_cpy[236].dp = (void *)(curQuest->isValid(test.wpnsprite) ? curQuest->getSpriteDefinition(test.wpnsprite).name.c_str() : nonestr);
+            }
         }
-        
+
+        for (int j = 0; j < 10; j++)
+            test.miscs[j] = (enedata_cpy[64 + j].proc == jwin_droplist_proc) ? enedata_cpy[64 + j].d1 : atol(ms[j]);
+        test.miscs[10] = atol(ms[10]);
+        test.miscs[11] = atol(ms[11]);
+
+
+
+
+        for (int j = 0; j <= edefBYRNA; j++)
+        {
+            test.defense[j] = enedata_cpy[j + 161].d1;
+        }
+
         test.defense[edefSCRIPT] = enedata_cpy[192].d1;
-        
-        
-        for(int i=0; i<32; i++)
-            test.flags |= (enedata_cpy[74+i].flags & D_SELECTED) ? (1<<i) : 0;
-            
-        test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
-        test.flags |= (enedata_cpy[186].d1==2 ? guy_fadeinstant : enedata_cpy[186].d1==1 ? guy_fadeflicker : 0);
-        
-        for(int i=0; i<16; i++)
-            test.flags2 |= (enedata_cpy[106+i].flags & D_SELECTED) ? (1<<i) : 0;
-            
-        if(enedata_cpy[143].flags & D_SELECTED)
+
+
+        for (int i = 0; i < 32; i++)
+            test.flags |= (enedata_cpy[74 + i].flags & D_SELECTED) ? (1 << i) : 0;
+
+        test.flags &= ~(guy_fadeinstant | guy_fadeflicker);
+        test.flags |= (enedata_cpy[186].d1 == 2 ? guy_fadeinstant : enedata_cpy[186].d1 == 1 ? guy_fadeflicker : 0);
+
+        for (int i = 0; i < 16; i++)
+            test.flags2 |= (enedata_cpy[106 + i].flags & D_SELECTED) ? (1 << i) : 0;
+
+        if (enedata_cpy[143].flags & D_SELECTED)
             test.cset = 14;
-	
-	
-	test.defense[edefSCRIPT01] = enedata_cpy[203].d1;
-	test.defense[edefSCRIPT02] = enedata_cpy[204].d1;
-	test.defense[edefSCRIPT03] = enedata_cpy[205].d1;
-	test.defense[edefSCRIPT04] = enedata_cpy[206].d1;
-	test.defense[edefSCRIPT05] = enedata_cpy[207].d1;
-	test.defense[edefSCRIPT06] = enedata_cpy[208].d1;
-	test.defense[edefSCRIPT07] = enedata_cpy[209].d1;
-	test.defense[edefSCRIPT08] = enedata_cpy[210].d1;
-	test.defense[edefSCRIPT09] = enedata_cpy[211].d1;
-	test.defense[edefSCRIPT10] = enedata_cpy[212].d1;
-	
-	//tilewidth, tileheight, hitwidth, hitheight, 
-	test.txsz = atoi(tilex);
-	test.tysz = atoi(tiley);
-	test.hxsz = atoi(hitx);
-	test.hysz = atoi(hity);
-	test.hzsz = atoi(hitz);
-	test.hxofs = atoi(hitofsx);
-	test.hyofs = atoi(hitofsy);
-	test.zofs = atoi(hitofsz);
-	test.xofs = atoi(drawofsx);
-	test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
-	
-	//override flags
-	if(enedata_cpy[237].flags & D_SELECTED)
+
+
+        test.defense[edefSCRIPT01] = enedata_cpy[203].d1;
+        test.defense[edefSCRIPT02] = enedata_cpy[204].d1;
+        test.defense[edefSCRIPT03] = enedata_cpy[205].d1;
+        test.defense[edefSCRIPT04] = enedata_cpy[206].d1;
+        test.defense[edefSCRIPT05] = enedata_cpy[207].d1;
+        test.defense[edefSCRIPT06] = enedata_cpy[208].d1;
+        test.defense[edefSCRIPT07] = enedata_cpy[209].d1;
+        test.defense[edefSCRIPT08] = enedata_cpy[210].d1;
+        test.defense[edefSCRIPT09] = enedata_cpy[211].d1;
+        test.defense[edefSCRIPT10] = enedata_cpy[212].d1;
+
+        //tilewidth, tileheight, hitwidth, hitheight, 
+        test.txsz = atoi(tilex);
+        test.tysz = atoi(tiley);
+        test.hxsz = atoi(hitx);
+        test.hysz = atoi(hity);
+        test.hzsz = atoi(hitz);
+        test.hxofs = atoi(hitofsx);
+        test.hyofs = atoi(hitofsy);
+        test.zofs = atoi(hitofsz);
+        test.xofs = atoi(drawofsx);
+        test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
+
+        //override flags
+        if (enedata_cpy[237].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_WIDTH;
-            
-        if(enedata_cpy[238].flags & D_SELECTED)
+
+        if (enedata_cpy[238].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_HEIGHT;
-            
-        if(enedata_cpy[239].flags & D_SELECTED)
+
+        if (enedata_cpy[239].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_Z_HEIGHT;
-            
-        if(enedata_cpy[240].flags & D_SELECTED)
+
+        if (enedata_cpy[240].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_X_OFFSET;
-            
-        if(enedata_cpy[241].flags & D_SELECTED)
+
+        if (enedata_cpy[241].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_HIT_Y_OFFSET;
-            
-        if(enedata_cpy[242].flags & D_SELECTED)
+
+        if (enedata_cpy[242].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_DRAW_Z_OFFSET;
-	if(enedata_cpy[243].flags & D_SELECTED)
+        if (enedata_cpy[243].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_DRAW_X_OFFSET;
-            
-        if(enedata_cpy[244].flags & D_SELECTED)
+
+        if (enedata_cpy[244].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_DRAW_Y_OFFSET;
-	if(enedata_cpy[245].flags & D_SELECTED)
+        if (enedata_cpy[245].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_TILE_WIDTH;
-	if(enedata_cpy[246].flags & D_SELECTED)
+        if (enedata_cpy[246].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_TILE_HEIGHT;
 
-	    
-	    
-        if(ret==5)
+
+
+        if (ret == 5)
         {
-            strcpy(guy_string[index],name);
-            guysbuf[index] = test;
+            test.name = std::string(name);
+            curQuest->getEnemyDefinition(index) = test;
             saved = false;
         }
-        else if(ret==46)
+        else if (ret == 46)
         {
             setEnemyLabels(bief[enedata_cpy[46].d1].i);
         }
-        else if(ret==178)
+        else if (ret == 178)
         {
-            for(int j=1; j <= edefBYRNA; j++)
+            for (int j = 1; j <= edefBYRNA; j++)
             {
-				enedata_cpy[j+161].d1 = enedata_cpy[161].d1;
+                enedata_cpy[j + 161].d1 = enedata_cpy[161].d1;
             }
-            
-			enedata_cpy[192].d1 = enedata_cpy[161].d1;
-	     //Clear to 0
-	    enedata_cpy[203].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[204].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[205].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[206].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[207].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[208].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[209].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[210].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[211].d1 = enedata_cpy[161].d1;
-	    enedata_cpy[212].d1 = enedata_cpy[161].d1;
+
+            enedata_cpy[192].d1 = enedata_cpy[161].d1;
+            //Clear to 0
+            enedata_cpy[203].d1 = enedata_cpy[161].d1;
+            enedata_cpy[204].d1 = enedata_cpy[161].d1;
+            enedata_cpy[205].d1 = enedata_cpy[161].d1;
+            enedata_cpy[206].d1 = enedata_cpy[161].d1;
+            enedata_cpy[207].d1 = enedata_cpy[161].d1;
+            enedata_cpy[208].d1 = enedata_cpy[161].d1;
+            enedata_cpy[209].d1 = enedata_cpy[161].d1;
+            enedata_cpy[210].d1 = enedata_cpy[161].d1;
+            enedata_cpy[211].d1 = enedata_cpy[161].d1;
+            enedata_cpy[212].d1 = enedata_cpy[161].d1;
         }
     }
     while(ret != 5 && ret != 6 && ret != 0);
@@ -4085,73 +3944,16 @@ void edit_enemydata(int index)
 	delete[] enedata_cpy;
 }
 
-extern DIALOG elist_dlg[];
-static int copiedGuy;
-static MENU elist_rclick_menu[] =
-{
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
-};
-
-void elist_rclick_func(int index, int x, int y)
-{
-    if(index==0)
-        return;
-    
-    if(copiedGuy<=0)
-        elist_rclick_menu[1].flags|=D_DISABLED;
-    else
-        elist_rclick_menu[1].flags&=~D_DISABLED;
-    
-    int ret=popup_menu(elist_rclick_menu, x, y);
-    
-    if(ret==0) // copy
-        copiedGuy=bie[index].i;
-    else if(ret==1) // paste
-    {
-        guysbuf[bie[index].i]=guysbuf[copiedGuy];
-        elist_dlg[2].flags|=D_DIRTY;
-        saved=false;
-    }
-}
-
 int onCustomEnemies()
 {
-    /*
-      char *hold = item_string[0];
-      item_string[0] = "rupee (1)";
-      */
-    
     int foo;
-    int index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
+    EnemyDefinitionRef index = select_enemy("Select Enemy", EnemyDefinitionRef(), ESF_BADGUYS | ESF_GOODGUYS, true, foo);
     
-    while(index >= 0)
+    while(curQuest->isValid(index))
     {
-        //I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
-        //,,.Someone feel free to fix the thing properly later on.
-        //Right now creating custom enemies remains a long painful process, but it shouldn't be this hard for users to use.
-        //-Two cents worth. -Gleeok
-        if(key[KEY_OPENBRACE])   //copy
-        {
-            if(index != 0)
-                copiedGuy=index;
-        }
-        else if(key[KEY_CLOSEBRACE])   //paste
-        {
-            if(copiedGuy>0 && index!=0)
-            {
-                guysbuf[index]=guysbuf[copiedGuy];
-                saved=false;
-            }
-        }
-        else
-        {
-            if(index != 0)
-                edit_enemydata(index);
-        }
+        edit_enemydata(index);
         
-        index = select_enemy("Select Enemy",index,true,true,foo);
+        index = select_enemy("Select Enemy", index, ESF_BADGUYS | ESF_GOODGUYS, true, foo);
     }
     
     refresh(rMAP+rCOMBOS);

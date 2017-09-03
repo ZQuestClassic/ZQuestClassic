@@ -18,9 +18,6 @@
 #include "zelda.h"
 #include "zdefs.h"
 
-//extern itemdata   *itemsbuf;
-extern wpndata    *wpnsbuf;
-
 int old_floatspr, old_slashspr, linkspr;
 int walkspr[4][3];                                   //dir,                    tile/flip/extend
 int stabspr[4][3];                                   //dir,                    tile/flip/extend
@@ -280,8 +277,10 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 
 void setuplinktiles(int style)
 {
-    old_floatspr = wpnsbuf[iwSwim].tile;
-    old_slashspr = wpnsbuf[iwLinkSlash].tile;
+    SpriteDefinitionRef swims = curQuest->specialSprites().linkSwim;
+    SpriteDefinitionRef slashs = curQuest->specialSprites().linkSlash;
+    old_floatspr = curQuest->getSpriteDefinition(swims).tile;
+    old_slashspr = curQuest->getSpriteDefinition(slashs).tile;
     linkspr = 4;
     
     switch(style)

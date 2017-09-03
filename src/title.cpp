@@ -383,10 +383,43 @@ static void storyscreen(int f)
 
 
 static int trstr;
-static byte tr_items[] =
+static ItemDefinitionRef tr_items[] =
 {
-    iHeart,iHeartC,iFairyMoving,iClock,iRupy,i5Rupies,iBPotion,iRPotion,iLetter,iBait,iSword,iWSword,iMSword,iShield,iBrang,iMBrang,iBombs,iBow,iArrow,iSArrow,iBCandle,iRCandle,
-    iBRing,iRRing,iBracelet,iWhistle,iRaft,iLadder,iWand,iBook,iKey,iMKey,iMap,iCompass,iTriforce
+    ItemDefinitionRef("CORE",iHeart),
+    ItemDefinitionRef("CORE",iHeartC),
+    ItemDefinitionRef("CORE",iFairyMoving),
+    ItemDefinitionRef("CORE",iClock),
+    ItemDefinitionRef("CORE",iRupy),
+    ItemDefinitionRef("CORE",i5Rupies),
+    ItemDefinitionRef("CORE",iBPotion),
+    ItemDefinitionRef("CORE",iRPotion),
+    ItemDefinitionRef("CORE",iLetter),
+    ItemDefinitionRef("CORE",iBait),
+    ItemDefinitionRef("CORE",iSword),
+    ItemDefinitionRef("CORE",iWSword),
+    ItemDefinitionRef("CORE",iMSword),
+    ItemDefinitionRef("CORE",iShield),
+    ItemDefinitionRef("CORE",iBrang),
+    ItemDefinitionRef("CORE",iMBrang),
+    ItemDefinitionRef("CORE",iBombs),
+    ItemDefinitionRef("CORE",iBow),
+    ItemDefinitionRef("CORE",iArrow),
+    ItemDefinitionRef("CORE",iSArrow),
+    ItemDefinitionRef("CORE",iBCandle),
+    ItemDefinitionRef("CORE",iRCandle),
+    ItemDefinitionRef("CORE",iBRing),
+    ItemDefinitionRef("CORE",iRRing),
+    ItemDefinitionRef("CORE",iBracelet),
+    ItemDefinitionRef("CORE",iWhistle),
+    ItemDefinitionRef("CORE",iRaft),
+    ItemDefinitionRef("CORE",iLadder),
+    ItemDefinitionRef("CORE",iWand),
+    ItemDefinitionRef("CORE",iBook),
+    ItemDefinitionRef("CORE",iKey),
+    ItemDefinitionRef("CORE",iMKey),
+    ItemDefinitionRef("CORE",iMap),
+    ItemDefinitionRef("CORE",iCompass),
+    ItemDefinitionRef("CORE",iTriforce)
 };
 
 static const char* treasure_str[] =
@@ -475,7 +508,7 @@ static void treasures(int f)
     y+=8;
     
     if((y>=0)&&(y<240))
-        putitem(scrollbuf,120,y,iTriforce);
+        putitem(scrollbuf,120,y,curQuest->specialItems().triforce);
         
     y+=80;
     
@@ -541,7 +574,7 @@ static void NES_titlescreen()
             blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
             
         if(f>=4492)
-            putitem(framebuf,120,24,iTriforce);
+            putitem(framebuf,120,24,curQuest->specialItems().triforce);
             
         ++f;
         
@@ -656,7 +689,7 @@ static void DX_titlescreen()
             blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
             
         if(f>=4492)
-            putitem(framebuf,120,24,iTriforce);
+            putitem(framebuf,120,24,curQuest->specialItems().triforce);
             
         ++f;
         
@@ -767,7 +800,7 @@ static void v25_titlescreen()
             blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
             
         if(f>=4492)
-            putitem(framebuf,120,24,iTriforce);
+            putitem(framebuf,120,24,curQuest->specialItems().triforce);
             
         ++f;
         
@@ -836,7 +869,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         return 3;
     }
     
-    if(section_version < 11) //Sorry!
+    if(section_version < 12) //Sorry!
     {
         //Currently unsupported
         return 1;
@@ -976,15 +1009,61 @@ int readsaves(gamedata *savedata, PACKFILE *f)
         }
         
         savedata[i].set_cheat(tempbyte);
-        char temp;
         
-        for(int j=0; j<256; j++) // why not MAXITEMS ?
+        savedata[i].inventoryItems.clear();
+        uint32_t numitems;
+        if (!p_igetl(&numitems, f, true))
+            return 18;
+
+        for (uint32_t j = 0; j < numitems; j++)
         {
-            if(!p_getc(&temp, f, true))
+            uint32_t len;
+            if (!p_igetl(&len, f, true))
                 return 18;
-                
-            savedata[i].set_item(j, (temp != 0));
+            char *buf = new char[len];
+            if (!pfread(buf, len, f, true))
+            {
+                delete[] buf;
+                return 18;
+            }
+            std::string name(buf);
+            delete[] buf;
+            uint32_t iitem;
+            if (!p_igetl(&iitem, f, true))
+                return 18;
+
+            savedata[i].inventoryItems.insert(ItemDefinitionRef(name, iitem));
         }
+
+        savedata[i].disabledItems.clear();
+
+        uint32_t numdisabled;
+        if (!p_igetl(&numdisabled, f, true))
+        {
+            return 19;
+        }
+
+        for(uint32_t j=0; j<numdisabled; j++)
+        {
+            uint32_t len;
+            if (!p_igetl(&len, f, true))
+                return 19;
+            char *buf = new char[len];
+            if (!pfread(buf, len, f, true))
+            {
+                delete[] buf;
+                return 19;
+            }
+            std::string name(buf);
+            delete[] buf;
+            uint32_t ditem;
+            uint8_t disableflag;
+            if (!p_igetl(&ditem, f, true))
+                return 19;
+            if (!p_getc(&disableflag, f, true))
+                return 19;
+            savedata[i].disabledItems[ItemDefinitionRef(name,ditem)] = disableflag;
+        }        
         
         if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
         {
@@ -1661,10 +1740,36 @@ int writesaves(gamedata *savedata, PACKFILE *f)
             return 17;
         }
         
-        for(int j=0; j<MAXITEMS; j++)
+        if (!p_iputl(savedata[i].inventoryItems.size(), f))
+            return 18;
+
+        for(std::set<ItemDefinitionRef>::iterator it = savedata[i].inventoryItems.begin(); it != savedata[i].inventoryItems.end(); ++it)
         {
-            if(!p_putc(savedata[i].get_item(j) ? 1 : 0,f))
+            uint32_t modlen = it->module.length() + 1;
+            if (!p_iputl(modlen, f))
                 return 18;
+            if (!pfwrite((void *)it->module.c_str(), modlen, f))
+                return 18;
+            if(!p_iputl(it->slot,f))
+                return 18;
+        }
+
+        if (!p_iputl(savedata[i].disabledItems.size(), f))
+        {
+            return 19;
+        }
+
+        for (std::map<ItemDefinitionRef, uint8_t>::iterator it = savedata[i].disabledItems.begin(); it != savedata[i].disabledItems.end(); ++it)
+        {
+            uint32_t len = it->first.module.length() + 1;
+            if (!p_iputl(len, f))
+                return 19;
+            if (!pfwrite((void *)it->first.module.c_str(), len, f))
+                return 19;
+            if (!p_iputl(it->first.slot, f))
+                return 19;
+            if (!p_putc(it->second, f))
+                return 19;
         }
         
         if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
@@ -1921,11 +2026,11 @@ void load_game_icon_to_buffer(bool forceDefault, int index)
     if(!forceDefault)
     {
         flushItemCache();
-        int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+        ItemDefinitionRef maxringid = curQuest->getHighestLevelOfFamily(&zinit, itype_ring);
         
-        if(maxringid != -1)
+        if(curQuest->isValid(maxringid))
         {
-            ring = itemsbuf[maxringid].fam_type;
+            ring = curQuest->getItemDefinition(maxringid).fam_type;
         }
     }
     
@@ -2057,7 +2162,10 @@ static void list_save(int save_num, int ypos)
     {
         game->set_maxlife(saves[save_num].get_maxlife());
         game->set_life(saves[save_num].get_maxlife());
-        wpnsbuf[iwQuarterHearts].tile = 4;
+
+        SpriteDefinitionRef hearts = curQuest->specialSprites().lifeMeterHearts;
+
+        curQuest->getSpriteDefinition(hearts).tile = 4;
         //boogie!
         lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
@@ -2549,10 +2657,10 @@ static bool register_name()
             game = saves+s;
             saves[s].set_maxlife(zinit.hc*HP_PER_HEART);
             //saves[s].items[itype_ring]=0;
-            removeItemsOfFamily(&saves[s], itemsbuf, itype_ring);
-            int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+            curQuest->removeItemsOfFamily(&saves[s], itype_ring);
+            ItemDefinitionRef maxringid = curQuest->getHighestLevelOfFamily(&zinit, itype_ring);
             
-            if(maxringid != -1)
+            if(curQuest->isValid(maxringid))
                 getitem(maxringid, true);
                 
             //      game->set_maxbombs(&saves[s], zinit.max_bombs);
@@ -2814,9 +2922,9 @@ bool load_custom_game(int file)
             //messy hack to get this to work properly since game is not initialized -DD
             gamedata *oldgame = game;
             game = saves+file;
-            int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+            ItemDefinitionRef maxringid = curQuest->getHighestLevelOfFamily(&zinit, itype_ring);
             
-            if(maxringid != -1)
+            if(curQuest->isValid(maxringid))
                 getitem(maxringid, true);
                 
             rest(200); // Formerly 1000 -L
@@ -3423,11 +3531,11 @@ void game_over(int type)
             
             int ring=0;
             flushItemCache();
-            int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+            ItemDefinitionRef maxringid = curQuest->getHighestLevelOfFamily(game, itype_ring);
             
-            if(maxringid != -1)
+            if(curQuest->isValid(maxringid))
             {
-                ring = itemsbuf[maxringid].fam_type;
+                ring = curQuest->getItemDefinition(maxringid).fam_type;
             }
             
             ring = ring ? ring-1 : 0;
@@ -3456,11 +3564,11 @@ void save_game(bool savepoint)
     
     int ring=0;
     flushItemCache();
-    int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+    ItemDefinitionRef maxringid = curQuest->getHighestLevelOfFamily(game, itype_ring);
     
-    if(maxringid != -1)
+    if(curQuest->isValid(maxringid))
     {
-        ring = itemsbuf[maxringid].fam_type;
+        ring = curQuest->getItemDefinition(maxringid).fam_type;
     }
     
     ring = ring ? ring-1 : 0;
@@ -3583,11 +3691,11 @@ bool save_game(bool savepoint, int type)
                 
                 int ring=0;
                 flushItemCache();
-                int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+                ItemDefinitionRef maxringid = curQuest->getHighestLevelOfFamily(game, itype_ring);
                 
-                if(maxringid != -1)
+                if(curQuest->isValid(maxringid))
                 {
-                    ring = itemsbuf[maxringid].fam_type;
+                    ring = curQuest->getItemDefinition(maxringid).fam_type;
                 }
                 
                 ring = ring ? ring-1 : 0;

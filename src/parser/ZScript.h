@@ -1,26 +1,42 @@
 #ifndef ZSCRIPT_H
 #define ZSCRIPT_H
 
-#include "DataStructs.h"
-#include "Scope.h"
+#include <vector>
+#include <map>
+#include "AST.h"
+#include "CompileError.h"
+#include "CompilerUtils.h"
+#include "Types.h"
+
+using std::vector;
+using std::map;
+
+class SymbolTable;
 
 namespace ZScript
 {
+	class Program;
+	class Script;
+	class Variable;
+	class BuiltinVariable;
+	class Function;
+	class Scope;
+	class GlobalScope;
+	class ScriptScope;
+	class FunctionScope;
+	
 	class Program
 	{
 	public:
 		Program(ASTProgram* ast);
 		~Program();
 		ASTProgram* node;
-		SymbolTable table;
-		GlobalScope globalScope;
+		SymbolTable& table;
+		GlobalScope& globalScope;
 
 		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
-
-		// Gets the global user-defined and (deprecated) script level variables.
-		vector<Variable*> getUserGlobalVariables() const;
 
 		// Gets the non-internal (user-defined) global scope functions.
 		vector<Function*> getUserGlobalFunctions() const;
@@ -36,6 +52,10 @@ namespace ZScript
 	private:
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
+
+		// Disabled.
+		Program(Program const&);
+		Program& operator=(Program const&);
 	};
 
 	class Script
@@ -56,50 +76,188 @@ namespace ZScript
 		bool hasError() const {return getErrors().size() > 0;}
 	};
 
-	class Literal
+	// Something that can be resolved to a data value.
+	class Datum
 	{
 	public:
-		Literal(ASTLiteral* node, ZVarType const* type, int id);
-		ASTLiteral* node;
-		ZVarType const* type;
-		int id;
+		// The containing scope.
+		Scope& scope;
+
+		// The type of this data.
+		ZVarType const& type;
+
+		// Id for lookup tables.
+		int const id;
+
+		// Get the data's name.
+		virtual optional<string> getName() const {return nullopt;}
+		
+		// Get the value at compile time.
+		virtual optional<long> getCompileTimeValue() const {return nullopt;}
+
+		// Get the declaring node.
+		virtual AST* getNode() const {return NULL;}
+
+		// Get the global register this uses.
+		virtual optional<int> getGlobalId() const {return nullopt;}
+
+	protected:
+		Datum(Scope& scope, ZVarType const& type);
+
+		// Call in static creation function to register with scope.
+		bool tryAddToScope(CompileErrorHandler&);
 	};
 
-	class Variable
+	// Is this datum a global value?
+	bool isGlobal(Datum const& data);
+
+	// Return the stack offset of the value.
+	optional<int> getStackOffset(Datum const&);
+
+	// A literal value that requires memory management.
+	class Literal : public Datum
 	{
 	public:
-		Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id);
-		ASTDataDecl* node;
-		ZVarType const* type;
+		static Literal* create(
+				Scope&, ASTLiteral&, ZVarType const&,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
+		
+		ASTLiteral* getNode() const {return &node;}
+
+	private:
+		Literal(Scope& scope, ASTLiteral& node, ZVarType const& type);
+
+		ASTLiteral& node;
+	};
+
+	// A variable.
+	class Variable : public Datum
+	{
+	public:
+		static Variable* create(
+				Scope&, ASTDataDecl&, ZVarType const&,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
+		
+		optional<string> getName() const {return node.name;}
+		ASTDataDecl* getNode() const {return &node;}
+		optional<int> getGlobalId() const {return globalId;}
+
+	private:
+		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
+
+		ASTDataDecl& node;
+		optional<int> globalId;
+	};
+
+	// A compiler generated variable.
+	class BuiltinVariable : public Datum
+	{
+	public:
+		static BuiltinVariable* create(
+				Scope&, ZVarType const&, string const& name,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
+		
+		optional<string> getName() const {return name;}
+		optional<int> getGlobalId() const {return globalId;}
+
+	private:
+		BuiltinVariable(Scope&, ZVarType const&, string const& name);
+
+		string const name;
+		optional<int> globalId;
+	};
+
+	// An inlined constant.
+	class Constant : public Datum
+	{
+	public:
+		static Constant* create(
+				Scope&, ASTDataDecl&, ZVarType const&, long value,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
+		
+		optional<string> getName() const;
+
+		optional<long> getCompileTimeValue() const {return value;}
+
+		ASTDataDecl* getNode() const {return &node;}
+
+	private:
+		Constant(Scope&, ASTDataDecl&, ZVarType const&, long value);
+
+		ASTDataDecl& node;
+		long value;
+	};
+	
+	// A builtin data value.
+	class BuiltinConstant : public Datum
+	{
+	public:
+		static BuiltinConstant* create(
+				Scope&, ZVarType const&, string const& name, long value,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
+		
+		optional<string> getName() const {return name;}
+		optional<long> getCompileTimeValue() const {return value;}
+
+	private:
+		BuiltinConstant(Scope&, ZVarType const&,
+		                string const& name, long value);
+
 		string name;
-		int id;
-
-		// Is this an inlined constant?
-		bool inlined;
-
-		// Is this a global variable?
-		bool global;
+		long value;
 	};
-
+	
 	class Function
 	{
 	public:
-		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
-				: node(NULL), internalScope(NULL), thisVar(NULL),
-				  returnType(returnType), name(name), paramTypes(paramTypes), id(id)
-			{}
+		// Comparable signature structure.
+		class Signature
+		{
+		public:
+			Signature(string const& name,
+			          vector<ZVarType const*> const& parameterTypes);
+			Signature(Function const& function);
+
+			int compare(Signature const& other) const;
+			bool operator==(Signature const& other) const;
+			bool operator<(Signature const& other) const;
+			string asString() const;
+			operator string() const {return asString();}
+
+			string name;
+			vector<ZVarType const*> parameterTypes;
+		};
+		
+		Function(ZVarType const* returnType, string const& name,
+				 vector<ZVarType const*> paramTypes, int id);
 		ZVarType const* returnType;
 		string name;
 		vector<ZVarType const*> paramTypes;
 		int id;
 
 		ASTFuncDecl* node;
-		Scope* internalScope;
-		Variable* thisVar;
-
+		FunctionScope* internalScope;
+		BuiltinVariable* thisVar;
+		
+		Signature getSignature() const {return Signature(*this);}
+		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
+
+		int getLabel() const;
+		
+	private:
+		mutable optional<int> label;
 	};
+
+	// Is this function a "run" function?
+	bool isRun(Function const&);
+
+	// Get the size of the function stack.
+	int getStackSize(Function const&);
+
+	// Get the function's parameter count, including "this" if present.
+	int getParameterCount(Function const&);
 }
 
 #endif

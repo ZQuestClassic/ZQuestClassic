@@ -17,6 +17,7 @@
 
 #include <vector>
 #include "zdefs.h"
+#include "quest/Quest.h"
 #include "zc_array.h"
 #include "zc_sys.h"
 #include "zeldadat.h"
@@ -113,7 +114,7 @@ fix  LinkModifiedX();
 fix  LinkModifiedY();
 fix  GuyX(int j);
 fix  GuyY(int j);
-int  GuyID(int j);
+EnemyDefinitionRef  GuyID(int j);
 int  GuyMisc(int j);
 void StunGuy(int j,int stun);
 bool  GuySuperman(int j);
@@ -169,12 +170,11 @@ extern ZCMUSIC *zcmusic;
 extern int db;
 extern int detail_int[10];                                  //temporary holder for things you want to detail
 extern zinitdata  zinit;
-extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
-extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern int strike_hint_counter;
 extern int strike_hint_timer;
 extern int strike_hint;
 
+extern Quest *curQuest;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
@@ -186,10 +186,7 @@ extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, 
 extern PALETTE  RAMpal;
 extern byte     *colordata;
 //extern byte     *tilebuf;
-extern itemdata *itemsbuf;
-extern wpndata  *wpnsbuf;
 extern comboclass *combo_class_buf;
-extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern ZCHEATS  zcheats;
 extern byte     use_cheats;
@@ -226,7 +223,7 @@ extern FONT	*msgfont;
 extern word     door_combo_set_count;
 extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
 extern short    lensclk;
-extern int     lensid;
+extern ItemDefinitionRef lensid;
 extern int    Bpos;
 extern byte screengrid[22];
 extern byte ffcgrid[4];
@@ -256,7 +253,9 @@ extern char *SAVE_FILE;
 
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
-extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
+extern int lastentrance,lastentrance_dmap, prices[3],loadside;
+extern ItemDefinitionRef Bwpn, Awpn;
+extern bool combinedBowArrowA, combinedBowArrowB;
 extern int digi_volume,midi_volume,emusic_volume,currmidi,hasitem,whistleclk;
 extern bool analog_movement;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
@@ -265,9 +264,11 @@ extern int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 extern int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
 extern int js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 extern int DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
-extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
-extern int heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;
+extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
+extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what; 
+extern ItemDefinitionRef refill_why;
+extern int heart_beep_timer, new_enemy_tile_start, nets, title_version;
+extern ItemDefinitionRef nayruitem, magicitem;
 extern int magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern dword fps_secs;
 extern float avgfps;

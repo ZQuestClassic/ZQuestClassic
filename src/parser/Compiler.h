@@ -10,6 +10,7 @@
 #include <string>
 #include <stdio.h>
 
+#include "CompilerUtils.h"
 #include "Types.h"
 
 using std::string;
@@ -95,8 +96,7 @@ public:
     }
     static bool preprocess(ASTProgram* theAST, int reclevel);
     static SymbolData* buildSymbolTable(ASTProgram* theAST);
-    static FunctionData* typeCheck(ZScript::Program& program);
-    static IntermediateData* generateOCode(FunctionData* fdata);
+    static IntermediateData* generateOCode(FunctionData& fdata);
     static ScriptsData* assemble(IntermediateData* id);
     static void resetState()
     {

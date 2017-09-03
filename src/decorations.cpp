@@ -173,16 +173,18 @@ void dBushLeaves::draw(BITMAP *dest)
         clk=128;
         return;
     }
+
+    SpriteDefinitionRef sbushleaves = curQuest->specialSprites().bushLeavesDecoration;
     
-    int t=wpnsbuf[iwBushLeaves].tile;
-    cs=wpnsbuf[iwBushLeaves].csets&15;
-    
-    for(int i=0; i<4; ++i)
+    int t = curQuest->getSpriteDefinition(sbushleaves).tile;
+    cs = curQuest->getSpriteDefinition(sbushleaves).csets & 15;
+
+    for (int i = 0; i < 4; ++i)
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        flip=ft[i][int(float(clk-1)/3)][2];
-        tile=t*4+i;
+        x = ox + ft[i][int(float(clk - 1) / 3)][0];
+        y = oy + ft[i][int(float(clk - 1) / 3)][1];
+        flip = ft[i][int(float(clk - 1) / 3)][2];
+        tile = t * 4 + i;
         decoration::draw8(dest);
     }
 }
@@ -313,16 +315,18 @@ void dFlowerClippings::draw(BITMAP *dest)
         clk=128;
         return;
     }
+
+    SpriteDefinitionRef flowerclippings = curQuest->specialSprites().flowerClippingsDecoration;
     
-    int t=wpnsbuf[iwFlowerClippings].tile;
-    cs=wpnsbuf[iwFlowerClippings].csets&15;
-    
-    for(int i=0; i<4; ++i)
+    int t = curQuest->getSpriteDefinition(flowerclippings).tile;
+    cs = curQuest->getSpriteDefinition(flowerclippings).csets & 15;
+
+    for (int i = 0; i < 4; ++i)
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        flip=ft[i][int(float(clk-1)/3)][2];
-        tile=t*4+i;
+        x = ox + ft[i][int(float(clk - 1) / 3)][0];
+        y = oy + ft[i][int(float(clk - 1) / 3)][1];
+        flip = ft[i][int(float(clk - 1) / 3)][2];
+        tile = t * 4 + i;
         decoration::draw8(dest);
     }
 }
@@ -405,16 +409,18 @@ void dGrassClippings::draw(BITMAP *dest)
         clk=128;
         return;
     }
-    
-    int t=wpnsbuf[iwGrassClippings].tile;
-    cs=wpnsbuf[iwGrassClippings].csets&15;
-    
-    for(int i=0; i<3; ++i)
+
+    SpriteDefinitionRef grassclippings = curQuest->specialSprites().grassClippingsDecoration;
+
+    int t = curQuest->getSpriteDefinition(grassclippings).tile;
+    cs = curQuest->getSpriteDefinition(grassclippings).csets & 15;
+
+    for (int i = 0; i < 3; ++i)
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        flip=ft[i][int(float(clk-1)/3)][2];
-        tile=(t+(ft[i][int(float(clk-1)/3)][3]))*4+i;
+        x = ox + ft[i][int(float(clk - 1) / 3)][0];
+        y = oy + ft[i][int(float(clk - 1) / 3)][1];
+        flip = ft[i][int(float(clk - 1) / 3)][2];
+        tile = (t + (ft[i][int(float(clk - 1) / 3)][3])) * 4 + i;
         decoration::draw8(dest);
     }
 }
@@ -458,7 +464,7 @@ dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
         ft[1][3][2]=1;
     }
     
-    wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
+    wpnid=curQuest->getItemDefinition(current_item_id(itype_hammer)).wpns[1];
 }
 
 bool dHammerSmack::animate(int index)
@@ -474,17 +480,20 @@ void dHammerSmack::draw(BITMAP *dest)
         clk=128;
         return;
     }
-    
-    int t=wpnsbuf[wpnid].tile;
-    cs=wpnsbuf[wpnid].csets&15;
-    flip=0;
-    
-    for(int i=0; i<2; ++i)
+
+    if (curQuest->isValid(wpnid))
     {
-        x=ox+ft[i][int(float(clk-1)/3)][0];
-        y=oy+ft[i][int(float(clk-1)/3)][1];
-        tile=t*4+i+(ft[i][int(float(clk-1)/3)][2]*2);
-        decoration::draw8(dest);
+        int t = curQuest->getSpriteDefinition(wpnid).tile;
+        cs = curQuest->getSpriteDefinition(wpnid).csets & 15;
+        flip = 0;
+
+        for (int i = 0; i < 2; ++i)
+        {
+            x = ox + ft[i][int(float(clk - 1) / 3)][0];
+            y = oy + ft[i][int(float(clk - 1) / 3)][1];
+            tile = t * 4 + i + (ft[i][int(float(clk - 1) / 3)][2] * 2);
+            decoration::draw8(dest);
+        }
     }
 }
 
@@ -504,25 +513,27 @@ void dTallGrass::draw(BITMAP *dest)
 {
     if(LinkGetDontDraw())
         return;
-        
-    int t=wpnsbuf[iwTallGrass].tile*4;
-    cs=wpnsbuf[iwTallGrass].csets&15;
-    flip=0;
-    x=LinkX();
-    y=LinkY()+10;
-    
-//  if (BSZ)
-    if(zinit.linkanimationstyle==las_bszelda)
+
+    SpriteDefinitionRef tallgrasss = curQuest->specialSprites().tallGrassDecoration;
+
+    int t = curQuest->getSpriteDefinition(tallgrasss).tile * 4;
+    cs = curQuest->getSpriteDefinition(tallgrasss).csets & 15;
+    flip = 0;
+    x = LinkX();
+    y = LinkY() + 10;
+
+    //  if (BSZ)
+    if (zinit.linkanimationstyle == las_bszelda)
     {
-        tile=t+(anim_3_4(LinkLStep(),7)*2);
+        tile = t + (anim_3_4(LinkLStep(), 7) * 2);
     }
     else
     {
-        tile=t+((LinkLStep()>=6)?2:0);
+        tile = t + ((LinkLStep() >= 6) ? 2 : 0);
     }
-    
+
     decoration::draw8(dest);
-    x+=8;
+    x += 8;
     ++tile;
     decoration::draw8(dest);
 }
@@ -545,15 +556,17 @@ void dRipples::draw(BITMAP *dest)
 {
     if(LinkGetDontDraw())
         return;
-        
-    int t=wpnsbuf[iwRipples].tile*4;
-    cs=wpnsbuf[iwRipples].csets&15;
-    flip=0;
-    x=LinkX();
-    y=LinkY()+10;
-    tile=t+(((clk/8)%3)*2);
+
+    SpriteDefinitionRef ripples = curQuest->specialSprites().ripplesDecoration;
+
+    int t = curQuest->getSpriteDefinition(ripples).tile * 4;
+    cs = curQuest->getSpriteDefinition(ripples).csets & 15;
+    flip = 0;
+    x = LinkX();
+    y = LinkY() + 10;
+    tile = t + (((clk / 8) % 3) * 2);
     decoration::draw8(dest);
-    x+=8;
+    x += 8;
     ++tile;
     decoration::draw8(dest);
 }
@@ -562,21 +575,24 @@ dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
     id=Id;
     clk=Clk;
-    wpnid = itemsbuf[current_item_id(itype_hoverboots)].wpn;
+    wpnid = curQuest->getItemDefinition(current_item_id(itype_hoverboots)).wpns[0];
 }
 
 void dHover::draw(BITMAP *dest)
 {
-    int t=wpnsbuf[wpnid].tile*4;
-    cs=wpnsbuf[wpnid].csets&15;
-    flip=0;
-    x=LinkX();
-    y=LinkY()+10-LinkZ();
-    tile=t+(((clk/8)%3)*2);
-    decoration::draw8(dest);
-    x+=8;
-    ++tile;
-    decoration::draw8(dest);
+    if (curQuest->isValid(wpnid))
+    {
+        int t = curQuest->getSpriteDefinition(wpnid).tile * 4;
+        cs = curQuest->getSpriteDefinition(wpnid).csets & 15;
+        flip = 0;
+        x = LinkX();
+        y = LinkY() + 10 - LinkZ();
+        tile = t + (((clk / 8) % 3) * 2);
+        decoration::draw8(dest);
+        x += 8;
+        ++tile;
+        decoration::draw8(dest);
+    }
 }
 
 bool dHover::animate(int index)
@@ -607,43 +623,54 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     {
         return;
     }
+
+    ItemDefinitionRef nayruitem = current_item_id(itype_nayruslove);
+
+    if (!curQuest->isValid(nayruitem))
+        return;
+
+    SpriteDefinitionRef nayrufront = curQuest->specialSprites().nayruShieldFront;
+    SpriteDefinitionRef nayruback = curQuest->specialSprites().nayruShieldBack;
     
-    int fb=(misc==0?
-            (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
-             itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
-                (itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
-                 itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
-    int t=wpnsbuf[fb].tile;
-    int fr=wpnsbuf[fb].frames;
-    int spd=wpnsbuf[fb].speed;
-    cs=wpnsbuf[fb].csets&15;
-    flip=0;
-    bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
-    bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
-    
-    if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
-{
-        drawstyle=translucent?1:0;
-        x=LinkX()-8;
-        y=LinkY()-8-LinkZ();
-        tile=t;
-        
-        if(fr>0&&spd>0)
+    SpriteDefinitionRef fb=(misc==0?
+            ( curQuest->isValid(curQuest->getItemDefinition(nayruitem).wpns[4]) ?
+                curQuest->getItemDefinition(nayruitem).wpns[4] :  nayrufront) :
+                ( curQuest->isValid(curQuest->getItemDefinition(nayruitem).wpns[9]) ?
+                    curQuest->getItemDefinition(nayruitem).wpns[9] : nayruback));
+    if (curQuest->isValid(fb))
+    {
+        int t = curQuest->getSpriteDefinition(fb).tile;
+        int fr = curQuest->getSpriteDefinition(fb).frames;
+        int spd = curQuest->getSpriteDefinition(fb).speed;
+        cs = curQuest->getSpriteDefinition(fb).csets & 15;
+        flip = 0;
+        bool flickering = (curQuest->getItemDefinition(nayruitem).flags & itemdata::IF_FLAG4) != 0;
+        bool translucent = (curQuest->getItemDefinition(nayruitem).flags & itemdata::IF_FLAG3) != 0;
+
+        if (((LinkNayrusLoveShieldClk() & 0x20) || (LinkNayrusLoveShieldClk() & 0xF00)) && (!flickering || ((misc == 1) ? (frame & 1) : (!(frame & 1)))))
         {
-            tile+=((clk/spd)%fr);
+            drawstyle = translucent ? 1 : 0;
+            x = LinkX() - 8;
+            y = LinkY() - 8 - LinkZ();
+            tile = t;
+
+            if (fr > 0 && spd > 0)
+            {
+                tile += ((clk / spd) % fr);
+            }
+
+            decoration::draw(dest);
+            x += 16;
+            tile += fr;
+            decoration::draw(dest);
+            x -= 16;
+            y += 16;
+            tile += fr;
+            decoration::draw(dest);
+            x += 16;
+            tile += fr;
+            decoration::draw(dest);
         }
-        
-        decoration::draw(dest);
-        x+=16;
-        tile+=fr;
-        decoration::draw(dest);
-        x-=16;
-        y+=16;
-        tile+=fr;
-        decoration::draw(dest);
-        x+=16;
-        tile+=fr;
-        decoration::draw(dest);
     }
 }
 
