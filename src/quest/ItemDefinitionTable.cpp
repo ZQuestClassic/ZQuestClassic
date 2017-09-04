@@ -55,7 +55,7 @@ bool SpecialItemIndex::checkConsistency(Quest &quest)
 }
 
 itemdata::itemdata(const std::string &name_, byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_, 
-    uint32_t wpn_, uint32_t wpn2_, uint32_t wpn3_, uint32_t wpn4_, uint32_t wpn5_, uint32_t wpn6_, uint32_t wpn7_, uint32_t wpn8_, uint32_t wpn9_, uint32_t wpn10_, 
+    SpriteDefinitionRef wpn_, SpriteDefinitionRef wpn2_, SpriteDefinitionRef wpn3_, SpriteDefinitionRef wpn4_, SpriteDefinitionRef wpn5_, SpriteDefinitionRef wpn6_, SpriteDefinitionRef wpn7_, SpriteDefinitionRef wpn8_, SpriteDefinitionRef wpn9_, SpriteDefinitionRef wpn10_, 
     byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_)
 {        
     clear();
@@ -69,16 +69,16 @@ itemdata::itemdata(const std::string &name_, byte family_, byte fam_type_, byte 
     setmax = setmax_;
     max = max_;
     playsound = playsound_;
-    wpns[0] = SpriteDefinitionRef("CORE", wpn_);
-    wpns[1] = SpriteDefinitionRef("CORE", wpn2_);
-    wpns[2] = SpriteDefinitionRef("CORE", wpn3_);
-    wpns[3] = SpriteDefinitionRef("CORE", wpn4_);
-    wpns[4] = SpriteDefinitionRef("CORE", wpn5_);
-    wpns[5] = SpriteDefinitionRef("CORE", wpn6_);
-    wpns[6] = SpriteDefinitionRef("CORE", wpn7_);
-    wpns[7] = SpriteDefinitionRef("CORE", wpn8_);
-    wpns[8] = SpriteDefinitionRef("CORE", wpn9_);
-    wpns[9] = SpriteDefinitionRef("CORE", wpn10_);
+    wpns[0] = wpn_;
+    wpns[1] = wpn2_;
+    wpns[2] = wpn3_;
+    wpns[3] = wpn4_;
+    wpns[4] = wpn5_;
+    wpns[5] = wpn6_;
+    wpns[6] = wpn7_;
+    wpns[7] = wpn8_;
+    wpns[8] = wpn9_;
+    wpns[9] = wpn10_;
     pickup_hearts = pickup_hearts_;
     misc1 = misc1_;
     misc2 = misc2_;

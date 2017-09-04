@@ -3672,7 +3672,7 @@ void LinkClass::addsparkle(int wpn)
         Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
                              (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,
-            curQuest->isValid(sparkle_type) ? curQuest->getSpriteDefinition(sparkle_type).type : 0,  // is this right? hard to tell what is supposed to be going on here. -DD
+            curQuest->getSpriteDefinition(sparkle_type).type,  // is this right? hard to tell what is supposed to be going on here. -DD
             0,direction,itemid,getUID()));
     }
 }
