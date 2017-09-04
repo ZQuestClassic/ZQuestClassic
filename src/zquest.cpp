@@ -11578,11 +11578,13 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
         int y = d->y;
         int w = 16;
         int h = 16;
+        float temp_scale = 1;
         
         if(is_large)
         {
             w = 32;
             h = 32;
+		temp_scale = 2; // Scale up by 1.5
         }
         
         BITMAP *buf = create_bitmap_ex(8,16,16);
@@ -11601,6 +11603,12 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
             blit(bigbmp,screen,0,0,x+2,y+2,w,h);
             destroy_bitmap(bigbmp);
         }
+	
+	//Display the sprite ID. 
+	if (biw[d->d1].i >= 0)
+	{
+		textprintf_ex(screen, is_large ? font : spfont, x, y + (20 * temp_scale), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
+	}
         
         unscare_mouse();
     }
@@ -23980,7 +23988,6 @@ command_pair commands[cmdMAX]=
     { "Integrity Check (Screens) ",         0, (intF) onIntegrityCheckRooms                            },
     { "Integrity Check (Warps) ",           0, (intF) onIntegrityCheckWarps                            },
     { "Set Item",                           0, (intF) onItem                                           },
-    { "Item Locations Report",              0, (intF) onItemLocationReport                             },
     { "Item Editor",                        0, (intF) onCustomItems                                    },
     { "Layers",                             0, (intF) onLayers                                         },
     { "Paste Layers",                       0, (intF) onPasteLayers                                    },
@@ -24062,7 +24069,14 @@ command_pair commands[cmdMAX]=
     { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Rules - Compatibility",              0, (intF) onCompatRules                                    } 
+    { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
+    { "Report: Combo Locations",              0, (intF) onComboLocationReport                                    },
+    { "Report: Combo Type Locs.",              0, (intF) onComboTypeLocationReport                                    },
+    { "Report: Enemy Locations",              0, (intF) onEnemyLocationReport                                    },
+    { "Report: Item Locations",              0, (intF) onItemLocationReport                             },
+    { "Report: Script Locations",              0, (intF) onScriptLocationReport                                    },
+    { "Report: What Links Here",              0, (intF) onWhatWarpsReport                                    },
+    { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    }
 
 };
 
