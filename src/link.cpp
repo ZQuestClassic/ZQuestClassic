@@ -8710,9 +8710,22 @@ void LinkClass::checklocked()
     int si = (currmap<<7) + currscr;
     int di = nextscr(dir);
     
+    /*
+	
+	if ( diagonalMovement ) 
+	{
+		if (!( y>32 && (x<=112||x>=128) ))
+		{
+			if ( //Link is pressing UP_LEFT, UP, or UPRIGHT ) 
+	}
+	
+	*/
+	
     switch(dir)
     {
     case up:
+    case r_up:
+    case l_up:
         if(y>32 || (diagonalMovement?(x<=112||x>=128):x!=120)) return;
         
         if(tmpscr->door[dir]==dLOCKED)
