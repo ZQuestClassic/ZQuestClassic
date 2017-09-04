@@ -17,7 +17,7 @@ using namespace ZScript;
 ////////////////////////////////////////////////////////////////
 // FunctionTypeIds
 
-FunctionTypeIds::FunctionTypeIds(ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
+FunctionTypeIds::FunctionTypeIds(DataTypeId returnTypeId, vector<DataTypeId> const& paramTypeIds)
 	: returnTypeId(returnTypeId), paramTypeIds(paramTypeIds)
 {}
 

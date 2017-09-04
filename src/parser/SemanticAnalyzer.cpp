@@ -41,21 +41,21 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
-		ZVarType const& type = *parameter.resolveType(&functionScope);
+		DataType const& type = *parameter.resolveType(&functionScope);
 		Variable::create(functionScope, parameter, type, *this);
 	}
 
 	// If this is the script's run method, add "this" to the scope.
 	if (isRun(function))
 	{
-		ZVarTypeId thisTypeId = script->getType().getThisTypeId();
-		ZVarType const& thisType = *scope->getTypeStore().getType(thisTypeId);
+		DataTypeId thisTypeId = script->getType().getThisTypeId();
+		DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
 		function.thisVar =
 			BuiltinVariable::create(functionScope, thisType, "this", *this);
 	}
 
 	// Evaluate the function block under its scope and return type.
-	ZVarType const* oldReturnType = returnType;
+	DataType const* oldReturnType = returnType;
 	returnType = function.returnType;
 	scope = &functionScope;
 	visit(*functionDecl, functionDecl->block->statements);
@@ -106,7 +106,7 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
     RecursiveVisitor::caseStmtIf(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.condition->getReadType(), ZVarType::BOOL, &host);
+	checkCast(*host.condition->getReadType(), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
@@ -114,7 +114,7 @@ void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
     RecursiveVisitor::caseStmtIfElse(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.condition->getReadType(), ZVarType::BOOL, &host);
+	checkCast(*host.condition->getReadType(), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
@@ -122,7 +122,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.key->getReadType(), ZVarType::FLOAT, &host);
+	checkCast(*host.key->getReadType(), DataType::FLOAT, &host);
 }
 
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
@@ -133,7 +133,7 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 	scope = scope->getParent();
     if (breakRecursion(host)) return;
 
-	checkCast(*host.test->getReadType(), ZVarType::BOOL, &host);
+	checkCast(*host.test->getReadType(), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
@@ -141,12 +141,12 @@ void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
     RecursiveVisitor::caseStmtWhile(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.test->getReadType(), ZVarType::BOOL, &host);
+	checkCast(*host.test->getReadType(), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtReturn(ASTStmtReturn& host, void*)
 {
-    if (*returnType != ZVarType::ZVOID)
+    if (*returnType != DataType::ZVOID)
 	    handleError(CompileError::FuncBadReturn, &host,
 	                returnType->getName().c_str());
 }
@@ -164,7 +164,7 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 {
 	// Resolve the base type under current scope.
-	ZVarType const& type = host.type->resolve(*scope);
+	DataType const& type = host.type->resolve(*scope);
 	if (!type.isResolved())
 	{
 		handleError(CompileError::UnresolvedType, &host,
@@ -179,7 +179,7 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 {
 	// Resolve the base type.
-	ZVarType const& baseType = host.baseType->resolve(*scope);
+	DataType const& baseType = host.baseType->resolve(*scope);
 	if (!baseType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType, &host,
@@ -188,7 +188,7 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	}
 
 	// Don't allow void type.
-	if (baseType == ZVarType::ZVOID)
+	if (baseType == DataType::ZVOID)
 	{
 		handleError(CompileError::VoidVar, &host);
 		return;
@@ -213,7 +213,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (breakRecursion(host)) return;
 
 	// Then resolve the type.
-	ZVarType const& type = *host.resolveType(scope);
+	DataType const& type = *host.resolveType(scope);
 	if (!type.isResolved())
 	{
 		handleError(CompileError::UnresolvedType, &host,
@@ -222,7 +222,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	}
 
 	// Don't allow void type.
-	if (type == ZVarType::ZVOID)
+	if (type == DataType::ZVOID)
 	{
 		handleError(CompileError::VoidVar, &host, host.name.c_str());
 		return;
@@ -246,7 +246,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 	// Is it a constant?
 	bool isConstant = false;
-	if (type == ZVarType::CONST_FLOAT)
+	if (type == DataType::CONST_FLOAT)
 	{
 		// A constant without an initializer doesn't make sense.
 		if (!host.initializer())
@@ -290,7 +290,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (host.initializer())
 	{
 		// Make sure we can cast the initializer to the type.
-		ZVarType const& initType = *host.initializer()->getReadType();
+		DataType const& initType = *host.initializer()->getReadType();
 		checkCast(initType, type, &host);
 		if (breakRecursion(host)) return;
 
@@ -322,7 +322,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 		ASTExpr& size = **it;
 
 		// Make sure each size can cast to float.
-		if (!size.getReadType()->canCastTo(ZVarType::FLOAT))
+		if (!size.getReadType()->canCastTo(DataType::FLOAT))
 		{
 			handleError(CompileError::NonIntegerArraySize, &host);
 			return;
@@ -340,7 +340,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 {
 	// Resolve the return type under current scope.
-	ZVarType const& returnType = host.returnType->resolve(*scope);
+	DataType const& returnType = host.returnType->resolve(*scope);
 	if (!returnType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType, &host,
@@ -349,7 +349,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	}
 
 	// Gather the parameter types.
-	vector<ZVarType const*> paramTypes;
+	vector<DataType const*> paramTypes;
 	vector<ASTDataDecl*> const& params = host.parameters;
 	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
 		 it != params.end(); ++it)
@@ -357,7 +357,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		ASTDataDecl& decl = **it;
 
 		// Resolve the parameter type under current scope.
-		ZVarType const& type = *decl.resolveType(scope);
+		DataType const& type = *decl.resolveType(scope);
 		if (!type.isResolved())
 		{
 			handleError(CompileError::UnresolvedType, &decl,
@@ -366,7 +366,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		}
 
 		// Don't allow void params.
-		if (type == ZVarType::ZVOID)
+		if (type == DataType::ZVOID)
 		{
 			handleError(CompileError::FunctionVoidParam, &decl,
 			            decl.name.c_str());
@@ -415,7 +415,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		handleError(CompileError::TooManyRun, &host, name.c_str());
 		if (breakRecursion(host)) return;
 	}
-	if (*possibleRuns[0]->returnType != ZVarType::ZVOID)
+	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
 		handleError(CompileError::ScriptRunNotVoid, &host, name.c_str());
 		if (breakRecursion(host)) return;
@@ -444,13 +444,13 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 	visit(host.right, paramRead);
 	if (breakRecursion(host)) return;	
 
-	ZVarType const& ltype = *host.left->getWriteType();
-    ZVarType const& rtype = *host.right->getReadType();
+	DataType const& ltype = *host.left->getWriteType();
+    DataType const& rtype = *host.right->getReadType();
 
 	checkCast(rtype, ltype, &host);
 	if (breakRecursion(host)) return;	
 
-	if (ltype == ZVarType::CONST_FLOAT)
+	if (ltype == DataType::CONST_FLOAT)
 		handleError(CompileError::ConstAssign, &host);
 	if (breakRecursion(host)) return;	
 }
@@ -470,7 +470,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 	// Can't write to a constant.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		if (host.binding->type == ZVarType::CONST_FLOAT)
+		if (host.binding->type == DataType::CONST_FLOAT)
 		{
 			handleError(CompileError::LValConst, &host,
 						host.asString().c_str());
@@ -486,14 +486,14 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
     if (breakRecursion(host)) return;
 
 	// Grab the left side's class.
-    ZVarType const& leftType = *host.left->getReadType();
+    DataType const& leftType = *host.left->getReadType();
 	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
 	{
 		handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
 	host.leftClass = program.getTypeStore().getClass(
-			static_cast<ZVarTypeClass const&>(leftType).getClassId());
+			static_cast<DataTypeClass const&>(leftType).getClassId());
 
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
@@ -505,7 +505,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		vector<ZVarType const*>& paramTypes = host.readFunction->paramTypes;
+		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
 		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != leftType)
 		{
 			handleError(CompileError::ArrowNoVar, &host,
@@ -524,7 +524,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		vector<ZVarType const*>& paramTypes = host.writeFunction->paramTypes;
+		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
 		if (paramTypes.size() != (host.index ? 3 : 2) || *paramTypes[0] != leftType)
 		{
 			handleError(CompileError::ArrowNoVar, &host,
@@ -538,7 +538,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		visit(host.index);
         if (breakRecursion(host)) return;
 
-		checkCast(*host.index->getReadType(), ZVarType::FLOAT, host.index);
+		checkCast(*host.index->getReadType(), DataType::FLOAT, host.index);
         if (breakRecursion(host)) return;
     }
 }
@@ -562,7 +562,7 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	// The index must be a number.
     if (host.index)
     {
-		checkCast(*host.index->getReadType(), ZVarType::FLOAT, host.index);
+		checkCast(*host.index->getReadType(), DataType::FLOAT, host.index);
         if (breakRecursion(host)) return;
     }
 }
@@ -589,7 +589,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	if (breakRecursion(host)) return;
 
 	// Gather parameter types.
-	vector<ZVarType const*> parameterTypes;
+	vector<DataType const*> parameterTypes;
 	if (arrow) parameterTypes.push_back(arrow->left->getReadType());
 	for (vector<ASTExpr*>::const_iterator it = host.parameters.begin();
 		 it != host.parameters.end(); ++it)
@@ -675,17 +675,17 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 {
-	analyzeUnaryExpr(host, ZVarType::FLOAT);
+	analyzeUnaryExpr(host, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
 {
-	analyzeUnaryExpr(host, ZVarType::BOOL);
+	analyzeUnaryExpr(host, DataType::BOOL);
 }
 
 void SemanticAnalyzer::caseExprBitNot(ASTExprBitNot& host, void*)
 {
-	analyzeUnaryExpr(host, ZVarType::FLOAT);
+	analyzeUnaryExpr(host, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprIncrement(ASTExprIncrement& host, void*)
@@ -710,32 +710,32 @@ void SemanticAnalyzer::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
 
 void SemanticAnalyzer::caseExprAnd(ASTExprAnd& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::BOOL, ZVarType::BOOL);
+	analyzeBinaryExpr(host, DataType::BOOL, DataType::BOOL);
 }
 
 void SemanticAnalyzer::caseExprOr(ASTExprOr& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::BOOL, ZVarType::BOOL);
+	analyzeBinaryExpr(host, DataType::BOOL, DataType::BOOL);
 }
 
 void SemanticAnalyzer::caseExprGT(ASTExprGT& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprGE(ASTExprGE& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprLT(ASTExprLT& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprLE(ASTExprLE& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
@@ -758,52 +758,52 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 
 void SemanticAnalyzer::caseExprPlus(ASTExprPlus& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprMinus(ASTExprMinus& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprTimes(ASTExprTimes& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprModulo(ASTExprModulo& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprBitOr(ASTExprBitOr& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprBitXor(ASTExprBitXor& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprLShift(ASTExprLShift& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 {
-	analyzeBinaryExpr(host, ZVarType::FLOAT, ZVarType::FLOAT);
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
 // Literals
@@ -811,8 +811,8 @@ void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
 	// Assign type.
-	ZVarType const* type = program.getTypeStore().getCanonicalType(
-			ZVarTypeArray(ZVarType::FLOAT));
+	DataType const* type = program.getTypeStore().getCanonicalType(
+			DataTypeArray(DataType::FLOAT));
 	host.setVarType(type);
 
 	// Add to scope as a managed literal.
@@ -834,7 +834,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// If present, type check the explicit size.
 	if (host.size)
 	{
-		checkCast(*host.size->getReadType(), ZVarType::FLOAT, host.size);
+		checkCast(*host.size->getReadType(), DataType::FLOAT, host.size);
 		if (breakRecursion(host)) return;
 	}
 
@@ -848,7 +848,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// If present, resolve the explicit type.
 	if (host.type)
 	{
-		ZVarType const& elementType = host.type->resolve(*scope);
+		DataType const& elementType = host.type->resolve(*scope);
 		if (!elementType.isResolved())
 		{
 			handleError(CompileError::UnresolvedType, &host,
@@ -857,7 +857,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		}
 
 		// Disallow void type.
-		if (elementType == ZVarType::ZVOID)
+		if (elementType == DataType::ZVOID)
 		{
 			handleError(CompileError::VoidArr, &host);
 			return;
@@ -866,7 +866,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		// Convert to array type.
 		host.setReadType(
 				program.getTypeStore().getCanonicalType(
-						ZVarTypeArray(elementType)));
+						DataTypeArray(elementType)));
 	}
 
 	// Otherwise, grab the type from the first element.
@@ -874,7 +874,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	{
 		host.setReadType(
 				program.getTypeStore().getCanonicalType(
-						ZVarTypeArray(*host.elements[0]->getReadType())));
+						DataTypeArray(*host.elements[0]->getReadType())));
 	}
 
 	// If initialized, check that each element can be cast to type.
@@ -892,7 +892,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 }
 
 void SemanticAnalyzer::checkCast(
-		ZVarType const& sourceType, ZVarType const& targetType, AST* node)
+		DataType const& sourceType, DataType const& targetType, AST* node)
 {
 	if (sourceType.canCastTo(targetType)) return;
 	handleError(CompileError::IllegalCast, node,
@@ -901,7 +901,7 @@ void SemanticAnalyzer::checkCast(
 }
 
 void SemanticAnalyzer::analyzeUnaryExpr(
-		ASTUnaryExpr& host, ZVarType const& type)
+		ASTUnaryExpr& host, DataType const& type)
 {
 	visit(host.operand);
 	if (breakRecursion(host)) return;
@@ -925,13 +925,13 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
 					*static_cast<ASTExprIndex&>(operand).array);
     }
 
-    checkCast(*operand.getReadType(), ZVarType::FLOAT, &host);
+    checkCast(*operand.getReadType(), DataType::FLOAT, &host);
     if (breakRecursion(host)) return;
 }
 
 void SemanticAnalyzer::analyzeBinaryExpr(
-		ASTBinaryExpr& host, ZVarType const& leftType,
-		ZVarType const& rightType)
+		ASTBinaryExpr& host, DataType const& leftType,
+		DataType const& rightType)
 {
 	visit(host.left);
 	if (breakRecursion(host)) return;

@@ -152,7 +152,7 @@ namespace ZScript
 		Scope& scope;
 
 		// The type of this data.
-		ZVarType const& type;
+		DataType const& type;
 
 		// Id for lookup tables.
 		int const id;
@@ -170,7 +170,7 @@ namespace ZScript
 		virtual optional<int> getGlobalId() const {return nullopt;}
 
 	protected:
-		Datum(Scope& scope, ZVarType const& type);
+		Datum(Scope& scope, DataType const& type);
 
 		// Call in static creation function to register with scope.
 		bool tryAddToScope(CompileErrorHandler&);
@@ -187,13 +187,13 @@ namespace ZScript
 	{
 	public:
 		static Literal* create(
-				Scope&, ASTLiteral&, ZVarType const&,
+				Scope&, ASTLiteral&, DataType const&,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		ASTLiteral* getNode() const {return &node;}
 
 	private:
-		Literal(Scope& scope, ASTLiteral& node, ZVarType const& type);
+		Literal(Scope& scope, ASTLiteral& node, DataType const& type);
 
 		ASTLiteral& node;
 	};
@@ -203,7 +203,7 @@ namespace ZScript
 	{
 	public:
 		static Variable* create(
-				Scope&, ASTDataDecl&, ZVarType const&,
+				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const {return node.name;}
@@ -211,7 +211,7 @@ namespace ZScript
 		optional<int> getGlobalId() const {return globalId;}
 
 	private:
-		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
+		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
 		ASTDataDecl& node;
 		optional<int> globalId;
@@ -222,14 +222,14 @@ namespace ZScript
 	{
 	public:
 		static BuiltinVariable* create(
-				Scope&, ZVarType const&, string const& name,
+				Scope&, DataType const&, string const& name,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const {return name;}
 		optional<int> getGlobalId() const {return globalId;}
 
 	private:
-		BuiltinVariable(Scope&, ZVarType const&, string const& name);
+		BuiltinVariable(Scope&, DataType const&, string const& name);
 
 		string const name;
 		optional<int> globalId;
@@ -240,7 +240,7 @@ namespace ZScript
 	{
 	public:
 		static Constant* create(
-				Scope&, ASTDataDecl&, ZVarType const&, long value,
+				Scope&, ASTDataDecl&, DataType const&, long value,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const;
@@ -250,7 +250,7 @@ namespace ZScript
 		ASTDataDecl* getNode() const {return &node;}
 
 	private:
-		Constant(Scope&, ASTDataDecl&, ZVarType const&, long value);
+		Constant(Scope&, ASTDataDecl&, DataType const&, long value);
 
 		ASTDataDecl& node;
 		long value;
@@ -261,14 +261,14 @@ namespace ZScript
 	{
 	public:
 		static BuiltinConstant* create(
-				Scope&, ZVarType const&, string const& name, long value,
+				Scope&, DataType const&, string const& name, long value,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const {return name;}
 		optional<long> getCompileTimeValue() const {return value;}
 
 	private:
-		BuiltinConstant(Scope&, ZVarType const&,
+		BuiltinConstant(Scope&, DataType const&,
 		                string const& name, long value);
 
 		string name;
@@ -286,7 +286,7 @@ namespace ZScript
 		{
 		public:
 			Signature(string const& name,
-			          vector<ZVarType const*> const& parameterTypes);
+			          vector<DataType const*> const& parameterTypes);
 			Signature(Function const& function);
 
 			int compare(Signature const& other) const;
@@ -296,16 +296,16 @@ namespace ZScript
 			operator string() const {return asString();}
 
 			string name;
-			vector<ZVarType const*> parameterTypes;
+			vector<DataType const*> parameterTypes;
 		};
 		
-		Function(ZVarType const* returnType, string const& name,
-				 vector<ZVarType const*> paramTypes, int id);
+		Function(DataType const* returnType, string const& name,
+				 vector<DataType const*> paramTypes, int id);
 		~Function();
 		
-		ZVarType const* returnType;
+		DataType const* returnType;
 		string name;
-		vector<ZVarType const*> paramTypes;
+		vector<DataType const*> paramTypes;
 		int id;
 
 		ASTFuncDecl* node;

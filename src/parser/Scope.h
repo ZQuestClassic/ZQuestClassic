@@ -39,7 +39,7 @@ namespace ZScript
 		virtual vector<Scope*> getChildren() const = 0;
 
 		// Lookup Local
-		virtual ZVarType const* getLocalType(string const& name) const = 0;
+		virtual DataType const* getLocalType(string const& name) const = 0;
 		virtual ZClass* getLocalClass(string const& name) const = 0;
 		virtual Datum* getLocalDatum(string const& name) const = 0;
 		virtual Function* getLocalGetter(string const& name) const = 0;
@@ -59,20 +59,20 @@ namespace ZScript
 		virtual Scope* makeChild() = 0;
 		virtual Scope* makeChild(string const& name) = 0;
 		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
-		virtual ZVarType const* addType(
-				string const& name, ZVarType const* type, AST* node) = 0;
+		virtual DataType const* addType(
+				string const& name, DataType const* type, AST* node) = 0;
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
 		virtual Function* addGetter(
-				ZVarType const* returnType, string const& name,
-				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
+				DataType const* returnType, string const& name,
+				vector<DataType const*> const& paramTypes, AST* node = NULL)
 				= 0;
 		virtual Function* addSetter(
-				ZVarType const* returnType, string const& name,
-				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
+				DataType const* returnType, string const& name,
+				vector<DataType const*> const& paramTypes, AST* node = NULL)
 				= 0;
 		virtual Function* addFunction(
-				ZVarType const* returnType, string const& name,
-				vector<ZVarType const*> const& paramTypes, AST* node = NULL)
+				DataType const* returnType, string const& name,
+				vector<DataType const*> const& paramTypes, AST* node = NULL)
 				= 0;
 
 		////////////////
@@ -126,7 +126,7 @@ namespace ZScript
 	// Lookup
 
 	// Attempt to resolve name to a type id under scope.
-	ZVarType const* lookupType(Scope const&, string const& name);
+	DataType const* lookupType(Scope const&, string const& name);
 
 	// Attempt to resolve name to a class id under scope.
 	ZClass* lookupClass(Scope const&, string const& name);
@@ -207,7 +207,7 @@ namespace ZScript
 		vector<Scope*> getChildren() const;
 
 		// Lookup Local
-		ZVarType const* getLocalType(string const& name) const;
+		DataType const* getLocalType(string const& name) const;
 		ZClass* getLocalClass(string const& name) const;
 		Datum* getLocalDatum(string const& name) const;
 		Function* getLocalGetter(string const& name) const;
@@ -226,17 +226,17 @@ namespace ZScript
 		Scope* makeChild();
 		Scope* makeChild(string const& name);
 		FunctionScope* makeFunctionChild(Function& function);
-		ZVarType const* addType(
-				string const& name, ZVarType const* type, AST* node = NULL);
+		DataType const* addType(
+				string const& name, DataType const* type, AST* node = NULL);
 		Function* addGetter(
-				ZVarType const* returnType, string const& name,
-				vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+				DataType const* returnType, string const& name,
+				vector<DataType const*> const& paramTypes, AST* node = NULL);
 		Function* addSetter(
-				ZVarType const* returnType, string const& name,
-				vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+				DataType const* returnType, string const& name,
+				vector<DataType const*> const& paramTypes, AST* node = NULL);
 		Function* addFunction(
-				ZVarType const* returnType, string const& name,
-				vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+				DataType const* returnType, string const& name,
+				vector<DataType const*> const& paramTypes, AST* node = NULL);
 
 		// Stack
 		int getLocalStackDepth() const {return stackDepth;}
@@ -246,7 +246,7 @@ namespace ZScript
 		Scope* parent;
 		map<string, Scope*> children;
 		vector<Scope*> anonymousChildren;
-		map<string, ZVarType const*> types;
+		map<string, DataType const*> types;
 		map<string, ZClass*> classes;
 		vector<Datum*> anonymousData;
 		map<string, Datum*> namedData;

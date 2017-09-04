@@ -34,7 +34,7 @@ struct AccessorTable
 class LibrarySymbols
 {
 public:
-	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
+	static LibrarySymbols* getTypeInstance(DataTypeId typeId);
 
 	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual ~LibrarySymbols();

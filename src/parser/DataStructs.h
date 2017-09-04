@@ -21,12 +21,12 @@ class FunctionTypeIds
 {
 public:
 	FunctionTypeIds() : returnTypeId(-1), paramTypeIds() {}
-	FunctionTypeIds(ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+	FunctionTypeIds(DataTypeId returnTypeId, vector<DataTypeId> const& paramTypeIds);
 	int compare(FunctionTypeIds const& other) const;
 	bool operator==(FunctionTypeIds const& other) const {return compare(other) == 0;}
 	bool operator<(FunctionTypeIds const& other) const {return compare(other) < 0;}
-	ZVarTypeId returnTypeId;
-	vector<ZVarTypeId> paramTypeIds;
+	DataTypeId returnTypeId;
+	vector<DataTypeId> paramTypeIds;
 	static FunctionTypeIds const null;
 };
 

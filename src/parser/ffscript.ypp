@@ -182,20 +182,20 @@ TypeDef : TYPEDEF DataType IDENTIFIER {
 	;
 
 DataType :
-	ZVOID {$$ = new ASTVarType(ZVarTypeSimple::ZVOID, @$);}
-	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @$);}
-	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @$);}
-	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @$);}
-	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @$);}
-	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @$);}
-	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @$);}
-	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @$);}
+	ZVOID {$$ = new ASTVarType(DataTypeSimple::ZVOID, @$);}
+	| ZFLOAT {$$ = new ASTVarType(DataTypeSimple::FLOAT, @$);}
+	| ZBOOL {$$ = new ASTVarType(DataTypeSimple::BOOL, @$);}
+	| FFC {$$ = new ASTVarType(DataTypeSimple::FFC, @$);}
+	| ITEM {$$ = new ASTVarType(DataTypeSimple::ITEM, @$);}
+	| ITEMCLASS {$$ = new ASTVarType(DataTypeSimple::ITEMCLASS, @$);}
+	| NPC	{$$ = new ASTVarType(DataTypeSimple::NPC, @$);}
+	| LWEAPON	{$$ = new ASTVarType(DataTypeSimple::LWPN, @$);}
+	| EWEAPON	{$$ = new ASTVarType(DataTypeSimple::EWPN, @$);}
 	| IDENTIFIER {
 			ASTString *name = (ASTString*)$1;
-			$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @$);
+			$$ = new ASTVarType(DataTypeUnresolved(name->getValue()), @$);
 			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTVarType(new ZVarTypeConstFloat(), @$);}
+	| ZCONST ZFLOAT {$$ = new ASTVarType(new DataTypeConstFloat(), @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
