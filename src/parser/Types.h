@@ -10,17 +10,61 @@
 
 using std::string;
 
-// Forward Declarations
 namespace ZScript
 {
+	////////////////////////////////////////////////////////////////
+	// Forward Declarations
 	class Function;
 	class Scope;
 	class ZClass;
+	class DataType;
+
+	typedef int DataTypeId;
+
+	////////////////////////////////////////////////////////////////
+	// Stores and lookup types and classes.
+	class TypeStore
+	{
+	public:
+		TypeStore();
+		~TypeStore();
+
+		// Types
+		DataType const* getType(DataTypeId typeId) const;
+		optional<DataTypeId> getTypeId(DataType const& type) const;
+		optional<DataTypeId> assignTypeId(DataType const& type);
+		optional<DataTypeId> getOrAssignTypeId(DataType const& type);
+
+		template <typename Type>
+			Type const* getCanonicalType(Type const& type)
+		{
+			return static_cast<Type const*>(
+					ownedTypes[*getOrAssignTypeId(type)]);
+		}
+	
+		// Classes
+		std::vector<ZScript::ZClass*> getClasses() const {
+			return ownedClasses;}
+		ZScript::ZClass* getClass(int classId) const;
+		ZScript::ZClass* createClass(string const& name);
+
+	private:
+		// Comparator for pointers to types.
+		struct TypeIdMapComparator {
+			bool operator() (
+					DataType const* const& lhs, DataType const* const& rhs)
+					const;
+		};
+
+		std::vector<DataType const*> ownedTypes;
+		std::map<DataType const*, DataTypeId, TypeIdMapComparator> typeIdMap;
+		std::vector<ZClass*> ownedClasses;
+	};
+
+	std::vector<Function*> getClassFunctions(TypeStore const&);
 
 	////////////////////////////////////////////////////////////////
 	// Data Types
-
-	typedef int DataTypeId;
 
 	// I can't figure out a better way to do this in C++98.
 	enum DataTypeClassId
@@ -72,23 +116,6 @@ namespace ZScript
 		bool operator==(DataType const& other) const {return compare(other) == 0;}
 		bool operator!=(DataType const& other) const {return compare(other) != 0;}
 		bool operator<(DataType const& other) const {return compare(other) < 0;}
-
-		// Comparator for pointers to types.
-		struct PointerLess : public std::less<DataType*> {
-			bool operator() (DataType* const& a, DataType* const& b) const
-			{
-				if (b == NULL) return false;
-				if (a == NULL) return true;
-				return *a < *b;
-			}
-			bool operator() (
-					DataType const* const& a, DataType const* const& b) const
-			{
-				if (b == NULL) return false;
-				if (a == NULL) return true;
-				return *a < *b;
-			}
-		};
 
 		// This comes up so often I'm adding in this shortcut.
 		bool isArray() const {return typeClassId() == ZVARTYPE_CLASSID_ARRAY;}
@@ -211,42 +238,6 @@ namespace ZScript
 	private:
 		DataType const& elementType;
 	};
-
-	////////////////////////////////////////////////////////////////
-	// Stores and lookup types and classes.
-	class TypeStore
-	{
-	public:
-		TypeStore();
-		~TypeStore();
-
-		// Types
-		DataType const* getType(DataTypeId typeId) const;
-		optional<DataTypeId> getTypeId(DataType const& type) const;
-		optional<DataTypeId> assignTypeId(DataType const& type);
-		optional<DataTypeId> getOrAssignTypeId(DataType const& type);
-
-		template <typename Type>
-			Type const* getCanonicalType(Type const& type)
-		{
-			return static_cast<Type const*>(
-					ownedTypes[*getOrAssignTypeId(type)]);
-		}
-	
-		// Classes
-		std::vector<ZScript::ZClass*> getClasses() const {
-			return ownedClasses;}
-		ZScript::ZClass* getClass(int classId) const;
-		ZScript::ZClass* createClass(string const& name);
-
-	private:
-		std::vector<DataType const*> ownedTypes;
-		std::map<DataType const*, DataTypeId, DataType::PointerLess>
-			typeIdMap;
-		std::vector<ZClass*> ownedClasses;
-	};
-
-	std::vector<Function*> getClassFunctions(TypeStore const&);
 
 	////////////////////////////////////////////////////////////////
 	// Script Types
