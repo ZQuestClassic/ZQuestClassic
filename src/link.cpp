@@ -13536,13 +13536,19 @@ void dospecialmoney(int index)
     switch(tmpscr[tmp].room)
     {
     case rINFO:                                             // pay for info
-        if(prices[priceindex]!=100000) // 100000 is a placeholder price for free items
+        if(prices[priceindex]!=100000 ) // 100000 is a placeholder price for free items
         {
-            if (game->get_spendable_rupies() < abs(prices[priceindex])  && !current_item_power(itype_wallet))
+            if (game->get_spendable_rupies() < abs(prices[priceindex]) && !current_item_power(itype_wallet))
                 return;
                 
             if(!current_item_power(itype_wallet))
+	    {
                 game->change_drupy(-abs(prices[priceindex]));
+	    }
+	    if ( current_item_power(itype_wallet)>0 )
+	    {
+		 game->change_drupy(0);   
+	    }
         }
         rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
         donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
@@ -14019,8 +14025,14 @@ void LinkClass::checkitems(int index)
                 if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
                     return;
                 
-                if(current_item_power(itype_wallet))
+                if(!current_item_power(itype_wallet))
+		{
                     game->change_drupy(-abs(prices[PriceIndex]));
+		}
+		 if(current_item_power(itype_wallet))
+		{
+                    game->change_drupy(0);
+		}
             }
             boughtsomething=true;
             //make the other shop items untouchable after
