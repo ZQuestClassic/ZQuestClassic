@@ -237,7 +237,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	}
 
 	// Currently disabled syntaxes:
-	if (type.getArrayDepth() > 1)
+	if (getArrayDepth(type) > 1)
 	{
 		handleError(CompileError::UnimplementedFeature, &host,
 		            "Nested Array Declarations");

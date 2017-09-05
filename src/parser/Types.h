@@ -8,8 +8,6 @@
 #include <vector>
 #include "CompilerUtils.h"
 
-using std::string;
-
 namespace ZScript
 {
 	////////////////////////////////////////////////////////////////
@@ -46,7 +44,7 @@ namespace ZScript
 		std::vector<ZScript::ZClass*> getClasses() const {
 			return ownedClasses;}
 		ZScript::ZClass* getClass(int classId) const;
-		ZScript::ZClass* createClass(string const& name);
+		ZScript::ZClass* createClass(std::string const& name);
 
 	private:
 		// Comparator for pointers to types.
@@ -93,22 +91,24 @@ namespace ZScript
 	class DataType
 	{
 	public:
+		// Call derived class's copy constructor.
 		virtual DataType* clone() const = 0;
-		virtual string getName() const = 0;
-		virtual DataType* resolve(ZScript::Scope& scope) {return this;}
-		virtual bool isResolved() const {return true;}
-		virtual bool canBeGlobal() const {return false;}
-		virtual bool canCastTo(DataType const& target) const = 0;
 
-		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
-		int compare(DataType const& rhs) const;
+		// Resolution.
+		virtual bool isResolved() const {return true;}
+		virtual DataType* resolve(ZScript::Scope& scope) {return this;}
+
+		// Basics
+		virtual std::string getName() const = 0;
+		virtual bool canCastTo(DataType const& target) const = 0;
+		virtual bool canBeGlobal() const {return false;}
 
 		// Derived class info.
 		virtual bool isArray() const {return false;}
 		virtual bool isClass() const {return false;}
 
-		// Get the number of nested arrays at top level.
-		int getArrayDepth() const;
+		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
+		int compare(DataType const& rhs) const;
 
 	private:
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
@@ -143,18 +143,24 @@ namespace ZScript
 	bool operator>(DataType const&, DataType const&);
 	bool operator>=(DataType const&, DataType const&);
 	
+	// Get the number of nested arrays at top level.
+	int getArrayDepth(DataType const&);
+
 	class DataTypeUnresolved : public DataType
 	{
 	public:
-		DataTypeUnresolved(string const& name) : name(name) {}
-		DataTypeUnresolved* clone() const {return new DataTypeUnresolved(*this);}
-		string getName() const {return name;}
-		DataType* resolve(ZScript::Scope& scope);
-		bool isResolved() const {return false;}
-		bool canCastTo(DataType const& target) const {return false;}
+		DataTypeUnresolved(std::string const& name) : name(name) {}
+		DataTypeUnresolved* clone() const {
+			return new DataTypeUnresolved(*this);}
+		
+		virtual bool isResolved() const {return false;}
+		virtual DataType* resolve(ZScript::Scope& scope);
+
+		virtual std::string getName() const {return name;}
+		virtual bool canCastTo(DataType const& target) const {return false;}
 
 	private:
-		string name;
+		std::string name;
 
 		int selfCompare(DataType const& rhs) const;
 	};
@@ -162,19 +168,21 @@ namespace ZScript
 	class DataTypeSimple : public DataType
 	{
 	public:
-		DataTypeSimple(int simpleId, string const& name, string const& upName)
-			: simpleId(simpleId), name(name), upName(upName) {}
+		DataTypeSimple(int simpleId, std::string const& name);
 		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
-		string getName() const {return name;}
-		string getUpName() const {return upName;}
-		bool canBeGlobal() const;
-		bool canCastTo(DataType const& target) const;
+
+		virtual DataTypeSimple* resolve(ZScript::Scope&) {return this;}
+		
+		virtual std::string getName() const {return name;}
+		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canBeGlobal() const;
+
 		int getId() const {return simpleId;}
 
 	private:
 		int simpleId;
-		string name;
-		string upName;
+		std::string name;
+		std::string upName;
 
 		int selfCompare(DataType const& rhs) const;
 	};
@@ -185,10 +193,13 @@ namespace ZScript
 	public:
 		DataTypeConstFloat() {}
 		DataType* clone() const {return new DataTypeConstFloat(*this);}
-		string getName() const {return "const float";}
-		DataType* resolve(ZScript::Scope& scope) {return this;}
-		bool canBeGlobal() const {return true;}
-		bool canCastTo(DataType const& target) const;
+		
+		virtual DataTypeConstFloat* resolve(ZScript::Scope& scope) {
+			return this;}
+
+		virtual std::string getName() const {return "const float";}
+		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canBeGlobal() const {return true;}
 
 	private:
 		int selfCompare(DataType const& other) const {return 0;};
@@ -197,21 +208,23 @@ namespace ZScript
 	class DataTypeClass : public DataType
 	{
 	public:
-		DataTypeClass(int classId) : classId(classId), className("") {}
-		DataTypeClass(int classId, string const& className) : classId(classId), className(className) {}
+		DataTypeClass(int classId);
+		DataTypeClass(int classId, std::string const& className);
 		DataTypeClass* clone() const {return new DataTypeClass(*this);}
-		string getName() const;
-		string getClassName() const {return className;}
-		int getClassId() const {return classId;}
-		DataType* resolve(ZScript::Scope& scope);
-		bool canBeGlobal() const {return true;}
-		bool canCastTo(DataType const& target) const;
 
-		bool isClass() const {return true;}
+		virtual DataTypeClass* resolve(ZScript::Scope& scope);
+
+		virtual std::string getName() const;
+		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canBeGlobal() const {return true;}
+		virtual bool isClass() const {return true;}
+
+		std::string getClassName() const {return className;}
+		int getClassId() const {return classId;}
 		
 	private:
 		int classId;
-		string className;
+		std::string className;
 
 		int selfCompare(DataType const& other) const;
 	};
@@ -219,18 +232,20 @@ namespace ZScript
 	class DataTypeArray : public DataType
 	{
 	public:
-		DataTypeArray(DataType const& elementType) : elementType(elementType) {}
+		DataTypeArray(DataType const& elementType)
+			: elementType(elementType) {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
 
-		string getName() const {return elementType.getName() + "[]";}
-		DataType* resolve(ZScript::Scope& scope) {return this;}
+		virtual DataTypeArray* resolve(ZScript::Scope& scope) {return this;}
 
-		bool canBeGlobal() const {return true;}
-		bool canCastTo(DataType const& target) const;
+		virtual std::string getName() const {
+			return elementType.getName() + "[]";}
+		virtual bool canCastTo(DataType const& target) const;
+		virtual bool canBeGlobal() const {return true;}
+		virtual bool isArray() const {return true;}
+
 		DataType const& getElementType() const {return elementType;}
 		DataType const& getBaseType() const;
-
-		bool isArray() const {return true;}
 
 	private:
 		DataType const& elementType;
@@ -251,7 +266,7 @@ namespace ZScript
 
 		bool operator==(ScriptType const& other) const {
 			return id == other.id;}
-		string const& getName() const {return name;}
+		std::string const& getName() const {return name;}
 		DataTypeId getThisTypeId() const {return thisTypeId;}
 		bool isNull() const {return id == ID_NULL;}
 
@@ -262,12 +277,12 @@ namespace ZScript
 	private:
 		enum Id {ID_NULL, ID_GLOBAL, ID_FFC, ID_ITEM};
 
-		ScriptType(Id id, string const& name, DataTypeId thisTypeId)
+		ScriptType(Id id, std::string const& name, DataTypeId thisTypeId)
 			: id(id), name(name), thisTypeId(thisTypeId)
 		{}
 
 		int id;
-		string name;
+		std::string name;
 		DataTypeId thisTypeId;
 	};
 }
