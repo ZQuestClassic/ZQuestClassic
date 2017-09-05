@@ -1,10 +1,11 @@
 
 #include "../precompiled.h" //always first
+#include <assert.h>
 
 #include "BuildVisitors.h"
 #include "CompileError.h"
+#include "Types.h"
 #include "ZScript.h"
-#include <assert.h>
 
 using namespace ZScript;
 
@@ -388,7 +389,7 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 	if (manager.getCompileTimeValue()) return;
 
 	// Switch off to the proper helper function.
-	if (manager.type.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+	if (manager.type.isArray())
 	{
 		if (host.initializer()) buildArrayInit(host, context);
 		else buildArrayUninit(host, context);

@@ -486,14 +486,14 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
     if (breakRecursion(host)) return;
 
 	// Grab the left side's class.
-    DataType const& leftType = *host.left->getReadType();
-	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
+    DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
+		    host.left->getReadType());
+    if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
-	host.leftClass = program.getTypeStore().getClass(
-			static_cast<DataTypeClass const&>(leftType).getClassId());
+	host.leftClass = program.getTypeStore().getClass(leftType->getClassId());
 
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
@@ -506,7 +506,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
-		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != leftType)
+		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != *leftType)
 		{
 			handleError(CompileError::ArrowNoVar, &host,
 						(host.right + (host.index ? "[]" : "")).c_str());
@@ -525,7 +525,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
-		if (paramTypes.size() != (host.index ? 3 : 2) || *paramTypes[0] != leftType)
+		if (paramTypes.size() != (host.index ? 3 : 2)
+		    || *paramTypes[0] != *leftType)
 		{
 			handleError(CompileError::ArrowNoVar, &host,
 						(host.right + (host.index ? "[]" : "")).c_str());
