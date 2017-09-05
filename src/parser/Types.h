@@ -143,6 +143,22 @@ namespace ZScript
 	bool operator>(DataType const&, DataType const&);
 	bool operator>=(DataType const&, DataType const&);
 	
+	class DataTypeUnresolved : public DataType
+	{
+	public:
+		DataTypeUnresolved(string const& name) : name(name) {}
+		DataTypeUnresolved* clone() const {return new DataTypeUnresolved(*this);}
+		string getName() const {return name;}
+		DataType* resolve(ZScript::Scope& scope);
+		bool isResolved() const {return false;}
+		bool canCastTo(DataType const& target) const {return false;}
+
+	private:
+		string name;
+
+		int selfCompare(DataType const& rhs) const;
+	};
+
 	class DataTypeSimple : public DataType
 	{
 	public:
@@ -159,22 +175,6 @@ namespace ZScript
 		int simpleId;
 		string name;
 		string upName;
-
-		int selfCompare(DataType const& rhs) const;
-	};
-
-	class DataTypeUnresolved : public DataType
-	{
-	public:
-		DataTypeUnresolved(string const& name) : name(name) {}
-		DataTypeUnresolved* clone() const {return new DataTypeUnresolved(*this);}
-		string getName() const {return name;}
-		DataType* resolve(ZScript::Scope& scope);
-		bool isResolved() const {return false;}
-		bool canCastTo(DataType const& target) const {return false;}
-
-	private:
-		string name;
 
 		int selfCompare(DataType const& rhs) const;
 	};

@@ -218,6 +218,22 @@ bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
 }
 
 ////////////////////////////////////////////////////////////////
+// DataTypeUnresolved
+
+DataType* DataTypeUnresolved::resolve(Scope& scope)
+{
+	if (DataType const* type = lookupType(scope, name))
+		return type->clone();
+	return NULL;
+}
+
+int DataTypeUnresolved::selfCompare(DataType const& rhs) const
+{
+	DataTypeUnresolved const& o = static_cast<DataTypeUnresolved const&>(rhs);
+	return name.compare(o.name);
+}
+
+////////////////////////////////////////////////////////////////
 // DataTypeSimple
 
 int DataTypeSimple::selfCompare(DataType const& rhs) const
@@ -253,22 +269,6 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 	}
 	
 	return false;
-}
-
-////////////////////////////////////////////////////////////////
-// DataTypeUnresolved
-
-DataType* DataTypeUnresolved::resolve(Scope& scope)
-{
-	if (DataType const* type = lookupType(scope, name))
-		return type->clone();
-	return NULL;
-}
-
-int DataTypeUnresolved::selfCompare(DataType const& rhs) const
-{
-	DataTypeUnresolved const& o = static_cast<DataTypeUnresolved const&>(rhs);
-	return name.compare(o.name);
 }
 
 ////////////////////////////////////////////////////////////////
