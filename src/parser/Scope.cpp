@@ -471,16 +471,8 @@ int calculateStackSize(Scope* scope)
 ////////////////////////////////////////////////////////////////
 // GlobalScope
 
-GlobalScope* GlobalScope::_template = NULL;
-
-GlobalScope const& GlobalScope::getTemplate()
-{
-	if (!_template) _template = new GlobalScope();
-	return *_template;
-}
-
-GlobalScope::GlobalScope()
-	: BasicScope(*new TypeStore(), "global")
+GlobalScope::GlobalScope(TypeStore& typeStore)
+	: BasicScope(typeStore, "global")
 {
 	// Add global library functions.
     GlobalSymbols::getInst().addSymbolsToScope(*this);
@@ -502,11 +494,6 @@ GlobalScope::GlobalScope()
 	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
 	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
 	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 0);
-}
-
-GlobalScope::~GlobalScope()
-{
-	delete &typeStore;
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)

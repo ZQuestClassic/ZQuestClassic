@@ -34,8 +34,8 @@ namespace ZScript
 		~Program();
 
 		ASTProgram& getNode() {return node;}
-		TypeStore const& getTypeStore() const;
-		TypeStore& getTypeStore();
+		TypeStore const& getTypeStore() const {return typeStore;}
+		TypeStore& getTypeStore() {return typeStore;}
 		GlobalScope& getScope() const {return *globalScope;}
 		
 		vector<Script*> scripts;
@@ -57,8 +57,9 @@ namespace ZScript
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
 
-		ASTProgram& node;
+		TypeStore typeStore;
 		GlobalScope* globalScope;
+		ASTProgram& node;
 		
 		// Disabled.
 		Program(Program const&);
