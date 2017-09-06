@@ -3317,6 +3317,7 @@ void load_imagebuf()
     switch(imagetype)
     {
     case ftBMP:
+	packfile_password("");
         imagebuf = load_bitmap(imagepath,imagepal);
         imagesize = file_size_ex_password(imagepath,"");
         tilecount=0;
@@ -3332,6 +3333,7 @@ void load_imagebuf()
         break;
         
     case ftBIN:
+	packfile_password("");
         imagesize = file_size_ex_password(imagepath, "");
         tilecount=0;
         
@@ -3350,6 +3352,7 @@ void load_imagebuf()
         break;
         
     case ftTIL:
+	packfile_password("");
         imagesize = file_size_ex_password(imagepath,"");
         f = pack_fopen_password(imagepath,F_READ,"");
         
@@ -3377,6 +3380,7 @@ error:
         break;
         
     case ftZGP:
+	packfile_password("");
         imagesize = file_size_ex_password(imagepath, "");
         f=pack_fopen_password(imagepath,F_READ,"");
         
@@ -3426,12 +3430,15 @@ error2:
         break;
         
     case ftQST:
+	packfile_password("");
         encrypted=true;
         
     case ftZQT:
+	packfile_password("");
         compressed=true;
         
     case ftQSU:
+	packfile_password("");
         imagesize = file_size_ex_password(imagepath, encrypted ? datapwd : "");
         newtilebuf=grabtilebuf;
         byte skip_flags[4];

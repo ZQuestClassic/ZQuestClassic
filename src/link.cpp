@@ -8710,9 +8710,406 @@ void LinkClass::checklocked()
     int si = (currmap<<7) + currscr;
     int di = nextscr(dir);
     
+    
+	
+	if ( diagonalMovement ) 
+	{
+		//Up door
+		if ( y <= 32 && x >= 112 && x <= 128 )
+			
+		//!( y>32 && (x<=112||x>=128) ))
+		{
+			switch ( dir ) 
+			{ //dir needs to be changed with readkey or similar. 
+				case up:
+				case r_up:
+				case l_up:
+				{
+					if(tmpscr->door[0]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,up,dUNLOCKED);
+						tmpscr->door[0]=dUNLOCKED;
+						setmapflag(si, mDOOR_UP);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_DOWN);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[0]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,up,dOPENBOSS);
+						tmpscr->door[0]=dOPENBOSS;
+						setmapflag(si, mDOOR_UP);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_DOWN);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					break;
+				}
+				default: break;
+					
+			}
+		}
+		//Down
+		if ( y >= 128 && x >= 112 && x <= 128 )
+
+		//!(y<128 && (x<=112||x>=128) ) )
+		{
+			switch(dir)
+			{
+				case down:
+				case l_down:
+				case r_down:
+				{
+					
+					if(tmpscr->door[1]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,down,dUNLOCKED);
+						tmpscr->door[1]=dUNLOCKED;
+						setmapflag(si, mDOOR_DOWN);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_UP);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[1]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,down,dOPENBOSS);
+						tmpscr->door[1]=dOPENBOSS;
+						setmapflag(si, mDOOR_DOWN);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_UP);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					break;
+				}
+				default: break;
+			}
+		}
+		//left
+		if ( y>=72 && y <= 88 && x <= 32 )
+			
+		//!( (y<=72||y>=88) && x>32 ) )
+		{
+			switch(dir)
+			{
+				case left:
+				case l_up:
+				case l_down:
+				{
+					if(tmpscr->door[2]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,left,dUNLOCKED);
+						tmpscr->door[2]=dUNLOCKED;
+						setmapflag(si, mDOOR_LEFT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_RIGHT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[2]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,left,dOPENBOSS);
+						tmpscr->door[2]=dOPENBOSS;
+						setmapflag(si, mDOOR_LEFT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_RIGHT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					
+					break;	
+					
+				}
+				default: break;
+			}
+		}
+		
+		
+		//right
+		if ( ( y >=72 && y <= 88 ) && x > 200 )
+			//!( (y<=72||y>=88) && x<206 ) )
+			//y<=72||y>=88):y!=80) || x<208)
+		{
+			switch(dir)
+			{
+				case right:
+				case r_down:
+				case r_up:
+				
+				{
+					if(tmpscr->door[right]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,right,dUNLOCKED);
+						tmpscr->door[3]=dUNLOCKED;
+						setmapflag(si, mDOOR_RIGHT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_LEFT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[right]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,right,dOPENBOSS);
+						tmpscr->door[3]=dOPENBOSS;
+						setmapflag(si, mDOOR_RIGHT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_LEFT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					
+					break;
+				}
+				default: break;
+				
+			}
+		}
+	}
+	else
+	{
+		//orthogonal movement
+		//Up door
+		if ( y<=32 && x == 120 )
+			//!( y>32 && (x!=120) ))
+		{
+			switch ( dir ) 
+			{
+				case up:
+				case r_up:
+				case l_up:
+				{
+					if(tmpscr->door[0]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,up,dUNLOCKED);
+						tmpscr->door[0]=dUNLOCKED;
+						setmapflag(si, mDOOR_UP);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_DOWN);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[0]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,up,dOPENBOSS);
+						tmpscr->door[0]=dOPENBOSS;
+						setmapflag(si, mDOOR_UP);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_DOWN);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					break;
+				}
+				default: break;
+					
+			}
+		}
+		//Down
+		if ( y >= 128 && x == 120 )
+			//!(y<128 && (x!=120) ) )
+		{
+			switch(dir)
+			{
+				case down:
+				case l_down:
+				case r_down:
+				{
+					
+					if(tmpscr->door[1]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,down,dUNLOCKED);
+						tmpscr->door[1]=dUNLOCKED;
+						setmapflag(si, mDOOR_DOWN);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_UP);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[1]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,down,dOPENBOSS);
+						tmpscr->door[1]=dOPENBOSS;
+						setmapflag(si, mDOOR_DOWN);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_UP);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					break;
+				}
+				default: break;
+			}
+		}
+		//left
+		if ( y == 80 && x <= 32 )
+			//!( (y!=80) && x>32 ) )
+		{
+			switch(dir)
+			{
+				case left:
+				case l_up:
+				case l_down:
+				{
+					if(tmpscr->door[2]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,left,dUNLOCKED);
+						tmpscr->door[2]=dUNLOCKED;
+						setmapflag(si, mDOOR_LEFT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_RIGHT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[2]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,left,dOPENBOSS);
+						tmpscr->door[2]=dOPENBOSS;
+						setmapflag(si, mDOOR_LEFT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_RIGHT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					
+					break;	
+					
+				}
+				default: break;
+			}
+		}
+		//right
+		if ( y == 80 && x >= 208 )
+			//!((y!=80) && x<208 ) )
+		{
+			switch(dir)
+			{
+				case right:
+				case r_down:
+				case r_up:
+				{
+					if(tmpscr->door[3]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,right,dUNLOCKED);
+						tmpscr->door[3]=dUNLOCKED;
+						setmapflag(si, mDOOR_RIGHT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_LEFT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[3]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,right,dOPENBOSS);
+						tmpscr->door[3]=dOPENBOSS;
+						setmapflag(si, mDOOR_RIGHT);
+						
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_LEFT);
+						sfx(WAV_DOOR);
+						markBmap(-1);
+
+					    }
+					    else return;
+					}
+					
+					
+					break;
+				}
+				default: break;
+				
+			}
+		}
+	}
+	
+	
+		
+	/*
     switch(dir)
     {
     case up:
+    case r_up:
+    case l_up:
         if(y>32 || (diagonalMovement?(x<=112||x>=128):x!=120)) return;
         
         if(tmpscr->door[dir]==dLOCKED)
@@ -8839,8 +9236,10 @@ void LinkClass::checklocked()
         }
     }
     
-    sfx(WAV_DOOR);
-    markBmap(-1);
+    
+    */
+    
+    
 }
 
 void LinkClass::checkswordtap()
@@ -13536,13 +13935,19 @@ void dospecialmoney(int index)
     switch(tmpscr[tmp].room)
     {
     case rINFO:                                             // pay for info
-        if(prices[priceindex]!=100000) // 100000 is a placeholder price for free items
+        if(prices[priceindex]!=100000 ) // 100000 is a placeholder price for free items
         {
-            if (game->get_spendable_rupies() < abs(prices[priceindex])  && !current_item_power(itype_wallet))
+            if (game->get_spendable_rupies() < abs(prices[priceindex]) && !current_item_power(itype_wallet))
                 return;
                 
             if(!current_item_power(itype_wallet))
+	    {
                 game->change_drupy(-abs(prices[priceindex]));
+	    }
+	    if ( current_item_power(itype_wallet)>0 )
+	    {
+		 game->change_drupy(0);   
+	    }
         }
         rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
         donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
@@ -14019,8 +14424,14 @@ void LinkClass::checkitems(int index)
                 if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
                     return;
                 
-                if(current_item_power(itype_wallet))
+                if(!current_item_power(itype_wallet))
+		{
                     game->change_drupy(-abs(prices[PriceIndex]));
+		}
+		 if(current_item_power(itype_wallet))
+		{
+                    game->change_drupy(0);
+		}
             }
             boughtsomething=true;
             //make the other shop items untouchable after

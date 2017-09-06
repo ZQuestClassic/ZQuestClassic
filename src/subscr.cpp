@@ -3853,7 +3853,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             switch(itemsbuf[Bitem->id].family)
             {
             case itype_arrow:
-                if(Bitem->dummy_bool[0]==true)
+                if(Bitem && Bitem->dummy_bool[0]==true)
                 {
                     if(current_item_id(itype_bow)>-1)
                     {

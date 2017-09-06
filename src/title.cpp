@@ -2827,7 +2827,8 @@ int custom_game(int file)
     zquestheader h;
     char infostr[200];
     char path[2048];
-    int ret=0;
+    int ret=0; 
+	 int focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
     
     if(is_relative_filename(saves[file].qstpath))
     {
@@ -2861,8 +2862,9 @@ int custom_game(int file)
     
     if(is_large)
         large_dialog(gamemode_dlg);
+   
         
-    while((ret=zc_popup_dialog(gamemode_dlg,1))==1)
+    while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
     {
         scare_mouse();
         blit(screen,tmp_scr,scrx,scry,0,0,320,240);
@@ -2887,11 +2889,13 @@ int custom_game(int file)
             {
                 gamemode_dlg[4].dp = infostr;
                 gamemode_dlg[5].flags = D_DISABLED;
+		    focus_obj = 1;
             }
             else
             {
                 gamemode_dlg[4].dp = infostr;
                 gamemode_dlg[5].flags = D_EXIT;
+		    focus_obj = 5;
             }
             
             gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
