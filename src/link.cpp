@@ -3138,7 +3138,7 @@ void LinkClass::checkhit()
                 }
                 
                 hclk=48;
-                Backend::sfx->loop(getHurtSFX(),int(x));
+                Backend::sfx->play(getHurtSFX(),int(x));
                 return;
             }
         }
