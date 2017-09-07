@@ -352,7 +352,8 @@ string Function::Signature::asString() const
 	for (vector<DataType const*>::const_iterator it = parameterTypes.begin();
 		 it != parameterTypes.end(); ++it)
 	{
-		if (comma) {result += ", "; comma = true;}
+		if (comma) {result += ", ";}
+		comma = true;
 		result += (*it)->getName();
 	}
 	result += ")";

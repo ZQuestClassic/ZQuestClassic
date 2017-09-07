@@ -4,7 +4,6 @@
 #include "../zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
-#include "GlobalSymbols.h"
 #include "y.tab.hpp"
 #include <iostream>
 #include <assert.h>

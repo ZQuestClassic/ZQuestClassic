@@ -5,7 +5,6 @@
 #include "../zsyssimple.h"
 #include "CompileError.h"
 #include "DataStructs.h"
-#include "GlobalSymbols.h"
 #include "Scope.h"
 #include "Types.h"
 #include "ZScript.h"

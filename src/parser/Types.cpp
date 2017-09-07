@@ -126,17 +126,17 @@ DataTypeSimple const DataType::ZVOID(ZVARTYPEID_VOID, "void");
 DataTypeSimple const DataType::FLOAT(ZVARTYPEID_FLOAT, "float");
 DataTypeSimple const DataType::BOOL(ZVARTYPEID_BOOL, "bool");
 DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
-DataTypeClass const DataType::_LINK(ZCLASSID_LINK, "Link");
+DataTypeClass const DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
 DataTypeClass const DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
-DataTypeClass const DataType::FFC(ZCLASSID_FFC, "FFC");
-DataTypeClass const DataType::ITEM(ZCLASSID_ITEM, "Item");
+DataTypeClass const DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
+DataTypeClass const DataType::_LINK(ZCLASSID_LINK, "Link");
 DataTypeClass const DataType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
+DataTypeClass const DataType::ITEM(ZCLASSID_ITEM, "Item");
+DataTypeClass const DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
 DataTypeClass const DataType::NPC(ZCLASSID_NPC, "NPC");
+DataTypeClass const DataType::FFC(ZCLASSID_FFC, "FFC");
 DataTypeClass const DataType::LWPN(ZCLASSID_LWPN, "LWeapon");
 DataTypeClass const DataType::EWPN(ZCLASSID_EWPN, "EWeapon");
-DataTypeClass const DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
-DataTypeClass const DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
-DataTypeClass const DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
 DataTypeConstFloat const DataType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////

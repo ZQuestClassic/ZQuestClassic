@@ -1,6 +1,7 @@
 #include "../precompiled.h"
 #include "CompileError.h"
-#include "GlobalSymbols.h"
+
+#include "Library.h"
 #include "Scope.h"
 #include "Types.h"
 #include "ZScript.h"
@@ -475,7 +476,7 @@ GlobalScope::GlobalScope(TypeStore& typeStore)
 	: BasicScope(typeStore, "global")
 {
 	// Add global library functions.
-    GlobalSymbols::getInst().addSymbolsToScope(*this);
+	Libraries::Global::singleton().addTo(*this);
 
 	// Create builtin classes (skip void, float, and bool).
 	for (DataTypeId typeId = ZVARTYPEID_CLASS_START;
@@ -484,16 +485,16 @@ GlobalScope::GlobalScope(TypeStore& typeStore)
 		DataTypeClass const& type =
 			*static_cast<DataTypeClass const*>(DataType::get(typeId));
 		ZClass& klass = *typeStore.getClass(type.getClassId());
-		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
-		library.addSymbolsToScope(klass);
+		Library const& library = Libraries::get(type);
+		library.addTo(klass);
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::_LINK, "Link", 0);
-	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
 	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
-	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
 	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 0);
+	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
+	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
+	BuiltinConstant::create(*this, DataType::_LINK, "Link", 0);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
