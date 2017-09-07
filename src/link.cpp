@@ -3997,6 +3997,8 @@ bool LinkClass::animate(int)
     }
     
     // Pay magic cost for Byrna beams
+    
+    //Byrna needs a secondary timer, for 254+, as do all items that reduce MP on a per-frae basis. Essentially, we will do % divisor == 0 for that. -Z
     if(Lwpns.idCount(wCByrna))
     {
         weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
@@ -4274,7 +4276,7 @@ bool LinkClass::animate(int)
     {
         checkspecial();
         checkitems();
-        checklocked();
+        checklocked(); //This has issues if Link's action is WALKING, in 8-way moveent. 
         checklockblock();
         checkbosslockblock();
         checkchest(cCHEST);
@@ -6330,6 +6332,7 @@ void LinkClass::movelink()
                 return;
             }
         }
+	
     } // endif (action==walking)
     
     if((action!=swimming)&&(action!=casting)&&(action!=drowning) && charging==0 && spins==0 && jumping<1)
@@ -8699,16 +8702,25 @@ void LinkClass::checkchest(int type)
 
 void LinkClass::checklocked()
 {
-    if(toogam) return;
+    if(toogam) return; //Walk through walls. 
     
     if(!isdungeon()) return;
     
-    if(pushing!=8) return;
+    if( !diagonalMovement && pushing!=8) return;
+	/*This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
+	*/
+	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
     
-    if((tmpscr->door[dir]!=dLOCKED) && (tmpscr->door[dir]!=dBOSS)) return;
+	
+	bool found;
+	for ( int q = 0; q < 4; q++ ) {
+		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
+	}
+	
+    if ( !found ) return;
     
     int si = (currmap<<7) + currscr;
-    int di = nextscr(dir);
+    int di;
     
     
 	
@@ -8716,195 +8728,164 @@ void LinkClass::checklocked()
 	{
 		//Up door
 		if ( y <= 32 && x >= 112 && x <= 128 )
-			
-		//!( y>32 && (x<=112||x>=128) ))
 		{
-			switch ( dir ) 
-			{ //dir needs to be changed with readkey or similar. 
-				case up:
-				case r_up:
-				case l_up:
+			if (
+				dir == up || dir == l_up || dir == r_up //|| Up() || ( Up()&&Left()) || ( Up()&&Right()) 
+				
+			)
+			{
+				di = nextscr(up);
+				if(tmpscr->door[0]==dLOCKED)
 				{
-					if(tmpscr->door[0]==dLOCKED)
-					{
-					    if(usekey())
-					    {
-						putdoor(scrollbuf,0,up,dUNLOCKED);
-						tmpscr->door[0]=dUNLOCKED;
-						setmapflag(si, mDOOR_UP);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_DOWN);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
-					else if(tmpscr->door[0]==dBOSS)
-					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
-						putdoor(scrollbuf,0,up,dOPENBOSS);
-						tmpscr->door[0]=dOPENBOSS;
-						setmapflag(si, mDOOR_UP);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_DOWN);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
-					break;
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,up,dUNLOCKED);
+					tmpscr->door[0]=dUNLOCKED;
+					setmapflag(si, mDOOR_UP);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_DOWN);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
 				}
-				default: break;
+				else if(tmpscr->door[0]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,up,dOPENBOSS);
+					tmpscr->door[0]=dOPENBOSS;
+					setmapflag(si, mDOOR_UP);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_DOWN);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
+
+				}
 					
 			}
 		}
 		//Down
-		if ( y >= 128 && x >= 112 && x <= 128 )
-
-		//!(y<128 && (x<=112||x>=128) ) )
+		if ( y >= 128 && x >= 112 && x <= 128 ) 
 		{
-			switch(dir)
+			if ( dir == down || dir == l_down || dir == r_down ) //|| Down() || ( Down()&&Left()) || ( Down()&&Right()))
 			{
-				case down:
-				case l_down:
-				case r_down:
+				di = nextscr(down);
+				if(tmpscr->door[1]==dLOCKED)
 				{
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,down,dUNLOCKED);
+					tmpscr->door[1]=dUNLOCKED;
+					setmapflag(si, mDOOR_DOWN);
 					
-					if(tmpscr->door[1]==dLOCKED)
-					{
-					    if(usekey())
-					    {
-						putdoor(scrollbuf,0,down,dUNLOCKED);
-						tmpscr->door[1]=dUNLOCKED;
-						setmapflag(si, mDOOR_DOWN);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_UP);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
-					else if(tmpscr->door[1]==dBOSS)
-					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
-						putdoor(scrollbuf,0,down,dOPENBOSS);
-						tmpscr->door[1]=dOPENBOSS;
-						setmapflag(si, mDOOR_DOWN);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_UP);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
-					break;
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_UP);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
 				}
-				default: break;
+				else if(tmpscr->door[1]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,down,dOPENBOSS);
+					tmpscr->door[1]=dOPENBOSS;
+					setmapflag(si, mDOOR_DOWN);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_UP);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
+				}
 			}
 		}
 		//left
 		if ( y>=72 && y <= 88 && x <= 32 )
-			
-		//!( (y<=72||y>=88) && x>32 ) )
 		{
-			switch(dir)
+			if ( dir == left || dir == l_up || dir == l_down )//|| Left()  || ( Up()&&Left()) || ( Down()&&Left() ) )
 			{
-				case left:
-				case l_up:
-				case l_down:
+				di = nextscr(left);
+				if(tmpscr->door[2]==dLOCKED)
 				{
-					if(tmpscr->door[2]==dLOCKED)
-					{
-					    if(usekey())
-					    {
-						putdoor(scrollbuf,0,left,dUNLOCKED);
-						tmpscr->door[2]=dUNLOCKED;
-						setmapflag(si, mDOOR_LEFT);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_RIGHT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
-					else if(tmpscr->door[2]==dBOSS)
-					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
-						putdoor(scrollbuf,0,left,dOPENBOSS);
-						tmpscr->door[2]=dOPENBOSS;
-						setmapflag(si, mDOOR_LEFT);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_RIGHT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,left,dUNLOCKED);
+					tmpscr->door[2]=dUNLOCKED;
+					setmapflag(si, mDOOR_LEFT);
 					
-					break;	
-					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_RIGHT);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
 				}
-				default: break;
+				else if(tmpscr->door[2]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,left,dOPENBOSS);
+					tmpscr->door[2]=dOPENBOSS;
+					setmapflag(si, mDOOR_LEFT);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_RIGHT);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
+				}
 			}
 		}
 		
 		
 		//right
-		if ( ( y >=72 && y <= 88 ) && x > 200 )
+		if ( ( y >=72 && y <= 88 ) && x >= 208 )
 			//!( (y<=72||y>=88) && x<206 ) )
 			//y<=72||y>=88):y!=80) || x<208)
 		{
-			switch(dir)
+			if ( dir == right || dir == r_up || dir == r_down ) //|| Right()  || ( Down()&&Right() ) || ( Up()&&Right()))
 			{
-				case right:
-				case r_down:
-				case r_up:
-				
+				di  = nextscr(right);
+				if(tmpscr->door[right]==dLOCKED)
 				{
-					if(tmpscr->door[right]==dLOCKED)
-					{
-					    if(usekey())
-					    {
-						putdoor(scrollbuf,0,right,dUNLOCKED);
-						tmpscr->door[3]=dUNLOCKED;
-						setmapflag(si, mDOOR_RIGHT);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_LEFT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
-					else if(tmpscr->door[right]==dBOSS)
-					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
-						putdoor(scrollbuf,0,right,dOPENBOSS);
-						tmpscr->door[3]=dOPENBOSS;
-						setmapflag(si, mDOOR_RIGHT);
-						
-						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_LEFT);
-						sfx(WAV_DOOR);
-						markBmap(-1);
-					    }
-					    else return;
-					}
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,right,dUNLOCKED);
+					tmpscr->door[3]=dUNLOCKED;
+					setmapflag(si, mDOOR_RIGHT);
 					
-					break;
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_LEFT);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
 				}
-				default: break;
-				
+				else if(tmpscr->door[right]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,right,dOPENBOSS);
+					tmpscr->door[3]=dOPENBOSS;
+					setmapflag(si, mDOOR_RIGHT);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_LEFT);
+					sfx(WAV_DOOR);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+			
 			}
 		}
 	}
@@ -8921,6 +8902,7 @@ void LinkClass::checklocked()
 				case r_up:
 				case l_up:
 				{
+					di  = nextscr(up);
 					if(tmpscr->door[0]==dLOCKED)
 					{
 					    if(usekey())
@@ -8967,6 +8949,7 @@ void LinkClass::checklocked()
 				case l_down:
 				case r_down:
 				{
+					di  = nextscr(down);
 					
 					if(tmpscr->door[1]==dLOCKED)
 					{
@@ -9013,6 +8996,7 @@ void LinkClass::checklocked()
 				case l_up:
 				case l_down:
 				{
+					di  = nextscr(left);
 					if(tmpscr->door[2]==dLOCKED)
 					{
 					    if(usekey())
@@ -9060,6 +9044,7 @@ void LinkClass::checklocked()
 				case r_down:
 				case r_up:
 				{
+					di  = nextscr(right);
 					if(tmpscr->door[3]==dLOCKED)
 					{
 					    if(usekey())
