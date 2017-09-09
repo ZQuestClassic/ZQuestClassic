@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstddef>
 #include <vector>
+#include <map>
 #include <set>
 
 ////////////////////////////////////////////////////////////////
@@ -151,9 +152,8 @@ public:
 	template <typename U>
 	Type value_or(U& v)
 	{
-		return has_value_
-			? *reinterpret_cast<Type*>(&data)
-			: *reinterpret_cast<Type*>(&v);
+		if (has_value_) return *reinterpret_cast<Type*>(&data);
+		return *reinterpret_cast<Type*>(&v);
 	}
 
 	// Destroys the value if present.
@@ -247,36 +247,30 @@ void overwritePairs(Map& target, Map const& source)
 		target[it->first] = it->second;
 }
 
-// Partial function specialization workaround.
-namespace detail {
-	template <typename Element, typename Map, typename Key>
-	struct find_impl {
-		static optional<Element> _(Map const& map, Key const& key)
-		{
-			typename Map::const_iterator it = map.find(key);
-			if (it == map.end()) return nullopt;
-			Element const& element = it->second;
-			return element;
-		}
-	};
-
-	template <typename Element, typename Key>
-	struct find_impl<Element, std::set<Element>, Key> {
-		static optional<Element> _(
-				std::set<Element> const& set, Key const& key)
-		{
-			typename std::set<Element>::const_iterator it = set.find(key);
-			if (it == set.end()) return nullopt;
-			return *it;
-		}
-	};
+// Find an element in a map.
+template <typename Element, typename Key, typename Compare, typename Alloc>
+optional<Element> find(
+		std::map<Key, Element, Compare, Alloc> const& container,
+		Key const& key)
+{
+	typedef std::map<Key, Element, Compare, Alloc> Map;
+	typename Map::const_iterator it = container.find(key);
+	if (it == container.end()) return nullopt;
+	Element const& element = it->second;
+	return element;
 }
 
-// Find an element in a map.
-template <typename Element, typename Map, typename Key>
-optional<Element> find(Map const& map, Key const& key)
+// Find an element in a set.
+template <typename Element, typename Compare, typename Alloc>
+optional<Element> find(
+		std::set<Element, Compare, Alloc> const& container,
+		Element const& key)
 {
-	return detail::find_impl<Element, Map, Key>::_(map, key);
+	typedef std::set<Element, Compare, Alloc> Set;
+	typename Set::const_iterator it = container.find(key);
+	if (it == container.end()) return nullopt;
+	Element const& element = *it;
+	return element;
 }
 
 ////////////////////////////////////////////////////////////////

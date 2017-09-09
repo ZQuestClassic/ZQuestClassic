@@ -30,7 +30,7 @@ namespace ZScript
 	class Program
 	{
 	public:
-		Program(ASTProgram&, CompileErrorHandler&);
+		Program(ASTProgram&, TypeStore&, CompileErrorHandler&);
 		~Program();
 
 		ASTProgram& getNode() {return node;}
@@ -57,9 +57,9 @@ namespace ZScript
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
 
-		TypeStore typeStore;
-		GlobalScope* globalScope;
 		ASTProgram& node;
+		TypeStore& typeStore;
+		GlobalScope* globalScope;
 		
 		// Disabled.
 		Program(Program const&);
@@ -153,7 +153,7 @@ namespace ZScript
 		Scope& scope;
 
 		// The type of this data.
-		DataType const& type;
+		DataType type;
 
 		// Id for lookup tables.
 		int const id;
@@ -287,7 +287,7 @@ namespace ZScript
 		{
 		public:
 			Signature(string const& name,
-			          vector<DataType const*> const& parameterTypes);
+			          vector<DataType> const& parameterTypes);
 			Signature(Function const& function);
 
 			int compare(Signature const& other) const;
@@ -297,16 +297,16 @@ namespace ZScript
 			operator string() const {return asString();}
 
 			string name;
-			vector<DataType const*> parameterTypes;
+			vector<DataType> parameterTypes;
 		};
 		
-		Function(DataType const* returnType, string const& name,
-				 vector<DataType const*> paramTypes, int id);
+		Function(DataType const& returnType, string const& name,
+				 vector<DataType> const& paramTypes, int id);
 		~Function();
 		
-		DataType const* returnType;
+		DataType returnType;
 		string name;
-		vector<DataType const*> paramTypes;
+		vector<DataType> paramTypes;
 		int id;
 
 		ASTFuncDecl* node;

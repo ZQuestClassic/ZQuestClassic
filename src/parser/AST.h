@@ -678,9 +678,9 @@ public:
 	// list's base type combined with these.
 	vector<ASTDataDeclExtraArray*> extraArrays;
 
-	// Resolves the type, using either the list's or this node's own base type
-	// as appropriate.
-	DataType const* resolveType(ZScript::Scope* scope) const;
+	// Resolves the type, using either the list's or this node's own base
+	// type as appropriate.
+	DataType resolveType(ZScript::Scope* scope) const;
 
 private:
 	// The initialization expression. Optional.
@@ -751,18 +751,17 @@ public:
 
 	// Returns the read or write type for this expression. Null for either
 	// means that it can't be read from/written to.
-	virtual DataType const* getReadType() const {return getVarType();}
-	virtual DataType const* getWriteType() const {return getVarType();}
+	virtual optional<DataType> getReadType(TypeStore&) const {
+		return getVarType();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return getVarType();}
 	
 	// phasing out this group for the above two.
-	DataType const* getVarType() const {return varType;}
-	void setVarType(DataType const& type) {varType = &type;}
-	void setVarType(DataType& type) {varType = (DataType const*)&type;}
-	void setVarType(DataType const* type) {varType = type;}
-	void setVarType(DataType* type) {varType = (DataType const*)type;}
+	DataType getVarType() const {return varType;}
+	void setVarType(DataType const& type) {varType = type;}
 
 private:
-	DataType const* varType;
+	DataType varType;
 
 protected:
 	ASTExpr& operator=(ASTExpr const& rhs);
@@ -786,9 +785,10 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {
-		return content ? content->getReadType() : NULL;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return content ? content->getReadType(ts) : nullopt;}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
 	
 	ASTExpr* content;
 };
@@ -811,10 +811,10 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {
-		return right ? right->getReadType() : NULL;}
-	DataType const* getWriteType() const {
-		return right ? right->getWriteType() : NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return right ? right->getReadType(ts) : nullopt;}
+	virtual optional<DataType> getWriteType(TypeStore& ts) const {
+		return right ? right->getWriteType(ts) : nullopt;}
 	
 	ASTExpr* left;
 	ASTExpr* right;
@@ -839,8 +839,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	virtual optional<DataType> getReadType(TypeStore&) const;
+	virtual optional<DataType> getWriteType(TypeStore&) const;
 		
 	// The identifier components separated by '.'.
 	vector<string> components;
@@ -868,14 +868,14 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	virtual optional<DataType> getReadType(TypeStore&) const;
+	virtual optional<DataType> getWriteType(TypeStore&) const;
 	
 	ASTExpr* left;
 	string right;
 	ASTExpr* index;
 
-	ZScript::ZClass* leftClass;
+	ZScript::ZClass const* leftClass;
 	ZScript::Function* readFunction;
 	ZScript::Function* writeFunction;
 };
@@ -896,8 +896,8 @@ public:
 
 	bool isConstant() const;
 
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	virtual optional<DataType> getReadType(TypeStore&) const;
+	virtual optional<DataType> getWriteType(TypeStore&) const;
 	
 	ASTExpr* array;
 	ASTExpr* index;
@@ -916,8 +916,8 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	virtual optional<DataType> getReadType(TypeStore&) const;
+	virtual optional<DataType> getWriteType(TypeStore&) const;
 	
     ASTExpr* left;
     vector<ASTExpr*> parameters;
@@ -955,8 +955,10 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
 };
 
 class ASTExprNot : public ASTUnaryExpr
@@ -972,8 +974,10 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::BOOL;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getBool();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
 };
 
 class ASTExprBitNot : public ASTUnaryExpr
@@ -989,8 +993,10 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
 };
 
 class ASTExprIncrement : public ASTUnaryExpr
@@ -1005,9 +1011,10 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
-		return operand ? operand->getWriteType() : NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore& ts) const {
+		return operand ? operand->getWriteType(ts) : nullopt;}
 };
 
 class ASTExprPreIncrement : public ASTUnaryExpr
@@ -1022,9 +1029,10 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
-		return operand ? operand->getWriteType() : NULL;}
+	optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	optional<DataType> getWriteType(TypeStore& ts) const {
+		return operand ? operand->getWriteType(ts) : nullopt;}
 };
 
 class ASTExprDecrement : public ASTUnaryExpr
@@ -1039,9 +1047,10 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
-		return operand ? operand->getWriteType() : NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore& ts) const {
+		return operand ? operand->getWriteType(ts) : nullopt;}
 };
 
 class ASTExprPreDecrement : public ASTUnaryExpr
@@ -1057,9 +1066,10 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
-		return operand ? operand->getWriteType() : NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore& ts) const {
+		return operand ? operand->getWriteType(ts) : nullopt;}
 };
 
 // virtual
@@ -1092,8 +1102,11 @@ public:
 	ASTLogExpr(ASTLogExpr const& base);
 	virtual ASTLogExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::BOOL;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getBool();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
+	
 protected:
 	ASTLogExpr& operator=(ASTLogExpr const& rhs);
 };
@@ -1142,8 +1155,11 @@ public:
 	ASTRelExpr(ASTRelExpr const& base);
 	virtual ASTRelExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::BOOL;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getBool();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
+	
 protected:
 	ASTRelExpr& operator=(ASTRelExpr const& rhs);
 };
@@ -1260,8 +1276,11 @@ public:
 	ASTAddExpr(ASTAddExpr const& base);
 	virtual ASTAddExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
+	
 protected:
 	ASTAddExpr& operator=(ASTAddExpr const& rhs);
 };
@@ -1310,8 +1329,11 @@ public:
 	ASTMultExpr(ASTMultExpr const& base);
 	virtual ASTMultExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
+	
 protected:
 	ASTMultExpr& operator=(ASTMultExpr const& rhs);
 };
@@ -1376,8 +1398,11 @@ public:
 	ASTBitExpr(ASTBitExpr const& base);
 	virtual ASTBitExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
+	
 protected:
 	ASTBitExpr& operator=(ASTBitExpr const& rhs);
 };
@@ -1440,8 +1465,11 @@ public:
 	ASTShiftExpr(ASTShiftExpr const& base);
 	virtual ASTShiftExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
+	
 protected:
 	ASTShiftExpr& operator=(ASTShiftExpr const& rhs);
 };
@@ -1495,7 +1523,8 @@ public:
 	
 	ZScript::Literal* manager;
 
-	DataType const* getWriteType() const {return NULL;}
+	virtual optional<DataType> getWriteType(TypeStore&) const {
+		return nullopt;}
 
 protected:
 	ASTLiteral& operator=(ASTLiteral const& rhs);
@@ -1519,7 +1548,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::FLOAT;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getFloat();}
 	
     ASTFloat* value;
 };
@@ -1542,7 +1572,9 @@ public:
 			CompileErrorHandler* errorHandler = NULL)
 			const {
 		return value ? 10000L : 0L;}
-	DataType const* getReadType() const {return &DataType::BOOL;}
+
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return ts.getBool();}
 	
     bool value;
 };
@@ -1588,8 +1620,9 @@ public:
 
 	bool isConstant() const {return true;}
 
-	DataTypeArray const* getReadType() const {return iReadType;}
-	void setReadType(DataTypeArray const* type) {iReadType = type;}
+	virtual optional<DataType> getReadType(TypeStore& ts) const {
+		return readType;}
+	void setReadType(DataType const& type) {readType = type;}
 	
 	// The data declaration that this literal may be part of. If NULL that
 	// means this is not part of a data declaration. This should be managed by
@@ -1605,7 +1638,7 @@ public:
 
 private:
 	// Cached read type.
-	DataTypeArray const* iReadType;
+	DataType readType;
 };
 
 // Types
@@ -1628,25 +1661,22 @@ public:
 class ASTVarType : public AST
 {
 public:
-	// Takes ownership of type.
     ASTVarType(
-			DataType* type = NULL,
-			LocationData const& location = LocationData::NONE);
-	// Clones type.
-    ASTVarType(
-			DataType const& type,
+		    DataType const& type,
 			LocationData const& location = LocationData::NONE);
 	ASTVarType(ASTVarType const& base);
-	~ASTVarType() {delete type;}
+	
 	ASTVarType& operator=(ASTVarType const& rhs);
 	ASTVarType* clone() const {return new ASTVarType(*this);}
-	
+
     void execute(ASTVisitor& visitor, void* param = NULL);
 
-	DataType const& resolve(ZScript::Scope& scope);
+	DataType operator*() const {return type;}
+	
+	void resolve(ZScript::Scope& scope) {type.resolve(scope);}
 
-	// Owned by this object.
-	DataType* type;
+private:
+	DataType type;
 };
 
 #endif

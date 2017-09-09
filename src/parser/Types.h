@@ -4,6 +4,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include "CompilerUtils.h"
@@ -15,48 +16,85 @@ namespace ZScript
 	class Function;
 	class Scope;
 	class ZClass;
+
 	class DataType;
 
-	typedef int DataTypeId;
+	namespace detail
+	{
+		class DataTypeImpl;
+		class DataTypeImplNull;
+		class DataTypeImplUnresolved;
+		class DataTypeImplSimple;
+		class DataTypeImplConstFloat;
+		class DataTypeImplClass;
+		class DataTypeImplArray;
+		struct DataTypeImplPtrLess;
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Stores and lookup types and classes.
 	class TypeStore
 	{
 	public:
+		
 		TypeStore();
 		~TypeStore();
 
-		// Types
-		DataType const* getType(DataTypeId typeId) const;
-		optional<DataTypeId> getTypeId(DataType const& type) const;
-		optional<DataTypeId> assignTypeId(DataType const& type);
-		optional<DataTypeId> getOrAssignTypeId(DataType const& type);
+		// Builtin type accessors
+		DataType getVoid();
+		DataType getBool();
+		DataType getFloat();
+		DataType getConstFloat();
+		DataType getGame();
+		DataType getDebug();
+		DataType getScreen();
+		DataType getAudio();
+		DataType getLink();
+		DataType getItemClass();
+		DataType getItem();
+		DataType getNpcClass();
+		DataType getNpc();
+		DataType getFfc();
+		DataType getLWpn();
+		DataType getEWpn();
 
-		template <typename Type>
-			Type const* getCanonicalType(Type const& type)
-		{
-			return static_cast<Type const*>(
-					ownedTypes[*getOrAssignTypeId(type)]);
-		}
-	
+		// Type creators
+		DataType getUnresolved(std::string const& name);
+		DataType getArrayOf(DataType const& elementType);
+		
 		// Classes
-		std::vector<ZScript::ZClass*> getClasses() const {
-			return ownedClasses;}
+		std::vector<ZClass*> getClasses() const {return ownedClasses;}
 		ZScript::ZClass* getClass(int classId) const;
 		ZScript::ZClass* createClass(std::string const& name);
 
 	private:
-		// Comparator for pointers to types.
-		struct TypeIdMapComparator {
-			bool operator() (
-					DataType const* const& lhs, DataType const* const& rhs)
+		struct DataTypeImplPtrLess
+		{
+			bool operator()(detail::DataTypeImpl const* const& lhs,
+			                detail::DataTypeImpl const* const& rhs)
 					const;
 		};
-
-		std::vector<DataType const*> ownedTypes;
-		std::map<DataType const*, DataTypeId, TypeIdMapComparator> typeIdMap;
+		
+		std::set<detail::DataTypeImpl const*, DataTypeImplPtrLess>
+			ownedDataTypes;
 		std::vector<ZClass*> ownedClasses;
+
+		detail::DataTypeImplClass const* dataTypeGame;
+		detail::DataTypeImplClass const* dataTypeDebug;
+		detail::DataTypeImplClass const* dataTypeScreen;
+		detail::DataTypeImplClass const* dataTypeAudio;
+		detail::DataTypeImplClass const* dataTypeLink;
+		detail::DataTypeImplClass const* dataTypeItemClass;
+		detail::DataTypeImplClass const* dataTypeItem;
+		detail::DataTypeImplClass const* dataTypeNpcClass;
+		detail::DataTypeImplClass const* dataTypeNpc;
+		detail::DataTypeImplClass const* dataTypeFfc;
+		detail::DataTypeImplClass const* dataTypeLWpn;
+		detail::DataTypeImplClass const* dataTypeEWpn;
+
+		// Used to initialize the above class types.
+		detail::DataTypeImplClass const* buildClass(
+				std::string const& name, int id);
 	};
 
 	std::vector<Function*> getClassFunctions(TypeStore const&);
@@ -64,78 +102,44 @@ namespace ZScript
 	////////////////////////////////////////////////////////////////
 	// Data Types
 
-	enum DataTypeIdBuiltin
-	{
-		ZVARTYPEID_START = 0,
-
-		ZVARTYPEID_PRIMITIVE_START = 0,
-		ZVARTYPEID_VOID = 0, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL,
-		ZVARTYPEID_PRIMITIVE_END,
-
-		ZVARTYPEID_CONST_FLOAT = ZVARTYPEID_PRIMITIVE_END,
-
-		ZVARTYPEID_CLASS_START,
-		ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START, ZVARTYPEID_LINK, ZVARTYPEID_SCREEN,
-		ZVARTYPEID_FFC, ZVARTYPEID_ITEM, ZVARTYPEID_ITEMCLASS, ZVARTYPEID_NPC, ZVARTYPEID_LWPN, ZVARTYPEID_EWPN,
-		ZVARTYPEID_AUDIO, ZVARTYPEID_DEBUG, ZVARTYPEID_NPCDATA,
-		ZVARTYPEID_CLASS_END,
-
-		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
-	};
-
-	class DataTypeSimple;
-	class DataTypeConstFloat;
-	class DataTypeClass;
-	class DataTypeArray;
-
 	class DataType
 	{
+		friend class TypeStore;
+		friend class detail::DataTypeImplUnresolved;
+		
 	public:
-		// Call derived class's copy constructor.
-		virtual DataType* clone() const = 0;
+		DataType();
 
-		// Resolution.
-		virtual bool isResolved() const {return true;}
-		virtual DataType* resolve(ZScript::Scope& scope) {return this;}
+		TypeStore& getTypeStore() const {return *container;}
+		
+		// Type Resolution
+		bool isResolved() const;
+		void resolve(Scope&);
 
 		// Basics
-		virtual std::string getName() const = 0;
-		virtual bool canCastTo(DataType const& target) const = 0;
-		virtual bool canBeGlobal() const {return false;}
+		std::string getName() const;
+		bool canCastTo(DataType const& target) const;
+		bool canBeGlobal() const;
 
-		// Derived class info.
-		virtual bool isArray() const {return false;}
-		virtual bool isClass() const {return false;}
-
+		// Others
+		bool isArray() const;
+		optional<DataType> getElementType() const;
+		bool isConst() const;
+		ZClass* getClass() const;
+		
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int compare(DataType const& rhs) const;
 
 	private:
-		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
-		// rhs is guaranteed to be the same class as the derived type.
-		virtual int selfCompare(DataType const& rhs) const = 0;
+		TypeStore* container;
+		detail::DataTypeImpl const* impl;
 
-		// Standard Types.
-	public:
-		static DataTypeSimple const ZVOID;
-		static DataTypeSimple const FLOAT;
-		static DataTypeSimple const BOOL;
-		static DataTypeConstFloat const CONST_FLOAT;
-		static DataTypeClass const FFC;
-		static DataTypeClass const ITEM;
-		static DataTypeClass const ITEMCLASS;
-		static DataTypeClass const NPC;
-		static DataTypeClass const LWPN;
-		static DataTypeClass const EWPN;
-		static DataTypeClass const GAME;
-		static DataTypeClass const _LINK; //Rename this. "LINK" is still constant somewhere.
-		static DataTypeClass const SCREEN;
-		static DataTypeClass const AUDIO;
-		static DataTypeClass const DEBUG;
-		static DataTypeClass const NPCDATA;
-		static DataType const* get(DataTypeId id);
+		DataType(TypeStore* container, detail::DataTypeImpl const* impl)
+			: container(container), impl(impl) {}
 	};
 
+	DataType arrayType(DataType const& elementType);
+	
 	bool operator==(DataType const&, DataType const&);
 	bool operator!=(DataType const&, DataType const&);
 	bool operator<(DataType const&, DataType const&);
@@ -145,113 +149,181 @@ namespace ZScript
 	
 	// Get the number of nested arrays at top level.
 	int getArrayDepth(DataType const&);
+	
+	namespace detail
+	{		
+		// virtual base implementation.
+		class DataTypeImpl
+		{
+		public:
+			virtual ~DataTypeImpl() {}
+			
+			// Type Resolution
+			virtual bool isResolved() const {return true;}
+			virtual DataTypeImpl const* resolve(Scope&) const {
+				return this;}
 
-	class DataTypeUnresolved : public DataType
-	{
-	public:
-		DataTypeUnresolved(std::string const& name) : name(name) {}
-		DataTypeUnresolved* clone() const {
-			return new DataTypeUnresolved(*this);}
+			// Basics
+			virtual std::string getName() const = 0;
+			virtual bool canCastTo(DataTypeImpl const& target) const = 0;
+			virtual bool canBeGlobal() const {return true;}
+
+			// Specific Subclass calls.
+			virtual bool isConst() const {return false;}
+			virtual DataTypeImpl const* unconst() const {return NULL;}
+			virtual ZClass* getClass() const {return NULL;}
+			virtual DataTypeImpl const* getElementType() const {
+				return NULL;}
+			
+			// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
+			int compare(DataTypeImpl const& rhs) const;
+
+		private:
+			// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
+			// rhs is guaranteed to be the same class as the derived type.
+			virtual int selfCompare(DataTypeImpl const& rhs) const = 0;
+		};
+
+		bool operator==(DataTypeImpl const&, DataTypeImpl const&);
+		bool operator!=(DataTypeImpl const&, DataTypeImpl const&);
+		bool operator<(DataTypeImpl const&, DataTypeImpl const&);
+		bool operator<=(DataTypeImpl const&, DataTypeImpl const&);
+		bool operator>(DataTypeImpl const&, DataTypeImpl const&);
+		bool operator>=(DataTypeImpl const&, DataTypeImpl const&);
+	
+		// The null implementation.
+		class DataTypeImplNull : public DataTypeImpl
+		{
+		public:
+			static DataTypeImplNull const& singleton();
+			
+			virtual bool isResolved() const {return false;}
+			virtual DataTypeImplNull const* resolve(Scope&) const {
+				return this;}
+
+			virtual std::string getName() const {return "NULL";}
+			virtual bool canCastTo(DataTypeImpl const& target) const {
+				return false;}
+			virtual bool canBeGlobal() const {return false;}
+
+		private:
+			virtual int selfCompare(DataTypeImpl const& rhs) const {
+				return 0;}
+		};
 		
-		virtual bool isResolved() const {return false;}
-		virtual DataType* resolve(ZScript::Scope& scope);
+		// An unresolved data type.
+		class DataTypeImplUnresolved : public DataTypeImpl
+		{
+		public:
+			DataTypeImplUnresolved(std::string const& name) : name(name) {}
 
-		virtual std::string getName() const {return name;}
-		virtual bool canCastTo(DataType const& target) const {return false;}
+			virtual bool isResolved() const {return false;}
+			virtual DataTypeImpl const* resolve(Scope&) const;
 
-	private:
-		std::string name;
+			virtual std::string getName() const {return name;}
+			virtual bool canCastTo(DataTypeImpl const& target) const {
+				return false;}
 
-		int selfCompare(DataType const& rhs) const;
-	};
+		private:
+			std::string name;
 
-	class DataTypeSimple : public DataType
-	{
-	public:
-		DataTypeSimple(int simpleId, std::string const& name);
-		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
+			virtual int selfCompare(DataTypeImpl const& rhs) const;
+		};
 
-		virtual DataTypeSimple* resolve(ZScript::Scope&) {return this;}
+		// A builtin basic data type.
+		class DataTypeImplSimple : public DataTypeImpl
+		{
+		public:
+			static DataTypeImplSimple const& getVoid();
+			static DataTypeImplSimple const& getBool();
+			static DataTypeImplSimple const& getFloat();
+			
+			virtual DataTypeImplSimple const* resolve(Scope&) const {
+				return this;}
 		
-		virtual std::string getName() const {return name;}
-		virtual bool canCastTo(DataType const& target) const;
-		virtual bool canBeGlobal() const;
+			virtual std::string getName() const {return name;}
+			virtual bool canCastTo(DataTypeImpl const& target) const;
 
-		int getId() const {return simpleId;}
+			int getId() const {return id;}
 
-	private:
-		int simpleId;
-		std::string name;
-		std::string upName;
+		private:
+			enum Id {Id_Invalid, Id_Void, Id_Bool, Id_Float};
+			
+			Id id;
+			std::string name;
 
-		int selfCompare(DataType const& rhs) const;
-	};
+			DataTypeImplSimple(Id id, std::string const& name);
 
-	// Temporary while only floats can be constant.
-	class DataTypeConstFloat : public DataType
-	{
-	public:
-		DataTypeConstFloat() {}
-		DataType* clone() const {return new DataTypeConstFloat(*this);}
+			int selfCompare(DataTypeImpl const& rhs) const;
+		};
+
+		// For const float only.
+		class DataTypeImplConstFloat : public DataTypeImpl
+		{
+		public:
+			static DataTypeImplConstFloat const& singleton();
 		
-		virtual DataTypeConstFloat* resolve(ZScript::Scope& scope) {
-			return this;}
+			virtual DataTypeImplConstFloat const* resolve(Scope&) const {
+				return this;}
 
-		virtual std::string getName() const {return "const float";}
-		virtual bool canCastTo(DataType const& target) const;
-		virtual bool canBeGlobal() const {return true;}
+			virtual std::string getName() const {return "const float";}
+			virtual bool canCastTo(DataTypeImpl const& target) const;
+			virtual bool canBeGlobal() const {return true;}
+			virtual bool isConst() const {return true;}
+			virtual DataTypeImpl const* unconst() const {
+				return &DataTypeImplSimple::getFloat();}
 
-	private:
-		int selfCompare(DataType const& other) const {return 0;};
-	};
+		private:
+			DataTypeImplConstFloat() {}
 
-	class DataTypeClass : public DataType
-	{
-	public:
-		DataTypeClass(int classId);
-		DataTypeClass(int classId, std::string const& className);
-		DataTypeClass* clone() const {return new DataTypeClass(*this);}
+			int selfCompare(DataTypeImpl const& rhs) const {return 0;};
+		};
 
-		virtual DataTypeClass* resolve(ZScript::Scope& scope);
+		// A data type for a specific class.
+		class DataTypeImplClass : public DataTypeImpl
+		{
+			friend class ZScript::TypeStore;
+			
+		public:
+			DataTypeImplClass(ZClass& klass) : klass(klass) {}
 
-		virtual std::string getName() const;
-		virtual bool canCastTo(DataType const& target) const;
-		virtual bool canBeGlobal() const {return true;}
-		virtual bool isClass() const {return true;}
+			virtual DataTypeImplClass const* resolve(Scope&) const {
+				return this;}
 
-		std::string getClassName() const {return className;}
-		int getClassId() const {return classId;}
+			virtual std::string getName() const;
+			virtual bool canCastTo(DataTypeImpl const& target) const;
+			virtual bool canBeGlobal() const {return true;}
+			virtual ZClass* getClass() const {return &klass;}
 		
-	private:
-		int classId;
-		std::string className;
+		private:
+			ZClass& klass;
 
-		int selfCompare(DataType const& other) const;
-	};
+			int selfCompare(DataTypeImpl const& rhs) const;
+		};
 
-	class DataTypeArray : public DataType
-	{
-	public:
-		DataTypeArray(DataType const& elementType)
-			: elementType(elementType) {}
-		DataTypeArray* clone() const {return new DataTypeArray(*this);}
+		class DataTypeImplArray : public DataTypeImpl
+		{
+			friend class TypeStore;
+		public:
+			DataTypeImplArray(DataTypeImpl const& elementType)
+				: elementType(elementType) {}
 
-		virtual DataTypeArray* resolve(ZScript::Scope& scope) {return this;}
+			virtual DataTypeImplArray const* resolve(Scope&) const {
+				return this;}
 
-		virtual std::string getName() const {
-			return elementType.getName() + "[]";}
-		virtual bool canCastTo(DataType const& target) const;
-		virtual bool canBeGlobal() const {return true;}
-		virtual bool isArray() const {return true;}
+			virtual std::string getName() const {
+				return elementType.getName() + "[]";}
+			virtual bool canCastTo(DataTypeImpl const& target) const;
+			virtual DataTypeImpl const* getElementType() const {
+				return &elementType;}
 
-		DataType const& getElementType() const {return elementType;}
-		DataType const& getBaseType() const;
+		private:
+			DataTypeImpl const& elementType;
 
-	private:
-		DataType const& elementType;
+			int selfCompare(DataTypeImpl const& rhs) const;
+		};
 
-		int selfCompare(DataType const& other) const;
-	};
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Script Types
@@ -260,30 +332,25 @@ namespace ZScript
 	class ScriptType
 	{
 	public:
-		ScriptType()
-			: id(ID_NULL), name("null"), thisTypeId(ZVARTYPEID_VOID)
-		{}
+		static ScriptType const& getGlobal();
+		static ScriptType const& getFfc();
+		static ScriptType const& getItem();
+
+		ScriptType();
 
 		bool operator==(ScriptType const& other) const {
 			return id == other.id;}
 		std::string const& getName() const {return name;}
-		DataTypeId getThisTypeId() const {return thisTypeId;}
-		bool isNull() const {return id == ID_NULL;}
-
-		static ScriptType const GLOBAL;
-		static ScriptType const FFC;
-		static ScriptType const ITEM;
+		optional<DataType> getThisType(TypeStore&) const;
+		bool isNull() const {return id == Id_Null;}
 
 	private:
-		enum Id {ID_NULL, ID_GLOBAL, ID_FFC, ID_ITEM};
+		enum Id {Id_Null, Id_Global, Id_Ffc, Id_Item};
 
-		ScriptType(Id id, std::string const& name, DataTypeId thisTypeId)
-			: id(id), name(name), thisTypeId(thisTypeId)
-		{}
-
-		int id;
+		Id id;
 		std::string name;
-		DataTypeId thisTypeId;
+
+		ScriptType(Id id, std::string const& name);
 	};
 }
 

@@ -9,55 +9,44 @@ using namespace std;
 using namespace ZScript;
 
 LibraryHelper::LibraryHelper(
-		Scope& scope, int objectRegister, DataType const* objectType)
+		Scope& scope, int objectRegister, optional<DataType> objectType)
 	: scope(scope), objectRegister(objectRegister),
-	  objectType(objectType
-	             ? scope.getTypeStore().getCanonicalType(*objectType)
-	             : NULL)
+	  objectType(objectType)
 {}
 
 LibraryHelper::call_tag const LibraryHelper::asVariable;
 LibraryHelper::call_tag const LibraryHelper::asFunction;
 
 Function& LibraryHelper::addFunction(
-		DataType const* returnType,
+		DataType const& returnType,
 		string name, ...
-		/* DataType const*... parameterTypes, */
-		/* NULL */)
+		/* DataType... parameterTypes, */
+		/* DataType() */)
 {
-	// Convert types to canonical values.
 	TypeStore& typeStore = scope.getTypeStore();
 
-	DataType const* canonicalReturnType =
-		typeStore.getCanonicalType(*returnType);
-
-	vector<DataType const*> canonicalParameters;
-	if (objectType) canonicalParameters.push_back(objectType);
+	vector<DataType> parameterTypes;
+	if (objectType) parameterTypes.push_back(*objectType);
 	va_list args;
 	va_start(args, name);
-	for (DataType const* type = va_arg(args, DataType const*);
-	     type;
-	     type = va_arg(args, DataType const*))
-		canonicalParameters.push_back(
-				typeStore.getCanonicalType<DataType>(*type));
+	for (DataType type = va_arg(args, DataType);
+	     type != DataType();
+	     type = va_arg(args, DataType))
+		parameterTypes.push_back(type);
 	va_end(args);
 
 	// Create and return the function.
-	return *scope.addFunction(
-			canonicalReturnType, name, canonicalParameters);
+	return *scope.addFunction(returnType, name, parameterTypes);
 }
 
 void LibraryHelper::addGetter(
-		int variableRegister, DataType const* type, string const& name,
+		int variableRegister, DataType const& type, string const& name,
 		call_tag const& call)
 {
 	////////////////
 	// Setup types.
-	TypeStore& typeStore = scope.getTypeStore();
-	DataType const* canonicalType = typeStore.getCanonicalType(*type);
-
-	vector<DataType const*> paramTypes;
-	if (objectType) paramTypes.push_back(objectType);
+	vector<DataType> paramTypes;
+	if (objectType) paramTypes.push_back(*objectType);
 
 	////////////////
 	// Generate function code.
@@ -79,25 +68,23 @@ void LibraryHelper::addGetter(
 	// Create the function.
     Function* function;
     if (&call == &asVariable)
-	    function = scope.addGetter(canonicalType, name, paramTypes);
+	    function = scope.addGetter(type, name, paramTypes);
     else if (&call == &asFunction)
-	    function = scope.addFunction(canonicalType, name, paramTypes);
+	    function = scope.addFunction(type, name, paramTypes);
 	code.front()->setLabel(function->getLabel());
     function->giveCode(code);
 }
 
 void LibraryHelper::addGetter(
-		int variableRegister, DataType const* type, string const& name,
+		int variableRegister, DataType const& type, string const& name,
 		int arraySize)
 {
 	////////////////
 	// Setup types.
 	TypeStore& typeStore = scope.getTypeStore();
-	DataType const* canonicalType = typeStore.getCanonicalType(*type);
-
-	vector<DataType const*> paramTypes;
-	if (objectType) paramTypes.push_back(objectType);
-	paramTypes.push_back(&DataType::FLOAT);
+	vector<DataType> paramTypes;
+	if (objectType) paramTypes.push_back(*objectType);
+	paramTypes.push_back(typeStore.getFloat());
 
 	////////////////
 	// Generate function code.
@@ -119,22 +106,20 @@ void LibraryHelper::addGetter(
 
     ////////////////
 	// Create the function.
-	Function& function = *scope.addGetter(canonicalType, name, paramTypes);
+	Function& function = *scope.addGetter(type, name, paramTypes);
 	code.front()->setLabel(function.getLabel());
     function.giveCode(code);
 }
 
 void LibraryHelper::addSetter(
-		int variableRegister, DataType const* type, string const& name)
+		int variableRegister, DataType const& type, string const& name)
 {
 	////////////////
 	// Setup types.
 	TypeStore& typeStore = scope.getTypeStore();
-	DataType const* canonicalType = typeStore.getCanonicalType(*type);
-
-	vector<DataType const*> paramTypes;
-	if (objectType) paramTypes.push_back(objectType);
-	paramTypes.push_back(canonicalType);
+	vector<DataType> paramTypes;
+	if (objectType) paramTypes.push_back(*objectType);
+	paramTypes.push_back(type);
 
 	////////////////
 	// Generate function code.
@@ -143,7 +128,7 @@ void LibraryHelper::addSetter(
     code.push_back(new OPopRegister(new VarArgument(EXP1)));
     // If the argument is a bool, normalize true to 1.
     int skipLabel = -1;
-    if (*type == DataTypeSimple::BOOL)
+    if (type == typeStore.getBool())
     {
 	    skipLabel = ScriptParser::getUniqueLabelID();
 	    code.push_back(new OCompareImmediate(new VarArgument(EXP1),
@@ -168,24 +153,22 @@ void LibraryHelper::addSetter(
 
     ////////////////
 	// Create the function.
-	Function& function = *scope.addSetter(canonicalType, name, paramTypes);
+	Function& function = *scope.addSetter(type, name, paramTypes);
 	code.front()->setLabel(function.getLabel());
     function.giveCode(code);
 }
 
 void LibraryHelper::addSetter(
-		int variableRegister, DataType const* type, string const& name,
+		int variableRegister, DataType const& type, string const& name,
 		int arraySize)
 {
 	////////////////
 	// Setup types.
 	TypeStore& typeStore = scope.getTypeStore();
-	DataType const* canonicalType = typeStore.getCanonicalType(*type);
-
-	vector<DataType const*> paramTypes;
-	if (objectType) paramTypes.push_back(objectType);
-	paramTypes.push_back(&DataType::FLOAT);
-	paramTypes.push_back(canonicalType);
+	vector<DataType> paramTypes;
+	if (objectType) paramTypes.push_back(*objectType);
+	paramTypes.push_back(typeStore.getFloat());
+	paramTypes.push_back(type);
 
 	////////////////
 	// Generate function code.
@@ -209,13 +192,13 @@ void LibraryHelper::addSetter(
 
     ////////////////
 	// Create the function.
-	Function& function = *scope.addSetter(canonicalType, name, paramTypes);
+	Function& function = *scope.addSetter(type, name, paramTypes);
 	code.front()->setLabel(function.getLabel());
     function.giveCode(code);
 }
 
 void ZScript::addPair(
-		LibraryHelper& lh, int variableRegister, DataType const* type,
+		LibraryHelper& lh, int variableRegister, DataType const& type,
 		string const& name)
 {
 	lh.addGetter(variableRegister, type, name);
@@ -223,7 +206,7 @@ void ZScript::addPair(
 }
 
 void ZScript::addPair(
-		LibraryHelper& lh, int variableRegister, DataType const* type,
+		LibraryHelper& lh, int variableRegister, DataType const& type,
 		string const& name, int arraySize)
 {
 	lh.addGetter(variableRegister, type, name, arraySize);

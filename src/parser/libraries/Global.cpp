@@ -8,9 +8,9 @@
 using namespace ZScript;
 using namespace ZScript::Libraries;
 
-Global const& Global::singleton()
+Libraries::Global const& Libraries::Global::singleton()
 {
-	static Global const instance;
+	static Libraries::Global const instance;
 	return instance;
 }
 
@@ -18,11 +18,25 @@ const int radsperdeg = 572958;
 
 void Global::addTo(Scope& scope) const
 {
-	DataTypeSimple const* tVoid = &DataType::ZVOID;
-	DataTypeSimple const* tBool = &DataType::BOOL;
-	DataTypeSimple const* tFloat = &DataType::FLOAT;
-	DataType const* tEnd = NULL;
-	LibraryHelper lh(scope, NUL, NULL);
+	TypeStore& typeStore = scope.getTypeStore();
+	DataType tVoid = typeStore.getVoid();
+	DataType tBool = typeStore.getBool();
+	DataType tFloat = typeStore.getFloat();
+	DataType tGame = typeStore.getGame();
+	DataType tDebug = typeStore.getDebug();
+	DataType tScreen = typeStore.getScreen();
+	DataType tAudio = typeStore.getAudio();
+	DataType tLink = typeStore.getLink();
+	DataType tItemClass = typeStore.getItemClass();
+	DataType tItem = typeStore.getItem();
+	DataType tNpcClass = typeStore.getNpcClass();
+	DataType tNpc = typeStore.getNpc();
+	DataType tFfc = typeStore.getFfc();
+	DataType tLWpn = typeStore.getLWpn();
+	DataType tEWpn = typeStore.getEWpn();
+	DataType tEnd;
+
+	LibraryHelper lh(scope, NUL);
 	
     // int Rand(int maxval)
     {
@@ -657,7 +671,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayFFC(ffc* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayFFC", &DataType::FFC, tEnd);
+			    tFloat, "SizeOfArrayFFC", tFfc, tEnd);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -672,7 +686,7 @@ void Global::addTo(Scope& scope) const
     //int SizeOfArrayNPC(npc* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayNPC", &DataType::NPC, tEnd);
+			    tFloat, "SizeOfArrayNPC", tNpc, tEnd);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -702,7 +716,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayItem(item* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayItem", &DataType::ITEM, tEnd);
+			    tFloat, "SizeOfArrayItem", tItem, tEnd);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -717,7 +731,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayItemdata(itemdata* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayItemdata", &DataType::ITEMCLASS, tEnd);
+			    tFloat, "SizeOfArrayItemdata", tItemClass, tEnd);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -732,7 +746,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayLWeapon(lweapon* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayLWeapon", &DataType::LWPN, tEnd);
+			    tFloat, "SizeOfArrayLWeapon", tLWpn, tEnd);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -747,7 +761,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayEWeapon(eweapon* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayEWeapon", &DataType::EWPN, tEnd);
+			    tFloat, "SizeOfArrayEWeapon", tEWpn, tEnd);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));

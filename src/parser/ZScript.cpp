@@ -12,8 +12,13 @@ using namespace ZScript;
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
 
-Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
-	: node(node), globalScope(new GlobalScope(typeStore))
+Program::Program(
+		ASTProgram& node,
+		TypeStore& typeStore,
+		CompileErrorHandler& errorHandler)
+	: node(node),
+	  typeStore(typeStore),
+	  globalScope(new GlobalScope(typeStore))
 {
 	// Create a ZScript::Script for every script in the program.
 	for (vector<ASTScript*>::const_iterator it = node.scripts.begin();
@@ -29,7 +34,7 @@ Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
 
 	// Create the ~Init script.
 	if (Script* initScript =
-	    createScript(*this, ScriptType::GLOBAL, "~Init", errorHandler))
+	    createScript(*this, ScriptType::getGlobal(), "~Init", errorHandler))
 	{
 		scripts.push_back(initScript);
 		scriptsByName[initScript->getName()] = initScript;
@@ -311,7 +316,7 @@ BuiltinConstant::BuiltinConstant(
 // ZScript::Function::Signature
 
 Function::Signature::Signature(
-		string const& name, vector<DataType const*> const& parameterTypes)
+		string const& name, vector<DataType> const& parameterTypes)
 	: name(name), parameterTypes(parameterTypes)
 {}
 
@@ -327,7 +332,7 @@ int Function::Signature::compare(Function::Signature const& other) const
 	if (c) return c;
 	for (int i = 0; i < (int)parameterTypes.size(); ++i)
 	{
-		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		c = parameterTypes[i].compare(other.parameterTypes[i]);
 		if (c) return c;
 	}
 	return 0;
@@ -349,12 +354,12 @@ string Function::Signature::asString() const
 	result += name;
 	result += "(";
 	bool comma = false;
-	for (vector<DataType const*>::const_iterator it = parameterTypes.begin();
+	for (vector<DataType>::const_iterator it = parameterTypes.begin();
 		 it != parameterTypes.end(); ++it)
 	{
 		if (comma) {result += ", ";}
 		comma = true;
-		result += (*it)->getName();
+		result += it->getName();
 	}
 	result += ")";
 	return result;
@@ -362,8 +367,8 @@ string Function::Signature::asString() const
 
 // ZScript::Function
 
-Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, int id)
+Function::Function(DataType const& returnType, string const& name,
+				   vector<DataType> const& paramTypes, int id)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes),
 	  id(id), label(nullopt)
@@ -406,8 +411,9 @@ int Function::getLabel() const
 
 bool ZScript::isRun(Function const& function)
 {
+	TypeStore& typeStore = function.returnType.getTypeStore();
 	return function.internalScope->getParent()->isScript()
-		&& *function.returnType == DataType::ZVOID
+		&& function.returnType == typeStore.getVoid()
 		&& function.name == "run";
 }
 

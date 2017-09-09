@@ -82,7 +82,7 @@ private:
 	// Current scope.
 	ZScript::Scope* scope;
 	// Current function return type.
-	DataType const* returnType;
+	DataType returnType;
 
 	bool deprecateGlobals;
 

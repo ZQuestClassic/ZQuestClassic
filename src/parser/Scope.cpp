@@ -79,13 +79,14 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 
 // Lookup
 
-DataType const* ZScript::lookupType(Scope const& scope, string const& name)
+optional<DataType> ZScript::lookupType(
+		Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (DataType const* type = scope.getLocalType(name))
+		if (optional<DataType> type = scope.getLocalType(name))
 			return type;
-	return NULL;
+	return nullopt;
 }
 
 ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
@@ -289,9 +290,9 @@ vector<Scope*> BasicScope::getChildren() const
 
 // Lookup Local
 
-DataType const* BasicScope::getLocalType(string const& name) const
+optional<DataType> BasicScope::getLocalType(string const& name) const
 {
-	return find<DataType const*>(types, name).value_or(NULL);
+	return find<DataType>(dataTypes, name);
 }
 
 ZClass* BasicScope::getLocalClass(string const& name) const
@@ -374,13 +375,12 @@ FunctionScope* BasicScope::makeFunctionChild(Function& function)
 	return child;
 }
 
-DataType const* BasicScope::addType(
-		string const& name, DataType const* type, AST* node)
+bool BasicScope::addType(
+		string const& name, DataType const& type, AST* node)
 {
-	if (find<DataType const*>(types, name)) return NULL;
-	type = typeStore.getCanonicalType(*type);
-	types[name] = type;
-	return type;
+	if (find<DataType>(dataTypes, name)) return false;
+	dataTypes[name] = type;
+	return true;
 }
 
 bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
@@ -407,8 +407,8 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 }
 
 Function* BasicScope::addGetter(
-		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		DataType const& returnType, string const& name,
+		vector<DataType> const& paramTypes, AST* node)
 {
 	if (find<Function*>(getters, name)) return NULL;
 
@@ -419,8 +419,8 @@ Function* BasicScope::addGetter(
 }
 
 Function* BasicScope::addSetter(
-		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		DataType const& returnType, string const& name,
+		vector<DataType> const& paramTypes, AST* node)
 {
 	if (find<Function*>(setters, name)) return NULL;
 
@@ -431,8 +431,8 @@ Function* BasicScope::addSetter(
 }
 
 Function* BasicScope::addFunction(
-		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		DataType const& returnType, string const& name,
+		vector<DataType> const& paramTypes, AST* node)
 {
 	Function::Signature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature, signature))
@@ -478,23 +478,12 @@ GlobalScope::GlobalScope(TypeStore& typeStore)
 	// Add global library functions.
 	Libraries::Global::singleton().addTo(*this);
 
-	// Create builtin classes (skip void, float, and bool).
-	for (DataTypeId typeId = ZVARTYPEID_CLASS_START;
-	     typeId < ZVARTYPEID_CLASS_END; ++typeId)
-	{
-		DataTypeClass const& type =
-			*static_cast<DataTypeClass const*>(DataType::get(typeId));
-		ZClass& klass = *typeStore.getClass(type.getClassId());
-		Library const& library = Libraries::get(type);
-		library.addTo(klass);
-	}
-
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
-	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 0);
-	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
-	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
-	BuiltinConstant::create(*this, DataType::_LINK, "Link", 0);
+	BuiltinConstant::create(*this, typeStore.getGame(), "Game", 0);
+	BuiltinConstant::create(*this, typeStore.getDebug(), "Debug", 0);
+	BuiltinConstant::create(*this, typeStore.getScreen(), "Screen", 0);
+	BuiltinConstant::create(*this, typeStore.getAudio(), "Audio", 0);
+	BuiltinConstant::create(*this, typeStore.getLink(), "Link", 0);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)

@@ -17,19 +17,6 @@ namespace ZScript
 	class ZClass;
 }
 
-class FunctionTypeIds
-{
-public:
-	FunctionTypeIds() : returnTypeId(-1), paramTypeIds() {}
-	FunctionTypeIds(DataTypeId returnTypeId, vector<DataTypeId> const& paramTypeIds);
-	int compare(FunctionTypeIds const& other) const;
-	bool operator==(FunctionTypeIds const& other) const {return compare(other) == 0;}
-	bool operator<(FunctionTypeIds const& other) const {return compare(other) < 0;}
-	DataTypeId returnTypeId;
-	vector<DataTypeId> paramTypeIds;
-	static FunctionTypeIds const null;
-};
-
 struct FunctionData
 {
 	FunctionData(ZScript::Program& program);

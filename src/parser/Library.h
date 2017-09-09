@@ -10,7 +10,7 @@ namespace ZScript
 {
 	// Forward Declarations.
 	class Scope;
-	class DataTypeClass;
+	class DataType;
 	
 	// A single builtin class or namespace.
 	class Library
@@ -23,7 +23,7 @@ namespace ZScript
 	// All the different libraries.
 	namespace Libraries
 	{
-		Library const& get(DataTypeClass const& type);
+		Library const& get(DataType const& type);
 		
 		class Global : public Library
 		{

@@ -969,21 +969,18 @@ ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 	return initializer;
 }
 
-DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
+DataType ASTDataDecl::resolveType(ZScript::Scope* scope) const
 {
-	TypeStore& typeStore = scope->getTypeStore();
-
 	// First resolve the base type.
 	ASTVarType* baseTypeNode = list ? list->baseType : baseType;
-	DataType const* type = &baseTypeNode->resolve(*scope);
+	baseTypeNode->resolve(*scope);
+	DataType type = **baseTypeNode;
 
 	// If we have any arrays, tack them onto the base type.
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it =
+		     extraArrays.begin();
 		 it != extraArrays.end(); ++it)
-	{
-		DataTypeArray arrayType(*type);
-		type = typeStore.getCanonicalType(arrayType);
-	}
+		type = arrayType(type);
 
 	return type;
 }
@@ -1077,7 +1074,7 @@ void ASTTypeDef::execute(ASTVisitor& visitor, void* param)
 // ASTExpr
 
 ASTExpr::ASTExpr(LocationData const& location)
-	: ASTStmt(location), varType(NULL)
+	: ASTStmt(location)
 {}
 
 ASTExpr::ASTExpr(ASTExpr const& base)
@@ -1215,14 +1212,16 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 	return binding ? binding->getCompileTimeValue() : nullopt;
 }
 
-DataType const* ASTExprIdentifier::getReadType() const
+optional<DataType> ASTExprIdentifier::getReadType(TypeStore&) const
 {
-	return binding ? &binding->type : NULL;
+	if (binding) return binding->type;
+	return nullopt;
 }
 
-DataType const* ASTExprIdentifier::getWriteType() const
+optional<DataType> ASTExprIdentifier::getWriteType(TypeStore&) const
 {
-	return binding ? &binding->type : NULL;
+	if (binding) return binding->type;
+	return nullopt;
 }
 
 // ASTExprArrow
@@ -1275,14 +1274,16 @@ string ASTExprArrow::asString() const
 	return s;
 }
 
-DataType const* ASTExprArrow::getReadType() const
+optional<DataType> ASTExprArrow::getReadType(TypeStore&) const
 {
-	return readFunction ? readFunction->returnType : NULL;
+	if (readFunction) return readFunction->returnType;
+	return nullopt;
 }
 
-DataType const* ASTExprArrow::getWriteType() const
+optional<DataType> ASTExprArrow::getWriteType(TypeStore&) const
 {
-	return writeFunction ? writeFunction->paramTypes.back() : NULL;
+	if (writeFunction) return writeFunction->paramTypes.back();
+	return nullopt;
 }
 
 // ASTExprIndex
@@ -1322,16 +1323,16 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
-DataType const* ASTExprIndex::getReadType() const
+optional<DataType> ASTExprIndex::getReadType(TypeStore& ts) const
 {
-	if (array->isTypeArrow()) return array->getReadType();
-	return ASTExpr::getReadType();
+	if (array->isTypeArrow()) return array->getReadType(ts);
+	return ASTExpr::getReadType(ts);
 }
 
-DataType const* ASTExprIndex::getWriteType() const
+optional<DataType> ASTExprIndex::getWriteType(TypeStore& ts) const
 {
-	if (array->isTypeArrow()) return array->getWriteType();
-	return ASTExpr::getWriteType();
+	if (array->isTypeArrow()) return array->getWriteType(ts);
+	return ASTExpr::getWriteType(ts);
 }
 	
 // ASTExprCall
@@ -1372,14 +1373,15 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
-DataType const* ASTExprCall::getReadType() const
+optional<DataType> ASTExprCall::getReadType(TypeStore&) const
 {
-	return binding ? binding->returnType : NULL;
+	if (binding) return binding->returnType;
+	return nullopt;
 }
 
-DataType const* ASTExprCall::getWriteType() const
+optional<DataType> ASTExprCall::getWriteType(TypeStore&) const
 {
-	return NULL;
+	return nullopt;
 }
 
 // ASTUnaryExpr
@@ -2472,8 +2474,7 @@ void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 // ASTArrayLiteral
 
 ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
-	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL),
-	  iReadType(NULL)
+	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL)
 {}
 
 ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
@@ -2481,7 +2482,7 @@ ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
 	  type(AST::clone(base.type)),
 	  size(AST::clone(base.size)),
 	  elements(AST::clone(base.elements)),
-	  declaration(NULL), iReadType(NULL)
+	  declaration(NULL)
 {}
 
 ASTArrayLiteral::~ASTArrayLiteral()
@@ -2503,7 +2504,7 @@ ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
 	size = AST::clone(rhs.size);
 	elements = AST::clone(rhs.elements);
 	declaration = NULL;
-	iReadType = NULL;
+	readType = DataType();
 
 	return *this;
 }
@@ -2542,39 +2543,22 @@ void ASTScriptType::execute(ASTVisitor& visitor, void* param)
 
 // ASTVarType
 
-ASTVarType::ASTVarType(DataType* type, LocationData const& location)
+ASTVarType::ASTVarType(DataType const& type, LocationData const& location)
 	: AST(location), type(type)
 {}
 
-ASTVarType::ASTVarType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone())
-{}
-
-ASTVarType::ASTVarType(ASTVarType const& base)
-	: AST(base), type(AST::clone(base.type))
+ASTVarType::ASTVarType(ASTVarType const& rhs)
+	: AST(rhs), type(rhs.type)
 {}
 
 ASTVarType& ASTVarType::operator=(ASTVarType const& rhs)
 {
 	AST::operator=(rhs);
-
-	type = AST::clone(rhs.type);
-
+	type = rhs.type;
 	return *this;
 }
 
 void ASTVarType::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseVarType(*this, param);
-}
-
-DataType const& ASTVarType::resolve(ZScript::Scope& scope)
-{
-	DataType* resolved = type->resolve(scope);
-	if (type != resolved)
-	{
-		delete type;
-		type = resolved;
-	}
-	return *type;
 }

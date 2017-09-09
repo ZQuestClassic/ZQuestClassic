@@ -16,22 +16,23 @@ Ffc const& Ffc::singleton()
 
 void Ffc::addTo(Scope& scope) const
 {
-	DataTypeSimple const* tVoid = &DataType::ZVOID;
-	DataTypeSimple const* tBool = &DataType::BOOL;
-	DataTypeSimple const* tFloat = &DataType::FLOAT;
-	DataTypeClass const* tGame = &DataType::GAME;
-	DataTypeClass const* tDebug = &DataType::DEBUG;
-	DataTypeClass const* tScreen = &DataType::SCREEN;
-	DataTypeClass const* tAudio = &DataType::AUDIO;
-	DataTypeClass const* tLink = &DataType::_LINK;
-	DataTypeClass const* tItemClass = &DataType::ITEMCLASS;
-	DataTypeClass const* tItem = &DataType::ITEM;
-	DataTypeClass const* tNpcClass = &DataType::NPCDATA;
-	DataTypeClass const* tNpc = &DataType::NPC;
-	DataTypeClass const* tFfc = &DataType::FFC;
-	DataTypeClass const* tLWpn = &DataType::LWPN;
-	DataTypeClass const* tEWpn = &DataType::EWPN;
-	DataType const* tEnd = NULL;
+	TypeStore& typeStore = scope.getTypeStore();
+	DataType tVoid = typeStore.getVoid();
+	DataType tBool = typeStore.getBool();
+	DataType tFloat = typeStore.getFloat();
+	DataType tGame = typeStore.getGame();
+	DataType tDebug = typeStore.getDebug();
+	DataType tScreen = typeStore.getScreen();
+	DataType tAudio = typeStore.getAudio();
+	DataType tLink = typeStore.getLink();
+	DataType tItemClass = typeStore.getItemClass();
+	DataType tItem = typeStore.getItem();
+	DataType tNpcClass = typeStore.getNpcClass();
+	DataType tNpc = typeStore.getNpc();
+	DataType tFfc = typeStore.getFfc();
+	DataType tLWpn = typeStore.getLWpn();
+	DataType tEWpn = typeStore.getEWpn();
+	DataType tEnd;
 	
 	LibraryHelper lh(scope, REFFFC, tFfc);
 

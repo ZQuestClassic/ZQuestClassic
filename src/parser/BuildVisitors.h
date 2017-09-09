@@ -11,7 +11,7 @@
 class BuildOpcodes : public RecursiveVisitor
 {
 public:
-    BuildOpcodes();
+    BuildOpcodes(TypeStore&);
 
 	using RecursiveVisitor::visit;
 	void visit(AST& node, void* param = NULL);
@@ -87,6 +87,7 @@ private:
 	void deallocateArrayRef(long arrayRef);
 	void deallocateRefsUntilCount(int count);
 
+	TypeStore& typeStore;
     vector<Opcode*> result;
     int returnlabelid;
 	int returnRefCount;
@@ -111,6 +112,8 @@ private:
 class LValBOHelper : public ASTVisitor
 {
 public:
+	LValBOHelper(TypeStore& typeStore) : typeStore(typeStore) {}
+	
     virtual void caseDefault(void *param);
     //virtual void caseDataDecl(ASTDataDecl& host, void* param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -118,12 +121,13 @@ public:
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
     vector<Opcode *> getResult() {return result;}
 private:
+	TypeStore& typeStore;
+    vector<Opcode *> result;
+
 	void addOpcode(Opcode* code);
 
 	template <class Container>
 	void addOpcodes(Container const& container);
-	
-    vector<Opcode *> result;
 };
 
 

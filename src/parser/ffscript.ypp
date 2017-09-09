@@ -13,6 +13,7 @@ command: bison -b y -v -d ffscript.ypp
 #include <stdio.h>
 #include <cassert>
 #include "ASTVisitors.h"
+#include "Types.h"	
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
@@ -21,6 +22,7 @@ extern char* yytext;
 extern int yylex(void);
 extern FILE *yyin;
 extern ASTProgram *resAST;
+extern TypeStore* resTS;
 extern void resetLexer();
 void yyerror(const char* s);
 string curfilename;
@@ -182,20 +184,20 @@ TypeDef : TYPEDEF DataType IDENTIFIER {
 	;
 
 DataType :
-	ZVOID {$$ = new ASTVarType(DataTypeSimple::ZVOID, @$);}
-	| ZFLOAT {$$ = new ASTVarType(DataTypeSimple::FLOAT, @$);}
-	| ZBOOL {$$ = new ASTVarType(DataTypeSimple::BOOL, @$);}
-	| FFC {$$ = new ASTVarType(DataTypeSimple::FFC, @$);}
-	| ITEM {$$ = new ASTVarType(DataTypeSimple::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTVarType(DataTypeSimple::ITEMCLASS, @$);}
-	| NPC	{$$ = new ASTVarType(DataTypeSimple::NPC, @$);}
-	| LWEAPON	{$$ = new ASTVarType(DataTypeSimple::LWPN, @$);}
-	| EWEAPON	{$$ = new ASTVarType(DataTypeSimple::EWPN, @$);}
+	ZVOID {$$ = new ASTVarType(resTS->getVoid(), @$);}
+	| ZBOOL {$$ = new ASTVarType(resTS->getBool(), @$);}
+	| ZFLOAT {$$ = new ASTVarType(resTS->getFloat(), @$);}
+	| ZCONST ZFLOAT {$$ = new ASTVarType(resTS->getConstFloat(), @$);}
+	| FFC {$$ = new ASTVarType(resTS->getFfc(), @$);}
+	| ITEM {$$ = new ASTVarType(resTS->getItem(), @$);}
+	| ITEMCLASS {$$ = new ASTVarType(resTS->getItemClass(), @$);}
+	| NPC	{$$ = new ASTVarType(resTS->getNpc(), @$);}
+	| LWEAPON	{$$ = new ASTVarType(resTS->getLWpn(), @$);}
+	| EWEAPON	{$$ = new ASTVarType(resTS->getEWpn(), @$);}
 	| IDENTIFIER {
-			ASTString *name = (ASTString*)$1;
-			$$ = new ASTVarType(DataTypeUnresolved(name->getValue()), @$);
-			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTVarType(new DataTypeConstFloat(), @$);}
+		ASTString *name = (ASTString*)$1;
+		$$ = new ASTVarType(resTS->getUnresolved(name->getValue()), @$);
+		delete name;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -338,9 +340,9 @@ Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 	;
 
 Script_Type :
-	GLOBAL {$$ = new ASTScriptType(ScriptType::GLOBAL, @$);}
-	| FFC {$$ = new ASTScriptType(ScriptType::FFC, @$);}
-	| ITEM {$$ = new ASTScriptType(ScriptType::ITEM, @$);}
+	GLOBAL {$$ = new ASTScriptType(ScriptType::getGlobal(), @$);}
+	| FFC {$$ = new ASTScriptType(ScriptType::getFfc(), @$);}
+	| ITEM {$$ = new ASTScriptType(ScriptType::getItem(), @$);}
 	;
 
 Script_Block :

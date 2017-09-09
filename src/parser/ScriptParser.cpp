@@ -21,6 +21,7 @@ using namespace ZScript;
 //#define PARSER_DEBUG
 
 ASTProgram* resAST;
+TypeStore* resTS;
 
 ScriptsData* compile(const char *filename);
 
@@ -35,6 +36,8 @@ int main(int argc, char *argv[])
 ScriptsData* compile(const char *filename)
 {
     ScriptParser::resetState();
+    TypeStore typeStore;
+    resTS = &typeStore;
 
     box_out("Pass 1: Parsing");
     box_eol();
@@ -60,7 +63,7 @@ ScriptsData* compile(const char *filename)
     box_eol();
 
     SimpleCompileErrorHandler handler;
-    Program program(*theAST, handler);
+    Program program(*theAST, typeStore,handler);
     if (handler.hasError())
     {
 	    delete theAST;
@@ -170,7 +173,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
-	TypeStore* typeStore = &program.getTypeStore();
+	TypeStore& typeStore = program.getTypeStore();
 	vector<Datum*>& globalVariables = fdata.globalVariables;
 
     // Z_message("yes");
@@ -197,9 +200,9 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		AST& node = *variable.getNode();
 
         OpcodeContext oc;
-        oc.typeStore = typeStore;
+        oc.typeStore = &typeStore;
 
-        BuildOpcodes bo;
+        BuildOpcodes bo(typeStore);
         node.execute(bo, &oc);
         if (bo.hasFailed()) failure = true;
         appendElements(rval->globalsInit, oc.initCode);
@@ -243,11 +246,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         if (isRun)
         {
 	        ScriptType type = program.getScript(scriptname)->getType();
-	        if (type == ScriptType::FFC)
+	        if (type == ScriptType::getFfc())
                 funccode.push_back(
 		                new OSetRegister(new VarArgument(EXP2),
 		                                 new VarArgument(REFFFC)));
-	        else if (type == ScriptType::ITEM)
+	        else if (type == ScriptType::getItem())
                 funccode.push_back(
 		                new OSetRegister(new VarArgument(EXP2),
 		                                 new VarArgument(REFITEMCLASS)));
@@ -259,8 +262,8 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
                                             new VarArgument(SP)));
         OpcodeContext oc;
-        oc.typeStore = typeStore;
-        BuildOpcodes bo;
+        oc.typeStore = &typeStore;
+        BuildOpcodes bo(typeStore);
         node.execute(bo, &oc);
 
         if (bo.hasFailed()) failure = true;
@@ -322,7 +325,7 @@ void ScriptParser::assemble(IntermediateData *id)
     
     // If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ScriptType::GLOBAL)
+	if (userInit && userInit->getType() == ScriptType::getGlobal())
     {
 	    int label = *getLabel(*userInit);
         ginit.push_back(new OGotoImmediate(new LabelArgument(label)));

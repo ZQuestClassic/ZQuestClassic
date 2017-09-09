@@ -12,8 +12,9 @@ using namespace ZScript;
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
 
-BuildOpcodes::BuildOpcodes()
-	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
+BuildOpcodes::BuildOpcodes(TypeStore& typeStore)
+	: typeStore(typeStore),
+	  returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
 	  returnRefCount(0), continueRefCount(0), breakRefCount(0)
 {
 	opcodeTargets.push_back(&result);
@@ -502,7 +503,7 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     //load the rval into EXP1
     visit(host.right, param);
     //and store it
-    LValBOHelper helper;
+    LValBOHelper helper(typeStore);
     host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -686,7 +687,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 								new LiteralArgument(10000)));
 	
     // Store it
-    LValBOHelper helper;
+    LValBOHelper helper(typeStore);
     host.operand->execute(helper, param);
     addOpcodes(helper.getResult());
 	
@@ -705,7 +706,7 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
     addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 
     // Store it
-    LValBOHelper helper;
+    LValBOHelper helper(typeStore);
     host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -722,7 +723,7 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 								new LiteralArgument(10000)));
 
     // Store it.
-    LValBOHelper helper;
+    LValBOHelper helper(typeStore);
     host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -739,7 +740,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     addOpcode(new OSubImmediate(new VarArgument(EXP1),
 								new LiteralArgument(10000)));
     // Store it.
-    LValBOHelper helper;
+    LValBOHelper helper(typeStore);
     host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 
@@ -860,7 +861,8 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.left->getReadType() == DataType::BOOL);
+	bool isBoolean =
+		(*host.left->getReadType(typeStore) == typeStore.getBool());
 
     if (host.getCompileTimeValue())
     {
@@ -887,7 +889,8 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.left->getReadType() == DataType::BOOL);
+    bool isBoolean =
+	    (*host.left->getReadType(typeStore) == typeStore.getBool());
 
     if (host.getCompileTimeValue())
     {
@@ -1356,7 +1359,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //but first save the value of EXP1
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
-    BuildOpcodes oc;
+    BuildOpcodes oc(typeStore);
     oc.visit(host.left, param);
 	addOpcodes(oc.getResult());
     
@@ -1370,7 +1373,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //and push the index, if indexed
     if(isIndexed)
     {
-        BuildOpcodes oc2;
+	    BuildOpcodes oc2(typeStore);
         oc2.visit(host.index, param);
 		addOpcodes(oc2.getResult());
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -1401,7 +1404,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Get and push the array pointer.
-	BuildOpcodes buildOpcodes1;
+    BuildOpcodes buildOpcodes1(typeStore);
 	buildOpcodes1.visit(host.array, param);
 	opcodes = buildOpcodes1.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
@@ -1409,7 +1412,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Get the index.
-	BuildOpcodes buildOpcodes2;
+    BuildOpcodes buildOpcodes2(typeStore);
 	buildOpcodes2.visit(host.index, param);
 	opcodes = buildOpcodes2.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
