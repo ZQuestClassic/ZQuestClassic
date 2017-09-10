@@ -2,6 +2,7 @@
 #include "../Library.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 #include "../LibraryHelper.h"
 
@@ -34,13 +35,13 @@ void Global::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 
 	LibraryHelper lh(scope, NUL);
 	
     // int Rand(int maxval)
     {
-	    Function& function = lh.addFunction(tFloat, "Rand", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Rand", P() << tFloat);
 	    int label = function.getLabel();
         vector<Opcode *> code;
         //pop maxval
@@ -55,7 +56,7 @@ void Global::addTo(Scope& scope) const
     
     // void Quit()
     {
-	    Function& function = lh.addFunction(tVoid, "Quit", tEnd);
+	    Function& function = lh.addFunction(tVoid, "Quit", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -67,7 +68,7 @@ void Global::addTo(Scope& scope) const
     
     // void Waitframe()
     {
-	    Function& function = lh.addFunction(tVoid, "Waitframe", tEnd);
+	    Function& function = lh.addFunction(tVoid, "Waitframe", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OWaitframe();
@@ -80,7 +81,7 @@ void Global::addTo(Scope& scope) const
     
     // void Waitdraw()
     {
-	    Function& function = lh.addFunction(tVoid, "Waitdraw", tEnd);
+	    Function& function = lh.addFunction(tVoid, "Waitdraw", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OWaitdraw();
@@ -93,7 +94,7 @@ void Global::addTo(Scope& scope) const
 
     // void Trace(int val)
     {
-	    Function& function = lh.addFunction(tVoid, "Trace", tFloat, tEnd);
+	    Function& function = lh.addFunction(tVoid, "Trace", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -107,7 +108,7 @@ void Global::addTo(Scope& scope) const
 
     // void TraceB(bool val)
     {
-	    Function& function = lh.addFunction(tVoid, "TraceB", tBool, tEnd);
+	    Function& function = lh.addFunction(tVoid, "TraceB", P() << tBool);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -121,7 +122,7 @@ void Global::addTo(Scope& scope) const
 
     // void TraceS(bool val)
     {
-	    Function& function = lh.addFunction(tVoid, "TraceS", tFloat, tEnd);
+	    Function& function = lh.addFunction(tVoid, "TraceS", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(INDEX));
@@ -135,7 +136,7 @@ void Global::addTo(Scope& scope) const
 
     // void TraceNL()
     {
-	    Function& function = lh.addFunction(tVoid, "TraceNL", tEnd);
+	    Function& function = lh.addFunction(tVoid, "TraceNL", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OTrace3();
@@ -148,7 +149,7 @@ void Global::addTo(Scope& scope) const
 
     // void ClearTrace()
     {
-	    Function& function = lh.addFunction(tVoid, "ClearTrace", tEnd);
+	    Function& function = lh.addFunction(tVoid, "ClearTrace", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OTrace4();
@@ -162,7 +163,7 @@ void Global::addTo(Scope& scope) const
     // void TraceToBase(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "TraceToBase", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "TraceToBase", P() << tFloat << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OTrace5Register();
@@ -179,7 +180,7 @@ void Global::addTo(Scope& scope) const
 
     // int Sin(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Sin", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Sin", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -194,7 +195,7 @@ void Global::addTo(Scope& scope) const
     // int RadianSin(int val)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "RadianSin", tFloat, tEnd);
+			    tFloat, "RadianSin", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -209,7 +210,7 @@ void Global::addTo(Scope& scope) const
 
     // int ArcSin(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "ArcSin", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "ArcSin", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -223,7 +224,7 @@ void Global::addTo(Scope& scope) const
 
     // int Cos(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Cos", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Cos", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -238,7 +239,7 @@ void Global::addTo(Scope& scope) const
     // int RadianCos(int val)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "RadianCos", tFloat, tEnd);
+			    tFloat, "RadianCos", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -253,7 +254,7 @@ void Global::addTo(Scope& scope) const
 
     // int ArcCos(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "ArcCos", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "ArcCos", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -267,7 +268,7 @@ void Global::addTo(Scope& scope) const
 
     // int Tan(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Tan", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Tan", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -282,7 +283,7 @@ void Global::addTo(Scope& scope) const
     // int ArcTan(int X, int Y)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "ArcTan", tFloat, tFloat, tEnd);
+			    tFloat, "ArcTan", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(INDEX2));
@@ -298,7 +299,7 @@ void Global::addTo(Scope& scope) const
     // int RadianTan(int val)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "RadianTan", tFloat, tEnd);
+			    tFloat, "RadianTan", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -314,7 +315,7 @@ void Global::addTo(Scope& scope) const
     // int Max(int first, int second)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "Max", tFloat, tFloat, tEnd);
+			    tFloat, "Max", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -330,7 +331,7 @@ void Global::addTo(Scope& scope) const
     // int Min(int first, int second)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "Min", tFloat, tFloat, tEnd);
+			    tFloat, "Min", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -346,7 +347,7 @@ void Global::addTo(Scope& scope) const
     // int Pow(int first, int second)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "Pow", tFloat, tFloat, tEnd);
+			    tFloat, "Pow", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -362,7 +363,7 @@ void Global::addTo(Scope& scope) const
     // int InvPow(int first, int second)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "InvPow", tFloat, tFloat, tEnd);
+			    tFloat, "InvPow", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -378,7 +379,7 @@ void Global::addTo(Scope& scope) const
     // int Factorial(int val)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "Factorial", tFloat, tEnd);
+			    tFloat, "Factorial", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -392,7 +393,7 @@ void Global::addTo(Scope& scope) const
 
     // int Abs(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Abs", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Abs", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -406,7 +407,7 @@ void Global::addTo(Scope& scope) const
 
     // int Log10(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Log10", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Log10", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -420,7 +421,7 @@ void Global::addTo(Scope& scope) const
 
     // int Ln(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Ln", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Ln", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -434,7 +435,7 @@ void Global::addTo(Scope& scope) const
 
     // int Sqrt(int val)
     {
-	    Function& function = lh.addFunction(tFloat, "Sqrt", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFloat, "Sqrt", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -450,7 +451,7 @@ void Global::addTo(Scope& scope) const
     // void CopyTile(int source, int dest)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "CopyTile", tFloat, tFloat, tEnd);
+			    tVoid, "CopyTile", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -466,7 +467,7 @@ void Global::addTo(Scope& scope) const
     // void SwapTile(int first, int second)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SwapTile", tFloat, tFloat, tEnd);
+			    tVoid, "SwapTile", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -482,7 +483,7 @@ void Global::addTo(Scope& scope) const
     // void OverlayTile(int first, int second)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "OverlayTile", tFloat, tFloat, tEnd);
+			    tVoid, "OverlayTile", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -498,7 +499,7 @@ void Global::addTo(Scope& scope) const
     // void ClearTile(int tile)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ClearTile", tFloat, tEnd);
+			    tVoid, "ClearTile", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -513,7 +514,7 @@ void Global::addTo(Scope& scope) const
     // int GetGlobalRAM(int)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetGlobalRAM", tFloat, tEnd);
+			    tFloat, "GetGlobalRAM", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -529,7 +530,7 @@ void Global::addTo(Scope& scope) const
     // void SetGlobalRAM(int, int)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetGlobalRAM", tFloat, tFloat, tEnd);
+			    tVoid, "SetGlobalRAM", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -546,7 +547,7 @@ void Global::addTo(Scope& scope) const
     // int GetScriptRAM(int)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScriptRAM", tFloat, tEnd);
+			    tFloat, "GetScriptRAM", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -563,7 +564,7 @@ void Global::addTo(Scope& scope) const
     // void SetScriptRAM(int, int)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScriptRAM", tFloat, tFloat, tEnd);
+			    tVoid, "SetScriptRAM", P() << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -581,7 +582,7 @@ void Global::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetColorBuffer",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << 			    tFloat << tFloat << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OSetColorBufferRegister();
@@ -600,7 +601,7 @@ void Global::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetDepthBuffer",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << 			    tFloat << tFloat << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OSetDepthBufferRegister();
@@ -619,7 +620,7 @@ void Global::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "GetColorBuffer",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << 			    tFloat << tFloat << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OGetColorBufferRegister();
@@ -638,7 +639,7 @@ void Global::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "GetDepthBuffer",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << 			    tFloat << tFloat << tFloat << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OGetDepthBufferRegister();
@@ -656,7 +657,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArray(int val)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArray", tFloat, tEnd);
+			    tFloat, "SizeOfArray", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -671,7 +672,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayFFC(ffc* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayFFC", tFfc, tEnd);
+			    tFloat, "SizeOfArrayFFC", P() << tFfc);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -686,7 +687,7 @@ void Global::addTo(Scope& scope) const
     //int SizeOfArrayNPC(npc* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayNPC", tNpc, tEnd);
+			    tFloat, "SizeOfArrayNPC", P() << tNpc);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -701,7 +702,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayBool(bool* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayBool", tBool, tEnd);
+			    tFloat, "SizeOfArrayBool", P() << tBool);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -716,7 +717,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayItem(item* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayItem", tItem, tEnd);
+			    tFloat, "SizeOfArrayItem", P() << tItem);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -731,7 +732,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayItemdata(itemdata* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayItemdata", tItemClass, tEnd);
+			    tFloat, "SizeOfArrayItemdata", P() << tItemClass);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -746,7 +747,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayLWeapon(lweapon* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayLWeapon", tLWpn, tEnd);
+			    tFloat, "SizeOfArrayLWeapon", P() << tLWpn);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -761,7 +762,7 @@ void Global::addTo(Scope& scope) const
     // int SizeOfArrayEWeapon(eweapon* ptr)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayEWeapon", tEWpn, tEnd);
+			    tFloat, "SizeOfArrayEWeapon", P() << tEWpn);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));

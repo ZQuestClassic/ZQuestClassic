@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void LWeapon::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 
 	const int refVar = REFLWPN;
 	LibraryHelper lh(scope, refVar, tLWpn);
@@ -77,7 +78,7 @@ void LWeapon::addTo(Scope& scope) const
 	
     // bool lweapon->isValid()
     {
-	    Function& function = lh.addFunction(tBool, "isValid", tEnd);
+	    Function& function = lh.addFunction(tBool, "isValid", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -95,7 +96,7 @@ void LWeapon::addTo(Scope& scope) const
     // void lweapon->UseSprite(float spriteId)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "UseSprite", tFloat, tEnd);
+			    tVoid, "UseSprite", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;

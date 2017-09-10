@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void Ffc::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, REFFFC, tFfc);
 
@@ -60,7 +61,7 @@ void Ffc::addTo(Scope& scope) const
 	// void ChangeFFCScript(ffc this, float script)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ChangeFFCScript", tFloat, tEnd);
+			    tVoid, "ChangeFFCScript", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -79,7 +80,7 @@ void Ffc::addTo(Scope& scope) const
     // bool WasTriggered(ffc this)
     /*
     {
-	    Function& function = lh.addFunction(tBool, "WasTriggered", tEnd);
+	    Function& function = lh.addFunction(tBool, "WasTriggered", P());
 	    
 	    int label = function.getLabel();
 	    vector<Opcode *> code;

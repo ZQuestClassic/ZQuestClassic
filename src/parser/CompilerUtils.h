@@ -218,6 +218,22 @@ Container cloneElements(Container const& base)
 }
 
 ////////////////////////////////////////////////////////////////
+// Vectors
+
+// Easily construct vectors.
+template <typename Element>
+class VectorBuilder
+{
+public:
+	VectorBuilder& operator<<(Element rhs) {
+		data.push_back(rhs); return *this;}
+	operator std::vector<Element>() const {return data;}
+	
+private:
+	std::vector<Element> data;
+};
+
+////////////////////////////////////////////////////////////////
 // Maps
 
 template <typename Value, typename Map>

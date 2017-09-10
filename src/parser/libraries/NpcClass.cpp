@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void NpcClass::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, NUL, tNpcClass);
 
@@ -48,7 +49,7 @@ void NpcClass::addTo(Scope& scope) const
 	// bool NpcClass->isValid(npcclass)
     {
 	    Function& function = lh.addFunction(
-			    tBool, "isValid", tNpcClass, tEnd);
+			    tBool, "isValid", P() << tNpcClass);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;

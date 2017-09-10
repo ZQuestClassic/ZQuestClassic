@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void Link::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, NUL, tLink);
 
@@ -134,7 +135,7 @@ void Link::addTo(Scope& scope) const
 	// void Link->Warp(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "Warp", tFloat, tFloat, tEnd);
+			    tVoid, "Warp", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -155,7 +156,7 @@ void Link::addTo(Scope& scope) const
     // void Link->PitWarp(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PitWarp", tFloat, tFloat, tEnd);
+			    tVoid, "PitWarp", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -176,7 +177,7 @@ void Link::addTo(Scope& scope) const
     // void Link->SetItemSlot(float item, float slot, float force)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetItemSlot", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetItemSlot", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -197,7 +198,7 @@ void Link::addTo(Scope& scope) const
     // void Link->SetItemA(float itemId)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetItemA", tFloat, tEnd);
+			    tVoid, "SetItemA", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -215,7 +216,7 @@ void Link::addTo(Scope& scope) const
     // void Link->SetItemB(float itemId)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetItemB", tFloat, tEnd);
+			    tVoid, "SetItemB", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -233,7 +234,7 @@ void Link::addTo(Scope& scope) const
     // void Link->SelectAWeapon(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SelectAWeapon", tFloat, tEnd);
+			    tVoid, "SelectAWeapon", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -252,7 +253,7 @@ void Link::addTo(Scope& scope) const
     // void Link->SelectBWeapon(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SelectBWeapon", tFloat, tEnd);
+			    tVoid, "SelectBWeapon", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;

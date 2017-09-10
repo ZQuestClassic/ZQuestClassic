@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void Item::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, REFITEM, tItem);
 
@@ -68,7 +69,7 @@ void Item::addTo(Scope& scope) const
 
     // bool Item->isValid()
     {
-	    Function& function = lh.addFunction(tBool, "isValid", tEnd);
+	    Function& function = lh.addFunction(tBool, "isValid", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the pointer

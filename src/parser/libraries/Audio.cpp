@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,14 +33,15 @@ void Audio::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, NUL, tAudio);
 
 	// void Audio->AdjustSound(float, float, bool)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "AdjustSound", tFloat, tFloat, tBool, tEnd);
+			    tVoid, "AdjustSound",
+			    P() << tFloat << tFloat << tBool);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -60,7 +62,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->PlaySound(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PlaySound", tFloat, tEnd);
+			    tVoid, "PlaySound", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -79,7 +81,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->EndSound(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "EndSound", tFloat, tEnd);
+			    tVoid, "EndSound", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -98,7 +100,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->PauseSound(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PauseSound", tFloat, tEnd);
+			    tVoid, "PauseSound", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -117,7 +119,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->ContinueSound(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ContinueSound", tFloat, tEnd);
+			    tVoid, "ContinueSound", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -136,7 +138,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->ResumeSound(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ResumeSound", tFloat, tEnd);
+			    tVoid, "ResumeSound", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -154,7 +156,7 @@ void Audio::addTo(Scope& scope) const
     
     // void Audio->PauseMusic()
     {
-	    Function& function = lh.addFunction(tVoid, "PauseMusic", tEnd);
+	    Function& function = lh.addFunction(tVoid, "PauseMusic", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -170,7 +172,7 @@ void Audio::addTo(Scope& scope) const
     
     // void Audio->ResumeMusic()
     {
-	    Function& function = lh.addFunction(tVoid, "ResumeMusic", tEnd);
+	    Function& function = lh.addFunction(tVoid, "ResumeMusic", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -186,7 +188,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->PlayMIDI(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PlayMIDI", tFloat, tEnd);
+			    tVoid, "PlayMIDI", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -205,7 +207,7 @@ void Audio::addTo(Scope& scope) const
     // void Audio->PlayEnhancedMusic(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PlayEnhancedMusic", tFloat, tFloat, tEnd);
+			    tVoid, "PlayEnhancedMusic", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;

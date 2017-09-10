@@ -2,6 +2,7 @@
 #define ZSCRIPT_LIBRARIES_HELPERS_H
 
 #include <string>
+#include <vector>
 #include "Types.h"
 
 // Helper functions for implementing ZScript::Library::export(Scope&) in the
@@ -28,13 +29,10 @@ namespace ZScript
 		static call_tag const asFunction;
 		
 		// Make a function in the given scope with the specified return
-		// type, name, and parameter types. Append a NULL to terminate the
-		// varargs parameter list. Returns the created function.
-		Function& addFunction(
-				DataType const& returnType,
-				std::string name, ...
-				/* DataType... parameterTypes, */
-				/* DataType() */);
+		// type, name, and parameter types. Returns the created function.
+		Function& addFunction(DataType const& returnType,
+		                      std::string const& name,
+		                      std::vector<DataType> parameterTypes);
 
 		// Create a getter for a variable.
 		void addGetter(

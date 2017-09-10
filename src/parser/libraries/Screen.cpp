@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 #define POP_ARGS(num_args, t)                                           \
@@ -36,7 +37,7 @@ void Screen::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, NUL, tScreen);
 	LibraryHelper::call_tag const& asFunction = LibraryHelper::asFunction;
@@ -71,7 +72,7 @@ void Screen::addTo(Scope& scope) const
     // item LoadItem(screen this, int index)
     {
 	    Function& function = lh.addFunction(
-			    tItem, "LoadItem", tFloat, tEnd);
+			    tItem, "LoadItem", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the param
@@ -92,7 +93,7 @@ void Screen::addTo(Scope& scope) const
     // item CreateItem(screen this, int itemId)
     {
 	    Function& function = lh.addFunction(
-			    tItem, "CreateItem", tFloat, tEnd);
+			    tItem, "CreateItem", P() << tFloat);
 
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -111,7 +112,7 @@ void Screen::addTo(Scope& scope) const
 
     // ffc LoadFFC(screen this, int index)
     {
-	    Function& function = lh.addFunction(tFfc, "LoadFFC", tFloat, tEnd);
+	    Function& function = lh.addFunction(tFfc, "LoadFFC", P() << tFloat);
         
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -130,7 +131,7 @@ void Screen::addTo(Scope& scope) const
 
     // npc LoadNPC(screen this, int index)
     {
-	    Function& function = lh.addFunction(tNpc, "LoadNPC", tFloat, tEnd);
+	    Function& function = lh.addFunction(tNpc, "LoadNPC", P() << tFloat);
 
 	    int label = function.getLabel();
         vector<Opcode *> code;
@@ -152,7 +153,7 @@ void Screen::addTo(Scope& scope) const
     // npc CreateNPC(screen this, int id)
     {
 	    Function& function = lh.addFunction(
-			    tNpc, "CreateNPC", tFloat, tEnd);
+			    tNpc, "CreateNPC", P() << tFloat);
         
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -172,7 +173,7 @@ void Screen::addTo(Scope& scope) const
     // npc LoadLWeapon(screen this, int index)
     {
 	    Function& function = lh.addFunction(
-			    tLWpn, "LoadLWeapon", tFloat, tEnd);
+			    tLWpn, "LoadLWeapon", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -194,7 +195,7 @@ void Screen::addTo(Scope& scope) const
     // lweapon CreateLWeapon(screen this, int id)
     {
 	    Function& function = lh.addFunction(
-			    tLWpn, "CreateLWeapon", tFloat, tEnd);
+			    tLWpn, "CreateLWeapon", P() << tFloat);
         
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -214,7 +215,7 @@ void Screen::addTo(Scope& scope) const
     // lweapon CreateLWeaponDX(screen this, int type, int id)
     {
 	    Function& function = lh.addFunction(
-			    tLWpn, "CreateLWeaponDx", tFloat, tFloat, tEnd);
+			    tLWpn, "CreateLWeaponDx", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -234,7 +235,7 @@ void Screen::addTo(Scope& scope) const
     // eweapon LoadEWeapon(screen this, int index)
     {
 	    Function& function = lh.addFunction(
-			    tEWpn, "LoadEWeapon", tFloat, tEnd);
+			    tEWpn, "LoadEWeapon", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -256,7 +257,7 @@ void Screen::addTo(Scope& scope) const
     // eweapon CreateEWeapon(screen this, int id)
     {
 	    Function& function = lh.addFunction(
-			    tEWpn, "CreateEWeapon", tFloat, tEnd);
+			    tEWpn, "CreateEWeapon", P() << tFloat);
         
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -276,7 +277,7 @@ void Screen::addTo(Scope& scope) const
     // void ClearSprites(screen this, int)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ClearSprites", tFloat, tEnd);
+			    tVoid, "ClearSprites", P() << tFloat);
         
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -299,9 +300,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Rectangle",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tBool, tFloat,    
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tBool << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -323,9 +324,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Circle",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tBool, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tBool << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -347,9 +348,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Arc",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tBool, tBool, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tBool << tBool << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -371,9 +372,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Ellipse",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tBool, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tBool << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -395,9 +396,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Line",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -419,9 +420,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Spline",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -443,9 +444,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "PutPixel",
-			    tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, 
-	            tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -467,9 +467,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawCharacter",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -491,9 +490,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawInteger",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -515,10 +514,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawTile",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tBool, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tBool << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -538,10 +536,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawCombo",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tBool, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tBool << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -561,10 +558,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Quad",
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -584,10 +580,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Polygon",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -607,10 +602,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Triangle",
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat);
 
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -630,9 +624,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Quad3D",
-			    tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, 
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -652,9 +645,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "Triangle3D",
-			    tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, 
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -674,8 +666,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "FastTile",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -695,8 +687,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "FastCombo",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat, 
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -716,9 +708,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawString",
-			    tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -738,9 +729,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawLayer",
-			    tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -760,8 +750,8 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawScreen",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -781,9 +771,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawBitmap",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tBool,
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tBool);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -803,10 +793,9 @@ void Screen::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "DrawBitmapEx",
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tFloat, tFloat, tFloat,
-			    tFloat, tFloat, tFloat, tBool, 
-			    tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tFloat << tFloat
+			    << tFloat << tFloat << tFloat << tFloat << tBool);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -825,7 +814,7 @@ void Screen::addTo(Scope& scope) const
     // void SetRenderTarget(screen this, float bitmap)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetRenderTarget", tFloat, tEnd);
+			    tVoid, "SetRenderTarget", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -844,7 +833,7 @@ void Screen::addTo(Scope& scope) const
     // void Message(screen this, float id)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "Message", tFloat, tEnd);
+			    tVoid, "Message", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -862,7 +851,7 @@ void Screen::addTo(Scope& scope) const
     // bool isSolid(screen this, float x, float y)
     {
 	    Function& function = lh.addFunction(
-			    tBool, "isSolid", tFloat, tFloat, tEnd);
+			    tBool, "isSolid", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -882,7 +871,7 @@ void Screen::addTo(Scope& scope) const
     // void SetSideWarp(screen this, float, float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetSideWarp", tFloat, tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetSideWarp", P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -904,7 +893,7 @@ void Screen::addTo(Scope& scope) const
     // void SetTileWarp(screen, float, float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetTileWarp", tFloat, tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetTileWarp", P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -926,7 +915,7 @@ void Screen::addTo(Scope& scope) const
     // float LayerScreen(screen this, float layer)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "LayerScreen", tFloat, tEnd);
+			    tFloat, "LayerScreen", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -944,7 +933,7 @@ void Screen::addTo(Scope& scope) const
     // float LayerMap(screen this, float layer)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "LayerMap", tFloat, tEnd);
+			    tFloat, "LayerMap", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -961,7 +950,7 @@ void Screen::addTo(Scope& scope) const
 
     // void TriggerSecrets(screen this)
     {
-	    Function& function = lh.addFunction(tVoid, "TriggerSecrets", tEnd);
+	    Function& function = lh.addFunction(tVoid, "TriggerSecrets", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -976,7 +965,7 @@ void Screen::addTo(Scope& scope) const
 
     // void ZapIn(screen this)
     {
-	    Function& function = lh.addFunction(tVoid, "ZapIn", tEnd);
+	    Function& function = lh.addFunction(tVoid, "ZapIn", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -992,7 +981,7 @@ void Screen::addTo(Scope& scope) const
 
     // void ZapOut(screen this)
     {
-	    Function& function = lh.addFunction(tVoid, "ZapOut", tEnd);
+	    Function& function = lh.addFunction(tVoid, "ZapOut", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -1007,7 +996,7 @@ void Screen::addTo(Scope& scope) const
     
     // void OpeningWipe(screen this)
     {
-	    Function& function = lh.addFunction(tVoid, "OpeningWipe", tEnd);
+	    Function& function = lh.addFunction(tVoid, "OpeningWipe", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -1022,7 +1011,7 @@ void Screen::addTo(Scope& scope) const
 
 	// void WavyIn(screen this)
     {
-	    Function& function = lh.addFunction(tVoid, "WavyIn", tEnd);
+	    Function& function = lh.addFunction(tVoid, "WavyIn", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -1037,7 +1026,7 @@ void Screen::addTo(Scope& scope) const
             
 	// void WavyOut(screen this)
     {
-	    Function& function = lh.addFunction(tVoid, "WavyOut", tEnd);
+	    Function& function = lh.addFunction(tVoid, "WavyOut", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -1053,7 +1042,7 @@ void Screen::addTo(Scope& scope) const
     // float GetSideWarpDMap(screen this, float warp)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetSideWarpDMap", tFloat, tEnd);
+			    tFloat, "GetSideWarpDMap", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1071,7 +1060,7 @@ void Screen::addTo(Scope& scope) const
     // float GetSideWarpScreen(screen this, float warp)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetSideWarpScreen", tFloat, tEnd);
+			    tFloat, "GetSideWarpScreen", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1089,7 +1078,7 @@ void Screen::addTo(Scope& scope) const
     // float GetSideWarpType(screen this, float warp)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetSideWarpType", tFloat, tEnd);
+			    tFloat, "GetSideWarpType", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1106,7 +1095,7 @@ void Screen::addTo(Scope& scope) const
     // float GetTileWarpDMap(screen this, float warp)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetTileWarpDMap", tFloat, tEnd);
+			    tFloat, "GetTileWarpDMap", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1124,7 +1113,7 @@ void Screen::addTo(Scope& scope) const
     // float GetTileWarpScreen(screen this, float warp)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetTileWarpScreen", tFloat, tEnd);
+			    tFloat, "GetTileWarpScreen", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1142,7 +1131,7 @@ void Screen::addTo(Scope& scope) const
     // float GetTileWarpType(screen this, float warp)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetTileWarpType", tFloat, tEnd);
+			    tFloat, "GetTileWarpType", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1161,7 +1150,7 @@ void Screen::addTo(Scope& scope) const
     // void TriggerSecret(screen this, float secret)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "TriggerSecret", tFloat, tEnd);
+			    tVoid, "TriggerSecret", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;

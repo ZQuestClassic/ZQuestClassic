@@ -1,7 +1,6 @@
 #include "../precompiled.h"
 #include "LibraryHelper.h"
 
-#include <cstdarg>
 #include "ByteCode.h"
 #include "Scope.h"
 
@@ -19,23 +18,11 @@ LibraryHelper::call_tag const LibraryHelper::asFunction;
 
 Function& LibraryHelper::addFunction(
 		DataType const& returnType,
-		string name, ...
-		/* DataType... parameterTypes, */
-		/* DataType() */)
+		string const& name,
+		vector<DataType> parameterTypes)
 {
-	TypeStore& typeStore = scope.getTypeStore();
-
-	vector<DataType> parameterTypes;
-	if (objectType) parameterTypes.push_back(*objectType);
-	va_list args;
-	va_start(args, name);
-	for (DataType type = va_arg(args, DataType);
-	     type != DataType();
-	     type = va_arg(args, DataType))
-		parameterTypes.push_back(type);
-	va_end(args);
-
-	// Create and return the function.
+	if (objectType)
+		parameterTypes.insert(parameterTypes.begin(), *objectType);
 	return *scope.addFunction(returnType, name, parameterTypes);
 }
 

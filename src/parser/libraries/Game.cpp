@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void Game::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, NUL, tGame);
 	LibraryHelper::call_tag const& asFunction = LibraryHelper::asFunction;
@@ -91,7 +92,7 @@ void Game::addTo(Scope& scope) const
 	// itemclass Game->LoadItemData(float id)
     {
 	    Function& function = lh.addFunction(
-			    tItemClass, "LoadItemData", tFloat, tEnd);
+			    tItemClass, "LoadItemData", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -111,7 +112,8 @@ void Game::addTo(Scope& scope) const
     // bool Game->GetScreenState(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tBool, "GetScreenState", tFloat, tFloat, tFloat, tEnd);
+			    tBool, "GetScreenState",
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         int done = ScriptParser::getUniqueLabelID();
@@ -143,7 +145,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenState",
-			    tFloat, tFloat, tFloat, tBool, tEnd);
+			    P() << tFloat << tFloat << tFloat << tBool);
 	    
         int label = function.getLabel();
         int done = ScriptParser::getUniqueLabelID();
@@ -174,7 +176,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenD(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenD", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenD", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -194,7 +196,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenD(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenD", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenD", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -216,7 +218,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetDMapScreenD",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -238,7 +240,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetDMapScreenD",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -260,7 +262,7 @@ void Game::addTo(Scope& scope) const
     // void Game->PlaySound(float soundId)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PlaySound", tFloat, tEnd);
+			    tVoid, "PlaySound", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -279,7 +281,8 @@ void Game::addTo(Scope& scope) const
     // void Game->PlayMIDI(float midiId)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PlayMIDI", tFloat, tEnd);
+			    tVoid, "PlayMIDI", P() << tFloat);
+	    
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the param
@@ -297,7 +300,7 @@ void Game::addTo(Scope& scope) const
     // void Game->PlayEnhancedMusic(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "PlayEnhancedMusic", tFloat, tFloat, tEnd);
+			    tVoid, "PlayEnhancedMusic", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -317,7 +320,7 @@ void Game::addTo(Scope& scope) const
     // void Game->GetDMapMusicFilename(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapMusicFilename", tFloat, tFloat, tEnd);
+			    tVoid, "GetDMapMusicFilename", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -337,7 +340,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetDMapMusicTrack(float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetDMapMusicTrack", tFloat, tEnd);
+			    tFloat, "GetDMapMusicTrack", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -355,7 +358,8 @@ void Game::addTo(Scope& scope) const
     // void Game->SetDMapEnhancedMusic(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapEnhancedMusic", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetDMapEnhancedMusic",
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -376,7 +380,7 @@ void Game::addTo(Scope& scope) const
     // float GetComboData(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetComboData", tFloat, tFloat, tFloat, tEnd);
+			    tFloat, "GetComboData", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -398,7 +402,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetComboData",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -420,7 +424,8 @@ void Game::addTo(Scope& scope) const
     // float Game->GetComboCSet(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetComboCSet", tFloat, tFloat, tFloat, tEnd);
+			    tFloat, "GetComboCSet",
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -442,7 +447,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetComboCSet",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -465,7 +470,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetComboFlag",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -487,7 +492,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetComboFlag",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -510,7 +515,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetComboType",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -532,7 +537,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetComboType",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -555,7 +560,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetComboInherentFlag",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -577,7 +582,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetComboInherentFlag",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -600,7 +605,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetComboSolid",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -622,7 +627,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetComboSolid",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -645,7 +650,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenFlags",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -667,7 +672,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenEFlags",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -687,7 +692,7 @@ void Game::addTo(Scope& scope) const
 
     // void Game->Save()
     {
-	    Function& function = lh.addFunction(tVoid, "Save", tEnd);
+	    Function& function = lh.addFunction(tVoid, "Save", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -703,7 +708,7 @@ void Game::addTo(Scope& scope) const
 
     // void Game->End()
     {
-	    Function& function = lh.addFunction(tVoid, "End", tEnd);
+	    Function& function = lh.addFunction(tVoid, "End", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -720,7 +725,7 @@ void Game::addTo(Scope& scope) const
     // float Game->ComboTile(float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "ComboTile", tFloat, tEnd);
+			    tFloat, "ComboTile", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -738,7 +743,7 @@ void Game::addTo(Scope& scope) const
     // void Game->GetSaveName(string buffer)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "GetSaveName", tFloat, tEnd);
+			    tVoid, "GetSaveName", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -757,7 +762,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetSaveName(string buffer)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetSaveName", tFloat, tEnd);
+			    tVoid, "SetSaveName", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -776,7 +781,7 @@ void Game::addTo(Scope& scope) const
     // void Game->GetMessage(game, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "GetMessage", tFloat, tFloat, tEnd);
+			    tVoid, "GetMessage", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -796,7 +801,7 @@ void Game::addTo(Scope& scope) const
     // void Game->GetDMapName(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapName", tFloat, tFloat, tEnd);
+			    tVoid, "GetDMapName", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -816,7 +821,7 @@ void Game::addTo(Scope& scope) const
     // void Game->GetDMapTitle(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapTitle", tFloat, tFloat, tEnd);
+			    tVoid, "GetDMapTitle", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -836,7 +841,7 @@ void Game::addTo(Scope& scope) const
     // void Game->GetDMapIntro(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapIntro", tFloat, tFloat, tEnd);
+			    tVoid, "GetDMapIntro", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -855,7 +860,7 @@ void Game::addTo(Scope& scope) const
     
     // void Game->GreyscaleOn()
     {
-	    Function& function = lh.addFunction(tVoid, "GreyscaleOn", tEnd);
+	    Function& function = lh.addFunction(tVoid, "GreyscaleOn", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -870,7 +875,7 @@ void Game::addTo(Scope& scope) const
             
 	// void Game->GreyscaleOff()
     {
-	    Function& function = lh.addFunction(tVoid, "GreyscaleOff", tEnd);
+	    Function& function = lh.addFunction(tVoid, "GreyscaleOff", P());
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -887,7 +892,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetMessage(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetMessage", tFloat, tFloat, tEnd);
+			    tVoid, "SetMessage", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -907,7 +912,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetDMapName(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapName", tFloat, tFloat, tEnd);
+			    tVoid, "SetDMapName", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -927,7 +932,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetDMapTitle(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapTitle", tFloat, tFloat, tEnd);
+			    tVoid, "SetDMapTitle", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -947,7 +952,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetDMapIntro(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapIntro", tFloat, tFloat, tEnd);
+			    tVoid, "SetDMapIntro", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -966,7 +971,7 @@ void Game::addTo(Scope& scope) const
     
     // bool Game->ShowSaveScreen()
     {
-	    Function& function = lh.addFunction(tBool, "ShowSaveScreen", tEnd);
+	    Function& function = lh.addFunction(tBool, "ShowSaveScreen", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -983,7 +988,7 @@ void Game::addTo(Scope& scope) const
     // void Game->ShowSaveQuitScreen()
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ShowSaveQuitScreen", tEnd);
+			    tVoid, "ShowSaveQuitScreen", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1000,7 +1005,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetFFCScript(float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetFFCScript", tFloat, tEnd);
+			    tFloat, "GetFFCScript", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1019,7 +1024,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetItemScript(float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetItemScript", tFloat, tEnd);
+			    tFloat, "GetItemScript", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1038,7 +1043,8 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenEnemy(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEnemy", tFloat, tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenEnemy",
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1059,7 +1065,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenDoor(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenDoor", tFloat, tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenDoor", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1081,7 +1087,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenEnemy",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1104,7 +1110,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenDoor",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1126,7 +1132,8 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenWidth(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenWidth", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenWidth",
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1147,7 +1154,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenWidth(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenWidth", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenWidth", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1168,7 +1175,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenHeight",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1189,7 +1196,8 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenHeight(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenHeight", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenHeight",
+			    P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1209,7 +1217,8 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenViewX(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenViewX", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenViewX",
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1230,7 +1239,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenViewX(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenViewX", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenViewX", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1250,7 +1259,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenViewY(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenViewY", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenViewY", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1271,7 +1280,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenViewY(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenViewY", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenViewY", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1291,7 +1300,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenGuy(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenGuy", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenGuy", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1312,7 +1321,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenGuy(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenGuy", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenGuy", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1332,7 +1341,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenString(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenString", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenString", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1353,7 +1362,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenString(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenString", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenString", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1373,7 +1382,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenRoomType(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenRoomType", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenRoomType", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1394,7 +1403,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenRoomType(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenRoomType", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenRoomType", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1414,7 +1423,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenEntryX(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenEntryX", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenEntryX", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1435,7 +1444,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenEntryX(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEntryX", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenEntryX", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1455,7 +1464,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenEntryY(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenEntryY", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenEntryY", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1476,7 +1485,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenEntryY(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEntryY", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenEntryY", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1496,7 +1505,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenItem(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenItem", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenItem", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1517,7 +1526,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenItem(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenItem", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenItem", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1538,7 +1547,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenUndercombo",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1559,7 +1568,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenUndercombo(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenUndercombo", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenUndercombo", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1579,7 +1588,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenUnderCSet(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenUnderCSet", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenUnderCSet", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1600,7 +1609,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenUnderCSet(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenUnderCSet", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenUnderCSet", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1620,7 +1629,7 @@ void Game::addTo(Scope& scope) const
     // void Game->SetScreenCatchall(float, float, float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenCatchall", tFloat, tFloat, tFloat, tEnd);
+			    tVoid, "SetScreenCatchall", P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1641,7 +1650,7 @@ void Game::addTo(Scope& scope) const
     // float Game->GetScreenCatchall(float, float)
     {
 	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenCatchall", tFloat, tFloat, tEnd);
+			    tFloat, "GetScreenCatchall", P() << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1662,7 +1671,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenLayerOpacity",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1685,7 +1694,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenLayerOpacity",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1707,7 +1716,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenSecretCombo",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1730,7 +1739,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenSecretCombo",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1752,7 +1761,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenSecretCSet",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1775,7 +1784,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenSecretCSet",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1797,7 +1806,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenSecretFlag",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1820,7 +1829,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenSecretFlag",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1842,7 +1851,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenLayerMap",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1865,7 +1874,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenLayerMap",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1887,7 +1896,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenLayerScreen",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1910,7 +1919,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenLayerScreen",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1932,7 +1941,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenPath",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1955,7 +1964,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenPath",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -1977,7 +1986,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenWarpReturnX",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -2000,7 +2009,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenWarpReturnX",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -2022,7 +2031,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tVoid, "SetScreenWarpReturnY",
-			    tFloat, tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -2045,7 +2054,7 @@ void Game::addTo(Scope& scope) const
     {
 	    Function& function = lh.addFunction(
 			    tFloat, "GetScreenWarpReturnY",
-			    tFloat, tFloat, tFloat, tEnd);
+			    P() << tFloat << tFloat << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;

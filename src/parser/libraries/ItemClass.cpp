@@ -4,6 +4,7 @@
 
 #include "../../zdefs.h"
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -33,7 +34,7 @@ void ItemClass::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, REFITEMCLASS, tItemClass);
 
@@ -93,7 +94,7 @@ void ItemClass::addTo(Scope& scope) const
 	
     // void ItemClass->GetName(string buffer)
     {
-	    Function& function = lh.addFunction(tVoid, "GetName", tFloat, tEnd);
+	    Function& function = lh.addFunction(tVoid, "GetName", P() << tFloat);
         int label = function.getLabel();
         vector<Opcode *> code;
         //pop off the param

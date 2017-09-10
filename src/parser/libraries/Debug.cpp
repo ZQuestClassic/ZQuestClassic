@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void Debug::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, NUL, tDebug);
 
@@ -59,7 +60,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetItemdataPointer(itemclass)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetItemdataPointer", tItemClass, tEnd);
+					tFloat, "GetItemdataPointer", P() << tItemClass);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -77,7 +78,7 @@ void Debug::addTo(Scope& scope) const
 		// itemclass Debug->SetItemdataPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tItemClass, "SetItemdataPointer", tFloat, tEnd);
+					tItemClass, "SetItemdataPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -95,7 +96,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetItemPointer(item)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetItemPointer", tItem, tEnd);
+					tFloat, "GetItemPointer", P() << tItem);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -113,7 +114,7 @@ void Debug::addTo(Scope& scope) const
 		// item Debug->SetItemPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tItem, "SetItemPointer", tFloat, tEnd);
+					tItem, "SetItemPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -131,7 +132,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetPointer(ffc)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetFFCPointer", tFfc, tEnd);
+					tFloat, "GetFFCPointer", P() << tFfc);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -149,7 +150,7 @@ void Debug::addTo(Scope& scope) const
 		// ffc Debug->SetFFCPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tFfc, "SetFFCPointer", tFloat, tEnd);
+					tFfc, "SetFFCPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -167,7 +168,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetEWeaponPointer(eweapon)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetEWeaponPointer", tEWpn, tEnd);
+					tFloat, "GetEWeaponPointer", P() << tEWpn);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -185,7 +186,7 @@ void Debug::addTo(Scope& scope) const
 		// eweapon Debug->SetEWeaponPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tEWpn, "SetEWeaponPointer", tFloat, tEnd);
+					tEWpn, "SetEWeaponPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -203,7 +204,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetLWeaponPointer(lweapon)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetLWeaponPointer", tLWpn, tEnd);
+					tFloat, "GetLWeaponPointer", P() << tLWpn);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -221,7 +222,7 @@ void Debug::addTo(Scope& scope) const
 		// lweapon Debug->SetLWeaponPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tLWpn, "SetLWeaponPointer", tFloat, tEnd);
+					tLWpn, "SetLWeaponPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -239,7 +240,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetNPCPointer(npc)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetNPCPointer", tNpc, tEnd);
+					tFloat, "GetNPCPointer", P() << tNpc);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -257,7 +258,7 @@ void Debug::addTo(Scope& scope) const
 		// npc Debug->SetNPCPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tNpc, "SetNPCPointer", tFloat, tEnd);
+					tNpc, "SetNPCPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -275,7 +276,7 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetBoolPointer(bool)
 		{
 			Function& function = lh.addFunction(
-					tFloat, "GetBoolPointer", tBool, tEnd);
+					tFloat, "GetBoolPointer", P() << tBool);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -293,7 +294,7 @@ void Debug::addTo(Scope& scope) const
 		// bool Debug->SetBoolPointer(float)
 		{
 			Function& function = lh.addFunction(
-					tBool, "SetBoolPointer", tFloat, tEnd);
+					tBool, "SetBoolPointer", P() << tFloat);
 	    
 			int label = function.getLabel();
 			vector<Opcode *> code;
@@ -312,7 +313,7 @@ void Debug::addTo(Scope& scope) const
 	// void Debug->TriggerSecret(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "TriggerSecret", tFloat, tEnd);
+			    tVoid, "TriggerSecret", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -331,7 +332,7 @@ void Debug::addTo(Scope& scope) const
     // void Debug->ChangeFFCScript(float)
     {
 	    Function& function = lh.addFunction(
-			    tVoid, "ChangeFFCScript", tFloat, tEnd);
+			    tVoid, "ChangeFFCScript", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -346,5 +347,4 @@ void Debug::addTo(Scope& scope) const
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         function.giveCode(code);
     }
-
 }

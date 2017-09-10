@@ -3,6 +3,7 @@
 #include "../LibraryHelper.h"
 
 #include "../ByteCode.h"
+#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
@@ -32,7 +33,7 @@ void Npc::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
-	DataType tEnd;
+	typedef VectorBuilder<DataType> P;
 	
 	LibraryHelper lh(scope, REFNPC, tNpc);
 
@@ -87,7 +88,7 @@ void Npc::addTo(Scope& scope) const
 	
     // bool Npc->isValid()
     {
-	    Function& function = lh.addFunction(tBool, "isValid", tEnd);
+	    Function& function = lh.addFunction(tBool, "isValid", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -104,7 +105,7 @@ void Npc::addTo(Scope& scope) const
     
     // void Npc->GetName(float bufferId)
     {
-	    Function& function = lh.addFunction(tVoid, "GetName", tFloat, tEnd);
+	    Function& function = lh.addFunction(tVoid, "GetName", P() << tFloat);
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
@@ -122,7 +123,7 @@ void Npc::addTo(Scope& scope) const
     
     // void Npc->BreakShield()
     {
-	    Function& function = lh.addFunction(tVoid, "BreakShield", tEnd);
+	    Function& function = lh.addFunction(tVoid, "BreakShield", P());
 	    
         int label = function.getLabel();
         vector<Opcode *> code;
