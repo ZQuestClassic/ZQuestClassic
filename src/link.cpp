@@ -3007,11 +3007,13 @@ void LinkClass::checkhit()
                 
                 hitdir = s->hitdir(x,y,16,16,dir);
                 
-                if(action!=rafting && action!=freeze)
-                    action=gothit;
-                    
-                if(action==swimming || hopclk==0xFF)
-                    action=swimhit;
+                if (action != rafting && action != freeze)
+                {
+                    if (action == swimming || hopclk == 0xFF)
+                        action = swimhit;
+                    else
+                        action = gothit;
+                }
                     
                 if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
                 {
@@ -3150,11 +3152,13 @@ killweapon:
                 
                 hitdir = s->hitdir(x,y,16,16,dir);
                 
-                if(action!=rafting && action!=freeze)
-                    action=gothit;
-                    
-                if(action==swimming || hopclk==0xFF)
-                    action=swimhit;
+                if (action != rafting && action != freeze)
+                {
+                    if (action == swimming || hopclk == 0xFF)
+                        action = swimhit;
+                    else
+                        action = gothit;
+                }
                     
                 if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
                 {
@@ -3347,11 +3351,14 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
             
             hitdir = (dir^1);
             
-            if(action!=rafting && action!=freeze)
-                action=gothit;
+            if (action != rafting && action != freeze)
+            {
+                if (action == swimming || hopclk == 0xFF)
+                    action = swimhit;
+                else
+                    action = gothit;
+            }
                 
-            if(action==swimming || hopclk==0xFF)
-                action=swimhit;
                 
             hclk=48;
             
