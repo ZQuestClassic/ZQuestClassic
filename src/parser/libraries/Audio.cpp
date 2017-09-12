@@ -33,194 +33,68 @@ void Audio::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<Opcode*> O;
 	
 	LibraryHelper lh(scope, NUL, tAudio);
 
 	// void Audio->AdjustSound(float, float, bool)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "AdjustSound",
-			    P() << tFloat << tFloat << tBool);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(ADJUSTSFX), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "AdjustSound",
+			P() << tFloat << tFloat <<  tBool,
+			R() <<  INDEX << INDEX2 << SFTEMP,
+			new OSetRegister(new VarArgument(ADJUSTSFX),
+			                 new VarArgument(SFTEMP)));
 
     // void Audio->PlaySound(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PlaySound", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPlaySoundRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "PlaySound",
+		    P() << tFloat, R() << EXP1,
+		    new OPlaySoundRegister(new VarArgument(EXP1)));
     
     // void Audio->EndSound(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "EndSound", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OEndSoundRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "EndSound",
+		    P() << tFloat, R() << EXP1,
+		    new OEndSoundRegister(new VarArgument(EXP1)));
     
     // void Audio->PauseSound(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PauseSound", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPauseSoundRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "PauseSound",
+		    P() << tFloat, R() << EXP1,
+		    new OPauseSoundRegister(new VarArgument(EXP1)));
     
     // void Audio->ContinueSound(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "ContinueSound", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OContinueSFX(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "ContinueSound",
+		    P() << tFloat, R() << EXP1,
+		    new OContinueSFX(new VarArgument(EXP1)));
     
     // void Audio->ResumeSound(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "ResumeSound", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OResumeSoundRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "ResumeSound",
+		    P() << tFloat, R() << EXP1,
+		    new OResumeSoundRegister(new VarArgument(EXP1)));
     
     // void Audio->PauseMusic()
-    {
-	    Function& function = lh.addFunction(tVoid, "PauseMusic", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPauseMusic());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "PauseMusic", new OPauseMusic());
     
     // void Audio->ResumeMusic()
-    {
-	    Function& function = lh.addFunction(tVoid, "ResumeMusic", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OResumeMusic());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "ResumeMusic", new OResumeMusic());
 
     // void Audio->PlayMIDI(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PlayMIDI", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPlayMIDIRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "PlayMIDI",
+		    P() << tFloat, R() << EXP1,
+		    new OPlayMIDIRegister(new VarArgument(EXP1)));
 
     // void Audio->PlayEnhancedMusic(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PlayEnhancedMusic", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "PlayEnhancedMusic",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OPlayEnhancedMusic(new VarArgument(EXP2),
+		                           new VarArgument(EXP1)));
 }

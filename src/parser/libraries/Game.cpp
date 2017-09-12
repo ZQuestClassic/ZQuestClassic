@@ -33,7 +33,10 @@ void Game::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<Opcode*> O;
 	
 	LibraryHelper lh(scope, NUL, tGame);
 	LibraryHelper::call_tag const& asFunction = LibraryHelper::asFunction;
@@ -90,24 +93,14 @@ void Game::addTo(Scope& scope) const
 	lh.addGetter(GAMEMAXMAPS, tFloat, "MapCount", asFunction);
 	
 	// itemclass Game->LoadItemData(float id)
-    {
-	    Function& function = lh.addFunction(
-			    tItemClass, "LoadItemData", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OLoadItemDataRegister(new VarArgument(EXP1)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFITEMCLASS)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tItemClass, "LoadItemData",
+			P() << tFloat, R() << EXP1,
+			O() << new OSubImmediate(new VarArgument(EXP1),
+			                         new LiteralArgument(10000))
+			    << new OLoadItemDataRegister(new VarArgument(EXP1))
+			    << new OSetRegister(new VarArgument(EXP1),
+			                        new VarArgument(REFITEMCLASS)));
 
     // bool Game->GetScreenState(float, float, float)
     {
@@ -115,29 +108,33 @@ void Game::addTo(Scope& scope) const
 			    tBool, "GetScreenState",
 			    P() << tFloat << tFloat << tFloat);
 	    
-        int label = function.getLabel();
         int done = ScriptParser::getUniqueLabelID();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
+        vector<Opcode*> code;
+        // Pop off the parameterss
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-        code.push_back(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(1360000)));
-        code.push_back(new OAddRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-        //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTATEDD)));
-        code.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+        // Find position.
+        code.push_back(new OSubImmediate(new VarArgument(EXP1),
+                                         new LiteralArgument(10000)));
+        code.push_back(new OMultImmediate(new VarArgument(EXP1),
+                                          new LiteralArgument(1360000)));
+        code.push_back(new OAddRegister(new VarArgument(INDEX),
+                                        new VarArgument(EXP1)));
+        // Grab the screen state.
+        code.push_back(new OSetRegister(new VarArgument(EXP1),
+                                        new VarArgument(SCREENSTATEDD)));
+        // Interpret as bool.
+        code.push_back(new OCompareImmediate(new VarArgument(EXP1),
+                                             new LiteralArgument(0)));
         code.push_back(new OGotoTrueImmediate(new LabelArgument(done)));
-        code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-        code.push_back(new OGotoImmediate(new LabelArgument(done)));
-        Opcode *next = new OPopRegister(new VarArgument(EXP2));
-        next->setLabel(done);
-        code.push_back(next);
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        code.push_back(new OSetImmediate(new VarArgument(EXP1),
+                                         new LiteralArgument(10000)));
+        // Return from function. (done label)
+        appendReturn(code, done);
+
+        code.front()->setLabel(function.getLabel());
         function.giveCode(code);
     }
 
@@ -147,1928 +144,704 @@ void Game::addTo(Scope& scope) const
 			    tVoid, "SetScreenState",
 			    P() << tFloat << tFloat << tFloat << tBool);
 	    
-        int label = function.getLabel();
         int done = ScriptParser::getUniqueLabelID();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
+        vector<Opcode*> code;
+        // Pop off the parameters
+        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(INDEX2)));
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-        code.push_back(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(1360000)));
-        code.push_back(new OAddRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-        //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OCompareImmediate(new VarArgument(SFTEMP), new LiteralArgument(0)));
+        // Find position.
+        code.push_back(new OSubImmediate(new VarArgument(EXP1),
+                                         new LiteralArgument(10000)));
+        code.push_back(new OMultImmediate(new VarArgument(EXP1),
+                                          new LiteralArgument(1360000)));
+        code.push_back(new OAddRegister(new VarArgument(INDEX),
+                                        new VarArgument(EXP1)));
+        // Convert last argument to bool.
+        code.push_back(new OCompareImmediate(new VarArgument(SFTEMP),
+                                             new LiteralArgument(0)));
         code.push_back(new OGotoTrueImmediate(new LabelArgument(done)));
-        code.push_back(new OSetImmediate(new VarArgument(SFTEMP), new LiteralArgument(10000)));
-        Opcode *next = new OSetRegister(new VarArgument(SCREENSTATEDD), new VarArgument(SFTEMP));
-        next->setLabel(done);
-        code.push_back(next);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        code.push_back(new OSetImmediate(new VarArgument(SFTEMP),
+                                         new LiteralArgument(10000)));
+        // Set the state.
+        code.push_back(new OSetRegister(new VarArgument(SCREENSTATEDD),
+                                        new VarArgument(SFTEMP)));
+        code.back()->setLabel(done);
+        // Return from function.
+        appendReturn(code);
+
+        code.front()->setLabel(function.getLabel());
         function.giveCode(code);
     }
     
     // float Game->GetScreenD(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenD", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SDDD)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenD",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SDDD)));
 
     // void Game->SetScreenD(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenD", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SDDD), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenD",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SDDD),
+		                     new VarArgument(SFTEMP)));
     
     // float Game->GetDMapScreenD(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetDMapScreenD",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SDDDD)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetDMapScreenD",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SDDDD)));
 
     // void Game->SetDMapScreenD(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapScreenD",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SDDDD), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetDMapScreenD",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 <<   EXP1 << SFTEMP,
+		    new OSetRegister(new VarArgument(SDDDD),
+		                     new VarArgument(SFTEMP)));
 
-    // void Game->PlaySound(float soundId)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PlaySound", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPlaySoundRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void Game->PlaySound(float id)
+    defineFunction(
+		    lh, tVoid, "PlaySound",
+		    P() << tFloat, R() << EXP1,
+		    new OPlaySoundRegister(new VarArgument(EXP1)));
 
-    // void Game->PlayMIDI(float midiId)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PlayMIDI", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPlayMIDIRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void Game->PlayMIDI(float id)
+    defineFunction(
+		    lh, tVoid, "PlayMIDI",
+		    P() << tFloat, R() << EXP1,
+		    new OPlayMIDIRegister(new VarArgument(EXP1)));
 
     // void Game->PlayEnhancedMusic(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PlayEnhancedMusic", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "PlayEnhancedMusic",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OPlayEnhancedMusic(new VarArgument(EXP2),
+		                           new VarArgument(EXP1)));
 
     // void Game->GetDMapMusicFilename(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapMusicFilename", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetDMapMusicFilename(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "GetDMapMusicFilename",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OGetDMapMusicFilename(new VarArgument(EXP2),
+		                              new VarArgument(EXP1)));
 
     // float Game->GetDMapMusicTrack(float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetDMapMusicTrack", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetDMapMusicTrack(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetDMapMusicTrack",
+		    P() << tFloat, R() << EXP1,
+		    new OGetDMapMusicTrack(new VarArgument(EXP1)));
 
     // void Game->SetDMapEnhancedMusic(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapEnhancedMusic",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OSetDMapEnhancedMusic();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetDMapEnhancedMusic",
+		    P() << tFloat << tFloat << tFloat,
+		    new OSetDMapEnhancedMusic());
 
-    // float GetComboData(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetComboData", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBODDM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float Game->GetComboData(float, float, float)
+    defineFunction(
+		    lh, tFloat, "GetComboData",
+		    P() << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(COMBODDM)));
 
     // void Game->SetComboData(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetComboData",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(COMBODDM), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetComboData",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(COMBODDM),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetComboCSet(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetComboCSet",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOCDM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetComboCSet",
+		    P() << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(COMBOCDM)));
 
     // void Game->SetComboCSet(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetComboCSet",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(COMBOCDM), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetComboCSet",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(COMBOCDM),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetComboFlag(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetComboFlag",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOFDM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetComboFlag",
+		    P() << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(COMBOFDM)));
 
     // void Game->SetComboFlag(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetComboFlag",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(COMBOFDM), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetComboFlag",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(COMBOFDM),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetComboType(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetComboType",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOTDM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetComboType",
+		    P() << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(COMBOTDM)));
 
     // void Game->SetComboType(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetComboType",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(COMBOTDM), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetComboType",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(COMBOTDM),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetComboInherentFlag(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetComboInherentFlag",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOIDM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetComboInherentFlag",
+		    P() << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(COMBOIDM)));
 
     // void Game->SetComboInherentFlag(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetComboInherentFlag",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(COMBOIDM), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetComboInherentFlag",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(COMBOIDM),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetComboSolid(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetComboSolid",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOSDM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetComboSolid",
+		    P() << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(COMBOSDM)));
     
     // void Game->SetComboSolid(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetComboSolid",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(COMBOSDM), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetComboSolid",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(COMBOSDM),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenFlags(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenFlags",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenFlags(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenFlags",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenFlags(new VarArgument(EXP1)));
 
     // float Game->GetScreenEFlags(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEFlags",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenEFlags(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenEFlags",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenEFlags(new VarArgument(EXP1)));
 
     // void Game->Save()
-    {
-	    Function& function = lh.addFunction(tVoid, "Save", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OSave());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "Save", new OSave());
 
     // void Game->End()
-    {
-	    Function& function = lh.addFunction(tVoid, "End", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OEnd());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "End", new OEnd());
 
     // float Game->ComboTile(float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "ComboTile", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OComboTile(new VarArgument(EXP1),new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "ComboTile",
+		    P() << tFloat, R() << EXP2,
+		    new OComboTile(new VarArgument(EXP1), new VarArgument(EXP2)));
 
     // void Game->GetSaveName(string buffer)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetSaveName", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetSaveName(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "GetSaveName",
+		    P() << tFloat, R() << EXP1,
+		    new OGetSaveName(new VarArgument(EXP1)));
 
     // void Game->SetSaveName(string buffer)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetSaveName", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetSaveName(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetSaveName",
+		    P() << tFloat, R() << EXP1,
+		    new OSetSaveName(new VarArgument(EXP1)));
     
     // void Game->GetMessage(game, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetMessage", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OGetMessage(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "GetMessage",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OGetMessage(new VarArgument(EXP2),
+		                    new VarArgument(EXP1)));
     
     // void Game->GetDMapName(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapName", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OGetDMapName(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "GetDMapName",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OGetDMapName(new VarArgument(EXP2),
+		                     new VarArgument(EXP1)));
 
     // void Game->GetDMapTitle(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapTitle", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OGetDMapTitle(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "GetDMapTitle",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OGetDMapTitle(new VarArgument(EXP2),
+		                      new VarArgument(EXP1)));
 
     // void Game->GetDMapIntro(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetDMapIntro", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OGetDMapIntro(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "GetDMapIntro",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OGetDMapIntro(new VarArgument(EXP2),
+		                      new VarArgument(EXP1)));
     
     // void Game->GreyscaleOn()
-    {
-	    Function& function = lh.addFunction(tVoid, "GreyscaleOn", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OGreyscaleOn());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "GreyscaleOn", new OGreyscaleOn());
             
 	// void Game->GreyscaleOff()
-    {
-	    Function& function = lh.addFunction(tVoid, "GreyscaleOff", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OGreyscaleOff());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-    
+    defineFunction(lh, "GreyscaleOff", new OGreyscaleOff());
     
     // void Game->SetMessage(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetMessage", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OSetMessage(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetMessage",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OSetMessage(new VarArgument(EXP2),
+		                    new VarArgument(EXP1)));
 
     // void Game->SetDMapName(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapName", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OSetDMapName(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetDMapName",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OSetDMapName(new VarArgument(EXP2),
+		                     new VarArgument(EXP1)));
 
     // void Game->SetDMapTitle(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapTitle", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OSetDMapTitle(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetDMapTitle",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OSetDMapTitle(new VarArgument(EXP2),
+		                      new VarArgument(EXP1)));
 
     // void Game->SetDMapIntro(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetDMapIntro", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new OSetDMapIntro(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetDMapIntro",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP2 <<   EXP1,
+		    new OSetDMapIntro(new VarArgument(EXP2),
+		                      new VarArgument(EXP1)));
     
     // bool Game->ShowSaveScreen()
-    {
-	    Function& function = lh.addFunction(tBool, "ShowSaveScreen", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OShowSaveScreen(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tBool, "ShowSaveScreen",
+		    new OShowSaveScreen(new VarArgument(EXP1)));
     
     // void Game->ShowSaveQuitScreen()
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "ShowSaveQuitScreen", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(NUL));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OShowSaveQuitScreen());
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "ShowSaveQuitScreen", new OShowSaveQuitScreen());
     
     // float Game->GetFFCScript(float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetFFCScript", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetFFCScript(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetFFCScript",
+		    P() << tFloat, R() << EXP1,
+		    new OGetFFCScript(new VarArgument(EXP1)));
     
     // float Game->GetItemScript(float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetItemScript", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetItemScript(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetItemScript",
+		    P() << tFloat, R() << EXP1,
+		    new OGetItemScript(new VarArgument(EXP1)));
     
     // float Game->GetScreenEnemy(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEnemy",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenEnemy(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenEnemy",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenEnemy(new VarArgument(EXP1)));
 
     // float Game->GetScreenDoor(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenDoor", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenDoor(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenDoor",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenDoor(new VarArgument(EXP1)));
 
     // void Game->SetScreenEnemy(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenEnemy",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENENEMY), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenEnemy",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENENEMY),
+		                     new VarArgument(EXP2)));
 
     // void Game->SetScreenDoor(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenDoor",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENDOOR), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenDoor",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENDOOR),
+		                     new VarArgument(EXP2)));
     
     // void Game->SetScreenWidth(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenWidth",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENWIDTH), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenWidth",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENWIDTH),
+		                     new VarArgument(SFTEMP)));
     
     // float Game->GetScreenWidth(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenWidth", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the paramsa
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENWIDTH)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenWidth",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENWIDTH)));
     
     // void Game->SetScreenHeight(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenHeight",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENHEIGHT), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenHeight",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENHEIGHT),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenHeight(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenHeight",
-			    P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENHEIGHT)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenHeight",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENHEIGHT)));
 
     // void Game->SetScreenViewX(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenViewX",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENVIEWX), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenViewX",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENVIEWX),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenViewX(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenViewX", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENVIEWX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenViewX",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENVIEWX)));
     
     // void Game->SetScreenViewY(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenViewY", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENVIEWY), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenViewY",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENVIEWY),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenViewY(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenViewY", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENVIEWY)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenViewY",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENVIEWY)));
 
     // void Game->SetScreenGuy(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenGuy", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENGUY), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenGuy",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENGUY),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenGuy(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenGuy", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENGUY)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenGuy",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENGUY)));
 
     // void Game->SetScreenString(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenString", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENSTRING), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenString",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENSTRING),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenString(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenString", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENSTRING)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenString",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENSTRING)));
 
     // void Game->SetScreenRoomType(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenRoomType", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENROOM), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenRoomType",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENROOM),
+		                     new VarArgument(SFTEMP)));
     
     // float Game->GetScreenRoomType(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenRoomType", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENROOM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenRoomType",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENROOM)));
 
     // void Game->SetScreenEntryX(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenEntryX", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENENTX), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenEntryX",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENENTX),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenEntryX(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEntryX", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENENTX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenEntryX",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENENTX)));
 
     // void Game->SetScreenEntryY(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenEntryY", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENENTY), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenEntryY",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENENTY),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenEntryY(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenEntryY", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENENTY)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenEntryY",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENENTY)));
 
     // void Game->SetScreenItem(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenItem", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENITEM), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenItem",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENITEM),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenItem(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenItem", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENITEM)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenItem",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENITEM)));
 
     // void Game->SetScreenUndercombo(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenUndercombo",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENUNDCMB), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenUndercombo",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENUNDCMB),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenUndercombo(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenUndercombo", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENUNDCMB)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenUndercombo",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENUNDCMB)));
 
     // void Game->SetScreenUnderCSet(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenUnderCSet", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENUNDCST), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenUnderCSet",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENUNDCST),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenUnderCSet(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenUnderCSet", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENUNDCST)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenUnderCSet",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENUNDCST)));
 
     // void Game->SetScreenCatchall(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenCatchall", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENCATCH), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenCatchall",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2 << SFTEMP,
+		    new OSetRegister(new VarArgument(SETSCREENCATCH),
+		                     new VarArgument(SFTEMP)));
 
     // float Game->GetScreenCatchall(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenCatchall", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENCATCH)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenCatchall",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SETSCREENCATCH)));
     
     // void Game->SetScreenLayerOpacity(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenLayerOpacity",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENLAYOP), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenLayerOpacity",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENLAYOP),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenLayerOpacity(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenLayerOpacity",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenLayerOpacity(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenLayerOpacity",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenLayerOpacity(new VarArgument(EXP1)));
 
     // void Game->SetScreenSecretCombo(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenSecretCombo",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENSECCMB), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenSecretCombo",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENSECCMB),
+		                     new VarArgument(EXP2)));
     
     // float Game->GetScreenSecretCombo(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenSecretCombo",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenSecretCombo(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenSecretCombo",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenSecretCombo(new VarArgument(EXP1)));
 
     // void Game->SetScreenSecretCSet(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenSecretCSet",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENSECCST), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenSecretCSet",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENSECCST),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenSecretCSet(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenSecretCSet",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenSecretCSet(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenSecretCSet",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenSecretCSet(new VarArgument(EXP1)));
 
     // void Game->SetScreenSecretFlag(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenSecretFlag",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENSECFLG), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenSecretFlag",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENSECFLG),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenSecretFlag(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenSecretFlag",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenSecretFlag(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenSecretFlag",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenSecretFlag(new VarArgument(EXP1)));
 
     // void Game->SetScreenLayerMap(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenLayerMap",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENLAYMAP), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenLayerMap",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENLAYMAP),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenLayerMap(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenLayerMap",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenLayerMap(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenLayerMap",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenLayerMap(new VarArgument(EXP1)));
 
     // void Game->SetScreenLayerScreen(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenLayerScreen",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENLAYSCR), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenLayerScreen",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENLAYSCR),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenLayerScreen(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenLayerScreen",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenLayerScreen(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenLayerScreen",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenLayerScreen(new VarArgument(EXP1)));
 
     // void Game->SetScreenPath(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenPath",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENPATH), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenPath",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENPATH),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenPath(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenPath",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenPath(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenPath",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenPath(new VarArgument(EXP1)));
 
     // void Game->SetScreenWarpReturnX(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenWarpReturnX",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENWARPRX), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenWarpReturnX",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENWARPRX),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenWarpReturnX(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenWarpReturnX",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenWarpReturnX(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenWarpReturnX",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenWarpReturnX(new VarArgument(EXP1)));
 
     // void Game->SetScreenWarpReturnY(float, float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScreenWarpReturnY",
-			    P() << tFloat << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENWARPRY), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "SetScreenWarpReturnY",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    R() << INDEX2 <<   EXP1 <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SETSCREENWARPRY),
+		                     new VarArgument(EXP2)));
 
     // float Game->GetScreenWarpReturnY(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScreenWarpReturnY",
-			    P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetScreenWarpReturnY(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tFloat, "GetScreenWarpReturnY",
+		    P() << tFloat << tFloat << tFloat,
+		    R() <<   EXP1 << INDEX2 <<  INDEX,
+		    new OGetScreenWarpReturnY(new VarArgument(EXP1)));
 }

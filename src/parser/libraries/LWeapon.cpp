@@ -33,7 +33,10 @@ void LWeapon::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<Opcode*> O;
 
 	const int refVar = REFLWPN;
 	LibraryHelper lh(scope, refVar, tLWpn);
@@ -75,41 +78,18 @@ void LWeapon::addTo(Scope& scope) const
 	addPair(lh, LWPNMISCD, tFloat, "Misc", 32);
 	addPair(lh, LWPNCOLLDET, tBool, "CollDetection");
 	addPair(lh, LWPNRANGE, tFloat, "Range");
-	
+
     // bool lweapon->isValid()
-    {
-	    Function& function = lh.addFunction(tBool, "isValid", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Check validity
-        code.push_back(new OIsValidLWpn(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tBool, "isValid", P(), R() << EXP1,
+			new OIsValidLWpn(new VarArgument(EXP1)));
     
     // void lweapon->UseSprite(float spriteId)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "UseSprite", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the val
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop off the pointer
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
-        code.push_back(new OUseSpriteLWpn(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "UseSprite",
+			P() /*this*/ << tFloat,
+			R() <<  EXP2 <<   EXP1,
+			O() << new OSetRegister(new VarArgument(refVar),
+			                        new VarArgument(EXP2))
+			    << new OUseSpriteLWpn(new VarArgument(EXP1)));
 }

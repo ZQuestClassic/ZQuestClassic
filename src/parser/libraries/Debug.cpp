@@ -33,7 +33,10 @@ void Debug::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<Opcode*> O;
 	
 	LibraryHelper lh(scope, NUL, tDebug);
 
@@ -58,293 +61,99 @@ void Debug::addTo(Scope& scope) const
 	// be dangerous.
 	{
 		// float Debug->GetItemdataPointer(itemclass)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetItemdataPointer", P() << tItemClass);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetItemDataPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetItemdataPointer",
+				P() << tItemClass, R() << EXP1,
+				new OGetItemDataPointer(new VarArgument(EXP1)));
     
 		// itemclass Debug->SetItemdataPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tItemClass, "SetItemdataPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetItemDataPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tItemClass, "SetItemdataPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetItemDataPointer(new VarArgument(EXP1)));
 
 		// float Debug->GetItemPointer(item)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetItemPointer", P() << tItem);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetItemPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetItemPointer",
+				P() << tItem, R() << EXP1,
+				new OGetItemPointer(new VarArgument(EXP1)));
     
 		// item Debug->SetItemPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tItem, "SetItemPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetItemPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tItem, "SetItemPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetItemPointer(new VarArgument(EXP1)));
     
 		// float Debug->GetPointer(ffc)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetFFCPointer", P() << tFfc);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetFFCPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetFFCPointer",
+				P() << tFfc, R() << EXP1,
+				new OGetFFCPointer(new VarArgument(EXP1)));
     
 		// ffc Debug->SetFFCPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tFfc, "SetFFCPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetFFCPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFfc, "SetFFCPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetFFCPointer(new VarArgument(EXP1)));
 
 		// float Debug->GetEWeaponPointer(eweapon)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetEWeaponPointer", P() << tEWpn);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetEWeaponPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetEWeaponPointer",
+				P() << tEWpn, R() << EXP1,
+				new OGetEWeaponPointer(new VarArgument(EXP1)));
     
 		// eweapon Debug->SetEWeaponPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tEWpn, "SetEWeaponPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetEWeaponPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tEWpn, "SetEWeaponPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetEWeaponPointer(new VarArgument(EXP1)));
 
 		// float Debug->GetLWeaponPointer(lweapon)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetLWeaponPointer", P() << tLWpn);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetLWeaponPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetLWeaponPointer",
+				P() << tLWpn, R() << EXP1,
+				new OGetLWeaponPointer(new VarArgument(EXP1)));
     
 		// lweapon Debug->SetLWeaponPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tLWpn, "SetLWeaponPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetLWeaponPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tLWpn, "SetLWeaponPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetLWeaponPointer(new VarArgument(EXP1)));
 
 		// float Debug->GetNPCPointer(npc)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetNPCPointer", P() << tNpc);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetNPCPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetNPCPointer",
+				P() << tNpc, R() << EXP1,
+				new OGetNPCPointer(new VarArgument(EXP1)));
     
 		// npc Debug->SetNPCPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tNpc, "SetNPCPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetNPCPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tNpc, "SetNPCPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetNPCPointer(new VarArgument(EXP1)));
 
 		// float Debug->GetBoolPointer(bool)
-		{
-			Function& function = lh.addFunction(
-					tFloat, "GetBoolPointer", P() << tBool);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OGetBoolPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tFloat, "GetBoolPointer",
+				P() << tBool, R() << EXP1,
+				new OGetBoolPointer(new VarArgument(EXP1)));
     
 		// bool Debug->SetBoolPointer(float)
-		{
-			Function& function = lh.addFunction(
-					tBool, "SetBoolPointer", P() << tFloat);
-	    
-			int label = function.getLabel();
-			vector<Opcode *> code;
-			Opcode *first = new OPopRegister(new VarArgument(EXP1));
-			first->setLabel(label);
-			code.push_back(first);
-			//pop pointer, and ignore it
-			code.push_back(new OPopRegister(new VarArgument(NUL)));
-			code.push_back(new OSetBoolPointer(new VarArgument(EXP1)));
-			code.push_back(new OPopRegister(new VarArgument(EXP2)));
-			code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-			function.giveCode(code);
-		}
+		defineFunction(
+				lh, tBool, "SetBoolPointer",
+				P() << tFloat, R() << EXP1,
+				new OSetBoolPointer(new VarArgument(EXP1)));
 	}
 
 	// void Debug->TriggerSecret(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "TriggerSecret", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OTriggerSecretRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "TriggerSecret",
+			P() << tFloat, R() << EXP1,
+			new OTriggerSecretRegister(new VarArgument(EXP1)));
     
     // void Debug->ChangeFFCScript(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "ChangeFFCScript", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OChangeFFCScriptRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "ChangeFFCScript",
+			P() << tFloat, R() << EXP1,
+			new OChangeFFCScriptRegister(new VarArgument(EXP1)));
 }

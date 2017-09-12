@@ -33,7 +33,9 @@ void Item::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
 	
 	LibraryHelper lh(scope, REFITEM, tItem);
 
@@ -68,19 +70,8 @@ void Item::addTo(Scope& scope) const
 	addPair(lh, ITEMMISCD, tFloat, "Misc", 32);
 
     // bool Item->isValid()
-    {
-	    Function& function = lh.addFunction(tBool, "isValid", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Check validity
-        code.push_back(new OIsValidItem(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tBool, "isValid", P(), R() << EXP1,
+			new OIsValidItem(new VarArgument(EXP1)));
 }
 

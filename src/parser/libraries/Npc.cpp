@@ -33,7 +33,9 @@ void Npc::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
 	
 	LibraryHelper lh(scope, REFNPC, tNpc);
 
@@ -87,54 +89,19 @@ void Npc::addTo(Scope& scope) const
 	addPair(lh, NPCHASITEM, tBool, "HasItem");
 	
     // bool Npc->isValid()
-    {
-	    Function& function = lh.addFunction(tBool, "isValid", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Check validity
-        code.push_back(new OIsValidNPC(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tBool, "isValid", P(), R() << EXP1,
+			new OIsValidNPC(new VarArgument(EXP1)));
     
     // void Npc->GetName(float bufferId)
-    {
-	    Function& function = lh.addFunction(tVoid, "GetName", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetNPCName(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "GetName",
+			P() << tFloat, R() << EXP1,
+			new OGetNPCName(new VarArgument(EXP1)));
     
     // void Npc->BreakShield()
-    {
-	    Function& function = lh.addFunction(tVoid, "BreakShield", P());
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Break shield
-        code.push_back(new OBreakShield(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "BreakShield",
+			P(), R() << EXP1,
+			new OBreakShield(new VarArgument(EXP1)));
 }

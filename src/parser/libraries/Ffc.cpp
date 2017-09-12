@@ -33,7 +33,9 @@ void Ffc::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
 	
 	LibraryHelper lh(scope, REFFFC, tFfc);
 
@@ -58,27 +60,14 @@ void Ffc::addTo(Scope& scope) const
 	// addPair(lh, FFDD, tFloat, "D", 8);
 	addPair(lh, FFCID, tFloat, "ID");
 
-	// void ChangeFFCScript(ffc this, float script)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "ChangeFFCScript", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OChangeFFCScriptRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-    
-    // bool WasTriggered(ffc this)
-    /*
+	// void ffc->ChangeFFCScript(float script)
+	defineFunction(
+			lh, tVoid, "ChangeFFCScript",
+			P() << tFloat, R() << EXP1,
+			new OChangeFFCScriptRegister(new VarArgument(EXP1)));
+
+	/*
+    // bool ffc->WasTriggered()
     {
 	    Function& function = lh.addFunction(tBool, "WasTriggered", P());
 	    
@@ -110,5 +99,5 @@ void Ffc::addTo(Scope& scope) const
 	    code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 	    function.giveCode(code);
     }
-    */
+	*/
 }

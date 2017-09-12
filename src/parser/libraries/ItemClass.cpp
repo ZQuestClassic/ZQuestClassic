@@ -34,7 +34,9 @@ void ItemClass::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
 	
 	LibraryHelper lh(scope, REFITEMCLASS, tItemClass);
 
@@ -93,19 +95,8 @@ void ItemClass::addTo(Scope& scope) const
 	addPair(lh, IDATAWEAPZOFS, tFloat, "WeaponDrawZOffset");
 	
     // void ItemClass->GetName(string buffer)
-    {
-	    Function& function = lh.addFunction(tVoid, "GetName", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetItemName(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "GetName",
+			P() << tFloat, R() << EXP1,
+			new OGetItemName(new VarArgument(EXP1)));
 }

@@ -35,745 +35,329 @@ void Global::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<Opcode*> O;
 
 	LibraryHelper lh(scope, NUL);
 	
     // int Rand(int maxval)
-    {
-	    Function& function = lh.addFunction(tFloat, "Rand", P() << tFloat);
-	    int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop maxval
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new ORandRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tFloat, "Rand", P() << tFloat, R() << EXP2,
+			new ORandRegister(new VarArgument(EXP1),
+			                  new VarArgument(EXP2)));
     
     // void Quit()
     {
 	    Function& function = lh.addFunction(tVoid, "Quit", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
+        vector<Opcode*> code;
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OQuit());
+        code.front()->setLabel(function.getLabel());
         function.giveCode(code);
     }
     
     // void Waitframe()
-    {
-	    Function& function = lh.addFunction(tVoid, "Waitframe", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OWaitframe();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "Waitframe", new OWaitframe());
     
     // void Waitdraw()
-    {
-	    Function& function = lh.addFunction(tVoid, "Waitdraw", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OWaitdraw();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "Waitdraw", new OWaitdraw());
 
     // void Trace(int val)
-    {
-	    Function& function = lh.addFunction(tVoid, "Trace", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OTraceRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "Trace",
+		    P() << tFloat, R() << EXP2,
+		    new OTraceRegister(new VarArgument(EXP2)));
 
     // void TraceB(bool val)
-    {
-	    Function& function = lh.addFunction(tVoid, "TraceB", P() << tBool);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OTrace2Register(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "TraceB", P() << tBool, R() << EXP2,
+		    new OTrace2Register(new VarArgument(EXP2)));
 
     // void TraceS(bool val)
-    {
-	    Function& function = lh.addFunction(tVoid, "TraceS", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OTrace6Register(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "TraceS", P() << tFloat, R() << INDEX,
+		    new OTrace6Register(new VarArgument(EXP2)));
 
     // void TraceNL()
-    {
-	    Function& function = lh.addFunction(tVoid, "TraceNL", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OTrace3();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "TraceNL", new OTrace3());
 
     // void ClearTrace()
-    {
-	    Function& function = lh.addFunction(tVoid, "ClearTrace", P());
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OTrace4();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(lh, "ClearTrace", new OTrace4());
 
     // void TraceToBase(float, float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "TraceToBase", P() << tFloat << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OTrace5Register();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    defineFunction(
+		    lh, tVoid, "TraceToBase",
+		    P() << tFloat << tFloat << tFloat,
+		    new OTrace5Register());
 
-    // int Sin(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Sin", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float Sin(float val)
+    defineFunction(
+		    lh, tFloat, "Sin", P() << tFloat, R() << EXP2,
+		    new OSinRegister(new VarArgument(EXP1),
+		                     new VarArgument(EXP2)));
 
-    // int RadianSin(int val)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "RadianSin", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
-        code.push_back(new OSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float RadianSin(float val)
+    defineFunction(
+		    lh, tFloat, "RadianSin",
+		    P() << tFloat, R() << EXP2,
+		    O() << new OMultImmediate(new VarArgument(EXP2),
+		                              new LiteralArgument(radsperdeg))
+		        << new OSinRegister(new VarArgument(EXP1),
+		                            new VarArgument(EXP2)));
 
-    // int ArcSin(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "ArcSin", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArcSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float ArcSin(float val)
+    defineFunction(
+		    lh, tFloat, "ArcSin",
+		    P() << tFloat, R() << EXP2,
+		    new OArcSinRegister(new VarArgument(EXP1),
+		                        new VarArgument(EXP2)));
 
-    // int Cos(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Cos", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float Cos(float val)
+    defineFunction(
+		    lh, tFloat, "Cos",
+		    P() << tFloat, R() << EXP2,
+		    new OCosRegister(new VarArgument(EXP1),
+		                     new VarArgument(EXP2)));
 
-    // int RadianCos(int val)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "RadianCos", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
-        code.push_back(new OCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float RadianCos(float val)
+    defineFunction(
+		    lh, tFloat, "RadianCos",
+		    P() << tFloat, R() << EXP2,
+		    O() << new OMultImmediate(new VarArgument(EXP2),
+		                              new LiteralArgument(radsperdeg))
+		        << new OCosRegister(new VarArgument(EXP1),
+		                            new VarArgument(EXP2)));
 
-    // int ArcCos(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "ArcCos", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArcCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float ArcCos(float val)
+    defineFunction(
+		    lh, tFloat, "ArcCos",
+		    P() << tFloat, R() << EXP2,
+		    new OArcCosRegister(new VarArgument(EXP1),
+		                        new VarArgument(EXP2)));
 
-    // int Tan(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Tan", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OTanRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float Tan(float val)
+    defineFunction(
+		    lh, tFloat, "Tan",
+		    P() << tFloat, R() << EXP2,
+		    new OTanRegister(new VarArgument(EXP1),
+		                     new VarArgument(EXP2)));
 
-    // int ArcTan(int X, int Y)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "ArcTan", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OATanRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float ArcTan(float X, float Y)
+    defineFunction(
+		    lh, tFloat, "ArcTan",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX << INDEX2,
+		    new OATanRegister(new VarArgument(EXP1)));
 
-    // int RadianTan(int val)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "RadianTan", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
-        code.push_back(new OTanRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float RadianTan(float val)
+    defineFunction(
+		    lh, tFloat, "RadianTan",
+		    P() << tFloat, R() << EXP2,
+		    O() << new OMultImmediate(new VarArgument(EXP2),
+		                              new LiteralArgument(radsperdeg))
+		        << new OTanRegister(new VarArgument(EXP1),
+		                            new VarArgument(EXP2)));
 
-    // int Max(int first, int second)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "Max", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OMaxRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Min(int first, int second)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "Min", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OMinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Pow(int first, int second)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "Pow", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int InvPow(int first, int second)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "InvPow", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OInvPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Factorial(int val)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "Factorial", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OFactorial(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Abs(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Abs", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OAbsRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Log10(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Log10", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OLog10Register(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Ln(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Ln", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OLogERegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-
-    // int Sqrt(int val)
-    {
-	    Function& function = lh.addFunction(tFloat, "Sqrt", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OSqrtRegister(new VarArgument(EXP1), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float Max(float first, float second)
+    defineFunction(
+		    lh, tFloat, "Max",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OMaxRegister(new VarArgument(EXP1),
+		                     new VarArgument(EXP2)));
     
+    // float Min(float first, float second)
+    defineFunction(
+		    lh, tFloat, "Min",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OMinRegister(new VarArgument(EXP1),
+		                     new VarArgument(EXP2)));
+
+    // float Pow(float first, float second)
+    defineFunction(
+		    lh, tFloat, "Pow",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OPowRegister(new VarArgument(EXP1),
+		                     new VarArgument(EXP2)));
+
+    // float InvPow(float first, float second)
+    defineFunction(
+		    lh, tFloat, "InvPow",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OInvPowRegister(new VarArgument(EXP1),
+		                        new VarArgument(EXP2)));
+
+    // float Factorial(float val)
+    defineFunction(
+		    lh, tFloat, "Factorial",
+		    P() << tFloat, R() << EXP1,
+		    new OFactorial(new VarArgument(EXP1)));
+
+    // float Abs(float val)
+    defineFunction(
+		    lh, tFloat, "Abs",
+		    P() << tFloat, R() << EXP1,
+		    new OAbsRegister(new VarArgument(EXP1)));
+
+    // float Log10(float val)
+    defineFunction(
+		    lh, tFloat, "Log10",
+		    P() << tFloat, R() << EXP1,
+		    new OLog10Register(new VarArgument(EXP1)));
+
+    // float Ln(float val)
+    defineFunction(
+		    lh, tFloat, "Ln",
+		    P() << tFloat, R() << EXP1,
+		    new OLogERegister(new VarArgument(EXP1)));
+
+    // float Sqrt(float val)
+    defineFunction(
+		    lh, tFloat, "Sqrt",
+		    P() << tFloat, R() << EXP1,
+		    new OSqrtRegister(new VarArgument(EXP1),
+		                      new VarArgument(EXP1)));
     
-    // void CopyTile(int source, int dest)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "CopyTile", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OCopyTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void CopyTile(float source, float dest)
+    defineFunction(
+		    lh, tVoid, "CopyTile",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OCopyTileRegister(new VarArgument(EXP1),
+		                          new VarArgument(EXP2)));
 
-    // void SwapTile(int first, int second)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SwapTile", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OSwapTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void SwapTile(float first, float second)
+    defineFunction(
+		    lh, tVoid, "SwapTile",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OSwapTileRegister(new VarArgument(EXP1),
+		                          new VarArgument(EXP2)));
     
-    // void OverlayTile(int first, int second)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "OverlayTile", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OOverlayTileRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void OverlayTile(float first, float second)
+    defineFunction(
+		    lh, tVoid, "OverlayTile",
+		    P() << tFloat << tFloat,
+		    R() <<   EXP1 <<   EXP2,
+		    new OOverlayTileRegister(new VarArgument(EXP1),
+		                             new VarArgument(EXP2)));
     
-    // void ClearTile(int tile)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "ClearTile", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OClearTileRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void ClearTile(float tile)
+    defineFunction(
+		    lh, tVoid, "ClearTile",
+		    P() << tFloat, R() << EXP2,
+		    new OClearTileRegister(new VarArgument(EXP2)));
 
-    // int GetGlobalRAM(int)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetGlobalRAM", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAMD)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float GetGlobalRAM(float)
+    defineFunction(
+		    lh, tFloat, "GetGlobalRAM",
+		    P() << tFloat, R() << INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(GLOBALRAMD)));
 
-    // void SetGlobalRAM(int, int)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetGlobalRAM", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OSetRegister(new VarArgument(GLOBALRAMD), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void SetGlobalRAM(float, float)
+    defineFunction(
+		    lh, tVoid, "SetGlobalRAM",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(GLOBALRAMD),
+		                     new VarArgument(EXP2)));
 
-    // int GetScriptRAM(int)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "GetScriptRAM", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX));
-        first->setLabel(label);
-        code.push_back(first);
-        //code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCRIPTRAMD)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float GetScriptRAM(float)
+    defineFunction(
+		    lh, tFloat, "GetScriptRAM",
+		    P() << tFloat, R() << INDEX,
+		    new OSetRegister(new VarArgument(EXP1),
+		                     new VarArgument(SCRIPTRAMD)));
 
-    // void SetScriptRAM(int, int)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetScriptRAM", P() << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OSetRegister(new VarArgument(SCRIPTRAMD), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void SetScriptRAM(float, float)
+    defineFunction(
+		    lh, tVoid, "SetScriptRAM",
+		    P() << tFloat << tFloat,
+		    R() <<  INDEX <<   EXP2,
+		    new OSetRegister(new VarArgument(SCRIPTRAMD),
+		                     new VarArgument(EXP2)));
 
-    // void SetColorBuffer(int amount, int offset, int stride, int* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetColorBuffer",
-			    P() << 			    tFloat << tFloat << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OSetColorBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void SetColorBuffer(
+    //     float amount, float offset, float stride, float* ptr)
+    defineFunction(
+		    lh, tVoid, "SetColorBuffer",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    new OSetColorBufferRegister());
 
-    // void SetDepthBuffer(int amount, int offset, int stride, int* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetDepthBuffer",
-			    P() << 			    tFloat << tFloat << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OSetDepthBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void SetDepthBuffer(
+    //     float amount, float offset, float stride, float* ptr)
+    defineFunction(
+		    lh, tVoid, "SetDepthBuffer",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    new OSetDepthBufferRegister());
 
-    // void GetColorBuffer(int amount, int offset, int stride, int* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetColorBuffer",
-			    P() << 			    tFloat << tFloat << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OGetColorBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void GetColorBuffer(
+    //     float amount, float offset, float stride, float* ptr)
+    defineFunction(
+		    lh, tVoid, "GetColorBuffer",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    new OGetColorBufferRegister());
 
-    // void GetDepthBuffer(int amount, int offset, int stride, int* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "GetDepthBuffer",
-			    P() << 			    tFloat << tFloat << tFloat << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OGetDepthBufferRegister();
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // void GetDepthBuffer(
+    //     float amount, float offset, float stride, float* ptr)
+    defineFunction(
+		    lh, tVoid, "GetDepthBuffer",
+		    P() << tFloat << tFloat << tFloat << tFloat,
+		    new OGetDepthBufferRegister());
 
-    // int SizeOfArray(int val)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArray", P() << tFloat);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySize(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float SizeOfArray(float val)
+    defineFunction(
+		    lh, tFloat, "SizeOfArray",
+		    P() << tFloat, R() << EXP1,
+		    new OArraySize(new VarArgument(EXP1)));
 
-    // int SizeOfArrayFFC(ffc* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayFFC", P() << tFfc);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeF(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float SizeOfArrayFFC(ffc* ptr)
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayFFC",
+		    P() << tFfc, R() << EXP1,
+		    new OArraySizeF(new VarArgument(EXP1)));
     
-    //int SizeOfArrayNPC(npc* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayNPC", P() << tNpc);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeN(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    } 
+    // float SizeOfArrayNPC(npc* ptr)
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayNPC",
+		    P() << tNpc, R() << EXP1,
+		    new OArraySizeN(new VarArgument(EXP1)));
     
-    // int SizeOfArrayBool(bool* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayBool", P() << tBool);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeB(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float SizeOfArrayBool(bool* ptr)
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayBool",
+		    P() << tBool, R() << EXP1,
+		    new OArraySizeB(new VarArgument(EXP1)));
 
-    // int SizeOfArrayItem(item* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayItem", P() << tItem);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeI(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float SizeOfArrayItem(item* ptr)
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayItem",
+		    P() << tItem, R() << EXP1,
+		    new OArraySizeI(new VarArgument(EXP1)));
 
-    // int SizeOfArrayItemdata(itemdata* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayItemdata", P() << tItemClass);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeID(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float SizeOfArrayItemdata(itemdata* ptr)
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayItemdata",
+		    P() << tItemClass, R() << EXP1,
+		    new OArraySizeID(new VarArgument(EXP1)));
 
-    // int SizeOfArrayLWeapon(lweapon* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayLWeapon", P() << tLWpn);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeL(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+    // float SizeOfArrayLWeapon(lweapon* ptr)
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayLWeapon",
+		    P() << tLWpn, R() << EXP1,
+		    new OArraySizeL(new VarArgument(EXP1)));
 
     // int SizeOfArrayEWeapon(eweapon* ptr)
-    {
-	    Function& function = lh.addFunction(
-			    tFloat, "SizeOfArrayEWeapon", P() << tEWpn);
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OArraySizeE(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
-	
+    defineFunction(
+		    lh, tFloat, "SizeOfArrayEWeapon",
+		    P() << tEWpn, R() << EXP1,
+		    new OArraySizeE(new VarArgument(EXP1)));
 }
 
 

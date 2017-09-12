@@ -33,7 +33,10 @@ void Link::addTo(Scope& scope) const
 	DataType tFfc = typeStore.getFfc();
 	DataType tLWpn = typeStore.getLWpn();
 	DataType tEWpn = typeStore.getEWpn();
+
 	typedef VectorBuilder<DataType> P;
+	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<Opcode*> O;
 	
 	LibraryHelper lh(scope, NUL, tLink);
 
@@ -131,141 +134,53 @@ void Link::addTo(Scope& scope) const
 	addPair(lh, LINKDIAG, tBool, "Diagonal");
 	addPair(lh, LINKBIGHITBOX, tBool, "BigHitbox");
 
-
 	// void Link->Warp(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "Warp", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop ffc, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        //ffc must be this (link is not a user-accessible type)
-        code.push_back(new OWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "Warp",
+			P() << tFloat << tFloat,
+			R() <<   EXP2 <<   EXP1,
+			new OWarp(new VarArgument(EXP2),
+			          new VarArgument(EXP1)));
     
     // void Link->PitWarp(float, float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "PitWarp", P() << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop ffc, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        //ffc must be this (link is not a user-accessible type)
-        code.push_back(new OPitWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "PitWarp",
+			P() << tFloat << tFloat,
+			R() <<   EXP2 <<   EXP1,
+			new OPitWarp(new VarArgument(EXP2),
+			             new VarArgument(EXP1)));
     
     // void Link->SetItemSlot(float item, float slot, float force)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetItemSlot", P() << tFloat << tFloat << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETITEMSLOT), new VarArgument(SFTEMP)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "SetItemSlot",
+			P() << tFloat << tFloat << tFloat,
+			R() <<  INDEX << INDEX2 << SFTEMP,
+			new OSetRegister(new VarArgument(SETITEMSLOT),
+			                 new VarArgument(SFTEMP)));
     
     // void Link->SetItemA(float itemId)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetItemA", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        //code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "SetItemA",
+			P() << tFloat, R() << EXP2,
+			new OSetRegister(new VarArgument(GAMESETA),
+			                 new VarArgument(EXP2)));
     
     // void Link->SetItemB(float itemId)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SetItemB", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        //code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "SetItemB",
+			P() << tFloat, R() << EXP2,
+			new OSetRegister(new VarArgument(GAMESETB),
+			                 new VarArgument(EXP2)));
     
     // void Link->SelectAWeapon(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SelectAWeapon", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSelectAWeaponRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "SelectAWeapon",
+			P() << tFloat, R() << EXP1,
+			new OSelectAWeaponRegister(new VarArgument(EXP1)));
 
     // void Link->SelectBWeapon(float)
-    {
-	    Function& function = lh.addFunction(
-			    tVoid, "SelectBWeapon", P() << tFloat);
-	    
-        int label = function.getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSelectBWeaponRegister(new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function.giveCode(code);
-    }
+	defineFunction(
+			lh, tVoid, "SelectBWeapon",
+			P() << tFloat, R() << EXP1,
+			new OSelectBWeaponRegister(new VarArgument(EXP1)));
 }
