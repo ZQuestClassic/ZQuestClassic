@@ -304,36 +304,6 @@ public:
     }
 };
 
-//Polygon
-void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-{
-    int vertices=sdci[2]/10000;
-    std::vector <int> Points(vertices*2); //A vector sized by the number of vertices
-    FFScript::getArray(sdci[3]/10000, &Points[0]);//Store the script array into the vecotr.
-    
-    
-    
-	
-    int colour=sdci[4]/10000;
-	int rot = sdci[5]/10000;
-    int opacity=sdci[6]/10000;
-	
-    if(opacity <= 127) //translucent
-    {
-        drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-    }
-    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-    
-    if ( rot ) {
-	    BITMAP *subBmp = script_drawing_commands.AquireSubBitmap(256, 256);
-	    polygon(subBmp, vertices, &Points[0], colour);
-	    rotate_sprite(bmp, subBmp, 0, 0, degrees_to_fixed(rot));
-    }
-    else polygon(bmp, vertices, &Points[0], colour);
-    
-}
-
-
 
 void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -3139,12 +3109,54 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	script_drawing_commands[i].DeallocateDrawBuffer();
 }
 
+
+void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+	int vertices=sdci[2]/10000;   
+	int* points = (int*)script_drawing_commands[i].GetDrawBufferPtr(); //xy interleaved format.
+	if(!points)
+	{
+		//error message
+		return;
+	}
+
+	int color=sdci[4]/10000;
+	int rot = sdci[5]/10000;
+	int opacity=sdci[6]/10000;
+
+	if(opacity <= 127) //translucent
+	{
+		//
+		// Be careful when changing global state.
+		// Remember to change it back.
+		//
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	}
+	else
+	{
+		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	}
+
+	if(rot)
+	{
+		//
+		// You have to iterate through all the points to get the bounds of the Axis-Aligned Bounding Rect
+		// that encompasses the polygon first.
+		//
+		BITMAP *subBmp = script_drawing_commands.AquireSubBitmap(256, 256);
+
+		polygon(subBmp, vertices, points, color);
+		rotate_sprite(bmp, subBmp, 0, 0, degrees_to_fixed(rot));
+	}
+	else
+	{
+		polygon(bmp, vertices, points, color);
+	}
+}
+
+
 //
 //void do_bitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-//{
-//	//todo
-//}
-//void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 //{
 //	//todo
 //}

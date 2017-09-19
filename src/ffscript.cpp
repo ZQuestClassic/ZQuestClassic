@@ -7535,21 +7535,22 @@ void do_drawing_command(const int script_command)
 	//}
 	//break;
 
-	//case POLYGONR:
-	//{
-	//	set_drawing_command_args(j, 6);
-	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+	case POLYGONR:
+	{
+		set_drawing_command_args(j, 6);
+		int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+		if(!count)
+		{
+			script_drawing_commands.AbortDrawingCommand();
+			break;
+		}
 
-	//		long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
-	//	long* p = ptr;
+		int* p = (int*)script_drawing_commands[j].AllocateDrawBuffer(count * sizeof(int));
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count);
 
-	//		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
-	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
-	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
-
-	//		script_drawing_commands[j].SetPtr(ptr);
-	//	}
-	//break;
+		//script_drawing_commands[j].SetPtr(ptr);
+	}
+	break;
 
 	//case PIXELARRAYR:
 	//{
