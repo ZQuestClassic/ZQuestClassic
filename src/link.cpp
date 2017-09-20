@@ -12620,8 +12620,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
     if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
-	scx = 32; //for sideview very fast screolling. 
-    
+
+	  scx = 32; //for sideview very fast screolling. 
+  
     actiontype lastaction = action;
     ALLOFF(false, false);
     // for now, restore Link's previous action
