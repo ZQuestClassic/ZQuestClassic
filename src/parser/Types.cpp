@@ -9,6 +9,7 @@
 #include "Scope.h"
 
 // using namespace std;
+
 using namespace ZScript;
 using namespace ZScript::detail;
 
