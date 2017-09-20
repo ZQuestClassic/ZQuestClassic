@@ -4,8 +4,66 @@
 #define ZSCRIPT_COMPILER_UTILS_H
 
 #include <cassert>
-#include <list>
+#include <cstddef>
 #include <vector>
+#include <map>
+#include <set>
+
+////////////////////////////////////////////////////////////////
+// No Copy Mixin
+
+// Mixin that disables the auto-generated copy constructor and assignment
+// operator.
+class NoCopy
+{
+public:
+	NoCopy() {}
+	~NoCopy() {}
+private:
+	NoCopy(NoCopy const&);
+	NoCopy& operator=(NoCopy const&);
+};
+
+////////////////////////////////////////////////////////////////
+// Safe Bool Idiom
+
+// Mixin for the safe bool idiom.
+// To use, inherit publically from safe_bool<Own Class> and implement
+// bool safe_bool() const;
+template <typename Self>
+class SafeBool
+{
+protected:
+	typedef void (SafeBool::*bool_type) () const;
+	void this_type_does_not_support_comparisons() const {}
+
+	SafeBool() {}
+	SafeBool(SafeBool const&) {}
+	SafeBool& operator=(SafeBool const&) {return *this;}
+	~SafeBool() {}
+
+public:
+	operator bool_type() const
+	{
+		return static_cast<Self const*>(this)->safe_bool()
+			? &SafeBool::this_type_does_not_support_comparisons
+			: NULL;
+	}
+};
+
+// Disable ==.
+template <typename T, typename U> 
+bool operator==(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
+	lhs.this_type_does_not_support_comparisons(); // compile error
+	return false;
+}
+
+// Disable !=
+template <typename T, typename U> 
+bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
+    lhs.this_type_does_not_support_comparisons(); // compile error
+    return false;	
+}
 
 ////////////////////////////////////////////////////////////////
 // Simple std::optional (from C++17).
@@ -19,7 +77,7 @@ struct nullopt_t
 const nullopt_t nullopt((nullopt_t::init()));
 
 template <class Type>
-class optional
+class optional : public SafeBool<optional<Type> >
 {
 public:
 	// Construct empty optional. 
@@ -94,9 +152,8 @@ public:
 	template <typename U>
 	Type value_or(U& v)
 	{
-		return has_value_
-			? *reinterpret_cast<Type*>(&data)
-			: *reinterpret_cast<Type*>(&v);
+		if (has_value_) return *reinterpret_cast<Type*>(&data);
+		return *reinterpret_cast<Type*>(&v);
 	}
 
 	// Destroys the value if present.
@@ -106,25 +163,22 @@ public:
 		has_value_ = false;
 	}
 
+	bool safe_bool() const {return has_value_;}
+	
 private:
 	bool has_value_;
 	union {char data[1 + (sizeof(Type) - 1) / sizeof(char)];};
-
-	// safe_bool idiom
-private:
-	typedef void (optional::*safe_bool)() const;
-	void this_type_does_not_support_comparisons() const {}
-public:
-	operator safe_bool() const
-    {
-        return has_value_
-			? &optional::this_type_does_not_support_comparisons
-			: 0;
-    }
 };
 
 ////////////////////////////////////////////////////////////////
 // Containers
+
+// Insert the contents of the second container into the first.
+template <typename TargetContainer, typename SourceContainer>
+void insertElements(TargetContainer& target, SourceContainer const& source)
+{
+	target.insert(source.begin(), source.end());
+}
 
 // Append the contents of the second container to the first.
 template <typename TargetContainer, typename SourceContainer>
@@ -141,6 +195,43 @@ void deleteElements(Container const& container)
 	     it != container.end(); ++it)
 		delete *it;
 }
+
+// Return the only element of a container, or nothing.
+template <typename Element, typename Container>
+optional<Element> getOnly(Container const& container)
+{
+	typename Container::size_type size = container.size();
+	if (size != 1) return nullopt;
+	return container.front();
+}
+
+// Return a new container with all the elements in the original container
+// cloned.
+template <typename Container>
+Container cloneElements(Container const& base)
+{
+	Container results;
+	for (typename Container::const_iterator it = base.begin();
+	     it != base.end(); ++it)
+		results.push_back((*it)->clone());
+	return results;
+}
+
+////////////////////////////////////////////////////////////////
+// Vectors
+
+// Easily construct vectors.
+template <typename Element>
+class VectorBuilder
+{
+public:
+	VectorBuilder& operator<<(Element rhs) {
+		data.push_back(rhs); return *this;}
+	operator std::vector<Element>() const {return data;}
+	
+private:
+	std::vector<Element> data;
+};
 
 ////////////////////////////////////////////////////////////////
 // Maps
@@ -172,21 +263,29 @@ void overwritePairs(Map& target, Map const& source)
 		target[it->first] = it->second;
 }
 
-template <typename Element, typename Map, typename Key>
-optional<Element> find(Map const& map, Key const& key)
+// Find an element in a map.
+template <typename Element, typename Key, typename Compare, typename Alloc>
+optional<Element> find(
+		std::map<Key, Element, Compare, Alloc> const& container,
+		Key const& key)
 {
-	typename Map::const_iterator it = map.find(key);
-	if (it == map.end()) return nullopt;
+	typedef std::map<Key, Element, Compare, Alloc> Map;
+	typename Map::const_iterator it = container.find(key);
+	if (it == container.end()) return nullopt;
 	Element const& element = it->second;
 	return element;
 }
 
-template <typename Element, typename Map, typename Key>
-optional<Element> find(Map const& map, Key const* const& key)
+// Find an element in a set.
+template <typename Element, typename Compare, typename Alloc>
+optional<Element> find(
+		std::set<Element, Compare, Alloc> const& container,
+		Element const& key)
 {
-	typename Map::const_iterator it = map.find(const_cast<Key*>(key));
-	if (it == map.end()) return nullopt;
-	Element const& element = it->second;
+	typedef std::set<Element, Compare, Alloc> Set;
+	typename Set::const_iterator it = container.find(key);
+	if (it == container.end()) return nullopt;
+	Element const& element = *it;
 	return element;
 }
 

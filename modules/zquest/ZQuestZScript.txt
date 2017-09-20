@@ -10,12 +10,27 @@ src/parser/BuildVisitors.cpp
 src/parser/ByteCode.cpp
 src/parser/CompileError.cpp
 src/parser/DataStructs.cpp
-src/parser/GlobalSymbols.cpp
+src/parser/Library.cpp
+src/parser/LibraryHelper.cpp
 src/parser/Scope.cpp
 src/parser/ScriptParser.cpp
 src/parser/SemanticAnalyzer.cpp
 src/parser/Types.cpp
 src/parser/ZScript.cpp
+
+src/parser/libraries/Audio.cpp
+src/parser/libraries/Debug.cpp
+src/parser/libraries/EWeapon.cpp
+src/parser/libraries/Ffc.cpp
+src/parser/libraries/Game.cpp
+src/parser/libraries/Global.cpp
+src/parser/libraries/ItemClass.cpp
+src/parser/libraries/Item.cpp
+src/parser/libraries/Link.cpp
+src/parser/libraries/LWeapon.cpp
+src/parser/libraries/NpcClass.cpp
+src/parser/libraries/Npc.cpp
+src/parser/libraries/Screen.cpp
 
 ## End of ZQuest ZScript module
 )

@@ -5943,6 +5943,16 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
                         tempitem.flags |= itemdata::IF_FLAG3; // Sideview gravity flag
                 }
 
+                // boomerangs use wpns[1] and wpns[2] to store the sparkle weapon. In old quests 0 was used to indicate no sparkle, even though 0 is a valid weapon (the sword). 
+                if (s_version < 27)
+                {
+                    if (tempitem.family == itype_brang && tempitem.wpns[1].slot == 0)
+                        tempitem.wpns[1] = SpriteDefinitionRef();
+
+                    if (tempitem.family == itype_brang && tempitem.wpns[2].slot == 0)
+                        tempitem.wpns[2] = SpriteDefinitionRef();
+                }
+
                 if (tempitem.fam_type == 0)  // Always do this
                     tempitem.fam_type = 1;
             }

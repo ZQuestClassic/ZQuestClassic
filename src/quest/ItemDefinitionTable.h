@@ -66,7 +66,7 @@ struct itemdata
 
     // just enough to initialize the default items
     itemdata(const std::string &name, byte family_, byte fam_type_, byte power_, word flags_, char count_, word amount_, short setmax_, word max_, byte playsound_,
-        uint32_t wpn_, uint32_t wpn2_, uint32_t wpn3_, uint32_t wpn4_, uint32_t wpn5_, uint32_t wpn6_, uint32_t wpn7_, uint32_t wpn8_, uint32_t wpn9_, uint32_t wpn10_,
+        SpriteDefinitionRef wpn_, SpriteDefinitionRef wpn2_, SpriteDefinitionRef wpn3_, SpriteDefinitionRef wpn4_, SpriteDefinitionRef wpn5_, SpriteDefinitionRef wpn6_, SpriteDefinitionRef wpn7_, SpriteDefinitionRef wpn8_, SpriteDefinitionRef wpn9_, SpriteDefinitionRef wpn10_,
         byte pickup_hearts_, long misc1_, long misc2_, long misc3_, long misc4_, byte magic_, byte usesound_);
 
     void clear()

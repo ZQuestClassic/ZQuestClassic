@@ -5455,7 +5455,7 @@ void align_objects(subscreen_group *tempss, const std::set<int> &selection, int 
     int c=l+w/2;
     int m=t+h/2;
 
-    for(std::set<int>::iterator it = selection.begin(); it != selection.end(); ++it)
+    for(std::set<int>::const_iterator it = selection.begin(); it != selection.end(); ++it)
     {
         if(*it!=curr_subscreen_object)
         {

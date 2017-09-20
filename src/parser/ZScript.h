@@ -11,10 +11,9 @@
 using std::vector;
 using std::map;
 
-class SymbolTable;
-
 namespace ZScript
 {
+	class TypeStore;
 	class Program;
 	class Script;
 	class Variable;
@@ -24,16 +23,21 @@ namespace ZScript
 	class GlobalScope;
 	class ScriptScope;
 	class FunctionScope;
+
+	////////////////////////////////////////////////////////////////
+	// Program
 	
 	class Program
 	{
 	public:
-		Program(ASTProgram* ast);
+		Program(ASTProgram&, TypeStore&, CompileErrorHandler&);
 		~Program();
-		ASTProgram* node;
-		SymbolTable& table;
-		GlobalScope& globalScope;
 
+		ASTProgram& getNode() {return node;}
+		TypeStore const& getTypeStore() const {return typeStore;}
+		TypeStore& getTypeStore() {return typeStore;}
+		GlobalScope& getScope() const {return *globalScope;}
+		
 		vector<Script*> scripts;
 		Script* getScript(string const& name) const;
 		Script* getScript(ASTScript* node) const;
@@ -49,33 +53,98 @@ namespace ZScript
 		// Does this script have a declaration error?
 		bool hasError() const {return getErrors().size() > 0;}
 
-	private:
+	private:		
 		map<string, Script*> scriptsByName;
 		map<ASTScript*, Script*> scriptsByNode;
 
+		ASTProgram& node;
+		TypeStore& typeStore;
+		GlobalScope* globalScope;
+		
 		// Disabled.
 		Program(Program const&);
 		Program& operator=(Program const&);
 	};
 
+	// Gets all defined functions.
+	vector<Function*> getFunctions(Program const&);
+
+	////////////////////////////////////////////////////////////////
+	// Script
+
+	class UserScript;
+	class BuiltinScript;
+	
 	class Script
 	{
 	public:
-		Script(Program& program, ASTScript* script);
+		virtual ~Script();
+				
+		virtual ScriptType getType() const = 0;
+		virtual string const& getName() const = 0;
+		virtual ASTScript* getNode() const = 0;
+		virtual ScriptScope& getScope() = 0;
+		virtual ScriptScope const& getScope() const = 0;
 
-		ASTScript* node;
-		ScriptScope* scope;
+		vector<Opcode*> code;
+		
+	protected:
+		Script(Program& program);
 
-		string getName() const;
-		ScriptType getType() const;
-		Function* getRun() const;
-
-		// Return a list of all errors in the script declaration.
-		vector<CompileError const*> getErrors() const;
-		// Does this script have a declaration error?
-		bool hasError() const {return getErrors().size() > 0;}
+	private:
+		Program& program;
 	};
 
+	class UserScript : public Script
+	{
+		friend UserScript* createScript(
+				Program&, ASTScript&, CompileErrorHandler&);
+
+	public:
+		ScriptType getType() const {return node.type->type;}
+		string const& getName() const {return node.name;};
+		ASTScript* getNode() const {return &node;};
+		ScriptScope& getScope() {return *scope;}
+		ScriptScope const& getScope() const {return *scope;}
+		
+	private:
+		UserScript(Program&, ASTScript&);
+		
+		ASTScript& node;
+		ScriptScope* scope;
+	};
+
+	class BuiltinScript : public Script
+	{
+		friend BuiltinScript* createScript(
+				Program&, ScriptType, string const& name,
+				CompileErrorHandler&);
+
+	public:
+		ScriptType getType() const {return type;}
+		string const& getName() const {return name;};
+		ASTScript* getNode() const {return NULL;};
+		ScriptScope& getScope() {return *scope;}
+		ScriptScope const& getScope() const {return *scope;}
+		
+	private:
+		BuiltinScript(Program&, ScriptType, string const& name);
+		
+		ScriptType type;
+		string name;
+		ScriptScope* scope;
+	};
+
+	UserScript* createScript(Program&, ASTScript&, CompileErrorHandler&);
+	BuiltinScript* createScript(
+			Program&, ScriptType, string const& name, CompileErrorHandler&);
+	
+	Function* getRunFunction(Script const&);
+	optional<int> getLabel(Script const&);
+
+	////////////////////////////////////////////////////////////////
+	// Datum
+	
 	// Something that can be resolved to a data value.
 	class Datum
 	{
@@ -84,7 +153,7 @@ namespace ZScript
 		Scope& scope;
 
 		// The type of this data.
-		ZVarType const& type;
+		DataType type;
 
 		// Id for lookup tables.
 		int const id;
@@ -102,7 +171,7 @@ namespace ZScript
 		virtual optional<int> getGlobalId() const {return nullopt;}
 
 	protected:
-		Datum(Scope& scope, ZVarType const& type);
+		Datum(Scope& scope, DataType const& type);
 
 		// Call in static creation function to register with scope.
 		bool tryAddToScope(CompileErrorHandler&);
@@ -119,13 +188,13 @@ namespace ZScript
 	{
 	public:
 		static Literal* create(
-				Scope&, ASTLiteral&, ZVarType const&,
+				Scope&, ASTLiteral&, DataType const&,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		ASTLiteral* getNode() const {return &node;}
 
 	private:
-		Literal(Scope& scope, ASTLiteral& node, ZVarType const& type);
+		Literal(Scope& scope, ASTLiteral& node, DataType const& type);
 
 		ASTLiteral& node;
 	};
@@ -135,7 +204,7 @@ namespace ZScript
 	{
 	public:
 		static Variable* create(
-				Scope&, ASTDataDecl&, ZVarType const&,
+				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const {return node.name;}
@@ -143,7 +212,7 @@ namespace ZScript
 		optional<int> getGlobalId() const {return globalId;}
 
 	private:
-		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
+		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
 		ASTDataDecl& node;
 		optional<int> globalId;
@@ -154,14 +223,14 @@ namespace ZScript
 	{
 	public:
 		static BuiltinVariable* create(
-				Scope&, ZVarType const&, string const& name,
+				Scope&, DataType const&, string const& name,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const {return name;}
 		optional<int> getGlobalId() const {return globalId;}
 
 	private:
-		BuiltinVariable(Scope&, ZVarType const&, string const& name);
+		BuiltinVariable(Scope&, DataType const&, string const& name);
 
 		string const name;
 		optional<int> globalId;
@@ -172,7 +241,7 @@ namespace ZScript
 	{
 	public:
 		static Constant* create(
-				Scope&, ASTDataDecl&, ZVarType const&, long value,
+				Scope&, ASTDataDecl&, DataType const&, long value,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const;
@@ -182,7 +251,7 @@ namespace ZScript
 		ASTDataDecl* getNode() const {return &node;}
 
 	private:
-		Constant(Scope&, ASTDataDecl&, ZVarType const&, long value);
+		Constant(Scope&, ASTDataDecl&, DataType const&, long value);
 
 		ASTDataDecl& node;
 		long value;
@@ -193,19 +262,22 @@ namespace ZScript
 	{
 	public:
 		static BuiltinConstant* create(
-				Scope&, ZVarType const&, string const& name, long value,
+				Scope&, DataType const&, string const& name, long value,
 				CompileErrorHandler& = CompileErrorHandler::NONE);
 		
 		optional<string> getName() const {return name;}
 		optional<long> getCompileTimeValue() const {return value;}
 
 	private:
-		BuiltinConstant(Scope&, ZVarType const&,
+		BuiltinConstant(Scope&, DataType const&,
 		                string const& name, long value);
 
 		string name;
 		long value;
 	};
+
+	////////////////////////////////////////////////////////////////
+	// Function
 	
 	class Function
 	{
@@ -215,7 +287,7 @@ namespace ZScript
 		{
 		public:
 			Signature(string const& name,
-			          vector<ZVarType const*> const& parameterTypes);
+			          vector<DataType> const& parameterTypes);
 			Signature(Function const& function);
 
 			int compare(Signature const& other) const;
@@ -225,19 +297,29 @@ namespace ZScript
 			operator string() const {return asString();}
 
 			string name;
-			vector<ZVarType const*> parameterTypes;
+			vector<DataType> parameterTypes;
 		};
 		
-		Function(ZVarType const* returnType, string const& name,
-				 vector<ZVarType const*> paramTypes, int id);
-		ZVarType const* returnType;
+		Function(DataType const& returnType, string const& name,
+				 vector<DataType> const& paramTypes, int id);
+		~Function();
+		
+		DataType returnType;
 		string name;
-		vector<ZVarType const*> paramTypes;
+		vector<DataType> paramTypes;
 		int id;
 
 		ASTFuncDecl* node;
 		FunctionScope* internalScope;
 		BuiltinVariable* thisVar;
+
+		// Get the opcodes.
+		vector<Opcode*> const& getCode() const {return ownedCode;}
+		// Get and remove the code for this function.
+		vector<Opcode*> takeCode();
+		// Add code for this function, transferring ownership.
+		// Clears the input vector.
+		void giveCode(vector<Opcode*>& code);
 		
 		Signature getSignature() const {return Signature(*this);}
 		
@@ -248,6 +330,9 @@ namespace ZScript
 		
 	private:
 		mutable optional<int> label;
+
+		// Code implementing this function.
+		vector<Opcode*> ownedCode;
 	};
 
 	// Is this function a "run" function?

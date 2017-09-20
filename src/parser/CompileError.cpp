@@ -4,11 +4,14 @@
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <cstdio>
+#include <cstdarg>
 #include <iostream>
 #include <string>
 #include <sstream>
 
-using namespace std;
+//using namespace std; //PLEASE DONT DO THIS
+using std::string;
+using std::ostringstream;
 
 // Weird macros to insert constants into strings at preprocessing stage.
 #define STRING1(s) #s
@@ -193,3 +196,14 @@ CompileError const CompileError::UnimplementedFeature(
 		54, 'C', false, "Feature unimplemented: %s.");
 
 CompileErrorHandler CompileErrorHandler::NONE;
+
+void SimpleCompileErrorHandler::handleError(
+		CompileError const& error, AST const* node, ...)
+{
+	va_list args;
+	va_start(args, node);
+	error.vprint(node, args);
+	if (error.warning) ++warningCount;
+	else ++errorCount;
+	va_end(args);
+}

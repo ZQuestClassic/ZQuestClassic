@@ -1,37 +1,50 @@
+#include "../precompiled.h"
+#include "CompilerUtils.h"
 #include "CompileError.h"
 #include "DataStructs.h"
+#include "Types.h"
 #include "Scope.h"
 #include "ZScript.h"
 
-using namespace std;
+//using namespace std;
 using namespace ZScript;
 
+////////////////////////////////////////////////////////////////
 // ZScript::Program
 
-Program::Program(ASTProgram* node)
+Program::Program(
+		ASTProgram& node,
+		TypeStore& typeStore,
+		CompileErrorHandler& errorHandler)
 	: node(node),
-	  table(*new SymbolTable()),
-	  globalScope(*new GlobalScope(table))
+	  typeStore(typeStore),
+	  globalScope(new GlobalScope(typeStore))
 {
-	assert(node);
-
 	// Create a ZScript::Script for every script in the program.
-	for (vector<ASTScript*>::const_iterator it = node->scripts.begin();
-		 it != node->scripts.end(); ++it)
+	for (vector<ASTScript*>::const_iterator it = node.scripts.begin();
+		 it != node.scripts.end(); ++it)
 	{
-		scripts.push_back(new Script(*this, *it));
-		Script* script = scripts.back();
+		Script* script = createScript(*this, **it, errorHandler);
+		if (!script) continue;
+		
+		scripts.push_back(script);
 		scriptsByName[script->getName()] = script;
 		scriptsByNode[*it] = script;
+	}
+
+	// Create the ~Init script.
+	if (Script* initScript =
+	    createScript(*this, ScriptType::getGlobal(), "~Init", errorHandler))
+	{
+		scripts.push_back(initScript);
+		scriptsByName[initScript->getName()] = initScript;
 	}
 }
 
 Program::~Program()
 {
-	for (vector<Script*>::iterator it = scripts.begin(); it != scripts.end(); ++it)
-		delete *it;
-	delete &table;
-	delete &globalScope;
+	deleteElements(scripts);
+	delete globalScope;
 }
 
 Script* Program::getScript(string const& name) const
@@ -50,7 +63,7 @@ Script* Program::getScript(ASTScript* node) const
 
 vector<Function*> Program::getUserGlobalFunctions() const
 {
-	vector<Function*> functions = globalScope.getLocalFunctions();
+	vector<Function*> functions = globalScope->getLocalFunctions();
 	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
 	{
 		Function& function = **it;
@@ -62,8 +75,9 @@ vector<Function*> Program::getUserGlobalFunctions() const
 
 vector<Function*> Program::getUserFunctions() const
 {
-	vector<Function*> functions = getFunctionsInBranch(globalScope);
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	vector<Function*> functions = getFunctions(*this);
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end();)
 	{
 		Function& function = **it;
 		if (!function.node) it = functions.erase(it);
@@ -72,71 +86,113 @@ vector<Function*> Program::getUserFunctions() const
 	return functions;
 }
 
-vector<CompileError const*> Program::getErrors() const
+vector<Function*> ZScript::getFunctions(Program const& program)
 {
-	vector<CompileError const*> errors;
-	for (vector<Script*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
-	{
-		vector<CompileError const*> scriptErrors = (*it)->getErrors();
-		errors.insert(errors.end(), scriptErrors.begin(), scriptErrors.end());
-	}
-	return errors;
+	vector<Function*> functions = getFunctionsInBranch(program.getScope());
+	appendElements(functions, getClassFunctions(program.getTypeStore()));
+	return functions;
 }
+
+////////////////////////////////////////////////////////////////
+// ZScript::Script
 
 // ZScript::Script
 
-Script::Script(Program& program, ASTScript* script) : node(script)
-{
-	assert(node);
+Script::Script(Program& program) : program(program) {}
 
-	// Create script scope.
-	scope = program.globalScope.makeScriptChild(*this);
-	scope->varDeclsDeprecated = true;
+Script::~Script()
+{
+	deleteElements(code);
 }
 
-string Script::getName() const {return node->name;}
+// ZScript::UserScript
 
-ScriptType Script::getType() const {return node->type->type;}
+UserScript::UserScript(Program& program, ASTScript& node)
+	: Script(program), node(node)
+{}
 
-Function* Script::getRun() const
+// ZScript::BuiltinScript
+
+BuiltinScript::BuiltinScript(
+		Program& program, ScriptType type, string const& name)
+	: Script(program), type(type), name(name)
+{}
+
+// ZScript
+
+UserScript* ZScript::createScript(
+		Program& program, ASTScript& node,
+		CompileErrorHandler& errorHandler)
 {
-	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
-	if (possibleRuns.size() != 1) return NULL;
-	return possibleRuns[0];
-}
+	UserScript* script = new UserScript(program, node);
 
-vector<CompileError const*> Script::getErrors() const
-{
-	vector<CompileError const*> errors;
-	string const& name = getName();
-
-	// Failed to create scope means an existing script already has this name.
-	if (!scope) errors.push_back(&CompileError::ScriptRedef);
-
-	// Invalid script type.
-	ScriptType scriptType = getType();
-	if (scriptType != SCRIPTTYPE_GLOBAL
-		&& scriptType != SCRIPTTYPE_ITEM
-		&& scriptType != SCRIPTTYPE_FFC)
+	ScriptScope* scope = program.getScope().makeScriptChild(*script);
+	if (!scope)
 	{
-		errors.push_back(&CompileError::ScriptBadType);
+		errorHandler.handleError(
+				CompileError::ScriptRedef, &node, node.name.c_str());
+		delete script;
+		return NULL;
+	}
+	scope->varDeclsDeprecated = true;
+	script->scope = scope;
+
+	if (node.type->type.isNull())
+	{
+		errorHandler.handleError(
+				CompileError::ScriptBadType, &node, node.name.c_str());
+		delete script;
+		return NULL;
 	}
 
-	// Invalid run function.
-	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
-	if (possibleRuns.size() > 1)
-		errors.push_back(&CompileError::TooManyRun);
-	else if (possibleRuns.size() == 0)
-		errors.push_back(&CompileError::ScriptNoRun);
-	else if (*possibleRuns[0]->returnType != ZVarType::ZVOID)
-		errors.push_back(&CompileError::ScriptRunNotVoid);
-
-	return errors;
+	return script;
 }
 
+BuiltinScript* ZScript::createScript(
+		Program& program, ScriptType type, string const& name,
+		CompileErrorHandler& errorHandler)
+{
+	BuiltinScript* script = new BuiltinScript(program, type, name);
+
+	ScriptScope* scope = program.getScope().makeScriptChild(*script);
+	if (!scope)
+	{
+		errorHandler.handleError(
+				CompileError::ScriptRedef, NULL, name.c_str());
+		delete script;
+		return NULL;
+	}
+	scope->varDeclsDeprecated = true;
+	script->scope = scope;
+
+	if (type.isNull())
+	{
+		errorHandler.handleError(
+				CompileError::ScriptBadType, NULL, name.c_str());
+		delete script;
+		return NULL;
+	}
+
+	return script;
+}
+
+Function* ZScript::getRunFunction(Script const& script)
+{
+	return getOnly<Function*>(script.getScope().getLocalFunctions("run"))
+		.value_or(NULL);
+}
+
+optional<int> ZScript::getLabel(Script const& script)
+{
+	if (Function* run = getRunFunction(script))
+		return run->getLabel();
+	return nullopt;
+}
+
+////////////////////////////////////////////////////////////////
 // ZScript::Datum
 
-Datum::Datum(Scope& scope, ZVarType const& type)
+Datum::Datum(Scope& scope, DataType const& type)
 	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
 {}
 
@@ -159,7 +215,7 @@ optional<int> ZScript::getStackOffset(Datum const& datum)
 // ZScript::Literal
 
 Literal* Literal::create(
-		Scope& scope, ASTLiteral& node, ZVarType const& type,
+		Scope& scope, ASTLiteral& node, DataType const& type,
 		CompileErrorHandler& errorHandler)
 {
 	Literal* literal = new Literal(scope, node, type);
@@ -168,7 +224,7 @@ Literal* Literal::create(
 	return NULL;
 }
 
-Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
+Literal::Literal(Scope& scope, ASTLiteral& node, DataType const& type)
 	: Datum(scope, type), node(node)
 {
 	node.manager = this;
@@ -177,7 +233,7 @@ Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
 // ZScript::Variable
 
 Variable* Variable::create(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type,
+		Scope& scope, ASTDataDecl& node, DataType const& type,
 		CompileErrorHandler& errorHandler)
 {
 	Variable* variable = new Variable(scope, node, type);
@@ -187,7 +243,7 @@ Variable* Variable::create(
 }
 
 Variable::Variable(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type)
+		Scope& scope, ASTDataDecl& node, DataType const& type)
 	: Datum(scope, type),
 	  node(node),
 	  globalId((scope.isGlobal() || scope.isScript())
@@ -200,7 +256,7 @@ Variable::Variable(
 // ZScript::BuiltinVariable
 
 BuiltinVariable* BuiltinVariable::create(
-		Scope& scope, ZVarType const& type, string const& name,
+		Scope& scope, DataType const& type, string const& name,
 		CompileErrorHandler& errorHandler)
 {
 	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name);
@@ -210,7 +266,7 @@ BuiltinVariable* BuiltinVariable::create(
 }
 
 BuiltinVariable::BuiltinVariable(
-		Scope& scope, ZVarType const& type, string const& name)
+		Scope& scope, DataType const& type, string const& name)
 	: Datum(scope, type),
 	  name(name),
 	  globalId((scope.isGlobal() || scope.isScript())
@@ -221,7 +277,7 @@ BuiltinVariable::BuiltinVariable(
 // ZScript::Constant
 
 Constant* Constant::create(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value,
+		Scope& scope, ASTDataDecl& node, DataType const& type, long value,
 		CompileErrorHandler& errorHandler)
 {
 	Constant* constant = new Constant(scope, node, type, value);
@@ -231,7 +287,7 @@ Constant* Constant::create(
 }
 
 Constant::Constant(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
+		Scope& scope, ASTDataDecl& node, DataType const& type, long value)
 	: Datum(scope, type), node(node), value(value)
 {
 	node.manager = this;
@@ -243,7 +299,7 @@ optional<string> Constant::getName() const {return node.name;}
 
 
 BuiltinConstant* BuiltinConstant::create(
-		Scope& scope, ZVarType const& type, string const& name, long value,
+		Scope& scope, DataType const& type, string const& name, long value,
 		CompileErrorHandler& errorHandler)
 {
 	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
@@ -253,14 +309,14 @@ BuiltinConstant* BuiltinConstant::create(
 }
 
 BuiltinConstant::BuiltinConstant(
-		Scope& scope, ZVarType const& type, string const& name, long value)
+		Scope& scope, DataType const& type, string const& name, long value)
 	: Datum(scope, type), name(name), value(value)
 {}
 
 // ZScript::Function::Signature
 
 Function::Signature::Signature(
-		string const& name, vector<ZVarType const*> const& parameterTypes)
+		string const& name, vector<DataType> const& parameterTypes)
 	: name(name), parameterTypes(parameterTypes)
 {}
 
@@ -276,7 +332,7 @@ int Function::Signature::compare(Function::Signature const& other) const
 	if (c) return c;
 	for (int i = 0; i < (int)parameterTypes.size(); ++i)
 	{
-		c = parameterTypes[i]->compare(*other.parameterTypes[i]);
+		c = parameterTypes[i].compare(other.parameterTypes[i]);
 		if (c) return c;
 	}
 	return 0;
@@ -298,11 +354,12 @@ string Function::Signature::asString() const
 	result += name;
 	result += "(";
 	bool comma = false;
-	for (vector<ZVarType const*>::const_iterator it = parameterTypes.begin();
+	for (vector<DataType>::const_iterator it = parameterTypes.begin();
 		 it != parameterTypes.end(); ++it)
 	{
-		if (comma) {result += ", "; comma = true;}
-		result += (*it)->getName();
+		if (comma) {result += ", ";}
+		comma = true;
+		result += it->getName();
 	}
 	result += ")";
 	return result;
@@ -310,12 +367,30 @@ string Function::Signature::asString() const
 
 // ZScript::Function
 
-Function::Function(ZVarType const* returnType, string const& name,
-				   vector<ZVarType const*> paramTypes, int id)
+Function::Function(DataType const& returnType, string const& name,
+				   vector<DataType> const& paramTypes, int id)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes),
 	  id(id), label(nullopt)
 {}
+
+Function::~Function()
+{
+	deleteElements(ownedCode);
+}
+
+vector<Opcode*> Function::takeCode()
+{
+	vector<Opcode*> code = ownedCode;
+	ownedCode.clear();
+	return code;
+}
+
+void Function::giveCode(vector<Opcode*>& code)
+{
+	appendElements(ownedCode, code);
+	code.clear();
+}
 
 Script* Function::getScript() const
 {
@@ -336,8 +411,9 @@ int Function::getLabel() const
 
 bool ZScript::isRun(Function const& function)
 {
+	TypeStore& typeStore = function.returnType.getTypeStore();
 	return function.internalScope->getParent()->isScript()
-		&& *function.returnType == ZVarType::ZVOID
+		&& function.returnType == typeStore.getVoid()
 		&& function.name == "run";
 }
 

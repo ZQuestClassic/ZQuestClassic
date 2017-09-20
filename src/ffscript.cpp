@@ -719,6 +719,7 @@ public:
 		str[i] = 0; //null terminate.
 	}
     
+	//Why does this lose error status??
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
     static void getValues(const long ptr, long* arrayPtr, word num_values)
     {
@@ -7535,21 +7536,20 @@ void do_drawing_command(const int script_command)
 	//}
 	//break;
 
-	//case POLYGONR:
-	//{
-	//	set_drawing_command_args(j, 6);
-	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+	case POLYGONR:
+	{
+		set_drawing_command_args(j, 6);
+		int count = script_drawing_commands[j][2] / 10000;
+		if(!count)
+		{
+			script_drawing_commands.AbortDrawingCommand();
+			break;
+		}
 
-	//		long* ptr = (long*)zc_malloc(3 * count * sizeof(long));
-	//	long* p = ptr;
-
-	//		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
-	//	ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
-	//	ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
-
-	//		script_drawing_commands[j].SetPtr(ptr);
-	//	}
-	//break;
+		long* p = (long*)script_drawing_commands[j].AllocateDrawBuffer(count * 2 * sizeof(long));
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count * 2);
+	}
+	break;
 
 	//case PIXELARRAYR:
 	//{

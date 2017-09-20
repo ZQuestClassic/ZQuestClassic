@@ -19,6 +19,11 @@ using std::pair;
 
 class ArgumentVisitor;
 
+namespace ZScript
+{
+	class Program;
+}
+
 class Opcode
 {
 public:
@@ -56,10 +61,12 @@ private:
     int label;
 };
 
-struct ScriptsData
+class ScriptsData
 {
+public:
+	ScriptsData(ZScript::Program&);
     std::map<string, vector<Opcode *> > theScripts;
-    std::map<string, ScriptType> scriptTypes;
+	std::map<string, ZScript::ScriptType> scriptTypes;
 };
 
 ScriptsData *compile(const char *filename);
@@ -97,7 +104,7 @@ public:
     static bool preprocess(ASTProgram* theAST, int reclevel);
     static SymbolData* buildSymbolTable(ASTProgram* theAST);
     static IntermediateData* generateOCode(FunctionData& fdata);
-    static ScriptsData* assemble(IntermediateData* id);
+    static void assemble(IntermediateData* id);
     static void resetState()
     {
         vid=0;
@@ -106,24 +113,9 @@ public:
         lid=0;
     }
     static pair<long,bool> parseLong(pair<string,string> parts);
-	static int getThisType(ScriptType type)
-	{
-		switch (type)
-		{
-		case SCRIPTTYPE_FFC:
-			return ZVARTYPEID_FFC;
-		case SCRIPTTYPE_ITEM:
-			return ZVARTYPEID_ITEMCLASS;
-		case SCRIPTTYPE_GLOBAL:
-		case SCRIPTTYPE_VOID:
-			return ZVARTYPEID_VOID;
-		default:
-			return ZVARTYPEID_VOID;
-		}
-	}
 private:
     static string prepareFilename(string const& filename);
-    static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);
+    static vector<Opcode *> assembleOne(ZScript::Program& program, vector<Opcode*> script, int numparams);
     static int vid;
     static int fid;
     static int gid;

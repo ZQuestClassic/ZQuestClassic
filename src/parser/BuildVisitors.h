@@ -4,13 +4,14 @@
 #include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
-#include <stack>
 #include <algorithm>
+#include <vector>
+#include <set>
 
 class BuildOpcodes : public RecursiveVisitor
 {
 public:
-    BuildOpcodes();
+    BuildOpcodes(TypeStore&);
 
 	using RecursiveVisitor::visit;
 	void visit(AST& node, void* param = NULL);
@@ -86,6 +87,7 @@ private:
 	void deallocateArrayRef(long arrayRef);
 	void deallocateRefsUntilCount(int count);
 
+	TypeStore& typeStore;
     vector<Opcode*> result;
     int returnlabelid;
 	int returnRefCount;
@@ -110,6 +112,8 @@ private:
 class LValBOHelper : public ASTVisitor
 {
 public:
+	LValBOHelper(TypeStore& typeStore) : typeStore(typeStore) {}
+	
     virtual void caseDefault(void *param);
     //virtual void caseDataDecl(ASTDataDecl& host, void* param);
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -117,21 +121,31 @@ public:
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
     vector<Opcode *> getResult() {return result;}
 private:
+	TypeStore& typeStore;
+    vector<Opcode *> result;
+
 	void addOpcode(Opcode* code);
 
 	template <class Container>
 	void addOpcodes(Container const& container);
-	
-    vector<Opcode *> result;
 };
+
+
 
 class GetLabels : public ArgumentVisitor
 {
 public:
-    void caseLabel(LabelArgument &host, void *param)
+	GetLabels(std::set<int>& usedLabels) : usedLabels(usedLabels) {}
+
+	std::set<int>& usedLabels;
+	std::vector<int> newLabels;
+			
+	void caseLabel(LabelArgument& host, void*)
     {
-        map<int,bool> *labels = (map<int,bool> *)param;
-        (*labels)[host.getID()] = true;
+	    int id = host.getID();
+	    if (find<int>(usedLabels, id)) return;
+	    usedLabels.insert(id);
+	    newLabels.push_back(id);
     }
 };
 

@@ -1,22 +1,23 @@
 #include "../precompiled.h"
 #include "CompileError.h"
-#include "GlobalSymbols.h"
+
+#include "Library.h"
 #include "Scope.h"
 #include "Types.h"
 #include "ZScript.h"
 
-using namespace std;
+//using namespace std;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // Scope
 
-Scope::Scope(SymbolTable& table)
-	: table(table), name(nullopt), varDeclsDeprecated(false)
+Scope::Scope(TypeStore& typeStore)
+	: typeStore(typeStore), name(nullopt), varDeclsDeprecated(false)
 {}
 
-Scope::Scope(SymbolTable& table, string const& name)
-	: table(table), name(name), varDeclsDeprecated(false)
+Scope::Scope(TypeStore& typeStore, string const& name)
+	: typeStore(typeStore), name(name), varDeclsDeprecated(false)
 {}
 
 void Scope::invalidateStackSize()
@@ -78,13 +79,14 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 
 // Lookup
 
-ZVarType const* ZScript::lookupType(Scope const& scope, string const& name)
+optional<DataType> ZScript::lookupType(
+		Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (ZVarType const* type = scope.getLocalType(name))
+		if (optional<DataType> type = scope.getLocalType(name))
 			return type;
-	return NULL;
+	return nullopt;
 }
 
 ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
@@ -244,21 +246,21 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 // Basic Scope
 
 BasicScope::BasicScope(Scope* parent)
-	: Scope(parent->getTable()), parent(parent),
+	: Scope(parent->getTypeStore()), parent(parent),
 	  stackDepth(parent->getLocalStackDepth())
 {}
 
 BasicScope::BasicScope(Scope* parent, string const& name)
-	: Scope(parent->getTable(), name), parent(parent),
+	: Scope(parent->getTypeStore(), name), parent(parent),
 	  stackDepth(parent->getLocalStackDepth())
 {}
 
-BasicScope::BasicScope(SymbolTable& table)
-	: Scope(table), parent(NULL), stackDepth(0)
+BasicScope::BasicScope(TypeStore& typeStore)
+	: Scope(typeStore), parent(NULL), stackDepth(0)
 {}
 
-BasicScope::BasicScope(SymbolTable& table, string const& name)
-	: Scope(table, name), parent(NULL), stackDepth(0)
+BasicScope::BasicScope(TypeStore& typeStore, string const& name)
+	: Scope(typeStore, name), parent(NULL), stackDepth(0)
 {}
 
 BasicScope::~BasicScope()
@@ -288,9 +290,9 @@ vector<Scope*> BasicScope::getChildren() const
 
 // Lookup Local
 
-ZVarType const* BasicScope::getLocalType(string const& name) const
+optional<DataType> BasicScope::getLocalType(string const& name) const
 {
-	return find<ZVarType const*>(types, name).value_or(NULL);
+	return find<DataType>(dataTypes, name);
 }
 
 ZClass* BasicScope::getLocalClass(string const& name) const
@@ -339,6 +341,16 @@ vector<Function*> BasicScope::getLocalFunctions() const
 	return getSeconds<Function*>(functionsBySignature);
 }
 
+vector<Function*> BasicScope::getLocalGetters() const
+{
+	return getSeconds<Function*>(getters);
+}
+
+vector<Function*> BasicScope::getLocalSetters() const
+{
+	return getSeconds<Function*>(setters);
+}
+
 // Add
 
 Scope* BasicScope::makeChild()
@@ -363,13 +375,12 @@ FunctionScope* BasicScope::makeFunctionChild(Function& function)
 	return child;
 }
 
-ZVarType const* BasicScope::addType(
-		string const& name, ZVarType const* type, AST* node)
+bool BasicScope::addType(
+		string const& name, DataType const& type, AST* node)
 {
-	if (find<ZVarType const*>(types, name)) return NULL;
-	type = table.getCanonicalType(*type);
-	types[name] = type;
-	return type;
+	if (find<DataType>(dataTypes, name)) return false;
+	dataTypes[name] = type;
+	return true;
 }
 
 bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
@@ -386,14 +397,6 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 	}
 	else anonymousData.push_back(&datum);
 
-	if (AST* node = datum.getNode())
-	{
-		table.putNodeId(node, datum.id);
-	
-		if (optional<long> value = datum.getCompileTimeValue())
-			table.inlineConstant(node, *value);
-	}
-
 	if (!ZScript::isGlobal(datum))
 	{
 		stackOffsets[&datum] = stackDepth++;
@@ -404,36 +407,32 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 }
 
 Function* BasicScope::addGetter(
-		ZVarType const* returnType, string const& name,
-		vector<ZVarType const*> const& paramTypes, AST* node)
+		DataType const& returnType, string const& name,
+		vector<DataType> const& paramTypes, AST* node)
 {
 	if (find<Function*>(getters, name)) return NULL;
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
 	getters[name] = fun;
-	table.putFuncTypes(fun->id, returnType, paramTypes);
-	if (node) table.putNodeId(node, fun->id);
 	return fun;
 }
 
 Function* BasicScope::addSetter(
-		ZVarType const* returnType, string const& name,
-		vector<ZVarType const*> const& paramTypes, AST* node)
+		DataType const& returnType, string const& name,
+		vector<DataType> const& paramTypes, AST* node)
 {
 	if (find<Function*>(setters, name)) return NULL;
 
 	Function* fun = new Function(
 			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
 	setters[name] = fun;
-	table.putFuncTypes(fun->id, returnType, paramTypes);
-	if (node) table.putNodeId(node, fun->id);
 	return fun;
 }
 
 Function* BasicScope::addFunction(
-		ZVarType const* returnType, string const& name,
-		vector<ZVarType const*> const& paramTypes, AST* node)
+		DataType const& returnType, string const& name,
+		vector<DataType> const& paramTypes, AST* node)
 {
 	Function::Signature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature, signature))
@@ -443,8 +442,6 @@ Function* BasicScope::addFunction(
 			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
 	functionsByName[name].push_back(fun);
 	functionsBySignature[signature] = fun;
-	table.putFuncTypes(fun->id, returnType, paramTypes);
-	if (node) table.putNodeId(node, fun->id);
 	return fun;
 }
 
@@ -475,27 +472,18 @@ int calculateStackSize(Scope* scope)
 ////////////////////////////////////////////////////////////////
 // GlobalScope
 
-GlobalScope::GlobalScope(SymbolTable& table)
-	: BasicScope(table, "global")
+GlobalScope::GlobalScope(TypeStore& typeStore)
+	: BasicScope(typeStore, "global")
 {
 	// Add global library functions.
-    GlobalSymbols::getInst().addSymbolsToScope(*this);
-
-	// Create builtin classes (skip void, float, and bool).
-	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
-	{
-		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
-		ZClass& klass = *table.getClass(type.getClassId());
-		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
-		library.addSymbolsToScope(klass);
-	}
+	Libraries::Global::singleton().addTo(*this);
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, ZVarType::_LINK, "Link", 0);
-	BuiltinConstant::create(*this, ZVarType::SCREEN, "Screen", 0);
-	BuiltinConstant::create(*this, ZVarType::GAME, "Game", 0);
-	BuiltinConstant::create(*this, ZVarType::AUDIO, "Audio", 0);
-	BuiltinConstant::create(*this, ZVarType::DEBUG, "Debug", 0);
+	BuiltinConstant::create(*this, typeStore.getGame(), "Game", 0);
+	BuiltinConstant::create(*this, typeStore.getDebug(), "Debug", 0);
+	BuiltinConstant::create(*this, typeStore.getScreen(), "Screen", 0);
+	BuiltinConstant::create(*this, typeStore.getAudio(), "Audio", 0);
+	BuiltinConstant::create(*this, typeStore.getLink(), "Link", 0);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
@@ -547,8 +535,8 @@ optional<int> FunctionScope::getRootStackSize() const
 ////////////////////////////////////////////////////////////////
 // ZClass
 
-ZClass::ZClass(SymbolTable& table, string const& name, int id)
-	: BasicScope(table), name(name), id(id)
+ZClass::ZClass(TypeStore& typeStore, string const& name, int id)
+	: BasicScope(typeStore), name(name), id(id)
 {}
 
 

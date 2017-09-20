@@ -3124,11 +3124,13 @@ void LinkClass::checkhit()
                 
                 hitdir = s->hitdir(x,y,16,16,dir);
                 
-                if(action!=rafting && action!=freeze)
-                    action=gothit;
-                    
-                if(action==swimming || hopclk==0xFF)
-                    action=swimhit;
+                if (action != rafting && action != freeze)
+                {
+                    if (action == swimming || hopclk == 0xFF)
+                        action = swimhit;
+                    else
+                        action = gothit;
+                }
                     
                 if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
                 {
@@ -3138,7 +3140,7 @@ void LinkClass::checkhit()
                 }
                 
                 hclk=48;
-                Backend::sfx->loop(getHurtSFX(),int(x));
+                Backend::sfx->play(getHurtSFX(),int(x));
                 return;
             }
         }
@@ -3266,11 +3268,13 @@ killweapon:
                 
                 hitdir = s->hitdir(x,y,16,16,dir);
                 
-                if(action!=rafting && action!=freeze)
-                    action=gothit;
-                    
-                if(action==swimming || hopclk==0xFF)
-                    action=swimhit;
+                if (action != rafting && action != freeze)
+                {
+                    if (action == swimming || hopclk == 0xFF)
+                        action = swimhit;
+                    else
+                        action = gothit;
+                }
                     
                 if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
                 {
@@ -3463,11 +3467,14 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
             
             hitdir = (dir^1);
             
-            if(action!=rafting && action!=freeze)
-                action=gothit;
+            if (action != rafting && action != freeze)
+            {
+                if (action == swimming || hopclk == 0xFF)
+                    action = swimhit;
+                else
+                    action = gothit;
+            }
                 
-            if(action==swimming || hopclk==0xFF)
-                action=swimhit;
                 
             hclk=48;
             
@@ -3672,7 +3679,7 @@ void LinkClass::addsparkle(int wpn)
         Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
                              (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
                              w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,
-            curQuest->isValid(sparkle_type) ? curQuest->getSpriteDefinition(sparkle_type).type : 0,  // is this right? hard to tell what is supposed to be going on here. -DD
+            curQuest->getSpriteDefinition(sparkle_type).type,  // is this right? hard to tell what is supposed to be going on here. -DD
             0,direction,itemid,getUID()));
     }
 }

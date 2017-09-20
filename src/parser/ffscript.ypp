@@ -13,6 +13,7 @@ command: bison -b y -v -d ffscript.ypp
 #include <stdio.h>
 #include <cassert>
 #include "ASTVisitors.h"
+#include "Types.h"	
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
@@ -21,10 +22,13 @@ extern char* yytext;
 extern int yylex(void);
 extern FILE *yyin;
 extern ASTProgram *resAST;
+extern TypeStore* resTS;
 extern void resetLexer();
 void yyerror(const char* s);
 string curfilename;
 extern YYLTYPE noloc;
+
+using namespace ZScript;
 
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
@@ -180,20 +184,20 @@ TypeDef : TYPEDEF DataType IDENTIFIER {
 	;
 
 DataType :
-	ZVOID {$$ = new ASTVarType(ZVarTypeSimple::ZVOID, @$);}
-	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @$);}
-	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @$);}
-	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @$);}
-	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @$);}
-	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @$);}
-	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @$);}
-	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @$);}
+	ZVOID {$$ = new ASTVarType(resTS->getVoid(), @$);}
+	| ZBOOL {$$ = new ASTVarType(resTS->getBool(), @$);}
+	| ZFLOAT {$$ = new ASTVarType(resTS->getFloat(), @$);}
+	| ZCONST ZFLOAT {$$ = new ASTVarType(resTS->getConstFloat(), @$);}
+	| FFC {$$ = new ASTVarType(resTS->getFfc(), @$);}
+	| ITEM {$$ = new ASTVarType(resTS->getItem(), @$);}
+	| ITEMCLASS {$$ = new ASTVarType(resTS->getItemClass(), @$);}
+	| NPC	{$$ = new ASTVarType(resTS->getNpc(), @$);}
+	| LWEAPON	{$$ = new ASTVarType(resTS->getLWpn(), @$);}
+	| EWEAPON	{$$ = new ASTVarType(resTS->getEWpn(), @$);}
 	| IDENTIFIER {
-			ASTString *name = (ASTString*)$1;
-			$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @$);
-			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTVarType(new ZVarTypeConstFloat(), @$);}
+		ASTString *name = (ASTString*)$1;
+		$$ = new ASTVarType(resTS->getUnresolved(name->getValue()), @$);
+		delete name;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -336,9 +340,9 @@ Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 	;
 
 Script_Type :
-	GLOBAL {$$ = new ASTScriptType(SCRIPTTYPE_GLOBAL, @$);}
-	| FFC {$$ = new ASTScriptType(SCRIPTTYPE_FFC, @$);}
-	| ITEM {$$ = new ASTScriptType(SCRIPTTYPE_ITEM, @$);}
+	GLOBAL {$$ = new ASTScriptType(ScriptType::getGlobal(), @$);}
+	| FFC {$$ = new ASTScriptType(ScriptType::getFfc(), @$);}
+	| ITEM {$$ = new ASTScriptType(ScriptType::getItem(), @$);}
 	;
 
 Script_Block :

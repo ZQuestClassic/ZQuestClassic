@@ -304,36 +304,6 @@ public:
     }
 };
 
-//Polygon
-void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-{
-    int vertices=sdci[2]/10000;
-    std::vector <int> Points(vertices*2); //A vector sized by the number of vertices
-    FFScript::getArray(sdci[3]/10000, &Points[0]);//Store the script array into the vecotr.
-    
-    
-    
-	
-    int colour=sdci[4]/10000;
-	int rot = sdci[5]/10000;
-    int opacity=sdci[6]/10000;
-	
-    if(opacity <= 127) //translucent
-    {
-        drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-    }
-    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-    
-    if ( rot ) {
-	    BITMAP *subBmp = script_drawing_commands.AquireSubBitmap(256, 256);
-	    polygon(subBmp, vertices, &Points[0], colour);
-	    rotate_sprite(bmp, subBmp, 0, 0, degrees_to_fixed(rot));
-    }
-    else polygon(bmp, vertices, &Points[0], colour);
-    
-}
-
-
 
 void do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -3139,12 +3109,65 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	script_drawing_commands[i].DeallocateDrawBuffer();
 }
 
+
+void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+	int vertexCount = sdci[2]/10000;   
+	int* points = (int*)script_drawing_commands[i].GetDrawBufferPtr(); //xy interleaved format.
+	if(!points)
+	{
+		//error message
+		return;
+	}
+
+	int color = sdci[4]/10000;
+	int rot = sdci[5]/10000;
+	int opacity = sdci[6]/10000;
+
+	if(opacity <= 127) //translucent
+	{
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	}
+
+	if(rot)
+	{
+		int x1 = 0;
+		int y1 = 0;
+		int x2 = 0;
+		int y2 = 0;
+
+		for(int j(0); j != vertexCount; j+=2)
+		{
+			int x = points[j];
+			int y = points[j + 1];
+
+			if(x < x1) x1 = x;
+			else if(x > x2) x2 = x;
+			if(y < y1) y1 = y;
+			else if(y > y2) y2 = y;
+		}
+
+		int centerX = (x1 + x2) / vertexCount;
+		int centerY = (y1 + y2) / vertexCount;
+		
+		BITMAP *subBmp = script_drawing_commands.AquireSubBitmap(256, 256);
+
+		polygon(subBmp, vertexCount, points, color);
+		rotate_sprite(bmp, subBmp, 0, 0, degrees_to_fixed(rot));
+	}
+	else
+	{
+		polygon(bmp, vertexCount, points, color);
+	}
+
+	//cleanup
+	script_drawing_commands[i].DeallocateDrawBuffer();
+	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+}
+
+
 //
 //void do_bitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-//{
-//	//todo
-//}
-//void do_polygonr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 //{
 //	//todo
 //}
@@ -3503,13 +3526,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_rectr(bmp, sdci, xoffset, yoffset);
         }
         break;
-        
-		case POLYGONR:
-        {
-            do_polygonr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-	
+        	
         case CIRCLER:
         {
             do_circler(bmp, sdci, xoffset, yoffset);
@@ -3635,7 +3652,13 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
         }
         break;
-        
+
+		case POLYGONR:
+		{
+			do_polygonr(bmp, i, sdci, xoffset, yoffset);
+		}
+		break;
+
 		//case BITMAPEXR:
 		//	{
 		//		do_bitmapexr(bmp, sdci, xoffset, yoffset);

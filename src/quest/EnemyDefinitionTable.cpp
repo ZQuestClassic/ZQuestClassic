@@ -2,7 +2,7 @@
 #include "../defdata.h"
 #include "Quest.h"
 
-using namespace std;
+//using namespace std;
 
 bool SpecialEnemyIndex::checkConsistency(Quest &quest)
 {

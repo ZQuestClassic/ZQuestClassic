@@ -19,7 +19,7 @@
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
-#include "gc.h"
+//#include "gc.h"
 
 bool show_subscreen_dmap_dots=true;
 bool show_subscreen_numbers=true;
@@ -1468,7 +1468,7 @@ void subscreen_object_selecteditemname::show(BITMAP *dest, const subscreen_group
     switch(curQuest->getItemDefinition(itemid).family)
     {
     case itype_arrow:
-        if(Bitem->dummy_bool[0]==true)  //if we also have a bow
+        if(Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
         {
             if(curQuest->isValid(current_item_id(itype_bow)))
             {
