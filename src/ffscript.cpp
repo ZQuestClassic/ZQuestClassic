@@ -7551,7 +7551,7 @@ void do_drawing_command(const int script_command)
 		
 		count = zc_min(count*2, user_array_sz); //Sanity check: Double the count, or use the array size, whichever is smaller. 
 		
-		if ( (count * 2 ) != user_array_sz )
+		if ( count != user_array_sz )
 		{
 			al_trace("WARNING! The array passed to Polygon() has a mismatched number of points for the number of vertices supplied!\n");
 		}
