@@ -1643,7 +1643,9 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     bool ok;
     int dx = 0, dy = 0;
     int sv = 8;
-    s += 0.5; // Make the ints round; doesn't seem to cause any problems.
+	
+    //s += 0.5; // Make the ints round; doesn't seem to cause any problems.
+    //this causes problems!!!
     
     switch(ndir)
     {
@@ -7235,10 +7237,8 @@ bool eWizzrobe::animate(int index)
             case 0:
                 if(!dmisc2)
                 {
-		    //@TODO: @BUG: So.. In one(?) old quest wizzrobes may be required to teleport to solid combos, or inside walls,
-			//..maybe only one or the other, I don't know. In order to fix this properly we need to know the exact case.
-			//I don't even know the old ZC version that allowed this bug.... dmisc4 should NOT be set unless it has to be though..
-			// ~Gleeok
+		    // Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
+		    // but should not appear on dungeon walls.	
                     place_on_axis(true, dmisc4!=0);
                 }
                 else
