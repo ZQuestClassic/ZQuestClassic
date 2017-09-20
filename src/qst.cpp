@@ -8481,20 +8481,18 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     // Not sure when this first changed, but it's necessary for 2.10, at least
+    // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
         guysbuf[eGLEEOK2F].misc6 = 16;
         guysbuf[eGLEEOK3F].misc6 = 16;
         guysbuf[eGLEEOK4F].misc6 = 16;
-        
-	    // @TODO: @BUG: Backwards compatability with only quests that need it, not all of them.
-	    // I would rather break one old quest that relies on weird behavior for now than all the old quests.
-	    // Sue me. ~Gleeok
-        //guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
-        ////guysbuf[eBATROBE].misc4 = 1;
-        ////guysbuf[eSUMMONER].misc4 = 1;
-        ////guysbuf[eWWIZ].misc4 = 1;
+	    
+        guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
+        guysbuf[eBATROBE].misc4 = 1;
+        //guysbuf[eSUMMONER].misc4 = 1;
+        guysbuf[eWWIZ].misc4 = 1;
     }
     
     // The versions here may not be correct
