@@ -7540,14 +7540,27 @@ void do_drawing_command(const int script_command)
 	{
 		set_drawing_command_args(j, 6);
 		int count = script_drawing_commands[j][2] / 10000;
-		if(!count)
+		int user_array_sz = ArrayH::getSize(script_drawing_commands[j][3] / 10000);
+		
+		if(count < 6)
 		{
+			al_trace("The value passed to 'int vertices' for Polygon() is invalid!\n Vertices must be at least 6!\n The value passed was: %d\n", count);
 			script_drawing_commands.AbortDrawingCommand();
 			break;
 		}
+		
+		if ( (count*2) != user_array_sz )
+		{
+			al_trace("WARNING! The array passed to Polygon() has a mismatched number of points for the number of vertices supplied!\n");
+		}
+		
+		count = zc_min(count*2, user_array_sz); //Sanity check: Double the count, or use the array size, whichever is smaller. 
+		
+		
 
-		long* p = (long*)script_drawing_commands[j].AllocateDrawBuffer(count * 2 * sizeof(long));
-		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count * 2);
+		long* p = (long*)script_drawing_commands[j].AllocateDrawBuffer(count * sizeof(long));
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count);
+		
 	}
 	break;
 
