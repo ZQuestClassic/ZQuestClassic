@@ -3112,7 +3112,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 
 void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
-	int vertices=sdci[2]/10000;   
+	int vertexCount = sdci[2]/10000;   
 	int* points = (int*)script_drawing_commands[i].GetDrawBufferPtr(); //xy interleaved format.
 	if(!points)
 	{
@@ -3120,38 +3120,49 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 		return;
 	}
 
-	int color=sdci[4]/10000;
+	int color = sdci[4]/10000;
 	int rot = sdci[5]/10000;
-	int opacity=sdci[6]/10000;
+	int opacity = sdci[6]/10000;
 
 	if(opacity <= 127) //translucent
 	{
-		//
-		// Be careful when changing global state.
-		// Remember to change it back.
-		//
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-	}
-	else
-	{
-		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	}
 
 	if(rot)
 	{
-		//
-		// You have to iterate through all the points to get the bounds of the Axis-Aligned Bounding Rect
-		// that encompasses the polygon first.
-		//
+		int x1 = 0;
+		int y1 = 0;
+		int x2 = 0;
+		int y2 = 0;
+
+		for(int j(0); j != vertexCount; j+=2)
+		{
+			int x = points[j];
+			int y = points[j + 1];
+
+			if(x < x1) x1 = x;
+			else if(x > x2) x2 = x;
+			if(y < y1) y1 = y;
+			else if(y > y2) y2 = y;
+		}
+
+		int centerX = (x1 + x2) / vertexCount;
+		int centerY = (y1 + y2) / vertexCount;
+		
 		BITMAP *subBmp = script_drawing_commands.AquireSubBitmap(256, 256);
 
-		polygon(subBmp, vertices, points, color);
+		polygon(subBmp, vertexCount, points, color);
 		rotate_sprite(bmp, subBmp, 0, 0, degrees_to_fixed(rot));
 	}
 	else
 	{
-		polygon(bmp, vertices, points, color);
+		polygon(bmp, vertexCount, points, color);
 	}
+
+	//cleanup
+	script_drawing_commands[i].DeallocateDrawBuffer();
+	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 
@@ -3515,13 +3526,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_rectr(bmp, sdci, xoffset, yoffset);
         }
         break;
-        
-		case POLYGONR:
-        {
-            do_polygonr(bmp, sdci, xoffset, yoffset);
-        }
-        break;
-	
+        	
         case CIRCLER:
         {
             do_circler(bmp, sdci, xoffset, yoffset);
@@ -3647,7 +3652,13 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
         }
         break;
-        
+
+		case POLYGONR:
+		{
+			do_polygonr(bmp, i, sdci, xoffset, yoffset);
+		}
+		break;
+
 		//case BITMAPEXR:
 		//	{
 		//		do_bitmapexr(bmp, sdci, xoffset, yoffset);
