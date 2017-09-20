@@ -3,6 +3,7 @@
 #include "Quest.h"
 
 //using namespace std;
+using std::string;
 
 bool SpecialEnemyIndex::checkConsistency(Quest &quest)
 {
