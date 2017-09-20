@@ -7,7 +7,9 @@
 #include "Scope.h"
 #include "Types.h"
 
-using namespace std;
+//using namespace std;
+using std::string;
+
 using namespace ZScript;
 
 LibraryHelper::LibraryHelper(

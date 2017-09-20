@@ -8,7 +8,7 @@
 #include "Library.h"
 #include "Scope.h"
 
-using namespace std;
+// using namespace std;
 using namespace ZScript;
 using namespace ZScript::detail;
 

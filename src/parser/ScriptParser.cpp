@@ -16,7 +16,7 @@
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
 #include "ZScript.h"
-using namespace std;
+//using namespace std;
 using namespace ZScript;
 //#define PARSER_DEBUG
 

@@ -9,7 +9,9 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
+//using namespace std; //PLEASE DONT DO THIS
+using std::string;
+using std::ostringstream;
 
 // Weird macros to insert constants into strings at preprocessing stage.
 #define STRING1(s) #s

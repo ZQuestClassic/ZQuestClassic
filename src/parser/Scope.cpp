@@ -6,7 +6,7 @@
 #include "Types.h"
 #include "ZScript.h"
 
-using namespace std;
+//using namespace std;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////

@@ -46,9 +46,9 @@ bool can_drop(fix, fix)
     return false;
 }
 
-int select_dropitem(int, int, int)
+ItemDefinitionRef select_dropitem(int, int, int)
 {
-    return 0;
+    return ItemDefinitionRef(); //?
 }
 
 bool is_side_view()
