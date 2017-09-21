@@ -8815,7 +8815,7 @@ void LinkClass::checklocked()
 			}
 		}
 		//left
-		if ( y>=72 && y <= 88 && x <= 32 )
+		if ( y > 72 && y < 88 && x <= 32 )
 		{
 			if ( dir == left || dir == l_up || dir == l_down )//|| Left()  || ( Up()&&Left()) || ( Down()&&Left() ) )
 			{
@@ -8855,7 +8855,7 @@ void LinkClass::checklocked()
 		
 		
 		//right
-		if ( ( y >=72 && y <= 88 ) && x >= 208 )
+		if ( ( y > 72 && y < 88 ) && x >= 208 )
 			//!( (y<=72||y>=88) && x<206 ) )
 			//y<=72||y>=88):y!=80) || x<208)
 		{
@@ -12620,9 +12620,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
     if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
-        scx = 32;
 
-    
+	  scx = 32; //for sideview very fast screolling. 
+  
     actiontype lastaction = action;
     ALLOFF(false, false);
     // for now, restore Link's previous action
