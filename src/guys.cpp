@@ -221,13 +221,14 @@ bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
     if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
         return true;
         
-    if(isdungeon() || special==spw_wizzrobe)
+    bool isInDungeon == isdungeon();
+    if(isInDungeon || special==spw_wizzrobe)
     {
         if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
             return true;
             
         if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
-            if(special!=spw_door)                                 // walk in door way
+            if(special!=spw_door) // walk in door way
                 return true;
     }
     
