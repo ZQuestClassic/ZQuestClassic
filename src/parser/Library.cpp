@@ -5,8 +5,3 @@
 #include "Types.h"
 
 using namespace ZScript;
-
-Library const& Libraries::get(DataType const& type)
-{
-	
-}

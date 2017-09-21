@@ -313,8 +313,8 @@ int ZScript::getArrayDepth(DataType const& type)
 
 int DataTypeImpl::compare(DataTypeImpl const& rhs) const
 {
-	type_info const& lhsType = typeid(*this);
-	type_info const& rhsType = typeid(rhs);
+	std::type_info const& lhsType = typeid(*this);
+	std::type_info const& rhsType = typeid(rhs);
 	if (lhsType.before(rhsType)) return -1;
 	if (rhsType.before(lhsType)) return 1;
 	return selfCompare(rhs);
@@ -527,4 +527,3 @@ optional<DataType> ScriptType::getThisType(TypeStore& typeStore) const
 ScriptType::ScriptType(Id id, string const& name)
 	: id(id), name(name)
 {}
-

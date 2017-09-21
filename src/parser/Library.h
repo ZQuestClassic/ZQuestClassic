@@ -23,8 +23,6 @@ namespace ZScript
 	// All the different libraries.
 	namespace Libraries
 	{
-		Library const& get(DataType const& type);
-		
 		class Global : public Library
 		{
 		public:
