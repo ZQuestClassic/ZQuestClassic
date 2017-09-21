@@ -1,4 +1,3 @@
-
 #include "../precompiled.h" //always first
 
 #include "../zsyssimple.h"
@@ -19,6 +18,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 using std::map;
 
 using namespace ZScript;

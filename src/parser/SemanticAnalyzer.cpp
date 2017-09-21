@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "../zc_alleg.h"
 #include "SemanticAnalyzer.h"
 #include "Scope.h"
 #include "CompileError.h"
