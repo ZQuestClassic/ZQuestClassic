@@ -221,13 +221,14 @@ bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
     if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
         return true;
         
-    if(isdungeon() || special==spw_wizzrobe)
+    bool isInDungeon == isdungeon();
+    if(isInDungeon || special==spw_wizzrobe)
     {
         if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
             return true;
             
         if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
-            if(special!=spw_door)                                 // walk in door way
+            if(special!=spw_door) // walk in door way
                 return true;
     }
     
@@ -239,9 +240,16 @@ bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
     case spw_clipright:
         break; //if(x>=208) return true; break;
         
-    case spw_wizzrobe:
-    case spw_floater:
-        return false;
+    case spw_wizzrobe: // fall through
+    case spw_floater: // Special case for fliers and wizzrobes - hack!
+		{
+			if(isInDungeon)
+			{
+				if(dy < 32-yg || dy >= 144) return true;
+				if(dx < 32 || dx >= 224) return true;
+			}
+			return false;
+		}
     }
     
     dx&=(special==spw_halfstep)?(~7):(~15);
@@ -1644,8 +1652,8 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     int dx = 0, dy = 0;
     int sv = 8;
 	
-    //s += 0.5; // Make the ints round; doesn't seem to cause any problems.
-    //this causes problems!!!
+    //Why is this here??? Why is it needed???
+    s += 0.5; // Make the ints round; doesn't seem to cause any problems.
     
     switch(ndir)
     {
