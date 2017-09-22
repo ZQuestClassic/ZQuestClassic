@@ -5554,7 +5554,8 @@ void LinkClass::do_hopping()
 {
     do_lens();
     
-    if((hopclk==0xFF))                                         // swimming
+    if(hopclk==0xFF) //|| (diagonalMovement && hopclk >= 0xFF) ))                                         // swimming
+			//Possible fix for exiting water in diagonal movement. -Z
     {
         if(diveclk>0)
             --diveclk;
@@ -5606,6 +5607,8 @@ void LinkClass::do_hopping()
         if(diagonalMovement)
         {
             if(hopclk==1) //hopping out
+		    //>= 1 possible fix for getting stuck on land edges. 
+		//No, this is not a clock. it's a type. 1 == out, 2 == in. 
             {
                 if(hopdir!=-1) dir=hopdir;
                 
@@ -7761,7 +7764,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             if(wx>=136&&wx<144&&wy<40&&wy>=32) wf=true;
         }
     }
-    
+    //All problems related to exiting water are probably here. -Z
     if(action==swimming)
     {
         if(!wf)
@@ -7783,7 +7786,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     else if(wy>168)
                         changehop = false;
                 }
-                
+                //This may be where the hang-up for exiting water exists. -Z
                 // hop out of the water
                 if(changehop)
                     ret.setHopClk(1);
@@ -10944,7 +10947,20 @@ bool LinkClass::dowarp(int type, int index)
     {
         int c = DMaps[currdmap].color;
         currmap = DMaps[wdmap].map;
-        
+	update_subscreens(wdmap);
+	
+	dlevel = DMaps[wdmap].level;
+	    //check if Link has the map for the new location before updating the subscreen. ? -Z
+	    //This works only in one direction, if Link had a map, to not having one.
+	    //If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+	update_subscreens(wdmap);
+	    
+	if ( has_item(itype_map, dlevel) ) 
+	{
+		//Blank the map during an intra-dmap scrolling warp. 
+		dlevel = -1; //a hack for the minimap. This works!! -Z
+	}
+	    
         // fix the scrolling direction, if it was a tile or instant warp
         if(type==0 || type>=3)
         {
@@ -10952,12 +10968,15 @@ bool LinkClass::dowarp(int type, int index)
         }
         
         scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
+	dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
+	
         reset_hookshot();
         
         if(!intradmap)
         {
             currdmap = wdmap;
             dlevel = DMaps[currdmap].level;
+		//This seems to not work as intended, according to Lut. -Z
             homescr = currscr = wscr + DMaps[wdmap].xoff;
             init_dmap();
             

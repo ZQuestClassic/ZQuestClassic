@@ -2563,7 +2563,7 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
         case dmCAVE:
             int maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
             int mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
-            
+            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
             if(maptile)
             {
                 draw_block(dest,x,y,maptile,mapcset,5,3);
@@ -2576,7 +2576,7 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             {
                 rectfill(dest,x+8,y+8,x+71,y+39,c.dngn_bg);
             }
-            
+            //Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
             if(!DMaps[get_currdmap()].minimap_2_tile && has_item(itype_map, get_dlevel()))
             {
                 if((DMaps[get_currdmap()].flags&dmfMINIMAPCOLORFIX) != 0)
