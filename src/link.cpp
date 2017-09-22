@@ -10976,7 +10976,6 @@ bool LinkClass::dowarp(int type, int index)
         {
             currdmap = wdmap;
             dlevel = DMaps[currdmap].level;
-		//This seems to not work as intended, according to Lut. -Z
             homescr = currscr = wscr + DMaps[wdmap].xoff;
             init_dmap();
             
