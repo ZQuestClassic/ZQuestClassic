@@ -22733,7 +22733,6 @@ command_pair commands[cmdMAX]=
     { "Integrity Check (Screens) ",         0, (intF) onIntegrityCheckRooms                            },
     { "Integrity Check (Warps) ",           0, (intF) onIntegrityCheckWarps                            },
     { "Set Item",                           0, (intF) onItem                                           },
-    { "Item Locations Report",              0, (intF) onItemLocationReport                             },
     { "Item Editor",                        0, (intF) onCustomItems                                    },
     { "Layers",                             0, (intF) onLayers                                         },
     { "Paste Layers",                       0, (intF) onPasteLayers                                    },
@@ -22816,7 +22815,16 @@ command_pair commands[cmdMAX]=
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
     { "Rules - Compatibility",              0, (intF) onCompatRules                                    },
-    { "Export ZASM",             0, (intF) onExport_ZASM                          }
+    { "Export ZASM",             	    0, (intF) onExport_ZASM                                    },
+
+    { "Report: Combo Locations",              0, (intF) onComboLocationReport                                    },
+    { "Report: Combo Type Locs.",              0, (intF) onComboTypeLocationReport                                    },
+    { "Report: Enemy Locations",              0, (intF) onEnemyLocationReport                                    },
+    { "Report: Item Locations",              0, (intF) onItemLocationReport                             },
+    { "Report: Script Locations",              0, (intF) onScriptLocationReport                                    },
+    { "Report: What Links Here",              0, (intF) onWhatWarpsReport                                    },
+    { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    }
+
 };
 
 /********************************/
