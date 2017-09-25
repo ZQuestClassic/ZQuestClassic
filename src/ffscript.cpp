@@ -4881,21 +4881,26 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
 		al_trace("Invalid Map Reference Passed to Screen->SetComboInherentFlag: \n %d", m);
-		break;
+		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
 		al_trace("Invalid Screen Reference Passed to Screen->SetComboInherentFlag: \n %d", sc);
-		break;
+		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
 		al_trace("Invalid Position Reference Passed to Screen->SetComboInherentFlag: \n %d", pos);
+		err_input_found = true;
+	}
+	
+	if ( err_input_found ) { 
 		break;
 	}
         
