@@ -11133,11 +11133,26 @@ bool LinkClass::dowarp(int type, int index)
         int c = DMaps[currdmap].color;
         currmap = DMaps[wdmap].map;
         
+        update_subscreens(wdmap);
+	
+	dlevel = DMaps[wdmap].level;
+	    //check if Link has the map for the new location before updating the subscreen. ? -Z
+	    //This works only in one direction, if Link had a map, to not having one.
+	    //If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+	update_subscreens(wdmap);
+	    
+	if ( has_item(itype_map, dlevel) ) 
+	{
+		//Blank the map during an intra-dmap scrolling warp. 
+		dlevel = -1; //a hack for the minimap. This works!! -Z
+	}
+	    
         // fix the scrolling direction, if it was a tile or instant warp
         if(type==0 || type>=3)
         {
             sdir = dir;
         }
+        
         
         scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
         reset_hookshot();
