@@ -12838,6 +12838,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     int delay = get_scroll_delay(scrolldir);
     
     int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
+    if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment. -Gleeok
+
+	  scx = 32; //for sideview very fast screolling.  -Gleeok
     
     actiontype lastaction = action;
     ALLOFF(false, false);
