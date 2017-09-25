@@ -1,0 +1,977 @@
+//std_shortcuts.zh
+//Shortcuts for ZScript Functions that ignore *-> namespaces, and classes.
+//v0.8.4
+//6th January, 2016
+
+//Class FFC
+
+int FFCData(ffc f){ return f->Data;}
+void FFCData(ffc f, int data) {	f->Data = data;}
+void FFCData(ffc f, int data, bool change) {
+	if ( change ) f->Data += data;
+	else 	f->Data = data;
+}
+
+int FFCScript(ffc f) { return f->Script;}
+void FFCScript(ffc f, int scriptid){ f->Script = scriptid;}
+
+int FFCCSet(ffc f) { return f->CSet; }
+void FFCCSet(ffc f, int cset) { f->CSet = cset;}
+
+int FFCDelay(ffc f) { return f->Delay;}
+void FFCDelay(ffc f, int delay) { f->Delay = delay;}
+void FFCDelay(ffc f, int delay, bool change) { 
+	if ( change ) f->Delay += delay;
+	else f->Delay = delay;
+}
+
+int FFCX(ffc f) { return f->X;}
+void FFCX(ffc f, int x){ f->X = x;}
+void FFCX(ffc f, int x, bool change){ 
+	if ( change ) f->X += x;
+	else f->X = x;
+}
+
+
+int FFCY(ffc f) { return f->Y;}
+void FFCY(ffc f, int y){ f->Y = y;}
+void FFCY(ffc f, int y, bool change){ 
+	if ( change ) f->Y += y;
+	else f->Y = y;
+	}
+
+int FFCVx(ffc f) { return f->Vx;}
+void FFCVx(ffc f, int vx){ f->Vx = vx;}
+void FFCVx(ffc f, int vx, bool change){ 
+	if ( change ) f->Vx += vx;
+	else f->Vx = vx;
+}
+
+int FFCVy(ffc f){ return f->Vy;}
+void FFCVy(ffc f, int vy){ f->Vy = vy;}
+void FFCVy(ffc f, int vy, bool change){ 
+	if ( change ) f->Vy += vy;
+	else f->Vy = vy;
+}
+
+int FFCAx(ffc f) { return f->Ax;}
+void FFCAx(ffc f, int ax) { f->Ax = ax;}
+void FFCAx(ffc f, int ax, bool change) { 
+	if ( change ) f->Ax += ax;
+	else f->Ax = ax;
+}
+
+bool GetFFCFlag(ffc f, int flag) { return f->Flags[flag];}
+void SetFFCFlag(ffc f, int flag, int value) { f->Flags[flag] = value;}
+
+int FFCTileWidth(ffc f) { return f->TileWidth;}
+void FFCTileWidth(ffc f, int tilew) { f->TileWidth = tilew; }
+void FFCTileWidth(ffc f, int tilew, bool change) { 
+	if ( change ) f->TileWidth += tilew; 
+	else f->TileWidth = tilew;
+}
+
+int FFCTileHeight(ffc f) { return f->TileWidth;}
+void FFCTileHeight(ffc f, int tileh) { f->TileHeight = tileh;}
+void FFCTileHeight(ffc f, int tileh, bool change) { 
+	if ( change ) f->TileHeight += tileh;
+	else f->TileHeight = tileh;
+}
+
+int FFCEffectWidth(ffc f) { return f->EffectWidth;}
+void FFCEffectWidth(ffc f, int effectw){ f->EffectWidth = effectw;}
+void FFCEffectWidth(ffc f, int effectw, bool change){ 
+	if ( change ) f->EffectWidth += effectw;
+		else f->EffectWidth = effectw;
+}
+
+int FFCEffectHeight(ffc f){ return f->EffectHeight;}
+void FFCEffectHeight(ffc f, int effecth){ f->EffectHeight = effecth;}
+
+int FFCLink(ffc f) { return f->Link;}
+void FFCLink(ffc f, int linkval){ f->Link = linkval;}
+
+int GetFFCInitD(ffc f, int reg){ return f->InitD[reg];}
+void SetFFCInitD(ffc f, int reg, int val){ f->InitD[reg] = val;}
+
+int GetFFCMisc(ffc f, int reg){ return f->Misc[reg];}
+void SetFFCMisc(ffc f, int reg, float val) {f->Misc[reg] = val;}
+
+//Namespace Link
+
+int LinkX(){return Link->X;}
+
+void LinkX(int x){ Link->X = x;}
+
+void LinkX(int x, bool change){ 
+	if ( change ) Link->X += x;
+	else Link->X = x;
+}
+
+int LinkY(){return Link->Y;}
+void LinkY(int y){ Link->Y = y;}
+void LinkY(int y, bool change){
+	if ( change ) Link->Y += y;	
+	else Link->Y = y;
+}
+
+int LinkZ(){return Link->Z;}
+void LinkZ(int z){Link->Z = z;}
+void LinkZ(int z, bool change){
+	if ( change ) Link->Z += z;
+	else Link->Z = z;
+}
+
+bool LinkCollDetection(){return Link->CollDetection;}
+void LinkCollDetection(bool state) { Link->CollDetection = state;}
+
+int LinkJump(){ return Link->Jump;}
+void LinkJump(int height){ Link->Jump = height;}
+void LinkJump(int height, bool change){ 
+	if ( change ) Link->Jump += height;
+	else Link->Jump = height;
+}
+
+
+int SwordJinx(){return Link->SwordJinx;}
+void SwordJinx(int jinxtime){ Link->SwordJinx = jinxtime;}
+void SwordJinx(int jinxtime, bool change){ 
+	if (change) Link->SwordJinx += jinxtime;
+	else Link->SwordJinx = jinxtime;
+}
+
+int ItemJinx(){ return Link->ItemJinx;}
+void ItemJinx(int jinxtime){ Link->ItemJinx = jinxtime;}
+void ItemJinx(int jinxtime, bool change){ 
+	if ( change ) Link->ItemJinx += jinxtime;
+	else Link->ItemJinx = jinxtime;
+}
+
+int Drunk(){ return Link->Drunk;}
+void Drunk(int drunktime){ Link->Drunk = drunktime;}
+void Drunk(int drunktime, bool change){ 
+	if ( change ) Link->Drunk += drunktime;
+	else Link->Drunk = drunktime;
+}
+
+int LinkDir(){return Link->Dir;}
+void LinkDir(int dir){ Link->Dir = dir;}
+
+int LinkHP() { return Link->HP;}
+void LinkHP(int hp) { Link->HP = hp;}
+void LinkHP(int amount, bool change) {
+	if ( change ) Link->HP += amount;
+	else Link->HP = amount;
+}
+
+int LinkMP(){ return Link->MP;}
+void LinkMP(int mp){ Link->MP = mp;}
+void LinkMP(int amount, bool change) {
+	if ( change ) Link->MP += amount;
+	else Link->MP = amount;
+}
+
+int LinkMaxHP() { return Link->MaxHP;}
+void LinkMaxHP(int hp) { Link->MaxHP = hp;}
+void LinkMaxHP(int amount, bool change) {
+	if ( change ) Link->MaxHP += amount;
+	else Link->MaxHP = amount;
+}
+
+int LinkMaxMP(){ return Link->MaxMP;}
+void LinkMaxMP(int mp){ Link->MaxMP = mp;}
+void LinkMaxMP(int amount, bool change) {
+	if ( change ) Link->MaxMP += amount;
+	else Link->MaxMP = amount;
+}
+
+int Action(){ return Link->Action;}
+void Action(int action) { Link->Action = action;}
+
+int LinkAction(){ return Link->Action;}
+void LinkAction(int action) { Link->Action = action;}
+
+int HeldItem(){ return Link->HeldItem;}
+void HeldItem(int itm){ Link->HeldItem = itm;}
+
+int LadderX(){ return Link->LadderX;}
+int LadderY(){ return Link->LadderY;}
+
+bool InputStart() {return Link->InputStart;}
+bool InputMap() {return Link->InputMap;}
+bool InputUp() {return Link->InputUp;}
+bool InputDown() {return Link->InputDown;}
+bool InputLeft() {return Link->InputLeft;}
+bool InputRight() {return Link->InputRight;}
+bool InputA() {return Link->InputA;}
+bool InputB() {return Link->InputB;}
+bool InputL() {return Link->InputL;}
+bool InputR() {return Link->InputR;}
+bool InputEx1() {return Link->InputEx1;}
+bool InputEx2() {return Link->InputEx2;}
+bool InputEx3() {return Link->InputEx3;}
+bool InputEx4() {return Link->InputEx4;}
+bool InputAxisUp() {return Link->InputAxisUp;}
+bool InputAxisDown() {return Link->InputAxisDown;}
+bool InputAxisLeft() {return Link->InputAxisLeft;}
+bool InputAxisRight() {return Link->InputAxisRight;}
+bool PressStart() {return Link->PressStart;}
+bool PressMap() {return Link->PressMap;}
+bool PressUp() {return Link->PressUp;}
+bool PressDown() {return Link->PressDown;}
+bool PressLeft() {return Link->PressLeft;}
+bool PressRight() {return Link->PressRight;}
+bool PressA() {return Link->PressA;}
+bool PressB() {return Link->PressB;}
+bool PressL() {return Link->PressL;}
+bool PressR() {return Link->PressR;}
+bool PressEx1() {return Link->PressEx1;}
+bool PressEx2() {return Link->PressEx2;}
+bool PressEx3() {return Link->PressEx3;}
+bool PressEx4() {return Link->PressEx4;}
+bool PressAxisUp() {return Link->PressAxisUp;}
+bool PressAxisDown() {return Link->PressAxisDown;}
+bool PressAxisLeft() {return Link->PressAxisLeft;}
+bool PressAxisRight() {return Link->PressAxisRight;}
+
+int InputMouseX() {return Link->InputMouseX;}
+int InputMouseY() {return Link->InputMouseY;}
+int InputMouseB() {return Link->InputMouseB;}
+int InputMouseZ() {return Link->InputMouseZ;}
+
+void InputStart(bool val) { Link->InputStart = val;}
+void InputMap(bool val) { Link->InputMap = val;}
+void InputUp(bool val) { Link->InputUp = val;}
+void InputDown(bool val) { Link->InputDown = val;}
+void InputLeft(bool val) { Link->InputLeft = val;}
+void InputRight(bool val) { Link->InputRight = val;}
+void InputA(bool val) { Link->InputA = val;}
+void InputB(bool val) { Link->InputB = val;}
+void InputL(bool val) { Link->InputL = val;}
+void InputR(bool val) { Link->InputR = val;}
+void InputEx1(bool val) { Link->InputEx1 = val;}
+void InputEx2(bool val) { Link->InputEx2 = val;}
+void InputEx3(bool val) { Link->InputEx3 = val;}
+void InputEx4(bool val) { Link->InputEx4 = val;}
+void InputAxisUp(bool val) { Link->InputAxisUp = val;}
+void InputAxisDown(bool val) { Link->InputAxisDown = val;}
+void InputAxisLeft(bool val) { Link->InputAxisLeft = val;}
+void InputAxisRight(bool val) { Link->InputAxisRight = val;}
+void PressStart(bool val) { Link->PressStart = val;}
+void PressMap(bool val) { Link->PressMap = val;}
+void PressUp(bool val) { Link->PressUp = val;}
+void PressDown(bool val) { Link->PressDown = val;}
+void PressLeft(bool val) { Link->PressLeft = val;}
+void PressRight(bool val) { Link->PressRight = val;}
+void PressA(bool val) { Link->PressA = val;}
+void PressB(bool val) { Link->PressB = val;}
+void PressL(bool val) { Link->PressL = val;}
+void PressR(bool val) { Link->PressR = val;}
+void PressEx1(bool val) { Link->PressEx1 = val;}
+void PressEx2(bool val) { Link->PressEx2 = val;}
+void PressEx3(bool val) { Link->PressEx3 = val;}
+void PressEx4(bool val) { Link->PressEx4 = val;}
+void PressAxisUp(bool val) { Link->PressAxisUp = val;}
+void PressAxisDown(bool val) { Link->PressAxisDown = val;}
+void PressAxisLeft(bool val) { Link->PressAxisLeft = val;}
+void PressAxisRight(bool val) { Link->PressAxisRight = val;}
+
+void InputMouseX(int val) { Link->InputMouseX = val;}
+void InputMouseY(int val) { Link->InputMouseY = val;}
+void InputMouseB(int val) { Link->InputMouseB = val;}
+void InputMouseZ(int val) { Link->InputMouseZ = val;}
+
+int LinkTile(){ return Link->Tile;}
+
+int LinkFlip(){ return Link->Flip;}
+
+//int LinkExtend(){ return Link->Extend;}
+//void LinkExtend(int ext){ Link->Extend = ext;}
+
+int LinkHitHeight(){ return Link->HitHeight;}
+void LinkHitHeight(int hith){ Link->HitHeight = hith;}
+void LinkHitHeight(int hith, bool change) {
+	if ( change ) Link->HitHeight += hith;
+	else Link->HitHeight = hith;
+}
+
+
+int LinkHitWidth(){ return Link->HitWidth;}
+void LinkHitWidth(int hitw){ Link->HitWidth = hitw;}
+void LinkHitWidth(int hitw, bool change) {
+	if ( change ) Link->HitWidth += hitw;
+	else Link->HitWidth = hitw;
+}
+
+int LinkHitZ(){ return Link->HitZHeight;}
+void LinkHitZ(int hitz){ Link->HitZHeight = hitz;}
+void LinkHitZ(int hitz, bool change) {
+	if ( change ) Link->HitZHeight += hitz;
+	else Link->HitZHeight = hitz;
+}
+
+int LinkTileHeight(){ return Link->TileHeight;}
+void LinkTileHeight(int tilh){ Link->TileHeight = tilh;}
+void LinkTileHeight(int tilh, bool change) {
+	if ( change ) Link->TileHeight += tilh;
+	else Link->TileHeight = tilh;
+}
+
+
+int LinkTileWidth(){ return Link->TileWidth;}
+void LinkTileWidth(int tilw){ Link->TileWidth = tilw;}
+void LinkTileWidth(int tilw, bool change) {
+	if ( change ) Link->TileWidth += tilw;
+	else Link->TileWidth = tilw;
+}
+
+int LinkHitX(){ return Link->HitXOffset;}
+void LinkHitX(int hitx){ Link->HitXOffset = hitx;}
+void LinkHitX(int hitx, bool change) {
+	if ( change ) Link->HitXOffset += hitx;
+	else Link->HitXOffset = hitx;
+}
+
+
+int LinkHitY(){ return Link->HitYOffset;}
+void LinkHitY(int hity){ Link->HitYOffset = hity;}
+void LinkHitY(int hity, bool change) {
+	if ( change ) Link->HitYOffset += hity;
+	else Link->HitYOffset = hity;
+}
+
+int LinkDrawX(){ return Link->DrawXOffset;}
+void LinkDrawX(int drawx){ Link->DrawXOffset = drawx;}
+void LinkDrawX(int drawx, bool change) {
+	if ( change ) Link->DrawXOffset += drawx;
+	else Link->DrawXOffset = drawx;
+}
+
+
+int LinkDrawY(){ return Link->DrawYOffset;}
+void LinkDrawY(int drawy){ Link->DrawYOffset = drawy;}
+void LinkDrawY(int drawy, bool change) {
+	if ( change ) Link->DrawYOffset += drawy;
+	else Link->DrawYOffset = drawy;
+}
+
+int LinkDrawZ(){ return Link->DrawZOffset;}
+void LinkDrawZ(int drawz){ Link->DrawZOffset = drawz;}
+void LinkDrawZ(int drawz, bool change) {
+	if ( change ) Link->DrawZOffset += drawz;
+	else Link->DrawYOffset = drawz;
+}
+
+int LinkMisc(int index){ return Link->Misc[index];}
+void LinkMisc(int index, float value) { Link->Misc[index] = value;}
+void LinkMisc(int index, float value, bool change) {
+	if ( change ) Link->Misc[index] += value;
+	else Link->Misc[index] = value;
+}
+
+int GetLinkMisc(int index){ return Link->Misc[index];}
+void SetLinkMisc(int index, float value) { Link->Misc[index] = value;}
+void ModLinkMisc(int index, float value) { Link->Misc[index] += value;}
+
+
+//Link Functions
+
+void Warp(int dmap, int screen){
+	Link->Warp(dmap,screen);
+}
+
+
+void PitWarp(int dmap, int screen){
+	Link->PitWarp(dmap,screen);
+}
+
+void SelectAWeapon(int dir) {
+	Link->SelectAWeapon(dir);
+}
+
+void SelectBWeapon(int dir) {
+	Link->SelectBWeapon(dir);
+}
+
+//Returns if an inventory item is true;
+bool Inv(int itm){
+	return Link->Item[itm];
+}
+
+//Sets Link->Item, safely.
+void Inv(int itm, bool setting){
+	if ( Link->Item[itm] != setting ) Link->Item[itm] = setting;
+}
+
+//Returns if an inventory item is true;
+bool Item(int itm){
+	return Link->Item[itm];
+}
+
+//Sets Link->Item, safely.
+void Item(int itm, bool setting){
+	if ( Link->Item[itm] != setting ) Link->Item[itm] = setting;
+}
+
+//Namespace Game Functions
+
+void ModScreenD(int reg, int amount) {
+	Screen->D[reg] += amount;
+}
+
+int GetCurScreen(){
+	return Game->GetCurScreen();
+}
+
+int GetCurDMap(){
+	return Game->GetCurDMap();
+}
+
+int GetCurMap(){ 
+	return Game->GetCurMap();
+}
+
+int GetCurDMapScreen(){
+	return Game->GetCurDMapScreen();
+}
+
+int GetCurLevel(){
+	return Game->GetCurLevel();
+}
+
+
+int NumDeaths(){
+	return Game->NumDeaths;
+}
+
+void NumDeaths(int num){
+	Game->NumDeaths = num;
+}
+
+int Cheat(){
+	return Game->Cheat;
+}
+
+void Cheat(int cheatLevel){
+	Game->Cheat = cheatLevel;
+}
+
+int Time(){
+	return Game->Time;
+}
+
+void Time(int t){
+	Game->Time = t;
+}
+
+bool TimeValid(){
+	return Game->TimeValid;
+}
+
+void TimeValid(bool t){
+	Game->TimeValid = t;
+}
+
+bool HasPlayed(){
+	return Game->HasPlayed;
+}
+
+void HasPlayed(bool a){
+	Game->HasPlayed = a;
+}
+
+bool Standalone(){
+	return Game->Standalone;
+}
+
+int ContinueDMap(){
+	return Game->ContinueDMap;
+}
+
+void ContinueDMap(int dmap){
+	Game->ContinueDMap = dmap;
+}
+
+int ContinueScreen(){
+	return Game->ContinueScreen;
+}
+
+void ContinueScreen(int scr){
+	Game->ContinueScreen = scr;
+}
+
+int LastEntranceDMap(){
+	return Game->LastEntranceDMap;
+}
+
+void LastEntranceDMap(int dmap){
+	Game->LastEntranceDMap = dmap;
+}
+
+int LastEntranceScreen(){
+	return Game->LastEntranceScreen;
+}
+
+void LastEntranceScreen(int scr){
+	Game->LastEntranceScreen = scr;
+}
+
+int Counter(int ctr){
+	return Game->Counter[ctr];
+}
+
+void Counter(int ctr, int val){
+	Game->Counter[ctr] = val;
+}
+
+void Counter(int ctr, bool bump){
+	if ( bump ) {
+		Game->Counter[ctr]++;
+	}
+	else Game->Counter[ctr]--;
+}
+
+void Counter(int ctr, bool bump, int val){
+	if ( bump ) {
+		Game->Counter[ctr] += val;
+	}
+	else Game->Counter[ctr] -= val;
+}
+
+int MCounter(int ctr){
+	return Game->MCounter[ctr];
+}
+
+void MCounter(int ctr, int val){
+	Game->MCounter[ctr] = val;
+}
+
+void MCounter(int ctr, bool bump){
+	if ( bump ) {
+		Game->MCounter[ctr]++;
+	}
+	else Game->MCounter[ctr]--;
+}
+
+void MCounter(int ctr, bool bump, int val){
+	if ( bump ) {
+		Game->MCounter[ctr] += val;
+	}
+	else Game->MCounter[ctr] -= val;
+}
+
+int DCounter(int ctr){
+	return Game->DCounter[ctr];
+}
+
+void DCounter(int ctr, int val){
+	Game->DCounter[ctr] = val;
+}
+
+void DCounter(int ctr, bool bump){
+	if ( bump ) {
+		Game->DCounter[ctr]++;
+	}
+	else Game->DCounter[ctr]--;
+}
+
+void DCounter(int ctr, bool bump, int val){
+	if ( bump ) {
+		Game->DCounter[ctr] += val;
+	}
+	else Game->DCounter[ctr] -= val;
+}
+
+
+int NumHeartPieces(){
+	return Game->Generic[GEN_HEARTPIECES];
+}
+
+void NumHeartPieces(int num){
+	Game->Generic[GEN_HEARTPIECES] = num;
+}
+
+void NumHeartPieces(int num, bool increase){
+	Game->Generic[GEN_HEARTPIECES] += num;
+}
+
+int MagicDrainRate(){
+	return Game->Generic[GEN_MAGICDRAINRATE] ;
+}
+
+void MagicDrainRate(int amount){
+	Game->Generic[GEN_MAGICDRAINRATE] = amount;
+}
+
+int CanSlash(){
+	return Game->Generic[GEN_CANSLASH];
+}
+
+void CanSlash(bool canSlash){
+	if ( canSlash ) {
+		Game->Generic[GEN_CANSLASH] = 1;
+	}
+	else {
+		Game->Generic[GEN_CANSLASH] = 0;
+	}
+}
+
+int WarpLevel(){
+	return Game->Generic[GEN_WARPLEVEL];
+}
+
+void WarpLevel(int warpSpot){
+	Game->Generic[GEN_WARPLEVEL] = warpSpot;
+}
+
+int HeartPiecesPerHC(){
+	return Game->Generic[GEN_HCPPERHC];
+}
+
+void HeartPiecesPerHC(int num){
+	Game->Generic[GEN_HCPPERHC] = num;
+}
+
+int ContinueHearts(){
+	return Game->Generic[GEN_CONTINUEHEARTS];
+}
+
+void ContinueHearts(int hearts){
+	Game->Generic[GEN_CONTINUEHEARTS] = hearts;
+}
+
+int ContinueIsPercent(){
+	return Game->Generic[GEN_CONTINUEISPERCENT];
+}
+
+void ContinueIsPercent(int perc){
+	Game->Generic[GEN_CONTINUEISPERCENT] = perc;
+}
+
+int LevelKeys(int lvl){
+	return Game->LKeys[lvl];
+}
+
+void LevelKeys(int lvl, int amt){
+	Game->LKeys[lvl] += amt;
+}
+
+void LevelKeys(int lvl, int amt, bool set){
+	Game->LKeys[lvl] = amt;
+}
+
+//Shortcuts to Class and Namespace functions
+
+//Screen functions.
+
+int ComboD(int pos){
+	return Screen->ComboD[pos];
+}
+
+int ComboT(int pos){
+	return Screen->ComboT[pos];
+}
+
+int ComboF(int pos){
+	return Screen->ComboF[pos];
+}
+
+int ComboI(int pos){
+	return Screen->ComboI[pos];
+}
+
+int ComboC(int pos){
+	return Screen->ComboC[pos];
+}
+
+int ComboS(int pos){
+	return Screen->ComboS[pos];
+}
+
+
+void ComboD(int pos, int comboID){
+	Screen->ComboD[pos] = comboID;
+}
+
+void ComboT(int pos, int type){
+	Screen->ComboT[pos] = type;
+}
+
+void ComboF(int pos, int flag){
+	Screen->ComboF[pos] = flag;
+}
+
+void ComboI(int pos, int inhFlag){
+	Screen->ComboI[pos] = inhFlag;
+}
+
+void ComboC(int pos, int cset){
+	Screen->ComboC[pos] = cset;
+}
+
+void ComboS(int pos, int solidity){
+	Screen->ComboS[pos] = solidity;
+}
+
+bool GetComboD(int pos, int comboID){
+	if ( Screen->ComboD[pos] == comboID ) return true;
+	return false;
+}
+
+bool GetComboT(int pos, int type){
+	if ( Screen->ComboT[pos] == type ) return true;
+	return false;
+}
+
+bool GetComboF(int pos, int flag){
+	if ( Screen->ComboF[pos] == flag ) return true;
+	return false;
+}
+
+bool GetComboI(int pos, int inhFlag){
+	if ( Screen->ComboI[pos] == inhFlag ) return true;
+	return false;
+}
+
+bool GetComboC(int pos, int cset, int check){
+	if ( Screen->ComboC[pos] == cset ) return true;
+	return false;
+}
+
+bool GetComboS(int pos, int solidity){
+	if ( Screen->ComboS[pos] == solidity ) return true;
+	return false;
+}
+
+void SetComboD(int pos, int comboID){
+	Screen->ComboD[pos] = comboID;
+}
+
+void SetComboT(int pos, int type){
+	Screen->ComboT[pos] = type;
+}
+
+void SetComboF(int pos, int flag){
+	Screen->ComboF[pos] = flag;
+}
+
+void SetComboI(int pos, int inhFlag){
+	Screen->ComboI[pos] = inhFlag;
+}
+
+void SetComboC(int pos, int cset){
+	Screen->ComboC[pos] = cset;
+}
+
+void SetComboS(int pos, int solidity){
+	Screen->ComboS[pos] = solidity;
+}
+
+
+int Wavy(){
+	return Screen->Wavy;
+}
+
+void Wavy(int dur){
+	Screen->Wavy = dur;
+}
+
+void Wavy(int dur, int frames){
+	for ( int q = 0; q < frames; q++ ){
+		Screen->Wavy = dur - q;
+		//Do we need a Waitframe here?
+	}
+}
+
+int Quake(){
+	return Screen->Quake;
+}
+
+void Quake(int dur){
+	Screen->Quake = dur;
+}
+
+void Quake(int dur, int frames){
+	for ( int q = 0; q < frames; q++ ){
+		Screen->Quake = dur - q;
+		//Do we need a Waitframe here?
+	}
+}
+
+bool Lit(){
+	return Screen->Lit;
+}
+
+void Lit(bool setting){
+	Screen->Lit = setting;
+}
+
+//void TriggerSecrets(){
+//	return Screen->TriggerSecrets();
+//}
+
+void TriggerSecrets(bool triggered){
+	Screen->TriggerSecrets();
+}
+
+void TriggerSecrets(int state){
+	Screen->State[ST_SECRET] = state;
+	Screen->TriggerSecrets();
+}
+
+
+
+int MovingBlockX(){ return Screen->MovingBlockX;}
+int MovingBlockY(){ return Screen->MovingBlockY;}
+int MovingBlockCombo(){ return Screen->MovingBlockCombo;}
+int MovingBlockCSet(){ return Screen->MovingBlockCSet;}
+
+int UnderCSet(){ return Screen->UnderCSet;}
+void UnderCSet(int value){ Screen->UnderCSet = value;}
+
+int UnderCombo(){ return Screen->UnderCombo;}
+void UnderCombo(int value){ Screen->UnderCombo = value;}
+
+int RoomType(){return Screen->RoomType;}
+int RoomData(){return Screen->RoomData;}
+void RoomData(int val){Screen->RoomData = val;}
+//void TriggerSecrets(){Screen->TriggerSecrets();}
+//bool Lit(){return Screen->Lit;}
+void Lit(int val){Screen->Lit = val;}
+
+void SetSideWarp(int warp, int screen, int dmap, int type){
+	Screen->SetSideWarp(warp, screen, dmap, type);
+}
+
+void SetTileWarp(int warp, int screen, int dmap, int type){
+	Screen->SetTileWarp(warp, screen, dmap, type);
+}
+
+
+void GetSideWarpDMap(int warp){
+	Screen->GetSideWarpDMap(warp);
+}
+
+void GetSideWarpScreen(int warp){
+	Screen->GetSideWarpScreen(warp);
+}
+
+
+void GetSideWarpType(int warp){
+	Screen-> GetSideWarpType(warp);
+}
+
+void GetTileWarpDMap(int warp){
+	Screen->GetTileWarpDMap(warp);
+}
+
+void GetTileWarpScreen(int warp){
+	Screen->GetTileWarpScreen(warp);
+}
+
+void GetTileWarpType(int warp){
+	Screen->GetTileWarpType(warp);
+}
+
+int LayerMap(int n){
+	return Screen->LayerMap(n);
+}
+
+int LayerScreen(int n){
+	return Screen->LayerScreen(n);
+}
+
+int NumItems(){
+	return Screen->NumItems();
+}
+
+void LoadItem(int itm){
+	Screen->LoadItem(itm);
+}
+
+void CreateItem(int id){
+	Screen->CreateItem(id);
+}
+
+ffc LoadFFC(int num){
+	return Screen->LoadFFC(num);
+}
+
+int NumNPCs(){
+	return Screen->NumNPCs();
+}
+
+void LoadNOC(int num){
+	Screen->LoadNPC(num);
+}
+
+void CreateNPC(int id){
+	Screen->CreateNPC(id);
+}
+
+int NumLWeapons(){
+	return Screen->NumLWeapons();
+}
+
+void LoadLWeapon(int num){
+	Screen->LoadLWeapon(num);
+}
+
+void CreateLWeapon(int type){
+	Screen->CreateLWeapon(type);
+}
+
+int NumEWeapons(){
+	return Screen->NumEWeapons();
+}
+
+void LoadEWeapon(int num){
+	Screen->LoadEWeapon(num);
+}
+
+void CreateEWeapon(int type){
+	Screen->CreateEWeapon(type);
+}
+
+bool isSolid(int x, int y){
+	return Screen->isSolid(x,y);
+}
+
+void ClearSprites(int spritelist){
+	Screen->ClearSprites(spritelist);
+}
+
+//Drawing
+
+void Rectangle(int layer, int x, int y, int x2, int y2, int color, float scale, int rx, int ry, int rangle, bool fill, int opacity){
+	Screen->Rectangle(layer, x, y, x2, y2, color, scale, rx, ry, rangle, fill, opacity);
+}
+
+void Circle(int layer, int x, int y, int radius, int color, float scale, int rx, int ry, int rangle, bool fill, int opacity){
+	Screen->Circle(layer, x, y, radius, color, scale, rx, ry, rangle, fill, opacity);
+}
+
+void Arc(int layer, int x, int y, int radius, int startangle, int endangle, int color, float scale, int rx, int ry, int rangle, bool closed, bool fill, int opacity){
+	Screen->Arc(layer, x, y, radius, startangle, endangle, color, scale, rx, ry, rangle, closed, fill, opacity);
+}
+
+void Ellipse(int layer, int x, int y, int xradius, int yradius, int color, float scale, int rx, int ry, int rangle, bool fill, int opacity){
+	Screen->Ellipse(layer, x, y, xradius, yradius, color, scale, rx, ry, rangle, fill, opacity);
+}
+
+void Spline(int layer, int x1, int y1, int x2, int y2, int x3, int y3,int x4, int y4, int color, int opacity){
+	Screen->Spline(layer, x1, y1, x2, y2, x3, y3, x4, y4, color, opacity);
+}
+
+void Line(int layer, int x, int y, int x2, int y2, int color, float scale, int rx, int ry, int rangle, int opacity){
+	Screen->Line(layer, x, y, x2, y2, color, scale, rx, ry, rangle, opacity);
+}
+
+void PutPixel(int layer, int x, int y, int color, int rx, int ry, int rangle, int opacity){
+	Screen->PutPixel(layer, x, y, color, rx, ry, rangle, opacity);
+}
+
+void DrawTile(int layer, int x, int y, int tile, int blockw, int blockh, int cset, int xscale, int yscale, int rx, int ry, int rangle, int flip, bool transparency, int opacity){
+	Screen->DrawTile(layer, x, y, tile, blockw, blockh, cset, xscale, yscale, rx, ry, rangle, flip, transparency, opacity);
+}
+
