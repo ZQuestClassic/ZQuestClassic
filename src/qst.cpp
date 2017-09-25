@@ -8850,6 +8850,8 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
 
             // Not sure when this first changed, but it's necessary for 2.10, at least
             if (Header->zelda_version <= 0x210)
+		    
+	    // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
             {
                 tables["CORE"].getEnemyDefinition(eGLEEOK1F).miscs[5] = 16;
                 tables["CORE"].getEnemyDefinition(eGLEEOK2F).miscs[5] = 16;
@@ -8860,6 +8862,11 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
                 tables["CORE"].getEnemyDefinition(eBATROBE).miscs[3] = 1;
                 tables["CORE"].getEnemyDefinition(eSUMMONER).miscs[3] = 1;
                 tables["CORE"].getEnemyDefinition(eWWIZ).miscs[3] = 1;
+		    
+		tables["CORE"].getEnemyDefinition(eWIZ1).misc4 = 1;  //only set the enemy that needs backward compat, not all of them.
+		tables["CORE"].getEnemyDefinition(eBATROBE).misc4 = 1;
+		//tables["CORE"].getEnemyDefinition(eSUMMONER).misc4 = 1; //Gleeok added this, then commented it out. -Z
+		tables["CORE"].getEnemyDefinition(eWWIZ).misc4 -1; 
             }
 
             // The versions here may not be correct
