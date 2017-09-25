@@ -4185,6 +4185,7 @@ bool LinkClass::animate(int)
     }
     
     // Pay magic cost for Byrna beams
+    //Byrna needs a secondary timer, for 254+, as do all items that reduce MP on a per-frae basis. Essentially, we will do % divisor == 0 for that. -Z
     if(LwpnsIdCount(wCByrna))
     {
         weapon *ew;
@@ -9122,148 +9123,391 @@ void LinkClass::checkchest(int type)
 
 void LinkClass::checklocked()
 {
-    if(toogam) return;
+    if(toogam) return; //Walk through walls. 
     
     if(!isdungeon()) return;
     
-    if(pushing!=8) return;
+    if( !diagonalMovement && pushing!=8) return;
+	/*This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
+	*/
+    if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
+
+
+    bool found;
+    for ( int q = 0; q < 4; q++ ) 
+    {
+	if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
+    }
+	
+    if ( !found ) return;
     
     if((tmpscr->door[dir]!=dLOCKED) && (tmpscr->door[dir]!=dBOSS)) return;
     
     int si = (currmap<<7) + currscr;
     int di = nextscr(dir);
     
-    switch(dir)
-    {
-    case up:
-        if(y>32 || (diagonalMovement?(x<=112||x>=128):x!=120)) return;
-        
-        if(tmpscr->door[dir]==dLOCKED)
-        {
-            if(usekey())
-            {
-                putdoor(scrollbuf,0,up,dUNLOCKED);
-                tmpscr->door[0]=dUNLOCKED;
-                setmapflag(si, mDOOR_UP);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_DOWN);
-            }
-            else return;
-        }
-        else if(tmpscr->door[dir]==dBOSS)
-        {
-            if(game->lvlitems[dlevel]&liBOSSKEY)
-            {
-                putdoor(scrollbuf,0,up,dOPENBOSS);
-                tmpscr->door[0]=dOPENBOSS;
-                setmapflag(si, mDOOR_UP);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_DOWN);
-            }
-            else return;
-        }
-        
-        break;
-        
-    case down:
-        if(y<128 || (diagonalMovement?(x<=112||x>=128):x!=120)) return;
-        
-        if(tmpscr->door[dir]==dLOCKED)
-        {
-            if(usekey())
-            {
-                putdoor(scrollbuf,0,down,dUNLOCKED);
-                tmpscr->door[1]=dUNLOCKED;
-                setmapflag(si, mDOOR_DOWN);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_UP);
-            }
-            else return;
-        }
-        else if(tmpscr->door[dir]==dBOSS)
-        {
-            if(game->lvlitems[dlevel]&liBOSSKEY)
-            {
-                putdoor(scrollbuf,0,down,dOPENBOSS);
-                tmpscr->door[1]=dOPENBOSS;
-                setmapflag(si, mDOOR_DOWN);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_UP);
-            }
-            else return;
-        }
-        
-        break;
-        
-    case left:
-        if((diagonalMovement?(y<=72||y>=88):y!=80) || x>32) return;
-        
-        if(tmpscr->door[dir]==dLOCKED)
-        {
-            if(usekey())
-            {
-                putdoor(scrollbuf,0,left,dUNLOCKED);
-                tmpscr->door[2]=dUNLOCKED;
-                setmapflag(si, mDOOR_LEFT);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_RIGHT);
-            }
-            else return;
-        }
-        else if(tmpscr->door[dir]==dBOSS)
-        {
-            if(game->lvlitems[dlevel]&liBOSSKEY)
-            {
-                putdoor(scrollbuf,0,left,dOPENBOSS);
-                tmpscr->door[2]=dOPENBOSS;
-                setmapflag(si, mDOOR_LEFT);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_RIGHT);
-            }
-            else return;
-        }
-        
-        break;
-        
-    case right:
-        if((diagonalMovement?(y<=72||y>=88):y!=80) || x<208) return;
-        
-        if(tmpscr->door[dir]==dLOCKED)
-        {
-            if(usekey())
-            {
-                putdoor(scrollbuf,0,right,dUNLOCKED);
-                tmpscr->door[3]=dUNLOCKED;
-                setmapflag(si, mDOOR_RIGHT);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_LEFT);
-            }
-            else return;
-        }
-        else if(tmpscr->door[dir]==dBOSS)
-        {
-            if(game->lvlitems[dlevel]&liBOSSKEY)
-            {
-                putdoor(scrollbuf,0,right,dOPENBOSS);
-                tmpscr->door[3]=dOPENBOSS;
-                setmapflag(si, mDOOR_RIGHT);
-                
-                if(di != 0xFFFF)
-                    setmapflag(di, mDOOR_LEFT);
-            }
-            else return;
-        }
-    }
-    
-    Backend::sfx->play(WAV_DOOR,128);
-    markBmap(-1);
+        if ( diagonalMovement ) 
+	{
+		//Up door
+		if ( y <= 32 && x >= 112 && x <= 128 )
+		{
+			if (
+				dir == up || dir == l_up || dir == r_up //|| Up() || ( Up()&&Left()) || ( Up()&&Right()) 
+				
+			)
+			{
+				di = nextscr(up);
+				if(tmpscr->door[0]==dLOCKED)
+				{
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,up,dUNLOCKED);
+					tmpscr->door[0]=dUNLOCKED;
+					setmapflag(si, mDOOR_UP);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_DOWN);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+				else if(tmpscr->door[0]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,up,dOPENBOSS);
+					tmpscr->door[0]=dOPENBOSS;
+					setmapflag(si, mDOOR_UP);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_DOWN);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+
+				}
+					
+			}
+		}
+		//Down
+		if ( y >= 128 && x >= 112 && x <= 128 ) 
+		{
+			if ( dir == down || dir == l_down || dir == r_down ) //|| Down() || ( Down()&&Left()) || ( Down()&&Right()))
+			{
+				di = nextscr(down);
+				if(tmpscr->door[1]==dLOCKED)
+				{
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,down,dUNLOCKED);
+					tmpscr->door[1]=dUNLOCKED;
+					setmapflag(si, mDOOR_DOWN);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_UP);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+				else if(tmpscr->door[1]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,down,dOPENBOSS);
+					tmpscr->door[1]=dOPENBOSS;
+					setmapflag(si, mDOOR_DOWN);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_UP);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+			}
+		}
+		//left
+		if ( y > 72 && y < 88 && x <= 32 )
+		{
+			if ( dir == left || dir == l_up || dir == l_down )//|| Left()  || ( Up()&&Left()) || ( Down()&&Left() ) )
+			{
+				di = nextscr(left);
+				if(tmpscr->door[2]==dLOCKED)
+				{
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,left,dUNLOCKED);
+					tmpscr->door[2]=dUNLOCKED;
+					setmapflag(si, mDOOR_LEFT);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_RIGHT);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+				else if(tmpscr->door[2]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,left,dOPENBOSS);
+					tmpscr->door[2]=dOPENBOSS;
+					setmapflag(si, mDOOR_LEFT);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_RIGHT);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+			}
+		}
+		
+		
+		//right
+		if ( ( y > 72 && y < 88 ) && x >= 208 )
+			//!( (y<=72||y>=88) && x<206 ) )
+			//y<=72||y>=88):y!=80) || x<208)
+		{
+			if ( dir == right || dir == r_up || dir == r_down ) //|| Right()  || ( Down()&&Right() ) || ( Up()&&Right()))
+			{
+				di  = nextscr(right);
+				if(tmpscr->door[right]==dLOCKED)
+				{
+				    if(usekey())
+				    {
+					putdoor(scrollbuf,0,right,dUNLOCKED);
+					tmpscr->door[3]=dUNLOCKED;
+					setmapflag(si, mDOOR_RIGHT);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_LEFT);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+				else if(tmpscr->door[right]==dBOSS)
+				{
+				    if(game->lvlitems[dlevel]&liBOSSKEY)
+				    {
+					putdoor(scrollbuf,0,right,dOPENBOSS);
+					tmpscr->door[3]=dOPENBOSS;
+					setmapflag(si, mDOOR_RIGHT);
+					
+					if(di != 0xFFFF)
+					    setmapflag(di, mDOOR_LEFT);
+					Backend::sfx->play(WAV_DOOR,128);
+					markBmap(-1);
+				    }
+				    else return;
+				}
+			
+			}
+		}
+	}
+	else
+	{
+		//orthogonal movement
+		//Up door
+		if ( y<=32 && x == 120 )
+			//!( y>32 && (x!=120) ))
+		{
+			switch ( dir ) 
+			{
+				case up:
+				case r_up:
+				case l_up:
+				{
+					di  = nextscr(up);
+					if(tmpscr->door[0]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,up,dUNLOCKED);
+						tmpscr->door[0]=dUNLOCKED;
+						setmapflag(si, mDOOR_UP);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_DOWN);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[0]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,up,dOPENBOSS);
+						tmpscr->door[0]=dOPENBOSS;
+						setmapflag(si, mDOOR_UP);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_DOWN);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					break;
+				}
+				default: break;
+					
+			}
+		}
+		//Down
+		if ( y >= 128 && x == 120 )
+			//!(y<128 && (x!=120) ) )
+		{
+			switch(dir)
+			{
+				case down:
+				case l_down:
+				case r_down:
+				{
+					di  = nextscr(down);
+					
+					if(tmpscr->door[1]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,down,dUNLOCKED);
+						tmpscr->door[1]=dUNLOCKED;
+						setmapflag(si, mDOOR_DOWN);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_UP);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[1]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,down,dOPENBOSS);
+						tmpscr->door[1]=dOPENBOSS;
+						setmapflag(si, mDOOR_DOWN);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_UP);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					break;
+				}
+				default: break;
+			}
+		}
+		//left
+		if ( y == 80 && x <= 32 )
+			//!( (y!=80) && x>32 ) )
+		{
+			switch(dir)
+			{
+				case left:
+				case l_up:
+				case l_down:
+				{
+					di  = nextscr(left);
+					if(tmpscr->door[2]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,left,dUNLOCKED);
+						tmpscr->door[2]=dUNLOCKED;
+						setmapflag(si, mDOOR_LEFT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_RIGHT);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[2]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,left,dOPENBOSS);
+						tmpscr->door[2]=dOPENBOSS;
+						setmapflag(si, mDOOR_LEFT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_RIGHT);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					
+					break;	
+					
+				}
+				default: break;
+			}
+		}
+		//right
+		if ( y == 80 && x >= 208 )
+			//!((y!=80) && x<208 ) )
+		{
+			switch(dir)
+			{
+				case right:
+				case r_down:
+				case r_up:
+				{
+					di  = nextscr(right);
+					if(tmpscr->door[3]==dLOCKED)
+					{
+					    if(usekey())
+					    {
+						putdoor(scrollbuf,0,right,dUNLOCKED);
+						tmpscr->door[3]=dUNLOCKED;
+						setmapflag(si, mDOOR_RIGHT);
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_LEFT);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+					    }
+					    else return;
+					}
+					else if(tmpscr->door[3]==dBOSS)
+					{
+					    if(game->lvlitems[dlevel]&liBOSSKEY)
+					    {
+						putdoor(scrollbuf,0,right,dOPENBOSS);
+						tmpscr->door[3]=dOPENBOSS;
+						setmapflag(si, mDOOR_RIGHT);
+						
+						
+						if(di != 0xFFFF)
+						    setmapflag(di, mDOOR_LEFT);
+						Backend::sfx->play(WAV_DOOR,128);
+						markBmap(-1);
+
+					    }
+					    else return;
+					}
+					
+					
+					break;
+				}
+				default: break;
+				
+			}
+		}
+	}
 }
 
 void LinkClass::checkswordtap()
