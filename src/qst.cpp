@@ -8863,10 +8863,10 @@ int readguys(PACKFILE *f, zquestheader *Header, std::map<std::string, EnemyDefin
                 tables["CORE"].getEnemyDefinition(eSUMMONER).miscs[3] = 1;
                 tables["CORE"].getEnemyDefinition(eWWIZ).miscs[3] = 1;
 		    
-		tables["CORE"].getEnemyDefinition(eWIZ1).misc4 = 1;  //only set the enemy that needs backward compat, not all of them.
-		tables["CORE"].getEnemyDefinition(eBATROBE).misc4 = 1;
-		//tables["CORE"].getEnemyDefinition(eSUMMONER).misc4 = 1; //Gleeok added this, then commented it out. -Z
-		tables["CORE"].getEnemyDefinition(eWWIZ).misc4 -1; 
+		tables["CORE"].getEnemyDefinition(eWIZ1).miscs[4] = 1;  //only set the enemy that needs backward compat, not all of them.
+		tables["CORE"].getEnemyDefinition(eBATROBE).miscs[4] = 1;
+		//tables["CORE"].getEnemyDefinition(eSUMMONER).miscs[4] = 1; //Gleeok added this, then commented it out. -Z
+		tables["CORE"].getEnemyDefinition(eWWIZ).miscs[4] = 1; 
             }
 
             // The versions here may not be correct
