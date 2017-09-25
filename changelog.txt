@@ -49,6 +49,7 @@ This was likewise something that I did before, but it was somehow lost in variou
 Unfixed buggy wizzrobe compat issue. Proper fix is still pending... ( Gleeok, 28th August, 2017 )
 
 //Beta 7
+
 Initial update of ZLaunch, to add a ROMView launch button.
 Fixed a bug where the Tile Editor refused to load image files on the first attempt. ( ZoriaRPG, 27th August 2017 )
 
@@ -82,7 +83,10 @@ Updated all included headers to their current versions.
 Pruned some files.
 Unlocked 1st.qst and 2nd.qst. ( ZoriaRPG, 11th July, 2017 )
 
-Fixed improper error return values on some ffscript functions. 
+Fixed incorrect types for CollDetection and some other boolean return variables in ZScript. 
+    This includes Link->CollDetection, Link->Invisible, npc->CollDetection, lweapon->CollDetection and 
+    eweapon->CollisionDetection ( ZoriaRPG, 2nd July, 2017 )
+
 Seem to have fixed reported bug of ZC crashing if the user shifts focus when assigning joypad buttons. 
 In any case, I can not replicate it in this build, and I did change a read_button function that was a bit bonkers. ( ZoriaRPG, 2nd July, 2017 )
 	
