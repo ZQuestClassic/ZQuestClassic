@@ -34,8 +34,8 @@
 #include "quest/QuestRefs.h"
 #include "zc_malloc.h"
 
-#define ZELDA_VERSION       0x0260                          //version of the program
-#define VERSION_BUILD       40                              //build number of this version
+#define ZELDA_VERSION       0x0251                          //version of the program
+#define VERSION_BUILD       31                              //build number of this version
 #define VERSION_BETA        00020
 #define ZELDA_VERSION_STR   "2.60.0 Alpha"                    //version of the program as presented in text
 #define ZC_VERSION 25100 //Version ID for ZScript Game->Version
@@ -49,10 +49,10 @@
 #define ZELDADAT_BUILD        17                            //build of zelda.dat
 #define SFXDAT_VERSION        0x0211                        //version of sfx.dat
 #define SFXDAT_BUILD          15                            //build of sfx.dat
-#define FONTSDAT_VERSION      0x0211                        //version of fonts.dat
-#define FONTSDAT_BUILD        18                            //build of fonts.dat
-#define QSTDAT_VERSION        0x0253                        //version of qst.dat
-#define QSTDAT_BUILD          30                            //build of qst.dat
+#define FONTSDAT_VERSION      0x0211         //0x0260               //version of fonts.dat
+#define FONTSDAT_BUILD        18             //30               //build of fonts.dat
+#define QSTDAT_VERSION        0x0211                        //version of qst.dat
+#define QSTDAT_BUILD          18                            //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
 #define ZQUESTDAT_BUILD       18                            //build of zquest.dat
 
