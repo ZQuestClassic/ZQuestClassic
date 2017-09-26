@@ -37,10 +37,10 @@
 #define ZELDA_VERSION       0x0251                          //version of the program
 #define VERSION_BUILD       31                              //build number of this version
 #define VERSION_BETA        00020
-#define ZELDA_VERSION_STR   "2.53.0"                    //version of the program as presented in text
+#define ZELDA_VERSION_STR   "2.60.0 Alpha"                    //version of the program as presented in text
 #define ZC_VERSION 25100 //Version ID for ZScript Game->Version
 #define IS_BETA             -1                               //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "13th June, 2017"
+#define DATE_STR            "25th September, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -49,8 +49,8 @@
 #define ZELDADAT_BUILD        17                            //build of zelda.dat
 #define SFXDAT_VERSION        0x0211                        //version of sfx.dat
 #define SFXDAT_BUILD          15                            //build of sfx.dat
-#define FONTSDAT_VERSION      0x0211                        //version of fonts.dat
-#define FONTSDAT_BUILD        18                            //build of fonts.dat
+#define FONTSDAT_VERSION      0x0211         //0x0260               //version of fonts.dat
+#define FONTSDAT_BUILD        18             //30               //build of fonts.dat
 #define QSTDAT_VERSION        0x0211                        //version of qst.dat
 #define QSTDAT_BUILD          18                            //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
