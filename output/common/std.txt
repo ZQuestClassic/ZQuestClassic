@@ -1,32 +1,55 @@
+std.txt for ZC Versions 2.53.0 and higher.
+10th September, 2017
+
 =================
 --- Constants ---
 =================
 
 const float PI, PI2, E
  * The mathematical constants pi, 2*pi and e.
+ 
+const float RADIAN, DEGREE, SQRT_MAX
+const int SQRT_ERROR 
+ * Some additional constants for maths.
 
 const int NULL
  * Refers to an invalid array pointer, returned by ALLOCATEMEM when memory cannot be allocated
 
-const int MAX_CONSTANT, float MAX_VARIABLE
-const int MAX_BITSPERVARIABLE
+const float MAX_CONSTANT, float MIN_CONSTANT, float MAX_VARIABLE, float MIN_VARIABLE, int MAX_INT, MIN_INT, 
+const float MAX_FLOAT, float MIN_FLOAT, int MIN_INT, float MIN_FLOAT, float MIN_
+const int MAX_COUNTER, int MIN_COUNTER
+const int MIN_LWEAPON, int MIN_EWEAPON, int MIN_NPC, int MIN_IEM, int MAX_LWEAPON, int MAX_EWEAPON, int MAX_NPC, 
+const int MAX_ITEM, MAX_OBJECT_POINTERS< MAX_WEAPON_POINTERS, MAX_TOTAL_OBJECT_POINTERS
+const int MAX_SPRITES
+const int MAX_DRAWING
+const int MINBITMAP_X, int MAX_BITMAP_X, int MIN_BITMAP_Y, int MAX_BITMAP_Y
+const int MAX_GLOBAL_VARIABLES, int MAX_VARIABLES, int MAX_BITSPERVARIABLE
+const int MAX_ARRAY_POINTERS, int MAX_TILES, int MAX_COMBOS, int MAX_STRINGS
+const int HP_PER_BLOCK, int MP_PER_BLOCK
 const int MAX_SCRIPTDRAWINGCOMMANDS
-const int MAX_MESSAGES
-const int MAX_MESSAGELENGTH
-const int MAX_DMAPS
+const int MAX_MESSAGES, int MAX_MESSAGELENGTH
+const int MAX_MAPS, MAX_DMAPS
 const int MAX_DMAPNAMELENGTH, MAX_DMAPTITLELENGTH, MAX_DMAPINTROLENGTH
+const int MAX_FFC_*
  * Information about some system constraints
+ 
+const int SCREEN_W, int SCREEN_H, int SUBSCREEN_BOTTOM, int SUBSCREEN_TOP
+const int SCREEN_RIGHT, int SCREEN_LEFT, int SCREEN_TOP, int SCREEN_BOTTOM
+ * Screen dimensions. 
 
 const float GRAVITY
 const float TERMINAL_VELOCITY
 const float JUMPING_LAYER_THRESHOLD
  * Some defaults from Init. Data
 
-const int HP_PER_HEART, MP_PER_BLOCK
- * Constants about how HP and MP work
+const int CSET*
+ * Offsets for the initial swatch of each CSet
 
 const int SFX_*
  * Sound effects, can be used with Game->PlaySound.
+ 
+const int SP_*
+ * Default Sprite IDs
 
 const int IC_*
  * Itemclass IDs, can be compared against itemdata->Family
@@ -61,6 +84,18 @@ const int FFCF_*
 
 const int DIR_*
  * Directions, can be used with Link->Dir, npc->Dir, *weapon->Dir
+ 
+const int DEG_DIR_*
+ * Constants for the equivalent to a given direction, in degrees.
+ 
+const int RAD_DIR_*
+ * Constants for the equivalent to a given direction, in radians.
+ 
+const int FLIP_*, int ROT_*
+ * Flip and rotation used by sprites and tiles. 
+ 
+const int EXT_*
+ * Extend types.
 
 const int CF_*
  * Combo Flags, can be used with Screen->ComboF[], Screen->ComboI[], Game->GetComboFlag, Game->SetComboFlag,
@@ -68,13 +103,46 @@ const int CF_*
 
 const int CT_*
  * Combo Types, can be used with Screen->ComboT[], Game->GetComboType, Game->SetComboFlag
+ 
+const int CB_*
+ * Controller buttons.
 
 const int IP_*
  * Item Pickup Flags, can be used with item->Pickup, GetItemPickup, SetItemPickup
 
 const int SF_*
  * Screen Flag Categories, can be used with Screen->Flags, GetScreenFlags
+ 
+const int SFR_*
+ * Room types.
 
+const int SFV_*
+ * Screen View Flags
+
+const int SFS_* 
+ * Screen Secret Flags
+ 
+const int SFW_*
+ * Screen Warp Flags
+ 
+const int SFI_*
+ * Screen Item Flags
+ 
+const int SFC_*
+ * Sreen Combo Flags
+ 
+const int SFSV_*
+ * Screen save flags
+ 
+const int SFF_*
+ * Screen FFC Flags
+ 
+const int SFW_*
+ * Screen Whistle Flags
+ 
+const int SFM_* 
+ * Screen Misc. Flags
+ 
 const int SEF_*
  * Screen Enemy Flag Categories, can be used with Screen->EFlags, GetScreenEFlags
 
@@ -89,12 +157,18 @@ const int NPCD_*
 
 const int NPCDT_*
  * NPC Defense types, can be used to compare against npc->Defense[]
+ 
+cons int NPCA_*
+ * NPC Attribute Indices, and Values for each type of Attribute, segregated by NPC type.
 
 const int DS_*
  * Draw Styles, can be used with item->DrawStyle
 
 const int WT_*
  * Warp Types, can be used with Screen->SetSideWarp, Screen->SetTileWarp
+ 
+const int TILEWARP_*, int SIDEWARP_*
+ * IDs of tile warps and side warps. 
 
 const int FONT_*
  * Font Types, can be used with Screen->DrawCharacter, Screen->DrawString, Screen->DrawInteger
@@ -147,7 +221,43 @@ const int SL_*
 const int MB_*
  * Mouse Buttons, can be used with Link->InputMouseB
  
+const int CB_*
+ * Controller input buttons
+ 
+const int NPCSF_*
+* NPC Spawn Flags
 
+const int NPCM_*
+* NPC Misc. Flags
+ 
+ const int SFM__*
+* Misc. Screen Flags
+
+const int CSET_*
+ * Values for the first colour in each CSet
+
+const int SPRITE_*
+  * Values for all default sprites
+ 
+const int AT_*
+ * Aim types for use with AimEWeapon()
+
+const int TEX_BITMAP
+ * Drawing texture Mode (2.50.3 experimental, and later)
+
+//Constants for AdjacentCombo()
+
+const int CMB_UPLEFT    = 0;
+const int CMB_UP        = 1;
+const int CMB_UPRIGHT   = 2;
+const int CMB_RIGHT     = 3;
+const int CMB_DOWNRIGHT = 4;
+const int CMB_DOWN      = 5;
+const int CMB_DOWNLEFT  = 6;
+const int CMB_LEFT      = 7;
+const int CMB_LEFTUP    = 0;
+ 
+ 
 =================
 --- Functions ---
 =================
@@ -530,35 +640,51 @@ bool ComboFI(int loc, int flag)
  * inherent or placed flag of type 'flag'
 
 int GetLayerComboD(int layer, int pos)
- * A shorthand way to get a combo on the current layer.
+ * A shorthand way to get a combo on the specified layer.
  * Layer 0 is the screen itself.
 
 void SetLayerComboD(int layer, int pos, int combo)
- * A shorthand way to set a combo on the current layer.
+ * A shorthand way to set a combo on the specified layer.
  * Layer 0 is the screen itself.
 
 int GetLayerComboF(int layer, int pos)
- * A shorthand way to get a combo flag on the current layer.
+ * A shorthand way to get a combo flag on the specified layer.
  * Layer 0 is the screen itself.
 
 void SetLayerComboF(int layer, int pos, int flag)
- * A shorthand way to set a combo flag on the current layer.
+ * A shorthand way to set a combo flag on the specified layer.
  * Layer 0 is the screen itself.
 
 int GetLayerComboT(int layer, int pos)
- * A shorthand way to get a combo type on the current layer.
+ * A shorthand way to get a combo type on the specified layer.
  * Layer 0 is the screen itself.
 
 void SetLayerComboT(int layer, int pos, int type)
- * A shorthand way to set a combo type on the current layer.
+ * A shorthand way to set a combo type on the specified layer.
  * Layer 0 is the screen itself.
 
 int GetLayerComboS(int layer, int pos)
- * A shorthand way to get a combo's solidity on the current layer.
+ * A shorthand way to get a combo's solidity on the specified layer.
  * Layer 0 is the screen itself.
 
 void SetLayerComboS(int layer, int pos, int solidity)
- * A shorthand way to set a combo's solidity on the current layer.
+ * A shorthand way to set a combo's solidity on the specified layer.
+ * Layer 0 is the screen itself.
+ 
+int GetLayerComboI(int layer, int pos)
+ * A shorthand way to get a combo inherent flag on the specified layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboI(int layer, int pos, int flag)
+ * A shorthand way to set a combo inherent flag on the specified layer.
+ * Layer 0 is the screen itself.
+
+int GetLayerComboC(int layer, int pos)
+ * A shorthand way to get a combo's CSet on the specified layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboC(int layer, int pos, int cset)
+ * A shorthand way to set a combo's CSet on the specified layer.
  * Layer 0 is the screen itself.
 
 int FirstComboOf(int t, int layer)
@@ -619,7 +745,10 @@ void Waitframes(int n)
  * Wait for 'n' frames
 
 void NoAction()
- * Kills all of Link's inputs
+ * Kills all of Link's inputs, including those from the analogue stick.
+ 
+void NoAction(bool analogue_stick)
+* As NoAction() but the analoge stick is not killed by default. 
 
 void WaitNoAction()
 void WaitNoAction(int frames)
@@ -654,4 +783,177 @@ bool IsSideview()
 int DMapToMap(int screen, int dmap)
 int MapToDMap(int screen, int dmap)
  * Convert between map and DMap screen coordinates
+
+ -- New Functions ( 2.53.0 ) -- 
+ ==============================
+
+int GetLayerComboI(int layer, int pos)
+ * A shorthand way to get a combo inherent flag on the specified layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboI(int layer, int pos, int flag)
+ * A shorthand way to set a combo inherent flag on the specified layer.
+ * Layer 0 is the screen itself.
+
+int GetLayerComboC(int layer, int pos)
+ * A shorthand way to get a combo's CSet on the specified layer.
+ * Layer 0 is the screen itself.
+
+void SetLayerComboC(int layer, int pos, int cset)
+ * A shorthand way to set a combo's CSet on the specified layer.
+ * Layer 0 is the screen itself.
+ 
+bool InputMiddleClick()
+ * Returns true if the middle mouse button is pressed. 
+ * Note that not all mice have a middle button. 
+  
+int DirAngle(int dir);
+ * Returns angle of the given direction.
+
+int Dir4Angle(int dir);
+ * Returns angle of the given direction.
+
+int DirRad(int dir);
+ * Same as DirAngle, but return value is measured in radians.
+
+int Dir4Rad(int dir);
+ * Same as Dir4Angle, but return value is measured in radians.
+
+bool IsDungeonFlag();
+ * Returns true if Link is on a Dungeon (flagged) screen
+
+bool IsInteriorFlag();
+ * Returns true if Link is on an Interior (flagged) screen
+
+int HasTriforce(int level);
+ * Returns if Link has the Triforce piece for a given level.
+
+int HasCompass(int level);
+ * Returns if Link has the compass for a given level.
+
+int HasMap(int level);
+ * Returns if Link has the map for a given level.
+
+int HasBossKey(int level);
+ * Returns if Link has the map for a given level.
+
+int DefeatedLevelBoss(int level);
+ * Returns if Link has defeated the dungeon boss for a given level.
+
+int ScreenItem();
+ * Returns the item ID for the current screen, if there is one. 
+ 
+int NumTriforcePieces(int maxlevel);
+ * Returns the number of Triforce Pieces Link currently has.
+ * Specify the highest level in your game with arg 'maxlevel'.
+
+void CounterAdd(int counter, int amount);
+ * Add to a counter without rollover.
+
+void CounterReduce(int counter, int amount);
+ * Reduce a counter without rollvoer. 
+
+void MCounterAdd(int counter, int amount);
+ * Add to a counter max without rollover.
+
+void MCounterReduce(int counter, int amount);
+ * Reduce a counter max without rollvoer. 
+
+void DCounterAdd(int counter, int amount);
+ * Add to a drain counter without rollover.
+
+void DCounterReduce(int counter, int amount);
+ * Reduce a drain counter without rollvoer. 
+ 
+ 
+ ============================
+ --  Bug Fixes ( 2.53.0 )  --
+ ============================
+ 
+SquareCollision now properly uses 'side2' arg for its calculation. (Bugfix)
+
+
+ 
+ =============================
+ -- New Includes ( 2.53.0 ) --
+ =============================
+ std.zh now includes some new files, that you will want to review. THe outline, scope, and purpose of 
+ the new expansions is outlined below.
+ 
+/******************
+* std.zh Settings *
+*******************/
+
+std.zh now includes a SETTINGS FILE ( std.cfg ) that has a few options
+that you may enable, if you wish to change the behaviour of std.zh at compilation
+for your quests. These settings are disbaled by default, and affect only a handful of
+minimal mechanical differences as follows:
+
+
+/*********************/
+*   STRING HANDLING   * 
+/*********************/
+
+string.zh is embedded by default. This will *not* interfere with EXISTING calls to: import "string.zh".
+Furthermore, string.zh has been expanded, now consisting of string_constants.zh and string_functions.zh, with
+new functions, and a complete map of ASCII values (as constants).
+
+/*********************/
+*    LOCALISATION    * 
+/*********************/
+
+
+std.zh now includes some basic local support. These files are in */locale/std_std_'language'.zh, 
+and contain constants, and functions in other laguages. The base included locale file at this time
+is 'UK/International English', with more to follow. 
+
+
+/*************************/
+*    GENERAL-USE ARRAY   * 
+/*************************/
+
+float GlobalRAM[4096]
+ * A base, general-purpose array with a size of 4096, and a float type. 
+ 
+std.zh now includes ONE BASE ARRAY with a float type. This is to allow users who are not versed in ZScript 
+from avoiding a pitfall of either running out of global vars, by allowing you easy use of one global array
+and getter/setter functions to modify it.
+
+Furthermore, it prevents being unable to modify a quest, after releasing it, by ensuring that there is a general
+use array for expansion. The array is in std_vars.zh, and if you wish to, you may comment out this import directive
+instruction in std.zh to prevent loading the general use array, and the functions associated with it.
+
+The following functions are in the std_vars.zh file, for use with the general-use array:
+
+float GetV(int index)
+* Returns the value of the Nth 'index' of the general use array stdArray[];
+
+void SetV(int index, int value)
+* Sets the value of stdArray['index'] to 'value'.
+
+void IncV(int index)
+* Increases an index value: Equivalent to doing stdArray['index']++  
+
+void IncV(int index, int value)
+* Increases the value of stdArray['index'] by 'value'.
+
+void DecV(int index)
+* Decreases an index value: Equivalent to doing stdArray['index']--  
+
+void DecV(int index, int value)
+* Decreases the value of stdArray['index'] by 'value'.
+
+
+/*************************/
+*   SHORTCUTS & MACROS   * 
+/*************************/
+
+The file std_shortcuts.zh includes many useful, time-saving shortcut functions that are equivalent to calling
+normal ZScript functions, except that the user need not worry about the left-of-the-arrow operator. 
+
+For example, Screen->Rectangle() can now be called simply as Rectangle() using this include. 
+
+Please review this file, and the documentation for it (std_shortcuts.txt) for more information on its use,
+and on the functions contained therein. 
+
 

@@ -1,0 +1,143 @@
+ChangeLog for 2.53.0 Beta 10
+25-SEPT-2017
+
+Removed an extra constant declaration in std_functions.zh.
+Changed the 'Import Script]' file selection dialogue. It now shows files with types of .zh, .zs, .zlib,
+.zscript, and a few other minor typed used by the userbase, rather than solely showing '.z' files. ( ZoriaRPG, 24th September, 2017 )
+
+Refactored the sanity checks for Game->Get/SetCombo* (except for SetComboSolid). These functions will now report
+any invalid refs passed to them (invalid map, screen, position) to allegro.log and abort, or return -1 to the user. 
+The prior code either allowed passing an invalid ref, or never informed the user that it was invalid. ( ZoriaRPG, 23rd September, 2017 )
+
+Modified GetHighestLevelitem() in std.zh, to use a setting in std.cgf: This setting determines the highest item ID
+that GetHighestlevelitem() will check, rather than one version stopping at 143, and another at 255. ( ZoriaRPG, 22nd September, 2017 )
+
+Added a somewhat hackish fix for dungeon maps displaying when Link does not have them, during scrolling warps. ( ZoriaRPG, 22nd September, 2017 )
+
+Fixed issue with NPCs behaving as if they were drunk. ( Gleeok, 21st September, 2017 )
+
+Fixed issues with flying/floating/teleporting NPCS. ( Gleeok, 20th September, 2017 )
+
+Slightly adjusted left and right doors in 8-way movement. ( ZoriaRPG, 20th September, 2017 )
+
+Removed std_constants_shortcuts.zh from std.zh.
+Removed extra (unintended) array 'GlobalBuggr[214747] from std.zh. 
+Fixed some issues with NPCA_* constants. 
+Added NPC Attribute constants for all npc types, and every field with a lister.
+Fixed values for Direction to Degree and Radian conversions in std_functions and std_constants. ( ZoriaRPG )
+
+Fixed a bug where Link's weapons hurting him, in water, would cause buggy (uncontrolled) movement or land-swimming. ( DarkDragon ) 
+
+Fixed NES Dungeon Doors with diagonal movement. ( ZoriaRPG )
+
+Fixed a crash when using arrow and bow subscreen objects. ( Saffith )
+
+Updated qst.dat. Now, new quests will autosave, if you have timed save, or quest backup enabled. The error 'This quest
+was created in an older version of ZQuest' will no longer appear on new quests. ZoriaRPG, 1st September, 2017 )
+
+Applied a fix for numerous packfil_password() related problems. 
+Fixed PNG saving in ZQuest. ( ZoriaRPG, 1st September, 2017 )
+
+Re-added New favourite commands, for Quest Reports (Combo Locations, Combo Type Locations, Enemy Locations, Integrity Check
+Item Locations, Script Locations, and What Links Here) to the Favourite Commands list. (This was in 2.future, but never
+ported to orthodox ZQuest.) ( ZoriaRPG, 1st September, 2017 )
+
+Fixed file selection dialogues in Zelda Classic. After selecting a quest in the Load Quest dialogue, the default button
+is now 'OK', rather than browse, so hitting the enter key after selecting a file does not put you into a file select loop.
+This was likewise something that I did before, but it was somehow lost in various commits. ( ZoriaRPG, 1st September, 2017 )
+
+Unfixed buggy wizzrobe compat issue. Proper fix is still pending... ( Gleeok, 28th August, 2017 )
+
+//Beta 7
+
+Initial update of ZLaunch, to add a ROMView launch button.
+Fixed a bug where the Tile Editor refused to load image files on the first attempt. ( ZoriaRPG, 27th August 2017 )
+
+Fixed a crash when loading corrupt 2.50.2 (and earlier) quest data; and recompiling scripts. ( DarkDragon, 25th August, 2017 )
+
+Fixed crash when viewing Compatibility Quest Rules. ( ZoriaRPG, 20th August, 2017 )
+
+Fixed a bug where the lens of truth stole the script of the last item used, and ran it every frame. ( ZoriaRPG, 20th August, 2017 )
+
+New Allegro libraries using Allegro 4.4.3, with some patches.
+Fixed issues with the infinite wallet.
+Fixed Link's attack not being cancelled when he is frozen.
+Fixed the race condition issue with keyboard input in Allegro 4.4.3. ( DarkDragon, 13th August, 2017 )
+
+Fixed an issue with scrolling between land and water. ( DarkDragon, 11th August, 2017 )
+
+Fixed an issue where the subscreen did not always update, by checking item validity when changing dmaps. ( DarkDragon, 10th August, 2017 )
+
+Reverted the quest rule for COMBOSDM. We'll come back to this, later. ( DarkDragon )
+Added compatibility rule for old quests that rely on screen item pick-up disabling hunger, for old quests. ( DarkDragon, 21st July, 2017 )
+
+//Beta 6
+Added a few functions to std.zh. ( ZoriaRPG, July 2017 )
+
+Fixed a bug in ZQuest that was corrupting ag.cfg. ( DarkDragon; and ZoriaRPG, July, 2017 )
+
+Fixed a bug where MIDI files could not be loaded in ZQuest. ( DarkDragon, July 2017 )
+
+Updated std.zh to 2.50.3 version, plus some rearranging in a std_zh path.
+Updated all included headers to their current versions. 
+Pruned some files.
+Unlocked 1st.qst and 2nd.qst. ( ZoriaRPG, 11th July, 2017 )
+
+Fixed incorrect types for CollDetection and some other boolean return variables in ZScript. 
+    This includes Link->CollDetection, Link->Invisible, npc->CollDetection, lweapon->CollDetection and 
+    eweapon->CollisionDetection ( ZoriaRPG, 2nd July, 2017 )
+
+Seem to have fixed reported bug of ZC crashing if the user shifts focus when assigning joypad buttons. 
+In any case, I can not replicate it in this build, and I did change a read_button function that was a bit bonkers. ( ZoriaRPG, 2nd July, 2017 )
+	
+ZC and ZQuest now use Allegro 4.4. (DarkDragon, 2nd July, 2017)
+
+Fixed 3rd quest with zero deaths not going to 5th quest. ( ZoriaRPG, 20th June, 2017 )
+
+Reverted COMBOSDM change made by Saffith, as it caused different bugs with older players. 
+This is properly fixed in 2.51+. ( ZoriaRPG, 20th June 2017 )
+
+Fixed long-standing bug where setting Link->Item every frame causes lag. ( ZoriaRPG, May 2017 )
+
+Fixed lweapon->Behind not working. ( ZoriaRPG, May 2017 )
+
+Fixed ffc->Link being unable to be cleared, or otherwise set to 0 ( ZoriaRPG, May 2017 )
+
+Fixed scale args for DrawChar() and DrawInteger(): Both of these now scale per zscript.txt documentation. ( ZoriaRPG, Jan 2017 )
+
+Zelda Classic Menus: Added Etc->Show Debug Console. This opens the Allegro debug console or closes it if it is open. ( ZoriaRPG, Jan 2017 )
+
+ZScript Variables in scope are destroyed when their scope exits. ( DarkDragon, Jan 2017 )
+
+Fixed long-standing keyboard issues with alt+tab, and hopefully) issues with the keyboard losing focus. (DD/Z, Dec 2016-Jan 2017)	
+
+Added a checkbox to disable analog stick movement.
+Changed joystick config dialogues to match keyboard config dialogues. 
+Added more joystick options to ag.cfg. 
+Small fixes to joystick input. 
+Fixed minor issues in key config dialogues. ( Saffith, 18-Dec-2016 )
+
+Additional fixes with Link exiting water. ( Saffith, 15-Dec-2016 )
+
+Fixed an invalid read in draw_wavy(). ( Saffith, 14-Dec-2016 )
+
+Fixed Link's position being offset improperly on continue when quakeclk > 0. 
+Ensure overscan rectangle is black while the screen is shaking. 
+Fixed an issue with Link exiting water. 
+Fixed Stone of Agony sensitivity. ( Saffith, 11-Dec-2016 )
+
+Fixed an issue where bitmaps may be drawn improperly based on ZQuest version. 
+
+Fixed incorrect screen calculation and possible crash in warp with combos that carry over. ( Saffith, 6-Dec-2016 )
+
+Global script OnExit now works. In prior versions, this script did not run. 
+
+Fixed a crash when loading a sfx file with more than 35 chars or without any extension. ( Gleeok, 2015-12-30 01:05:05 )
+
+Fixed negative constants being read incorrectly.
+Fixed incorrect screen calculation and possible crash in Game->SetComboSolid(). ( Saffith, 2015-12-19 19:41:38 )
+
+Fixed a crash when importing combos. ( Saffith, 2015-11-27 09:30:31 )     
+
+Replaced the built-in MIDIs with versions edited by zaphod77 to sound more like the NES game. ( Saffith, 2015-10-14 10:41:20 )
+

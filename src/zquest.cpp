@@ -19032,7 +19032,7 @@ int onCompileScript()
                 zScript.clear();
             }
             
-            if(!getname("Load ZScript (.z)","z",NULL,datapath,false))
+            if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
                 break;
                 
             FILE *zscript = fopen(temppath,"r");

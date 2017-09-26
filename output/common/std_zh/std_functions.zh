@@ -1,5 +1,5 @@
 //std_functions.zh
-//
+//10th September, 2017 for ZC 2.53.0
 
 
 //
@@ -361,6 +361,8 @@ void SetLayerComboS(int layer, int pos, int solidity) {
     Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
 }
 
+
+
 //Copies the combos and csets from one screen to another.
 //Only copies layer 0!
 void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr) {
@@ -690,7 +692,7 @@ bool RectCollision(int box1_x1, int box1_y1, int box1_x2, int box1_y2, int box2_
 
 //Check for collisions of two squares given upper-left coordinates and a side length for each.
 bool SquareCollision(int c1x, int c1y, int side1, int c2x, int c2y, int side2) {
-  return RectCollision(c1x, c1y, c1x+side1, c1y+side1, c2x, c2y, c2x+side1, c2y+side1);
+  return RectCollision(c1x, c1y, c1x+side1, c1y+side1, c2x, c2y, c2x+side2, c2y+side2);
 }
 
 //Check for collisions of two squares given center coordinates and a halved side length for each.
@@ -1183,14 +1185,6 @@ eweapon NextToNPC(npc n, int id, int dist) {
 }
 
 
-//Aim-type constants, for use with AimEWeapon
-const int AT_NONE			= 0;
-const int AT_4DIR			= 1;
-const int AT_8DIR			= 2;
-const int AT_ANGULAR		= 3;
-const int AT_RAND4DIR		= 4;
-const int AT_RAND8DIR		= 5;
-const int AT_RANDANGULAR	= 6;
 
 //Various methods for shooting at Link and at random
 void AimEWeapon(eweapon e, int aimtype)
@@ -1701,13 +1695,15 @@ itemdata GetItemData(item i)
 	return Game->LoadItemData(i->ID);
 }
 
+
+
 int GetHighestLevelItem(int itemclass)
 {
 	itemdata id;
 	int ret = -1;
 	int curlevel = -1000;
 	//143 is default max items, increase if you add lots of your own
-	for(int i = 0; i < 143; i++)
+	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; i++)
 	{
 		id = Game->LoadItemData(i);
 		if(id->Family != itemclass)
@@ -1728,7 +1724,7 @@ int GetHighestLevelItem(item i)
 	int curlevel = argid->Level;
 	itemdata id;
 	//143 is max items, decrease to improve speed if you need to
-	for(int i = 0; i < 256; i++)
+	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; i++)
 	{
 		id = Game->LoadItemData(i);
 		if(id->Family != argid->Family)
@@ -1751,3 +1747,199 @@ int MapToDMap(int screen, int dmap) {
     return screen-Game->DMapOffset[dmap];
 }
 
+//2.53.0
+
+//Returns angle of the given direction.
+int DirAngle(int dir){
+	//dir &=7; //I do not recall why this is here. Removing it as it seems extraneous. -Z
+	if (dir==DIR_UP) return DEG_DIR_UP;
+	if (dir==DIR_DOWN) return DEG_DIR_DOWN;
+	if (dir==DIR_LEFT) return DEG_DIR_LEFT;
+	if (dir==DIR_RIGHT) return DEG_DIR_RIGHT;
+	if (dir==DIR_LEFTUP) return DEG_DIR_LEFTUP;
+	if (dir==DIR_RIGHTUP) return DEG_DIR_RIGHTUP;
+	if (dir==DIR_LEFTDOWN) return DEG_DIR_LEFTDOWN;
+	if (dir==DIR_RIGHTDOWN) return DEG_DIR_RIGHTDOWN;
+	return -1;
+}
+
+//Returns angle of the given direction.
+int Dir4Angle(int dir){
+	//dir &=7;
+	if (dir==DIR_UP) return DEG_DIR_UP;
+	if (dir==DIR_DOWN) return DEG_DIR_DOWN;
+	if (dir==DIR_LEFT) return DEG_DIR_LEFT;
+	if (dir==DIR_RIGHT) return DEG_DIR_RIGHT;
+	return -1;
+}
+
+//Same as DirAngle, but return value is measured in radians.
+int DirRad(int dir){
+	//dir &=7;
+	if (dir==DIR_UP) return RAD_DIR_UP;
+	if (dir==DIR_DOWN) return RAD_DIR_DOWN;
+	if (dir==DIR_LEFT) return RAD_DIR_LEFT; //Pi
+	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
+	if (dir==DIR_LEFTUP) return RAD_DIR_LEFTUP;
+	if (dir==DIR_RIGHTUP) return RAD_DIR_RIGHTUP;
+	if (dir==DIR_LEFTDOWN) return RAD_DIR_LEFTDOWN;
+	if (dir==DIR_RIGHTDOWN) return RAD_DIR_RIGHTDOWN;
+	return -1;
+} 
+
+//Same as Dir4Angle, but return value is measured in radians.
+int Dir4Rad(int dir){
+	if (dir==DIR_UP) return RAD_DIR_UP;
+	if (dir==DIR_DOWN) return RAD_DIR_DOWN;
+	if (dir==DIR_LEFT) return RAD_DIR_LEFT;
+	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
+	return -1;
+} 
+
+//A shorthand way to get a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboC(int layer, int pos) {
+  if (layer==0)
+    return Screen->ComboC[pos];
+  else if(Screen->LayerMap(layer)<0)
+    // Special case for this one: return 0 if there's no layer
+    return 0;
+  else
+    return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboC(int layer, int pos, int solidity) {
+  if (layer == 0)
+    Screen->ComboC[pos] = solidity;
+  else
+    Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
+}
+
+//A shorthand way to get a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboI(int layer, int pos) {
+  if (layer==0)
+    return Screen->ComboI[pos];
+  else if(Screen->LayerMap(layer)<0)
+    // Special case for this one: return 0 if there's no layer
+    return 0;
+  else
+    return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboI(int layer, int pos, int solidity) {
+  if (layer == 0)
+    Screen->ComboI[pos] = solidity;
+  else
+    Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
+}
+
+//Returns true if Link is on a Dungeon (flagged) screen
+bool IsDungeonFlag() {
+	return Screen->Flags[SF_ROOMTYPE] & 1;
+}
+
+//Returns true if Link is on an Interior (flagged) screen
+bool IsInteriorFlag() {
+	return Screen->Flags[SF_ROOMTYPE] & 2;
+}
+
+
+//Returns if Link has the Triforce piece for a given level.
+int HasTriforce(int level){
+        if(Game->LItems[level]&LI_TRIFORCE) return 1;
+	return 0;
+}
+
+//Returns if Link has the compass for a given level.
+int HasCompass(int level){
+        if(Game->LItems[level]&LI_COMPASS) return 1;
+	return 0;
+}
+
+//Returns if Link has the map for a given level.
+int HasMap(int level){
+        if(Game->LItems[level]&LI_MAP) return 1;
+	return 0;
+}
+
+//Returns if Link has the map for a given level.
+int HasBossKey(int level){
+        if(Game->LItems[level]&LI_BOSSKEY) return 1;
+	return 0;
+}
+
+//Returns if Link has defeated the dungeon boss for a given level.
+int DefeatedLevelBoss(int level){
+        if(Game->LItems[level]&LI_BOSS) return 1;
+	return 0;
+}
+
+//Returns the item ID for the current screen, if there is one. 
+int ScreenItem(){
+	if ( Screen->RoomType == RT_SPECIALITEM ) return Screen->RoomData;
+	return -1;
+}
+
+//Returns the number of Level Keys Link currently has for a specific level
+//int NumTriforcePieces(int level){
+  //  int ret = 0;
+    //for(int i=1;i<=8;i++)
+      //  if(Game->LItems[level]&LI_TRIFORCE) ret++;
+    //return ret;
+//}
+
+//Returns the number of Triforce Pieces Link currently has.
+//Specify the highest level in your game with arg 'maxlevel'.
+int NumTriforcePieces(int maxlevel){
+    int ret = 0;
+    for(int i=1;i<=maxlevel;i++)
+        if(Game->LItems[i]&LI_TRIFORCE) ret++;
+    return ret;
+}
+
+
+//Add to a counter without rollover.
+void CounterAdd(int counter, int amount){
+	if ( amount + Game->Counter[counter] > MAX_COUNTER ) Game->Counter[counter] = MAX_COUNTER;
+	else Game->Counter[counter] += amount;
+}
+
+//Reduce a counter without rollvoer. 
+void CounterReduce(int counter, int amount){
+	if ( Game->Counter[counter] - amount < 0 ) Game->Counter[counter] = 0; 
+	else Game->Counter[counter] -= amount;
+}
+
+//Add to a counter max without rollover.
+void MCounterAdd(int counter, int amount){
+	if ( amount + Game->MCounter[counter] > MAX_COUNTER ) Game->MCounter[counter] = MAX_COUNTER;
+	else Game->MCounter[counter] += amount;
+}
+
+//Reduce a counter max without rollvoer. 
+void MCounterReduce(int counter, int amount){
+	if ( Game->MCounter[counter] - amount < 0 ) Game->MCounter[counter] = 0; 
+	else Game->MCounter[counter] -= amount;
+}
+
+//Add to a drain counter without rollover.
+void DCounterAdd(int counter, int amount){
+	if ( amount + Game->DCounter[counter] > MAX_COUNTER ) Game->DCounter[counter] = MAX_COUNTER;
+	else Game->MCounter[counter] += amount;
+}
+
+//Reduce a drain counter without rollvoer. 
+void DCounterReduce(int counter, int amount){
+	if ( Game->DCounter[counter] - amount < (MAX_COUNTER * -1) ) Game->DCounter[counter] = (MAX_COUNTER * -1); 
+	else Game->DCounter[counter] -= amount;
+}
+
+//Returns true if the central mouse button (if equipped) is pressed
+bool InputMiddleClick() {
+	return (Link->InputMouseB&MB_MIDDLECLICK) != 0;
+}
