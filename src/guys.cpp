@@ -330,7 +330,7 @@ enemy::enemy(fix X, fix Y, const EnemyDefinitionRef &ref, int Clk) : sprite(*poo
     dmiscs[13]=d.miscs[13];
     dmiscs[14]=d.miscs[14];
     
-    for(int i=0; i<edefLAST; i++)
+    for(int i=0; i<edefLAST255; i++)
         defense[i]=d.defense[i];
 	
     bgsfx=d.bgsfx;
