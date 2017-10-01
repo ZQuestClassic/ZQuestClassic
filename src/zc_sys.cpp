@@ -4547,6 +4547,12 @@ int onClickToFreeze()
 int onDebugConsole()
 {
 	if ( !zconsole ) {
+		
+		char buf[100];
+		jwin_alert("WARNING: Closing the Debug Console", "WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", "To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
+		buf, "O&K", NULL, 'o', 0, lfont);
+		
+		
 		DebugConsole::Open();
 
 		zconsole = true;
