@@ -2589,28 +2589,33 @@ else \
     
 ///----------------------------------------------------------------------------------------------------//
 //Game->GetComboX
+    
+    
     case COMBODDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-	int m = (ri->d[1]/10000)-1;
-        //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	//int m = (ri->d[1]/10000)-1;
+	//long scr = m*MAPSCRS+sc;
+        int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	int layr = whichlayer(scr);
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Game->GetComboData: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Game->GetComboData: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->GetComboData: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->GetComboData: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->GetComboData: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->GetComboData: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -2619,9 +2624,7 @@ else \
 	}
         
 	else{
-	    //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-	    long scr = m*MAPSCRS+sc;
-		int layr = whichlayer(scr);
+	   
 	    if(scr==(currmap*MAPSCRS+currscr))
 		ret=tmpscr->data[pos]*10000;
 	    else if(layr>-1)
@@ -2632,28 +2635,56 @@ else \
     }
     break;
     
+    /*
+    //2.50.1-2 version. 
+    case COMBODDM:
+    {
+        int pos = (ri->d[0])/10000;
+        int sc = (ri->d[2]/10000);
+        int m = zc_max((ri->d[1]/10000)-1,0);
+        long scr = zc_max(m*MAPSCRS+sc,0);
+        int layr = whichlayer(scr);
+        
+        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        {
+            if(scr==(currmap*MAPSCRS+currscr))
+                ret=tmpscr->data[pos]*10000;
+            else if(layr>-1)
+                ret=tmpscr2[layr].data[pos]*10000;
+            else ret=TheMaps[scr].data[pos]*10000;
+        }
+        else
+            ret = 10000;
+    }
+    break;
+    */
+    //GetComboCSet
    case COMBOCDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
-	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	//int m = (ri->d[1]/10000)-1;
+	    int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	    long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	    //long scr = m*MAPSCRS+sc;
+		
+            int layr = whichlayer(scr);
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Game->GetComboCSet: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Game->GetComboCSet: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->GetComboCSet: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->GetComboCSet: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->GetComboCSet: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->GetComboCSet: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -2663,9 +2694,7 @@ else \
         
 	else
 	{
-            long scr = m*MAPSCRS+sc;
-		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-            int layr = whichlayer(scr);
+            
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
             else if(layr>-1)
@@ -2680,24 +2709,27 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
-	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+        //int m = (ri->d[1]/10000)-1;
+	int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	//    long scr = m*MAPSCRS+sc;
+	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+            int layr = whichlayer(scr);
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Game->GetComboFlag: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Game->GetComboFlag: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->GetComboFlag: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->GetComboFlag: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->GetComboFlag: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->GetComboFlag: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -2707,9 +2739,7 @@ else \
         
 	else
 	{
-            long scr = m*MAPSCRS+sc;
-		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-            int layr = whichlayer(scr);
+            
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
             else if(layr>-1)
@@ -2724,24 +2754,27 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
-	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+        //int m = (ri->d[1]/10000)-1;
+	int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	//long scr = m*MAPSCRS+sc;
+	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	int layr = whichlayer(scr);
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Game->GetComboType: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Game->GetComboType: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->GetComboType: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->GetComboType: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->GetComboype: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->GetComboype: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -2751,9 +2784,8 @@ else \
         
 	else
 	{
-            long scr = m*MAPSCRS+sc;
-		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-            int layr = whichlayer(scr);
+            
+            
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
             else if(layr>-1)
@@ -2769,24 +2801,27 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
-	     //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+        //int m = (ri->d[1]/10000)-1;
+	int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	//long scr = m*MAPSCRS+sc;
+	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	int layr = whichlayer(scr);
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Game->GetComboInherentFlag: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Game->GetComboInherentFlag: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->GetComboInherentFlag: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->GetComboInherentFlag: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->GetComboInherentFLag: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->GetComboInherentFLag: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -2797,9 +2832,8 @@ else \
         
         else
         {
-            long scr = m*MAPSCRS+sc;
-		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-            int layr = whichlayer(scr);
+            
+            
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
             else if(layr>-1)
@@ -2813,24 +2847,27 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-	    int m = (ri->d[1]/10000)-1;
-         //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	//int m = (ri->d[1]/10000)-1;
+	int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	//long scr = m*MAPSCRS+sc;
+	int layr = whichlayer(scr);
 	bool err_input_found; 
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Game->GetComboSolid: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Game->GetComboSolid: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->GetComboSolid: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->GetComboSolid: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->GetComboSolid: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->GetComboSolid: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -2840,9 +2877,7 @@ else \
         
         else
         {
-            //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-	    long scr = m*MAPSCRS+sc;
-            int layr = whichlayer(scr);
+            
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
             else if(layr>-1)
@@ -4702,6 +4737,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
 ///----------------------------------------------------------------------------------------------------//
 //Game->SetComboX
+
+/*
     case COMBODDM:
     {
         int pos = (ri->d[0])/10000;
@@ -4711,19 +4748,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Screen->SetComboData: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Screen->SetComboData: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->SetComboData: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->SetComboData: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->SetComboData: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->SetComboData: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -4732,7 +4769,42 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
         
         //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-	    long scr = m*MAPSCRS+sc;
+	   long scr = m*MAPSCRS+sc;
+        if(scr==(currmap*MAPSCRS+currscr))
+            screen_combo_modify_preroutine(tmpscr,pos);
+            
+        TheMaps[scr].data[pos]=value/10000;
+        
+        if(scr==(currmap*MAPSCRS+currscr))
+        {
+            tmpscr->data[pos] = value/10000;
+            screen_combo_modify_postroutine(tmpscr,pos);
+        }
+        
+        int layr = whichlayer(scr);
+        
+        if(layr>-1)
+        {
+            //if (layr==(currmap*MAPSCRS+currscr))
+            //  screen_combo_modify_preroutine(tmpscr,pos);
+            tmpscr2[layr].data[pos]=value/10000;
+            //if (layr==(currmap*MAPSCRS+currscr))
+            //  screen_combo_modify_postroutine(tmpscr,pos);
+        }
+    }
+    break;
+*/
+//2.50.1-2 version
+//SetComboData
+    case COMBODDM:
+    {
+        int pos = (ri->d[0])/10000;
+        int sc = (ri->d[2]/10000);
+        int m = zc_max((ri->d[1]/10000)-1,0);
+        long scr = zc_max(m*MAPSCRS+sc,0);
+        
+        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
             
@@ -4766,19 +4838,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Screen->SetComboCSet: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Screen->SetComboCSet: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->SetComboSet: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->SetComboSet: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->SetComboSet: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->SetComboSet: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -4806,22 +4878,24 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
 	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
+	    long scr = m*MAPSCRS+sc;
+	//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Screen->SetComboFlag: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Screen->SetComboFlag: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->SetComboFlag: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->SetComboFlag: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->SetComboFlag: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->SetComboFlag: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -4830,8 +4904,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
 
         
-        long scr = m*MAPSCRS+sc;
-	//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+        
         TheMaps[scr].sflag[pos]=value/10000;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -4853,19 +4926,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Screen->SetComboType: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Screen->SetComboType: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->SetComboType: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->SetComboType: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->SetComboType: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->SetComboType: %d \n", pos);
 		err_input_found = true;
 	}
 	
@@ -4907,19 +4980,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
-		al_trace("Invalid Map Reference Passed to Screen->SetComboInherentFlag: \n %d", m);
+		al_trace("Invalid Map Reference Passed to Screen->SetComboInherentFlag: %d \n", m);
 		err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
-		al_trace("Invalid Screen Reference Passed to Screen->SetComboInherentFlag: \n %d", sc);
+		al_trace("Invalid Screen Reference Passed to Screen->SetComboInherentFlag: %d \n", sc);
 		err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
-		al_trace("Invalid Position Reference Passed to Screen->SetComboInherentFlag: \n %d", pos);
+		al_trace("Invalid Position Reference Passed to Screen->SetComboInherentFlag: %d \n", pos);
 		err_input_found = true;
 	}
 	
