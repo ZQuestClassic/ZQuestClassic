@@ -5190,12 +5190,14 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     }
         
+    // LItems is a size of byte. -Z
     case GAMELITEMSD:
-        game->lvlitems[(ri->d[0])/10000]=value/10000;
+        game->lvlitems[(ri->d[0])/10000]=vbound(value/10000, 0, 255);
         break;
         
+    // LKeys is a size of byte. -Z
     case GAMELKEYSD:
-        game->lvlkeys[(ri->d[0])/10000]=value/10000;
+	game->lvlkeys[((ri->d[0])/10000)]=vbound(value/10000, 0, 255);
         break;
         
     case SCREENSTATED:

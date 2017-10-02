@@ -53,8 +53,8 @@ void Game::addTo(Scope& scope) const
 	addPair(lh, GAMEMCOUNTERD, tFloat, "MCounter", 32);
 	addPair(lh, GAMEDCOUNTERD, tFloat, "DCounter", 32);
 	addPair(lh, GAMEGENERICD, tFloat, "Generic", 256);
-	addPair(lh, GAMELITEMSD, tFloat, "LItems", 256);
-	addPair(lh, GAMELKEYSD, tFloat, "LKeys", 256);
+	addPair(lh, GAMELITEMSD, tFloat, "LItems", 512);
+	addPair(lh, GAMELKEYSD, tFloat, "LKeys", 512);
 	addPair(lh, DMAPFLAGSD, tFloat, "DMapFlags", 512);
 	addPair(lh, DMAPLEVELD, tFloat, "DMapLevel", 512);
 	addPair(lh, DMAPCOMPASSD, tFloat, "DMapCompass", 512);
