@@ -1,5 +1,5 @@
 //Docs for 2.53.0
-//Rev. 0.7.3.1; 19th September, 2017
+//Rev. 0.7.3.2; 2nd october, 2017
 
 Search for !#! to find areas that require completion. 
 
@@ -1079,7 +1079,7 @@ float Sqrt(float val);			ZASM Instruction:
 
 /************************************************************************************************************/
 
-	int LItems			ZASM Instruction: 
+	byte LItems			ZASM Instruction: 
 					GAMELITEMSD
 	/**
 	* The exploration items (map, compass, boss key etc.) of dungeon level i
@@ -1087,15 +1087,17 @@ float Sqrt(float val);			ZASM Instruction:
 	* the index used to access this array. Each element of this
 	* array consists of flags OR'd (|) together; use the LI_ constants in
 	* std.zh to set or compare these values.
+	* The valid range of values for this variable is 0 to 255.
 	*/ Example Use: !#!
 
 /************************************************************************************************************/
 
-	int LKeys[];			ZASM Instruction: 
+	byte LKeys[];			ZASM Instruction: 
 					GAMELKEYSD
 	/**
 	* The number of level keys of level i currently under the possession of
 	* the player, where i is the index used to access this array.
+	* The valid range of values for this variable is 0 to 255.
 	*/ Example Use: !#!
 
 /************************************************************************************************************/
@@ -2811,8 +2813,25 @@ void DrawString( 	int layer, int x, int y,
 					BITMAPR
 	
 	/**
-	* Draws a source rect from off-screen Bitmap with id of bitmap_id onto
-	* an area of the screen described by dest rect at the given layer.
+	* The process of copying one bitmap to another, or to the screen, is called a 'BLIT', or 'BLITTING'.
+	* This instruction BLITs a source rect from off-screen (memory) Bitmap with id of bitmap_id onto
+	* an area of the screen (or another bitmap) using a set of rectangular coordinates, at the given layer.
+	*
+	* Use source_x + source_w to define the X axis and source_y + source_h to define the
+	* Y axis of the bitmap area that you wish to draw; then specify the target area using
+	* dest_x + dest_w and dest_y + dest_h. 
+	* 
+	* If source_w and dest_w are not equal, or source_h and dest_h are not equal, the
+	* bitmap will be scaled.
+	*
+	* The valid range of coordinates on a bitmap is 0 tp 511, on each axis. Bitmaps are
+	* 512 pixels square, in size. 
+	*
+	* Rotation defines if the bitmap will be rotated. if so, it will be rotated on its centre 
+	* by a number of DEGREES equal to the value of rotation.
+	*
+	* If you wish to mask out translucent areas of the bitmap when blitting it, set mast true. 
+	*
 	*
 	*	(!) Note* Script drawing functions are enqueued and executed in a frame-by-frame basis 
 	*	based on the order of which layer they need to be drawn to. Drawing to or from
