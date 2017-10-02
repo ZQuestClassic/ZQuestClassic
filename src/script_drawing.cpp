@@ -1297,23 +1297,27 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
     default:
     case 0:
-        sprintf(numbuf,"%d",int(number));
-        break;
+	sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
+        break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
         
     case 1:
         sprintf(numbuf,"%.01f",number);
+	//sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
         break;
         
     case 2:
         sprintf(numbuf,"%.02f",number);
+	//sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
         break;
         
     case 3:
         sprintf(numbuf,"%.03f",number);
+	//sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
         break;
         
     case 4:
         sprintf(numbuf,"%.04f",number);
+	//sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
         break;
     }
     
