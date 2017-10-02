@@ -2403,10 +2403,10 @@ long get_register(const long arg)
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
         break;
-        
+    
     case GAMELKEYSD:
-        ret=game->lvlkeys[(ri->d[0])/10000]*10000;
-        break;
+        ret=game->lvlkeys[((ri->d[0])/10000)]*10000;
+    break; 
         
     case SCREENSTATED:
     {
@@ -2593,7 +2593,8 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
+	int m = (ri->d[1]/10000)-1;
+        //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -2618,8 +2619,9 @@ else \
 	}
         
 	else{
+	    //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
 	    long scr = m*MAPSCRS+sc;
-	    int layr = whichlayer(scr);
+		int layr = whichlayer(scr);
 	    if(scr==(currmap*MAPSCRS+currscr))
 		ret=tmpscr->data[pos]*10000;
 	    else if(layr>-1)
@@ -2630,11 +2632,12 @@ else \
     }
     break;
     
-    case COMBOCDM:
+   case COMBOCDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -2661,6 +2664,7 @@ else \
 	else
 	{
             long scr = m*MAPSCRS+sc;
+		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
@@ -2677,6 +2681,7 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -2703,6 +2708,7 @@ else \
 	else
 	{
             long scr = m*MAPSCRS+sc;
+		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
@@ -2719,6 +2725,7 @@ else \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -2745,6 +2752,7 @@ else \
 	else
 	{
             long scr = m*MAPSCRS+sc;
+		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
@@ -2757,11 +2765,12 @@ else \
     }
     break;
     
-    case COMBOIDM:
+   case COMBOIDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	     //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -2789,6 +2798,7 @@ else \
         else
         {
             long scr = m*MAPSCRS+sc;
+		//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
@@ -2803,7 +2813,8 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = (ri->d[1]/10000)-1;
+	    int m = (ri->d[1]/10000)-1;
+         //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found; 
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -2829,7 +2840,8 @@ else \
         
         else
         {
-            long scr = m*MAPSCRS+sc;
+            //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	    long scr = m*MAPSCRS+sc;
             int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
@@ -4515,14 +4527,16 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         game->set_item((ri->d[0])/10000,(value!=0));
         break;
         
+    // LItems is a size of byte. -Z
     case GAMELITEMSD:
-        game->lvlitems[(ri->d[0])/10000]=value/10000;
+        game->lvlitems[(ri->d[0])/10000]=vbound(value/10000, 0, 255);
         break;
         
+    // LKeys is a size of byte. -Z
     case GAMELKEYSD:
-        game->lvlkeys[(ri->d[0])/10000]=value/10000;
+	game->lvlkeys[((ri->d[0])/10000)]=vbound(value/10000, 0, 255);
         break;
-        
+    
     case SCREENSTATED:
     {
         int mi2 = (currmap*MAPSCRSNORMAL)+currscr;
@@ -4693,6 +4707,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+        //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -4716,7 +4731,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 		break;
 	}
         
-        long scr = m*MAPSCRS+sc;
+        //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	    long scr = m*MAPSCRS+sc;
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
             
@@ -4741,11 +4757,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOCDM:
+     case COMBOCDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -4769,7 +4786,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 		break;
 	}
         
-        long scr = m*MAPSCRS+sc;
+         //long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	long scr = m*MAPSCRS+sc;
         TheMaps[scr].cset[pos]=(value/10000)&15;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -4787,6 +4805,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -4812,6 +4831,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 
         
         long scr = m*MAPSCRS+sc;
+	//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
         TheMaps[scr].sflag[pos]=value/10000;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -4829,6 +4849,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -4853,6 +4874,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
         
         long scr = m*MAPSCRS+sc;
+	//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
         int cdata = TheMaps[scr].data[pos];
         
         // Preprocess the screen's combos in case the combo changed is present on the screen. -L
@@ -4881,6 +4903,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = (ri->d[1]/10000)-1;
+	    //int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	bool err_input_found;
 	    
 	if ( m < 0 || m >= map_count ) {
@@ -4905,6 +4928,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
         
         long scr = m*MAPSCRS+sc;
+	//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
         combobuf[TheMaps[scr].data[pos]].flag=value/10000;
     }
     break;
@@ -4914,6 +4938,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	    //This is how it was in 2.50.1-2
 		int pos = (ri->d[0])/10000;
 		long scr = (ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000);
+		//This (below) us the precise code from 2.50.1
+		//long scr = zc_max((ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000),0); //Not below 0. 
 
 		if(pos < 0 || pos >= 176 || scr < 0) break;
 
