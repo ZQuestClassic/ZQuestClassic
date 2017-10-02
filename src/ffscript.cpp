@@ -2590,7 +2590,7 @@ else \
 ///----------------------------------------------------------------------------------------------------//
 //Game->GetComboX
     
-    
+    /*
     case COMBODDM:
     {
         int pos = (ri->d[0])/10000;
@@ -2635,8 +2635,8 @@ else \
 
     }
     break;
+    */
     
-    /*
     //2.50.1-2 version. 
     case COMBODDM:
     {
@@ -2658,7 +2658,7 @@ else \
             ret = 10000;
     }
     break;
-    */
+    
     //GetComboCSet
    case COMBOCDM:
     {
@@ -2666,8 +2666,8 @@ else \
         int sc = (ri->d[2]/10000);
 	//int m = (ri->d[1]/10000)-1;
 	    int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
-	    long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
-	    //long scr = m*MAPSCRS+sc;
+	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+	//    long scr = m*MAPSCRS+sc;
 		
             int layr = whichlayer(scr);
 	bool err_input_found;
@@ -4804,30 +4804,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         int sc = (ri->d[2]/10000);
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
-        /*
-	bool err_input_found = false;
-	    
+        
+	//bool err_input_found = false;
+	  /*  
 	if ( m >= map_count ) {
 		al_trace("Invalid Map Reference Passed to Screen->SetComboData: %d \n", m);
-		err_input_found = true;
+	//	err_input_found = true;
 	}
 	
 	if ( sc < 0 || sc >= MAPSCRS ) 
 	{
 		al_trace("Invalid Screen Reference Passed to Screen->SetComboData: %d \n", sc);
-		err_input_found = true;
+	//	err_input_found = true;
 	}
 	
 	if ( pos < 0 || pos > 175 ) 
 	{
 		al_trace("Invalid Position Reference Passed to Screen->SetComboData: %d \n", pos);
-		err_input_found = true;
+	//	err_input_found = true;
 	}
 	
-	if ( err_input_found ) { 
-		break;
-	}
+	//if ( err_input_found ) { 
+	//	break;
+	//}
 	*/
+	
 	if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
         
         if(scr==(currmap*MAPSCRS+currscr))
@@ -5113,9 +5114,10 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         combobuf[TheMaps[scr].data[pos]].flag=value/10000;
     }
     break;
-    */
     
+    */
     //2.50.2
+    
     case COMBOIDM:
     {
         int pos = (ri->d[0])/10000;
