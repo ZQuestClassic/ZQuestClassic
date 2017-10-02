@@ -2597,6 +2597,7 @@ else \
         int sc = (ri->d[2]/10000);
 	//int m = (ri->d[1]/10000)-1;
 	//long scr = m*MAPSCRS+sc;
+	    //This seems to need to be set up as it was here. -Z
         int m = zc_max((ri->d[1]/10000)-1,0); //2.50.1 had this. 
 	long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
 	int layr = whichlayer(scr);
@@ -2671,7 +2672,7 @@ else \
             int layr = whichlayer(scr);
 	bool err_input_found;
 	    
-	if ( m < 0 || m >= map_count ) {
+	if ( m >= map_count ) {
 		al_trace("Invalid Map Reference Passed to Game->GetComboCSet: %d \n", m);
 		err_input_found = true;
 	}
@@ -4796,14 +4797,38 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 */
 //2.50.1-2 version
 //SetComboData
+//The changes to this in 2.50.3 broke quests. -Z
     case COMBODDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
         int m = zc_max((ri->d[1]/10000)-1,0);
         long scr = zc_max(m*MAPSCRS+sc,0);
-        
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        /*
+	bool err_input_found = false;
+	    
+	if ( m >= map_count ) {
+		al_trace("Invalid Map Reference Passed to Screen->SetComboData: %d \n", m);
+		err_input_found = true;
+	}
+	
+	if ( sc < 0 || sc >= MAPSCRS ) 
+	{
+		al_trace("Invalid Screen Reference Passed to Screen->SetComboData: %d \n", sc);
+		err_input_found = true;
+	}
+	
+	if ( pos < 0 || pos > 175 ) 
+	{
+		al_trace("Invalid Position Reference Passed to Screen->SetComboData: %d \n", pos);
+		err_input_found = true;
+	}
+	
+	if ( err_input_found ) { 
+		break;
+	}
+	*/
+	if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
         
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
@@ -4828,7 +4853,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         }
     }
     break;
-    
+    /*
      case COMBOCDM:
     {
         int pos = (ri->d[0])/10000;
@@ -4871,7 +4896,32 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             tmpscr2[layr].cset[pos]=(value/10000)&15;
     }
     break;
+    */
     
+    //2.50.2
+    
+    case COMBOCDM:
+    {
+        int pos = (ri->d[0])/10000;
+        int sc = (ri->d[2]/10000);
+        int m = zc_max((ri->d[1]/10000)-1,0);
+        long scr = zc_max(m*MAPSCRS+sc,0);
+        
+        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        
+        TheMaps[scr].cset[pos]=(value/10000)&15;
+        
+        if(scr==(currmap*MAPSCRS+currscr))
+            tmpscr->cset[pos] = value/10000;
+            
+        int layr = whichlayer(scr);
+        
+        if(layr>-1)
+            tmpscr2[layr].cset[pos]=(value/10000)&15;
+    }
+    break;
+    
+    /*
     case COMBOFDM:
     {
         int pos = (ri->d[0])/10000;
@@ -4916,7 +4966,29 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             tmpscr2[layr].sflag[pos]=value/10000;
     }
     break;
+    */
+    case COMBOFDM:
+    {
+        int pos = (ri->d[0])/10000;
+        int sc = (ri->d[2]/10000);
+        int m = zc_max((ri->d[1]/10000)-1,0);
+        long scr = zc_max(m*MAPSCRS+sc,0);
+        
+        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        
+        TheMaps[scr].sflag[pos]=value/10000;
+        
+        if(scr==(currmap*MAPSCRS+currscr))
+            tmpscr->sflag[pos] = value/10000;
+            
+        int layr = whichlayer(scr);
+        
+        if(layr>-1)
+            tmpscr2[layr].sflag[pos]=value/10000;
+    }
+    break;
     
+    /*
     case COMBOTDM:
     {
         int pos = (ri->d[0])/10000;
@@ -4970,7 +5042,43 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         }
     }
     break;
+    */
     
+    //2.50.2
+    case COMBOTDM:
+    {
+        int pos = (ri->d[0])/10000;
+        int sc = (ri->d[2]/10000);
+        int m = zc_max((ri->d[1]/10000)-1,0);
+        long scr = zc_max(m*MAPSCRS+sc,0);
+        
+        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+            break;
+            
+        int cdata = TheMaps[scr].data[pos];
+        
+        // Preprocess the screen's combos in case the combo changed is present on the screen. -L
+        for(int i = 0; i < 176; i++)
+        {
+            if(tmpscr->data[i] == cdata)
+            {
+                screen_combo_modify_preroutine(tmpscr,i);
+            }
+        }
+        
+        combobuf[cdata].type=value/10000;
+        
+        for(int i = 0; i < 176; i++)
+        {
+            if(tmpscr->data[i] == cdata)
+            {
+                screen_combo_modify_postroutine(tmpscr,i);
+            }
+        }
+    }
+    break;
+    
+    /*
     case COMBOIDM:
     {
         int pos = (ri->d[0])/10000;
@@ -5002,6 +5110,22 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
         long scr = m*MAPSCRS+sc;
 	//long scr = zc_max(m*MAPSCRS+sc,0); //2.50.1 had this. 
+        combobuf[TheMaps[scr].data[pos]].flag=value/10000;
+    }
+    break;
+    */
+    
+    //2.50.2
+    case COMBOIDM:
+    {
+        int pos = (ri->d[0])/10000;
+        int sc = (ri->d[2]/10000);
+        int m = zc_max((ri->d[1]/10000)-1,0);
+        long scr = zc_max(m*MAPSCRS+sc,0);
+        
+        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+            break;
+            
         combobuf[TheMaps[scr].data[pos]].flag=value/10000;
     }
     break;
