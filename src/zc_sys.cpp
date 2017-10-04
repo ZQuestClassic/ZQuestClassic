@@ -6779,6 +6779,7 @@ static MENU misc_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+    { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
      { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
