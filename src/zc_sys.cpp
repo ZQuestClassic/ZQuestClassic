@@ -4671,35 +4671,25 @@ int onClickToFreeze()
     return D_O_K;
 }
 
-
-static DIALOG debugconsole_dlg[] =
+int OnSaveZCConfig()
 {
-    /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
-    { jwin_win_proc,       40,   38,   241,  173,  vc(14),  vc(1),   0,       D_EXIT,    0,        0, (void *) "ZC Debug COnsole", NULL,  NULL },
-    
-    
-    { jwin_text_proc,         52,   70,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "WARNING: Closing the console window, by using the ", NULL,  NULL },
-    { jwin_text_proc,         52,   80,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "close window widget will terminate ZC!", NULL,  NULL },
-    { jwin_text_proc,         52,   90,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "To close the debug console, use the SHOW DEBUG CONSOLE", NULL,  NULL },
-    { jwin_text_proc,         52,   100,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "menu uption again!", NULL,  NULL },
-    
-    { jwin_frame_proc,     47,   65,   227,  115,  vc(15),  vc(1),   0,       0,         FR_DEEP,  0,       NULL, NULL,  NULL },
-    { d_bitmap_proc,       49,   67,   222,  110,  vc(15),  vc(1),   0,       0,         0,        0,       NULL, NULL,  NULL },
-    { jwin_button_proc,    60,  184,  41,   21,   vc(14),  vc(1),   0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-//Warning Info Box
-int onDoDebugConsole()
-{
-	
-    debugconsole_dlg[0].dp2=lfont;
-    
-    if(is_large)
-        large_dialog(debugconsole_dlg);
-        
-    zc_popup_dialog(debugconsole_dlg,1);
-    return D_O_K;
+	if(jwin_alert3(
+			"Save Configuration", 
+			"Are you sure that you wish to save your present configuration settings?", 
+			"This will overwrite your prior settings!",
+			NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)	
+	{
+		save_game_configs();
+		return D_O_K;
+	}
+	else return D_O_K;
 }
 
 int onDebugConsole()
@@ -4723,6 +4713,7 @@ int onDebugConsole()
 			zconsole = true;
 			return D_O_K;
 		}
+		else return D_O_K;
 	}
 	else { 
 		
@@ -6788,6 +6779,7 @@ static MENU misc_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+    { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
      { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };

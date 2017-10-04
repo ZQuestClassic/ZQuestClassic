@@ -661,6 +661,8 @@ enum
     cmdScriptLocations,
     cmdWhatLinksHere,
     cmdIntegrityCheck,
+    cmdSaveZQuestSettings,
+    cmdOnClearQuestFilepath,
     cmdMAX
 };
 
@@ -1102,7 +1104,7 @@ void check_autosave();
 
 void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, int trigger_h, char *tipmsg);
 void clear_tooltip();
-
+void ZQ_ClearQuestPath();
 void cflag_help(int id);
 void ctype_help(int id);
 
