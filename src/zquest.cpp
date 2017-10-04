@@ -826,6 +826,8 @@ static MENU etc_menu[] =
     { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
     { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
     { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -21580,6 +21582,7 @@ int main(int argc,char **argv)
     gboraclepfont = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
     dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
     dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
+    //Do not forhet to init the fonts! -Z
     
     for(int i=0; i<MAXCUSTOMTUNES; i++)
     {
@@ -24076,7 +24079,10 @@ command_pair commands[cmdMAX]=
     { "Report: Item Locations",              0, (intF) onItemLocationReport                             },
     { "Report: Script Locations",              0, (intF) onScriptLocationReport                                    },
     { "Report: What Links Here",              0, (intF) onWhatWarpsReport                                    },
-    { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    }
+    { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
+    { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
+    { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
+    
 
 };
 
@@ -24259,7 +24265,9 @@ void clear_tooltip()
     update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
 
- 
+void ZQ_ClearQuestPath(){
+	last_quest_name = "";
+}
 
 
 
