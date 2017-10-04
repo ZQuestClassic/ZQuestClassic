@@ -4544,19 +4544,31 @@ int onClickToFreeze()
     ClickToFreeze = !ClickToFreeze;
     return D_O_K;
 }
+
+
 int onDebugConsole()
 {
 	if ( !zconsole ) {
+		if(jwin_alert3(
+			"WARNING: Closing the Debug Console", 
+			"WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", 
+			"To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
+			"Are you seure that you wish to open the debug console?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+		{
 		
-		char buf[100];
-		jwin_alert("WARNING: Closing the Debug Console", "WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", "To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
-		buf, "O&K", NULL, 'o', 0, lfont);
 		
-		
-		DebugConsole::Open();
+			DebugConsole::Open();
 
-		zconsole = true;
-		return D_O_K;
+			zconsole = true;
+			return D_O_K;
+		}
 	}
 	else { 
 		
