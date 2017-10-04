@@ -292,6 +292,8 @@ void KeyFileName(char *kfname);
 
 int onSpacebar();
 int onSnapshot();
+int onSaveZQuestSettings();
+int onClearQuestFilepath();
 void go();
 void comeback();
 int checksave();
