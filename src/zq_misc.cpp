@@ -1212,6 +1212,52 @@ int onSpacebar()
     return D_O_K;
 }
 
+int onSaveZQuestSettings()
+{
+	if(jwin_alert3(
+			"Save Configuration", 
+			"Are you sure that you wish to save your present configuration settings?", 
+			"This will overwrite your prior settings!",
+			NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)	
+	{
+		save_config_file();
+		return D_O_K;
+	}
+	else return D_O_K;	
+	
+}
+
+
+
+int onClearQuestFilepath()
+{
+	if(jwin_alert3(
+			"Clear Quest Path", 
+			"Clear the current default filepath?", 
+			NULL,
+			NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)	
+	{
+		ZQ_ClearQuestPath();
+		return D_O_K;
+	}
+	else return D_O_K;	
+	
+}
+
 int onSnapshot()
 {
     char buf[26];
