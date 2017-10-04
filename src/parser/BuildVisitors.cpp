@@ -7,7 +7,14 @@
 #include "Types.h"
 #include "ZScript.h"
 
+using std::string;
 using namespace ZScript;
+
+void comment(Opcode* opcode, AST const& node)
+{
+	if (!opcode) return;
+	opcode->appendComment(getLineString(node));
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
@@ -79,6 +86,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	OpcodeContext *c = (OpcodeContext *)param;
 
 	int startRefCount = arrayRefs.size();
+	int start = result.size();
 
     for (vector<ASTStmt*>::iterator it = host.statements.begin();
 		 it != host.statements.end(); ++it)
@@ -87,11 +95,20 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
         visit(*it, param);
 		result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
 		c->initCode.clear();
+		if (initIndex < result.size()) comment(result[initIndex], **it);
 	}
 
 	deallocateRefsUntilCount(startRefCount);
 	while ((int)arrayRefs.size() > startRefCount)
 		arrayRefs.pop_back();
+
+	/*
+	if (!result.empty())
+	{
+		result[start]->appendComment(host.asString());
+		result.back()->appendComment("    END " + host.asString());
+	}
+	*/
 }
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
@@ -111,7 +128,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 {
-    //run the test
+	//run the test
     visit(host.condition, param);
     int elseif = ScriptParser::getUniqueLabelID();
     int endif = ScriptParser::getUniqueLabelID();
@@ -207,7 +224,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 {
-    //run the precondition
+	//run the precondition
     visit(host.setup, param);
     int loopstart = ScriptParser::getUniqueLabelID();
     int loopend = ScriptParser::getUniqueLabelID();
@@ -258,9 +275,9 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     int endlabel = ScriptParser::getUniqueLabelID();
     //run the test
     //nop to label start
-    Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-    start->setLabel(startlabel);
-    addOpcode(start);
+    Opcode* scode = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+    scode->setLabel(startlabel);
+    addOpcode(scode);
     visit(host.test, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
@@ -294,9 +311,9 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     int endlabel = ScriptParser::getUniqueLabelID();
     int continuelabel = ScriptParser::getUniqueLabelID();
     //nop to label start
-    Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-    start->setLabel(startlabel);
-    addOpcode(start);
+    Opcode* scode = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+    scode->setLabel(startlabel);
+    addOpcode(scode);
 
     int oldbreak = breaklabelid;
 	int oldBreakRefCount = breakRefCount;
@@ -314,9 +331,9 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     breakRefCount = oldBreakRefCount;
 	continueRefCount = oldContinueRefCount;
 
-    start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
-    start->setLabel(continuelabel);
-    addOpcode(start);
+    scode = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
+    scode->setLabel(continuelabel);
+    addOpcode(scode);
     visit(host.test, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
@@ -327,21 +344,27 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     addOpcode(end);
 }
 
-void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
+void BuildOpcodes::caseStmtReturn(ASTStmtReturn& host, void*)
 {
+	int start = result.size();
+	
 	deallocateRefsUntilCount(0);
     addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
-    visit(host.value, param);
+	int start = result.size();
+
+	visit(host.value, param);
 	deallocateRefsUntilCount(0);
     addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
 void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 {
+	int start = result.size();	
+	
     if (breaklabelid == -1)
     {
         handleError(CompileError::BreakBad, &host);
@@ -354,6 +377,8 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 
 void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 {
+	int start = result.size();
+	
     if (continuelabelid == -1)
     {
         handleError(CompileError::ContinueBad, &host);
@@ -602,7 +627,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
     int funclabel = host.binding->getLabel();
     //push the stack frame pointer
-    addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+    Opcode* o = new OPushRegister(new VarArgument(SFRAME));
+    addOpcode(o);
     //push the return address
     int returnaddr = ScriptParser::getUniqueLabelID();
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
@@ -628,7 +654,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     }
 
     //goto
-    addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+    o = new OGotoImmediate(new LabelArgument(funclabel));
+    o->appendComment(getLineString(host));
+    addOpcode(o);
     //pop the stack frame pointer
     Opcode *next = new OPopRegister(new VarArgument(SFRAME));
     next->setLabel(returnaddr);

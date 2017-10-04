@@ -238,6 +238,7 @@ protected:
 	AST& operator=(AST const& rhs);
 };
 
+std::string getLineString(AST const& node);
 
 ////////////////////////////////////////////////////////////////
 
@@ -283,6 +284,7 @@ public:
 	ASTFloat* clone() const {return new ASTFloat(*this);}
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
     	
     pair<string,string> parseValue();
 
@@ -332,6 +334,7 @@ public:
 	ASTBlock* clone() const {return new ASTBlock(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	// List of statements this block contains.
     vector<ASTStmt*> statements;
@@ -348,6 +351,7 @@ public:
 	ASTStmtIf* clone() const {return new ASTStmtIf(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	ASTExpr* condition;
 	ASTStmt* thenStatement;
@@ -365,6 +369,7 @@ public:
 	ASTStmtIfElse* clone() const {return new ASTStmtIfElse(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
     ASTStmt* elseStatement;
 };
@@ -380,6 +385,7 @@ public:
 	ASTStmtSwitch* clone() const {return new ASTStmtSwitch(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	// The key expression used to switch.
 	ASTExpr* key;
@@ -399,6 +405,7 @@ public:
 	ASTSwitchCases* clone() const {return new ASTSwitchCases(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	// The list of case labels.
 	vector<ASTExprConst*> cases;
@@ -423,6 +430,7 @@ public:
 	ASTStmtFor* clone() const {return new ASTStmtFor(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
     ASTStmt* setup;
     ASTExpr* test;
@@ -442,6 +450,7 @@ public:
 	ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
     ASTExpr* test;
     ASTStmt* body;
@@ -459,6 +468,7 @@ public:
 	ASTStmtDo* clone() const {return new ASTStmtDo(*this);}
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
     ASTExpr* test;
     ASTStmt* body;
@@ -473,6 +483,7 @@ public:
 	ASTStmtReturn* clone() const {return new ASTStmtReturn(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const {return "return;";}
 };
 
 class ASTStmtReturnVal : public ASTStmtReturn
@@ -486,6 +497,7 @@ public:
 	ASTStmtReturnVal* clone() const {return new ASTStmtReturnVal(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
     ASTExpr* value;
 };
@@ -499,6 +511,7 @@ public:
 	ASTStmtBreak* clone() const {return new ASTStmtBreak(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const {return "break;";}
 };
 
 class ASTStmtContinue : public ASTStmt
@@ -510,6 +523,7 @@ public:
 	ASTStmtContinue* clone() const {return new ASTStmtContinue(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const {return "continue;";}
 };
 
 class ASTStmtEmpty : public ASTStmt
@@ -521,6 +535,7 @@ public:
 	ASTStmtEmpty* clone() const {return new ASTStmtEmpty(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const {return ";";}
 };
 
 ////////////////////////////////////////////////////////////////
@@ -628,6 +643,7 @@ public:
 	ASTDataDeclList* clone() const {return new ASTDataDeclList(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATALIST;}
 
 	// The base type at the start of the line shared by all the declarations.
@@ -653,6 +669,7 @@ public:
 	ASTDataDecl* clone() const {return new ASTDataDecl(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATA;}
 
 	// The list containing this declaration. Should be set by that list when
@@ -805,6 +822,7 @@ public:
 	ASTExprAssign* clone() const {return new ASTExprAssign(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return right && right->isConstant();}
 
@@ -830,7 +848,7 @@ public:
 	ASTExprIdentifier* clone() const {return new ASTExprIdentifier(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
-	string asString() const;
+	std::string asString() const;
 	bool isTypeIdentifier() const {return true;}
 
 	bool isConstant() const {return mIsConstant;}
@@ -863,7 +881,7 @@ public:
 	ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
-	string asString() const;
+	std::string asString() const;
 	bool isTypeArrow() const {return true;}
 
 	bool isConstant() const {return false;}
@@ -892,6 +910,7 @@ public:
 	ASTExprIndex* clone() const {return new ASTExprIndex(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 	bool isTypeIndex() const {return true;}
 
 	bool isConstant() const;
@@ -913,6 +932,7 @@ public:
 	ASTExprCall* clone() const {return new ASTExprCall(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return false;}
 
@@ -951,6 +971,7 @@ public:
 	ASTExprNegate* clone() const {return new ASTExprNegate(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -970,6 +991,7 @@ public:
 	ASTExprNot* clone() const {return new ASTExprNot(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -989,6 +1011,7 @@ public:
 	ASTExprBitNot* clone() const {return new ASTExprBitNot(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1008,6 +1031,7 @@ public:
 	ASTExprIncrement* clone() const {return new ASTExprIncrement(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return false;}
 
@@ -1026,6 +1050,7 @@ public:
 	ASTExprPreIncrement* clone() const {return new ASTExprPreIncrement(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return false;}
 
@@ -1044,6 +1069,7 @@ public:
 	ASTExprDecrement* clone() const {return new ASTExprDecrement(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return false;}
 
@@ -1063,6 +1089,7 @@ public:
 		return new ASTExprPreDecrement(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return false;}
 
@@ -1122,6 +1149,7 @@ public:
 	ASTExprAnd* clone() const {return new ASTExprAnd(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1139,6 +1167,7 @@ public:
 	ASTExprOr* clone() const {return new ASTExprOr(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1175,6 +1204,7 @@ public:
 	ASTExprGT* clone() const {return new ASTExprGT(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1192,6 +1222,7 @@ public:
 	ASTExprGE* clone() const {return new ASTExprGE(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1209,6 +1240,7 @@ public:
 	ASTExprLT* clone() const {return new ASTExprLT(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1226,6 +1258,7 @@ public:
 	ASTExprLE* clone() const {return new ASTExprLE(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1243,6 +1276,7 @@ public:
 	ASTExprEQ* clone() const {return new ASTExprEQ(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1260,6 +1294,7 @@ public:
 	ASTExprNE* clone() const {return new ASTExprNE(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1296,6 +1331,7 @@ public:
 	ASTExprPlus* clone() const {return new ASTExprPlus(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1313,6 +1349,7 @@ public:
 	ASTExprMinus* clone() const {return new ASTExprMinus(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1349,6 +1386,7 @@ public:
 	ASTExprTimes* clone() const {return new ASTExprTimes(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1366,6 +1404,7 @@ public:
 	ASTExprDivide* clone() const {return new ASTExprDivide(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1383,6 +1422,7 @@ public:
 	ASTExprModulo* clone() const {return new ASTExprModulo(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1417,6 +1457,7 @@ public:
 	ASTExprBitAnd* clone() const {return new ASTExprBitAnd(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1433,6 +1474,7 @@ public:
 	ASTExprBitOr* clone() const {return new ASTExprBitOr(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1449,6 +1491,7 @@ public:
 	ASTExprBitXor* clone() const {return new ASTExprBitXor(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1484,6 +1527,7 @@ public:
 	ASTExprLShift* clone() const {return new ASTExprLShift(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1500,6 +1544,7 @@ public:
 	ASTExprRShift* clone() const {return new ASTExprRShift(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
@@ -1542,6 +1587,7 @@ public:
 	ASTNumberLiteral* clone() const {return new ASTNumberLiteral(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return true;}
 
@@ -1565,6 +1611,7 @@ public:
 	ASTBoolLiteral* clone() const {return new ASTBoolLiteral(*this);}
 
     void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 
 	bool isConstant() const {return true;}
 
@@ -1594,6 +1641,7 @@ public:
 	ASTStringLiteral* clone() const {return new ASTStringLiteral(*this);}
 
 	void execute (ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 	bool isStringLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
@@ -1616,6 +1664,7 @@ public:
 	ASTArrayLiteral* clone() const {return new ASTArrayLiteral(*this);}
 
 	void execute (ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
 	bool isArrayLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
@@ -1672,6 +1721,7 @@ public:
     void execute(ASTVisitor& visitor, void* param = NULL);
 
 	DataType operator*() const {return type;}
+	DataType const* operator->() const {return &type;}
 	
 	void resolve(ZScript::Scope& scope) {type.resolve(scope);}
 

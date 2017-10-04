@@ -209,8 +209,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         BuildOpcodes bo(typeStore);
         node.execute(bo, &oc);
         if (bo.hasFailed()) failure = true;
+
+        int start = rval->globalsInit.size();
         appendElements(rval->globalsInit, oc.initCode);
         appendElements(rval->globalsInit, bo.getResult());
+        rval->globalsInit[start]->appendComment(node.asString());
     }
 
     // Pop off everything.
@@ -322,7 +325,6 @@ void ScriptParser::assemble(IntermediateData *id)
 {
 	Program& program = id->program;
 
-	map<Script*, vector<Opcode*> > scriptCode;
     vector<Opcode*> ginit = id->globalsInit;
 
     // Do the global inits

@@ -539,7 +539,7 @@ optional<int> FunctionScope::getRootStackSize() const
 // ZClass
 
 ZClass::ZClass(TypeStore& typeStore, string const& name, int id)
-	: BasicScope(typeStore), name(name), id(id)
+	: BasicScope(typeStore, name), id(id)
 {}
 
 

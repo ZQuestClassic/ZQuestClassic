@@ -5,6 +5,7 @@
 #include "Scope.h"
 
 #include <assert.h>
+#include <sstream>
 
 using namespace ZScript;
 
@@ -34,6 +35,14 @@ AST& AST::operator=(AST const& rhs)
 	disabled = rhs.disabled;
 	
 	return *this;
+}
+
+string getLineString(AST const& node)
+{
+	return LimitString(256)
+		<< "[" << node.location.fname.substr(0, 8)
+		<< "..:" << node.location.first_line << "] "
+		<< node.asString();
 }
 
 // ASTProgram
@@ -162,6 +171,11 @@ ASTFloat& ASTFloat::operator=(ASTFloat const& rhs)
 void ASTFloat::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseFloat(*this, param);
+}
+
+string ASTFloat::asString() const
+{
+	return value;
 }
 
 pair<string, string> ASTFloat::parseValue()
@@ -324,6 +338,17 @@ void ASTBlock::execute(ASTVisitor& visitor, void* param)
 	visitor.caseBlock(*this, param);
 }
 
+string ASTBlock::asString() const
+{
+	LimitString s;
+	s << "{ ";
+	for (vector<ASTStmt*>::const_iterator it = statements.begin();
+	     it != statements.end(); ++it)
+		s << (*it)->asString() << "; ";
+	s << "}";
+	return s;
+}
+
 // ASTStmtIf
 
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
@@ -362,7 +387,12 @@ void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
 	return visitor.caseStmtIf(*this, param);
 }
 
-
+string ASTStmtIf::asString() const
+{
+	return LimitString()
+		<< "if (" << condition->asString() << ") "
+		<< thenStatement->asString();
+}
 
 // ASTStmtIfElse
 
@@ -398,6 +428,14 @@ void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
 	visitor.caseStmtIfElse(*this, param);
 }
 
+std::string ASTStmtIfElse::asString() const
+{
+	return LimitString()
+		<< "if (" << condition->asString() << ") "
+		<< thenStatement->asString()
+		<< " else " << elseStatement->asString();
+}
+
 // ASTStmtSwitch
 
 ASTStmtSwitch::ASTStmtSwitch(LocationData const& location)
@@ -430,6 +468,18 @@ ASTStmtSwitch& ASTStmtSwitch::operator=(ASTStmtSwitch const& rhs)
 void ASTStmtSwitch::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseStmtSwitch(*this, param);
+}
+
+std::string ASTStmtSwitch::asString() const
+{
+	LimitString s;
+	s << "switch (" << key->asString() << ") {";
+
+	for (vector<ASTSwitchCases*>::const_iterator it = cases.begin();
+	     it != cases.end(); ++it)
+		s << (*it)->asString();
+
+	return s << "}";
 }
 
 // ASTSwitchCases
@@ -468,6 +518,20 @@ ASTSwitchCases& ASTSwitchCases::operator=(ASTSwitchCases const& rhs)
 void ASTSwitchCases::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseSwitchCases(*this, param);
+}
+
+std::string ASTSwitchCases::asString() const
+{
+	LimitString s;
+
+	for (vector<ASTExprConst*>::const_iterator it = cases.begin();
+	     it != cases.end(); ++it)
+		s << "case " << (*it)->asString() << ": ";
+
+	if (isDefault) s << "default: ";
+	s << block->asString();
+
+	return s;
 }
 
 // ASTStmtFor
@@ -517,6 +581,16 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 	return visitor.caseStmtFor(*this, param);
 }
 
+std::string ASTStmtFor::asString() const
+{
+	return LimitString()
+		<< "for ("
+		<< setup->asString() << "; "
+		<< test->asString() << "; "
+		<< increment->asString() << ") "
+		<< body->asString();
+}
+
 // ASTStmtWhile
 
 ASTStmtWhile::ASTStmtWhile(
@@ -554,6 +628,13 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 	visitor.caseStmtWhile(*this, param);
 }
 
+std::string ASTStmtWhile::asString() const
+{
+	return LimitString()
+		<< "while (" << test->asString() << ") "
+		<< body->asString();
+}
+
 // ASTStmtDo
 
 ASTStmtDo::ASTStmtDo(
@@ -589,6 +670,13 @@ ASTStmtDo& ASTStmtDo::operator=(ASTStmtDo const& rhs)
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseStmtDo(*this, param);
+}
+
+std::string ASTStmtDo::asString() const
+{
+	return LimitString()
+		<< "do " << body->asString()
+		<< " while (" << test->asString() << ");";
 }
 
 // ASTStmtReturn
@@ -643,6 +731,11 @@ ASTStmtReturnVal& ASTStmtReturnVal::operator=(ASTStmtReturnVal const& rhs)
 void ASTStmtReturnVal::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseStmtReturnVal(*this, param);
+}
+
+string ASTStmtReturnVal::asString() const
+{
+	return LimitString() << "return " << value->asString() << ";";
 }
 
 // ASTStmtBreak
@@ -889,6 +982,23 @@ void ASTDataDeclList::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataDeclList(*this, param);
 }
 
+string ASTDataDeclList::asString() const
+{
+	LimitString s;
+	s << (*baseType)->getName() << " ";
+
+	bool first = true;
+	for (vector<ASTDataDecl*>::const_iterator it = mDeclarations.begin();
+	     it != mDeclarations.end(); ++it)
+	{
+		if (first) first = false; else s << ", ";
+		s << (*it)->asString();
+	}
+
+	s << ";";
+	return s;
+}
+
 void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
 {
 	// Declarations in a list should not have their own type.
@@ -944,6 +1054,22 @@ ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 void ASTDataDecl::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseDataDecl(*this, param);
+}
+
+string ASTDataDecl::asString() const
+{
+	LimitString s;
+	if (baseType) s << (*baseType)->getName() << " ";
+	s << name;
+
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it =
+		     extraArrays.begin();
+	     it != extraArrays.end(); ++it)
+		s << "[]";
+
+	if (mInitializer) s << " = " << mInitializer->asString();
+	if (!list) s << ";";
+	return s;
 }
 
 ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
@@ -1155,6 +1281,11 @@ void ASTExprAssign::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprAssign(*this, param);
 }
 
+string ASTExprAssign::asString() const
+{
+	return LimitString() << left->asString() << " = " << right->asString();
+}
+
 optional<long> ASTExprAssign::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1194,14 +1325,11 @@ void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)
 
 string ASTExprIdentifier::asString() const
 {
-	string s = components.front();
+	LimitString s;
+	s << components.front();
 	for (vector<string>::const_iterator it = components.begin() + 1;
-	   it != components.end();
-	   ++it)
-	{
-		s = s + "." + *it;
-	}
-
+	     it != components.end(); ++it)
+		s << "." << *it;
 	return s;
 }
 
@@ -1269,9 +1397,7 @@ void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
 
 string ASTExprArrow::asString() const
 {
-	string s = left->asString() + "->" + right;
-	if (index != NULL) s += "[" + index->asString() + "]";
-	return s;
+	return LimitString() << left->asString() << "->" << right;
 }
 
 optional<DataType> ASTExprArrow::getReadType(TypeStore&) const
@@ -1315,6 +1441,13 @@ ASTExprIndex& ASTExprIndex::operator=(ASTExprIndex const& rhs)
 void ASTExprIndex::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprIndex(*this, param);
+}
+
+string ASTExprIndex::asString() const
+{
+	return LimitString()
+		<< array->asString()
+		<< "[" << index->asString() << "]";
 }
 
 bool ASTExprIndex::isConstant() const
@@ -1373,6 +1506,23 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
+string ASTExprCall::asString() const
+{
+	LimitString s;
+	s << left->asString();
+
+	vector<ASTExpr*>::const_iterator it = parameters.begin();
+	if (it != parameters.end())
+	{
+		s << "(" << (*it)->asString();
+		for (++it; it != parameters.end(); ++it)
+			s << ", " << (*it)->asString();
+		s << ")";
+	}
+
+	return s;
+}
+
 optional<DataType> ASTExprCall::getReadType(TypeStore&) const
 {
 	if (binding) return binding->returnType;
@@ -1427,6 +1577,11 @@ void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprNegate(*this, param);
 }
 
+string ASTExprNegate::asString() const
+{
+	return LimitString() << "-" << operand->asString();
+}
+
 optional<long> ASTExprNegate::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1457,6 +1612,11 @@ ASTExprNot& ASTExprNot::operator=(ASTExprNot const& rhs)
 void ASTExprNot::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprNot(*this, param);
+}
+
+string ASTExprNot::asString() const
+{
+	return LimitString() << "!" << operand->asString();
 }
 
 optional<long> ASTExprNot::getCompileTimeValue(
@@ -1491,6 +1651,11 @@ void ASTExprBitNot::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitNot(*this, param);
 }
 
+string ASTExprBitNot::asString() const
+{
+	return LimitString() << "~" << operand->asString();
+}
+
 optional<long> ASTExprBitNot::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1523,6 +1688,11 @@ void ASTExprIncrement::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprIncrement(*this, param);
 }
 
+string ASTExprIncrement::asString() const
+{
+	return LimitString() << operand->asString() << "++";
+}
+
 // ASTExprPreIncrement
 
 ASTExprPreIncrement::ASTExprPreIncrement(LocationData const& location)
@@ -1544,6 +1714,11 @@ ASTExprPreIncrement& ASTExprPreIncrement::operator=(
 void ASTExprPreIncrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprPreIncrement(*this, param);
+}
+
+string ASTExprPreIncrement::asString() const
+{
+	return LimitString() << "++" << operand->asString();
 }
 
 // ASTExprDecrement
@@ -1568,6 +1743,11 @@ void ASTExprDecrement::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprDecrement(*this, param);
 }
 
+string ASTExprDecrement::asString() const
+{
+	return LimitString() << operand->asString() << "--";
+}
+
 // ASTExprPreDecrement
 
 ASTExprPreDecrement::ASTExprPreDecrement(LocationData const& location)
@@ -1589,6 +1769,11 @@ ASTExprPreDecrement& ASTExprPreDecrement::operator=(
 void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprPreDecrement(*this, param);
+}
+
+string ASTExprPreDecrement::asString() const
+{
+	return LimitString() << "--" << operand->asString();
 }
 
 // ASTBinaryExpr
@@ -1666,6 +1851,12 @@ void ASTExprAnd::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprAnd(*this, param);
 }
 
+string ASTExprAnd::asString() const
+{
+	return LimitString()
+		<< left->asString() << " && " << right->asString();
+}
+
 optional<long> ASTExprAnd::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1697,6 +1888,12 @@ ASTExprOr& ASTExprOr::operator=(ASTExprOr const& rhs)
 void ASTExprOr::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprOr(*this, param);
+}
+
+string ASTExprOr::asString() const
+{
+	return LimitString()
+		<< left->asString() << " || " << right->asString();
 }
 
 optional<long> ASTExprOr::getCompileTimeValue(
@@ -1748,6 +1945,12 @@ void ASTExprGT::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprGT(*this, param);
 }
 
+string ASTExprGT::asString() const
+{
+	return LimitString()
+		<< left->asString() << " > " << right->asString();
+}
+
 optional<long> ASTExprGT::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1779,6 +1982,12 @@ ASTExprGE& ASTExprGE::operator=(ASTExprGE const& rhs)
 void ASTExprGE::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprGE(*this, param);
+}
+
+string ASTExprGE::asString() const
+{
+	return LimitString()
+		<< left->asString() << " >= " << right->asString();
 }
 
 optional<long> ASTExprGE::getCompileTimeValue(
@@ -1814,6 +2023,12 @@ void ASTExprLT::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprLT(*this, param);
 }
 
+string ASTExprLT::asString() const
+{
+	return LimitString()
+		<< left->asString() << " < " << right->asString();
+}
+
 optional<long> ASTExprLT::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1845,6 +2060,12 @@ ASTExprLE& ASTExprLE::operator=(ASTExprLE const& rhs)
 void ASTExprLE::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprLE(*this, param);
+}
+
+string ASTExprLE::asString() const
+{
+	return LimitString()
+		<< left->asString() << " <= " << right->asString();
 }
 
 optional<long> ASTExprLE::getCompileTimeValue(
@@ -1880,6 +2101,12 @@ void ASTExprEQ::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprEQ(*this, param);
 }
 
+string ASTExprEQ::asString() const
+{
+	return LimitString()
+		<< left->asString() << " == " << right->asString();
+}
+
 optional<long> ASTExprEQ::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1911,6 +2138,12 @@ ASTExprNE& ASTExprNE::operator=(ASTExprNE const& rhs)
 void ASTExprNE::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprNE(*this, param);
+}
+
+string ASTExprNE::asString() const
+{
+	return LimitString()
+		<< left->asString() << " != " << right->asString();
 }
 
 optional<long> ASTExprNE::getCompileTimeValue(
@@ -1962,6 +2195,12 @@ void ASTExprPlus::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprPlus(*this, param);
 }
 
+string ASTExprPlus::asString() const
+{
+	return LimitString()
+		<< left->asString() << " + " << right->asString();
+}
+
 optional<long> ASTExprPlus::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -1993,6 +2232,12 @@ ASTExprMinus& ASTExprMinus::operator=(ASTExprMinus const& rhs)
 void ASTExprMinus::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprMinus(*this, param);
+}
+
+string ASTExprMinus::asString() const
+{
+	return LimitString()
+		<< left->asString() << " - " << right->asString();
 }
 
 optional<long> ASTExprMinus::getCompileTimeValue(
@@ -2044,6 +2289,12 @@ void ASTExprTimes::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprTimes(*this, param);
 }
 
+string ASTExprTimes::asString() const
+{
+	return LimitString()
+		<< left->asString() << " * " << right->asString();
+}
+
 optional<long> ASTExprTimes::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -2076,6 +2327,12 @@ ASTExprDivide& ASTExprDivide::operator=(ASTExprDivide const& rhs)
 void ASTExprDivide::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprDivide(*this, param);
+}
+
+string ASTExprDivide::asString() const
+{
+	return LimitString()
+		<< left->asString() << " / " << right->asString();
 }
 
 optional<long> ASTExprDivide::getCompileTimeValue(
@@ -2116,6 +2373,12 @@ ASTExprModulo& ASTExprModulo::operator=(ASTExprModulo const& rhs)
 void ASTExprModulo::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprModulo(*this, param);
+}
+
+string ASTExprModulo::asString() const
+{
+	return LimitString()
+		<< left->asString() << " % " << right->asString();
 }
 
 optional<long> ASTExprModulo::getCompileTimeValue(
@@ -2174,6 +2437,12 @@ void ASTExprBitAnd::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitAnd(*this, param);
 }
 
+string ASTExprBitAnd::asString() const
+{
+	return LimitString()
+		<< left->asString() << " & " << right->asString();
+}
+
 optional<long> ASTExprBitAnd::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -2208,6 +2477,12 @@ void ASTExprBitOr::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprBitOr(*this, param);
 }
 
+string ASTExprBitOr::asString() const
+{
+	return LimitString()
+		<< left->asString() << " | " << right->asString();
+}
+
 optional<long> ASTExprBitOr::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -2240,6 +2515,12 @@ ASTExprBitXor& ASTExprBitXor::operator=(ASTExprBitXor const& rhs)
 void ASTExprBitXor::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprBitXor(*this, param);
+}
+
+string ASTExprBitXor::asString() const
+{
+	return LimitString()
+		<< left->asString() << " ^ " << right->asString();
 }
 
 optional<long> ASTExprBitXor::getCompileTimeValue(
@@ -2292,6 +2573,12 @@ void ASTExprLShift::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprLShift(*this, param);
 }
 
+string ASTExprLShift::asString() const
+{
+	return LimitString()
+		<< left->asString() << " << " << right->asString();
+}
+
 optional<long> ASTExprLShift::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -2331,6 +2618,12 @@ ASTExprRShift& ASTExprRShift::operator=(ASTExprRShift const& rhs)
 void ASTExprRShift::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprRShift(*this, param);
+}
+
+string ASTExprRShift::asString() const
+{
+	return LimitString()
+		<< left->asString() << " >> " << right->asString();
 }
 
 optional<long> ASTExprRShift::getCompileTimeValue(
@@ -2396,6 +2689,11 @@ void ASTNumberLiteral::execute(ASTVisitor& visitor, void* param)
 	visitor.caseNumberLiteral(*this, param);
 }
 
+string ASTNumberLiteral::asString() const
+{
+	return value->asString();
+}
+
 optional<long> ASTNumberLiteral::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
@@ -2434,6 +2732,11 @@ void ASTBoolLiteral::execute(ASTVisitor& visitor, void* param)
 	visitor.caseBoolLiteral(*this, param);
 }
 
+string ASTBoolLiteral::asString() const
+{
+	return value ? "true" : "false";
+}
+
 // ASTStringLiteral
 
 ASTStringLiteral::ASTStringLiteral(char const* str, LocationData const& location)
@@ -2469,6 +2772,11 @@ ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
 void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 {
 	visitor.caseStringLiteral(*this, param);
+}
+
+string ASTStringLiteral::asString() const
+{
+	return (LimitString() << "\"" << value).str() + "\"";
 }
 
 // ASTArrayLiteral
@@ -2512,6 +2820,29 @@ ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
 void ASTArrayLiteral::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseArrayLiteral(*this, param);
+}
+
+string ASTArrayLiteral::asString() const
+{
+	LimitString s;
+	if (type)
+	{
+		s << "(" << (*type)->getName();
+		if (size) s << "[" << size->asString() << "]";
+		s << ")";
+	}
+
+	s << "{";
+	vector<ASTExpr*>::const_iterator it = elements.begin();
+	if (it != elements.end())
+	{
+		s << (*it)->asString();
+		for (++it; it != elements.end(); ++it)
+			s << ", " << (*it)->asString();
+	}
+	s << "}";
+	
+	return s;
 }
 
 ////////////////////////////////////////////////////////////////

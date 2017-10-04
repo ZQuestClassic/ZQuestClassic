@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <sstream>
 
 ////////////////////////////////////////////////////////////////
 // No Copy Mixin
@@ -168,6 +169,42 @@ public:
 private:
 	bool has_value_;
 	union {char data[1 + (sizeof(Type) - 1) / sizeof(char)];};
+};
+
+////////////////////////////////////////////////////////////////
+// Strings
+
+// Lets you append to the string until it becomes too long.
+class LimitString
+{
+public:
+	LimitString() : limit(64), capped(false) {}
+	LimitString(std::size_t const& limit) : limit(limit), capped(false) {}
+	
+	template<typename Value> LimitString& operator<<(Value const& val)
+	{
+		if (!capped)
+		{
+			std::ostringstream temp;
+			temp << val;
+			if (data.str().size() + temp.str().size() > limit)
+			{
+				data << "...";
+				capped =  true;
+			}
+			else data << temp.str();
+		}
+		return *this;
+	}
+
+	operator std::string() const {return data.str();}
+	bool isCapped() const {return capped;}
+	std::string str() const {return data.str();}
+
+private:
+	std::size_t limit;
+	std::ostringstream data;
+	bool capped;
 };
 
 ////////////////////////////////////////////////////////////////

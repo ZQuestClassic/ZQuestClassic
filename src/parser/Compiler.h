@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <stdio.h>
 
 #include "CompilerUtils.h"
@@ -38,27 +39,43 @@ public:
     {
         label=l;
     }
-    string printLine(bool showlabel = false)
+
+	std::string printLine(bool showlabel = false)
     {
-        char buf[100];
-        
-        if(label == -1)
-            return " " + toString() + "\n";
-            
-        sprintf(buf, "l%d:", label);
-        return (showlabel ? string(buf) : " ")+ toString() + "\n";
+	    std::ostringstream line;
+	    if (label != -1 && showlabel)
+		    line << "l" << label << ": ";
+	    else
+		    line << " ";
+	    line << toString();
+	    if (!comment.empty())
+		    line << " ; " << comment;
+	    line << "\n";
+	    return line.str();
     }
-    Opcode * makeClone()
+	
+	Opcode * makeClone()
     {
         Opcode *dup = clone();
         dup->setLabel(label);
+        dup->setComment(comment);
         return dup;
     }
-    virtual void execute(ArgumentVisitor&, void*) {}
+	virtual void execute(ArgumentVisitor&, void*) {}
+
+	std::string getComment() const {return comment;}
+	void setComment(std::string const& c) {comment = c;}
+	void appendComment(std::string const& c)
+	{
+		comment += " ";
+		comment += c;
+	}
+	                                   
 protected:
     virtual Opcode *clone()=0;
 private:
     int label;
+	std::string comment;
 };
 
 class ScriptsData

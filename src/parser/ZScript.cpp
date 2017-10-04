@@ -394,6 +394,7 @@ void Function::giveCode(vector<Opcode*>& code)
 {
 	appendElements(ownedCode, code);
 	code.clear();
+	ownedCode.front()->setComment("FUNCTION " + getSignature().asString());
 }
 
 Script* Function::getScript() const

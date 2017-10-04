@@ -316,7 +316,6 @@ namespace ZScript
 		};
 
 		ZClass(TypeStore&, string const& name, int id);
-		string const name;
 		int const id;
 	};
 
