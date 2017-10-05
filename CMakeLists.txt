@@ -210,6 +210,7 @@ if(UNITY_BUILD)
 	enable_unity_build(ZeldaGUI ZELDA_GUI_SOURCES)
 	enable_unity_build(ZeldaSprite ZELDA_SPRITE_SOURCES)
 	enable_unity_build(ZeldaSubscreen ZELDA_SUBSCREEN_SOURCES)
+	enable_unity_build(ZeldaScripting ZELDA_SCRIPTING_SOURCES)
 endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
