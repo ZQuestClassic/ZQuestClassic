@@ -2869,9 +2869,9 @@ int main(int argc, char* argv[])
     loadpng_init();
     
     // set and load game configurations
-    set_config_file("ag.cfg");
+    set_config_file("zc.cfg");
     
-    if(exists("ag.cfg") != 0)
+    if(exists("zc.cfg") != 0)
     {
         load_game_configs();
     }
