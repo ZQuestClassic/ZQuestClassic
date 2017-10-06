@@ -47,6 +47,7 @@
 
 
 using std::string;
+using namespace ZAsm;
 
 extern sprite_list particles;
 extern LinkClass *Link;
@@ -3410,6 +3411,7 @@ void set_register(const long arg, const long value)
         tmpscr->ffdata[ri->ffcref] = vbound(value / 10000, 0, MAXCOMBOS - 1);
         break;
 
+        /* These are commands, not registers. -Gray
     case CHANGEFFSCRIPTR:
         FFScript::do_changeffcscript(false);
         break;
@@ -3417,6 +3419,7 @@ void set_register(const long arg, const long value)
     case CHANGEFFSCRIPTV:
         FFScript::do_changeffcscript(true);
         break;
+        */
 
     case FFSCRIPT:
         for (long i = 1; i < MAX_ZCARRAY_SIZE; i++)
@@ -7614,83 +7617,83 @@ void do_drawing_command(const int script_command)
     
     switch(script_command)
     {
-    case RECTR:
+    case CmdId_RECTR:
         set_drawing_command_args(j, 12);
         break;
         
-    case CIRCLER:
+    case CmdId_CIRCLER:
         set_drawing_command_args(j, 11);
         break;
         
-    case ARCR:
+    case CmdId_ARCR:
         set_drawing_command_args(j, 14);
         break;
         
-    case ELLIPSER:
+    case CmdId_ELLIPSER:
         set_drawing_command_args(j, 12);
         break;
         
-    case LINER:
+    case CmdId_LINER:
         set_drawing_command_args(j, 11);
         break;
         
-    case PUTPIXELR:
+    case CmdId_PUTPIXELR:
         set_drawing_command_args(j, 8);
         break;
         
-    case DRAWTILER:
+    case CmdId_DRAWTILER:
         set_drawing_command_args(j, 15);
         break;
         
-    case DRAWCOMBOR:
+    case CmdId_DRAWCOMBOR:
         set_drawing_command_args(j, 16);
         break;
         
-    case FASTTILER:
+    case CmdId_FASTTILER:
         set_drawing_command_args(j, 6);
         break;
         
-    case FASTCOMBOR:
+    case CmdId_FASTCOMBOR:
         set_drawing_command_args(j, 6);
         break;
         
-    case DRAWCHARR:
+    case CmdId_DRAWCHARR:
         set_drawing_command_args(j, 10);
         break;
         
-    case DRAWINTR:
+    case CmdId_DRAWINTR:
         set_drawing_command_args(j, 11);
         break;
         
-    case SPLINER:
+    case CmdId_SPLINER:
         set_drawing_command_args(j, 11);
         break;
         
-    case QUADR:
+    case CmdId_QUADR:
         set_drawing_command_args(j, 15);
         break;
         
-    case TRIANGLER:
+    case CmdId_TRIANGLER:
         set_drawing_command_args(j, 13);
         break;
         
-    case BITMAPR:
+    case CmdId_BITMAPR:
         set_drawing_command_args(j, 12);
         break;
     
-    case BITMAPEXR:
+    case CmdId_BITMAPEXR:
         set_drawing_command_args(j, 16);
         break;
         
-    case DRAWLAYERR:
+    case CmdId_DRAWLAYERR:
         set_drawing_command_args(j, 8);
         break;
         
-    case DRAWSCREENR:
+    case CmdId_DRAWSCREENR:
         set_drawing_command_args(j, 6);
         break;
         
-    case QUAD3DR:
+    case CmdId_QUAD3DR:
     {
         long* v = script_drawing_commands[j].AllocateDrawBuffer(26 * sizeof(long));
         
@@ -7709,7 +7712,7 @@ void do_drawing_command(const int script_command)
     }
     break;
     
-    case TRIANGLE3DR:
+    case CmdId_TRIANGLE3DR:
     {
         long *v = script_drawing_commands[j].AllocateDrawBuffer(20 * sizeof(long));
         
@@ -7728,7 +7731,7 @@ void do_drawing_command(const int script_command)
     }
     break;
     
-    case DRAWSTRINGR:
+    case CmdId_DRAWSTRINGR:
     {
         set_drawing_command_args(j, 9);
 
@@ -7747,12 +7750,12 @@ void do_drawing_command(const int script_command)
     break;
 
 
-	//case BITMAPEXR:
+	//case CmdId_BITMAPEXR:
 	//{
 	//}
 	//break;
 
-	case POLYGONR:
+	case CmdId_POLYGONR:
 	{
 		set_drawing_command_args(j, 6);
 		int count = script_drawing_commands[j][2] / 10000;
@@ -7780,7 +7783,7 @@ void do_drawing_command(const int script_command)
 	}
 	break;
 
-	//case PIXELARRAYR:
+	//case CmdId_PIXELARRAYR:
 	//{
 	//	set_drawing_command_args(j, 5);
 	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
@@ -7796,7 +7799,7 @@ void do_drawing_command(const int script_command)
 	//}
 	//break;
 
-	//case TILEARRAYR:
+	//case CmdId_TILEARRAYR:
 	//{
 	//	set_drawing_command_args(j, 6);
 	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
@@ -7812,7 +7815,7 @@ void do_drawing_command(const int script_command)
 	//}
 	//break;
 
-	//case COMBOARRAYR:
+	//case CmdId_COMBOARRAYR:
 	//{
 	//	set_drawing_command_args(j, 6);
 	//	int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
@@ -8503,7 +8506,8 @@ int run_script(const byte type, const word script, const byte i)
     
     bool increment = true;
     
-    while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
+    while (scommand != 0xFFFF && scommand != CmdId_WAITFRAME
+           && scommand != CmdId_WAITDRAW)
     {
         numInstructions++;
         if(numInstructions==100000) // No need to check frequently
@@ -8523,1071 +8527,1071 @@ int run_script(const byte type, const word script, const byte i)
 #endif
 #endif
         
-        switch(scommand)
+        switch (scommand)
         {
-        case QUIT:
-            scommand = 0xFFFF;
-            break;
+        case CmdId_QUIT:
+	        scommand = 0xFFFF;
+	        break;
             
-        case GOTO:
-            pc = sarg1;
-            increment = false;
-            break;
+        case CmdId_GOTO:
+	        pc = sarg1;
+	        increment = false;
+	        break;
             
-        case GOTOR:
+        case CmdId_GOTOR:
         {
-            pc = (get_register(sarg1) / 10000) - 1;
-            increment = false;
+	        pc = (get_register(sarg1) / 10000) - 1;
+	        increment = false;
         }
         break;
         
-        case GOTOTRUE:
-            if(ri->scriptflag & TRUEFLAG)
-            {
-                pc = sarg1;
-                increment = false;
-            }
+        case CmdId_GOTOTRUE:
+	        if(ri->scriptflag & TRUEFLAG)
+	        {
+		        pc = sarg1;
+		        increment = false;
+	        }
             
-            break;
+	        break;
             
-        case GOTOFALSE:
-            if(!(ri->scriptflag & TRUEFLAG))
-            {
-                pc = sarg1;
-                increment = false;
-            }
+        case CmdId_GOTOFALSE:
+	        if(!(ri->scriptflag & TRUEFLAG))
+	        {
+		        pc = sarg1;
+		        increment = false;
+	        }
             
-            break;
+	        break;
             
-        case GOTOMORE:
-            if(ri->scriptflag & MOREFLAG)
-            {
-                pc = sarg1;
-                increment = false;
-            }
+        case CmdId_GOTOMORE:
+	        if(ri->scriptflag & MOREFLAG)
+	        {
+		        pc = sarg1;
+		        increment = false;
+	        }
             
-            break;
+	        break;
             
-        case GOTOLESS:
-            if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
-            {
-                pc = sarg1;
-                increment = false;
-            }
+        case CmdId_GOTOLESS:
+	        if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
+	        {
+		        pc = sarg1;
+		        increment = false;
+	        }
             
-            break;
+	        break;
             
-        case LOOP:
+        case CmdId_LOOP:
         {
-            if(get_register(sarg2) > 0)
-            {
-                pc = sarg1;
-                increment = false;
-            }
-            else
-            {
-                set_register(sarg1, sarg1 - 1);
-            }
+	        if(get_register(sarg2) > 0)
+	        {
+		        pc = sarg1;
+		        increment = false;
+	        }
+	        else
+	        {
+		        set_register(sarg1, sarg1 - 1);
+	        }
         }
         break;
         
-        case SETTRUE:
-            set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
-            break;
+        case CmdId_SETTRUE:
+	        set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
+	        break;
             
-        case SETFALSE:
-            set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
-            break;
+        case CmdId_SETFALSE:
+	        set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
+	        break;
             
-        case SETMORE:
-            set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
-            break;
+        case CmdId_SETMORE:
+	        set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
+	        break;
             
-        case SETLESS:
-            set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
-                                 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
-            break;
+        case CmdId_SETLESS:
+	        set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
+	                             || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
+	        break;
             
-        case NOT:
-            do_not(false);
-            break;
+        case CmdId_NOT:
+	        do_not(false);
+	        break;
             
-        case COMPAREV:
-            do_comp(true);
-            break;
+        case CmdId_COMPAREV:
+	        do_comp(true);
+	        break;
             
-        case COMPARER:
-            do_comp(false);
-            break;
+        case CmdId_COMPARER:
+	        do_comp(false);
+	        break;
             
-        case SETV:
-            do_set(true, type==SCRIPT_FFC ? i : -1);
-            break;
+        case CmdId_SETV:
+	        do_set(true, type==SCRIPT_FFC ? i : -1);
+	        break;
             
-        case SETR:
-            do_set(false, type==SCRIPT_FFC ? i : -1);
-            break;
+        case CmdId_SETR:
+	        do_set(false, type==SCRIPT_FFC ? i : -1);
+	        break;
             
-        case PUSHR:
-            do_push(false);
-            break;
+        case CmdId_PUSHR:
+	        do_push(false);
+	        break;
             
-        case PUSHV:
-            do_push(true);
-            break;
+        case CmdId_PUSHV:
+	        do_push(true);
+	        break;
             
-        case POP:
-            do_pop();
-            break;
+        case CmdId_POP:
+	        do_pop();
+	        break;
             
-        case LOADI:
-            do_loadi();
-            break;
+        case CmdId_LOADI:
+	        do_loadi();
+	        break;
             
-        case STOREI:
-            do_storei();
-            break;
+        case CmdId_STOREI:
+	        do_storei();
+	        break;
             
-        case LOAD1:
-            do_loada(0);
-            break;
+        case CmdId_LOAD1:
+	        do_loada(0);
+	        break;
             
-        case LOAD2:
-            do_loada(1);
-            break;
+        case CmdId_LOAD2:
+	        do_loada(1);
+	        break;
             
-        case SETA1:
-            do_seta(0);
-            break;
+        case CmdId_SETA1:
+	        do_seta(0);
+	        break;
             
-        case SETA2:
-            do_seta(1);
-            break;
+        case CmdId_SETA2:
+	        do_seta(1);
+	        break;
             
-        case ALLOCATEGMEMR:
-            if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type==SCRIPT_FFC?i:255);
+        case CmdId_ALLOCATEGMEMR:
+	        if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type==SCRIPT_FFC?i:255);
             
-            break;
+	        break;
             
-        case ALLOCATEGMEMV:
-            if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type==SCRIPT_FFC?i:255);
+        case CmdId_ALLOCATEGMEMV:
+	        if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type==SCRIPT_FFC?i:255);
             
-            break;
+	        break;
             
-        case ALLOCATEMEMR:
-            do_allocatemem(false, true, type==SCRIPT_FFC?i:255);
-            break;
+        case CmdId_ALLOCATEMEMR:
+	        do_allocatemem(false, true, type==SCRIPT_FFC?i:255);
+	        break;
             
-        case ALLOCATEMEMV:
-            do_allocatemem(true, true, type==SCRIPT_FFC?i:255);
-            break;
+        case CmdId_ALLOCATEMEMV:
+	        do_allocatemem(true, true, type==SCRIPT_FFC?i:255);
+	        break;
             
-        case DEALLOCATEMEMR:
-            do_deallocatemem();
-            break;
+        case CmdId_DEALLOCATEMEMR:
+	        do_deallocatemem();
+	        break;
             
-        case ARRAYSIZE:
-            do_arraysize();
-            break;
-         case ARRAYSIZEB:
-            do_arraysize();
-            break;
-	case ARRAYSIZEF:
-            do_arraysize();
-            break;
-	case ARRAYSIZEN:
-            do_arraysize();
-            break;
-	case ARRAYSIZEI:
-            do_arraysize();
-            break;
-	case ARRAYSIZEID:
-            do_arraysize();
-            break;
-	case ARRAYSIZEL:
-            do_arraysize();
-            break;
-	case ARRAYSIZEE:
-            do_arraysize();
-            break;
+        case CmdId_ARRAYSIZE:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEB:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEF:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEN:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEI:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEID:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEL:
+	        do_arraysize();
+	        break;
+        case CmdId_ARRAYSIZEE:
+	        do_arraysize();
+	        break;
 	
-        case GETFFCSCRIPT:
-            do_getffcscript();
-            break;
-	case GETITEMSCRIPT:
-            do_getitemscript();
-            break;
-            
-            
-        case ADDV:
-            do_add(true);
-            break;
-            
-        case ADDR:
-            do_add(false);
-            break;
-            
-        case SUBV:
-            do_sub(true);
-            break;
-            
-        case SUBR:
-            do_sub(false);
-            break;
-            
-        case MULTV:
-            do_mult(true);
-            break;
-            
-        case MULTR:
-            do_mult(false);
-            break;
-            
-        case DIVV:
-            do_div(true);
-            break;
-            
-        case DIVR:
-            do_div(false);
-            break;
-            
-        case MODV:
-            do_mod(true);
-            break;
-            
-        case MODR:
-            do_mod(false);
-            break;
-            
-        case SINV:
-            do_trig(true, 0);
-            break;
-            
-        case SINR:
-            do_trig(false, 0);
-            break;
-            
-        case COSV:
-            do_trig(true, 1);
-            break;
-            
-        case COSR:
-            do_trig(false, 1);
-            break;
-            
-        case TANV:
-            do_trig(true, 2);
-            break;
-            
-        case TANR:
-            do_trig(false, 2);
-            break;
-            
-        case ARCSINR:
-            do_asin(false);
-            break;
-            
-        case ARCCOSR:
-            do_acos(false);
-            break;
-            
-        case ARCTANR:
-            do_arctan();
-            break;
-            
-        case ABSR:
-            do_abs(false);
-            break;
-            
-        case MINR:
-            do_min(false);
-            break;
-            
-        case MINV:
-            do_min(true);
-            break;
-            
-        case MAXR:
-            do_max(false);
-            break;
-            
-        case MAXV:
-            do_max(true);
-            break;
-            
-        case RNDR:
-            do_rnd(false);
-            break;
-            
-        case RNDV:
-            do_rnd(true);
-            break;
-            
-        case FACTORIAL:
-            do_factorial(false);
-            break;
-            
-        case SQROOTV:
-            do_sqroot(true);
-            break;
-            
-        case SQROOTR:
-            do_sqroot(false);
-            break;
-            
-        case POWERR:
-            do_power(false);
-            break;
-            
-        case POWERV:
-            do_power(true);
-            break;
-            
-        case IPOWERR:
-            do_ipower(false);
-            break;
-            
-        case IPOWERV:
-            do_ipower(true);
-            break;
-            
-        case LOG10:
-            do_log10(false);
-            break;
-            
-        case LOGE:
-            do_naturallog(false);
-            break;
-            
-        case ANDR:
-            do_and(false);
-            break;
-            
-        case ANDV:
-            do_and(true);
-            break;
-            
-        case ORR:
-            do_or(false);
-            break;
-            
-        case ORV:
-            do_or(true);
-            break;
-            
-        case XORR:
-            do_xor(false);
-            break;
-            
-        case XORV:
-            do_xor(true);
-            break;
-            
-        case NANDR:
-            do_nand(false);
-            break;
-            
-        case NANDV:
-            do_nand(true);
-            break;
-            
-        case NORR:
-            do_nor(false);
-            break;
-            
-        case NORV:
-            do_nor(true);
-            break;
-            
-        case XNORR:
-            do_xnor(false);
-            break;
-            
-        case XNORV:
-            do_xnor(true);
-            break;
-            
-        case BITNOT:
-            do_bitwisenot(false);
-            break;
-            
-        case LSHIFTR:
-            do_lshift(false);
-            break;
-            
-        case LSHIFTV:
-            do_lshift(true);
-            break;
-            
-        case RSHIFTR:
-            do_rshift(false);
-            break;
-            
-        case RSHIFTV:
-            do_rshift(true);
-            break;
-            
-        case TRACER:
-            do_trace(false);
-            break;
-            
-        case TRACEV:
-            do_trace(true);
-            break;
-            
-        case TRACE2R:
-            do_tracebool(false);
-            break;
-            
-        case TRACE2V:
-            do_tracebool(true);
-            break;
-            
-        case TRACE3:
-            do_tracenl();
-            break;
-            
-        case TRACE4:
-            do_cleartrace();
-            break;
-            
-        case TRACE5:
-            do_tracetobase();
-            break;
-            
-        case TRACE6:
-            do_tracestring();
-            break;
-            
-        case WARP:
-            do_warp(true);
-            break;
-            
-        case WARPR:
-            do_warp(false);
-            break;
-            
-        case PITWARP:
-            do_pitwarp(true);
-            break;
-            
-        case PITWARPR:
-            do_pitwarp(false);
-            break;
-            
-        case BREAKSHIELD:
-            do_breakshield();
-            break;
-            
-        case SELECTAWPNV:
-            do_selectweapon(true, true);
-            break;
-            
-        case SELECTAWPNR:
-            do_selectweapon(false, true);
-            break;
-            
-        case SELECTBWPNV:
-            do_selectweapon(true, false);
-            break;
-            
-        case SELECTBWPNR:
-            do_selectweapon(false, false);
-            break;
-            
-        case PLAYSOUNDR:
-            do_sfx(false);
-            break;
-            
-        case PLAYSOUNDV:
-            do_sfx(true);
-            break;
+        case CmdId_GETFFCSCRIPT:
+	        do_getffcscript();
+	        break;
+        case CmdId_GETITEMSCRIPT:
+	        do_getitemscript();
+	        break;
+            
+            
+        case CmdId_ADDV:
+	        do_add(true);
+	        break;
+            
+        case CmdId_ADDR:
+	        do_add(false);
+	        break;
+            
+        case CmdId_SUBV:
+	        do_sub(true);
+	        break;
+            
+        case CmdId_SUBR:
+	        do_sub(false);
+	        break;
+            
+        case CmdId_MULTV:
+	        do_mult(true);
+	        break;
+            
+        case CmdId_MULTR:
+	        do_mult(false);
+	        break;
+            
+        case CmdId_DIVV:
+	        do_div(true);
+	        break;
+            
+        case CmdId_DIVR:
+	        do_div(false);
+	        break;
+            
+        case CmdId_MODV:
+	        do_mod(true);
+	        break;
+            
+        case CmdId_MODR:
+	        do_mod(false);
+	        break;
+            
+        case CmdId_SINV:
+	        do_trig(true, 0);
+	        break;
+            
+        case CmdId_SINR:
+	        do_trig(false, 0);
+	        break;
+            
+        case CmdId_COSV:
+	        do_trig(true, 1);
+	        break;
+            
+        case CmdId_COSR:
+	        do_trig(false, 1);
+	        break;
+            
+        case CmdId_TANV:
+	        do_trig(true, 2);
+	        break;
+            
+        case CmdId_TANR:
+	        do_trig(false, 2);
+	        break;
+            
+        case CmdId_ARCSINR:
+	        do_asin(false);
+	        break;
+            
+        case CmdId_ARCCOSR:
+	        do_acos(false);
+	        break;
+            
+        case CmdId_ARCTANR:
+	        do_arctan();
+	        break;
+            
+        case CmdId_ABS:
+	        do_abs(false);
+	        break;
+            
+        case CmdId_MINR:
+	        do_min(false);
+	        break;
+            
+        case CmdId_MINV:
+	        do_min(true);
+	        break;
+            
+        case CmdId_MAXR:
+	        do_max(false);
+	        break;
+            
+        case CmdId_MAXV:
+	        do_max(true);
+	        break;
+            
+        case CmdId_RNDR:
+	        do_rnd(false);
+	        break;
+            
+        case CmdId_RNDV:
+	        do_rnd(true);
+	        break;
+            
+        case CmdId_FACTORIAL:
+	        do_factorial(false);
+	        break;
+            
+        case CmdId_SQROOTV:
+	        do_sqroot(true);
+	        break;
+            
+        case CmdId_SQROOTR:
+	        do_sqroot(false);
+	        break;
+            
+        case CmdId_POWERR:
+	        do_power(false);
+	        break;
+            
+        case CmdId_POWERV:
+	        do_power(true);
+	        break;
+            
+        case CmdId_IPOWERR:
+	        do_ipower(false);
+	        break;
+            
+        case CmdId_IPOWERV:
+	        do_ipower(true);
+	        break;
+            
+        case CmdId_LOG10:
+	        do_log10(false);
+	        break;
+            
+        case CmdId_LOGE:
+	        do_naturallog(false);
+	        break;
+            
+        case CmdId_ANDR:
+	        do_and(false);
+	        break;
+            
+        case CmdId_ANDV:
+	        do_and(true);
+	        break;
+            
+        case CmdId_ORR:
+	        do_or(false);
+	        break;
+            
+        case CmdId_ORV:
+	        do_or(true);
+	        break;
+            
+        case CmdId_XORR:
+	        do_xor(false);
+	        break;
+            
+        case CmdId_XORV:
+	        do_xor(true);
+	        break;
+            
+        case CmdId_NANDR:
+	        do_nand(false);
+	        break;
+            
+        case CmdId_NANDV:
+	        do_nand(true);
+	        break;
+            
+        case CmdId_NORR:
+	        do_nor(false);
+	        break;
+            
+        case CmdId_NORV:
+	        do_nor(true);
+	        break;
+            
+        case CmdId_XNORR:
+	        do_xnor(false);
+	        break;
+            
+        case CmdId_XNORV:
+	        do_xnor(true);
+	        break;
+            
+        case CmdId_BITNOT:
+	        do_bitwisenot(false);
+	        break;
+            
+        case CmdId_LSHIFTR:
+	        do_lshift(false);
+	        break;
+            
+        case CmdId_LSHIFTV:
+	        do_lshift(true);
+	        break;
+            
+        case CmdId_RSHIFTR:
+	        do_rshift(false);
+	        break;
+            
+        case CmdId_RSHIFTV:
+	        do_rshift(true);
+	        break;
+            
+        case CmdId_TRACER:
+	        do_trace(false);
+	        break;
+            
+        case CmdId_TRACEV:
+	        do_trace(true);
+	        break;
+            
+        case CmdId_TRACE2R:
+	        do_tracebool(false);
+	        break;
+            
+        case CmdId_TRACE2V:
+	        do_tracebool(true);
+	        break;
+            
+        case CmdId_TRACE3:
+	        do_tracenl();
+	        break;
+            
+        case CmdId_TRACE4:
+	        do_cleartrace();
+	        break;
+            
+        case CmdId_TRACE5:
+	        do_tracetobase();
+	        break;
+            
+        case CmdId_TRACE6:
+	        do_tracestring();
+	        break;
+            
+        case CmdId_WARP:
+	        do_warp(true);
+	        break;
+            
+        case CmdId_WARPR:
+	        do_warp(false);
+	        break;
+            
+        case CmdId_PITWARP:
+	        do_pitwarp(true);
+	        break;
+            
+        case CmdId_PITWARPR:
+	        do_pitwarp(false);
+	        break;
+            
+        case CmdId_BREAKSHIELD:
+	        do_breakshield();
+	        break;
+            
+        case CmdId_SELECTAWPNV:
+	        do_selectweapon(true, true);
+	        break;
+            
+        case CmdId_SELECTAWPNR:
+	        do_selectweapon(false, true);
+	        break;
+            
+        case CmdId_SELECTBWPNV:
+	        do_selectweapon(true, false);
+	        break;
+            
+        case CmdId_SELECTBWPNR:
+	        do_selectweapon(false, false);
+	        break;
+            
+        case CmdId_PLAYSOUNDR:
+	        do_sfx(false);
+	        break;
+            
+        case CmdId_PLAYSOUNDV:
+	        do_sfx(true);
+	        break;
 	
-	case TRIGGERSECRETR:
-            FFScript::do_triggersecret(false);
-            break;
+        case CmdId_TRIGGERSECRETR:
+	        FFScript::do_triggersecret(false);
+	        break;
             
-        case TRIGGERSECRETV:
-            FFScript::do_triggersecret(true);
-            break;
+        case CmdId_TRIGGERSECRETV:
+	        FFScript::do_triggersecret(true);
+	        break;
             
-        case PLAYMIDIR:
-            do_midi(false);
-            break;
+        case CmdId_PLAYMIDIR:
+	        do_midi(false);
+	        break;
             
-        case PLAYMIDIV:
-            do_midi(true);
-            break;
+        case CmdId_PLAYMIDIV:
+	        do_midi(true);
+	        break;
             
-        case PLAYENHMUSIC:
-            do_enh_music(false);
-            break;
+        case CmdId_PLAYENHMUSIC:
+	        do_enh_music(false);
+	        break;
             
-        case GETMUSICFILE:
-            do_get_enh_music_filename(false);
-            break;
+        case CmdId_GETMUSICFILE:
+	        do_get_enh_music_filename(false);
+	        break;
             
-        case GETMUSICTRACK:
-            do_get_enh_music_track(false);
-            break;
+        case CmdId_GETMUSICTRACK:
+	        do_get_enh_music_track(false);
+	        break;
             
-        case SETDMAPENHMUSIC:
-            do_set_dmap_enh_music(false);
-            break;
+        case CmdId_SETDMAPENHMUSIC:
+	        do_set_dmap_enh_music(false);
+	        break;
 	
-	// Audio->
+	        // Audio->
 	
-	case ENDSOUNDR:
-            stop_sfx(false);
-            break;
+        case CmdId_ENDSOUNDR:
+	        stop_sfx(false);
+	        break;
             
-        case ENDSOUNDV:
-            stop_sfx(true);
-            break;
+        case CmdId_ENDSOUNDV:
+	        stop_sfx(true);
+	        break;
 	
-	case PAUSESOUNDR:
-            pause_sfx(false);
-            break;
+        case CmdId_PAUSESOUNDR:
+	        pause_sfx(false);
+	        break;
             
-        case PAUSESOUNDV:
-            pause_sfx(true);
-            break;
+        case CmdId_PAUSESOUNDV:
+	        pause_sfx(true);
+	        break;
 	
-	case RESUMESOUNDR:
-            resume_sfx(false);
-            break;
+        case CmdId_RESUMESOUNDR:
+	        resume_sfx(false);
+	        break;
             
-        case RESUMESOUNDV:
-            resume_sfx(true);
-            break;
+        case CmdId_RESUMESOUNDV:
+	        resume_sfx(true);
+	        break;
 	
 	
 	
-	case PAUSESFX:
-	{
-		int sound = ri->d[0]/10000;
-		Backend::sfx->pause(sound);
+        case CmdId_PAUSESFX:
+        {
+	        int sound = ri->d[0]/10000;
+	        Backend::sfx->pause(sound);
 		
-	}
-	break;
+        }
+        break;
 
-	case RESUMESFX:
-	{
-		int sound = ri->d[0]/10000;
-		Backend::sfx->resume(sound);
-	}
-	break;
+        case CmdId_RESUMESFX:
+        {
+	        int sound = ri->d[0]/10000;
+	        Backend::sfx->resume(sound);
+        }
+        break;
 
-	case ADJUSTSFX:
-	{
-		int sound = ri->d[2]/10000;
-		int pan = ri->d[1];
-		// control_state[6]=((value/10000)!=0)?true:false;
-		bool loop = ((ri->d[0]/10000)!=0)?true:false;
-		//SFXBackend.adjust_sfx(sound,pan,loop);
+        case CmdId_ADJUSTSFX:
+        {
+	        int sound = ri->d[2]/10000;
+	        int pan = ri->d[1];
+	        // control_state[6]=((value/10000)!=0)?true:false;
+	        bool loop = ((ri->d[0]/10000)!=0)?true:false;
+	        //SFXBackend.adjust_sfx(sound,pan,loop);
 		
-		//! adjust_sfx was not ported to the new back end!!! -Z
-	}
-	break;
+	        //! adjust_sfx was not ported to the new back end!!! -Z
+        }
+        break;
 
 
-	case CONTINUESFX:
-	{
-		int sound = ri->d[0]/10000;
-		//Backend::sfx->cont_sfx(sound);
+        case CmdId_CONTINUESFX:
+        {
+	        int sound = ri->d[0]/10000;
+	        //Backend::sfx->cont_sfx(sound);
 		
-		//! cont_sfx was not ported to the new back end!!!
-		// I believe this restarted the loop. 
+	        //! cont_sfx was not ported to the new back end!!!
+	        // I believe this restarted the loop. 
 		
-		Backend::sfx->resume(sound);
-	}
-	break;	
+	        Backend::sfx->resume(sound);
+        }
+        break;	
 
 	
-	case PAUSEMUSIC:
-		Backend::sfx->pauseAll();
-		break;
-	case RESUMEMUSIC:
-		Backend::sfx->resumeAll();
-		break;
+        case CmdId_PAUSEMUSIC:
+	        Backend::sfx->pauseAll();
+	        break;
+        case CmdId_RESUMEMUSIC:
+	        Backend::sfx->resumeAll();
+	        break;
             
             
-        case MSGSTRR:
-            do_message(false);
-            break;
+        case CmdId_MSGSTRR:
+	        do_message(false);
+	        break;
             
-        case MSGSTRV:
-            do_message(true);
-            break;
+        case CmdId_MSGSTRV:
+	        do_message(true);
+	        break;
             
-        case ITEMNAME:
-            do_getitemname();
-            break;
+        case CmdId_ITEMNAME:
+	        do_getitemname();
+	        break;
             
-        case NPCNAME:
-            do_getnpcname();
-            break;
+        case CmdId_NPCNAME:
+	        do_getnpcname();
+	        break;
             
-        case GETSAVENAME:
-            do_getsavename();
-            break;
+        case CmdId_GETSAVENAME:
+	        do_getsavename();
+	        break;
             
-        case SETSAVENAME:
-            do_setsavename();
-            break;
+        case CmdId_SETSAVENAME:
+	        do_setsavename();
+	        break;
             
-        case GETMESSAGE:
-            do_getmessage(false);
-            break;
-	case SETMESSAGE:
-            do_setmessage(false);
-            break;
+        case CmdId_GETMESSAGE:
+	        do_getmessage(false);
+	        break;
+        case CmdId_SETMESSAGE:
+	        do_setmessage(false);
+	        break;
             
-        case GETDMAPNAME:
-            do_getdmapname(false);
-            break;
+        case CmdId_GETDMAPNAME:
+	        do_getdmapname(false);
+	        break;
             
-        case GETDMAPTITLE:
-            do_getdmaptitle(false);
-            break;
+        case CmdId_GETDMAPTITLE:
+	        do_getdmaptitle(false);
+	        break;
             
-        case GETDMAPINTRO:
-            do_getdmapintro(false);
-            break;
+        case CmdId_GETDMAPINTRO:
+	        do_getdmapintro(false);
+	        break;
             
-	case SETDMAPNAME:
-            do_setdmapname(false);
-            break;
+        case CmdId_SETDMAPNAME:
+	        do_setdmapname(false);
+	        break;
             
-        case SETDMAPTITLE:
-            do_setdmaptitle(false);
-            break;
+        case CmdId_SETDMAPTITLE:
+	        do_setdmaptitle(false);
+	        break;
 	
-        case SETDMAPINTRO:
-            do_setdmapintro(false);
-            break;
+        case CmdId_SETDMAPINTRO:
+	        do_setdmapintro(false);
+	        break;
 	
-        case LOADLWEAPONR:
-            do_loadlweapon(false);
-            break;
+        case CmdId_LOADLWEAPONR:
+	        do_loadlweapon(false);
+	        break;
             
-        case LOADLWEAPONV:
-            do_loadlweapon(true);
-            break;
+        case CmdId_LOADLWEAPONV:
+	        do_loadlweapon(true);
+	        break;
             
-        case LOADEWEAPONR:
-            do_loadeweapon(false);
-            break;
+        case CmdId_LOADEWEAPONR:
+	        do_loadeweapon(false);
+	        break;
             
-        case LOADEWEAPONV:
-            do_loadeweapon(true);
-            break;
+        case CmdId_LOADEWEAPONV:
+	        do_loadeweapon(true);
+	        break;
             
-        case LOADITEMR:
-            do_loaditem(false);
-            break;
+        case CmdId_LOADITEMR:
+	        do_loaditem(false);
+	        break;
             
-        case LOADITEMV:
-            do_loaditem(true);
-            break;
+        case CmdId_LOADITEMV:
+	        do_loaditem(true);
+	        break;
             
-        case LOADITEMDATAR:
-            do_loaditemdata(false);
-            break;
+        case CmdId_LOADITEMDATAR:
+	        do_loaditemdata(false);
+	        break;
             
-        case LOADITEMDATAV:
-            do_loaditemdata(true);
-            break;
+        case CmdId_LOADITEMDATAV:
+	        do_loaditemdata(true);
+	        break;
             
-        case LOADNPCR:
-            do_loadnpc(false);
-            break;
+        case CmdId_LOADNPCR:
+	        do_loadnpc(false);
+	        break;
             
-        case LOADNPCV:
-            do_loadnpc(true);
-            break;
+        case CmdId_LOADNPCV:
+	        do_loadnpc(true);
+	        break;
             
-        case CREATELWEAPONR:
-            do_createlweapon(false);
-            break;
+        case CmdId_CREATELWEAPONR:
+	        do_createlweapon(false);
+	        break;
             
-        case CREATELWEAPONV:
-            do_createlweapon(true);
-            break;
+        case CmdId_CREATELWEAPONV:
+	        do_createlweapon(true);
+	        break;
             
-        case CREATEEWEAPONR:
-            do_createeweapon(false);
-            break;
+        case CmdId_CREATEEWEAPONR:
+	        do_createeweapon(false);
+	        break;
             
-        case CREATEEWEAPONV:
-            do_createeweapon(true);
-            break;
+        case CmdId_CREATEEWEAPONV:
+	        do_createeweapon(true);
+	        break;
             
-        case CREATEITEMR:
-            do_createitem(false);
-            break;
+        case CmdId_CREATEITEMR:
+	        do_createitem(false);
+	        break;
             
-        case CREATEITEMV:
-            do_createitem(true);
-            break;
+        case CmdId_CREATEITEMV:
+	        do_createitem(true);
+	        break;
             
-        case CREATENPCR:
-            do_createnpc(false);
-            break;
+        case CmdId_CREATENPCR:
+	        do_createnpc(false);
+	        break;
             
-        case CREATENPCV:
-            do_createnpc(true);
-            break;
+        case CmdId_CREATENPCV:
+	        do_createnpc(true);
+	        break;
             
-        case ISVALIDITEM:
-            do_isvaliditem();
-            break;
+        case CmdId_ISVALIDITEM:
+	        do_isvaliditem();
+	        break;
             
-        case ISVALIDNPC:
-            do_isvalidnpc();
-            break;
+        case CmdId_ISVALIDNPC:
+	        do_isvalidnpc();
+	        break;
             
-        case ISVALIDLWPN:
-            do_isvalidlwpn();
-            break;
+        case CmdId_ISVALIDLWPN:
+	        do_isvalidlwpn();
+	        break;
             
-        case ISVALIDEWPN:
-            do_isvalidewpn();
-            break;
+        case CmdId_ISVALIDEWPN:
+	        do_isvalidewpn();
+	        break;
             
-        case LWPNUSESPRITER:
-            do_lwpnusesprite(false);
-            break;
+        case CmdId_LWPNUSESPRITER:
+	        do_lwpnusesprite(false);
+	        break;
             
-        case LWPNUSESPRITEV:
-            do_lwpnusesprite(true);
-            break;
+        case CmdId_LWPNUSESPRITEV:
+	        do_lwpnusesprite(true);
+	        break;
             
-        case EWPNUSESPRITER:
-            do_ewpnusesprite(false);
-            break;
+        case CmdId_EWPNUSESPRITER:
+	        do_ewpnusesprite(false);
+	        break;
             
-        case EWPNUSESPRITEV:
-            do_ewpnusesprite(true);
-            break;
+        case CmdId_EWPNUSESPRITEV:
+	        do_ewpnusesprite(true);
+	        break;
             
-        case CLEARSPRITESR:
-            do_clearsprites(false);
-            break;
+        case CmdId_CLEARSPRITESR:
+	        do_clearsprites(false);
+	        break;
             
-        case CLEARSPRITESV:
-            do_clearsprites(true);
-            break;
+        case CmdId_CLEARSPRITESV:
+	        do_clearsprites(true);
+	        break;
             
-        case ISSOLID:
-            do_issolid();
-            break;
+        case CmdId_ISSOLID:
+	        do_issolid();
+	        break;
             
-        case SETSIDEWARP:
-            do_setsidewarp();
-            break;
+        case CmdId_SETSIDEWARP:
+	        do_setsidewarp();
+	        break;
             
-        case SETTILEWARP:
-            do_settilewarp();
-            break;
+        case CmdId_SETTILEWARP:
+	        do_settilewarp();
+	        break;
             
-        case GETSIDEWARPDMAP:
-            do_getsidewarpdmap(false);
-            break;
+        case CmdId_GETSIDEWARPDMAP:
+	        do_getsidewarpdmap(false);
+	        break;
             
-        case GETSIDEWARPSCR:
-            do_getsidewarpscr(false);
-            break;
+        case CmdId_GETSIDEWARPSCR:
+	        do_getsidewarpscr(false);
+	        break;
             
-        case GETSIDEWARPTYPE:
-            do_getsidewarptype(false);
-            break;
+        case CmdId_GETSIDEWARPTYPE:
+	        do_getsidewarptype(false);
+	        break;
             
-        case GETTILEWARPDMAP:
-            do_gettilewarpdmap(false);
-            break;
+        case CmdId_GETTILEWARPDMAP:
+	        do_gettilewarpdmap(false);
+	        break;
             
-        case GETTILEWARPSCR:
-            do_gettilewarpscr(false);
-            break;
+        case CmdId_GETTILEWARPSCR:
+	        do_gettilewarpscr(false);
+	        break;
             
-        case GETTILEWARPTYPE:
-            do_gettilewarptype(false);
-            break;
+        case CmdId_GETTILEWARPTYPE:
+	        do_gettilewarptype(false);
+	        break;
             
-        case LAYERSCREEN:
-            do_layerscreen();
-            break;
+        case CmdId_LAYERSCREEN:
+	        do_layerscreen();
+	        break;
             
-        case LAYERMAP:
-            do_layermap();
-            break;
+        case CmdId_LAYERMAP:
+	        do_layermap();
+	        break;
             
-        case SECRETS:
-            do_triggersecrets();
-            break;
+        case CmdId_SECRETS:
+	        do_triggersecrets();
+	        break;
             
-        case GETSCREENFLAGS:
-            do_getscreenflags();
-            break;
+        case CmdId_GETSCREENFLAGS:
+	        do_getscreenflags();
+	        break;
             
-        case GETSCREENEFLAGS:
-            do_getscreeneflags();
-            break;
+        case CmdId_GETSCREENEFLAGS:
+	        do_getscreeneflags();
+	        break;
 	
-	case GETSCREENDOOR:
-            do_getscreendoor();
-            break;
+        case CmdId_GETSCREENDOOR:
+	        do_getscreendoor();
+	        break;
 	
-	case GETSCREENENEMY:
-            do_getscreennpc();
-            break;
+        case CmdId_GETSCREENENEMY:
+	        do_getscreennpc();
+	        break;
             
-	case GETSCREENLAYOP:
-            do_getscreenLayerOpacity();
-            break;
-	case GETSCREENSECCMB:
-	    do_getscreenSecretCombo();
-            break;
-	case GETSCREENSECCST:
-	    do_getscreenSecretCSet();
-            break;
-	case GETSCREENSECFLG:
-	    do_getscreenSecretFlag();
-            break;
-	case GETSCREENLAYMAP:
-	    do_getscreenLayerMap();
-            break;
-	case GETSCREENLAYSCR:
-	    do_getscreenLayerscreen();
-            break;
-	case GETSCREENPATH:
-	    do_getscreenPath();
-            break;
-	case GETSCREENWARPRX:
-	    do_getscreenWarpReturnX();
-            break;
-	case GETSCREENWARPRY:
-	    do_getscreenWarpReturnY();
-            break;
+        case CmdId_GETSCREENLAYOP:
+	        do_getscreenLayerOpacity();
+	        break;
+        case CmdId_GETSCREENSECCMB:
+	        do_getscreenSecretCombo();
+	        break;
+        case CmdId_GETSCREENSECCST:
+	        do_getscreenSecretCSet();
+	        break;
+        case CmdId_GETSCREENSECFLG:
+	        do_getscreenSecretFlag();
+	        break;
+        case CmdId_GETSCREENLAYMAP:
+	        do_getscreenLayerMap();
+	        break;
+        case CmdId_GETSCREENLAYSCR:
+	        do_getscreenLayerscreen();
+	        break;
+        case CmdId_GETSCREENPATH:
+	        do_getscreenPath();
+	        break;
+        case CmdId_GETSCREENWARPRX:
+	        do_getscreenWarpReturnX();
+	        break;
+        case CmdId_GETSCREENWARPRY:
+	        do_getscreenWarpReturnY();
+	        break;
 
-        case COMBOTILE:
-            do_combotile(false);
-            break;
+        case CmdId_COMBOTILE:
+	        do_combotile(false);
+	        break;
             
-        case RECTR:
-        case CIRCLER:
-        case ARCR:
-        case ELLIPSER:
-        case LINER:
-        case PUTPIXELR:
-        case DRAWTILER:
-        case DRAWCOMBOR:
-        case DRAWCHARR:
-        case DRAWINTR:
-        case QUADR:
-        case TRIANGLER:
-        case QUAD3DR:
-        case TRIANGLE3DR:
-        case FASTTILER:
-        case FASTCOMBOR:
-        case DRAWSTRINGR:
-        case SPLINER:
-        case BITMAPR:
-		case BITMAPEXR:
-        case DRAWLAYERR:
-        case DRAWSCREENR:
-		//case BITMAPEXR:
-		//case POLYGONR:
-		//case PIXELARRAYR:
-		//case TILEARRAYR:
-		//case COMBOARRAYR:
-            do_drawing_command(scommand);
-            break;
+        case CmdId_RECTR:
+        case CmdId_CIRCLER:
+        case CmdId_ARCR:
+        case CmdId_ELLIPSER:
+        case CmdId_LINER:
+        case CmdId_PUTPIXELR:
+        case CmdId_DRAWTILER:
+        case CmdId_DRAWCOMBOR:
+        case CmdId_DRAWCHARR:
+        case CmdId_DRAWINTR:
+        case CmdId_QUADR:
+        case CmdId_TRIANGLER:
+        case CmdId_QUAD3DR:
+        case CmdId_TRIANGLE3DR:
+        case CmdId_FASTTILER:
+        case CmdId_FASTCOMBOR:
+        case CmdId_DRAWSTRINGR:
+        case CmdId_SPLINER:
+        case CmdId_BITMAPR:
+        case CmdId_BITMAPEXR:
+        case CmdId_DRAWLAYERR:
+        case CmdId_DRAWSCREENR:
+	        //case CmdId_BITMAPEXR:
+	        //case CmdId_POLYGONR:
+	        //case CmdId_PIXELARRAYR:
+	        //case CmdId_TILEARRAYR:
+	        //case CmdId_COMBOARRAYR:
+	        do_drawing_command(scommand);
+	        break;
             
-        case COPYTILEVV:
-            do_copytile(true, true);
-            break;
+        case CmdId_COPYTILEVV:
+	        do_copytile(true, true);
+	        break;
             
-        case COPYTILEVR:
-            do_copytile(true, false);
-            break;
+        case CmdId_COPYTILEVR:
+	        do_copytile(true, false);
+	        break;
             
-        case COPYTILERV:
-            do_copytile(false, true);
-            break;
+        case CmdId_COPYTILERV:
+	        do_copytile(false, true);
+	        break;
             
-        case COPYTILERR:
-            do_copytile(false, false);
-            break;
+        case CmdId_COPYTILERR:
+	        do_copytile(false, false);
+	        break;
             
-        case SWAPTILEVV:
-            do_swaptile(true, true);
-            break;
+        case CmdId_SWAPTILEVV:
+	        do_swaptile(true, true);
+	        break;
             
-        case SWAPTILEVR:
-            do_swaptile(true, false);
-            break;
+        case CmdId_SWAPTILEVR:
+	        do_swaptile(true, false);
+	        break;
             
-        case SWAPTILERV:
-            do_swaptile(false, true);
-            break;
+        case CmdId_SWAPTILERV:
+	        do_swaptile(false, true);
+	        break;
             
-        case SWAPTILERR:
-            do_swaptile(false, false);
-            break;
+        case CmdId_SWAPTILERR:
+	        do_swaptile(false, false);
+	        break;
             
-        case CLEARTILEV:
-            do_cleartile(true);
-            break;
+        case CmdId_CLEARTILEV:
+	        do_cleartile(true);
+	        break;
             
-        case CLEARTILER:
-            do_cleartile(false);
-            break;
+        case CmdId_CLEARTILER:
+	        do_cleartile(false);
+	        break;
             
-        case OVERLAYTILEVV:
-            do_overlaytile(true, true);
-            break;
+        case CmdId_OVERLAYTILEVV:
+	        do_overlaytile(true, true);
+	        break;
             
-        case OVERLAYTILEVR:
-            do_overlaytile(true, false);
-            break;
+        case CmdId_OVERLAYTILEVR:
+	        do_overlaytile(true, false);
+	        break;
             
-        case OVERLAYTILERV:
-            do_overlaytile(false, true);
-            break;
+        case CmdId_OVERLAYTILERV:
+	        do_overlaytile(false, true);
+	        break;
             
-        case OVERLAYTILERR:
-            do_overlaytile(false, false);
-            break;
+        case CmdId_OVERLAYTILERR:
+	        do_overlaytile(false, false);
+	        break;
             
-        case FLIPROTTILEVV:
-            do_fliprotatetile(true, true);
-            break;
+        case CmdId_FLIPROTTILEVV:
+	        do_fliprotatetile(true, true);
+	        break;
             
-        case FLIPROTTILEVR:
-            do_fliprotatetile(true, false);
-            break;
+        case CmdId_FLIPROTTILEVR:
+	        do_fliprotatetile(true, false);
+	        break;
             
-        case FLIPROTTILERV:
-            do_fliprotatetile(false, true);
-            break;
+        case CmdId_FLIPROTTILERV:
+	        do_fliprotatetile(false, true);
+	        break;
             
-        case FLIPROTTILERR:
-            do_fliprotatetile(false, false);
-            break;
+        case CmdId_FLIPROTTILERR:
+	        do_fliprotatetile(false, false);
+	        break;
             
-        case GETTILEPIXELV:
-            do_gettilepixel(true);
-            break;
+        case CmdId_GETTILEPIXELV:
+	        do_gettilepixel(true);
+	        break;
             
-        case GETTILEPIXELR:
-            do_gettilepixel(false);
-            break;
+        case CmdId_GETTILEPIXELR:
+	        do_gettilepixel(false);
+	        break;
             
-        case SETTILEPIXELV:
-            do_settilepixel(true);
-            break;
+        case CmdId_SETTILEPIXELV:
+	        do_settilepixel(true);
+	        break;
             
-        case SETTILEPIXELR:
-            do_settilepixel(false);
-            break;
+        case CmdId_SETTILEPIXELR:
+	        do_settilepixel(false);
+	        break;
             
-        case SHIFTTILEVV:
-            do_shifttile(true, true);
-            break;
+        case CmdId_SHIFTTILEVV:
+	        do_shifttile(true, true);
+	        break;
             
-        case SHIFTTILEVR:
-            do_shifttile(true, false);
-            break;
+        case CmdId_SHIFTTILEVR:
+	        do_shifttile(true, false);
+	        break;
             
-        case SHIFTTILERV:
-            do_shifttile(false, true);
-            break;
+        case CmdId_SHIFTTILERV:
+	        do_shifttile(false, true);
+	        break;
             
-        case SHIFTTILERR:
-            do_shifttile(false, false);
-            break;
+        case CmdId_SHIFTTILERR:
+	        do_shifttile(false, false);
+	        break;
             
-        case SETRENDERTARGET:
-            do_set_rendertarget(true);
-            break;
+        case CmdId_SETRENDERTARGET:
+	        do_set_rendertarget(true);
+	        break;
             
-        case GAMEEND:
-            Quit = qQUIT;
-            skipcont = 1;
-            scommand = 0xFFFF;
-            break;
+        case CmdId_GAMEEND:
+	        Quit = qQUIT;
+	        skipcont = 1;
+	        scommand = 0xFFFF;
+	        break;
             
-        case SAVE:
-            if(scriptCanSave)
-            {
-                save_game(false);
-                scriptCanSave=false;
-            }
-            break;
+        case CmdId_SAVE:
+	        if(scriptCanSave)
+	        {
+		        save_game(false);
+		        scriptCanSave=false;
+	        }
+	        break;
             
-        case SAVESCREEN:
-            do_showsavescreen();
-            break;
+        case CmdId_SAVESCREEN:
+	        do_showsavescreen();
+	        break;
             
-        case SAVEQUITSCREEN:
-            save_game(false, 1);
-            break;
+        case CmdId_SAVEQUITSCREEN:
+	        save_game(false, 1);
+	        break;
             
-            //Not Implemented
-        case ELLIPSE2:
-        case FLOODFILL:
-            break;
+	        //Not Implemented
+        case CmdId_ELLIPSE2:
+        case CmdId_FLOODFILL:
+	        break;
             
-        case SETCOLORB:
-        case SETDEPTHB:
-        case GETCOLORB:
-        case GETDEPTHB:
-            break;
+        case CmdId_SETCOLORB:
+        case CmdId_SETDEPTHB:
+        case CmdId_GETCOLORB:
+        case CmdId_GETDEPTHB:
+	        break;
             
-        case ENQUEUER:
-            do_enqueue(false);
-            break;
+        case CmdId_ENQUEUER:
+	        do_enqueue(false);
+	        break;
             
-        case ENQUEUEV:
-            do_enqueue(true);
-            break;
+        case CmdId_ENQUEUEV:
+	        do_enqueue(true);
+	        break;
             
-        case DEQUEUE:
-            do_dequeue(false);
-            break;
+        case CmdId_DEQUEUE:
+	        do_dequeue(false);
+	        break;
 	
-	//Visual Effects
-	case WAVYIN:
-		FFScript::do_wavyin();
-		break;
-	case WAVYOUT:
-		FFScript::do_wavyout();
-		break;
-	case ZAPIN:
-		FFScript::do_zapin();
-		break;
-	case ZAPOUT:
-		FFScript::do_zapout();
-		break;
-	case OPENWIPE:
-		FFScript::do_openscreen();
-		break;
+	        //Visual Effects
+        case CmdId_WAVYIN:
+	        FFScript::do_wavyin();
+	        break;
+        case CmdId_WAVYOUT:
+	        FFScript::do_wavyout();
+	        break;
+        case CmdId_ZAPIN:
+	        FFScript::do_zapin();
+	        break;
+        case CmdId_ZAPOUT:
+	        FFScript::do_zapout();
+	        break;
+        case CmdId_OPENWIPE:
+	        FFScript::do_openscreen();
+	        break;
 	
-	//Monochrome
-	case GREYSCALEON:
-		setMonochrome(true);
-		break;
-	case GREYSCALEOFF:
-		setMonochrome(false);
-		break;
+	        //Monochrome
+        case CmdId_GREYSCALEON:
+	        setMonochrome(true);
+	        break;
+        case CmdId_GREYSCALEOFF:
+	        setMonochrome(false);
+	        break;
 	
 	
 	
         default:
-            Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
-            break;
+	        Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
+	        break;
         }
                
 #ifdef _SCRIPT_COUNTER
@@ -9610,7 +9614,7 @@ int run_script(const byte type, const word script, const byte i)
     if(!scriptCanSave)
         scriptCanSave=true;
     
-    if(scommand == WAITDRAW)
+    if (scommand == CmdId_WAITDRAW)
     {
         switch(type)
         {

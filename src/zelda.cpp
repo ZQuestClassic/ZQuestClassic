@@ -73,6 +73,7 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+using namespace ZAsm;
 
 ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
@@ -391,10 +392,11 @@ dword getNumGlobalArrays()
     {
         scommand = scripts.globalscripts[GLOBAL_SCRIPT_INIT].commands[pc].command;
         
-        if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
-            ret++;
+        if (scommand == CmdId_ALLOCATEGMEMV
+            || scommand == CmdId_ALLOCATEGMEMR)
+            ++ret;
             
-        pc++;
+        ++pc;
     }
     while(scommand != 0xFFFF);
     

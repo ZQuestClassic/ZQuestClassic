@@ -32,6 +32,8 @@ src/parser/libraries/NpcClass.cpp
 src/parser/libraries/Npc.cpp
 src/parser/libraries/Screen.cpp
 
-## End of ZQuest ZScript module
+src/scripting/ZAsmCommands.cpp
+
+src/parser/AST.cpp## End of ZQuest ZScript module
 )
 
