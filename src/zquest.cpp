@@ -21416,8 +21416,8 @@ int main(int argc,char **argv)
     jpgalleg_init();
     loadpng_init();
     
-    set_config_file("ag.cfg");
-    
+    //set_config_file("ag.cfg");
+    set_config_file("zquest.cfg");
     if(install_timer() < 0)
     {
         Z_error(allegro_error);
@@ -21750,7 +21750,8 @@ int main(int argc,char **argv)
     
     strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
     
-    midi_volume                    = get_config_int("zeldadx", "midi", 255);
+    midi_volume                    = get_config_int("zquest", "midi", 255);
+    //We need to remove all of the zeldadx refs to the config file for zquest. 
     
     set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
     
@@ -23681,7 +23682,7 @@ bool screenIsScrolling()
 
 int save_config_file()
 {
-    packfile_password("");
+    //packfile_password("");
 
     char cmdnametitle[20];
     char qtnametitle[20];
@@ -24266,7 +24267,11 @@ void clear_tooltip()
 }
 
 void ZQ_ClearQuestPath(){
-	last_quest_name = "";
+	//last_quest_name = "";
+	//SetAllegroString last_quest_name ""
+	set_config_string("zquest",last_quest_name,NULL);
+	strcpy(filepath,get_config_string("zquest",last_quest_name,""));
+	
 }
 
 
