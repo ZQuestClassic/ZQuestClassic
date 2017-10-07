@@ -45,7 +45,6 @@
 #pragma warning ( disable : 4800 ) //int to bool town. population: lots.
 #endif
 
-
 using std::string;
 using namespace ZAsm;
 
@@ -955,78 +954,78 @@ long get_register(const long arg)
 {
     long ret = 0;
     
-    switch(arg)
+    switch (arg)
     {
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
-    case DATA:
+    case VarId_DATA:
         ret = tmpscr->ffdata[ri->ffcref]*10000;
         break;
         
-    case FFSCRIPT:
+    case VarId_FFSCRIPT:
         ret = tmpscr->ffscript[ri->ffcref]*10000;
         break;
         
-    case FCSET:
+    case VarId_CSET:
         ret = tmpscr->ffcset[ri->ffcref]*10000;
         break;
         
-    case DELAY:
+    case VarId_DELAY:
         ret = tmpscr->ffdelay[ri->ffcref]*10000;
         break;
         
-    case FX:
+    case VarId_X:
         ret = tmpscr->ffx[ri->ffcref];
         break;
         
-    case FY:
+    case VarId_Y:
         ret = tmpscr->ffy[ri->ffcref];
         break;
         
-    case XD:
+    case VarId_XD:
         ret = tmpscr->ffxdelta[ri->ffcref];
         break;
         
-    case YD:
+    case VarId_YD:
         ret = tmpscr->ffydelta[ri->ffcref];
         break;
-    case FFCID:
+    case VarId_FFCID:
         ret=(ri->ffcref*10000)+10000;
         break;
         
-    case XD2:
+    case VarId_XD2:
         ret = tmpscr->ffxdelta2[ri->ffcref];
         break;
         
-    case YD2:
+    case VarId_YD2:
         ret = tmpscr->ffydelta2[ri->ffcref];
         break;
         
-    case FFFLAGSD:
+    case VarId_FFFLAGSD:
         ret=((tmpscr->ffflags[ri->ffcref] >> (ri->d[0] / 10000))&1) ? 10000 : 0;
         break;
         
-    case FFCWIDTH:
+    case VarId_FFCWIDTH:
         ret=((tmpscr->ffwidth[ri->ffcref]&0x3F)+1)*10000;
         break;
         
-    case FFCHEIGHT:
+    case VarId_FFCHEIGHT:
         ret=((tmpscr->ffheight[ri->ffcref]&0x3F)+1)*10000;
         break;
         
-    case FFTWIDTH:
+    case VarId_FFTWIDTH:
         ret=((tmpscr->ffwidth[ri->ffcref]>>6)+1)*10000;
         break;
         
-    case FFTHEIGHT:
+    case VarId_FFTHEIGHT:
         ret=((tmpscr->ffheight[ri->ffcref]>>6)+1)*10000;
         break;
         
-    case FFLINK:
+    case VarId_FFLINK:
         ret=(tmpscr->fflink[ri->ffcref])*10000;
         break;
         
-    case FFMISCD:
+    case VarId_FFMISCD:
     {
         int a = ri->d[0] / 10000;
         
@@ -1037,7 +1036,7 @@ long get_register(const long arg)
     }
     break;
     
-    case FFINITDD:
+    case VarId_FFINITDD:
     {
         int a = ri->d[0] / 10000;
         
@@ -1050,59 +1049,59 @@ long get_register(const long arg)
     
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
-    case LINKX:
+    case VarId_LINKX:
         ret = long(Link->getX()) * 10000;
         break;
         
-    case LINKY:
+    case VarId_LINKY:
         ret = long(Link->getY()) * 10000;
         break;
         
-    case LINKZ:
+    case VarId_LINKZ:
         ret = long(Link->getZ()) * 10000;
         break;
         
-    case LINKJUMP:
+    case VarId_LINKJUMP:
         // -fall/100*10000, but doing it that way screwed up the result
         ret = long(-Link->getFall()) * 100;
         break;
         
-    case LINKDIR:
+    case VarId_LINKDIR:
         ret=(int)(Link->dir)*10000;
         break;
         
-    case LINKHITDIR:
+    case VarId_LINKHITDIR:
         ret=(int)(Link->getHitDir())*10000;
         break;
         
-    case LINKHP:
+    case VarId_LINKHP:
         ret=(int)(game->get_life())*10000;
         break;
         
-    case LINKMP:
+    case VarId_LINKMP:
         ret=(int)(game->get_magic())*10000;
         break;
         
-    case LINKMAXHP:
+    case VarId_LINKMAXHP:
         ret=(int)(game->get_maxlife())*10000;
         break;
         
-    case LINKMAXMP:
+    case VarId_LINKMAXMP:
         ret=(int)(game->get_maxmagic())*10000;
         break;
         
-    case LINKACTION:
+    case VarId_LINKACTION:
         ret=(int)(Link->getAction())*10000;
         break;
         
-    case LINKHELD:
+    case VarId_LINKHELD:
     {
         //TODO script support for modules
         ret = (int)(Link->getHeldItem().slot) * 10000;
         break;
     }
         
-    case LINKITEMD:
+    case VarId_LINKITEMD:
     {
         ItemDefinitionRef ref("CORE", vbound(ri->d[0] / 10000, 0, curQuest->getModule("CORE").itemDefTable().getNumItemDefinitions() - 1));
         // TODO quest module support
@@ -1110,7 +1109,7 @@ long get_register(const long arg)
         break;
     }
         
-    case LINKEQUIP:
+    case VarId_LINKEQUIP:
     {
         //TODO this is a pretty useless function, and should only be used in old quests
         // first of all, it doesn't work if Link is wielding an item with id > 255
@@ -1119,203 +1118,203 @@ long get_register(const long arg)
         break;
     }
         
-    case LINKINVIS:
+    case VarId_LINKINVIS:
         ret = (int)(Link->getDontDraw())*10000;
         break;
         
-    case LINKINVINC:
+    case VarId_LINKINVINC:
         ret = (int)(Link->scriptcoldet)*10000;
         break;
         
-    case LINKLADDERX:
+    case VarId_LINKLADDERX:
         ret=(int)(Link->getLadderX())*10000;
         break;
         
-    case LINKLADDERY:
+    case VarId_LINKLADDERY:
         ret=(int)(Link->getLadderY())*10000;
         break;
         
-    case LINKSWORDJINX:
+    case VarId_LINKSWORDJINX:
         ret = (int)(Link->getSwordClk())*10000;
         break;
         
-    case LINKITEMJINX:
+    case VarId_LINKITEMJINX:
         ret = (int)(Link->getItemClk())*10000;
         break;
         
-    case LINKDRUNK:
+    case VarId_LINKDRUNK:
         ret = (int)(Link->DrunkClock())*10000;
         break;
         
-    case LINKMISCD:
+    case VarId_LINKMISCD:
         ret = (int)(Link->miscellaneous[vbound(ri->d[0]/10000,0,31)]);
         break;
         
-    case LINKHXOFS:
+    case VarId_LINKHXOFS:
         ret = (int)(Link->hxofs)*10000;
         break;
         
-    case LINKHYOFS:
+    case VarId_LINKHYOFS:
         ret = (int)(Link->hyofs)*10000;
         break;
         
-    case LINKXOFS:
+    case VarId_LINKXOFS:
         ret = (int)(Link->xofs)*10000;
         break;
         
-    case LINKYOFS:
+    case VarId_LINKYOFS:
         ret = (int)(Link->yofs-playing_field_offset)*10000;
         break;
         
-    case LINKZOFS:
+    case VarId_LINKZOFS:
         ret = (int)(Link->zofs)*10000;
         break;
         
-    case LINKHXSZ:
+    case VarId_LINKHXSZ:
         ret = (int)(Link->hxsz)*10000;
         break;
         
-    case LINKHYSZ:
+    case VarId_LINKHYSZ:
         ret = (int)(Link->hysz)*10000;
         break;
         
-    case LINKHZSZ:
+    case VarId_LINKHZSZ:
         ret = (int)(Link->hzsz)*10000;
         break;
         
-    case LINKTXSZ:
+    case VarId_LINKTXSZ:
         ret = (int)(Link->txsz)*10000;
         break;
         
-    case LINKTYSZ:
+    case VarId_LINKTYSZ:
         ret = (int)(Link->tysz)*10000;
         break;
         
-    case LINKTILE:
+    case VarId_LINKTILE:
         ret = (int)(Link->tile)*10000;
         break;
         
-    case LINKFLIP:
+    case VarId_LINKFLIP:
         ret = (int)(Link->flip)*10000;
         break;
     
-    case LINKINVFRAME:
+    case VarId_LINKINVFRAME:
 	ret = (int)Link->getHClk()*10000;
 	break;
     
-    case LINKCANFLICKER:
+    case VarId_LINKCANFLICKER:
         ret= Link->getCanLinkFlicker()?10000:0;
         break;
-    case LINKHURTSFX:
+    case VarId_LINKHURTSFX:
 	ret = (int)Link->getHurtSFX()*10000;
 	break;
     
-    case LINKEATEN:
+    case VarId_LINKEATEN:
 	ret=(int)Link->getEaten()*10000;
 	break;
         
-    case LINKDIAG:
+    case VarId_LINKDIAG:
 	ret=Link->getDiagMove()?10000:0;
 	break;
     
-    case LINKBIGHITBOX:
+    case VarId_LINKBIGHITBOX:
 	ret=Link->getBigHitbox()?10000:0;
 	break;
     
     
 ///----------------------------------------------------------------------------------------------------//
 //Input States
-    case INPUTSTART:
+    case VarId_INPUTSTART:
         ret=control_state[6]?10000:0;
         break;
         
-    case INPUTMAP:
+    case VarId_INPUTMAP:
         ret=control_state[9]?10000:0;
         break;
         
-    case INPUTUP:
+    case VarId_INPUTUP:
         ret=control_state[0]?10000:0;
         break;
         
-    case INPUTDOWN:
+    case VarId_INPUTDOWN:
         ret=control_state[1]?10000:0;
         break;
         
-    case INPUTLEFT:
+    case VarId_INPUTLEFT:
         ret=control_state[2]?10000:0;
         break;
         
-    case INPUTRIGHT:
+    case VarId_INPUTRIGHT:
         ret=control_state[3]?10000:0;
         break;
         
-    case INPUTA:
+    case VarId_INPUTA:
         ret=control_state[4]?10000:0;
         break;
         
-    case INPUTB:
+    case VarId_INPUTB:
         ret=control_state[5]?10000:0;
         break;
         
-    case INPUTL:
+    case VarId_INPUTL:
         ret=control_state[7]?10000:0;
         break;
         
-    case INPUTR:
+    case VarId_INPUTR:
         ret=control_state[8]?10000:0;
         break;
         
-    case INPUTEX1:
+    case VarId_INPUTEX1:
         ret=control_state[10]?10000:0;
         break;
         
-    case INPUTEX2:
+    case VarId_INPUTEX2:
         ret=control_state[11]?10000:0;
         break;
         
-    case INPUTEX3:
+    case VarId_INPUTEX3:
         ret=control_state[12]?10000:0;
         break;
         
-    case INPUTEX4:
+    case VarId_INPUTEX4:
         ret=control_state[13]?10000:0;
         break;
         
-    case INPUTAXISUP:
+    case VarId_INPUTAXISUP:
         ret=control_state[14]?10000:0;
         break;
         
-    case INPUTAXISDOWN:
+    case VarId_INPUTAXISDOWN:
         ret=control_state[15]?10000:0;
         break;
         
-    case INPUTAXISLEFT:
+    case VarId_INPUTAXISLEFT:
         ret=control_state[16]?10000:0;
         break;
         
-    case INPUTAXISRIGHT:
+    case VarId_INPUTAXISRIGHT:
         ret=control_state[17]?10000:0;
         break;
         
-    case INPUTMOUSEX:
+    case VarId_INPUTMOUSEX:
     {
         int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128* virtualScreenScale());
         ret=((Backend::mouse->getVirtualScreenX()-leftOffset)/ virtualScreenScale())*10000;
         break;
     }
     
-    case INPUTMOUSEY:
+    case VarId_INPUTMOUSEY:
     {
         int topOffset=(Backend::graphics->virtualScreenH()/2)-((112-playing_field_offset)*virtualScreenScale());
         ret=((Backend::mouse->getVirtualScreenY()-topOffset)/ virtualScreenScale())*10000;
         break;
     }
     
-    case INPUTMOUSEZ:
+    case VarId_INPUTMOUSEZ:
         ret=(Backend::mouse->getWheelPosition())*10000;
         break;
         
-    case INPUTMOUSEB:
+    case VarId_INPUTMOUSEB:
         ret=(
 			(Backend::mouse->leftButtonClicked() ? 1 : 0)
 			+ (Backend::mouse->rightButtonClicked() ? 2 : 0)
@@ -1323,79 +1322,79 @@ long get_register(const long arg)
 			)*10000;
         break;
         
-    case INPUTPRESSSTART:
+    case VarId_INPUTPRESSSTART:
         ret=button_press[6]?10000:0;
         break;
         
-    case INPUTPRESSMAP:
+    case VarId_INPUTPRESSMAP:
         ret=button_press[9]?10000:0;
         break;
         
-    case INPUTPRESSUP:
+    case VarId_INPUTPRESSUP:
         ret=button_press[0]?10000:0;
         break;
         
-    case INPUTPRESSDOWN:
+    case VarId_INPUTPRESSDOWN:
         ret=button_press[1]?10000:0;
         break;
         
-    case INPUTPRESSLEFT:
+    case VarId_INPUTPRESSLEFT:
         ret=button_press[2]?10000:0;
         break;
         
-    case INPUTPRESSRIGHT:
+    case VarId_INPUTPRESSRIGHT:
         ret=button_press[3]?10000:0;
         break;
         
-    case INPUTPRESSA:
+    case VarId_INPUTPRESSA:
         ret=button_press[4]?10000:0;
         break;
         
-    case INPUTPRESSB:
+    case VarId_INPUTPRESSB:
         ret=button_press[5]?10000:0;
         break;
         
-    case INPUTPRESSL:
+    case VarId_INPUTPRESSL:
         ret=button_press[7]?10000:0;
         break;
         
-    case INPUTPRESSR:
+    case VarId_INPUTPRESSR:
         ret=button_press[8]?10000:0;
         break;
         
-    case INPUTPRESSEX1:
+    case VarId_INPUTPRESSEX1:
         ret=button_press[10]?10000:0;
         break;
         
-    case INPUTPRESSEX2:
+    case VarId_INPUTPRESSEX2:
         ret=button_press[11]?10000:0;
         break;
         
-    case INPUTPRESSEX3:
+    case VarId_INPUTPRESSEX3:
         ret=button_press[12]?10000:0;
         break;
         
-    case INPUTPRESSEX4:
+    case VarId_INPUTPRESSEX4:
         ret=button_press[13]?10000:0;
         break;
         
-    case INPUTPRESSAXISUP:
+    case VarId_PRESSAXISUP:
         ret=button_press[14]?10000:0;
         break;
         
-    case INPUTPRESSAXISDOWN:
+    case VarId_PRESSAXISDOWN:
         ret=button_press[15]?10000:0;
         break;
         
-    case INPUTPRESSAXISLEFT:
+    case VarId_PRESSAXISLEFT:
         ret=button_press[16]?10000:0;
         break;
         
-    case INPUTPRESSAXISRIGHT:
+    case VarId_PRESSAXISRIGHT:
         ret=button_press[17]?10000:0;
         break;
         
-    case BUTTONPRESS:
+    case VarId_BUTTONPRESS:
 		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 	{
 		//Read-only
@@ -1405,7 +1404,7 @@ long get_register(const long arg)
 	}
 	break;
 
-	case BUTTONINPUT:
+	case VarId_BUTTONINPUT:
 	{
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
@@ -1414,7 +1413,7 @@ long get_register(const long arg)
 	}
 	break;
 
-	case BUTTONHELD:
+	case VarId_BUTTONHELD:
 	{
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
@@ -1422,7 +1421,7 @@ long get_register(const long arg)
 	}
 	break;
 
-	case KEYPRESS:
+	case VarId_KEYPRESS:
 	{	//Game->KeyPressed[], read-only
 		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
 		//hmm...no, this won;t return properly for modifier keys. 
@@ -1433,7 +1432,7 @@ long get_register(const long arg)
 	}
 	break;
 
-	case READKEY:
+	case VarId_READKEY:
 	{
 		//Game->ReadKey(int key), also clears it. 
 		int keyid = ri->d[0]/10000;
@@ -1442,7 +1441,7 @@ long get_register(const long arg)
 	}
 	break;
 
-	case JOYPADPRESS:
+	case VarId_JOYPADPRESS:
 	{
 		//Checks if a press is from the joypad, not keyboard. 
 		int button = ri->d[0]/10000;
@@ -1452,7 +1451,7 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
-    case ITEMX:
+    case VarId_ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)((item*)(s))->x)*10000;
@@ -1460,7 +1459,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMY:
+    case VarId_ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)((item*)(s))->y)*10000;
@@ -1468,7 +1467,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMZ:
+    case VarId_ITEMZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)((item*)(s))->z)*10000;
@@ -1476,7 +1475,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMJUMP:
+    case VarId_ITEMJUMP:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret = long((-((item*)(s))->fall / fix(100.0))  * 10000);
@@ -1484,7 +1483,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMDRAWTYPE:
+    case VarId_ITEMDRAWTYPE:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->drawstyle*10000;
@@ -1492,7 +1491,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMID:
+    case VarId_ITEMID:
     {
         //TODO script module support
         if (0 != (s = checkItem(ri->itemref)))
@@ -1501,7 +1500,7 @@ long get_register(const long arg)
         }
         break;
     }
-    case ITEMTILE:
+    case VarId_ITEMTILE:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->tile*10000;
@@ -1509,7 +1508,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMOTILE:
+    case VarId_ITEMOTILE:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->o_tile*10000;
@@ -1517,7 +1516,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMCSET:
+    case VarId_ITEMCSET:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->o_cset&15)*10000;
@@ -1525,7 +1524,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMFLASHCSET:
+    case VarId_ITEMFLASHCSET:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->o_cset>>4)*10000;
@@ -1533,7 +1532,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMFRAMES:
+    case VarId_ITEMFRAMES:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->frames*10000;
@@ -1541,7 +1540,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMFRAME:
+    case VarId_ITEMFRAME:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->aframe*10000;
@@ -1549,7 +1548,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMASPEED:
+    case VarId_ITEMASPEED:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->o_speed*10000;
@@ -1557,7 +1556,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMDELAY:
+    case VarId_ITEMDELAY:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->o_delay*10000;
@@ -1565,7 +1564,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMFLIP:
+    case VarId_ITEMFLIP:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->flip*10000;
@@ -1573,7 +1572,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMFLASH:
+    case VarId_ITEMFLASH:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->flash*10000;
@@ -1581,7 +1580,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMHXOFS:
+    case VarId_ITEMHXOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hxofs)*10000;
@@ -1589,7 +1588,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMHYOFS:
+    case VarId_ITEMHYOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hyofs)*10000;
@@ -1597,7 +1596,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMXOFS:
+    case VarId_ITEMXOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)(((item*)(s))->xofs))*10000;
@@ -1605,7 +1604,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMYOFS:
+    case VarId_ITEMYOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)(((item*)(s))->yofs-playing_field_offset))*10000;
@@ -1613,7 +1612,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMZOFS:
+    case VarId_ITEMZOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)(((item*)(s))->zofs))*10000;
@@ -1621,7 +1620,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMHXSZ:
+    case VarId_ITEMHXSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hxsz)*10000;
@@ -1629,7 +1628,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMHYSZ:
+    case VarId_ITEMHYSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hysz)*10000;
@@ -1637,7 +1636,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMHZSZ:
+    case VarId_ITEMHZSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hzsz)*10000;
@@ -1645,7 +1644,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMTXSZ:
+    case VarId_ITEMTXSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->txsz)*10000;
@@ -1653,7 +1652,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMTYSZ:
+    case VarId_ITEMTYSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->tysz)*10000;
@@ -1661,11 +1660,11 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMCOUNT:
+    case VarId_ITEMCOUNT:
         ret=(items.Count())*10000;
         break;
         
-    case ITEMEXTEND:
+    case VarId_ITEMEXTEND:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->extend*10000;
@@ -1673,7 +1672,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMPICKUP:
+    case VarId_ITEMPICKUP:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->pickup*10000;
@@ -1681,7 +1680,7 @@ long get_register(const long arg)
         
         break;
         
-    case ITEMMISCD:
+    case VarId_ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
             int a = vbound(ri->d[0]/10000,0,31);
@@ -1694,59 +1693,59 @@ long get_register(const long arg)
 	
 //2.54
 //Get the ID of an item.
-    case IDATAID:
+    case VarId_IDATAID:
         ret=ri->idata*10000;
         break;
 
-    case IDATAUSEWPN:
-    case IDATAUSEDEF:
-    case IDATAWRANGE:
-    case IDATAUSEMVT:
-    case IDATADURATION:
-    case IDATADUPLICATES:
-    case IDATADRAWLAYER:
-    case IDATACOLLECTFLAGS:
-    case IDATAWEAPONSCRIPT:
-    case IDATAMISCD:
-    case IDATAWPNINITD:
-    case IDATAWEAPHXOFS:
-    case IDATAWEAPHYOFS:
-    case IDATAWEAPHXSZ:
-    case IDATAWEAPHYSZ:
-    case IDATAWEAPHZSZ:
-    case IDATAWEAPXOFS:
-    case IDATAWEAPYOFS:
-    case IDATAFAMILY:
-    case IDATALEVEL:
-    case IDATAKEEP:
-    case IDATAAMOUNT:
-    case IDATASETMAX:
-    case IDATAMAX:
-    case IDATACOUNTER:
-    case IDATAUSESOUND:
-    case IDATAPOWER:
-    case IDATASCRIPT:
-    case IDATAATTRIB:
-    case IDATASPRITE: 
-    case IDATALTM:
-    case IDATAPSCRIPT:
-    case IDATAMAGCOST:
-    case IDATAMINHEARTS:
-    case IDATATILE:
-    case IDATAMISC:
-    case IDATACSET:
-    case IDATAFRAMES:
-    case IDATAASPEED:
-    case IDATADELAY:
-    case IDATACOMBINE:
-    case IDATADOWNGRADE:
-    case IDATAFLAGS: 
-    case IDATAKEEPOLD:
-    case IDATARUPEECOST:
-    case IDATAEDIBLE:
-    case IDATAFLAGUNUSED:
-    case IDATAGAINLOWER:
-    case IDATAINITDD:
+    case VarId_IDATAUSEWPN:
+    case VarId_IDATAUSEDEF:
+    case VarId_IDATAWRANGE:
+    case VarId_IDATAUSEMVT:
+    case VarId_IDATADURATION:
+    case VarId_IDATADUPLICATES:
+    case VarId_IDATADRAWLAYER:
+    case VarId_IDATACOLLECTFLAGS:
+    case VarId_IDATAWEAPONSCRIPT:
+    case VarId_IDATAMISCD:
+    case VarId_IDATAWPNINITD:
+    case VarId_IDATAWEAPHXOFS:
+    case VarId_IDATAWEAPHYOFS:
+    case VarId_IDATAWEAPHXSZ:
+    case VarId_IDATAWEAPHYSZ:
+    case VarId_IDATAWEAPHZSZ:
+    case VarId_IDATAWEAPXOFS:
+    case VarId_IDATAWEAPYOFS:
+    case VarId_IDATAFAMILY:
+    case VarId_IDATALEVEL:
+    case VarId_IDATAKEEP:
+    case VarId_IDATAAMOUNT:
+    case VarId_IDATASETMAX:
+    case VarId_IDATAMAX:
+    case VarId_IDATACOUNTER:
+    case VarId_IDATAUSESOUND:
+    case VarId_IDATAPOWER:
+    case VarId_IDATASCRIPT:
+    case VarId_IDATAATTRIB:
+    case VarId_IDATASPRITE: 
+    case VarId_IDATALTM:
+    case VarId_IDATAPSCRIPT:
+    case VarId_IDATAMAGCOST:
+    case VarId_IDATAMINHEARTS:
+    case VarId_IDATATILE:
+    case VarId_IDATAMISC:
+    case VarId_IDATACSET:
+    case VarId_IDATAFRAMES:
+    case VarId_IDATAASPEED:
+    case VarId_IDATADELAY:
+    case VarId_IDATACOMBINE:
+    case VarId_IDATADOWNGRADE:
+    case VarId_IDATAFLAGS: 
+    case VarId_IDATAKEEPOLD:
+    case VarId_IDATARUPEECOST:
+    case VarId_IDATAEDIBLE:
+    case VarId_IDATAFLAGUNUSED:
+    case VarId_IDATAGAINLOWER:
+    case VarId_IDATAINITDD:
     
         get_itemdata_register(arg);
         break;
@@ -1762,7 +1761,7 @@ long get_register(const long arg)
 		ret = GuyH::getNPC()->member * 10000; \
 }
 
-    case NPCDIR:
+    case VarId_NPCDIR:
         if(GuyH::loadNPC(ri->guyref, "npc->Dir") != SH::_NoError)
             ret = -10000;
         else
@@ -1770,34 +1769,34 @@ long get_register(const long arg)
             
         break;
         
-    case NPCRATE:
+    case VarId_NPCRATE:
         GET_NPC_VAR_INT(rate, "npc->Rate") break;
         
-    case NPCHOMING:
+    case VarId_NPCHOMING:
         GET_NPC_VAR_INT(homing, "npc->Homing") break;
         
-    case NPCFRAMERATE:
+    case VarId_NPCFRAMERATE:
         GET_NPC_VAR_INT(frate, "npc->ASpeed") break;
         
-    case NPCHALTRATE:
+    case VarId_NPCHALTRATE:
         GET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
         
-    case NPCDRAWTYPE:
+    case VarId_NPCDRAWTYPE:
         GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
         
-    case NPCHP:
+    case VarId_NPCHP:
         GET_NPC_VAR_INT(hp, "npc->HP") break;
         
-    case NPCCOLLDET:
+    case VarId_NPCCOLLDET:
         GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
         
-    case NPCSTUN:
+    case VarId_NPCSTUN:
         GET_NPC_VAR_INT(stunclk, "npc->Stun") break;
         
-    case NPCHUNGER:
+    case VarId_NPCHUNGER:
         GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
     
-    case NPCWEAPSPRITE:
+    case VarId_NPCWEAPSPRITE:
     {
         //TODO module support for scripts
         if(GuyH::loadNPC(ri->guyref, "npc->WeaponSprite") != SH::_NoError)
@@ -1807,58 +1806,58 @@ long get_register(const long arg)
         break;
     }
         
-    case NPCTYPE:
+    case VarId_NPCTYPE:
         GET_NPC_VAR_INT(family, "npc->Type") break;
         
-    case NPCDP:
+    case VarId_NPCDP:
         GET_NPC_VAR_INT(dp, "npc->Damage") break;
         
-    case NPCWDP:
+    case VarId_NPCWDP:
         GET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
         
-    case NPCOTILE:
+    case VarId_NPCOTILE:
         GET_NPC_VAR_INT(o_tile, "npc->OriginalTile") break;
         
-    case NPCTILE:
+    case VarId_NPCTILE:
         GET_NPC_VAR_INT(tile, "npc->Tile") break;
         
-    case NPCWEAPON:
+    case VarId_NPCWEAPON:
         GET_NPC_VAR_INT(wpn, "npc->Weapon") break;
         
-    case NPCITEMSET:
+    case VarId_NPCITEMSET:
         GET_NPC_VAR_INT(item_set, "npc->ItemSet") break;
         
-    case NPCCSET:
+    case VarId_NPCCSET:
         GET_NPC_VAR_INT(cs, "npc->CSet") break;
         
-    case NPCBOSSPAL:
+    case VarId_NPCBOSSPAL:
         GET_NPC_VAR_INT(bosspal, "npc->BossPal") break;
         
-    case NPCBGSFX:
+    case VarId_NPCBGSFX:
         GET_NPC_VAR_INT(bgsfx, "npc->SFX") break;
         
-    case NPCEXTEND:
+    case VarId_NPCEXTEND:
         GET_NPC_VAR_INT(extend, "npc->Extend") break;
         
-    case NPCHXOFS:
+    case VarId_NPCHXOFS:
         GET_NPC_VAR_INT(hxofs, "npc->HitXOffset") break;
         
-    case NPCHYOFS:
+    case VarId_NPCHYOFS:
         GET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
         
-    case NPCHXSZ:
+    case VarId_NPCHXSZ:
         GET_NPC_VAR_INT(hxsz, "npc->HitWidth") break;
         
-    case NPCHYSZ:
+    case VarId_NPCHYSZ:
         GET_NPC_VAR_INT(hysz, "npc->HitHeight") break;
         
-    case NPCHZSZ:
+    case VarId_NPCHZSZ:
         GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
         
-    case NPCTXSZ:
+    case VarId_NPCTXSZ:
         GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
         
-    case NPCTYSZ:
+    case VarId_NPCTYSZ:
         GET_NPC_VAR_INT(tysz, "npc->TileHeight") break;
         
 //And fix
@@ -1870,27 +1869,27 @@ long get_register(const long arg)
 		ret = (long(GuyH::getNPC()->member) * 10000); \
 }
 
-    case NPCX:
+    case VarId_NPCX:
         GET_NPC_VAR_FIX(x, "npc->X") break;
         
-    case NPCY:
+    case VarId_NPCY:
         GET_NPC_VAR_FIX(y, "npc->Y") break;
         
-    case NPCZ:
+    case VarId_NPCZ:
         GET_NPC_VAR_FIX(z, "npc->Z") break;
         
-    case NPCXOFS:
+    case VarId_NPCXOFS:
         GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
         
-    case NPCYOFS:
+    case VarId_NPCYOFS:
         GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=playing_field_offset*10000;
         break;
         
-    case NPCZOFS:
+    case VarId_NPCZOFS:
         GET_NPC_VAR_FIX(zofs, "npc->DrawZOffset") break;
         
         //These variables are all different to the templates (casting for jump and step is slightly non-standard)
-    case NPCJUMP:
+    case VarId_NPCJUMP:
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
             ret = -10000;
         else
@@ -1898,7 +1897,7 @@ long get_register(const long arg)
             
         break;
         
-    case NPCSTEP:
+    case VarId_NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
             ret = -10000;
         else
@@ -1906,7 +1905,7 @@ long get_register(const long arg)
             
         break;
         
-    case NPCID:
+    case VarId_NPCID:
         //TODO script support for modules
         if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
             ret = -10000;
@@ -1915,7 +1914,7 @@ long get_register(const long arg)
             
         break;
         
-    case NPCMFLAGS:
+    case VarId_NPCMFLAGS:
         if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
             ret = -10000;
         else
@@ -1924,7 +1923,7 @@ long get_register(const long arg)
         break;
         
         //Indexed (two checks)
-    case NPCDEFENSED:
+    case VarId_NPCDEFENSED:
     {
         int a = ri->d[0] / 10000;
         
@@ -1938,7 +1937,7 @@ long get_register(const long arg)
     
     //2.fuure compat.
     
-    case NPCSCRDEFENSED:
+    case VarId_NPCSCRDEFENSED:
     {
         int a = ri->d[0] / 10000;
         
@@ -1951,7 +1950,7 @@ long get_register(const long arg)
     break;
     
     
-    case NPCMISCD:
+    case VarId_NPCMISCD:
     {
         int a = ri->d[0] / 10000;
         
@@ -1963,7 +1962,7 @@ long get_register(const long arg)
     }
     break;
     
-    case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
+    case VarId_NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
         int a = ri->d[0] / 10000;
         
@@ -1975,7 +1974,7 @@ long get_register(const long arg)
     }
     break;
     
-        case NPCINVINC:
+        case VarId_NPCINVINC:
         if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") != SH::_NoError)
             ret = -10000;
         else
@@ -1983,7 +1982,7 @@ long get_register(const long arg)
             
         break;
 	
-    case NPCHASITEM:
+    case VarId_NPCHASITEM:
         if(GuyH::loadNPC(ri->guyref, "npc->HasItem") != SH::_NoError)
             ret = 0;
         else
@@ -1991,7 +1990,7 @@ long get_register(const long arg)
             
         break;
 	
-    case NPCRINGLEAD:
+    case VarId_NPCRINGLEAD:
         if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") != SH::_NoError)
             ret = 0;
         else
@@ -1999,7 +1998,7 @@ long get_register(const long arg)
             
         break;
 	
-	case NPCSUPERMAN:
+	case VarId_NPCSUPERMAN:
         if(GuyH::loadNPC(ri->guyref, "npc->Invincible") != SH::_NoError)
             ret = -10000;
         else
@@ -2011,221 +2010,221 @@ long get_register(const long arg)
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
-    case LWPNX:
+    case VarId_LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
             ret=((int)((weapon*)(s))->x)*10000;
             
         break;
         
-    case LWPNY:
+    case VarId_LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
             ret=((int)((weapon*)(s))->y)*10000;
             
         break;
         
-    case LWPNZ:
+    case VarId_LWPNZ:
         if(0!=(s=checkLWpn(ri->lwpn,"Z")))
             ret=((int)((weapon*)(s))->z)*10000;
             
         break;
         
-    case LWPNJUMP:
+    case VarId_LWPNJUMP:
         if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
             ret = long((-((weapon*)(s))->fall / fix(100.0)) * 100000);
             
         break;
         
-    case LWPNDIR:
+    case VarId_LWPNDIR:
         if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
             ret=((weapon*)(s))->dir*10000;
             
         break;
         
-    case LWPNSTEP:
+    case VarId_LWPNSTEP:
         if(0!=(s=checkLWpn(ri->lwpn,"Step")))
             ret=(int)((float)((weapon*)s)->step * 1000000.0);
             
         break;
         
-    case LWPNANGLE:
+    case VarId_LWPNANGLE:
         if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
             ret=(int)(((weapon*)(s))->angle*10000);
             
         break;
         
-    case LWPNANGULAR:
+    case VarId_LWPNANGULAR:
         if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
             ret=((weapon*)(s))->angular*10000;
             
         break;
         
-    case LWPNBEHIND:
+    case VarId_LWPNBEHIND:
         if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
             ret=((weapon*)(s))->behind*10000;
             
         break;
         
-    case LWPNDRAWTYPE:
+    case VarId_LWPNDRAWTYPE:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
             ret=((weapon*)(s))->drawstyle*10000;
             
         break;
         
-    case LWPNPOWER:
+    case VarId_LWPNPOWER:
         if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
             ret=((weapon*)(s))->power*10000;
             
         break;
 	
-    case LWPNRANGE:
+    case VarId_LWPNRANGE:
         if(0!=(s=checkLWpn(ri->lwpn,"Range")))
             ret=((weapon*)(s))->scriptrange*10000;
             
         break;
         
-    case LWPNDEAD:
+    case VarId_LWPNDEAD:
         if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
             ret=((weapon*)(s))->dead*10000;
             
         break;
         
-    case LWPNID:
+    case VarId_LWPNID:
         if(0!=(s=checkLWpn(ri->lwpn,"ID")))
             ret=((weapon*)(s))->id*10000;
             
         break;
         
-    case LWPNTILE:
+    case VarId_LWPNTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
             ret=((weapon*)(s))->tile*10000;
             
         break;
         
-    case LWPNCSET:
+    case VarId_LWPNCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
             ret=((weapon*)(s))->cs*10000;
             
         break;
         
-    case LWPNFLASHCSET:
+    case VarId_LWPNFLASHCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"FlashCSet")))
             ret=(((weapon*)(s))->o_cset>>4)*10000;
             
         break;
         
-    case LWPNFRAMES:
+    case VarId_LWPNFRAMES:
         if(0!=(s=checkLWpn(ri->lwpn,"NumFrames")))
             ret=((weapon*)(s))->frames*10000;
             
         break;
         
-    case LWPNFRAME:
+    case VarId_LWPNFRAME:
         if(0!=(s=checkLWpn(ri->lwpn,"Frame")))
             ret=((weapon*)(s))->aframe*10000;
             
         break;
         
-    case LWPNASPEED:
+    case VarId_LWPNASPEED:
         if(0!=(s=checkLWpn(ri->lwpn,"ASpeed")))
             ret=((weapon*)(s))->o_speed*10000;
             
         break;
         
-    case LWPNFLASH:
+    case VarId_LWPNFLASH:
         if(0!=(s=checkLWpn(ri->lwpn,"Flash")))
             ret=((weapon*)(s))->flash*10000;
             
         break;
         
-    case LWPNFLIP:
+    case VarId_LWPNFLIP:
         if(0!=(s=checkLWpn(ri->lwpn,"Flip")))
             ret=((weapon*)(s))->flip*10000;
             
         break;
         
-    case LWPNCOUNT:
+    case VarId_LWPNCOUNT:
         ret=Lwpns.Count()*10000;
         break;
         
-    case LWPNEXTEND:
+    case VarId_LWPNEXTEND:
         if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
             ret=((weapon*)(s))->extend*10000;
             
         break;
         
-    case LWPNOTILE:
+    case VarId_LWPNOTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
             ret=((weapon*)(s))->o_tile*10000;
             
         break;
         
-    case LWPNOCSET:
+    case VarId_LWPNOCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalCSet")))
             ret=(((weapon*)(s))->o_cset&15)*10000;
             
         break;
         
-    case LWPNHXOFS:
+    case VarId_LWPNHXOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"HitXOffset")))
             ret=(((weapon*)(s))->hxofs)*10000;
             
         break;
         
-    case LWPNHYOFS:
+    case VarId_LWPNHYOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"HitYOffset")))
             ret=(((weapon*)(s))->hyofs)*10000;
             
         break;
         
-    case LWPNXOFS:
+    case VarId_LWPNXOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
             ret=((int)(((weapon*)(s))->xofs))*10000;
             
         break;
         
-    case LWPNYOFS:
+    case VarId_LWPNYOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
             ret=((int)(((weapon*)(s))->yofs-playing_field_offset))*10000;
             
         break;
         
-    case LWPNZOFS:
+    case VarId_LWPNZOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
             ret=((int)(((weapon*)(s))->zofs))*10000;
             
         break;
         
-    case LWPNHXSZ:
+    case VarId_LWPNHXSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
             ret=(((weapon*)(s))->hxsz)*10000;
             
         break;
         
-    case LWPNHYSZ:
+    case VarId_LWPNHYSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
             ret=(((weapon*)(s))->hysz)*10000;
             
         break;
         
-    case LWPNHZSZ:
+    case VarId_LWPNHZSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"HitZHeight")))
             ret=(((weapon*)(s))->hzsz)*10000;
             
         break;
         
-    case LWPNTXSZ:
+    case VarId_LWPNTXSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"TileWidth")))
             ret=(((weapon*)(s))->txsz)*10000;
             
         break;
         
-    case LWPNTYSZ:
+    case VarId_LWPNTYSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"TileHeight")))
             ret=(((weapon*)(s))->tysz)*10000;
             
         break;
         
-    case LWPNMISCD:
+    case VarId_LWPNMISCD:
         if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
         {
             int a = vbound(ri->d[0]/10000,0,31);
@@ -2234,7 +2233,7 @@ long get_register(const long arg)
         
         break;
         
-    case LWPNCOLLDET:
+    case VarId_LWPNCOLLDET:
         if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
             ret=(((weapon*)(s))->scriptcoldet)*10000;
             
@@ -2242,215 +2241,215 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case VarId_EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn, "X")))
             ret=((int)((weapon*)(s))->x)*10000;
             
         break;
         
-    case EWPNY:
+    case VarId_EWPNY:
         if(0!=(s=checkEWpn(ri->ewpn, "Y")))
             ret=((int)((weapon*)(s))->y)*10000;
             
         break;
         
-    case EWPNZ:
+    case VarId_EWPNZ:
         if(0!=(s=checkEWpn(ri->ewpn, "Z")))
             ret=((int)((weapon*)(s))->z)*10000;
             
         break;
         
-    case EWPNJUMP:
+    case VarId_EWPNJUMP:
         if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
             ret = long((-((weapon*)(s))->fall / fix(100.0)) * 100000);
             
         break;
         
-    case EWPNDIR:
+    case VarId_EWPNDIR:
         if(0!=(s=checkEWpn(ri->ewpn, "Dir")))
             ret=((weapon*)(s))->dir*10000;
             
         break;
         
-    case EWPNSTEP:
+    case VarId_EWPNSTEP:
         if(0!=(s=checkEWpn(ri->ewpn, "Step")))
             ret=(int)((float)((weapon*)s)->step * 1000000.0);
             
         break;
         
-    case EWPNANGLE:
+    case VarId_EWPNANGLE:
         if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
             ret=(int)(((weapon*)(s))->angle*10000);
             
         break;
         
-    case EWPNANGULAR:
+    case VarId_EWPNANGULAR:
         if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
             ret=((weapon*)(s))->angular*10000;
             
         break;
         
-    case EWPNBEHIND:
+    case VarId_EWPNBEHIND:
         if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
             ret=((weapon*)(s))->behind*10000;
             
         break;
         
-    case EWPNDRAWTYPE:
+    case VarId_EWPNDRAWTYPE:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
             ret=((weapon*)(s))->drawstyle*10000;
             
         break;
         
-    case EWPNPOWER:
+    case VarId_EWPNPOWER:
         if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
             ret=((weapon*)(s))->power*10000;
             
         break;
         
-    case EWPNDEAD:
+    case VarId_EWPNDEAD:
         if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
             ret=((weapon*)(s))->dead*10000;
             
         break;
         
-    case EWPNID:
+    case VarId_EWPNID:
         if(0!=(s=checkEWpn(ri->ewpn,"ID")))
             ret=((weapon*)(s))->id*10000;
             
         break;
         
-    case EWPNTILE:
+    case VarId_EWPNTILE:
         if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
             ret=((weapon*)(s))->tile*10000;
             
         break;
         
-    case EWPNCSET:
+    case VarId_EWPNCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
             ret=((weapon*)(s))->cs*10000;
             
         break;
         
-    case EWPNFLASHCSET:
+    case VarId_EWPNFLASHCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"FlashCSet")))
             ret=(((weapon*)(s))->o_cset>>4)*10000;
             
         break;
         
-    case EWPNFRAMES:
+    case VarId_EWPNFRAMES:
         if(0!=(s=checkEWpn(ri->ewpn,"NumFrames")))
             ret=((weapon*)(s))->frames*10000;
             
         break;
         
-    case EWPNFRAME:
+    case VarId_EWPNFRAME:
         if(0!=(s=checkEWpn(ri->ewpn,"Frame")))
             ret=((weapon*)(s))->aframe*10000;
             
         break;
         
-    case EWPNASPEED:
+    case VarId_EWPNASPEED:
         if(0!=(s=checkEWpn(ri->ewpn,"ASpeed")))
             ret=((weapon*)(s))->o_speed*10000;
             
         break;
         
-    case EWPNFLASH:
+    case VarId_EWPNFLASH:
         if(0!=(s=checkEWpn(ri->ewpn,"Flash")))
             ret=((weapon*)(s))->flash*10000;
             
         break;
         
-    case EWPNFLIP:
+    case VarId_EWPNFLIP:
         if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
             ret=((weapon*)(s))->flip*10000;
             
         break;
         
-    case EWPNCOUNT:
+    case VarId_EWPNCOUNT:
         ret=Ewpns.Count()*10000;
         break;
         
-    case EWPNEXTEND:
+    case VarId_EWPNEXTEND:
         if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
             ret=((weapon*)(s))->extend*10000;
             
         break;
         
-    case EWPNOTILE:
+    case VarId_EWPNOTILE:
         if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
             ret=((weapon*)(s))->o_tile*10000;
             
         break;
         
-    case EWPNOCSET:
+    case VarId_EWPNOCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"OriginalCSet")))
             ret=(((weapon*)(s))->o_cset&15)*10000;
             
         break;
         
-    case EWPNHXOFS:
+    case VarId_EWPNHXOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"HitXOffset")))
             ret=(((weapon*)(s))->hxofs)*10000;
             
         break;
         
-    case EWPNHYOFS:
+    case VarId_EWPNHYOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"HitYOffset")))
             ret=(((weapon*)(s))->hyofs)*10000;
             
         break;
         
-    case EWPNXOFS:
+    case VarId_EWPNXOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
             ret=((int)(((weapon*)(s))->xofs))*10000;
             
         break;
         
-    case EWPNYOFS:
+    case VarId_EWPNYOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
             ret=((int)(((weapon*)(s))->yofs-playing_field_offset))*10000;
             
         break;
         
-    case EWPNZOFS:
+    case VarId_EWPNZOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
             ret=((int)(((weapon*)(s))->zofs))*10000;
             
         break;
         
-    case EWPNHXSZ:
+    case VarId_EWPNHXSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
             ret=(((weapon*)(s))->hxsz)*10000;
             
         break;
         
-    case EWPNHYSZ:
+    case VarId_EWPNHYSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
             ret=(((weapon*)(s))->hysz)*10000;
             
         break;
         
-    case EWPNHZSZ:
+    case VarId_EWPNHZSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"HitZHeight")))
             ret=(((weapon*)(s))->hzsz)*10000;
             
         break;
         
-    case EWPNTXSZ:
+    case VarId_EWPNTXSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"TileWidth")))
             ret=(((weapon*)(s))->txsz)*10000;
             
         break;
         
-    case EWPNTYSZ:
+    case VarId_EWPNTYSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"TileHeight")))
             ret=(((weapon*)(s))->tysz)*10000;
             
         break;
         
-    case EWPNMISCD:
+    case VarId_EWPNMISCD:
         if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
         {
             int a = vbound(ri->d[0]/10000,0,31);
@@ -2459,7 +2458,7 @@ long get_register(const long arg)
         
         break;
         
-    case EWPNCOLLDET:
+    case VarId_EWPNCOLLDET:
         if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
             ret=(((weapon*)(s))->scriptcoldet)*10000;
             
@@ -2469,101 +2468,101 @@ long get_register(const long arg)
 //Game Info
 	
 	
-    case GAMESUBSCHEIGHT:
+    case VarId_GAMESUBSCHEIGHT:
     {
 	ret = passive_subscreen_height*10000;    
     }
     break;
     
-    case GAMEPLAYFIELDOFS:
+    case VarId_GAMEPLAYFIELDOFS:
 	ret = playing_field_offset*10000;
     break;
     
-    case PASSSUBOFS:
+    case VarId_PASSSUBOFS:
 	ret = passive_subscreen_offset * 10000;
     break;
 
     
-    case ZELDAVERSION:
+    case VarId_ZELDAVERSION:
         ret = ZC_VERSION; //Do *not* multiply by 10,000!
         break;
-    case ZELDABUILD:
+    case VarId_ZELDABUILD:
 	ret = (int)VERSION_BUILD*10000;
 	break;
-    case ZELDABETA:
+    case VarId_ZELDABETA:
 	ret = (int)VERSION_BETA*10000;
 	break;
-    case GAMEDEATHS:
+    case VarId_GAMEDEATHS:
         ret=game->get_deaths()*10000;
         break;
         
-    case GAMECHEAT:
+    case VarId_GAMECHEAT:
         ret=game->get_cheat()*10000;
         break;
         
-    case GAMETIME:
+    case VarId_GAMETIME:
         ret=game->get_time();
         break;// Can't multiply by 10000 or the maximum result is too big
         
-    case GAMETIMEVALID:
+    case VarId_GAMETIMEVALID:
         ret=game->get_timevalid()?10000:0;
         break;
         
-    case GAMEHASPLAYED:
+    case VarId_GAMEHASPLAYED:
         ret=game->get_hasplayed()?10000:0;
         break;
         
-    case GAMESTANDALONE:
+    case VarId_GAMESTANDALONE:
         ret=standalone_mode?10000:0;
         break;
         
-    case GAMEGUYCOUNT:
+    case VarId_GAMEGUYCOUNT:
     {
         int mi = (currmap*MAPSCRSNORMAL)+(ri->d[0]/10000);
         ret=game->guys[mi]*10000;
     }
     break;
     
-    case GAMECONTSCR:
+    case VarId_GAMECONTSCR:
         ret=game->get_continue_scrn()*10000;
         break;
         
-    case GAMECONTDMAP:
+    case VarId_GAMECONTDMAP:
         ret=game->get_continue_dmap()*10000;
         break;
         
-    case GAMEENTRSCR:
+    case VarId_GAMEENTRSCR:
         ret=lastentrance*10000;
         break;
         
-    case GAMEENTRDMAP:
+    case VarId_GAMEENTRDMAP:
         ret=lastentrance_dmap*10000;
         break;
         
-    case GAMECOUNTERD:
+    case VarId_GAMECOUNTERD:
         ret=game->get_counter((ri->d[0])/10000)*10000;
         break;
         
-    case GAMEMCOUNTERD:
+    case VarId_GAMEMCOUNTERD:
         ret=game->get_maxcounter((ri->d[0])/10000)*10000;
         break;
         
-    case GAMEDCOUNTERD:
+    case VarId_GAMEDCOUNTERD:
         ret=game->get_dcounter((ri->d[0])/10000)*10000;
         break;
         
-    case GAMEGENERICD:
+    case VarId_GAMEGENERICD:
         ret=game->get_generic((ri->d[0])/10000)*10000;
         break;
         
-    case GAMEITEMSD:
+    case VarId_GAMEITEMSD:
     {
         //TODO script support for modules
         ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
         ret = (game->get_item(ref) ? 10000 : 0);
         break;
     }
-    case DISABLEDITEM:
+    case VarId_DISABLEDITEM:
     {
         //TODO script support for modules
         ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
@@ -2571,22 +2570,22 @@ long get_register(const long arg)
         break;
     }
         
-    case GAMELITEMSD:
+    case VarId_GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
         break;
         
-    case GAMELKEYSD:
+    case VarId_GAMELKEYSD:
         ret=game->lvlkeys[(ri->d[0])/10000]*10000;
         break;
         
-    case SCREENSTATED:
+    case VarId_SCREENSTATED:
     {
         int mi =(currmap*MAPSCRSNORMAL)+currscr;
         ret=((game->maps[mi]>>((ri->d[0]/10000)))&1)?10000:0;
     }
     break;
     
-    case SCREENSTATEDD:
+    case VarId_SCREENSTATEDD:
     {
         // Gah! >:(  Screen state is stored in game->maps, which uses 128 screens per map,
         // but the compiler multiplies the map number by 136, so it has to be corrected here.
@@ -2602,50 +2601,50 @@ long get_register(const long arg)
         break;
     }
     
-    case GAMEGUYCOUNTD:
+    case VarId_GAMEGUYCOUNTD:
         ret=game->guys[(currmap * MAPSCRSNORMAL) + (ri->d[0] / 10000)]*10000;
         break;
         
-    case CURMAP:
+    case VarId_CURMAP:
         ret=(1+currmap)*10000;
         break;
         
-    case CURSCR:
+    case VarId_CURSCR:
         ret=currscr*10000;
         break;
         
-    case GETMIDI:
+    case VarId_GETMIDI:
         ret=(currmidi-(ZC_MIDI_COUNT-1))*10000;
         break;
         
-    case CURDSCR:
+    case VarId_CURDSCR:
     {
         int di = (get_currscr()-DMaps[get_currdmap()].xoff);
         ret=(DMaps[get_currdmap()].type==dmOVERW ? currscr : di)*10000;
     }
     break;
     
-    case GAMEMAXMAPS:
+    case VarId_GAMEMAXMAPS:
 	ret = (map_count-1)*10000;
 	break;
-    case GAMENUMMESSAGES:
+    case VarId_GAMENUMMESSAGES:
 	ret = (msg_count-1) * 10000; 
 	break;
     
-    case CURDMAP:
+    case VarId_CURDMAP:
         ret=currdmap*10000;
         break;
         
-    case CURLEVEL:
+    case VarId_CURLEVEL:
         ret=DMaps[get_currdmap()].level*10000;
         break;
         
-    case GAMECLICKFREEZE:
+    case VarId_GAMECLICKFREEZE:
         ret=disableClickToFreeze?0:10000;
         break;
         
     
-    case NOACTIVESUBSC:
+    case VarId_NOACTIVESUBSC:
 	ret=Link->stopSubscreenFalling()?10000:0;
 	break;
         
@@ -2661,25 +2660,25 @@ long get_register(const long arg)
         ret = DMaps[ID].member * 10000; \
 }
 
-    case DMAPFLAGSD:
+    case VarId_DMAPFLAGSD:
         GET_DMAP_VAR(flags,   "Game->DMapFlags")    break;
         
-    case DMAPLEVELD:
+    case VarId_DMAPLEVELD:
         GET_DMAP_VAR(level,   "Game->DMapLevel")    break;
         
-    case DMAPCOMPASSD:
+    case VarId_DMAPCOMPASSD:
         GET_DMAP_VAR(compass, "Game->DMapCompass")  break;
         
-    case DMAPCONTINUED:
+    case VarId_DMAPCONTINUED:
         GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
     
-    case DMAPLEVELPAL:
+    case VarId_DMAPLEVELPAL:
 	GET_DMAP_VAR(color,   "Game->DMapPalette")    break; 
         
-    case DMAPOFFSET:
+    case VarId_DMAPOFFSET:
         GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
         
-    case DMAPMAP:
+    case VarId_DMAPMAP:
     {
         int ID = ri->d[0] / 10000;
         
@@ -2691,7 +2690,7 @@ long get_register(const long arg)
         break;
     }
     
-    case DMAPMIDID:
+    case VarId_DMAPMIDID:
     {
         int ID = ri->d[0] / 10000;
         
@@ -2737,13 +2736,13 @@ else \
     ret = tmpscr->member[pos]*10000; \
 }
 
-    case COMBODD:
+    case VarId_COMBODD:
         GET_COMBO_VAR(data,  "Screen->ComboD") break;
         
-    case COMBOCD:
+    case VarId_COMBOCD:
         GET_COMBO_VAR(cset,  "Screen->ComboC") break;
         
-    case COMBOFD:
+    case VarId_COMBOFD:
         GET_COMBO_VAR(sflag, "Screen->ComboF") break;
         
 #define GET_COMBO_VAR_BUF(member, str) \
@@ -2755,13 +2754,13 @@ else \
         ret = combobuf[tmpscr->data[pos]].member * 10000; \
 }
         
-    case COMBOTD:
+    case VarId_COMBOTD:
         GET_COMBO_VAR_BUF(type, "Screen->ComboT") break;
         
-    case COMBOID:
+    case VarId_COMBOID:
         GET_COMBO_VAR_BUF(flag, "Screen->ComboI") break;
         
-    case COMBOSD:
+    case VarId_COMBOSD:
     {
         int pos = ri->d[0] / 10000;
         
@@ -2774,7 +2773,7 @@ else \
     
 ///----------------------------------------------------------------------------------------------------//
 //Game->GetComboX
-    case COMBODDM:
+    case VarId_COMBODDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -2816,7 +2815,7 @@ else \
     }
     break;
     
-    case COMBOCDM:
+    case VarId_COMBOCDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -2857,7 +2856,7 @@ else \
     }
     break;
     
-    case COMBOFDM:
+    case VarId_COMBOFDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -2898,7 +2897,7 @@ else \
     }
     break;
     
-    case COMBOTDM:
+    case VarId_COMBOTDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -2940,7 +2939,7 @@ else \
     }
     break;
     
-    case COMBOIDM:
+    case VarId_COMBOIDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -2981,7 +2980,7 @@ else \
     }
     break;
     
-    case COMBOSDM:
+    case VarId_COMBOSDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);		
@@ -3027,7 +3026,7 @@ else \
     
     
     
-    case SETSCREENENEMY:
+    case VarId_SETSCREENENEMY:
     { //void SetScreenEnemy(int map, int screen, int index, int value);
 	
 	    
@@ -3057,7 +3056,7 @@ else \
     }
     break;
     
-    case SETSCREENDOOR:
+    case VarId_SETSCREENDOOR:
     { //void SetScreenDoor(int map, int screen, int index, int value);
 	long map     = (ri->d[1] / 10000) - 1; 
 	long scrn  = ri->d[2] / 10000; 
@@ -3076,139 +3075,139 @@ else \
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen Information
-    case SDD:
+    case VarId_SDD:
     {
         int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
         ret=FFScript::get_screen_d(di, ri->d[0]/10000);
     }
     break;
     
-    case SDDD:
+    case VarId_SDDD:
         ret=FFScript::get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
         break;
         
-    case SDDDD:
+    case VarId_SDDDD:
         ret=FFScript::get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
         break;
         
-    case SCRDOORD:
+    case VarId_SCRDOORD:
         ret=tmpscr->door[ri->d[0]/10000]*10000;
         break;
     
     
     //These use the same method as GetScreenD -Z
-    case SETSCREENWIDTH:
+    case VarId_SETSCREENWIDTH:
         ret=FFScript::get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENHEIGHT:
+case VarId_SETSCREENHEIGHT:
         ret=FFScript::get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENVIEWX:
+case VarId_SETSCREENVIEWX:
         ret=get_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENVIEWY:
+case VarId_SETSCREENVIEWY:
         ret=get_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENGUY:
+case VarId_SETSCREENGUY:
         ret=get_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENSTRING:
+case VarId_SETSCREENSTRING:
         ret=get_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENROOM:
+case VarId_SETSCREENROOM:
         ret=get_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENENTX:
+case VarId_SETSCREENENTX:
         ret=get_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENENTY:
+case VarId_SETSCREENENTY:
         ret=get_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENITEM:
+case VarId_SETSCREENITEM:
         ret=get_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENUNDCMB:
+case VarId_SETSCREENUNDCMB:
         ret=get_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENUNDCST:
+case VarId_SETSCREENUNDCST:
         ret=get_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENCATCH:
+case VarId_SETSCREENCATCH:
         ret=get_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
  
         
-    case LIT:
+    case VarId_LIT:
         ret= darkroom ? 0 : 10000;
         break;
         
-    case WAVY:
+    case VarId_WAVY:
         ret = wavy*10000;
         break;
         
-    case QUAKE:
+    case VarId_QUAKE:
         ret = quakeclk*10000;
         break;
         
-    case SCREENFLAGSD:
+    case VarId_SCREENFLAGSD:
         ret = get_screenflags(tmpscr,vbound(ri->d[0] / 10000,0,9));
         break;
         
-    case SCREENEFLAGSD:
+    case VarId_SCREENEFLAGSD:
         ret = get_screeneflags(tmpscr,vbound(ri->d[0] / 10000,0,2));
         break;
         
-    case NPCCOUNT:
+    case VarId_NPCCOUNT:
         ret = guys.Count()*10000;
         break;
         
-    case ROOMDATA:
+    case VarId_ROOMDATA:
         ret = tmpscr->catchall*10000;
         break;
         
-    case ROOMTYPE:
+    case VarId_ROOMTYPE:
         ret = tmpscr->room*10000;
         break;
         
-    case PUSHBLOCKX:
+    case VarId_PUSHBLOCKX:
         ret = blockmoving ? int(mblock2->x)*10000 : -10000;
         break;
         
-    case PUSHBLOCKY:
+    case VarId_PUSHBLOCKY:
         ret = blockmoving ? int(mblock2->y)*10000 : -10000;
         break;
         
-    case PUSHBLOCKCOMBO:
+    case VarId_PUSHBLOCKCOMBO:
         ret = mblock2->bcombo*10000;
         break;
         
-    case PUSHBLOCKCSET:
+    case VarId_PUSHBLOCKCSET:
         ret = mblock2->cs*10000;
         break;
         
-    case UNDERCOMBO:
+    case VarId_UNDERCOMBO:
         ret = tmpscr->undercombo*10000;
         break;
         
-    case UNDERCSET:
+    case VarId_UNDERCSET:
         ret = tmpscr->undercset*10000;
         break;
     
     //Creates an lweapon using an iemdata struct values to generate its properties.
 	//Useful in conjunction with the new weapon editor. 
-    case CREATELWPNDX:
+    case VarId_CREATELWPNDX:
 	{
 		//Z_message("Trying to get Link->SetExtend().\n");
         long ID = (ri->d[0] / 10000);
@@ -3244,7 +3243,7 @@ case SETSCREENCATCH:
 	//THis function should automatically check for shields blocking the weapon, and calculate enemy defences.
 	//In theory, scritped swords, and other melee weapons could use this, as coudl any weapon, and it may simplify
 	//collision routines. 
-	case COLLISIONDX:
+	case VarId_COLLISIONDX:
 	{
 		//Z_message("Trying to get Link->SetExtend().\n");
 		int index = (ri->d[0] / 10000);
@@ -3275,7 +3274,7 @@ case SETSCREENCATCH:
 	break;
 	
 	*/
-    case DEBUGREFFFC:
+    case VarId_DEBUGREFFFC:
     {
 	int r = -1;
 	if ( ri->ffcref ) r = ri->ffcref;
@@ -3283,7 +3282,7 @@ case SETSCREENCATCH:
     }
         break;
         
-    case DEBUGREFITEM:
+    case VarId_DEBUGREFITEM:
     {
 	int r = -1;
 	if ( ri->itemref ) r = ri->itemref;
@@ -3291,7 +3290,7 @@ case SETSCREENCATCH:
     }
         break;
         
-    case DEBUGREFITEMDATA:
+    case VarId_DEBUGREFITEMDATA:
     {
 	int r = -1;
 	if ( ri->idata ) r = ri->idata;
@@ -3299,7 +3298,7 @@ case SETSCREENCATCH:
     }
         break;
         
-    case DEBUGREFLWEAPON:
+    case VarId_DEBUGREFLWEAPON:
     {
 	int r = -1;
 	if ( ri->lwpn ) r = ri->lwpn;
@@ -3307,7 +3306,7 @@ case SETSCREENCATCH:
     }
         break;
         
-    case DEBUGREFEWEAPON:
+    case VarId_DEBUGREFEWEAPON:
     {
 	int r = -1;
 	if ( ri->ewpn ) r = ri->ewpn;
@@ -3315,7 +3314,7 @@ case SETSCREENCATCH:
     }
         break;
         
-    case DEBUGREFNPC:
+    case VarId_DEBUGREFNPC:
     {
 	int r = -1;
 	if ( ri->guyref ) r = ri->guyref;
@@ -3323,14 +3322,14 @@ case SETSCREENCATCH:
     }    
         break;
         
-    case DEBUGSP:
+    case VarId_DEBUGSP:
     {
 	int r = -1;
 	if ( ri->sp ) r = ri->sp;
         ret = r * 10000;
     }   
         break;
-    case DEBUGGDR:
+    case VarId_DEBUGGDR:
     {
 	int a = vbound(ri->d[0]/10000,0,15);
 	int r = -1;
@@ -3341,45 +3340,45 @@ case SETSCREENCATCH:
     
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
-    case REFFFC:
+    case VarId_REFFFC:
         ret = ri->ffcref * 10000;
         break;
         
-    case REFITEM:
+    case VarId_REFITEM:
         ret = ri->itemref;
         break;
         
-    case REFITEMCLASS:
+    case VarId_REFITEMCLASS:
         ret = ri->idata;
         break;
         
-    case REFLWPN:
+    case VarId_REFLWPN:
         ret = ri->lwpn;
         break;
         
-    case REFEWPN:
+    case VarId_REFEWPN:
         ret = ri->ewpn;
         break;
         
-    case REFNPC:
+    case VarId_REFNPC:
         ret = ri->guyref;
         break;
         
-    case SP:
+    case VarId_SP:
         ret = ri->sp * 10000;
         break;
         
-    case SCRIPTRAM:
-    case GLOBALRAM:
+    case VarId_SCRIPTRAM:
+    case VarId_GLOBALRAM:
         ret = ArrayH::getElement(ri->d[0] / 10000, ri->d[1] / 10000);
         break;
         
-    case SCRIPTRAMD:
-    case GLOBALRAMD:
+    case VarId_SCRIPTRAMD:
+    case VarId_GLOBALRAMD:
         ret = ArrayH::getElement(ri->d[0] / 10000, 0);
         break;
         
-    case GDD://Doesn't work like this =(
+    case VarId_GDD://Doesn't work like this =(
         ret = game->global_d[ri->d[0] / 10000];
         break;
         
@@ -3387,9 +3386,9 @@ case SETSCREENCATCH:
 //Most of this is deprecated I believe ~Joe123
     default:
     {
-        if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
-        else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-        else if(arg >= GD(0) && arg <= GD(255))	ret = game->global_d[arg - GD(0)];
+        if(arg >= VAR_D(0) && arg <= VAR_D(7))			ret = ri->d[arg - VAR_D(0)];
+        else if(arg >= VAR_A(0) && arg <= VAR_A(1))		ret = ri->a[arg - VAR_A(0)];
+        else if(arg >= VAR_GD(0) && arg <= VAR_GD(255))	ret = game->global_d[arg - VAR_GD(0)];
         
         break;
     }
@@ -3407,21 +3406,21 @@ void set_register(const long arg, const long value)
     {
         ///----------------------------------------------------------------------------------------------------//
         //FFC Variables
-    case DATA:
+    case VarId_DATA:
         tmpscr->ffdata[ri->ffcref] = vbound(value / 10000, 0, MAXCOMBOS - 1);
         break;
 
         /* These are commands, not registers. -Gray
-    case CHANGEFFSCRIPTR:
+    case VarId_CHANGEFFSCRIPTR:
         FFScript::do_changeffcscript(false);
         break;
 
-    case CHANGEFFSCRIPTV:
+    case VarId_CHANGEFFSCRIPTV:
         FFScript::do_changeffcscript(true);
         break;
         */
 
-    case FFSCRIPT:
+    case VarId_FFSCRIPT:
         for (long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if (arrayOwner[i] == ri->ffcref)
@@ -3443,99 +3442,99 @@ void set_register(const long arg, const long value)
         tmpscr->initialized[ri->ffcref] = false;
         break;
 
-    case FCSET:
+    case VarId_CSET:
         tmpscr->ffcset[ri->ffcref] = (value / 10000) & 15;
         break;
 
-    case DELAY:
+    case VarId_DELAY:
         tmpscr->ffdelay[ri->ffcref] = value / 10000;
         break;
 
-    case FX:
+    case VarId_X:
         tmpscr->ffx[ri->ffcref] = value;
         break;
 
-    case FY:
+    case VarId_Y:
         tmpscr->ffy[ri->ffcref] = value;
         break;
 
-    case XD:
+    case VarId_XD:
         tmpscr->ffxdelta[ri->ffcref] = value;
         break;
 
-    case YD:
+    case VarId_YD:
         tmpscr->ffydelta[ri->ffcref] = value;
         break;
 
-    case FFCID:
+    case VarId_FFCID:
         ri->ffcref = vbound((value - 10000) / 10000, 0, 31);
         break;
 
-    case XD2:
+    case VarId_XD2:
         tmpscr->ffxdelta2[ri->ffcref] = value;
         break;
 
-    case YD2:
+    case VarId_YD2:
         tmpscr->ffydelta2[ri->ffcref] = value;
         break;
 
-    case FFFLAGSD:
+    case VarId_FFFLAGSD:
         value ? tmpscr->ffflags[ri->ffcref] |= 1 << ((ri->d[0]) / 10000)
             : tmpscr->ffflags[ri->ffcref] &= ~(1 << ((ri->d[0]) / 10000));
         break;
 
-    case FFCWIDTH:
+    case VarId_FFCWIDTH:
         tmpscr->ffwidth[ri->ffcref] = (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value / 10000) - 1) & 63);
         break;
 
-    case FFCHEIGHT:
+    case VarId_FFCHEIGHT:
         tmpscr->ffheight[ri->ffcref] = (tmpscr->ffheight[ri->ffcref] & ~63) | (((value / 10000) - 1) & 63);
         break;
 
-    case FFTWIDTH:
+    case VarId_FFTWIDTH:
         tmpscr->ffwidth[ri->ffcref] = (tmpscr->ffwidth[ri->ffcref] & 63) | ((((value / 10000) - 1) & 3) << 6);
         break;
 
-    case FFTHEIGHT:
+    case VarId_FFTHEIGHT:
         tmpscr->ffheight[ri->ffcref] = (tmpscr->ffheight[ri->ffcref] & 63) | ((((value / 10000) - 1) & 3) << 6);
         break;
 
-    case FFLINK:
+    case VarId_FFLINK:
         (tmpscr->fflink[ri->ffcref]) = vbound(value / 10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
     //0 is none, setting this before made it impssible to clear it. -Z
         break;
 
-    case FFMISCD:
+    case VarId_FFMISCD:
     {
         int a = vbound(ri->d[0] / 10000, 0, 15);
         ffmisc[ri->ffcref][a] = value;
         break;
     }
 
-    case FFINITDD:
+    case VarId_FFINITDD:
         (tmpscr->initd[ri->ffcref][vbound(ri->d[0] / 10000, 0, 7)]) = value;
         break;
 
 
         ///----------------------------------------------------------------------------------------------------//
         //Link's Variables
-    case LINKX:
+    case VarId_LINKX:
         Link->setX(value / 10000);
         break;
 
-    case LINKY:
+    case VarId_LINKY:
         Link->setY(value / 10000);
         break;
 
-    case LINKZ:
+    case VarId_LINKZ:
         Link->setZ(value / 10000);
         break;
 
-    case LINKJUMP:
+    case VarId_LINKJUMP:
         Link->setFall(fix((-value * (100.0)) / 10000.0));
         break;
 
-    case LINKDIR:
+    case VarId_LINKDIR:
     {
         //Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
         if (Link->getAction() == attacking) Link->dir = (value / 10000);
@@ -3544,31 +3543,31 @@ void set_register(const long arg, const long value)
         break;
     }
 
-    case LINKHITDIR:
+    case VarId_LINKHITDIR:
         Link->setHitDir(value / 10000);
         break;
 
-    case LINKHP:
+    case VarId_LINKHP:
         game->set_life(zc_max(0, zc_min(value / 10000, game->get_maxlife())));
         break;
 
-    case LINKMP:
+    case VarId_LINKMP:
         game->set_magic(zc_max(0, zc_min(value / 10000, game->get_maxmagic())));
         break;
 
-    case LINKMAXHP:
+    case VarId_LINKMAXHP:
         game->set_maxlife(value / 10000);
         break;
 
-    case LINKMAXMP:
+    case VarId_LINKMAXMP:
         game->set_maxmagic(value / 10000);
         break;
 
-    case LINKACTION:
+    case VarId_LINKACTION:
         Link->setAction((actiontype)(value / 10000));
         break;
 
-    case LINKHELD:
+    case VarId_LINKHELD:
     {
         //TODO script support for modules
         ItemDefinitionRef ref("CORE", value / 10000);
@@ -3577,7 +3576,7 @@ void set_register(const long arg, const long value)
         break;
     }
 
-    case LINKITEMD:
+    case VarId_LINKITEMD:
     {
         //TODO script support for modules
         ItemDefinitionRef itemref("CORE", ri->d[0] / 10000);
@@ -3601,7 +3600,7 @@ void set_register(const long arg, const long value)
         break;
     }
 
-    case LINKEQUIP:
+    case VarId_LINKEQUIP:
     {
         //TODO only supports items up to 255, also need scripting support for modules
         int setb = ((value / 10000) & 0xFF00) >> 8, seta = (value / 10000) & 0xFF;
@@ -3618,7 +3617,7 @@ void set_register(const long arg, const long value)
         break;
     }
 
-    case SETITEMSLOT:
+    case VarId_SETITEMSLOT:
     {
         //ri->d[1] = 1st arg
         //ri->d[0] = 2nd arg
@@ -3678,99 +3677,99 @@ void set_register(const long arg, const long value)
     }
     break;
 
-    case LINKINVIS:
+    case VarId_LINKINVIS:
         Link->setDontDraw(value / 10000);
         break;
 
-    case LINKINVINC:
+    case VarId_LINKINVINC:
         Link->scriptcoldet = (value / 10000);
         break;
 
-    case LINKSWORDJINX:
+    case VarId_LINKSWORDJINX:
         Link->setSwordClk(value / 10000);
         break;
 
-    case LINKITEMJINX:
+    case VarId_LINKITEMJINX:
         Link->setItemClk(value / 10000);
         break;
 
-    case LINKDRUNK:
+    case VarId_LINKDRUNK:
         Link->setDrunkClock(value / 10000);
         break;
 
-    case LINKMISCD:
+    case VarId_LINKMISCD:
         Link->miscellaneous[vbound(ri->d[0] / 10000, 0, 31)] = value;
         break;
 
-    case LINKHXOFS:
+    case VarId_LINKHXOFS:
         (Link->hxofs) = (fix)(value / 10000);
         break;
 
-    case LINKHYOFS:
+    case VarId_LINKHYOFS:
         (Link->hyofs) = (fix)(value / 10000);
         break;
 
-    case LINKXOFS:
+    case VarId_LINKXOFS:
         (Link->xofs) = (fix)(value / 10000);
         break;
 
-    case LINKYOFS:
+    case VarId_LINKYOFS:
         (Link->yofs) = (fix)(value / 10000) + playing_field_offset;
         break;
 
-    case LINKZOFS:
+    case VarId_LINKZOFS:
         (Link->zofs) = (fix)(value / 10000);
         break;
 
-    case LINKHXSZ:
+    case VarId_LINKHXSZ:
         (Link->hxsz) = (fix)(value / 10000);
         break;
 
-    case LINKHYSZ:
+    case VarId_LINKHYSZ:
         (Link->hysz) = (fix)(value / 10000);
         break;
 
-    case LINKHZSZ:
+    case VarId_LINKHZSZ:
         (Link->hzsz) = (fix)(value / 10000);
         break;
 
-    case LINKTXSZ:
+    case VarId_LINKTXSZ:
         (Link->txsz) = (fix)(value / 10000);
         break;
 
-    case LINKTYSZ:
+    case VarId_LINKTYSZ:
         (Link->tysz) = (fix)(value / 10000);
         break;
 
-    case LINKTILE:
+    case VarId_LINKTILE:
         (Link->tile) = (fix)(value / 10000);
         break;
 
-    case LINKFLIP:
+    case VarId_LINKFLIP:
         (Link->flip) = (fix)(value / 10000);
         break;
 
 
 
-    case LINKINVFRAME:
+    case VarId_LINKINVFRAME:
         Link->setHClk((int)vbound((value / 10000), 0, 214747));
         break;
 
-    case LINKCANFLICKER:
+    case VarId_LINKCANFLICKER:
         Link->setCanLinkFlicker((value / 10000) ? 1 : 0);
         break;
 
-    case LINKHURTSFX:
+    case VarId_LINKHURTSFX:
         Link->setHurtSFX((int)vbound((value / 10000), 0, 255));
         break;
 
-    case LINKEATEN:
+    case VarId_LINKEATEN:
     {
         Link->setEaten(value / 10000);
         break;
     }
     
-    case GAMESETA:
+    case VarId_GAMESETA:
 	{
         int slot = value / 10000;
         Link->setAButtonItem(slot);
@@ -3778,7 +3777,7 @@ void set_register(const long arg, const long value)
         break;
 	}
 	
-	case GAMESETB:
+	case VarId_GAMESETB:
 	{
         int slot = value / 10000;
         Link->setBButtonItem(slot);
@@ -3787,181 +3786,181 @@ void set_register(const long arg, const long value)
     }
 	
 	//Set Link Diagonal
-        case LINKDIAG:
+        case VarId_LINKDIAG:
 	    Link->setDiagMove((value/10000)?1:0);
 	break;
     
     //Set Link Big Hitbox
-        case LINKBIGHITBOX:
+        case VarId_LINKBIGHITBOX:
 	    Link->setBigHitbox((value/10000)?1:0);
 	break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
-    case INPUTSTART:
+    case VarId_INPUTSTART:
         control_state[6]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTMAP:
+    case VarId_INPUTMAP:
         control_state[9]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTUP:
+    case VarId_INPUTUP:
         control_state[0]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTDOWN:
+    case VarId_INPUTDOWN:
         control_state[1]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTLEFT:
+    case VarId_INPUTLEFT:
         control_state[2]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTRIGHT:
+    case VarId_INPUTRIGHT:
         control_state[3]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTA:
+    case VarId_INPUTA:
         control_state[4]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTB:
+    case VarId_INPUTB:
         control_state[5]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTL:
+    case VarId_INPUTL:
         control_state[7]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTR:
+    case VarId_INPUTR:
         control_state[8]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTEX1:
+    case VarId_INPUTEX1:
         control_state[10]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTEX2:
+    case VarId_INPUTEX2:
         control_state[11]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTEX3:
+    case VarId_INPUTEX3:
         control_state[12]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTEX4:
+    case VarId_INPUTEX4:
         control_state[13]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTAXISUP:
+    case VarId_INPUTAXISUP:
         control_state[14]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTAXISDOWN:
+    case VarId_INPUTAXISDOWN:
         control_state[15]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTAXISLEFT:
+    case VarId_INPUTAXISLEFT:
         control_state[16]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTAXISRIGHT:
+    case VarId_INPUTAXISRIGHT:
         control_state[17]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSSTART:
+    case VarId_INPUTPRESSSTART:
         button_press[6]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSMAP:
+    case VarId_INPUTPRESSMAP:
         button_press[9]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSUP:
+    case VarId_INPUTPRESSUP:
         button_press[0]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSDOWN:
+    case VarId_INPUTPRESSDOWN:
         button_press[1]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSLEFT:
+    case VarId_INPUTPRESSLEFT:
         button_press[2]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSRIGHT:
+    case VarId_INPUTPRESSRIGHT:
         button_press[3]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSA:
+    case VarId_INPUTPRESSA:
         button_press[4]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSB:
+    case VarId_INPUTPRESSB:
         button_press[5]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSL:
+    case VarId_INPUTPRESSL:
         button_press[7]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSR:
+    case VarId_INPUTPRESSR:
         button_press[8]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSEX1:
+    case VarId_INPUTPRESSEX1:
         button_press[10]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSEX2:
+    case VarId_INPUTPRESSEX2:
         button_press[11]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSEX3:
+    case VarId_INPUTPRESSEX3:
         button_press[12]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSEX4:
+    case VarId_INPUTPRESSEX4:
         button_press[13]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSAXISUP:
+    case VarId_PRESSAXISUP:
         button_press[14]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSAXISDOWN:
+    case VarId_PRESSAXISDOWN:
         button_press[15]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSAXISLEFT:
+    case VarId_PRESSAXISLEFT:
         button_press[16]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTPRESSAXISRIGHT:
+    case VarId_PRESSAXISRIGHT:
         button_press[17]=((value/10000)!=0)?true:false;
         break;
         
-    case INPUTMOUSEX:
+    case VarId_INPUTMOUSEX:
     {
         int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128*virtualScreenScale());
         position_mouse((value/10000)*virtualScreenScale() +leftOffset, Backend::mouse->getVirtualScreenY());
         break;
     }
     
-    case INPUTMOUSEY:
+    case VarId_INPUTMOUSEY:
     {
         int topOffset=(Backend::graphics->virtualScreenH() /2)-((112-playing_field_offset)*virtualScreenScale());
         position_mouse(Backend::mouse->getVirtualScreenX(), (value/10000)*virtualScreenScale() +topOffset);
         break;
     }
     
-    case INPUTMOUSEZ:
+    case VarId_INPUTMOUSEZ:
 		Backend::mouse->setWheelPosition(value/10000);
         break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
-    case ITEMX:
+    case VarId_ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (s->x)=(fix)(value/10000);
@@ -3973,7 +3972,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMY:
+    case VarId_ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (s->y)=(fix)(value/10000);
@@ -3985,7 +3984,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMZ:
+    case VarId_ITEMZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (s->z)=(fix)(value/10000);
@@ -3996,7 +3995,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMJUMP:
+    case VarId_ITEMJUMP:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->fall)=-value*100.0/10000.0;
@@ -4004,7 +4003,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMDRAWTYPE:
+    case VarId_ITEMDRAWTYPE:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->drawstyle)=value/10000;
@@ -4012,7 +4011,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMID:
+    case VarId_ITEMID:
     {
         //TODO script module support        
         if (0 != (s = checkItem(ri->itemref)))
@@ -4032,7 +4031,7 @@ void set_register(const long arg, const long value)
         break;
     }
 
-    case ITEMTILE:
+    case VarId_ITEMTILE:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->tile)=vbound(value/10000,0,NEWMAXTILES-1);
@@ -4040,7 +4039,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMOTILE:
+    case VarId_ITEMOTILE:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->o_tile)=vbound(value/10000,0,NEWMAXTILES-1);
@@ -4048,7 +4047,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMCSET:
+    case VarId_ITEMCSET:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->o_cset) = (((item *)s)->o_cset & ~15) | ((value/10000)&15);
@@ -4057,7 +4056,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMFLASHCSET:
+    case VarId_ITEMFLASHCSET:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->o_cset) = ((value/10000)<<4) | (((item *)s)->o_cset & 15);
@@ -4065,7 +4064,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMFRAMES:
+    case VarId_ITEMFRAMES:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->frames)=value/10000;
@@ -4073,7 +4072,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMFRAME:
+    case VarId_ITEMFRAME:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->aframe)=value/10000;
@@ -4081,7 +4080,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMASPEED:
+    case VarId_ITEMASPEED:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->o_speed)=value/10000;
@@ -4089,7 +4088,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMDELAY:
+    case VarId_ITEMDELAY:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->o_delay)=value/10000;
@@ -4097,7 +4096,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMFLIP:
+    case VarId_ITEMFLIP:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->flip)=value/10000;
@@ -4105,7 +4104,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMFLASH:
+    case VarId_ITEMFLASH:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->flash)= (value/10000)?1:0;
@@ -4113,7 +4112,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMEXTEND:
+    case VarId_ITEMEXTEND:
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->extend)=value/10000;
@@ -4121,7 +4120,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMHXOFS:
+    case VarId_ITEMHXOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hxofs=value/10000;
@@ -4129,7 +4128,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMHYOFS:
+    case VarId_ITEMHYOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hyofs=value/10000;
@@ -4137,7 +4136,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMXOFS:
+    case VarId_ITEMXOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->xofs=(fix)(value/10000);
@@ -4145,7 +4144,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMYOFS:
+    case VarId_ITEMYOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->yofs=(fix)(value/10000)+playing_field_offset;
@@ -4153,7 +4152,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMZOFS:
+    case VarId_ITEMZOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->zofs=(fix)(value/10000);
@@ -4161,7 +4160,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMHXSZ:
+    case VarId_ITEMHXSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hxsz=value/10000;
@@ -4169,7 +4168,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMHYSZ:
+    case VarId_ITEMHYSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hysz=value/10000;
@@ -4177,7 +4176,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMHZSZ:
+    case VarId_ITEMHZSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hzsz=value/10000;
@@ -4185,7 +4184,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMTXSZ:
+    case VarId_ITEMTXSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->txsz=vbound((value/10000),1,20);
@@ -4193,7 +4192,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMTYSZ:
+    case VarId_ITEMTYSZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->tysz=vbound((value/10000),1,20);
@@ -4201,7 +4200,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMPICKUP:
+    case VarId_ITEMPICKUP:
         if(0!=(s=checkItem(ri->itemref)))
         {
             int newpickup = value/10000;
@@ -4264,7 +4263,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case ITEMMISCD:
+    case VarId_ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
             int a = vbound(ri->d[0]/10000,0,31);
@@ -4277,270 +4276,270 @@ void set_register(const long arg, const long value)
 //Itemdata Variables
 	//not mine, but let;s guard some of them all the same -Z
 	//item class
-    case IDATAFAMILY:
-    case IDATAUSEWPN:
-    case IDATAUSEDEF:
-    case IDATAWRANGE:
-     case IDATADURATION:
-     case IDATADUPLICATES:
-    case IDATADRAWLAYER:
-    case IDATACOLLECTFLAGS:
-    case IDATAWEAPONSCRIPT:
-    case IDATAMISCD:
-    case IDATAWPNINITD:
-    case IDATAWEAPHXOFS:
-    case IDATAWEAPHYOFS:
-    case IDATAWEAPHXSZ:
-    case IDATAWEAPHYSZ:
-    case IDATAWEAPHZSZ:
-    case IDATAWEAPXOFS:
-    case IDATAWEAPYOFS:
-    case IDATAUSEMVT:
-    case IDATALEVEL:
-    case IDATAKEEP:
-    case IDATAAMOUNT:
-    case IDATASETMAX:
-    case IDATAMAX:
-    case IDATAPOWER:
-    case IDATACOUNTER:
-    case IDATAUSESOUND:
-    case IDATACOMBINE:
-	case IDATADOWNGRADE:
-	case IDATAFLAGS: 
-	case IDATAKEEPOLD:
-	case IDATARUPEECOST:
-	case IDATAEDIBLE:
-	case IDATAFLAGUNUSED:
-	case IDATAGAINLOWER:
-	case IDATASCRIPT:
-	case IDATAATTRIB: 
-	case IDATASPRITE: 
-	case IDATALTM:
-    case IDATAPSCRIPT:
-     case IDATAMAGCOST:
-     case IDATAMINHEARTS:
-     case IDATATILE:
-     case IDATAMISC:
-     case IDATACSET:
-     case IDATAFRAMES:
-     case IDATAASPEED:
-     case IDATADELAY:
-    case IDATAINITDD:
+    case VarId_IDATAFAMILY:
+    case VarId_IDATAUSEWPN:
+    case VarId_IDATAUSEDEF:
+    case VarId_IDATAWRANGE:
+     case VarId_IDATADURATION:
+     case VarId_IDATADUPLICATES:
+    case VarId_IDATADRAWLAYER:
+    case VarId_IDATACOLLECTFLAGS:
+    case VarId_IDATAWEAPONSCRIPT:
+    case VarId_IDATAMISCD:
+    case VarId_IDATAWPNINITD:
+    case VarId_IDATAWEAPHXOFS:
+    case VarId_IDATAWEAPHYOFS:
+    case VarId_IDATAWEAPHXSZ:
+    case VarId_IDATAWEAPHYSZ:
+    case VarId_IDATAWEAPHZSZ:
+    case VarId_IDATAWEAPXOFS:
+    case VarId_IDATAWEAPYOFS:
+    case VarId_IDATAUSEMVT:
+    case VarId_IDATALEVEL:
+    case VarId_IDATAKEEP:
+    case VarId_IDATAAMOUNT:
+    case VarId_IDATASETMAX:
+    case VarId_IDATAMAX:
+    case VarId_IDATAPOWER:
+    case VarId_IDATACOUNTER:
+    case VarId_IDATAUSESOUND:
+    case VarId_IDATACOMBINE:
+	case VarId_IDATADOWNGRADE:
+	case VarId_IDATAFLAGS: 
+	case VarId_IDATAKEEPOLD:
+	case VarId_IDATARUPEECOST:
+	case VarId_IDATAEDIBLE:
+	case VarId_IDATAFLAGUNUSED:
+	case VarId_IDATAGAINLOWER:
+	case VarId_IDATASCRIPT:
+	case VarId_IDATAATTRIB: 
+	case VarId_IDATASPRITE: 
+	case VarId_IDATALTM:
+    case VarId_IDATAPSCRIPT:
+     case VarId_IDATAMAGCOST:
+     case VarId_IDATAMINHEARTS:
+     case VarId_IDATATILE:
+     case VarId_IDATAMISC:
+     case VarId_IDATACSET:
+     case VarId_IDATAFRAMES:
+     case VarId_IDATAASPEED:
+     case VarId_IDATADELAY:
+    case VarId_IDATAINITDD:
         set_itemdata_register(arg, value);
     break;
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
-    case LWPNX:
+    case VarId_LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
             ((weapon*)s)->x=(fix)(value/10000);
             
         break;
         
-    case LWPNY:
+    case VarId_LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
             ((weapon*)s)->y=(fix)(value/10000);
             
         break;
         
-    case LWPNZ:
+    case VarId_LWPNZ:
         if(0!=(s=checkLWpn(ri->lwpn,"Z")))
             ((weapon*)s)->z=zc_max((fix)(value/10000),(fix)0);
             
         break;
         
-    case LWPNJUMP:
+    case VarId_LWPNJUMP:
         if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
             ((weapon*)s)->fall=((-value*100.0)/10000.0);
             
         break;
         
-    case LWPNDIR:
+    case VarId_LWPNDIR:
         if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
             ((weapon*)s)->dir=(value/10000);
             
         break;
         
-    case LWPNSTEP:
+    case VarId_LWPNSTEP:
         if(0!=(s=checkLWpn(ri->lwpn,"Step")))
             ((weapon*)s)->step=(value/10000)/100.0;
             
         break;
         
-    case LWPNANGLE:
+    case VarId_LWPNANGLE:
         if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
             ((weapon*)s)->angle=(double)(value/10000.0);
             
         break;
         
-    case LWPNANGULAR:
+    case VarId_LWPNANGULAR:
         if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
             ((weapon*)s)->angular=(value/10000) != 0;
             
         break;
         
-    case LWPNBEHIND:
+    case VarId_LWPNBEHIND:
         if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
             ((weapon*)s)->behind=(value/10000) != 0;
             
         break;
         
-    case LWPNDRAWTYPE:
+    case VarId_LWPNDRAWTYPE:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
             ((weapon*)s)->drawstyle=(value/10000);
             
         break;
         
-    case LWPNPOWER:
+    case VarId_LWPNPOWER:
         if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
             ((weapon*)s)->power=(value/10000);
             
         break;
 	
-    case LWPNRANGE:
+    case VarId_LWPNRANGE:
         if(0!=(s=checkLWpn(ri->lwpn,"Range")))
 		((weapon*)s)->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
         break;
         
-    case LWPNDEAD:
+    case VarId_LWPNDEAD:
         if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
             ((weapon*)s)->dead=(value/10000);
             
         break;
         
-    case LWPNID:
+    case VarId_LWPNID:
         if(0!=(s=checkLWpn(ri->lwpn,"ID")))
             ((weapon*)s)->id=(value/10000);
             
         break;
         
-    case LWPNTILE:
+    case VarId_LWPNTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
             ((weapon*)s)->tile=(value/10000);
             
         break;
         
-    case LWPNCSET:
+    case VarId_LWPNCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
             ((weapon*)s)->cs=(value/10000)&15;
             
         break;
         
-    case LWPNFLASHCSET:
+    case VarId_LWPNFLASHCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"FlashCSet")))
             (((weapon*)s)->o_cset)|=(value/10000)<<4;
             
         break;
         
-    case LWPNFRAMES:
+    case VarId_LWPNFRAMES:
         if(0!=(s=checkLWpn(ri->lwpn,"NumFrames")))
             ((weapon*)s)->frames=(value/10000);
             
         break;
         
-    case LWPNFRAME:
+    case VarId_LWPNFRAME:
         if(0!=(s=checkLWpn(ri->lwpn,"Frame")))
             ((weapon*)s)->aframe=(value/10000);
             
         break;
         
-    case LWPNASPEED:
+    case VarId_LWPNASPEED:
         if(0!=(s=checkLWpn(ri->lwpn,"ASpeed")))
             ((weapon*)s)->o_speed=(value/10000);
             
         break;
         
-    case LWPNFLASH:
+    case VarId_LWPNFLASH:
         if(0!=(s=checkLWpn(ri->lwpn,"Flash")))
             ((weapon*)s)->flash=(value/10000);
             
         break;
         
-    case LWPNFLIP:
+    case VarId_LWPNFLIP:
         if(0!=(s=checkLWpn(ri->lwpn,"Flip")))
             ((weapon*)s)->flip=(value/10000);
             
         break;
         
-    case LWPNEXTEND:
+    case VarId_LWPNEXTEND:
         if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
             ((weapon*)s)->extend=(value/10000);
             
         break;
         
-    case LWPNOTILE:
+    case VarId_LWPNOTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
             ((weapon*)s)->o_tile=(value/10000);
             
         break;
         
-    case LWPNOCSET:
+    case VarId_LWPNOCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalCSet")))
             (((weapon*)s)->o_cset)|=(value/10000)&15;
             
         break;
         
-    case LWPNHXOFS:
+    case VarId_LWPNHXOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"HitXOffset")))
             (((weapon*)s)->hxofs)=(value/10000);
             
         break;
         
-    case LWPNHYOFS:
+    case VarId_LWPNHYOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"HitYOffset")))
             (((weapon*)s)->hyofs)=(value/10000);
             
         break;
         
-    case LWPNXOFS:
+    case VarId_LWPNXOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawXOffset")))
             (((weapon*)s)->xofs)=(fix)(value/10000);
             
         break;
         
-    case LWPNYOFS:
+    case VarId_LWPNYOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
             (((weapon*)s)->yofs)=(fix)(value/10000)+playing_field_offset;
             
         break;
         
-    case LWPNZOFS:
+    case VarId_LWPNZOFS:
         if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
             (((weapon*)s)->zofs)=(fix)(value/10000);
             
         break;
         
-    case LWPNHXSZ:
+    case VarId_LWPNHXSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
             (((weapon*)s)->hxsz)=(value/10000);
             
         break;
         
-    case LWPNHYSZ:
+    case VarId_LWPNHYSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
             (((weapon*)s)->hysz)=(value/10000);
             
         break;
         
-    case LWPNHZSZ:
+    case VarId_LWPNHZSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"HitZHeight")))
             (((weapon*)s)->hzsz)=(value/10000);
             
         break;
         
-    case LWPNTXSZ:
+    case VarId_LWPNTXSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"TileWidth")))
             (((weapon*)s)->txsz)=vbound((value/10000),1,20);
             
         break;
         
-    case LWPNTYSZ:
+    case VarId_LWPNTYSZ:
         if(0!=(s=checkLWpn(ri->lwpn,"TileHeight")))
             (((weapon*)s)->tysz)=vbound((value/10000),1,20);
             
         break;
         
-    case LWPNMISCD:
+    case VarId_LWPNMISCD:
         if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
         {
             int a = vbound(ri->d[0]/10000,0,31);
@@ -4549,7 +4548,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case LWPNCOLLDET:
+    case VarId_LWPNCOLLDET:
         if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
             (((weapon*)(s))->scriptcoldet)=value/10000;
             
@@ -4557,211 +4556,211 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case VarId_EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn,"X")))
             ((weapon*)s)->x=(fix)(value/10000);
             
         break;
         
-    case EWPNY:
+    case VarId_EWPNY:
         if(0!=(s=checkEWpn(ri->ewpn,"Y")))
             ((weapon*)s)->y=(fix)(value/10000);
             
         break;
         
-    case EWPNZ:
+    case VarId_EWPNZ:
         if(0!=(s=checkEWpn(ri->ewpn,"Z")))
             ((weapon*)s)->z=zc_max((fix)(value/10000),(fix)0);
             
         break;
         
-    case EWPNJUMP:
+    case VarId_EWPNJUMP:
         if(0!=(s=checkEWpn(ri->ewpn,"Jump")))
             ((weapon*)s)->fall=(-value*100.0/10000.0);
             
         break;
         
-    case EWPNDIR:
+    case VarId_EWPNDIR:
         if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
             ((weapon*)s)->dir=(value/10000);
             
         break;
         
-    case EWPNSTEP:
+    case VarId_EWPNSTEP:
         if(0!=(s=checkEWpn(ri->ewpn,"Step")))
             ((weapon*)s)->step=(value/10000)/100.0;
             
         break;
         
-    case EWPNANGLE:
+    case VarId_EWPNANGLE:
         if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
             ((weapon*)s)->angle=(double)(value/10000.0);
             
         break;
         
-    case EWPNANGULAR:
+    case VarId_EWPNANGULAR:
         if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
             ((weapon*)s)->angular=(value/10000) != 0;
             
         break;
         
-    case EWPNBEHIND:
+    case VarId_EWPNBEHIND:
         if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
             ((weapon*)s)->behind=(value/10000) != 0;
             
         break;
         
-    case EWPNDRAWTYPE:
+    case VarId_EWPNDRAWTYPE:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
             ((weapon*)s)->drawstyle=(value/10000);
             
         break;
         
-    case EWPNPOWER:
+    case VarId_EWPNPOWER:
         if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
             ((weapon*)s)->power=(value/10000);
             
         break;
         
-    case EWPNDEAD:
+    case VarId_EWPNDEAD:
         if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
             ((weapon*)s)->dead=(value/10000);
             
         break;
         
-    case EWPNID:
+    case VarId_EWPNID:
         if(0!=(s=checkEWpn(ri->ewpn,"ID")))
             ((weapon*)s)->id=(value/10000);
             
         break;
         
-    case EWPNTILE:
+    case VarId_EWPNTILE:
         if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
             ((weapon*)s)->tile=(value/10000);
             
         break;
         
-    case EWPNCSET:
+    case VarId_EWPNCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
             ((weapon*)s)->cs=(value/10000)&15;
             
         break;
         
-    case EWPNFLASHCSET:
+    case VarId_EWPNFLASHCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"FlashCSet")))
             (((weapon*)s)->o_cset)|=(value/10000)<<4;
             
         break;
         
-    case EWPNFRAMES:
+    case VarId_EWPNFRAMES:
         if(0!=(s=checkEWpn(ri->ewpn,"NumFrames")))
             ((weapon*)s)->frames=(value/10000);
             
         break;
         
-    case EWPNFRAME:
+    case VarId_EWPNFRAME:
         if(0!=(s=checkEWpn(ri->ewpn,"Frame")))
             ((weapon*)s)->aframe=(value/10000);
             
         break;
         
-    case EWPNASPEED:
+    case VarId_EWPNASPEED:
         if(0!=(s=checkEWpn(ri->ewpn,"ASpeed")))
             ((weapon*)s)->o_speed=(value/10000);
             
         break;
         
-    case EWPNFLASH:
+    case VarId_EWPNFLASH:
         if(0!=(s=checkEWpn(ri->ewpn,"Flash")))
             ((weapon*)s)->flash=(value/10000);
             
         break;
         
-    case EWPNFLIP:
+    case VarId_EWPNFLIP:
         if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
             ((weapon*)s)->flip=(value/10000);
             
         break;
         
-    case EWPNEXTEND:
+    case VarId_EWPNEXTEND:
         if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
             ((weapon*)s)->extend=(value/10000);
             
         break;
         
-    case EWPNOTILE:
+    case VarId_EWPNOTILE:
         if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
             ((weapon*)s)->o_tile=(value/10000);
             
         break;
         
-    case EWPNOCSET:
+    case VarId_EWPNOCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"OriginalCSet")))
             (((weapon*)s)->o_cset)|=(value/10000)&15;
             
         break;
         
-    case EWPNHXOFS:
+    case VarId_EWPNHXOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"HitXOffset")))
             (((weapon*)s)->hxofs)=(value/10000);
             
         break;
         
-    case EWPNHYOFS:
+    case VarId_EWPNHYOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"HitYOffset")))
             (((weapon*)s)->hyofs)=(value/10000);
             
         break;
         
-    case EWPNXOFS:
+    case VarId_EWPNXOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawXOffset")))
             (((weapon*)s)->xofs)=(fix)(value/10000);
             
         break;
         
-    case EWPNYOFS:
+    case VarId_EWPNYOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
             (((weapon*)s)->yofs)=(fix)(value/10000)+playing_field_offset;
             
         break;
         
-    case EWPNZOFS:
+    case VarId_EWPNZOFS:
         if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
             (((weapon*)s)->zofs)=(fix)(value/10000);
             
         break;
         
-    case EWPNHXSZ:
+    case VarId_EWPNHXSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
             (((weapon*)s)->hxsz)=(value/10000);
             
         break;
         
-    case EWPNHYSZ:
+    case VarId_EWPNHYSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
             (((weapon*)s)->hysz)=(value/10000);
             
         break;
         
-    case EWPNHZSZ:
+    case VarId_EWPNHZSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"HitZHeight")))
             (((weapon*)s)->hzsz)=(value/10000);
             
         break;
         
-    case EWPNTXSZ:
+    case VarId_EWPNTXSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"TileWidth")))
             (((weapon*)s)->txsz)=vbound((value/10000),1,20);
             
         break;
         
-    case EWPNTYSZ:
+    case VarId_EWPNTYSZ:
         if(0!=(s=checkEWpn(ri->ewpn,"TileHeight")))
             (((weapon*)s)->tysz)=vbound((value/10000),1,20);
             
         break;
         
-    case EWPNMISCD:
+    case VarId_EWPNMISCD:
         if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
         {
             int a = vbound(ri->d[0]/10000,0,31);
@@ -4770,7 +4769,7 @@ void set_register(const long arg, const long value)
         
         break;
         
-    case EWPNCOLLDET:
+    case VarId_EWPNCOLLDET:
         if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
             (((weapon*)(s))->scriptcoldet)=value/10000;
             
@@ -4780,7 +4779,7 @@ void set_register(const long arg, const long value)
 //NPC Variables
 
 //Fixs are all a bit different
-    case NPCX:
+    case VarId_NPCX:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
         {
@@ -4792,7 +4791,7 @@ void set_register(const long arg, const long value)
     }
     break;
     
-    case NPCY:
+    case VarId_NPCY:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
         {
@@ -4806,7 +4805,7 @@ void set_register(const long arg, const long value)
     }
     break;
     
-    case NPCZ:
+    case VarId_NPCZ:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Z") == SH::_NoError)
         {
@@ -4824,7 +4823,7 @@ void set_register(const long arg, const long value)
     }
     break;
     
-    case NPCJUMP:
+    case VarId_NPCJUMP:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
         {
@@ -4837,28 +4836,28 @@ void set_register(const long arg, const long value)
     }
     break;
     
-    case NPCSTEP:
+    case VarId_NPCSTEP:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
             GuyH::getNPC()->step = fix(value / 10000) / fix(100.0);
     }
     break;
     
-    case NPCXOFS:
+    case VarId_NPCXOFS:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawXOffset") == SH::_NoError)
             GuyH::getNPC()->xofs = fix(value / 10000);
     }
     break;
     
-    case NPCYOFS:
+    case VarId_NPCYOFS:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
             GuyH::getNPC()->yofs = fix(value / 10000) + playing_field_offset;
     }
     break;
     
-    case NPCZOFS:
+    case VarId_NPCZOFS:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawZOffset") == SH::_NoError)
             GuyH::getNPC()->zofs = fix(value / 10000);
@@ -4871,41 +4870,41 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     GuyH::getNPC()->member = value / 10000; \
 }
     
-    case NPCDIR:
+    case VarId_NPCDIR:
         SET_NPC_VAR_INT(dir, "npc->Dir") break;
         
-    case NPCRATE:
+    case VarId_NPCRATE:
         SET_NPC_VAR_INT(rate, "npc->Rate") break;
         
-    case NPCHOMING:
+    case VarId_NPCHOMING:
         SET_NPC_VAR_INT(homing, "npc->Homing") break;
         
-    case NPCFRAMERATE:
+    case VarId_NPCFRAMERATE:
         SET_NPC_VAR_INT(frate, "npc->ASpeed") break;
         
-    case NPCHALTRATE:
+    case VarId_NPCHALTRATE:
         SET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
         
-    case NPCDRAWTYPE:
+    case VarId_NPCDRAWTYPE:
         SET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
         
-    case NPCHP:
+    case VarId_NPCHP:
         SET_NPC_VAR_INT(hp, "npc->HP") break;
         
-        //case NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
-    case NPCDP:
+        //case VarId_NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
+    case VarId_NPCDP:
         SET_NPC_VAR_INT(dp, "npc->Damage") break;
         
-    case NPCWDP:
+    case VarId_NPCWDP:
         SET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
         
-    case NPCITEMSET:
+    case VarId_NPCITEMSET:
         SET_NPC_VAR_INT(item_set, "npc->ItemSet") break;
         
-    case NPCBOSSPAL:
+    case VarId_NPCBOSSPAL:
         SET_NPC_VAR_INT(bosspal, "npc->BossPal") break;
         
-    case NPCBGSFX:
+    case VarId_NPCBGSFX:
         if(GuyH::loadNPC(ri->guyref, "npc->SFX") == SH::_NoError)
         {
             enemy *en=GuyH::getNPC();
@@ -4922,34 +4921,34 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
         break;
         
-    case NPCEXTEND:
+    case VarId_NPCEXTEND:
         SET_NPC_VAR_INT(extend, "npc->Extend") break;
         
-    case NPCHXOFS:
+    case VarId_NPCHXOFS:
         SET_NPC_VAR_INT(hxofs, "npc->HitXOffset") break;
         
-    case NPCHYOFS:
+    case VarId_NPCHYOFS:
         SET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
         
-    case NPCHXSZ:
+    case VarId_NPCHXSZ:
         SET_NPC_VAR_INT(hxsz, "npc->HitWidth") break;
         
-    case NPCHYSZ:
+    case VarId_NPCHYSZ:
         SET_NPC_VAR_INT(hysz, "npc->HitHeight") break;
         
-    case NPCHZSZ:
+    case VarId_NPCHZSZ:
         SET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
         
-    case NPCCOLLDET:
+    case VarId_NPCCOLLDET:
         SET_NPC_VAR_INT(scriptcoldet, "npc->CollDetection") break;
         
-    case NPCSTUN:
+    case VarId_NPCSTUN:
         SET_NPC_VAR_INT(stunclk, "npc->Stun") break;
         
-    case NPCHUNGER:
+    case VarId_NPCHUNGER:
         SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
     
-    case NPCWEAPSPRITE:
+    case VarId_NPCWEAPSPRITE:
     {
         //TODO module support for scripts
         SpriteDefinitionRef ref("CORE", value / 10000);
@@ -4958,7 +4957,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     }
         
-    case NPCCSET:
+    case VarId_NPCCSET:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
             GuyH::getNPC()->cs = (value / 10000) & 0xF;
@@ -4966,7 +4965,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     break;
     
 //Bounds on value
-    case NPCTXSZ:
+    case VarId_NPCTXSZ:
     {
         long height = value / 10000;
         
@@ -4976,7 +4975,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case NPCTYSZ:
+    case VarId_NPCTYSZ:
     {
         long width = value / 10000;
         
@@ -4986,7 +4985,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case NPCOTILE:
+    case VarId_NPCOTILE:
     {
         long tile = value / 10000;
         
@@ -4996,7 +4995,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case NPCTILE:
+    case VarId_NPCTILE:
     {
         long tile = value / 10000;
         
@@ -5006,7 +5005,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case NPCWEAPON:
+    case VarId_NPCWEAPON:
     {
         long weapon = value / 10000;
         
@@ -5017,7 +5016,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     break;
     
 //Indexed
-    case NPCDEFENSED:
+    case VarId_NPCDEFENSED:
     {
         long a = ri->d[0] / 10000;
         
@@ -5030,7 +5029,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     //2.future compat. -Z
     
     
-     case NPCSCRDEFENSED:
+     case VarId_NPCSCRDEFENSED:
     {
         long a = ri->d[0] / 10000;
         
@@ -5040,7 +5039,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case NPCMISCD:
+    case VarId_NPCMISCD:
     {
         long a = ri->d[0] / 10000;
         
@@ -5053,7 +5052,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     break;
     
     //npc->Attributes[] setter -Z
-    case NPCDD:
+    case VarId_NPCDD:
     {
         long a = ri->d[0] / 10000;
 
@@ -5065,28 +5064,28 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
        
     
         
-    case NPCINVINC:
+    case VarId_NPCINVINC:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") == SH::_NoError)
             GuyH::getNPC()->hclk = (int)value/10000;
     }
     break;
     
-    case NPCSUPERMAN:
+    case VarId_NPCSUPERMAN:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Invincible") == SH::_NoError)
             GuyH::getNPC()->superman = (int)value/10000;
     }
     break;
     
-    case NPCHASITEM:
+    case VarId_NPCHASITEM:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->HasItem") == SH::_NoError)
             GuyH::getNPC()->itemguy = (value/10000)?1:0;
     }
     break;
     
-    case NPCRINGLEAD:
+    case VarId_NPCRINGLEAD:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") == SH::_NoError)
             GuyH::getNPC()->leader = (value/10000)?1:0;
@@ -5096,21 +5095,21 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 ///----------------------------------------------------------------------------------------------------//
 //Game Information
     
-    case GAMESUBSCHEIGHT:
+    case VarId_GAMESUBSCHEIGHT:
     {
 	int v = vbound(value,0,256);
 	passive_subscreen_height = (v/10000);   
     }
     break;
     
-    case GAMEPLAYFIELDOFS:
+    case VarId_GAMEPLAYFIELDOFS:
     {
 	int v = vbound(value,-256, 256);
 	playing_field_offset = (v/10000);
     }
     break;
     
-    case PASSSUBOFS:
+    case VarId_PASSSUBOFS:
     {
 	int v = vbound(value,-256, 256);
 	passive_subscreen_offset = (v/10000);
@@ -5118,74 +5117,74 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     break;
 
     
-    case GAMEDEATHS:
+    case VarId_GAMEDEATHS:
         game->set_deaths(value/10000);
         break;
         
-    case GAMECHEAT:
+    case VarId_GAMECHEAT:
         game->set_cheat(value/10000);
         cheat=(value/10000);
         break;
         
-    case GAMETIME:
+    case VarId_GAMETIME:
         game->set_time(value);
         break; // Can't multiply by 10000 or the maximum result is too big
         
-    case GAMETIMEVALID:
+    case VarId_GAMETIMEVALID:
         game->set_timevalid((value/10000)?1:0);
         break;
         
-    case GAMEHASPLAYED:
+    case VarId_GAMEHASPLAYED:
         game->set_hasplayed((value/10000)?1:0);
         break;
         
-    case GAMEGUYCOUNT:
+    case VarId_GAMEGUYCOUNT:
     {
         int mi2 = (currmap*MAPSCRSNORMAL)+(ri->d[0]/10000);
         game->guys[mi2]=value/10000;
     }
     break;
     
-    case GAMECONTSCR:
+    case VarId_GAMECONTSCR:
         game->set_continue_scrn(value/10000);
         break;
         
-    case GAMECONTDMAP:
+    case VarId_GAMECONTDMAP:
         game->set_continue_dmap(value/10000);
         break;
         
-    case GAMEENTRSCR:
+    case VarId_GAMEENTRSCR:
         lastentrance=value/10000;
         break;
         
-    case GAMEENTRDMAP:
+    case VarId_GAMEENTRDMAP:
         lastentrance_dmap=value/10000;
         break;
         
-    case GAMECOUNTERD:
+    case VarId_GAMECOUNTERD:
         game->set_counter(value/10000, (ri->d[0])/10000);
         break;
         
-    case GAMEMCOUNTERD:
+    case VarId_GAMEMCOUNTERD:
         game->set_maxcounter(value/10000, (ri->d[0])/10000);
         break;
         
-    case GAMEDCOUNTERD:
+    case VarId_GAMEDCOUNTERD:
         game->set_dcounter(value/10000, (ri->d[0])/10000);
         break;
         
-    case GAMEGENERICD:
+    case VarId_GAMEGENERICD:
         game->set_generic(value/10000, (ri->d[0])/10000);
         break;
         
-    case GAMEITEMSD:
+    case VarId_GAMEITEMSD:
     {
         //TODO module support for scripts
         ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
         game->set_item(ref, (value != 0));
         break;
     }
-    case DISABLEDITEM:
+    case VarId_DISABLEDITEM:
     {
         //TODO module support for scripts
         ItemDefinitionRef ref("CORE", ri->d[0] / 10000);
@@ -5194,23 +5193,23 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
         
     // LItems is a size of byte. -Z
-    case GAMELITEMSD:
+    case VarId_GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=vbound(value/10000, 0, 255);
         break;
         
     // LKeys is a size of byte. -Z
-    case GAMELKEYSD:
+    case VarId_GAMELKEYSD:
 	game->lvlkeys[((ri->d[0])/10000)]=vbound(value/10000, 0, 255);
         break;
         
-    case SCREENSTATED:
+    case VarId_SCREENSTATED:
     {
         int mi2 = (currmap*MAPSCRSNORMAL)+currscr;
         (value)?setmapflag(mi2, 1<<((ri->d[0])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[0]) / 10000));
     }
     break;
     
-    case SCREENSTATEDD:
+    case VarId_SCREENSTATEDD:
     {
         int mi2 = ri->d[0]/10000;
         mi2 -= 8*(mi2/MAPSCRS);
@@ -5220,16 +5219,16 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case GAMEGUYCOUNTD:
+    case VarId_GAMEGUYCOUNTD:
         game->guys[(currmap*MAPSCRSNORMAL)+(ri->d[0]/10000)] = value / 10000;
         break;
         
-    case GAMECLICKFREEZE:
+    case VarId_GAMECLICKFREEZE:
         disableClickToFreeze=value==0;
         break;
     
     
-    case NOACTIVESUBSC:
+    case VarId_NOACTIVESUBSC:
 	Link->stopSubscreenFalling((value/10000)?1:0);
 	break;
         
@@ -5243,19 +5242,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         DMaps[ID].member = value / 10000; \
 }
 
-    case DMAPFLAGSD:
+    case VarId_DMAPFLAGSD:
         SET_DMAP_VAR(flags, "Game->DMapFlags") break;
         
-    case DMAPLEVELD:
+    case VarId_DMAPLEVELD:
         SET_DMAP_VAR(level, "Game->DMapLevel") break;
         
-    case DMAPCOMPASSD:
+    case VarId_DMAPCOMPASSD:
         SET_DMAP_VAR(compass, "Game->DMapCompass") break;
         
-    case DMAPCONTINUED:
+    case VarId_DMAPCONTINUED:
         SET_DMAP_VAR(cont, "Game->DMapContinue") break;
         
-     case DMAPLEVELPAL:
+     case VarId_DMAPLEVELPAL:
    {
 	int ID = ri->d[0] / 10000; 
 	int pal = value/10000;
@@ -5268,7 +5267,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	break;
    }
    
-    case DMAPMIDID:
+    case VarId_DMAPMIDID:
     {
         int ID = ri->d[0] / 10000;
         
@@ -5303,7 +5302,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen->ComboX
-    case COMBODD:
+    case VarId_COMBODD:
     {
         int pos = (ri->d[0])/10000;
         
@@ -5316,7 +5315,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOCD:
+    case VarId_COMBOCD:
     {
         int pos = (ri->d[0])/10000;
         
@@ -5329,7 +5328,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOFD:
+    case VarId_COMBOFD:
     {
         int pos = (ri->d[0])/10000;
         
@@ -5338,7 +5337,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOTD:
+    case VarId_COMBOTD:
     {
         int pos = (ri->d[0])/10000;
         
@@ -5366,7 +5365,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOID:
+    case VarId_COMBOID:
     {
         int pos = (ri->d[0])/10000;
         
@@ -5375,7 +5374,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOSD:
+    case VarId_COMBOSD:
     {
         int pos = (ri->d[0])/10000;
         
@@ -5386,7 +5385,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
 ///----------------------------------------------------------------------------------------------------//
 //Game->SetComboX
-    case COMBODDM:
+    case VarId_COMBODDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -5439,7 +5438,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOCDM:
+    case VarId_COMBOCDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -5480,7 +5479,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOFDM:
+    case VarId_COMBOFDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -5521,7 +5520,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOTDM:
+    case VarId_COMBOTDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -5552,7 +5551,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long scr = m*MAPSCRS+sc;
         int cdata = TheMaps[scr].data[pos];
         
-        // Preprocess the screen's combos in case the combo changed is present on the screen. -L
+        // Preprocess the screen's combos in case VarId_the combo changed is present on the screen. -L
         for(int i = 0; i < 176; i++)
         {
             if(tmpscr->data[i] == cdata)
@@ -5573,7 +5572,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOIDM:
+    case VarId_COMBOIDM:
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
@@ -5606,7 +5605,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case COMBOSDM:
+    case VarId_COMBOSDM:
     {
 
         int pos = (ri->d[0])/10000;
@@ -5647,27 +5646,27 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 //Screen Variables
     
     //These use the same method as SetScreenD
-    case SETSCREENWIDTH:
+    case VarId_SETSCREENWIDTH:
 	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENHEIGHT:
+    case VarId_SETSCREENHEIGHT:
 	FFScript::set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENVIEWX:
+    case VarId_SETSCREENVIEWX:
 	FFScript::set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENVIEWY:
+    case VarId_SETSCREENVIEWY:
 	FFScript::set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENGUY:
+    case VarId_SETSCREENGUY:
 	FFScript::set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENSTRING:
+    case VarId_SETSCREENSTRING:
     {
 	FFScript::set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	    //should this be either
@@ -5678,31 +5677,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
 	break;
 
-    case SETSCREENROOM:
+    case VarId_SETSCREENROOM:
 	FFScript::set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENENTX:
+    case VarId_SETSCREENENTX:
 	FFScript::set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENENTY:
+    case VarId_SETSCREENENTY:
 	FFScript::set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENITEM:
+    case VarId_SETSCREENITEM:
 	FFScript::set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENUNDCMB:
+    case VarId_SETSCREENUNDCMB:
 	FFScript::set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENUNDCST:
+    case VarId_SETSCREENUNDCST:
 	FFScript::set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENCATCH:
+    case VarId_SETSCREENCATCH:
 	FFScript::set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
@@ -5710,7 +5709,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 
 
 //SetScreenLayerOpacity(int map, int scr, int layer, int v)
-case SETSCREENLAYOP:
+case VarId_SETSCREENLAYOP:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5726,7 +5725,7 @@ case SETSCREENLAYOP:
 }
 break;
 
-case SETSCREENSECCMB:
+case VarId_SETSCREENSECCMB:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5742,7 +5741,7 @@ case SETSCREENSECCMB:
 }
 break;
 
-case SETSCREENSECCST:
+case VarId_SETSCREENSECCST:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5758,7 +5757,7 @@ case SETSCREENSECCST:
 }
 break;
 
-case SETSCREENSECFLG:
+case VarId_SETSCREENSECFLG:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5774,7 +5773,7 @@ case SETSCREENSECFLG:
 }
 break;
 
-case SETSCREENLAYMAP:
+case VarId_SETSCREENLAYMAP:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5790,7 +5789,7 @@ case SETSCREENLAYMAP:
 }
 break;
 
-case SETSCREENLAYSCR:
+case VarId_SETSCREENLAYSCR:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5806,7 +5805,7 @@ case SETSCREENLAYSCR:
 }
 break;
 
-case SETSCREENPATH:
+case VarId_SETSCREENPATH:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5822,7 +5821,7 @@ case SETSCREENPATH:
 }
 break;
 
-case SETSCREENWARPRX:
+case VarId_SETSCREENWARPRX:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5838,7 +5837,7 @@ case SETSCREENWARPRX:
 }
 break;
 
-case SETSCREENWARPRY:
+case VarId_SETSCREENWARPRY:
 { 
 	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
 	long scrn  = ri->d[2] / 10000; 
@@ -5854,7 +5853,7 @@ case SETSCREENWARPRY:
 }
 break;
 
-    case SDD:
+    case VarId_SDD:
     {
         {
             int di2 = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
@@ -5863,141 +5862,141 @@ break;
         }
     }
     
-    case GDD:
+    case VarId_GDD:
         al_trace("GDD");
         game->global_d[ri->d[0]/10000]=value;
         break;
         
-    case SDDD:
+    case VarId_SDDD:
         FFScript::set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
         break;
         
-    case SDDDD:
+    case VarId_SDDDD:
         FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
-    case SCRDOORD:
+    case VarId_SCRDOORD:
         tmpscr->door[ri->d[0]/10000]=value/10000;
         putdoor(scrollbuf,0,ri->d[0]/10000,value/10000,true,true);
         break;
         
-    case LIT:
+    case VarId_LIT:
         naturaldark = !value;
         lighting(false, false);
         break;
         
-    case WAVY:
+    case VarId_WAVY:
         wavy=value/10000;
         break;
         
-    case QUAKE:
+    case VarId_QUAKE:
         quakeclk=value/10000;
         break;
         
-        //case ROOMTYPE:
+        //case VarId_ROOMTYPE:
         //  tmpscr->room=value/10000; break; //this probably doesn't work too well...
-    case ROOMDATA:
+    case VarId_ROOMDATA:
         tmpscr->catchall=value/10000;
         break;
         
-    case PUSHBLOCKCOMBO:
+    case VarId_PUSHBLOCKCOMBO:
         mblock2->bcombo=value/10000;
         break;
         
-    case PUSHBLOCKCSET:
+    case VarId_PUSHBLOCKCSET:
         mblock2->cs=value/10000;
         mblock2->oldcset=value/10000;
         break;
         
-    case UNDERCOMBO:
+    case VarId_UNDERCOMBO:
         tmpscr->undercombo=value/10000;
         break;
         
-    case UNDERCSET:
+    case VarId_UNDERCSET:
         tmpscr->undercset=value/10000;
         break;
     
     
-    case DEBUGGDR:
+    case VarId_DEBUGGDR:
     {
 	int a = vbound(ri->d[0]/10000,0,15);
         game->global_d[a] = value / 10000;;
     }
         break;
     
-    case DEBUGSP:
+    case VarId_DEBUGSP:
         ri->sp = vbound((value / 10000),0,256);
         break;
         
-    case DEBUGREFFFC:
+    case VarId_DEBUGREFFFC:
         ri->ffcref = vbound((value / 10000),1,31);
         break;
         
-    case DEBUGREFITEM:
+    case VarId_DEBUGREFITEM:
         ri->itemref = vbound((value / 10000),0,255);
         break;
         
-    case DEBUGREFITEMDATA:
+    case VarId_DEBUGREFITEMDATA:
         ri->idata = vbound((value / 10000),0,255);
         break;
         
-    case DEBUGREFLWEAPON:
+    case VarId_DEBUGREFLWEAPON:
         ri->lwpn = vbound((value / 10000),0,255);
         break;
         
-    case DEBUGREFEWEAPON:
+    case VarId_DEBUGREFEWEAPON:
         ri->ewpn = vbound((value / 10000),0,255);
         break;
         
-    case DEBUGREFNPC:
+    case VarId_DEBUGREFNPC:
         ri->guyref = vbound((value / 10000),0,255);
         break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
-    case SP:
+    case VarId_SP:
         ri->sp = value / 10000;
         break;
         
-    case SCRIPTRAM:
-    case GLOBALRAM:
+    case VarId_SCRIPTRAM:
+    case VarId_GLOBALRAM:
         ArrayH::setElement(ri->d[0] / 10000, ri->d[1] / 10000, value);
         break;
         
-    case SCRIPTRAMD:
-    case GLOBALRAMD:
+    case VarId_SCRIPTRAMD:
+    case VarId_GLOBALRAMD:
         ArrayH::setElement(ri->d[0] / 10000, 0, value);
         break;
         
-    case REFFFC:
+    case VarId_REFFFC:
         ri->ffcref = value / 10000;
         break;
         
-    case REFITEM:
+    case VarId_REFITEM:
         ri->itemref = value;
         break;
         
-    case REFITEMCLASS:
+    case VarId_REFITEMCLASS:
         ri->idata = value;
         break;
         
-    case REFLWPN:
+    case VarId_REFLWPN:
         ri->lwpn = value;
         break;
         
-    case REFEWPN:
+    case VarId_REFEWPN:
         ri->ewpn = value;
         break;
         
-    case REFNPC:
+    case VarId_REFNPC:
         ri->guyref = value;
         break;
         
     default:
     {
-        if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
-        else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-        else if(arg >= GD(0) && arg <= GD(255))	game->global_d[arg-GD(0)] = value;
+        if(arg >= VAR_D(0) && arg <= VAR_D(7))			ri->d[arg - VAR_D(0)] = value;
+        else if(arg >= VAR_A(0) && arg <= VAR_A(1))		ri->a[arg - VAR_A(0)] = value;
+        else if(arg >= VAR_GD(0) && arg <= VAR_GD(255))	game->global_d[arg-VAR_GD(0)] = value;
         
         break;
     }
@@ -6015,7 +6014,7 @@ break;
 void do_set(const bool v, byte whichFFC)
 {
     // Trying to change the current script?
-    if(sarg1==FFSCRIPT && ri->ffcref==whichFFC)
+    if (sarg1 == VarId_FFSCRIPT && ri->ffcref == whichFFC)
         return;
         
     long temp = SH::get_arg(sarg2, v);
@@ -6155,11 +6154,11 @@ void do_loada(const byte a)
         
     long reg = get_register(sarg2); //Register in FFC 2
     
-    if(reg >= D(0) || reg <= D(7))
-        set_register(sarg1, ffcScriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
-    else if(reg == A(0) || reg == A(1))
-        set_register(sarg1, ffcScriptData[ffcref].a[reg - A(0)]);
-    else if(reg == SP)
+    if(reg >= VAR_D(0) || reg <= VAR_D(7))
+        set_register(sarg1, ffcScriptData[ffcref].d[reg - VAR_D(0)]); //get back the info into *sarg1
+    else if(reg == VAR_A(0) || reg == VAR_A(1))
+        set_register(sarg1, ffcScriptData[ffcref].a[reg - VAR_A(0)]);
+    else if(reg == VarId_SP)
         set_register(sarg1, ffcScriptData[ffcref].sp * 10000);
         
     //Can get everything else using REFFFC
@@ -6180,11 +6179,11 @@ void do_seta(const byte a)
         
     long reg = get_register(sarg2); //Register in FFC 2
     
-    if(reg >= D(0) || reg <= D(7))
-        ffcScriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
-    else if(reg == A(0) || reg == A(1))
-        ffcScriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
-    else if(reg == SP)
+    if(reg >= VAR_D(0) || reg <= VAR_D(7))
+        ffcScriptData[ffcref].d[reg - VAR_D(0)] = get_register(sarg1); //Set it to *sarg1
+    else if(reg == VAR_A(0) || reg == VAR_A(1))
+        ffcScriptData[ffcref].a[reg - VAR_A(0)] = get_register(sarg1);
+    else if(reg == VarId_SP)
         ffcScriptData[ffcref].sp = get_register(sarg1) / 10000;
 }
 
@@ -10136,144 +10135,144 @@ long get_itemdata_register(long arg)
 
     switch (arg)
     {
-    case IDATAUSEWPN:
+    case VarId_IDATAUSEWPN:
         ret = (idata.useweapon) * 10000;
         break;
 
-    case IDATAUSEDEF:
+    case VarId_IDATAUSEDEF:
         ret = (idata.usedefence) * 10000;
         break;
 
-    case IDATAWRANGE:
+    case VarId_IDATAWRANGE:
         ret = (idata.weaprange) * 10000;
         break;
 
-    case IDATAUSEMVT:
+    case VarId_IDATAUSEMVT:
     {
         long a = vbound((ri->d[0] / 10000), 0, (ITEM_MOVEMENT_PATTERNS - 1));
         ret = (idata.weap_pattern[a]) * 10000;
         break;
     }
 
-    case IDATADURATION:
+    case VarId_IDATADURATION:
         ret = (idata.weapduration) * 10000;
         break;
 
-    case IDATADUPLICATES:
+    case VarId_IDATADUPLICATES:
         ret = (idata.duplicates) * 10000;
         break;
 
-    case IDATADRAWLAYER:
+    case VarId_IDATADRAWLAYER:
         ret = (idata.drawlayer) * 10000;
         break;
 
-    case IDATACOLLECTFLAGS:
+    case VarId_IDATACOLLECTFLAGS:
         ret = (idata.collectflags) * 10000;
         break;
 
-    case IDATAWEAPONSCRIPT:
+    case VarId_IDATAWEAPONSCRIPT:
         ret = (idata.weaponscript) * 10000;
         break;
 
-    case IDATAMISCD:
+    case VarId_IDATAMISCD:
     {
         int a = vbound((ri->d[0] / 10000), 0, 31);
         ret = (idata.wpn_misc_d[a]) * 10000;
         break;
     }
 
-    case IDATAWPNINITD:
+    case VarId_IDATAWPNINITD:
     {
         int a = vbound((ri->d[0] / 10000), 0, 7);
         ret = (idata.weap_initiald[a]) * 10000;
         break;
     }
 
-    case IDATAWEAPHXOFS:
+    case VarId_IDATAWEAPHXOFS:
     {
         ret = (idata.weap_hxofs) * 10000;
         break;
     }
 
-    case IDATAWEAPHYOFS:
+    case VarId_IDATAWEAPHYOFS:
     {
         ret = (idata.weap_yxofs) * 10000;
         break;
     }
 
-    case IDATAWEAPHXSZ:
+    case VarId_IDATAWEAPHXSZ:
     {
         ret = (idata.weap_hxsz) * 10000;
         break;
     }
 
-    case IDATAWEAPHYSZ:
+    case VarId_IDATAWEAPHYSZ:
     {
         ret = (idata.weap_hysz) * 10000;
         break;
     }
 
-    case IDATAWEAPHZSZ:
+    case VarId_IDATAWEAPHZSZ:
     {
         ret = (idata.weap_hzsz) * 10000;
         break;
     }
 
-    case IDATAWEAPXOFS:
+    case VarId_IDATAWEAPXOFS:
     {
         ret = (idata.weap_xofs) * 10000;
         break;
     }
 
-    case IDATAWEAPYOFS:
+    case VarId_IDATAWEAPYOFS:
     {
         ret = (idata.weap_yofs) * 10000;
         break;
     }
 
-    case IDATAFAMILY:
+    case VarId_IDATAFAMILY:
         ret = (idata.family) * 10000;
         break;
 
-    case IDATALEVEL:
+    case VarId_IDATALEVEL:
         ret = (idata.fam_type) * 10000;
         break;
 
-    case IDATAKEEP:
+    case VarId_IDATAKEEP:
         ret = (idata.flags & itemdata::IF_GAMEDATA) ? 10000 : 0;
         break;
 
-    case IDATAAMOUNT:
+    case VarId_IDATAAMOUNT:
         ret = (idata.amount) * 10000;
         break;
 
-    case IDATASETMAX:
+    case VarId_IDATASETMAX:
         ret = (idata.setmax) * 10000;
         break;
 
-    case IDATAMAX:
+    case VarId_IDATAMAX:
         ret = (idata.max) * 10000;
         break;
 
-    case IDATACOUNTER:
+    case VarId_IDATACOUNTER:
         ret = (idata.count) * 10000;
         break;
 
-    case IDATAUSESOUND:
+    case VarId_IDATAUSESOUND:
         ret = (idata.usesound) * 10000;
         break;
 
-    case IDATAPOWER:
+    case VarId_IDATAPOWER:
         ret = (idata.power) * 10000;
         break;
 
         //Get the script assigned to an item (active)
-    case IDATASCRIPT:
+    case VarId_IDATASCRIPT:
         ret = (idata.script) * 10000;
         break;
 
         //Get the ->Attributes[] of an item
-    case IDATAATTRIB:
+    case VarId_IDATAATTRIB:
     {
         int index = vbound(ri->d[0] / 10000, 0, 9);
         switch (index) {
@@ -10305,7 +10304,7 @@ long get_itemdata_register(long arg)
     }
 
     //Get the ->Sprite[] of an item.
-    case IDATASPRITE:
+    case VarId_IDATASPRITE:
     {
         //TODO: script support for modules
         int index = vbound(ri->d[0] / 10000, 0, 9);
@@ -10314,67 +10313,67 @@ long get_itemdata_register(long arg)
         break;
     }
     //Link TIle modifier
-    case IDATALTM:
+    case VarId_IDATALTM:
         ret = (idata.ltm) * 10000;
         break;
 
         //Pickup script
-    case IDATAPSCRIPT:
+    case VarId_IDATAPSCRIPT:
         ret = (idata.collect_script) * 10000;
         break;
 
         //Magic cost
-    case IDATAMAGCOST:
+    case VarId_IDATAMAGCOST:
         ret = (idata.magic) * 10000;
         break;
 
         //Min Hearts to Pick Up
-    case IDATAMINHEARTS:
+    case VarId_IDATAMINHEARTS:
         ret = (idata.pickup_hearts) * 10000;
         break;
 
         //Tile used by the item
-    case IDATATILE:
+    case VarId_IDATATILE:
         ret = (idata.tile) * 10000;
         break;
 
         //itemdata->Flash
-    case IDATAMISC:
+    case VarId_IDATAMISC:
         ret = (idata.misc) * 10000;
         break;
 
         //->CSet
-    case IDATACSET:
+    case VarId_IDATACSET:
         ret = (idata.csets) * 10000;
         break;
 
         //->A.Frames
-    case IDATAFRAMES:
+    case VarId_IDATAFRAMES:
         ret = (idata.frames) * 10000;
         break;
 
         //->A.Speed
-    case IDATAASPEED:
+    case VarId_IDATAASPEED:
         ret = (idata.speed) * 10000;
         break;
 
         //->Delay
-    case IDATADELAY:
+    case VarId_IDATADELAY:
         ret = (idata.delay) * 10000;
         break;
 
         // teo of this item upgrades
-    case IDATACOMBINE:
+    case VarId_IDATACOMBINE:
         ret = (idata.flags & itemdata::IF_COMBINE) ? 10000 : 0;
         break;
 
         //Use item, and get the lower level one
-    case IDATADOWNGRADE:
+    case VarId_IDATADOWNGRADE:
         ret = (idata.flags & itemdata::IF_DOWNGRADE) ? 10000 : 0;
         break;
 
         //->Flags[5]
-    case IDATAFLAGS:
+    case VarId_IDATAFLAGS:
     {
         int index = vbound(ri->d[0] / 10000, 0, 4);
         switch (index) {
@@ -10398,32 +10397,32 @@ long get_itemdata_register(long arg)
     }
 
     //->Keep Old
-    case IDATAKEEPOLD:
+    case VarId_IDATAKEEPOLD:
         ret = (idata.flags & itemdata::IF_KEEPOLD) ? 10000 : 0;
         break;
 
         //Use rupees instead of magic
-    case IDATARUPEECOST:
+    case VarId_IDATARUPEECOST:
         ret = (idata.flags & itemdata::IF_RUPEE_MAGIC) ? 10000 : 0;
         break;
 
         //Can be eaten
-    case IDATAEDIBLE:
+    case VarId_IDATAEDIBLE:
         ret = (idata.flags & itemdata::IF_EDIBLE) ? 10000 : 0;
         break;
 
         //Not int he editor, could become flags[6], but I'm reserving this one for other item uses. 
-    case IDATAFLAGUNUSED:
+    case VarId_IDATAFLAGUNUSED:
         ret = (idata.flags & itemdata::IF_UNUSED) ? 10000 : 0;
         break;
 
         //Gain lower level items when collected
-    case IDATAGAINLOWER:
+    case VarId_IDATAGAINLOWER:
         ret = (idata.flags & itemdata::IF_GAINOLD) ? 10000 : 0;
         break;
 
         //Unchanged from master
-    case IDATAINITDD:
+    case VarId_IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
 
@@ -10451,75 +10450,75 @@ void set_itemdata_register(long arg, long value)
 
     switch (arg)
     {
-    case IDATAFAMILY:
+    case VarId_IDATAFAMILY:
         idata.family = vbound(value / 10000, 0, 254);
         flushItemCache();
         break;
 
-    case IDATAUSEWPN:
+    case VarId_IDATAUSEWPN:
         idata.useweapon = vbound(value / 10000, 0, 255);
         break;
-    case IDATAUSEDEF:
+    case VarId_IDATAUSEDEF:
         idata.usedefence = vbound(value / 10000, 0, 255);
         break;
-    case IDATAWRANGE:
+    case VarId_IDATAWRANGE:
         idata.weaprange = vbound(value / 10000, 0, 255);
         break;
-    case IDATADURATION:
+    case VarId_IDATADURATION:
         idata.weapduration = vbound(value / 10000, 0, 255);
         break;
 
-    case IDATADUPLICATES:
+    case VarId_IDATADUPLICATES:
         idata.duplicates = vbound(value / 10000, 0, 255);
         break;
-    case IDATADRAWLAYER:
+    case VarId_IDATADRAWLAYER:
         idata.drawlayer = vbound(value / 10000, 0, 7);
         break;
-    case IDATACOLLECTFLAGS:
+    case VarId_IDATACOLLECTFLAGS:
         //int a = ri->d[0] / 10000;
         idata.collectflags = vbound(value / 10000, 0, 214747);
         break;
-    case IDATAWEAPONSCRIPT:
+    case VarId_IDATAWEAPONSCRIPT:
         idata.weaponscript = vbound(value / 10000, 0, 255);
         break;
-    case IDATAMISCD:
+    case VarId_IDATAMISCD:
     {
 
         int a = vbound((ri->d[0] / 10000), 0, 31);
         idata.wpn_misc_d[a] = (value / 10000);
     }
     break;
-    case IDATAWPNINITD:
+    case VarId_IDATAWPNINITD:
     {
 
         int a = vbound((ri->d[0] / 10000), 0, 7);
         idata.weap_initiald[a] = (value / 10000);
     }
     break;
-    case IDATAWEAPHXOFS:
+    case VarId_IDATAWEAPHXOFS:
         idata.weap_hxofs = (value / 10000);
         break;
-    case IDATAWEAPHYOFS:
+    case VarId_IDATAWEAPHYOFS:
         idata.weap_yxofs = (value / 10000);
         break;
-    case IDATAWEAPHXSZ:
+    case VarId_IDATAWEAPHXSZ:
         idata.weap_hxsz = (value / 10000);
         break;
-    case IDATAWEAPHYSZ:
+    case VarId_IDATAWEAPHYSZ:
         idata.weap_hysz = (value / 10000);
         break;
-    case IDATAWEAPHZSZ:
+    case VarId_IDATAWEAPHZSZ:
         idata.weap_hzsz = (value / 10000);
         break;
-    case IDATAWEAPXOFS:
+    case VarId_IDATAWEAPXOFS:
         idata.weap_xofs = (value / 10000);
         break;
-    case IDATAWEAPYOFS:
+    case VarId_IDATAWEAPYOFS:
         idata.weap_yofs = (value / 10000);
         break;
 
 
-    case IDATAUSEMVT:
+    case VarId_IDATAUSEMVT:
     {
         long a = vbound((ri->d[0] / 10000), 0, (ITEM_MOVEMENT_PATTERNS - 1));
         idata.weap_pattern[a] = vbound(value / 10000, 0, 255);
@@ -10528,52 +10527,52 @@ void set_itemdata_register(long arg, long value)
 
 
     //item level
-    case IDATALEVEL:
+    case VarId_IDATALEVEL:
         idata.fam_type = vbound(value / 10000, 0, 512);
         flushItemCache();
         break;
         //bool keep
-    case IDATAKEEP:
+    case VarId_IDATAKEEP:
         idata.flags |= (value / 10000) ? itemdata::IF_GAMEDATA : 0;
         break;
         //Need the legal range -Z
-    case IDATAAMOUNT:
+    case VarId_IDATAAMOUNT:
         idata.amount = value / 10000;
         break;
 
-    case IDATASETMAX:
+    case VarId_IDATASETMAX:
         idata.setmax = value / 10000;
         break;
 
-    case IDATAMAX:
+    case VarId_IDATAMAX:
         idata.max = value / 10000;
         break;
 
-    case IDATAPOWER:
+    case VarId_IDATAPOWER:
         idata.power = value / 10000;
         break;
 
-    case IDATACOUNTER:
+    case VarId_IDATACOUNTER:
         idata.count = vbound(value / 10000, 0, 31);
         break;
 
-    case IDATAUSESOUND:
+    case VarId_IDATAUSESOUND:
         idata.usesound = vbound(value / 10000, 0, 255);
         break;
 
         //2.54
         //My additions begin here. -Z
         //Stack item to gain next level
-    case IDATACOMBINE:
+    case VarId_IDATACOMBINE:
         idata.flags |= (value / 10000) ? itemdata::IF_COMBINE : 0;
         break;
         //using a level of an item downgrades to a lower one
-    case IDATADOWNGRADE:
+    case VarId_IDATADOWNGRADE:
         idata.flags |= (value / 10000) ? itemdata::IF_DOWNGRADE : 0;
         break;
 
         //Flags[5]
-    case IDATAFLAGS: {
+    case VarId_IDATAFLAGS: {
         int index = vbound(ri->d[0] / 10000, 0, 4);
         switch (index) {
         case 0:
@@ -10600,32 +10599,32 @@ void set_itemdata_register(long arg, long value)
         break;
     }
                      //Keep Old in editor
-    case IDATAKEEPOLD:
+    case VarId_IDATAKEEPOLD:
         idata.flags |= (value / 10000) ? itemdata::IF_KEEPOLD : 0;
         break;
         //Ruppes for magic
-    case IDATARUPEECOST:
+    case VarId_IDATARUPEECOST:
         idata.flags |= (value / 10000) ? itemdata::IF_RUPEE_MAGIC : 0;
         break;
         //can be eaten
-    case IDATAEDIBLE:
+    case VarId_IDATAEDIBLE:
         idata.flags |= (value / 10000) ? itemdata::IF_EDIBLE : 0;
         break;
         //Reserving this for item editor stuff. 
-    case IDATAFLAGUNUSED:
+    case VarId_IDATAFLAGUNUSED:
         idata.flags |= (value / 10000) ? itemdata::IF_UNUSED : 0;
         break;
         //gain lower level items
-    case IDATAGAINLOWER:
+    case VarId_IDATAGAINLOWER:
         idata.flags |= (value / 10000) ? itemdata::IF_GAINOLD : 0;
         break;
         //Set the action script
-    case IDATASCRIPT:
+    case VarId_IDATASCRIPT:
         idata.script = vbound(value / 10000, 1, 255);
         break;
 
         /*
-        case ITEMMISCD:
+        case VarId_ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
         int a = vbound(ri->d[0]/10000,0,31);
@@ -10634,7 +10633,7 @@ void set_itemdata_register(long arg, long value)
 
         break;*/
         //Attributes[10]
-    case IDATAATTRIB: {
+    case VarId_IDATAATTRIB: {
         int index = vbound(ri->d[0] / 10000, 0, 9);
         switch (index) {
         case 0:
@@ -10675,7 +10674,7 @@ void set_itemdata_register(long arg, long value)
         break;
     }
                       //Sprites[10]
-    case IDATASPRITE: {
+    case VarId_IDATASPRITE: {
         int index = vbound(ri->d[0] / 10000, 0, 9);
         //TODO script module support
         SpriteDefinitionRef newref("CORE", value / 10000);
@@ -10690,48 +10689,48 @@ void set_itemdata_register(long arg, long value)
         break;
     }
                       //Link tile modifier. 
-    case IDATALTM:
+    case VarId_IDATALTM:
         idata.ltm = value / 10000;
         break;
         //Pickup script
-    case IDATAPSCRIPT:
+    case VarId_IDATAPSCRIPT:
         idata.collect_script = (value / 10000, 1, 255);
         break;
         //magic cost
-    case IDATAMAGCOST:
+    case VarId_IDATAMAGCOST:
         idata.magic = value / 10000;
         break;
         //min hearts to pick up
-    case IDATAMINHEARTS:
+    case VarId_IDATAMINHEARTS:
         idata.pickup_hearts = vbound(value / 10000, 0, 214748);
         break;
         //item tile
-    case IDATATILE:
+    case VarId_IDATATILE:
         idata.tile = vbound(value / 10000, 0, 65519);
         break;
         //flash
-    case IDATAMISC:
+    case VarId_IDATAMISC:
         idata.misc = value / 10000;
         break;
         //cset
-    case IDATACSET:
+    case VarId_IDATACSET:
         idata.csets = vbound(value / 10000, 0, 13);
         break;
         //A.Frames
-    case IDATAFRAMES:
+    case VarId_IDATAFRAMES:
         idata.frames = vbound(value / 10000, 0, 214748);
         break;
         //A.speed
-    case IDATAASPEED:
+    case VarId_IDATAASPEED:
         idata.speed = vbound(value / 10000, 0, 214748);
         break;
         //Anim delay
-    case IDATADELAY:
+    case VarId_IDATADELAY:
         idata.delay = vbound(value / 10000, 0, 214748);
         break;
 
         //not one of mine. 
-    case IDATAINITDD:
+    case VarId_IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
 

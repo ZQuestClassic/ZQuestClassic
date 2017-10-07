@@ -33,7 +33,8 @@ src/parser/libraries/Npc.cpp
 src/parser/libraries/Screen.cpp
 
 src/scripting/ZAsmCommands.cpp
+src/scripting/ZAsmVariables.cpp
 
-src/parser/AST.cpp## End of ZQuest ZScript module
+## End of ZQuest ZScript module
 )
 

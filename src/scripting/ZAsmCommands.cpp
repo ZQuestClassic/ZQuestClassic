@@ -1,16 +1,14 @@
 #include "../precompiled.h"
 #include "ZAsmCommands.h"
-
 #include "ZAsmCommandTable.h"
 
 #include <map>
-#include <vector>
 
 using namespace std;
 using namespace ZAsm;
 
 CommandDef::CommandDef(
-		int id, string const& name,
+		CommandId id, string const& name,
 		ArgumentType firstArg, ArgumentType secondArg)
 	: id_(id), name_(name), firstArg_(firstArg), secondArg_(secondArg)
 {}
@@ -32,7 +30,7 @@ CommandDef const** commandArray()
 	return a;
 }
 
-CommandDef const* ZAsm::getCommandDef(int id)
+CommandDef const* ZAsm::getCommandDef(CommandId id)
 {
 	if (id < 0 || id >= ZAsm::CommandCount) return NULL;
 	return commandArray()[id];
@@ -46,7 +44,7 @@ map<string, CommandDef const*>& commandMap()
 	{
 		// eg. m["SETV"] = &ZAsm::Cmd_SETV;
 #		define X(ARG0, ARG1, NAME) \
-		m[#NAME] = &ZAsm::Cmd_##NAME ;
+		m[#NAME] = &ZAsm::Cmd_##NAME;
 		ZASM_COMMAND_TABLE
 #		undef X
 		initialized = true;
@@ -62,18 +60,4 @@ CommandDef const* ZAsm::getCommandDef(std::string const& name)
 	return it->second;
 }
 
-/*
-// Define CommandDef constants. Example:
-// CommandDef const ZAsm::Cmd_SETV(
-//   ZAsm::CmdId_SETV, "SETV",
-//   CommandDef::ArgRegister, CommandDef::ArgValue);
-#define X(ARG0, ARG1, NAME) \
-	CommandDef const ZAsm::Cmd_ ## NAME ( \
-			ZAsm::CmdId_ ## NAME , #NAME, \
-			CommandDef:: ## ARG0 , CommandDef:: ARG1 );
-ZASM_COMMAND_TABLE
-#undef X
-*/
-
 #undef ZASM_COMMAND_TABLE
-

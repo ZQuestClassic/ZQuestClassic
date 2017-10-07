@@ -1,3 +1,6 @@
+// Defines ZASM_COMMAND_TABLE using the "X Macro" idiom. Arguments are the
+// first and second argument types, and the symbol.
+
 #ifndef ZASM_COMMAND_TABLE
 #define ZASM_COMMAND_TABLE \
 	X(ArgRegister, ArgValue,    SETV) \
