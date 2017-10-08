@@ -59,7 +59,7 @@ namespace ZAsm
 		bool isNull() const {return definition_ == NULL;}
 		VariableId getId() const;
 		std::string toString() const;
-		
+
 	private:
 		VariableDef const* definition_;
 		int index_;
@@ -70,14 +70,30 @@ namespace ZAsm
 	Variable getVariable(VariableId id);
 	Variable getVariable(std::string const& name);
 
+	inline bool operator==(Variable const& lhs, Variable const& rhs) {
+		return lhs.getId() == rhs.getId();}
+	inline bool operator!=(Variable const& lhs, Variable const& rhs) {
+		return !operator==(lhs, rhs);}
+	inline bool operator< (Variable const& lhs, Variable const& rhs) {
+		return lhs.getId() < rhs.getId();}
+	inline bool operator> (Variable const& lhs, Variable const& rhs) {
+		return operator<(rhs, lhs);}
+	inline bool operator<=(Variable const& lhs, Variable const& rhs) {
+		return !operator>(lhs, rhs);}
+	inline bool operator>=(Variable const& lhs, Variable const& rhs) {
+		return !operator<(lhs, rhs);}
+	
 	// TODO Rewrite to grab from the table instead.
-	Variable varD(int index);
 #	define VAR_D(INDEX) (INDEX)
-	Variable varA(int index);
 #	define VAR_A(INDEX) (INDEX + 8)
-	Variable varGD(int index);
 #	define VAR_GD(INDEX) (INDEX + 0x2F5)
 
+	// Declare Variable constructors. Example:
+	// Variable varD(int index = 0);
+#	define X(START, COUNT, NAME)\
+	Variable var##NAME(int index = 0);
+	ZASM_VARIABLE_TABLE
+#	undef X
 }
 
 #undef ZASM_VARIABLE_TABLE

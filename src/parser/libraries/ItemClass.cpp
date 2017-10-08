@@ -3,12 +3,11 @@
 #include "../LibraryHelper.h"
 
 #include "../../zdefs.h"
-#include "../ByteCode.h"
-#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 ItemClass const& ItemClass::singleton()
 {
@@ -36,67 +35,67 @@ void ItemClass::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<ZAsm::Variable> R;
 	
-	LibraryHelper lh(scope, REFITEMCLASS, tItemClass);
+	LibraryHelper lh(scope, varREFITEMCLASS(), tItemClass);
 
-	addPair(lh, ITEMCLASSFAMILY, tFloat, "Family");
-	addPair(lh, ITEMCLASSFAMTYPE, tFloat, "Level");
-	addPair(lh, ITEMCLASSAMOUNT, tFloat, "Amount");
-	addPair(lh, ITEMCLASSMAX, tFloat, "Max");
-	addPair(lh, ITEMCLASSSETMAX, tFloat, "MaxIncrement");
-	addPair(lh, ITEMCLASSSETGAME, tBool, "Keep");
-	addPair(lh, ITEMCLASSCOUNTER, tFloat, "Counter");
-	addPair(lh, ITEMCLASSUSESOUND, tFloat, "UseSound");
-	lh.addGetter(ITEMCLASSID, tFloat, "ID");
-	addPair(lh, ITEMCLASSPOWER, tFloat, "Power");
-	addPair(lh, ITEMCLASSINITDD, tFloat, "InitD", 2); // XXX Is 2 correct?
-	addPair(lh, IDATALTM, tFloat, "Modifier");
-	addPair(lh, IDATASCRIPT, tFloat, "Script");
-	addPair(lh, IDATAPSCRIPT, tFloat, "PScript");
-	addPair(lh, IDATAMAGCOST, tFloat, "MagicCost");
-	addPair(lh, IDATAMINHEARTS, tFloat, "MinHearts");
-	addPair(lh, IDATATILE, tFloat, "Tile");
-	addPair(lh, IDATAMISC, tFloat, "Flash");
-	addPair(lh, IDATACSET, tFloat, "CSet");
-	// addPair(lh, IDATAFRAME, tFloat, "Frame");
-	addPair(lh, IDATAFRAMES, tFloat, "AFrames");
-	addPair(lh, IDATAASPEED, tFloat, "ASpeed");
-	addPair(lh, IDATADELAY, tFloat, "Delay");
-	addPair(lh, IDATACOMBINE, tBool, "Combine");
-	addPair(lh, IDATADOWNGRADE, tBool, "Downgrade");
-	addPair(lh, IDATAKEEPOLD, tBool, "KeepOld");
-	addPair(lh, IDATARUPEECOST, tBool, "RupeeCost");
-	addPair(lh, IDATAEDIBLE, tBool, "Edible");
-	addPair(lh, IDATAFLAGUNUSED, tBool, "Unused");
-	addPair(lh, IDATAGAINLOWER, tBool, "GainLower");
-	addPair(lh, IDATAATTRIB, tFloat, "Attributes", 15);
-	addPair(lh, IDATAATTRIB, tFloat, "Misc", 10); // XXX Same thing?
-	addPair(lh, IDATAFLAGS, tBool, "Flags", 5);
-	addPair(lh, IDATASPRITE, tFloat, "Sprites", 10);
-	addPair(lh, IDATAUSEWPN, tFloat, "Weapon");
-	addPair(lh, IDATAUSEDEF, tFloat, "Defense");
-	addPair(lh, IDATAWRANGE, tFloat, "Range");
-	addPair(lh, IDATADURATION, tFloat, "Duration");
-	addPair(lh, IDATAUSEMVT, tFloat, "Movement", ITEM_MOVEMENT_PATTERNS);
-	addPair(lh, IDATAWPNINITD, tFloat, "WeaponD", 8);
-	addPair(lh, IDATAMISCD, tFloat, "WeaponMisc", 32);
-	addPair(lh, IDATADUPLICATES, tFloat, "Duplicates");
-	addPair(lh, IDATADRAWLAYER, tFloat, "DrawLayer");
-	addPair(lh, IDATACOLLECTFLAGS, tFloat, "CollectFlags");
-	addPair(lh, IDATAWEAPONSCRIPT, tFloat, "WeaponScript");
-	addPair(lh, IDATAWEAPHXOFS, tFloat, "WeaponHitXOffset");
-	addPair(lh, IDATAWEAPHYOFS, tFloat, "WeaponHitYOffset");
-	addPair(lh, IDATAWEAPHXSZ, tFloat, "WeaponHitWidth");
-	addPair(lh, IDATAWEAPHYSZ, tFloat, "WeaponHitHeight");
-	addPair(lh, IDATAWEAPHZSZ, tFloat, "WeaponHitZHeight");
-	addPair(lh, IDATAWEAPXOFS, tFloat, "WeaponDrawXOffset");
-	addPair(lh, IDATAWEAPYOFS, tFloat, "WeaponDrawYOffset");
-	addPair(lh, IDATAWEAPZOFS, tFloat, "WeaponDrawZOffset");
+	addPair(lh, varIDATAFAMILY(), tFloat, "Family");
+	addPair(lh, varIDATALEVEL(), tFloat, "Level");
+	addPair(lh, varIDATAAMOUNT(), tFloat, "Amount");
+	addPair(lh, varIDATAMAX(), tFloat, "Max");
+	addPair(lh, varIDATASETMAX(), tFloat, "MaxIncrement");
+	addPair(lh, varIDATAKEEP(), tBool, "Keep");
+	addPair(lh, varIDATACOUNTER(), tFloat, "Counter");
+	addPair(lh, varIDATAUSESOUND(), tFloat, "UseSound");
+	lh.addGetter(varIDATAID(), tFloat, "ID");
+	addPair(lh, varIDATAPOWER(), tFloat, "Power");
+	addPair(lh, varIDATAINITDD(), tFloat, "InitD", 2); // XXX Is 2 correct?
+	addPair(lh, varIDATALTM(), tFloat, "Modifier");
+	addPair(lh, varIDATASCRIPT(), tFloat, "Script");
+	addPair(lh, varIDATAPSCRIPT(), tFloat, "PScript");
+	addPair(lh, varIDATAMAGCOST(), tFloat, "MagicCost");
+	addPair(lh, varIDATAMINHEARTS(), tFloat, "MinHearts");
+	addPair(lh, varIDATATILE(), tFloat, "Tile");
+	addPair(lh, varIDATAMISC(), tFloat, "Flash");
+	addPair(lh, varIDATACSET(), tFloat, "CSet");
+	// addPair(lh, varIDATAFRAME(), tFloat, "Frame");
+	addPair(lh, varIDATAFRAMES(), tFloat, "AFrames");
+	addPair(lh, varIDATAASPEED(), tFloat, "ASpeed");
+	addPair(lh, varIDATADELAY(), tFloat, "Delay");
+	addPair(lh, varIDATACOMBINE(), tBool, "Combine");
+	addPair(lh, varIDATADOWNGRADE(), tBool, "Downgrade");
+	addPair(lh, varIDATAKEEPOLD(), tBool, "KeepOld");
+	addPair(lh, varIDATARUPEECOST(), tBool, "RupeeCost");
+	addPair(lh, varIDATAEDIBLE(), tBool, "Edible");
+	addPair(lh, varIDATAFLAGUNUSED(), tBool, "Unused");
+	addPair(lh, varIDATAGAINLOWER(), tBool, "GainLower");
+	addPair(lh, varIDATAATTRIB(), tFloat, "Attributes", 15);
+	addPair(lh, varIDATAATTRIB(), tFloat, "Misc", 10); // XXX Same thing?
+	addPair(lh, varIDATAFLAGS(), tBool, "Flags", 5);
+	addPair(lh, varIDATASPRITE(), tFloat, "Sprites", 10);
+	addPair(lh, varIDATAUSEWPN(), tFloat, "Weapon");
+	addPair(lh, varIDATAUSEDEF(), tFloat, "Defense");
+	addPair(lh, varIDATAWRANGE(), tFloat, "Range");
+	addPair(lh, varIDATADURATION(), tFloat, "Duration");
+	addPair(lh, varIDATAUSEMVT(), tFloat, "Movement", ITEM_MOVEMENT_PATTERNS);
+	addPair(lh, varIDATAWPNINITD(), tFloat, "WeaponD", 8);
+	addPair(lh, varIDATAMISCD(), tFloat, "WeaponMisc", 32);
+	addPair(lh, varIDATADUPLICATES(), tFloat, "Duplicates");
+	addPair(lh, varIDATADRAWLAYER(), tFloat, "DrawLayer");
+	addPair(lh, varIDATACOLLECTFLAGS(), tFloat, "CollectFlags");
+	addPair(lh, varIDATAWEAPONSCRIPT(), tFloat, "WeaponScript");
+	addPair(lh, varIDATAWEAPHXOFS(), tFloat, "WeaponHitXOffset");
+	addPair(lh, varIDATAWEAPHYOFS(), tFloat, "WeaponHitYOffset");
+	addPair(lh, varIDATAWEAPHXSZ(), tFloat, "WeaponHitWidth");
+	addPair(lh, varIDATAWEAPHYSZ(), tFloat, "WeaponHitHeight");
+	addPair(lh, varIDATAWEAPHZSZ(), tFloat, "WeaponHitZHeight");
+	addPair(lh, varIDATAWEAPXOFS(), tFloat, "WeaponDrawXOffset");
+	addPair(lh, varIDATAWEAPYOFS(), tFloat, "WeaponDrawYOffset");
+	addPair(lh, varIDATAWEAPZOFS(), tFloat, "WeaponDrawZOffset");
 	
     // void ItemClass->GetName(string buffer)
 	defineFunction(
 			lh, tVoid, "GetName",
-			P() << tFloat, R() << EXP1,
-			new OGetItemName(new VarArgument(EXP1)));
+			P() << tFloat, R() << varExp1(),
+			opITEMNAME(varExp1()));
 }

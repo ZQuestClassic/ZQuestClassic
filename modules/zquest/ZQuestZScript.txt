@@ -7,11 +7,11 @@ set(ZQUEST_ZSCRIPT_SOURCES
 src/parser/AST.cpp
 src/parser/ASTVisitors.cpp
 src/parser/BuildVisitors.cpp
-src/parser/ByteCode.cpp
 src/parser/CompileError.cpp
 src/parser/DataStructs.cpp
 src/parser/Library.cpp
 src/parser/LibraryHelper.cpp
+src/parser/Opcode.cpp
 src/parser/Scope.cpp
 src/parser/ScriptParser.cpp
 src/parser/SemanticAnalyzer.cpp

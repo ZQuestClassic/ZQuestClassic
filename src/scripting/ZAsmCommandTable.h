@@ -193,7 +193,7 @@
 	X(ArgNone,     ArgNone,     DRAWSTRINGR) \
 	X(ArgNone,     ArgNone,     SETSIDEWARP) \
 	X(ArgNone,     ArgNone,     SAVE) \
-	X(ArgNone,     ArgNone,     TRACE6) \
+	X(ArgRegister, ArgNone,     TRACE6) \
 	X(ArgRegister, ArgNone,     DEPRECATED) \
 	X(ArgNone,     ArgNone,     QUAD3DR) \
 	X(ArgNone,     ArgNone,     TRIANGLE3DR) \
@@ -262,9 +262,11 @@
 	X(ArgNone,     ArgNone,     RESUMEMUSIC) \
 	X(ArgRegister, ArgNone,     LWPNARRPTR) \
 	X(ArgRegister, ArgNone,     EWPNARRPTR) \
+	X(ArgRegister, ArgNone,     ITEMARRPTR) \
 	X(ArgRegister, ArgNone,     IDATAARRPTR) \
 	X(ArgRegister, ArgNone,     FFCARRPTR) \
 	X(ArgRegister, ArgNone,     BOOLARRPTR) \
+	X(ArgRegister, ArgNone,     NPCARRPTR) \
 	X(ArgRegister, ArgNone,     LWPNARRPTR2) \
 	X(ArgRegister, ArgNone,     EWPNARRPTR2) \
 	X(ArgRegister, ArgNone,     ITEMARRPTR2) \

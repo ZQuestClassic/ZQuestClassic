@@ -397,7 +397,7 @@ int set_argument(char* argName, zasm** script, int scriptIndex, int argIndex)
 
 int parse_script_section(
 		char* commandName, char* firstArg, char* secondArg,
-		zasm **script, int scriptIndex, int &retcode)
+		zasm **script, int scriptIndex, int& retcode)
 {
 	zasm& command = (*script)[scriptIndex];
     command.arg1 = 0;

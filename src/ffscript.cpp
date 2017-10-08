@@ -3386,9 +3386,12 @@ case VarId_SETSCREENCATCH:
 //Most of this is deprecated I believe ~Joe123
     default:
     {
-        if(arg >= VAR_D(0) && arg <= VAR_D(7))			ret = ri->d[arg - VAR_D(0)];
-        else if(arg >= VAR_A(0) && arg <= VAR_A(1))		ret = ri->a[arg - VAR_A(0)];
-        else if(arg >= VAR_GD(0) && arg <= VAR_GD(255))	ret = game->global_d[arg - VAR_GD(0)];
+        if (arg >= VAR_D(0) && arg <= VAR_D(7))
+	        ret = ri->d[arg - VAR_D(0)];
+        else if (arg >= VAR_A(0) && arg <= VAR_A(1))
+	        ret = ri->a[arg - VAR_A(0)];
+        else if (arg >= VAR_GD(0) && arg <= VAR_GD(255))
+	        ret = game->global_d[arg - VAR_GD(0)];
         
         break;
     }
@@ -5994,9 +5997,12 @@ break;
         
     default:
     {
-        if(arg >= VAR_D(0) && arg <= VAR_D(7))			ri->d[arg - VAR_D(0)] = value;
-        else if(arg >= VAR_A(0) && arg <= VAR_A(1))		ri->a[arg - VAR_A(0)] = value;
-        else if(arg >= VAR_GD(0) && arg <= VAR_GD(255))	game->global_d[arg-VAR_GD(0)] = value;
+        if (arg >= VAR_D(0) && arg <= VAR_D(7))
+	        ri->d[arg - VAR_D(0)] = value;
+        else if (arg >= VAR_A(0) && arg <= VAR_A(1))
+	        ri->a[arg - VAR_A(0)] = value;
+        else if (arg >= VAR_GD(0) && arg <= VAR_GD(255))
+	        game->global_d[arg - VAR_GD(0)] = value;
         
         break;
     }

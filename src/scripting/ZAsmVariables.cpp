@@ -105,13 +105,19 @@ string Variable::toString() const
 	if (definition_ == &VarDef_D)
 	{
 		ostringstream out;
-		out << "D" << index_;
+		out << "d" << index_;
 		return out.str();
 	}
 	if (definition_ == &VarDef_A)
 	{
 		ostringstream out;
-		out << "A" << index_ + 1;
+		out << "a" << index_ + 1;
+		return out.str();
+	}
+	if (definition_ == &VarDef_GD)
+	{
+		ostringstream out;
+		out << "gd" << index_;
 		return out.str();
 	}
 	return "<UNKNOWN>";
@@ -143,7 +149,7 @@ Variable ZAsm::getVariable(string const& name)
 	// GD0 through GD255
 	if (strnicmp(name.c_str(), "GD", 2) == 0)
 	{
-		int index = atoi(&name[2]);
+		int index = atoi(name.substr(2).c_str());
 		if (0 <= index && index <= 255)
 			return Variable(&VarDef_GD, index);
 	}
@@ -151,20 +157,13 @@ Variable ZAsm::getVariable(string const& name)
 	return Variable::Null;
 }
 
-Variable ZAsm::varD(int index)
-{
-	return Variable(&VarDef_D, index);
-}
-
-Variable ZAsm::varA(int index)
-{
-	return Variable(&VarDef_A, index);
-}
-
-Variable ZAsm::varGD(int index)
-{
-	return Variable(&VarDef_GD, index);
-}
-
+// Declare Variable constructors. Example:
+// Variable ZAsm::varD(int index) {
+//     return Variable(&VarDef_D, index);}
+#define X(START, COUNT, NAME)\
+Variable ZAsm::var##NAME(int index) { \
+	return Variable(&VarDef_##NAME, index);}
+ZASM_VARIABLE_TABLE
+#undef X
 
 #undef ZASM_VARIABLE_TABLE

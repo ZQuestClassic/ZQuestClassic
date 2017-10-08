@@ -2,12 +2,11 @@
 #include "../Library.h"
 #include "../LibraryHelper.h"
 
-#include "../ByteCode.h"
-#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 Screen const& Screen::singleton()
 {
@@ -35,131 +34,117 @@ void Screen::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
-	typedef VectorBuilder<Opcode*> O;
+	typedef VectorBuilder<ZAsm::Variable> R;
+	typedef VectorBuilder<Opcode> O;
 	
-	LibraryHelper lh(scope, NUL, tScreen);
+	LibraryHelper lh(scope, varNull(), tScreen);
 	LibraryHelper::call_tag const& asFunction = LibraryHelper::asFunction;
 
-	addPair(lh, SDD, tFloat, "D", 8);
-	addPair(lh, COMBODD, tFloat, "ComboD", 176);
-	addPair(lh, COMBOCD, tFloat, "ComboC", 176);
-	addPair(lh, COMBOFD, tFloat, "ComboF", 176);
-	addPair(lh, COMBOID, tFloat, "ComboI", 176);
-	addPair(lh, COMBOTD, tFloat, "ComboT", 176);
-	addPair(lh, COMBOSD, tFloat, "ComboS", 176);
-	addPair(lh, SCRDOORD, tFloat, "Door", 4);
-	addPair(lh, SCREENSTATED, tBool, "State", 32);
-	addPair(lh, LIT, tBool, "Lit");
-	addPair(lh, WAVY, tFloat, "Wavy");
-	addPair(lh, QUAKE, tFloat, "Quake");
-	lh.addGetter(ITEMCOUNT, tFloat, "NumItems", asFunction);
-	lh.addGetter(NPCCOUNT, tFloat, "NumNPCs", asFunction);
-	lh.addGetter(LWPNCOUNT, tFloat, "NumLWeapons", asFunction);
-	lh.addGetter(EWPNCOUNT, tFloat, "NumEWeapons", asFunction);
-	addPair(lh, SCREENFLAGSD, tFloat, "Flags", 10);
-	addPair(lh, SCREENEFLAGSD, tFloat, "EFlags", 3);
-	lh.addGetter(ROOMTYPE, tFloat, "RoomType"); // make pair?
-	addPair(lh, ROOMDATA, tFloat, "RoomData");
-	addPair(lh, PUSHBLOCKX, tFloat, "MovingBlockX");
-	addPair(lh, PUSHBLOCKY, tFloat, "MovingBlockY");
-	addPair(lh, PUSHBLOCKCOMBO, tFloat, "MovingBlockCombo");
-	addPair(lh, PUSHBLOCKCSET, tFloat, "MovingBlockCSet");
-	addPair(lh, UNDERCOMBO, tFloat, "UnderCombo");
-	addPair(lh, UNDERCSET, tFloat, "UnderCSet");
+	addPair(lh, varSDD(), tFloat, "D", 8);
+	addPair(lh, varCOMBODD(), tFloat, "ComboD", 176);
+	addPair(lh, varCOMBOCD(), tFloat, "ComboC", 176);
+	addPair(lh, varCOMBOFD(), tFloat, "ComboF", 176);
+	addPair(lh, varCOMBOID(), tFloat, "ComboI", 176);
+	addPair(lh, varCOMBOTD(), tFloat, "ComboT", 176);
+	addPair(lh, varCOMBOSD(), tFloat, "ComboS", 176);
+	addPair(lh, varSCRDOORD(), tFloat, "Door", 4);
+	addPair(lh, varSCREENSTATED(), tBool, "State", 32);
+	addPair(lh, varLIT(), tBool, "Lit");
+	addPair(lh, varWAVY(), tFloat, "Wavy");
+	addPair(lh, varQUAKE(), tFloat, "Quake");
+	lh.addGetter(varITEMCOUNT(), tFloat, "NumItems", asFunction);
+	lh.addGetter(varNPCCOUNT(), tFloat, "NumNPCs", asFunction);
+	lh.addGetter(varLWPNCOUNT(), tFloat, "NumLWeapons", asFunction);
+	lh.addGetter(varEWPNCOUNT(), tFloat, "NumEWeapons", asFunction);
+	addPair(lh, varSCREENFLAGSD(), tFloat, "Flags", 10);
+	addPair(lh, varSCREENEFLAGSD(), tFloat, "EFlags", 3);
+	lh.addGetter(varROOMTYPE(), tFloat, "RoomType"); // make pair?
+	addPair(lh, varROOMDATA(), tFloat, "RoomData");
+	addPair(lh, varPUSHBLOCKX(), tFloat, "MovingBlockX");
+	addPair(lh, varPUSHBLOCKY(), tFloat, "MovingBlockY");
+	addPair(lh, varPUSHBLOCKCOMBO(), tFloat, "MovingBlockCombo");
+	addPair(lh, varPUSHBLOCKCSET(), tFloat, "MovingBlockCSet");
+	addPair(lh, varUNDERCOMBO(), tFloat, "UnderCombo");
+	addPair(lh, varUNDERCSET(), tFloat, "UnderCSet");
 
     // item Screen->LoadItem(float index)
 	defineFunction(
 			lh, tItem, "LoadItem",
-			P() << tFloat, R() << EXP1,
-			O() << new OSubImmediate(new VarArgument(EXP1),
-			                         new LiteralArgument(10000))
-			    << new OLoadItemRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFITEM)));
+			P() << tFloat, R() << varExp1(),
+			O() << opSUBV(varExp1(), 10000)
+			    << opLOADITEMR(varExp1())
+			    << opSETR(varExp1(), varREFITEM()));
     
     // item Screen->CreateItem(float id)
 	defineFunction(
 			lh, tItem, "CreateItem",
-			P() << tFloat, R() << EXP1,
-			O() << new OCreateItemRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFITEM)));
+			P() << tFloat, R() << varExp1(),
+			O() << opCREATEITEMR(varExp1())
+			    << opSETR(varExp1(), varREFITEM()));
 
     // ffc Screen->LoadFFC(float index)
 	defineFunction(
 			lh, tFfc, "LoadFFC",
-			P() << tFloat, R() << EXP1,
-			new OSubImmediate(new VarArgument(EXP1),
-			                  new LiteralArgument(10000)));
+			P() << tFloat, R() << varExp1(),
+			opSUBV(varExp1(), 10000));
 
     // npc Screen->LoadNPC(float index)
 	defineFunction(
 			lh, tNpc, "LoadNPC",
-			P() << tFloat, R() << EXP1,
-			O() << new OSubImmediate(new VarArgument(EXP1),
-			                         new LiteralArgument(10000))
-			    << new OLoadNPCRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFNPC)));
+			P() << tFloat, R() << varExp1(),
+			O() << opSUBV(varExp1(), 10000)
+			    << opLOADNPCR(varExp1())
+			    << opSETR(varExp1(), varREFNPC()));
 
     // npc Screen->CreateNPC(float id)
 	defineFunction(
 			lh, tNpc, "CreateNPC",
-			P() << tFloat, R() << EXP1,
-			O() << new OCreateNPCRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFNPC)));
+			P() << tFloat, R() << varExp1(),
+			O() << opCREATENPCR(varExp1())
+			    << opSETR(varExp1(), varREFNPC()));
 
     // lweapon Screen->LoadLWeapon(float index)
 	defineFunction(
 			lh, tLWpn, "LoadLWeapon",
-			P() << tFloat, R() << EXP1,
-			O() << new OSubImmediate(new VarArgument(EXP1),
-			                         new LiteralArgument(10000))
-			    << new OLoadLWpnRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFLWPN)));
+			P() << tFloat, R() << varExp1(),
+			O() << opSUBV(varExp1(), 10000)
+			    << opLOADLWEAPONR(varExp1())
+			    << opSETR(varExp1(), varREFLWPN()));
 
     // lweapon Screen->CreateLWeapon(float id)
 	defineFunction(
 			lh, tLWpn, "CreateLWeapon",
-			P() << tFloat, R() << EXP1,
-			O() << new OCreateLWpnRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFLWPN)));
+			P() << tFloat, R() << varExp1(),
+			O() << opCREATELWEAPONR(varExp1())
+			    << opSETR(varExp1(), varREFLWPN()));
     
     // lweapon Screen->CreateLWeaponDX(float type, float id)
     defineFunction(
 		    lh, tLWpn, "CreateLWeaponDx",
-		    P() << tFloat << tFloat,
-		    R() <<  INDEX << INDEX2,
-		    new OSetRegister(new VarArgument(EXP1),
-		                     new VarArgument(CREATELWPNDX)));
+		    P() << tFloat   << tFloat,
+		    R() << varIndex1() << varIndex2(),
+		    opSETR(varExp1(), varCREATELWPNDX()));
      
     // eweapon Screen->LoadEWeapon(float index)
 	defineFunction(
 			lh, tEWpn, "LoadEWeapon",
-			P() << tFloat, R() << EXP1,
-			O() << new OSubImmediate(new VarArgument(EXP1),
-			                         new LiteralArgument(10000))
-			    << new OLoadEWpnRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFEWPN)));
+			P() << tFloat, R() << varExp1(),
+			O() << opSUBV(varExp1(), 10000)
+			    << opLOADEWEAPONR(varExp1())
+			    << opSETR(varExp1(), varREFEWPN()));
 
     // eweapon Screen->CreateEWeapon(float id)
 	defineFunction(
 			lh, tEWpn, "CreateEWeapon",
-			P() << tFloat, R() << EXP1,
-			O() << new OCreateEWpnRegister(new VarArgument(EXP1))
-			    << new OSetRegister(new VarArgument(EXP1),
-			                        new VarArgument(REFEWPN)));
+			P() << tFloat, R() << varExp1(),
+			O() << opCREATEEWEAPONR(varExp1())
+			    << opSETR(varExp1(), varREFEWPN()));
 
     // void Screen->ClearSprites(float spriteListId)
     defineFunction(
 		    lh, tVoid, "ClearSprites",
-		    P() << tFloat, R() << EXP1,
-		    new OClearSpritesRegister(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opCLEARSPRITESR(varExp1()));
 
     // void Screen->Rectangle(...)
     defineFunction(
@@ -167,7 +152,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tBool  << tFloat,
-		    new ORectangleRegister());
+		    opRECTR());
 
     // void Screen->Circle(...)
     defineFunction(
@@ -175,7 +160,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tBool  << tFloat,
-		    new OCircleRegister());
+		    opCIRCLER());
 
     // void Screen->Arc(...)
     defineFunction(
@@ -184,7 +169,7 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tBool
 		        << tBool  << tFloat,
-		    new OArcRegister());
+		    opARCR());
 
     // void Screen->Ellipse(...)
     defineFunction(
@@ -192,7 +177,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tBool << tFloat,
-		    new OEllipseRegister());
+		    opELLIPSER());
 
     // void Screen->Line(...)
     defineFunction(
@@ -200,7 +185,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat,
-		    new OLineRegister());
+		    opLINER());
 	    
     // void Screen->Spline(...)
     defineFunction(
@@ -208,14 +193,14 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat,
-		    new OSplineRegister());
+		    opSPLINER());
 
     // void Screen->PutPixel(...)
     defineFunction(
 		    lh, tVoid, "PutPixel",
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat,
-		    new OPutPixelRegister());
+		    opPUTPIXELR());
 
     // void Screen->DrawCharacter(...)
     defineFunction(
@@ -223,7 +208,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat,
-		    new ODrawCharRegister());
+		    opDRAWCHARR());
     
     // void Screen->DrawInteger(...)
     defineFunction(
@@ -231,7 +216,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat,
-		    new ODrawIntRegister());
+		    opDRAWINTR());
 
     // void Screen->DrawTile(...)
     defineFunction(
@@ -240,7 +225,7 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tBool << tFloat,
-		    new ODrawTileRegister());
+		    opDRAWTILER());
     
     // void Screen->DrawCombo(...)
     defineFunction(
@@ -249,7 +234,7 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tBool << tFloat,
-		    new ODrawComboRegister());
+		    opDRAWCOMBOR());
     
     // void Screen->Quad(...)
     defineFunction(
@@ -258,7 +243,7 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat,
-		    new OQuadRegister());
+		    opQUADR());
 
     // void Screen->Polygon(...)
     defineFunction(
@@ -267,7 +252,7 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat,
-		    new OPolygonRegister());
+		    opPOLYGONR());
 
     // void Screen->Triangle(...)
     defineFunction(
@@ -276,35 +261,35 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat,
-		    new OTriangleRegister());
+		    opTRIANGLER());
     
     // void Screen->Quad3D(...)
     defineFunction(
 		    lh, tVoid, "Quad3D",
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat,
-		    new OQuad3DRegister());
+		    opQUAD3DR());
     
     // void Screen->Triangle3D(...)
     defineFunction(
 		    lh, tVoid, "Triangle3D",
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat,
-		    new OTriangle3DRegister());
+		    opTRIANGLE3DR());
     
     // void Screen->FastTile(...)
     defineFunction(
 		    lh, tVoid, "FastTile",
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat,
-		    new OFastTileRegister());
+		    opFASTTILER());
     
     // void Screen->FastCombo(...)
     defineFunction(
 		    lh, tVoid, "FastCombo",
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat,
-		    new OFastComboRegister());
+		    opFASTCOMBOR());
 
     // void Screen->DrawString(...)
     defineFunction(
@@ -312,21 +297,21 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat
 		        << tFloat,
-		    new ODrawStringRegister());
+		    opDRAWSTRINGR());
     
     // void Screen->DrawLayer(...)
     defineFunction(
 		    lh, tVoid, "DrawLayer",
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat,
-		    new ODrawLayerRegister());
+		    opDRAWLAYERR());
     
     // void Screen->DrawScreen(...)
     defineFunction(
 		    lh, tVoid, "DrawScreen",
 		    P() << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat,
-		    new ODrawScreenRegister());
+		    opDRAWSCREENR());
 
     // void Screen->DrawBitmap(...)
     defineFunction(
@@ -334,7 +319,7 @@ void Screen::addTo(Scope& scope) const
 		    P() << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tFloat
 			    << tFloat << tFloat << tFloat << tBool,
-		    new ODrawBitmapRegister());
+		    opBITMAPR());
     
     // void Screen->DrawBitmapEx(...)
     defineFunction(
@@ -343,99 +328,97 @@ void Screen::addTo(Scope& scope) const
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tFloat
 		        << tFloat << tFloat << tFloat << tBool,
-		    new ODrawBitmapExRegister());
+		    opBITMAPEXR());
     
     // void Screen->SetRenderTarget(float bitmap)
     defineFunction(
 		    lh, tVoid, "SetRenderTarget", P() << tFloat,
-		    new OSetRenderTargetRegister());
+		    opSETRENDERTARGET());
     
     // void Screen->Message(float id)
     defineFunction(
 		    lh, tVoid, "Message",
-		    P() << tFloat, R() << EXP2,
-		    new OMessageRegister(new VarArgument(EXP2)));
+		    P() << tFloat, R() << varExp2(),
+		    opMSGSTRR(varExp2()));
 
     // bool Screen->isSolid(float x, float y)
     defineFunction(
 		    lh, tBool, "isSolid",
 		    P() << tFloat << tFloat,
-		    R() <<  INDEX << INDEX2,
-		    new OIsSolid(new VarArgument(EXP1)));
+		    R() << varIndex1() << varIndex2(),
+		    opISSOLID(varExp1()));
 
     // void Screen->SetSideWarp(float, float, float, float)
     defineFunction(
 		    lh, tVoid, "SetSideWarp",
 		    P() << tFloat << tFloat << tFloat << tFloat,
-		    new OSetSideWarpRegister());
+		    opSETSIDEWARP());
 
     // void Screen->SetTileWarp(float, float, float, float)
     defineFunction(
 		    lh, tVoid, "SetTileWarp",
 		    P() << tFloat << tFloat << tFloat << tFloat,
-		    new OSetTileWarpRegister());
+		    opSETTILEWARP());
     
     // float Screen->LayerScreen(float layer)
     defineFunction(
 		    lh, tFloat, "LayerScreen",
-		    P() << tFloat, R() << EXP2,
-		    new OLayerScreenRegister(new VarArgument(EXP1),
-		                             new VarArgument(EXP2)));
+		    P() << tFloat, R() << varExp2(),
+		    opLAYERSCREEN(varExp1(), varExp2()));
     
     // float Screen->LayerMap(float layer)
     defineFunction(
 		    lh, tFloat, "LayerMap",
-		    P() << tFloat, R() << EXP2,
-		    new OLayerMapRegister(new VarArgument(EXP1),
-		                          new VarArgument(EXP2)));
+		    P() << tFloat, R() << varExp2(),
+		    opLAYERMAP(varExp1(), varExp2()));
 
     // void Screen->TriggerSecrets()
-    defineFunction(lh, "TriggerSecrets", new OTriggerSecrets());
-    defineFunction(lh, "ZapIn",          new OZapIn());
-    defineFunction(lh, "ZapOut",         new OZapOut());
-    defineFunction(lh, "OpeningWipe",    new OOpenWipe());
-    defineFunction(lh, "WavyIn",         new OWavyIn());
-    defineFunction(lh, "WavyOut",        new OWavyOut());
+    defineFunction(lh, "TriggerSecrets", opSECRETS());
+    defineFunction(lh, "ZapIn",          opZAPIN());
+    defineFunction(lh, "ZapOut",         opZAPOUT());
+    defineFunction(lh, "OpeningWipe",    opOPENWIPE());
+    defineFunction(lh, "WavyIn",         opWAVYIN());
+    defineFunction(lh, "WavyOut",        opWAVYOUT());
     
     // float Screen->GetSideWarpDMap(float warp)
     defineFunction(
 		    lh, tFloat, "GetSideWarpDMap",
-		    P() << tFloat, R() << EXP1,
-		    new OGetSideWarpDMap(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opGETSIDEWARPDMAP(varExp1()));
 
     // float Screen->GetSideWarpScreen(screen this, float warp)
     defineFunction(
 		    lh, tFloat, "GetSideWarpScreen",
-		    P() << tFloat, R() << EXP1,
-		    new OGetSideWarpScreen(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opGETSIDEWARPSCR(varExp1()));
 
     // float Screen->GetSideWarpType(float warp)
     defineFunction(
 		    lh, tFloat, "GetSideWarpType",
-		    P() << tFloat, R() << EXP1,
-		    new OGetSideWarpType(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opGETSIDEWARPTYPE(varExp1()));
 
     // float Screen->GetTileWarpDMap(float warp)
     defineFunction(
 		    lh, tFloat, "GetTileWarpDMap",
-		    P() << tFloat, R() << EXP1,
-		    new OGetTileWarpDMap(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opGETTILEWARPDMAP(varExp1()));
 
     // float Screen->GetTileWarpScreen(float warp)
     defineFunction(
 		    lh, tFloat, "GetTileWarpScreen",
-		    P() << tFloat, R() << EXP1,
-		    new OGetTileWarpScreen(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opGETTILEWARPSCR(varExp1()));
 
     // float Screen->GetTileWarpType(float warp)
     defineFunction(
 		    lh, tFloat, "GetTileWarpType",
-		    P() << tFloat, R() << EXP1,
-		    new OGetTileWarpType(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opGETTILEWARPTYPE(varExp1()));
 
     // void Screen->TriggerSecret(float secret)
     defineFunction(
 		    lh, tVoid, "TriggerSecret",
-		    P() << tFloat, R() << EXP1,
-		    new OTriggerSecretRegister(new VarArgument(EXP1)));
+		    P() << tFloat, R() << varExp1(),
+		    opTRIGGERSECRETR(varExp1()));
 }

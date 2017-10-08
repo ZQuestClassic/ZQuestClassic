@@ -2,12 +2,11 @@
 #include "../Library.h"
 #include "../LibraryHelper.h"
 
-#include "../ByteCode.h"
-#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 NpcClass const& NpcClass::singleton()
 {
@@ -35,11 +34,11 @@ void NpcClass::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<ZAsm::Variable> R;
 	
-	LibraryHelper lh(scope, NUL, tNpcClass);
+	LibraryHelper lh(scope, varNull(), tNpcClass);
 
-	lh.addGetter(FCSET, tFloat, "CSet");
+	lh.addGetter(varCSET(), tFloat, "CSet");
 
 	/*
 	  Use functions that accept two args (ID, value) per field for setters
@@ -50,7 +49,7 @@ void NpcClass::addTo(Scope& scope) const
 	/*
 	// bool NpcClass->isValid()
 	defineFunction(
-			lh, tBool, "isValid", P(), R() << EXP1,
-			new OIsValidEWpn(new VarArgument(EXP1)));
+			lh, tBool, "isValid", P(), R() << varExp1(),
+			new OIsValidEWpn(varExp1()));
     */
 }
