@@ -313,6 +313,9 @@ optional<Element> find(
 	return element;
 }
 
+////////////////////////////////////////////////////////////////
+// Sets
+
 // Find an element in a set.
 template <typename Element, typename Compare, typename Alloc>
 optional<Element> find(
@@ -324,6 +327,13 @@ optional<Element> find(
 	if (it == container.end()) return nullopt;
 	Element const& element = *it;
 	return element;
+}
+
+// Insert into a set.
+template <typename Element, typename Source>
+void insert(std::set<Element> const& target, Source const& source)
+{
+	target.insert(source.begin(), source.end());
 }
 
 ////////////////////////////////////////////////////////////////

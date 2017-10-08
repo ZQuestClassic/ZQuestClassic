@@ -118,7 +118,7 @@ void debugging_box(int x1, int y1, int x2, int y2)
         
     int *sdci = &script_drawing_commands[index][0];
     
-    sdci[0] = RECTR;
+    sdci[0] = ZAsm::CmdId_RECTR;
     sdci[1] = 30000;
     sdci[2] = x1*10000;
     sdci[3] = y1*10000;

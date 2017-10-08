@@ -29,13 +29,13 @@ struct IntermediateData
 {
 	IntermediateData(FunctionData const& functionData);
 	ZScript::Program& program;
-    vector<Opcode *> globalsInit;
+    vector<Opcode> globalsInit;
 };
 
 struct OpcodeContext
 {
     TypeStore* typeStore;
-	vector<Opcode*> initCode;
+	vector<Opcode> initCode;
 };
 
 #endif

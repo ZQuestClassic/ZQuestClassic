@@ -2,7 +2,6 @@
 #include "LibraryHelper.h"
 
 #include <cassert>
-#include "ByteCode.h"
 #include "CompilerUtils.h"
 #include "Scope.h"
 #include "Types.h"
@@ -13,9 +12,10 @@ using std::string;
 using namespace ZScript;
 
 LibraryHelper::LibraryHelper(
-		Scope& scope, int objectRegister, optional<DataType> objectType)
-	: scope(scope), objectRegister(objectRegister),
-	  objectType(objectType)
+		Scope& scope, ZAsm::Variable const& objectVariable,
+		optional<DataType> objectType)
+	: scope_(scope), objectVariable_(objectVariable),
+	  objectType_(objectType)
 {}
 
 LibraryHelper::call_tag const LibraryHelper::asVariable;
@@ -28,32 +28,31 @@ Function& LibraryHelper::addFunction(
 		string const& name,
 		vector<DataType> parameterTypes)
 {
-	if (objectType)
-		parameterTypes.insert(parameterTypes.begin(), *objectType);
-	return *scope.addFunction(returnType, name, parameterTypes);
+	if (objectType_)
+		parameterTypes.insert(parameterTypes.begin(), *objectType_);
+	return *scope_.addFunction(returnType, name, parameterTypes);
 }
 
 void LibraryHelper::addGetter(
-		int variableRegister, DataType const& type, string const& name,
+		ZAsm::Variable const& variable,
+		DataType const& type, string const& name,
 		call_tag const& call)
 {
 	////////////////
 	// Setup types.
 	vector<DataType> paramTypes;
-	if (objectType) paramTypes.push_back(*objectType);
+	if (objectType_) paramTypes.push_back(*objectType_);
 
 	////////////////
 	// Generate function code.
-    vector<Opcode*> code;
+    vector<Opcode> code;
     // Pop argument (object pointer).
-    code.push_back(new OPopRegister(new VarArgument(EXP2)));
+    code.push_back(opPOP(varExp2()));
     // Set used object register to pointer.
-    if (objectRegister != NUL)
-        code.push_back(new OSetRegister(new VarArgument(objectRegister),
-                                        new VarArgument(EXP2)));
+    if (objectVariable_ != varNull())
+	    code.push_back(opSETR(objectVariable_, varExp2()));
     // Store variable value into EXP1.
-    code.push_back(new OSetRegister(new VarArgument(EXP1),
-                                    new VarArgument(variableRegister)));
+    code.push_back(opSETR(varExp1(), variable));
     // Return from function.
     appendReturn(code);
 
@@ -61,154 +60,148 @@ void LibraryHelper::addGetter(
 	// Create the function.
     Function* function;
     if (&call == &asVariable)
-	    function = scope.addGetter(type, name, paramTypes);
+	    function = scope_.addGetter(type, name, paramTypes);
     else if (&call == &asFunction)
-	    function = scope.addFunction(type, name, paramTypes);
-	code.front()->setLabel(function->getLabel());
-    function->giveCode(code);
+	    function = scope_.addFunction(type, name, paramTypes);
+	code.front().withLabel(function->getLabel());
+    function->setCode(code);
 }
 
 void LibraryHelper::addGetter(
-		int variableRegister, DataType const& type, string const& name,
+		ZAsm::Variable const& variable,
+		DataType const& type, string const& name,
 		int arraySize)
 {
 	////////////////
 	// Setup types.
-	TypeStore& typeStore = scope.getTypeStore();
+	TypeStore& typeStore = scope_.getTypeStore();
 	vector<DataType> paramTypes;
-	if (objectType) paramTypes.push_back(*objectType);
+	if (objectType_) paramTypes.push_back(*objectType_);
 	paramTypes.push_back(typeStore.getFloat());
 
 	////////////////
 	// Generate function code.
-    vector<Opcode*> code;
+    vector<Opcode> code;
     // Pop argument (index).
-    code.push_back(new OPopRegister(new VarArgument(INDEX)));
+    code.push_back(opPOP(varIndex1()));
     // Pop argument (object pointer).
-    code.push_back(new OPopRegister(new VarArgument(EXP2)));
+    code.push_back(opPOP(varExp2()));
     // Set used object register to pointer.
-    if (objectRegister != NUL)
-        code.push_back(new OSetRegister(new VarArgument(objectRegister),
-                                        new VarArgument(EXP2)));
+    if (objectVariable_ != varNull())
+        code.push_back(opSETR(objectVariable_, varExp2()));
     // Store variable value into EXP1.
-    code.push_back(new OSetRegister(new VarArgument(EXP1),
-                                    new VarArgument(variableRegister)));
+    code.push_back(opSETR(varExp1(), variable));
     // Return from function.
     appendReturn(code);
 
     ////////////////
 	// Create the function.
-	Function& function = *scope.addGetter(type, name, paramTypes);
-	code.front()->setLabel(function.getLabel());
-    function.giveCode(code);
+	Function& function = *scope_.addGetter(type, name, paramTypes);
+	code.front().withLabel(function.getLabel());
+    function.setCode(code);
 }
 
 void LibraryHelper::addSetter(
-		int variableRegister, DataType const& type, string const& name)
+		ZAsm::Variable const& variable,
+		DataType const& type, string const& name)
 {
 	////////////////
 	// Setup types.
-	TypeStore& typeStore = scope.getTypeStore();
+	TypeStore& typeStore = scope_.getTypeStore();
 	vector<DataType> paramTypes;
-	if (objectType) paramTypes.push_back(*objectType);
+	if (objectType_) paramTypes.push_back(*objectType_);
 	paramTypes.push_back(type);
 
 	////////////////
 	// Generate function code.
-    vector<Opcode*> code;
+    vector<Opcode> code;
     // Pop argument (new value).
-    code.push_back(new OPopRegister(new VarArgument(EXP1)));
+    code.push_back(opPOP(varExp1()));
     // If the argument is a bool, normalize true to 1.
-    int skipLabel = -1;
+    optional<int> skipLabel;
     if (type == typeStore.getBool())
     {
 	    skipLabel = ScriptParser::getUniqueLabelID();
-	    code.push_back(new OCompareImmediate(new VarArgument(EXP1),
-	                                         new LiteralArgument(0)));
-	    code.push_back(new OGotoTrueImmediate(new LabelArgument(skipLabel)));
-	    code.push_back(new OSetImmediate(new VarArgument(EXP1),
-	                                     new LiteralArgument(10000)));
+	    code.push_back(opCOMPAREV(varExp1(), 0));
+	    code.push_back(opGOTOTRUE(*skipLabel));
+	    code.push_back(opSETV(varExp1(), 10000));
     }
     // Pop argument (object pointer).
-    code.push_back(new OPopRegister(new VarArgument(EXP2)));
-    code.back()->setLabel(skipLabel);
+    code.push_back(opPOP(varExp2()));
+    if (skipLabel) code.back().withLabel(*skipLabel);
     // Set used object register to pointer.
-    if (objectRegister != NUL)
-        code.push_back(new OSetRegister(new VarArgument(objectRegister),
-                                        new VarArgument(EXP2)));
+    if (objectVariable_ != varNull())
+        code.push_back(opSETR(objectVariable_, varExp2()));
     // Store variable value into EXP1.
-    code.push_back(new OSetRegister(new VarArgument(variableRegister),
-                                    new VarArgument(EXP1)));
+    code.push_back(opSETR(variable, varExp1()));
     // Return from function.
     appendReturn(code);
 
     ////////////////
 	// Create the function.
-	Function& function = *scope.addSetter(type, name, paramTypes);
-	code.front()->setLabel(function.getLabel());
-    function.giveCode(code);
+	Function& function = *scope_.addSetter(type, name, paramTypes);
+	code.front().withLabel(function.getLabel());
+    function.setCode(code);
 }
 
 void LibraryHelper::addSetter(
-		int variableRegister, DataType const& type, string const& name,
+		ZAsm::Variable const& variable,
+		DataType const& type, string const& name,
 		int arraySize)
 {
 	////////////////
 	// Setup types.
-	TypeStore& typeStore = scope.getTypeStore();
+	TypeStore& typeStore = scope_.getTypeStore();
 	vector<DataType> paramTypes;
-	if (objectType) paramTypes.push_back(*objectType);
+	if (objectType_) paramTypes.push_back(*objectType_);
 	paramTypes.push_back(typeStore.getFloat());
 	paramTypes.push_back(type);
 
 	////////////////
 	// Generate function code.
-    vector<Opcode*> code;
+    vector<Opcode> code;
     // Pop argument (index).
-    code.push_back(new OPopRegister(new VarArgument(INDEX)));
+    code.push_back(opPOP(varIndex1()));
     // Pop argument (new value).
-    code.push_back(new OPopRegister(new VarArgument(EXP1)));
+    code.push_back(opPOP(varExp1()));
     // Pop argument (object pointer).
-    code.push_back(new OPopRegister(new VarArgument(EXP2)));
+    code.push_back(opPOP(varExp2()));
     // Set used object register to pointer.
-    if (objectRegister != NUL)
-        code.push_back(new OSetRegister(new VarArgument(objectRegister),
-                                        new VarArgument(EXP2)));
+    if (objectVariable_ != varNull())
+        code.push_back(opSETR(objectVariable_, varExp2()));
     // Store variable value into EXP1.
-    code.push_back(new OSetRegister(new VarArgument(variableRegister),
-                                    new VarArgument(EXP1)));
+    code.push_back(opSETR(variable, varExp1()));
     // Return from function.
     appendReturn(code);
 
     ////////////////
 	// Create the function.
-	Function& function = *scope.addSetter(type, name, paramTypes);
-	code.front()->setLabel(function.getLabel());
-    function.giveCode(code);
+	Function& function = *scope_.addSetter(type, name, paramTypes);
+	code.front().withLabel(function.getLabel());
+    function.setCode(code);
 }
 
-void ZScript::appendReturn(
-		vector<Opcode*>& code, optional<int> label)
+void ZScript::appendReturn(vector<Opcode>& code, optional<int> label)
 {
-	code.push_back(new OPopRegister(new VarArgument(EXP2)));
-	if (label) code.front()->setLabel(*label);
-	code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-}
-
-void ZScript::addPair(
-		LibraryHelper& lh, int variableRegister, DataType const& type,
-		string const& name)
-{
-	lh.addGetter(variableRegister, type, name);
-	lh.addSetter(variableRegister, type, name);
+	code.push_back(opPOP(varExp2()));
+	if (label) code.back().withLabel(*label);
+	code.push_back(opGOTOR(varExp2()));
 }
 
 void ZScript::addPair(
-		LibraryHelper& lh, int variableRegister, DataType const& type,
-		string const& name, int arraySize)
+		LibraryHelper& lh, ZAsm::Variable const& variable,
+		DataType const& type, string const& name)
 {
-	lh.addGetter(variableRegister, type, name, arraySize);
-	lh.addSetter(variableRegister, type, name, arraySize);
+	lh.addGetter(variable, type, name);
+	lh.addSetter(variable, type, name);
+}
+
+void ZScript::addPair(
+		LibraryHelper& lh, ZAsm::Variable const& variable,
+		DataType const& type, string const& name, int arraySize)
+{
+	lh.addGetter(variable, type, name, arraySize);
+	lh.addSetter(variable, type, name, arraySize);
 }
 
 void ZScript::defineFunction(
@@ -216,29 +209,29 @@ void ZScript::defineFunction(
 		DataType const& returnType,
 		string const& name,
 		vector<DataType> const& parameterTypes,
-		vector<int> const& parameterRegisters,
-		vector<Opcode*> const& ownedOpcodes)
+		vector<ZAsm::Variable> const& parameterVariables,
+		vector<Opcode> const& opcodes)
 {
 	Function& function = lh.addFunction(returnType, name, parameterTypes);
 	int parameterCount = function.paramTypes.size();
-	assert(parameterRegisters.size() <= parameterCount);
+	assert(parameterVariables.size() <= parameterCount);
 	
-	vector<Opcode*> code;
+	vector<Opcode> code;
 	// Pop the arguments into the supplied registers.
-	for (vector<int>::const_reverse_iterator it =
-		     parameterRegisters.rbegin();
-	     it != parameterRegisters.rend(); ++it)
-		code.push_back(new OPopRegister(new VarArgument(*it)));
+	for (vector<ZAsm::Variable>::const_reverse_iterator it =
+		     parameterVariables.rbegin();
+	     it != parameterVariables.rend(); ++it)
+		code.push_back(opPOP(*it));
 	// Call the passed opcode.
-	appendElements(code, ownedOpcodes);
+	appendElements(code, opcodes);
 	// Pop the remaining arguments.
-	for (int i = parameterRegisters.size(); i < parameterCount; ++i)
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+	for (int i = parameterVariables.size(); i < parameterCount; ++i)
+		code.push_back(opPOP(varNull()));
 	// Return from the function.
 	appendReturn(code);
 
-	code.front()->setLabel(function.getLabel());
-	function.giveCode(code);
+	code.front().withLabel(function.getLabel());
+	function.setCode(code);
 }
 
 void ZScript::defineFunction(
@@ -246,12 +239,12 @@ void ZScript::defineFunction(
 		DataType const& returnType,
 		std::string const& name,
 		std::vector<DataType> const& parameterTypes,
-		std::vector<int> const& parameterRegisters,
-		Opcode* ownedOpcode)
+		std::vector<ZAsm::Variable> const& parameterVariables,
+		Opcode const& opcode)
 {
 	defineFunction(
-			lh, returnType, name, parameterTypes, parameterRegisters,
-			VectorBuilder<Opcode*>() << ownedOpcode);
+			lh, returnType, name, parameterTypes, parameterVariables,
+			VectorBuilder<Opcode>() << opcode);
 }
 
 void ZScript::defineFunction(
@@ -259,11 +252,11 @@ void ZScript::defineFunction(
 		DataType const& returnType,
 		std::string const& name,
 		std::vector<DataType> const& parameterTypes,
-		std::vector<Opcode*> const& ownedOpcodes)
+		std::vector<Opcode> const& opcodes)
 {
 	defineFunction(
-			lh, returnType, name, parameterTypes, vector<int>(),
-			ownedOpcodes);
+			lh, returnType, name, parameterTypes, vector<ZAsm::Variable>(),
+			opcodes);
 }
 
 void ZScript::defineFunction(
@@ -271,29 +264,29 @@ void ZScript::defineFunction(
 		DataType const& returnType,
 		std::string const& name,
 		std::vector<DataType> const& parameterTypes,
-		Opcode* ownedOpcode)
+		Opcode const& opcode)
 {
 	defineFunction(
-			lh, returnType, name, parameterTypes, vector<int>(),
-			VectorBuilder<Opcode*>() << ownedOpcode);
+			lh, returnType, name, parameterTypes, vector<ZAsm::Variable>(),
+			VectorBuilder<Opcode>() << opcode);
 }
 
 void ZScript::defineFunction(
 		LibraryHelper& lh, DataType const& returnType,
-		std::string const& name, Opcode* ownedOpcode)
+		std::string const& name, Opcode const& opcode)
 {
 	defineFunction(
 			lh, returnType,
-			name, vector<DataType>(), vector<int>(),
-			VectorBuilder<Opcode*>() << ownedOpcode);
+			name, vector<DataType>(), vector<ZAsm::Variable>(),
+			VectorBuilder<Opcode>() << opcode);
 }
 
 void ZScript::defineFunction(
-		LibraryHelper& lh, std::string const& name, Opcode* ownedOpcode)
+		LibraryHelper& lh, std::string const& name, Opcode const& opcode)
 {
 	defineFunction(
 			lh, lh.getScope().getTypeStore().getVoid(),
-			name, vector<DataType>(), vector<int>(),
-			VectorBuilder<Opcode*>() << ownedOpcode);
+			name, vector<DataType>(), vector<ZAsm::Variable>(),
+			VectorBuilder<Opcode>() << opcode);
 }
 

@@ -18796,7 +18796,7 @@ int onCompileScript()
             
             std::map<string, ZScript::ScriptType> stypes =
 	            result->scriptTypes;
-            std::map<string, vector<Opcode *> > scriptsmap = result->theScripts;
+            std::map<string, vector<ZScript::Opcode> > scriptsmap = result->theScripts;
             delete result;
             asffcscripts.clear();
             asffcscripts.push_back("<none>");
@@ -18915,9 +18915,9 @@ int onCompileScript()
                                 al_trace("\n");
                             }
                             
-                            for(vector<Opcode *>::iterator line = scriptsmap[it->second.second].begin(); line != scriptsmap[it->second.second].end(); line++)
+                            for(vector<ZScript::Opcode>::iterator line = scriptsmap[it->second.second].begin(); line != scriptsmap[it->second.second].end(); line++)
                             {
-                                string theline = (*line)->printLine();
+                                string theline = line->toLine();
                                 fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
                                 
                                 if(output)
@@ -18967,9 +18967,9 @@ int onCompileScript()
                                 al_trace("\n");
                             }
                             
-                            for(vector<Opcode *>::iterator line = scriptsmap[it->second.second].begin(); line != scriptsmap[it->second.second].end(); line++)
+                            for(vector<ZScript::Opcode>::iterator line = scriptsmap[it->second.second].begin(); line != scriptsmap[it->second.second].end(); line++)
                             {
-                                string theline = (*line)->printLine();
+                                string theline = line->toLine();
                                 fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
                                 
                                 if(output)
@@ -19020,9 +19020,9 @@ int onCompileScript()
 								al_trace("\n");
 							}
 
-							for (vector<Opcode *>::iterator line = scriptsmap[it->second.second].begin(); line != scriptsmap[it->second.second].end(); line++)
+							for (vector<ZScript::Opcode>::iterator line = scriptsmap[it->second.second].begin(); line != scriptsmap[it->second.second].end(); line++)
 							{
-								string theline = (*line)->printLine();
+								string theline = line->toLine();
 								fwrite(theline.c_str(), sizeof(char), theline.size(), tempfile);
 
 								if (output)
@@ -19058,14 +19058,6 @@ int onCompileScript()
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
                     build_biitems_list();
-                    
-                    for(map<string, vector<Opcode *> >::iterator it = scriptsmap.begin(); it != scriptsmap.end(); it++)
-                    {
-                        for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-                        {
-                            delete *it2;
-                        }
-                    }
                     
                     return D_O_K;
                 }

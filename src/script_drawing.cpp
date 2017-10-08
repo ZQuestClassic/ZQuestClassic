@@ -15,6 +15,8 @@
 #include "ffscript.h"
 #include <stdio.h>
 
+using namespace ZAsm;
+
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
@@ -3519,167 +3521,167 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             isTargetOffScreenBmp = true;
         }
         
-        switch(sdci[0])
+        switch (sdci[0])
         {
-        case RECTR:
+        case CmdId_RECTR:
         {
             do_rectr(bmp, sdci, xoffset, yoffset);
         }
         break;
         	
-        case CIRCLER:
+        case CmdId_CIRCLER:
         {
             do_circler(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case ARCR:
+        case CmdId_ARCR:
         {
             do_arcr(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case ELLIPSER:
+        case CmdId_ELLIPSER:
         {
             do_ellipser(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case LINER:
+        case CmdId_LINER:
         {
             do_liner(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case SPLINER:
+        case CmdId_SPLINER:
         {
             do_spliner(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case PUTPIXELR:
+        case CmdId_PUTPIXELR:
         {
             do_putpixelr(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case DRAWTILER:
+        case CmdId_DRAWTILER:
         {
             do_drawtiler(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case DRAWCOMBOR:
+        case CmdId_DRAWCOMBOR:
         {
             do_drawcombor(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case FASTTILER:
+        case CmdId_FASTTILER:
         {
             do_fasttiler(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case FASTCOMBOR:
+        case CmdId_FASTCOMBOR:
         {
             do_fastcombor(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case DRAWCHARR:
+        case CmdId_DRAWCHARR:
         {
             do_drawcharr(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case DRAWINTR:
+        case CmdId_DRAWINTR:
         {
             do_drawintr(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case DRAWSTRINGR:
+        case CmdId_DRAWSTRINGR:
         {
             do_drawstringr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
         
-        case QUADR:
+        case CmdId_QUADR:
         {
             do_drawquadr(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case QUAD3DR:
+        case CmdId_QUAD3DR:
         {
             do_drawquad3dr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
         
-        case TRIANGLER:
+        case CmdId_TRIANGLER:
         {
             do_drawtriangler(bmp, sdci, xoffset, yoffset);
         }
         break;
         
-        case TRIANGLE3DR:
+        case CmdId_TRIANGLE3DR:
         {
             do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
         
-        case BITMAPR:
+        case CmdId_BITMAPR:
         {
             do_drawbitmapr(bmp, sdci, xoffset, yoffset);
         }
         break;
 	
-		case BITMAPEXR:
+		case CmdId_BITMAPEXR:
         {
             do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
         }
         break;
 	
-        case DRAWLAYERR:
+        case CmdId_DRAWLAYERR:
         {
             do_drawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
         }
         break;
         
-        case DRAWSCREENR:
+        case CmdId_DRAWSCREENR:
         {
             do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
         }
         break;
 
-		case POLYGONR:
+		case CmdId_POLYGONR:
 		{
 			do_polygonr(bmp, i, sdci, xoffset, yoffset);
 		}
 		break;
 
-		//case BITMAPEXR:
+		//case CmdId_BITMAPEXR:
 		//	{
 		//		do_bitmapexr(bmp, sdci, xoffset, yoffset);
 		//	}
 		//	break;
-		//case POLYGONR:
+		//case CmdId_POLYGONR:
 		//	{
 		//		do_polygonr(bmp, sdci, xoffset, yoffset);
 		//	}
 		//	break;
-		//case PIXELARRAYR:
+		//case CmdId_PIXELARRAYR:
 		//	{
 		//		do_pixelarrayr(bmp, i, sdci, xoffset, yoffset);
 		//	}
 		//	break;
-		//case TILEARRAYR:
+		//case CmdId_TILEARRAYR:
 		//	{
 		//		do_tilearrayr(bmp, i, sdci, xoffset, yoffset);
 		//	}
 		//	break;
-		//case COMBOARRAYR:
+		//case CmdId_COMBOARRAYR:
 		//	{
 		//		do_comboarrayr(bmp, i, sdci, xoffset, yoffset);
 		//	}

@@ -104,11 +104,6 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 
 Script::Script(Program& program) : program(program) {}
 
-Script::~Script()
-{
-	deleteElements(code);
-}
-
 // ZScript::UserScript
 
 UserScript::UserScript(Program& program, ASTScript& node)
@@ -374,27 +369,15 @@ string Function::Signature::asString() const
 Function::Function(DataType const& returnType, string const& name,
 				   vector<DataType> const& paramTypes, int id)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
-	  returnType(returnType), name(name), paramTypes(paramTypes),
-	  id(id), label(nullopt)
+	  returnType(returnType), name(name), paramTypes(paramTypes), id(id)
 {}
 
-Function::~Function()
+void Function::setCode(vector<Opcode> const& code)
 {
-	deleteElements(ownedCode);
-}
-
-vector<Opcode*> Function::takeCode()
-{
-	vector<Opcode*> code = ownedCode;
-	ownedCode.clear();
-	return code;
-}
-
-void Function::giveCode(vector<Opcode*>& code)
-{
-	appendElements(ownedCode, code);
-	code.clear();
-	ownedCode.front()->setComment("FUNCTION " + getSignature().asString());
+	code_ = code;
+	code_.front()
+		.withLabel(getLabel())
+		.withComment("FUNCTION " + getSignature().asString());
 }
 
 Script* Function::getScript() const
@@ -410,8 +393,8 @@ Script* Function::getScript() const
 
 int Function::getLabel() const
 {
-	if (!label) label = ScriptParser::getUniqueLabelID();
-	return *label;
+	if (!label_) label_ = ScriptParser::getUniqueLabelID();
+	return *label_;
 }
 
 bool ZScript::isRun(Function const& function)
