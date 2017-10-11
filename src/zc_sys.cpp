@@ -5153,7 +5153,7 @@ static DIALOG btndir_dlg[] =
     { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Down",   NULL, &DDbtn },
     { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Left",   NULL, &DLbtn },
     { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Right",  NULL, &DRbtn },
-    { jwin_check_proc,     22,   154,  147,  8,    vc(14),  vc(1),   0,       0,         1,        0, (void *) "Use Analog Stick Instead Of Buttons", NULL, NULL },
+    { jwin_check_proc,     22,   154,  147,  8,    vc(14),  vc(1),   0,       0,         1,        0, (void *) "Use Analog Stick/DPad", NULL, NULL },
     
     // 16
     { jwin_button_proc,    90,   184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
