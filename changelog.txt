@@ -1,5 +1,12 @@
 ChangeLog for 2.53.0 Beta 10
-02-OCT-2017
+12-OCT-2017
+
+Reworded language for controller button dialogue:
+The controller button input dialogue used the wording 'Use Analogue Stick Instead of Buttons', which is misleading. 
+On standard USB game pads, with a DPad, ZC recognises the DPad as an analogue stick (when using Windows), and thus, 
+the controller DPad buttons cannot be mapped on an individual basis. This adjusts the wording to 'Use Analogue Stick/DPad'. ( ZoriaRPG, 10th October, 2017 )
+
+Fixed issues with 1.84 quests. ( Gleeok )
 
 Reverted all of the Game->SetCombo* and Game->GetCombo* functions to their 2.50.2 states. 
 The revised (2.50.3) functions broke quests using these functions in a way that cannot be resolved
