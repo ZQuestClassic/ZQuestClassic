@@ -1,6 +1,425 @@
 ////////////
+/// 2.11 ///
+////////////
+
+//! 2.11 became 2.50
+
+Zelda Classic 2.11 Beta 16
+
+    Incomplete list of changes:
+
+        Fixed the Magic Shield bug
+        Link now has charging sprites
+        Disabling items actually works this time
+        Link can no longer move around when charging the hammer
+        Fixed spinning hammer bug
+        Fixed can't get items while charging bug
+        Hurricane Spin added
+        New items: Whisp Ring L1 and L2. L1 causes permanent bubble curses to be temporary, while L2 makes you immune to curses overall
+        Some ZASM fixes related to the Z variable
+        Fixed bug where some Link sprites wouldn't save properly
+        string editor is semi-complete. Normal strings should still work. Ask _L_ for all the options you can do *currently*
+        Added CLEARSPRITESR and CLEARSPRITESV to ZAsm and ClearSprites() to Zscript
+        Raft bug is fixed
+        Docks not working properly is fixed
+        Fixed the bug where chnging sfx data wouldn't allow you to save if that was the only change you made
+        Fixed bug where you could use the sword to change the hammer
+        Fixed bug with jumping in sideview gravity
+        New items: Peril Beam scroll, charge rings 1 and 2, and magic (infinite) versions of the bomb bag, quiver, and wallet
+        Fixed red potion always disappearing
+        Fixed freezing during Dmap intro
+        Tweaked hammer physics. Quest Rule: Slow Walk While Charging. Quest Rule: Book Magic Uses Magic (Fire) Sprite. Quest Rule: Wand Can\'t Be Used As Melee Weapon.
+        Work has begun on drowing Link. Not yet complete I think.
+        Sword jinx and Item jinx getters and setters added to ZAsm and ZScript
+        Fixed crash when there are no enemies for summoner to summon
+        Fixed shadows flickring even when quest rule is unchecked
+        Four-way ladder added. Kinda works
+        Fixed the script commands that return map, screen, or dmap numbers so they return integers intead of floats. Work done on the LINKCHARGING command.
+        Work has been started on script strings
+        Enemy Editor is a go I'll explain all the details of the enemy editor later, but for now this is what you need to know: Anything with an O. prefixed refers to its behavior WITHOUT the 'new enemy tiles' rule checked. Anything prefixed with an E. refers to behavior with the rule checked. The invulnerability and weakness flags DO NOT WORK. Enemy weaknesses are still hardcoded. Misc. Attributes refer to enemy specific attributes, and these values are different for each enemy. That'll be explained later. Finally, the animation styles are still being worked on, so it's HIGHLY RECOMMENDED that you do not change animation styles for a particular type of enemy.
+        Item code has been fixed to accomadate the custom items, for the most part. Still have some loose ends to tie up.
+        Weapons code tweaked a little
+        The dmap and level count has been upped to 512. This will no doubt please many of you.
+        Older quests now convert FFC changer combos to FFC changer flags
+        Quest Rule: Lens Sees Invisible Enemies.
+        Quest Rule: Can Select A-Button Weapon. Yes, the time for a selectable A-button slot has come. With this rule checked, the subscreen selector won't automatically equip the selected item - you must press either A or B to assign it to a slot.
+        Fixed charging tapping bug (unreported).
+        Fixed enemy tapping bug.
+        Fixed missing MISC: entries bug.
+        Fixed strings so that 0 can be used as an argument for control codes.
+        New items: Wealth Medal 1 (75% rate at shops), Wealth Medal 2 (50% at shops), Wealth Medal 3 (25% rate at shops).
+        New FFC flag: Script Restarts When Carried Over.
+        New FFC flag: Visible Only With Lens.
+        Here's another major one: Scripting Drawing Commands. They'll be explained in the scripting forum in a bit, but now with scripting you are able to draw primitives like rectangles, circles, and lines, as well as a group of tiles or combos, onto any layer, using any color, with full scaling and rotation. Head over to the scripting forum a little later to see what I mean 
+
+Zelda Classic 2.11 Beta 15
+
+
+    Incomplete list of changes:
+
+        Disabling items should work. Look for the dialog for more details
+        New items: The Roc's Feather (YAY), the Hover Boots (YAY), and four tiger scrolls: one that allows a charged spin attack, one that allows beams to be shot from a spin attack, and two that allow you to charge your hammer aand cause a quake on the ground
+        New quest rule that allows the use of more sounds as used in sfx.dat. Note: If you check this quest rule, the game will automatically use sfx slots 35-60 for it's own purposes, so if you have sound effects in that range, move them or don't bother with this quest rule
+        Sideview mode, which allows true sidecrolling areas, with gravity and all. Talk to _L_ for more details on this
+        FFC flag - Run Script on Screen Init. Room Type - Take One Item. Quest Rule - Messages Freeze All Action. Quest Rule - Flip Right-Facing Slash.
+        Sword tapping while charged works
+        Lots and lots of miscellaneous bug fixes
+        Lots of additions to the scripting engine. Look at the scripting form for more details.
+        More will be listed by DN or _L_
+	
+	
+Beta 11 progress
+
+    Just because I felt like it.
+
+    ZC Beta 11 list
+
+    1. Fixed a bug where freeform inherent trigger flags sometimes wouldn't trigger.
+    2. Fixed a bug where entering data into the decimal data fields of the freeform combos dialog would sometimes produce garbage data when reopened.
+    3. Fixed the bug where stepping on groups of step->next combos would cause some combos to change to later combos than it should. Also changed the behavior of step->next somewhat. The main difference is that when in a group of step->next or related combos, only the combo at the center of link gets affected.
+    4. I believe i fixed the importing of .zqs (strings) files. However, with this change it has becme difficult if not impossible to import older .zqs files.
+
+    Short list? Come on, it's only been a day 
+
+
+
+Beta 10 progress
+
+    ZC Beta 10 list
+
+    1. Fixed the bug where the buttons to choose green square warp points and flags in the ZQ panels was misaligned.
+    2. Finally fixed the bug where garbage combos would appear when reloading certain quests after reloading other quests.
+    3. Fixed the bug where the subscreen type wouldn't update itself if you died and continued in a different dmap type.
+    4. Fixed the bug where, when checking if the green square continue point was 0,0, it was using the screen you were warping from instead of the screen you are warping to.
+    5. Fixed the bug where the whistle warp edit dialog and the warp ring edit dialog would crash ZQuest.
+    6. Slow walk combos now affect Link again.
+    7. New quest rule: Scrolling Warps Don't Continue. Scrolling warps across different dmaps no longer set the continue point. WIll be turned on for all quests below version 1.93b3 by default.
+    8. Fixed another bug that caused flags 16-31 as inherent flags to show up improperly.
+    9. Fixed the bug in ZQ where it would sometimes hand before the menu is drawn
+    10. Fixed the bug where bombable doors could be bombed open on cave dmaps.
+    11. Two new screen flags: Treat as Cave room, and Treat as dungeon room. Makes the current room behave as such, regardless of whether the dmap is a dungeon or not. So you could, for example, have a room with shutters inside a cave dmap, and a room with permanent secrets in a dungeon dmap.
+    12. Two new flags: Singular and Singular +16-31. An interesting flag. If it is in the same spot (remember, there can be two flags in one spot now because of inherent flags) as one of the trigger flags (strike, burn, bomb, etc.), then the trigger doesn't affect all secret flags on screen like the normal behavior, only the flag hit. SIngular(+16-31) does the same thing, except triggering it also affects flags 16-31. Thus, it's now possible to do things like having four seperate torches that can be lit in any order.
+    13. Fixed the bug that would prevent the sword and hammer from triggering their corresponding inherent trigger flags
+    14. Fixed the bug where you couldn't use the ladder over direct warps B-R, swim warps B-D, and dive warps B-D.
+    15. Fixed the bug that would prevent Link from starting the hookshot over a hookshot only combo
+    16. Fixed a bug that would cause enemies to spawn and walk on top of Direct warps B-R.
+    17. Fixed the bug where the game wouldn't recognize Swim Warps B-D and Dive warps B-D as water.
+    18. Fixed the bug in Z3-movement where if you had the ladder and flippers in a dungeon dmap or 'use ladder' room, the ladder would appear before you get to enter the water.
+    19. Octorok 3's no longer show up in the enemy selection list (until they are finished).
+    20. Boulders now use the correct tiles.
+    21. Fire enemies now animate at the correct speed.
+    22. Fixed the bug with Ganon initially being drawn with tile 0, 1, 20, and 21.
+    23. Ganon can now use the new enemy tiles (not complete use, though).
+    24. Hit detection on Dodongos is now fixed.
+    25. Dodongos no longer fly left when killed.
+    26. Level-specific keys: Keys can now be kept track of on a level-by-level basis (keep in mind, not a dmap by dmap basis). The normal key item operates exactly like it has operated. A new item, "Level-specific key" increases the key amount of the current level number you're in. Key doors will by default look for a key gained in that level. If it finds noen, it'll then look for a normal key to use. Useful for keys that you only want to work in a specific dungeon. 
+
+
+    
+Zelda Classic 2.11 Beta 8
+
+    Here it is, the long-awaited beta 8. Many bug fixes, many tweaks, many improvements/enhancements. Probably tons of new bugs, too.
+
+    If you don't already have it, download and unzip beta 6 first, then download and unzip beta 8 on top of it.
+
+    Zelda Classic 2.11 Beta 6 (Full)
+
+    Zelda Classic 2.11 Beta 8 (changed files)
+
+    No OS X version yet. Hopefully by early next week.
+
+    Here's the bug fix list from beta 6.
+
+        ZC crashes on "211testquest" when entering the cheats.
+        Tiles displayed in the bottom menu are misaligned if they're using the secondary CSet
+        Some animated tiles using the secondary CSet are buggy (they use different colors)
+        ZC Windowed does not work.
+        Allegro.log grows to huge sizes while playing quests.
+        I tried to use the magic container option in the cheat menu. However, Link was instantly killed upon doing so.
+        The music turned off for no apparant reason after I did the magic container bug. It came back after I entered and exited the sword cave. However, it might have been from opening the menu during the fade-in.
+        The Triforce icon appears in dungeons, instead of the automap and dungeon items.
+        Transparancies are sometimes "permanently" broken when ZQuest is windowed. To fix it, you have to go back to full screen.
+        When you collect a triforce piece, your items vanish from the display at the top of the screen... forever (maybe). Collecting rupees will not even restore them.
+        Also, enemies from 1.90 quests are still in the wrong places at times.
+        There is a BS Subscreen Bug. The text is oddly colored. I noticed this when playing Link's Return to Snortsia Master Quest demo. (Screenshot no longer available)
+        I have noticed that if you go into the overworld screen map after slashing a bush, ect, the combo will reappear. I also think bomb and candle secret flags don't work anymore, as neither would would work when I tried them. It's possible that many of those flags no longer work.
+        Using windowed mode and switching tasks causes destabilization. It nearly crashed my system, and then I tried to swt Zquest to a lower process priority - which caused it to become HIGHLY unstable. And then 'generate errors and have to be closed by Windows'. Zquest help has every line break marked with a return icon. And the file is badly in need of an update - it's still for 1.92 beta 182!
+        When killed, combos on layers still appear in window as it blacks out.
+        Misalignment with walk square between combo and new "next" box. (#2?)
+        Alt slide still corrupts tiles.
+        Link swim tiles still crash
+        At seemingly random moments, trying to display a level palette in the level palette editor will crash ZQuest. I've been able to reproduce it quite a few times loading Radien's New BS 3.0 1st Quest Remake on startup (reload last opened quest). Sometimes, it will crash even if it is not the quest that loads on startup, though. Regardless, it happens with this quest rather frequently from what I've noticed.
+        If an enemy drops a clock in a room where the door closes you in and there are wallmasters, they will not show causing you to be trapped and you then have to quit the game.
+        Tiles or sprites using CSet 2 features will defer to the wrong CSet if used on layers.
+        Dungeon automaps/items do not activate on the Subscreen. The Triforce display is shown no matter what. On quests made with earlier versions, this may not happen or may even work in reverse, adding a dungeon automap to an Overworld.
+        It is no longer possible to place an item on a Direct Warp combo in such a way that Link can grab it before getting warped. This breaks several quests.
+        Opening the Overworld map will instantly trigger any secrets on layers, and reset many combos.
+        Tile Warping into a room where the south shutter uses cycling combos will cause it to switch to "open" prematurely. This bug can interfere with quest design.
+        If you quit a quest while on the ladder in ZC, the ladder will appear briefly on the first screen of the next quest you load.
+        The magic meter is not displayed in regular or BS subscreens, even though magic is still kept track of.
+        The A and B items vanish when collecting a Triforce piece, as they did on the NES. But in ZC, they don't return if the "cool scrolling" quest rule is in effect. (Because it never bothers to hide/show them, unlike the default NES behavior.)
+        Attempting to adjust Magic Containers in the cheat menu will instantly kill Link when the game resumes.
+        Slashing still uses the old collision, sometimes resulting in a miss if Link isn't close enough.
+        BS Subscreen text (And to a lesser extent, LttP subscreen text) uses the wrong palette entries.
+        Even if "freeform dungeons" is checked, Link's sword will still be hidden under the sidelines.
+        Layers are not properly affected when Link dies.
+        Combos in quests that are loaded on startup (either from the command-line or from the "Reload Last Quest" option) that have their animation speed set to 0 will have their starting tile pointing to the next tile in the tile list.
+        NPCs have been removed, but they still show up in the sprite list.
+
+ 2.11 Beta 6 Progress
+
+    Here's what's changed so far:
+
+        Fixed and expanded the tile copy/move code. The following changes have been made:
+            You can even make ZQuest copy from the end of a striped selection instead of from the beginning by holding the alt key while pasting. So, instead of copying tiles 50 through 73 and pasting them starting at tile 91 (so that tile 50 is copied to tile 91, 51 is copied to 92, etc.), you can paste so that tile 73 goes to tile 91, 72 goes to tile 90, and so on.
+            You can make ZQuest copy from the right side of a rectangular selection instead of from the left side by using the alt key. Copying from the bottom of the selection instead of the top is done with the shift key. You can even use both keys to copy from the bottom right corner instead of from the top left.
+            You can limit how many tiles to paste by making a selection before hitting the V key. Only the number of tiles that will fit in the selection will be copied. This works for striped and rectangular selections and also with the alt and shift directional keys.
+            Holding the control key while doing a paste (or move, though there's not much point) will keep the source selection in memory (like the current past bug does). Without holding the control key, the source selection is cancelled, causing the V key to switch to vertical flip mode.
+            ZQuest will warn you if you try to paste into tiles referenced by something else. The code detects and warns about the following objects:
+                combos
+                sprites
+                    items
+                    weapons
+                    misc sprites
+                    Link sprites
+                    enemy sprites
+                game icons
+                map style blocks
+                    frame
+                    heart container piece
+                    triforce fragment
+                    triforce frame
+                    overworld map
+                    dungeon map
+                dmap maps
+            If possible, ZQuest will move tile references when tiles are moved
+            If the above is not possible, ZQuest will warn you if a tile move will cause blank tiles to appear in a tile reference (such as moving some, but not all, of the tiles referenced by a combo).
+            When possible, ZQuest will show descriptive names for the objects that will be adversely affected by a copy or move. If there is no descriptive name (such as with combos), then a simple number is used:
+
+        The selection tool (hookshot) in the tile editor is partially functional. Currently, you can "select" and "unselect" individual pixels (ZQuest basically puts a marching ants border around all adjacent selected pixels):
+        ZQuest starts up faster when loading a quest on startup as it no longer loads the default quest first.
+        Experimental new icons for ZC and ZQuest:
+
+
+Zelda Classic 2.11 Beta 5
+
+    Lots and lots of changes here. TOo bad I'm sick, so I can't be on long. In short:
+
+    Lots of upgrades to Link
+    Lots of upgrades to other stuff
+
+    Other stuff
+    More stuff
+
+    Aw, who am I kidding, I can't remember all the changes >_< I'll make a comprehensive list when I get better, but for now, the one new feature I want to highlight is in the Link Dialog. Besides a new animation style, there's... something else. Use it, explore it, and report any and all bugs that occur using this (I'm sure there are many). For a demonstration of some of Link's new abilities, look at the extra qst file. i's not pass-protected, so do whatever you like to it.
+
+    And of course, remember to back up your quests, save files won't work, use at your own risk, yadda yadda... you all just want the link 
+    
+ 2.11 Beta 3 Progress
+
+    1. New psuedo-isometric drawing mode. Like so:
+    
+ Zelda Classic 2.11 Beta 2
+
+    ALLEGRO FILE IS UP
+
+    Aside from the changes outlined in the beta 2 progress thread (My list of changes is here. The first post has the rest of the changes) the following you need to be aware of:
+
+    1. The Link Tile Modifiers have been reverted to their 2.10 ways (I hope). This should only be a temporry measure while DN and I implement he ability to edit Link's tile references altogether. We apologize for any inconvinience.
+    2. New security measures: To prevent cheating and stealing of passwords, several security measures were taken, one of which is the heavy encryption of the quest password. In fact, DN did such a good job that not even I can see off-hand what the password to a quest is. (and from what I can see, DN didn't allow anyway for us to do that). However, a backdoor has been provided for those who forgot their passwords. When loading a quest and typing in the password, a challenge hash will appear. If given to one of us developers, we'll be able to provide a 'backdoor' password (all dependent on the original quest password) for one-time entry that will give the opportunity for the quest maker to regain access. Make sure this works correctly, and that all existing cheating programs don't work.
+    3. New BS-style subscreens! These aren't complete, though DN is working hard on them. Try out the four different styles when editing a quest in ZQ.
+    4. To activate preview mode, press X. Most of the instructions are in the thread linked above, so I won't repeat them here.
+
+    I believe that's all. If DN has anything more to add, he'll post here. Also note that this is the windows build only. If neccesary, either I or DN will compile DOS distros either today or tomorrow, though we are trying to get to the point of depreciation on that As for Linux or Mac distros, don't ask me. That's DN's department completely.
+    
+    
+2.11 Beta 1(and 2) Progress
+
+    Here's the changes so far for ZC 2.11 Beta 1:
+
+    1. Fixed Gleeok's hp (was too high).
+    2. Fixed the bug where slashing (or using the hammer or wand) on one side of the screen could affect things on the other side of the screen.
+    3. Made the game data dynamic (for security purposes).
+    4. ZC no longer writes it's temp files to the root of drive C. Now, it stores them in the same directory that ZC is housed.
+    5. ZGP.DAT is now called QST.DAT.
+    6. The tile format has been reworked. At the moment, the change should be transparent to the user. However, this change will allow for new tile formats in the future (256-color tiles, 16-bit tiles, true-color tiles, etc.).
+    7. The bug with ZC not remembering the correct quest dir has been fixed (it would change whenever you switched directories to load a quest file in ZC).
+    8. The bug where ZC would only look in the quest directory to find a quest has been fixed. Now, it looks at the location where the save file says that the quest is located.
+    9. The quest loading progress box no longer shows the percent done for the tile reader. This makes quest loading somewhat faster.
+    10. Sprites now have a Z variable. This allows for expansion for new enemies (and other things) that will be able to jump and fly. Although a few enemies already do this (tektites and peahats, for instance), the calculation for them is faked. The new method makes jumping/flying easier to do from a programmer's prospective.
+    11. Eyeball combo calculations are only done when an eyeball combo is encountered. This should speed up screen rendering by a few fps.
+    12. The year has been fixed in the title screens.
+    13. The key name display in ZC key dialogs has been fixed.
+    14. The wrong text background in the ZC key grabber has been fixed.
+    15. Fixed the issues with the mouse jumping to the wrong location when when you move off the ZQuest window in scaled windowed mode.
+    16. Fixed the bug where SPC files would stutter when paused instead of going silent.
+    17. Fixed the bug where enemies don't drop clocks anymore.
+    18. Fixed the bug (oversight?) where you couldn't adjust Link's walk style (2-frame or 3-frame) in ZQuest.
+    19. Fixed the bug where some older quests would freeze on the starting DMap.
+    20. Fixed the bug where some of the enemies would be wrong in old quests.
+    21. Fixed the bug where double-clicking a combo in the master combo list would only edit the combo if it were on the first combo page.
+    22. Fixed the bug where deleting a screen was not counted as a change in ZQuest, so ZQuest would not ask to save if that was the only thing done before exiting.
+    23. Fixed the bug where non-MIDI songs would stutter if the game were paused (with the 'F3', 'F4', 'p', or 'a' keys).
+    24. Fixed the bug where selecting 'Stop tunes" from the Etc menu wouldn't uncheck the 'Lost Woods' option.
+    25. Music playing is stopped now when MIDIs is selected from the Quest menu.
+    26. ZQuest can now play the alternate music types that ZC handles (mp3, ogg, spc, it, xm, s3m, and mod).
+    27. Renamed 'Play MIDI' in the Etc menu to 'Play music' to correspond with the above change.
+    28. Fixed the year in the end game credits.
+    29. Fixed the tile import/export.
+    30. Now, changing the title screen for ZC causes it to reset so that the correct title shows immediately. Before you had to either wait for the title to cycle through once or manually reset the game.
+    31. Alternative music now continues to play while the game is paused (with the p key, not the Start button).
+    32. Fixed the bug where the Triforce init settings weren't being saved by ZQuest.
+    33. Fixed the bug where the Triforce init settings weren't being used in ZC.
+    34. Fixed the bug where a DMap Intro on the starting DMap could freeze the game.
+    35. Misalignment arrows now show up on disabled screens.
+    36. Pasting a map screen now causes the color to change immediately (before, you had to switch screens and then return to see the correct colors).
+    37. The 'Heart Container' room type is now called the 'Red Potion or Heart Container' room type.
+    38. There is a new List Combos Used (shortcut key is `) under the Tools menu. This will show you a list of all of the combos used on the current screen.
+    39. Deleting a screen now counts as a change, so ZQuest will ask about saving when you try to quit after doing a screen delete.
+    40. Panel 4 now shortens the room string when displaying it so it doesn't run into the combo scroller.
+    41. The Catch All caption and value now match up with the other captions and values in panel 4.
+    42. The room types are now alphabetized.
+    43. The screen palette dialog now has a dropdown list of the screen palettes with the palette names instead of a numeric entry box.
+    44. The < and > keys (you have to hold the shift key down) will now flip through the 256 possible screen palettes.
+    45. Changing the message more x and y variables now counts as a change in ZQuest.
+    46. When deleting a message string in ZQuest, the scring is shortened so it will fit in the confirmation dialog.
+    47. When deleting a message string in ZQuest, the End Game string value is updated if necessary.
+    48. Fixed the bug where there would sometimes be random characters appearing at the end of a message string in panel 4 and in the confirm string delete dialog.
+    49. The DMap number in the Edit DMap dialog titlebar is now correct (before, it was 1 number too low).
+    50. Going to the MIDI editor now stops music playback in ZQuest.
+    51. If a screen doesn't have a message string associated with it, it is now shown as (None) instead of (none) on panel 4, to make it match up with the other items there. 
+
+
+
+//! Missing 2.10.1 and 2.10.2
+
+////////////
+/// 2.10 ///
+////////////
+
+ Zelda Classic 2.10
+
+    Thanks to *b* for the nice intro pic. Sort of a variation on the Father Time/Baby New Year idea (Adult Link, version 1.92 is retiring and giving the sword to Young Link, version 2.10).
+
+    Currently, only the Windows and DOS ports are compiled. I should have the Mac and Linux ones within a week.
+
+    Here's the list of changes since version 1.93 Alpha 4 (there were 262 total changes since version 1.92 Beta 183):
+
+    1. Fixed the bug where the mouse would get locked inside of the zoomed tile window from the tile editor (even after exiting the tile editor) if the middle button were pressed there until the left or right button were pressed.
+
+    2. Fixed the bug where the mouse would be forced 1 block down from its intended location in coordinate placing mode.
+
+    3. Fixed the bug where the placed coordinate squares were the wrong color.
+
+    4. Added triple buffering to ZC. This causes the game to run much smoother.
+
+    5. The DMap editor now shows the proper number of columns for the selected DMap type (16 for Overworld, 8 for others). Also, the DMap offset slider is disabled for Overworld DMaps as is the button grid. However, the compass and continue position mouse selection method is preserved, as well as being fixed to work with 16 columns where needed.
+
+    6. The text edit control now starts with the cursor at the end instead of the beginning.
+
+    7. Fixed the flying enemy spawn bug.
+
+    8. Fixed the inconsistency with the Triforce pick up warp curtain effect.
+
+    9. Fixed the bug in the tile grabber where switching the grab mode would also shift the offset by one.
+
+    10. Added a new bp option to the tile grabber. Pressing the 'N' key will switch the grab style to NES. This allows tiles to be lifted more easily from NES games.
+
+    11. Added a new option to the grabber. Pressing the 'B' key will cycle through the different bit plane settings (1, 2, NES, 4, and 8).
+
+    12. Added the F, L, and P keys to the tile grabber that correspond to the File, Leech, and Pal buttons.
+
+    13. Changed the fastwalk key from 'F' to 'Q' (for quickwalk), because of the next change.
+
+    14. Changed the 'F' key to freeze/unfreeze link (if cheat level 4 is on). This allows you to continue testing if Link is frozen by a bad dmap intro/screen message string combination.
+
+    15. Now, fullscreen/windowed mode is saved between sessions. So, set it once (either through a command-line switch or with the Alt-Enter key) and it stays that way until you change it again, even after quitting and restarting the program.
+
+    16. Fixed the bug where a newly-created save slot wouldn't be saved unless it had actually been played once and saved from the Save, Continue, Retry game menu.
+
+    17. Finished implementing Nayru's Love. Just like the Ocarina of Time version, this spell places a shield around Link, during which time he is invincible. He can, however, still get knocked around when hit (just like in the Ocarina of Time version). Along with this spell are 9 new miscellaneous weapon types: Nayru's Love (Left), Nayru's Love (Left, Returning), Nayru's Love Trail (Left), Nayru's Love Trail (Left, Returning), Nayru's Love (Right), Nayru's Love (Right, Returning), Nayru's Love Trail (Right), Nayru's Love Trail (Right, Returning), and Nayru's Love Shield. The first 8 correspond to their approximate Din's Fire counterparts. However, instead of one spell rocket (going up from Link's position, then falling back down from off-screen), there are now two (going left and right from Link, then returning from off-screen). The last one, Nayru's Love Shield, is the top-left tile of a 2x2 block that is drawn over Link when the spell is active. The tiles that make up the shield are not laid out on the tile screen as they will be in the game. Instead, they are sequential (Top Left, Top Right, Bottom Left, Bottom Right). If the Nayru's Love Shield miscellaneous type is animated, the tiles are offset by the number of frames. Additionally, this spell has 4 quest rules assigned to it: Trans. N. Love Shield, N. Love Shield Flickers, Trans. N. Love Rocket, and N. Love Rocket Flickers. These control the transparency and flickering of the Nayru's Love Shield and Nayru's Love Rockets, much like the counterpart rules for Ghini 2's.
+
+    18. Fixed the bug where the Door Combo Set editor wouldn't save new door combo sets.
+
+    19. Fixed the bug where edits to door combo sets wouldn't be considered a change (and ZQuest wouldn't ask if you wanted to save if you quit after a door combo set edit).
+
+    20. Implemented Farore's Wind. Presently, it just carries Link back to the entrance to the current DMap.
+
+    21. Corrected the position for the hammer smack sprite.
+
+    22. Finished the panels at the bottom of the ZQuest main editor window.
+
+    23. Added the remaining screen data flags to the screen flags panel in ZQuest.
+
+    24. Removed the "Hookshot Bridge" combo type.
+
+    25. Removed the NPC's.
+
+    26. Renamed the "Nayru's Love Shield" miscellaneous sprite to "Nayru's Love Shield (Front)" and added "Nayru's Love Shield (Back)", which is drawn behind Link, allowing for a nearly true 3D Nayru's Love Shield.
+
+    27. Fixed the warp types after they were broken in Alpha 5 due to the last-minute removal of the new warp scheme.
+
+    28. Cut Nayru's Love time from 1024 tics to 512.
+
+    29. Doubled the magic cost of Nayru's Love (from 32 to 64, or half of an 8-unit, un-doubled magic meter).
+
+    30. Added the "Magic" cheat to the menu in the Zelda engine and moved it and the "Life" cheat to a submenu of a newly-created "Refill" menu (which takes the position of the life cheat menu).
+
+    31. Took the cheat keys out of brackets in the cheat menu in the Zelda engine.
+
+    32. Fixed the bug with combos in older quests reverting to cset 0 for their next combo.
+
+    33. Nayru's Love Shield now draws more tightly on Link (before, there was the possibility of sprites getting drawn between Link and the Nayru's Love Shield).
+
+    34. Fixed the bug with warping to screen 80 when picking up a Triforce shard.
+
+    35. Fixed the bug where the Misc Colors editor would crash upon use.
+
+    36. Fixed the bug where triple buffering would occasionally cause screen noise.
+
+    37. Fixed the bug where using the mouse wheel in the map flags selector dialog would cause the selected map flag to change after the dialog is closed.
+
+    38. The screen opening/closing effect is now locked back to a circle again. Later (maybe in the next version, or whenever the warp system is revamped), this will be selectable.
+
+    39. Added the tics -> seconds converter to the screen data dialog.
+
+    40. Fixed the bug where the mouse pointer wasn't showing up in the palette grabber.
+
+    41. Fixed the bug in the palette grabber where the buttons weren't responding to the mouse in the top 5 pixels of the buttons and were being redrawn incorrectly when clicked.
+
+    42. Modified the palette grabber screen to remap the colors so the buttons try to draw as closely to the correct colors as possible, even when a vastly different palette is loaded.
+
+
+
+    There are a few minor known issues with this release that I am working on. Most notable are:
+    -The leech progress window doesn't update based on seconds if selected, just on tiles.
+    -The following Import/Export options are broken:
+    Map
+    DMaps
+    Palettes
+    String Table
+
+    Anyway, here are the files.
+
+    Zelda Classic 2.10 for Windows
+    +zelda-w.exe
+    +zquest-w.exe
+
+    Zelda Classic 2.10+ Windows Support Archive
+    +alleg41.dll
+
+    Zelda Classic 2.10+ Support Archive for DOS/Windows
+    +many files
+
+    Zelda Classic 2.10 for DOS
+    +zelda.exe
+    +zquest.exe
+
+////////////
 /// 1.93 ///
 ////////////
+
+//! 1.93 Aplhas became 2.10
 
 ZC Version 1.93 Alpha/Beta 4	June.19.2004
 1. Fixed the bug where Link would, after entering a passageway, briefly appear in the same screen position as the warp entrance while the screen is loading.
