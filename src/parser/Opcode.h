@@ -93,14 +93,14 @@ namespace ZScript
 	{
 	public:
 		Opcode();
-		Opcode(ZAsm::CommandDef const* command);
-		Opcode(ZAsm::CommandDef const* command,
+		Opcode(ZAsm::CommandDef* command);
+		Opcode(ZAsm::CommandDef* command,
 		       OpcodeArgument const& firstArg);
-		Opcode(ZAsm::CommandDef const* command,
+		Opcode(ZAsm::CommandDef* command,
 		       OpcodeArgument const& firstArg,
 		       OpcodeArgument const& secondArg);
 		
-		ZAsm::CommandDef const* getDef() const {return command_;}
+		ZAsm::CommandDef* getDef() const {return command_;}
 		OpcodeArgument const& getFirstArg() const {return firstArg_;}
 		OpcodeArgument& getFirstArg() {return firstArg_;}
 		OpcodeArgument const& getSecondArg() const {return secondArg_;}
@@ -118,7 +118,7 @@ namespace ZScript
 		std::string toLine(bool showLabel = false) const;
 
 	private:
-		ZAsm::CommandDef const* command_;
+		ZAsm::CommandDef* command_;
 		OpcodeArgument firstArg_;
 		OpcodeArgument secondArg_;
 		Label label_;
@@ -152,7 +152,7 @@ namespace ZScript
 	Opcode op##NAME(long arg0, Var const& arg1);
 #	define ArgValue_ArgValue(NAME)\
 	Opcode op##NAME(long arg0, long arg1);
-#	define X(ARG0, ARG1, NAME) ARG0##_##ARG1 (NAME)
+#	define COMMAND(ARG0, ARG1, ID, NAME) ARG0##_##ARG1 (NAME)
 	ZASM_COMMAND_TABLE
 #	undef ArgNone_ArgNone
 #	undef ArgLabel_ArgNone
@@ -163,7 +163,7 @@ namespace ZScript
 #	undef ArgValue_ArgNone
 #	undef ArgValue_ArgRegister
 #	undef ArgValue_ArgValue
-#	undef X
+#	undef COMMAND
 
 	// Use a label argument for SETV.
 	Opcode opSETV(ZAsm::Variable const& arg0, Label const& arg1);

@@ -1,331 +1,342 @@
-// Defines ZASM_COMMAND_TABLE using the "X Macro" idiom. Arguments are the
-// first and second argument types, and the symbol.
+// The number of defined commands.
+#ifndef ZASM_COMMAND_COUNT
+#define ZASM_COMMAND_COUNT 325
+#endif
 
+// Defines ZASM_COMMAND_TABLE using the "X Macro" idiom.
+// First and second arguments are the opcode argument types:
+// - ArgNone :: Takes no argument.
+// - ArgRegister :: Takes a register argument.
+// - ArgValue :: Takes an immediate value.
+// - ArgLabel :: Takes a label.
+// Third argument is the internal command id.
+// Fourth argument is the short, all-cap name for the command.
+// Make sure to update ZASM_COMMAND_COUNT if changed.
 #ifndef ZASM_COMMAND_TABLE
 #define ZASM_COMMAND_TABLE \
-	X(ArgRegister, ArgValue,    SETV) \
-	X(ArgRegister, ArgRegister, SETR) \
-	X(ArgRegister, ArgRegister, ADDR) \
-	X(ArgRegister, ArgValue,    ADDV) \
-	X(ArgRegister, ArgRegister, SUBR) \
-	X(ArgRegister, ArgValue,    SUBV) \
-	X(ArgRegister, ArgRegister, MULTR) \
-	X(ArgRegister, ArgValue,    MULTV) \
-	X(ArgRegister, ArgRegister, DIVR) \
-	X(ArgRegister, ArgValue,    DIVV) \
-	X(ArgNone,     ArgNone,     WAITFRAME) \
-	X(ArgLabel,    ArgNone,     GOTO) \
-	X(ArgNone,     ArgNone,     CHECKTRIG) \
-	X(ArgValue,    ArgValue,    WARP) \
-	X(ArgRegister, ArgRegister, COMPARER) \
-	X(ArgRegister, ArgValue,    COMPAREV) \
-	X(ArgLabel,    ArgNone,     GOTOTRUE) \
-	X(ArgLabel,    ArgNone,     GOTOFALSE) \
-	X(ArgLabel,    ArgNone,     GOTOLESS) \
-	X(ArgLabel,    ArgNone,     GOTOMORE) \
-	X(ArgRegister, ArgRegister, LOAD1) \
-	X(ArgRegister, ArgRegister, LOAD2) \
-	X(ArgRegister, ArgRegister, SETA1) \
-	X(ArgRegister, ArgRegister, SETA2) \
-	X(ArgNone,     ArgNone,     QUIT) \
-	X(ArgRegister, ArgRegister, SINR) \
-	X(ArgRegister, ArgValue,    SINV) \
-	X(ArgRegister, ArgRegister, COSR) \
-	X(ArgRegister, ArgValue,    COSV) \
-	X(ArgRegister, ArgRegister, TANR) \
-	X(ArgRegister, ArgValue,    TANV) \
-	X(ArgRegister, ArgRegister, MODR) \
-	X(ArgRegister, ArgValue,    MODV) \
-	X(ArgRegister, ArgNone,     ABS) \
-	X(ArgRegister, ArgRegister, MINR) \
-	X(ArgRegister, ArgValue,    MINV) \
-	X(ArgRegister, ArgRegister, MAXR) \
-	X(ArgRegister, ArgValue,    MAXV) \
-	X(ArgRegister, ArgRegister, RNDR) \
-	X(ArgRegister, ArgValue,    RNDV) \
-	X(ArgRegister, ArgNone,     FACTORIAL) \
-	X(ArgRegister, ArgRegister, POWERR) \
-	X(ArgRegister, ArgValue,    POWERV) \
-	X(ArgRegister, ArgRegister, IPOWERR) \
-	X(ArgRegister, ArgValue,    IPOWERV) \
-	X(ArgRegister, ArgRegister, ANDR) \
-	X(ArgRegister, ArgValue,    ANDV) \
-	X(ArgRegister, ArgRegister, ORR) \
-	X(ArgRegister, ArgValue,    ORV) \
-	X(ArgRegister, ArgRegister, XORR) \
-	X(ArgRegister, ArgValue,    XORV) \
-	X(ArgRegister, ArgRegister, NANDR) \
-	X(ArgRegister, ArgValue,    NANDV) \
-	X(ArgRegister, ArgRegister, NORR) \
-	X(ArgRegister, ArgValue,    NORV) \
-	X(ArgRegister, ArgRegister, XNORR) \
-	X(ArgRegister, ArgValue,    XNORV) \
-	X(ArgRegister, ArgNone,     NOT) \
-	X(ArgRegister, ArgRegister, LSHIFTR) \
-	X(ArgRegister, ArgValue,    LSHIFTV) \
-	X(ArgRegister, ArgRegister, RSHIFTR) \
-	X(ArgRegister, ArgValue,    RSHIFTV) \
-	X(ArgRegister, ArgNone,     TRACER) \
-	X(ArgValue,    ArgNone,     TRACEV) \
-	X(ArgNone,     ArgNone,     TRACE3) \
-	X(ArgLabel,    ArgRegister, LOOP) \
-	X(ArgRegister, ArgNone,     PUSHR) \
-	X(ArgValue,    ArgNone,     PUSHV) \
-	X(ArgRegister, ArgNone,     POP) \
-	X(ArgRegister, ArgRegister, ENQUEUER) \
-	X(ArgRegister, ArgValue,    ENQUEUEV) \
-	X(ArgRegister, ArgNone,     DEQUEUE) \
-	X(ArgRegister, ArgNone,     PLAYSOUNDR) \
-	X(ArgValue,    ArgNone,     PLAYSOUNDV) \
-	X(ArgRegister, ArgNone,     LOADLWEAPONR) \
-	X(ArgValue,    ArgNone,     LOADLWEAPONV) \
-	X(ArgRegister, ArgNone,     LOADITEMR) \
-	X(ArgValue,    ArgNone,     LOADITEMV) \
-	X(ArgRegister, ArgNone,     LOADNPCR) \
-	X(ArgValue,    ArgNone,     LOADNPCV) \
-	X(ArgRegister, ArgNone,     CREATELWEAPONR) \
-	X(ArgValue,    ArgNone,     CREATELWEAPONV) \
-	X(ArgRegister, ArgNone,     CREATEITEMR) \
-	X(ArgValue,    ArgNone,     CREATEITEMV) \
-	X(ArgRegister, ArgNone,     CREATENPCR) \
-	X(ArgValue,    ArgNone,     CREATENPCV) \
-	X(ArgRegister, ArgRegister, LOADI) \
-	X(ArgRegister, ArgRegister, STOREI) \
-	X(ArgRegister, ArgNone,     GOTOR) \
-	X(ArgRegister, ArgValue,    SQROOTV) \
-	X(ArgRegister, ArgRegister, SQROOTR) \
-	X(ArgRegister, ArgNone,     CREATEEWEAPONR) \
-	X(ArgValue,    ArgNone,     CREATEEWEAPONV) \
-	X(ArgValue,    ArgValue,    PITWARP) \
-	X(ArgRegister, ArgRegister, WARPR) \
-	X(ArgRegister, ArgRegister, PITWARPR) \
-	X(ArgRegister, ArgNone,     CLEARSPRITESR) \
-	X(ArgValue,    ArgNone,     CLEARSPRITESV) \
-	X(ArgNone,     ArgNone,     RECTR) \
-	X(ArgNone,     ArgNone,     CIRCLER) \
-	X(ArgNone,     ArgNone,     ARCR) \
-	X(ArgNone,     ArgNone,     ELLIPSER) \
-	X(ArgNone,     ArgNone,     LINER) \
-	X(ArgNone,     ArgNone,     PUTPIXELR) \
-	X(ArgNone,     ArgNone,     DRAWTILER) \
-	X(ArgNone,     ArgNone,     DRAWCOMBOR) \
-	X(ArgNone,     ArgNone,     ELLIPSE2) \
-	X(ArgNone,     ArgNone,     SPLINER) \
-	X(ArgNone,     ArgNone,     FLOODFILL) \
-	X(ArgRegister, ArgNone,     COMPOUNDR) \
-	X(ArgValue,    ArgNone,     COMPOUNDV) \
-	X(ArgRegister, ArgNone,     MSGSTRR) \
-	X(ArgValue,    ArgNone,     MSGSTRV) \
-	X(ArgRegister, ArgNone,     ISVALIDITEM) \
-	X(ArgRegister, ArgNone,     ISVALIDNPC) \
-	X(ArgRegister, ArgNone,     PLAYMIDIR) \
-	X(ArgValue,    ArgNone,     PLAYMIDIV) \
-	X(ArgValue,    ArgValue,    COPYTILEVV) \
-	X(ArgValue,    ArgRegister, COPYTILEVR) \
-	X(ArgRegister, ArgValue,    COPYTILERV) \
-	X(ArgRegister, ArgRegister, COPYTILERR) \
-	X(ArgValue,    ArgValue,    SWAPTILEVV) \
-	X(ArgValue,    ArgRegister, SWAPTILEVR) \
-	X(ArgRegister, ArgValue,    SWAPTILERV) \
-	X(ArgRegister, ArgRegister, SWAPTILERR) \
-	X(ArgValue,    ArgNone,     CLEARTILEV) \
-	X(ArgRegister, ArgNone,     CLEARTILER) \
-	X(ArgValue,    ArgValue,    OVERLAYTILEVV) \
-	X(ArgValue,    ArgRegister, OVERLAYTILEVR) \
-	X(ArgRegister, ArgValue,    OVERLAYTILERV) \
-	X(ArgRegister, ArgRegister, OVERLAYTILERR) \
-	X(ArgValue,    ArgValue,    FLIPROTTILEVV) \
-	X(ArgValue,    ArgRegister, FLIPROTTILEVR) \
-	X(ArgRegister, ArgValue,    FLIPROTTILERV) \
-	X(ArgRegister, ArgRegister, FLIPROTTILERR) \
-	X(ArgValue,    ArgNone,     GETTILEPIXELV) \
-	X(ArgRegister, ArgNone,     GETTILEPIXELR) \
-	X(ArgValue,    ArgNone,     SETTILEPIXELV) \
-	X(ArgRegister, ArgNone,     SETTILEPIXELR) \
-	X(ArgValue,    ArgValue,    SHIFTTILEVV) \
-	X(ArgValue,    ArgRegister, SHIFTTILEVR) \
-	X(ArgRegister, ArgValue,    SHIFTTILERV) \
-	X(ArgRegister, ArgRegister, SHIFTTILERR) \
-	X(ArgRegister, ArgNone,     ISVALIDLWPN) \
-	X(ArgRegister, ArgNone,     ISVALIDEWPN) \
-	X(ArgRegister, ArgNone,     LOADEWEAPONR) \
-	X(ArgValue,    ArgNone,     LOADEWEAPONV) \
-	X(ArgRegister, ArgRegister, ALLOCATEMEMR) \
-	X(ArgRegister, ArgValue,    ALLOCATEMEMV) \
-	X(ArgRegister, ArgValue,    ALLOCATEGMEMV) \
-	X(ArgRegister, ArgNone,     DEALLOCATEMEMR) \
-	X(ArgValue,    ArgNone,     DEALLOCATEMEMV) \
-	X(ArgNone,     ArgNone,     WAITDRAW) \
-	X(ArgRegister, ArgNone,     ARCTANR) \
-	X(ArgRegister, ArgNone,     LWPNUSESPRITER) \
-	X(ArgValue,    ArgNone,     LWPNUSESPRITEV) \
-	X(ArgRegister, ArgNone,     EWPNUSESPRITER) \
-	X(ArgValue,    ArgNone,     EWPNUSESPRITEV) \
-	X(ArgRegister, ArgNone,     LOADITEMDATAR) \
-	X(ArgValue,    ArgNone,     LOADITEMDATAV) \
-	X(ArgRegister, ArgNone,     BITNOT) \
-	X(ArgRegister, ArgNone,     LOG10) \
-	X(ArgRegister, ArgNone,     LOGE) \
-	X(ArgRegister, ArgNone,     ISSOLID) \
-	X(ArgRegister, ArgRegister, LAYERSCREEN) \
-	X(ArgRegister, ArgRegister, LAYERMAP) \
-	X(ArgRegister, ArgNone,     TRACE2R) \
-	X(ArgValue,    ArgNone,     TRACE2V) \
-	X(ArgNone,     ArgNone,     TRACE4) \
-	X(ArgNone,     ArgNone,     TRACE5) \
-	X(ArgNone,     ArgNone,     SECRETS) \
-	X(ArgNone,     ArgNone,     DRAWCHARR) \
-	X(ArgRegister, ArgNone,     GETSCREENFLAGS) \
-	X(ArgNone,     ArgNone,     QUADR) \
-	X(ArgNone,     ArgNone,     TRIANGLER) \
-	X(ArgRegister, ArgRegister, ARCSINR) \
-	X(ArgValue,    ArgRegister, ARCSINV) \
-	X(ArgRegister, ArgRegister, ARCCOSR) \
-	X(ArgValue,    ArgRegister, ARCCOSV) \
-	X(ArgNone,     ArgNone,     GAMEEND) \
-	X(ArgNone,     ArgNone,     DRAWINTR) \
-	X(ArgRegister, ArgNone,     SETTRUE) \
-	X(ArgRegister, ArgNone,     SETFALSE) \
-	X(ArgRegister, ArgNone,     SETMORE) \
-	X(ArgRegister, ArgNone,     SETLESS) \
-	X(ArgNone,     ArgNone,     FASTTILER) \
-	X(ArgNone,     ArgNone,     FASTCOMBOR) \
-	X(ArgNone,     ArgNone,     DRAWSTRINGR) \
-	X(ArgNone,     ArgNone,     SETSIDEWARP) \
-	X(ArgNone,     ArgNone,     SAVE) \
-	X(ArgRegister, ArgNone,     TRACE6) \
-	X(ArgRegister, ArgNone,     DEPRECATED) \
-	X(ArgNone,     ArgNone,     QUAD3DR) \
-	X(ArgNone,     ArgNone,     TRIANGLE3DR) \
-	X(ArgNone,     ArgNone,     SETCOLORB) \
-	X(ArgNone,     ArgNone,     SETDEPTHB) \
-	X(ArgNone,     ArgNone,     GETCOLORB) \
-	X(ArgNone,     ArgNone,     GETDEPTHB) \
-	X(ArgRegister, ArgRegister, COMBOTILE) \
-	X(ArgNone,     ArgNone,     SETTILEWARP) \
-	X(ArgRegister, ArgNone,     GETSCREENEFLAGS) \
-	X(ArgRegister, ArgNone,     GETSAVENAME) \
-	X(ArgRegister, ArgNone,     ARRAYSIZE) \
-	X(ArgRegister, ArgNone,     ITEMNAME) \
-	X(ArgRegister, ArgNone,     SETSAVENAME) \
-	X(ArgRegister, ArgNone,     NPCNAME) \
-	X(ArgRegister, ArgRegister, GETMESSAGE) \
-	X(ArgRegister, ArgRegister, GETDMAPNAME) \
-	X(ArgRegister, ArgRegister, GETDMAPTITLE) \
-	X(ArgRegister, ArgRegister, GETDMAPINTRO) \
-	X(ArgRegister, ArgRegister, ALLOCATEGMEMR) \
-	X(ArgNone,     ArgNone,     BITMAPR) \
-	X(ArgNone,     ArgNone,     SETRENDERTARGET) \
-	X(ArgRegister, ArgRegister, PLAYENHMUSIC) \
-	X(ArgRegister, ArgRegister, GETMUSICFILE) \
-	X(ArgRegister, ArgNone,     GETMUSICTRACK) \
-	X(ArgNone,     ArgNone,     SETDMAPENHMUSIC) \
-	X(ArgNone,     ArgNone,     DRAWLAYERR) \
-	X(ArgNone,     ArgNone,     DRAWSCREENR) \
-	X(ArgRegister, ArgNone,     BREAKSHIELD) \
-	X(ArgRegister, ArgNone,     SAVESCREEN) \
-	X(ArgNone,     ArgNone,     SAVEQUITSCREEN) \
-	X(ArgRegister, ArgNone,     SELECTAWPNR) \
-	X(ArgValue,    ArgNone,     SELECTAWPNV) \
-	X(ArgRegister, ArgNone,     SELECTBWPNR) \
-	X(ArgValue,    ArgNone,     SELECTBWPNV) \
-	X(ArgRegister, ArgNone,     GETSIDEWARPDMAP) \
-	X(ArgRegister, ArgNone,     GETSIDEWARPSCR) \
-	X(ArgRegister, ArgNone,     GETSIDEWARPTYPE) \
-	X(ArgRegister, ArgNone,     GETTILEWARPDMAP) \
-	X(ArgRegister, ArgNone,     GETTILEWARPSCR) \
-	X(ArgRegister, ArgNone,     GETTILEWARPTYPE) \
-	X(ArgRegister, ArgNone,     GETFFCSCRIPT) \
-	X(ArgNone,     ArgNone,     BITMAPEXR) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_QUAD2R) \
-	X(ArgNone,     ArgNone,     WAVYIN) \
-	X(ArgNone,     ArgNone,     WAVYOUT) \
-	X(ArgNone,     ArgNone,     ZAPIN) \
-	X(ArgNone,     ArgNone,     ZAPOUT) \
-	X(ArgNone,     ArgNone,     OPENWIPE) \
-	X(ArgNone,     ArgNone,     FREE0x00F1) \
-	X(ArgNone,     ArgNone,     FREE0x00F2) \
-	X(ArgNone,     ArgNone,     FREE0x00F3) \
-	X(ArgRegister, ArgRegister, SETMESSAGE) \
-	X(ArgRegister, ArgRegister, SETDMAPNAME) \
-	X(ArgRegister, ArgRegister, SETDMAPTITLE) \
-	X(ArgRegister, ArgRegister, SETDMAPINTRO) \
-	X(ArgNone,     ArgNone,     GREYSCALEON) \
-	X(ArgNone,     ArgNone,     GREYSCALEOFF) \
-	X(ArgRegister, ArgNone,     ENDSOUNDR) \
-	X(ArgValue,    ArgNone,     ENDSOUNDV) \
-	X(ArgRegister, ArgNone,     PAUSESOUNDR) \
-	X(ArgValue,    ArgNone,     PAUSESOUNDV) \
-	X(ArgRegister, ArgNone,     RESUMESOUNDR) \
-	X(ArgValue,    ArgNone,     RESUMESOUNDV) \
-	X(ArgNone,     ArgNone,     PAUSEMUSIC) \
-	X(ArgNone,     ArgNone,     RESUMEMUSIC) \
-	X(ArgRegister, ArgNone,     LWPNARRPTR) \
-	X(ArgRegister, ArgNone,     EWPNARRPTR) \
-	X(ArgRegister, ArgNone,     ITEMARRPTR) \
-	X(ArgRegister, ArgNone,     IDATAARRPTR) \
-	X(ArgRegister, ArgNone,     FFCARRPTR) \
-	X(ArgRegister, ArgNone,     BOOLARRPTR) \
-	X(ArgRegister, ArgNone,     NPCARRPTR) \
-	X(ArgRegister, ArgNone,     LWPNARRPTR2) \
-	X(ArgRegister, ArgNone,     EWPNARRPTR2) \
-	X(ArgRegister, ArgNone,     ITEMARRPTR2) \
-	X(ArgRegister, ArgNone,     IDATAARRPTR2) \
-	X(ArgRegister, ArgNone,     FFCARRPTR2) \
-	X(ArgRegister, ArgNone,     BOOLARRPTR2) \
-	X(ArgRegister, ArgNone,     NPCARRPTR2) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEB) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEF) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEN) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEL) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEE) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEI) \
-	X(ArgRegister, ArgNone,     ARRAYSIZEID) \
-	X(ArgNone,     ArgNone,     POLYGONR) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_POLYGON3DR) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_SETRENDERSOURCE) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_CREATEBITMAP) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_PIXELARRAYR) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_TILEARRAYR) \
-	X(ArgNone,     ArgNone,     __RESERVED_FOR_COMBOARRAYR) \
-	X(ArgNone,     ArgNone,     RES0000) \
-	X(ArgNone,     ArgNone,     RES0001) \
-	X(ArgNone,     ArgNone,     RES0002) \
-	X(ArgNone,     ArgNone,     RES0003) \
-	X(ArgNone,     ArgNone,     RES0004) \
-	X(ArgNone,     ArgNone,     RES0005) \
-	X(ArgNone,     ArgNone,     RES0006) \
-	X(ArgNone,     ArgNone,     RES0007) \
-	X(ArgNone,     ArgNone,     RES0008) \
-	X(ArgNone,     ArgNone,     RES0009) \
-	X(ArgNone,     ArgNone,     RES000A) \
-	X(ArgNone,     ArgNone,     RES000B) \
-	X(ArgNone,     ArgNone,     RES000C) \
-	X(ArgNone,     ArgNone,     RES000D) \
-	X(ArgNone,     ArgNone,     RES000E) \
-	X(ArgNone,     ArgNone,     RES000F) \
-	X(ArgValue,    ArgValue,    __RESERVED_FOR_CREATELWPN2VV) \
-	X(ArgValue,    ArgRegister, __RESERVED_FOR_CREATELWPN2VR) \
-	X(ArgRegister, ArgValue,    __RESERVED_FOR_CREATELWPN2RV) \
-	X(ArgRegister, ArgRegister, __RESERVED_FOR_CREATELWPN2RR) \
-	X(ArgRegister, ArgNone,     GETSCREENDOOR) \
-	X(ArgRegister, ArgNone,     GETSCREENENEMY) \
-	X(ArgRegister, ArgNone,     PAUSESFX) \
-	X(ArgRegister, ArgNone,     RESUMESFX) \
-	X(ArgRegister, ArgNone,     CONTINUESFX) \
-	X(ArgRegister, ArgRegister, ADJUSTSFX) \
-	X(ArgRegister, ArgNone,     GETITEMSCRIPT) \
-	X(ArgRegister, ArgNone,     GETSCREENLAYOP) \
-	X(ArgRegister, ArgNone,     GETSCREENSECCMB) \
-	X(ArgRegister, ArgNone,     GETSCREENSECCST) \
-	X(ArgRegister, ArgNone,     GETSCREENSECFLG) \
-	X(ArgRegister, ArgNone,     GETSCREENLAYMAP) \
-	X(ArgRegister, ArgNone,     GETSCREENLAYSCR) \
-	X(ArgRegister, ArgNone,     GETSCREENPATH) \
-	X(ArgRegister, ArgNone,     GETSCREENWARPRX) \
-	X(ArgRegister, ArgNone,     GETSCREENWARPRY) \
-	X(ArgRegister, ArgNone,     TRIGGERSECRETR) \
-	X(ArgValue,    ArgNone,     TRIGGERSECRETV) \
-	X(ArgRegister, ArgNone,     CHANGEFFSCRIPTR) \
-	X(ArgValue,    ArgNone,     CHANGEFFSCRIPTV)
+	COMMAND(	ArgRegister,	ArgValue,   	0,		SETV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	1,		SETR							) \
+	COMMAND(	ArgRegister,	ArgRegister,	2,		ADDR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	3,		ADDV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	4,		SUBR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	5,		SUBV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	6,		MULTR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	7,		MULTV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	8,		DIVR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	9,		DIVV							) \
+	COMMAND(	ArgNone,    	ArgNone,    	10,		WAITFRAME						) \
+	COMMAND(	ArgLabel,   	ArgNone,    	11,		GOTO							) \
+	COMMAND(	ArgNone,    	ArgNone,    	12,		CHECKTRIG						) \
+	COMMAND(	ArgValue,   	ArgValue,   	13,		WARP							) \
+	COMMAND(	ArgRegister,	ArgRegister,	14,		COMPARER						) \
+	COMMAND(	ArgRegister,	ArgValue,   	15,		COMPAREV						) \
+	COMMAND(	ArgLabel,   	ArgNone,    	16,		GOTOTRUE						) \
+	COMMAND(	ArgLabel,   	ArgNone,    	17,		GOTOFALSE						) \
+	COMMAND(	ArgLabel,   	ArgNone,    	18,		GOTOLESS						) \
+	COMMAND(	ArgLabel,   	ArgNone,    	19,		GOTOMORE						) \
+	COMMAND(	ArgRegister,	ArgRegister,	20,		LOAD1							) \
+	COMMAND(	ArgRegister,	ArgRegister,	21,		LOAD2							) \
+	COMMAND(	ArgRegister,	ArgRegister,	22,		SETA1							) \
+	COMMAND(	ArgRegister,	ArgRegister,	23,		SETA2							) \
+	COMMAND(	ArgNone,    	ArgNone,    	24,		QUIT							) \
+	COMMAND(	ArgRegister,	ArgRegister,	25,		SINR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	26,		SINV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	27,		COSR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	28,		COSV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	29,		TANR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	30,		TANV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	31,		MODR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	32,		MODV							) \
+	COMMAND(	ArgRegister,	ArgNone,    	33,		ABS								) \
+	COMMAND(	ArgRegister,	ArgRegister,	34,		MINR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	35,		MINV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	36,		MAXR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	37,		MAXV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	38,		RNDR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	39,		RNDV							) \
+	COMMAND(	ArgRegister,	ArgNone,    	40,		FACTORIAL						) \
+	COMMAND(	ArgRegister,	ArgRegister,	41,		POWERR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	42,		POWERV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	43,		IPOWERR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	44,		IPOWERV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	45,		ANDR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	46,		ANDV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	47,		ORR								) \
+	COMMAND(	ArgRegister,	ArgValue,   	48,		ORV								) \
+	COMMAND(	ArgRegister,	ArgRegister,	49,		XORR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	50,		XORV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	51,		NANDR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	52,		NANDV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	53,		NORR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	54,		NORV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	55,		XNORR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	56,		XNORV							) \
+	COMMAND(	ArgRegister,	ArgNone,    	57,		NOT								) \
+	COMMAND(	ArgRegister,	ArgRegister,	58,		LSHIFTR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	59,		LSHIFTV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	60,		RSHIFTR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	61,		RSHIFTV							) \
+	COMMAND(	ArgRegister,	ArgNone,    	62,		TRACER							) \
+	COMMAND(	ArgValue,   	ArgNone,    	63,		TRACEV							) \
+	COMMAND(	ArgNone,    	ArgNone,    	64,		TRACE3							) \
+	COMMAND(	ArgLabel,   	ArgRegister,	65,		LOOP							) \
+	COMMAND(	ArgRegister,	ArgNone,    	66,		PUSHR							) \
+	COMMAND(	ArgValue,   	ArgNone,    	67,		PUSHV							) \
+	COMMAND(	ArgRegister,	ArgNone,    	68,		POP								) \
+	COMMAND(	ArgRegister,	ArgRegister,	69,		ENQUEUER						) \
+	COMMAND(	ArgRegister,	ArgValue,   	70,		ENQUEUEV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	71,		DEQUEUE							) \
+	COMMAND(	ArgRegister,	ArgNone,    	72,		PLAYSOUNDR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	73,		PLAYSOUNDV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	74,		LOADLWEAPONR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	75,		LOADLWEAPONV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	76,		LOADITEMR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	77,		LOADITEMV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	78,		LOADNPCR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	79,		LOADNPCV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	80,		CREATELWEAPONR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	81,		CREATELWEAPONV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	82,		CREATEITEMR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	83,		CREATEITEMV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	84,		CREATENPCR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	85,		CREATENPCV						) \
+	COMMAND(	ArgRegister,	ArgRegister,	86,		LOADI							) \
+	COMMAND(	ArgRegister,	ArgRegister,	87,		STOREI							) \
+	COMMAND(	ArgRegister,	ArgNone,    	88,		GOTOR							) \
+	COMMAND(	ArgRegister,	ArgValue,   	89,		SQROOTV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	90,		SQROOTR							) \
+	COMMAND(	ArgRegister,	ArgNone,    	91,		CREATEEWEAPONR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	92,		CREATEEWEAPONV					) \
+	COMMAND(	ArgValue,   	ArgValue,   	93,		PITWARP							) \
+	COMMAND(	ArgRegister,	ArgRegister,	94,		WARPR							) \
+	COMMAND(	ArgRegister,	ArgRegister,	95,		PITWARPR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	96,		CLEARSPRITESR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	97,		CLEARSPRITESV					) \
+	COMMAND(	ArgNone,    	ArgNone,    	98,		RECTR							) \
+	COMMAND(	ArgNone,    	ArgNone,    	99,		CIRCLER							) \
+	COMMAND(	ArgNone,    	ArgNone,    	100,	ARCR							) \
+	COMMAND(	ArgNone,    	ArgNone,    	101,	ELLIPSER						) \
+	COMMAND(	ArgNone,    	ArgNone,    	102,	LINER							) \
+	COMMAND(	ArgNone,    	ArgNone,    	103,	PUTPIXELR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	104,	DRAWTILER						) \
+	COMMAND(	ArgNone,    	ArgNone,    	105,	DRAWCOMBOR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	106,	ELLIPSE2						) \
+	COMMAND(	ArgNone,    	ArgNone,    	107,	SPLINER							) \
+	COMMAND(	ArgNone,    	ArgNone,    	108,	FLOODFILL						) \
+	COMMAND(	ArgRegister,	ArgNone,    	109,	COMPOUNDR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	110,	COMPOUNDV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	111,	MSGSTRR							) \
+	COMMAND(	ArgValue,   	ArgNone,    	112,	MSGSTRV							) \
+	COMMAND(	ArgRegister,	ArgNone,    	113,	ISVALIDITEM						) \
+	COMMAND(	ArgRegister,	ArgNone,    	114,	ISVALIDNPC						) \
+	COMMAND(	ArgRegister,	ArgNone,    	115,	PLAYMIDIR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	116,	PLAYMIDIV						) \
+	COMMAND(	ArgValue,   	ArgValue,   	117,	COPYTILEVV						) \
+	COMMAND(	ArgValue,   	ArgRegister,	118,	COPYTILEVR						) \
+	COMMAND(	ArgRegister,	ArgValue,   	119,	COPYTILERV						) \
+	COMMAND(	ArgRegister,	ArgRegister,	120,	COPYTILERR						) \
+	COMMAND(	ArgValue,   	ArgValue,   	121,	SWAPTILEVV						) \
+	COMMAND(	ArgValue,   	ArgRegister,	122,	SWAPTILEVR						) \
+	COMMAND(	ArgRegister,	ArgValue,   	123,	SWAPTILERV						) \
+	COMMAND(	ArgRegister,	ArgRegister,	124,	SWAPTILERR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	125,	CLEARTILEV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	126,	CLEARTILER						) \
+	COMMAND(	ArgValue,   	ArgValue,   	127,	OVERLAYTILEVV					) \
+	COMMAND(	ArgValue,   	ArgRegister,	128,	OVERLAYTILEVR					) \
+	COMMAND(	ArgRegister,	ArgValue,   	129,	OVERLAYTILERV					) \
+	COMMAND(	ArgRegister,	ArgRegister,	130,	OVERLAYTILERR					) \
+	COMMAND(	ArgValue,   	ArgValue,   	131,	FLIPROTTILEVV					) \
+	COMMAND(	ArgValue,   	ArgRegister,	132,	FLIPROTTILEVR					) \
+	COMMAND(	ArgRegister,	ArgValue,   	133,	FLIPROTTILERV					) \
+	COMMAND(	ArgRegister,	ArgRegister,	134,	FLIPROTTILERR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	135,	GETTILEPIXELV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	136,	GETTILEPIXELR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	137,	SETTILEPIXELV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	138,	SETTILEPIXELR					) \
+	COMMAND(	ArgValue,   	ArgValue,   	139,	SHIFTTILEVV						) \
+	COMMAND(	ArgValue,   	ArgRegister,	140,	SHIFTTILEVR						) \
+	COMMAND(	ArgRegister,	ArgValue,   	141,	SHIFTTILERV						) \
+	COMMAND(	ArgRegister,	ArgRegister,	142,	SHIFTTILERR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	143,	ISVALIDLWPN						) \
+	COMMAND(	ArgRegister,	ArgNone,    	144,	ISVALIDEWPN						) \
+	COMMAND(	ArgRegister,	ArgNone,    	145,	LOADEWEAPONR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	146,	LOADEWEAPONV					) \
+	COMMAND(	ArgRegister,	ArgRegister,	147,	ALLOCATEMEMR					) \
+	COMMAND(	ArgRegister,	ArgValue,   	148,	ALLOCATEMEMV					) \
+	COMMAND(	ArgRegister,	ArgValue,   	149,	ALLOCATEGMEMV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	150,	DEALLOCATEMEMR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	151,	DEALLOCATEMEMV					) \
+	COMMAND(	ArgNone,    	ArgNone,    	152,	WAITDRAW						) \
+	COMMAND(	ArgRegister,	ArgNone,    	153,	ARCTANR							) \
+	COMMAND(	ArgRegister,	ArgNone,    	154,	LWPNUSESPRITER					) \
+	COMMAND(	ArgValue,   	ArgNone,    	155,	LWPNUSESPRITEV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	156,	EWPNUSESPRITER					) \
+	COMMAND(	ArgValue,   	ArgNone,    	157,	EWPNUSESPRITEV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	158,	LOADITEMDATAR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	159,	LOADITEMDATAV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	160,	BITNOT							) \
+	COMMAND(	ArgRegister,	ArgNone,    	161,	LOG10							) \
+	COMMAND(	ArgRegister,	ArgNone,    	162,	LOGE							) \
+	COMMAND(	ArgRegister,	ArgNone,    	163,	ISSOLID							) \
+	COMMAND(	ArgRegister,	ArgRegister,	164,	LAYERSCREEN						) \
+	COMMAND(	ArgRegister,	ArgRegister,	165,	LAYERMAP						) \
+	COMMAND(	ArgRegister,	ArgNone,    	166,	TRACE2R							) \
+	COMMAND(	ArgValue,   	ArgNone,    	167,	TRACE2V							) \
+	COMMAND(	ArgNone,    	ArgNone,    	168,	TRACE4							) \
+	COMMAND(	ArgNone,    	ArgNone,    	169,	TRACE5							) \
+	COMMAND(	ArgNone,    	ArgNone,    	170,	SECRETS							) \
+	COMMAND(	ArgNone,    	ArgNone,    	171,	DRAWCHARR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	172,	GETSCREENFLAGS					) \
+	COMMAND(	ArgNone,    	ArgNone,    	173,	QUADR							) \
+	COMMAND(	ArgNone,    	ArgNone,    	174,	TRIANGLER						) \
+	COMMAND(	ArgRegister,	ArgRegister,	175,	ARCSINR							) \
+	COMMAND(	ArgValue,   	ArgRegister,	176,	ARCSINV							) \
+	COMMAND(	ArgRegister,	ArgRegister,	177,	ARCCOSR							) \
+	COMMAND(	ArgValue,   	ArgRegister,	178,	ARCCOSV							) \
+	COMMAND(	ArgNone,    	ArgNone,    	179,	GAMEEND							) \
+	COMMAND(	ArgNone,    	ArgNone,    	180,	DRAWINTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	181,	SETTRUE							) \
+	COMMAND(	ArgRegister,	ArgNone,    	182,	SETFALSE						) \
+	COMMAND(	ArgRegister,	ArgNone,    	183,	SETMORE							) \
+	COMMAND(	ArgRegister,	ArgNone,    	184,	SETLESS							) \
+	COMMAND(	ArgNone,    	ArgNone,    	185,	FASTTILER						) \
+	COMMAND(	ArgNone,    	ArgNone,    	186,	FASTCOMBOR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	187,	DRAWSTRINGR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	188,	SETSIDEWARP						) \
+	COMMAND(	ArgNone,    	ArgNone,    	189,	SAVE							) \
+	COMMAND(	ArgRegister,	ArgNone,    	190,	TRACE6							) \
+	COMMAND(	ArgRegister,	ArgNone,    	191,	DEPRECATED						) \
+	COMMAND(	ArgNone,    	ArgNone,    	192,	QUAD3DR							) \
+	COMMAND(	ArgNone,    	ArgNone,    	193,	TRIANGLE3DR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	194,	SETCOLORB						) \
+	COMMAND(	ArgNone,    	ArgNone,    	195,	SETDEPTHB						) \
+	COMMAND(	ArgNone,    	ArgNone,    	196,	GETCOLORB						) \
+	COMMAND(	ArgNone,    	ArgNone,    	197,	GETDEPTHB						) \
+	COMMAND(	ArgRegister,	ArgRegister,	198,	COMBOTILE						) \
+	COMMAND(	ArgNone,    	ArgNone,    	199,	SETTILEWARP						) \
+	COMMAND(	ArgRegister,	ArgNone,    	200,	GETSCREENEFLAGS					) \
+	COMMAND(	ArgRegister,	ArgNone,    	201,	GETSAVENAME						) \
+	COMMAND(	ArgRegister,	ArgNone,    	202,	ARRAYSIZE						) \
+	COMMAND(	ArgRegister,	ArgNone,    	203,	ITEMNAME						) \
+	COMMAND(	ArgRegister,	ArgNone,    	204,	SETSAVENAME						) \
+	COMMAND(	ArgRegister,	ArgNone,    	205,	NPCNAME							) \
+	COMMAND(	ArgRegister,	ArgRegister,	206,	GETMESSAGE						) \
+	COMMAND(	ArgRegister,	ArgRegister,	207,	GETDMAPNAME						) \
+	COMMAND(	ArgRegister,	ArgRegister,	208,	GETDMAPTITLE					) \
+	COMMAND(	ArgRegister,	ArgRegister,	209,	GETDMAPINTRO					) \
+	COMMAND(	ArgRegister,	ArgRegister,	210,	ALLOCATEGMEMR					) \
+	COMMAND(	ArgNone,    	ArgNone,    	211,	BITMAPR							) \
+	COMMAND(	ArgNone,    	ArgNone,    	212,	SETRENDERTARGET					) \
+	COMMAND(	ArgRegister,	ArgRegister,	213,	PLAYENHMUSIC					) \
+	COMMAND(	ArgRegister,	ArgRegister,	214,	GETMUSICFILE					) \
+	COMMAND(	ArgRegister,	ArgNone,    	215,	GETMUSICTRACK					) \
+	COMMAND(	ArgNone,    	ArgNone,    	216,	SETDMAPENHMUSIC					) \
+	COMMAND(	ArgNone,    	ArgNone,    	217,	DRAWLAYERR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	218,	DRAWSCREENR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	219,	BREAKSHIELD						) \
+	COMMAND(	ArgRegister,	ArgNone,    	220,	SAVESCREEN						) \
+	COMMAND(	ArgNone,    	ArgNone,    	221,	SAVEQUITSCREEN					) \
+	COMMAND(	ArgRegister,	ArgNone,    	222,	SELECTAWPNR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	223,	SELECTAWPNV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	224,	SELECTBWPNR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	225,	SELECTBWPNV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	226,	GETSIDEWARPDMAP					) \
+	COMMAND(	ArgRegister,	ArgNone,    	227,	GETSIDEWARPSCR					) \
+	COMMAND(	ArgRegister,	ArgNone,    	228,	GETSIDEWARPTYPE					) \
+	COMMAND(	ArgRegister,	ArgNone,    	229,	GETTILEWARPDMAP					) \
+	COMMAND(	ArgRegister,	ArgNone,    	230,	GETTILEWARPSCR					) \
+	COMMAND(	ArgRegister,	ArgNone,    	231,	GETTILEWARPTYPE					) \
+	COMMAND(	ArgRegister,	ArgNone,    	232,	GETFFCSCRIPT					) \
+	COMMAND(	ArgNone,    	ArgNone,    	233,	BITMAPEXR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	234,	__RESERVED_FOR_QUAD2R			) \
+	COMMAND(	ArgNone,    	ArgNone,    	235,	WAVYIN							) \
+	COMMAND(	ArgNone,    	ArgNone,    	236,	WAVYOUT							) \
+	COMMAND(	ArgNone,    	ArgNone,    	237,	ZAPIN							) \
+	COMMAND(	ArgNone,    	ArgNone,    	238,	ZAPOUT							) \
+	COMMAND(	ArgNone,    	ArgNone,    	239,	OPENWIPE						) \
+	COMMAND(	ArgNone,    	ArgNone,    	240,	FREE0x00F1						) \
+	COMMAND(	ArgNone,    	ArgNone,    	241,	FREE0x00F2						) \
+	COMMAND(	ArgNone,    	ArgNone,    	242,	FREE0x00F3						) \
+	COMMAND(	ArgRegister,	ArgRegister,	243,	SETMESSAGE						) \
+	COMMAND(	ArgRegister,	ArgRegister,	244,	SETDMAPNAME						) \
+	COMMAND(	ArgRegister,	ArgRegister,	245,	SETDMAPTITLE					) \
+	COMMAND(	ArgRegister,	ArgRegister,	246,	SETDMAPINTRO					) \
+	COMMAND(	ArgNone,    	ArgNone,    	247,	GREYSCALEON						) \
+	COMMAND(	ArgNone,    	ArgNone,    	248,	GREYSCALEOFF					) \
+	COMMAND(	ArgRegister,	ArgNone,    	249,	ENDSOUNDR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	250,	ENDSOUNDV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	251,	PAUSESOUNDR						) \
+	COMMAND(	ArgValue,   	ArgNone,    	252,	PAUSESOUNDV						) \
+	COMMAND(	ArgRegister,	ArgNone,    	253,	RESUMESOUNDR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	254,	RESUMESOUNDV					) \
+	COMMAND(	ArgNone,    	ArgNone,    	255,	PAUSEMUSIC						) \
+	COMMAND(	ArgNone,    	ArgNone,    	256,	RESUMEMUSIC						) \
+	COMMAND(	ArgRegister,	ArgNone,    	257,	LWPNARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	258,	EWPNARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	259,	ITEMARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	260,	IDATAARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	261,	FFCARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	262,	BOOLARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	263,	NPCARRPTR						) \
+	COMMAND(	ArgRegister,	ArgNone,    	264,	LWPNARRPTR2						) \
+	COMMAND(	ArgRegister,	ArgNone,    	265,	EWPNARRPTR2						) \
+	COMMAND(	ArgRegister,	ArgNone,    	266,	ITEMARRPTR2						) \
+	COMMAND(	ArgRegister,	ArgNone,    	267,	IDATAARRPTR2					) \
+	COMMAND(	ArgRegister,	ArgNone,    	268,	FFCARRPTR2						) \
+	COMMAND(	ArgRegister,	ArgNone,    	269,	BOOLARRPTR2						) \
+	COMMAND(	ArgRegister,	ArgNone,    	270,	NPCARRPTR2						) \
+	COMMAND(	ArgRegister,	ArgNone,    	271,	ARRAYSIZEB						) \
+	COMMAND(	ArgRegister,	ArgNone,    	272,	ARRAYSIZEF						) \
+	COMMAND(	ArgRegister,	ArgNone,    	273,	ARRAYSIZEN						) \
+	COMMAND(	ArgRegister,	ArgNone,    	274,	ARRAYSIZEL						) \
+	COMMAND(	ArgRegister,	ArgNone,    	275,	ARRAYSIZEE						) \
+	COMMAND(	ArgRegister,	ArgNone,    	276,	ARRAYSIZEI						) \
+	COMMAND(	ArgRegister,	ArgNone,    	277,	ARRAYSIZEID						) \
+	COMMAND(	ArgNone,    	ArgNone,    	278,	POLYGONR						) \
+	COMMAND(	ArgNone,    	ArgNone,    	279,	__RESERVED_FOR_POLYGON3DR		) \
+	COMMAND(	ArgNone,    	ArgNone,    	280,	__RESERVED_FOR_SETRENDERSOURCE	) \
+	COMMAND(	ArgNone,    	ArgNone,    	281,	__RESERVED_FOR_CREATEBITMAP		) \
+	COMMAND(	ArgNone,    	ArgNone,    	282,	__RESERVED_FOR_PIXELARRAYR		) \
+	COMMAND(	ArgNone,    	ArgNone,    	283,	__RESERVED_FOR_TILEARRAYR		) \
+	COMMAND(	ArgNone,    	ArgNone,    	284,	__RESERVED_FOR_COMBOARRAYR		) \
+	COMMAND(	ArgNone,    	ArgNone,    	285,	RES0000							) \
+	COMMAND(	ArgNone,    	ArgNone,    	286,	RES0001							) \
+	COMMAND(	ArgNone,    	ArgNone,    	287,	RES0002							) \
+	COMMAND(	ArgNone,    	ArgNone,    	288,	RES0003							) \
+	COMMAND(	ArgNone,    	ArgNone,    	289,	RES0004							) \
+	COMMAND(	ArgNone,    	ArgNone,    	290,	RES0005							) \
+	COMMAND(	ArgNone,    	ArgNone,    	291,	RES0006							) \
+	COMMAND(	ArgNone,    	ArgNone,    	292,	RES0007							) \
+	COMMAND(	ArgNone,    	ArgNone,    	293,	RES0008							) \
+	COMMAND(	ArgNone,    	ArgNone,    	294,	RES0009							) \
+	COMMAND(	ArgNone,    	ArgNone,    	295,	RES000A							) \
+	COMMAND(	ArgNone,    	ArgNone,    	296,	RES000B							) \
+	COMMAND(	ArgNone,    	ArgNone,    	297,	RES000C							) \
+	COMMAND(	ArgNone,    	ArgNone,    	298,	RES000D							) \
+	COMMAND(	ArgNone,    	ArgNone,    	299,	RES000E							) \
+	COMMAND(	ArgNone,    	ArgNone,    	300,	RES000F							) \
+	COMMAND(	ArgValue,   	ArgValue,   	301,	__RESERVED_FOR_CREATELWPN2VV	) \
+	COMMAND(	ArgValue,   	ArgRegister,	302,	__RESERVED_FOR_CREATELWPN2VR	) \
+	COMMAND(	ArgRegister,	ArgValue,   	303,	__RESERVED_FOR_CREATELWPN2RV	) \
+	COMMAND(	ArgRegister,	ArgRegister,	304,	__RESERVED_FOR_CREATELWPN2RR	) \
+	COMMAND(	ArgRegister,	ArgNone,    	305,	GETSCREENDOOR					) \
+	COMMAND(	ArgRegister,	ArgNone,    	306,	GETSCREENENEMY					) \
+	COMMAND(	ArgRegister,	ArgNone,    	307,	PAUSESFX						) \
+	COMMAND(	ArgRegister,	ArgNone,    	308,	RESUMESFX						) \
+	COMMAND(	ArgRegister,	ArgNone,    	309,	CONTINUESFX						) \
+	COMMAND(	ArgRegister,	ArgRegister,	310,	ADJUSTSFX						) \
+	COMMAND(	ArgRegister,	ArgNone,    	311,	GETITEMSCRIPT					) \
+	COMMAND(	ArgRegister,	ArgNone,    	312,	GETSCREENLAYOP					) \
+	COMMAND(	ArgRegister,	ArgNone,    	313,	GETSCREENSECCMB					) \
+	COMMAND(	ArgRegister,	ArgNone,    	314,	GETSCREENSECCST					) \
+	COMMAND(	ArgRegister,	ArgNone,    	315,	GETSCREENSECFLG					) \
+	COMMAND(	ArgRegister,	ArgNone,    	316,	GETSCREENLAYMAP					) \
+	COMMAND(	ArgRegister,	ArgNone,    	317,	GETSCREENLAYSCR					) \
+	COMMAND(	ArgRegister,	ArgNone,    	318,	GETSCREENPATH					) \
+	COMMAND(	ArgRegister,	ArgNone,    	319,	GETSCREENWARPRX					) \
+	COMMAND(	ArgRegister,	ArgNone,    	320,	GETSCREENWARPRY					) \
+	COMMAND(	ArgRegister,	ArgNone,    	321,	TRIGGERSECRETR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	322,	TRIGGERSECRETV					) \
+	COMMAND(	ArgRegister,	ArgNone,    	323,	CHANGEFFSCRIPTR					) \
+	COMMAND(	ArgValue,   	ArgNone,    	324,	CHANGEFFSCRIPTV					)
 #endif

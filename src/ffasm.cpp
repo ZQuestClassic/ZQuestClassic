@@ -403,7 +403,7 @@ int parse_script_section(
     command.arg1 = 0;
     command.arg2 = 0;
 
-    CommandDef const* commandDef = getCommandDef(commandName);
+    CommandDef* commandDef = getCommandDef(commandName);
     if (!commandDef)
     {
 	    retcode = ERR_INSTRUCTION;
@@ -506,7 +506,7 @@ std::string to_string(zasm const& instruction)
 {
 	ostringstream out;
 	char buf[32];
-	CommandDef const* commandDef =
+	CommandDef* commandDef =
 		getCommandDef(CommandId(instruction.command));
 
 	// Command Name.

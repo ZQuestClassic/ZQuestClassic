@@ -39,12 +39,12 @@ map<VariableId, VariableDef const*>& idMap()
 	static bool initialized = false;
 	if (!initialized)
 	{		
-#		define X(START, COUNT, NAME)\
+#		define VARIABLE(START, COUNT, NAME)\
 		for (int i = 0; i < COUNT; ++i)\
 			/* eg. m[VariableId(0x000A + i)] = &ZAsm::VarDef_DATA; */\
 			m[VariableId(START + i)] = &ZAsm::VarDef_##NAME;
 		ZASM_VARIABLE_TABLE
-#		undef X
+#		undef VARIABLE
 		initialized = true;
 	}
 	return m;
@@ -66,9 +66,9 @@ map<string, VariableDef const*>& nameMap()
 	if (!initialized)
 	{
 		// eg. m["DATA"] = &ZAsm::VarDef_DATA;
-#		define X(START, COUNT, NAME) m[#NAME] = &ZAsm::VarDef_##NAME;
+#		define VARIABLE(START, COUNT, NAME) m[#NAME] = &ZAsm::VarDef_##NAME;
 		ZASM_VARIABLE_TABLE
-#		undef X
+#		undef VARIABLE
 		initialized = true;
 	}
 	return m;
@@ -160,10 +160,10 @@ Variable ZAsm::getVariable(string const& name)
 // Declare Variable constructors. Example:
 // Variable ZAsm::varD(int index) {
 //     return Variable(&VarDef_D, index);}
-#define X(START, COUNT, NAME)\
+#define VARIABLE(START, COUNT, NAME)\
 Variable ZAsm::var##NAME(int index) { \
 	return Variable(&VarDef_##NAME, index);}
 ZASM_VARIABLE_TABLE
-#undef X
+#undef VARIABLE
 
 #undef ZASM_VARIABLE_TABLE

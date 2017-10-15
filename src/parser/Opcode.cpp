@@ -141,16 +141,16 @@ ZAsm::Variable& ZScript::varSFTemp()
 
 Opcode::Opcode() : command_(NULL) {}
 
-Opcode::Opcode(ZAsm::CommandDef const* command)
+Opcode::Opcode(ZAsm::CommandDef* command)
 	: command_(command)
 {}
 
-Opcode::Opcode(ZAsm::CommandDef const* command,
+Opcode::Opcode(ZAsm::CommandDef* command,
 		       OpcodeArgument const& firstArg)
 	: command_(command), firstArg_(firstArg)
 {}
 
-Opcode::Opcode(ZAsm::CommandDef const* command,
+Opcode::Opcode(ZAsm::CommandDef* command,
                OpcodeArgument const& firstArg,
 		       OpcodeArgument const& secondArg)
 	: command_(command), firstArg_(firstArg), secondArg_(secondArg)
@@ -247,7 +247,7 @@ typedef ZAsm::Variable Var;
 	Opcode ZScript::op##NAME(long arg0, long arg1) { \
 		return Opcode(&ZAsm::Cmd_##NAME, Arg::literal(arg0), \
 		              Arg::literal(arg1));}
-#define X(ARG0, ARG1, NAME) ARG0##_##ARG1 (NAME)
+#define COMMAND(ARG0, ARG1, ID, NAME) ARG0##_##ARG1 (NAME)
 ZASM_COMMAND_TABLE
 #undef ArgNone_ArgNone
 #undef ArgLabel_ArgNone
@@ -258,7 +258,7 @@ ZASM_COMMAND_TABLE
 #undef ArgValue_ArgNone
 #undef ArgValue_ArgRegister
 #undef ArgValue_ArgValue
-#undef X
+#undef COMMAND
 
 Opcode ZScript::opSETV(ZAsm::Variable const& arg0, Label const& arg1)
 {

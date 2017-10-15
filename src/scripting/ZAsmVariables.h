@@ -9,9 +9,9 @@ namespace ZAsm
 	enum VariableId
 	{
 		// Create variable id enum, eg. VarId_DATA
-#		define X(START, COUNT, NAME) VarId_##NAME = START,
+#		define VARIABLE(START, COUNT, NAME) VarId_##NAME = START,
 		ZASM_VARIABLE_TABLE
-#		undef X
+#		undef VARIABLE
 		VariableCount
 	};
 
@@ -41,10 +41,10 @@ namespace ZAsm
 	
 	// Declare VariableDef constants. Example:
 	// static VariableDef const VarDef_DATA(0x000A, 1, "DATA")
-#	define X(START, COUNT, NAME) \
+#	define VARIABLE(START, COUNT, NAME) \
 	VariableDef const VarDef_##NAME(VariableId(START), COUNT, #NAME);
 	ZASM_VARIABLE_TABLE
-#	undef X
+#	undef VARIABLE
 
 	////////////////////////////////////////////////////////////////
 	// Variables
@@ -90,10 +90,10 @@ namespace ZAsm
 
 	// Declare Variable constructors. Example:
 	// Variable varD(int index = 0);
-#	define X(START, COUNT, NAME)\
+#	define VARIABLE(START, COUNT, NAME)\
 	Variable var##NAME(int index = 0);
 	ZASM_VARIABLE_TABLE
-#	undef X
+#	undef VARIABLE
 }
 
 #undef ZASM_VARIABLE_TABLE

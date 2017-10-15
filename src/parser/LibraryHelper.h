@@ -88,8 +88,8 @@ namespace ZScript
 
 	// Defines a function in the specified library. The function does the
 	// following:
-	// * Pop arguments into the parameterRegisters, starting from the end.
-	// * Run ownedOpcodes.
+	// * Pop arguments into the registers, starting from the end.
+	// * Run provided opcodes.
 	// * Pop the remaining arguments off the stack and return.
 	void defineFunction(
 			LibraryHelper& lh,

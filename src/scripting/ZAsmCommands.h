@@ -8,11 +8,10 @@ namespace ZAsm
 {
 	enum CommandId
 	{
-		// Create command id enum, eg. CmdId_SETV
-#		define X(ARG0, ARG1, NAME) CmdId_##NAME,
+		// Create command id enum, eg. CmdId_SETV = 0,
+#		define COMMAND(ARG0, ARG1, ID, NAME) CmdId_##NAME = ID,
 		ZASM_COMMAND_TABLE
-#		undef X
-		CommandCount
+#		undef COMMAND
 	};
 
 	class CommandDef
@@ -24,7 +23,7 @@ namespace ZAsm
 		           ArgumentType firstArg = ArgNone,
 		           ArgumentType secondArg = ArgNone);
 		
-		int getId() const {return id_;}
+		CommandId getId() const {return id_;}
 		std::string const& getName() const {return name_;}
 		bool hasFirstArg() const {return firstArg_ != ArgNone;}
 		ArgumentType getFirstArg() const {return firstArg_;}
@@ -40,20 +39,17 @@ namespace ZAsm
 	};
 
 	// Lookup command definition.
-	CommandDef const* getCommandDef(CommandId id);
-	CommandDef const* getCommandDef(std::string const& name);
+	CommandDef* getCommandDef(CommandId id);
+	CommandDef* getCommandDef(std::string const& name);
 	
 	// Declare CommandDef constants. Example:
-	// static CommandDef const Cmd_SETV(
-	//    CmdId_SETV, "SETV",
-	//    CommandDef::ArgRegister, CommandDef::ArgValue);
-#	define X(ARG0, ARG1, NAME) \
-	CommandDef const Cmd_##NAME( \
-			CmdId_##NAME, #NAME, \
-			CommandDef::ARG0, CommandDef::ARG1);
+	// extern CommandDef Cmd_SETV;
+#	define COMMAND(ARG0, ARG1, ID, NAME) \
+	extern CommandDef Cmd_##NAME;
 	ZASM_COMMAND_TABLE
-#	undef X
+#	undef COMMAND
 }
 
 #undef ZASM_COMMAND_TABLE
+#undef ZASM_COMMAND_COUNT
 #endif
