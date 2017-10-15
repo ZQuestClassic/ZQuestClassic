@@ -129,6 +129,10 @@ END_OF_FUNCTION(update_script_counter)
 
 void throttleFPS()
 {
+#ifdef _WIN32           // TEMPORARY!! -Trying to narrow down a win10 bug that affects performance.
+    timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
+#endif
+
     if(Throttlefps ^ (key[KEY_TILDE]!=0))
     {
         if(zc_vsync == FALSE)
@@ -148,7 +152,10 @@ void throttleFPS()
             vsync();
         }
     }
-    
+#ifdef _WIN32
+    timeEndPeriod(1);
+#endif
+
     logic_counter = 0;
 }
 
