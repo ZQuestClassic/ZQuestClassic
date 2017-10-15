@@ -188,8 +188,12 @@ target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWL
 # Zelda
 #############################################################
 
+
+
+
 if(MSVC)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.rc)
+	
 elseif(LINUX)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.c src/single_instance_unix.cpp)
 	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
@@ -204,7 +208,13 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 
-target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+if(WIN32)
+	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+elseif(LINUX)
+	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+endif()
+
+
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
