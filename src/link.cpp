@@ -14335,12 +14335,23 @@ void LinkClass::checkitems(int index)
             break;
         }
         
-    if (pickup&ipONETIME)                                      // set mITEM for one-time-only items
+    if(pickup&ipONETIME)    // set mITEM for one-time-only items
     {
-        setmapflag(mITEM);
-        // some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
-        if (get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
-            setmapflag();
+		setmapflag(mITEM);
+
+		// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
+		// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
+
+		// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
+		// What is etc?! We need to check for every valid state here. ~Gleeok
+		if(get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
+		{
+			// Most older quests need one-time-pickups to not remove special items, etc.
+			if(tmpscr->room==rGRUMBLE)
+			{
+				setmapflag(mBELOW);
+			}
+		}
     }
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
         setmapflag();
