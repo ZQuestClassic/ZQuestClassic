@@ -1,12 +1,30 @@
-ChangeLog for 2.53.0 Beta 10
-12-OCT-2017
+ChangeLog for 2.53.0 Beta 11
+16-OCT-2017
+
+VBund ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
+of sanity bounding. ( ZoriaRPG 16th october, 2017 )
+
+Fixed game ending sequence clipping from carrying over to another quest if ZC is reset during the ending.
+Possible fix for the crash reported by Lut where scrolling through a specific pixel of the lower-left corner
+of screens would crash ZC. ( ZoriaRPG, 16th October, 2017 )
+
+Fixed a bug in std.zh where GetHighestLevelItem() would fail to return the correct values if the item IDs and levels
+were not in a matched ascending order (e.g. item 16 is level 2, item 18 is level 1), and similar.
+Added GetHighestLevelItemOwned() to std.zh. ( ZoriaRPG, 15th October, 2017 )
+
+Fixed button interface commandline filenames in ZCL. Updated version to 2.6.4. ( ZoriaRPG, 15th October, 2017 )
+
+Fixed issues with 1.84 quests.
+Added possible fix for Win10 slowdown. ( Gleeok, 15th October, 2017 )
 
 Reworded language for controller button dialogue:
 The controller button input dialogue used the wording 'Use Analogue Stick Instead of Buttons', which is misleading. 
 On standard USB game pads, with a DPad, ZC recognises the DPad as an analogue stick (when using Windows), and thus, 
 the controller DPad buttons cannot be mapped on an individual basis. This adjusts the wording to 'Use Analogue Stick/DPad'. ( ZoriaRPG, 10th October, 2017 )
 
-Fixed issues with 1.84 quests. ( Gleeok )
+Split up ag.cfg into ag.cfg (RomView, ZCL), zc.cfg (Zelda Classic), and zquest.cfg (ZQuest) to fix some issues with 
+ZC/ZQuest creating an access clash with one config file. 
+Updated ZCl to use the new files. ZCL is now 2.6.3. ( ZoriaRPG, 6th Oct, 2017 )
 
 Reverted all of the Game->SetCombo* and Game->GetCombo* functions to their 2.50.2 states. 
 The revised (2.50.3) functions broke quests using these functions in a way that cannot be resolved
