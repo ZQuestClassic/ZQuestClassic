@@ -11396,7 +11396,7 @@ bool edit_combo(int c,bool freshen,int cs)
             }
         }
         
-        curr_combo.csets = atoi(cset_str) & 15;
+        curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
         
         for(int i=0; i<4; i++)
         {
@@ -11410,8 +11410,8 @@ bool edit_combo(int c,bool freshen,int cs)
             }
         }
         
-        curr_combo.skipanim = zc_max(0,atoi(skip));
-        curr_combo.skipanimy = zc_max(0,atoi(skipy));
+        curr_combo.skipanim = zc_max(0,vbound(atoi(skip),0,255)); //bind to size of byte! -Z
+        curr_combo.skipanimy = zc_max(0,vbound(atoi(skipy),0,255)); //bind to size of byte! -Z
         
         //lastframe = frames+(frames-1)*skip+(frames-1)*TILES_PER_ROW*skipy
         //frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
@@ -11420,9 +11420,9 @@ bool edit_combo(int c,bool freshen,int cs)
                     (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
                     
         //curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
-        curr_combo.frames = vbound(atoi(frm),0,zc_min(bound,255));
+        curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
         
-        curr_combo.speed = atoi(spd);
+        curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
         curr_combo.type = bict[combo_dlg[24].d1].i;
         curr_combo.nextcombo = combo_dlg[31].d1;
         curr_combo.nextcset = combo_dlg[31].fg;
