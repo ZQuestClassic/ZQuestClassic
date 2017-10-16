@@ -4,7 +4,7 @@
   Quest & map editor for the DJGPP version of Zelda.
 */
 
-#define  INTERNAL_VERSION  0x9C28
+#define  INTERNAL_VERSION  0xA105
 #define  _ZQUEST_
 
 #include <stdio.h>
@@ -51,6 +51,8 @@ bool quit=false,saved=true,debug=false,usetiles=false;
 byte Color;
 
 char *filepath,*temppath,*midipath,*datapath,*imagepath;
+char *helpbuf;
+
 
 // quest data
 zquestheader header;
@@ -62,514 +64,7 @@ music  *customMIDIs;
 
 
 
-inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-
-
-#define FILENAME8_3   0
-#define FILENAME8__   1
-
-void extract_name(char *path,char *name,int type)
-{
- int l=strlen(path);
- int i=l;
- while(i>0 && path[i-1]!='/' && path[i-1]!='\\')
-  i--;
- int n=0;
- if(type==FILENAME8__) {
-   while(i<l && n<8 && path[i]!='.')
-     name[n++]=path[i++];
-   }
- else {
-   while(i<l && n<12 )
-     name[n++]=path[i++];
-   }
- name[n]=0;
-}
-
-
-void load_mice()
-{
- for(int i=0; i<MAXMICE; i++) {
-  mouse_bmp[i] = create_bitmap(16,16);
-  blit((BITMAP*)data[BMP_MOUSE].dat,mouse_bmp[i],i*17+1,1,0,0,16,16);
-  }
-}
-
-
-void dump_pal()
-{
-  for(int i=0; i<256; i++)
-    rectfill(screen,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
-}
-
-
-inline int bit(int val,int b)
-{
- return (val>>b)&1;
-}
-
-
-int bound(int &x,int low,int high)
-{
- if(x<low) x=low;
- if(x>high) x=high;
- return x;
-}
-
-int wrap(int x,int low,int high)
-{
- if(x<low) x=high;
- if(x>high) x=low;
- return x;
-}
-
-
-int readfile(char *path,void *buf,int count)
-{
- FILE *f=fopen(path,"rb");
- if(!f)
-  return 0;
- int r=fread(buf,1,count,f);
- fclose(f);
- return r;
-}
-
-int writefile(char *path,void *buf,int count)
-{
- FILE *f=fopen(path,"wb");
- if(!f)
-  return 0;
- int r=fwrite(buf,1,count,f);
- fclose(f);
- return r;
-}
-
-
-/***  from allegro's guiproc.c  ***/
-void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
-{
-   int x = ((x1+y1) & 1) ? 1 : 0;
-   int c;
-
-   for (c=x1; c<=x2; c++) {
-      putpixel(screen, c, y1, (((c+y1) & 1) == x) ? fg : bg);
-      putpixel(screen, c, y2, (((c+y2) & 1) == x) ? fg : bg);
-   }
-
-   for (c=y1+1; c<y2; c++) {
-      putpixel(screen, x1, c, (((c+x1) & 1) == x) ? fg : bg);
-      putpixel(screen, x2, c, (((c+x2) & 1) == x) ? fg : bg);
-   }
-}
-
-
-RGB _RGB(byte *si)
-{
-  RGB x;
-  x.r = si[0];
-  x.g = si[1];
-  x.b = si[2];
-  return x;
-}
-
-RGB _RGB(int r,int g,int b)
-{
-  RGB x;
-  x.r = r;
-  x.g = g;
-  x.b = b;
-  return x;
-}
-
-RGB invRGB(RGB s)
-{
-  RGB x;
-  x.r = 63-s.r;
-  x.g = 63-s.g;
-  x.b = 63-s.b;
-  return x;
-}
-
-
-inline RGB NESpal(int i)
-{
- return _RGB(nes_pal+(i*3));
-}
-
-
-RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
-{
-  RGB x;
-  x.r = ( r1*(64-ratio) + r2*ratio ) >> 6;
-  x.g = ( g1*(64-ratio) + g2*ratio ) >> 6;
-  x.b = ( b1*(64-ratio) + b2*ratio ) >> 6;
-  return x;
-}
-
-void load_cset(RGB *pal,int cset_index,int dataset)
-{
-  byte *si = colordata + CSET(dataset)*3;
-  for(int i=0; i<16; i++) {
-    pal[CSET(cset_index)+i] = _RGB(si);
-    si+=3;
-    }
-}
-
-
-void set_pal()
-{
-  set_palette_range(RAMpal,0,192,true);
-}
-
-
-void loadfullpal()
-{
-  for(int i=0; i<192; i++)
-    RAMpal[i] = _RGB(colordata+i*3);
-
-  set_pal();
-}
-
-
-
-void loadlvlpal(int level)
-{
-  byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
-
-  for(int i=0; i<16*3; i++) {
-    RAMpal[CSET(2)+i] = _RGB(si);
-    si+=3;
-    }
-
-  for(int i=0; i<16; i++) {
-    RAMpal[CSET(9)+i] = _RGB(si);
-    si+=3;
-    }
-
-  set_pal();
-}
-
-
-
-void loadfadepal(int dataset)
-{
-
- byte *si = colordata + CSET(dataset)*3;
-
- for(int i=0; i<16*3; i++) {
-   RAMpal[CSET(2)+i] = _RGB(si);
-   si+=3;
-   }
-
- set_pal();
-}
-
-
-
-
-#define vc(x)  ((x)+224)    // offset to 'VGA color' x
-#define dvc(x) ((x)+192)    // offset to dark 'VGA color' x
-#define lc1(x) ((x)+208)    // offset to 'level bg color' x
-#define lc2(x) ((x)+240)    // offset to 'level fg color' x
-
-void setup_lcolors()
-{
-  for(int i=0; i<14; i++) {
-    RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
-    RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
-    }
-  set_palette(RAMpal);
-}
-
-
-void refresh_pal()
-{
- loadfullpal();
- loadlvlpal(Color);
- setup_lcolors();
-}
-
-
-
-
-#define MAXITEMS   40
-char *item_string[MAXITEMS] = {
-"(none)", "blue rupee", "heart", "bombs", "clock",
-"sword", "white sword", "magic sword", "magic shield", "key",
-"blue candle", "red candle", "letter", "arrow", "silver arrow",
-"bow", "bait", "blue ring", "red ring", "power bracelet",
-"triforce", "map", "compass", "wood boomerang", "magic boomerang",
-"wand", "raft", "ladder", "heart container", "blue potion",
-"red potion", "whistle", "magic book", "magic key", "(fairy)",
-"fire boomerang", "Excalibur", "mirror shield", "20 rupies", "50 rupies" };
-
-#define MAXROOMTYPES   rMAX
-char *roomtype_string[MAXROOMTYPES] = {
-"(none)","special item","pay for info","secret money","gamble",
-"door repair","heart container","feed the Goriya","level 9 entrance",
-"potion shop","shop","more bombs","leave money or life","10 rupies",
-"3-stair warp","Ganon","Zelda" };
-
-char *catchall_string[MAXROOMTYPES] = {
-" ","Sp.Item","Info Type","Amount"," ","Repair Fee"," "," "," "," ",
-"Shop Type","Price","Price"," ","Warp Ring"," "," " };
-
-
-#define MAXWARPTYPES   4
-char *warptype_string[MAXWARPTYPES] = {
-"cave/item room","passageway","entrance/exit","scrolling warp"
-};
-
-
-#define MAXCOMBOTYPES  cMAX
-char *combotype_string[MAXCOMBOTYPES] = {
-"-","stairs","cave","water","armos","grave","dock",
-"undefined","push-wait","push-heavy","push-hw","l statue","r statue" };
-
-
-#define MAXFLAGS    16
-char *flag_string[MAXFLAGS] = {
-" 0 (none)"," 1 push up/down"," 2 push 4-way"," 3 burn"," 4 burn->stair",
-" 5 bomb"," 6 bomb->cave"," 7 fairy"," 8 raft"," 9 armos->stair",
-"10 armos->item","11","12","13","14","15 Zelda"
-};
-
-
-#define MAXGUYS    9
-// eMAXGUYS is defined in zdefs.h
-char *guy_string[eMAXGUYS] = {
-"(none)","abei","ama","merchant","molblin","fire","fairy","goriya","Zelda","",
-/*10*/ "red octorok - slow","blue octorok - slow","red octorok - fast","blue octorok - fast","red tektite",
-/*15*/ "blue tektite","red leever","blue leever","red molblin","black molblin",
-/*20*/ "red lynel","blue lynel","peahat","+<zora>","+<rock>",
-/*25*/ "ghini","-<ghini 2>","-<armos>","blue keese","red keese",
-/*30*/ "black keese","stalfos","gel","zol","rope",
-/*35*/ "red goriya","blue goriya","-<trap>","wall master","red darknut",
-/*40*/ "blue darknut","bubble","vire","like like","gibdo",
-/*45*/ "pols voice","red wizzrobe","blue wizzrobe","aquamentus","moldorm",
-/*50*/ "dodongo","manhandla","2-head gleeok","3-head gleeok","4-head gleeok",
-/*55*/ "digdogger - 1 kid","digdogger - 3 kids","red gohma","blue gohma","red lanmola",
-/*60*/ "blue lanmola","patra - big circle","patra - oval","Ganon","stalfos 2",
-/*65*/ "rope 2","red bubble","blue bubble","5-head gleeok","6-head gleeok",
-/*70*/ "7-head gleeok","8-head gleeok"
-};
-
-#define MAXPATTERNS  2
-char *pattern_string[MAXPATTERNS] = {
-"random","enter from sides"
-};
-
-
-#define MAXMIDIS_ZQ  4+MAXMIDIS
-char *midi_string[MAXMIDIS_ZQ] = {
-"(none)",
-"Overworld",
-"Dungeon",
-"Level 9",
-};
-
-
-
-#define cWALK      1
-#define cFLAGS     2
-#define cDARK      4
-#define cDEBUG     128
-
-#define rMAP       1
-#define rCOMBOS    2
-#define rSCRMAP    4
-#define rMENU      8
-#define rCOMBO     16
-#define rALL       0x0FF
-#define rCLEAR     0x100
-
-void refresh(int flags);
-void domouse();
-
-int onNew();
-int onOpen();
-int onSave();
-int onSaveAs();
-int onImport();
-
-int onUndo();
-int onCopy();
-int onPaste();
-int onDelete();
-int onDeleteMap();
-
-int onTemplate();
-int onDoors();
-int onCSetFix();
-int onFlags();
-int onShowPal();
-
-int playTune();
-int playMIDI();
-int stopMIDI();
-
-int onUp();
-int onDown();
-int onLeft();
-int onRight();
-int onPgUp();
-int onPgDn();
-
-int onScrFlags();
-int onGuy();
-int onString();
-int onRType();
-int onCatchall();
-int onItem();
-int onWarp();
-int onWarp2();
-int onPath();
-int onEnemies();
-int onEnemyFlags();
-int onUnderCombo();
-
-int onHeader();
-int onData();
-int onStrings();
-int onDmaps();
-int onTiles();
-int onCombos();
-int onMidis();
-int onShopTypes();
-int onInfoTypes();
-int onWarpRings();
-int onWhistle();
-int onMapColors();
-
-int onColors_Main();
-int onColors_Levels();
-int onColors_Sprites();
-
-int onImport_Map();
-int onImport_DMaps();
-int onImport_Msgs();
-int onImport_Combos();
-int onImport_Tiles();
-int onImport_Pals();
-
-int onExport_Map();
-int onExport_DMaps();
-int onExport_Msgs();
-int onExport_Combos();
-int onExport_Tiles();
-int onExport_Pals();
-
-int onMap1();
-int onMap2();
-int onMap3();
-int onMap4();
-int onMap5();
-int onMap6();
-int onMap7();
-int onMap8();
-int onMap9();
-int onMap10();
-int onMapCount();
-
-int onViewPic();
-int onEditTemplate();
-
-int onDefault_Pals();
-int onDefault_Tiles();
-int onDefault_Combos();
-int onDefault_MapColors();
-
-
-int gocnt=0;
-
-void go()
-{
-  switch(gocnt) {
-  case 0:
-   scare_mouse();
-   blit(screen,menu,0,0,0,0,320,240);
-   unscare_mouse();
-   break;
-  case 1:
-   scare_mouse();
-   blit(screen,menu2,0,0,0,0,320,240);
-   unscare_mouse();
-   break;
-  default: return;
-  }
-  gocnt++;
-}
-
-void comeback()
-{
-  switch(gocnt) {
-  case 1:
-   scare_mouse();
-   blit(menu,screen,0,0,0,0,320,240);
-   unscare_mouse();
-   break;
-  case 2:
-   scare_mouse();
-   blit(menu2,screen,0,0,0,0,320,240);
-   unscare_mouse();
-   break;
-  default: return;
-  }
-  gocnt--;
-}
-
-
-
-int checksave()
-{
- if(saved)
-   return 1;
- char buf[80];
- char *name = get_filename(filepath);
- if(name[0]==0)
-   sprintf(buf,"Save this quest file?");
- else
-   sprintf(buf,"Save changes to %s?",name);
- switch(alert3(buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27)) {
- case 1:
-   onSave();
-   return 1;
- case 2:
-   return 1;
- }
- return 0;
-}
-
-
-int onExit()
-{
- if(checksave()==0)
-   return D_O_K;
- if(alert("Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n') == 2)
-   return D_O_K;
- return D_CLOSE;
-}
-
-
-int onAbout()
-{
- char buf1[40];
- char buf2[40];
- if(debug&&(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
- {
-   sprintf(buf1,"ZQuest Editor: %04X",INTERNAL_VERSION);
-   sprintf(buf2,"This qst file: %04X",header.internal&0xFFFF);
-   alert(buf1,buf2,NULL,"OK", NULL, 13, 27);
- }
- else
- {
-   sprintf(buf1,"ZQuest %s",VerStr(ZELDA_VERSION));
-   alert(buf1,"Zelda Classic Quest Editor","by Phantom Menace", "OK", NULL, 13, 27);
- }
- return D_O_K;
-}
-
-int onInternal();
+#include "zq_misc.cc"
 
 
 static MENU import_menu[] =
@@ -632,8 +127,8 @@ static MENU misc_menu[] =
    { "Info types",        onInfoTypes,  NULL },
    { "Warp rings",        onWarpRings,  NULL },
    { "Whistle warps",     onWhistle,    NULL },
-   { "Triforce pieces",   NULL,         NULL, D_DISABLED },
-   { "Map Colors",        onMapColors,  NULL },
+   { "Triforce pieces",   onTriPieces,  NULL },
+   { "Map colors",        onMapColors,  NULL },
    { NULL }
 };
 
@@ -662,6 +157,7 @@ static MENU quest_menu[] =
    { "Misc Data\t\x86", NULL,         misc_menu },
    { "" },
    { "&Header",         onHeader,     NULL },
+   { "&Rules",          onRules,      NULL },
    { "&Strings",        onStrings,    NULL },
    { "&DMaps",          onDmaps,      NULL },
    { "&Combos",         onCombos,     NULL },
@@ -721,8 +217,9 @@ static MENU etc_menu[] =
    { "&Play MIDI",          playMIDI,   NULL },
    { "&Stop tunes",         stopMIDI,   NULL },
    { "" },
-   { "View pic...",         onViewPic,  NULL },
+   { "&Help...",            onHelp,     NULL },
    { "&About...",           onAbout,    NULL },
+   { "View pic...",         onViewPic,  NULL },
    { NULL }
 };
 
@@ -738,94 +235,11 @@ static MENU the_menu[] =
 };
 
 
-int onW()
-{
- Flags^=cWALK;
- refresh(rMAP+rMENU);
- return D_O_K;
-}
-
-int onF()
-{
- Flags^=cFLAGS;
- refresh(rMAP);
- return D_O_K;
-}
-
-int onL()
-{
- loadfadepal(Color*pdLEVEL+poFADE3);
- readkey();
- loadlvlpal(Color);
- return D_O_K;
-}
-
-int onPlus()
-{
- CSet=wrap(CSet+1,0,5);
- refresh(rCOMBOS+rMENU+rCOMBO);
- return D_O_K;
-}
-
-int onMinus()
-{
- CSet=wrap(CSet-1,0,5);
- refresh(rCOMBOS+rMENU+rCOMBO);
- return D_O_K;
-}
-
-void setFlagColor()
-{
- RAMpal[dvc(0)]=RAMpal[vc(Flag)];
- set_palette_range(RAMpal,dvc(0),dvc(0),false);
-}
-
-int onTimes()
-{
- Flag=(Flag+1)&15;
- setFlagColor();
- refresh(rMENU);
- return D_O_K;
-}
-
-int onDivide()
-{
- Flag=(Flag-1)&15;
- setFlagColor();
- refresh(rMENU);
- return D_O_K;
-}
-
-int on0();
-int on1();
-int on2();
-int on3();
-int on4();
-int on5();
-int on6();
-int on7();
-int on8();
-int on9();
-int on10();
-int on11();
-int on12();
-int on13();
-int on14();
-
-int onD();
-int onIncMap();
-int onDecMap();
-
-int onDumpScr();
-
-
-#define C(x)   ((x)-'a'+1)
-
 static DIALOG dialogs[] =
 {
  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)      (d2)     (dp) */
  { d_menu_proc,       0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       the_menu },
- { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onAbout },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0,       onSave },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,   0,       onOpen },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F5,   0,       onTemplate },
@@ -876,7 +290,6 @@ static DIALOG dialogs[] =
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'r',     0,       0,        0,       onRType },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'a',     0,       0,        0,       onCatchall },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'p',     0,       0,        0,       onPath },
-// { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    'b',     0,       0,        0,       onCombos },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ',',     0,       0,        0,       onDecMap },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '.',     0,       0,        0,       onIncMap },
  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_DEL,  0,       onDelete },
@@ -910,926 +323,7 @@ int getnumber(char *prompt,int initialval)
 }
 
 
-
-/************************/
-/****** ZMAP class ******/
-/************************/
-
-
-void reset_dmap(int index)
-{
- bound(index,0,MAXDMAPS-1);
- byte *di = ((byte*)(DMaps+index));
- for(unsigned i=0; i<sizeof(dmap); i++)
-   *(di++)=0;
-}
-
-
-class zmap {
- mapscr *screens;
- int currmap,copymap;
- int currscr,copyscr;
- int scrpos[MAXMAPS+1];
-
- // editing screens
- mapscr undomapscr,copymapscr;
- bool can_undo,can_paste;
-
-public:
-
- zmap() { can_undo=can_paste=false; }
- bool CanUndo() { return can_undo; }
- bool CanPaste() { return can_paste; }
- int  CopyScr() { return (copymap<<8)+copyscr; }
- void Ugo();
- void Uhuilai();
- void Copy();
- void Paste();
- void PasteEnemies();
- bool isDungeon()
- {
-  return ( (screens[currscr].data[0]&0x1FF)==66 &&
-           (screens[currscr].data[15]&0x1FF)==75 );
- }
- void clearall()
- {
-   Color=0;
-   for(int i=0; i<MAXMAPS; i++) {
-     setCurrMap(i);
-     clearmap();
-   }
-   setCurrMap(0);
- }
- void clearmap()
- {
-   if(currmap<MAXMAPS) {
-    for(int i=0; i<130; i++)
-     clearscr(i);
-    setCurrScr(0);
-   }
- }
- void clearscr(int scr);
- int  load(char *path);
- int  save(char *path);
- void draw(BITMAP* dest,int x,int y,int flags);
- void scroll(int dir);
- mapscr *CurrScr()        { return screens+currscr; }
- mapscr *Scr(int scr)     { return screens+scr; }
- int  getCurrMap()        { return currmap; }
- void setCurrMap(int index)
- {
-   int oldmap=currmap;
-   scrpos[currmap]=currscr;
-   currmap=bound(index,0,MAXMAPS);
-   screens=TheMaps+(currmap*130);
-   currscr=scrpos[currmap];
-   if(currmap!=oldmap)
-     can_undo=false;
- }
- int  getCurrScr()        { return currscr; }
- void setCurrScr(int scr)
- {
-   int oldscr=currscr;
-   currscr=bound(scr,0,129);
-   setcolor(screens[currscr].color&15);
-   if(currscr!=oldscr)
-     can_undo=false;
- }
- void setcolor(int c)
- {
-   if(screens[currscr].valid&mVALID) {
-     screens[currscr].color=c;
-     if(Color!=c)
-       loadlvlpal(Color=c);
-     }
- }
- void resetflags()
- {
-  byte *di=&(screens[currscr].valid);
-  for(int i=1; i<48; i++)
-    *(di+i)=0;
- }
- void Template(int floor)
- {
-  if(!(screens[currscr].valid&mVALID))
-    screens[currscr].color=Color;
-  screens[currscr].valid|=mVALID;
-
-  for(int i=0; i<32; i++)
-    screens[currscr].data[i]=TheMaps[TEMPLATE].data[i];
-  for(int i=144; i<176; i++)
-    screens[currscr].data[i]=TheMaps[TEMPLATE].data[i];
-  for(int y=2; y<=9; y++) {
-    int j=y<<4;
-    screens[currscr].data[j]=TheMaps[TEMPLATE].data[j++];
-    screens[currscr].data[j]=TheMaps[TEMPLATE].data[j++];
-    j+=12;
-    screens[currscr].data[j]=TheMaps[TEMPLATE].data[j++];
-    screens[currscr].data[j]=TheMaps[TEMPLATE].data[j++];
-    }
-
-  if(floor!=-1) {
-    for(int y=2; y<9; y++)
-     for(int x=2; x<14; x++) {
-      int i=(y<<4)+x;
-      screens[currscr].data[i] &= 0xF000;
-      screens[currscr].data[i] |= floor&0x0FFF;
-      }
-    }
-  for(int i=0; i<4; i++)
-    putdoor(i,screens[currscr].door[i]);
- }
- void putdoor(int side,int doortype);
- void dowarp(int type);
- void dowarp(int ring,int index);
-} Map;
-
-
-
-
-void zmap::clearscr(int scr)
-{
- byte *di=((byte*)screens)+(scr*sizeof(mapscr));
- for(unsigned i=0; i<sizeof(mapscr); i++)
-  *(di++) = 0;
- screens[scr].valid=mVERSION;
-}
-
-
-
-static char *loaderror[] = {"OK","File not found","Incomplete data",
-  "Invalid version","Invalid file"};
-
-int zmap::load(char *path)
-{
- FILE *f=fopen(path,"rb");
- if(!f)
-  return 1;
- for(int i=0; i<130; i++) {
-  if(fread(screens+i,sizeof(mapscr),1,f)<1) {
-   fclose(f);
-   clearall();
-   setCurrScr(0);
-   return 2;
-   }
-  }
- fclose(f);
- if(!(screens[0].valid&mVERSION)) {
-   clearall();
-   setCurrScr(0);
-   return 3;
-   }
- setCurrScr(0);
- return 0;
-}
-
-
-int zmap::save(char *path)
-{
- FILE *f=fopen(path,"wb");
- if(!f)
-  return 1;
- for(int i=0; i<130; i++) {
-  if(fwrite(screens+i,sizeof(mapscr),1,f)<1) {
-   fclose(f);
-   return 2;
-   }
-  }
- fclose(f);
- return 0;
-}
-
-
-void putcombo(BITMAP *dest,combo c,word cmbdat,int x,int y,int cset,int flags)
-{
-  if(c.tile==0) {
-    rectfill(dest,x,y,x+15,y+15,0);
-    rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
-    return;
-    }
-
-  puttile16(dest,c.tile,x,y,cset,c.flip);
-
-  for(int i=0; i<4; i++) {
-    int tx=((i&2)<<2)+x;
-    int ty=((i&1)<<3)+y;
-    if((flags&cWALK) && (c.walk&(1<<i)))
-      rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
-    }
-
-  if((flags&cFLAGS)&&(cmbdat&0xF000))
-    rectfill(dest,x,y,x+15,y+15,vc((cmbdat&0xF000)>>12) );
-}
-
-
-
-inline void putcombo(BITMAP* dest,int x,int y,word cmbdat,int flags)
-{
-  putcombo(dest,combobuf[cmbdat&0x1FF],cmbdat,x,y,(cmbdat&0x0E00)>>9,flags);
-}
-
-
-inline word cmb(int comboindex,int cset,int flags)
-{ return (comboindex&0x1FF)+((cset&7)<<9)+(flags<<12); }
-
-
-inline word tcmb(int pos)
-{ return TheMaps[TEMPLATE].data[pos]&0x1FF; }
-
-
-
-void zmap::draw(BITMAP* dest,int x,int y,int flags)
-{
- if(!(screens[currscr].valid&mVALID)) {
-  rectfill(dest,x,y,x+255,y+175,dvc(1));
-  return;
-  }
-
- int dark=screens[currscr].flags&4;
- for(int i=0; i<176; i++)
-  putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,screens[currscr].data[i],flags|dark);
-
- int cs=2;
-
- switch(screens[currscr].door[up]) {
-   case dLOCKED:      puttile16(dest,combobuf[tcmb(41)].tile,x+120,y+16,cs,combobuf[tcmb(41)].flip); break;
-   case d1WAYSHUTTER:
-   case dSHUTTER:     puttile16(dest,combobuf[tcmb(57)].tile,x+120,y+16,cs,combobuf[tcmb(57)].flip); break;
-   case dBOMB:        puttile16(dest,combobuf[tcmb(73)].tile,x+120,y+16,cs,combobuf[tcmb(73)].flip); break;
-   case dWALK:        puttile16(dest,combobuf[tcmb(89)].tile,x+120,y+16,cs,combobuf[tcmb(89)].flip); break;
-   }
- switch(screens[currscr].door[down]) {
-   case dLOCKED:      puttile16(dest,combobuf[tcmb(137)].tile,x+120,y+144,cs,combobuf[tcmb(137)].flip); break;
-   case d1WAYSHUTTER:
-   case dSHUTTER:     puttile16(dest,combobuf[tcmb(121)].tile,x+120,y+144,cs,combobuf[tcmb(121)].flip); break;
-   case dBOMB:        puttile16(dest,combobuf[tcmb(105)].tile,x+120,y+144,cs,combobuf[tcmb(105)].flip); break;
-   case dWALK:        puttile16(dest,combobuf[tcmb(89)].tile,x+120,y+144,cs,combobuf[tcmb(89)].flip); break;
-   }
- switch(screens[currscr].door[left]) {
-   case dLOCKED:      puttile16(dest,combobuf[tcmb(68)].tile,x+16,y+80,cs,combobuf[tcmb(68)].flip); break;
-   case d1WAYSHUTTER:
-   case dSHUTTER:     puttile16(dest,combobuf[tcmb(84)].tile,x+16,y+80,cs,combobuf[tcmb(84)].flip); break;
-   case dBOMB:        puttile16(dest,combobuf[tcmb(100)].tile,x+16,y+80,cs,combobuf[tcmb(100)].flip); break;
-   case dWALK:        puttile16(dest,combobuf[tcmb(89)].tile,x+16,y+80,cs,combobuf[tcmb(89)].flip); break;
-   }
- switch(screens[currscr].door[right]) {
-   case dLOCKED:      puttile16(dest,combobuf[tcmb(75)].tile,x+224,y+80,cs,combobuf[tcmb(75)].flip); break;
-   case d1WAYSHUTTER:
-   case dSHUTTER:     puttile16(dest,combobuf[tcmb(91)].tile,x+224,y+80,cs,combobuf[tcmb(91)].flip); break;
-   case dBOMB:        puttile16(dest,combobuf[tcmb(107)].tile,x+224,y+80,cs,combobuf[tcmb(107)].flip); break;
-   case dWALK:        puttile16(dest,combobuf[tcmb(89)].tile,x+224,y+80,cs,combobuf[tcmb(89)].flip); break;
-   }
-
- if(!(flags&cDEBUG))
- {
-   for(int j=168; j<176; j++)
-    for(int i=0; i<256; i++)
-      if(((i^j)&1)==0)
-        putpixel(dest,x+i,y+j,vc(0));
- }
-
- if(dark)
- {
-   for(int j=0; j<80; j++)
-    for(int i=0; i<80-j; i++)
-      if(((i^j)&1)==0)
-        putpixel(dest,x+i,y+j,vc(0));
- }
-
- if(screens[currscr].item)
-   putitem(dest,screens[currscr].itemx+x,screens[currscr].itemy+y,screens[currscr].item);
-}
-
-
-void zmap::scroll(int dir)
-{
- if(currmap<MAXMAPS) {
-   switch(dir) {
-   case up:    if(currscr>15)  setCurrScr(currscr-16); break;
-   case down:  if(currscr<114) setCurrScr(currscr+16); break;
-   case left:  if(currscr&15)  setCurrScr(currscr-1);  break;
-   case right: if((currscr&15)<15 && currscr<129) setCurrScr(currscr+1); break;
-   }
- }
-}
-
-
-
-
-void zmap::putdoor(int side,int door)
-{
- screens[currscr].door[side]=door;
- word *di=screens[currscr].data;
- switch(side) {
- case up:
-   switch(door) {
-   case dWALL:
-   case dBOMB:
-   case dWALK: di[7]=cmb(tcmb(7),2,0);
-               di[8]=cmb(tcmb(8),2,0);
-               di[23]=cmb(tcmb(23),2,0);
-               di[24]=cmb(tcmb(24),2,0); break;
-   default:
-               di[7]=cmb(tcmb(37),2,0);
-               di[8]=cmb(tcmb(38),2,0);
-               di[23]=cmb(tcmb(53),2,0);
-               di[24]=cmb(tcmb(54),2,0); break;
-   } break;
- case down:
-   switch(door) {
-   case dWALL:
-   case dBOMB:
-   case dWALK:
-               di[151]=cmb(tcmb(151),2,0);
-               di[152]=cmb(tcmb(152),2,0);
-               di[167]=cmb(tcmb(167),2,0);
-               di[168]=cmb(tcmb(168),2,0); break;
-   default:
-               di[151]=cmb(tcmb(117),2,0);
-               di[152]=cmb(tcmb(118),2,0);
-               di[167]=cmb(tcmb(133),2,0);
-               di[168]=cmb(tcmb(134),2,0); break;
-   } break;
- case left:
-   switch(door) {
-   case dWALL:
-   case dBOMB:
-   case dWALK:
-               di[64]=cmb(tcmb(64),2,0); di[65]=cmb(tcmb(65),2,0);
-               di[80]=cmb(tcmb(80),2,0); di[81]=cmb(tcmb(81),2,0);
-               di[96]=cmb(tcmb(96),2,0); di[97]=cmb(tcmb(97),2,0); break;
-   default:
-               di[64]=cmb(tcmb(66),2,0); di[65]=cmb(tcmb(67),2,0);
-               di[80]=cmb(tcmb(82),2,0); di[81]=cmb(tcmb(83),2,0);
-               di[96]=cmb(tcmb(98),2,0); di[97]=cmb(tcmb(99),2,0); break;
-   } break;
- case right:
-   switch(door) {
-   case dWALL:
-   case dBOMB:
-   case dWALK:
-               di[78]=cmb(tcmb(78),2,0);   di[79]=cmb(tcmb(79),2,0);
-               di[94]=cmb(tcmb(94),2,0);   di[95]=cmb(tcmb(95),2,0);
-               di[110]=cmb(tcmb(110),2,0); di[111]=cmb(tcmb(111),2,0); break;
-   default:
-               di[78]=cmb(tcmb(76),2,0);   di[79]=cmb(tcmb(77),2,0);
-               di[94]=cmb(tcmb(92),2,0);   di[95]=cmb(tcmb(93),2,0);
-               di[110]=cmb(tcmb(108),2,0); di[111]=cmb(tcmb(109),2,0); break;
-   } break;
- }
-}
-
-
-
-void zmap::Ugo()
-{
- undomapscr=screens[currscr];
- can_undo=true;
-}
-
-
-void zmap::Uhuilai()
-{
- if(can_undo)
-  swap(screens[currscr],undomapscr);
-}
-
-void zmap::Copy()
-{
- if(screens[currscr].valid&mVALID) {
-  copymapscr=screens[currscr];
-  can_paste=true;
-  copymap=currmap;
-  copyscr=currscr;
-  }
-}
-
-
-void zmap::Paste()
-{
- if(can_paste) {
-  Ugo();
-  screens[currscr]=copymapscr;
-  }
-}
-
-void zmap::PasteEnemies()
-{
- if(can_paste) {
-  for(int i=0; i<10; i++)
-    screens[currscr].enemy[i]=copymapscr.enemy[i];
-  }
-}
-
-
-void zmap::dowarp(int type)
-{
- if(type==0)
- {
-   int dmap=screens[currscr].warpdmap;
-   int scr=screens[currscr].warpscr;
-   switch(screens[currscr].warptype) {
-    case 1:
-    case 2:
-    case 3:
-      setCurrMap(DMaps[dmap].map);
-      if(DMaps[dmap].type==dmDNGN)
-        setCurrScr(scr+DMaps[dmap].xoff);
-      else
-        setCurrScr(scr);
-      break;
-   }
- }
- else if(type==1)
- {
-   int dmap=screens[currscr].warpdmap2;
-   int scr=screens[currscr].warpscr2;
-   switch(screens[currscr].warptype2) {
-    case 1:
-    case 2:
-    case 3:
-      setCurrMap(DMaps[dmap].map);
-      if(DMaps[dmap].type==dmDNGN)
-        setCurrScr(scr+DMaps[dmap].xoff);
-      else
-        setCurrScr(scr);
-      break;
-   }
- }
- else
- {
-   int dmap=misc.wind[type-2].dmap;
-   int scr=misc.wind[type-2].scr;
-   setCurrMap(DMaps[dmap].map);
-   if(DMaps[dmap].type==dmDNGN)
-     setCurrScr(scr+DMaps[dmap].xoff);
-   else
-     setCurrScr(scr);
- }
-}
-
-void zmap::dowarp(int ring,int index)
-{
-  int dmap=misc.warp[ring].dmap[index];
-  int scr=misc.warp[ring].scr[index];
-  setCurrMap(DMaps[dmap].map);
-  if(DMaps[dmap].type==dmDNGN)
-    setCurrScr(scr+DMaps[dmap].xoff);
-  else
-    setCurrScr(scr);
-}
-
-
-
-/******************************/
-/******** ZQuest stuff ********/
-/******************************/
-
-int msg_count=0;
-
-char *MsgString(int index)
-{
- bound(index,0,MAXMSGS-1);
- char *s=MsgStrings[index].s;
- while(*s==' ')
-  s++;
- return s;
-}
-
-void reset_msgstr(int index)
-{
- bound(index,0,MAXMSGS-1);
- char *s=MsgStrings[index].s;
- for(int i=0; i<76; i++)
-   *(s++)=0;
-}
-
-void init_msgstrs()
-{
- for(int i=0; i<MAXMSGS; i++)
-   reset_msgstr(i);
- strcpy(MsgStrings[0].s,"(none)");
- msg_count=1;
-}
-
-
-const char zqsheader[30]="Zelda Classic String Table\n\x01";
-
-bool save_msgstrs(char *path)
-{
- FILE *f=fopen(path,"wb");
- if(!f)
-  return false;
- if(fwrite(zqsheader,1,30,f)<30) {
-  fclose(f);
-  return false;
-  }
- if(fwrite(&msg_count,2,1,f)<1) {
-  fclose(f);
-  return false;
-  }
- if(fwrite(MsgStrings,sizeof(MsgStr),MAXMSGS,f)<MAXMSGS) {
-  fclose(f);
-  return false;
-  }
- fclose(f);
- return true;
-}
-
-
-int load_msgstrs(char *path)
-{
- FILE *f=fopen(path,"rb");
- if(!f)
-  return 1;
-
- char buf[30];
- if(fread(buf,1,30,f)<30) {
-  fclose(f);
-  return 2;
-  }
- if(strcmp(buf,zqsheader)) {
-  fclose(f);
-  return 4;
-  }
-
- if(fread(&msg_count,2,1,f)<1) {
-  fclose(f);
-  return 2;
-  }
- if(fread(MsgStrings,sizeof(MsgStr),MAXMSGS,f)<MAXMSGS) {
-  fclose(f);
-  return 2;
-  }
- fclose(f);
- return 0;
-}
-
-
-bool save_pals(char *path)
-{
- FILE *f=fopen(path,"wb");
- if(!f)
-   return false;
- if(fwrite(colordata,1,psTOTAL,f)<psTOTAL) {
-   fclose(f);
-   return false;
-   }
- fclose(f);
- return true;
-}
-
-
-int load_pals(char *path)
-{
- FILE *f=fopen(path,"rb");
- if(!f)
-   return false;
- if(fread(colordata,1,psTOTAL,f)<psTOTAL) {
-   fclose(f);
-   return false;
-   }
- fclose(f);
- loadfullpal();
- loadlvlpal(Color);
- return true;
-}
-
-
-
-bool save_dmaps(char *path)
-{
- return writefile(path,DMaps,sizeof(dmap)*MAXDMAPS)==sizeof(dmap)*MAXDMAPS;
-}
-
-
-bool load_dmaps(char *path)
-{
-  int size = sizeof(dmap)*MAXDMAPS;
-  dmap *buf = (dmap*)malloc(size);
-  if(readfile(path,buf,size)!=size) {
-    free(buf);
-    return false;
-    }
-  for(int i=0;i<MAXDMAPS; i++)
-    DMaps[i]=buf[i];
-  free(buf);
-  return true;
-}
-
-
-
-bool save_combos(char *path)
-{
- return writefile(path,combobuf,8192)==8192;
-}
-
-
-bool load_combos(char *path)
-{
-  combo *buf = (combo*)malloc(8192);
-  if(readfile(path,buf,8192)!=8192) {
-    free(buf);
-    return false;
-    }
-  for(int i=0;i<512; i++)
-    combobuf[i]=buf[i];
-  free(buf);
-  return true;
-}
-
-
-void reset_tiles()
-{
-  byte *si=(byte*)data[TIL_NES].dat;
-  for(int i=0; i<TILEBUF_SIZE; i++)
-    tilebuf[i]=*(si++);
-  usetiles=false;
-}
-
-
-bool save_tiles(char *path)
-{
- return writefile(path,tilebuf,TILEBUF_SIZE)==TILEBUF_SIZE;
-}
-
-
-bool load_tiles(char *path)
-{
-  struct ffblk f;
-  if(findfirst(path,&f,0))
-    return false;
-
-  if(f.ff_fsize!=TILEBUF_SIZE)
-    return false;
-
-  if(readfile(path,tilebuf,TILEBUF_SIZE)!=TILEBUF_SIZE) {
-    reset_tiles();
-    return false;
-    }
-
-  return true;
-}
-
-
-
-
-void setMapCount(int c)
-{
-  bound(c,1,MAXMAPS);
-  header.map_count=c;
-  int currmap=Map.getCurrMap();
-  Map.setCurrMap(bound(currmap,0,c-1)); // for bound checking
-}
-
-
-
-void reset_mapcolors()
-{
-  misc.colors = (zcolors){ 1,17, 18,19, 2, 18, 0,3, 0,2, 19,18,18,17 };
-}
-
-
-
-int init_quest()
-{
- strcpy(header.id_str,QH_IDSTR);
- header.zelda_version = ZELDA_VERSION;
- header.internal = INTERNAL_VERSION;
- header.quest_number = 0;
- header.author[0] = 0;
- header.title[0] = 0;
- header.pwdkey = 0;
- header.password[0] = 0;
-
- for(int i=0; i<ZQ_MAXDATA; i++)
-   header.data_flags[i]=0;
-
- Map.clearall();
- setMapCount(1);
- init_msgstrs();
- header.str_count=1;
-
- if(data) {
-  for(int i=0; i<512; i++)
-    combobuf[i]=((combo*)data[DAT_COMBO].dat)[i];
-  reset_tiles();
-  }
-
- init_colordata();
-
- for(int i=0; i<MAXDMAPS; i++)
-   reset_dmap(i);
- for(int i=0; i<MAXMIDIS; i++)
-   reset_midi(customMIDIs+i);
-
- byte *di = (byte*)&misc;
- for(unsigned i=0; i<sizeof(miscQdata); i++)
-   *(di++)=0;
-
- reset_mapcolors();
- TheMaps[TEMPLATE] = *((mapscr*)data[DAT_TEMPLATE].dat);
-
- refresh_pal();
- saved=true;
- return 0;
-}
-
-
-void set_questpwd(char *pwd)
-{
-  if(strlen(pwd)==0)
-  {
-    header.pwdkey=0;
-    for(int i=0; i<30; i++)
-      header.password[i]=rand();
-  }
-  else
-  {
-    short key=(rand()&0xFFF0)+11;
-    header.pwdkey=key;
-    memcpy(header.password,pwd,30);
-    for(int i=0; i<30; i++)
-    {
-      header.password[i] += key;
-      int t=key>>15;
-      key = (key<<1)+t;
-    }
-  }
-}
-
-
-void get_questpwd(char *pwd)
-{
-  if(header.pwdkey==0)
-    pwd[0]=0;
-  else
-  {
-    short key = header.pwdkey;
-    memcpy(pwd,header.password,30);
-    pwd[30]=0;
-    for(int i=0; i<30; i++)
-    {
-      pwd[i] -= key;
-      int t=key>>15;
-      key = (key<<1)+t;
-    }
-  }
-}
-
-
-static DIALOG pwd_dlg[] =
-{
- /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
- { d_shadow_box_proc, 48,   80,  224,   80,   vc(14),  vc(1),  0,       0,          0,             0,       NULL },
- { d_ctext_proc,      160,  88,  152,   8,    vc(15),  vc(1),  0,       0,          0,             0,       "Requires Authorization" },
- { d_text_proc,       64,   104,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "File name:" },
-// 3 (filename)
- { d_text_proc,       148,  104, 128,   8,    vc(11),  vc(1),  0,       0,          24,            0,       NULL },
- { d_text_proc,       64,   112,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Password:" },
-// 5 (password)
- { d_edit_proc,       140,  112, 120,   8,    vc(12),  vc(1),  0,       0,          24,            0,       NULL },
- { d_button_proc,     90,   136,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
- { d_button_proc,     170,  136,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
- { NULL }
-};
-
-
-bool quest_access(char *filename)
-{
-  if(debug || header.pwdkey==0)
-    return true;
-
-  char pwd[32];
-  char prompt[32]="";
-
-  pwd_dlg[3].dp=get_filename(filename);
-  get_questpwd(pwd);
-  pwd_dlg[5].dp=prompt;
-  popup_dialog(pwd_dlg,5);
-
-  return strcmp(pwd,prompt)==0;
-}
-
-
-
-// wrapper to reinitialize everything on an error
-int load_quest(char *filename)
-{
- int ret=loadquest(filename,&header,&misc,customMIDIs);
-
- if(ret>1 && ret<5)
-   init_quest();
- else if(!quest_access(filename))
- {
-   init_quest();
-   ret=6;
- }
- else
- {
-   msg_count = header.str_count;
-   usetiles = header.data_flags[0];
-   setMapCount(header.map_count); // force a bound check
-   refresh_pal();
- }
- return ret;
-}
-
-
-
-bool write_midi(MIDI *m,PACKFILE *f)
-{
-   int c;
-
-   pack_mputw(m->divisions,f);
-
-   for(c=0; c<MIDI_TRACKS; c++)
-   {
-      pack_mputl(m->track[c].len,f);
-
-      if(m->track[c].len > 0)
-      {
-         if(!pfwrite(m->track[c].data,m->track[c].len,f))
-            return false;
-      }
-   }
-
-   return true;
-}
-
-
-
-int save_quest(char *filename)
-{
- strcpy(header.id_str,QH_IDSTR);
- header.zelda_version = ZELDA_VERSION;
- header.internal = INTERNAL_VERSION;
- header.str_count = msg_count;
- header.data_flags[0] = usetiles;
- for(int i=0; i<MAXMIDIS; i++)
-   set_bit(header.data_flags+ZQ_MIDIS,i,int(customMIDIs[i].midi!=NULL));
-
-
- PACKFILE *f = pack_fopen(filename,F_WRITE_PACKED);
- if(!f)
-   return 1;
- if(!pfwrite(&header,sizeof(zquestheader),f)) {
-   pack_fclose(f);
-   return 2;
-   }
- if(!pfwrite(MsgStrings,sizeof(MsgStr)*MAXMSGS,f)) {
-   pack_fclose(f);
-   return 3;
-   }
- if(!pfwrite(DMaps,sizeof(dmap)*MAXDMAPS,f)) {
-   pack_fclose(f);
-   return 4;
-   }
- if(!pfwrite(&misc,sizeof(miscQdata),f)) {
-   pack_fclose(f);
-   return 5;
-   }
- for(int i=0; i<header.map_count; i++) {
-   if(!pfwrite(TheMaps+(i*130),sizeof(mapscr)*130,f)) {
-     pack_fclose(f);
-     return 6+i;
-     }
-   }
- if(!pfwrite(TheMaps+(TEMPLATE),sizeof(mapscr),f)) {
-   pack_fclose(f);
-   return 15;
-   }
- if(!pfwrite(combobuf,sizeof(combo)*512,f)) {
-   pack_fclose(f);
-   return 16;
-   }
- if(!pfwrite(colordata,psTOTAL,f)) {
-   pack_fclose(f);
-   return 17;
-   }
- if(header.data_flags[0])
-   if(!pfwrite(tilebuf,TILEBUF_SIZE,f))
-   {
-     pack_fclose(f);
-     return 18;
-   }
- for(int i=0; i<MAXMIDIS; i++)
- {
-   if(get_bit(header.data_flags+ZQ_MIDIS,i))
-   {
-     if(!pfwrite(customMIDIs+i,sizeof(music),f) ||
-        !write_midi(customMIDIs[i].midi,f) )
-     {
-       pack_fclose(f);
-       return 19+i;
-     }
-
-   }
- }
-
- pack_fclose(f);
- return 0;
-}
+#include "zq_class.cc"
 
 
 
@@ -1837,14 +331,6 @@ int save_quest(char *filename)
 /*** dialog handlers ***/
 /***********************/
 
-
-int onInternal()
-{
- char buf[40];
- sprintf(buf,"%04X",header.internal&0xFFFF);
- alert("Quest File","Internal Version:",buf,"OK", NULL, 13, 27);
- return D_O_K;
-}
 
 int onUndo()
 {
@@ -2054,287 +540,8 @@ int stopMIDI()
 }
 
 
+#include "zq_files.cc"
 
-int onNew()
-{
- if(checksave()==0)
-   return D_O_K;
- if(!getname("New Quest File (.qst)","qst",filepath,false))
-   return D_O_K;
- init_quest();
- saved=false;
- strcpy(filepath,temppath);
- char buf[80],name[13];
- extract_name(filepath,name,FILENAME8_3);
- sprintf(buf,"Initialized %s",name);
- refresh(rALL);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- refresh(rMENU);
- return D_O_K;
-}
-
-
-int onSave()
-{
- if(filepath[0]==0)
-   return onSaveAs();
- int ret = save_quest(filepath);
- char buf[80],name[13];
- extract_name(filepath,name,FILENAME8_3);
- if(!ret) {
-   sprintf(buf,"Saved %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   saved=true;
-   }
- else {
-   sprintf(buf,"Error saving %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   }
- return D_O_K;
-}
-
-int onSaveAs()
-{
- if(!getname("Save Quest As (.qst)","qst",filepath,true))
-   return D_O_K;
- int ret = save_quest(temppath);
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(!ret) {
-   strcpy(filepath,temppath);
-   sprintf(buf,"Saved %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   saved=true;
-   }
- else {
-   sprintf(buf,"Error saving %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   }
- refresh(rMENU);
- return D_O_K;
-}
-
-int onOpen()
-{
- if(checksave()==0)
-   return D_O_K;
- if(!getname("Load Quest File (.qst)","qst",filepath,true))
-   return D_O_K;
-
- int ret=load_quest(temppath);
- if(!ret) {
-   strcpy(filepath,temppath);
-   saved=true;
-   }
- else {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,qst_error[ret],NULL,"O&K",NULL,'k',0);
-   filepath[0]=0;
-   }
- refresh(rALL);
- return D_O_K;
-}
-
-
-int onImport_Map()
-{
- if(Map.getCurrMap()>=MAXMAPS)
-   return D_O_K;
- if(!getname("Import Map (.map)","map",datapath,false))
-   return D_O_K;
- saved=false;
- int ret=Map.load(temppath);
- if(ret) {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,loaderror[ret],NULL,"O&K",NULL,'k',0);
-   if(ret>1)
-     Map.clearmap();
-   }
- refresh(rSCRMAP+rMAP+rMENU);
- return D_O_K;
-}
-
-int onExport_Map()
-{
- if(Map.getCurrMap()>=MAXMAPS)
-   return D_O_K;
- if(!getname("Export Map (.map)","map",datapath,false))
-   return D_O_K;
- int ret = Map.save(temppath);
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(!ret)
-   sprintf(buf,"Saved %s",name);
- else
-   sprintf(buf,"Error saving %s",name);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- return D_O_K;
-}
-
-
-
-int onImport_DMaps()
-{
- if(!getname("Import DMaps (.dmp)","dmp",datapath,false))
-   return D_O_K;
- saved=false;
- if(!load_dmaps(temppath)) {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   }
- return D_O_K;
-}
-
-
-int onExport_DMaps()
-{
- if(!getname("Export DMaps (.dmp)","dmp",datapath,false))
-   return D_O_K;
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(save_dmaps(temppath))
-   sprintf(buf,"Saved %s",name);
- else
-   sprintf(buf,"Error saving %s",name);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- return D_O_K;
-}
-
-
-
-int onImport_Pals()
-{
- if(!getname("Import Palettes (.zpl)","zpl",datapath,false))
-   return D_O_K;
- saved=false;
- if(!load_pals(temppath)) {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   }
- return D_O_K;
-}
-
-
-int onExport_Pals()
-{
- if(!getname("Export Palettes (.zpl)","zpl",datapath,false))
-   return D_O_K;
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(save_pals(temppath))
-   sprintf(buf,"Saved %s",name);
- else
-   sprintf(buf,"Error saving %s",name);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- return D_O_K;
-}
-
-
-
-int onImport_Msgs()
-{
- if(!getname("Import String Table (.zqs)","zqs",datapath,false))
-   return D_O_K;
- saved=false;
- int ret=load_msgstrs(temppath);
- if(ret) {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,loaderror[ret],NULL,"O&K",NULL,'k',0);
-   if(ret==2)
-     init_msgstrs();
-   }
- refresh(rMENU);
- return D_O_K;
-}
-
-
-int onExport_Msgs()
-{
- if(!getname("Export String Table (.zqs)","zqs",datapath,false))
-   return D_O_K;
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(save_msgstrs(temppath))
-   sprintf(buf,"Saved %s",name);
- else
-   sprintf(buf,"Error saving %s",name);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- return D_O_K;
-}
-
-
-
-int onImport_Combos()
-{
- if(!getname("Import Combo Table (.cmb)","cmb",datapath,false))
-   return D_O_K;
- saved=false;
- if(!load_combos(temppath)) {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   }
- refresh(rALL);
- return D_O_K;
-}
-
-
-int onExport_Combos()
-{
- if(!getname("Export Combo Table (.cmb)","cmb",datapath,false))
-   return D_O_K;
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(save_combos(temppath))
-   sprintf(buf,"Saved %s",name);
- else
-   sprintf(buf,"Error saving %s",name);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- return D_O_K;
-}
-
-
-
-int onImport_Tiles()
-{
- if(!getname("Import Tiles (.til)","til",datapath,false))
-   return D_O_K;
- saved=false;
- if(!load_tiles(temppath)) {
-   char buf[80],name[13];
-   extract_name(temppath,name,FILENAME8_3);
-   sprintf(buf,"Unable to load %s",name);
-   alert(buf,NULL,NULL,"O&K",NULL,'k',0);
-   }
- refresh(rALL);
- return D_O_K;
-}
-
-
-int onExport_Tiles()
-{
- if(!getname("Export Tiles (.til)","til",datapath,false))
-   return D_O_K;
- char buf[80],name[13];
- extract_name(temppath,name,FILENAME8_3);
- if(save_tiles(temppath))
-   sprintf(buf,"Saved %s",name);
- else
-   sprintf(buf,"Error saving %s",name);
- alert(buf,NULL,NULL,"O&K",NULL,'k',0);
- return D_O_K;
-}
 
 
 //  +----------+
@@ -2536,10 +743,10 @@ void refresh(int flags)
     {
     byte f=scr->flags;
     byte wf=scr->flags2;
-    textprintf(menu,font,72,198,vc(7),"       GSOMLWRDIB");
+    textprintf(menu,font,72,198,vc(7),"       TGSOMLWRDIB");
     textprintf(menu,font,72,206,vc(7),"Flags:");
-    textprintf(menu,font,128,206,vc(11),"%d%d%d%d%d%d%d%d%d%d",
-      bit(wf,5),bit(wf,4),bit(f,7),bit(f,6),bit(f,5),bit(f,4),bit(f,3),bit(f,2),bit(f,1),bit(f,0));
+    textprintf(menu,font,128,206,vc(11),"%d%d%d%d%d%d%d%d%d%d%d",
+      bit(wf,6),bit(wf,5),bit(wf,4),bit(f,7),bit(f,6),bit(f,5),bit(f,4),bit(f,3),bit(f,2),bit(f,1),bit(f,0));
 
     f=scr->enemyflags;
     textprintf(menu,font,72,218,vc(7),"       BILFR24Z P:");
@@ -2690,925 +897,8 @@ int d_wflag_proc(int msg,DIALOG *d,int c)
 }
 
 
-/*********************************/
-/*****    Tiles & Combos    ******/
-/*********************************/
 
-void little_x(BITMAP *dest, int x, int y, int c, int s)
-{
-  line(dest,x,y,x+s,y+s,c);
-  line(dest,x+s,y,x,y+s,c);
-}
-
-
-void zoomtile8(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
-{
-  cset <<= 4;
-  byte *si = tilebuf+(tile<<6);
-  for(int cy=0; cy<8; cy++)
-    for(int cx=0; cx<8; cx++)
-    {
-      int dx = ((flip&1)?7-cx:cx)*m;
-      int dy = ((flip&2)?7-cy:cy)*m;
-      rectfill(dest,x+dx,y+dy,x+dx+m-2,y+dy+m-2,*si+cset);
-      if(*si==0)
-        little_x(dest,x+dx+2,y+dy+2,vc(7),2);
-      si++;
-    }
-}
-
-
-void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
-{
-  if(tile>=MIN16) {
-    cset <<= 4;
-    byte *si = tilebuf+(tile<<8);
-
-    for(int cy=0; cy<16; cy++)
-      for(int cx=0; cx<16; cx++)
-      {
-        int dx = ((flip&1)?15-cx:cx)*m;
-        int dy = ((flip&2)?15-cy:cy)*m;
-        rectfill(dest,x+dx,y+dy,x+dx+m-2,y+dy+m-2,*si+cset);
-        if(*si==0)
-          little_x(dest,x+dx+2,y+dy+2,vc(7),2);
-        si++;
-      }
-    }
-  else {
-    tile <<= 2;
-    int t1=tile;
-    int t2=tile+1;
-    int t3=tile+2;
-    int t4=tile+3;
-    if(flip&1) {
-      swap(t1,t3);
-      swap(t2,t4);
-      }
-    if(flip&2) {
-      swap(t1,t2);
-      swap(t3,t4);
-      }
-    zoomtile8(dest,t1,x,y,cset,flip,m);
-    zoomtile8(dest,t2,x,y+m*8,cset,flip,m);
-    zoomtile8(dest,t3,x+m*8,y,cset,flip,m);
-    zoomtile8(dest,t4,x+m*8,y+m*8,cset,flip,m);
-    }
-}
-
-
-void draw_button(BITMAP *dest,int x,int y,int w,int h,char *text,int bg,int fg)
-{
- rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
- rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
- rect(dest,x,y,x+w-2,y+h-2,fg);
- text_mode(-1);
- textout_centre(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,fg);
-}
-
-
-bool do_button(int x,int y,int w,int h,char *text,int bg,int fg)
-{
- bool over=false;
- while(mouse_b) {
-  vsync();
-  if(isinRect(mouse_x,mouse_y,x,y,x+w-1,y+h-1)) {
-    if(!over) {
-      scare_mouse();
-      draw_button(screen,x,y,w,h,text,fg,bg);
-      unscare_mouse();
-      over=true;
-      }
-    }
-  else {
-    if(over) {
-      scare_mouse();
-      draw_button(screen,x,y,w,h,text,bg,fg);
-      unscare_mouse();
-      over=false;
-      }
-    }
-  }
- return over;
-}
-
-
-bool do_button_reset(int x,int y,int w,int h,char *text,int bg,int fg)
-{
- bool over=false;
- while(mouse_b) {
-  vsync();
-  if(isinRect(mouse_x,mouse_y,x,y,x+w-1,y+h-1)) {
-    if(!over) {
-      scare_mouse();
-      draw_button(screen,x,y,w,h,text,fg,bg);
-      unscare_mouse();
-      over=true;
-      }
-    }
-  else {
-    if(over) {
-      scare_mouse();
-      draw_button(screen,x,y,w,h,text,bg,fg);
-      unscare_mouse();
-      over=false;
-      }
-    }
-  }
-
- if(over) {
-   vsync();
-   scare_mouse();
-   draw_button(screen,x,y,w,h,text,bg,fg);
-   unscare_mouse();
-   }
-
- return over;
-}
-
-
-//*************** tile flood fill stuff **************
-
-int  tf_t;
-byte tf_c;
-byte tf_u;
-
-void tile_floodfill_rec(int x,int y)
-{
-  while(x>0 && (tilebuf[(tf_t<<8)+(y<<4)+x-1] == tf_u))
-    x--;
-
-  while(x<=15 && (tilebuf[(tf_t<<8)+(y<<4)+x] == tf_u)) {
-
-    tilebuf[(tf_t<<8)+(y<<4)+x] = tf_c;
-
-    if(y>0 && (tilebuf[(tf_t<<8)+((y-1)<<4)+x] == tf_u))
-      tile_floodfill_rec(x,y-1);
-
-    if(y<15 && (tilebuf[(tf_t<<8)+((y+1)<<4)+x] == tf_u))
-      tile_floodfill_rec(x,y+1);
-
-    x++;
-    }
-}
-
-void tile_floodfill(int tile,int x,int y,byte c)
-{
-  tf_t = tile;
-  tf_c = c;
-  tf_u = tilebuf[(tile<<8)+(y<<4)+x];
-  if(tf_u != tf_c)
-    tile_floodfill_rec(x,y);
-}
-
-
-
-//***************** tile editor  stuff *****************
-
-int c1=1;
-int c2=0;
-int bgc=dvc(9);
-enum { t_pen, t_brush, t_recolor, t_select };
-int tool = t_pen;
-int tool_cur = -1;
-int drawing=0;
-
-void update_tool_cursor()
-{
- if(isinRect(mouse_x,mouse_y,80,32,206,158)) {
-   if(tool_cur==-1)
-     set_mouse_sprite(mouse_bmp[9+tool]);
-   tool_cur=tool;
-   }
- else if(tool_cur != -1) {
-   set_mouse_sprite(mouse_bmp[0]);
-   tool_cur = -1;
-   }
-}
-
-void draw_edit_scr(int tile,int flip,int cs,byte *oldtile)
-{
- clear_to_color(screen2,bgc);
-
- swap(oldtile,tilebuf);
- if(tile>=MIN16)
-   temptile=true;
- puttile16(screen2,0,224,48,cs,flip);
- overtile16(screen2,0,248,48,cs,flip);
- temptile=false;
- swap(oldtile,tilebuf);
-
- puttile16(screen2,tile,224,80,cs,flip);
- overtile16(screen2,tile,248,80,cs,flip);
- zoomtile16(screen2,tile,80,32,cs,flip,8);
-
- rect(screen2,223,47,240,64,dvc(14));
- rect(screen2,247,47,264,64,dvc(14));
- rect(screen2,223,79,240,96,dvc(14));
- rect(screen2,247,79,264,96,dvc(14));
- rect(screen2,79,31,207,159,dvc(14));
- rect(screen2,103,175,136,208,dvc(14));
-
- textprintf(screen2,font,224,112,vc(11),"tile: %d",tile);
- textprintf(screen2,font,224,120,vc(11),"flip: %d",flip);
- textprintf(screen2,font,224,128,vc(11),"cset: %d",cs);
-
- for(int i=0; i<16; i++) {
-   int x=((i&3)<<3)+104;
-   int y=((i>>2)<<3)+176;
-   rectfill(screen2,x,y,x+7,y+7,CSET(cs)+i);
-   }
- little_x(screen2,106,178,vc(7),2);
-
- textprintf(screen2,font,152,180,vc(11),"l:  %d",c1);
- textprintf(screen2,font,152,196,vc(11),"r:  %d",c2);
-
- rectfill(screen2,171,180,178,187,CSET(cs)+c1);
- if(c1==0) little_x(screen2,173,182,vc(7),2);
- rectfill(screen2,171,196,178,203,CSET(cs)+c2);
- if(c2==0) little_x(screen2,173,198,vc(7),2);
-
- draw_button(screen2,224,168,60,16,"OK",dvc(9),vc(14));
- draw_button(screen2,224,192,60,16,"Cancel",dvc(9),vc(14));
- draw_button(screen2,24,184,60,16,"Edit",dvc(9),vc(14));
-
- blit(mouse_bmp[9],screen2,0,0,48,40,16,16);
- blit(mouse_bmp[10],screen2,0,0,48,64,16,16);
- blit(mouse_bmp[11],screen2,0,0,48,88,16,16);
- blit(mouse_bmp[12],screen2,0,0,48,112,16,16);
-
- rect(screen2,47,tool*24+39,64,tool*24+56,vc(14));
-
- vsync();
- scare_mouse();
- blit(screen2,screen,0,0,0,0,320,240);
- update_tool_cursor();
- unscare_mouse();
- SCRFIX();
-}
-
-
-void edit_tile(int tile,int flip,int &cs)
-{
- byte oldtile[256],undotile[256];
- for(int i=0; i<256; i++)
-   oldtile[i]=undotile[i]=tilebuf[(tile<<8)+i];
-
- bool bdown=false;
- int done=0;
- drawing=0;
- tool_cur = -1;
- if(tool>t_pen && tile<MIN16)
-   tool=t_pen;
-
- draw_edit_scr(tile,flip,cs,oldtile);
- while(mouse_b);
-
- do {
-   bool redraw=false;
-
-   if(keypressed()) {
-     switch(readkey()>>8) {
-     case KEY_ENTER: done=2; break;
-     case KEY_ESC:   done=1; break;
-     case KEY_H:     flip^=1; redraw=true; break;
-     case KEY_V:     flip^=2; redraw=true; break;
-     case KEY_PLUS_PAD:  cs = (cs<11) ? cs+1:0;  redraw=true; break;
-     case KEY_MINUS_PAD: cs = (cs>0)  ? cs-1:11; redraw=true; break;
-     case KEY_SPACE: if(bgc==dvc(9)) bgc=vc(7); else bgc=dvc(9);
-                     redraw=true; break;
-     case KEY_U:     for(int i=0; i<256; i++)
-                       swap(undotile[i],tilebuf[(tile<<8)+i]);
-                     redraw=true;
-                     break;
-     }
-   }
-
-   if(mouse_b==1 && !bdown) {
-     if(isinRect(mouse_x,mouse_y,80,32,206,158)) {
-       drawing=1;
-       for(int i=0; i<256; i++)
-         undotile[i]=tilebuf[(tile<<8)+i];
-       }
-     if(isinRect(mouse_x,mouse_y,224,168,283,183))
-       if(do_button(224,168,60,16,"OK",dvc(9),vc(14)))
-         done=2;
-     if(isinRect(mouse_x,mouse_y,224,192,283,207))
-       if(do_button(224,192,60,16,"Cancel",dvc(9),vc(14)))
-         done=1;
-     if(isinRect(mouse_x,mouse_y,24,184,83,199))
-       if(do_button(24,184,60,16,"Edit",dvc(9),vc(14))) {
-         do_menu(colors_menu,24,144);
-         text_mode(-1);
-         redraw=true;
-         }
-     if(isinRect(mouse_x,mouse_y,104,176,135,207)) {
-       int x=(mouse_x-104)>>3;
-       int y=(mouse_y-176)>>3;
-       c1 = (y<<2)+x;
-       redraw=true;
-       }
-     if(isinRect(mouse_x,mouse_y,48,40,63,55)) {
-       tool=t_pen;
-       redraw=true;
-       }
-     if(isinRect(mouse_x,mouse_y,48,64,63,79) && tile>=MIN16) {
-       tool=t_brush;
-       redraw=true;
-       }
-     if(isinRect(mouse_x,mouse_y,48,88,63,103) && tile>=MIN16) {
-       tool=t_recolor;
-       redraw=true;
-       }
-     if(isinRect(mouse_x,mouse_y,48,112,63,127) && tile>=MIN16) {
-       tool=t_select;
-       redraw=true;
-       }
-     bdown=true;
-     }
-
-   if(mouse_b&2 && !bdown) {
-     if(isinRect(mouse_x,mouse_y,80,32,206,158)) {
-       drawing=2;
-       for(int i=0; i<256; i++)
-         undotile[i]=tilebuf[(tile<<8)+i];
-       }
-     if(isinRect(mouse_x,mouse_y,104,176,135,207)) {
-       int x=(mouse_x-104)>>3;
-       int y=(mouse_y-176)>>3;
-       c2 = (y<<2)+x;
-       redraw=true;
-       }
-     bdown=true;
-     }
-
-   if(drawing && isinRect(mouse_x,mouse_y,80,32,206,158)) {
-     int x=(mouse_x-80)>>3;
-     int y=(mouse_y-32)>>3;
-
-     switch(tool) {
-     case t_pen:
-       if(tile>=MIN16) {
-         if(flip&1) x=15-x;
-         if(flip&2) y=15-y;
-         tilebuf[((y<<4)+x)+(tile<<8)]=(drawing==1)?c1:c2;
-         }
-       else {
-         int t=0;
-         if(x&8) t|=2;
-         if(y&8) t|=1;
-         x&=7;
-         y&=7;
-         if(flip&1) { x=7-x; t^=2; }
-         if(flip&2) { y=7-y; t^=1; }
-         t+=tile<<2;
-         tilebuf[((y<<3)+x)+(t<<6)]=(drawing==1)?c1:c2;
-         }
-       break;
-     case t_brush:
-       tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
-       drawing=0;
-       break;
-     case t_recolor:
-       tf_u = tilebuf[(tile<<8)+(y<<4)+x];
-       for(int i=0; i<256; i++) {
-         if(tilebuf[(tile<<8)+i]==tf_u)
-           tilebuf[(tile<<8)+i]=(drawing==1)?c1:c2;
-         }
-       drawing=0;
-       break;
-     }
-     redraw=true;
-   }
-
-   if(mouse_b==0) {
-     bdown=false;
-     drawing=0;
-     }
-
-   if(redraw)
-     draw_edit_scr(tile,flip,cs,oldtile);
-   else {
-     vsync();
-     scare_mouse();
-     update_tool_cursor();
-     unscare_mouse();
-     SCRFIX();
-     }
-
- } while(!done);
- while(mouse_b);
-
- if(done==1) {
-   for(int i=0; i<256; i++)
-     tilebuf[(tile<<8)+i]=oldtile[i];
-   }
- else {
-   usetiles=true;
-   saved=false;
-   }
- set_mouse_sprite(mouse_bmp[0]);
-}
-
-
-
-void draw_tiles(int first,int cs)
-{
- clear(screen2);
- for(int i=0; i<260; i++) // 13 rows, leaving 32 pixels from y=208 to y=239
-   puttile16(screen2,first+i,(i%20)<<4,(i/20)<<4,cs,0);
-
-}
-
-
-void tile_info_0(int tile,int flip,int cs,int copy)
-{
- rectfill(screen2,0,208,319,239,dvc(9));
- rect(screen2,0,208,319,239,vc(15));
- vline(screen2,288,209,238,vc(15));
- if(copy>=0)
-   puttile16(screen2,copy,8,216,cs,flip);
- else
-   rectfill(screen2,8,216,23,231,vc(1));
- puttile16(screen2,tile,32,216,cs,flip);
- text_mode(dvc(9));
- textprintf(screen2,font,56,216,vc(11),"tile: %-3d",tile);
- textprintf(screen2,font,56,224,vc(11),"flip: %d",flip);
- draw_button(screen2,140,216,60,16,"Edit",dvc(9),vc(14));
- draw_button(screen2,212,216,60,16,"Done",dvc(9),vc(14));
- vsync();
- scare_mouse();
- blit(screen2,screen,0,0,0,0,320,240);
- unscare_mouse();
- SCRFIX();
-}
-
-void tile_info_1(int oldtile,int oldflip,int tile,int flip,int cs,int copy)
-{
- rectfill(screen2,0,208,319,239,dvc(9));
- rect(screen2,0,208,319,239,vc(15));
- vline(screen2,288,209,238,vc(15));
- text_mode(dvc(9));
- textprintf(screen2,font,8,216,vc(11),"Old    tile: %-3d  New    tile: %-3d",oldtile,tile);
- textprintf(screen2,font,8,224,vc(11),"       flip: %d           flip: %d",oldflip,flip);
- if(copy>=0) {
-   puttile16(screen2,copy,160,216,cs,flip);
-   rectfill(screen2,152,216,159,223,dvc(9));
-   }
- puttile16(screen2,oldtile,40,216,cs,oldflip);
- puttile16(screen2,tile,184,216,cs,flip);
- vsync();
- scare_mouse();
- blit(screen2,screen,0,0,0,0,320,240);
- unscare_mouse();
- SCRFIX();
-}
-
-
-int tilesel_cs=6;
-
-int select_tile(int &tile,int &flip,int type)
-{
- bound(tile,0,599);
- int done=0;
- int cs = type==1 ? CSet : tilesel_cs;
- int oflip=flip;
- int otile=tile;
- int first=(tile/20-7)*20;
- int copy=-1;
- bound(first,0,340);
-
- go();
-
- draw_tiles(first,cs);
- if(type==0)
-   tile_info_0(tile,flip,cs,copy);
- else
-   tile_info_1(otile,oflip,tile,flip,cs,copy);
-
- while(mouse_b);
- bool bdown=false;
- int f=0;
-
- do {
-   bool redraw=false;
-
-   if(keypressed()) {
-     switch(readkey()>>8) {
-     case KEY_ENTER: done=2; break;
-     case KEY_ESC:   done=1; break;
-     case KEY_PLUS_PAD:  cs = (cs<11) ? cs+1:0;  redraw=true; break;
-     case KEY_MINUS_PAD: cs = (cs>0)  ? cs-1:11; redraw=true; break;
-     case KEY_UP:    if(first>0)  { first-=20; redraw=true; } break;
-     case KEY_DOWN:  if(first<340) { first+=20; redraw=true; } break;
-     case KEY_E:     edit_tile(tile,flip,cs); redraw=true; break;
-     case KEY_C:     copy=tile; redraw=true; break;
-     case KEY_H:     flip^=1; redraw=true; break;
-     case KEY_V:     if(copy==-1)
-                     { flip^=2;
-                       redraw=true;
-                       break;
-                     }
-                     for(int i=0; i<256; i++)
-                       tilebuf[(tile<<8)+i]=tilebuf[(copy<<8)+i];
-                     copy=-1; redraw=true;
-                     saved=false;
-                     usetiles=true;
-                     break;
-     }
-   }
-
-   if(mouse_y==0 && first>0 && !(f&3))   { first-=20; redraw=true; }
-   if(mouse_y>207 && mouse_x>287 && first<340 && !(f&3)) { first+=20; redraw=true; }
-
-   if(mouse_b&1) {
-     int x=mouse_x;
-     int y=mouse_y;
-     if(y<208)
-       tile=(y>>4)*20+(x>>4)+first;
-
-     if(type==1) {
-       if(!bdown && isinRect(x,y,40,216,63,231))
-         done=1;
-       if(!bdown && isinRect(x,y,184,216,199,231))
-         done=2;
-       }
-     else if(!bdown && isinRect(x,y,140,216,200,231)) {
-       if(do_button(140,216,60,16,"Edit",dvc(9),vc(14))) {
-         edit_tile(tile,flip,cs);
-         redraw=true;
-         }
-       }
-     else if(!bdown && isinRect(x,y,212,216,272,231))
-       if(do_button(212,216,60,16,"Done",dvc(9),vc(14)))
-         done=1;
-     bdown=true;
-     }
-
-   if(mouse_b==0)
-     bdown=false;
-
-   if(redraw)
-     draw_tiles(first,cs);
-   if(type==0)
-     tile_info_0(tile,flip,cs,copy);
-   else tile_info_1(otile,oflip,tile,flip,cs,copy);
-
-   if(f&8) {
-     int x=(tile%20)<<4;
-     int y=((tile-first)/20)<<4;
-     if(y>=0 && y<208) {
-       scare_mouse();
-       rect(screen,x,y,x+15,y+15,vc(15));
-       unscare_mouse();
-       SCRFIX();
-       }
-     }
-   f++;
-
- } while(!done);
-
- if(type==0)
-   tilesel_cs=cs;
- while(mouse_b);
- comeback();
- return done-1;
-}
-
-
-
-int onTiles()
-{
- int t=0,f=0;
- select_tile(t,f,0);
- refresh(rALL);
- return D_O_K;
-}
-
-
-
-void draw_combo(int x,int y,int c,int cs)
-{
-  if(c<512)
-    putcombo(screen2,x,y,(cs<<9)+c,0);
-  else
-    rectfill(screen2,x,y,x+15,y+15,0);
-}
-
-
-void draw_combos(int first,int cs,bool cols)
-{
- clear(screen2);
- if(cols==false) {
-   for(int i=0; i<260; i++) // 13 rows, leaving 32 pixels from y=208 to y=239
-     draw_combo((i%20)<<4,(i/20)<<4,i+first,cs);
-   }
- else {
-   int c = first/5;
-   for(int i=0; i<260; i++) {
-     draw_combo((i%20)<<4,(i/20)<<4,c,cs);
-     c++;
-     if((i&3)==3)
-       c+=100;
-     if((i%20)==19)
-       c-=516;
-     }
-   }
- for(int x=64; x<320; x+=64)
-   vline(screen2,x,0,207,vc(15));
-}
-
-
-void combo_info(int tile,int cs,int copy)
-{
- rectfill(screen2,0,208,319,239,dvc(9));
- rect(screen2,0,208,319,239,vc(15));
- vline(screen2,288,209,238,vc(15));
- if(copy>=0)
-   putcombo(screen2,8,216,(cs<<9)+copy,0);
- else
-   rectfill(screen2,8,216,23,231,vc(1));
- putcombo(screen2,32,216,(cs<<9)+tile,0);
- text_mode(dvc(9));
- textprintf(screen2,font,56,216,vc(11),"combo: %-3d",tile);
- draw_button(screen2,140,216,60,16,"Edit",dvc(9),vc(14));
- draw_button(screen2,212,216,60,16,"Done",dvc(9),vc(14));
- vsync();
- scare_mouse();
- blit(screen2,screen,0,0,0,0,320,240);
- unscare_mouse();
- SCRFIX();
-}
-
-word ctable[512],ctable2[512];
-
-int combo_screen()
-{
- int done=0;
- int cs = CSet;
- int first=0;
- int copy=-1;
- int tile=0;
- bool cols=false;
- bound(first,0,340);
-
- for(word i=0; i<512; i++)
-   ctable[i]=i;
-
- go();
- draw_combos(first,cs,cols);
- combo_info(tile,cs,copy);
- while(mouse_b);
- bool bdown=false;
- int f=0;
-
- do {
-   bool redraw=false;
-
-   if(keypressed()) {
-     switch(readkey()>>8) {
-     case KEY_ENTER: done=2; break;
-     case KEY_ESC:   done=1; break;
-     case KEY_SPACE: cols=!cols; redraw=true; break;
-     case KEY_PLUS_PAD:  cs = (cs<5) ? cs+1:0;  redraw=true; break;
-     case KEY_MINUS_PAD: cs = (cs>0)  ? cs-1:5; redraw=true; break;
-     case KEY_UP:    if(first>0)  { first-=20; redraw=true; } break;
-     case KEY_DOWN:  if(first<260) { first+=20; redraw=true; } break;
-//     case KEY_E:     edit_tile(tile,flip,cs); redraw=true; break;
-     case KEY_C:     copy=tile; redraw=true; break;
-
-     case KEY_V:     if(copy>=0) {
-                       combo hold = combobuf[copy];
-                       word  thold = ctable[copy];
-
-                       if(tile==copy) { }
-                       else if(tile<copy) {
-                         for(int i=copy; i>tile; i--) {
-                           combobuf[i] = combobuf[i-1];
-                           ctable[i] = ctable[i-1];
-                           }
-                         combobuf[tile] = hold;
-                         ctable[tile] = thold;
-                         }
-                       else {
-                         for(int i=copy; i<tile; i++) {
-                           combobuf[i] = combobuf[i+1];
-                           ctable[i] = ctable[i+1];
-                           }
-                         combobuf[tile] = hold;
-                         ctable[tile] = thold;
-                         }
-
-                       copy=-1;
-                       redraw=true;
-                       saved=false;
-                       }
-                     break;
-
-     case KEY_S:     if(copy>=0) {
-                       swap(combobuf[copy],combobuf[tile]);
-                       swap(ctable[copy],ctable[tile]);
-                       copy=-1;
-                       redraw=true;
-                       saved=false;
-                       }
-                     break;
-     case KEY_R:     if(copy>=0) {
-                       combobuf[tile]=combobuf[copy];
-                       copy=-1;
-                       redraw=true;
-                       saved=false;
-                       }
-                     break;
-     }
-   }
-
-   if(mouse_y==0 && first>0 && !(f&3))   { first-=20; redraw=true; }
-   if(mouse_y>207 && mouse_x>287 && first<260 && !(f&3)) { first+=20; redraw=true; }
-
-   if(mouse_b&1) {
-     int x=mouse_x;
-     int y=mouse_y;
-     if(y<208) {
-       if(!cols) {
-         tile=(y>>4)*20+(x>>4)+first;
-         }
-       else {
-         tile=((x>>6)*104)+((x>>4)&3)+((y>>4)<<2) + first/5;
-         }
-       bound(tile,0,511);
-       }
-
-     if(!bdown && isinRect(x,y,140,216,200,231)) {
-       if(do_button(140,216,60,16,"Edit",dvc(9),vc(14))) {
-//         edit_tile(tile,flip,cs);
-         redraw=true;
-         }
-       }
-     else if(!bdown && isinRect(x,y,212,216,272,231))
-       if(do_button(212,216,60,16,"Done",dvc(9),vc(14)))
-         done=1;
-     bdown=true;
-     }
-
-   if(mouse_b==0)
-     bdown=false;
-
-   if(redraw)
-     draw_combos(first,cs,cols);
-   combo_info(tile,cs,copy);
-
-   if(f&8) {
-     int x,y;
-     if(!cols) {
-       x=(tile%20)<<4;
-       y=((tile-first)/20)<<4;
-       }
-     else {
-       x=((tile&3) + ((tile/104)<<2) ) << 4;
-       y=( ((tile%104)>>2) - first/20 ) << 4;
-       }
-     if(y>=0 && y<208) {
-       scare_mouse();
-       rect(screen,x,y,x+15,y+15,vc(15));
-       unscare_mouse();
-       SCRFIX();
-       }
-     }
-   f++;
-
- } while(!done);
-
- for(int i=0; i<512; i++) {
-   int pos=0;
-   for(int j=0; j<512; j++)
-     if(ctable[j]==i)
-       pos=j;
-   ctable2[i]=pos;
-   }
-
- for(int s=0; s<=TEMPLATE; s++)
-   for(int i=0; i<176; i++) {
-     int oc = TheMaps[s].data[i]&0x01FF;
-     TheMaps[s].data[i]&=0xFE00;
-     TheMaps[s].data[i]|=ctable2[oc]&0x1FF;
-     }
-
- while(mouse_b);
- comeback();
- return done-1;
-}
-
-
-
-int onCombos()
-{
- combo_screen();
- refresh(rALL);
- return D_O_K;
-}
-
-
-int d_ctile_proc(int msg,DIALOG *d,int c)
-{
- if(msg==MSG_CLICK) {
-   int t=curr_combo.tile;
-   int f=curr_combo.flip;
-   if(select_tile(t,f,1)) {
-     curr_combo.tile=t;
-     curr_combo.flip=f;
-     return D_REDRAW;
-     }
-   }
- return D_O_K;
-}
-
-int d_combo_loader(int msg,DIALOG *d,int c)
-{
- if(msg==MSG_DRAW)
-   putcombo(combo_bmp,curr_combo,0,0,0,CSet,0);
- return D_O_K;
-}
-
-
-char *combotypelist(int index, int *list_size)
-{
- if(index>=0) {
-   if(index>=MAXCOMBOTYPES)
-    index=MAXCOMBOTYPES-1;
-   return combotype_string[index];
-   }
- *list_size=MAXCOMBOTYPES;
- return NULL;
-}
-
-static DIALOG combo_dlg[] =
-{
- /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
- { d_shadow_box_proc, 64,   48,   192,  152,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
- { d_combo_loader },
-// 2
- { d_bitmap_proc,     96,   72,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
- { d_button_proc,     90,   176,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
- { d_button_proc,     170,  176,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
- { d_button_proc,     170,  72,   60,   16,   vc(14),  vc(1),  'd',     D_EXIT,     0,             0,       "Delete" },
-// 6
- { d_wflag_proc,      128,  72,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
- { d_wflag_proc,      128,  80,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
- { d_wflag_proc,      136,  72,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
- { d_wflag_proc,      136,  80,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
-// 10
- { d_ctile_proc,      96,   72,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
- { d_ctext_proc,      160,  56,   128,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Edit Combo" },
- { d_text_proc,       72,   96,   48,   8,    vc(11),  vc(1),  0,       0,          0,             0,       "Type:" },
- { d_droplist_proc,   120,  94,   120,  11,   vc(14),  vc(1),  0,       0,          0,             0,       "Edit Combo" },
-
- { NULL }
-};
-
-
-
-void edit_combo(int c)
-{
- curr_combo = combobuf[c];
-
- combo_dlg[2].dp=combo_bmp;
- for(int i=0; i<4; i++)
-   combo_dlg[i+6].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
-
- combo_dlg[13].d1 = curr_combo.type;
- combo_dlg[13].dp = combotypelist;
-
- int ret=popup_dialog(combo_dlg,-1);
- refresh(rALL);
-
- if(ret==5)
-   if(alert("Delete combo?", NULL, NULL, "&Yes", "&No", 'y', 'n') == 1) {
-     saved=false;
-     curr_combo.tile =
-     curr_combo.flip =
-     curr_combo.walk =
-     curr_combo.type =
-     curr_combo.attr = 0;
-     for(int i=0; i<5; i++)
-       curr_combo.e[i] = 0;
-     combobuf[c] = curr_combo;
-     }
-
- if(ret==3) {
-   saved=false;
-   for(int i=0; i<4; i++) {
-     if(combo_dlg[i+6].flags & D_SELECTED)
-       curr_combo.walk |= 1<<i;
-     else
-       curr_combo.walk &= ~(1<<i);
-     }
-   curr_combo.type = combo_dlg[13].d1;
-   combobuf[c] = curr_combo;
-   }
- refresh(rALL);
-}
-
+#include "zq_tiles.cc" // tile and combo code
 
 
 
@@ -3764,8 +1054,10 @@ void domouse()
      peek(((y&0xF0)-16)+(x>>4));
    if(x>=256 && y>=16) {
      select_combo();
-     if(mouse_x>=256 && mouse_y>=16)
-       edit_combo(((mouse_y&0xF0)>>2)-4+((mouse_x-256)>>4)+First);
+     if(mouse_x>=256 && mouse_y>=16) {
+       edit_combo(((mouse_y&0xF0)>>2)-4+((mouse_x-256)>>4)+First,true);
+       refresh(rALL);
+       }
      }
    }
  if(redraw)
@@ -3878,11 +1170,13 @@ static DIALOG under_dlg[] =
  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
  { d_shadow_box_proc, 72,   60,   176,  120,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
  { d_ctext_proc,      160,  68,   128,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Under Combo TM" },
- { d_bitmap_proc,     114,  92,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
- { d_bitmap_proc,     194,  92,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
+ { d_bitmap_proc,     114,  94,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
+ { d_bitmap_proc,     194,  94,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
  { d_button_proc,     90,   124,  60,   16,   vc(14),  vc(1),  's',     D_EXIT,     0,             0,       "&Set" },
  { d_button_proc,     170,  124,  60,   16,   vc(14),  vc(1),  'c',     D_EXIT,     0,             0,       "&Cancel" },
- { d_button_proc,     90,   152,  60,   16,   vc(12),  vc(1),  'a',     D_EXIT,     0,             0,       "Set &All" },
+ { d_button_proc,     90,   152,  60,   16,   vc(14),  vc(1),  'a',     D_EXIT,     0,             0,       "Set &All" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       onHelp },
+ { d_text_proc,       110,  84,   128,  8,    vc(11),  vc(1),  0,       0,          0,             0,       "New     Current" },
  { NULL }
 };
 
@@ -3904,7 +1198,7 @@ int onUnderCombo()
    saved=false;
    Map.CurrScr()->under = (CSet<<9)+Combo;
    }
- if(ret==6 && alert("Really set all of them?",NULL,NULL,"&Yes","&No",'y','n')==1) {
+ if(ret==6 && alert("Set all under combos","on this map?",NULL,"&Yes","&No",'y','n')==1) {
    saved=false;
    for(int i=0; i<128; i++)
      Map.Scr(i)->under = (CSet<<9)+Combo;
@@ -4054,9 +1348,11 @@ static DIALOG scrflags_dlg[] =
  { d_check_proc,      82,   128,  160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Ocean surf SFX    " },
  { d_check_proc,      82,   136,  160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Secret SFX        " },
  { d_check_proc,      82,   144,  160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Roar=Gasp style   " },
-// 12
+ { d_check_proc,      82,   144,  160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Floating Traps    " },
+// 13
  { d_button_proc,     90,   156,  60,   16,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       "O&K" },
  { d_button_proc,     170,  156,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -4070,8 +1366,9 @@ int onScrFlags()
    }
  scrflags_dlg[10].flags = Map.CurrScr()->flags2&16?D_SELECTED:0;
  scrflags_dlg[11].flags = Map.CurrScr()->flags2&32?D_SELECTED:0;
+ scrflags_dlg[12].flags = Map.CurrScr()->flags2&64?D_SELECTED:0;
 
- if(popup_dialog(scrflags_dlg,-1)==12) {
+ if(popup_dialog(scrflags_dlg,-1)==13) {
    f=0;
    for(int i=7; i>=0; i--) {
      f<<=1;
@@ -4081,6 +1378,7 @@ int onScrFlags()
    Map.CurrScr()->flags2 &= 0xCF;
    Map.CurrScr()->flags2 |= scrflags_dlg[10].flags?16:0;
    Map.CurrScr()->flags2 |= scrflags_dlg[11].flags?32:0;
+   Map.CurrScr()->flags2 |= scrflags_dlg[12].flags?64:0;
    refresh(rMAP+rSCRMAP+rMENU);
    }
  return D_O_K;
@@ -4392,6 +1690,7 @@ static DIALOG editmsg_dlg[] =
  { d_button_proc,     90,   140,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
  { d_button_proc,     170,  140,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
  { d_text_proc,       64,   90,   192,  8,    vc(9),   vc(1),  0,       0,          0,             0,       "123456789  ++  987654321" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -4475,6 +1774,124 @@ int onStrings()
    }
  return D_O_K;
 }
+
+
+
+
+/**********************************/
+//        Triforce Pieces         //
+/**********************************/
+
+
+static byte triframe_points[9*4] =
+{
+  0,2,2,0,  2,0,4,2,  0,2,4,2,  1,1,3,1,  2,0,2,2,
+  1,1,1,2,  1,1,2,2,  3,1,3,2,  3,1,2,2
+};
+
+
+int d_tri_frame_proc(int msg,DIALOG *d,int c)
+{
+  if(msg==MSG_DRAW)
+  {
+    int x[5],y[3];
+    x[0]=d->x;
+    x[1]=d->x+(d->w>>2);
+    x[2]=d->x+(d->w>>1);
+    x[3]=d->x+(d->w>>1)+(d->w>>2);
+    x[4]=d->x+d->w;
+    y[0]=d->y;
+    y[1]=d->y+(d->h>>1);
+    y[2]=d->y+d->h;
+
+    byte *p = triframe_points;
+    for(int i=0; i<9; i++)
+    {
+      line(screen,x[*p],y[*(p+1)],x[*(p+2)],y[*(p+3)],d->fg);
+      p+=4;
+    }
+  }
+  return D_O_K;
+}
+
+
+int d_tri_edit_proc(int msg,DIALOG *d,int c)
+{
+  d_button_proc(msg,d,c);
+  if(msg==MSG_CLICK)
+  {
+    int v = getnumber("Piece Number",d->d1);
+    scare_mouse();
+    if(v>=0)
+    {
+      bound(v,1,8);
+      if(v!=d->d1)
+      {
+        DIALOG *tp = d - d->d2;
+        for(int i=0; i<8; i++)
+        {
+          if(tp->d1==v)
+          {
+            tp->d1 = d->d1;
+            ((char*)(tp->dp))[0] = d->d1+'0';
+            d_button_proc(MSG_DRAW,tp,0);
+          }
+          tp++;
+        }
+        d->d1 = v;
+        ((char*)(d->dp))[0] = v+'0';
+      }
+    }
+    d->flags = 0;
+    d_button_proc(MSG_DRAW,d,0);
+    unscare_mouse();
+  }
+  return D_O_K;
+}
+
+
+
+static DIALOG tp_dlg[] =
+{
+ /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+ { d_shadow_box_proc, 56,   32,   208,  160,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
+ { d_ctext_proc,      160,  40,   152,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Triforce Pieces" },
+ { d_tri_frame_proc,  64,   56,   192,  96,   vc(11),  vc(1),  0,       0,          0,             0,       NULL },
+// 3
+ { d_tri_edit_proc,   138,  82,   16,   16,   vc(14),  vc(1),  0,       0,          0,             0,       "1" },
+ { d_tri_edit_proc,   166,  82,   16,   16,   vc(14),  vc(1),  0,       0,          0,             1,       "2" },
+ { d_tri_edit_proc,   90,   130,  16,   16,   vc(14),  vc(1),  0,       0,          0,             2,       "3" },
+ { d_tri_edit_proc,   214,  130,  16,   16,   vc(14),  vc(1),  0,       0,          0,             3,       "4" },
+// 7
+ { d_tri_edit_proc,   138,  110,  16,   16,   vc(14),  vc(1),  0,       0,          0,             4,       "5" },
+ { d_tri_edit_proc,   118,  130,  16,   16,   vc(14),  vc(1),  0,       0,          0,             5,       "6" },
+ { d_tri_edit_proc,   166,  110,  16,   16,   vc(14),  vc(1),  0,       0,          0,             6,       "7" },
+ { d_tri_edit_proc,   186,  130,  16,   16,   vc(14),  vc(1),  0,       0,          0,             7,       "8" },
+// 11
+ { d_button_proc,     90,   166,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
+ { d_button_proc,     170,  166,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { NULL }
+};
+
+
+
+int onTriPieces()
+{
+  for(int i=0; i<8; i++)
+  {
+    tp_dlg[i+3].d1 = misc.triforce[i];
+    ((char*)(tp_dlg[i+3].dp))[0] = misc.triforce[i]+'0';
+  }
+
+  if(popup_dialog(tp_dlg,-1) == 11)
+  {
+    saved=false;
+    for(int i=0; i<8; i++)
+      misc.triforce[i] = tp_dlg[i+3].d1;
+  }
+  return D_O_K;
+}
+
 
 
 
@@ -4743,6 +2160,7 @@ static DIALOG editdmap_dlg[] =
  { d_hexedit_proc,    168,  104,  72,   8,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
  { d_text_proc,       160,  56,   48,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Type" },
  { d_droplist_proc,   192,  54,   64,   11,   vc(14),  vc(1),  0,       0,          1,             0,       typelist },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -4871,6 +2289,7 @@ static DIALOG editmidi_dlg[] =
 // 26
  { d_button_proc,     90,   160,  60,   16,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       "O&K" },
  { d_button_proc,     170,  160,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -4952,6 +2371,14 @@ void edit_midi(int i)
           destroy_midi(midi);
         if(!(midi=load_midi(temppath)))
           alert("Error loading MIDI:",temppath,NULL,"Dang",NULL,13,27);
+        else
+        {
+          char *t = get_filename(temppath);
+          int i=0;
+          for( ; i<16 && t[i]!=0 && t[i]!='.'; i++)
+            title[i]=t[i];
+          title[i]=0;
+        }
         get_midi_info(midi,&Midi_Info);
       }
       break;
@@ -5163,6 +2590,7 @@ static DIALOG warp_dlg[] =
  { d_button_proc,     70,   160,  40,   16,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       "O&K" },
  { d_button_proc,     130,  160,  40,   16,   vc(14),  vc(1),  'g',     D_EXIT,     0,             0,       "&Go" },
  { d_button_proc,     190,  160,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -5326,6 +2754,7 @@ static DIALOG path_dlg[] =
  { d_droplist_proc,   140,  140,  80,   11,   vc(14),  vc(1),  0,       0,          0,             0,       dirlist },
  { d_button_proc,     90,   156,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
  { d_button_proc,     170,  156,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -5565,7 +2994,7 @@ int d_warplist_proc(int msg,DIALOG *d,int c)
 int d_wclist_proc(int msg,DIALOG *d,int c)
 {
  int d1 = d->d1;
- int ret = d_list_proc(msg,d,c);
+ int ret = d_droplist_proc(msg,d,c);
  misc.warp[curr_ring].size=d->d1+3;
  if(d->d1 != d1)
    return D_CLOSE;
@@ -5601,6 +3030,7 @@ static DIALOG warpring_dlg[] =
  { d_warplist_proc,   80,   80,   64,   67,   vc(14),  vc(1),  0,       D_EXIT,     0,             0,       numberlist, NULL, warpringdmapxy },
  { d_button_proc,     90,   160,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "Edit" },
  { d_button_proc,     170,  160,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Done" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -5642,14 +3072,14 @@ void EditWarpRing(int ring)
 
 int onWarpRings()
 {
-  number_list_size = 16;
+  number_list_size = 8;
   number_list_zero = true;
 
   int index = select_data("Warp Rings",0,numberlist,"Edit","Done");
 
   while(index!=-1) {
     EditWarpRing(index);
-    number_list_size = 16;
+    number_list_size = 8;
     number_list_zero = true;
     index = select_data("Warp Rings",index,numberlist,"Edit","Done");
     }
@@ -5718,6 +3148,7 @@ static DIALOG enemyflags_dlg[] =
 // 10
  { d_button_proc,     90,   144,  60,   16,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       "O&K" },
  { d_button_proc,     170,  144,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -5754,14 +3185,95 @@ char *enemy_viewer(int index, int *list_size)
 }
 
 
+
+typedef struct enemy_struct {
+  char *s;
+  int i;
+} enemy_struct;
+
+enemy_struct bie[eMAXGUYS];
+enemy_struct ce[100];
+int enemy_type=0,bie_cnt=-1,ce_cnt;
+
+
+void build_bie_list()
+{
+  bie[0].s = "(none)";
+  bie[0].i = 0;
+  bie_cnt=1;
+
+  for(int i=10; i<eMAXGUYS; i++)
+  {
+    if(guy_string[i][0]!='-')
+    {
+      bie[bie_cnt].s = guy_string[i];
+      bie[bie_cnt].i = i;
+      bie_cnt++;
+    }
+  }
+
+  for(int i=0; i<bie_cnt-1; i++)
+    for(int j=i+1; j<bie_cnt; j++)
+      if(strcmp(bie[i].s,bie[j].s)>0)
+        swap(bie[i],bie[j]);
+
+/*
+  FILE *f = fopen("enemies.txt","w");
+
+  fprintf(f,"bie_cnt: %d\n",bie_cnt);
+  for(int i=0; i<bie_cnt; i++)
+    fprintf(f,"%-3d %s\n",bie[i].i,bie[i].s);
+
+  fclose(f);
+*/
+}
+
+
 char *enemylist(int index, int *list_size)
 {
  if(index<0) {
-   *list_size=eMAXGUYS-9;
+   *list_size = enemy_type ? ce_cnt : bie_cnt;
    return NULL;
    }
- return index ? guy_string[index+9] : "(none)";
+ return enemy_type ? ce[index].s : bie[index].s;
 }
+
+
+static DIALOG elist_dlg[] =
+{
+ /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+ { d_shadow_box_proc, 60,   40,   200,  144,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
+ { d_ctext_proc,      160,  47,   152,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
+ { d_abclist_proc,    72,   60,   176,  92,   vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
+ { d_button_proc,     90,   160,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
+ { d_button_proc,     170,  160,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { NULL }
+};
+
+
+
+int select_enemy(char *prompt,int enemy)
+{
+ if(bie_cnt==-1)
+   build_bie_list();
+
+ int index=0;
+
+ for(int j=0; j<bie_cnt; j++)
+   if(bie[j].i == enemy)
+     index=j;
+
+ elist_dlg[1].dp=prompt;
+ elist_dlg[2].d1=index;
+ elist_dlg[2].dp=enemylist;
+
+ if(popup_dialog(elist_dlg,2)==4)
+   return -1;
+
+ index = elist_dlg[2].d1;
+ return bie[index].i;
+}
+
 
 
 unsigned char check[2] = { ';'+128,0 };
@@ -5783,6 +3295,7 @@ static DIALOG enemy_dlg[] =
  { d_button_proc,     228,  178,  40,   16,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       "O&K" },
  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      27,      0,          0,             0,       close_dlg },
  { d_text_proc,       52,   240,  8,    8,    vc(14),  vc(1),  0,       0,          0,             0,       check },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -5813,13 +3326,10 @@ int onEnemies()
    case 2: {
      int i = enemy_dlg[2].d1;
      int enemy = Map.CurrScr()->enemy[i];
-     if(enemy>9)
-       enemy-=9;
-     else enemy=0;
-     enemy = select_data("Select Enemy",enemy,enemylist);
+     enemy = select_enemy("Select Enemy",enemy);
      if(enemy>=0) {
        saved=false;
-       Map.CurrScr()->enemy[i] = enemy?enemy+9:0;
+       Map.CurrScr()->enemy[i] = enemy;
        }
      } break;
    case 3:
@@ -5870,26 +3380,27 @@ int d_showedit_proc(int msg,DIALOG *d,int c)
 static DIALOG header_dlg[] =
 {
  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
- { d_shadow_box_proc, 64,   24,   192,  200,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
- { d_ctext_proc,      160,  32,   152,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Quest Header" },
- { d_text_proc,       76,   48,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Zelda Version:" },
- { d_text_proc,       192,  48,   96,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL },
+ { d_shadow_box_proc, 64,   32,   192,  176,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
+ { d_ctext_proc,      160,  40,   152,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Quest Header" },
+ { d_text_proc,       76,   56,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Zelda Version:" },
+ { d_text_proc,       192,  56,   96,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL },
  { d_text_proc,       76,   64,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Password:" },
  { d_edit_proc,       152,  64,   96,   8,    vc(12),  vc(1),  0,       0,          24,            0,       password },
- { d_text_proc,       76,   80,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Quest Number:" },
- { d_edit_proc,       184,  80,   32,   8,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
- { d_text_proc,       76,   96,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Quest Version:" },
- { d_edit_proc,       192,  96,   56,   8,    vc(12),  vc(1),  0,       0,          8,             0,       NULL },
+ { d_text_proc,       76,   72,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Quest Number:" },
+ { d_edit_proc,       184,  72,   32,   8,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+ { d_text_proc,       76,   80,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Quest Version:" },
+ { d_edit_proc,       192,  80,   56,   8,    vc(12),  vc(1),  0,       0,          8,             0,       NULL },
 // 10
- { d_text_proc,       76,   112,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Title:" },
- { d_showedit_proc,   128,  112,  104,  8,    vc(12),  vc(1),  0,       0,          64,            0,       title },
- { d_textbox_proc,    88,   121,  144,  24,   vc(11),  vc(1),  0,       0,          64,            0,       title },
- { d_text_proc,       76,   152,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Author:" },
- { d_showedit_proc,   136,  152,  96,   8,    vc(12),  vc(1),  0,       0,          64,            0,       author },
- { d_textbox_proc,    88,   161,  144,  24,   vc(11),  vc(1),  0,       0,          64,            0,       author },
+ { d_text_proc,       76,   96,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Title:" },
+ { d_showedit_proc,   128,  96,   104,  8,    vc(12),  vc(1),  0,       0,          64,            0,       title },
+ { d_textbox_proc,    88,   105,  144,  24,   vc(11),  vc(1),  0,       0,          64,            0,       title },
+ { d_text_proc,       76,   136,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       "Author:" },
+ { d_showedit_proc,   136,  136,  96,   8,    vc(12),  vc(1),  0,       0,          64,            0,       author },
+ { d_textbox_proc,    88,   145,  144,  24,   vc(11),  vc(1),  0,       0,          64,            0,       author },
 // 16
- { d_button_proc,     90,   196,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
- { d_button_proc,     170,  196,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_button_proc,     90,   180,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
+ { d_button_proc,     170,  180,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
@@ -5925,30 +3436,35 @@ int onHeader()
 
 
 
-static DIALOG data_dlg[] =
+static DIALOG rules_dlg[] =
 {
  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
- { d_shadow_box_proc, 64,   24,   192,  184,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
- { d_ctext_proc,      160,  32,   152,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Quest Data" },
+ { d_shadow_box_proc, 56,   24,   208,  184,  vc(14),  vc(1),  0,       0,          0,             0,       NULL },
+ { d_ctext_proc,      160,  32,   152,  8,    vc(15),  vc(1),  0,       0,          0,             0,       "Quest Rules" },
 // 2
- { d_check_proc,      80,   48,   160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Tiles" },
-// 3
+ { d_check_proc,      70,   50,   160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Solid Blocks         " },
+ { d_check_proc,      70,   60,   160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "TmpNoRet disabled    " },
+ { d_check_proc,      70,   70,   160,  8,    vc(14),  vc(1),  0,       0,          0,             0,       "Multi-Dir Traps      " },
+// 5
  { d_button_proc,     90,   180,  60,   16,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       "OK" },
  { d_button_proc,     170,  180,  60,   16,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       "Cancel" },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       onHelp },
  { NULL }
 };
 
 
-int onData()
+int onRules()
 {
-  data_dlg[2].flags = header.data_flags[0] ? D_SELECTED : 0;
+  for(int i=0; i<qrMAX; i++)
+    rules_dlg[i+2].flags = get_bit(header.rules,i) ? D_SELECTED : 0;
 
-  int ret=popup_dialog(data_dlg,-1);
+  int ret=popup_dialog(rules_dlg,-1);
 
-  if(ret==3)
+  if(ret==5)
   {
     saved=false;
-    header.data_flags[0] = data_dlg[2].flags ? 1 : 0;
+    for(int i=0; i<qrMAX; i++)
+      set_bit(header.rules,i,rules_dlg[i+2].flags);
   }
 
   return D_O_K;
@@ -6512,7 +4028,7 @@ int EditColors(char *caption,int first,int count,byte *label)
 
     colors_dlg[20].flags = D_DISABLED;
     struct ffblk f;
-    if(findfirst(imagepath,&f,0)==0)
+    if(findfirst(imagepath,&f,0)==0 && filetype(imagepath)==ftBMP)
       colors_dlg[20].flags = D_EXIT;
 
     DIALOG_PLAYER *p = init_dialog(colors_dlg,2);
@@ -6643,13 +4159,45 @@ int onColors_Sprites()
 }
 
 
-
 int onMapColors()
 {
 
+ return D_O_K;
+}
+
+
+
+/********************/
+/******  Help  ******/
+/********************/
+
+
+
+static DIALOG help_dlg[] =
+{
+ /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
+ { d_textbox_proc,    -1,   -1,   321,  241,  vc(7),   vc(0),  0,       0,          0,        0,        NULL },
+ { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC,  close_dlg },
+ { NULL }
+};
+
+
+
+
+int onHelp()
+{
+ help_dlg[0].dp = helpbuf;
+
+ FONT *oldfont = font;
+ font = (FONT*)data[FONT_6x6].dat;
+
+ popup_dialog(help_dlg,0);
+
+ font=oldfont;
 
  return D_O_K;
 }
+
 
 
 
@@ -6706,6 +4254,23 @@ int main(int argc,char **argv)
    return 1;
    }
 
+ int helpsize = file_size("zquest.txt");
+ if(helpsize==0) {
+   allegro_exit();
+   printf("ZQuest.txt not found\n");
+   return 1;
+   }
+
+ helpbuf = (char*)malloc(helpsize+1);
+ if(!helpbuf) {
+   allegro_exit();
+   printf("Sheesh! Couldn't allocate help buffer\n");
+   return 1;
+   }
+
+ readfile("zquest.txt",helpbuf,helpsize);
+ helpbuf[helpsize]=0;
+
  filepath[0]=temppath[0]=0;
  strcpy(datapath,get_config_string("zquest","fp_data",""));
  strcpy(midipath,get_config_string("zquest","fp_midi",""));
@@ -6715,6 +4280,8 @@ int main(int argc,char **argv)
    resolve_password(zquestpwd);
    debug = !strcmp(zquestpwd,get_config_string("zquest","debug",""));
  }
+
+ build_bie_list();
 
  if(!used_switch(argc,argv,"-s"))
    if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL)) {

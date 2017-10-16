@@ -9,12 +9,12 @@
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
-#define ZELDA_VERSION  0x0100
-#define MIN_VERSION    0x0100
-#define DATA_VERSION   0x0099
+#define ZELDA_VERSION  0x0150
+#define MIN_VERSION    0x0150
+#define DATA_VERSION   0x0100
 
 #define QUEST_COUNT  3
-short min_version[QUEST_COUNT] = { 0x0100, 0x0100, 0x0100 };
+short min_version[QUEST_COUNT] = { 0x0150, 0x0150, 0x0150 };
 
 
 #ifndef byte
@@ -61,6 +61,8 @@ int CSET_SIZE = 16;     // this is only changed to 4 in the NES title screen
 int CSET_SHFT = 4;      // log2 of CSET_SIZE
 #define CSET(x)         ((x)<<CSET_SHFT)
 #define csBOSS          14
+
+
 
 
 // lvlitems flags
@@ -116,6 +118,7 @@ int CSET_SHFT = 4;      // log2 of CSET_SIZE
 #define wfRIGHT         8
 #define fSECRET         16    // play "secret" sfx upon entering this screen
 #define fVADER          32    // play "vader" sfx instead of "roar" sfx
+#define fFLOATTRAPS     64
 
 
 // enemy flags
@@ -156,6 +159,9 @@ enum { mf0, mfPUSH2, mfPUSH4, mfBURN, mfBURN_S, mfBOMB, mfBOMB_C,
 enum { cNONE, cSTAIR, cCAVE, cWATER, cARMOS, cGRAVE, cDOCK,
        cUNDEF, cPUSH_WAIT, cPUSH_HEAVY, cPUSH_HW, cL_STATUE, cR_STATUE,
        cMAX };
+
+// quest rules flags (bit numbers in bit string)
+enum { qrSOLIDBLK, qrNOTMPNORET, qrMEANTRAPS, qrMAX };
 
 
 // room types
@@ -200,10 +206,22 @@ enum { gABEI=1,gAMA,gDUDE,gMOBLIN,gFIRE,
        eDIG1,eDIG3,eRGOHMA,eBGOHMA,eRCENT,
 /*60*/ eBCENT,ePATRA1,ePATRA2,eGANON,
                                       eSTALFOS2,
-       eROPE2,eRBUBBLE,eBBUBBLE,eGLEEOK5,eGLEEOK6,
-       eGLEEOK7,eGLEEOK8,
+       eROPE2,eRBUBBLE,eBBUBBLE,eFBALL,eITEMFAIRY,
+/*70*/ eFIRE,eMAXGUYS };
 
-       eMAXGUYS,eFBALL,eITEMFAIRY,eFIRE };
+
+
+typedef struct custGuy {
+  byte  family;
+  byte  cset,spritepal;
+  byte  dp,wdp;
+  byte  hrate,step,weapon;
+  byte  grumble,item_set,frate;
+  byte  foo[5];
+  short hp;
+  word  f[7];
+  byte  extra[8];
+} custGuy;
 
 
 
@@ -233,6 +251,16 @@ typedef struct combo {
 } combo;
 
 
+typedef struct newcombo {
+  word tile;
+  byte flip;
+  byte walk;
+  byte type;
+  byte attr;
+  word e;
+} newcombo;
+
+
 #define QH_IDSTR "AG Zelda Classic Quest File\n "
 
 typedef struct zquestheader {
@@ -240,11 +268,11 @@ typedef struct zquestheader {
  short zelda_version;
  short internal;
  byte  quest_number;
- char  foo[2];        // unused
+ byte  rules[2];
  char  map_count;
  char  str_count;
  byte  data_flags[ZQ_MAXDATA];
- char  foo2[3];       // unused
+ char  foo[3]; // unused
  char  version[9];
  char  title[65];
  char  author[65];
@@ -318,7 +346,8 @@ typedef struct zcolors {
 typedef struct miscQdata {
  shoptype shop[16];
  infotype info[16];
- warpring warp[16];
+ warpring warp[8];
+ byte     foo[8*18];
  windwarp wind[9];      // destination of whirlwind for each level
  byte     triforce[8];  // positions of triforce pieces on subscreen
  zcolors  colors;

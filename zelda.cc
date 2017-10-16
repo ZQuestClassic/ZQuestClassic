@@ -14,7 +14,6 @@
 #include <ctype.h>
 #include <allegro.h>
 
-
 BEGIN_GFX_DRIVER_LIST
  GFX_DRIVER_VESA3
  GFX_DRIVER_VESA2L
@@ -27,6 +26,12 @@ DECLARE_COLOR_DEPTH_LIST(COLOR_DEPTH_8);
 
 
 int db=0;
+
+
+extern "C" {
+char * getcwd(char *_buf, size_t _size);
+}
+
 
 
 /**********************************/
@@ -59,14 +64,15 @@ bool Vsync, Paused=false, Advance=false, ShowFPS=false, Showpal=false, Playing;
 bool refreshpal,blockpath,wand_dead,debug=false,loaded_guys,freeze_guys,
      loaded_enemies,drawguys,details=false,DXtitle,debug_enabled,watch;
 bool darkroom=false;
-bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,SystemKeys=true;
+bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,SystemKeys=true,NESquit;
 short visited[6];
 byte guygrid[176];
-LinkClass link;
 movingblock mblock[4];
 mapscr tmpscr[2];
 gamedata game;
 char sig_str[44];
+
+LinkClass link;
 
 int VidMode,resx,resy,scrx,scry;
 bool sbig; // big screen
@@ -104,7 +110,6 @@ volatile int myvsync=0;
 #include "gui.cc"
 
 
-
 /**********************************/
 /******** System functions ********/
 /**********************************/
@@ -124,11 +129,22 @@ void load_game_configs()
  pan_style = get_config_int(cfg_sect,"pan",1);
  Vsync = (bool)get_config_int(cfg_sect,"vsync",1);
  ShowFPS = (bool)get_config_int(cfg_sect,"showfps",0);
+ NESquit = (bool)get_config_int(cfg_sect,"NESquit",0);
  DXtitle = (bool)get_config_int(cfg_sect,"title",1);
  VidMode = get_config_int(cfg_sect,"mode",GFX_AUTODETECT);
  resx = get_config_int(cfg_sect,"resx",320);
  resy = get_config_int(cfg_sect,"resy",240);
  sbig = get_config_int(cfg_sect,"sbig",0);
+ strcpy(qstpath,get_config_string(cfg_sect,"qst_dir",""));
+ if(strlen(qstpath)==0)
+ {
+   getcwd(qstpath,280);
+   fix_filename_case(qstpath);
+   fix_filename_slashes(qstpath);
+   put_backslash(qstpath);
+ }
+ else
+   chop_path(qstpath);
 }
 
 void save_game_configs()
@@ -144,11 +160,14 @@ void save_game_configs()
  set_config_int(cfg_sect,"pan",pan_style);
  set_config_int(cfg_sect,"vsync",(int)Vsync);
  set_config_int(cfg_sect,"showfps",(int)ShowFPS);
+ set_config_int(cfg_sect,"NESquit",(int)NESquit);
  set_config_int(cfg_sect,"title",(int)DXtitle);
  set_config_int(cfg_sect,"mode",VidMode);
  set_config_int(cfg_sect,"resx",resx);
  set_config_int(cfg_sect,"resy",resy);
  set_config_int(cfg_sect,"sbig",sbig);
+ chop_path(qstpath);
+ set_config_string(cfg_sect,"qst_dir",qstpath);
 }
 
 void fps_callback()
@@ -166,6 +185,20 @@ void myvsync_callback()
 END_OF_FUNCTION(myvsync_callback);
 
 
+
+void go()
+{
+  scare_mouse();
+  blit(screen,tmp_scr,scrx,scry,0,0,320,240);
+  unscare_mouse();
+}
+
+void comeback()
+{
+  scare_mouse();
+  blit(tmp_scr,screen,0,0,scrx,scry,320,240);
+  unscare_mouse();
+}
 
 void dump_pal()
 {
@@ -414,7 +447,6 @@ void syskeys()
   if(ReadKey(KEY_F2))    ShowFPS=!ShowFPS;
   if(ReadKey(KEY_F3) && Playing)    Paused=!Paused;
   if(ReadKey(KEY_F4) && Playing)  { Paused=true; Advance=true; }
-//  if(ReadKey(KEY_F5))    f_Save();
   if(ReadKey(KEY_F6))    f_Quit(qQUIT);
   if(ReadKey(KEY_F7))    f_Quit(qRESET);
   if(ReadKey(KEY_F8))    f_Quit(qEXIT);
@@ -583,6 +615,12 @@ int onEsc()
 int onVsync()
 {
   Vsync = !Vsync;
+  return D_O_K;
+}
+
+int onNESquit()
+{
+  NESquit = !NESquit;
   return D_O_K;
 }
 
@@ -952,9 +990,7 @@ static DIALOG credits_dlg[] =
 
 int onCredits()
 {
-  scare_mouse();
-  blit(screen,tmp_scr,scrx,scry,0,0,320,240);
-  unscare_mouse();
+  go();
 
   BITMAP *win = create_bitmap(222,110);
   if(!win)
@@ -1010,10 +1046,7 @@ int onCredits()
 
   shutdown_dialog(p);
   destroy_bitmap(win);
-
-  scare_mouse();
-  blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-  unscare_mouse();
+  comeback();
   return D_O_K;
 }
 
@@ -1143,16 +1176,11 @@ void fix_dialog(DIALOG *d)
 }
 
 
-
 int PopUp_dialog(DIALOG *d,int f)
 {
-  scare_mouse();
-  blit(screen,tmp_scr,scrx,scry,0,0,320,240);
-  unscare_mouse();
+  go();
   int ret=do_dialog(d,f);
-  scare_mouse();
-  blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-  unscare_mouse();
+  comeback();
   return ret;
 }
 
@@ -1402,15 +1430,25 @@ int onMaxBombs()
 int onRefill() { game.life = game.maxlife; return D_O_K; }
 int onClock()  { link.setClock(!link.getClock()); return D_O_K; }
 
+
+int onQstPath()
+{
+  chop_path(qstpath);
+  go();
+  file_select("Zelda Classic Quest Files (.qst)",qstpath,"qst");
+  comeback();
+  chop_path(qstpath);
+  return D_O_K;
+}
+
 static MENU game_menu[] =
 { 
    { "&Continue\tESC",       onContinue,  NULL },
    { "" },
-//   { "&Save\tF5",           onSave,      NULL },
-   { "&Quit\tF6",           onQuit,      NULL },
+   { "&Quit\tF6",            onQuit,      NULL },
    { "" },
-   { "&Reset\tF7",          onReset,     NULL },
-   { "E&xit\tF8",           onExit,      NULL },
+   { "&Reset\tF7",           onReset,     NULL },
+   { "E&xit\tF8",            onExit,      NULL },
    { NULL }
 };
 
@@ -1432,6 +1470,7 @@ static MENU settings_menu[] =
    { "" },
    { "&Vsync\tF1",           onVsync,     NULL },
    { "Show &FPS\tF2",        onShowFPS,   NULL },
+   { "NES &Quit",            onNESquit,   NULL },
    { NULL }
 };
 
@@ -1443,6 +1482,8 @@ static MENU misc_menu[] =
    { "&MIDI Info...",        onMIDICredits, NULL },
    { "&Quest Info...",       onQuest,     NULL },
    { "&Video Mode...",       onVidMode,   NULL },
+   { "" },
+   { "Quest &Dir...",        onQstPath,   NULL },
    { "" },
    { "Take &Snapshot\tF12",  onSnapshot,  NULL },
    { NULL }
@@ -1584,6 +1625,7 @@ void System()
 
   misc_menu[3].flags =
   game_menu[2].flags = Playing ? 0 : D_DISABLED;
+  misc_menu[6].flags = !Playing ? 0 : D_DISABLED;
 
   clear_keybuf();
   show_mouse(screen);
@@ -1598,6 +1640,7 @@ void System()
 
     settings_menu[5].flags = Vsync?D_SELECTED:0;
     settings_menu[6].flags = ShowFPS?D_SELECTED:0;
+    settings_menu[7].flags = NESquit?D_SELECTED:0;
 
     if(debug_enabled) {
       debug_menu[0].flags = debug?D_SELECTED:0;
@@ -2006,21 +2049,18 @@ int init_game()
 
   // copy saved data to RAM data
   game = saves[currgame];
-/*
-  for(unsigned i=0; i<sizeof(gamedata)/sizeof(int); i++)
-    ((int*)(&game))[i] = ((int*)(saves+currgame))[i];
-*/
 
   // load quest
+  chop_path(qstpath);
+
   int ret;
-  char path[80];
   if(game.quest<255) {
-    sprintf(path,"%s.qst",ordinal(game.quest));
-    ret = loadquest(path,&QHeader,&QMisc,tunes+MUSIC_COUNT);
+    sprintf(qstpath,"%s%s.qst",qstpath,ordinal(game.quest));
+    ret = loadquest(qstpath,&QHeader,&QMisc,tunes+MUSIC_COUNT);
     }
   else {
-    sprintf(path,"%s",get_filename(game.qstpath));
-    ret = loadquest(game.qstpath,&QHeader,&QMisc,tunes+MUSIC_COUNT);
+    sprintf(qstpath,"%s%s",qstpath,get_filename(game.qstpath));
+    ret = loadquest(qstpath,&QHeader,&QMisc,tunes+MUSIC_COUNT);
     }
 
   if(!game.title[0] || !game.hasplayed)
@@ -2036,18 +2076,12 @@ int init_game()
 
   if(ret) {
     system_pal();
-    char buf1[40],buf2[40],buf3[40];
-    sprintf(buf1,"Error loading %s:",path);
+    char buf1[40],buf2[40];
+
+    sprintf(buf1,"Error loading %s:",get_filename(qstpath));
     sprintf(buf2,"%s",qst_error[ret]);
-    if(ret==1 && game.quest==0xFF)
-      alert(buf1,buf2,game.qstpath,"OK",NULL,13,27);
-    else {
-      if(ret==3 || ret==4)
-        sprintf(buf3,"%s",VerStr(QHeader.zelda_version));
-      else
-        buf3[0]=NULL;
-      alert(buf1,buf2,buf3,"OK",NULL,13,27);
-      }
+    alert(buf1,buf2,qstpath,"OK",NULL,13,27);
+
     Quit=qERROR;
     return 1;
     }
@@ -2262,6 +2296,7 @@ void fix_dialogs()
   fix_dialog(gamemode_dlg);
   fix_dialog(getnum_dlg);
   fix_dialog(credits_dlg);
+  fix_dialog(midi_dlg);
 
   digi_dp[1] += scrx;
   digi_dp[2] += scry;
@@ -2300,7 +2335,8 @@ int main(int argc, char* argv[])
 
   // allocate quest data buffers
   printf("Allocating quest data buffers... ");
-  if(!get_qst_buffers()) {
+  qstpath = (char*)malloc(280);
+  if(!qstpath || !get_qst_buffers()) {
     printf("Error\n");
     return 1;
     }

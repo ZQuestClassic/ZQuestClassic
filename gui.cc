@@ -106,5 +106,42 @@ int d_droplist_proc(int msg,DIALOG *d,int c)
 
 
 
+/*****************************************/
+/************  ABC list proc  ************/
+/*****************************************/
+
+
+int d_abclist_proc(int msg,DIALOG *d,int c)
+{
+  if(msg==MSG_CHAR && isalpha(c&0xFF))
+  {
+    int max,dummy,h;
+    h = (d->h-3) / text_height(font);
+
+    (*(getfuncptr)d->dp)(-1, &max);
+    c&=0xDF;
+
+    for(int i=0; i<max; i++)
+    {
+      if(((((*(getfuncptr)d->dp)(i,&dummy))[0])&0xDF)==c)
+      {
+        d->d1 = i;
+        d->d2 = vbound(i-(h>>1),0,max-h);
+        goto gotit;
+      }
+    }
+
+    gotit:
+    scare_mouse();
+    d_list_proc(MSG_DRAW,d,0);
+    unscare_mouse();
+    return D_USED_CHAR;
+  }
+
+  return d_list_proc(msg,d,c);
+}
+
+
+
 
 /* end of gui.cc */

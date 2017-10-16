@@ -70,6 +70,12 @@ inline bool tooclose(int x,int y,int d)
   return (abs(int(LinkX())-x)<d && abs(int(LinkY())-y)<d);
 }
 
+
+
+
+
+
+
 /**********************************/
 /*******  Enemy Base Class  *******/
 /**********************************/
@@ -80,13 +86,14 @@ public:
   int  clk2,clk3,stunclk,hclk,sclk;
   int  hp,dp,wdp,frate,fading,misc;
   fix  step;
-  byte movestatus,item_set;
+  byte movestatus,item_set,grumble;
   bool superman,mainguy,leader,itemguy,bhit,count_enemy,dying,scored;
 
   enemy(fix X,fix Y,int Id,int Clk) : sprite()
   {
     x=X; y=Y; id=Id; clk=Clk;
-    movestatus=fading=misc=clk2=clk3=stunclk=hclk=sclk=0;
+    fading=misc=clk2=clk3=stunclk=hclk=sclk=0;
+    grumble=movestatus=0;
     item_set=1;
     yofs=54;
     hp=1;
@@ -538,16 +545,43 @@ public:
   // changes enemy's direction, checking restrictions
   // rate:   0 = no random changes, 16 = always random change
   // homing: 0 = none, 256 = always
+  // grumble 0 = none, 4 = strongest appetite
   void newdir(int rate,int homing,int special)
   {
     int ndir;
-    if((rand()&255)<homing) {
-      ndir = lined_up(8);
-      if(ndir>=0 && canmove(ndir,special)) {
-        dir=ndir;
-        return;
+    if(grumble && (rand()&3)<grumble)
+    {
+      int w = Lwpns.idFirst(wBait);
+      if(w>=0)
+      {
+        int bx = Lwpns.spr(w)->x;
+        int by = Lwpns.spr(w)->y;
+        if(abs(int(y)-by)>14)
+        {
+          ndir = (by<y) ? up : down;
+          if(canmove(ndir,special))
+          {
+            dir=ndir;
+            return;
+          }
+        }
+        ndir = (bx<x) ? left : right;
+        if(canmove(ndir,special))
+        {
+          dir=ndir;
+          return;
         }
       }
+    }
+    if((rand()&255)<homing)
+    {
+      ndir = lined_up(8);
+      if(ndir>=0 && canmove(ndir,special))
+      {
+        dir=ndir;
+        return;
+      }
+    }
     do {
       int r=rand();
       if((r&15)<rate)
@@ -1594,8 +1628,12 @@ public:
 
   bool trapmove(int ndir)
   {
-    if(QHeader.quest_number==0)
+    if(get_bit(QHeader.rules,qrMEANTRAPS))
+    {
+      if(tmpscr[0].flags2&fFLOATTRAPS)
+        return canmove(ndir,1,spw_floater);
       return canmove(ndir,1,spw_water);
+    }
 
     if(homey==80 && ndir<left)
       return false;
@@ -1812,7 +1850,7 @@ public:
     else
     {
       halting_walk(4,128,0,4,48);
-      if(clk2==16 && sclk==0 && !stunclk)
+      if(clk2==16 && sclk==0 && !stunclk && !watch)
         Ewpns.add(new weapon(x,y,ewSword,0,wdp,dir));
       if(clk2==1 && !doubleshot && !(rand()&15)) {
         newdir(4,128,0);
@@ -2211,10 +2249,12 @@ public:
   {
     hp=dp=wdp=1;
     cs=8;
+    grumble=1;
     if(id==eBOCTO1 || id==eBOCTO2)
     {
       hp=2; cs=7;
       item_set=isBOMBS;
+      grumble=2;
     }
     if(id==eROCTO2 || id==eBOCTO2)
       step=1.0;
@@ -2228,7 +2268,7 @@ public:
     if(dying)
       return Dead();
     halting_walk(2+(4*step),128*step,0,(id==eBOCTO1 || id==eBOCTO2)?5:3,48);
-    if(clk2==16 && sclk==0 && !stunclk)
+    if(clk2==16 && sclk==0 && !stunclk && !watch)
       Ewpns.add(new weapon(x,y,ewRock,0,wdp,dir));
     return enemy::animate(index);
   }
@@ -2255,10 +2295,12 @@ public:
   {
     dp=wdp=1;
     hp=2; cs=8;
+    grumble=3;
     if(id==eBMOLBLIN)
     {
       hp=3; cs=9;
       item_set=isBOMBS;
+      grumble=4;
     }
     frate=12;
     step=0.5;
@@ -2269,7 +2311,7 @@ public:
     if(dying)
       return Dead();
     halting_walk((id==eBMOLBLIN)?8:5,128,0,(id==eBMOLBLIN)?6:4,48);
-    if(clk2==16 && sclk==0 && !stunclk)
+    if(clk2==16 && sclk==0 && !stunclk && !watch)
       Ewpns.add(new weapon(x,y,ewArrow,3,wdp,dir));
     if(clk2==1 && id==eBMOLBLIN && !doubleshot && !(rand()&15)) {
       newdir(8,128,0);
@@ -2317,7 +2359,7 @@ public:
     if(dying)
       return Dead();
     halting_walk(6,128,0,4,48);
-    if(clk2==16 && sclk==0 && !stunclk)
+    if(clk2==16 && sclk==0 && !stunclk && !watch)
       Ewpns.add(new weapon(x,y,ewSword,0,wdp,dir));
     if(clk2==1 && !doubleshot && !(rand()&15)) {
       newdir(6,128,0);
@@ -2349,6 +2391,7 @@ public:
     dp=1; wdp=2;
     hp=3; cs=8;
     item_set=isBOMBS;
+    grumble=4;
     if(id==eBGORIYA)
     {
       hp=5; cs=7; dp=2;
@@ -2368,8 +2411,8 @@ public:
     }
     if(!WeaponOut())
     {
-      halting_walk(6,128,0,(id==eRGORIYA)?3:4,48);
-      if(clk2==16 && sclk==0 && !stunclk)
+      halting_walk(6,128,0,(id==eRGORIYA)?5:6,48);
+      if(clk2==16 && sclk==0 && !stunclk && !watch)
       {
         misc=index+100;
         Ewpns.add(new weapon(x,y,ewBrang,misc,wdp,dir));
@@ -3805,7 +3848,8 @@ public:
     xofs=0;
     yofs=56;
     tile=145;
-    sprite::draw(dest);
+    if(hp>0)
+      sprite::draw(dest);
   }
 };
 
@@ -4304,10 +4348,6 @@ void addenemy(int x,int y,int id,int clk)
  case eGLEEOK2:   e = new eGleeok(x,y,id,2); break;
  case eGLEEOK3:   e = new eGleeok(x,y,id,3); break;
  case eGLEEOK4:   e = new eGleeok(x,y,id,4); break;
- case eGLEEOK5:   e = new eGleeok(x,y,id,5); break;
- case eGLEEOK6:   e = new eGleeok(x,y,id,6); break;
- case eGLEEOK7:   e = new eGleeok(x,y,id,7); break;
- case eGLEEOK8:   e = new eGleeok(x,y,id,8); break;
  case eDIG1:
  case eDIG3:      e = new eBigDig(x,y,id,clk); break;
  case eRGOHMA:
@@ -4345,10 +4385,6 @@ void addenemy(int x,int y,int id,int clk)
      guys.add(new esManhandla(x,y,id+0x1000,i));
    break;
 
- case eGLEEOK8: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
- case eGLEEOK7: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
- case eGLEEOK6: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
- case eGLEEOK5: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
  case eGLEEOK4: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
  case eGLEEOK3: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
  case eGLEEOK2: guys.add(new esGleeok(x,y,id+0x1000,c)); c-=48;
@@ -4486,10 +4522,6 @@ bool hasBoss()
   case eGLEEOK2:
   case eGLEEOK3:
   case eGLEEOK4:
-  case eGLEEOK5:
-  case eGLEEOK6:
-  case eGLEEOK7:
-  case eGLEEOK8:
   case eMOLDORM:
   case eMANHAN:
   case eRCENT:
@@ -4542,10 +4574,6 @@ bool ok2add(int id)
  case eGLEEOK2:
  case eGLEEOK3:
  case eGLEEOK4:
- case eGLEEOK5:
- case eGLEEOK6:
- case eGLEEOK7:
- case eGLEEOK8:
  case eMOLDORM:
  case eMANHAN:
  case eAQUAM:
@@ -4557,7 +4585,7 @@ bool ok2add(int id)
  case ePATRA2:
    return !getmapflag(mfNEVERRET);
  }
- if(QHeader.quest_number==1 || QHeader.quest_number==2)
+ if(!get_bit(QHeader.rules,qrNOTMPNORET))
    return !getmapflag(mfTMPNORET);
  return true;
 }
@@ -4858,6 +4886,10 @@ void moneysign()
 
 void putprices(bool sign)
 {
+ // refresh what's under the prices
+ for(int i=5; i<12; i++)
+   putcombo(scrollbuf,i<<4,112,tmpscr[0].data[112+i]);
+
  int step=32;
  int x=80;
  if(prices[2]==0)

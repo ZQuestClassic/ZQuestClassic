@@ -231,19 +231,19 @@ int loadquest(char *filename, zquestheader *header,
  if(header->zelda_version > ZELDA_VERSION)
    return qe_version;
 
- #ifndef _ZQUEST_
  // minimum zquest version allowed for any quest file
  if(header->zelda_version < MIN_VERSION)
    return qe_obsolete;
 
+ #ifndef _ZQUEST_
  // individual minimum version for the specific quest (optional)
  int qnum = header->quest_number;
  if(qnum < QUEST_COUNT && header->zelda_version < min_version[qnum])
    return qe_obsolete;
+ #endif
 
  if(strcmp(header->id_str,QH_IDSTR))
    return qe_invalid;
- #endif
 
  return qe_OK;
 }

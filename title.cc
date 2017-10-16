@@ -540,6 +540,16 @@ int load_savedgames()
   {
     if(!pfread(saves,sizeof(gamedata)*MAXSAVES,f))
       goto reset;
+
+    if(buf[1] < 0x0102) // below v1.02
+    {
+      char path[260];
+      for(int i=0; i<MAXSAVES; i++)
+      {
+        strcpy(path,saves[i].qstpath);  // trim dir off the quest file name
+        strcpy(saves[i].qstpath,get_filename(path));
+      }
+    }
   }
 
   pack_fclose(f);
@@ -933,6 +943,14 @@ int custom_game()
 }
 
 
+void chop_path(char *path)
+{
+  int p = strlen(path);
+  int f = strlen(get_filename(path));
+  if(f<p)
+    path[p-f]=0;
+}
+
 
 int game_details(int file)
 {
@@ -981,12 +999,11 @@ int game_details(int file)
       return 1;
       }
     if(!saves[file].hasplayed && rAbtn()) {
-      if(qstpath==NULL)
-        qstpath=(char*)malloc(280);
-      strncpy(qstpath,saves[file].qstpath,259);
+      chop_path(qstpath);
+      sprintf(qstpath,"%s%s",qstpath,saves[file].qstpath);
       if(custom_game()) {
         saves[file].quest=0xFF;
-        strncpy(saves[file].qstpath,qstpath,259);
+        strncpy(saves[file].qstpath,get_filename(qstpath),259);
         return 0;
         }
       }
@@ -1112,6 +1129,8 @@ void titlescreen()
 
 void game_over()
 {
+  kill_sfx();
+  stop_midi();
   clear(screen);
   loadfullpal();
   if(Quit==qGAMEOVER)

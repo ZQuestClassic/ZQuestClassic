@@ -322,7 +322,7 @@ music tunes[MAXMUSIC] = {
  // (title)             (s) (ls) (le) (l) (vol) (midi)
  { "Z1 Dungeon",         0,  -1,  -1,  1,  168,  NULL },
  { "Z1 Ending",          0,  129, 225, 1,  132,  NULL },
- { "Z1 Game Over",       0,  -1,  -1,  1,  144,  NULL },
+ { "Z1 Game Over",       0,  -1,  -1,  1,  176,  NULL },
  { "Z1 Level 9",         0,  -1,  -1,  1,  255,  NULL },
  { "Z1 Overworld",       0,  17,  -1,  1,  200,  NULL },
  { "Z1 Title",           0,  -1,  -1,  0,  160,  NULL },

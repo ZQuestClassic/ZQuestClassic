@@ -226,12 +226,6 @@ void puttile16(BITMAP* dest,int tile,int x,int y,byte cset,int flip)
     return;
     }
 
-  #ifdef _ZQUEST_
-  if(tile<MIN16 && !temptile) {
-    putblock(dest,tile<<2,x,y,cset,flip,15);
-    return;
-    }
-  #endif
 
   cset <<= CSET_SHFT;
   dword lcset = (cset<<24)+(cset<<16)+(cset<<8)+cset;
@@ -294,13 +288,6 @@ void overtile16(BITMAP* dest,int tile,int x,int y,byte cset,int flip)
     rectfill(dest,x,y,x+15,y+15,0);
     return;
     }
-
-  #ifdef _ZQUEST_
-  if(tile<MIN16 && !temptile) {
-    overblock(dest,tile<<2,x,y,cset,flip,15);
-    return;
-    }
-  #endif
 
   cset <<= CSET_SHFT;
   byte *si = tilebuf+(tile<<8);

@@ -132,6 +132,7 @@ void ending()
   {
     if(!(f&15))
     {
+      text_mode(0);
       int y=(f>>1)+224;
       if(y>240 && y<584)
       {

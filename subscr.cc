@@ -191,9 +191,11 @@ void puttriframe(BITMAP *dest)
  hline(dest,95,144,160,QMisc.colors.triframe);
 
  for(int i=0; i<8; i++)
-   if(game.lvlitems[i+1]&liTRIFORCE) {
-     overtile16(dest,38,tripiece[i*3],tripiece[i*3+1],1,tripiece[i*3+2]);
-     }
+   if(game.lvlitems[i+1]&liTRIFORCE)
+   {
+     int tp = QMisc.triforce[i]-1;
+     overtile16(dest,38,tripiece[tp*3],tripiece[tp*3+1],1,tripiece[tp*3+2]);
+   }
 }
 
 
@@ -355,6 +357,8 @@ do {
   blit(scrollbuf,framebuf,0,48,0,48,256,48);
   overtile16(framebuf,39,(Bpos&3)*24+128,((Bpos>>2)<<4)+48,((frame&8)>>3)+7,0);
   advanceframe();
+  if(NESquit && Up() && cAbtn() && cBbtn())
+    Quit=qQUIT;
   if(Quit)
     return;
   if(rSbtn())

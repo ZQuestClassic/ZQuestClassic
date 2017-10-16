@@ -276,7 +276,7 @@ void LinkClass::checkstab()
     if(guys.spr(i)->hit(wx,wy,wxsz,wysz) || (attack==wWand && guys.spr(i)->hit(x,y-8,16,24)))
     {
       int h = hit_enemy(i,attack,(attack==wSword) ? (1<<(game.sword-1)) : 2, wx,wy,dir);
-      if(h>0 && hclk==0)
+      if(h>0 && hclk==0 && !inlikelike)
       {
         if(GuyHit(i,x+7,y+7,2,2)!=-1)
           hitlink(i);
@@ -1068,26 +1068,36 @@ bool LinkClass::walkflag(int wx,int wy,int cnt,byte d)
    return true;
 
  bool wf = _walkflag(wx,wy,cnt);
- if(ladderx+laddery) {
-  // same direction
-  if((d&2)==ladderdir) {
-    if(ladderdir==up) {
+ if(ladderx+laddery)
+ {
+  if((d&2)==ladderdir) // same direction
+  {
+    switch(d)
+    {
+    case up:
+      if(int(y)<=laddery)
+      {
+        return _walkflag(ladderx,laddery-8,1) ||
+               _walkflag(ladderx+8,laddery-8,1);
+      }
+      // no break
+    case down:
       if((wy&0xF0)==laddery)
         return false;
-      }
-    else
+      break;
+
+    default:
       if((wx&0xF0)==ladderx)
         return false;
-    if(d==up && y<laddery)
-      return _walkflag(ladderx,(int(y)&0xF0)+8,1) ||
-             _walkflag(ladderx+8,(int(y)&0xF0)+8,1);
+    }
+
     if(d<=down)
       return _walkflag(ladderx,wy,1) || _walkflag(ladderx+8,wy,1);
     return _walkflag((wx&0xF8),wy,1) && _walkflag((wx&0xF8)+8,wy,1);
-    }
+  }
   // different dir
   return true;
-  }
+ }
  else if(wf) {
   if(iswater(MAPCOMBO(wx,wy)) || (d<=down && iswater(MAPCOMBO(x+8,wy))) ) {
     if(game.misc&iLADDER && (dungeon() || tmpscr[0].flags&fLADDER)) {
@@ -1118,12 +1128,12 @@ void LinkClass::checkpushblock()
  if(y<16) return;
 
  int bx = int(x)&0xF0;
- int by = int(y)&0xF0;
+ int by = (int(y)&0xF0);
  switch(dir) {
   case up: break;
   case down:  by+=16; break;
-  case left:  bx-=16; break;
-  case right: bx+=16; break;
+  case left:  bx-=16; if(int(y)&8) by+=16; break;
+  case right: bx+=16; if(int(y)&8) by+=16; break;
   }
 
  int f = MAPFLAG(bx,by);
@@ -1137,12 +1147,14 @@ void LinkClass::checkpushblock()
  if((f==mfPUSH2 && dir<=down) || f==mfPUSH4)
    doit=true;
 
- switch(dir) {
-  case up:    if(_walkflag(bx,by-8,2))    doit=false; break;
-  case down:  if(_walkflag(bx,by+24,2))   doit=false; break;
-  case left:  if(_walkflag(bx-16,by+8,2)) doit=false; break;
-  case right: if(_walkflag(bx+16,by+8,2)) doit=false; break;
-  }
+ if(get_bit(QHeader.rules,qrSOLIDBLK)) {
+   switch(dir) {
+   case up:    if(_walkflag(bx,by-8,2))    doit=false; break;
+   case down:  if(_walkflag(bx,by+24,2))   doit=false; break;
+   case left:  if(_walkflag(bx-16,by+8,2)) doit=false; break;
+   case right: if(_walkflag(bx+16,by+8,2)) doit=false; break;
+   }
+ }
 
  if(doit) {
    for(int i=0; i<4; i++)
