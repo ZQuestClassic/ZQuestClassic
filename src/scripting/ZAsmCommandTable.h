@@ -1,4 +1,5 @@
 // The number of defined commands.
+// TODO: Make automatic somehow?
 #ifndef ZASM_COMMAND_COUNT
 #define ZASM_COMMAND_COUNT 325
 #endif
@@ -11,7 +12,9 @@
 // - ArgLabel :: Takes a label.
 // Third argument is the internal command id.
 // Fourth argument is the short, all-cap name for the command.
+//
 // Make sure to update ZASM_COMMAND_COUNT if changed.
+//
 #ifndef ZASM_COMMAND_TABLE
 #define ZASM_COMMAND_TABLE \
 	COMMAND(	ArgRegister,	ArgValue,   	0,		SETV							) \

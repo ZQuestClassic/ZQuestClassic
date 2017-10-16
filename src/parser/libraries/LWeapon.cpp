@@ -86,7 +86,7 @@ void LWeapon::addTo(Scope& scope) const
     // void lweapon->UseSprite(float spriteId)
 	defineFunction(
 			lh, tVoid, "UseSprite",
-			P() /* this */ << tFloat,
+			P() /* this   */ << tFloat,
 			R() << varExp2() << varExp1(),
 			O() << opSETR(refVar, varExp2())
 			    << opLWPNUSESPRITER(varExp1()));

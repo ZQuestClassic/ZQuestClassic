@@ -8531,7 +8531,7 @@ int run_script(const byte type, const word script, const byte i)
         start_time = script_counter;
 #endif
 #endif
-        
+        // Doc Label: RUN_SCRIPT_GIANT_SWITCH
         switch (scommand)
         {
         case CmdId_QUIT:
