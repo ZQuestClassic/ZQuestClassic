@@ -224,6 +224,11 @@ extern bool standalone_mode;
 extern char *standalone_quest;
 extern bool skip_title;
 
+extern int draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 
+extern int draw_screen_clip_rect_x2;
+extern int draw_screen_clip_rect_y1;
+extern int draw_screen_clip_rect_y2;
+
 /*
 extern tiledata *newtilebuf, *grabtilebuf;
 extern newcombo *combobuf;

@@ -32,10 +32,7 @@
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
-extern int draw_screen_clip_rect_x1;
-extern int draw_screen_clip_rect_x2;
-extern int draw_screen_clip_rect_y1;
-extern int draw_screen_clip_rect_y2;
+
 //extern bool draw_screen_clip_rect_show_link;
 //extern bool draw_screen_clip_rect_show_guys;
 
