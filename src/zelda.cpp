@@ -110,6 +110,12 @@ int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
 void playLevelMusic();
 
+//Prevent restarting during ending sequence from creating a rect clip
+int draw_screen_clip_rect_x1=0;
+int draw_screen_clip_rect_x2=255;
+int draw_screen_clip_rect_y1=0;
+int draw_screen_clip_rect_y2=223;
+
 volatile int logic_counter=0;
 bool trip=false;
 void update_logic_counter()
@@ -1206,7 +1212,11 @@ int init_game()
 {
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
-    
+	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
+	draw_screen_clip_rect_x2=255;
+	draw_screen_clip_rect_y1=0;
+	draw_screen_clip_rect_y2=223;	
+	
 //Some initialising globals
     didpit=false;
     Link.unfreeze();
