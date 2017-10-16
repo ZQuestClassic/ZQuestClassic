@@ -12354,9 +12354,9 @@ int LinkClass::lookahead(int d2)                       // Helper for scrollscr t
     
 	int cx = x;
     int cy = y + 8;
-	bound(cx, 0, 240);
-	bound(cy, 0, 160);
-    
+	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
     switch(d2)
     {
     case up:
@@ -12392,6 +12392,11 @@ int LinkClass::lookaheadflag(int d2)
     
     int cx = x;
     int cy = y + 8;
+	
+	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
+	//Applying this here, too. -Z
     
     switch(d2)
     {
