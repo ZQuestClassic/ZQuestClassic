@@ -1,0 +1,205 @@
+-include makefile.inc
+
+AUDIO_LIBS = -lalspc -lalogg -lalmp3 -laldmb -ldumb
+
+#LINKOPTS = -pg -g
+#OPTS = -pg -g
+OPTS = -O3
+COMPRESS = 1
+
+ifdef COMPILE_FOR_WIN
+  ALLEG_LIB = -lalleg
+  SFLAG = -s
+  WINFLAG = -mwindows
+  MUSIC_WINFLAG = -DZCM_DLL
+  MUSIC_DLL = zcmusic.dll
+  MUSIC_LIB = lib$(MUSIC_DLL).a
+  PLATEXT = -w
+  EXEEXT = .exe
+  AUDIO_LIB = -L. -l$(MUSIC_DLL)
+  ZC_ICON = zc_icon$(PLATEXT).o
+  ZQ_ICON = zq_icon$(PLATEXT).o
+  ZC_PLATFORM = Windows
+  MUSIC_FILES = zcmusic$(PLATEXT).o zcmusicd$(PLATEXT).o zcmusic.def
+else
+ifdef COMPILE_FOR_LINUX
+  PLATEXT = -l
+  ALLEG_LIB = `allegro-config --libs`
+  MUSIC_WINFLAG = $(WINFLAG)
+  AUDIO_LIB = $(AUDIO_LIBS)
+  ZCMUSIC_O = zcmusic.o
+  ZC_PLATFORM = Linux
+else
+ifdef COMPILE_FOR_DOS
+  ALLEG_LIB = -lalleg
+  MUSIC_WINFLAG = $(WINFLAG)
+  AUDIO_LIB = $(AUDIO_LIBS)
+  STDCXX_LIB = -lstdcxx
+  ZCMUSIC_O = zcmusic.o
+  EXEEXT = .exe
+  ZC_PLATFORM = DOS
+endif
+endif
+endif
+
+ZELDA_EXE = zelda$(PLATEXT)$(EXEEXT)
+ZQUEST_EXE = zquest$(PLATEXT)$(EXEEXT)
+
+ZELDA_OBJECTS = aglogo$(PLATEXT).o colors$(PLATEXT).o debug$(PLATEXT).o decorations$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o ending$(PLATEXT).o gui$(PLATEXT).o guys$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o link$(PLATEXT).o maps$(PLATEXT).o matrix$(PLATEXT).o midi$(PLATEXT).o pal$(PLATEXT).o qst$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o title$(PLATEXT).o weapons$(PLATEXT).o zc_custom$(PLATEXT).o zc_items$(PLATEXT).o zc_sprite$(PLATEXT).o zc_sys$(PLATEXT).o zelda$(PLATEXT).o zsys$(PLATEXT).o $(ZC_ICON)
+ZQUEST_OBJECTS = colors$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o gui$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o load_gif$(PLATEXT).o midi$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o zc_custom$(PLATEXT).o zcmusicd$(PLATEXT).o zq_class$(PLATEXT).o zq_custom$(PLATEXT).o zq_files$(PLATEXT).o zq_items$(PLATEXT).o zq_misc$(PLATEXT).o zq_sprite$(PLATEXT).o zq_tiles$(PLATEXT).o zquest$(PLATEXT).o zsys$(PLATEXT).o $(ZQ_ICON)
+
+.PHONY: default veryclean clean all msg dos win windows linux test done
+
+default: all
+msg:
+	@echo Compiling Zelda Classic for $(ZC_PLATFORM)...
+done:
+	@echo Done!
+clean:
+	rm -f $(ZELDA_OBJECTS) $(ZCMUSIC_O) $(ZQUEST_OBJECTS)
+veryclean: clean
+	rm -f $(ZELDA_EXE) $(ZQUEST_EXE) $(MUSIC_DLL) $(MUSIC_LIB)
+
+test:
+ifndef COMPILE_FOR_WIN
+ifndef COMPILE_FOR_DOS
+ifndef COMPILE_FOR_LINUX
+	#change this if you want to change the default platform
+	@make win
+endif
+endif
+endif
+
+
+dos:
+	@echo COMPILE_FOR_DOS=1 > makefile.inc
+	@make
+windows: win
+win:
+	@echo COMPILE_FOR_WIN=1 > makefile.inc
+	@make
+linux:
+	@echo COMPILE_FOR_LINUX=1 > makefile.inc
+	@make
+
+all: test msg $(MUSIC_DLL) $(ZELDA_EXE) $(ZQUEST_EXE) done
+
+$(ZELDA_EXE): $(ZELDA_OBJECTS) $(ZCMUSIC_O) $(MUSIC_LIB) $(MUSIC_DLL)
+	g++ $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(ZCMUSIC_O) $(AUDIO_LIB) $(ALLEG_LIB) $(STDCXX_LIB) $(ZC_ICON) $(SFLAG) $(WINFLAG)
+ifdef COMPRESS
+	upx --best $(ZELDA_EXE)
+endif
+$(ZQUEST_EXE): $(ZQUEST_OBJECTS) zquest.dat
+	g++ $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(ZCMUSICD_O) $(ALLEG_LIB) $(STDCXX_LIB) $(ZQ_ICON) $(SFLAG) $(WINFLAG)
+	exedat $(ZQUEST_EXE) zquest.dat
+ifdef COMPRESS
+	upx --best $(ZQUEST_EXE)
+endif
+$(MUSIC_DLL): $(MUSIC_FILES)
+	@make music
+$(MUSIC_LIB): $(MUSIC_FILES)
+	@make music
+music: $(MUSIC_FILES)
+	g++ $(OPTS) -Wall -mdll -s -o $(MUSIC_DLL) zcmusicd$(PLATEXT).o zcmusic$(PLATEXT).o \
+	-Wl,zcmusic.def,--out-implib,$(MUSIC_LIB) \
+	$(AUDIO_LIBS) -lalleg
+	strip -s $(MUSIC_DLL)
+ifdef COMPRESS
+	upx --best $(MUSIC_DLL)
+endif
+
+
+aglogo$(PLATEXT).o: aglogo.cpp zc_alleg.h zdefs.h zeldadat.h	
+	g++ $(OPTS) -Wall -c aglogo.cpp -o aglogo$(PLATEXT).o $(SFLAG) $(WINFLAG)
+colors$(PLATEXT).o: colors.cpp colors.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c colors.cpp -o colors$(PLATEXT).o $(SFLAG) $(WINFLAG)
+debug$(PLATEXT).o: debug.cpp zc_alleg.h	
+	g++ $(OPTS) -Wall -c debug.cpp -o debug$(PLATEXT).o $(SFLAG) $(WINFLAG)
+decorations$(PLATEXT).o: decorations.cpp decorations.h jwin.h maps.h sfx.h sprite.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h	
+	g++ $(OPTS) -Wall -c decorations.cpp -o decorations$(PLATEXT).o $(SFLAG) $(WINFLAG)
+defdata$(PLATEXT).o: defdata.cpp defdata.h guys.h items.h sprite.h weapons.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c defdata.cpp -o defdata$(PLATEXT).o $(SFLAG) $(WINFLAG)
+editbox$(PLATEXT).o: editbox.c eb_intern.h editbox.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c editbox.c -o editbox$(PLATEXT).o $(SFLAG) $(WINFLAG)
+ending$(PLATEXT).o: ending.cpp aglogo.h colors.h ending.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c ending.cpp -o ending$(PLATEXT).o $(SFLAG) $(WINFLAG)
+font$(PLATEXT).o: font.c font.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c font.cpp -o font$(PLATEXT).o $(SFLAG) $(WINFLAG)
+gui$(PLATEXT).o: gui.cpp colors.h debug.h gui.h jwin.h jwinfsel.h pal.h qst.h sfx.h tiles.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h	
+	g++ $(OPTS) -Wall -c gui.cpp -o gui$(PLATEXT).o $(SFLAG) $(WINFLAG)
+guys$(PLATEXT).o: guys.cpp aglogo.h colors.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c guys.cpp -o guys$(PLATEXT).o $(SFLAG) $(WINFLAG)
+items$(PLATEXT).o: items.cpp items.h sprite.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c items.cpp -o items$(PLATEXT).o $(SFLAG) $(WINFLAG)
+jmenu$(PLATEXT).o: jmenu.cpp jwin.h sfx.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h	
+	g++ $(OPTS) -Wall -c jmenu.cpp -o jmenu$(PLATEXT).o $(SFLAG) $(WINFLAG)
+jwin$(PLATEXT).o: jwin.c jwin.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c jwin.c -o jwin$(PLATEXT).o $(SFLAG) $(WINFLAG)
+jwinfsel$(PLATEXT).o: jwinfsel.c jwin.h jwinfsel.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c jwinfsel.c -o jwinfsel$(PLATEXT).o $(SFLAG) $(WINFLAG)
+link$(PLATEXT).o: link.cpp aglogo.h colors.h decorations.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c link.cpp -o link$(PLATEXT).o $(SFLAG) $(WINFLAG)
+load_gif$(PLATEXT).o: load_gif.c load_gif.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c load_gif.c -o load_gif$(PLATEXT).o $(SFLAG) $(WINFLAG)
+maps$(PLATEXT).o: maps.cpp aglogo.h colors.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c maps.cpp -o maps$(PLATEXT).o $(SFLAG) $(WINFLAG)
+matrix$(PLATEXT).o: matrix.cpp matrix.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c matrix.cpp -o matrix$(PLATEXT).o $(SFLAG) $(WINFLAG)
+midi$(PLATEXT).o: midi.cpp midi.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c midi.cpp -o midi$(PLATEXT).o $(SFLAG) $(WINFLAG)
+pal$(PLATEXT).o: pal.cpp colors.h items.h jwin.h maps.h pal.h sfx.h sprite.h subscr.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h	
+	g++ $(OPTS) -Wall -c pal.cpp -o pal$(PLATEXT).o $(SFLAG) $(WINFLAG)
+qst$(PLATEXT).o: qst.cpp colors.h defdata.h font.h guys.h items.h jwin.h midi.h qst.h sprite.h tiles.h weapons.h zc_alleg.h zdefs.h zgpdat.h zquest.h zsys.h	
+	g++ $(OPTS) -Wall -c qst.cpp -o qst$(PLATEXT).o $(SFLAG) $(WINFLAG)
+save_gif$(PLATEXT).o: save_gif.c save_gif.h zc_alleg.h	
+	g++ $(OPTS) -Wall -c save_gif.c -o save_gif$(PLATEXT).o $(SFLAG) $(WINFLAG)
+sprite$(PLATEXT).o: sprite.cpp sprite.h tiles.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c sprite.cpp -o sprite$(PLATEXT).o $(SFLAG) $(WINFLAG)
+subscr$(PLATEXT).o: subscr.cpp aglogo.h colors.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c subscr.cpp -o subscr$(PLATEXT).o $(SFLAG) $(WINFLAG)
+tab_ctl$(PLATEXT).o: tab_ctl.c tab_ctl.h zc_alleg.h
+	g++ $(OPTS) -Wall -c tab_ctl.c -o tab_ctl$(PLATEXT).o $(SFLAG) $(WINFLAG)
+tiles$(PLATEXT).o: tiles.cpp tiles.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c tiles.cpp -o tiles$(PLATEXT).o $(SFLAG) $(WINFLAG)
+title$(PLATEXT).o: title.cpp colors.h gui.h items.h jwin.h jwinfsel.h pal.h qst.h sfx.h sprite.h subscr.h tiles.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h	
+	g++ $(OPTS) -Wall -c title.cpp -o title$(PLATEXT).o $(SFLAG) $(WINFLAG)
+weapons$(PLATEXT).o: weapons.cpp aglogo.h colors.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c weapons.cpp -o weapons$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zc_custom$(PLATEXT).o: zc_custom.cpp zc_alleg.h zc_custom.h zdefs.h	
+	g++ $(OPTS) -Wall -c zc_custom.cpp -o zc_custom$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zc_icon$(PLATEXT).o: zc_icon.rc	
+	windres --use-temp-file -I rc -O coff -i zc_icon.rc -o zc_icon$(PLATEXT).o
+zc_items$(PLATEXT).o: zc_items.cpp guys.h jwin.h sfx.h sprite.h weapons.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h	
+	g++ $(OPTS) -Wall -c zc_items.cpp -o zc_items$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zc_music$(PLATEXT).o: zc_music.cpp zc_alleg.h zc_music.h	
+	g++ $(OPTS) -Wall -c zc_music.cpp -o zc_music$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zc_sprite$(PLATEXT).o: zc_sprite.cpp jwin.h maps.h sfx.h sprite.h tiles.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h	
+	g++ $(OPTS) -Wall -c zc_sprite.cpp -o zc_sprite$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zc_sys$(PLATEXT).o: zc_sys.cpp aglogo.h colors.h debug.h gui.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h midi.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c zc_sys.cpp -o zc_sys$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zcmusic$(PLATEXT).o: zcmusic.cpp zc_alleg.h zcmusic.h	
+	g++ $(OPTS) -Wall -c zcmusic.cpp -o zcmusic$(PLATEXT).o $(SFLAG) $(MUSIC_WINFLAG)
+zcmusicd$(PLATEXT).o: zcmusicd.cpp zcmusic.h	
+	g++ $(OPTS) -Wall -c zcmusicd.cpp -o zcmusicd$(PLATEXT).o $(SFLAG) $(MUSIC_WINFLAG)
+zelda$(PLATEXT).o: zelda.cpp aglogo.h colors.h ending.h fontsdat.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h	
+	g++ $(OPTS) -Wall -c zelda.cpp -o zelda$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_class$(PLATEXT).o: zq_class.cpp colors.h items.h jwin.h maps.h midi.h qst.h sprite.h tiles.h zc_alleg.h zc_sys.h zdefs.h zq_class.h zq_misc.h zquest.h zquestdat.h zsys.h	
+	g++ $(OPTS) -Wall -c zq_class.cpp -o zq_class$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_custom$(PLATEXT).o: zq_custom.cpp gui.h items.h jwin.h midi.h sprite.h tiles.h zc_alleg.h zc_custom.h zdefs.h zq_custom.h zq_misc.h zq_tiles.h zquest.h zsys.h	
+	g++ $(OPTS) -Wall -c zq_custom.cpp -o zq_custom$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_files$(PLATEXT).o: zq_files.cpp jwin.h midi.h qst.h tiles.h zc_alleg.h zdefs.h zq_class.h zq_files.h zq_misc.h zquest.h zsys.h	
+	g++ $(OPTS) -Wall -c zq_files.cpp -o zq_files$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_icon$(PLATEXT).o: zq_icon.rc	
+	windres --use-temp-file -I rc -O coff -i zq_icon.rc -o zq_icon$(PLATEXT).o
+zq_items$(PLATEXT).o: zq_items.cpp zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c zq_items.cpp -o zq_items$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_misc$(PLATEXT).o: zq_misc.cpp colors.h jwin.h midi.h qst.h zc_alleg.h zdefs.h zq_misc.h zquest.h zquestdat.h zsys.h	
+	g++ $(OPTS) -Wall -c zq_misc.cpp -o zq_misc$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_sprite$(PLATEXT).o: zq_sprite.cpp sprite.h zc_alleg.h zdefs.h	
+	g++ $(OPTS) -Wall -c zq_sprite.cpp -o zq_sprite$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zq_tiles$(PLATEXT).o: zq_tiles.cpp colors.h jwin.h midi.h qst.h tiles.h zc_alleg.h zdefs.h zq_class.h zq_misc.h zq_tiles.h zquest.h	
+	g++ $(OPTS) -Wall -c zq_tiles.cpp -o zq_tiles$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zquest$(PLATEXT).o: zquest.cpp colors.h fontsdat.h gfxpal.h items.h jwin.h jwinfsel.h load_gif.h midi.h qst.h save_gif.h sprite.h tiles.h zc_alleg.h zcmusic.h zdefs.h zgpdat.h zq_class.h zq_custom.h zq_files.h zq_misc.h zq_tiles.h zquest.h zquestdat.h zsys.h	
+	g++ $(OPTS) -Wall -c zquest.cpp -o zquest$(PLATEXT).o $(SFLAG) $(WINFLAG)
+zsys$(PLATEXT).o: zsys.cpp jwin.h zc_alleg.h zc_sys.h zdefs.h zsys.h	
+	g++ $(OPTS) -Wall -c zsys.cpp -o zsys$(PLATEXT).o $(SFLAG) $(WINFLAG)

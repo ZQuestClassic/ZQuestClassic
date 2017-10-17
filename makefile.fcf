@@ -1,0 +1,63 @@
+VPATH = out:dist
+
+all:: zelda-w.exe zquest-w.exe
+
+zelda-w.exe:: aglogo.o colors.o debug.o gui.o jwin.o jwinfsel.o matrix.o pal.o qst.o\
+	tiles.o zc_icon.o zelda.o zsys.o
+	g++ -o dist/zelda-w.exe out/aglogo.o out/colors.o out/debug.o out/gui.o out/jwin.o\
+	out/jwinfsel.o out/matrix.o out/pal.o out/qst.o out/tiles.o out/zelda.o out/zsys.o\
+	-laldmb -ldumb -lalleg out/zc_icon.o -s -mwindows
+	upx --best dist/zelda-w.exe
+zquest-w.exe:: colors.o gui.o jwin.o load_gif.o qst.o save_gif.o tiles.o zq_icon.o\
+	zquest.o zsys.o zquest.dat
+	g++ -o dist/zquest-w.exe out/colors.o out/gui.o out/jwin.o out/load_gif.o out/qst.o\
+	out/save_gif.o out/tiles.o out/zquest.o out/zsys.o -lalleg out/zq_icon.o -s -mwindows
+	exedat dist/zquest-w.exe zquest.dat
+	upx --best dist/zquest-w.exe
+	
+aglogo.o:: aglogo.cpp zdefs.h zeldadat.h
+	g++ -O3 -w aglogo.cpp -o out/aglogo.o -c -s -mwindows
+colors.o:: colors.cpp colors.h zdefs.h
+	g++ -O3 -w colors.cpp -o out/colors.o -c -s -mwindows
+debug.o:: debug.cpp
+	g++ -O3 -w debug.cpp -o out/debug.o -c -s -mwindows
+gui.o:: gui.cpp zdefs.h zelda.h zc_sys.h zeldadat.h sfx.h tiles.h colors.h \
+  pal.h zsys.h qst.h debug.h jwin.h jwinfsel.h gui.h
+	g++ -O3 -w gui.cpp -o out/gui.o -c -s -mwindows
+jwin.o:: jwin.c jwin.h
+	gcc -O3 -w jwin.c -o out/jwin.o -c -s -mwindows
+jwinfsel.o:: jwinfsel.c jwin.h jwinfsel.h
+	gcc -O3 -w jwinfsel.c -o out/jwinfsel.o -c -s -mwindows
+load_gif.o:: load_gif.c load_gif.h
+	gcc -O3 -w load_gif.c -o out/load_gif.o -c -s -mwindows
+matrix.o:: matrix.cpp matrix.h
+	g++ -O3 -w matrix.cpp -o out/matrix.o -c -s -mwindows
+pal.o:: pal.cpp zdefs.h zelda.h zc_sys.h zeldadat.h sfx.h colors.h zsys.h \
+  pal.h
+	g++ -O3 -w pal.cpp -o out/pal.o -c -s -mwindows
+qst.o:: qst.cpp zdefs.h colors.h tiles.h zsys.h qst.h zquest.h defdata.cpp \
+  font.h
+	g++ -O3 -w qst.cpp -o out/qst.o -c -s -mwindows
+save_gif.o:: save_gif.c save_gif.h
+	gcc -O3 -w save_gif.c -o out/save_gif.o -c -s -mwindows
+tiles.o:: tiles.cpp zdefs.h tiles.h
+	g++ -O3 -w tiles.cpp -o out/tiles.o -c -s -mwindows
+zc_icon.o:: zc_icon.rc
+	windres --use-temp-file -I rc -O coff -i zc_icon.rc -o out/zc_icon.o
+zelda.o:: zelda.cpp zdefs.h zelda.h zc_sys.h zeldadat.h sfx.h tiles.h \
+  colors.h pal.h aglogo.h zsys.h qst.h matrix.h jwin.h jwinfsel.h \
+  zgpdat.h save_gif.h sprite.cpp link.cpp maps.cpp subscr.cpp guys.cpp \
+  title.cpp gui.h ending.cpp zc_sys.cpp debug.h midi.cpp
+	g++ -O3 -fpermissive -w zelda.cpp -o out/zelda.o -c -s -mwindows
+zq_icon.o:: zq_icon.rc
+	windres --use-temp-file -I rc -O coff -i zq_icon.rc -o out/zq_icon.o
+zquest.o:: zquest.cpp load_gif.h save_gif.h jwin.h zquest.h zdefs.h \
+  tiles.h colors.h qst.h zsys.h midi.cpp sprite.cpp zgpdat.h zq_misc.cpp \
+  zq_class.cpp zq_files.cpp zq_tiles.cpp zq_custom.cpp gui.h gfxpal.cpp
+	g++ -fpermissive -O3 -w zquest.cpp -o out/zquest.o -c -s -mwindows
+zsys.o:: zsys.cpp zdefs.h zsys.h
+	g++ -O3 -w -c zsys.cpp -o out/zsys.o -c -s -mwindows
+clean::
+	rm -f out/*.o
+veryclean::
+	rm -f out/*.o dist/*.exe

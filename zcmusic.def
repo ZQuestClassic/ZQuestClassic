@@ -1,0 +1,13 @@
+LIBRARY zcmusic.dll
+DESCRIPTION "Zelda Classic Music Files Interface"
+VERSION 192.188
+EXPORTS
+	zcmusic_types DATA
+	zcmusic_init
+	zcmusic_exit
+	zcmusic_poll
+	zcmusic_load_file
+	zcmusic_unload_file
+	zcmusic_play
+	zcmusic_pause
+	zcmusic_stop

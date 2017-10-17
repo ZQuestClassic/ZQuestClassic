@@ -1,0 +1,75 @@
+all: zcmusic.dll zelda-w.exe zquest-w.exe
+
+zcmusic.dll: zcmusic.cpp zcmusicd.cpp zcmusic.h zcmusic.def
+	g++ -O3 -Wall -c -s -o zcmusicd.o -DZCM_DLL zcmusicd.cpp
+	g++ -O3 -Wall -c -s -o zcmusic.o -DZCM_DLL zcmusic.cpp
+	g++ -O3 -Wall -mdll -s -o zcmusic.dll zcmusicd.o zcmusic.o \
+	-Wl,zcmusic.def,--out-implib,libzcmusic.dll.a \
+	-lalogg -lalmp3 -laldmb -ldumb -lalleg
+	strip -s zcmusic.dll
+	upx --best zcmusic.dll
+zelda-w.exe: aglogo.o colors.o debug.o gui.o jwin.o jwinfsel.o matrix.o \
+	pal.o qst.o tiles.o zc_icon.o zelda.o zsys.o
+	gcc -o zelda-w.exe aglogo.o colors.o debug.o gui.o jwin.o jwinfsel.o \
+	matrix.o pal.o qst.o tiles.o zelda.o zsys.o \
+	-L. -lzcmusic.dll -lalleg\
+	zc_icon.o -s -mwindows
+	upx --best zelda-w.exe
+zquest-w.exe: colors.o gui.o jwin.o load_gif.o qst.o save_gif.o tiles.o \
+	zcmusicd.o zq_icon.o zquest.o zsys.o zquest.dat
+	gcc -o zquest-w.exe colors.o gui.o jwin.o load_gif.o qst.o \
+	save_gif.o tiles.o zcmusicd.o zquest.o zsys.o \
+	-L . -lzcmusic.dll -lalleg zq_icon.o -s -mwindows
+	exedat zquest-w.exe zquest.dat
+	upx --best zquest-w.exe
+
+aglogo.o: aglogo.cpp zdefs.h zeldadat.h
+	gcc -O3 -Wall aglogo.cpp -o aglogo.o -c -s -mwindows
+colors.o: colors.cpp colors.h zdefs.h
+	gcc -O3 -Wall colors.cpp -o colors.o -c -s -mwindows
+debug.o: debug.cpp
+	gcc -O3 -Wall debug.cpp -o debug.o -c -s -mwindows
+gui.o: gui.cpp zdefs.h zelda.h zc_sys.h zeldadat.h sfx.h tiles.h colors.h \
+	pal.h zsys.h qst.h debug.h jwin.h jwinfsel.h gui.h
+	gcc -O3 -Wall gui.cpp -o gui.o -c -s -mwindows
+jwin.o: jwin.c jwin.h
+	gcc -O3 -Wall jwin.c -o jwin.o -c -s -mwindows
+jwinfsel.o: jwinfsel.c jwin.h jwinfsel.h
+	gcc -O3 -Wall jwinfsel.c -o jwinfsel.o -c -s -mwindows
+load_gif.o: load_gif.c load_gif.h
+	gcc -O3 -Wall load_gif.c -o load_gif.o -c -s -mwindows
+matrix.o: matrix.cpp matrix.h
+	gcc -O3 -Wall matrix.cpp -o matrix.o -c -s -mwindows
+pal.o: pal.cpp zdefs.h zelda.h zc_sys.h zeldadat.h sfx.h colors.h zsys.h \
+	pal.h
+	gcc -O3 -Wall pal.cpp -o pal.o -c -s -mwindows
+qst.o: qst.cpp zdefs.h colors.h tiles.h zsys.h qst.h zquest.h defdata.cpp \
+	font.h
+	gcc -O3 -Wall qst.cpp -o qst.o -c -s -mwindows
+save_gif.o: save_gif.c save_gif.h
+	gcc -O3 -Wall save_gif.c -o save_gif.o -c -s -mwindows
+tiles.o: tiles.cpp zdefs.h tiles.h
+	gcc -O3 -Wall tiles.cpp -o tiles.o -c -s -mwindows
+zc_icon.o: zc_icon.rc
+	windres --use-temp-file -I rc -O coff -i zc_icon.rc -o zc_icon.o
+zelda.o: zelda.cpp zdefs.h zelda.h zc_sys.h zeldadat.h sfx.h tiles.h \
+	colors.h pal.h aglogo.h zsys.h qst.h matrix.h jwin.h jwinfsel.h \
+	zgpdat.h save_gif.h sprite.cpp link.cpp maps.cpp subscr.cpp guys.cpp \
+	title.cpp gui.h ending.cpp zc_sys.cpp debug.h midi.cpp
+	gcc -O3 -fpermissive -w zelda.cpp -o zelda.o -c -s -mwindows
+zq_icon.o: zq_icon.rc
+	windres --use-temp-file -I rc -O coff -i zq_icon.rc -o zq_icon.o
+zquest.o: zquest.cpp load_gif.h save_gif.h jwin.h zquest.h zdefs.h \
+	tiles.h colors.h qst.h zsys.h midi.cpp sprite.cpp zgpdat.h zq_misc.cpp \
+	zq_class.cpp zq_files.cpp zq_tiles.cpp zq_custom.cpp gui.h gfxpal.cpp
+	gcc -fpermissive -O3 -Wall zquest.cpp -o zquest.o -c -s -mwindows
+zcmusicd.o: zcmusicd.cpp
+	gcc -O3 -Wall zcmusicd.cpp -o zcmusicd.o -c -s -mwindows
+zsys.o: zsys.cpp zdefs.h zsys.h
+	gcc -O3 -Wall zsys.cpp -o zsys.o -c -s -mwindows
+
+.PHONY: veryclean clean
+clean:
+	rm -f *.o *.a
+veryclean: clean
+	rm -f zelda-w.exe zquest-w.exe zcmusic.dll

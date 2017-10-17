@@ -1,0 +1,164 @@
+define RM_CLEAN
+endef
+
+ifdef RM_CLEAN
+  SFLAG = -s
+  WINFLAG = -mwindows
+  MUSIC_WINFLAG = -DZCM_DLL
+  MUSIC_DLL = zcmusic.dll
+  ZELDA_EXE = zelda-w.exe
+  ZQUEST_EXE = zquest-w.exe
+  MUSIC_LIB = -L. -l$(MUSIC_DLL)
+  STDCXX_LIB =
+  ZC_ICON = zc_icon.o
+  ZQ_ICON = zq_icon.o
+  ZCMUSIC_O =
+  WINOBJ = w-
+else
+  ifdef DOS_COMPILE
+    SFLAG =
+    WINFLAG =
+    MUSIC_WINFLAG = $(WINFLAG)
+    MUSIC_DLL =
+    ZELDA_EXE = zelda.exe
+    ZQUEST_EXE = zquest.exe
+    MUSIC_LIB = $(AUDIO_LIBS)
+    STDCXX_LIB = -lstdcxx
+    ZC_ICON =
+    ZQ_ICON =
+    ZCMUSIC_O = zcmusic.o
+    WINOBJ =
+  endif
+endif
+
+AUDIO_LIBS = -lalogg -lalmp3 -laldmb -ldumb
+
+
+ZELDA_OBJECTS = $(WINOBJ)aglogo.o $(WINOBJ)colors.o $(WINOBJ)debug.o $(WINOBJ)decorations.o $(WINOBJ)defdata.o $(WINOBJ)ending.o $(WINOBJ)gui.o $(WINOBJ)guys.o $(WINOBJ)items.o $(WINOBJ)jwin.o $(WINOBJ)jwinfsel.o $(WINOBJ)link.o $(WINOBJ)maps.o $(WINOBJ)matrix.o $(WINOBJ)midi.o $(WINOBJ)pal.o $(WINOBJ)qst.o $(WINOBJ)sprite.o $(WINOBJ)subscr.o $(WINOBJ)tiles.o $(WINOBJ)title.o $(WINOBJ)weapons.o $(WINOBJ)zc_custom.o $(WINOBJ)zc_items.o $(WINOBJ)zc_sprite.o $(WINOBJ)zc_sys.o $(WINOBJ)zelda.o $(WINOBJ)zsys.o $(ZC_ICON)
+ZQUEST_OBJECTS = $(WINOBJ)colors.o $(WINOBJ)defdata.o $(WINOBJ)editbox.o $(WINOBJ)gui.o $(WINOBJ)items.o $(WINOBJ)jwin.o $(WINOBJ)load_gif.o $(WINOBJ)midi.o $(WINOBJ)qst.o $(WINOBJ)save_gif.o $(WINOBJ)sprite.o $(WINOBJ)tiles.o $(WINOBJ)zc_custom.o $(WINOBJ)zcmusicd.o $(WINOBJ)zq_class.o $(WINOBJ)zq_custom.o $(WINOBJ)zq_files.o $(WINOBJ)zq_items.o $(WINOBJ)zq_misc.o $(WINOBJ)zq_sprite.o $(WINOBJ)zq_tiles.o $(WINOBJ)zquest.o $(WINOBJ)zsys.o $(ZQ_ICON)
+
+all: $(MUSIC_DLL) $(ZELDA_EXE) $(ZQUEST_EXE)
+
+$(ZELDA_EXE): $(ZELDA_OBJECTS) $(ZCMUSIC_O)
+	gcc -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(ZCMUSIC_O) $(MUSIC_LIB) -lalleg $(STDCXX_LIB) $(ZC_ICON)
+	upx --best $(ZELDA_EXE)
+$(ZQUEST_EXE): $(ZQUEST_OBJECTS) zquest.dat
+	gcc -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(ZCMUSICD_O) -lalleg $(STDCXX_LIB) $(ZQ_ICON)
+	exedat $(ZQUEST_EXE) zquest.dat
+	upx --best $(ZQUEST_EXE)
+$(MUSIC_DLL): $(WINOBJ)zcmusic.o $(WINOBJ)zcmusicd.o zcmusic.def
+	g++ -O3 -Wall -mdll -s -o $(MUSIC_DLL) $(WINOBJ)zcmusicd.o $(WINOBJ)zcmusic.o \
+	-Wl,zcmusic.def,--out-implib,lib$(MUSIC_DLL).a \
+	$(AUDIO_LIBS) -lalleg
+	strip -s $(MUSIC_DLL)
+	upx --best $(MUSIC_DLL)
+
+
+$(WINOBJ)aglogo.o: aglogo.cpp zdefs.h zeldadat.h
+	gcc -O3 -Wall -c aglogo.cpp -o $(WINOBJ)aglogo.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)colors.o: colors.cpp colors.h zdefs.h
+	gcc -O3 -Wall -c colors.cpp -o $(WINOBJ)colors.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)debug.o: debug.cpp
+	gcc -O3 -Wall -c debug.cpp -o $(WINOBJ)debug.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)decorations.o: decorations.cpp decorations.h maps.h sfx.h sprite.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+	gcc -O3 -Wall -c decorations.cpp -o $(WINOBJ)decorations.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)defdata.o: defdata.cpp defdata.h guys.h items.h sprite.h weapons.h zdefs.h
+	gcc -O3 -Wall -c defdata.cpp -o $(WINOBJ)defdata.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)editbox.o: editbox.c editbox.h
+	gcc -O3 -Wall -c editbox.c -o $(WINOBJ)editbox.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)ending.o: ending.cpp aglogo.h colors.h ending.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h title.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c ending.cpp -o $(WINOBJ)ending.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)font.o: font.cpp font
+	gcc -O3 -Wall -c font.cpp -o $(WINOBJ)font.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)gui.o: gui.cpp colors.h debug.h gui.h jwin.h jwinfsel.h pal.h qst.h sfx.h tiles.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+	gcc -O3 -Wall -c gui.cpp -o $(WINOBJ)gui.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)guys.o: guys.cpp aglogo.h colors.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c guys.cpp -o $(WINOBJ)guys.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)items.o: items.cpp items.h sprite.h zdefs.h
+	gcc -O3 -Wall -c items.cpp -o $(WINOBJ)items.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)jmenu.o: jmenu.cpp jwin.h sfx.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h
+	gcc -O3 -Wall -c jmenu.cpp -o $(WINOBJ)jmenu.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)jwin.o: jwin.c jwin.h
+	gcc -O3 -Wall -c jwin.c -o $(WINOBJ)jwin.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)jwinfsel.o: jwinfsel.c jwin.h jwinfsel.h
+	gcc -O3 -Wall -c jwinfsel.c -o $(WINOBJ)jwinfsel.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)link.o: link.cpp aglogo.h colors.h decorations.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c link.cpp -o $(WINOBJ)link.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)load_gif.o: load_gif.c load_gif.h
+	gcc -O3 -Wall -c load_gif.c -o $(WINOBJ)load_gif.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)maps.o: maps.cpp guys.cpp items.h jwin.h link.h maps.h sfx.h sprite.h subscr.h tiles.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+	gcc -O3 -Wall -c maps.cpp -o $(WINOBJ)maps.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)matrix.o: matrix.cpp matrix.h
+	gcc -O3 -Wall -c matrix.cpp -o $(WINOBJ)matrix.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)midi.o: midi.cpp midi.h zdefs.h
+	gcc -O3 -Wall -c midi.cpp -o $(WINOBJ)midi.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)pal.o: pal.cpp colors.h items.h maps.h pal.h sfx.h sprite.h subscr.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+	gcc -O3 -Wall -c pal.cpp -o $(WINOBJ)pal.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)qst.o: qst.cpp colors.h defdata.h font.h guys.h items.h midi.h qst.h sprite.h tiles.h weapons.h zdefs.h zgpdat.h zquest.h zsys.h
+	gcc -O3 -Wall -c qst.cpp -o $(WINOBJ)qst.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)save_gif.o: save_gif.c save_gif.h
+	gcc -O3 -Wall -c save_gif.c -o $(WINOBJ)save_gif.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)sprite.o: sprite.cpp sprite.h tiles.h zdefs.h
+	gcc -O3 -Wall -c sprite.cpp -o $(WINOBJ)sprite.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)subscr.o: subscr.cpp aglogo.h colors.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c subscr.cpp -o $(WINOBJ)subscr.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)tiles.o: tiles.cpp tiles.h zdefs.h
+	gcc -O3 -Wall -c tiles.cpp -o $(WINOBJ)tiles.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)title.o: title.cpp colors.h gui.h items.h jwin.h jwinfsel.h pal.h qst.h sfx.h sprite.h subscr.h tiles.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+	gcc -O3 -Wall -c title.cpp -o $(WINOBJ)title.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)weapons.o: weapons.cpp aglogo.h colors.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h tiles.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c weapons.cpp -o $(WINOBJ)weapons.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zc_custom.o: zc_custom.cpp zc_custom.h zdefs.h
+	gcc -O3 -Wall -c zc_custom.cpp -o $(WINOBJ)zc_custom.o $(SFLAG) $(WINFLAG)
+zc_icon.o: zc_icon.rc
+	windres --use-temp-file -I rc -O coff -i zc_icon.rc -o zc_icon.o
+$(WINOBJ)zc_items.o: zc_items.cpp guys.h sfx.h sprite.h weapons.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h
+	gcc -O3 -Wall -c zc_items.cpp -o $(WINOBJ)zc_items.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zc_music.o: zc_music.cpp aldumb.h almp3.h alogg.h zc_music.h
+	gcc -O3 -Wall -c zc_music.cpp -o $(WINOBJ)zc_music.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zc_sprite.o: zc_sprite.cpp maps.h sfx.h sprite.h tiles.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h
+	gcc -O3 -Wall -c zc_sprite.cpp -o $(WINOBJ)zc_sprite.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zc_sys.o: zc_sys.cpp aglogo.h colors.h debug.h gui.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h midi.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h title.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c zc_sys.cpp -o $(WINOBJ)zc_sys.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zcmusic.o: zcmusic.cpp zcmusic.h
+	gcc -O3 -Wall -c zcmusic.cpp -o $(WINOBJ)zcmusic.o $(SFLAG) $(MUSIC_WINFLAG)
+$(WINOBJ)zcmusicd.o: zcmusicd.cpp
+	gcc -O3 -Wall -c zcmusicd.cpp -o $(WINOBJ)zcmusicd.o $(SFLAG) $(MUSIC_WINFLAG)
+$(WINOBJ)zelda.o: zelda.cpp aglogo.h colors.h ending.h fontsdat.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tiles.h title.h weapons.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zgpdat.h zsys.h
+	gcc -O3 -Wall -c zelda.cpp -o $(WINOBJ)zelda.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zq_class.o: zq_class.cpp colors.h items.h midi.h qst.h sprite.h tiles.h zdefs.h zq_class.h zq_misc.h zquest.h zquestdat.h zsys.h
+	gcc -O3 -Wall -c zq_class.cpp -o $(WINOBJ)zq_class.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zq_custom.o: zq_custom.cpp gui.h items.h midi.h sprite.h tiles.h zc_custom.h zdefs.h zq_custom.h zq_misc.h zq_tiles.h zquest.h zsys.h
+	gcc -O3 -Wall -c zq_custom.cpp -o $(WINOBJ)zq_custom.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zq_files.o: zq_files.cpp midi.h qst.h tiles.h zdefs.h zq_class.h zq_files.h zq_misc.h zquest.h zsys.h
+	gcc -O3 -Wall -c zq_files.cpp -o $(WINOBJ)zq_files.o $(SFLAG) $(WINFLAG)
+zq_icon.o: zq_icon.rc
+	windres --use-temp-file -I rc -O coff -i zq_icon.rc -o zq_icon.o
+$(WINOBJ)zq_items.o: zq_items.cpp zdefs.h
+	gcc -O3 -Wall -c zq_items.cpp -o $(WINOBJ)zq_items.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zq_misc.o: zq_misc.cpp colors.h midi.h qst.h zdefs.h zq_misc.h zquest.h zquestdat.h zsys.h
+	gcc -O3 -Wall -c zq_misc.cpp -o $(WINOBJ)zq_misc.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zq_sprite.o: zq_sprite.cpp sprite.h zdefs.h
+	gcc -O3 -Wall -c zq_sprite.cpp -o $(WINOBJ)zq_sprite.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zq_tiles.o: zq_tiles.cpp colors.h jwin.h midi.h qst.h tiles.h zdefs.h zq_class.h zq_misc.h zq_tiles.h zquest.h
+	gcc -O3 -Wall -c zq_tiles.cpp -o $(WINOBJ)zq_tiles.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zquest.o: zquest.cpp colors.h editbox.h fontsdat.h gfxpal.h items.h jwin.h load_gif.h midi.h qst.h save_gif.h sprite.h tiles.h zcmusic.h zdefs.h zgpdat.h zq_class.h zq_custom.h zq_files.h zq_misc.h zq_tiles.h zquest.h zquestdat.h zsys.h
+	gcc -O3 -Wall -c zquest.cpp -o $(WINOBJ)zquest.o $(SFLAG) $(WINFLAG)
+$(WINOBJ)zsys.o: zsys.cpp zsys.h
+	gcc -O3 -Wall -c zsys.cpp -o $(WINOBJ)zsys.o $(SFLAG) $(WINFLAG)
+
+.PHONY: veryclean clean dos windows win
+clean:
+	rm -f $(ZELDA_OBJECTS) $(ZQUEST_OBJECTS) lib$(MUSIC_DLL).a $(MUSIC_DLL)
+veryclean: clean
+	rm -f $(ZELDA_EXE) $(ZQUEST_EXE) lib$(MUSIC_DLL).a
+dos:
+	echo define DOS_COMPILE > makefile.inc
+	echo endef >> makefile.inc
+	make
+windows:
+	echo define WIN_COMPILE > makefile.inc
+	echo endef >> makefile.inc
+	make
+win: windows
+
