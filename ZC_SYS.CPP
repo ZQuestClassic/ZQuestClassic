@@ -41,6 +41,7 @@
 #include "link.h"
 #include "title.h"
 #include "particles.h"
+#include "midi_strict.inc"
 
 extern FONT *lfont;
 extern LinkClass Link;
@@ -68,6 +69,9 @@ static char cfg_sect[] = "zeldadx";
 
 int d_dummy_proc(int msg,DIALOG *d,int c) { return D_O_K; }
 
+#ifdef NEEDS_MIDI_STRICT
+bool midi_strict=true;
+#endif
 void load_game_configs()
 {
   Akey = get_config_int(cfg_sect,"key_a",KEY_ALT);

@@ -1,43 +1,44 @@
-Zelda Classic v2.10 (Build 1)
-Checking Files... OK
-Allocating quest path buffers (4.00k/4.00k)...OK
-Allocating map buffer (185.94k/189.94k)... OK
+ZQuest v2.10 (Build 1)
+Allocating MIDI buffer (9.84k/9.84k)... OK
+Allocating map buffer (185.94k/195.78k)... OK
 Allocating string buffer (6.75M/6.94M)... OK
-Allocating door combo buffer (159.50k/7.09M)... OK
-Allocating dmap buffer (51.00k/7.14M)... OK
+Allocating door combo buffer (159.50k/7.10M)... OK
+Allocating dmap buffer (51.00k/7.15M)... OK
 Allocating combo buffer (1.49M/8.64M)... OK
-Allocating color data buffer (158.11k/8.79M)... OK
+Allocating color data buffer (158.11k/8.80M)... OK
 Allocating tile buffer (8.00M/16.79M)... OK
-Allocating trash buffer (97.66k/16.88M)... OK
+Allocating trash buffer (97.66k/16.89M)... OK
 Allocating item buffer (6.00k/16.89M)... OK
-Allocating weapon buffer (2.00k/16.89M)... OK
-Allocating guy buffer (14.00k/16.90M)... OK
+Allocating weapon buffer (2.00k/16.90M)... OK
+Allocating guy buffer (14.00k/16.91M)... OK
+Allocating combo undo buffer (1.49M/18.40M)... OK
+Allocating tile undo buffer (8.00M/26.40M)... OK
+Allocating file path buffers (1.25k/26.40M)... OK
 Initializing Allegro... OK
-Allocating bitmap buffers... OK
 Loading data files:
-Zelda.Dat...OK
+ZQuest.Dat...OK
+QST.Dat...OK
 Fonts.Dat...OK
-SFX.Dat...OK
-Loading saved games... Save file not found.  Creating new save file.OK
+OK
 Initializing sound driver... OK
-Setting video mode...
-Set video mode...
-Triplebuffer not available
 Loading Quest...
 
-Decrypting ...okay.
+Decrypting...okay.
 Opening...okay.
-Loading Quest...
-
-Decrypting ...okay.
-Opening...okay.
-Loading Quest...
-
-Decrypting ...okay.
-Opening...okay.
-Loading Quest...
-
-Decrypting ...okay.
-Opening...okay.
-Armageddon Games web site: http://www.armageddongames.com
-Zelda Classic web site: http://www.zeldaclassic.com
+Reading Header...okay.
+Reading Rules...okay.
+Reading Strings...okay.
+Reading Doors...okay.
+Reading DMaps...okay.
+Reading Misc. Data...okay.
+Reading Items...okay.
+Reading Weapons...okay.
+Reading Maps...okay.
+Reading Combos...okay.
+Reading Color Data...okay.
+Reading Tiles...okay.
+Reading MIDIs...okay.
+Reading Cheat Codes...okay.
+Reading Init. Data...okay.
+Reading Custom Guy Data...okay.
+Done.
