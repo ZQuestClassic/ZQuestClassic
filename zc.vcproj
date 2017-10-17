@@ -328,6 +328,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script_drawing.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sprite.cpp"
 				>
 			</File>
@@ -358,6 +362,10 @@
 						Optimization="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\win32.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\zc_custom.cpp"

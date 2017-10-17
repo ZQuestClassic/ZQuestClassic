@@ -33,11 +33,14 @@ bool can_do_clock();
 int link_on_wall();
 bool tooclose(int x,int y,int d);
 bool isflier(int id);
-bool isfloater(int id);
+bool never_in_air(int id);
 // Returns true iff a combo type or flag precludes enemy movement.
 bool groundblocked(int dx, int dy);
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool flyerblocked(int dx, int dy, int special);
+
+// Start spinning tiles - called by load_default_enemies
+void awaken_spinning_tile(mapscr *s, int pos);
 
 // Used to remove/add fireball shooter enemies
 void screen_combo_modify_preroutine(mapscr *s, int pos);
@@ -67,7 +70,8 @@ public:
   short  family, dcset, anim;
   short  dp, wdp, wpn;
 
-  short  rate, hrate, dstep, homing;
+  short  rate, hrate, homing;
+  fix dstep;
   short  dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15, bgsfx, bosspal;
   byte defense[edefLAST];
   byte hitsfx,deadsfx;
@@ -92,7 +96,7 @@ public:
   // Stop BG SFX only if no other enemy is playing it
   void stop_bgsfx(int index);
   // Take damage or ignore it
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   // override hit detection to check for invicibility, stunned, etc
   virtual bool hit(sprite *s);
   virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
@@ -114,6 +118,8 @@ protected:
   // take damage or ignore it
   virtual bool hitshield(int wpnx, int wpny, int xdir);
   virtual int defend(int wpnId, int *power, int edef);
+  bool candamage(int power, int edef);
+  int defenditemclass(int wpnId, int *power);
 
   bool dont_draw();
   // base drawing function to be used by all derived classes instead of
@@ -270,7 +276,7 @@ public:
   virtual bool animate(int index);
   virtual void drawshadow(BITMAP *dest, bool translucent);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void kickbucket();
 };
 
@@ -304,7 +310,7 @@ public:
   bool trapmove(int ndir);
   bool clip();
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon* w);
 };
 
 class eTrap2 : public enemy                                 //trap that goes back and forth constantly
@@ -315,7 +321,7 @@ public:
   bool trapmove(int ndir);
   bool clip();
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eRock : public enemy
@@ -325,7 +331,7 @@ public:
   virtual bool animate(int index);
   virtual void drawshadow(BITMAP *dest, bool translucent);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eBoulder : public enemy
@@ -335,7 +341,7 @@ public:
   virtual bool animate(int index);
   virtual void drawshadow(BITMAP *dest, bool translucent);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 // Helper for launching fireballs from statues, etc.
@@ -363,7 +369,7 @@ public:
   eNPC(fix X,fix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eSpinTile : public enemy
@@ -404,7 +410,7 @@ public:
   void eatlink();
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   void vire_hop();
   virtual void drawshadow(BITMAP *dest, bool translucent);
 };
@@ -413,18 +419,8 @@ class eKeese : public enemy
 {
 public:
   int ox, oy, c;
-  eKeese(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
-  virtual bool animate(int index);
-  virtual void drawshadow(BITMAP *dest, bool translucent);
-  virtual void draw(BITMAP *dest);
-};
-
-class eKeeseTrib : public enemy
-{
-public:
-  int ox, oy, c;
   int clk4;
-  eKeeseTrib(fix X,fix Y,int Id,int Clk);                 // : enemy(X,Y,Id,Clk)
+  eKeese(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void drawshadow(BITMAP *dest, bool translucent);
   virtual void draw(BITMAP *dest);
@@ -453,7 +449,7 @@ public:
   eDodongo(fix X,fix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eDodongo2 : public enemy
@@ -463,7 +459,7 @@ public:
   eDodongo2(fix X,fix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eAquamentus : public enemy
@@ -483,7 +479,7 @@ public:
   eGohma(fix X,fix Y,int Id,int Clk);                     // : enemy((fix)128,(fix)48,Id,0)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eLilDig : public enemy
@@ -500,7 +496,7 @@ public:
   eBigDig(fix X,fix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
 };
 
 class eGanon : public enemy
@@ -509,7 +505,7 @@ public:
   int Stunclk;
   eGanon(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void draw(BITMAP *dest);
   void draw_guts(BITMAP *dest);
   void draw_flash(BITMAP *dest);
@@ -537,7 +533,7 @@ class esMoldorm : public enemy
 public:
   esMoldorm(fix X,fix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void draw(BITMAP *dest);
 private:
 	int parentclk; //because of custom step speed, clk is not sufficient to keep track
@@ -569,7 +565,7 @@ class esLanmola : public eBaseLanmola
 public:
   esLanmola(fix X,fix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void draw(BITMAP *dest);
 };
 
@@ -581,7 +577,7 @@ public:
   bool adjusted;
   eManhandla(fix X,fix Y,int Id,int Clk);                 // : enemy(X,Y,Id,0)
   virtual bool animate(int index);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void draw(BITMAP *dest);
 };
 
@@ -601,7 +597,7 @@ public:
   int necktile;
   eGleeok(fix X,fix Y,int Id,int Clk);                    // : enemy((fix)120,(fix)48,Id,Clk)
   virtual bool animate(int index);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void draw(BITMAP *dest);
   virtual void draw2(BITMAP *dest);
 };
@@ -619,7 +615,7 @@ public:
   int nxoffset[255], nyoffset[255]; //random "jiggling" of the next tiles
   esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt);                   // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
-  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+  virtual int takehit(weapon *w);
   virtual void draw(BITMAP *dest);
   virtual void draw2(BITMAP *dest);
 };
@@ -671,7 +667,8 @@ public:
 /**********  Misc Code  ***********/
 /**********************************/
 void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
-int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir);
+// Used by Link's swords & stomp boots
+int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir, int enemyHitWeapon);
 void enemy_scored(int index);
 void addguy(int x,int y,int id,int clk,bool mainguy);
 void additem(int x,int y,int id,int pickup);
@@ -690,7 +687,6 @@ void movefairy2(fix x,fix y,int misc);
 void killfairy(int misc);
 int addenemy(int x,int y,int id,int clk);
 int addenemy(int x,int y,int z,int id,int clk);
-bool checkpos(int id);
 bool isjumper(int id);
 bool canfall(int id);
 void addfires();

@@ -1206,6 +1206,16 @@ string ODrawStringRegister::toString()
 	return "DRAWSTRING";
 }
 
+string ODrawBitmapRegister::toString()
+{
+	return "DRAWBITMAP";
+}
+
+string OSetRenderTargetRegister::toString()
+{
+	return "SETRENDERTARGET";
+}
+
 string OSetDepthBufferRegister::toString()
 {
 	return "SETDEPTHB";

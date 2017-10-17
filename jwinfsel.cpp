@@ -107,10 +107,10 @@ static int fs_dummy_proc(int msg, DIALOG *d, int c)
   return D_O_K;
 }
 
-static ListData fs_flist__getter(fs_flist_getter, &font);
-static ListData fs_elist__getter(fs_elist_getter, &font);
+static ListData fs_flist__getter(fs_flist_getter, is_large ? &lfont_l : &font);
+static ListData fs_elist__getter(fs_elist_getter, is_large ? &lfont_l : &font);
 #ifdef HAVE_DIR_LIST //Needed to compile. -L
-static ListData fs_dlist__getter(fs_dlist_getter, &font);
+static ListData fs_dlist__getter(fs_dlist_getter, is_large ? &lfont_l : &font);
 #endif
 
 static DIALOG file_selector[] =
@@ -122,8 +122,8 @@ static DIALOG file_selector[] =
   { jwin_button_proc,     208,  107,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { jwin_button_proc,     208,  129,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
-  { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_flist__getter,  NULL, NULL  },
   { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_elist__getter,  NULL, NULL },
+  { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_flist__getter,  NULL, NULL  },
   { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_dlist__getter,  NULL, NULL  },
   { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
 
@@ -134,8 +134,8 @@ static DIALOG file_selector[] =
   { jwin_button_proc,     64,   160,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { jwin_button_proc,     160,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
-  { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_flist__getter,  NULL, NULL  },
   { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_elist__getter,  NULL, NULL },
+  { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_flist__getter,  NULL, NULL  },
   { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
 #endif
 
@@ -146,8 +146,8 @@ static DIALOG file_selector[] =
 #define FS_OK           1
 #define FS_CANCEL       2
 #define FS_EDIT         3
-#define FS_FILES        4
-#define FS_TYPES        5
+#define FS_TYPES        4
+#define FS_FILES        5
 
 #ifdef HAVE_DIR_LIST                                        /* not all platforms need a directory list */
 
@@ -864,14 +864,16 @@ void enlarge_file_selector(int width, int height)
 #endif
     file_selector[FS_FILES].dp2=NULL;
     file_selector[FS_TYPES].y = bottom-file_selector[FS_TYPES].h-5;
-	file_selector[FS_FILES].h=show_extlist ? 140 : 164;
+	file_selector[FS_FILES].h=show_extlist ? 148 : 164;
 	file_selector[FS_FILES].y = (show_extlist ? file_selector[FS_TYPES].y:bottom)-(file_selector[FS_FILES].h+5);
 	file_selector[FS_EDIT].y = file_selector[FS_FILES].y-32;
-	((ListData *)file_selector[4].dp)->font = &lfont_l;
-    file_selector[FS_TYPES].dp2=NULL;file_selector[FS_TYPES].h=20;
+	((ListData *)file_selector[FS_FILES].dp)->font = &lfont_l;
+    file_selector[FS_TYPES].dp2=NULL;
+	file_selector[FS_TYPES].h=20;
 	((ListData *)file_selector[FS_TYPES].dp)->font = &lfont_l;
 #ifdef HAVE_DIR_LIST
-    file_selector[FS_DISKS].dp2=NULL;file_selector[FS_DISKS].h=20;
+    file_selector[FS_DISKS].dp2=NULL;
+	file_selector[FS_DISKS].h=20;
 	((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
 #endif
   }

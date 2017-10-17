@@ -48,7 +48,7 @@
 #include "link.h"
 #include "title.h"
 #include "particles.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
@@ -226,14 +226,10 @@ void load_game_configs()
   NameEntryMode = get_config_int(cfg_sect,"name_entry_mode",0);
   ShowFPS = get_config_int(cfg_sect,"showfps",0)!=0;
   NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
+  ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
   title_version = get_config_int(cfg_sect,"title",2);
-#ifdef ALLEGRO_MACOSX
   resx = get_config_int(cfg_sect,"resx",640);
   resy = get_config_int(cfg_sect,"resy",480);
-#else
-  resx = get_config_int(cfg_sect,"resx",640);
-  resy = get_config_int(cfg_sect,"resy",480);
-#endif
 
 #ifdef ALLEGRO_MACOSX
 	sbig = get_config_int(cfg_sect,"sbig",1);
@@ -245,6 +241,16 @@ void load_game_configs()
   fullscreen = get_config_int(cfg_sect,"fullscreen",1);
   disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",0);
   can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
+
+  zc_color_depth = (byte) get_config_int(cfg_sect,"color_depth",8);
+  if(zc_color_depth != 0 || zc_color_depth != 8 || zc_color_depth != 15 || zc_color_depth != 16 || zc_color_depth != 24 || zc_color_depth != 32)
+      zc_color_depth = 8;
+
+  #ifdef _WIN32
+    use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
+    use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
+	use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",1);
+  #endif
 
 #ifdef ALLEGRO_MACOSX
   const char *default_path="../../../";
@@ -319,6 +325,7 @@ void save_game_configs()
   set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
   set_config_int(cfg_sect,"showfps",(int)ShowFPS);
   set_config_int(cfg_sect,"fastquit",(int)NESquit);
+  set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
   set_config_int(cfg_sect,"title",title_version);
 
   set_config_int(cfg_sect,"resx",resx);
@@ -338,6 +345,13 @@ void save_game_configs()
   set_config_int(cfg_sect,"fullscreen",fullscreen);
   set_config_int(cfg_sect,"doublebuffer",disable_triplebuffer);
   set_config_int(cfg_sect,"triplebuffer",can_triplebuffer_in_windowed_mode);
+  set_config_int(cfg_sect,"color_depth",zc_color_depth);
+
+  #ifdef _WIN32
+   set_config_int(cfg_sect,"debug_console",use_debug_console);
+   set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
+   set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
+  #endif
 
   #ifdef ALLEGRO_LINUX
   set_config_string("sound","patches",samplepath); // set to sample sound path set for DIGMIDI driver in Linux ~ Takuya
@@ -2870,6 +2884,9 @@ void updatescr(bool allowwavy)
 		rectfill(panorama,0,168+passive_subscreen_height/2,255,168+passive_subscreen_height-1,0);
 		blit(wavybuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
 	}
+
+	//TODO: Drawing any of these to target = screen is ridiculous slow (9% inclusive!) and needs to be fixed at some point.
+	// Also, stretch blit and sbig are huge performance hogs... post 2.5 I guess. -Gleeok.
 	BITMAP *target;
 	bool dontusetb = triplebuffer_not_available ||
 		!(Throttlefps ^ (true && key[KEY_TILDE]));
@@ -3268,7 +3285,7 @@ void syskeys()
   }
   poll_joystick();
 
-  if(rMbtn())
+  if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze))
   {
     oldtitle_version=title_version;
     System();
@@ -3533,8 +3550,8 @@ void zapout()
 {
   set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
   blit(framebuf,scrollbuf,0,0,256,0,256,224);
-  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
-  draw_container.drawstring.clear();
+
+  script_drawing_commands.Clear();
 
   // zap out
   for(int i=1; i<=24; i++)
@@ -3690,8 +3707,8 @@ void wavyin()
 void blackscr(int fcnt,bool showsubscr)
 {
   reset_pal_cycling();
-  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
-  draw_container.drawstring.clear();
+  script_drawing_commands.Clear();
+
   while(fcnt>0)
   {
     clear_bitmap(framebuf);
@@ -3796,6 +3813,11 @@ int onVsync()
   return D_O_K;
 }
 
+int onClickToFreeze()
+{
+  ClickToFreeze = !ClickToFreeze;
+  return D_O_K;
+}
 
 int onFrameSkip()
 {
@@ -5508,6 +5530,7 @@ static MENU settings_menu[] =
   { (char *)"Show &FPS\tF2",              onShowFPS,               NULL,                      0, NULL },
   { (char *)"Show Trans. &Layers",        onTransLayers,           NULL,                      0, NULL },
   { (char *)"Up+A+B To &Quit",            onNESquit,               NULL,                      0, NULL },
+  { (char *)"Click to Freeze",            onClickToFreeze,         NULL,                      0, NULL },
   { (char *)"Volume &Keys",               onVolKeys,               NULL,                      0, NULL },
   { (char *)"Cont. &Heart Beep",          onHeartBeep,             NULL,                      0, NULL },
   { (char *)"",                           NULL,                    NULL,                      0, NULL },
@@ -5631,7 +5654,7 @@ int onFullscreenMenu()
 void fix_menu()
 {
   if(!debug_enabled)
-    settings_menu[13].text = NULL;
+    settings_menu[14].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -6372,7 +6395,8 @@ void System()
     settings_menu[6].flags = ShowFPS?D_SELECTED:0;
     settings_menu[7].flags = TransLayers?D_SELECTED:0;
     settings_menu[8].flags = NESquit?D_SELECTED:0;
-    settings_menu[9].flags = volkeys?D_SELECTED:0;
+    settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
+    settings_menu[10].flags = volkeys?D_SELECTED:0;
 
     name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
     name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -6412,12 +6436,12 @@ void System()
 	  show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
     }
 
-    settings_menu[10].flags = heart_beep ? D_SELECTED : 0;
+    settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
     reset_snapshot_format_menu();
 	snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
     if(debug_enabled)
     {
-      settings_menu[14].flags = get_debug() ? D_SELECTED : 0;
+      settings_menu[15].flags = get_debug() ? D_SELECTED : 0;
     }
 
     if(gui_mouse_b() && !mouse_down)
@@ -6603,10 +6627,12 @@ void jukebox(int index)
 void play_DmapMusic()
 {
   static char tfile[2048];
+  static int ttrack=0;
   bool domidi=false;
   if (DMaps[currdmap].tmusic[0]!=0)
   {
-    if((zcmusic==NULL) || (strcmp(tfile,DMaps[currdmap].tmusic)!=0))
+    if((zcmusic==NULL) || (strcmp(tfile,DMaps[currdmap].tmusic)!=0)
+	    || (ttrack != DMaps[currdmap].tmusictrack) )
     {
       char tmfname[2048];
 
@@ -6640,7 +6666,8 @@ void play_DmapMusic()
         int temptracks=0;
         temptracks=zcmusic_get_tracks(zcmusic);
         temptracks=(temptracks<2)?1:temptracks;
-        zcmusic_change_track(zcmusic,vbound(DMaps[currdmap].tmusictrack,0,temptracks-1));
+		ttrack = vbound(DMaps[currdmap].tmusictrack,0,temptracks-1);
+        zcmusic_change_track(zcmusic,ttrack);
       }
       else
       {

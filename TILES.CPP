@@ -16,7 +16,7 @@
 #include "zdefs.h"
 #include "zsys.h"
 #include "tiles.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;

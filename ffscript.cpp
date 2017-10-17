@@ -19,8 +19,9 @@
 #include "zc_init.h"
 #include "zsys.h"
 #include "title.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 #include "zscriptversion.h"
+#include "rendertarget.h"
 
 #ifdef _FFDEBUG
     #include "ffdebug.h"
@@ -41,11 +42,6 @@ T zc_max(T a, T b)
 	#pragma warning ( disable : 4800 ) //int to bool town. population: lots.
 #endif
 
-DrawingContainer draw_container;
-/*
-float *DrawingContainer::depth_buffer = NULL;
-int   *DrawingContainer::color_buffer = NULL;
-*/
 
 using std::string;
 
@@ -781,8 +777,10 @@ void deallocateArray(const long ptrval)
         {
             word size = localRAM[ptrval].Size();
             localRAM[ptrval].Clear();
-            // If this happens once per frame, it can drown out every other message. -L
-            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
+
+			// If this happens once per frame, it can drown out every other message. -L
+			//Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
+			size = size;
         }
     }
 }
@@ -2733,7 +2731,7 @@ void set_register(const long arg, const long value)
     {
 		if(GuyH::loadNPC(ri->guyref, "npc->Z") == SH::_NoError)
 		{
-			if(canfall(GuyH::getNPC()->id))
+			if(!never_in_air(GuyH::getNPC()->id))
 			{
 				if(value < 0)
 					GuyH::getNPC()->z = fix(0);
@@ -3355,7 +3353,7 @@ void do_deallocatemem()
 
 void do_loada(const byte a)
 {
-    if(ri->a[a] == NULL)
+    if(ri->a[a] == 0)
     {
         Z_eventlog("Global scripts currently have no A registers\n");
         return;
@@ -3378,7 +3376,7 @@ void do_loada(const byte a)
 
 void do_seta(const byte a)
 {
-    if(ri->a[a] == NULL)
+    if(ri->a[a] == 0)
     {
         Z_eventlog("Global scripts currently have no A registers\n");
         return;
@@ -4080,19 +4078,10 @@ INLINE void set_drawing_command_args(const int j, const word numargs)
         script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
 
-int find_drawing_command_slot()
-{
-    int j;
-    for(j = 0; j < MAX_SCRIPT_DRAWING_COMMANDS; ++j)
-        if(script_drawing_commands[j][0] == 0)
-            return j;
-
-    return -1;
-}
 
 void do_drawing_command(const int script_command)
 {
-    int j = find_drawing_command_slot();
+	int j = script_drawing_commands.GetNext();
     if(j == -1)  //out of drawing command space
     {
         Z_scripterrlog("Max draw primitive limit reached\n");
@@ -4100,6 +4089,7 @@ void do_drawing_command(const int script_command)
     }
 
     script_drawing_commands[j][0] = script_command;
+	script_drawing_commands[j][18] = zscriptDrawingRenderTarget->GetCurrentRenderTarget(); // no fixed bs.
 
     switch(script_command)
     {
@@ -4118,9 +4108,11 @@ void do_drawing_command(const int script_command)
         case SPLINER:       set_drawing_command_args(j, 11); break;
         case QUADR:         set_drawing_command_args(j, 15); break;
         case TRIANGLER:     set_drawing_command_args(j, 13); break;
+        case BITMAPR:       set_drawing_command_args(j, 11); break;
 
         case QUAD3DR:
         {
+			/*
             set_drawing_command_args(j, 8);
             quad3Dstruct *q = new quad3Dstruct;
             q->index = script_drawing_commands[j][19] = j;
@@ -4135,11 +4127,13 @@ void do_drawing_command(const int script_command)
             }
             draw_container.quad3D.push_back( *q );
             delete q;
+			*/
         }
         break;
 
         case TRIANGLE3DR:
         {
+			/*
             set_drawing_command_args(j, 8);
             triangle3Dstruct *q = new triangle3Dstruct;
             q->index = script_drawing_commands[j][19] = j;
@@ -4153,19 +4147,28 @@ void do_drawing_command(const int script_command)
             }
             draw_container.triangle3D.push_back( *q );
             delete q;
+			*/
         }
         break;
 
         case DRAWSTRINGR:
         {
             set_drawing_command_args(j, 9);
-            const int index = script_drawing_commands[j][19] = j;
-            string str;
-            ArrayH::getString(script_drawing_commands[j][8] / 10000, str);
-            draw_container.drawstring.push_back( std::make_pair( index, str ) );
+			// Unused
+            //const int index = script_drawing_commands[j][19] = j;
+
+			string *str = script_drawing_commands.GetString();
+            ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+			script_drawing_commands[j].SetString(str);
         }
         break;
     }
+}
+
+void do_set_rendertarget(bool )
+{
+	int target = int(SH::read_stack(ri->sp) / 10000);
+	zscriptDrawingRenderTarget->SetCurrentRenderTarget(target);
 }
 
 void do_sfx(const bool v)
@@ -4216,6 +4219,9 @@ void do_trace(bool v)
     string s2(tmp);
     s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
     al_trace("%s\n", s2.c_str());
+
+	if(zconsole)
+		printf("%s\n", s2.c_str());
 }
 
 void do_tracebool(const bool v)
@@ -4223,6 +4229,9 @@ void do_tracebool(const bool v)
     long temp = SH::get_arg(sarg1, v);
 
     al_trace("%s\n", temp ? "true": "false");
+
+	if(zconsole)
+		printf("%s\n", temp ? "true": "false");
 }
 
 void do_tracestring()
@@ -4231,11 +4240,17 @@ void do_tracestring()
     string str;
     ArrayH::getString(arrayptr, str, 512);
     al_trace("%s", str.c_str());
+
+	if(zconsole)
+		printf("%s", str.c_str());
 }
 
 void do_tracenl()
 {
     al_trace("\n");
+
+	if(zconsole)
+		printf("\n");
 }
 
 void do_cleartrace()
@@ -4282,6 +4297,9 @@ void do_tracetobase()
         break;
     }
     al_trace("%s\n", s2.c_str());
+
+	if(zconsole)
+		printf("%s\n", s2.c_str());
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -4787,7 +4805,7 @@ int run_script(const byte type, const word script, const byte i)
 			case LINER:	 		case PUTPIXELR:		case DRAWTILER:	case DRAWCOMBOR:
 			case DRAWCHARR: 	case DRAWINTR:		case QUADR:		case TRIANGLER:
 			case QUAD3DR:		case TRIANGLE3DR:	case FASTTILER:	case FASTCOMBOR:
-			case DRAWSTRINGR:	case SPLINER:
+			case DRAWSTRINGR:	case SPLINER:		case BITMAPR:
 									do_drawing_command(scommand); break;
 
 			case COPYTILEVV:		do_copytile(true, true); break;
@@ -4816,6 +4834,8 @@ int run_script(const byte type, const word script, const byte i)
 			case SHIFTTILEVR:		do_shifttile(true, false); break;
 			case SHIFTTILERV:		do_shifttile(false, true); break;
 			case SHIFTTILERR:		do_shifttile(false, false); break;
+
+			case SETRENDERTARGET:	do_set_rendertarget(true); break;
 
 			case GAMEEND:			Quit = qQUIT; skipcont = 1; scommand = 0xFFFF; break;
 			case SAVE:				save_game(false); break;
@@ -4903,56 +4923,3 @@ int ffscript_engine(const bool preload)
 
 
 ///----------------------------------------------------------------------------------------------------
-//Drawing Containers
-
-void DrawingContainer::SortContainers()
-{
-	this->SortDrawString();
-	this->SortQuad3D();
-	this->SortTriangle3D();
-}
-
-void DrawingContainer::SortDrawString()
-{
-	//std::stable_sort( drawstring.begin(), drawstring.end() );
-}
-
-std::list< std::pair <int, std::string> > ::iterator DrawingContainer::getDrawStringIterator( int index )
-{
-	std::list< std::pair <int, std::string> > ::iterator _it = drawstring.begin();
-	for( ; _it != drawstring.end(); ++_it )
-		if( (*_it).first == index )
-			break;
-
-	return _it;
-}
-
-std::deque< quad3Dstruct > ::iterator DrawingContainer::getQuad3dIterator( int index )
-{
-	std::deque< quad3Dstruct > ::iterator _it = quad3D.begin();
-	for( ; _it != quad3D.end(); ++_it )
-		if( (*_it).index == index )
-			break;
-
-	return _it;
-}
-
-std::deque< triangle3Dstruct > ::iterator DrawingContainer::getTriangle3dIterator( int index )
-{
-	std::deque< triangle3Dstruct > ::iterator _it = triangle3D.begin();
-	for( ; _it != triangle3D.end(); ++_it )
-		if( (*_it).index == index )
-			break;
-
-	return _it;
-}
-
-void DrawingContainer::SortQuad3D()
-{
-	//std::stable_sort( quad3D.begin(), quad3D.end() );
-}
-
-void DrawingContainer::SortTriangle3D()
-{
-	//std::stable_sort( triangle3D.begin(), triangle3D.end() );
-}

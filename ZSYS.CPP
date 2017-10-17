@@ -25,7 +25,7 @@ using std::string;
 #include "zsys.h"
 #include "zc_sys.h"
 #include "jwin.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -38,6 +38,7 @@ extern BITMAP *hw_screen;
 //#endif
 
 extern bool is_zquest();
+bool zconsole = false;
 
 char *time_str_long(dword time)
 {
@@ -251,15 +252,13 @@ int used_switch(int argc,char *argv[],const char *s)
 #pragma warning(disable: 4309)
 #endif
 
-//char zeldapwd[8]  = { 'G'+11,'i'+22,'g'+33,'i'+44,'2'+55,'0'+66, 0 +77,'c'+88 };
-//char zeldapwd[8]  = { 'T'+11,'e'+22,'m'+33,'e'+44,'n'+55,'k'+66,'u'+77, 0 +88 };
-//char zeldapwd[8]  = { 'T'+11,'a'+22,'n'+33,'g'+44,'a'+55,'n'+66, 0 +77,0+88 };
-char zeldapwd[8]  = { 'N'+11,'0'+22,'S'+33,'7'+44,'1'+55,'M'+66,'3'+77, 0 +88 };
+
+char zeldapwd[8]  = { char('N'+11),char('0'+22),char('S'+33),char('7'+44),char('1'+55),char('M'+66),char('3'+77), char(0 +88) };
 //char zquestpwd[8] = { 'C'+11,'a'+22,'o'+33,'M'+44,'e'+55,'i'+66,'7'+77, 0 +88 };
 //char zquestpwd[8] = { 'N'+11,'g'+22,'o'+33,'m'+44,'o'+55,'n'+66,'g'+77, 0 +88 };
 //char zquestpwd[8] = { 'C'+11,'a'+22,'n'+33,'t'+44,'i'+55,'k'+66,'a'+77,0+88 };
-char zquestpwd[8] = { 'S'+11,'3'+22,'('+33,'r'+44,'3'+55,'7'+66,'!'+77, 0 +88 };
-char datapwd[8]   = { 'l'+11,'o'+22,'n'+33,'g'+44,'t'+55,'a'+66,'n'+77,0+88 };
+char zquestpwd[8] = { char('S'+11),char('3'+22),char('('+33),char('r'+44),char('3'+55),char('7'+66),char('!'+77), char(0 +88) };
+char datapwd[8]   = { char('l'+11),char('o'+22),char('n'+33),char('g'+44),char('t'+55),char('a'+66),char('n'+77),char(0+88) };
 
 #ifdef _MSC_VER
 #pragma warning(default: 4309)
@@ -317,6 +316,9 @@ void Z_message(const char *format,...)
   printf("%s",buf);
 #endif
   al_trace("%s",buf);
+
+  if(zconsole)
+	  printf("%s",buf);
 }
 
 void Z_title(const char *format,...)
@@ -355,6 +357,9 @@ void Z_title(const char *format,...)
   }
 #else
   al_trace("%s\n",buf);
+
+  if(zconsole)
+	printf("%s\n",buf);
 #endif
 }
 
@@ -2248,7 +2253,7 @@ int zc_trace_handler(const char * msg) {
 			return 0; // blargh.
 		}
 	}
-	fprintf(trace_file, msg);
+	fprintf(trace_file, "%s", msg);
 	fflush(trace_file);
 	return 1;
 }

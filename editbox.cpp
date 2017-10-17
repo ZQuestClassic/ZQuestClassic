@@ -28,6 +28,7 @@
 #include "zc_alleg.h"
 #include "jwin.h"
 #include <stdio.h>
+
 #include "EditboxNew.h"
 
 //#ifndef _MSC_VER
@@ -50,7 +51,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 {
 	EditboxModel *model= (EditboxModel *)d->dp;
 	int ret = D_O_K;
-  
+
 	static clock_t ticks;
 	bool dontredraw=false;
 	switch(msg)
@@ -84,7 +85,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 	case MSG_CHAR:
 		{
 			//handle selecting (bah)
-			
+
 			switch(c>>8)
 			{
 			case KEY_LEFT:
@@ -104,7 +105,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 					model->getSelection().clearSelection();
 				}
 			}
-			
+
 			//normal event handling
 			switch(c>>8)
 			{
@@ -247,7 +248,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 			}
 			while(gui_mouse_b())
 			{
-				
+
 				if(model->getView()->mouseDrag(gui_mouse_x(), gui_mouse_y()))
 				{
 					scare_mouse();
@@ -270,7 +271,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 			d->flags |= D_DIRTY;
 			break;
 		}
-    
+
 	}
 	if(ret == D_USED_CHAR && !dontredraw)
 	{
@@ -282,5 +283,5 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 		d->flags |= D_DIRTY;
 	}
 	return ret;
-} 
- 
+}
+

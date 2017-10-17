@@ -34,7 +34,7 @@
 #include "jwin.h"
 #include "jwinfsel.h"
 #include "gui.h"
-#include "trapper_keeper.h" 
+#include "mem_debug.h" 
 
 /****************************/
 /**********  GUI  ***********/
@@ -220,7 +220,7 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
   int ret;
   ASSERT(dialog);
 
-  bmp = create_bitmap(dialog->w, dialog->h);
+  bmp = create_bitmap_ex(8, dialog->w, dialog->h);
   gui_bmp = screen;
   if (bmp)
   {

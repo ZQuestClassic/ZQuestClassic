@@ -138,6 +138,7 @@ extern int alignment_arrow_timer;
 extern int  Flip,Combo,CSet,First[3];
 extern int  Flags,Flag,menutype;
 extern int MouseScroll, SavePaths, CycleOn, InvalidStatic;
+extern int Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS;
 extern int ComboBrush;                                      //show the brush instead of the normal mouse
 extern int ComboBrushPause;                                 //temporarily disable the combo brush
@@ -267,10 +268,10 @@ int onUndo();
 int onCopy();
 int onFlipDMapHorizontal(int d);
 int onFlipDMapVertical(int d);
-int onFlipMapHorizontal(int m);
-int onFlipMapVertical(int m);
-int onFlipScreenHorizontal(int m, int s);
-int onFlipScreenVertical(int m, int s);
+int onFlipMapHorizontal();
+int onFlipMapVertical();
+int onFlipScreenHorizontal();
+int onFlipScreenVertical();
 int onH();
 int onPaste();
 int onPasteAll();
@@ -423,7 +424,6 @@ int d_wflag_proc(int msg,DIALOG *d,int c);
 void doxypos(byte &px,byte &py,int color,int mask, bool immediately);
 void doxypos(byte &px,byte &py,int color,int mask, bool immediately,  int cursoroffx, int cursoroffy, int iconw, int iconh);
 void doflags();
-void peek(int c);
 void set_brush_width(int width);
 void set_brush_height(int height);
 
@@ -880,6 +880,7 @@ const char *warptypelist(int index, int *list_size);
 //int warpdmapxy[6] = {188,126,188,100,188,112};
 
 int d_warpdestsel_proc(int msg,DIALOG *d,int c);
+int onTileWarpIndex(int index);
 int onTileWarp();
 int onTimedWarp();
 int onItemWarp();

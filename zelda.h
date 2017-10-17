@@ -25,6 +25,7 @@
 #include "jwin.h"
 #include "gamedata.h"
 #include "zsys.h"
+#include "script_drawing.h"
 
 int isFullScreen();
 int onFullscreen();
@@ -211,9 +212,6 @@ extern byte     use_cheats;
 extern byte     use_tiles;
 extern char     palnames[MAXLEVELS][17];
 
-#define MAX_SCRIPT_DRAWING_COMMANDS 1000
-#define SCRIPT_DRAWING_COMMAND_VARIABLES 20
-extern int script_drawing_commands[MAX_SCRIPT_DRAWING_COMMANDS][SCRIPT_DRAWING_COMMAND_VARIABLES];
 extern bool is_large;
 
 /*
@@ -256,7 +254,9 @@ extern bool close_button_quit;
 extern int jwin_pal[jcMAX];
 extern int gui_colorset;
 extern int fullscreen;
-extern byte disable_triplebuffer,can_triplebuffer_in_windowed_mode;
+extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
+extern byte zc_color_depth;
+extern byte use_debug_console, use_win7_keyboard_fix, use_win32_proc; //windows only
 
 #ifdef _SCRIPT_COUNTER
 void update_script_counter();
@@ -283,7 +283,7 @@ extern float avgfps;
 
 extern bool do_cheat_goto, do_cheat_light;
 extern bool blockmoving;
-extern bool Throttlefps, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
+extern bool Throttlefps, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;

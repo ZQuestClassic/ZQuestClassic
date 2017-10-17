@@ -329,7 +329,7 @@ const int LA_HOPPING            = 12; // Leaving water.
 const int LA_GOTHURTWATER       = 13;
 const int LA_HOLD1WATER         = 14;
 const int LA_HOLD2WATER         = 15;
-const int LA_CASTING            = 16;
+const int LA_CASTING            = 16; // Casting a spell.
 const int LA_CAVEWALKUP         = 17;
 const int LA_CAVEWALKDOWN       = 18;
 const int LA_DYING              = 19;
@@ -527,7 +527,7 @@ const int NPC_ZOLTRIB           = 89;
 const int NPC_ZORA              = 33;
 
 //NPC hit point values. Use with npc->HP to make the enemy die in a special manner.
-const int HP_SILENT = -1000;  // The enemy will die without SFX_EDEAD playing.
+const int HP_SILENT = -1000;  // The enemy will die without their Death Sound playing.
 
 //LWeapon types. Use with Screen->CreateLWeapon() and Screen->LoadLWeapon().
 const int LW_SWORD              = 1; // This cannot be created
@@ -595,7 +595,7 @@ const int EW_SCRIPT10           = 40;
 
 //Weapon DeadState values. Use with Weapon->DeadState.
 const int WDS_NOHIT             = -10; // This value switches collision detection off. Deprecated by weapon->CollDetection.
-const int WDS_ALIVE				= -1; // Weapon is currently 'alive'.
+const int WDS_ALIVE		= -1; // Weapon is currently 'alive'.
 const int WDS_DEAD              = 0;  // Use to dispose of most weapons.
 const int WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
 const int WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
@@ -995,11 +995,11 @@ const int NPCA9_POLSVOICE		= 3;
 
 //NPC Defenses. Use as indices to npc->Defense[].
 const int NPCD_ARROW			= 3;
-const int NPCD_BEAM			= 10;
+const int NPCD_BEAM				= 10;
 const int NPCD_BRANG			= 0;
-const int NPCD_BOMB			= 1;
+const int NPCD_BOMB				= 1;
 const int NPCD_BYRNA			= 16;
-const int NPCD_FIRE			= 4;
+const int NPCD_FIRE				= 4;
 const int NPCD_HAMMER			= 8;
 const int NPCD_HOOKSHOT			= 7;
 const int NPCD_MAGIC			= 6;
@@ -1008,17 +1008,18 @@ const int NPCD_REFMAGIC			= 12;
 const int NPCD_REFFIREBALL		= 13;
 const int NPCD_REFROCK			= 14;
 const int NPCD_SBOMB			= 2;
+const int NPCD_SCRIPT			= 17;
 const int NPCD_STOMP			= 15;
 const int NPCD_SWORD			= 9;
-const int NPCD_WAND			= 5;
+const int NPCD_WAND				= 5;
 
 //NPC Defense types. Use with npc->Defense[].
 const int NPCDT_NONE			= 0;
 const int NPCDT_HALFDAMAGE		= 1;
-const int NPCDT_QUARTERDAMAGE		= 2;
+const int NPCDT_QUARTERDAMAGE	= 2;
 const int NPCDT_STUN			= 3;
 const int NPCDT_STUNORBLOCK		= 4;
-const int NPCDT_STUNORIGNORE		= 5;
+const int NPCDT_STUNORIGNORE	= 5;
 const int NPCDT_BLOCK1			= 6;
 const int NPCDT_BLOCK2			= 7;
 const int NPCDT_BLOCK4			= 8;
@@ -1098,6 +1099,16 @@ const int PT_TRANSTEXTURE       = 11; // translucent texture mapped polygon usin
 const int PT_TRANSPTEXTURE      = 12; // not implemented
 const int PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
 const int PT_MASKTRANSPTEXTURE  = 14; // not implemented
+
+// Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
+const int RT_SCREEN             = -1; // draws to screen
+const int RT_BITMAP0            = 0; // draws to off-screen bitmap 0
+const int RT_BITMAP1            = 1; // draws to off-screen bitmap 1
+const int RT_BITMAP2            = 2; // draws to off-screen bitmap 2
+const int RT_BITMAP3            = 3; // draws to off-screen bitmap 3
+const int RT_BITMAP4            = 4; // draws to off-screen bitmap 4
+const int RT_BITMAP5            = 5; // draws to off-screen bitmap 5
+const int RT_BITMAP6            = 6; // draws to off-screen bitmap 6
 
 //Sprite extending methods. Use with Link->Extend, item->Extend,
 //npc->Extend, eweapon->Extend and lweapon->Extend.
@@ -1258,32 +1269,26 @@ bool Cond(bool cond, bool a, bool b) {
   else return b;
 }
 npc Cond(bool cond, npc a, npc b) {
-
   if (cond) return a;
   else return b;
 }
 item Cond(bool cond, item a, item b) {
-
   if (cond) return a;
   else return b;
 }
 lweapon Cond(bool cond, lweapon a, lweapon b) {
-
   if (cond) return a;
   else return b;
 }
 eweapon Cond(bool cond, eweapon a, eweapon b) {
-
   if (cond) return a;
   else return b;
 }
 ffc Cond(bool cond, ffc a, ffc b) {
-
   if (cond) return a;
   else return b;
 }
 itemdata Cond(bool cond, itemdata a, itemdata b) {
-
   if (cond) return a;
   else return b;
 }
@@ -1760,15 +1765,15 @@ float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, f
 
 // Wraps radian value towards the range of -PI,PI.
 float WrapAngle( float radians ) {
-  if (radians <= -PI) radians += PI2;
-  else if (radians >= PI) radians -= PI2;
+  while (radians <= -PI) radians += PI2;
+  while (radians > PI) radians -= PI2;
   return radians;
 }
 
-// Wraps degree value towards the range of 0,360.
+// Wraps degree value towards the range of -180,180.
 float WrapDegrees( float degrees ) {
-  if (degrees < 0) degrees += 360;
-  else if (degrees >= 360) degrees -= 360;
+  while (degrees <= -180) degrees += 360;
+  while (degrees > 180) degrees -= 360;
   return degrees;
 }
 

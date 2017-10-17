@@ -373,12 +373,12 @@ void zqwin_blit_to_self(struct BITMAP *source, struct BITMAP *dest, int source_x
         int l_h = y2 - l_y;
         if (!tmp)
         {
-          tmp = create_bitmap(mw, mh);
+          tmp = create_bitmap_ex(8, mw, mh);
         }
         else if (mw > tmp->w  ||  mh > tmp->h)
           {
             destroy_bitmap(tmp);
-            tmp = create_bitmap(mw, mh);
+            tmp = create_bitmap_ex(8, mw, mh);
           }
           orig_vtable->blit_to_self(proxy_screen, tmp, mx, my, 0, 0, mw, mh);
         //orig_vtable->draw_256_sprite(proxy_screen, mouse_sprite, mx, my);
@@ -591,7 +591,7 @@ bool zqwin_set_scale(int scale, bool defer)
 
   if ((!proxy_screen) && (scale > 1))
   {
-    proxy_screen = create_bitmap(zq_screen_w, zq_screen_h);
+    proxy_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
     proxy_vtable = (GFX_VTABLE*)malloc(sizeof(GFX_VTABLE));
     if (!proxy_screen || !proxy_vtable)
     {

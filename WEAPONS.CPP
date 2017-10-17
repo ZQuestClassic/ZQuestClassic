@@ -25,7 +25,7 @@
 #include "tiles.h"
 #include "pal.h"
 #include "link.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 extern zinitdata zinit;
 extern int directWpn;
@@ -293,7 +293,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_sword, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_sword);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -307,7 +307,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_wand, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_wand);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -321,7 +321,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_hammer, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_hammer);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -336,7 +336,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_cbyrna, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_cbyrna);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn3;
@@ -364,7 +364,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_whistle, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_whistle);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -382,7 +382,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       step = 3;
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_sword, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_sword);
       }
       if (itemid>-1 && id!=wRefBeam)
         defaultw = itemsbuf[itemid].wpn3;
@@ -406,7 +406,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wArrow:
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_arrow, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_arrow);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -435,7 +435,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wFire:
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_candle, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_candle);
       }
       switch(type)
       {
@@ -470,7 +470,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_bomb, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_bomb);
       }
       if (itemid >-1)
       {
@@ -491,7 +491,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_sbomb, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
       }
       if (parentitem>-1)
       {
@@ -510,7 +510,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wBait:
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_bait, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_bait);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -529,7 +529,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       }
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_wand, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_wand);
         book = false;
       }
       if (itemid >-1)
@@ -551,7 +551,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case wBrang:
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_brang, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_brang);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -566,7 +566,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       hookshot_used=true;
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_hookshot, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn;
@@ -587,7 +587,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       step = 0;
       if(isDummy || itemid<0)
       {
-        itemid = getItemID(itemsbuf, itype_hookshot, 1);
+        itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
       }
       if (itemid >-1)
         defaultw = itemsbuf[itemid].wpn4;
@@ -606,7 +606,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       {
         if(isDummy || itemid<0)
         {
-         itemid = getItemID(itemsbuf, itype_hookshot, 1);
+         itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
         }
         if (itemid >-1)
           defaultw = (dir<left) ? itemsbuf[itemid].wpn3 : itemsbuf[itemid].wpn2;
@@ -1413,7 +1413,9 @@ bool weapon::animate(int )
       }*/
       if(clk==(misc-2) && step==0)
       {
-        id = (id<wEnemyWeapons?((parentitem>-1 && itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb):(id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb));
+        id =  (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
+		  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
+		  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
         hxofs=2000;
       }
       if(clk==(misc-1) && step==0)
@@ -1704,6 +1706,7 @@ bool weapon::animate(int )
 	      chainlinks.del(chainlinks.idFirst(wHSChain));
 	    }
       }
+	  // Hookshot grab and retract code
       if (misc==0)
       {
         int maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
@@ -2805,5 +2808,5 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
   aframe=temp.aframe;
 }
 
-/*** end of sprite.cc ***/
+/*** end of weapons.cpp ***/
 

@@ -438,7 +438,7 @@ int d_rulesettext_proc(int msg, DIALOG *d, int)
     sprintf(buf,  "Fixed NES, plus BS-Zelda");
     sprintf(buf2, "animations, new enemy tiles,");
     sprintf(buf3, "fast scrolling, new push-");
-    sprintf(buf4, "blocks, opening wipes, etc.");
+    sprintf(buf4, "blocks, transition wipes, etc.");
     break;
 
     case 4: // Zelda 3-esque

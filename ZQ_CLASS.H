@@ -14,6 +14,9 @@
 #include "zdefs.h"
 #include <stdio.h>
 
+#define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
+#define COMBOX(pos) ((pos)%16*16)
+#define COMBOY(pos) ((pos)&0xF0)
 
 void set_preview_mode(int prv);
 
@@ -39,6 +42,8 @@ class zmap
   //int prv_mode; //NEW
   int prv_cmbcycle, prv_map, prv_scr, prv_freeze, prv_advance, prv_time; //NEW
   bool can_undo,can_paste,can_undo_map,can_paste_map,screen_copy;
+  // A screen which uses the current screen as a layer
+  int layer_target_map, layer_target_scr, layer_target_multiple;
 
 public:
 
@@ -74,6 +79,9 @@ public:
   void update_freeform_combos();
   int getMapCount();
   bool isDungeon(int scr);
+  bool isstepable(int combo);
+  bool ishookshottable(int bx, int by, int i);
+  int warpindex(int combo);
   bool clearall(bool validate);
   bool reset_templates(bool validate);
   bool clearmap(bool newquest);
@@ -81,6 +89,9 @@ public:
   void clearzcmap(int map);
   int  load(const char *path);
   int  save(const char *path);
+  int MAPCOMBO2(int lyr,int x,int y, int map = -1, int scr = -1);
+  int MAPCOMBO(int x,int y, int map = -1, int scr = -1);
+  void put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer);
   bool misaligned(int map, int scr, int i, int dir);
   void check_alignments(BITMAP* dest,int x,int y,int scr=-1);
   void draw(BITMAP *dest,int x,int y,int flags,int map,int scr);
@@ -104,6 +115,7 @@ public:
   void setCurrMap(int index);
   int  getCurrScr();
   void setCurrScr(int scr);
+  void setlayertarget();
   void setcolor(int c);
   int getcolor();
   void resetflags();
@@ -138,6 +150,9 @@ public:
   int get_prvadvance() {return prv_advance;}
   void set_prvtime(int set) {prv_time=set;}
   int get_prvtime() {return prv_time;}
+  int getLayerTargetMap();
+  int getLayerTargetScr();
+  int getLayerTargetMultiple();
 };
 
 extern zmap Map;

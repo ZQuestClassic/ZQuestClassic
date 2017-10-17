@@ -13,6 +13,7 @@
 #include "zdefs.h"
 
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
+#define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
 void debugging_box(int x1, int y1, int x2, int y2);
 void clear_dmap(word i);
 void clear_dmaps();
@@ -32,6 +33,7 @@ int MAPFLAG2(int layer,int x,int y);
 int MAPCOMBOFLAG2(int layer,int x,int y);
 int COMBOTYPE2(int layer,int x,int y);
 int getFFCAt(int x, int y);
+void eventlog_mapflags();
 void setmapflag(int mi2, int flag);
 void setmapflag(int flag = 32); // 32 = mBELOW
 void unsetmapflag(int mi2, int flag, bool anyflag=false);
@@ -68,7 +70,7 @@ int nextscr(int dir);
 void bombdoor(int x,int y);
 void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen);
 void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen, bool scrolling = false, bool drawprimitives=false);
-void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer);
+void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int lyr);
 void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
 void do_primitives(BITMAP *bmp, int type, mapscr *layer, int x, int y);
 void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x2, int y2, bool showlink=true);

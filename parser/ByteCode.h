@@ -1422,6 +1422,20 @@ public:
 	Opcode *clone() {return new ODrawStringRegister();}
 };
 
+class ODrawBitmapRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new ODrawBitmapRegister();}
+};
+
+class OSetRenderTargetRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OSetRenderTargetRegister();}
+};
+
 class OSetDepthBufferRegister : public Opcode
 {
 public:

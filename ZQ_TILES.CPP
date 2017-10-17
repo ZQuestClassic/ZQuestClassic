@@ -28,7 +28,7 @@
 #include "jwinfsel.h"
 #include "zqscale.h"
 #include "zc_custom.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -6937,7 +6937,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
   int copy=-1;
   int tile2=tile,copycnt=0;
   int tile_clicked=-1;
-  bool rect_sel=false;
+  bool rect_sel=true;
   bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
   position_mouse_z(0);
 

@@ -20,7 +20,7 @@
 #include "maps.h"
 #include "zelda.h"
 #include "zdefs.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 #include <queue>
 
@@ -313,6 +313,8 @@ int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool 
 
 int getItemID(itemdata *items, int family, int level)
 {
+	if (level<0) return getCanonicalItemID(items, family);
+	
 	for(int i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && items[i].fam_type == level)

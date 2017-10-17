@@ -231,7 +231,7 @@ float WrapAngle( float radians )
  * Wraps radian value towards the range of -PI,PI.
 
 float WrapDegrees( float degrees )
- * Wraps degree value towards the range of 0,360.
+ * Wraps degree value towards the range of -180,180.
 
 float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t )
  * Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
@@ -647,3 +647,5 @@ int GetHighestLevelItem(item i)
 
 bool IsSideview()
  * Returns true if Link is on a sideview screen
+
+

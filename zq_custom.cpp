@@ -298,7 +298,7 @@ static ItemNameInfo inameinf[]=
   { itype_dinsfire,                    (char *)"Damage:",                         (char *)"Number of Flames:",                 (char *)"Circle Width:",                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      (char *)"Don't Provide Light",     NULL,                              NULL,                              NULL,                              (char *)"Rocket Up Sprite:",       (char *)"Rocket Down Sprite:",             (char *)"R. Up Sparkle Sprite:",           (char *)"R. Down Sparkle Sprite:",         (char *)"Flame Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Ring Sound:"                      },
   { itype_hammer,                      (char *)"Damage:",                         NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Hammer Sprite:",          (char *)"Smack Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Pound Sound:"                     },
   { itype_lens,                        NULL,                                      (char *)"Lens Width:",                       NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Activation Sound:"                },
-  { itype_hookshot,                    (char *)"Damage:",                         (char *)"Chain Length:",                     (char *)"Chain Links:",                    (char *)"Block Flags:",            (char *)"Reflect Flags:",          NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"No Chain Damage",                 NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Tip Sprite:",             (char *)"Chain Sprite (H):",               (char *)"Chain Sprite (V):",               (char *)"Handle Sprite:",                  NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Firing Sound:"                    },
+  { itype_hookshot,                    (char *)"Damage:",                         (char *)"Chain Length:",                     (char *)"Chain Links:",                    (char *)"Block Flags:",            (char *)"Reflect Flags:",          NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"No Handle Damage",                 NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Tip Sprite:",             (char *)"Chain Sprite (H):",               (char *)"Chain Sprite (V):",               (char *)"Handle Sprite:",                  NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Firing Sound:"                    },
   { itype_boots,                       (char *)"Damage Combo Level:",             NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Not Solid Combos",                NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL                                       },
   { itype_bracelet,                    (char *)"Push Combo Level:",               NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Once Per Screen",                 NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL                                       },
   { itype_book,                        (char *)"Damage:",                         NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Fire Magic",                      NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Magic Sprite:",           (char *)"Flame Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Firing Sound:"                    },
@@ -1964,7 +1964,7 @@ const char *patramisc5list(int index, int *list_size)
 {
   if(index>=0)
   {
-    return (index==2 ? "All Eyes" : index==1 ? "Center Eye" : "None");
+    return (index==2 ? "Inner Eyes" : index==1 ? "Center Eye" : "None");
   }
   *list_size = 3;
   return NULL;
@@ -2051,6 +2051,16 @@ const char *keesemisc1list(int index, int *list_size)
   return NULL;
 }
 
+const char *keesemisc2list(int index, int *list_size)
+{
+	if(index>=0)
+	{
+		return (index ? "Tribble" : "Normal");
+	}
+	*list_size = 2;
+	return NULL;
+}
+
 const char *trapmisc2list(int index, int *list_size)
 {
   if(index>=0)
@@ -2089,6 +2099,7 @@ static ListData dodongomisc10_list(dodongomisc10list, is_large? &lfont_l : &font
 static ListData nonemisc10_list(nonemisc10list, is_large? &lfont_l : &font);
 
 static ListData keesemisc1_list(keesemisc1list, is_large? &lfont_l : &font);
+static ListData keesemisc2_list(keesemisc2list, is_large? &lfont_l : &font);
 
 static ListData digdoggermisc10_list(digdoggermisc10list, is_large? &lfont_l : &font);
 
@@ -2126,10 +2137,8 @@ static EnemyNameInfo enameinf[]=
 			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list } },
   { eeTRAP, { "Direction:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
-  { eeKEESETRIB, { NULL,  NULL, "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
-  { eeKEESE, { "Walk Style:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-			{ (void*)&keesemisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+			{ (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
@@ -2296,22 +2305,22 @@ static DIALOG enedata_dlg[] =
   {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Can Only Be Seen By Lens Of Truth",                   NULL,   NULL                 },
   //106
   {  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Is Flashing",                                         NULL,   NULL                 },
-  {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Zora\" Enemy Flag",                      NULL,   NULL                 },
-  {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Falling Rocks\" Enemy Flag",             NULL,   NULL                 },
-  {  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Corner Traps\" Enemy Flag",              NULL,   NULL                 },
+  {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Zora\" Screen Flag",                      NULL,   NULL                 },
+  {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Falling Rocks\" Screen Flag",             NULL,   NULL                 },
+  {  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Corner Traps\" Screen Flag",              NULL,   NULL                 },
   {  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Horz Trap\" Combo Type/Flag",            NULL,   NULL                 },
   {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Vert Trap\" Combo Type/Flag",            NULL,   NULL                 },
   {  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"4-Way Trap\" Combo Type/Flag",           NULL,   NULL                 },
   {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"LR Trap\" Combo Type/Flag",              NULL,   NULL                 },
   //114
   {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"UD Trap\" Combo Type/Flag",              NULL,   NULL                 },
-  {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Middle Traps\" Enemy Flag",              NULL,   NULL                 },
-  {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Statue Fire\" Enemy Flag",               NULL,   NULL                 },
+  {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Middle Traps\" Screen Flag",              NULL,   NULL                 },
+  {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Statue Fire\" Screen Flag",               NULL,   NULL                 },
   {  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Armos\" Combo Type",                     NULL,   NULL                 },
   {  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Grave\" Combo Type",                     NULL,   NULL                 },
   {  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Spawned By \"Ganon\" Room Type",                      NULL,   NULL                 },
   {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Is Flickering",                                       NULL,   NULL                 },
-  {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Is Transparent",                                      NULL,   NULL                 },
+  {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Is Translucent",                                      NULL,   NULL                 },
   //122
   {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
   {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
@@ -2343,7 +2352,7 @@ static DIALOG enedata_dlg[] =
   {  jwin_text_proc,           6,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Super Bomb Defense:",                                 NULL,   NULL                 },
   {  jwin_text_proc,           6,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Arrow Defense:",                                      NULL,   NULL                 },
   {  jwin_text_proc,           6,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Fire Defense:",                                       NULL,   NULL                 },
-  {  jwin_text_proc,           6,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Wand Defense:",                                       NULL,   NULL                 },
+  {  jwin_text_proc,           6,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Wand Melee Defense:",                                       NULL,   NULL                 },
   {  jwin_text_proc,           6,    162,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Magic Defense:",                                      NULL,   NULL                 },
   {  jwin_text_proc,           6,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Hookshot Defense:",                                   NULL,   NULL                 },
   {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Hammer Defense:",                                     NULL,   NULL                 },
@@ -2354,7 +2363,7 @@ static DIALOG enedata_dlg[] =
   {  jwin_text_proc,           6,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Refl. Fireball Defense:",                             NULL,   NULL                 },
   {  jwin_text_proc,           6,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Refl. Rock Defense:",                                 NULL,   NULL                 },
   {  jwin_text_proc,           6,    162,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Stomp Boots Defense:",                                NULL,   NULL                 },
-  {  jwin_text_proc,           6,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Cane of Byrna Defense:",                              NULL,   NULL                 },
+  {  jwin_text_proc,           6,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Byrna Beam Defense:",                              NULL,   NULL                 },
   //161
   {  jwin_droplist_proc,         126,   54-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0,  (void *) &defense_list,                                         NULL,   NULL                 },
   {  jwin_droplist_proc,         126,   72-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0,  (void *) &defense_list,                                         NULL,   NULL                 },
@@ -2414,6 +2423,11 @@ void setEnemyLabels(int family)
   enedata_dlg[61].dp = (void*)"Misc. Attr. 8:";
   enedata_dlg[62].dp = (void*)"Misc. Attr. 9:";
   enedata_dlg[63].dp = (void*)"Misc. Attr. 10:";
+  if (family==eeKEESE || family==eeGHINI || family==eePEAHAT || family==eeMANHAN
+	   || family==eeGLEEOK || family==eePATRA || family==eeDIG)
+	  enedata_dlg[22].dp = (void*)"Turn Freq.:";
+  else
+      enedata_dlg[22].dp = (void*)"Halt Rate:";
   for (int i = 0; i < 10; i++)
   {
 	    if (inf != NULL)

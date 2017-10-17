@@ -27,7 +27,7 @@
 #include "zc_custom.h"
 #include "title.h"
 #include "ffscript.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 #include "zscriptversion.h"
 
 using std::set;
@@ -55,7 +55,6 @@ int directItem = -1; //Is set if Link is currently using an item directly
 int directItemA = -1;
 int directItemB = -1;
 int directWpn = -1;
-extern int enemyHitWeapon;
 extern word g_doscript;
 
 void playLevelMusic();
@@ -495,7 +494,6 @@ bool LinkClass::agonyflag(int flag)
 int LinkClass::weaponattackpower()
 {
   int power = directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
-  enemyHitWeapon = directWpn;
 
   // Multiply it by the power of the spin attack/quake hammer, if applicable.
   power *= (spins>0 ? itemsbuf[current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)].power : 1);
@@ -1027,6 +1025,9 @@ void LinkClass::draw(BITMAP* dest)
   {
 	// Keep this consistent with checkspecial2, line 7800-ish...
 	bool inwater = iswater(MAPCOMBO(x+4,y+9))  && iswater(MAPCOMBO(x+4,y+15)) &&  iswater(MAPCOMBO(x+11,y+9)) && iswater(MAPCOMBO(x+11,y+15));
+
+	int jumping2 = int(jumping*(zinit.gravity/16.0));
+	if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
     switch (zinit.linkanimationstyle)
     {
       case las_original:                                               //normal
@@ -1074,10 +1075,10 @@ void LinkClass::draw(BITMAP* dest)
             }
           }
         }
-        else if ((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping>0 && jumping<24 && game->get_life()>0)
+        else if ((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping2>0 && jumping2<24 && game->get_life()>0)
         {
           linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-          tile+=((int)jumping/8)*(extend==2?2:1);
+          tile+=((int)jumping2/8)*(extend==2?2:1);
         }
         else
         {
@@ -1125,10 +1126,10 @@ void LinkClass::draw(BITMAP* dest)
           linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
           tile += anim_3_4(lstep,7)*(extend==2?2:1);
         }
-        else if ((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping>0 && jumping<24 && game->get_life()>0)
+        else if ((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping2>0 && jumping2<24 && game->get_life()>0)
         {
           linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-          tile+=((int)jumping/8)*(extend==2?2:1);
+          tile+=((int)jumping2/8)*(extend==2?2:1);
         }
         else
         {
@@ -1179,10 +1180,10 @@ void LinkClass::draw(BITMAP* dest)
           l-=((l>3)?1:0)+((l>12)?1:0);
           tile+=(l/2)*(extend==2?2:1);
         }
-        else if ((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping>0 && jumping<24 && game->get_life()>0)
+        else if ((z>0 || (tmpscr->flags7&fSIDEVIEW)) && jumping2>0 && jumping2<24 && game->get_life()>0)
         {
           linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-          tile+=((int)jumping/8)*(extend==2?2:1);
+          tile+=((int)jumping2/8)*(extend==2?2:1);
         }
         else
         {
@@ -1438,7 +1439,7 @@ void LinkClass::checkstab()
       if (whimsypower > 0)
           sfx(itemsbuf[current_item_id(itype_whimsicalring)].usesound);
 
-      int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir);
+      int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
 
       if(h && charging>0)
       {
@@ -2593,7 +2594,7 @@ void LinkClass::hitlink(int hit2)
   {
       int itemid = current_item_id(itype_stompboots);
       paymagiccost(itemid);
-      hit_enemy(hit2,wStomp,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,x,y,0);
+      hit_enemy(hit2,wStomp,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,x,y,0,itemid);
       if (itemsbuf[itemid].flags & ITEM_DOWNGRADE)
         game->set_item(itemid,false);
 	  // Stomp Boots script
@@ -2923,7 +2924,7 @@ bool LinkClass::animate(int)
     {
       if (fall > 0)
       {
-        if (iswater(MAPCOMBO(x,y+8)) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+        if ((iswater(MAPCOMBO(x,y+8)) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
           sfx(WAV_ZN1SPLASH,int(x));
         stomping = true;
       }
@@ -8267,6 +8268,14 @@ void LinkClass::setEntryPoints(int x2, int y2)
   entry_y=warpy=y2;
 }
 
+const char *roomtype_string[rMAX] =
+{
+  "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+  "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+  "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+  "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+};
+
 bool LinkClass::dowarp(int type, int index)
 {
   if(index<0)
@@ -8280,11 +8289,10 @@ bool LinkClass::dowarp(int type, int index)
   //int lastent_org = lastentrance;
   //int lastdmap_org = lastentrance_dmap;
   int whistleitem = directWpn>=0 && itemsbuf[directWpn].family==itype_whistle ? directWpn : current_item_id(itype_whistle);
-  bool wasSideview = tmpscr[t].flags7&fSIDEVIEW;
+  bool wasSideview = (tmpscr[t].flags7 & fSIDEVIEW) > 0 ? true :false;
 
   // Drawing commands probably shouldn't carry over...
-  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
-  draw_container.drawstring.clear();
+  script_drawing_commands.Clear();
 
   switch(type)
   {
@@ -8852,7 +8860,8 @@ bool LinkClass::dowarp(int type, int index)
   }
   // If warping between top-down and sideview screens,
   // fix enemies that are carried over by Full Screen Warp
-  if(!wasSideview && tmpscr->flags7&fSIDEVIEW)
+  const bool tmpscr_is_sideview = (tmpscr->flags7 & fSIDEVIEW) > 0 ? true : false;
+  if(!wasSideview && tmpscr_is_sideview)
   {
     for(int i=0; i<guys.Count(); i++)
     {
@@ -8866,7 +8875,7 @@ bool LinkClass::dowarp(int type, int index)
         guys.spr(i)->yofs += 2;
     }
   }
-  else if(wasSideview && !tmpscr->flags7&fSIDEVIEW)
+  else if(wasSideview && !tmpscr_is_sideview)
   {
     for(int i=0; i<guys.Count(); i++)
     {
@@ -8933,6 +8942,20 @@ bool LinkClass::dowarp(int type, int index)
   memset(ffposy,0xFF,sizeof(short)*32);
   memset(ffprvx,0xFF,sizeof(float)*32);
   memset(ffprvy,0xFF,sizeof(float)*32);
+  if (wtype==wtCAVE) {
+    if (DMaps[currdmap].flags&dmfGUYCAVES) 
+	  Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
+	    roomtype_string[tmpscr[1].room]);
+	else 
+      Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
+  }
+  else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+    wtype==wtPASS ? "Passageway" :
+	wtype==wtEXIT ? "Entrance/Exit" :
+	wtype==wtSCROLL ? "Scrolling Warp" :
+	wtype==wtWHISTLE ? "Whistle Warp" :
+	"Insta-Warp");
+  eventlog_mapflags();
   return true;
 }
 
@@ -10172,8 +10195,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 			return;
 		}
 
-		memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS * SCRIPT_DRAWING_COMMAND_VARIABLES * sizeof(int));
-		draw_container.drawstring.clear();
+		script_drawing_commands.Clear();
 
 		// For rafting (and possibly other esoteric things)
 		// Link's action should remain unchanged while scrolling,
@@ -10315,6 +10337,10 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 
 		do_layer(framebuf, -2, oldscr, tx2, ty2, 3); //push blocks
 		do_layer(framebuf, -2, newscr, tx, ty, 2);
+
+		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
+		do_walkflags(framebuf, newscr, tx, ty,2);
+
 		if (get_bit(quest_rules, qr_FFCSCROLL))
 		{
 			do_layer(framebuf, -3, oldscr, tx2, ty2, 3, true); //ffcs
@@ -10350,9 +10376,6 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		do_layer(framebuf, 4, newscr, tx, ty, 2, false, true); //layer 4
 		do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
 		do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
-
-		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-		do_walkflags(framebuf, newscr, tx, ty,2);
 
 		if(msgdisplaybuf->clip == 0)
 			masked_blit(msgdisplaybuf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
@@ -10471,6 +10494,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
   newscr_clk = frame;
   activated_timed_warp=false;
   loadside = scrolldir^1;
+  eventlog_mapflags();
 }
 
 // How much to reduce Link's damage, taking into account various rings.
@@ -12459,7 +12483,7 @@ void LinkClass::execute(LinkClass::WalkflagInfo info)
 	{
 		hopclk = info.getHopClk();
 	}
-	
+
 	if(flags & WalkflagInfo::SETHOPDIR)
 	{
 		hopdir = info.getHopDir();
@@ -12473,7 +12497,7 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator ||(LinkClass::Walkflag
 	ret.newhopclk = newhopclk;
 	ret.newdir = newdir;
 	ret.newhopdir = (other.newhopdir >-1 ? other.newhopdir : newhopdir);
-	
+
 	int flags1 = (flags & ~UNWALKABLE) & (other.flags & ~UNWALKABLE);
 	int flags2 = (flags & UNWALKABLE) | (other.flags & UNWALKABLE);
 	ret.flags = flags1 | flags2;
@@ -12486,7 +12510,7 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator &&(LinkClass::Walkflag
 	ret.newhopclk = newhopclk;
 	ret.newdir = newdir;
 	ret.newhopdir = (other.newhopdir >-1 ? other.newhopdir : newhopdir);
-	
+
 	ret.flags = flags & other.flags;
 	return ret;
 }
@@ -12497,7 +12521,7 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator !()
 	ret.newhopclk = newhopclk;
 	ret.newdir = newdir;
 	ret.newhopdir = newhopdir;
-	
+
 	ret.flags = flags ^ UNWALKABLE;
 	return ret;
 }

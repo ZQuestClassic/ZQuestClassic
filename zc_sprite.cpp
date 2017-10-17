@@ -106,16 +106,6 @@ void movingblock::push(fix bx,fix by,int d2,int f)
   putcombo(scrollbuf,x,y,*di,*ci);
   clk=32;
   blockmoving=true;
-  
-  // I'm moving this here. -L 7/11/9
-  if(!isdungeon())
-  {
-      if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
-         || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)
-      {
-        if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
-      }
-  }
 }
 
 bool movingblock::animate(int index)
@@ -215,6 +205,15 @@ bool movingblock::animate(int index)
       {
         opendoors=8;
       }
+
+      if(!isdungeon())
+      {
+        if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
+           || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)
+        {
+          if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+        }
+      }
     }
     putcombo(scrollbuf,x,y,bcombo,cs);
   }
@@ -222,4 +221,4 @@ bool movingblock::animate(int index)
 }
 
 /*** end of sprite.cc ***/
- 
+

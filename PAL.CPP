@@ -33,6 +33,7 @@ RGB _RGB(byte *si)
   x.r = si[0];
   x.g = si[1];
   x.b = si[2];
+  x.filler=0; // Suppress warning "used undefined"
   return x;
 }
 
@@ -42,6 +43,7 @@ RGB _RGB(int r,int g,int b)
   x.r = r;
   x.g = g;
   x.b = b;
+  x.filler=0; // Suppress warning "used undefined"
   return x;
 }
 
@@ -51,6 +53,7 @@ RGB invRGB(RGB s)
   x.r = 63-s.r;
   x.g = 63-s.g;
   x.b = 63-s.b;
+  x.filler=0; // Suppress warning "used undefined"
   return x;
 }
 
@@ -60,6 +63,7 @@ RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
   x.r = ( r1*(64-ratio) + r2*ratio ) >> 6;
   x.g = ( g1*(64-ratio) + g2*ratio ) >> 6;
   x.b = ( b1*(64-ratio) + b2*ratio ) >> 6;
+  x.filler=0; // Suppress warning "used undefined"
   return x;
 }
 

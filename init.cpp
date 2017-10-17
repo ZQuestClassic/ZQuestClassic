@@ -26,7 +26,7 @@
 #include "gui.h"
 #include "init.h"
 #include "zelda.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -1085,7 +1085,7 @@ void PopulateInitDialog()
     {
       for (int y = 103; y<=175 && j<=255; y+=18)
       {
-		char *t = the_char_butcher.rape( 4 );
+		char *t = new char[4]; //memory not freed
         sprintf(t, "%d", j++);
         initPopulate(i, jwin_rtext_proc,       x,    y,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0,  (void *) t,                                         NULL,   NULL               );
 		//delete [] t;
@@ -1341,7 +1341,7 @@ void PopulateInitDialog()
       {
 	    if(j>=256)
 		{
-        char *t = the_char_butcher.rape( 4 );
+        char *t = new char[4]; //memory not freed
         sprintf(t, "%d", j++);
         initPopulate(i, jwin_rtext_proc,       x,    y,     48,      9,    vc(0),                  vc(11),                  0,    0,              0,             0,  (void *) t,                                         NULL,   NULL               );
 		//delete [] t;

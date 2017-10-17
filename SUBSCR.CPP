@@ -18,7 +18,7 @@
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
-#include "trapper_keeper.h"
+#include "gc.h"
 
 bool show_subscreen_dmap_dots=true;
 bool show_subscreen_numbers=true;
@@ -2868,50 +2868,6 @@ int stripspaces(char *source, char *target, int stop)
   return (end-begin+1);
 }
 
-/*char *subscreen_item_class_names[ssiMAX]=
-{
-  "bomb",                   "sword",                   "shield",                    "candle",             "letter",
-  "potion",                 "letter/potion",           "bow",                       "arrow",              "bait",
-  "ring",                   "bracelet",                "map",                       "compass",            "boss key",
-  "magic key",              "boomerang",               "wand",                      "raft",               "ladder",
-  "whistle",                "book",                    "wallet",                    "super bomb",         "heart container pieces",
-  "amulet",                 "flippers",                "hookshot",                  "lens",               "hammer",
-  "magic boots",            "din's fire",              "farore's wind",             "nayru's love",       "quiver",
-  "bomb bag",               "cane of byrna",           "roc items",                 "hover boots",        "spin attack scroll",
-  "cross beams scroll",     "quake hammer scroll",     "whisp ring",                "charge ring",        "peril beam scroll",
-  "wealth medals",          "heart rings",             "hurricane spin scroll",     "super quake scroll", "stones of agony",
-  "stomp boots",            "whimsical rings"
-};*/
-
-/*char *subscreen_item_names[iMax] =
-{
-  "Rupee",                    "5 Rupees",                 "Heart",                     "Bombs",                      "Clock",
-  "Wooden Sword",             "White Sword",              "Magic Sword",               "Magic Shield",               "Key",
-  "Blue Candle",              "Red Candle",               "Letter",                    "Wooden Arrows",              "Silver Arrows",
-  "Short Bow",                "Bait",                     "Blue Ring",                 "Red Ring",                   "Power Bracelet",
-  "Triforce Fragment",        "Map",                      "Compass",                   "Wooden Boomerang",           "Magic Boomerang",
-  "Wand",                     "Raft",                     "Ladder",                    "Heart Container",            "Blue Potion",
-  "Red Potion",               "Whistle",                  "Magic Book",                "Magic Key",                  "Fairy (Moving)",
-  "Fire Boomerang",           "Master Sword",             "Mirror Shield",             "20 Rupees",                  "50 Rupees",
-  "200 Rupees",               "Small Wallet",             "Large Wallet",              "Dust Pile",                  "Triforce",
-  "Selection",                "Misc 1",                   "Misc 2",                    "Super Bomb",                 "Heart Container Piece",
-  "Amulet",                   "Flippers",                 "Hookshot",                  "Lens of Truth",              "Hammer",
-  "Boots",                    "Power Glove",              "Golden Arrows",             "Magic Container",            "Small Magic Jar",
-  "Large Magic Jar",          "Golden Ring",              "Kill All Enemies",          "Large Amulet",               "Din's Fire",
-  "Farore's Wind",            "Nayru's Love",             "Boss Key",                  "Long Bow",                   "Fairy (Stationary)",
-  "Arrow Ammunition (1)",     "Arrow Ammunition (5)",     "Arrow Ammunition (10)",     "Arrow Ammunition (30)",      "Small Quiver",
-  "Medium Quiver",            "Large Quiver",             "Bomb Ammunition (1)",       "Bomb Ammunition (4)",        "Bomb Ammunition (8)",
-  "Bomb Ammunition (30)",     "Small Bomb Bag",           "Medium Bomb Bag",           "Large Bomb Bag",             "Level Key",
-  "???",                      "10 Rupees",                "100 Rupees",                "Cane of Byrna",              "Longshot",
-  "Letter (used)",            "Roc's Feather",            "Hover Boots",               "Small Shield",               "Scroll: Spin Attack",
-  "Scroll: Cross Beams",      "Scroll: Quake Hammer",     "Scroll: Super Quake",       "Scroll: Hurricane Spin",     "Whisp Ring",
-  "Large Whisp Ring",         "Charge Ring",              "Large Charge Ring",         "Scroll: Peril Beam",         "Magic Wallet",
-  "Magic Quiver",             "Magic Bomb Bag",           "Worn-Out Glove",            "Four-Way Ladder",            "Bronze Wealth Medal",
-  "Silver Wealth Medal",      "Golden Wealth Medal",      "Small Heart Ring",          "Heart Ring",                 "Large Heart Ring",
-  "Small Magic Ring",         "Magic Ring",               "Large Magic Ring",          "Light Force",                "Stone of Agony",
-  "Stomp Boots",              "Peril Ring",               "Whimsical Ring"
-};*/
-
 // The conditions on which a subcreen item should be displayed.
 bool displaysubscreenitem(int itemtype, int d)
 {
@@ -3390,13 +3346,27 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         break;
         case ssoSELECTEDITEMNAME:
         {
-			if(Bitem==NULL)
-				break;
-		  item *Bitem2 = new item((fix)0, (fix)0, (fix)0,get_bit(quest_rules,qr_SELECTAWPN) ? Bweapon(Bpos)&0xFFF : Bitem->id, 0, 0);
+          if(Bitem==NULL && (!get_bit(quest_rules,qr_SELECTAWPN) || Aitem==NULL))
+			break;
+
+          item *Bitem2=NULL;
+          if(get_bit(quest_rules,qr_SELECTAWPN))
+          {
+            if(Bitem && Bitem->id!=0)
+              Bitem2 = new item((fix)0, (fix)0, (fix)0, Bitem->id, 0, 0);
+            else if(Aitem && Aitem->id!=0)
+              Bitem2 = new item((fix)0, (fix)0, (fix)0, Aitem->id, 0, 0);
+          }
+          else if(Bitem && Bitem->id!=0)
+          {
+            Bitem2 = new item((fix)0, (fix)0, (fix)0, Bitem->id, 0, 0);
+          }
+
           if (!Bitem2)
           {
             break;
           }
+
           char itemname[80];
           sprintf(itemname, "%s", item_string[Bitem2->id]);
 

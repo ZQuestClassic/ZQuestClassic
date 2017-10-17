@@ -243,6 +243,8 @@ script_command command_list[NUMCOMMANDS+1]=
   { "GETDMAPTITLE",        2,   0,   0,   0},
   { "GETDMAPINTRO",        2,   0,   0,   0},
   { "ALLOCATEGMEMR",       2,   0,   0,   0},
+  { "DRAWBITMAP",          0,   0,   0,   0},
+  { "SETRENDERTARGET",     0,   0,   0,   0},
   { "",                    0,   0,   0,   0}
 };
 
@@ -572,6 +574,8 @@ script_variable variable_list[]=
   { "IDATAINITDD",        IDATAINITDD,         0,             0 },
   { "ROOMTYPE",           ROOMTYPE,            0,             0 },
   { "ROOMDATA",           ROOMDATA,            0,             0 },
+
+
   { " ",                       -1,             0,             0 }
 };
 

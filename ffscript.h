@@ -238,10 +238,10 @@ enum ASM_DEFINE
   WHATNO0x00BF, //PTROFF,//0x00BF
   QUAD3DR,              //0x00C0
   TRIANGLE3DR,          //0x00C1
-  SETCOLORB,        	//0x00C2
-  SETDEPTHB,        	//0x00C3
-  GETCOLORB,        	//0x00C4
-  GETDEPTHB,        	//0x00C5
+  SETCOLORB,        	//0x00C2 for 2.6
+  SETDEPTHB,        	//0x00C3 '
+  GETCOLORB,        	//0x00C4 '
+  GETDEPTHB,        	//0x00C5 '
   COMBOTILE,			//0x00C6
   SETTILEWARP,			//0x00C7
   GETSCREENEFLAGS,		//0x00C8
@@ -255,8 +255,10 @@ enum ASM_DEFINE
   GETDMAPTITLE,			//0x00D0
   GETDMAPINTRO,			//0x00D1
   ALLOCATEGMEMR,        //0x00D2
+  BITMAPR,         		//0x00D3
+  SETRENDERTARGET,      //0x00D4
 
-/*
+/* ..sorry, forgot about these ...for now. -Gleeok
   CALCSPLINE,           //0x00
   COLLISIONRECT,  ?      //0x00
   COLLISIONBOX,   ?      //0x00
@@ -264,9 +266,8 @@ enum ASM_DEFINE
   GETBITMAPBUFFER,
   CLEARBITMAPBUFFER,
   RENDERBITMAPBUFFER,
-
 */
-  NUMCOMMANDS           //0x00D3
+  NUMCOMMANDS           //0x00D5
 };
 
 //ZASM registers
@@ -763,45 +764,4 @@ struct triangle3Dstruct
 	int size[2], color[3];
 };
 
-class DrawingContainer
-{
-public:
-
-	std::list< std::pair <int, std::string> > drawstring;
-	std::deque< quad3Dstruct > quad3D;
-	std::deque< triangle3Dstruct > triangle3D;
-
-	// ..lol wtf :o
-	//std::vector< std::pair< int*, std::pair <std::pair<int, BITMAP*>, std::pair<int, BITMAP*> > > > buffer;
-
-
-	DrawingContainer()
-	{
-	}
-	~DrawingContainer()
-	{
-	}
-
-	void SortContainers();
-	void SortDrawString();
-	void SortTriangle3D();
-	void SortQuad3D();
-
-	std::list< std::pair <int, std::string> > ::iterator getDrawStringIterator( int index );
-	std::deque< quad3Dstruct > ::iterator getQuad3dIterator( int index );
-	std::deque< triangle3Dstruct > ::iterator getTriangle3dIterator( int index );
-
-	float depth_buffer[256];
-	int   color_buffer[256];
-
-protected:
-
-private:
-	// no copies allowed
-	DrawingContainer( const DrawingContainer& );
-	DrawingContainer &operator=( const DrawingContainer& );
-
-};
-
-extern DrawingContainer draw_container;
 #endif

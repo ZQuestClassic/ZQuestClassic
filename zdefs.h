@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            20
+#define V_GUYS            21
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -814,7 +814,7 @@ enum
   eeGHINI, eeARMOS/*DEPRECATED*/, eeKEESE, eeGEL/*DEPRECATED*/, eeZOL/*DEPRECATED*/, eeROPE/*DEPRECATED*/, eeGORIYA/*DEPRECATED*/, eeTRAP,
   eeWALLM, eeBUBBLE/*DEPRECATED*/, eeVIRE/*DEPRECATED*/, eeLIKE/*DEPRECATED*/, eePOLSV/*DEPRECATED*/, eeWIZZ, eeAQUA, eeMOLD,
   eeDONGO, eeMANHAN, eeGLEEOK, eeDIG, eeGHOMA, eeLANM, eePATRA, eeGANON,
-  eePROJECTILE, eeGELTRIB/*DEPRECATED*/, eeZOLTRIB/*DEPRECATED*/, eeVIRETRIB/*DEPRECATED*/, eeKEESETRIB, eeSPINTILE, eeNONE,
+  eePROJECTILE, eeGELTRIB/*DEPRECATED*/, eeZOLTRIB/*DEPRECATED*/, eeVIRETRIB/*DEPRECATED*/, eeKEESETRIB/*DEPRECATED*/, eeSPINTILE, eeNONE,
   eeFAIRY, eeFIRE, eeOTHER,
   eeMAX
 };
@@ -844,7 +844,8 @@ enum
 enum { e1tNORMAL, e1tEACHTILE, e1tCONSTANT, e1tHOMINGBRANG=2, e1tFAST, e1tSLANT, e1t3SHOTS, e1t4SHOTS, e1t5SHOTS, e1t3SHOTSFAST, e1tFIREOCTO, e1t8SHOTS, e1tSUMMON, e1tSUMMONLAYER, e1tLAST };
 // Enemy misc2 types
 enum { e2tNORMAL, e2tSPLITHIT, e2tSPLIT, e2tFIREOCTO, e2tBOMBCHU, e2tTRIBBLE, e2tLAST };
-
+#define e2tKEESETRIB 1
+	
 // Enemy misc7 types
 enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKERUPEES, e7tDRUNK,
 // all from this point involve engulfing
@@ -1160,7 +1161,7 @@ public:
 		pc = 0, sp = 0, scriptflag = 0;
 		ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
 		memset(d, 0, 8 * sizeof(long));
-		a[0] = a[1] = 0; //10000; //Counting ffcs starts from 1 instead of 0. Blarg. // Not internally!
+		a[0] = a[1] = 0;
 	}
 
 	refInfo()
@@ -2215,6 +2216,8 @@ struct gamedata
   std::vector< ZCArray <long> > globalRAM;
 
   byte awpn, bwpn;											// Currently selected weapon slots
+  
+  bool isclearing; // The gamedata is being cleared
   //115456 (260)
 
   // member functions
@@ -2854,6 +2857,7 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int family, int
 int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family);
 int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool checkenabled = false);
 int getItemID(itemdata *items, int family, int level);
+int getCanonicalItemID(itemdata *items, int family);
 int getItemIDPower(itemdata *items, int family, int power);
 void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels);
 int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);

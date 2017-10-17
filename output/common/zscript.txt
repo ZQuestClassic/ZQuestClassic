@@ -447,6 +447,7 @@ int Flags[]
  * Flags[x] value, starting with the top flag as the smallest bit.
  * Use the SF_ constants as the array acces for this value, and the
  * GetScreenFlags function if you are not comfortable with binary.
+ * This is read-only; while setting it is not syntactically incorrect, it does nothing.
 
 int EFlags[]
  * An array of 3 integers containing the states of the flags in the
@@ -454,6 +455,7 @@ int EFlags[]
  * EFlags[x] value, starting with the top flag as the smallest bit.
  * Use the SEF_ constants as the array acces for this value, and the
  * GetScreenEFlags function if you are not comfortable with binary.
+ * This is read-only; while setting it is not syntactically incorrect, it does nothing.
 
 int ComboD[]
  * The combo ID of the ith combo on the screen, where i is the index
@@ -466,7 +468,7 @@ int ComboC[]
  * top to bottom.
 
 int ComboF[]
- * The secret flag of the ith combo on the screen, where i is the index
+ * The placed flag of the ith combo on the screen, where i is the index
  * used to access this array. Combos are counted left to right, top to
  * bottom. Use the CF_ constants in std.zh to set or compare these values.
 
@@ -870,7 +872,7 @@ void Quad( int layer, int x1, int y1, int x2, int y2, int x3, int y3, int x4, in
 void Triangle( int layer, int x1, int y1, int x2, int y2, int x3, int y3,
 		int w, int h, int cset, int flip, int texture, int render_mode
 		)
-* Draws a triangle on the specified layer with the corners x1,y1 through x4,y4.
+ * Draws a triangle on the specified layer with the corners x1,y1 through x4,y4.
  * Corners are drawn in a counterclockwise order starting from x1,y1.
  * From there a single or block of tiles or combos is then texture mapped
  * onto the triangle using the arguments w, h, cset, flip, and render_mode.
@@ -885,6 +887,29 @@ void Triangle( int layer, int x1, int y1, int x2, int y2, int x3, int y3,
  * 3: Both (180 degree rotation)
  *** See std.zh for a list of all available render_mode arguments.
 
+// Bitmap Drawing
+
+
+void SetRenderTarget( int bitmap_id )
+ * Sets the target bitmap for all succesive drawing commands.
+ * These can be directly to the screen or any one of the available off-screen bitmaps,
+ * which are generally categorized as -1(screen) or 0-bitmapNumber(off-screen).
+ *** See std.zh for a complete list of valid render targets (RT_*).
+
+void Bitmap( int layer, int bitmap_id, int source_x, int source_y, int source_w, int source_h, 
+               int dest_x, int dest_y, int dest_w, int dest_h, bool mask
+		)
+ * Draws a source rect from off-screen Bitmap with id of bitmap_id onto
+ * an area of the screen described by dest rect at the given layer.
+ * *Example:
+ *   Screen->Bitmap( 6, myBitmapId, 0, 0, 16, 16, 79, 57, 32, 32, true );
+ *   //Would draw a 16x16 area starting at the upper-left corner of source bitmap to
+ *   //layer 6 of the current screen at coordinates 79,57 with a width and height of 32.
+
+ ***Note* Script drawing functions are enqueued and executed in a frame-by-frame basis 
+          based on the order of which layer they need to be drawn to. Drawing to or from
+          seperate render tagets or bitmaps is no exception! So keep in mind in order to 
+          eliminate unwanted drawing orders or bugs.
 
 ====================================
 --- Item Functions and Variables ---
@@ -1035,18 +1060,20 @@ int ID
  * this value. The effect of writing to this field is currently undefined.
 
 int X
- * The weapon's X position on the screen, in pixels.  Float values passed to this will be cast to int.
+ * The weapon's X position on the screen, in pixels.  Float values passed
+ * to this will be cast to int.
 
 int Y
- * The weapon's Y position on the screen, in pixels.  Float values passed to this will be cast to int.
+ * The weapon's Y position on the screen, in pixels.  Float values passed
+ * to this will be cast to int.
 
 int Z
- * The weapon's Z position on the screen, in pixels.  Float values passed to this will be cast to int.
+ * The weapon's Z position on the screen, in pixels.  Float values passed
+ * to this will be cast to int.
 
 int Jump
- * The weapon's falling speed on the screen. Bombs, Bait
- * Fire and script weapons obey gravity, although this may only be
- * noticable in sideview.
+ * The weapon's falling speed on the screen. Bombs, Bait and
+ * Fire obey gravity.
 
 int DrawStyle
  * An integer representing how the weapon is to be drawn. Use one of the
@@ -1089,29 +1116,29 @@ int Step
  * per animation frame.
 
 int Angle
- * The weapon's current angle in clockwise radians; used by certain weapon types with
- * angular movement. 0 = right, PI/2 = down, etc. Note: if you want Link's
- * shield to interact with the weapon correctly, you must set its Dir to
- * a direction that approximates this angle.
+ * The weapon's current angle in clockwise radians; used by certain weapon
+ * types with angular movement. 0 = right, PI/2 = down, etc. Note: if you
+ * want Link's shield to interact with the weapon correctly, you must set
+ * its Dir to a direction that approximates this angle.
 
 bool Angular
  * Specifies whether a weapon has angular movement.
 
 bool CollDetection
- * Whether the weapon will use the system's code to work out collisions with Link or enemies (depending on weapon type).
- * Initialised as 'true'.
+ * Whether the weapon will use the system's code to work out collisions with
+ * Link and/or enemies (depending on weapon type). Initialised as 'true'.
 
 int DeadState
  * The current state of the weapon. Important to keep track of. A value of
  * -1 indicates that it is active, and moves according to the weapon's
  * Dir, Step, Angular, and Angle values. Use -1 if you want the engine to
- * handle movement. Use any value below -1 if you want a dummy weapon that
- * you can control on your own.
- * Given a deadstate value of -10, a weapon will turn of its collision detection and movement.
- * If it has a positive value, it will decrement once per frame until it equals 0,
- * whereupon the weapon is removed.
- * If you want to remove the weapon, write one of the WDS_ constants in std.zh
- * (appropriate for the weapon) to this variable.
+ * handle movement and collision. Use any value below -1 if you want a
+ * dummy weapon that you can control on your own.
+ * Given a deadstate value of -10, a weapon will turn of its collision
+ * detection and movement. If it has a positive value, it will
+ * decrement once per frame until it equals 0, whereupon the weapon is
+ * removed. If you want to remove the weapon, write one of the WDS_
+ * constants in std.zh (appropriate for the weapon) to this variable.
 
 bool Flash
  * Whether or not the weapon flashes. A flashing weapon alternates between
@@ -1143,23 +1170,28 @@ int HitHeight
 
 int HitZHeight
  * The Z-axis height of the sprite's hitbox, or collision rectangle.
- * The greater it is, the higher Link must jump or fly over the sprite to avoid taking damage.
+ * The greater it is, the higher Link must jump or fly over the sprite
+ * to avoid taking damage.
 
 int HitXOffset
  * The X offset of the sprite's hitbox, or collision rectangle.
- * Setting it to positive or negative values will move the sprite's hitbox left or right.
+ * Setting it to positive or negative values will move the sprite's
+ * hitbox left or right.
 
 int HitYOffset
  * The Y offset of the sprite's hitbox, or collision rectangle.
- * Setting it to positive or negative values will move the sprite's hitbox up or down.
+ * Setting it to positive or negative values will move the sprite's
+ * hitbox up or down.
 
 int DrawXOffset
  * The X offset of the sprite.
- * Setting it to positive or negative values will move the sprite's tiles left or right relative to its position.
+ * Setting it to positive or negative values will move the sprite's
+ * tiles left or right relative to its position.
 
 int DrawYOffset
  * The Y offset of the sprite.
- * Setting it to positive or negative values will move the sprite's tiles up or down relative to its position.
+ * Setting it to positive or negative values will move the sprite's
+ * tiles up or down relative to its position.
 
 int DrawZOffset
  * The Z offset of the sprite.
@@ -1437,13 +1469,13 @@ void SetComboCSet(int map, int screen, int position, int value)
  * is considered an index, treated the same way as in Screen->ComboC[].
 
 int GetComboFlag(int map, int screen, int position)
- * Grabs a particular combo's secret flag from anywhere in the game
+ * Grabs a particular combo's placed flag from anywhere in the game
  * world, based on map (NOT DMap), screen number, and position.
  * Position is considered an index, treated the same way as in
  * Screen->ComboF[].
 
 void SetComboFlag(int map, int screen, int position, int value)
- * Sets a particular combo's secret flag anywhere in the game world,
+ * Sets a particular combo's placed flag anywhere in the game world,
  * based on map (NOT DMap), screen number, and position. Position
  * is considered an index, treated the same way as in Screen->ComboF[].
 
@@ -1673,7 +1705,7 @@ int DrawZOffset
  * The Z offset of the sprite. This is ignored unless Extend is set to values >=3.
 
 int Defense[]
- * The npc's Defense values, as an array of 17 integers. Use the NPCD_ and NPCDT_ constants
+ * The npc's Defense values, as an array of 18 integers. Use the NPCD_ and NPCDT_ constants
  * in std.zh to set or compare these values.
 
 int Attributes[]

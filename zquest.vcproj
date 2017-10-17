@@ -292,6 +292,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\win32.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\zc_custom.cpp"
 				>
 			</File>

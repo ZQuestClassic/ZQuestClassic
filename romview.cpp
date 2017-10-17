@@ -1141,7 +1141,7 @@ int onPreview()
   }
 
   // use double buffering if possible
-  buf = create_bitmap(320,240);
+  buf = create_bitmap_ex(8, 320,240);
 
   scare_mouse();
 
@@ -1438,7 +1438,7 @@ void setup_colors()
   jwin_set_colors(jwin_colors);
 
   if(!mouse)
-    mouse = create_bitmap(16,16);
+    mouse = create_bitmap_ex(8, 16,16);
 
   if(mouse)
   {

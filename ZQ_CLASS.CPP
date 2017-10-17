@@ -38,7 +38,7 @@
 #include "zc_custom.h"
 #include "subscr.h"
 #include "zq_subscr.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 using std::string;
 using std::pair;
@@ -98,6 +98,9 @@ zmap::zmap()
   currscr=0;
   copymap=0;
   currmap=0;
+  layer_target_map = 0; 
+  layer_target_scr = 0;
+  layer_target_multiple = 0;
   can_undo_map=false;
   can_paste_map=false;
   screen_copy=false;
@@ -112,6 +115,9 @@ bool zmap::CanPaste() { return can_paste; }
 int  zmap::CopyScr() { return (copymap<<8)+copyscr; }
 int zmap::getCopyFFC() { return copyffc; }
 int zmap::getMapCount() {return map_count;}
+int zmap::getLayerTargetMap() { return layer_target_map; }
+int zmap::getLayerTargetScr() { return layer_target_scr; }
+int zmap::getLayerTargetMultiple() { return layer_target_multiple; }
 bool zmap::isDungeon(int scr)
 {
   for(int i=0; i<4; i++)
@@ -503,6 +509,34 @@ void zmap::setCurrScr(int scr)
     can_undo=false;
   }
   reset_combo_animations2();
+  setlayertarget();
+}
+
+void zmap::setlayertarget()
+{
+  layer_target_map = 0;
+  layer_target_multiple = 0;
+  for(int m=0; m<getMapCount(); ++m)
+  {
+    for(int s=0; s<MAPSCRS; ++s)
+    {
+      int i=(m*MAPSCRS+s);
+      mapscr *ts=&TheMaps[i];
+      // Search through each layer
+      for(int w=0; w<6; ++w)
+      {
+        if(ts->layerscreen[w]==currscr && (ts->layermap[w]-1)==currmap)
+        {
+          if (layer_target_map > 0) {
+		    layer_target_multiple += 1;
+			continue;
+		  }
+		  layer_target_map = m+1;
+		  layer_target_scr = s;
+        }
+      }
+    }
+  }
 }
 
 void zmap::setcolor(int c)
@@ -803,9 +837,124 @@ int zmap::save(const char *path)
   return 0;
 }
 
+
+bool zmap::ishookshottable(int bx, int by, int i)
+{
+	// Hookshots can be blocked by solid combos on all 3 ground layers.
+	newcombo c = combobuf[MAPCOMBO(bx,by)];
+	if (c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i)) 
+	{
+		return false;
+	}
+	for(int k=0;k<2;k++)
+	{
+		c = combobuf[MAPCOMBO2(k+1,bx,by)];
+		if (c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i)) 
+		{
+		    return false;
+		}
+	}
+	return true;
+}
+
+bool zmap::isstepable(int combo)
+{
+	// This is kind of odd but it's true to the engine (see maps.cpp)
+	return (combo_class_buf[combobuf[combo].type].ladder_pass);
+}
+
+// Returns the letter of the warp combo.
+int zmap::warpindex(int combo)
+{
+	switch(combobuf[combo].type)
+	{
+		case cCAVE:
+		case cPIT:
+		case cSTAIR:
+		case cCAVE2:
+		case cSWIMWARP:
+		case cDIVEWARP:
+		case cSWARPA:
+			return 0;
+		case cCAVEB:
+		case cPITB:
+		case cSTAIRB:
+		case cCAVE2B:
+		case cSWIMWARPB:
+		case cDIVEWARPB:
+		case cSWARPB:
+			return 1;
+		case cCAVEC:
+		case cPITC:
+		case cSTAIRC:
+		case cCAVE2C:
+		case cSWIMWARPC:
+		case cDIVEWARPC:
+		case cSWARPC:
+			return 2;
+		case cCAVED:
+		case cPITD:
+		case cSTAIRD:
+		case cCAVE2D:
+		case cSWIMWARPD:
+		case cDIVEWARPD:
+		case cSWARPD:
+			return 3;
+		case cPITR:
+		case cSTAIRR:
+		case cSWARPR:
+			return 4;
+	}
+	return -1;
+
+}
+
+void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
+{
+    int cx = COMBOX(pos);
+	int cy = COMBOY(pos);
+
+	newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
+
+	for(int i=0; i<4; i++)
+	{
+		int tx=((i&2)<<2)+x;
+		int ty=((i&1)<<3)+y;
+		if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+		if(c.walk&(1<<i)) {
+			if (c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i)) 
+			{		
+				for(int k=0; k<8; k+=2)
+					for(int j=0;j<8; j+=2)
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2)); 
+			} 
+			else 
+			{
+				int color = vc(12);
+				if (isstepable(MAPCOMBO(cx,cy)))
+					color=vc(6);
+				else if ((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
+					color=vc(7);
+				rectfill(dest,tx,ty,tx+7,ty+7,color);
+			}
+		}
+	}
+	// Draw damage combos
+	bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
+	  || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
+	  || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
+	if(dmg)
+	{
+		for(int k=0; k<16; k+=2)
+			for(int j=0;j<16; j+=2)
+				if (((k+j)/2)%2)
+					rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+	}
+}
+
 void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
 {
-
   newcombo c = combobuf[cmbdat];
 
   for(int i=0; i<4; i++)
@@ -814,10 +963,33 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
     int ty=((i&1)<<3)+y;
     if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
       rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
-    if(c.walk&(1<<i))
-      rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
+	if(c.walk&(1<<i)) {
+	  if (c.type==cLADDERHOOKSHOT) 
+	  {
+		for(int k=0; k<8; k+=2)
+			for(int j=0;j<8; j+=2)
+				rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2)); 
+	  } 
+	  else 
+	  {
+	    int color = vc(12);
+        if (c.type==cLADDERONLY)
+	      color=vc(6);
+	    else if (c.type==cHOOKSHOTONLY)
+	      color=vc(7);
+	    rectfill(dest,tx,ty,tx+7,ty+7,color);
+	  }
+	}
+	// Draw damage combos
+	if(combo_class_buf[c.type].modify_hp_amount != 0)
+	{
+	  for(int k=0; k<8; k+=2)
+		for(int j=0;j<8; j+=2)
+	      if (((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
+	}
   }
 }
+
 
 void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag)
 {
@@ -1599,6 +1771,62 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
   }
 }
 
+// Takes array index layer num., not actual layer num.
+int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
+{
+	if(lyr<=-1) return MAPCOMBO(x,y,map,scr);
+	if(map<0)
+		map=currmap;
+	if(scr<0)
+		scr=currscr;
+	mapscr *screen1;
+	if(prv_mode)
+	{
+		screen1=get_prvscr();
+	}
+	else
+	{
+		screen1=AbsoluteScr(currmap,currscr);
+	}
+	int layermap;
+	layermap=screen1->layermap[lyr]-1;
+	if (layermap<0 || layermap >= map_count) return 0;
+	
+	mapscr *layer;
+	if (prv_mode)
+		layer = &prvlayers[lyr];
+	else
+		layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
+	
+	int combo = COMBOPOS(x,y);
+	if(combo>175 || combo < 0)
+		return 0;
+	return layer->data[combo];
+}
+
+int zmap::MAPCOMBO(int x,int y, int map, int scr) //map=-1,scr=-1
+{
+	if(map<0)
+		map=currmap;
+	if(scr<0)
+		scr=currscr;
+	mapscr *screen1;
+	if(prv_mode)
+	{
+		screen1=get_prvscr();
+	}
+	else
+	{
+		screen1=AbsoluteScr(currmap,currscr);
+	}
+	x = vbound(x, 0, 16*16);
+	y = vbound(y, 0, 11*16);
+	int combo = COMBOPOS(x,y);
+	if(combo>175 || combo < 0)
+		return 0;
+	return screen1->data[combo];
+}
+
 void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 {
   int antiflags=flags&~cFLAGS;
@@ -2030,7 +2258,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
           layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
           for (int i=0; i<176; i++)
           {
-            put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i], k+1);
+            put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
           }
         }
       }
@@ -2093,7 +2321,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
   resize_mouse_pos=false;
 
 }
-
+										 
 void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 {
   if(map<0)
@@ -2311,7 +2539,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
           layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
           for(int i=c; i<(c&0xF0)+16; i++)
           {
-            put_walkflags(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],k+1);
+			put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?i:c, k);
           }
         }
       }
@@ -2593,11 +2821,11 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         {
 
           layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-          for(int i=c; i<176; i+=16)
-          {
-            put_walkflags(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],k+1);
-          }
-        }
+		  for(int i=c; i<(c&0xF0)+16; i++)
+		  {
+		    put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
+		  }
+		}
       }
     }
   }
@@ -2769,7 +2997,7 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         if (layermap>-1 && layermap<map_count)
         {
           layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-          put_walkflags(dest,x,y,TheMaps[layerscreen].data[c],k+1);
+          put_walkflags_layered(dest,x,y,c,k);
         }
       }
     }
@@ -4817,9 +5045,9 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
 
 //#define MSVCD_NOFUSSNOMUSS
-#if _DEBUG && (defined MSVCD_NOFUSSNOMUSS || defined _SKIPPASSWORDCHECK)
+//#if _DEBUG && (defined MSVCD_NOFUSSNOMUSS || defined _SKIPPASSWORDCHECK)
 	return 1;
-#endif
+//#endif
 
   char hash_string[33];
   if (!compressed)
@@ -4846,8 +5074,8 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     pfread(msg, 80, fp,true);
     if (strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
     {
-      short ver;
-      byte  bld;
+      short ver = 0;
+      byte  bld = 0;
       short pwd_len;
       p_igetw(&ver,fp,true);
       p_getc(&bld,fp,true);
@@ -6373,7 +6601,7 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
 
 int writemapscreen(PACKFILE *f, int i, int j)
 {
-    if(i*MAPSCRS+j>=TheMaps.size())
+    if((i*MAPSCRS+j)>=int(TheMaps.size()))
     {
         return qe_invalid;
     }

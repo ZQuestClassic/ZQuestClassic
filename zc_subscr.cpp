@@ -30,8 +30,7 @@ extern int directItemB;
 
 void put_active_subscr(miscQdata *misc, int y, int pos)
 {
-  //  load_Sitems();
-  Sitems.animate();
+  //Don't call Sitems.animate() - that gets called somewhere else, somehow. -L
   animate_selectors();
   bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
   show_custom_subscreen(framebuf, misc, current_subscreen_active, 0, 6-y, showtime, pos);

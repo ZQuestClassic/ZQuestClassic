@@ -20,13 +20,12 @@
 #include "ffscript.h"
 #include "gamedata.h"
 #include "defdata.h"
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 #include "zscriptversion.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern zinitdata    zinit;
-int enemyHitWeapon = -1;
 
 bool repaircharge;
 bool adjustmagic;
@@ -142,10 +141,10 @@ bool m_walkflag(int dx,int dy,int special)
 {
 	int yg = (special==spw_floater)?8:0;
 	int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
-	
+
 	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
 		return true;
-	
+
 	if(isdungeon() || special==spw_wizzrobe)
 	{
 		if(dy<32-yg || dy>=144)
@@ -154,7 +153,7 @@ bool m_walkflag(int dx,int dy,int special)
 			if(special!=spw_door)                                 // walk in door way
 				return true;
 	}
-	
+
 	switch(special)
 	{
 		case spw_clipbottomright: if(dy>=128 || dx>=208) return true;
@@ -162,13 +161,13 @@ bool m_walkflag(int dx,int dy,int special)
 		case spw_wizzrobe:
 		case spw_floater: return false;
 	}
-	
+
 	dx&=(special==spw_halfstep)?(~7):(~15);
 	dy&=(special==spw_halfstep || tmpscr->flags7&fSIDEVIEW)?(~7):(~15);
-	
+
 	if(special==spw_water)
 		return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
-	
+
 	return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
 	groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
 }
@@ -260,7 +259,13 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     flags |= guy_invisible;
 
 //  step = d->step/100.0;
+  // To preserve the odd step values for Keese & Gleeok heads. -L
+  if (dstep==62.0) dstep+=0.5;
+  else if (dstep==89) dstep-=1/9;
+	
   step = dstep/100.0;
+
+		   
   item_set = d->item_set;
   grumble = d->grumble;
   if(frate == 0)
@@ -658,6 +663,25 @@ bool enemy::hitshield(int wpnx, int wpny, int xdir)
 	return ret;
 }
 
+// Check defenses without actually acting on them.
+bool enemy::candamage(int power, int edef) 
+{
+	switch (defense[edef]) 
+	{
+		case edSTUNORCHINK: 
+		case edSTUNORIGNORE:
+		case edSTUNONLY:
+		case edCHINK:
+		case edIGNORE: return false;
+		case edIGNOREL1: case edCHINKL1: return power >= 1*DAMAGE_MULTIPLIER;
+		case edCHINKL2: return power >= 2*DAMAGE_MULTIPLIER;
+		case edCHINKL4: return power >= 4*DAMAGE_MULTIPLIER;
+		case edCHINKL6: return power >= 6*DAMAGE_MULTIPLIER;
+		case edCHINKL8: return power >= 8*DAMAGE_MULTIPLIER;
+	}
+    return true;
+}
+
 // Do we do damage?
 // 0: takehit returns 0
 // 1: takehit returns 1
@@ -707,12 +731,58 @@ int enemy::defend(int wpnId, int *power, int edef)
 	return -1;
 }
 
+// Defend against a particular item class.
+int enemy::defenditemclass(int wpnId, int *power) 
+{
+	int def=-1;
+	switch(wpnId)
+	{
+		// These first 2 are only used by Gohma... enemy::takehit() has complicated stun-calculation code for these.
+		case wBrang: def = defend(wpnId, power, edefBRANG);  break;
+		case wHookshot: def = defend(wpnId, power, edefHOOKSHOT);  break;
+		// Anyway...
+		case wBomb: def = defend(wpnId, power, edefBOMB);  break;
+		case wSBomb: def = defend(wpnId, power, edefSBOMB); break;
+		case wArrow: def = defend(wpnId, power, edefARROW); break;
+		case wFire: def = defend(wpnId, power, edefFIRE); break;
+		case wWand: def = defend(wpnId, power, edefWAND); break;
+		case wMagic: def = defend(wpnId, power, edefMAGIC); break;
+		case wHammer: def = defend(wpnId, power, edefHAMMER); break;
+		case wSword: def = defend(wpnId, power, edefSWORD); break;
+		case wBeam: def = defend(wpnId, power, edefBEAM); break;
+		case wRefBeam: def = defend(wpnId, power, edefREFBEAM); break;
+		case wRefMagic: def = defend(wpnId, power, edefREFMAGIC); break;
+		case wRefFireball: def = defend(wpnId, power, edefREFBALL); break;
+		case wRefRock: def = defend(wpnId, power, edefREFROCK); break;
+		case wStomp: def = defend(wpnId, power, edefSTOMP); break;
+		case wCByrna: def = defend(wpnId, power, edefBYRNA); break;
+			
+		default: if(wpnId>=wScript1 && wpnId<=wScript10) { def = defend(wpnId, power, edefSCRIPT); } break;
+	}
+	return def;
+}
+
 // take damage or ignore it
 // -1: damage (if any) dealt
 // 1: blocked
 // 0: weapon passes through unhindered
-int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int enemy::takehit(weapon *w)
 {
+	int wpnId = w->id;
+	int power = w->power;
+	int wpnx = w->x;
+	int wpny = w->y;
+    int enemyHitWeapon = w->parentitem;
+	int wpnDir;
+	// If it's a boomerang that just bounced, use the opposite direction;
+	// otherwise, it might bypass a shield. This probably won't handle
+	// every case correctly, but it's better than having shields simply
+	// not work against boomerangs.
+	if(w->id==wBrang && w->misc==1 && w->clk2>=256 && w->clk2<264)
+		wpnDir = oppositeDir[w->dir];
+    else
+		wpnDir = w->dir;
+	
 	if(dying || clk<0 || hclk>0 || superman)
 	{
 		return 0;
@@ -720,6 +790,7 @@ int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 
     int ret = 1;
 
+	// This obscure quest rule...
     if(get_bit(quest_rules,qr_BOMBDARKNUTFIX) && (wpnId==wBomb || wpnId==wSBomb))
     {
 		double ddir=atan2(double(wpny-y),double(x-wpnx));
@@ -758,7 +829,6 @@ int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 		      Link.setAttackClk(Link.getAttackClk()+1); //Cancel charging
 			//fallthrough
 		  case wHookshot:
-		  case wHSChain:
 		  case wHSHandle:
 		  case wBrang:
 		    sfx(WAV_CHINK,pan(int(x)));
@@ -819,7 +889,6 @@ int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 		  ;
 		}
 	  }
-
 	switch(wpnId)
 	{
 	case wWhistle:
@@ -833,7 +902,29 @@ int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 	case wSSparkle:
 		return 0;
 	case wFSparkle:
-		takehit(wSword, DAMAGE_MULTIPLIER>>1, wpnx, wpny, wpnDir);
+		// Only take sparkle damage if the sparkle's parent item is not
+		// defended against.
+		if (enemyHitWeapon > -1) 
+		{
+			int p = 0;
+			int f = itemsbuf[enemyHitWeapon].family;
+			switch(f) 
+			{
+				case itype_arrow:
+				    if (!candamage(p, edefARROW)) return 0;
+					break;
+				case itype_cbyrna:
+				    if (!candamage(p, edefBYRNA)) return 0;
+					break;
+				case itype_brang:
+					if (!candamage(p, edefBRANG)) return 0;
+					break;
+				default: return 0;
+			}
+		}
+		wpnId = wSword;
+		power = DAMAGE_MULTIPLIER>>1;
+		goto fsparkle;
 		break;
 	case wBrang:
 	{
@@ -858,10 +949,6 @@ int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 			hp-=power;
 		goto hitclock;
 	}
-	case wHSHandle:
-	  if (itemsbuf[enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_id(itype_hookshot)].flags & ITEM_FLAG1)
-			return 0;
-	// Fallthrough
 	case wHookshot:
 	{
 	    int def = defend(wpnId, &power, edefHOOKSHOT);
@@ -881,30 +968,27 @@ int enemy::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 			hp-=power;
 		goto hitclock;
 	}
+	break;
+	case wHSHandle:
+	{
+		if (itemsbuf[enemyHitWeapon>-1 ? enemyHitWeapon : current_item_id(itype_hookshot)].flags & ITEM_FLAG1)
+			return 0;
+		bool ignorehookshot = ((defense[edefHOOKSHOT] == edIGNORE) || ((defense[edefHOOKSHOT] == edIGNOREL1 || defense[edefHOOKSHOT] == edSTUNORIGNORE)
+		  && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot)) <= 0));
+		// Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
+		if (! (family==eePEAHAT || family==eeAQUA || family==eeMANHAN || (family==eeWIZZ && !ignorehookshot)
+			   || (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right)) )) 
+			return 0;
+		al_trace("%d\n",family);
+		power = DAMAGE_MULTIPLIER;
+		//fallthrough
+	}
+fsparkle:
 	default:
       // Work out the defenses!
 	  {
-		int def = -1;
-	    switch(wpnId)
-	    {
-			case wBomb: def = defend(wpnId, &power, edefBOMB);  break;
-			case wSBomb: def = defend(wpnId, &power, edefSBOMB); break;
-			case wArrow: def = defend(wpnId, &power, edefARROW); break;
-			case wFire: def = defend(wpnId, &power, edefFIRE); break;
-			case wWand: def = defend(wpnId, &power, edefWAND); break;
-			case wMagic: def = defend(wpnId, &power, edefMAGIC); break;
-			case wHammer: def = defend(wpnId, &power, edefHAMMER); break;
-			case wSword: def = defend(wpnId, &power, edefSWORD); break;
-			case wBeam: def = defend(wpnId, &power, edefBEAM); break;
-			case wRefBeam: def = defend(wpnId, &power, edefREFBEAM); break;
-			case wRefMagic: def = defend(wpnId, &power, edefREFMAGIC); break;
-			case wRefFireball: def = defend(wpnId, &power, edefREFBALL); break;
-			case wRefRock: def = defend(wpnId, &power, edefREFROCK); break;
-			case wStomp: def = defend(wpnId, &power, edefSTOMP); break;
-			case wCByrna: def = defend(wpnId, &power, edefBYRNA); break;
-
-			default: if(wpnId>=wScript1 && wpnId<=wScript10) { def = defend(wpnId, &power, edefSCRIPT); } break;
-	    }
+		int def = defenditemclass(wpnId, &power);
+		  
 	    if (def >= 0)
 		  return def;
 		else if (def == -2)
@@ -937,11 +1021,9 @@ hitclock:
 	{
 		fading=fade_blue_poof;
 	}
-
 	sfx(WAV_EHIT, pan(int(x)));
 	if (hitsfx > 0)
 	    sfx(hitsfx, pan(int(x)));
-	//if (guysbuf[id&0xFFF].family==eeGUY) // NES consistency
 	if (family==eeGUY)
 		sfx(WAV_EDEAD, pan(int(x)));
 	// arrow keeps going
@@ -1254,7 +1336,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
   // can move straight, check if it wants to turn
   if(canmove(dir,step,special,dx1,dy1,dx2,dy2))
   {
-    if(grumble && (rand()&255)<grumble) //Homing
+    if(grumble && (rand()&4)<grumble) //Homing
     {
       int w = Lwpns.idFirst(wBait);
       if(w>=0)
@@ -1270,7 +1352,10 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
 	    // Making the diagonal directions
 	    ndir += (by<y) ? 2 : 4;
 	  }
-	  ndir = (by<y) ? up : down;
+	  else
+	  {
+        ndir = (by<y) ? up : down;
+	  }
         }
 	if(canmove(ndir,special))
 	{
@@ -1293,16 +1378,14 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
     int r=rand();
     if(newrate>0 && !(r%newrate))
     {
-      ndir = ((dir+((r&64)?-1:1))&7)+8;
+	  ndir = ((dir+((r&64)?-1:1))&7)+8;
+	  int ndir2=((dir+((r&64)?1:-1))&7)+8;
       if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
         dir=ndir;
-      else
-      {
-        ndir = ((dir+((r&64)?1:-1))&7)+8;
-        if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
-          dir=ndir;
-      }
-      if(dir==ndir)
+      else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2))
+		dir=ndir2;
+      if(dir==ndir && (newrate>=4)) // newrate>=4, otherwise movement is biased toward upper-left
+									// due to numerous lost fractional components. -L
       {
         x.v&=0xFFFF0000;
         y.v&=0xFFFF0000;
@@ -1312,7 +1395,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int d
   }
   // can't move straight, must turn
   int i=0;
-  for( ; i<32; i++)
+  for( ; i<32; i++) // Try random dir
   {
     ndir=(rand()&7)+8;
     if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
@@ -1784,11 +1867,12 @@ void enemy::floater_walk(int newrate,int newclk,fix ms,fix ss,int s,int p, int g
     else
     {
       movestatus=0;
+	  step=0;
       clk2=0;
     }
     break;
   }
-  variable_walk_8(movestatus==2?newrate:0,0,newclk,spw_floater);
+  variable_walk_8(movestatus==2?newrate:0,homing,newclk,spw_floater);
 }
 
 void enemy::floater_walk(int newrate,int newclk,fix s)
@@ -1868,29 +1952,32 @@ void enemy::place_on_axis(bool floater)
   int tried=0;
   bool last_resort,placed=false;
 
+    
   do
   {
-    if(pos2<14)
-    { x=(pos2<<4)+16; y=ly; }
+    if(pos2<14) 
+	{ 
+	  x=(pos2<<4)+16; y=ly; 
+	}
     else
-    { x=lx; y=((pos2-14)<<4)+16; }
+	{ 
+	  x=lx; y=((pos2-14)<<4)+16; 
+	}
 
-    if(x<32 || y<32 || x>=224 || y>=144)
-      last_resort=false;
-    else
-      last_resort=true;
+	// Don't commit to a last resort if position is out of bounds.
+    last_resort= !(x<32 || y<32 || x>=224 || y>=144);
 
     if(abs(lx-int(x))>16 || abs(ly-int(y))>16)
     {
-      if(!m_walkflag(x,y,1))
-
+	  // Red Wizzrobes can stand over water but not solid combos.
+      if(!m_walkflag(x,y,floater ? spw_water : spw_door)
+	      && !flyerblocked(x,y,floater ? spw_floater : spw_door))
         placed=true;
-      else if(floater && last_resort && !iswater(MAPCOMBO(x,y)))
-          placed=true;
     }
 
-    if(!placed && tried>=22 && last_resort)
+    if(!placed && tried>=22 && last_resort) {
       placed=true;
+	}
     ++tried;
     pos2=(pos2+3)%23;
   } while(!placed);
@@ -3055,6 +3142,7 @@ eGhini::eGhini(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   count_enemy=false;
   dir=12;
   movestatus=1;
+  step=0;
   clk=0;
 }
 
@@ -3068,7 +3156,7 @@ bool eGhini::animate(int index)
     {
       if(clk>160)
         misc=2;
-      floater_walk((misc==1)?0:4,12,(fix)0.625,(fix)0.0625,10,120,10);
+      floater_walk((misc==1)?0:rate,hrate,dstep/100.0,dstep/1000.0,10,120,10);
       removearmos(x,y);
     }
     else if(clk>=60)
@@ -3354,10 +3442,11 @@ void eItemFairy::draw(BITMAP *dest)
 
 ePeahat::ePeahat(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {//floater_walk(int rate,int newclk,fix ms,fix ss,int s,int p, int g)
-  floater_walk(misc?4:0,      8, (fix)0.625, (fix)0.0625, 10,  80, 16);
+  floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
   dir=8;
   movestatus=1;
   clk=0;
+  step=0;
   //nets+720;
 }
 
@@ -3375,10 +3464,10 @@ bool ePeahat::animate(int index)
   }
   if(stunclk==0 && clk>96)
     misc=1;
-  floater_walk(misc?4:0,      8, (fix)0.625, (fix)0.0625, 10,  80, 16);
+  floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
   if (get_bit(quest_rules,qr_ENEMIESZAXIS) && !(tmpscr->flags7&fSIDEVIEW))
   {
-    z=int(step*1.1/(fix)0.0875);
+    z=int(step*1.1/(fix)((dstep/1000.0)*1.1));
   }
   superman = (movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
   stunclk=0;
@@ -3394,7 +3483,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
   if (!get_bit(quest_rules,qr_ENEMIESZAXIS))
   {
     yofs+=8;
-    yofs+=int(step/(fix)0.0625);
+    yofs+=int(step/(dstep/1000.0));
   }
   enemy::drawshadow(dest,translucent);
   yofs=tempy;
@@ -3406,19 +3495,23 @@ void ePeahat::draw(BITMAP *dest)
   enemy::draw(dest);
 }
 
-int ePeahat::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int ePeahat::takehit(weapon *w)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnx=wpnx;
-  wpny=wpny;
-
+  int wpnId = w->id;
+  int enemyHitWeapon = w->parentitem;
+	
   if(dying || clk<0 || hclk>0)
     return 0;
   if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
-                                                            // fire boomerang, for nailing peahats
+     // fire boomerang, for nailing peahats
      && !(wpnId==wBrang && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0))
     return 0;
-  int ret = enemy::takehit(wpnId,power,wpnx,wpny,wpnDir);
+  // Time for a kludge...
+  int s = superman;
+  superman = 0;
+  int ret = enemy::takehit(w);
+  superman = s;
+  // Anyway...
   if (stunclk == 160)
   {
     clk2=0;
@@ -3744,6 +3837,8 @@ bool eTrap::animate(int index)
 
   if(misc==0)                                               // waiting
   {
+	ox = x;
+	oy = y;
     double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
     if ((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
     {
@@ -3805,58 +3900,20 @@ bool eTrap::animate(int index)
     step=(++clk2&1)?1:0;
     switch (dir)
     {
-      case up:
-      case left:
-      case l_up:
-        if(int(x)<=ox && int(y)<=oy)
-        {
-          x=ox;
-          y=oy;
-          misc=0;
-        }
-        else
-        {
-          sprite::move(step);
-        }
-        break;
-      case down:
-      case right:
-      case r_down:
-        if(int(x)>=ox && int(y)>=oy)
-        {
-          x=ox;
-          y=oy;
-          misc=0;
-        }
-        else
-        {
-          sprite::move(step);
-        }
-        break;
-      case r_up:
-        if(int(x)>=ox && int(y)<=oy)
-        {
-          x=ox;
-          y=oy;
-          misc=0;
-        }
-        else
-        {
-          sprite::move(step);
-        }
-        break;
-      case l_down:
-        if(int(x)<=ox && int(y)>=oy)
-        {
-          x=ox;
-          y=oy;
-          misc=0;
-        }
-        else
-        {
-          sprite::move(step);
-        }
-        break;
+	  case up: if (int(y)<=oy) goto trap_rest; else sprite::move(step); break;
+      case left: if(int(x)<=ox) goto trap_rest; else sprite::move(step); break;
+	  case down: if (int(y)>=oy) goto trap_rest; else sprite::move(step); break;
+	  case right: if(int(x)>=ox) goto trap_rest; else sprite::move(step); break;
+	  case l_up: if(int(x)<=ox && int(y)<=oy) goto trap_rest; else sprite::move(step); break;
+	  case r_up: if(int(x)>=ox && int(y)<=oy) goto trap_rest; else sprite::move(step); break;
+	  case l_down: if(int(x)<=ox && int(y)>=oy) goto trap_rest; else sprite::move(step); break;
+	  case r_down: if(int(x)>=ox && int(y)>=oy) goto trap_rest; else sprite::move(step); break;
+trap_rest:
+		{
+			x=ox;
+			y=oy;
+			misc=0;
+		}
     }
   }
 
@@ -3934,15 +3991,8 @@ void eTrap::draw(BITMAP *dest)
   enemy::draw(dest);
 }
 
-int eTrap::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eTrap::takehit(weapon*)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnId=wpnId;
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
-
   return 0;
 }
 
@@ -4056,15 +4106,8 @@ void eTrap2::draw(BITMAP *dest)
   enemy::draw(dest);
 }
 
-int eTrap2::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eTrap2::takehit(weapon*)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnId=wpnId;
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
-
   return 0;
 }
 
@@ -4172,7 +4215,7 @@ void eRock::draw(BITMAP *dest)
   }
 }
 
-int eRock::takehit(int, int, int, int, int)
+int eRock::takehit(weapon*)
 {
   return 0;
 }
@@ -4290,15 +4333,8 @@ void eBoulder::draw(BITMAP *dest)
   }
 }
 
-int eBoulder::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eBoulder::takehit(weapon*)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnId=wpnId;
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
-
   return 0;
 }
 
@@ -4480,15 +4516,8 @@ void eNPC::draw(BITMAP *dest)
   enemy::draw(dest);
 }
 
-int eNPC::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eNPC::takehit(weapon*)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnId=wpnId;
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
-
   return 0;
 }
 
@@ -4947,8 +4976,6 @@ bool eStalfos::animate(int index)
  * Gels have a halt count of ((rand()&7)<<3)+2
  * Everything else has 48
  */
-
- // This is a joke, right?
         else
         {
             if(wpn==ewBrang) // Goriya
@@ -5243,7 +5270,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
     yofs+=8;
   }
 */
-  if (dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE && !get_bit(quest_rules,qr_ENEMIESZAXIS))
+  if ((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
   {
 	  flip = 0;
 	  int fdiv = frate/4;
@@ -5267,8 +5294,11 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
   yofs=tempy;
 }
 
-int eStalfos::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eStalfos::takehit(weapon *w)
 {
+  int wpnId = w->id;
+  int wpnDir = w->dir;
+	
   if (wpnId==wHammer && shield && (flags & guy_bkshield)
    && ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
      || (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
@@ -5278,7 +5308,7 @@ int eStalfos::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 	if (get_bit(quest_rules,qr_BRKNSHLDTILES))
 	  o_tile=s_tile;
   }
-  int ret = enemy::takehit(wpnId,power,wpnx,wpny,wpnDir);
+  int ret = enemy::takehit(w);
   if(sclk && dmisc2==e2tSPLITHIT)
     sclk+=128;
   return ret;
@@ -5456,7 +5486,7 @@ eKeese::eKeese(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   hxsz=12;
   hyofs=4;
   hysz=8;
-
+  clk4=0;
   //nets;
   dummy_int[1]=0;
 }
@@ -5471,15 +5501,44 @@ bool eKeese::animate(int index)
   }
   if (dmisc1)
   {
-    floater_walk(2,8,(fix)1,(fix)0,10,0,0);
+    floater_walk(rate,hrate,dstep/100,(fix)0,10,0,0);
   }
   else
   {
-    floater_walk(2,8,(fix)0.625,(fix)0.0625,10,120,16);
+    floater_walk(rate,hrate,dstep/100,dstep/1000,10,120,16);
   }
-  if (get_bit(quest_rules,qr_ENEMIESZAXIS) && !(tmpscr->flags7&fSIDEVIEW))
+  if (dmisc2 == e2tKEESETRIB)
   {
-    z=int(step/(fix)0.625);
+	  if (++clk4==256)
+	  {
+		  if (!m_walkflag(x,y,0))
+		  {
+			  int kids = guys.Count();
+			  bool success = false;
+			  int id2=dmisc3;
+			  success = 0 != addenemy((fix)x,(fix)y,id2,-24);
+			  if(success)
+			  {
+				  if(itemguy) // Hand down the carried item
+				  {
+					  guyindex = guys.Count()-2;
+					  ((enemy*)guys.spr(guyindex))->itemguy = true;
+					  itemguy = false;
+				  }
+				  ((enemy*)guys.spr(kids))->count_enemy = count_enemy;
+			  }
+			  return true;
+		  }
+		  else
+		  {
+			  clk4=0;
+		  }
+	  }
+  }
+  // Keese Tribbles stay on the ground, so there's no problem when they transform.
+  else if (get_bit(quest_rules,qr_ENEMIESZAXIS) && !(tmpscr->flags7&fSIDEVIEW))
+  {
+    z=int(step/(dstep/100.0));
     // Some variance in keese flight heights when away from Link
     z+=int(step*zc_max(0,(distance(x,y,LinkX(),LinkY())-128)/10));
   }
@@ -5494,89 +5553,12 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
   shadowtile = wpnsbuf[iwShadow].tile+posframe;
   yofs+=8;
   if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
-    yofs+=int(step/(fix)0.0625);
+    yofs+=int(step/(dstep/1000.0));
   enemy::drawshadow(dest, translucent);
   yofs=tempy;
 }
 
 void eKeese::draw(BITMAP *dest)
-{
-  update_enemy_frame();
-  enemy::draw(dest);
-}
-
-eKeeseTrib::eKeeseTrib(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
-{
-  clk4=0;
-  dir=(rand()&7)+8;
-  movestatus=1;
-  c=0;
-  hxofs=2;
-  hxsz=12;
-  hyofs=4;
-  hysz=8;
-  //nets+120;
-  dummy_int[1]=0;
-}
-
-bool eKeeseTrib::animate(int index)
-{
-  ++clk4;
-  if(dying)
-    return Dead(index);
-  if(clk==0)
-  {
-    removearmos(x,y);
-  }
-  floater_walk(2,8,(fix)0.625,(fix)0.0625,10,120,16);
-  if (clk4==256)
-  {
-    if (!m_walkflag(x,y,0))
-    {
-      int kids = guys.Count();
-      //        guys.add(new eVire(x,y,eVIRE,-24));
-      //        keesetribgrow(x, y);
-	  bool success = false;
-#if 0
-		int id2=dmisc2;//(id==eFGELTRIB?eFZOL:eZOL);
-		success = 0 != addenemy((fix)x,(fix)y,id2,-24);
-#else
-		int id2=dmisc3;//(id==eFGELTRIB?eFZOLTRIB:eZOLTRIB);
-		success = 0 != addenemy((fix)x,(fix)y,id2,-24);
-#endif
-	  if(success)
-	  {
-		if(itemguy) // Hand down the carried item
-		{
-			guyindex = guys.Count()-2;
-			((enemy*)guys.spr(guyindex))->itemguy = true;
-			itemguy = false;
-		}
-		((enemy*)guys.spr(kids))->count_enemy = count_enemy;
-	  }
-      return true;
-    }
-    else
-    {
-      clk4=0;
-    }
-  }
-
-  return enemy::animate(index);
-}
-
-void eKeeseTrib::drawshadow(BITMAP *dest, bool translucent)
-{
-  int tempy=yofs;
-  flip = 0;
-  shadowtile = wpnsbuf[iwShadow].tile+posframe;
-  yofs+=8;
-  yofs+=int(step/(fix)0.0625);
-  enemy::drawshadow(dest, translucent);
-  yofs=tempy;
-}
-
-void eKeeseTrib::draw(BITMAP *dest)
 {
   update_enemy_frame();
   enemy::draw(dest);
@@ -5999,10 +5981,12 @@ void eDodongo::draw(BITMAP *dest)
 
 }
 
-int eDodongo::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eDodongo::takehit(weapon *w)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnDir=wpnDir;
+  int wpnId = w->id;
+  int power = w->power;
+  int wpnx = w->x;
+  int wpny = w->y;
 
   if(dying || clk<0 || clk2>0 || (superman && !(superman>1 && wpnId==wSBomb)))
     return 0;
@@ -6035,8 +6019,6 @@ int eDodongo::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
     misc=wpnId;                                           // store wpnId
     return 1;
     case wSword:
-    case wBeam:
-    case wRefBeam:
     if(stunclk)
     {
       sfx(WAV_EHIT,pan(int(x)));
@@ -6111,10 +6093,12 @@ void eDodongo2::draw(BITMAP *dest)
   yofs=tempy;
 }
 
-int eDodongo2::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eDodongo2::takehit(weapon *w)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnDir=wpnDir;
+  int wpnId = w->id;
+  int power = w->power;
+  int wpnx = w->x;
+  int wpny = w->y;
 
   if(dying || clk<0 || clk2>0 || superman)
     return 0;
@@ -6183,8 +6167,6 @@ int eDodongo2::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
     misc=wpnId;                                           // store wpnId
     return 1;
     case wSword:
-    case wBeam:
-    case wRefBeam:
     if(stunclk)
     {
       sfx(WAV_EHIT,pan(int(x)));
@@ -6492,32 +6474,13 @@ void eGohma::draw(BITMAP *dest)
   }
 }
 
-int eGohma::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eGohma::takehit(weapon *w)
 {
-	int def = 0;
-	switch(wpnId)
-	{
-		case wBrang: def = defend(wpnId, &power, edefBRANG);  break;
-		case wHookshot: case wHSHandle:
-		  def = defend(wpnId, &power, edefHOOKSHOT);  break;
-		case wBomb: def = defend(wpnId, &power, edefBOMB);  break;
-		case wSBomb: def = defend(wpnId, &power, edefSBOMB); break;
-		case wArrow: def = defend(wpnId, &power, edefARROW); break;
-		case wFire: def = defend(wpnId, &power, edefFIRE); break;
-		case wWand: def = defend(wpnId, &power, edefWAND); break;
-		case wMagic: def = defend(wpnId, &power, edefMAGIC); break;
-		case wHammer: def = defend(wpnId, &power, edefHAMMER); break;
-		case wSword: def = defend(wpnId, &power, edefSWORD); break;
-		case wBeam: def = defend(wpnId, &power, edefBEAM); break;
-		case wRefBeam: def = defend(wpnId, &power, edefREFBEAM); break;
-		case wRefMagic: def = defend(wpnId, &power, edefREFMAGIC); break;
-		case wRefFireball: def = defend(wpnId, &power, edefREFBALL); break;
-		case wRefRock: def = defend(wpnId, &power, edefREFROCK); break;
-		case wStomp: def = defend(wpnId, &power, edefSTOMP); break;
-		case wCByrna: def = defend(wpnId, &power, edefBYRNA); break;
-
-		default: if(wpnId>=wScript1 && wpnId<=wScript10) { def = defend(wpnId, &power, edefSCRIPT); } break;
-	}
+	int wpnId = w->id;
+	int power = w->power;
+	int wpnx = w->x;
+	int wpnDir = w->dir;
+	int def = defenditemclass(wpnId, &power);
 	if(def < 0)
 	{
       if(!((wpnDir==up || wpnDir==l_up || wpnDir==r_up) && abs(int(x)-wpnx)<=8 && clk3>=16 && clk3<116))
@@ -6526,7 +6489,7 @@ int eGohma::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
         return 1;
 	  }
 	}
-	return enemy::takehit(wpnId,power,wpnx,wpny,wpnDir);
+	return enemy::takehit(w);
 }
 
 eLilDig::eLilDig(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -6549,7 +6512,7 @@ bool eLilDig::animate(int index)
     if(!(++misc&31))
       step+=0.25;
   }
-  variable_walk_8(rate,homing,16,spw_floater);
+  variable_walk_8(rate,homing,hrate,spw_floater);
   return enemy::animate(index);
 }
 
@@ -6620,7 +6583,7 @@ bool eBigDig::animate(int index)
   }
   switch(misc)
   {
-    case 0: variable_walk_8(2,homing,16,spw_floater,-8,-16,23,23); break;
+    case 0: variable_walk_8(rate,homing,hrate,spw_floater,-8,-16,23,23); break;
     case 1: ++misc; break;
     case 2:
     for(int i=0;i<dmisc5;i++)
@@ -6713,13 +6676,9 @@ void eBigDig::draw(BITMAP *dest)
   xofs+=8; yofs+=8;
 }
 
-int eBigDig::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eBigDig::takehit(weapon *w)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
+  int wpnId = w->id;
 
   if(wpnId==wWhistle && misc==0)
     misc=1;
@@ -6813,13 +6772,12 @@ bool eGanon::animate(int index)
 }
 
 
-int eGanon::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eGanon::takehit(weapon *w)
 {
   //these are here to bypass compiler warnings about unused arguments
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
-
+  int wpnId = w->id;
+  int power = w->power;
+  int enemyHitWeapon = w->parentitem;
   switch(misc)
   {
     case 0:
@@ -7075,8 +7033,11 @@ esMoldorm::esMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool esMoldorm::animate(int index)
 {
-  if(dying)
+  if(dying) 
+  {
+	item_set = 0;
     return Dead(index);
+  }
   if(clk>=0)
   {
     hxofs=4;
@@ -7085,7 +7046,7 @@ bool esMoldorm::animate(int index)
     {
 	  misc=dir;
       dir=((enemy*)guys.spr(index-1))->misc;
-	  //do alignment, as in parent's anymation :-/ -DD
+	  //do alignment, as in parent's animation :-/ -DD
 	  x.v&=0xFFFF0000;
 	  y.v&=0xFFFF0000;
     }
@@ -7098,10 +7059,10 @@ bool esMoldorm::animate(int index)
   return enemy::animate(index);
 }
 
-int esMoldorm::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int esMoldorm::takehit(weapon *w)
 {
-  if(enemy::takehit(wpnId,power,wpnx,wpny,wpnDir))
-    return (wpnId==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
+  if(enemy::takehit(w))
+    return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
   return 0;
 }
 
@@ -7220,7 +7181,7 @@ bool eLanmola::animate(int index)
     y=guys.spr(index+1)->y;
     setmapflag(mTMPNORET);
   }
-  //this enemy is invicible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
+  //this enemy is invincible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
   //which is... disastrous.
   hp = 1;
   return enemy::animate(index);
@@ -7263,10 +7224,10 @@ bool esLanmola::animate(int index)
   return enemy::animate(index);
 }
 
-int esLanmola::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int esLanmola::takehit(weapon *w)
 {
-  if(enemy::takehit(wpnId,power,wpnx,wpny,wpnDir))
-    return (wpnId==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
+  if(enemy::takehit(w))
+    return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
   return 0;
 }
 
@@ -7374,7 +7335,8 @@ bool eManhandla::animate(int index)
     hp=0;
   else
   {
-    step=(((!dmisc2)?5:9)-armcnt)*0.5;
+	// Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
+    step=zc_min(4.5,(((!dmisc2)?4:8)-armcnt)*0.5+(dstep/100.0));
     int dx1=0, dy1=-8, dx2=15, dy2=15;
     if (!dmisc2)
     {
@@ -7403,7 +7365,7 @@ bool eManhandla::animate(int index)
         }
       }
     }
-    variable_walk_8(rate,homing,16,spw_floater,dx1,dy1,dx2,dy2);
+    variable_walk_8(rate,homing,hrate,spw_floater,dx1,dy1,dx2,dy2);
     for(int i=0; i<armcnt; i++)
     {
       fix dx=(fix)0,dy=(fix)0;
@@ -7439,13 +7401,9 @@ bool eManhandla::animate(int index)
 }
 
 
-int eManhandla::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eManhandla::takehit(weapon *w)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
+  int wpnId = w->id;
 
   if(dying)
     return 0;
@@ -7760,15 +7718,8 @@ bool eGleeok::animate(int index)
   return enemy::animate(index);
 }
 
-int eGleeok::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int eGleeok::takehit(weapon*)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  wpnId=wpnId;
-  power=power;
-  wpnx=wpnx;
-  wpny=wpny;
-  wpnDir=wpnDir;
-
   return 0;
 }
 
@@ -8004,7 +7955,7 @@ bool esGleeok::animate(int index)
     if(clk>=0)
 
     {
-      variable_walk_8(2,0,9,spw_floater);
+      variable_walk_8(rate,homing,hrate,spw_floater);
     }
 
     break;
@@ -8019,7 +7970,7 @@ bool esGleeok::animate(int index)
       clk=-24;
       clk2=40;
       dir=(rand()&7)+8;
-      step=8.0/9.0;
+	  step=8.0/9.0;
     } break;
     case -2:                                                // the big guy is dead
     return true;
@@ -8037,9 +7988,9 @@ bool esGleeok::animate(int index)
   return enemy::animate(index);
 }
 
-int esGleeok::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
+int esGleeok::takehit(weapon *w)
 {
-  int ret = enemy::takehit(wpnId,power,wpnx,wpny,wpnDir);
+  int ret = enemy::takehit(w);
   if (ret==-1)
     return 2; // force it to wait a frame before checking sword attacks again
   return ret;
@@ -8100,7 +8051,7 @@ ePatra::ePatra(fix ,fix ,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
 {
   adjusted=false;
   dir=(rand()&7)+8;
-  step=0.25;
+  //step=0.25;
   flycnt=dmisc1;
   flycnt2=dmisc2;
   loopcnt=0;
@@ -8121,7 +8072,7 @@ bool ePatra::animate(int index)
   {
     removearmos(x,y);
   }
-  variable_walk_8(rate,homing,8,spw_floater);
+  variable_walk_8(rate,homing,hrate,spw_floater);
   if(++clk2>84)
   {
     clk2=0;
@@ -8256,15 +8207,15 @@ bool ePatra::animate(int index)
         {
           switch (dmisc5)
           {
+			// Center eye shoots projectiles; make room for its firing tiles
             case 1:
             ((enemy*)guys.spr(i))->o_tile=o_tile+120;
             break;
+			// Center eyes does not shoot; use tiles two rows below for inner eyes.
+			default:
             case 2:
             ((enemy*)guys.spr(i))->o_tile=o_tile+40;
             break;
-			default:
-			((enemy*)guys.spr(i))->o_tile=o_tile+dmisc8;
-			break;
           }
         }
         else
@@ -8397,7 +8348,6 @@ esPatra::esPatra(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   //cs=8;
   item_set=0;
   misc=clk;
-	al_trace("misc: %d\n",misc);
   clk = -((misc*21)>>1)-1;
   yofs=playing_field_offset;
   hyofs=2;
@@ -8460,6 +8410,7 @@ void esPatra::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
+
 ePatraBS::ePatraBS(fix ,fix ,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
 {
   adjusted=false;
@@ -8482,7 +8433,7 @@ bool ePatraBS::animate(int index)
   {
     removearmos(x,y);
   }
-  variable_walk_8(rate,homing,8,spw_floater);
+  variable_walk_8(rate,homing,hrate,spw_floater);
   if(++clk2>90)
   {
     clk2=0;
@@ -8681,6 +8632,7 @@ esPatraBS::esPatraBS(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   mainguy=count_enemy=false;
   deadsfx = WAV_EDEAD;
   hitsfx = WAV_EHIT;
+  flags &= ~guy_neverret;
 }
 
 bool esPatraBS::animate(int index)
@@ -8733,6 +8685,7 @@ void esPatraBS::draw(BITMAP *dest)
     enemy::draw(dest);
 }
 
+
 /**********************************/
 /**********  Misc Code  ***********/
 /**********************************/
@@ -8743,9 +8696,13 @@ void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
     Ewpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir, -1, parentid));
 }
 
-int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir)
+int hit_enemy(int index, int wpnId,int power,int wpnx,int wpny,int dir, int enemyHitWeapon)
 {
-  return ((enemy*)guys.spr(index))->takehit(wpnId,power,wpnx,wpny,dir);
+  // Kludge
+  weapon *w = new weapon((fix)wpnx,(fix)wpny,(fix)0,wpnId,0,power,dir,enemyHitWeapon,-1,false);
+  int ret= ((enemy*)guys.spr(index))->takehit(w);
+  delete w;
+  return ret;
 }
 
 void enemy_scored(int index)
@@ -8925,7 +8882,6 @@ int addenemy(int x,int y,int z,int id,int clk)
     case eeGHOMA:         e = new eGohma((fix)x,(fix)y,id,clk); break;
     case eeLANM:          e = new eLanmola((fix)x,(fix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1))); break;
     case eeGANON:         e = new eGanon((fix)x,(fix)y,id,clk); break;
-    case eeKEESETRIB:     e = new eKeeseTrib((fix)x,(fix)y,id,clk); break;
     case eeFAIRY:         e = new eItemFairy((fix)x,(fix)y,id+0x1000*clk,clk); break;
     case eeFIRE:          e = new eFire((fix)x,(fix)y,id,clk); break;
     case eeOTHER:         e = new eOther((fix)x,(fix)y,id,clk); break;
@@ -9153,18 +9109,6 @@ int addenemy(int x,int y,int z,int id,int clk)
   return ret;
 }
 
-bool checkpos(int id)
-{
-  switch(guysbuf[id&0xFFF].family)
-  {
-    //case eTEK1:
-    //case eTEK2:
-    //case eTEK3: return false;
-    case eeTEK: return false;
-  }
-  return true;
-}
-
 bool isjumper(int id)
 {
   switch(guysbuf[id&0xFFF].family)
@@ -9177,50 +9121,69 @@ bool isjumper(int id)
   return false;
 }
 
+
+bool isfixedtogrid(int id)
+{
+	switch(guysbuf[id&0xFFF].family)
+	{
+	    case eeWALK:
+		case eeLEV:
+		case eeZORA:
+		case eeDONGO: 
+		case eeGANON:
+		case eeROCK:
+		case eeGLEEOK:
+		case eeAQUA: 
+		case eeLANM: 
+			return true;
+			break;
+	}
+	return false;
+}
+
+// Can't fall, can have Z value.
 bool isflier(int id)
 {
   switch (guysbuf[id&0xFFF].family)//id&0x0FFF)
   {
   case eePEAHAT:
   case eeKEESE:
-  case eeKEESETRIB:
   case eePATRA:
   case eeFAIRY:
   case eeGHINI:
+  // Could theoretically have their Z set by a script
+  case eeFIRE:
     return true;
     break;
   }
   return false;
 }
 
-bool isfloater(int id)
+// Can't have Z position
+bool never_in_air(int id) 
 {
-  switch (guysbuf[id&0xFFF].family)//id&0x0FFF)
-  {
-  case eeMANHAN:
-  case eeMOLD:
-  case eeFIRE:
-  case eeSPINTILE:
-    return true;
-    break;
-  }
-  return isflier(id);
+	switch (guysbuf[id&0xFFF].family)
+	{
+		case eeMANHAN:
+		case eeMOLD:
+		case eeLANM:
+		case eeGLEEOK:
+		case eeZORA:
+		case eeLEV:
+		case eeAQUA:
+		case eeROCK:
+		case eeGANON:
+		case eeTRAP:
+		case eePROJECTILE:
+		case eeSPINTILE:
+			return true;
+	}return false;
 }
-
+	
 bool canfall(int id)
 {
   switch (guysbuf[id&0xFFF].family)
   {
-	  case eeGLEEOK:
-	  case eeZORA:
-	  case eeLEV:
-	  case eeAQUA:
-	  case eeROCK:
-	  case eeGANON:
-	  case eeTRAP:
-	  case eePROJECTILE:
-		return false;
-
 	  case eeGUY:
     {
       if(id < eOCTO1S)
@@ -9237,7 +9200,7 @@ bool canfall(int id)
       }
     }
   }
-  return !isfloater(id) && !isjumper(id);
+  return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
 void addfires()
@@ -9489,20 +9452,28 @@ void activate_fireball_statue(int pos)
 	}
   }
   int ctype = combobuf[MAPCOMBO(x,y)].type;
-  if(ctype==cL_STATUE)
+  if (!isfixedtogrid(Id))
   {
-	cx=x+4;
-	cy=y+7;
+    if(ctype==cL_STATUE)
+    {
+	  cx=x+4;
+	  cy=y+7;
+    }
+    else if(ctype==cR_STATUE)
+    {
+	  cx=x-8;
+	  cy=y-1;
+    }
+    else if(ctype==cC_STATUE)
+    {
+	  cx=x;
+	  cy=y;
+    }
   }
-  if(ctype==cR_STATUE)
+  else if(ctype==cL_STATUE || ctype==cR_STATUE || ctype==cC_STATUE)
   {
-	cx=x-8;
-	cy=y-1;
-  }
-  if(ctype==cC_STATUE)
-  {
-	cx=x;
-	cy=y;
+	  cx=x;
+	  cy=y;
   }
 
   if (cx!=-1000) // No point creating it if this is false
@@ -9517,7 +9488,7 @@ void activate_fireball_statue(int pos)
 		    guys.del(j);
 	  }
 	}
-	addenemy(cx,cy,Id,24);
+	  addenemy(cx,cy,Id, !isfixedtogrid(Id) ? 24 : 0);
   }
 }
 
@@ -9637,6 +9608,11 @@ void load_default_enemies()
         }
           addenemy(x,y,eTRAP_UD,-14);
       }
+	  if (ctype==cSPINTILE1)
+	  {
+		// Awaken spinning tile
+		awaken_spinning_tile(tmpscr,MAPCOMBO(x,y));
+	  }  
     }
   }
   if(tmpscr->enemyflags&efTRAP2)
@@ -9673,7 +9649,6 @@ void load_default_enemies()
     addenemy(rand()&0xF0,0,Id,0);
     addenemy(rand()&0xF0,0,Id,0);
   }
-
   activate_fireball_statues();
 }
 
@@ -9692,8 +9667,13 @@ void screen_combo_modify_postroutine(mapscr *s, int pos)
   if (combobuf[s->data[pos]].type==cSPINTILE1)
   {
     // Awaken spinning tile
-    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,animated_combo_table[s->data[pos]][1]+zc_max(1,combobuf[s->data[pos]].frames));
+	awaken_spinning_tile(s,pos);
   }
+}
+
+void awaken_spinning_tile(mapscr *s, int pos)
+{
+    addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,animated_combo_table[s->data[pos]][1]+zc_max(1,combobuf[s->data[pos]].frames));	
 }
 
 
@@ -10920,22 +10900,7 @@ void check_collisions()
         enemy *e = (enemy*)guys.spr(j);
         if(e->hit(w))
         {
-
-		  enemyHitWeapon = w->parentitem;
-          int h;
-
-          // If it's a boomerang that just bounced, use the opposite direction;
-          // otherwise, it might bypass a shield. This probably won't handle
-          // every case correctly, but it's better than having shields simply
-          // not work against boomerangs.
-          if(w->id==wBrang && w->misc==1 && w->clk2>=256 && w->clk2<264)
-          {
-            h = e->takehit(w->id,w->power,w->x,w->y,oppositeDir[w->dir]);
-          }
-          else
-          {
-            h = e->takehit(w->id,w->power,w->x,w->y,w->dir);
-          }
+          int h = e->takehit(w);
 		  // NOT FOR PUBLIC RELEASE
 		  /*if(h==3) //Mirror shield
 		  {
@@ -11198,7 +11163,7 @@ const char *old_guy_string[OLDMAXGUYS] =
   // 145
   "Trap (/, Line of Sight) ", "Trap (\\, Constant) ", "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ",
   // 150
-  "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Summoner", "Wizzrobe (Ice) ", "Shooter (Magic)",
+  "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Wizzrobe (Summoner)", "Wizzrobe (Ice) ", "Shooter (Magic)",
   // 155
   "Shooter (Rock)", "Shooter (Spear)", "Shooter (Sword)", "Shooter (Fire)", "Shooter (Fire 2)",
   // 160

@@ -26,7 +26,7 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "zdefs.h"
@@ -49,6 +49,9 @@
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
+#include "rendertarget.h"
+#include "zconsole.h"
+#include "win32.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -69,7 +72,8 @@ int strike_hint;
 int slot_arg, slot_arg2;
 char *SAVE_FILE = (char *)"zc.sav";
 
-int script_drawing_commands[MAX_SCRIPT_DRAWING_COMMANDS][SCRIPT_DRAWING_COMMAND_VARIABLES];
+CScriptDrawingCommands script_drawing_commands;
+
 using std::string;
 using std::pair;
 extern std::map<int, pair<string,string> > ffcmap;
@@ -223,6 +227,8 @@ int jwin_pal[jcMAX];
 int gui_colorset=0;
 int fullscreen;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
+byte zc_color_depth=8;
+byte use_debug_console=0, use_win7_keyboard_fix=0, use_win32_proc=1; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
@@ -247,7 +253,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;
 
 
-bool Throttlefps, Paused=false, Advance=false, ShowFPS, Showpal=false;
+bool Throttlefps, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS, Showpal=false;
 bool Playing, FrameSkip=false, TransLayers;
 bool __debug=false,debug_enabled;
 bool refreshpal,blockpath,loaded_guys,freeze_guys,
@@ -293,6 +299,35 @@ extern bool global_wait;
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
 byte arrayOwner[MAX_ZCARRAY_SIZE];
+
+//script bitmap drawing
+ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
+
+#ifdef _WIN32 //windows 7/vista/laptop keyboard fix callbacks
+DebugConsole DebugConsole::singleton;
+void win7fix_KeyPressCallback(unsigned char* scancode)
+{
+	//fix by Colossal
+	if (*scancode == 0x94) *scancode = 0x29; // For tilde
+	else if (*scancode == 0x90) *scancode = 0x0D; // For equals
+	else if (*scancode == 0x91) *scancode = 0x1A; // For openbrace
+	else if (*scancode == 0x1A) *scancode = 0x1B; // For closebrace
+	else if (*scancode == 0x1B) *scancode = 0x2B; // For backslash
+	else if (*scancode == 0x92) *scancode = 0x28; // For quote
+} END_OF_FUNCTION(win7fix_KeyPressCallback)
+
+void win7fix_KeyReleaseCallback(unsigned char* scancode)
+{
+	//fix by Colossal
+	if (*scancode == 0x94) return; // For tilde
+	else if (*scancode == 0x90) *scancode = 0x0D; // For equals
+	else if (*scancode == 0x91) *scancode = 0x1A; // For openbrace
+	else if (*scancode == 0x1A) *scancode = 0x1B; // For closebrace
+	else if (*scancode == 0x1B) *scancode = 0x2B; // For backslash
+	else if (*scancode == 0x92) *scancode = 0x28; // For quote
+} END_OF_FUNCTION(win7fix_KeyReleaseCallback)
+#endif
+
 
 void setZScriptVersion(int s_version)
 {
@@ -610,6 +645,19 @@ void Z_eventlog(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     al_trace("%s",buf);
+
+	if(zconsole)
+		printf("%s",buf);  
+  }
+  else if(zconsole)
+  {
+    char buf[2048];
+
+    va_list ap;
+    va_start(ap, format);
+    vsprintf(buf, format, ap);
+    va_end(ap);
+	printf("%s",buf);
   }
 }
 
@@ -624,6 +672,19 @@ void Z_scripterrlog(const char * const format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     al_trace("%s",buf);
+
+	if(zconsole)
+		printf("%s",buf);  
+  }
+  else if(zconsole)
+  {
+    char buf[2048];
+
+    va_list ap;
+    va_start(ap, format);
+    vsprintf(buf, format, ap);
+    va_end(ap);
+	printf("%s",buf);
   }
 }
 
@@ -1036,8 +1097,7 @@ int init_game()
 	tmpscr[1].zero_memory();
 
     //Script-related nonsense
-	memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS * SCRIPT_DRAWING_COMMAND_VARIABLES * sizeof(int));
-	draw_container.drawstring.clear();
+	script_drawing_commands.Clear();
 
 	initZScriptArrayRAM(firstplay);
 	initZScriptGlobalRAM();
@@ -1208,8 +1268,8 @@ int cont_game()
   loadscr(0,currdmap,currscr,-1,false);
   putscr(scrollbuf,0,0,&tmpscr[0]);
   putscrdoors(scrollbuf,0,0,&tmpscr[0]);
-  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
-  draw_container.drawstring.clear();
+  script_drawing_commands.Clear();
+
   //preloaded freeform combos
   ffscript_engine(true);
 
@@ -1902,8 +1962,7 @@ void game_loop()
 
   if(!freezemsg)
   {
-    memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
-    draw_container.drawstring.clear();
+    script_drawing_commands.Clear();
   }
 
   if(!freezeff)
@@ -2265,8 +2324,6 @@ int main(int argc, char* argv[])
     Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
   }
 
-
-
   //turn on MSVC memory checks
   //this should be interesting...
 
@@ -2278,6 +2335,14 @@ int main(int argc, char* argv[])
   //  Z_title("Zelda Classic %s",VerStr(ZELDA_VERSION));
 
   // allocate quest data buffers
+
+#ifdef _WIN32
+  if( used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con") )
+  {
+	  DebugConsole::Open();
+	  zconsole = true;
+  }
+#endif
 
 
   PopulateInitDialog();
@@ -2318,7 +2383,25 @@ int main(int argc, char* argv[])
   jpgalleg_init();
   loadpng_init();
 
+  // set and load game configurations
   set_config_file("ag.cfg");
+  load_game_configs();
+
+#ifdef _WIN32
+  //launch debug console if requested.
+  if( use_debug_console != FALSE )
+  {
+	  DebugConsole::Open();
+	  zconsole = true;
+  }
+
+  //win7 fix
+  if( use_win7_keyboard_fix != FALSE || used_switch(argc, argv, "-win7_keyfix") )
+  {
+	 // al_zc_win_key_press_fix = win7fix_KeyPressCallback;
+	  //al_zc_win_key_release_fix = win7fix_KeyReleaseCallback;
+  }
+#endif
 
   if(install_timer() < 0)
   {
@@ -2386,14 +2469,30 @@ int main(int argc, char* argv[])
 
 
   Z_message("Allocating bitmap buffers... ");
-  if(used_switch(argc,argv,"-16bit"))
-  {
-    set_color_depth(16);
-  }
+
+  //Turns out color depth can be critical. -Gleeok
+  if(used_switch(argc,argv,"-0bit")) set_color_depth(desktop_color_depth());
+  else if(used_switch(argc,argv,"-15bit")) set_color_depth(15);
+  else if(used_switch(argc,argv,"-16bit")) set_color_depth(16);
+  else if(used_switch(argc,argv,"-24bit")) set_color_depth(24);
+  else if(used_switch(argc,argv,"-32bit")) set_color_depth(32);
   else
   {
-    set_color_depth(8);
+	  //command-line switches takes priority
+	  switch(zc_color_depth)
+	  {
+		  case 0: set_color_depth(desktop_color_depth()); break;
+		  case 8: set_color_depth(8); break;
+		  case 15: set_color_depth(15); break;
+		  case 16: set_color_depth(16); break;
+		  case 24: set_color_depth(24); break;
+		  case 32: set_color_depth(32); break;
+		  default:
+			  set_color_depth(8);
+			  break;
+	  }
   }
+
 
   framebuf  = create_bitmap_ex(8,256,224);
   temp_buf  = create_bitmap_ex(8,256,224);
@@ -2421,9 +2520,7 @@ int main(int argc, char* argv[])
   set_clip_state(pricesdisplaybuf, 1);
   Z_message("OK\n");
 
-  // load game configurations
 
-  load_game_configs();
   zcmusic_init();
 
   //  int mode = VidMode;                                       // from config file
@@ -2432,14 +2529,7 @@ int main(int argc, char* argv[])
 
   if(used_switch(argc,argv,"-v0")) Throttlefps=false;
   if(used_switch(argc,argv,"-v1")) Throttlefps=true;
-  /*
-    if(used_switch(argc,argv,"-16bit")) {
-    colordepth=16;
-    } else {
-    colordepth=8;
-    }
-    set_color_depth(colordepth);
-    */
+
 
   resolve_password(zeldapwd);
   debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
@@ -2630,6 +2720,9 @@ int main(int argc, char* argv[])
     linkscripts[i][0].command = 0xFFFF;
   }
 
+  //script drawing bitmap allocation
+  zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
+
 
   // initialize sound driver
 
@@ -2681,6 +2774,8 @@ int main(int argc, char* argv[])
 	  Z_message("used switch: -triplebuffer\n");
   }
 
+  const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
+	
   // quick quit
   if(used_switch(argc,argv,"-q"))
   {
@@ -2717,7 +2812,7 @@ int main(int argc, char* argv[])
     tempmode=GFX_AUTODETECT_WINDOWED;
   }
 
-  if(!game_vid_mode(tempmode,250))
+  if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
   {
     //what we need here is not rightousness but madness!!!
 
@@ -2725,13 +2820,13 @@ int main(int argc, char* argv[])
     sbig=1;
     resx=640;
     resy=480;
-    if(!game_vid_mode(tempmode,250))
+    if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
     {
       Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
       sbig2=1;
       resx=800;
       resy=600;
-      if(!game_vid_mode(tempmode,250))
+      if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
       {
         sbig2=0;
         Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
@@ -2742,13 +2837,13 @@ int main(int argc, char* argv[])
           sbig=1;
           resx=640;
           resy=480;
-          if(!game_vid_mode(tempmode,250))
+          if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
           {
             Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
             sbig=0;
             resx=320;
             resy=240;
-            if(!game_vid_mode(tempmode,250))
+            if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
             {
               Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
               al_trace("Fatal Error...Zelda Classic could not be initialized. Have a nice day :) \n");
@@ -2761,7 +2856,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-          al_trace("Fatal Error: could not create a window for Zelda Classic.\n"); // Have a nice day :) \n"); // Probably better to leave this part off...
+          al_trace("Fatal Error: could not create a window for Zelda Classic.\n"); 
           Z_error(allegro_error);
           quit_game();
         }
@@ -2825,6 +2920,11 @@ int main(int argc, char* argv[])
   game = new gamedata;
   game->Clear();
 
+#ifdef _WIN32
+  if(use_win32_proc != FALSE)
+	win32data.zcSetCustomCallbackProc( win_get_window() );
+#endif
+
   while(Quit!=qEXIT)
   {
     // this is here to continually fix the keyboard repeat
@@ -2838,9 +2938,14 @@ int main(int argc, char* argv[])
 
     while(!Quit)
     {
+#ifdef _WIN32
+		if(use_win32_proc != FALSE)
+			win32data.Update(0);
+#endif
         game_loop();
         advanceframe(true);
     }
+
     tmpscr->flags3=0;
     Playing=Paused=false;
     switch(Quit)
@@ -2898,7 +3003,7 @@ quick_quit:
   quit_game();
   Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
   Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
-
+  Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
   allegro_exit();
   return 0;
 }
@@ -2928,8 +3033,9 @@ void delete_everything_else() //blarg.
 
 void quit_game()
 {
-  remove_installed_timers();
+  script_drawing_commands.Dispose(); //for allegro bitmaps
 
+  remove_installed_timers();
   delete_everything_else();
 
   al_trace("Freeing Data: \n");
@@ -3025,6 +3131,8 @@ void quit_game()
   {
     if(linkscripts[i]!=NULL) delete [] linkscripts[i];
   }
+
+  delete zscriptDrawingRenderTarget;
 
   //for(int i=0; i<map_count*MAPSCRS; i++)
   //{

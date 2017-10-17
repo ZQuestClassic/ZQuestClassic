@@ -170,6 +170,7 @@ RGB _RGB(byte *si)
   x.r = si[0];
   x.g = si[1];
   x.b = si[2];
+  x.filler=0;
   return x;
 }
 
@@ -179,6 +180,7 @@ RGB _RGB(int r,int g,int b)
   x.r = r;
   x.g = g;
   x.b = b;
+  x.filler=0;
   return x;
 }
 
@@ -188,6 +190,7 @@ RGB invRGB(RGB s)
   x.r = 63-s.r;
   x.g = 63-s.g;
   x.b = 63-s.b;
+  x.filler=0;
   return x;
 }
 
@@ -204,6 +207,7 @@ RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
   x.r = ( r1*(64-ratio) + r2*ratio ) >> 6;
   x.g = ( g1*(64-ratio) + g2*ratio ) >> 6;
   x.b = ( b1*(64-ratio) + b2*ratio ) >> 6;
+  x.filler=0;
   return x;
 }
 
@@ -282,6 +286,7 @@ void refresh_pal()
 
 char ns_string[4];
 
+// Mirrored in Link.cpp
 const char *roomtype_string[MAXROOMTYPES] =
 {
   "(None)","Special Item","Pay for Info","Secret Money","Gamble",
@@ -512,7 +517,7 @@ const char *combotype_help_string[cMAX*3] =
   // Anyway...
   "Link is warped via Tile Warp A if he swims on","this combo. Otherwise, this is identical to Water.","",
   "Link is warped via Tile Warp A if he dives on","this combo. Otherwise, this is identical to Water.","",
-  "If this combo is solid, the Ladder and Hookshot","can be used to cross over it.","",
+  "If this combo is solid, the Ladder and Hookshot","can be used to cross over it.","It only permits the Ladder if it's on Layer 0.",
   "This triggers Screen Secrets when the bottom half","of this combo is stepped on, but it does not set","the screen's 'Secret' Screen State.",
   "This triggers Screen Secrets when the bottom half","of this combo is stepped on, and sets the screen's","'Secret' Screen State, making the secrets permanent.",
   "","","", // Unused
@@ -557,7 +562,7 @@ const char *combotype_help_string[cMAX*3] =
   "Identical to Lock Block, but if any other","Lock Blocks are opened on the same screen,","this changes to the next combo.",
   "If the combo is solid and Link pushes it with the","Boss Key, it changes to the next combo and","the 'Boss Lock Blocks' Screen State is set.",
   "Identical to Lock Block (Boss), but if any other","Boss Lock Blocks are opened on the same","screen, this changes to the next combo.",
-  "If this combo is solid, the Ladder","can be used to cross over it.","",
+  "If this combo is solid, the Ladder","can be used to cross over it.","Only works on layer 0.",
   "When touched, this combo produces a Ghini","and changes to the next combo in the list.","",
   "If Link pushes the bottom of this solid combo,","it changes to the next combo in the list.","Best used with the Armos/Chest->Item combo flag.",
   "Identical to Treasure Chest (Normal), but if any","other Normal Treasure Chests are opened on the","same screen, this changes to the next combo.",
@@ -819,7 +824,7 @@ const char *old_guy_string[OLDMAXGUYS] =
   // 145
   "Trap (/, Line of Sight) ", "Trap (\\, Constant) ", "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ",
   // 150
-  "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Summoner", "Wizzrobe (Ice) ", "Shooter (Magic)",
+  "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Wizzrobe (Summoner)", "Wizzrobe (Ice) ", "Shooter (Magic)",
   // 155
   "Shooter (Rock)", "Shooter (Spear)", "Shooter (Sword)", "Shooter (Fire)", "Shooter (Fire 2)",
   // 160
@@ -872,7 +877,7 @@ const char *enetype_string[eeMAX] =
 	"-Unused",
 	"-Unused",
 	"-Unused",
-	"Keese Tribble",
+	"-Unused",
 	"Spin Tile",
 	"(None)",
 	"-Fairy",
@@ -1181,7 +1186,7 @@ int onSpacebar()
 
 int onSnapshot()
 {
-  char buf[20];
+  char buf[26];
   int num=0;
   do
   {

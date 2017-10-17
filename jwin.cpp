@@ -33,7 +33,7 @@
 #include <iostream>
 #include "zsys.h"
 #include <stdio.h>
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -3112,7 +3112,7 @@ int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s
   int maxlen = 0;
   int len1, len2, len3;
   int avg_w = text_length(font, " ");
-  int avg_h = text_height(font);
+  int avg_h = text_height(font)+is_large;
   int buttons = 0;
   int yofs = (title ? 22 : 0);
   int b[3];

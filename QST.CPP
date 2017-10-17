@@ -19,7 +19,7 @@
 #include <vector>
 #include <assert.h>
 
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 #include "zc_alleg.h"
 #include "zdefs.h"
 #include "colors.h"
@@ -4614,9 +4614,9 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
           case iFaroresWind:
             tempitem.magic=32; break;
           case iHookshot:
-            tempitem.power=0; tempitem.flags|=ITEM_GAMEDATA; tempitem.wpn=wHSHEAD; tempitem.wpn2=wHSCHAIN_H; tempitem.wpn4=wHSHANDLE; tempitem.wpn3=wHSCHAIN_V; tempitem.misc1=50; tempitem.misc2=100; break;
+            tempitem.power=0; tempitem.flags&=~ITEM_FLAG1; tempitem.wpn=wHSHEAD; tempitem.wpn2=wHSCHAIN_H; tempitem.wpn4=wHSHANDLE; tempitem.wpn3=wHSCHAIN_V; tempitem.misc1=50; tempitem.misc2=100; break;
           case iLongshot:
-            tempitem.power=0; tempitem.wpn=wLSHEAD; tempitem.wpn2=wLSCHAIN_H; tempitem.wpn4=wLSHANDLE; tempitem.wpn3=wLSCHAIN_V;  tempitem.misc1=99; tempitem.misc2=100; break;
+            tempitem.power=0; tempitem.flags&=~ITEM_FLAG1; tempitem.wpn=wLSHEAD; tempitem.wpn2=wLSCHAIN_H; tempitem.wpn4=wLSHANDLE; tempitem.wpn3=wLSCHAIN_V;  tempitem.misc1=99; tempitem.misc2=100; break;
           case iHammer:
             tempitem.power=4; tempitem.wpn=wHAMMER; tempitem.wpn2=iwHammerSmack; break;
           case iCByrna:
@@ -5693,12 +5693,11 @@ int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s_version, word )
 {
+  GarbageCollector gc;
+
   int numsub=0;
   byte temp_ss=0;
-  subscreen_object *temp_sub = new subscreen_object;
-  zc::auto_ptr<subscreen_object> ts_al(temp_sub, 2);
-
-  //zc::auto_ptr<char> ts_dpl_al(NULL);
+  subscreen_object *temp_sub = gc(new subscreen_object);
 
   char tempname[64];
   if(!pfread(tempname,64,f,true))
@@ -5921,7 +5920,7 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
     if(keepdata)
     {
 		unsigned int char_length = temp_size+1;
-		temp_sub->dp1 = the_char_butcher.rape( char_length );
+		temp_sub->dp1 = new char[char_length]; //memory not freed
 
         //deletets = true; //obsolete
     }
@@ -6733,7 +6732,10 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
   word s_version=0, s_cversion=0;
   //int ret;
   SAMPLE temp_sample;
-
+  temp_sample.loop_start=0;
+  temp_sample.loop_end=0;
+  temp_sample.param=0;
+	
   //section version info
   if(!p_igetw(&s_version,f,true))
   {
@@ -7349,17 +7351,16 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
       {
         if(i == eGLEEOK1 || i == eGLEEOK2 || i == eGLEEOK3 || i == eGLEEOK4 || i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
         {
+		  // Some of these are deliberately different to NewDefault/defdata.cpp, by the way. -L
           tempguy.misc5 = 4; //neck length in segments
-//          tempguy.misc6 = 8-(i<eGLEEOK1F?((i-eGLEEOK1)*40):((i-eGLEEOK1F)*40)); //neck offset from first body tile
           tempguy.misc6 = 8; //neck offset from first body tile
-//          tempguy.misc7 = (i<eGLEEOK1F?(4-(i-eGLEEOK1)):(4-(i-eGLEEOK1F)))*40; //head offset from first body tile
           tempguy.misc7 = 40; //offset for each subsequent neck tile from the first neck tile
-          tempguy.misc8 = 160; //head offset from first body tile
-          tempguy.misc9 = 220; //flying head offset from first body tile
+          tempguy.misc8 = 168; //head offset from first body tile
+          tempguy.misc9 = 228; //flying head offset from first body tile
           if(i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
           {
-            tempguy.misc6 += 8; //neck offset from first body tile
-            tempguy.misc8-=12; //head offset from first body tile
+            tempguy.misc6 += 10; //neck offset from first body tile
+            tempguy.misc8 -= 12; //head offset from first body tile
           }
         }
       }
@@ -7501,6 +7502,46 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		  tempguy.weapon = ewLitBomb;
 	    else if (tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
 		  tempguy.weapon = ewLitSBomb;
+	  }
+	  if (guyversion < 21) // September 2011
+	  {
+		  if (tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB) 
+		  {
+			  if (tempguy.family == eeKEESETRIB) 
+			  {
+				  tempguy.family = eeKEESE;
+				  tempguy.misc2 = e2tKEESETRIB;
+				  tempguy.misc1 = 0;
+			  }
+			  tempguy.rate = 2; tempguy.hrate = 8; tempguy.homing = 0; tempguy.step= (tempguy.family == eeKEESE && tempguy.misc1 ? 100:62);
+		  }
+		  else if (tempguy.family == eePEAHAT || tempguy.family==eePATRA) 
+		  {
+		      if (tempguy.family == eePEAHAT) {
+				tempguy.rate = 4; 
+				tempguy.step = 62;
+			  } else
+				tempguy.step = 25;
+			  tempguy.hrate = 8; tempguy.homing = 0;
+		  }
+		  else if (tempguy.family == eeDIG || tempguy.family == eeMANHAN) 
+		  {
+			if (tempguy.family == eeMANHAN) 
+			  tempguy.step=50;
+			tempguy.hrate = 16; tempguy.homing = 0;
+		  }
+		  else if (tempguy.family == eeGLEEOK) 
+		  {
+			tempguy.rate = 2; tempguy.homing = 0; tempguy.hrate = 9; tempguy.step=89;
+		  }
+		  else if (tempguy.family == eeGHINI) 
+		  {
+			tempguy.rate = 4; tempguy.hrate = 12; tempguy.step=62; tempguy.homing = 0;
+		  }
+		  // Bigdig random rate fix
+		  if (tempguy.family==eeDIG && tempguy.misc10==1) {
+			tempguy.rate = 2;
+		  }
 	  }
       if(keepdata)
       {

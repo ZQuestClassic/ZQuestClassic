@@ -24,7 +24,7 @@
 #include "qst.h"
 #include "init.h"
 #include <assert.h>
-#include "trapper_keeper.h"
+#include "mem_debug.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -6387,7 +6387,7 @@ int onEditSubscreens()
     ret=zc_popup_dialog(sslist_dlg,2);
 	if (ret==4)
 	{
-		int confirm = jwin_alert("Confirm Delete", "You are about to complete delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, lfont);
+		int confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, lfont);
 		if(confirm==1)
 		{
 			delete_subscreen(sslist_dlg[2].d1);
