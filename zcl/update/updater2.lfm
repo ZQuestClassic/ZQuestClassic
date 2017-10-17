@@ -1,0 +1,111 @@
+object Form1: TForm1
+  Left = 370
+  Height = 85
+  Top = 176
+  Width = 509
+  HelpContext = 0
+  Align = alNone
+  Caption = 'ZC Updater'
+  ChildSizing.LeftRightSpacing = 0
+  ChildSizing.TopBottomSpacing = 0
+  ChildSizing.HorizontalSpacing = 0
+  ChildSizing.VerticalSpacing = 0
+  ChildSizing.ControlsPerLine = 0
+  ClientHeight = 85
+  ClientWidth = 509
+  Font.Height = 0
+  Font.Style = []
+  OnCreate = FormCreate
+  ParentFont = False
+  LCLVersion = '0.9.26'
+  object Label1: TLabel
+    Left = 0
+    Height = 18
+    Top = 0
+    Width = 110
+    HelpContext = 0
+    Align = alNone
+    Alignment = taLeftJustify
+    BorderSpacing.Left = 0
+    BorderSpacing.Top = 0
+    BorderSpacing.Right = 0
+    BorderSpacing.Bottom = 0
+    BorderSpacing.Around = 0
+    BorderSpacing.CellAlignHorizontal = ccaFill
+    BorderSpacing.CellAlignVertical = ccaFill
+    Caption = 'ZC Updater V.01'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 0
+    Height = 18
+    Top = 16
+    Width = 355
+    HelpContext = 0
+    Align = alNone
+    Alignment = taLeftJustify
+    BorderSpacing.Left = 0
+    BorderSpacing.Top = 0
+    BorderSpacing.Right = 0
+    BorderSpacing.Bottom = 0
+    BorderSpacing.Around = 0
+    BorderSpacing.CellAlignHorizontal = ccaFill
+    BorderSpacing.CellAlignVertical = ccaFill
+    Caption = 'Remain Connected while we are updating ZC and ZCL'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 0
+    Height = 18
+    Top = 48
+    Width = 142
+    HelpContext = 0
+    Align = alNone
+    Alignment = taLeftJustify
+    BorderSpacing.Left = 0
+    BorderSpacing.Top = 0
+    BorderSpacing.Right = 0
+    BorderSpacing.Bottom = 0
+    BorderSpacing.Around = 0
+    BorderSpacing.CellAlignHorizontal = ccaFill
+    BorderSpacing.CellAlignVertical = ccaFill
+    Caption = 'Downloading Updates'
+    ParentColor = False
+  end
+  object ProgressBar1: TProgressBar
+    Left = 0
+    Height = 20
+    Top = 65
+    Width = 509
+    HelpContext = 0
+    Align = alBottom
+    BorderSpacing.Left = 0
+    BorderSpacing.Top = 0
+    BorderSpacing.Right = 0
+    BorderSpacing.Bottom = 0
+    BorderSpacing.Around = 0
+    BorderSpacing.CellAlignHorizontal = ccaFill
+    BorderSpacing.CellAlignVertical = ccaFill
+    Max = 4
+    Min = 0
+    Smooth = True
+    Step = 4
+    TabOrder = 0
+    BarShowText = False
+  end
+  object Process1: TProcess
+    Active = False
+    Options = [poWaitOnExit]
+    Priority = ppNormal
+    StartupOptions = []
+    ShowWindow = swoNone
+    WindowColumns = 0
+    WindowHeight = 0
+    WindowLeft = 0
+    WindowRows = 0
+    WindowTop = 0
+    WindowWidth = 0
+    FillAttribute = 0
+    left = 480
+  end
+end

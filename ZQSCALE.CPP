@@ -16,7 +16,7 @@ int zqwin_scale = 1;
 
 bool zqwin_set_scale(int scale, bool defer = false);
 
-void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool masked=false) 
+void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool masked=false)
 {
 	//clip source and destination aarrgh
 
@@ -83,9 +83,7 @@ void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, in
 		masked_stretch_blit(src, dest, sx, sy, sw, sh, dx, dy, dw, dh);
 	else
 		stretch_blit(src, dest, sx, sy, sw, sh, dx, dy, dw, dh);
-
 }
-
 
 void clip_and_stretch_sprite(BITMAP *dest, BITMAP *src, int x, int y, int w, int h)
 {
@@ -442,10 +440,16 @@ void zqwin_masked_blit(struct BITMAP *source, struct BITMAP *dest, int source_x,
 
 void zqwin_clear_to_color(struct BITMAP *bitmap, int color)
 {
-  orig_vtable->clear_to_color(bitmap, color);
-  clear_to_color(orig_screen, color);
-  return;
+//  orig_vtable->clear_to_color(bitmap, color);
+	orig_vtable->rectfill(bitmap,0,0,bitmap->w-1,bitmap->h-1,color);
+	if(is_same_bitmap(bitmap, proxy_screen))
+	{
+ // clear_to_color(orig_screen, color);
+		rectfill(orig_screen,0,0,orig_screen->w-1,orig_screen->h-1,color);
+	}
+	return;
 }
+
 #include <stdio.h>
 void zqwin_set_clip(struct BITMAP *bitmap)
 {
@@ -507,7 +511,7 @@ int zqwin_set_gfx_mode(int card, int w, int h, int v_w, int v_h)
   bool becomesWindowed = true;
   if (is_windowed_mode(card))
   {
-    failed = set_gfx_mode(card,w*zqwin_scale,h*zqwin_scale,0,0);
+	  failed = set_gfx_mode(card,w*zqwin_scale,h*zqwin_scale,0,0);
   }
   else
   {
@@ -524,13 +528,13 @@ int zqwin_set_gfx_mode(int card, int w, int h, int v_w, int v_h)
   }
   else
   {
-    orig_screen = screen;
+	orig_screen = screen;
     if(becomesWindowed && (zqwin_scale > 1))
     {
-      clear_bitmap(proxy_screen);
+	  clear_bitmap(proxy_screen);
       screen = proxy_screen;
       //set_mouse_speed(zqwin_scale<<1, zqwin_scale<<1);
-      zq_set_mouse_range(0,0,w-1,h-1);
+	  zq_set_mouse_range(0,0,w-1,h-1);
     }
     /*
       else
@@ -540,6 +544,17 @@ int zqwin_set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       */
   }
   set_mouse_speed(2,2);
+ // if(is_windowed_mode())
+  //{
+	//if(zcgui_screen) destroy_bitmap(zcgui_screen);
+	//zcgui_screen = create_bitmap_ex(get_color_depth(), screen->w, screen->h);
+	//zcgui_scrref = zcgui_screen;
+  //}
+  //else
+  //{
+    //zcgui_scrref = screen;
+  //}
+
 
   return failed;
 }
@@ -559,7 +574,20 @@ int zqscale_mouse_y()
 
 bool zqwin_set_scale(int scale, bool defer)
 {
-  int old_scale = zqwin_scale;
+  // These are here to make compiler happy
+  defer=defer;
+
+  int old_scale;
+  old_scale = zqwin_scale;
+
+#ifndef ROMVIEW_SCALE
+  zqwin_scale = (scale > 1) ? scale : 1;
+  #ifndef COMPILE_FOR_LINUX
+	gui_mouse_x=zqscale_mouse_x;
+	gui_mouse_y=zqscale_mouse_y;
+  #endif
+  return true;
+#else
 
   if ((!proxy_screen) && (scale > 1))
   {
@@ -601,23 +629,28 @@ bool zqwin_set_scale(int scale, bool defer)
   }
 
   zqwin_scale = (scale > 1) ? scale : 1;
-
   if ((!defer) && (zqwin_scale != old_scale))
     //if (zqwin_scale != old_scale)
   {
     if (gfx_driver && gfx_driver->windowed)
     {
-      if (zqwin_set_gfx_mode(gfx_driver->id,zq_screen_w,zq_screen_h,0,0))
+	  if (zqwin_set_gfx_mode(gfx_driver->id,zq_screen_w,zq_screen_h,0,0))
       {
         zqwin_scale = old_scale;
         return false;
       }
     }
   }
-#ifdef ALLEGRO_WINDOWS
-  gui_mouse_x=zqscale_mouse_x;
-  gui_mouse_y=zqscale_mouse_y;
+
+
+	// Mouse Scale Issue Fix Just commented these out and presto it works :-D
+#ifndef COMPILE_FOR_LINUX
+	gui_mouse_x=zqscale_mouse_x;
+	gui_mouse_y=zqscale_mouse_y;
 #endif
+
   return true;
+#endif
 }
 
+ 

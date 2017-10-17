@@ -25,7 +25,8 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r,
 //#define poSPRITE 210       // first sprite pal
 #define oldpoSPRITE 210                                     // first sprite pal
 #define newpoSPRITE 3343                                    // first sprite pal
-#define pSprite(x) ((x)+newpoSPRITE)
+#define newerpoSPRITE 6671
+#define pSprite(x) ((x)+newerpoSPRITE)
 
 // palette data sizes in "data sets"
 #define pdFULL   15                                         // number of csets in the full palette
@@ -34,6 +35,7 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r,
 //#define pdTOTAL  240       // total data sets
 #define oldpdTOTAL  240                                     // total data sets
 #define newpdTOTAL  3373                                    // total data sets
+#define newerpdTOTAL 6701
 
 // palette data sizes in bytes
 #define psFULL   ((pdFULL<<4)*3)
@@ -42,6 +44,7 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r,
 //#define psTOTAL  ((pdTOTAL<<4)*3)
 #define oldpsTOTAL  ((oldpdTOTAL<<4)*3)
 #define newpsTOTAL  ((newpdTOTAL<<4)*3)
+#define newerpsTOTAL ((newerpdTOTAL<<4)*3)
 
 extern byte nes_pal[];
 extern byte nes_colors[];
@@ -49,3 +52,4 @@ extern byte nes_colors[];
 //bool init_colordata();
 extern bool init_palnames();
 #endif                                                      // _ZC_COLORS_H_
+ 

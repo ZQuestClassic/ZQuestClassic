@@ -12,9 +12,10 @@
 #define _MATRIX_H_
 
 #include "zc_alleg.h"
+#include "zc_sys.h"
 
-extern void waitvsync();
 extern int  input_idle(bool checkmouse);
 
 void Matrix(int speed, int density, int mousedelay);
 #endif
+ 

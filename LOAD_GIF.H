@@ -4,11 +4,12 @@
 #ifdef __cplusplus
 extern "C"
 {
-  #endif
+#endif
 
   BITMAP *load_gif(const char *filename, RGB *pal);
 
-  #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif
+ 

@@ -45,6 +45,9 @@
 #include <allegro/internal/aintern.h>
 #include "jwin.h"
 #include "jwinfsel.h"
+#include "zsys.h"
+
+extern FONT *lfont_l;
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
 #define HAVE_DIR_LIST
@@ -54,13 +57,13 @@
 static int fs_edit_proc(int, DIALOG *, int );
 static int fs_flist_proc(int, DIALOG *, int );
 static int fs_elist_proc(int, DIALOG *, int );
-static char *fs_flist_getter(int, int *);
-static char *fs_elist_getter(int, int *);
+static const char *fs_flist_getter(int, int *);
+static const char *fs_elist_getter(int, int *);
 
 #ifdef HAVE_DIR_LIST
 
 static int fs_dlist_proc(int, DIALOG *, int);
-static char *fs_dlist_getter(int, int *);
+static const char *fs_dlist_getter(int, int *);
 #endif
 
 #define FLIST_SIZE      2048
@@ -104,6 +107,12 @@ static int fs_dummy_proc(int msg, DIALOG *d, int c)
   return D_O_K;
 }
 
+static ListData fs_flist__getter(fs_flist_getter, &font);
+static ListData fs_elist__getter(fs_elist_getter, &font);
+#ifdef HAVE_DIR_LIST //Needed to compile. -L
+static ListData fs_dlist__getter(fs_dlist_getter, &font);
+#endif
+
 static DIALOG file_selector[] =
 {
 #ifdef HAVE_DIR_LIST
@@ -113,9 +122,9 @@ static DIALOG file_selector[] =
   { jwin_button_proc,     208,  107,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { jwin_button_proc,     208,  129,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
-  { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) fs_flist_getter,  NULL, NULL  },
-  { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0,    (void *) fs_elist_getter,  NULL, NULL },
-  { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0,    (void *) fs_dlist_getter,  NULL, NULL  },
+  { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_flist__getter,  NULL, NULL  },
+  { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_elist__getter,  NULL, NULL },
+  { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_dlist__getter,  NULL, NULL  },
   { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
 
 #else
@@ -125,8 +134,8 @@ static DIALOG file_selector[] =
   { jwin_button_proc,     64,   160,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { jwin_button_proc,     160,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
   { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
-  { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) fs_flist_getter,  NULL, NULL  },
-  { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0,    (void *) fs_elist_getter,  NULL, NULL },
+  { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_flist__getter,  NULL, NULL  },
+  { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0,    (void *) &fs_elist__getter,  NULL, NULL },
   { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
 #endif
 
@@ -144,6 +153,10 @@ static DIALOG file_selector[] =
 
 #define FS_DISKS        6
 #define FS_YIELD        7
+
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#endif
 
 /* count_disks:
   *  Counts the number of valid drives.
@@ -186,7 +199,7 @@ static int get_x_drive(int index)
 /* fs_dlist_getter:
   *  Listbox data getter routine for the file selector disk list.
   */
-static char *fs_dlist_getter(int index, int *list_size)
+static const char *fs_dlist_getter(int index, int *list_size)
 {
   static char d[8];
   int pos, c;
@@ -494,7 +507,7 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
 /* fs_flist_getter:
   *  Listbox data getter routine for the file selector list.
   */
-static char *fs_flist_getter(int index, int *list_size)
+static const char *fs_flist_getter(int index, int *list_size)
 {
   if (index < 0)
   {
@@ -642,9 +655,15 @@ static void parse_extension_string(AL_CONST char *ext)
   char *last, *p, *attrb_p;
   int c, c2, i;
 
-  fext = ustrdup(ext);
-  if (!fext)
+  i = 0;
+  fext_size = 0;
+  fext_p = NULL;
+  attrb_p = NULL;
+
+  if (!ext)
     return;
+
+  fext = ustrdup(ext);
 
   /* Tokenize the extension string and record the pointers to the
     * beginning of each token in a dynamically growing array.
@@ -657,13 +676,8 @@ static void parse_extension_string(AL_CONST char *ext)
   usetc(ext_tokens+c, 0);
 
   p = ustrtok_r(fext, ext_tokens, &last);
-  if (!ugetc(p))
+  if (p == NULL || !ugetc(p))
     return;
-
-  i = 0;
-  fext_size = 0;
-  fext_p = NULL;
-  attrb_p = NULL;
 
   do
   {
@@ -729,8 +743,7 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
 {
   int font_w, font_h, hpad, vpad;
   char tmp[16];
-  d[FS_TYPES].proc = show_extlist ? fs_elist_proc : fs_dummy_proc;
-
+  
 #ifdef HAVE_DIR_LIST
 
   /* horizontal settings */
@@ -829,6 +842,41 @@ static void stretch_dialog(DIALOG *d, int width, int height, int show_extlist)
 #endif
 }
 
+/* enlarge_file_selector:
+ * Enlarges the dialog for Large Mode. -L
+ */
+void enlarge_file_selector(int width, int height) 
+{
+  if (file_selector[0].d1==0)
+  {
+    stretch_dialog(file_selector, width, height, 1);
+  }
+  jwin_center_dialog(file_selector);
+  bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
+  if (is_large)
+  {
+    large_dialog(file_selector);
+    int bottom = 
+#ifndef HAVE_DIR_LIST
+		file_selector[FS_OK].y;
+#else
+		file_selector[FS_WIN].y+file_selector[FS_WIN].h-8;
+#endif
+    file_selector[FS_FILES].dp2=NULL;
+    file_selector[FS_TYPES].y = bottom-file_selector[FS_TYPES].h-5;
+	file_selector[FS_FILES].h=show_extlist ? 140 : 164;
+	file_selector[FS_FILES].y = (show_extlist ? file_selector[FS_TYPES].y:bottom)-(file_selector[FS_FILES].h+5);
+	file_selector[FS_EDIT].y = file_selector[FS_FILES].y-32;
+	((ListData *)file_selector[4].dp)->font = &lfont_l;
+    file_selector[FS_TYPES].dp2=NULL;file_selector[FS_TYPES].h=20;
+	((ListData *)file_selector[FS_TYPES].dp)->font = &lfont_l;
+#ifdef HAVE_DIR_LIST
+    file_selector[FS_DISKS].dp2=NULL;file_selector[FS_DISKS].h=20;
+	((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
+#endif
+  }
+}
+
 /* jwin_file_select_ex:
   *  Displays the JWin file selector, with the message as caption.
   *  Allows the user to select a file, and stores the selection in the
@@ -880,8 +928,10 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
   memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
 
   /* Parse extension string. */
-  if (ext && ugetc(ext))
+//  if (ext)// && ugetc(ext))
+  {
     parse_extension_string(ext);
+  }
 
   if (!ugetc(path))
   {
@@ -907,9 +957,9 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
   {
   } while (gui_mouse_b());
 
-  stretch_dialog(file_selector, width, height, 0);
-  jwin_center_dialog(file_selector);
-  ret = popup_dialog(file_selector, FS_EDIT);
+  file_selector[FS_TYPES].proc = fs_dummy_proc;
+  enlarge_file_selector(width, height);
+  ret = popup_zqdialog(file_selector, FS_EDIT);
 
   if (fext)
   {
@@ -919,7 +969,7 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
 
   if (fext_p)
   {
-    free(fext_p);
+    _al_free(fext_p);
     fext_p = NULL;
   }
 
@@ -929,7 +979,7 @@ int jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, 
   p = get_extension(path);
   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp))))
   {
-    size -= ((long)p - (long)path + ucwidth('.'));
+    size -= ((long)(size_t)p - (long)(size_t)path + ucwidth('.'));
     if (size >= uwidth_max(U_CURRENT) + ucwidth(0))         /* do not end with '.' */
     {
       p += usetc(p, '.');
@@ -956,7 +1006,7 @@ static int count_ext_list()
 /* fs_elist_getter:
   *  Listbox data getter routine for the file selector disk list.
   */
-static char *fs_elist_getter(int index, int *list_size)
+static const char *fs_elist_getter(int index, int *list_size)
 {
   if (index < 0)
   {
@@ -992,6 +1042,10 @@ static int fs_elist_proc(int msg, DIALOG *d, int c)
   {
     // change the extension(s)
     fext = fext_list[d->d1].ext;
+//    if (fext)// && ugetc(fext))
+    {
+      parse_extension_string(fext);
+    }
 
     // check whether the extension on the current file name is still valid
     if ((fext) && (strlen(get_filename(s))))
@@ -1072,8 +1126,10 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
   memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
 
   /* Parse extension string. */
-  if (ext && ugetc(ext))
+//  if (ext)// && ugetc(ext))
+  {
     parse_extension_string(ext);
+  }
 
   if (!ugetc(path))
   {
@@ -1099,9 +1155,9 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
   {
   } while (gui_mouse_b());
 
-  stretch_dialog(file_selector, width, height, 0);
-  jwin_center_dialog(file_selector);
-  ret = popup_dialog(file_selector, FS_EDIT);
+  file_selector[FS_TYPES].proc = fs_dummy_proc;
+  enlarge_file_selector(width, height);
+  ret = popup_zqdialog(file_selector, FS_EDIT);
 
   if (fext)
   {
@@ -1111,7 +1167,7 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
 
   if (fext_p)
   {
-    free(fext_p);
+    _al_free(fext_p);
     fext_p = NULL;
   }
 
@@ -1123,7 +1179,7 @@ int jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext,
   p = get_extension(path);
   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp))))
   {
-    size -= ((long)p - (long)path + ucwidth('.'));
+    size -= ((long)(size_t)p - (long)(size_t)path + ucwidth('.'));
     if (size >= uwidth_max(U_CURRENT) + ucwidth(0))         /* do not end with '.' */
     {
       p += usetc(p, '.');
@@ -1184,8 +1240,10 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
   memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
 
   /* Parse extension string. */
-  if (fext && ugetc(fext))
+//  if (fext)// && ugetc(fext))
+  {
     parse_extension_string(fext);
+  }
 
   if (!ugetc(path))
   {
@@ -1211,9 +1269,9 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
   {
   } while (gui_mouse_b());
 
-  stretch_dialog(file_selector, width, height, 1);
-  jwin_center_dialog(file_selector);
-  ret = popup_dialog(file_selector, FS_EDIT);
+  file_selector[FS_TYPES].proc = fs_elist_proc;
+  enlarge_file_selector(width,height);
+  ret = popup_zqdialog(file_selector, FS_EDIT);
 
   if (fext)
   {
@@ -1223,7 +1281,7 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
 
   if (fext_p)
   {
-    free(fext_p);
+    _al_free(fext_p);
     fext_p = NULL;
   }
 
@@ -1235,7 +1293,7 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
   p = get_extension(path);
   if ((!ugetc(p)) && (fext) && (!ustrpbrk(fext, uconvert_ascii(" ,;", tmp))))
   {
-    size -= ((long)p - (long)path + ucwidth('.'));
+    size -= ((long)(size_t)p - (long)(size_t)path + ucwidth('.'));
     if (size >= uwidth_max(U_CURRENT) + ucwidth(0))         /* do not end with '.' */
     {
       p += usetc(p, '.');
@@ -1245,3 +1303,4 @@ int jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int 
 
   return TRUE;
 }
+

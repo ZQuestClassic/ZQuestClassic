@@ -31,19 +31,22 @@ extern void loadfullpal();
 extern void loadlvlpal(int level);
 extern void loadpalset(int cset,int dataset);
 extern void loadfadepal(int dataset);
+extern void interpolatedfade();
 
-extern void ringcolor();
-extern void fade(int level,bool blackall,bool fromblack,bool total);
-extern void lighting(int funct,int dir);
+extern void ringcolor(bool forceDefault);
+extern void fade(int level,bool blackall,bool fromblack);
+extern void lighting(bool existslight, bool setnaturaldark = false);
+extern void lightingInstant();
 extern void dryuplake();
-extern void rehydratelake();
+extern void rehydratelake(bool instant);
 extern void reset_pal_cycling();
 extern void cycle_palette();
 
-inline RGB NESpal(int i)
+INLINE RGB NESpal(int i)
 {
   return _RGB(nes_pal+i*3);
 }
 extern int reverse_NESpal(RGB c);
 
 #endif                                                      // _ZC_PAL_H_
+

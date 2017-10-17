@@ -8,8 +8,11 @@
 //
 //--------------------------------------------------------
 
+#ifndef _ZQ_INIT_H_
+#define _ZQ_INIT_H_
 
-int d_line_proc(int msg, DIALOG *d, int c);
-int d_maxbombsedit_proc(int msg,DIALOG *d,int c);
 int onInit();
 void center_zq_init_dialog();
+const char *familylist(int index, int *list_size);
+#endif
+ 

@@ -15,47 +15,56 @@
 /********** Definitions **********/
 /*********************************/
 
+#include <vector>
 #include "zdefs.h"
+#include "zc_array.h"
 #include "zc_sys.h"
 #include "zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
+#include "gamedata.h"
+#include "zsys.h"
 
-#define  MAXMUSIC     MUSIC_COUNT+MAXMIDIS
-#define  WAV_COUNT    WAV_ZELDA+1
+int isFullScreen();
+int onFullscreen();
+
+#define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 
 #define MAX_IDLE      72000                                 // 20 minutes
+#define MAX_ACTIVE    72000                                 // 20 minutes
 
 // saved games
 //#define MAXSAVES      24
 #define MAXSAVES      15
 
 // game.maps[] flags
-#define mSECRET           1                                 // only overworld and caves use this
-#define mVISITED          2                                 // only overworld uses this
+#define mSECRET             8192                                 // only overworld and caves use this
+#define mVISITED            16384                                // only overworld uses this
 
-#define mDOOR_UP          1                                 // only dungeons use this
-#define mDOOR_DOWN        2                                 //        ''
-#define mDOOR_LEFT        4                                 //        ''
-#define mDOOR_RIGHT       8                                 //        ''
+#define mDOOR_UP            1                                 // only dungeons use this
+#define mDOOR_DOWN          2                                 //        ''
+#define mDOOR_LEFT          4                                 //        ''
+#define mDOOR_RIGHT         8                                 //        ''
 
-#define mITEM            16                                 // item (main screen)
-#define mBELOW           32                                 // special item (underground)
-#define mNEVERRET        64                                 // enemy never returns
-#define mTMPNORET       128                                 // enemies don't return until you leave the dungeon
+#define mITEM              16                                 // item (main screen)
+#define mBELOW             32                                 // special item (underground)
+#define mNEVERRET          64                                 // enemy never returns
+#define mTMPNORET         128                                 // enemies don't return until you leave the dungeon
 
-#define mLOCKBLOCK      256                                 // if the lockblock on the screen has been triggered
-#define mBOSSLOCKBLOCK  512                                 // if the bosslockblock on the screen has been triggered
+#define mLOCKBLOCK        256                                 // if the lockblock on the screen has been triggered
+#define mBOSSLOCKBLOCK    512                                 // if the bosslockblock on the screen has been triggered
+
+#define mCHEST           1024                                 // if the unlocked check on this screen has been opened
+#define mLOCKEDCHEST     2048                                 // if the locked chest on this screen has been opened
+#define mBOSSCHEST       4096                                 // if the boss chest on this screen has been opened
+#define mOTHER3         32768                                 // overwrite this value, use for expansion
 
 /*********************************/
 /******** Enums & Structs ********/
 /*********************************/
 
 enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qWON, qERROR };
-
-//magic types
-enum  { mgc_none, mgc_dinsfire, mgc_nayruslove, mgc_faroreswind };
 
 // "special" walk flags
 enum
@@ -77,58 +86,92 @@ enum
 
 /*
 
-// aglogo.cc
-int  aglogo(BITMAP* frame);
+  // aglogo.cc
+  int  aglogo(BITMAP* frame);
 
 
-// title.cc
-void update_game_icons();
+  // title.cc
+  void update_game_icons();
 
-// zc_sys.cc
-void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to);
-void go();
-void comeback();
-void waitvsync();
-int  input_idle(bool checkmouse);
-int  after_time();
-void hit_close_button();
-*/
+  // zc_sys.cc
+  void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to);
+  void go();
+  void comeback();
+  void waitvsync(bool fast);
+  int  input_idle(bool checkmouse);
+  int  after_time();
+  void hit_close_button();
+  */
+
+bool get_debug();
+void set_debug(bool d);
+
+void Z_eventlog(const char *format, ...);
+void Z_scripterrlog(const char * const format, ...);
+
 // zelda.cc
-void addLwpn(int x,int y,int id,int type,int power,int dir);
-void ALLOFF();
+void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
+void ALLOFF(bool messagesToo = true, bool decorationsToo = true);
+void centerLink();
 fix  LinkX();
 fix  LinkY();
+fix  LinkZ();
+int  LinkHClk();
 int  LinkNayrusLoveShieldClk();
+int  LinkHoverClk();
+int  LinkSwordClk();
+int  LinkItemClk();
+int  LinkAction();
+int  LinkCharged();
+bool LinkGetDontDraw();
+void setSwordClk(int newclk);
+void setItemClk(int newclk);
 int  LinkLStep();
+void LinkCheckItems();
 fix  LinkModifiedX();
 fix  LinkModifiedY();
 fix  GuyX(int j);
 fix  GuyY(int j);
 int  GuyID(int j);
 int  GuyMisc(int j);
-void StunGuy(int j);
+void StunGuy(int j,int stun);
 bool  GuySuperman(int j);
 int  GuyCount();
 int  LinkDir();
-void add_grenade(int wx, int wy, int size);
+void add_grenade(int wx, int wy, int wz, int size, int parentid);
 fix distance(int x1, int y1, int x2, int y2);
 bool getClock();
 void setClock(bool state);
 void CatchBrang();
 int LinkAction();
 
+void do_dcounters();
+void donewmsg(int str);
+void dismissmsg();
 void dointro();
+void init_dmap();
 int  init_game();
 int  cont_game();
 void restart_level();
 int  load_quest(gamedata *g, bool report=true);
 void show_details();
+void show_ffscript_names();
 //int  init_palnames();
 
-inline void sfx(int index)         { sfx(index,128,false); }
-inline void sfx(int index,int pan) { sfx(index,pan,false); }
+int get_currdmap();
+int get_dlevel();
+int get_currscr();
+int get_homescr();
+int get_bmaps(int si);
+bool no_subscreen();
+bool is_zquest();
+//void quit_game();
+int d_timer_proc(int msg, DIALOG *d, int c);
 
-//inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+INLINE void sfx(int index)         { sfx(index,128,false); }
+INLINE void sfx(int index,int pan) { sfx(index,vbound(pan, 0, 255) ,false); }
+
+//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
 /**********************************/
 /******** Global Variables ********/
@@ -148,73 +191,118 @@ extern int strike_hint_timer;
 extern int strike_hint;
 
 extern RGB_MAP rgb_table;
-extern COLOR_MAP trans_table;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen;
+extern COLOR_MAP trans_table, trans_table2;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
-extern FONT     *zfont, *z3font, *deffont, *lfont, *lfont_l, *pfont, *mfont;
+extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
+             *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
+//extern FONT custom_fonts[MAXFONTS];
 extern PALETTE  RAMpal;
-extern byte     *tilebuf, *colordata;
-extern newcombo *combobuf;
+extern byte     *colordata;
+//extern byte     *tilebuf;
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
+extern comboclass *combo_class_buf;
 extern guydata  *guysbuf;
+extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern ZCHEATS  zcheats;
 extern byte     use_cheats;
 extern byte     use_tiles;
-extern char     palnames[256][17];
+extern char     palnames[MAXLEVELS][17];
 
+#define MAX_SCRIPT_DRAWING_COMMANDS 1000
+#define SCRIPT_DRAWING_COMMAND_VARIABLES 20
+extern int script_drawing_commands[MAX_SCRIPT_DRAWING_COMMANDS][SCRIPT_DRAWING_COMMAND_VARIABLES];
+extern bool is_large;
+
+/*
+extern tiledata *newtilebuf, *grabtilebuf;
+extern newcombo *combobuf;
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;
+extern word animated_combo_table2[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
+extern word animated_combo_table24[MAXCOMBOS][2];            //[0]=combo, [1]=clock
+extern word animated_combos2;
 extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
+*/
 extern bool ewind_restart;
-extern word     msgclk, msgstr, msgpos, msg_count;
+extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
+   msg_h,
+   msg_count,
+   msgorig,
+   msg_xpos,
+   msg_ypos,
+   cursor_x,
+   cursor_y;
+extern bool msg_onscreen, msg_active,msgspace;
+extern FONT	*msgfont;
 extern word     door_combo_set_count;
 extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-extern short    Bpos, lensclk, lenscnt;
+extern short    lensclk;
+extern int     lensid;
+extern int    Bpos;
 extern byte screengrid[22];
-extern int logic_counter;
-extern bool drawit;
+extern byte ffcgrid[4];
+extern volatile int logic_counter;
+#ifdef _SCRIPT_COUNTER
+extern volatile int script_counter;
+#endif
 extern bool halt;
 extern bool screenscrolling;
 extern bool close_button_quit;
 extern int jwin_pal[jcMAX];
 extern int gui_colorset;
+extern int fullscreen;
+extern byte disable_triplebuffer,can_triplebuffer_in_windowed_mode;
+
+#ifdef _SCRIPT_COUNTER
+void update_script_counter();
+#endif
+
+extern PALETTE tempbombpal;
+extern bool usebombpal;
+
+extern int slot_arg, slot_arg2;
+extern char *SAVE_FILE;
 
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
-extern int lastentrance,lastentrance_dmap,prices[3][2],loadside, Bwpn, Awpn;
-extern int digi_volume,midi_volume,currmidi,wand_x,wand_y,hasitem,whistleclk,pan_style;
-extern int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Quit;
+extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
+extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+extern int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
 extern int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
-extern int arrow_x, arrow_y, brang_x, brang_y, chainlink_x, chainlink_y;
-extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras;
-extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what;
-extern int heart_beep_timer, new_enemy_tile_start, nets, magictype;
-extern int magiccastclk, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
+extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
+extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
+extern int heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;
+extern int magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern dword fps_secs;
 extern float avgfps;
 
-extern bool nosecretsounds;
+extern bool do_cheat_goto, do_cheat_light;
 extern bool blockmoving;
 extern bool Throttlefps, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
-extern bool refreshpal,blockpath,wand_dead,debug,loaded_guys,freeze_guys;
-extern bool loaded_enemies,drawguys,details,DXtitle,debug_enabled,watch;
-extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown;
+extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
+extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
+extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool fixed_door, darkroom,BSZ,COOLSCROLL;            //,NEWSUBSCR;
+extern bool fixed_door, darkroom,naturaldark,BSZ,COOLSCROLL;            //,NEWSUBSCR;
 extern bool hookshot_used, hookshot_frozen, pull_link, add_chainlink;
 extern bool del_chainlink, hs_fix, cheat_superman, gofast, checklink;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
 
+extern int SnapshotFormat, NameEntryMode;
+
 extern int add_asparkle, add_bsparkle;
 
-extern int    cheat_goto_map, cheat_goto_screen;
-extern char   cheat_goto_map_str[4];
+extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites, show_ffcs, show_hitboxes, show_walkflags, show_ff_scripts;
+
+extern int    cheat_goto_dmap, cheat_goto_screen;
+extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
 extern short  visited[6];
 extern byte   guygrid[176];
@@ -222,35 +310,57 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
+extern ffscript *ffscripts[512];
+extern ffscript *itemscripts[256];
+extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
-extern int  VidMode,resx,resy,scrx,scry;
+extern ffscript *guyscripts[256];
+extern ffscript *wpnscripts[256];
+extern ffscript *linkscripts[3];
+extern ffscript *screenscripts[256];
+extern SAMPLE customsfxdata[WAV_COUNT];
+extern int sfxdat;
+
+#define MAX_ZCARRAY_SIZE	4096
+typedef ZCArray<long> ZScriptArray;
+extern ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
+extern byte arrayOwner[MAX_ZCARRAY_SIZE];
+
+dword getNumGlobalArrays();
+
+extern int  resx,resy,scrx,scry;
 extern bool sbig;                                           // big screen
+extern bool sbig2;	//BIGGER SCREEN!!!!
 extern bool scanlines;                                      //do scanlines if sbig==1
 extern bool toogam;
 
 extern int cheat;                                           // 0 = none; 1,2,3,4 = cheat level
 
 extern int  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
-extern int idle_count;
+extern int idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
 extern gamedata *saves;
-extern gamedata game;
+extern gamedata *game;
 
 extern volatile int lastfps;
 extern volatile int framecnt;
-extern volatile int myvsync;
+extern void throttleFPS();
 
 // quest file data
 extern zquestheader QHeader;
-extern byte         quest_rules[QUESTRULES_SIZE];
-extern byte         midi_flags[MIDIFLAGS_SIZE];
-extern word         map_count;
-extern MsgStr       *MsgStrings;
-extern DoorComboSet *DoorComboSets;
-extern dmap         *DMaps;
-extern miscQdata    QMisc;
-extern mapscr       *TheMaps;
+extern byte                quest_rules[QUESTRULES_SIZE];
+extern byte                midi_flags[MIDIFLAGS_SIZE];
+extern byte                music_flags[MUSICFLAGS_SIZE];
+extern word                map_count;
+extern MsgStr              *MsgStrings;
+extern int				   msg_strings_size;
+extern DoorComboSet        *DoorComboSets;
+extern dmap                *DMaps;
+extern miscQdata           QMisc;
+extern std::vector<mapscr> TheMaps;
+extern zcmap               *ZCMaps;
+extern byte                *quest_file;
 
 /**********************************/
 /*********** Misc Data ************/
@@ -262,7 +372,10 @@ extern const byte stx[4][9];
 extern const byte sty[4][9];
 extern const byte ten_rupies_x[10];
 extern const byte ten_rupies_y[10];
-extern music tunes[MAXMUSIC];
+extern zctune tunes[MAXMIDIS];
+//extern zcmidi_ tunes[MAXMIDIS];
+//extern emusic enhancedMusic[MAXMUSIC];
 #endif
 
 /*** end of zelda.h ***/
+

@@ -34,3 +34,4 @@ void trace(char *format,...)
     trace_y=0;
   readkey();
 }
+ 

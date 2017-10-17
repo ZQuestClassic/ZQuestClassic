@@ -14,6 +14,7 @@
 
 #include "sprite.h"
 #include "decorations.h"
+#include "zc_custom.h"
 #include "zelda.h"
 #include "maps.h"
 #include "zsys.h"
@@ -26,7 +27,7 @@ decoration::decoration(fix X,fix Y,int Id,int Clk) : sprite()
 {
   x=X; y=Y; id=Id; clk=Clk;
   misc = 0;
-  yofs = 54;
+  yofs = playing_field_offset - 2;
 
 }
 
@@ -78,11 +79,17 @@ dBushLeaves::dBushLeaves(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dBushLeaves::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=24);
 }
 
 void dBushLeaves::draw(BITMAP *dest)
 {
+  if (screenscrolling)
+  {
+    clk=128;
+    return;
+  }
   int t=wpnsbuf[iwBushLeaves].tile;
   cs=wpnsbuf[iwBushLeaves].csets&15;
   for (int i=0; i<4; ++i)
@@ -137,11 +144,17 @@ dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk) : decoration(X,Y,
 
 bool dFlowerClippings::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=24);
 }
 
 void dFlowerClippings::draw(BITMAP *dest)
 {
+  if (screenscrolling)
+  {
+    clk=128;
+    return;
+  }
   int t=wpnsbuf[iwFlowerClippings].tile;
   cs=wpnsbuf[iwFlowerClippings].csets&15;
   for (int i=0; i<4; ++i)
@@ -175,11 +188,17 @@ dGrassClippings::dGrassClippings(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id
 
 bool dGrassClippings::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=12);
 }
 
 void dGrassClippings::draw(BITMAP *dest)
 {
+  if (screenscrolling)
+  {
+    clk=128;
+    return;
+  }
   int t=wpnsbuf[iwGrassClippings].tile;
   cs=wpnsbuf[iwGrassClippings].csets&15;
   for (int i=0; i<3; ++i)
@@ -204,17 +223,24 @@ dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
   ft[1][1][0]=5;   ft[1][1][1]=-3;  ft[1][1][2]=1;
   ft[1][2][0]=6;   ft[1][2][1]=-4;  ft[1][2][2]=1;
   ft[1][3][0]=9;   ft[1][3][1]=-7;  ft[1][3][2]=1;
+  wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
 }
 
 bool dHammerSmack::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=12);
 }
 
 void dHammerSmack::draw(BITMAP *dest)
 {
-  int t=wpnsbuf[iwHammerSmack].tile;
-  cs=wpnsbuf[iwHammerSmack].csets&15; flip=0;
+  if (screenscrolling)
+  {
+    clk=128;
+    return;
+  }
+  int t=wpnsbuf[wpnid].tile;
+  cs=wpnsbuf[wpnid].csets&15; flip=0;
   for (int i=0; i<2; ++i)
   {
     x=ox+ft[i][int(float(clk-1)/3)][0];
@@ -231,16 +257,19 @@ dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dTallGrass::animate(int index)
 {
-  return ((COMBOTYPE(LinkX(),LinkY()+15)!=cTALLGRASS)||
-    (COMBOTYPE(LinkX()+15,LinkY()+15)!=cTALLGRASS));
+  index=index;  //this is here to bypass compiler warnings about unused arguments
+  return (!isGrassType(COMBOTYPE(LinkX(),LinkY()+15)) || !isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15)) || LinkZ()>8);
 }
 
 void dTallGrass::draw(BITMAP *dest)
 {
+  if (LinkGetDontDraw())
+    return;
   int t=wpnsbuf[iwTallGrass].tile*4;
   cs=wpnsbuf[iwTallGrass].csets&15; flip=0;
   x=LinkX(); y=LinkY()+10;
-  if (BSZ)
+//  if (BSZ)
+  if (zinit.linkanimationstyle==las_bszelda)
   {
     tile=t+(anim_3_4(LinkLStep(),7)*2);
   }
@@ -260,13 +289,16 @@ dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dRipples::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   clk++;
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
-    (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER));
+          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
 }
 
 void dRipples::draw(BITMAP *dest)
 {
+  if (LinkGetDontDraw())
+    return;
   int t=wpnsbuf[iwRipples].tile*4;
   cs=wpnsbuf[iwRipples].csets&15; flip=0;
   x=LinkX(); y=LinkY()+10;
@@ -276,6 +308,30 @@ void dRipples::draw(BITMAP *dest)
   decoration::draw8(dest);
 }
 
+dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+{
+  id=Id; clk=Clk;
+  wpnid = itemsbuf[current_item_id(itype_hoverboots)].wpn;
+}
+
+void dHover::draw(BITMAP *dest)
+{
+  int t=wpnsbuf[wpnid].tile*4;
+  cs=wpnsbuf[wpnid].csets&15; flip=0;
+  x=LinkX(); y=LinkY()+10-LinkZ();
+  tile=t+(((clk/8)%3)*2);
+  decoration::draw8(dest);
+  x+=8; ++tile;
+  decoration::draw8(dest);
+}
+
+bool dHover::animate(int index)
+{
+  index=index;  //this is here to bypass compiler warnings about unused arguments
+  clk++;
+  return LinkHoverClk()<=0;
+}
+
 dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
   id=Id; clk=Clk;
@@ -283,6 +339,7 @@ dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,
 
 bool dNayrusLoveShield::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   clk++;
   return LinkNayrusLoveShieldClk()<=0;
 }
@@ -295,19 +352,25 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
   {
     return;
   }
-  int fb=(misc==0?iwNayrusLoveShieldFront:iwNayrusLoveShieldBack);
+  int fb=(misc==0?
+	(itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
+	 itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
+	(itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
+	 itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
   int t=wpnsbuf[fb].tile;
   int fr=wpnsbuf[fb].frames;
-  int sp=wpnsbuf[fb].speed;
+  int spd=wpnsbuf[fb].speed;
   cs=wpnsbuf[fb].csets&15; flip=0;
-  if (((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&((!get_bit(quest_rules,qr_FLICKERINGNAYRUSLOVESHIELD))||((misc==1)?(frame&1):(!(frame&1)))))
+  bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
+  bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
+  if (((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
   {
-    drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVESHIELD)?1:0;
-    x=LinkX()-8; y=LinkY()-8;
+    drawstyle=translucent?1:0;
+    x=LinkX()-8; y=LinkY()-8-LinkZ();
     tile=t;
-    if (fr>0&&sp>0)
+    if (fr>0&&spd>0)
     {
-      tile+=((clk/sp)%fr);
+      tile+=((clk/spd)%fr);
     }
     decoration::draw(dest);
     x+=16; tile+=fr;
@@ -331,3 +394,4 @@ void dNayrusLoveShield::draw2(BITMAP *dest)
 
 
 /*** end of sprite.cc ***/
+

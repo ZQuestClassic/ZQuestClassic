@@ -27,12 +27,22 @@ void sprite::check_conveyor()
   return;
 }
 
-void movingblock::push(fix bx,fix by,int d,int f)
+void movingblock::push(fix bx,fix by,int d2,int f)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  bx=bx;
+  by=by;
+  d2=d2;
+  f=f;
+
   return;
 }
 
 bool movingblock::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+
   return false;
 }
+ 

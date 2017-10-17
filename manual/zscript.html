@@ -1,0 +1,567 @@
+<html>
+<head>
+<title>ZC Manual - ZScript</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+
+<h1 id="zscript">ZScript</h1>
+<h2 id="functions">Functions</h2>
+<dl>
+<dt>int Rand(int maxvalue)
+</dt>
+<dd>Computes and returns a random integer i such that 0 <= i < maxvalue. The return value is undefined if maxvalue is 0 or negative.
+</dd>
+<dt>void Quit()
+</dt>
+<dd>Terminates execution of the current script. Does not return.
+</dd>
+<dt>void Waitframe()
+</dt>
+<dd> Temporarily halts execution of the current script. This function returns at the beginning of the next frame of gameplay. Global scripts and item pickup scripts only execute for one frame, so in those scripts Waitframe() is essentially Quit().
+</dd>
+<dt>void Trace(float val)
+</dt>
+<dd>Prints a line containing a string representation of val to allegro.log. Useful for debugging scripts.
+</dd>
+<dt>float Sin(int deg)
+</dt>
+<dd>Returns the trigonometric sine of the parameter, which is interpreted as a degree value.
+</dd>
+<dt>float Cos(int deg)
+</dt>
+<dd>Returns the trigonometric cosine of the parameter, which is interpreted as a degree value.
+</dd>
+<dt>float Tan(int deg)
+</dt>
+<dd>Returns the trigonometric tangent of the parameter, which is interpreted as a degree value. The return value is undefined if deg is of the form 90 + 180n for an integral value of n.
+</dd>
+<dt>float RadianSin(float rad)
+</dt>
+<dd>Returns the trigonometric sine of the parameter, which is interpreted as a radian value.
+</dd>
+<dt>float RadianCos(float rad)
+</dt>
+<dd>Returns the trigonometric cosine of the parameter, which is interpreted as a radian value.
+</dd>
+<dt>float RadianTan(float rad)
+</dt>
+<dd>Returns the trigonometric tangent of the parameter, which is interpreted as a radian value. The return value is undefined for values of rad near (pi/2) + n*pi, for n an integer.
+</dd>
+<dt>float Max(float a, float b)
+</dt>
+<dd>Returns the greater of a and b.
+</dd>
+<dt>float Min(float a, float b)
+</dt>
+<dd>Returns the lesser of a and b.
+</dd>
+<dt>int Pow(int base, int exp)
+</dt>
+<dd>Returns base^exp. The return value is undefined for base=exp=0. Note also negative values of exp may not be useful, as the return value is truncated to the nearest integer.
+</dd>
+<dt>int InvPow(int base, int exp)
+</dt>
+<dd>Returns base^(1/exp). The return value is undefined for exp=0, or if exp is even and base is negative. Note also that negative values of exp may not be useful, as the return value is truncated to the nearest integer.
+</dd>
+<dt>int Factorial(int val)
+</dt>
+<dd>Returns val!. The return value is undefined for val <= 0 (despite the convention 0! = 1.)
+</dd>
+<dt>float Abs(float val)
+</dt>
+<dd>Return the absolute value of the parameter, if possible. If the absolute value would overflow the parameter, the return value is undefined.
+</dd>
+<dt>float Sqrt(float val)
+</dt>
+<dd>Computes the square root of the parameter. The return value is undefined for val < 0.
+</dd>
+</dl>
+
+<h2 id="ffc">FFC Functions and Variables</h2>
+<dl>
+<dt>int Data
+</dt>
+<dd>The number of the combo associated with this FFC.
+</dd>
+<dt>int CSet
+</dt>
+<dd>The cset of the FFC.
+</dd>
+<dt>int Delay
+</dt>
+<dd>The FFC's animation delay, in frames.
+</dd>
+<dt>float X
+</dt>
+<dd>The FFC's X position on the screen.
+</dd>
+<dt>float Y
+</dt>
+<dd>The FFC's Y position on the screen.
+</dd>
+<dt>float Vx
+</dt>
+<dd>The FFC's velocity's X-component.
+</dd>
+<dt>float Vy
+</dt>
+<dd>The FFC's velocity's Y-component.
+</dd>
+<dt>float Ax
+</dt>
+<dd>The FFC's acceleration's X-component.
+</dd>
+<dt>float Ay
+</dt>
+<dd>The FFC's acceleration's Y-component.
+</dd>
+<dt>bool WasTriggered()
+</dt>
+<dd>Returns true if and only if the FFC was triggered by a secret.
+</dd>
+<dt>bool Flags[]
+</dt>
+<dd>The FFC's set of flags. Use the FFCF_ constants in std.zh as the index to access a particular flag.
+</dd>
+<dt>int TileWidth
+</dt>
+<dd>The number of tile columns composing the FFC.
+</dd>
+<dt>int TileHeight
+</dt>
+<dd>The number of tile rows composing the FFC.
+</dd>
+<dt>int EffectWidth
+</dt>
+<dd>The width of the area of effect of the combo associated with the FFC, in pixels.
+</dd>
+<dt>int EffectHeight
+</dt>
+<dd>The height of the area of effect of the combo associated with the FFC, in pixels.
+</dd>
+<dt>int Link
+</dt>
+<dd>The number of the FFC linked to by this FFC.
+</dd>
+</dl>
+
+<h2 id="link">Link Functions and Variables</h2>
+<dl>
+<dt>int X
+</dt>
+<dd>Link's X position on the screen, in pixels.
+</dd>
+<dt>int Y
+</dt>
+<dd>Link's Y position on the screen, in pixels.
+</dd>
+<dt>int Dir
+</dt>
+<dd>The direction Link is facing. Use the DIR_ constants in std.zh to set or compare this variable.
+</dd>
+<dt>int HP
+</dt>
+<dd>Link's current hitpoints, in 16ths of a heart.
+</dd>
+<dt>int MP
+</dt>
+<dd>Link's current amount of magic, in 32nds of a magic block.
+</dd>
+<dt>int MaxHP
+</dt>
+<dd>Link's maximum hitpoints, in 16ths of a heart.
+</dd>
+<dt>int MaxMP
+</dt>
+<dd>Link's maximum amount of magic, in 32nds of a magic block.
+</dd>
+<dt>int Action
+</dt>
+<dd>Link's current action. Use the LA_ constants in std.zh to set or compare this value.
+</dd>
+</dl>
+
+<h3 id="warp">Warp Functions</h3>
+<dl>
+<dt>void Warp(int dmap, int screen)
+</dt>
+<dd>Warps link to the given screen in the given dmap, just like if he'd triggered a side warp.
+</dd>
+<dt>void PitWarp(int dmap, int screen)
+</dt>
+<dd>Warps link to the given screen in the given dmap, just like if he'd triggered a pit warp.
+</dd>
+</dl>
+
+<h2 id="input">Input Parameters</h2>
+<dl>
+<dt>bool InputStart
+</dt>
+<dd>True iff the player is pressing the start button. Writing to this variable simulates the press or release of the start button.
+</dd>
+<dt>bool InputUp
+</dt>
+<dd>True iff the player is pressing the up arrow. Writing to this variable simulates the press or release of the up arrow.
+</dd>
+<dt>bool InputDown
+</dt>
+<dd>True iff the player is pressing the down arrow. Writing to this variable simulates the press or release of the down arrow.
+</dd>
+<dt>bool InputLeft
+</dt>
+<dd>True iff the player is pressing the left arrow. Writing to this variable simulates the press or release of the left arrow.
+</dd>
+<dt>bool InputRight
+</dt>
+<dd>True iff the player is pressing the right arrow. Writing to this variable simulates the press or release of the right arrow.
+</dd>
+<dt>bool InputA
+</dt>
+<dd>True iff the player is pressing the A key. Writing to this variable simulates the press or release of the A key.
+</dd>
+<dt>bool InputB
+</dt>
+<dd>True iff the player is pressing the B key. Writing to this variable simulates the press or release of the B key.
+</dd>
+<dt>bool InputL
+</dt>
+<dd>True iff the player is pressing the L key. Writing to this variable simulates the press or release of the L key.
+</dd>
+<dt>bool InputR
+</dt>
+<dd>True iff the player is pressing the R key. Writing to this variable simulates the press or release of the R key.
+</dd>
+<dt>bool Item[]
+</dt>
+<dd>True iff Link's inventory contains the item whose ID is the index of the array access. Use the IT_ constants in std.zh as an index into this array.
+</dd>
+</dl>
+
+<h2 id="screen">Screen Functions and Variables</h2>
+<dl>
+<dt>float D[]
+</dt>
+<dd>Each screen has 8 general purpose registers for use by script programmers. Do with these as you will.
+</dd>
+<dt>int ComboD[]
+</dt>
+<dd>The tile used by the ith combo on the screen, where i is the index used to access this array. Combos are counted left to right, top to bottom.
+</dd>
+<dt>int ComboC[]
+</dt>
+<dd>The CSet of the tile used by the ith combo on the screen, where i is the index used to access this array. Combos are counted left to right, top to bottom.
+</dd>
+<dt>int ComboF[]
+</dt>
+<dd>The secret flag of the ith combo on the screen, where i is the index used to access this array. Combos are counted left to right, top to bottom. Use the CF_ constants in std.zh to set or compare these values.
+</dd>
+<dt>int ComboI[]
+</dt>
+<dd>The inherent flag of the ith combo on the screen, where i is the index used to access this array. Combos are counted left to right, top to bottom. Use the CF_ constants in std.zh to set or compare these values.
+</dd>
+<dt>int ComboT[]
+</dt>
+<dd>The combo type of the ith combo on the screen, where i is the index used to access this array. Combos are counted left to right, top to bottom. Use the CT_ constants in std.zh to set or compare these values.
+</dd>
+<dt>int ComboS[]
+</dt>
+<dd>The walkability mask of the ith combo on the screen, where i is the index used to access this array. Combos are counted left to right, top to bottom. The least signficant bit is true if the top-left of the tile is walkable, the second-least signficant bit is true if the top-right of the tile is is walkable, and so on for the following two bits.
+</dd>
+<dt>int NumItems()
+</dt>
+<dd>Returns the number of items currently present on the screen. Screen items, shop items, and items dropped by enemies are counted; Link's weapons, such as lit bombs, or enemy weapons are not counted. Note that this value is only correct up until the next call to Waitframe().
+</dd>
+<dt>item LoadItem(int num)
+</dt>
+<dd>Returns a pointer to the numth item on the current screen. The return value is undefined unless 1 <= num <= NumItems().
+</dd>
+<dt>item CreateItem(int id)
+</dt>
+<dd>Creates an item of the given type at (0,0). Use the IT_ constants in std.zh to pass into this method. The return value is a pointer to the new item.
+</dd>
+<dt>ffc LoadFFC(int num)
+</dt>
+<dd>Returns a pointer to the numth FFC on the current screen. The return value is undefined unless 1 <= num <= ffcs, where ffcs is the number of FFCs active on the screen.
+</dd>
+<dt>int NumNPCs()
+</dt>
+<dd>Returns the number of NPCs (enemies and guys) on the screen. Note that this value is only correct up until the next call to Waitframe().
+</dd>
+<dt>npc LoadNPC(int num)
+</dt>
+<dd>Returns a pointer to the numth NPC on the current screen. The return value is undefined unless 1 <= num <= NumNPCs().
+</dd>
+<dt>npc CreateNPC(int id)
+</dt>
+<dd>Creates an npc of the given type at (0,0). Use the NPC_ constants in std.zh to pass into this method. The return value is a pointer to the new NPC.
+</dd>
+</dl>
+<h2 id="item">Item Functions and Variables</h2>
+<dl>
+<dt>int X
+</dt>
+<dd>The item's X position on the screen, in pixels.
+</dd>
+<dt>int Y
+</dt>
+<dd>The item's Y position on the screen, in pixels.
+</dd>
+<dt>int DrawStyle
+</dt>
+<dd>An integer representing how the item is to be drawn. Use one of the DS_ constants in std.zh to set or compare this value.
+</dd>
+<dt>itemclass Class
+</dt>
+<dd>The class (the type of item) to which this item belongs.
+</dd>
+<dt>int Tile
+</dt>
+<dd>The tile associated with this item.
+</dd>
+<dt>int CSet
+</dt>
+<dd>This item's CSet.
+</dd>
+<dt>int FlashCSet
+</dt>
+<dd>The CSet used during this item's flash frames, if this item flashes.
+</dd>
+<dt>int NumFrames
+</dt>
+<dd>The number of frames in this item's animation.
+</dd>
+<dt>int Frame
+</dt>
+<dd>The tile that is this item's current animation frame.
+</dd>
+<dt>int ASpeed
+</dt>
+<dd>The speed at which this item animates, in screen frames.
+</dd>
+<dt>int Delay
+</dt>
+<dd>The amount of time the animation is suspended after the last frame, before the animation restarts, in item frames. That is, the total number of screen frames of extra wait is Delay*ASpeed.
+</dd>
+<dt>bool Flash
+</dt>
+<dd>Whether or not the item flashes. A flashing item alternates between its CSet and its FlashCSet.
+</dd>
+<dt>int Flip
+</dt>
+<dd>Whether and how the item's tiles should be flipped.
+</dd>
+<dt>0: No flip 1: Vertical flip 2: Horizontal flip 3: Both (180 degree rotation)
+</dt>
+<dd>int Extend
+</dd>
+<dt>The item's link tile modifier.
+</dt>
+<dd>ItemClass Functions and Variables
+</dd>
+<dt>int Family
+</dt>
+<dd>The kind of item to which this class belongs (swords, boomerangs, potions, etc.) Use the IC_ constants in std.zh to set or compare this value.
+</dd>
+<dt>int Level
+</dt>
+<dd>The level of this item. For instance, the wooden sword is level 1, the white sword level 2, and so on.
+</dd>
+<dt>int Amount
+</dt>
+<dd>The value of this data member can have two meanings: If Amount & 0x8000 is 1, the drain counter for this item is set to Amount & 0x3FFF. The game then slowly fills the counter of this item (see Counter below) out of the drain counter. Gaining rupees uses the drain counter, for example.
+</dd>
+<dt>is set to Amount when the item is picked up. If Amount & 0x8000 is 0, the counter of this item is increased, if Amount & 0x4000 is 1, or decreased, if Amount & 0x4000 is 0, by Amount & 0x3FFF when the item is picked up.
+</dt>
+<dd>int Max
+</dd>
+<dt>In conjunction with MaxIncrement (see below) this value controls how the maximum value of the counter of this item (see Counter below) is modified when the item is picked up. If MaxIncrement is nonzero at that time, the counter's new maximum value is at that time set to the minimum of its current value plus MaxIncrement, Max. If Max is less than the current maximum of the counter, Max is ignored and that maximum is used instead. Notice that as a special case, if Max = MaxIncrement, the counter's maximum value will be forced equal to Max.
+</dt>
+<dd>int MaxIncrement
+</dd>
+<dt>In conjunction with Max (see above) this value controls how the maximum value of the counter of this item (see Counter below) is modified when the item is picked up. If MaxIncrement is nonzero at that time, the counter's new maximum value is at that time set to the minimum of its current value plus MaxIncrement, and Max. If Max is less than the current maximum of the counter, Max is ignored and that maximum is used instead.
+</dt>
+<dd>bool Keep
+</dd>
+<dt>If true, Link will keep the item, and it will show up as an item or equipment in the subscreen. If false, it may modify the current value or maximum value of its counter (see Counter below), then disappear. The White Sword and Raft, for instance, have Keep true, and keys and rupees have Keep false.
+</dt>
+<dd>int Counter
+</dd>
+<dt>The game counter whose current and modified values might be modified when the item is picked up (see Amount, Max, and MaxIncrement above.) Use the CT_  constants in std.zh to set or compare this value.
+</dt>
+</dl>
+
+<h2 id="game">Game Functions and Variables</h2>
+<dl>
+<dt>int GetCurScreen()
+</dt>
+<dd>Retrieves the number of the current screen within the current map.
+</dd>
+<dt>int GetCurMap()
+</dt>
+<dd>Retrieves the number of the current map.
+</dd>
+<dt>int GetCurDMap()
+</dt>
+<dd>Returns the number of the current dmap.
+</dd>
+<dt>int NumDeaths
+</dt>
+<dd>The number of times Link has perished during this quest.
+</dd>
+<dt>int Cheat
+</dt>
+<dd>The current cheat level of the quest player.
+</dd>
+<dt>int Time
+</dt>
+<dd>Returns the time elapsed in this quest, in 60ths of a second. The return value is undefined if TimeValid is false (see below).
+</dd>
+<dt>bool HasPlayed
+</dt>
+<dd>This value is true if the current quest session was loaded from a saved game, false if the quest was started fresh.
+</dd>
+<dt>bool TimeValid
+</dt>
+<dd>True if the elapsed quest time can be determined for the current quest.
+</dd>
+<dt>int GuyCount[]
+</dt>
+<dd>The number of NPCs (enemies and guys) on screen i of this map, where i is the index used to access this array.
+</dd>
+<dt>int ContinueScreen
+</dt>
+<dd>The screen in the continue dmap (see ContinueDMap below) that will be used when Link dies and continues.
+</dd>
+<dt>int ContinueDMap
+</dt>
+<dd>The dmap containing the screen that will be used when Link dies and continues.
+</dd>
+<dt>int Counter[]
+</dt>
+<dd>The current value of the game counters. Use the CT_ constants in std.zh to index into this array.
+</dd>
+<dt>int MCounter[]
+</dt>
+<dd>The current maximum value of the game counters. Use the CT_ constants in std.zh to index into this array.
+</dd>
+<dt>int DCounter[]
+</dt>
+<dd>The current value of the game drain counters. Use the CT_ constants in std.zh to index into this array.
+</dd>
+<dt>int Generic[]
+</dt>
+<dd>An array of miscellaneous game values, such as number of heart containers and magic drain rate. Use the GEN_ constants in std.zh to index into this array.
+</dd>
+<dt>int LItems[]
+</dt>
+<dd>The level items of level i currently under the posession of the player, where i is the index used to access this array. Each element of this array consists of flags ORed (|) together; use the LI_ constants in std.zh to set or compare these values.
+</dd>
+<dt>int LKeys[]
+</dt>
+<dd>The number of level keys of level i currently under the possession of the player, where i is the index used to access this array.
+</dd>
+<dt>bool CurMapFlag[]
+</dt>
+<dd>An array of miscellaneous flags data associated with the current map. Use the MF_ constants in std.zh as indices into this array.
+</dd>
+<dt>bool GetMapFlag(int dmap, int flag)
+</dt>
+<dd>As with CurMapFlag, but retrieves the miscellaneous flags of any dmap, not just the current one. Use the MF_ constants in std.zh for the flag parameter.
+</dd>
+<dt>void SetMapFlag(int dmap, int flag, bool value)
+</dt>
+<dd>As with CurMapFlag, but sets the miscellaneous flags of any dmap, not just the current one. Use the MF_ constants in std.zh for the flag parameter.
+</dd>
+<dt>float GetScreenD(int screen, int reg)
+</dt>
+<dd>Retrieves the value of SD[reg] on the given screen of the current dmap.
+</dd>
+<dt>void SetScreenD(int screen, int reg, float value)
+</dt>
+<dd>Sets the value of SD[reg] on the given screen of the current dmap.
+</dd>
+<dt>itemclass LoadItemClass(int family)
+</dt>
+<dd>Retrieves the itemclass pointer corresponding to the given item family. Use the IC_ constants in std.zh as values of family.
+</dd>
+<dt>void PlaySound(int soundid)
+</dt>
+<dd>Plays one of the quest's sound effects. Use the SFX_ constants in  std.zh as values of soundid.
+</dd>
+</dl>
+
+<h2 id="npc">NPC Functions and Variables</h2>
+<dl>
+<dt>int X
+</dt>
+<dd>The NPC's current X coordinate, in pixels.
+</dd>
+<dt>int Y
+</dt>
+<dd>The NPC's current Y coordinate, in pixels.
+</dd>
+<dt>int Dir
+</dt>
+<dd>The direction the NPC is facing. Use the DIR_ constants in std.zh to set and compare this value.
+</dd>
+<dt>int Rate
+</dt>
+<dd>The NPC's movement rate. For a point of reference, the Magic Octorok has a rate of 16.
+</dd>
+<dt>int ASpeed
+</dt>
+<dd>The speed of the NPC's animation, in screen frames.
+</dd>
+<dt>int Haltrate
+</dt>
+<dd>The extent to which the NPC stands still while moving around the screen. As a point of reference, the Zols and Gels have haltrate of 16.
+</dd>
+<dt>int DrawStyle
+</dt>
+<dd>The way the NPC is animated. Use the DS_ constants in std.zh to set or compare this value.
+</dd>
+<dt>int HP
+</dt>
+<dd>The NPC's current hitpoints. Each swing of the wooden sword removes 2 hitpoints.
+</dd>
+<dt>int Damage
+</dt>
+<dd>The amount of damage dealt to a naked Link when he touches this NPC, in quarter-hearts.
+</dd>
+<dt>int WeaponDamage
+</dt>
+<dd>The amount of damage dealt to a naked Link by this NPC's weapon, in quarter-hearts.
+</dd>
+<dt>int Tile
+</dt>
+<dd>The number of the starting tile used by this NPC.
+</dd>
+<dt>int Weapon
+</dt>
+<dd>The weapon used by this enemy. Use the WPN_ constants in std.zh to set or compare this value. Note that it typically only makes sense to assign weapons labelled as enemy weapons (WPN_ENEMY) (with the exception of WPN_NONE) to this value.
+</dd>
+<dt>int ItemSet
+</dt>
+<dd>The items that the NPC might drop when killed. Use the IS_ constants in std.zh to set or compare this value.
+</dd>
+<dt>int CSet
+</dt>
+<dd>The CSet used by this NPC.
+</dd>
+<dt>int BossPal
+</dt>
+<dd>The boss pallete used by this NPC; this pallete is only used if CSet is 14 (the reserved boss cset). Use the BPAL_ constants in std.zh to set or compare this value.
+</dd>
+<dt>int SFX
+</dt>
+<dd>The sound effects emitted by the enemy. Use the SFX_ constants in std.zh to set or compare this value.
+</dd>
+<dt>int Extend
+</dt>
+<dd>I have actually no idea. I would have thought the NPC's link tile modifier, but that makes no sense ;)
+</dd>
+</dl>
+
+</body>
+</html>

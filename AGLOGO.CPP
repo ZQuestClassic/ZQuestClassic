@@ -19,6 +19,7 @@ extern DATAFILE* data;
 
 static void SetCols(RGB* pal)
 {
+
   byte firepal[256*3];
   word DI,BX=0;
 
@@ -90,12 +91,12 @@ static void CopyAvg(BITMAP* fire)
       if(AX>128)
         AX-=2;
       else if(AX>12)
-        AX-=4;
-      else if(AX>8)
-        AX-=2;
-      else if(AX>0)
-        --AX;
-      AX=(AX<<8)+AX;
+          AX-=4;
+        else if(AX>8)
+            AX-=2;
+          else if(AX>0)
+              --AX;
+            AX=(AX<<8)+AX;
       ((word*)fire->line[y-4])[x>>1]=AX;
       ((word*)fire->line[y-3])[x>>1]=AX;
     }
@@ -132,19 +133,21 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     vsync();
     blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
     poll_joystick();
-    if((keypressed()||joy[0].button[0].b||joy[0].button[1].b)&&fadecnt==65)
+    if((keypressed()||joy[0].button[0].b||joy[0].button[1].b)&&fadecnt>=32)
       blackout=true;
     if(!blackout)
     {
-      if(fadecnt<65)
+      if(fadecnt<64) //I get some problems here when fade_interpolate takes invalid parameters.
       {
-        fade_interpolate(black_palette,pal,workpal,fadecnt++,0,255);
+		if( !(++fadecnt < 0) )
+			fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
         set_palette_range(workpal,0,255,false);
       }
     }
     else
     {
-      fade_interpolate(black_palette,pal,workpal,fadecnt--,0,255);
+	  if( !(--fadecnt < 0) )
+		fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
       set_palette_range(workpal,0,255,false);
     }
   } while(fadecnt>0);
@@ -153,3 +156,4 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
   clear_keybuf();
   return 0;
 }
+ 

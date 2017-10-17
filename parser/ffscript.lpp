@@ -1,0 +1,131 @@
+/*
+ use this file to generate lex.yy.c
+command: flex -B -olex.yy.cpp ffscript.lpp
+*/
+
+%option yylineno
+%option noyywrap
+%option never-interactive
+WS	[ \t\n\r]
+
+%{
+#include <stdlib.h>
+#include "AST.h"
+#include "../zsyssimple.h"
+#include "y.tab.hpp"
+YYLTYPE noloc = {0,0,0,0};
+void doLines();
+%}
+
+%%
+
+script                    { doLines();return SCRIPT; }
+float				  { doLines(); return FLOAT; }
+int					  { doLines(); return FLOAT; }
+for				  { doLines(); return FOR; }
+bool				  { doLines();return BOOL; }
+void				  { doLines();return VOID; }
+if				  { doLines();return IF; }
+else				  { doLines();return ELSE; }
+return			  { doLines();return RETURN; }
+import			  { doLines();return IMPORT; }
+true				  { doLines();return TRUE; }
+false				  { doLines();return FALSE; }
+while				{doLines(); return WHILE;}
+ffc					{doLines(); return FFC;}
+itemdata			{doLines(); return ITEMCLASS;}
+item				{doLines(); return ITEM;}
+global				{doLines(); return GLOBAL;}
+break				{doLines(); return BREAK;}
+continue			{doLines(); return CONTINUE;}
+const				{doLines(); return CONST;}
+do					{doLines(); return DO;}
+npc					{doLines(); return NPC;}
+lweapon					{doLines(); return LWEAPON;}
+eweapon					{doLines(); return EWEAPON;}
+
+\-\>		{ doLines(); return ARROW;}
+\<\<=		{ doLines(); return LSHIFTASSIGN; }
+\>\>=		{ doLines(); return RSHIFTASSIGN; }
+\<\<		{ doLines(); return LSHIFT; }
+\>\>		{ doLines(); return RSHIFT; }
+\<=			{ doLines();return LE; }
+\<			{ doLines();return LT; }
+\>=			{ doLines();return GE; }
+\>			{ doLines();return GT; }
+==			{ doLines();return EQ; }
+\!=			{ doLines();return NE; }
+\=			{ doLines();return ASSIGN; }
+\+=			{ doLines();return PLUSASSIGN; }
+\-=			{ doLines();return MINUSASSIGN; }
+\*=			{ doLines();return TIMESASSIGN; }
+\/=			{ doLines();return DIVIDEASSIGN; }
+\&\&=		{ doLines();return ANDASSIGN; }
+\|\|=		{ doLines();return ORASSIGN; }
+\&=			{ doLines();return BITANDASSIGN; }
+\|=			{ doLines();return BITORASSIGN; }
+\^=			{ doLines();return BITXORASSIGN; }
+\%=			{ doLines();return MODULOASSIGN; }
+\;			{ doLines();return SEMICOLON; }
+\,			{ doLines();return COMMA; }
+\[			{ doLines();return LBRACKET; }
+\]			{ doLines();return RBRACKET; }
+\(			{ doLines();return LPAREN; }
+\)			{ doLines();return RPAREN; }
+\+\+		{ doLines();return INCREMENT; }
+\-\-		{ doLines();return DECREMENT; }
+\.          { doLines();return DOT; }
+\+			{ doLines();return PLUS; }
+\-                { doLines();return MINUS; }
+\*			{ doLines();return TIMES; }
+\/\/.*            { ; }
+\/                { doLines();return DIVIDE; }
+\{                { doLines();return LBRACE; }
+\}                { doLines();return RBRACE; }
+\&\&			{ doLines();return AND; }
+\|\|			{ doLines();return OR; }
+\&				{ doLines(); return BITAND; }
+\|				{ doLines(); return BITOR; }
+\~				{ doLines(); return BITNOT; }
+\^				{ doLines(); return BITXOR; }
+\!			{ doLines();return NOT; }
+\%			{ doLines(); return MODULO; }
+
+
+[_a-zA-Z]([_a-zA-Z]|[0-9])*	{
+						doLines();
+						yylval = new ASTString(yytext, yylloc);
+						return IDENTIFIER; 
+					}
+
+([0-9]*\.?[0-9]+) 		{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc); return NUMBER; }
+
+(0x[0-9a-fA-F]+)		{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc); return NUMBER; }
+
+([0-1]+b)				{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc); return NUMBER; }
+
+
+\"[^\"]+\"				{ doLines();yylval = new ASTString(yytext, yylloc); return QUOTEDSTRING; }
+
+\'[^\']?\'				{ doLines();yylval = new ASTString(yytext, yylloc); return SINGLECHAR; }
+
+{WS}					{ ; }
+
+
+.		{
+	char temp[512];
+	sprintf(temp, "Scanner: lexical error '%s'.\n", yytext); 
+	box_out(temp);
+	box_eol();
+	}
+%%
+void resetLexer(){
+YY_FLUSH_BUFFER;
+yylineno=1;
+}
+void doLines()
+{
+YYLTYPE rval = {yylineno, 0, yylineno, 0};
+yylloc = rval;
+}
+ 

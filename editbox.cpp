@@ -24,21 +24,16 @@
 
 /* This code is not fully tested */
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include <stdio.h>
 #include <string.h>
-
 #include "zc_alleg.h"
 #include "jwin.h"
+#include <stdio.h>
 #include "EditboxNew.h"
 
-#ifndef _MSC_VER
-#define max(a,b)  ((a)>(b)?(a):(b))
-#define min(a,b)  ((a)<(b)?(a):(b))
-#endif
+//#ifndef _MSC_VER
+#define zc_max(a,b)  ((a)>(b)?(a):(b))
+#define zc_min(a,b)  ((a)<(b)?(a):(b))
+//#endif
 
 extern int scheme[];
 /* d_editbox_proc:
@@ -146,6 +141,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 				ret = D_USED_CHAR;
 				break;
 			case KEY_ENTER:
+			case KEY_ENTER_PAD:
 				model->clear();
 				model->getCursor().insertNewline();
 				ret = D_USED_CHAR;
@@ -159,6 +155,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 					break;
 				}
 			case KEY_DEL:
+			case KEY_DEL_PAD:
 				if(model->getSelection().hasSelection())
 					model->clear();
 				else
@@ -286,3 +283,4 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 	}
 	return ret;
 } 
+ 

@@ -8,5 +8,6 @@
 //
 //--------------------------------------------------------
 
-int onRules();
+int onAnimationRules();
 void center_zq_rules_dialog();
+ 

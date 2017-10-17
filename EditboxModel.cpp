@@ -1,4 +1,4 @@
-#ifndef __GTHREAD_HIDE_WIN32API                             
+#ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
@@ -10,17 +10,21 @@
 #include "zdefs.h"
 #include "editbox.h"
 #include "gui.h"
+#include <stdio.h>
 
-extern FONT *lfont;
+extern FONT *lfont, *sfont3;
 extern FONT *pfont;
+extern bool is_large;
+extern int d_timer_proc(int msg, DIALOG *d, int c);
 
 static DIALOG help_dlg[] =
 {
-  { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0,        (void *) "ZQuest Help", NULL, NULL },
-  { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-  { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC,  (void *) close_dlg, NULL, NULL },
-  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+  { jwin_win_proc,        0,    0,   320,  240,    0,       vc(15),  0,       D_EXIT,     0,          0,        (void *) "ZQuest Help", NULL, NULL },
+  { jwin_frame_proc,      4,   23,   312,  213,    0,       0,       0,       0,          FR_DEEP,    0,         NULL, NULL, NULL },
+  { d_editbox_proc,       6,   25,   308,  209,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+  { d_keyboard_proc,      0,    0,     0,    0,    0,       0,       0,       0,          0,          KEY_ESC,  (void *) close_dlg, NULL, NULL },
+  { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+  { NULL,                 0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL }
 };
 
 int Unicode::indexToOffset(string &s, int i)
@@ -203,7 +207,7 @@ void TextSelection::ensureSelecting(EditboxCursor &cursor)
 {
 	if(!isselecting)
 	{
-		restartSelection(cursor);	
+		restartSelection(cursor);
 	}
 }
 
@@ -292,6 +296,7 @@ void EditboxCursor::insertNewline()
 	list<LineData>::iterator next = cp.it;
 	next++;
 	host.getLines().insert(next,newld);
+	next--;
 	host.markAsDirty(next);
 	host.markAsDirty(cp.it);
 	host.getView()->update();
@@ -404,7 +409,7 @@ void EditboxModel::clear()
 		//count the number of lines to munch
 		list<LineData>::iterator it = start.it;
 		int numtomunch=0;
-		for(it++; it != end.it; it++,numtomunch++);
+		for(it++; it != end.it; ++it) ++numtomunch;
 		//and now munch
 		for(int i=0; i<numtomunch; i++)
 		{
@@ -449,7 +454,7 @@ void EditboxModel::paste()
 	therestline.strip = NULL;
 	cp.it->line = cp.it->line.substr(0,offset);
 	cp.it->newlineterminated = false;
-	cp.it->numchars = cp.index;	
+	cp.it->numchars = cp.index;
 	//insert the damn lines
 	list<LineData>::iterator it = cp.it;
 	it++;
@@ -535,12 +540,22 @@ void EditboxModel::doHelp()
   {
 		helpstr+=c;
 		c = fgetc(hb);
-  }	
+  }
   fclose(hb);
-  
-  help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],pfont,view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+
   help_dlg[0].dp2= lfont;
+  if(is_large)
+  {
+    help_dlg[0].w=800;
+    help_dlg[0].h=600;
+    help_dlg[1].w=800-8;
+    help_dlg[1].h=600-27;
+    help_dlg[2].w=800-8-4;
+    help_dlg[2].h=600-27-4;
+  }
+  help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],(is_large?sfont3:pfont),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
   help_dlg[2].bg = view->getDialog()->bg;
   zc_popup_dialog(help_dlg,2);
   delete (EditboxModel*)(help_dlg[2].dp);
 }
+ 

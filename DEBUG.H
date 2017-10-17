@@ -14,3 +14,4 @@
 void trace_reset();
 void trace(char *format,...);
 #endif
+ 

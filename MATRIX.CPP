@@ -13,6 +13,7 @@
 // external FONTs
 extern FONT *deffont, *mfont;
 
+
 #define MAX_COLS      256
 #define MAX_TRACERS   MAX_COLS * 2
 
@@ -21,8 +22,10 @@ extern FONT *deffont, *mfont;
 #define MED_GREEN     245
 #define DARK_GREEN    244
 
-#define max(a,b)  ((a)>(b)?(a):(b))
-#define min(a,b)  ((a)<(b)?(a):(b))
+//#ifndef _MSC_VER
+#define zc_max(a,b)  ((a)>(b)?(a):(b))
+#define zc_min(a,b)  ((a)<(b)?(a):(b))
+//#endif
 
 typedef unsigned char byte;
 
@@ -57,15 +60,14 @@ static void DrawEraser(int x, int y, int type);
 void Matrix(int speed, int density, int mousedelay)
 {
   // speed 0-6, density 0-6
-  _density = max( min(density, 6), 0);
-  _speed = max( min(speed, 6), 0);
+  _density = zc_max( zc_min(density, 6), 0);
+  _speed = zc_max( zc_min(speed, 6), 0);
 
   InitMatrix();
 
-  while(true)
+  for(;;)
   {
-    waitvsync();
-
+	vsync();
     AddTracer();
     AddEraser(-1);
     UpdateTracers();
@@ -73,6 +75,7 @@ void Matrix(int speed, int density, int mousedelay)
     UpdateColumns();
 
     poll_joystick();
+	load_control_state();
 
     int idle;
     if(mousedelay > 0)
@@ -100,18 +103,18 @@ void Matrix(int speed, int density, int mousedelay)
 
 static void InitMatrix()
 {
-  RGB c_blck = {0,0,0};
-  RGB c_lgrn = {0,255,0};
-  RGB c_mgrn = {0,170,0};
-  RGB c_dgrn = {0,85,0};
+  RGB c_blck = {0,0,0,0};
+  RGB c_lgrn = {0,255,0,0};
+  RGB c_mgrn = {0,170,0,0};
+  RGB c_dgrn = {0,85,0,0};
 
   set_color(BLACK, &c_blck);
   set_color(LIGHT_GREEN, &c_lgrn);
   set_color(MED_GREEN, &c_mgrn);
   set_color(DARK_GREEN, &c_dgrn);
 
-  cols = max( min(SCREEN_W / 8, MAX_COLS), 1);
-  rows = max( min(SCREEN_H / 8, MAX_COLS), 1);
+  cols = zc_max( zc_min(SCREEN_W / 8, MAX_COLS), 1);
+  rows = zc_max( zc_min(SCREEN_H / 8, MAX_COLS), 1);
 
   linebmp = create_bitmap_ex(8,8, rows*8);
 
@@ -162,8 +165,8 @@ static void AddEraser(int col = -1)
   for(int i=0; i<maxtracers; i++)
   {
     if( eraser[i].speed == 0 && (col>=0 || (tracer[i].speed
-      && tracer[i].y > 5 + (_density - _speed)/2
-      && (rand() % ((7 + _density - _speed)*5 + 10)) == 0)) )
+                                            && tracer[i].y > 5 + (_density - _speed)/2
+                                            && (rand() % ((7 + _density - _speed)*5 + 10)) == 0)) )
     {
       eraser[i].x = col>=0 ? col : tracer[i].x;
       eraser[i].y = 0;
@@ -246,11 +249,11 @@ static void DrawEraser(int x, int y, int type)
   {
     for(int i=0; i<8; i++)
       for(int j=0; j<8; j++)
-    {
-      int pix = getpixel(screen, x+i, y+j);
-      if(pix == LIGHT_GREEN || pix == MED_GREEN)
-        putpixel(screen, x+i, y+j, DARK_GREEN);
-    }
+      {
+        int pix = getpixel(screen, x+i, y+j);
+        if(pix == LIGHT_GREEN || pix == MED_GREEN)
+          putpixel(screen, x+i, y+j, DARK_GREEN);
+      }
   }
 }
 
@@ -289,3 +292,4 @@ static void UpdateColumns()
     }
   }
 }
+ 

@@ -19,3 +19,4 @@ extern RGB_MAP rgb_table;
 extern COLOR_MAP imagepal_table;
 extern PALETTE imagepal;
 
+ 

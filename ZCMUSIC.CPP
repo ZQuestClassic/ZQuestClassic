@@ -3,11 +3,24 @@
 /* Wrapper for transparently extending */
 /* supported music file formats.       */
 
-#include "zc_alleg.h"
-#include "string.h"
-#include "aldumb.h"
-#include "alogg.h"
-#include "almp3.h"
+#ifndef __GTHREAD_HIDE_WIN32API
+#define __GTHREAD_HIDE_WIN32API 1
+#endif                            //prevent indirectly including windows.h
+
+#include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
+#include <string.h>
+#include <aldumb.h>
+#include <alogg.h>
+#include <almp3.h>
+
+#include "zsys.h"
+#include "zcmusic.h"
+
+#ifdef ALLEGRO_DOS
+#include "nothread.h"
+#else
+#include "pthread.h"
+#endif
 
 #undef	int8_t
 #undef	uint8_t
@@ -15,11 +28,16 @@
 #undef	uint16_t
 #undef	int32_t
 #undef	uint32_t
+//short of fixing gme, these warnings will always be there...
+#pragma warning(disable:4512) //assignment operator could not be generated
+#pragma warning(disable:4100) //unreferenced formal parameter
 #include "gme/Nsf_Emu.h"
 #include "gme/Gbs_Emu.h"
 #include "gme/Spc_Emu.h"
 #include "gme/Vgm_Emu.h"
 #include "gme/Gym_Emu.h"
+#pragma warning(default:4100)
+#pragma warning(default:4512)
 #define int8_t       signed char
 #define uint8_t      unsigned char
 #define int16_t      signed short
@@ -27,7 +45,9 @@
 #define int32_t      signed int
 #define uint32_t     unsigned int
 
-#include "zcmusic.h"
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#endif
 
 // might consider replacing the following with user defined values from the
 // 'sound' dialog in the player. This way, each person could tune it as needed.
@@ -37,6 +57,8 @@
 
 int zcmusic_bufsz = 64;
 static int zcmusic_bufsz_private = 64;
+
+pthread_mutex_t playlistmutex;
 
 typedef struct DUHFILE : public ZCMUSICBASE
 {
@@ -67,7 +89,7 @@ typedef struct GMEFILE : public ZCMUSICBASE
 	int samples;
 } GMEFILE;
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
+#ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 #include <vector>
@@ -81,6 +103,7 @@ void unload_ogg_file(OGGFILE *ogg);
 bool ogg_pause(OGGFILE *ogg);
 bool ogg_resume(OGGFILE *ogg);
 bool ogg_reset(OGGFILE *ogg);
+void ogg_stop(OGGFILE *ogg);
 
 MP3FILE *load_mp3_file(char *filename);
 int poll_mp3_file(MP3FILE *mp3);
@@ -88,6 +111,7 @@ void unload_mp3_file(MP3FILE *mp3);
 bool mp3_pause(MP3FILE *mp3);
 bool mp3_resume(MP3FILE *mp3);
 bool mp3_reset(MP3FILE *mp3);
+void mp3_stop(MP3FILE *mp3);
 
 Music_Emu* gme_load_file(char* filename, char* ext);
 int poll_gme_file(GMEFILE *gme);
@@ -97,6 +121,11 @@ int gme_play(GMEFILE *gme, int vol);
 
 extern "C"
 {
+
+  void zcmusic_autopoll()
+  {
+    zcmusic_poll();
+  }
 
   bool zcmusic_init(int flags )                             /* = -1 */
   {
@@ -119,11 +148,19 @@ extern "C"
     {
       libflags |= ZCMF_GME;
     }
+	pthread_mutex_init(&playlistmutex,NULL);
+
+	install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(25));
     return true;
   }
 
   bool zcmusic_poll(int flags )                             /* = -1 */
   {
+    //lock mutex
+    pthread_mutex_lock(&playlistmutex);
+	//do all kinds of gymnastics to get around Allegro stupidity
+//	char *oldpwd = getCurPackfilePassword();
+//	setPackfilePassword(NULL);
     std::vector<ZCMUSIC*>::iterator b = playlist.begin();
     while (b != playlist.end())
     {
@@ -134,6 +171,7 @@ extern "C"
         b = playlist.erase(b);
         break;
         case ZCM_PLAYING:
+        (*b)->position++;
         switch ((*b)->type & flags & libflags)            // only poll those specified by 'flags'
         {
           case ZCMF_DUH:
@@ -155,20 +193,26 @@ extern "C"
         b++;
       }
     }
+	pthread_mutex_unlock(&playlistmutex);
+//	setPackfilePassword(oldpwd);
+//	if(oldpwd != NULL)
+//		delete[] oldpwd;
     return true;
   }
 
   void zcmusic_exit()
   {
-    std::vector<ZCMUSIC*>::iterator b = playlist.begin();
+	  //lock mutex
+	pthread_mutex_lock(&playlistmutex);
+	std::vector<ZCMUSIC*>::iterator b = playlist.begin();
     while (b != playlist.end())
     {
       zcmusic_unload_file(*b);
       b = playlist.erase(b);
     }
     playlist.clear();
-
-    if (libflags & ZCMF_DUH)
+	pthread_mutex_unlock(&playlistmutex);
+	if (libflags & ZCMF_DUH)
     {
       dumb_exit();
       libflags ^= ZCMF_DUH;
@@ -188,7 +232,6 @@ extern "C"
     {
       libflags ^= ZCMF_GME;
     }
-
   }
 
   ZCMUSIC const * zcmusic_load_file(char *filename)
@@ -205,6 +248,7 @@ extern "C"
       OGGFILE *p = load_ogg_file(filename);
       if (!p)
       {
+	    al_trace("OGG file '%s' not loaded.\n",filename);
         goto error;
       }
       p->fname = (char*)malloc(strlen(filename)+1);
@@ -224,6 +268,7 @@ extern "C"
       MP3FILE *p = load_mp3_file(filename);
       if (!p)
       {
+	    al_trace("MP3 file '%s' not found.\n",filename);
         goto error;
       }
       p->fname = (char*)malloc(strlen(filename)+1);
@@ -244,18 +289,22 @@ extern "C"
       if (stricmp(ext,"it")==0)
       {
         d = dumb_load_it(filename);
+		if (!d) al_trace("IT file '%s' not found.\n",filename);
       }
       else if (stricmp(ext,"xm")==0)
         {
           d = dumb_load_xm(filename);
+		  if (!d) al_trace("XM file '%s' not found.\n",filename);
         }
         else if (stricmp(ext,"s3m")==0)
           {
             d = dumb_load_s3m(filename);
+		    if (!d) al_trace("S3M file '%s' not found.\n",filename);
           }
           else if (stricmp(ext,"mod")==0)
             {
               d = dumb_load_mod(filename);
+			  if (!d) al_trace("MOD file '%s' not found.\n",filename);
             }
             if (d)
       {
@@ -275,33 +324,28 @@ extern "C"
 
 	if ((libflags & ZCMF_GME)) {
 		if ( (stricmp(ext,"spc")==0) || (stricmp(ext,"gbs")==0) || (stricmp(ext,"vgm")==0)|| (stricmp(ext,"gym")==0)|| (stricmp(ext,"nsf")==0)) {
-		
-			Music_Emu *emu;			
-			
+
+			Music_Emu *emu;
+
 			emu=gme_load_file(filename, ext);
 			if ( emu ) {
 				GMEFILE *p=(GMEFILE*)malloc(sizeof(GMEFILE));
 				if (!p) return NULL;
-				
+
 				p->type = ZCMF_GME;
 				p->playing = ZCM_STOPPED;
 				p->emu = emu;
 				return (ZCMUSIC*)p;
-			}
-			
+			} else al_trace("%s file '%s' not found.\n",ext,filename);
+
 		}
 	}
-	
+
  error:
     return NULL;
   }
 
-  void zcmusic_autopoll()
-  {
-    zcmusic_poll();
-  }
-
-  bool zcmusic_play(ZCMUSIC* zcm, int vol, bool autopoll) /* = FALSE */
+  bool zcmusic_play(ZCMUSIC* zcm, int vol) /* = FALSE */
   {
     // the libraries require polling
     // of individual streams, so here we must keep
@@ -312,15 +356,9 @@ extern "C"
     // In addition, any music library which actually
     // has a 'play' function or similar will be
     // called from here.
-	
+
     if (zcm == NULL) return FALSE;
     int ret = TRUE;
-
-    if (autopoll)
-    {
-//      install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(100));
-      install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(25));
-    }
 
     if(zcm->playing != ZCM_STOPPED)                         // adjust volume
     {
@@ -395,11 +433,13 @@ extern "C"
 
       if (ret != FALSE)
       {
+        zcm->position=0;
         zcm->playing = ZCM_PLAYING;
-        playlist.push_back(zcm);
+		pthread_mutex_lock(&playlistmutex);
+		playlist.push_back(zcm);
+		pthread_mutex_unlock(&playlistmutex);
       }
     }
-
     return ret!=0;
   }
 
@@ -410,6 +450,7 @@ extern "C"
     // -1 (or if the default argument is invoked) will
     // toggle the current state; passing 1 will pause.
     if (zcm == NULL) return FALSE;
+    pthread_mutex_lock(&playlistmutex);
     if (zcm->playing != ZCM_STOPPED)
     {
       int p = ZCM_PLAYING;
@@ -462,10 +503,11 @@ extern "C"
 			}
             break;
           }
-		  
+
         }
       }
     }
+    pthread_mutex_unlock(&playlistmutex);
     return TRUE;
   }
 
@@ -474,6 +516,7 @@ extern "C"
     // this function will stop playback of 'zcm' and reset
     // the stream position to the beginning.
     if (zcm == NULL) return FALSE;
+    pthread_mutex_lock(&playlistmutex);
     switch (zcm->type & libflags)
     {
       case ZCMF_DUH:
@@ -485,20 +528,21 @@ extern "C"
       }
       break;
       case ZCMF_OGG:
-      ogg_reset( (OGGFILE*)zcm );
+      ogg_stop( (OGGFILE*)zcm );
       break;
       case ZCMF_MP3:
-      mp3_reset( (MP3FILE*)zcm );
+      mp3_stop( (MP3FILE*)zcm );
       break;
       case ZCMF_GME:
       if ( ((GMEFILE*)zcm)->emu != NULL )
       {
-		if (zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream); 
+		if (zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream);
         zcm->playing = ZCM_STOPPED;
       }
       break;
-	
+
 	}
+	pthread_mutex_unlock(&playlistmutex);
     return TRUE;
   }
 
@@ -514,6 +558,7 @@ extern "C"
     // don't want to leave an soon-to-be invalid pointers
     // lying around to cause crashes.
     {
+		pthread_mutex_lock(&playlistmutex);
       std::vector<ZCMUSIC*>::iterator b = playlist.begin();
       while (b != playlist.end())
       {
@@ -526,6 +571,7 @@ extern "C"
           b++;
         }
       }
+		pthread_mutex_unlock(&playlistmutex);
     }
 
     switch (zcm->type & libflags)
@@ -624,7 +670,7 @@ MP3FILE *load_mp3_file(char *filename)
 
   if ((p = (MP3FILE *)malloc(sizeof(MP3FILE)))==NULL)
     goto error;
-  if ((f = pack_fopen(filename, F_READ))==NULL)
+  if ((f = pack_fopen_password(filename, F_READ,""))==NULL)
     goto error;
   if ((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
     goto error;
@@ -644,8 +690,10 @@ MP3FILE *load_mp3_file(char *filename)
   return p;
 
 error:
-  pack_fclose(f);
-  free(p);
+  if(f)
+    pack_fclose(f);
+  if(p)
+    free(p);
   delete[] data;
   return NULL;
 }
@@ -685,6 +733,9 @@ void unload_mp3_file(MP3FILE *mp3)
     }
     if (mp3->s != NULL)
     {
+      AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
+      if (a != NULL)
+        voice_stop(a->voice);
       almp3_destroy_mp3stream(mp3->s);
       mp3->s = NULL;
     }
@@ -733,6 +784,9 @@ bool mp3_reset(MP3FILE *mp3)
     }
     if(mp3->s != NULL)
     {
+      AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
+      if (a != NULL)
+        voice_stop(a->voice);
       almp3_destroy_mp3stream(mp3->s);
       mp3->s = NULL;
     }
@@ -749,6 +803,26 @@ bool mp3_reset(MP3FILE *mp3)
   return false;
 }
 
+void mp3_stop(MP3FILE *mp3)
+{
+  if (mp3->fname != NULL)
+  {
+    if(mp3->f != NULL)
+    {
+      pack_fclose(mp3->f);
+      mp3->f = NULL;
+    }
+    if(mp3->s != NULL)
+    {
+      AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
+      if (a != NULL)
+        voice_stop(a->voice);
+      almp3_destroy_mp3stream(mp3->s);
+      mp3->s = NULL;
+    }
+  }
+}
+
 OGGFILE *load_ogg_file(char *filename)
 {
   OGGFILE *p = NULL;
@@ -761,7 +835,7 @@ OGGFILE *load_ogg_file(char *filename)
   {
     goto error;
   }
-  if ((f = pack_fopen(filename, F_READ))==NULL)
+  if ((f = pack_fopen_password(filename, F_READ,""))==NULL)
   {
     goto error;
   }
@@ -789,8 +863,10 @@ OGGFILE *load_ogg_file(char *filename)
   return p;
 
 error:
-  pack_fclose(f);
-  free(p);
+  if(f)
+    pack_fclose(f);
+  if(p)
+    free(p);
   delete[] data;
   return NULL;
 }
@@ -830,6 +906,9 @@ void unload_ogg_file(OGGFILE *ogg)
     }
     if (ogg->s != NULL)
     {
+      AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
+      if (a != NULL)
+        voice_stop(a->voice);
       alogg_destroy_oggstream(ogg->s);
       ogg->s = NULL;
     }
@@ -878,6 +957,9 @@ bool ogg_reset(OGGFILE *ogg)
     }
     if(ogg->s != NULL)
     {
+      AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
+      if (a != NULL)
+        voice_stop(a->voice);
       alogg_destroy_oggstream(ogg->s);
       ogg->s = NULL;
     }
@@ -894,6 +976,26 @@ bool ogg_reset(OGGFILE *ogg)
   return false;
 }
 
+void ogg_stop(OGGFILE *ogg)
+{
+  if (ogg->fname != NULL)
+  {
+    if(ogg->f != NULL)
+    {
+      pack_fclose(ogg->f);
+      ogg->f = NULL;
+    }
+    if(ogg->s != NULL)
+    {
+      AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
+      if (a != NULL)
+        voice_stop(a->voice);
+      alogg_destroy_oggstream(ogg->s);
+      ogg->s = NULL;
+    }
+  }
+}
+
 int poll_gme_file(GMEFILE* gme)
 {
 	unsigned char *p;
@@ -904,13 +1006,13 @@ int poll_gme_file(GMEFILE* gme)
 		memset(p,0,4*samples);
 		unsigned short *q=(unsigned short*) p;
 		gme->emu->play((long) 2*samples,(short*)p);
-		
+
 		// Allegro only uses UNSIGNED samples ...
 		for (int j=0; j<2*samples; ++j) {
 			*q ^= 0x8000;
 			q++;
 		}
-		
+
 		free_audio_stream_buffer(gme->stream);
 		return true;
 	}
@@ -927,7 +1029,7 @@ Music_Emu* gme_load_file(char* filename, char* ext)
 	if (stricmp(ext,"nsf")==0) emu = new Nsf_Emu;
 	if (stricmp(ext,"gym")==0) emu = new Gym_Emu;
 	if (!emu) return NULL;
-	
+
 	Std_File_Reader in;
 
 	const char* err = emu->set_sample_rate( DUH_SAMPLES );
@@ -965,3 +1067,4 @@ int unload_gme_file(GMEFILE* gme)
 	}
 	return true;
 }
+

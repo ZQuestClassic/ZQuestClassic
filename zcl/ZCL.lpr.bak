@@ -1,0 +1,23 @@
+program ZCL;
+
+{$mode objfpc}{$H+}
+
+uses
+  Forms,
+  zclmain {Form1}, RunTimeTypeInfoControls, updater;
+
+
+//{$R *.res}
+
+//{$R zcl.res}
+
+{$IFDEF WINDOWS}{$R ZCL.rc}{$ENDIF}
+
+begin
+  Application.Title:='ZC Launcher';
+  Application.Initialize;
+  Application.CreateForm(TForm1, Form1);
+  form1.show;
+  Application.CreateForm(TForm2, Form2);
+  Application.Run;
+end.

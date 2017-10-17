@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>ZC Manual - The Main Window</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<h1 id="mainwin">The Main Window</h1>
+<img src="man_pics/main_win.gif" /> <br />
+<p>The first thing you will see when you open ZQuest is the main window. The main area shows the current screen on which you can place combos. To the right is the combo list, and at the bottom the info area.</p>
+<p>To place combos, click on a combo in the list - the current combo is shown above the list - and click on the screen to place it. You can scroll the combo list with the hotkeys or the mouse wheel. </p>
+<h2 id="hotkeys">Main Window Hotkeys</h2>
+<p>ZQuest is loaded with "hot keys". Once you become familiar with them, you will be able to work faster. Here is a list of keys for the main window: </p>
+<u>Screen</u>
+<table border="0">
+<tr><td>arrow keys</td><td> change the current screen </td></tr>
+<tr><td>comma,period</td><td> cycle through maps </td></tr>
+<tr><td>W</td><td> toggle show walk flags for screen </td></tr>
+<tr><td>F</td><td> toggle show flags for screen </td></tr>
+<tr><td>D</td><td> toggles "dark room" screen flag </td></tr>
+<tr><td>L</td><td> turn out the lights preview as dark room </td></tr>
+<tr><td>Q</td><td> toggles 1st to Cset of each tile, then to combo type. </td></tr>
+<tr><td>0-9</td><td> set the screen color to this level color this is only for convenience in editing; the game ignores this color. </td></tr>
+<tr><td>shift + 0-4</td><td> same as above but adds 10 to the level number </td></tr>
+<tr><td>F4</td><td> choose screen palette for ZQuest only. No effect on game.</td></tr>
+<tr><td>I, G, S, R, E, A </td><td> set current screen's item, guy, string, room type, enemies, and room data.</td></tr>
+<tr><td>F5</td><td> apply template</td></tr>
+<tr><td>F6</td><td> choose doors</td></tr>
+<tr><td>F7</td><td> color set fix</td></tr>
+<tr><td>F8</td><td> place flags</td></tr>
+<tr><td>F9</td><td> Set screen flags</td></tr>
+<tr><td>F10, F11</td><td> set tile and side warps</td></tr>
+<tr><td>F12</td><td> set enemy flags</td></tr>
+<tr><td>C</td><td> copy current screen</td></tr>
+<tr><td>V</td><td> paste to current screen</td></tr>
+<tr><td>Del</td><td> delete current screen</td></tr>
+<tr><td>X </td><td> preview current screen</td></tr>
+</table>
+<u>Combo panel </u>
+<table border="0">
+<tr><td>Numpad +,-</td><td> change the current CSet </td></tr>
+<tr><td>shift + up,down</td><td> scroll combo panel one line </td></tr>
+<tr><td>shift + PgUp, PgDown</td><td> scroll combo panel one screen of a combo page</td></tr>
+<tr><td>control + PgUp, PgDown</td><td> scroll combo panel one combo page</td></tr>
+<tr><td>Apostrophe </td><td> List combos used</td></tr>
+<tr><td>O </td><td> switch between normal, relational, dungeon carving and alias modes</td></tr>
+</table>
+<table border="0">
+<u>Others</u>
+<tr><td>PgUp, PgDown</td><td> change the info area page</td></tr>
+<tr><td>*,/</td><td> change the current flag for flag placement mode</td></tr>
+<tr><td>F1</td><td> help file</td></tr>
+<tr><td>F2</td><td> save. Use frequently.</td></tr>
+<tr><td>F3</td><td> load a new quest</td></tr>
+<tr><td>ESC</td><td> quit ZQuest</td></tr>
+<tr><td>U</td><td> undo last change</td></tr>
+<tr><td>Z</td><td> take screenshot.</td></tr>
+<tr><td>P </td><td> view a picture</td></tr>
+</table>
+<p>Note: ZQuest uses Allegro's key bindings which means that it'll act as if you used a US keyboard whatever your language settings are, and normal + and numpad + do not call the same function, for instance - only numpad + changes csets.</p>
+<h2 id="rmenu">The Right-Click Menu</h2>
+<p>Right-click on a combo on the current screen to bring this up.</p>
+<table>
+<tr><td>Draw Block commands 1x2, 2x1, 2x2, 4x2</td><td> The first number is width and the second height.  Example: to draw the large tree 2x2 select the upper left combo of the tree, right-click where you want the upper left combo to be on the screen, then click on Draw 2x2 Block.  The entire tree will be drawn on the main screen.</td></tr>
+<tr><td>Brush Width/Height</td><td> Allow you to draw with more than one combo at once. So, if you need to place a lot of something down and that thing takes up a 4-combo square, you'd set the brush height and brush width both to 2. Then, you start drawing with it. Space bar changes how it looks the same way as it does in the combo list screen.</td></tr>
+<tr><td>Set Fill Type</td><td> CTRL+Click where you want to fill.</td></tr>
+<tr><td></td><td>
+<table>
+<tr><td valign="top">Flood</td><td> fills the whole screen with the selected combo.</td></tr>
+<tr><td valign="top">Fill</td><td> is basically like the fill command in a paint program. It changes the CTRL+ Clicked on combo to the selected combo, so long as the fill can reach it without crossing over another combo type. The 4-way version can only travel up, down, left, or right from any combo. The 8-way version can go diagonally as well. </td></tr>
+<tr><td valign="top">Fill2</td><td> this command is useful for making lakes. Draw an outline and then use fill2 inside it. Anything that's not your current combo gets changed. There's also a 4-way and 8-way version for that.</td></tr>
+</table>
+</td></tr>
+<tr><td>Replace</td><td> Replaces all instances of the combo you right-clicked on with the selected combo.</td></tr>
+<tr><td>Properties</td><td> Gives the position, combo, Cset, flag if any, and combo type of the tile you right-clicked on.</td></tr>
+<tr><td>Select Combo</td><td> Makes the combo you right-clicked on the selected combo.</td></tr>
+<tr><td>Scroll to combo</td><td> scrolls the combo panel to show the current combo.</td></tr>
+<tr><td>Edit Combo</td><td> Brings up the Edit Combo window for the combo you right-clicked on.</td></tr>
+</table>
+<h2 id="infoarea">The Info Area</h2>
+<p>This is the box on the lower part of the ZQ screen. It has 8 pages, to toggle between the pages press PageDown or PageUp. The page number is the number in the upper right corner of the box. </p>
+<p>The left area shows the screens that exist on the current map, above it the map and screen numbers are displayed.</p>
+<table>
+<tr valign="top"><td>
+Page 1: <br />
+<img src="man_pics/info1.gif" /> 
+</td><td>
+File shows the title of the quest file you are editing, combo and type the combo number and type of the combo currently selected. <br />
+To the right, the first square shows the combo's tile in the current Cset, the second that walkable areas non-walkable areas are red, and the third the current combo's next combo.<br />
+The arrows scroll the combo list one page, beneath it is the current Cset</td></tr>
+<tr valign="top"><td>Page 2:<br />
+<img src="man_pics/info2.gif" /></td><td>
+There are 4 "placement" squares on this page. To place, click on the square then on the screen.  <br />
+The first square is the location of the current screen's item press I to set, the second the secret stairs, the third green square is the continue point where Link will appear when he dies/continues on this screen, or enters a Dmap on this screen. The numbers under the squares are that square's current position in pixels, or 0,0 if not set. The last square is the flag square, clicking on it enters flag placement mode and the number under it the current flag.</td></tr>
+<tr valign="top"><td>Page 3:<br />
+<img src="man_pics/info3.gif" /></td><td>
+This page shows if some common screen and enemy flags are set on this screen:
+<table>
+<tr><td><u>Screen Flags</u></td></tr>
+<tr><td>D</td><td>Dodongo roar</td></tr>
+<tr><td>H</td><td>Hold up item</td></tr>
+<tr><td>E</td><td>Enemies->secret</td></tr>
+<tr><td>T</td><td>Floating traps</td></tr>
+<tr><td>G</td><td>Roar=gasp style</td></tr>
+<tr><td>S</td><td>Secret SFX, O Ocean surf SFX</td></tr>
+<tr><td>M</td><td>Maze path</td></tr>
+<tr><td>L</td><td>Use ladder</td></tr>
+<tr><td>W</td><td>Whistle->Stairs</td></tr>
+<tr><td>R</td><td>Boss roar SFX</td></tr>
+<tr><td>D</td><td>Dark room</td></tr>
+<tr><td>I</td><td>Enemies->Item</td></tr>
+<tr><td>B</td><td>Block->Shutters</td></tr>
+<tr><td>I</td><td>Invisible enemies.</td></tr>
+<tr><td><u>Enemy Flags</u></td></tr>
+<tr><td>B</td><td>Dungeon boss</td></tr>
+<tr><td>I</td><td>Enemy carries item</td></tr>
+<tr><td>L</td><td>Has ringleader</td></tr>
+<tr><td>F</td><td>Statues shoot fire</td></tr>
+<tr><td>R</td><td>Falling rocks</td></tr>
+<tr><td>2</td><td>Center traps</td></tr>
+<tr><td>4</td><td>Corner traps</td></tr>
+<tr><td>Z</td><td>Zora</td></tr>
+</table>
+Pattern: random or enter from sides.
+</td></tr>
+<tr valign="top"><td>Page 4:<br />
+<img src="man_pics/info4.gif" /></td><td>
+Shows the Guy, String, and Room type assigned to the current screen. If the room type requires additional information of the kind that usually appears in Catch All under Data, this information will be shown too.</td></tr>
+<tr valign="top"><td>Page 5:<br />
+<img src="man_pics/info5.gif" /></td><td>
+Shows Tile Warps and Side Warps on the current screen along with the warps destination Dmap:screen# and type.</td></tr>
+<tr valign="top"><td>Page 6:<br />
+<img src="man_pics/info6.gif" /></td><td>
+Shows triggers for side warps: Right, Left, Bottom, Top, Maze path for the current screen and the Exit direction of the maze.</td></tr>
+<tr valign="top"><td>Page 7:<br />
+<img src="man_pics/info7.gif" /></td><td>
+Layers: Check the layers you want to show on the base Layer 0 screen in ZQuest.  If any layers besides 0 are used assigned in Data/Layers, a circle will appear under that layer.  By clicking on that circle, you can edit that layer from the base screen instead of having to go to the map/screen where that layer actually is.</td></tr>
+<tr valign="top"><td>Page 8:<br />
+<img src="man_pics/info8.gif" /></td><td>
+These blue squares are the exit points where Link appears when he exits a cave on to this screen. There is one for each of the four warp targets A-D.</td></tr>
+</table>
+
+
+</body>
+</html>

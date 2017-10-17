@@ -43,6 +43,12 @@
 #include "zc_alleg.h"
 #include "tab_ctl.h"
 
+struct ListData {
+	ListData( const char *(*lf)(int, int*), FONT **f ) : listFunc(lf), font(f) {}
+	const char *(*listFunc)(int, int *);
+	FONT **font;
+};
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -81,8 +87,9 @@ extern "C"
   void jwin_draw_button(BITMAP *dest,int x,int y,int w,int h,int state,int type);
   void draw_x_button(BITMAP *dest, int x, int y, int state);
   char *shorten_string(char *dest, char *src, FONT *usefont, int maxchars, int maxwidth);
-  void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, char *str, bool draw_button);
-  void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, char *str, int flags, bool show_dotted_rect);
+  void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *str, bool draw_button);
+  void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, const char *str, int flags, bool show_dotted_rect);
+  void jwin_draw_graphics_button(BITMAP *dest, int x, int y, int w, int h, BITMAP *bmp, BITMAP *bmp2, int flags, bool show_dotted_rect, bool overlay);
 
   /* Allegro DIALOG procedures */
   int jwin_win_proc(int msg, DIALOG *d, int c);
@@ -104,6 +111,7 @@ extern "C"
   int jwin_check_proc(int msg, DIALOG *d, int c);
   int jwin_checkfont_proc(int msg, DIALOG *d, int c);
   int jwin_radio_proc(int msg, DIALOG *d, int c);
+  int jwin_radiofont_proc(int msg, DIALOG *d, int c);
   int jwin_tab_proc(int msg, DIALOG *d, int c);
   int jwin_hline_proc(int msg, DIALOG *d, int c);
   int jwin_vline_proc(int msg, DIALOG *d, int c);
@@ -111,17 +119,12 @@ extern "C"
   /* other GUI procedures */
   void jwin_set_dialog_color(DIALOG *dialog);
 
-  int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int bg, int pos);
+  int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int color, int bg, int pos);
 
   int jwin_do_menu(MENU *menu, int x, int y);
 
-  int jwin_alert(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, int c1, int c2, FONT *title_font);
-  int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, int c2, int c3, FONT *title_font);
-
-  /* additions to the normal Allegro GUI */
-
-  int d_abclist_proc(int msg, DIALOG *d, int c);
-  int d_droplist_proc(int msg, DIALOG *d, int c);
+  int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font);
+  int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2, FONT *title_font);
 
   /* event handler that closes a dialog */
   int close_dlg();
@@ -142,13 +145,20 @@ extern "C"
   void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state);
   void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state);
 
-  
+
   void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg);
   void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int type);
-  void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset);
+  void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, FONT *fnt);
+
+  extern int  popup_zqdialog(DIALOG *dialog, int focus_obj);
+  extern int  do_zqdialog(DIALOG *dialog, int focus_obj);
+
+  int d_jslider_proc(int msg, DIALOG *d, int c);
+  int d_jwinbutton_proc(int msg, DIALOG *d, int c);
 
 
 #ifdef __cplusplus
 }
 #endif
 #endif                                                      // _JWIN_H_
+ 

@@ -1,0 +1,39 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3'r'#1#6'Height'#2'U'#3'Top'#3#176#0#5'Widt'
+  +'h'#3#253#1#11'HelpContext'#2#0#5'Align'#7#6'alNone'#7'Caption'#6#10'ZC Upda'
+  +'ter'#28'ChildSizing.LeftRightSpacing'#2#0#28'ChildSizing.TopBottomSpacing'#2
+  +#0#29'ChildSizing.HorizontalSpacing'#2#0#27'ChildSizing.VerticalSpacing'#2#0
+  +#27'ChildSizing.ControlsPerLine'#2#0#12'ClientHeight'#2'U'#11'ClientWidth'#3
+  +#253#1#11'Font.Height'#2#0#10'Font.Style'#11#0#8'OnCreate'#7#10'FormCreate'
+  +#10'ParentFont'#8#10'LCLVersion'#6#6'0.9.26'#0#6'TLabel'#6'Label1'#4'Left'#2
+  +#0#6'Height'#2#18#3'Top'#2#0#5'Width'#2'n'#11'HelpContext'#2#0#5'Align'#7#6
+  +'alNone'#9'Alignment'#7#13'taLeftJustify'#18'BorderSpacing.Left'#2#0#17'Bord'
+  +'erSpacing.Top'#2#0#19'BorderSpacing.Right'#2#0#20'BorderSpacing.Bottom'#2#0
+  +#20'BorderSpacing.Around'#2#0'!BorderSpacing.CellAlignHorizontal'#7#7'ccaFil'
+  +'l'#31'BorderSpacing.CellAlignVertical'#7#7'ccaFill'#7'Caption'#6#15'ZC Upda'
+  +'ter V.01'#11'ParentColor'#8#0#0#6'TLabel'#6'Label2'#4'Left'#2#0#6'Height'#2
+  +#18#3'Top'#2#16#5'Width'#3'c'#1#11'HelpContext'#2#0#5'Align'#7#6'alNone'#9'A'
+  +'lignment'#7#13'taLeftJustify'#18'BorderSpacing.Left'#2#0#17'BorderSpacing.T'
+  +'op'#2#0#19'BorderSpacing.Right'#2#0#20'BorderSpacing.Bottom'#2#0#20'BorderS'
+  +'pacing.Around'#2#0'!BorderSpacing.CellAlignHorizontal'#7#7'ccaFill'#31'Bord'
+  +'erSpacing.CellAlignVertical'#7#7'ccaFill'#7'Caption'#6'1Remain Connected wh'
+  +'ile we are updating ZC and ZCL'#11'ParentColor'#8#0#0#6'TLabel'#6'Label3'#4
+  +'Left'#2#0#6'Height'#2#18#3'Top'#2'0'#5'Width'#3#142#0#11'HelpContext'#2#0#5
+  +'Align'#7#6'alNone'#9'Alignment'#7#13'taLeftJustify'#18'BorderSpacing.Left'#2
+  +#0#17'BorderSpacing.Top'#2#0#19'BorderSpacing.Right'#2#0#20'BorderSpacing.Bo'
+  +'ttom'#2#0#20'BorderSpacing.Around'#2#0'!BorderSpacing.CellAlignHorizontal'#7
+  +#7'ccaFill'#31'BorderSpacing.CellAlignVertical'#7#7'ccaFill'#7'Caption'#6#19
+  +'Downloading Updates'#11'ParentColor'#8#0#0#12'TProgressBar'#12'ProgressBar1'
+  +#4'Left'#2#0#6'Height'#2#20#3'Top'#2'A'#5'Width'#3#253#1#11'HelpContext'#2#0
+  +#5'Align'#7#8'alBottom'#18'BorderSpacing.Left'#2#0#17'BorderSpacing.Top'#2#0
+  +#19'BorderSpacing.Right'#2#0#20'BorderSpacing.Bottom'#2#0#20'BorderSpacing.A'
+  +'round'#2#0'!BorderSpacing.CellAlignHorizontal'#7#7'ccaFill'#31'BorderSpacin'
+  +'g.CellAlignVertical'#7#7'ccaFill'#3'Max'#2#4#3'Min'#2#0#6'Smooth'#9#4'Step'
+  +#2#4#8'TabOrder'#2#0#11'BarShowText'#8#0#0#8'TProcess'#8'Process1'#6'Active'
+  +#8#7'Options'#11#12'poWaitOnExit'#0#8'Priority'#7#8'ppNormal'#14'StartupOpti'
+  +'ons'#11#0#10'ShowWindow'#7#7'swoNone'#13'WindowColumns'#2#0#12'WindowHeight'
+  +#2#0#10'WindowLeft'#2#0#10'WindowRows'#2#0#9'WindowTop'#2#0#11'WindowWidth'#2
+  +#0#13'FillAttribute'#2#0#4'left'#3#224#1#0#0#0
+]);

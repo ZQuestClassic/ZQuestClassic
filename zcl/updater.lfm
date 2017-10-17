@@ -1,0 +1,80 @@
+object updater1: Tupdater1
+  Left = 771
+  Height = 160
+  Top = 403
+  Width = 170
+  HorzScrollBar.Page = 169
+  HorzScrollBar.Range = 367
+  VertScrollBar.Page = 159
+  VertScrollBar.Range = 191
+  ActiveControl = Memo1
+  AutoScroll = False
+  Caption = 'ZCL Update'
+  ClientHeight = 160
+  ClientWidth = 170
+  Position = poDesktopCenter
+  LCLVersion = '0.9.27'
+  object Button1: TButton
+    Left = 8
+    Height = 25
+    Top = 136
+    Width = 75
+    Caption = 'Start'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Button2: TButton
+    Left = 88
+    Height = 25
+    Top = 136
+    Width = 75
+    Caption = 'Update'
+    OnClick = Button2Click
+    TabOrder = 1
+    Visible = False
+  end
+  object Memo1: TMemo
+    Left = 0
+    Height = 130
+    Top = 0
+    Width = 168
+    Lines.Strings = (
+      'To begin checking to see if '
+      'there is a new ZC Alpha '
+      'build. Click Start.'
+    )
+    ReadOnly = True
+    TabOrder = 2
+    WantReturns = False
+  end
+  object Process1: TProcess
+    Active = False
+    Options = [poWaitOnExit, poNewConsole]
+    Priority = ppNormal
+    StartupOptions = []
+    ShowWindow = swoNone
+    WindowColumns = 0
+    WindowHeight = 0
+    WindowLeft = 0
+    WindowRows = 0
+    WindowTop = 0
+    WindowWidth = 0
+    FillAttribute = 0
+    left = 104
+  end
+  object Process2: TProcess
+    Active = False
+    Options = []
+    Priority = ppNormal
+    StartupOptions = []
+    ShowWindow = swoShow
+    WindowColumns = 0
+    WindowHeight = 0
+    WindowLeft = 0
+    WindowRows = 0
+    WindowTop = 0
+    WindowWidth = 0
+    FillAttribute = 0
+    left = 136
+  end
+end

@@ -14,9 +14,9 @@
 void inc_quest();
 void noproc();
 void put_triforce();
-void putendmsg(char *s,int x,int y,int speed,void(proc)());
+void putendmsg(const char *s,int x,int y,int speed,void(proc)());
 void brick(int x,int y);
 void endingpal();
 void ending();
-void inc_quest();
 #endif
+ 

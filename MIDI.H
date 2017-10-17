@@ -13,16 +13,16 @@
 #include "zdefs.h"
 /*  Allegro MIDI struct
 
-typedef struct MIDI                    // a midi file
-{
-   int divisions;                      // number of ticks per quarter note
-   struct {
-      unsigned char *data;             // MIDI message stream
-      int len;                         // length of the track data
-   } track[MIDI_TRACKS];
-} MIDI;
+  typedef struct MIDI                    // a midi file
+  {
+  int divisions;                      // number of ticks per quarter note
+  struct {
+  unsigned char *data;             // MIDI message stream
+  int len;                         // length of the track data
+  } track[MIDI_TRACKS];
+  } MIDI;
 
-*/
+  */
 
 int save_midi(char *filename, MIDI *midi);
 
@@ -49,8 +49,8 @@ typedef struct midi_info
 } midi_info;
 
 typedef struct mtrkevent
-// sort of... it's actually not a true MTrk event because it can be a
-// combination of events, such as a "note on" event plus a "note off" event
+  // sort of... it's actually not a true MTrk event because it can be a
+  // combination of events, such as a "note on" event plus a "note off" event
 {
   // basic mtrk event but with total time instead of delta-time
   byte *buf;                                                // buffer for extra data
@@ -76,3 +76,4 @@ char *timestr(double sec);
 bool decode_text_event(char *s,byte type,byte *buf);
 void get_midi_text(MIDI *midi, midi_info *mi, char *text);
 #endif
+ 

@@ -1,0 +1,353 @@
+<h2>File</h2>
+<h3>New</h3>
+<p>Opens a new quest with 1 blank map and classic (default) tiles, combos, and palettes, or you can choose a quest template.  </p>
+<h3>Open (F3)</h3>
+<p>Used to load existing quests or quests-in-progress into the editor. If a quest is passworded, you must have the password to open the quest. </p>
+<h3>Save (F2)</h3>
+<p>Used to save changes to an already named quest. The unchanged quest will no longer exist. </p>
+<h3>Save As</h3>
+<p>Used to save changes to a quest without eliminating the unchanged version. For instance, is you open one of the example quests to use as the basis of your quest, use Save As so that the example quest will still be there unchanged to use again. With Save As you must give a name and location for your new quest.</p>
+<h3>Save As 2.10</h3>
+<p>Saves in a 2.10-compatible format, discarding newer elements. </p>
+<h3>Revert</h3>
+<p>Undoes all the changes made since the last time you saved the quest.</p>
+<h3>Quest Templates</h3>
+<p>Lets you edit the list of quest templates to use when you create a new quest.  </p>
+<h3>Import</h3>
+<p>This is used to import files with the extensions given below to a quest you are working on. Remember that the imported file will replace the one already in the quest, e.g. importing a .zpl file will replace your current palettes with the new palettes. </p>
+<h3>Export</h3>
+<p>Used to make a file (extensions below) of a part of your quest. Exporting does not erase that segment of your quest. </p>
+<h3>Exit (ESC)</h3>
+<p>Closes the ZQ editor and exits to your (D)OS.</p>
+<table cellspacing="5">
+<tr valign="top"><td>Map (.map) </td><td> A single map. On importing, you can choose one of these options:
+<tr valign="top"><td></td><td>
+<table>
+<tr valign="top"><td>Total Copy</td><td> Use this option if you want to erase the original map you are importing to.  With the next 2 options, blank screens are not imported.
+<tr valign="top"><td>Prefer Original</td><td> If the map you are importing has non-blank screens where the original does, the original screens will be used and the conflicting screen will not be imported.
+<tr valign="top"><td>Prefer Import</td><td> Like the above except that conflicting screens on the import map will be imported, erasing those screens on the original map.
+</table>
+
+<tr valign="top"><td>Dmaps (.dmp) </td><td> Dmap settings.
+<tr valign="top"><td>Tiles (.til) </td><td> A tileset, the til file contains the actual tiles and the palette file their colors. (When importing tiles and combos you can specify which page of your current tile or combo sheet to start the import on, so that you can avoid erasing current tiles and combos. ) 
+<tr valign="top"><td>Subscreen (.sub) </td><td> Custom subscreens.
+<tr valign="top"><td>Palettes (.zpl) </td><td> Colour palettes for tiles.
+<tr valign="top"><td>String table (.zqs) </td><td> Strings.
+<tr valign="top"><td>Combo table (.cmb) </td><td> Combos. These are the actual combos, not the tiles.
+<tr valign="top"><td>Graphics Pack (.zgp) </td><td> Combos, tiles and palettes all in one.
+<tr valign="top"><td>Quest Template (.zqt) </td><td> Compressed version of graphics pack.
+<tr valign="top"><td>Unencoded Quest (.qsu) </td><td> A full quest file, but not compressed like normal .qst files.
+</table>
+<h2>Quest</h2>
+<h3>Maps</h3>
+<h3>Go to Map</h3>
+<p>Select the map that you want to work on here. You can also switch between maps with the (.) and (,) keys.</p>
+<h3>Map Count</h3>
+<p>The number of maps in your quest. To create a new map, increase the count number by one, the maximum is 255.</p>
+<h3>Misc. Data</h3>
+<h3>Shop types</h3>
+<p>This is used to set up shops for your quest. When you click on Shop Types, a menu comes up with 15 numbers, Edit, and Cancel. To create a new shop type, click on a number you haven't used yet and Edit. This brings up a Shop Data dialog box with spaces for three items. Choose an item from the drop-down menu and enter the price for it above that item. You can have a shop with just one item by using only the first item listed, or 2 items by using only the first 2, but don't leave one blank and enter something in the next one. </p>
+<h3>Info types</h3>
+<p>This is for caves where the guy sells information. It works just like Shop Data, set the prices and choose the message strings from the drop-down menu. To create new strings go to Quest->Strings first. </p>
+<h3>Warp rings</h3>
+<p>The Warp Rings are the rooms with 3 staircases that warp you to different parts of your quest. Uses Overworld Room 81. </p>
+<p>When you click on Warp Rings, a dialog box will pop up with the numbers 0-7. To create a warp ring, click on a number you haven't used yet and Edit. </p>
+<p>This brings up the dialog box for that particular warp ring. Count (3-8) is where you enter how many locations you want for that warp ring. You then edit each site number, entering the Dmap and screen number you want to warp to for each one. Then click OK, or (to test the warp) Go will take you to the screen you just entered. </p>
+<p>To use, make a room of type 3-Stair warp and set the ring by pressing A.</p>
+<h3>Whistle warps</h3>
+<p>These are for setting the warps that the whistle takes the player to. Whistle warps become active when you have collected triforce pieces. The number represent the level number and in most cases you enter the Dmap and screen for the entrance to that level. However you can set any location you like. </p>
+<h3>Triforce pieces</h3>
+<p>For changing the placement of the triforce pieces on the default subscreen. </p>
+<h3>End String</h3>
+<p>For making custom end-game messages. First make the string under Strings, then select it here. This string appears whn you meet Zelda at the end of the game.</p>
+<h3>Item Properties</h3>
+<p>Gives info for individual swords, and hookshot; set how much you recover from faeries and potions. </p>
+<h3>Subscreens</h3>
+<p>Brings up the custom subscreen editor. </p>
+<h3>Master Subscreen Type</h3>
+<p>Select the type of subscreen to use in-game.</p>
+<h3>Graphics</h3>
+<h3>Palettes</h3>
+<p>Edit the main, level/Dmap, and sprite palettes here. </p>
+<h3>Sprites</h3>
+<p> The sprites used for weapons and for Link. (Enemy sprites are changed in the new enemy editor) </p>
+<h3>Combos</h3>
+<p> Brings up the combo editor.</p>
+<h3>Tiles</h3>
+<p> Starts the tile editor, also used for importing ("ripping") tiles.</p>
+<h3>Game Icons</h3>
+<p> This is where you choose the tile for your game icon (the picture that shows in the ZC Select box when you start or continue a game). Click on the first black square to choose the tile for Link with no rings, the 2nd for Link with the blue ring, the 3rd for Link with the red ring, and 4th for Link with the gold ring. In most cases this is the same tile. The colors will be determined by Extra Sprite Palette 1 Csets 9-12. </p>
+<h3>Misc. Colors</h3>
+<p> The numbers left of the rectangle are Csets of the main palette, the numbers above are the colors in each Csets.. The numbers listed in each item below are 1st digit=Cset and 2nd digit=color in that Cset You can click on one of the color edit boxes, then click on a color in the color table, and it will set that color automatically (no need to find the row and column yourself).</p>
+<h3>Map Styles</h3>
+<p> Used for customizing default-subscreen overworld and dungeon maps(5X3), frame(2X2), triforce pieces to go in frame (1X1), heart container pieces (1X1, enter the first of the set of 5 tiles: empty, 1/4, 1/2, 3/4, and full), and triforce frame(6X3). Draw the item you want to customize in the tile editor first (the numbers in parenthesis show the number of tiles for that item), then select them here. In the new default tileset, some predefined map styles are available. </p>
+<h3>Door Combo Sets</h3>
+<p> Here you can set the graphics for the different type of doors you will use in your quest. </p>
+<h3>Combo Aliases</h3>
+<p> Combo aliases are a way of placing many combos at once, or combos on several layers at once - so you need only place one alias for a tree or an entire house.</p>
+<h3>Header</h3>
+<p>The Header dialog lets you set some information that the player will see/need before they start your quest.</p>
+<table>
+<tr><td>Quest Number</td><td> Custom Quests should use number 0. Other numbers are reserved for built-in quests. Always set this to 0.
+<tr><td>Quest Version</td><td> It's a string. 
+<tr><td>Minimum Version</td><td> If a player's saved game was from a version less than the minimum version (using a strcmp) they have to restart from the beginning. This is useful if you make major changes to your quest. 
+<tr><td>Title and Author</td><td> You get about 60 characters for each.
+<tr><td>Change Password</td><td> Use a password to protect your quest. If the quest has a password, it can't be loaded in ZQuest without entering the password.  
+</table>
+<p>Note on passwords: The system used before 2.11 can be, and has been cracked. Don't use your personal password or your forum password for quests. In 2.11 a new hashing system is used. I still recommend you don't use your forum password here.</p>
+<p>The developers reserve the right to view all quest info, including your password (pre-2.11). Phantom Menace says: "I won't abuse this power, but you should know that I have access to your quest even if you use a password."</p>
+<p>Save Key File check box: Tick this and when you save the quest, a .key file is created with the same name as the quest file. This file contains the password for the quest (along with some other information). The password is in plain text format! If the .key file is present, and has the correct password (which it always should unless you edit it manually or change the password for the quest elsewhere and bring it over to that computer), then the quest will open in ZQuest without asking you for a password. This way, you don't have to remember to password your quest before sending it out (if you chose that method) and you don't have to worry about remembering the password if you like to keep it passworded all the time. Remember, if the .key file is not present, or doesn't have the right password, ZQuest will ask you for the password. The keyfile also activates the level 4 cheat when your quest is played in ZC.</p>
+<h3>Rules</h3>
+<p>These are the basic settings that apply to your whole quest. Quest rules can be overridden on individual screens by screen flags. See the rules section.</p>
+<h3>Cheats</h3>
+<p>There are four levels of cheats, each with a separate code (a 40 character string) that enables them. You can disable cheats altogether, or disable certain ones by leaving the code empty (be sure there are no spaces). It's helpful to use the cheats when designing a quest. You can also choose to give out the cheat codes. It's up to you. </p>
+<table>
+<tr><td>Level 1</td><td> refill life, bombs, magic, and rupees any time you want. 
+<tr><td>Level 2</td><td> lets you to set your number of heart containers, your maximum bombs, and make give Link a perpetual clock (enemies are frozen). 
+<tr><td>Level 3</td><td> allows you to choose what items, equipment, and triforce pieces Link has. 
+<tr><td>Level 4</td><td> allows Link to walk through walls. 
+</table>
+<h3>Items</h3>
+<p>This is the item editor, where you can edit and create items.</p>
+<h3>Enemies</h3>
+<p>The enemy editor.</p>
+<h3>Strings</h3>
+<p>This is where you create the text strings used by "guys". </p>
+<p>To create a new string, highlight [new string] and click on Edit. </p>
+<p>To change an existing string, highlight it and click Edit.</p>
+<table>
+<tr valign="top"><td>Message More X</td><td>The horizontal location of the "MISC: More..." indicator. Defaults to just to the right of a completely-filled message block.
+<tr valign="top"><td>Message More Y</td><td>The vertical location of the "MISC: More..." indicator. Defaults to just below a completely-filled message block. 
+In the edit box, type in your string. It will appear positioned exactly the way you type it in, so use spaces to get it the way you want it. 
+In the string editor you can choose a "Next String", so that multiple strings can be used on the same screen consecutively.
+
+</table>
+<h3>Dmaps</h3>
+<p>Dmaps are a way of dividing up maps into "Dungeon Maps". Dmaps tell the system how to use the screens in the maps. See the Dmap section.</p>
+<h3>Music, Midis</h3>
+<p>This loads MIDI files into your quest. Click on it to bring up the Select MIDI dialog box. </p>
+<p>Click on a number that has no MIDI file loaded, then Edit. </p>
+<p>This brings up the MIDI Specs dialog box. Click on Load to browse for a MIDI file on your hard drive. The one you select will be loaded and take you back to the Specs box. The Time, Length, and Name of the MIDI will be entered in the Specs...you can rename the file if you like. </p>
+<table>
+<tr valign="top"><td>Volume</td><td>Change the volume of the MIDI file if necessary.
+<tr valign="top"><td>Start</td><td>Start position in MIDI file. 
+<tr valign="top"><td>Loop</td><td>Check this box if you want the MIDI to loop instead of playing through once and stopping. 
+<tr valign="top"><td>Loop Start</td><td>Starting point in looping MIDI. 
+<tr valign="top"><td>Loop End</td><td>Ending point in looping MIDI. 
+</table>
+<h3>Music, Enhanced Music</h3>
+<p>Lets you load other music formats for your quests.</p>
+<h3>Init Data</h3>
+<p>This is where you enter the items Link will already have when he starts the quest. Most of it is self-explanatory. The defaults already entered are what Link will have unless you make changes. </p>
+<table>
+<tr valign="top"><td>Equipment</td><td>All items Link can use during his adventure (swords, items, keys, ...)
+<tr valign="top"><td>Items</td><td>What potions, bombs and arrows Link starts out with.
+<tr valign="top"><td>Level items</td><td>For each level (0-255) you can set whether the map (M), compass (C), and boss key (B) are present, and how many level-specific keys (K) Link starts with.
+<tr valign="top"><td>Misc.</td><td>
+<table>
+<tr valign="top"><td>Starting Dmap</td><td>The Dmap you want the quest to start on
+<tr valign="top"><td>Heart Containers</td><td>How many heart containers Link starts with.
+<tr valign="top"><td>Starting HP (hearts)</td><td>How many of Link's hearts are full.
+<tr valign="top"><td>Continue HP</td><td>Enter the number of full heart containers you want Link to continue with after he dies, or if you want Link to continue with a certain percentage of current hearts full, check the % box and enter the percentage instead of number of heart containers.
+<tr valign="top"><td>Keys and Rupies</td><td>Enter numbers here if you want Link to start with any.
+<tr valign="top"><td>Slash</td><td>Check this box if you want Link to start with the sword slash ability.
+<tr valign="top"><td>HCP (Heart Container Pieces) and Triforces</td><td>Check these boxes for how many of these you want Link to start with (usually none).
+<tr valign="top"><td>Magic Start and Max</td><td>
+<tr valign="top"><td></td><td>The amount of magic you want Link to start with and the highest amount he can have without getting another magic container.
+<tr valign="top"><td>Double Magic</td><td>Magic required for item use is cut in half. 
+</table>
+
+</table>
+<img align="center" src="man_pics/initdata.gif" />
+<h3>SFX Data</h3>
+<p>Lets you change the built-in SFX (sounds). Any you change are saved in your quest file.</p>
+<h3>Template</h3>
+<p>Lets you set or change the quest template used for the current quest. It won't change your current information, but if you use the Quest->Default menu, it will use whatever quest template you have selected for the default you pick. </p>
+<h3>Defaults</h3>
+<p>Used to reset the chosen item (palettes, tiles, combos, sprites, or map styles) to default, the original classic settings. </p>
+<h2>Edit</h2>
+<h3>Undo (U)</h3>
+<p> Undoes your last action. Will not undo multiple actions. </p>
+<h3>Copy (C)</h3>
+<p> Copy tile or screen. </p>
+<h3>Paste (V)</h3>
+<p> Paste tile or screen. </p>
+<h3>Paste All</h3>
+<p> will paste all information about the screen you have copied to the new screen, including enemies, screen flags, etc. </p>
+<h3>Adv. Paste: Paste to All</h3>
+<p> Pastes the copied screen to all screen on the map. </p>
+<h3>Paste All to All</h3>
+<p> Performs the Paste All operation from the copied screen to all screens on the map. </p>
+<h3>Paste Spec.</h3>
+<p> Paste only some of the selection (Undercombo, Secret Combos, Freeform Combos, Screen Data, Warps, Warp return, Enemies, Room Type, Guy/String, Doors, Layers).</p>
+<h3>Delete (Del)</h3>
+<p> deletes the current screen. </p>
+<h3>Delete Map</h3>
+<p> deletes everything on the entire map. </p>
+<h2>Tools</h2>
+<h3>Template (F5)</h3>
+<p>Applies the Dungeon Template (from room 83) to the current screen. Before clicking Template, choose the floor tile you want for the screen, or you can choose "No Floor". </p>
+<p>Or if you hold down the shift key while opening the dialog, the floor tile will stay what it was the last time you opened the dialog (unless that is the first time you opened it, in which case it will use the current combo and Cset). Also you can click on the floor tile and pick another combo and Cset, without having to change your current selections outside of the dialog.</p>
+<h3>Doors (F6)</h3>
+<p>Sets doors on a dungeon Dmap Clicking on this brings up the Select Door box, where you click on which door you are setting: N, S, E, or W, and select the door combo set you want to use.  Then you choose the type of door you want: wall (used to get rid of a door you don't want), passage, locked, shutter, bombable, walk-thru, 1-way shutter or boss door.</p>
+<h3>Color Set Fix (F7)</h3>
+<p>Changes the entire screen (or dungeon floor) to the Cset you have selected. </p>
+<h3>Flags (F8)</h3>
+<p>To place a flag on a tile, Click on Tools->Flags (or press F8) to bring up the Flag Type box, choose the flag type and OK, click on the tile where you want the flag, then press the right mouse button to get out of flag-setting mode. </p>
+<h3>List Combos Used (')</h3>
+<h3></h3>
+<p>Shows what combos are used on this screen and its layers.</p>
+<h3>Preview mode (X)</h3>
+<p>Preview the current screen as it will appear in the game. Press PgUp/PgDown to scroll through the available hotkeys, ESC to exit.</p>
+<p>Drawing Mode (O)</p>
+<h3>Switches between different combo placement modes. </h3>
+<h3>Normal</h3>
+<p>Place combos from the combo panel. </p>
+<h3>Relational</h3>
+<p>When set up, allows you to easily draw different types of terrain and the borders between them.</p>
+<h3>Dungeon Carving</h3>
+<p>A quick way to draw dungeon rooms.</p>
+<h3>Combo Alias</h3>
+<p>Lets you place combo aliases instead of combos.</p>
+<h3>View Palette</h3>
+<p>Shows the palette currently being used. </p>
+<h3>Re-apply Template</h3>
+<p>Applies the template (from Room 83) to all screen on a map. </p>
+<h3>Scripts</h3>
+<p>Load scripts from text files for Freeform combos here.</p>
+<h3>Import ASM FFC script</h3>
+<p>Load a ZASM script for a freeform combo.</p>
+<h3>Import ASM Item script</h3>
+<p>Load a ZASM script for an item.</p>
+<h3>Import ASM global script</h3>
+<p>Load a ZASM global script.</p>
+<h3>Compile Z-Script</h3>
+<p> Load, edit, and compile a script in ZC's own Zscript language. Here you also assign scripts to ff combos and events.</p>
+<h3>Integrity Check</h3>
+<p>Check your quest is set up correctly - this produces a report telling you about potential problems like item rooms with no item, warps to non-existing screens ...</p>
+<h2>Data</h2>
+<h3>Screen Data (F9)</h3>
+<p> Commonly called Screen Flags, these are the settings for an individual screen, they override quest rules or Dmap settings.</p>
+<h3>Freeform Combos</h3>
+<p> Set up freeform combos, that are controlled by scripts.</p>
+<h3>Tile Warp (F10)</h3>
+<p> This is used to set the warp from a cave or stair tile. You can have four warps per screen.</p>
+<h3>Side Warp (F11)</h3>
+<p> Used when you want Link to warp when he leaves one side of a screen. Choose which side activates the warp on triggers. The mechanics of setting the warp are much like tile warp. Again, four side warps per screen, and you may have a tile warp and side warp on the same screen.</p>
+<h3>Enemy Flags (F12)</h3>
+<p> Some more screen-specific settings.</p>
+<table>
+<tr><td> Zora</td><td> Places one Zora on the screen (water required). 
+<tr><td> Corner Traps</td><td> Places a spiked "trap" in each corner of the room/screen. 
+<tr><td> Center Traps</td><td>Places 2 traps on the center row of a room. 
+<tr><td> Falling Rocks</td><td> Will place 3 falling rocks on the screen. 
+<tr><td> Statues Shoot Fire</td><td> All lstatue and rstatue combos on the screen will shoot fire at Link. 
+<tr><td> Has Ringleader</td><td> The first enemy  on the screen is the "ringleader"; when it dies, they all die. 
+<tr><td> Enemy Carries Item</td><td> One of the enemies on the screen will "carry" the selected item. 
+<tr><td> Dungeon Boss</td><td> Used in the "boss" room. When the boss is beaten , the boss sound effects in the dungeon will stop.
+</table>
+
+<h3>Path</h3>
+<p>Brings up the Maze Path dialog box. For the path to work, you must also check the "use maze path" screen flag. </p>
+<p>Select the 4 directions in the order they should be taken. Only 3 directions can be used...the other direction is entered as the Exit and will take Link back to the screen he entered the maze from. The 4th direction should be the direction of the screen where you want Link to end up. </p>
+<p>If the maze path is on the extreme left or right screen of a Dmap, you cannot use the direction that would take Link off the map.</p>
+<h3>Item (I)</h3>
+<p>This is for selecting Items that will appear on the screen either when Link enters, when the enemies are dead if that screen flag is checked, or that an enemy will be carrying if that enemy flag is checked. Unless an enemy is carrying the item, to place the item where you want it to appear on the screen press PageDown and click the item icon (far left), then click on the place you want the item to be.</p>
+<h3> Guy (G)</h3>
+<p>Used to place the "guy" of your choice in a cave or dungeon room.</p>
+<h3>Message String (S)</h3>
+<p>Used to select the message string you want the "guy" to be saying. To create a new message string, go to Quest->Strings.</p>
+<h3>Room Type (R)</h3>
+<p>Select the type of this room (see table below).</p>
+List of room types
+<table>
+<tr><td>Special Item</td><td> Takes Link to Screen 80. Set the Special Item. In the OW a guy and message string may be used. 
+<tr><td>Pay for Info</td><td> A cave or dungeon room that has a guy with info for sale. Set guy and message, then info type number. Create Info Types under Quest->Misc. Data. 
+<tr><td>Secret Money</td><td> Cave or dungeon room that gives Link money. Enter the amount, and set the guy and message. 
+<tr><td>Gamble</td><td> Creates a gambling room. Set guy and message. 
+<tr><td>Door Repair</td><td> Takes money away from Link when he enters. Set guy, message, and repair fee. 
+<tr><td>Heart Container</td><td> Gives Link his choice of red potion or heart container. 
+<tr><td>Feed the Goriya</td><td> Link must give the "guy" bait so that he will disappear. Set guy and message. Use in a place where Link must get past the guy in order to continue. 
+<tr><td>Level 9 Entrance</td><td> Guy that Link cannot get past unless he has the complete triforce. Set guy and message. 
+<tr><td>Potion Shop</td><td> A shop that Link must have the letter to buy from. Set guy, message, and shop type number. Create shop types under Quest->Misc. Data. 
+<tr><td>Shop</td><td> A regular shop, no letter required. Set guy, message, and shop type number. 
+<tr><td>More Bombs</td><td> Increases the number of bombs Link can carry by 4 and gives him the maximum he can carry. Set guy, message, and price. 
+<tr><td>Leave Money or Life</td><td> Link must give up a heart container or a certain amount of money. Set guy, message, and price. Use in a place where Link must get past the guy in order to continue. 
+<tr><td>10 Rupies</td><td> Creates a room with 10 rupies set out in a diamond shape. 
+<tr><td>3-Stair Warp</td><td> Creates a warp ring room using Room 81. Enter Warp Ring number from Quest->Misc. Data. 
+<tr><td>Ganon</td><td> Makes Ganon the enemy in a dungeon room. 
+<tr><td>Zelda</td><td> Used to create a Zelda room to trigger the end game sequence. 
+<tr><td>Item pond</td><td> Not implemented yet. 
+<tr><td>Magic upgrade</td><td> Makes you use half as much magic per use, effectively doubling your magic. This can only be done once per quest.
+<tr><td>Learn Slash</td><td>  Link will be able to use the slash ability after visiting this room.  Once per quest.
+<tr><td>Catch All</td><td> Information for room types that need additional information will appear in this spot if that room type is selected.
+</table>
+<h3>Enemies (E)</h3>
+<p>Click here or press E to bring up the Enemy dialog box. </p>
+<p>Double-click on a (none) space to bring up the enemy list, choose one and click OK to select it. If you want more than one of that enemy on the current screen you can press C to copy, click on a (none) space and press V to paste. </p>
+<p>Paste Enemies: If you copy a screen and go to a new screen, paste enemies will put the same enemies that were on the old screen on the new screen. </p>
+<p>Flags brings up the Enemy Flag dialog box. </p>
+<p>Pattern: If you want the enemies to enter from the sides of the screen, click on pattern and choose this option. </p>
+<h3>Under Combo</h3>
+<p>To set an undercombo, first click on the tile you want for the undercombo, then on Under Combo. In the new dialog box are 2 squares. If the tile in the New square is the one you want for the undercombo, click on Set. Set All makes this tile the undercombo for all screens on this map. Undercombos should be set on every screen that has movable objects on it--Armos, blocks, etc. Under combo stores both the combo and the CSet. </p>
+<h3>Secret Combos</h3>
+<p>Brings up the Secret Combo dialog box. </p>
+<table>
+<tr><td>Burn</td><td> (4 squares) Flags #4, #73, #74, and #75, in that order.
+<tr><td>Arrow</td><td> (3) Flags #5, #71, and #72
+<tr><td>Bomb</td><td> (2) Flags #6, and #11
+<tr><td>Stair</td><td> For the Stair Icon in the lower dialog box.
+<tr><td>Boomerang</td><td> (3) Flags #68, #69, and #70
+<tr><td>Magic</td><td> (2) Flags #76 and #77
+<tr><td>Sword</td><td> (4) Flags #79, #80, #81, and #82
+<tr><td>Sword Beam</td><td> (4) Flags #83, #84, #85, and #86
+<tr><td>Misc.</td><td> (5) Flags #78 (reflected fireball), #87 (hookshot), #88 (wand), #89 (hammer), and #90 (strike).
+<tr><td>Secret Combos 16-31</td><td> These combos appear when other flags are triggered. 
+</table>
+<p>To set a secret combo, click on the proper square to bring up the Combo Table, then click on the tile you want for the secret combo and press Enter.</p>
+<h3>Layers</h3>
+<p>You can set up to 6 layers for each screen, that way you can stack combos over each other and over Link. In the layer dialog, enter the map and screen number where you put the tiles for each layer for the current screen. Layers 1 and 2 appear under Link, 3 and 4 are over Link but below flying enemies, 5 and 6 are above flyers. To prepare a screen for any layer except 0, first fill it with the walkable transparent (black) tile so that the layers below will show through. </p>
+<p>Note: Anything in layer 0 with a push flag on it appears on top of layers 1 and 2.  Link is walking on layers 1 and 2, so he can't very well push something below those layers.  This allows you to push a pushblock over different combos without changing them all to the same thing (it is actually still doing this, but set up the real floor on layer 1, then the block won't be erasing it, just layer 0, which is covered up by layer 1). </p>
+<p>Transparent makes that layer translucent (see-through). </p>
+<p>The auto buttons set up a layer for a whole map. Enter a map number in the dialog that pops up - basically, every screen on that map will be set up as the selected layer screen for every screen on the current map that doesn't already have a layer map set.</p>
+<h3>Palette (F4)</h3>
+<p>This allows you to change a particular screen to any palette in ZQuest. It does not affect the screen in ZC: when playing the quest that screen will still use the palette assigned on the Dmap.</p>
+<h2>Etc.</h2>
+<h3>Help</h3>
+<p> Brings up the original zquest.txt help file. </p>
+<h3>About</h3>
+<p> Brings up a Box with the version number, etc. </p>
+<h3>Video Mode</h3>
+<p> Shows you the current mode.</p>
+<h3>Options</h3>
+<p> Brings up these options:</p>
+<table>
+<tr><td>Mouse scroll</td><td> Allows you to use the mouse to scroll through the combos on the right. 
+<tr><td>Save paths</td><td> Makes ZQuest remember what directory you were in when you loaded a quest, saved it, grabbed tiles, imported/exported stuff, etc. 
+<tr><td>Palette cycle</td><td> Allows you to see palette cycling effects in ZQ. 
+<tr><td>Vsync</td><td> Makes it so that it waits for the monitor to stop drawing before doing graphics work. This can help eliminate flicker. 
+<tr><td>Show FPS</td><td> Tells you how many frames there are per second. 
+<tr><td>Combo Brush</td><td> Makes the cursor the current combo being used. 
+<tr><td>Float Brush</td><td> In combination with the combo brush, makes the cursor the current combo casting a shadow where it will be placed. 
+<tr><td>Reload Last</td><td> With this box checked ZQuest will automatically open the last quest you worked on when you start it. 
+<tr><td>Show Misaligns</td><td> This option helps you avoid having a walkable combo on one screen lead into an unwalkable combo on the next screen. 
+<tr><td>Animate Combos</td><td> Have this option checked if you want animated combos to be animated in ZQuest. Unchecked, the combos won't appear animated and there is less cursor flickering.
+<tr><td>Auto-backup</td><td> With this option checked, every time you save, your quest will also be exported with the same name and a qsb extension.
+<tr><td>Overwrite Protection</td><td> You can't save the quest file, you can only do save-as.
+</table>
+<h3>Fullscreen</h3>
+<p> In the Windows version, toggles between windowed and full-screen modes.  </p>
+<h3>View pic (P)</h3>
+<p> With this you can load and view a graphic from inside ZQ.</p>
+<h3>View map</h3>
+<p> Shows the current overall map with your choice of 3 different resolutions. The options allow you to view walkable area, flags used, dark areas, and item placement. </p>
+<h3>Lost Woods</h3>
+<p> Plays the Lost Wood MIDI from Ocarina of Time while you work in ZQuest. </p>
+<h3>Play Music</h3>
+<p> Allows you to choose and play any supported music file on your hard drive through ZQ. </p>
+<h3>Change track</h3>
+<p> changes track in music files that support tracks.</p>
+<h3>Stop Tunes</h3>
+<p> Turns off either of the items above. </p>
+<h3>Take Snapshot (Z)</h3>
+<p> Takes a screenshot of the current screen. </p>

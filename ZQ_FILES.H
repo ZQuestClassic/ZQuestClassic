@@ -19,12 +19,12 @@ void reset_qt(int index);
 void init_qts();
 void edit_qt();                                             //this is used to set the quest template for the current quest
 void edit_qt(int index);
-char *qtlist(int index, int *list_size);
+const char *qtlist(int index, int *list_size);
 int qtlist_del();
-int ListQTs(bool edit);
 int onQuestTemplates();
-int NewQuestFile();
+int NewQuestFile(int template_slot);
 int onNew();
+int PickRuleset();
 int onSave();
 int onSaveAs();
 int onOpen();
@@ -38,10 +38,13 @@ int onImport_Pals();
 int onExport_Pals();
 int onImport_Msgs();
 int onExport_Msgs();
+int onExport_MsgsText();
 int onImport_Combos();
 int onExport_Combos();
 int onImport_Tiles();
 int onExport_Tiles();
+int onImport_Subscreen();
+int onExport_Subscreen();
 int onImport_ZGP();
 int onExport_ZGP();
 int onImport_ZQT();
@@ -50,3 +53,4 @@ int onImport_UnencodedQuest();
 int onExport_UnencodedQuest();
 void center_zq_files_dialogs();
 #endif
+ 

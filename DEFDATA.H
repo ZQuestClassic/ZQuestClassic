@@ -17,6 +17,9 @@
 
 #include "items.h"
 #include "guys.h"
-extern itemdata default_items[MAXITEMS];
-extern guydata default_guys[eMAXGUYS];
+extern comboclass default_combo_classes[cMAX];
+extern itemdata default_items[iLast];
+extern guydata default_guys[OLDMAXGUYS];
+extern item_drop_object default_item_drop_sets[isMAX];
 #endif
+ 

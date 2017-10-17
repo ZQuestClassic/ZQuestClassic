@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>ZC Manual - ZC Features</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<h1 id="itemedit">The Item Editor</h1>
+
+<p>The item editor is under Quest/Items. Here you can edit the properties of game items and create new ones. To edit an item, select it in the list and press edit. To create a new one, select an unused slot (z###, at the end of the list) and press edit. You can not give names to your custom items yet. You place items on a screen by pressing I and selecting them from the list.</p>
+<img src="man_pics/itemedit1.gif" />
+<p>On page 1 (GFX), you set the item's appearance. </p>
+<dl>
+<dt>Flash CSet</dt><dd>The CSet to use when flashing this item.</dd>
+<dt>Animation Frames</dt><dd>The number of frames this item uses to animate. Set to 0 for no animation.</dd>
+<dt>Animation Speed</dt><dd>How fast this item animates. Set to 0 for no animation.</dd>
+<dt>Initial Delay</dt><dd>Time before animation starts.</dd>
+<dt>Link Tile Modification</dt><dd>If set, all Link tiles are shifted by this value when Link picks up the item.</dd>
+<dt>Tile image</dt><dd>Click here to select a new tile.</dd>
+<dt>Flash (checkbox)</dt><dd>Turn flashing when Link picks up the item on or off.</dd>
+<dt>2-Hand (checkbox)</dt><dd>Link uses both hands to lift up this item.</dd>
+<dt>Test</dt><dd>Test the animation.</dd>
+</dl>
+<img src="man_pics/itemedit2.gif" />
+<p>Page 2(Action) sets what happens when Link picks up one of these. You'll use this mainly for things like keys, bombs or HCP.</p>
+<dl>
+<dt>Class Number</dt><dd>The item class. See the list of classes. This determines what type of item this is, for instance all swords have the same class but the boomerangs and swords have different classes.</dd>
+<dt>Class Level</dt><dd>The position of this item within the class, for instance the wooden sword would be 1 and the master sword 4.</dd>
+<dt>Increase Amount</dt><dd>For items like bombs, rupees or keys this tells you how much you gain. For instance, the 100-rupee item has this set to 100. Set to 0 if you don't use a counter.</dd>
+<dt>DCounter (checkbox)</dt><dd>This is a technicality. Set it according to the table.</dd>
+<dt></dt><dd></dd>
+<dt>Counter Reference</dt><dd>Which counter this item uses. Set to -1 for none.</dd>
+<dt>Full Max</dt><dd>The maximum of this item's type you can pick up when you have this. Set to 0 if you don't need to change the maximum. This setting is for items like quivers, purses or bomb bags which don't change the number of items (arrows) you have but the maximum you can carry.</dd>
+<dt>+Max</dt><dd>How much the maximum increases. For instance, if this is a rupee purse and you set Full Max to 500, you can carry up to 500 rupees in total. If you set this to 50, you can carry 50 more than you could before.</dd>
+<dt>Keep Item when Collected</dt><dd>Keep this item after getting it. You'd certainly keep the sword. you wouldn't keep rupees or hearts - when you get the item it adds one to your counter. Link doesn't go around holding a heart piece.</dd>
+<dt>Defaults</dt><dd>Reset all fields on this page.</dd>
+</dl>
+</p>
+<p>
+List of item classes:
+<table border="0">
+<tr><td>Class</td></td>Name</td><td>Notes</td></tr>
+<tr><td>#1</td></td>#2</td><td>#3</td></tr>
+</table>
+List of counters:
+<table border="0">
+<tr><td>Counter</td></td>Name</td><td>DCounter</td></tr>
+<tr><td>#1</td></td>#2</td><td>#3</td></tr>
+</table>
+</p>
+
+</body>
+</html>

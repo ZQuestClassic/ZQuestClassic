@@ -1,0 +1,25 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('Tupdater1','FORMDATA',[
+  'TPF0'#9'Tupdater1'#8'updater1'#4'Left'#3#3#3#6'Height'#3#160#0#3'Top'#3#147#1
+  +#5'Width'#3#170#0#18'HorzScrollBar.Page'#3#169#0#19'HorzScrollBar.Range'#3'o'
+  +#1#18'VertScrollBar.Page'#3#159#0#19'VertScrollBar.Range'#3#191#0#13'ActiveC'
+  +'ontrol'#7#5'Memo1'#10'AutoScroll'#8#7'Caption'#6#10'ZCL Update'#12'ClientHe'
+  +'ight'#3#160#0#11'ClientWidth'#3#170#0#8'Position'#7#15'poDesktopCenter'#10
+  +'LCLVersion'#6#6'0.9.27'#0#7'TButton'#7'Button1'#4'Left'#2#8#6'Height'#2#25#3
+  +'Top'#3#136#0#5'Width'#2'K'#7'Caption'#6#5'Start'#7'OnClick'#7#12'Button1Cli'
+  +'ck'#8'TabOrder'#2#0#0#0#7'TButton'#7'Button2'#4'Left'#2'X'#6'Height'#2#25#3
+  +'Top'#3#136#0#5'Width'#2'K'#7'Caption'#6#6'Update'#7'OnClick'#7#12'Button2Cl'
+  +'ick'#8'TabOrder'#2#1#7'Visible'#8#0#0#5'TMemo'#5'Memo1'#4'Left'#2#0#6'Heigh'
+  +'t'#3#130#0#3'Top'#2#0#5'Width'#3#168#0#13'Lines.Strings'#1#6#28'To begin ch'
+  +'ecking to see if '#6#24'there is a new ZC Alpha '#6#19'build. Click Start.'
+  +#0#8'ReadOnly'#9#8'TabOrder'#2#2#11'WantReturns'#8#0#0#8'TProcess'#8'Process'
+  +'1'#6'Active'#8#7'Options'#11#12'poWaitOnExit'#12'poNewConsole'#0#8'Priority'
+  +#7#8'ppNormal'#14'StartupOptions'#11#0#10'ShowWindow'#7#7'swoNone'#13'Window'
+  +'Columns'#2#0#12'WindowHeight'#2#0#10'WindowLeft'#2#0#10'WindowRows'#2#0#9'W'
+  +'indowTop'#2#0#11'WindowWidth'#2#0#13'FillAttribute'#2#0#4'left'#2'h'#0#0#8
+  +'TProcess'#8'Process2'#6'Active'#8#7'Options'#11#0#8'Priority'#7#8'ppNormal'
+  +#14'StartupOptions'#11#0#10'ShowWindow'#7#7'swoShow'#13'WindowColumns'#2#0#12
+  +'WindowHeight'#2#0#10'WindowLeft'#2#0#10'WindowRows'#2#0#9'WindowTop'#2#0#11
+  +'WindowWidth'#2#0#13'FillAttribute'#2#0#4'left'#3#136#0#0#0#0
+]);

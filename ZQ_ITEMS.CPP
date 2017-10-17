@@ -16,21 +16,47 @@
 /**********  Item Class  **********/
 /**********************************/
 
+#ifndef __GTHREAD_HIDE_WIN32API
+#define __GTHREAD_HIDE_WIN32API 1
+#endif                            //prevent indirectly including windows.h
+
+#include "zq_class.h"
 #include "zdefs.h"
 
-void movefairy(fix &x,fix &y,int misc)
+void movefairy(fix&,fix&,int)
 {
   return;
 }
 
-void killfairy(int misc)
+void killfairy(int)
 {
   return;
 }
 
-void addfairy(fix x, fix y, int id)
+bool addfairy(fix, fix, int, int)
+{
+  return false;
+}
+
+bool can_drop(fix, fix)
+{
+  return false;
+}
+
+int select_dropitem(int, int, int)
+{
+  return 0;
+}
+
+bool is_side_view()
+{
+  return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
+}
+
+void getitem(int, bool)
 {
   return;
 }
-
 /*** end of sprite.cc ***/
+
+ 

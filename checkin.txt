@@ -1,0 +1,4 @@
+Please add a line here if you've checked out the new repository. - L.
+Hey, just testing SVN    ~Joe123
+This is not a test, this is an actual emergency. -Gleeok :D
+Let's see if I can figure this out :) ~ pkmnfrk

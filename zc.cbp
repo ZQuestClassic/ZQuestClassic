@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="zc" />
+		<Option platforms="Windows;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option platforms="Windows;" />
+				<Option output="cb_debug\zc\zc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="cb_debug\zc" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-w" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-DWIN32" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-DPTW32_STATIC_LIB" />
+					<Add option="-D_CRT_SECURE_NO_WARNINGS" />
+					<Add directory="C:\SVN\zc\trunk\include\pthread" />
+					<Add directory="C:\SVN\zc\trunk\include\zlib123" />
+					<Add directory="C:\SVN\zc\trunk\include\lpng1212" />
+					<Add directory="C:\SVN\zc\trunk\include\loadpng" />
+					<Add directory="C:\SVN\zc\trunk\include\jpgalleg-2.5" />
+					<Add directory="C:\SVN\zc\trunk\include\gme" />
+					<Add directory="C:\SVN\zc\trunk\include\dumb" />
+					<Add directory="C:\SVN\zc\trunk\include\alogg" />
+					<Add directory="C:\SVN\zc\trunk\include\almp3" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="C:\SVN\zc\trunk\include\pthread" />
+					<Add directory="C:\SVN\zc\trunk\include\zlib123" />
+					<Add directory="C:\SVN\zc\trunk\include\lpng1212" />
+					<Add directory="C:\SVN\zc\trunk\include\loadpng" />
+					<Add directory="C:\SVN\zc\trunk\include\jpgalleg-2.5" />
+					<Add directory="C:\SVN\zc\trunk\include\gme" />
+					<Add directory="C:\SVN\zc\trunk\include\dumb" />
+					<Add directory="C:\SVN\zc\trunk\include\alogg" />
+					<Add directory="C:\SVN\zc\trunk\include\almp3" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="gme" />
+					<Add library="alogg" />
+					<Add library="almp3" />
+					<Add library="aldmb" />
+					<Add library="dumb" />
+					<Add library="jpgal" />
+					<Add library="ldpng" />
+					<Add library="png" />
+					<Add library="z" />
+					<Add library="alleg" />
+					<Add library="pthreadGC2" />
+					<Add library="Ws2_32" />
+					<Add directory="trunk\libs\mingw" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option platforms="Windows;" />
+				<Option output="cb_release\output\zelda-w" prefix_auto="1" extension_auto="1" />
+				<Option object_output="cb_release\zc" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Os" />
+					<Add option="-O2" />
+					<Add option="-w" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_CRT_SECURE_NO_DEPRECATE" />
+					<Add option="-DPTW32_STATIC_LIB" />
+					<Add directory="C:\SVN\zc\trunk\include\pthread" />
+					<Add directory="C:\SVN\zc\trunk\include\zlib123" />
+					<Add directory="C:\SVN\zc\trunk\include\lpng1212" />
+					<Add directory="C:\SVN\zc\trunk\include\loadpng" />
+					<Add directory="C:\SVN\zc\trunk\include\jpgalleg-2.5" />
+					<Add directory="C:\SVN\zc\trunk\include\gme" />
+					<Add directory="C:\SVN\zc\trunk\include\dumb" />
+					<Add directory="C:\SVN\zc\trunk\include\alogg" />
+					<Add directory="C:\SVN\zc\trunk\include\almp3" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="C:\SVN\zc\trunk\include\pthread" />
+					<Add directory="C:\SVN\zc\trunk\include\zlib123" />
+					<Add directory="C:\SVN\zc\trunk\include\lpng1212" />
+					<Add directory="C:\SVN\zc\trunk\include\loadpng" />
+					<Add directory="C:\SVN\zc\trunk\include\jpgalleg-2.5" />
+					<Add directory="C:\SVN\zc\trunk\include\gme" />
+					<Add directory="C:\SVN\zc\trunk\include\dumb" />
+					<Add directory="C:\SVN\zc\trunk\include\alogg" />
+					<Add directory="C:\SVN\zc\trunk\include\almp3" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="gme" />
+					<Add library="alogg" />
+					<Add library="almp3" />
+					<Add library="aldmb" />
+					<Add library="dumb" />
+					<Add library="jpgal" />
+					<Add library="ldpng" />
+					<Add library="png" />
+					<Add library="z" />
+					<Add library="alleg" />
+					<Add library="pthreadGC2" />
+					<Add library="Ws2_32" />
+					<Add directory="trunk\libs\mingw" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="trunk\EditboxModel.cpp" />
+		<Unit filename="trunk\EditboxView.cpp" />
+		<Unit filename="trunk\VTune\zc.vpj" />
+		<Unit filename="trunk\aglogo.cpp" />
+		<Unit filename="trunk\aglogo.h" />
+		<Unit filename="trunk\colors.cpp" />
+		<Unit filename="trunk\colors.h" />
+		<Unit filename="trunk\debug.cpp" />
+		<Unit filename="trunk\debug.h" />
+		<Unit filename="trunk\decorations.cpp" />
+		<Unit filename="trunk\decorations.h" />
+		<Unit filename="trunk\defdata.cpp" />
+		<Unit filename="trunk\defdata.h" />
+		<Unit filename="trunk\editbox.cpp" />
+		<Unit filename="trunk\editbox.h" />
+		<Unit filename="trunk\ending.cpp" />
+		<Unit filename="trunk\ending.h" />
+		<Unit filename="trunk\ffscript.cpp" />
+		<Unit filename="trunk\font.h" />
+		<Unit filename="trunk\fontsdat.h" />
+		<Unit filename="trunk\gamedata.cpp" />
+		<Unit filename="trunk\gamedata.h" />
+		<Unit filename="trunk\gfxpal.h" />
+		<Unit filename="trunk\gui.cpp" />
+		<Unit filename="trunk\gui.h" />
+		<Unit filename="trunk\guys.cpp" />
+		<Unit filename="trunk\guys.h" />
+		<Unit filename="trunk\init.cpp" />
+		<Unit filename="trunk\init.h" />
+		<Unit filename="trunk\items.cpp" />
+		<Unit filename="trunk\items.h" />
+		<Unit filename="trunk\jwin.cpp" />
+		<Unit filename="trunk\jwin.h" />
+		<Unit filename="trunk\jwinfsel.cpp" />
+		<Unit filename="trunk\jwinfsel.h" />
+		<Unit filename="trunk\link.cpp" />
+		<Unit filename="trunk\link.h" />
+		<Unit filename="trunk\load_gif.cpp" />
+		<Unit filename="trunk\load_gif.h" />
+		<Unit filename="trunk\maps.cpp" />
+		<Unit filename="trunk\maps.h" />
+		<Unit filename="trunk\matrix.cpp" />
+		<Unit filename="trunk\matrix.h" />
+		<Unit filename="trunk\md5.cpp" />
+		<Unit filename="trunk\md5.h" />
+		<Unit filename="trunk\midi.cpp" />
+		<Unit filename="trunk\midi.h" />
+		<Unit filename="trunk\pal.cpp" />
+		<Unit filename="trunk\pal.h" />
+		<Unit filename="trunk\particles.cpp" />
+		<Unit filename="trunk\particles.h" />
+		<Unit filename="trunk\qst.cpp" />
+		<Unit filename="trunk\qst.h" />
+		<Unit filename="trunk\save_gif.cpp" />
+		<Unit filename="trunk\save_gif.h" />
+		<Unit filename="trunk\sfx.h" />
+		<Unit filename="trunk\sprite.cpp" />
+		<Unit filename="trunk\sprite.h" />
+		<Unit filename="trunk\subscr.cpp" />
+		<Unit filename="trunk\subscr.h" />
+		<Unit filename="trunk\tab_ctl.cpp" />
+		<Unit filename="trunk\tab_ctl.h" />
+		<Unit filename="trunk\tiles.cpp" />
+		<Unit filename="trunk\tiles.h" />
+		<Unit filename="trunk\title.cpp" />
+		<Unit filename="trunk\title.h" />
+		<Unit filename="trunk\weapons.cpp" />
+		<Unit filename="trunk\weapons.h" />
+		<Unit filename="trunk\zc_alleg.h" />
+		<Unit filename="trunk\zc_custom.cpp" />
+		<Unit filename="trunk\zc_custom.h" />
+		<Unit filename="trunk\zc_icon.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="trunk\zc_init.cpp" />
+		<Unit filename="trunk\zc_init.h" />
+		<Unit filename="trunk\zc_items.cpp" />
+		<Unit filename="trunk\zc_sprite.cpp" />
+		<Unit filename="trunk\zc_subscr.cpp" />
+		<Unit filename="trunk\zc_subscr.h" />
+		<Unit filename="trunk\zc_sys.cpp" />
+		<Unit filename="trunk\zc_sys.h" />
+		<Unit filename="trunk\zcmusic.cpp" />
+		<Unit filename="trunk\zcmusic.h" />
+		<Unit filename="trunk\zdefs.h" />
+		<Unit filename="trunk\zelda.cpp" />
+		<Unit filename="trunk\zelda.h" />
+		<Unit filename="trunk\zeldadat.h" />
+		<Unit filename="trunk\zq_class.h" />
+		<Unit filename="trunk\zq_cset.h" />
+		<Unit filename="trunk\zq_custom.h" />
+		<Unit filename="trunk\zq_doors.h" />
+		<Unit filename="trunk\zq_files.h" />
+		<Unit filename="trunk\zq_init.h" />
+		<Unit filename="trunk\zq_misc.h" />
+		<Unit filename="trunk\zq_rules.h" />
+		<Unit filename="trunk\zq_subscr.h" />
+		<Unit filename="trunk\zq_tiles.h" />
+		<Unit filename="trunk\zquest.h" />
+		<Unit filename="trunk\zquestdat.h" />
+		<Unit filename="trunk\zsys.cpp" />
+		<Unit filename="trunk\zsys.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

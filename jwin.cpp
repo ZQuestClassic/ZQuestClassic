@@ -1,4 +1,4 @@
-/*                 __                  __
+ /*                 __                  __
   *                /_/\  __  __  __    /_/\  ______
   *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
   *              / /\  / / / / / / / / /\  / /\_ / /\
@@ -24,10 +24,6 @@
 
 /* This code is not fully tested */
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
 #include <ctype.h>
 #include <string.h>
 #include "zc_alleg.h"
@@ -35,11 +31,22 @@
 #include "jwin.h"
 #include "editbox.h"
 #include <iostream>
+#include "zsys.h"
+#include <stdio.h>
+#include "trapper_keeper.h"
 
-#ifndef _MSC_VER
-#define max(a,b)  ((a)>(b)?(a):(b))
-#define min(a,b)  ((a)<(b)?(a):(b))
-#endif
+//#ifndef _MSC_VER
+#define zc_max(a,b)  ((a)>(b)?(a):(b))
+#define zc_min(a,b)  ((a)<(b)?(a):(b))
+//#endif
+//#ifdef _ZQUEST_SCALE_
+extern volatile int myvsync;
+extern int zqwin_scale;
+extern BITMAP *hw_screen;
+//#endif
+extern int zq_screen_w, zq_screen_h;
+
+extern bool is_zquest();
 
 /* ... Included in jwin.h ...
 
@@ -168,17 +175,17 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
       c4 = jcDARK;
       break;
   }
-  _allegro_hline(dest, x, y  , x+w-2, scheme[c1]);
-  _allegro_vline(dest, x, y+1, y+h-2, scheme[c1]);
+  _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), palette_color[scheme[c1]]);
+  _allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), palette_color[scheme[c1]]);
 
-  _allegro_hline(dest, x+1, y+1, x+w-3, scheme[c2]);
-  _allegro_vline(dest, x+1, y+2, y+h-3, scheme[c2]);
+  _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), palette_color[scheme[c2]]);
+  _allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c2]]);
 
-  _allegro_hline(dest, x+1, y+h-2, x+w-2, scheme[c3]);
-  _allegro_vline(dest, x+w-2, y+1, y+h-3, scheme[c3]);
+  _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), palette_color[scheme[c3]]);
+  _allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c3]]);
 
-  _allegro_hline(dest, x, y+h-1, x+w-1, scheme[c4]);
-  _allegro_vline(dest, x+w-1, y, y+h-2, scheme[c4]);
+  _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), palette_color[scheme[c4]]);
+  _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), palette_color[scheme[c4]]);
 }
 
 /*  jwin_draw_win:
@@ -186,7 +193,7 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
   */
 void jwin_draw_win(BITMAP *dest,int x,int y,int w,int h,int frame)
 {
-  rectfill(dest,x+2,y+2,x+w-3,y+h-3,scheme[jcBOX]);
+	rectfill(dest,zc_max(x+2,0),zc_max(y+2,0),zc_min(x+w-3, dest->w-1),zc_min(y+h-3, dest->h-1),palette_color[scheme[jcBOX]]);
   jwin_draw_frame(dest, x, y, w, h, frame);
 }
 
@@ -251,6 +258,7 @@ int mix_value(int c1,int c2,int pos,int max)
 char *shorten_string(char *dest, char *src, FONT *usefont, int maxchars, int maxwidth)
 {
   strncpy(dest,src,maxchars);
+  dest[maxchars-1]='\0';
   int len=(int)strlen(dest);
   int width=text_length(usefont, dest);
   dest[len]=0;
@@ -268,7 +276,7 @@ char *shorten_string(char *dest, char *src, FONT *usefont, int maxchars, int max
   return dest;
 }
 
-void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, char *str, bool draw_button)
+void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, const char *str, bool draw_button)
 {
   char buf[512];
   int len = (int)strlen(str);
@@ -296,6 +304,7 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, char *str, boo
                         temp_pal[scheme[jcTITLER]].b*255/63),
               scheme[jcTITLEL], scheme[jcTITLER]);
 
+
   if(len>509)
     len=509;
 
@@ -317,7 +326,7 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, char *str, boo
     }
   }
 
-  textout_ex(dest,font,buf,tx,ty,scheme[jcTITLEFG],-1);
+  textout_ex(dest,font,buf,tx,ty,palette_color[scheme[jcTITLEFG]],-1);
 
   if (draw_button)
   {
@@ -334,16 +343,16 @@ void draw_x_button(BITMAP *dest, int x, int y, int state)
   x += 4 + (state?1:0);
   y += 3 + (state?1:0);
 
-  line(dest,x,  y,  x+6,y+6,c);
-  line(dest,x+1,y,  x+7,y+6,c);
-  line(dest,x,  y+6,x+6,y,  c);
-  line(dest,x+1,y+6,x+7,y,  c);
+  line(dest,x,  y,  x+6,y+6,palette_color[c]);
+  line(dest,x+1,y,  x+7,y+6,palette_color[c]);
+  line(dest,x,  y+6,x+6,y,  palette_color[c]);
+  line(dest,x+1,y+6,x+7,y,  palette_color[c]);
 }
 
 void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state)
 {
   int c = scheme[jcDARK];
-  int ah = min(h/3, 5);
+  int ah = zc_min(h/3, 5);
   int i = 0;
 
   jwin_draw_button(dest,x,y,w,h,state,1);
@@ -359,7 +368,7 @@ void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int sta
 void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state)
 {
   int c = scheme[jcDARK];
-  int aw = min(w/3, 5);
+  int aw = zc_min(w/3, 5);
   int i = 0;
 
   jwin_draw_button(dest,x,y,w,h,state,1);
@@ -416,6 +425,8 @@ void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
   int x = ((x1+y1) & 1) ? 1 : 0;
   int c;
 
+  //acquire the bitmap ourselves, because locking a surface within each call is *SLOW AS BALLS* -DD
+  acquire_bitmap(dest);
   for (c=x1; c<=x2; c++)
   {
     putpixel(dest, c, y1, (((c+y1) & 1) == x) ? fg : bg);
@@ -427,11 +438,14 @@ void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
     putpixel(dest, x1, c, (((c+x1) & 1) == x) ? fg : bg);
     putpixel(dest, x2, c, (((c+x2) & 1) == x) ? fg : bg);
   }
+
+  release_bitmap(dest);
+
 }
 
 static void _dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
-  dotted_rect(screen, x1, y1, x2, y2, fg, bg);
+  dotted_rect(screen, x1, y1, x2, y2, palette_color[fg], palette_color[bg]);
 }
 
 /* gui_textout_ln:
@@ -441,7 +455,7 @@ static void _dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
   *
   *  Handles '\n' characters.
   */
-int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int bg, int pos)
+int gui_textout_ln(BITMAP *bmp, FONT *f, unsigned char *s, int x, int y, int color, int bg, int pos)
 {
   char tmp[1024];
   int c = 0;
@@ -477,7 +491,7 @@ int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int b
     }
 
     tmp[len] = 0;
-    pix_len = max( text_length(font, tmp), pix_len);
+    pix_len = zc_max( text_length(f, tmp), pix_len);
 
     x = xx;
     if (pos==1) //center
@@ -491,26 +505,32 @@ int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int b
 
       if (bmp)
     {
-      textout_ex(bmp, font, tmp, x, y, color,bg);
+      textout_ex(bmp, f, tmp, x, y, color,bg);
 
       if (hline_pos >= 0)
       {
         int i;
         i = tmp[hline_pos];
         tmp[hline_pos] = 0;
-        hline_pos = text_length(font, tmp);
+        hline_pos = text_length(f, tmp);
         tmp[0] = i;
         tmp[1] = 0;
-        i = text_length(font, tmp);
-        _allegro_hline(bmp, x+hline_pos, y+text_height(font)-gui_font_baseline, x+hline_pos+i-1, color);
+        i = text_length(f, tmp);
+        _allegro_hline(bmp, x+hline_pos, y+text_height(f)-gui_font_baseline, x+hline_pos+i-1, color);
       }
     }
 
-    y += text_height(font);
+    y += text_height(f);
   }
 
   return pix_len;
 }
+
+int gui_textout_ln(BITMAP *bmp, unsigned char *s, int x, int y, int color, int bg, int pos)
+{
+  return gui_textout_ln(bmp, font, s, x, y, color, bg, pos);
+}
+
 
 /*******************************/
 /*****  Misc Dialog Procs  *****/
@@ -590,7 +610,6 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
     }
     break;
   }
-
   return D_O_K;
 }
 
@@ -621,12 +640,12 @@ int jwin_text_proc(int msg, DIALOG *d, int c)
 
     if (d->flags & D_DISABLED)
     {
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, scheme[jcMEDDARK], -1, 0);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 0);
     }
     else
     {
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, scheme[jcBOXFG], scheme[jcBOX], 0);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 0);
     }
 
     font = oldfont;
@@ -658,12 +677,12 @@ int jwin_ctext_proc(int msg, DIALOG *d, int c)
 
     if (d->flags & D_DISABLED)
     {
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, scheme[jcLIGHT], scheme[jcBOX], 1);
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, scheme[jcMEDDARK], -1, 1);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 1);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 1);
     }
     else
     {
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, scheme[jcBOXFG], scheme[jcBOX], 1);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
     }
 
     font = oldfont;
@@ -695,12 +714,12 @@ int jwin_rtext_proc(int msg, DIALOG *d, int c)
 
     if (d->flags & D_DISABLED)
     {
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, scheme[jcLIGHT], scheme[jcBOX], 2);
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, scheme[jcMEDDARK], -1, 2);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 2);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 2);
     }
     else
     {
-      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, scheme[jcBOXFG], scheme[jcBOX], 2);
+      gui_textout_ln(screen, (unsigned char*)d->dp, d->x, d->y, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
     }
 
     font = oldfont;
@@ -713,7 +732,36 @@ int jwin_rtext_proc(int msg, DIALOG *d, int c)
 /* draw_text_button:
   *  Helper for jwin_button_proc.
   */
-void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, char *str, int flags, bool show_dotted_rect)
+void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, const char *str, int flags, bool show_dotted_rect)
+{
+  int g = (flags & D_SELECTED) ? 1 : 0;
+
+  if(flags & D_SELECTED)
+    jwin_draw_button(dest, x, y, w, h, 2, 0);
+  else if( !(flags & D_GOTFOCUS) )
+    jwin_draw_button(dest, x, y, w, h, 0, 0);
+  else
+  {
+    rect(dest, x, y, x+w-1, y+h-1, palette_color[scheme[jcDARK]]);
+    jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
+  }
+
+  if( !(flags & D_DISABLED) )
+    gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
+  else
+  {
+    gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
+    gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, palette_color[scheme[jcMEDDARK]], -1, TRUE);
+  }
+
+  if(show_dotted_rect&&(flags & D_GOTFOCUS))
+    dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
+}
+
+/* draw_graphics_button:
+  *  Helper for jwin_button_proc.
+  */
+void jwin_draw_graphics_button(BITMAP *dest, int x, int y, int w, int h, BITMAP *bmp, BITMAP *bmp2, int flags, bool show_dotted_rect, bool overlay)
 {
   int g = (flags & D_SELECTED) ? 1 : 0;
 
@@ -728,20 +776,39 @@ void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, char *str, 
   }
 
   if( !(flags & D_DISABLED) )
-    gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, scheme[jcBOXFG], -1, TRUE);
+  {
+//    gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, scheme[jcBOXFG], -1, TRUE);
+      if(bmp!=NULL)
+      {
+        if(overlay)
+        {
+          masked_blit(bmp, dest, 0, 0, x+w/2-bmp->w/2+g, y+h/2-bmp->h/2+g, bmp->h, bmp->w);
+        }
+        else
+        {
+          blit(bmp, dest, 0, 0, x+w/2-bmp->w/2+g, y+h/2-bmp->h/2+g, bmp->h, bmp->w);
+        }
+      }
+  }
   else
   {
-    gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, scheme[jcLIGHT], -1, TRUE);
-    gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, scheme[jcMEDDARK], -1, TRUE);
+//    gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, scheme[jcLIGHT], -1, TRUE);
+//    gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, scheme[jcMEDDARK], -1, TRUE);
+      if(bmp2!=NULL)
+      {
+        if(overlay)
+        {
+          masked_blit(bmp2, dest, 0, 0, x+w/2-bmp2->w/2+g, y+h/2-bmp2->h/2+g, bmp2->h, bmp2->w);
+        }
+        else
+        {
+          blit(bmp2, dest, 0, 0, x+w/2-bmp2->w/2+g, y+h/2-bmp2->h/2+g, bmp2->h, bmp2->w);
+        }
+      }
   }
 
   if(show_dotted_rect&&(flags & D_GOTFOCUS))
     dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, scheme[jcDARK], scheme[jcBOX]);
-}
-
-bool XOR(bool a, bool b)
-{
-  return (a||b&&(!(a&&b)));
 }
 
 /* jwin_button_proc:
@@ -763,7 +830,15 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
   {
 
     case MSG_DRAW:
-    jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+    {
+      FONT *oldfont = font;
+      if (d->dp2)
+      {
+        font = (FONT*)d->dp2;
+      }
+      jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+      font = oldfont;
+    }
     break;
 
     case MSG_WANTFOCUS:
@@ -806,6 +881,23 @@ int jwin_button_proc(int msg, DIALOG *d, int c)
 
       /* let other objects continue to animate */
       broadcast_dialog_message(MSG_IDLE, 0);
+      //	#ifdef _ZQUEST_SCALE_
+      if (is_zquest())
+      {
+        if(myvsync)
+        {
+          if(zqwin_scale > 1)
+          {
+            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+          }
+          else
+          {
+            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+          }
+          myvsync=0;
+        }
+      }
+      //	#endif
     }
 
     /* redraw in normal state */
@@ -844,7 +936,12 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
   int scroll;
   char *s;
   char buf[2];
-
+  char nullbuf[2];
+  sprintf(nullbuf, " ");
+  if (d->dp==NULL)
+  {
+    d->dp=(void *)nullbuf;
+  }
   s = (char*)d->dp;
   l = (int)strlen(s);
   if (d->d2 > l)
@@ -856,7 +953,10 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
   {
     buf[0] = ' ';
     buf[1] = 0;
-    x = text_length(font, buf);
+    if (d->dp2)
+      x = text_length((FONT*)d->dp2, buf);
+    else
+      x = text_length(font, buf);
   }
 
   buf[1] = 0;
@@ -864,7 +964,10 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
   {
     buf[0] = s[p];
     b++;
-    x += text_length(font, buf);
+    if (d->dp2)
+      x += text_length((FONT*)d->dp2, buf);
+    else
+      x += text_length(font, buf);
     if (x > d->w-6)
       break;
   }
@@ -897,19 +1000,19 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
       bg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcBOX] : scheme[jcTEXTBG];
       x = 3;
       y = (d->h - text_height(font)) / 2 + d->y;
-  
+
       /* first fill in the edges */
-  
+
       if(y > d->y+2)
         rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg);
-  
+
       if(y+text_height(font)-1 < d->y+d->h-2)
         rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg);
-  
+
       _allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg);
-  
+
       /* now the text */
-  
+
       if (scroll)
       {
         p = d->d2-b+1;
@@ -917,7 +1020,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
       }
       else
         p = 0;
-  
+
       for (; p<=b; p++)
       {
         buf[0] = s[p] ? s[p] : ' ';
@@ -928,17 +1031,17 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
         x += w;
       }
-  
+
       if (x < d->w-2)
         rectfill(screen, d->x+x, y, d->x+d->w-3, y+text_height(font)-1, bg);
-  
+
       jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
       font = oldfont;
       break;
 
     case MSG_CLICK:
       x = d->x+3;
-  
+
       if (scroll)
       {
         p = d->d2-b+1;
@@ -946,7 +1049,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
       }
       else
         p = 0;
-  
+
       for (; p<b; p++)
       {
         buf[0] = s[p];
@@ -1073,8 +1176,8 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c)
 void _calc_scroll_bar(int h, int height, int listsize, int offset,
                              int *bh, int *len, int *pos)
 {
-  *bh = max( min( (h-4)/2, 14 ), 0 );
-  *len = max( ((h - 32) * height + listsize/2) / listsize , 6);
+  *bh = zc_max( zc_min( (h-4)/2, 14 ), 0 );
+  *len = zc_max( ((h - 32) * height + listsize/2) / listsize , 6);
   *pos = ((h - 32 - *len) * offset) / (listsize-height);
 }
 
@@ -1082,12 +1185,12 @@ void _calc_scroll_bar(int h, int height, int listsize, int offset,
   *  Helper to process a click on a scrollable object.
   */
 
-void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
+void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, FONT *fnt)
 {
   enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
 
   int xx, yy;
-  int height = (d->h-3) / text_height(font);
+  int height = (d->h-3) / text_height(fnt);
   int hh = d->h - 32;
   int obj = bar;
   int bh, len, pos;
@@ -1220,13 +1323,46 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
 
         // let other objects continue to animate
         broadcast_dialog_message(MSG_IDLE, 0);
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
       }
       break;
 
     }                                                       // switch(obj)
 
     redraw = 0;
-
+    //	#ifdef _ZQUEST_SCALE_
+    if (is_zquest())
+    {
+      if(myvsync)
+      {
+        if(zqwin_scale > 1)
+        {
+          stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+        }
+        else
+        {
+          blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+        }
+        myvsync=0;
+      }
+    }
+    //	#endif
     // let other objects continue to animate
     broadcast_dialog_message(MSG_IDLE, 0);
   }
@@ -1243,9 +1379,9 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
   *  Helper function to scroll through a scrollable object.
   */
 
-static void _handle_jwin_scrollable_scroll(DIALOG *d, int listsize, int *index, int *offset)
+static void _handle_jwin_scrollable_scroll(DIALOG *d, int listsize, int *index, int *offset, FONT *fnt)
 {
-  int height = (d->h-3) / text_height(font);
+  int height = (d->h-3) / text_height(fnt);
 
   if (listsize <= 0)
   {
@@ -1293,18 +1429,19 @@ static void idle_cb()
 
 static void _handle_jwin_listbox_click(DIALOG *d)
 {
-  char *sel = (char*)d->dp2;
+  ListData *data = (ListData *)d->dp;
+  char *sel = (char *)d->dp2;
   int listsize, height;
   int i, j;
 
-  (*(getfuncptr)d->dp)(-1, &listsize);
+  (*data->listFunc)(-1, &listsize);
   if (!listsize)
     return;
 
-  height = (d->h-3) / text_height(font);
+  height = (d->h-3) / text_height(*data->font);
 
-  i = MID(0, ((gui_mouse_y() - d->y - 4) / text_height(font)),
-          ((d->h-3) / text_height(font) - 1));
+  i = MID(0, ((gui_mouse_y() - d->y - 4) / text_height(*data->font)),
+          ((d->h-3) / text_height(*data->font) - 1));
   i += d->d2;
   if (i < d->d2)
     i = d->d2;
@@ -1339,7 +1476,7 @@ static void _handle_jwin_listbox_click(DIALOG *d)
 
     d->d1 = i;
     i = d->d2;
-    _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2);
+    _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
 
     scare_mouse();
     object_message(d, MSG_DRAW, 0);
@@ -1417,9 +1554,10 @@ void _jwin_draw_listbox(DIALOG *d)
   int fg_color, bg_color, fg, bg;
   char *sel = (char*)d->dp2;
   char s[1024];
+  ListData *data = (ListData *)d->dp;
 
-  (*(getfuncptr)d->dp)(-1, &listsize);
-  height = (d->h-3) / text_height(font);
+  (*data->listFunc)(-1, &listsize);
+  height = (d->h-3) / text_height(*data->font);
   bar = (listsize > height);
   w = (bar ? d->w-21 : d->w-5);
   fg_color = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : (d->fg ? d->fg : scheme[jcTEXTFG]);
@@ -1436,7 +1574,7 @@ void _jwin_draw_listbox(DIALOG *d)
   {
     if (d->d2+i < listsize)
     {
-      if (d->d2+i == d->d1)
+      if (d->d2+i == d->d1 && !(d->flags & D_DISABLED))
       {
         fg = scheme[jcSELFG];
         bg = scheme[jcSELBG];
@@ -1451,30 +1589,30 @@ void _jwin_draw_listbox(DIALOG *d)
           fg = fg_color;
           bg = bg_color;
         }
-      strncpy(s, (*(getfuncptr)d->dp)(i+d->d2, NULL), 1023);
+      strncpy(s, (*data->listFunc)(i+d->d2, NULL), 1023);
       x = d->x + 4;
-      y = d->y + 4 + i*text_height(font);
+      y = d->y + 4 + i*text_height(*data->font);
       //         text_mode(bg);
-      rectfill(screen, x, y, x+7, y+text_height(font)-1, bg);
+      rectfill(screen, x, y, x+7, y+text_height(*data->font)-1, bg);
       x += 8;
       len = (int)strlen(s);
-      while (text_length(font, s) >= d->w - (bar ? 26 : 10))
+      while (text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
       {
         len--;
         s[len] = 0;
       }
-      textout_ex(screen, font, s, x, y, fg,bg);
-      x += text_length(font, s);
+      textout_ex(screen, *data->font, s, x, y, fg,bg);
+      x += text_length(*data->font, s);
       if (x <= d->x+w)
-        rectfill(screen, x, y, d->x+w, y+text_height(font)-1, bg);
+        rectfill(screen, x, y, d->x+w, y+text_height(*data->font)-1, bg);
     }
     else
-      rectfill(screen, d->x+2,  d->y+4+i*text_height(font),
-               d->x+w+2, d->y+3+(i+1)*text_height(font), bg_color);
+      rectfill(screen, d->x+2,  d->y+4+i*text_height(*data->font),
+               d->x+w+2, d->y+3+(i+1)*text_height(*data->font), bg_color);
   }
 
   if (d->y+4+i*text_height(font) <= d->y+d->h-3)
-    rectfill(screen, d->x+2, d->y+4+i*text_height(font),
+    rectfill(screen, d->x+2, d->y+4+i*text_height(*data->font),
              d->x+w+2, d->y+d->h-3, bg_color);
 
   /* draw frame, maybe with scrollbar */
@@ -1482,7 +1620,8 @@ void _jwin_draw_listbox(DIALOG *d)
 }
 
 /* jwin_list_proc:
-  *  A list box object. The dp field points to a function which it will call
+  *  A list box object. The dp field points to a ListData struct containing
+  *  a function which it will call
   *  to obtain information about the list. This should follow the form:
   *     char *<list_func_name> (int index, int *list_size);
   *  If index is zero or positive, the function should return a pointer to
@@ -1497,16 +1636,17 @@ void _jwin_draw_listbox(DIALOG *d)
   */
 int jwin_list_proc(int msg, DIALOG *d, int c)
 {
+  ListData *data = (ListData *)d->dp;
   int listsize, i, bottom, height, bar, orig;
-  char *sel = (char*)d->dp2;
+  char *sel = (char *)d->dp2;
   int redraw = FALSE;
 
   switch (msg)
   {
 
     case MSG_START:
-    (*(getfuncptr)d->dp)(-1, &listsize);
-    _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2);
+    (*data->listFunc)(-1, &listsize);
+    _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
     break;
 
     case MSG_DRAW:
@@ -1514,8 +1654,8 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     break;
 
     case MSG_CLICK:
-    (*(getfuncptr)d->dp)(-1, &listsize);
-    height = (d->h-3) / text_height(font);
+    (*data->listFunc)(-1, &listsize);
+    height = (d->h-3) / text_height(*data->font);
     bar = (listsize > height);
     if ((!bar) || (gui_mouse_x() < d->x+d->w-18))
     {
@@ -1543,6 +1683,23 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         d->flags |= D_INTERNAL;
         _handle_jwin_listbox_click(d);
         d->flags &= ~D_INTERNAL;
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
       }
 
       if (d->flags & D_USER)
@@ -1556,13 +1713,13 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     }
     else
     {
-      _handle_jwin_scrollable_scroll_click(d, listsize, &d->d2);
+      _handle_jwin_scrollable_scroll_click(d, listsize, &d->d2, *data->font);
     }
     break;
 
     case MSG_DCLICK:
-    (*(getfuncptr)d->dp)(-1, &listsize);
-    height = (d->h-3) / text_height(font);
+    (*data->listFunc)(-1, &listsize);
+    height = (d->h-3) / text_height(*data->font);
     bar = (listsize > height);
     if ((!bar) || (gui_mouse_x() < d->x+d->w-18))
     {
@@ -1580,7 +1737,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     break;
 
     case MSG_KEY:
-    (*(getfuncptr)d->dp)(-1, &listsize);
+    (*data->listFunc)(-1, &listsize);
     if ((listsize) && (d->flags & D_EXIT))
       return D_CLOSE;
     break;
@@ -1589,8 +1746,8 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     return D_WANTFOCUS;
 
     case MSG_WHEEL:
-    (*(getfuncptr)d->dp)(-1, &listsize);
-    height = (d->h-4) / text_height(font);
+    (*data->listFunc)(-1, &listsize);
+    height = (d->h-4) / text_height(*data->font);
     if (height < listsize) {
       int delta = (height > 3) ? 3 : 1;
       if (c > 0)
@@ -1610,12 +1767,12 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
     break;
 
     case MSG_CHAR:
-    (*(getfuncptr)d->dp)(-1,&listsize);
+    (*data->listFunc)(-1,&listsize);
     if (listsize)
     {
       c >>= 8;
 
-      bottom = d->d2 + (d->h-3)/text_height(font) - 1;
+      bottom = d->d2 + (d->h-3)/text_height(*data->font) - 1;
       if (bottom >= listsize-1)
         bottom = listsize-1;
 
@@ -1666,7 +1823,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
       }
 
       /* if we changed something, better redraw... */
-      _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2);
+      _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
       scare_mouse();
       object_message(d, MSG_DRAW, 0);
       unscare_mouse();
@@ -1966,7 +2123,7 @@ int jwin_textbox_proc(int msg, DIALOG *d, int c)
     else
     {
       /* clicked on the scroll area */
-      _handle_jwin_scrollable_scroll_click(d, d->d1, &d->d2);
+      _handle_jwin_scrollable_scroll_click(d, d->d1, &d->d2, font);
     }
     break;
 
@@ -2165,7 +2322,7 @@ int jwin_slider_proc(int msg, DIALOG *d, int c)
     }
     break;
     default:
-    return d_slider_proc(msg, d, c);
+    return d_jslider_proc(msg, d, c);
   }
   return D_O_K;
 }
@@ -2327,7 +2484,7 @@ static void draw_menu(MENU_INFO *m)
   int c;
 
   if(m->bar)
-    rectfill(screen, m->x, m->y, m->x+m->w-1, m->y+m->h-1, scheme[jcBOX]);
+	  rectfill(screen, zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+m->w-1, screen->w), zc_min(m->y+m->h-1, screen->h), scheme[jcBOX]);
   else
     jwin_draw_win(screen, m->x, m->y, m->w, m->h, FR_WIN);
 
@@ -2388,7 +2545,9 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
   m->x = x - border*2;
   m->y = y - border*2;
   m->w = 2 + border*4;
+
   m->h = (m->bar) ? (text_height(font)+7) : 2 + border*4;
+
   m->proc = NULL;
   m->sel = -1;
   m->hover = 0;
@@ -2518,7 +2677,6 @@ int menu_alt_key(int k, MENU *m)
 //int menu_alt_key(int k, MENU *m);
 //#endif
 
-
 /* _jwin_do_menu:
   *  The core menu control function, called by jwin_do_menu() and jwin_menu_proc().
   *
@@ -2536,6 +2694,7 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
     joy[0].button[0].b + joy[0].button[1].b;
   int old_sel;
   int mouse_sel;
+  int cur_sel=0;
   int _x, _y;
   int redraw = TRUE;
 
@@ -2545,8 +2704,8 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
 
   if (repos)
   {
-    m.x = MID(0, m.x, SCREEN_W-m.w-1);
-    m.y = MID(0, m.y, SCREEN_H-m.h-1);
+    m.x = MID(0, m.x, zq_screen_w-m.w-1);
+    m.y = MID(0, m.y, zq_screen_h-m.h-1);
   }
 
   /* save screen under the menu */
@@ -2589,12 +2748,16 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
       if ((m.sel >= 0) && (m.menu[m.sel].child))            /* bring up child? */
         ret = m.sel;
 
+	  if(!mouse_on)	cur_sel=m.sel;
       mouse_on = TRUE;
     }
     else                                                    /* button not pressed */
     {
       if (mouse_on)                                         /* selected an item? */
+	  {
+	    //if(cur_sel == m.sel)
         ret = m.sel;
+	  }
 
       mouse_on = FALSE;
 
@@ -2787,6 +2950,24 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
          (gui_mouse_y() < m.y) || (gui_mouse_y() > m.y+m.h)))
       break;
 
+      //	#ifdef _ZQUEST_SCALE_
+      if (is_zquest())
+      {
+        if(myvsync)
+        {
+          if(zqwin_scale > 1)
+          {
+            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+          }
+          else
+          {
+            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+          }
+          myvsync=0;
+        }
+      }
+      //	#endif
+
   } while (ret < 0);
 
 getout:
@@ -2926,7 +3107,7 @@ static DIALOG alert_dialog[] =
   *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on
   *  which button was selected.
   */
-int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, int c2, int c3, FONT *title_font)
+int jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3, FONT *title_font)
 {
   int maxlen = 0;
   int len1, len2, len3;
@@ -2942,7 +3123,7 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
           {                  \
             alert_dialog[A_B##x].flags &= ~D_HIDDEN; \
             alert_dialog[A_B##x].key = c##x; \
-            alert_dialog[A_B##x].dp = b##x; \
+            alert_dialog[A_B##x].dp =  (void *)b##x; \
             len##x = gui_strlen(b##x); \
             b[buttons++] = A_B##x; \
           }                  \
@@ -2962,13 +3143,13 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
 
   if (s1)
   {
-    alert_dialog[A_S1].dp = s1;
+    alert_dialog[A_S1].dp =  (void *)s1;
     maxlen = text_length(font, s1);
   }
 
   if (s2)
   {
-    alert_dialog[A_S2].dp = s2;
+    alert_dialog[A_S2].dp =  (void *)s2;
     len1 = text_length(font, s2);
     if (len1 > maxlen)
       maxlen = len1;
@@ -2976,7 +3157,7 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
 
   if (s3)
   {
-    alert_dialog[A_S3].dp = s3;
+    alert_dialog[A_S3].dp =  (void *)s3;
     len1 = text_length(font, s3);
     if (len1 > maxlen)
       maxlen = len1;
@@ -2991,7 +3172,7 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
     maxlen = len1*buttons;
 
   maxlen += avg_w*4;
-  maxlen=max(text_length(title_font?title_font:font,title)+29,maxlen);
+  maxlen=zc_max(text_length(title_font?title_font:font,title)+29,maxlen);
   alert_dialog[0].w = maxlen;
   alert_dialog[A_S1].x = alert_dialog[A_S2].x = alert_dialog[A_S3].x =
     alert_dialog[0].x + maxlen/2;
@@ -3023,7 +3204,7 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
 
   alert_dialog[A_B1].h = alert_dialog[A_B2].h = alert_dialog[A_B3].h = avg_h+13;
 
-  alert_dialog[0].dp = title;
+  alert_dialog[0].dp = (void *)title;
   alert_dialog[0].flags = (title) ? D_EXIT : 0;
 
   jwin_center_dialog(alert_dialog);
@@ -3035,7 +3216,12 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
   {
   } while (gui_mouse_b());
 
-  c = popup_dialog(alert_dialog, A_B1);
+  if (is_large)
+  {
+    large_dialog(alert_dialog);
+	alert_dialog[0].d1 = 0;
+  }
+  c = popup_zqdialog(alert_dialog, A_B1);
 
   if (c == A_B1)
     return 1;
@@ -3051,7 +3237,7 @@ int jwin_alert3(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, ch
   *  in b1 and b2 (b2 may be null), and the keyboard shortcuts in c1 and c2.
   *  Returns 1 or 2 depending on which button was selected.
   */
-int jwin_alert(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, int c1, int c2, FONT *title_font)
+int jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2, FONT *title_font)
 {
   int ret;
 
@@ -3081,148 +3267,66 @@ static int d_dropcancel_proc(int msg,DIALOG *d,int c)
 static DIALOG droplist_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp)              (dp2)   (dp3)*/
+  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
   { d_list_proc,       0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL,             NULL,   NULL },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC,  (void*)close_dlg, NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
   { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
 };
 
-static int droplist(DIALOG *d, int type)
+static int droplist(DIALOG *d)
 {
+  ListData *data = (ListData *)d->dp;
   int d1 = d->d1;
-  int listsize, h, y;
+  int listsize, x, y, w, h, max_w;
 
-  (*(getfuncptr)d->dp)(-1, &listsize);
+  (*data->listFunc)(-1, &listsize);
   y = d->y + d->h;
-  h = min(listsize,8) * text_height(font) + (type+1)*4;
-  if(y+h >= SCREEN_H)
+  h = zc_min(listsize,8) * text_height(*data->font) + 8;
+  if(y+h >= zq_screen_h)
+  {
     y = d->y - h;
+  }
 
-  droplist_dlg[0] = *d;
-  droplist_dlg[0].proc  = type ? jwin_abclist_proc : d_abclist_proc;
-  droplist_dlg[0].flags = D_EXIT + D_USER;
-  droplist_dlg[0].y  = y;
-  droplist_dlg[0].h  = h;
-  droplist_dlg[0].d2 = listsize<=8 ? 0 : max(d1-3,0);
+  x = d->x;
+  w = d->w;
+  max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
+  for(int i=0; i<listsize; ++i)
+  {
+    w=zc_min(max_w,zc_max(w,text_length(*data->font,(*data->listFunc)(i, NULL))+39));
+  }
+  if(x+w >= zq_screen_w)
+  {
+    x = d->x + d->w - w;
+  }
 
-  // left
-  droplist_dlg[2].x = 0;
-  droplist_dlg[2].y = 0;
-  droplist_dlg[2].w = d->x - 1;
-  droplist_dlg[2].h = SCREEN_H;
+  droplist_dlg[1] = *d;
+  droplist_dlg[1].proc  = &jwin_abclist_proc;
+  droplist_dlg[1].flags = D_EXIT + D_USER;
+  droplist_dlg[1].x  = x;
+  droplist_dlg[1].y  = y;
+  droplist_dlg[1].w  = w;
+  droplist_dlg[1].h  = h;
+  droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
 
-  // top
-  droplist_dlg[3].x = d->x - 1;
-  droplist_dlg[3].y = 0;
-  droplist_dlg[3].w = d->w + 3;
-  droplist_dlg[3].h = y - 1;
+  // cancel
+  droplist_dlg[0].x = 0;
+  droplist_dlg[0].y = 0;
+  droplist_dlg[0].w = zq_screen_w;
+  droplist_dlg[0].h = zq_screen_h;
 
-  // right
-  droplist_dlg[4].x = d->x + d->w + 1;
-  droplist_dlg[4].y = 0;
-  droplist_dlg[4].w = SCREEN_W - d->w - d->x;
-  droplist_dlg[4].h = SCREEN_H;
-
-  // bottom
-  droplist_dlg[5].x = d->x - 1;
-  droplist_dlg[5].y = y + h + 1;
-  droplist_dlg[5].w = d->w + 3;
-  droplist_dlg[5].h = SCREEN_H - h - y;
-
-  if(popup_dialog(droplist_dlg,0)==0)
+  /*if (is_large)
+  {
+    large_dialog(droplist_dlg);
+	alert_dialog[0].d1 = 0;
+  }*/
+  if(popup_zqdialog(droplist_dlg,1)==1)
   {
     position_mouse_z(0);
-    return droplist_dlg[0].d1;
+    return droplist_dlg[1].d1;
   }
 
   position_mouse_z(0);
   return d1;
-}
-
-/*
-  * A drop list...
-  *
-  */
-int d_droplist_proc(int msg,DIALOG *d,int c)
-{
-  int ret;
-  int d1;
-  int down=0, last_draw=0;
-  int x = d->x+d->w-11;
-  int y = d->y+1;
-
-  switch(msg)
-  {
-    case MSG_CLICK:
-    if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
-      goto dropit;
-    break;
-
-    case MSG_KEY:
-    goto dropit;
-    break;
-  }
-
-  d1 = d->d1;
-  ret = d_list_proc(msg,d,c);
-  if (d->d1!=d->d2)
-  {
-    d->d1=d->d2;
-    scare_mouse();
-    jwin_droplist_proc(MSG_DRAW, d, 0);
-    unscare_mouse();
-  }
-  if((d1 != d->d1) && (d->flags&D_EXIT))
-    ret |= D_CLOSE;
-
-  if(msg == MSG_DRAW)
-  {
-    rect(screen,x-2,y-1,d->x+d->w-1,d->y+d->h-1,d->fg);
-    rectfill(screen,x-1,y,d->x+d->w-2,d->y+d->h-2,d->bg);
-  }
-
-  return ret;
-
-dropit:
-
-  last_draw = 0;
-
-  while(gui_mouse_b())
-  {
-    down = mouse_in_rect(d->x+d->w-18, d->y+2, 16, d->h);
-
-    if(down!=last_draw)
-    {
-      scare_mouse();
-      rectfill(screen, x-1, y, d->x+d->w-2, d->y+d->h-2, down ? d->fg : d->bg);
-      unscare_mouse();
-      last_draw = down;
-    }
-
-    clear_keybuf();
-  }
-
-  if(!down)
-    return D_O_K;
-
-  scare_mouse();
-  rectfill(screen, x-1, y, d->x+d->w-2, d->y+d->h-2, d->bg);
-  unscare_mouse();
-
-  d1 = d->d1;
-  d->d2 = d->d1 = droplist(d,0);
-
-  scare_mouse();
-  object_message(d, MSG_DRAW, 0);
-  unscare_mouse();
-
-  while(gui_mouse_b())
-    clear_keybuf();
-
-  return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
 
 /* jwin_droplist_proc:
@@ -3233,15 +3337,16 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
   int ret;
   int down=0, last_draw=0;
   int d1;
+
   switch(msg)
   {
     case MSG_CLICK:
-    if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
-      goto dropit;
+      if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
+        goto dropit;
     break;
 
     case MSG_KEY:
-    goto dropit;
+      goto dropit;
     break;
   }
 
@@ -3258,8 +3363,9 @@ int jwin_droplist_proc(int msg,DIALOG *d,int c)
     ret |= D_CLOSE;
 
   if(msg == MSG_DRAW)
+  {
     draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-
+  }
   return ret;
 
 dropit:
@@ -3278,17 +3384,36 @@ dropit:
     }
 
     clear_keybuf();
+    //	#ifdef _ZQUEST_SCALE_
+    if (is_zquest())
+    {
+      if(myvsync)
+      {
+        if(zqwin_scale > 1)
+        {
+          stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+        }
+        else
+        {
+          blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+        }
+        myvsync=0;
+      }
+    }
+    //	#endif
   }
 
   if(!down)
+  {
     return D_O_K;
+  }
 
   scare_mouse();
   draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
   unscare_mouse();
 
   d1 = d->d1;
-  d->d2 = d->d1 = droplist(d,1);
+  d->d2 = d->d1 = droplist(d);
 
   scare_mouse();
   object_message(d, MSG_DRAW, 0);
@@ -3306,21 +3431,22 @@ dropit:
 
 int jwin_abclist_proc(int msg,DIALOG *d,int c)
 {
+  ListData *data = (ListData *)d->dp;
   if(msg==MSG_CHAR && (isalpha(c&0xFF) || isdigit(c&0xFF)))
   {
     int max,dummy,h,i;
 
-    h = (d->h-3) / text_height(font);
+    h = (d->h-3) / text_height(*data->font);
     c = toupper(c&0xFF);
 
-    (*(getfuncptr)d->dp)(-1, &max);
+    (*data->listFunc)(-1, &max);
 
     for(i=0; i<max; i++)
     {
-      if( toupper( ((*(getfuncptr)d->dp)(i,&dummy))[0] ) == c)
+      if( toupper( ((*data->listFunc)(i,&dummy))[0] ) == c)
       {
         d->d1 = i;
-        d->d2 = max( min( i-(h>>1), max-h), 0);
+        d->d2 = zc_max( zc_min( i-(h>>1), max-h), 0);
         goto gotit;
       }
     }
@@ -3335,50 +3461,9 @@ int jwin_abclist_proc(int msg,DIALOG *d,int c)
   return jwin_list_proc(msg,d,c);
 }
 
-int d_abclist_proc(int msg,DIALOG *d,int c)
-{
-  int ret;
-
-  if(msg==MSG_CHAR && (isalpha(c&0xFF) || isdigit(c&0xFF)))
-  {
-    int max,dummy,h,i;
-
-    h = (d->h-3) / text_height(font);
-    c = toupper(c&0xFF);
-
-    (*(getfuncptr)d->dp)(-1, &max);
-
-    for(i=0; i<max; i++)
-    {
-      if( toupper( ((*(getfuncptr)d->dp)(i,&dummy))[0] ) == c)
-      {
-        d->d1 = i;
-        d->d2 = max( min( i-(h>>1), max-h), 0);
-        goto gotit;
-      }
-    }
-
- gotit:
-    scare_mouse();
-    d_list_proc(MSG_DRAW,d,0);
-    unscare_mouse();
-    return D_USED_CHAR;
-  }
-
-  ret = d_list_proc(msg,d,c);
-
-  //  if((msg==MSG_CLICK) && (d->flags & D_USER))
-  //  {
-  //    clear_keybuf();
-  //    ret = D_CLOSE;
-  //  }
-
-  return ret;
-}
-
 int jwin_checkfont_proc(int msg, DIALOG *d, int c)
 {
-	
+
 	FONT *oldfont = font;
 	if(d->dp2)
 	{
@@ -3455,13 +3540,26 @@ int jwin_check_proc(int msg, DIALOG *d, int c)
     d->w=int(text_height(font)*1.5);
     if (d->dp)
     {
-      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+d->h-1, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+//      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+d->h-1, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+(text_height(font)), (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
       d->w+=tl+1;
     }
     return D_O_K;
     break;
   }
-  return d_button_proc(msg, d, 0);
+  return d_jwinbutton_proc(msg, d, 0);
+}
+
+int jwin_radiofont_proc(int msg, DIALOG *d, int c)
+{
+	FONT *oldfont = font;
+	if(d->dp2)
+	{
+		font = (FONT *)d->dp2;
+	}
+	int rval = jwin_radio_proc(msg, d, c);
+	font = oldfont;
+	return rval;
 }
 
 /* jwin_radio_proc:
@@ -3529,7 +3627,8 @@ int jwin_radio_proc(int msg, DIALOG *d, int c)
 
     if (d->dp)
     {
-      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+d->h-1, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+//      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+d->h-1, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+(text_height(font)), (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
       d->w=tl+int(text_height(font)*1.5)+1;
     }
     return D_O_K;
@@ -3551,7 +3650,7 @@ int jwin_radio_proc(int msg, DIALOG *d, int c)
     break;
   }
 
-  ret = d_button_proc(msg, d, 0);
+  ret = d_jwinbutton_proc(msg, d, 0);
 
   if (((msg==MSG_KEY) || (msg==MSG_CLICK)) && (d->flags & D_SELECTED) && (!(d->flags & D_EXIT)))
   {
@@ -3574,7 +3673,9 @@ void bestfit_init(void)
 {
   int i;
 
-  for (i=0; i<64; i++) {
+  col_diff[0] = col_diff[128] = col_diff[256] = 0;
+
+  for (i=1; i<64; i++) {
     int k = i * i;
     col_diff[0  +i] = col_diff[0  +128-i] = k * (59 * 59);
     col_diff[128+i] = col_diff[128+128-i] = k * (30 * 30);
@@ -4044,9 +4145,169 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int x1, int y1, int x2, int y2,
   blit(dest_bmp, bmp, 0, 0, x1, y1, x2-x1+1, y2-y1+1);
   delete[] diff[1];
   delete[] diff[0];
+  destroy_bitmap(src_bmp);
+  destroy_bitmap(dest_bmp);
   return;
 }
 
+bool do_text_button(int x,int y,int w,int h,const char *text)
+{
+  bool over=false;
+  while(gui_mouse_b())
+  {
+    //vsync();
+    if(mouse_in_rect(x,y,w,h))
+    {
+      if(!over)
+      {
+        vsync();
+        scare_mouse();
+        jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
+        unscare_mouse();
+        over=true;
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
+      }
+    }
+    else
+    {
+      if(over)
+      {
+        vsync();
+        scare_mouse();
+        jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
+        unscare_mouse();
+        over=false;
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
+      }
+    }
+  }
+  return over;
+}
+
+bool do_text_button_reset(int x,int y,int w,int h,const char *text)
+{
+  bool over=false;
+  while(gui_mouse_b())
+  {
+    //vsync();
+    if(mouse_in_rect(x,y,w,h))
+    {
+      if(!over)
+      {
+        vsync();
+        scare_mouse();
+        jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
+        unscare_mouse();
+        over=true;
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
+      }
+    }
+    else
+    {
+      if(over)
+      {
+        vsync();
+        scare_mouse();
+        jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
+        unscare_mouse();
+        over=false;
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
+      }
+    }
+
+  }
+
+  if(over)
+  {
+    vsync();
+    scare_mouse();
+    jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
+    unscare_mouse();
+    //	#ifdef _ZQUEST_SCALE_
+    if (is_zquest())
+    {
+      if(myvsync)
+      {
+        if(zqwin_scale > 1)
+        {
+          stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+        }
+        else
+        {
+          blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+        }
+        myvsync=0;
+      }
+    }
+    //	#endif
+  }
+
+  return over;
+}
 
 int jwin_tab_proc(int msg, DIALOG *d, int c)
 {
@@ -4058,15 +4319,50 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
   int selected=0;
   int counter=0;
   ASSERT(d);
+  int temp_d, temp_d2;
   if(d->dp==NULL) return D_O_K;
+  panel_dialog=(DIALOG *)d->dp3;
+  for (i=0; panel[i].text; ++i)
+  {
+    if ((panel[i].flags&D_SELECTED) && !(d->flags & D_HIDDEN))
+    {
+        for(counter=0; counter<panel[i].objects; counter++)
+        {
+          current_object=panel_dialog+(panel[i].dialog[counter]);
+          current_object->flags&=~D_HIDDEN;
+        }
+    }
+	else
+    {
+        for(counter=0; counter<panel[i].objects; counter++)
+        {
+          current_object=panel_dialog+(panel[i].dialog[counter]);
+          current_object->flags|=D_HIDDEN;
+		  if(current_object->proc == &jwin_tab_proc)
+			object_message(current_object,0,c);
+        }
+    }
+	/*if (d->flags & D_HIDDEN)
+	{
+		for(counter=0; counter<panel[i].objects; counter++)
+        {
+          current_object=panel_dialog+(panel[i].dialog[counter]);
+          current_object->x=zq_screen_w*3;
+          current_object->y=zq_screen_h*3;
+        }
+	}*/
+  }
   switch (msg)
   {
-
     case MSG_DRAW:
     {
       FONT *oldfont = font;
-      if (d->x<SCREEN_W&&d->y<SCREEN_H)
+      if (d->x<zq_screen_w&&d->y<zq_screen_h)
       {
+        if (d->dp2)
+        {
+          font = (FONT *)d->dp2;
+        }
         panel_dialog=(DIALOG *)d->dp3;
         rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
         rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, scheme[jcBOX]); //panel
@@ -4076,26 +4372,26 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
         _allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
         _allegro_hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
         _allegro_hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
-        if (d->dp2)
-        {
-          font = (FONT *)d->dp2;
-        }
         tx=d->x;
-        if (d->dp) {
-          if (!(panel[0].flags&D_SELECTED))
+        if (d->dp)
+        {
+          if (!(panel[((d->d1&0xFF00)>>8)].flags&D_SELECTED))
           {
             _allegro_hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
             _allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
           }
           tx+=2;
-          for (i=0; panel[i].text; i++)
+          for (i=0; panel[i].text; ++i)
           {
             if (panel[i].flags&D_SELECTED)
             {
               selected=i;
             }
+          }
+          for (i=((d->d1&0xFF00)>>8); panel[i].text&&i<=last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w); ++i)
+          {
             sd=(panel[i].flags&D_SELECTED)?0:2;
-            if ((i==0) || (!(panel[i-1].flags&D_SELECTED)))
+            if ((i==((d->d1&0xFF00)>>8)) || (!(panel[i-1].flags&D_SELECTED)))
             {
               _allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
               _allegro_vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
@@ -4119,13 +4415,18 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
             }
             tx++;
           }
+          if(((d->d1&0xFF00)>>8)!=0||last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w)+1<tab_count(panel))
+          {
+            jwin_draw_text_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", 0, true);
+            jwin_draw_text_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", 0, true);
+          }
         }
-        font = oldfont;
         if ((tx+(2-sd))<(d->x+d->w))
         {
           _allegro_hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
           _allegro_hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
         }
+        font = oldfont;
 
         //what dialog is this tab control in (programmer must set manually)
         panel_dialog=(DIALOG *)d->dp3;
@@ -4140,20 +4441,62 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
           object_message(current_object, MSG_DRAW, 0);
         }
         //if there was a previously selected tab...
-        if (d->d1!=-1)
+        if ((d->d1&0x00FF)!=0x00FF)
         {
           //for each object handled by the tab
-          for(counter=0; counter<panel[d->d1].objects; counter++)
+          for(counter=0; counter<panel[d->d1&0xFF].objects; counter++)
           {
             //assign current_object to one of the controls handled by the tab
-            current_object=panel_dialog+(panel[d->d1].dialog[counter]);
+            current_object=panel_dialog+(panel[d->d1&0xFF].dialog[counter]);
             //          //remember the x and y positions of the control
             //          panel[d->d1].xy[counter*2]=current_object->x;
             //          panel[d->d1].xy[counter*2+1]=current_object->y;
-            current_object->x=SCREEN_W*3;
-            current_object->y=SCREEN_H*3;
+            current_object->x=zq_screen_w*3;
+            current_object->y=zq_screen_h*3;
           }
         }
+      }
+    }
+    break;
+    case MSG_CLICK:
+    {
+      d->d1&=0xFF00;
+      d->d1|=0x00FF;
+      // is the mouse on one of the tab arrows (if visible) or in the tab area?
+      if(uses_tab_arrows(panel, d->w)&&(mouse_in_rect(d->x+d->w-28, d->y+2, 28, 14)))
+      {
+        if(mouse_in_rect(d->x+d->w-28, d->y+2, 14, 14))
+        {
+          if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A"))
+          {
+            temp_d=((d->d1&0xFF00)>>8);
+            temp_d2=(d->d1&0x00FF);
+            if (temp_d>0)
+            {
+              --temp_d;
+            }
+            d->d1=(temp_d<<8)|temp_d2;
+            d->flags|=D_DIRTY;
+          }
+        }
+        else if(mouse_in_rect(d->x+d->w-14, d->y+2, 14, 14))
+        {
+          if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
+          {
+            temp_d=((d->d1&0xFF00)>>8);
+            temp_d2=(d->d1&0x00FF);
+            if (last_visible_tab(panel, temp_d, d->w)<(tab_count(panel)-1))
+            {
+              ++temp_d;
+            }
+            d->d1=(temp_d<<8)|temp_d2;
+            d->flags|=D_DIRTY;
+          }
+        }
+      }
+      else
+      {
+        d_tab_proc(msg, d, c);
       }
     }
     break;
@@ -4161,6 +4504,36 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
     return d_tab_proc(msg, d, c);
     break;
   }
+  panel_dialog=(DIALOG *)d->dp3;
+  if (d->flags & D_HIDDEN)
+  {
+    for (i=0; panel[i].text; ++i)
+    {
+		for(counter=0; counter<panel[i].objects; counter++)
+        {
+          current_object=panel_dialog+(panel[i].dialog[counter]);
+          current_object->x=zq_screen_w*3;
+          current_object->y=zq_screen_h*3;
+        }
+    }
+	  //d->x=zq_screen_w*3;
+	  //d->y=zq_screen_h*3;
+  }
+  else
+  {
+	  for (i=0; panel[i].text; ++i)
+      {
+		for(counter=0; counter<panel[i].objects; counter++)
+        {
+          current_object=panel_dialog+(panel[i].dialog[counter]);
+          current_object->x=panel[i].xy[counter*2];
+          current_object->y=panel[i].xy[counter*2+1];
+        }
+      }
+	 // d->x=zq_screen_w*3;
+	  //d->y=zq_screen_h*3;
+  }
+
   return D_O_K;
 }
 
@@ -4206,10 +4579,10 @@ void jwin_center_dialog(DIALOG *dialog)
   int xc, yc;
   int c;
   ASSERT(dialog);
-  
+
   /* how much to move by? */
-  xc = (SCREEN_W - dialog[0].w) / 2 - dialog[0].x;
-  yc = (SCREEN_H - dialog[0].h) / 2 - dialog[0].y;
+  xc = (zq_screen_w - dialog[0].w) / 2 - dialog[0].x;
+  yc = (zq_screen_h - dialog[0].h) / 2 - dialog[0].y;
 
   /* move it */
   for (c=0; dialog[c].proc; c++) {
@@ -4218,7 +4591,371 @@ void jwin_center_dialog(DIALOG *dialog)
   }
 }
 
+//Custom slider proc
+int d_jslider_proc(int msg, DIALOG *d, int c)
+{
+   BITMAP *gui_bmp = gui_get_screen();
+   BITMAP *slhan = NULL;
+   int oldpos, newpos;
+   int sfg;                /* slider foreground color */
+   int vert = TRUE;        /* flag: is slider vertical? */
+   int hh = 7;             /* handle height (width for horizontal sliders) */
+   int hmar;               /* handle margin */
+   int slp;                /* slider position */
+   int mp;                 /* mouse position */
+   int irange;
+   int slx, sly, slh, slw;
+   int msx, msy;
+   int retval = D_O_K;
+   int upkey, downkey;
+   int pgupkey, pgdnkey;
+   int homekey, endkey;
+   int delta;
+   fixed slratio, slmax, slpos;
+   typedef int (*SLIDER_TYPE)(void*, int);
+   SLIDER_TYPE proc = NULL;
+   //int (*proc)(void *cbpointer, int d2value);
+   int oldval;
+   ASSERT(d);
+
+   /* check for slider direction */
+   if (d->h < d->w)
+      vert = FALSE;
+
+   /* set up the metrics for the control */
+   if (d->dp != NULL) {
+      slhan = (BITMAP *)d->dp;
+      if (vert)
+	 hh = slhan->h;
+      else
+	 hh = slhan->w;
+   }
+
+   hmar = hh/2;
+   irange = (vert) ? d->h : d->w;
+   slmax = itofix(irange-hh);
+   slratio = slmax / (d->d1);
+   slpos = slratio * d->d2;
+   slp = fixtoi(slpos);
+
+   switch (msg) {
+
+      case MSG_DRAW:
+	 sfg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+
+	 if (vert) {
+	    rectfill(gui_bmp, d->x, d->y, d->x+d->w/2-2, d->y+d->h-1, d->bg);
+	    rectfill(gui_bmp, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h-1, sfg);
+	    rectfill(gui_bmp, d->x+d->w/2+2, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
+	 }
+	 else {
+	    rectfill(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h/2-2, d->bg);
+	    rectfill(gui_bmp, d->x, d->y+d->h/2-1, d->x+d->w-1, d->y+d->h/2+1, sfg);
+	    rectfill(gui_bmp, d->x, d->y+d->h/2+2, d->x+d->w-1, d->y+d->h-1, d->bg);
+	 }
+
+	 /* okay, background and slot are drawn, now draw the handle */
+	 if (slhan) {
+	    if (vert) {
+	       slx = d->x+(d->w/2)-(slhan->w/2);
+	       sly = d->y+(d->h-1)-(hh+slp);
+	    }
+	    else {
+	       slx = d->x+slp;
+	       sly = d->y+(d->h/2)-(slhan->h/2);
+	    }
+	    draw_sprite(gui_bmp, slhan, slx, sly);
+	 }
+	 else {
+	    /* draw default handle */
+	    if (vert) {
+	       slx = d->x;
+	       sly = d->y+(d->h)-(hh+slp);
+	       slw = d->w-1;
+	       slh = hh-1;
+	    }
+            else {
+	       slx = d->x+slp;
+	       sly = d->y;
+	       slw = hh-1;
+	       slh = d->h-1;
+	    }
+
+	    /* draw body */
+	    rectfill(gui_bmp, slx+2, sly, slx+(slw-2), sly+slh, sfg);
+	    vline(gui_bmp, slx+1, sly+1, sly+slh-1, sfg);
+	    vline(gui_bmp, slx+slw-1, sly+1, sly+slh-1, sfg);
+	    vline(gui_bmp, slx, sly+2, sly+slh-2, sfg);
+	    vline(gui_bmp, slx+slw, sly+2, sly+slh-2, sfg);
+	    vline(gui_bmp, slx+1, sly+2, sly+slh-2, d->bg);
+	    hline(gui_bmp, slx+2, sly+1, slx+slw-2, d->bg);
+	    putpixel(gui_bmp, slx+2, sly+2, d->bg);
+	 }
+
+	 if (d->flags & D_GOTFOCUS)
+	    dotted_rect(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, sfg, d->bg);
+	 break;
+
+      case MSG_WANTFOCUS:
+      case MSG_LOSTFOCUS:
+	 return D_WANTFOCUS;
+
+      case MSG_KEY:
+	 if (!(d->flags & D_GOTFOCUS))
+	    return D_WANTFOCUS;
+	 else
+	    return D_O_K;
+
+      case MSG_CHAR:
+	 /* handle movement keys to move slider */
+	 c >>= 8;
+
+	 if (vert) {
+	    upkey = KEY_UP;
+	    downkey = KEY_DOWN;
+	    pgupkey = KEY_PGUP;
+	    pgdnkey = KEY_PGDN;
+	    homekey = KEY_END;
+	    endkey = KEY_HOME;
+	 }
+	 else {
+	    upkey = KEY_RIGHT;
+	    downkey = KEY_LEFT;
+	    pgupkey = KEY_PGDN;
+	    pgdnkey = KEY_PGUP;
+	    homekey = KEY_HOME;
+	    endkey = KEY_END;
+	 }
+
+	 if (c == upkey)
+	    delta = 1;
+	 else if (c == downkey)
+	    delta = -1;
+	 else if (c == pgdnkey)
+	    delta = -d->d1 / 16;
+	 else if (c == pgupkey)
+	    delta = d->d1 / 16;
+	 else if (c == homekey)
+	    delta = -d->d2;
+	 else if (c == endkey)
+	    delta = d->d1 - d->d2;
+	 else
+	    delta = 0;
+
+	 if (delta) {
+	    oldpos = slp;
+	    oldval = d->d2;
+		//while (true) {
+		for( ; ; ) { //thank you, MSVC ~pkmnfrk
+	       d->d2 = d->d2+delta;
+	       slpos = slratio*d->d2;
+	       slp = fixtoi(slpos);
+	       if ((slp != oldpos) || (d->d2 <= 0) || (d->d2 >= d->d1))
+		  break;
+	    }
+
+	    if (d->d2 < 0)
+	       d->d2 = 0;
+	    if (d->d2 > d->d1)
+	       d->d2 = d->d1;
+
+	    retval = D_USED_CHAR;
+
+	    if (d->d2 != oldval) {
+	       /* call callback function here */
+	       if (d->dp2) {
+		  proc = (SLIDER_TYPE)(d->dp2);
+		  retval |= (*proc)(d->dp3, d->d2);
+	       }
+
+	       object_message(d, MSG_DRAW, 0);
+	    }
+	 }
+	 break;
+
+      case MSG_WHEEL:
+	 oldval = d->d2;
+	 d->d2 = MID(0, d->d2+c, d->d1);
+	 if (d->d2 != oldval) {
+	    /* call callback function here */
+	    if (d->dp2) {
+	       proc = (SLIDER_TYPE)(d->dp2);
+	       retval |= (*proc)(d->dp3, d->d2);
+	    }
+
+	    object_message(d, MSG_DRAW, 0);
+	 }
+	 break;
+
+      case MSG_CLICK:
+	 /* track the mouse until it is released */
+	 mp = slp;
+
+	 while (gui_mouse_b()) {
+	    msx = gui_mouse_x();
+	    msy = gui_mouse_y();
+	    oldval = d->d2;
+	    if (vert)
+	       mp = (d->y+d->h-hmar)-msy;
+	    else
+	       mp = msx-(d->x+hmar);
+	    if (mp < 0)
+	       mp = 0;
+	    if (mp > irange-hh)
+	       mp = irange-hh;
+	    slpos = itofix(mp);
+	    slmax = fixdiv(slpos, slratio);
+	    newpos = fixtoi(slmax);
+	    if (newpos != oldval) {
+	       d->d2 = newpos;
+
+	       /* call callback function here */
+	       if (d->dp2 != NULL) {
+		  proc = (SLIDER_TYPE)(d->dp2);
+		  retval |= (*proc)(d->dp3, d->d2);
+	       }
+
+	       object_message(d, MSG_DRAW, 0);
+        //	#ifdef _ZQUEST_SCALE_
+        if (is_zquest())
+        {
+          if(myvsync)
+          {
+            if(zqwin_scale > 1)
+            {
+              stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+            }
+            else
+            {
+              blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+            }
+            myvsync=0;
+          }
+        }
+        //	#endif
+	    }
+
+	    /* let other objects continue to animate */
+	    broadcast_dialog_message(MSG_IDLE, 0);
+	 }
+	 break;
+   }
+
+   return retval;
+}
+
+int d_jwinbutton_proc(int msg, DIALOG *d, int)
+{
+   BITMAP *gui_bmp;
+   int state1, state2;
+   int black;
+   int swap;
+   int g;
+   ASSERT(d);
+
+   gui_bmp = gui_get_screen();
+
+   switch (msg) {
+
+      case MSG_DRAW:
+	 if (d->flags & D_SELECTED) {
+	    g = 1;
+	    state1 = d->bg;
+	    state2 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+	 }
+	 else {
+	    g = 0;
+	    state1 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+	    state2 = d->bg;
+	 }
+
+	 rectfill(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
+	 rect(gui_bmp, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
+	 gui_textout_ex(gui_bmp, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
+
+	 if (d->flags & D_SELECTED) {
+	    vline(gui_bmp, d->x, d->y, d->y+d->h-2, d->bg);
+	    hline(gui_bmp, d->x, d->y, d->x+d->w-2, d->bg);
+	 }
+	 else {
+	    black = makecol(0,0,0);
+	    vline(gui_bmp, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
+	    hline(gui_bmp, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
+	 }
+	 if ((d->flags & D_GOTFOCUS) &&
+	     (!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
+	    dotted_rect(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state1, state2);
+	 break;
+
+      case MSG_WANTFOCUS:
+	 return D_WANTFOCUS;
+
+      case MSG_KEY:
+	 /* close dialog? */
+	 if (d->flags & D_EXIT) {
+	    return D_CLOSE;
+	 }
+
+	 /* or just toggle */
+	 d->flags ^= D_SELECTED;
+	 object_message(d, MSG_DRAW, 0);
+	 break;
+
+      case MSG_CLICK:
+	 /* what state was the button originally in? */
+	 state1 = d->flags & D_SELECTED;
+	 if (d->flags & D_EXIT)
+	    swap = FALSE;
+	 else
+	    swap = state1;
+
+	 /* track the mouse until it is released */
+	 while (gui_mouse_b()) {
+	    state2 = ((gui_mouse_x() >= d->x) && (gui_mouse_y() >= d->y) &&
+		      (gui_mouse_x() < d->x + d->w) && (gui_mouse_y() < d->y + d->h));
+	    if (swap)
+	       state2 = !state2;
+
+	    /* redraw? */
+	    if (((state1) && (!state2)) || ((state2) && (!state1))) {
+	       d->flags ^= D_SELECTED;
+	       state1 = d->flags & D_SELECTED;
+	       object_message(d, MSG_DRAW, 0);
+	    }
+
+	    /* let other objects continue to animate */
+	    broadcast_dialog_message(MSG_IDLE, 0);
+      //	#ifdef _ZQUEST_SCALE_
+      if (is_zquest())
+      {
+        if(myvsync)
+        {
+          if(zqwin_scale > 1)
+          {
+            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+          }
+          else
+          {
+            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+          }
+          myvsync=0;
+        }
+      }
+      //	#endif
+	 }
+
+	 /* should we close the dialog? */
+	 if ((d->flags & D_SELECTED) && (d->flags & D_EXIT)) {
+	    d->flags ^= D_SELECTED;
+	    return D_CLOSE;
+	 }
+	 break;
+   }
+
+   return D_O_K;
+}
 
 
 
 /***  The End  ***/
+

@@ -1,0 +1,1418 @@
+object Form2: TForm2
+  Left = 322
+  Height = 605
+  Top = 101
+  Width = 871
+  Caption = 'Zscript Editor'
+  ClientHeight = 586
+  ClientWidth = 871
+  Menu = MainMenu1
+  OnCreate = FormCreate
+  LCLVersion = '0.9.27'
+  object SynEdit1: TSynEdit
+    Height = 586
+    Width = 871
+    Align = alClient
+    Color = clNone
+    CFDividerDrawLevel = 1
+    Font.Height = 12
+    Font.Name = 'courier'
+    Font.Pitch = fpFixed
+    Font.Quality = fqNonAntialiased
+    ParentColor = False
+    ParentFont = False
+    PopupMenu = PopupMenu1
+    TabOrder = 0
+    BookMarkOptions.Xoffset = 38
+    Gutter.AutoSize = True
+    Gutter.Color = clScrollBar
+    Gutter.RightOffset = 0
+    Gutter.LeftOffset = 0
+    Gutter.ShowCodeFolding = True
+    Gutter.CodeFoldingWidth = 10
+    Gutter.ShowChanges = True
+    Gutter.ShowLineNumbers = True
+    Gutter.ZeroStart = True
+    Gutter.LeadingZeros = True
+    Highlighter = SynAnySyn1
+    Keystrokes = <    
+      item
+        Command = 3
+        ShortCut = 38
+      end    
+      item
+        Command = 103
+        ShortCut = 8230
+      end    
+      item
+        Command = 211
+        ShortCut = 16422
+      end    
+      item
+        Command = 4
+        ShortCut = 40
+      end    
+      item
+        Command = 104
+        ShortCut = 8232
+      end    
+      item
+        Command = 212
+        ShortCut = 16424
+      end    
+      item
+        Command = 1
+        ShortCut = 37
+      end    
+      item
+        Command = 101
+        ShortCut = 8229
+      end    
+      item
+        Command = 5
+        ShortCut = 16421
+      end    
+      item
+        Command = 105
+        ShortCut = 24613
+      end    
+      item
+        Command = 2
+        ShortCut = 39
+      end    
+      item
+        Command = 102
+        ShortCut = 8231
+      end    
+      item
+        Command = 6
+        ShortCut = 16423
+      end    
+      item
+        Command = 106
+        ShortCut = 24615
+      end    
+      item
+        Command = 10
+        ShortCut = 34
+      end    
+      item
+        Command = 110
+        ShortCut = 8226
+      end    
+      item
+        Command = 14
+        ShortCut = 16418
+      end    
+      item
+        Command = 114
+        ShortCut = 24610
+      end    
+      item
+        Command = 9
+        ShortCut = 33
+      end    
+      item
+        Command = 109
+        ShortCut = 8225
+      end    
+      item
+        Command = 13
+        ShortCut = 16417
+      end    
+      item
+        Command = 113
+        ShortCut = 24609
+      end    
+      item
+        Command = 7
+        ShortCut = 36
+      end    
+      item
+        Command = 107
+        ShortCut = 8228
+      end    
+      item
+        Command = 15
+        ShortCut = 16420
+      end    
+      item
+        Command = 115
+        ShortCut = 24612
+      end    
+      item
+        Command = 8
+        ShortCut = 35
+      end    
+      item
+        Command = 108
+        ShortCut = 8227
+      end    
+      item
+        Command = 16
+        ShortCut = 16419
+      end    
+      item
+        Command = 116
+        ShortCut = 24611
+      end    
+      item
+        Command = 223
+        ShortCut = 45
+      end    
+      item
+        Command = 201
+        ShortCut = 16429
+      end    
+      item
+        Command = 604
+        ShortCut = 8237
+      end    
+      item
+        Command = 502
+        ShortCut = 46
+      end    
+      item
+        Command = 603
+        ShortCut = 8238
+      end    
+      item
+        Command = 501
+        ShortCut = 8
+      end    
+      item
+        Command = 501
+        ShortCut = 8200
+      end    
+      item
+        Command = 504
+        ShortCut = 16392
+      end    
+      item
+        Command = 601
+        ShortCut = 32776
+      end    
+      item
+        Command = 602
+        ShortCut = 40968
+      end    
+      item
+        Command = 509
+        ShortCut = 13
+      end    
+      item
+        Command = 199
+        ShortCut = 16449
+      end    
+      item
+        Command = 201
+        ShortCut = 16451
+      end    
+      item
+        Command = 610
+        ShortCut = 24649
+      end    
+      item
+        Command = 509
+        ShortCut = 16461
+      end    
+      item
+        Command = 510
+        ShortCut = 16462
+      end    
+      item
+        Command = 503
+        ShortCut = 16468
+      end    
+      item
+        Command = 611
+        ShortCut = 24661
+      end    
+      item
+        Command = 604
+        ShortCut = 16470
+      end    
+      item
+        Command = 603
+        ShortCut = 16472
+      end    
+      item
+        Command = 507
+        ShortCut = 16473
+      end    
+      item
+        Command = 506
+        ShortCut = 24665
+      end    
+      item
+        Command = 601
+        ShortCut = 16474
+      end    
+      item
+        Command = 602
+        ShortCut = 24666
+      end    
+      item
+        Command = 301
+        ShortCut = 16432
+      end    
+      item
+        Command = 302
+        ShortCut = 16433
+      end    
+      item
+        Command = 303
+        ShortCut = 16434
+      end    
+      item
+        Command = 304
+        ShortCut = 16435
+      end    
+      item
+        Command = 305
+        ShortCut = 16436
+      end    
+      item
+        Command = 306
+        ShortCut = 16437
+      end    
+      item
+        Command = 307
+        ShortCut = 16438
+      end    
+      item
+        Command = 308
+        ShortCut = 16439
+      end    
+      item
+        Command = 309
+        ShortCut = 16440
+      end    
+      item
+        Command = 310
+        ShortCut = 16441
+      end    
+      item
+        Command = 351
+        ShortCut = 24624
+      end    
+      item
+        Command = 352
+        ShortCut = 24625
+      end    
+      item
+        Command = 353
+        ShortCut = 24626
+      end    
+      item
+        Command = 354
+        ShortCut = 24627
+      end    
+      item
+        Command = 355
+        ShortCut = 24628
+      end    
+      item
+        Command = 356
+        ShortCut = 24629
+      end    
+      item
+        Command = 357
+        ShortCut = 24630
+      end    
+      item
+        Command = 358
+        ShortCut = 24631
+      end    
+      item
+        Command = 359
+        ShortCut = 24632
+      end    
+      item
+        Command = 360
+        ShortCut = 24633
+      end    
+      item
+        Command = 231
+        ShortCut = 24654
+      end    
+      item
+        Command = 232
+        ShortCut = 24643
+      end    
+      item
+        Command = 233
+        ShortCut = 24652
+      end    
+      item
+        Command = 612
+        ShortCut = 9
+      end    
+      item
+        Command = 613
+        ShortCut = 8201
+      end    
+      item
+        Command = 250
+        ShortCut = 24642
+      end>
+    Lines.Strings = (
+      'ffc script sign {'
+      '  void run(int m) {'
+      '    while(true) {'
+      '      while(Link->X < this->X - 8 || Link->X > this->X + 24 || Link->Y < this->Y || Link->Y > this->Y + 24 || Link->Dir != DIR_UP || !Link->InputA) {'
+      '        Waitframe();'
+      '      }'
+      '      Link->InputA = false;'
+      '      Screen->Message(m);'
+      ''
+      '      while(Link->X >= this->X - 8 && Link->X <= this->X + 24 && Link->Y >= this->Y && Link->Y <= this->Y + 24 && Link->Dir == DIR_UP) {'
+      '        Waitframe();'
+      '      }'
+      ''
+      '      Screen->Message(0);'
+      '    }'
+      '  }'
+      '}'
+    )
+    Options = [eoAutoIndent, eoDragDropEditing, eoGroupUndo, eoScrollPastEol, eoShowScrollHint, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces]
+    BracketHighlightStyle = sbhsBoth
+    OnChange = SynEdit1Change
+  end
+  object MainMenu1: TMainMenu
+    left = 792
+    object MenuItem1: TMenuItem
+      Caption = 'File'
+      object New1: TMenuItem
+        Caption = '&New'
+        OnClick = New1Click
+      end
+      object MenuItem3: TMenuItem
+        Caption = '&Open'
+        OnClick = MenuItem3Click
+      end
+      object MenuItem4: TMenuItem
+        Caption = '&Save'
+        OnClick = MenuItem4Click
+      end
+      object MenuItem5: TMenuItem
+        Caption = 'Save &As'
+        OnClick = MenuItem5Click
+      end
+      object MenuItem17: TMenuItem
+        Caption = '-----'
+      end
+      object MenuItem6: TMenuItem
+        Caption = '&Close'
+        OnClick = MenuItem6Click
+      end
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Edit'
+      object MenuItem10: TMenuItem
+        Caption = 'Undo'
+        OnClick = MenuItem10Click
+      end
+      object MenuItem11: TMenuItem
+        Caption = '-----'
+      end
+      object MenuItem18: TMenuItem
+        Caption = 'Cut'
+        OnClick = MenuItem18Click
+      end
+      object MenuItem19: TMenuItem
+        Caption = 'Copy'
+        OnClick = MenuItem19Click
+      end
+      object MenuItem20: TMenuItem
+        Caption = 'Paste'
+        OnClick = MenuItem20Click
+      end
+      object MenuItem21: TMenuItem
+        Caption = '-----'
+      end
+      object MenuItem22: TMenuItem
+        Caption = 'Select All'
+        OnClick = MenuItem22Click
+      end
+    end
+  end
+  object SynCppSyn1: TSynCppSyn
+    DefaultFilter = 'C++ Files (*.c,*.cpp,*.h,*.hpp,*.hh)|*.c;*.cpp;*.h;*.hpp;*.hh'
+    Enabled = False
+    AsmAttri.FrameColor = clNone
+    CommentAttri.Foreground = clGreen
+    CommentAttri.FrameColor = clNone
+    DirecAttri.FrameColor = clNone
+    IdentifierAttri.FrameColor = clNone
+    InvalidAttri.FrameColor = clNone
+    KeyAttri.Foreground = clNavy
+    KeyAttri.FrameColor = clNone
+    NumberAttri.Foreground = clRed
+    NumberAttri.FrameColor = clNone
+    SpaceAttri.FrameColor = clNone
+    StringAttri.Foreground = clBlue
+    StringAttri.FrameColor = clNone
+    SymbolAttri.Foreground = clBlue
+    SymbolAttri.FrameColor = clNone
+    SymbolAttri.Style = [fsBold]
+    left = 760
+  end
+  object SynAnySyn1: TSynAnySyn
+    Enabled = False
+    CommentAttri.Foreground = clGreen
+    CommentAttri.FrameColor = clNone
+    CommentAttri.Style = [fsBold, fsItalic]
+    Comments = [csCStyle]
+    IdentifierAttri.Foreground = clNavy
+    IdentifierAttri.FrameColor = clNone
+    IdentifierAttri.StyleMask = [fsBold]
+    IdentifierChars = '='
+    KeyAttri.Foreground = clMaroon
+    KeyAttri.FrameColor = clNone
+    ConstantAttri.Foreground = clRed
+    ConstantAttri.FrameColor = clNone
+    ConstantAttri.StyleMask = [fsBold]
+    ObjectAttri.Foreground = clGreen
+    ObjectAttri.FrameColor = clNone
+    ObjectAttri.StyleMask = [fsBold]
+    EntityAttri.Foreground = clBlue
+    EntityAttri.FrameColor = clNone
+    VariableAttri.FrameColor = clNone
+    DotAttri.FrameColor = clNone
+    KeyWords.Strings = (
+      'BOOL'
+      'CONST'
+      'ELSE'
+      'EWEAPON'
+      'FALSE'
+      'FFC'
+      'FLOAT'
+      'FOR'
+      'IF'
+      'IMPORT'
+      'INT'
+      'LWEAPON'
+      'THEN'
+      'TRUE'
+      'TRY'
+      'VOID'
+      'WHILE'
+    )
+    Constants.Strings = (
+      'BPAL_AQUA'
+      'BPAL_BLUE'
+      'BPAL_BROWN'
+      'BPAL_FROZEN'
+      'BPAL_GANON'
+      'BPAL_GLEEOK'
+      'BPAL_GLEEOKF'
+      'BPAL_GOLD'
+      'BPAL_ICON1'
+      'BPAL_ICON2'
+      'BPAL_ICON3'
+      'BPAL_ICON4'
+      'BPAL_PILE'
+      'BPAL_RED'
+      'CF_ALLFAIRY'
+      'CF_ARMOSITEM'
+      'CF_ARMOSSECRET'
+      'CF_ARROW'
+      'CF_ARROW2'
+      'CF_ARROW3'
+      'CF_BLOCKHOLE'
+      'CF_BLOCKTRIGGER'
+      'CF_BOMB'
+      'CF_BRANG1'
+      'CF_BRANG2'
+      'CF_BRANG3'
+      'CF_CANDLE1'
+      'CF_CANDLE2'
+      'CF_DINSFIRE'
+      'CF_DIVEITEM'
+      'CF_ENEMY0'
+      'CF_ENEMY1'
+      'CF_ENEMY2'
+      'CF_ENEMY3'
+      'CF_ENEMY4'
+      'CF_ENEMY5'
+      'CF_ENEMY6'
+      'CF_ENEMY7'
+      'CF_ENEMY8'
+      'CF_ENEMY9'
+      'CF_FAIRY'
+      'CF_HAMMER'
+      'CF_HOOKSHOT'
+      'CF_ICE'
+      'CF_MAGICFAIRY'
+      'CF_NOBLOCKS'
+      'CF_NOENEMY'
+      'CF_NONE'
+      'CF_PUSH4WAY'
+      'CF_PUSH4WAYINS'
+      'CF_PUSH4WAYNS'
+      'CF_PUSHDOWN'
+      'CF_PUSHDOWNINS'
+      'CF_PUSHDOWNNS'
+      'CF_PUSHLEFT'
+      'CF_PUSHLEFTINS'
+      'CF_PUSHLEFTNS'
+      'CF_PUSHLEFTRIGHTINS'
+      'CF_PUSHLEFTRIGHTNS'
+      'CF_PUSHLR'
+      'CF_PUSHRIGHT'
+      'CF_PUSHRIGHTINS'
+      'CF_PUSHRIGHTNS'
+      'CF_PUSHUP'
+      'CF_PUSHUPDOWN'
+      'CF_PUSHUPDOWNINS'
+      'CF_PUSHUPDOWNNS'
+      'CF_PUSHUPINS'
+      'CF_PUSHUPNS'
+      'CF_RAFT'
+      'CF_RAFTBRANCH'
+      'CF_REFFIREBALL'
+      'CF_REFMAGIC'
+      'CF_SBOMB'
+      'CF_SCRIPT1'
+      'CF_SCRIPT2'
+      'CF_SCRIPT3'
+      'CF_SCRIPT4'
+      'CF_SCRIPT5'
+      'CF_SECRETS01'
+      'CF_SECRETS02'
+      'CF_SECRETS03'
+      'CF_SECRETS04'
+      'CF_SECRETS05'
+      'CF_SECRETS06'
+      'CF_SECRETS07'
+      'CF_SECRETS08'
+      'CF_SECRETS09'
+      'CF_SECRETS10'
+      'CF_SECRETS11'
+      'CF_SECRETS12'
+      'CF_SECRETS13'
+      'CF_SECRETS14'
+      'CF_SECRETS15'
+      'CF_SECRETS16'
+      'CF_SINGLE'
+      'CF_SINGLE16'
+      'CF_STRIKE'
+      'CF_SWORD1'
+      'CF_SWORD1BEAM'
+      'CF_SWORD2'
+      'CF_SWORD2BEAM'
+      'CF_SWORD3'
+      'CF_SWORD3BEAM'
+      'CF_SWORD4'
+      'CF_SWORD4BEAM'
+      'CF_TRAP4WAY'
+      'CF_TRAPH'
+      'CF_TRAPLR'
+      'CF_TRAPUD'
+      'CF_TRAPV'
+      'CF_WAND'
+      'CF_WANDFIRE'
+      'CF_WANDMAGIC'
+      'CF_WHISTLE'
+      'CF_ZELDA'
+      'CR_ARROWS'
+      'CR_BOMBS'
+      'CR_KEYS'
+      'CR_LIFE'
+      'CR_MAGIC'
+      'CR_RUPEES'
+      'CR_SBOMBS'
+      'CT_ARMOS'
+      'CT_AWARPA'
+      'CT_AWARPB'
+      'CT_AWARPC'
+      'CT_AWARPD'
+      'CT_AWARPR'
+      'CT_BLOCKALL'
+      'CT_BLOCKARROW1'
+      'CT_BLOCKARROW2'
+      'CT_BLOCKARROW3'
+      'CT_BLOCKBRANG1'
+      'CT_BLOCKBRANG2'
+      'CT_BLOCKBRANG3'
+      'CT_BLOCKFIREBALL'
+      'CT_BLOCKMAGIC'
+      'CT_BLOCKSWORDBEAM'
+      'CT_BOSSCHEST'
+      'CT_BOSSCHEST2'
+      'CT_BOSSLOCKBLOCK'
+      'CT_BOSSLOCKBLOCK2'
+      'CT_BSGRAVE'
+      'CT_BUSH'
+      'CT_BUSHNEXT'
+      'CT_CAVE'
+      'CT_CAVE2'
+      'CT_CAVE2B'
+      'CT_CAVE2C'
+      'CT_CAVE2D'
+      'CT_CAVEB'
+      'CT_CAVEC'
+      'CT_CAVED'
+      'CT_CENTERSTATUE'
+      'CT_CHEST'
+      'CT_CHEST2'
+      'CT_CVDOWN'
+      'CT_CVLEFT'
+      'CT_CVRIGHT'
+      'CT_CVUP'
+      'CT_DAMAGE1'
+      'CT_DAMAGE2'
+      'CT_DAMAGE3'
+      'CT_DAMAGE4'
+      'CT_DAMAGE5'
+      'CT_DAMAGE6'
+      'CT_DAMAGE7'
+      'CT_DIVEWARP'
+      'CT_DIVEWARPB'
+      'CT_DIVEWARPC'
+      'CT_DIVEWARPD'
+      'CT_DOCK'
+      'CT_EYEBALLA'
+      'CT_EYEBALLB'
+      'CT_FLOWERS'
+      'CT_GRAVE'
+      'CT_HOOKSHOTONLY'
+      'CT_HSBRIDGE'
+      'CT_HSGRAB'
+      'CT_ICE'
+      'CT_LADDERHOOKSHOT'
+      'CT_LADDERONLY'
+      'CT_LEFTSTATUE'
+      'CT_LOCKBLOCK'
+      'CT_LOCKBLOCK2'
+      'CT_LOCKEDCHEST'
+      'CT_LOCKEDCHEST2'
+      'CT_MAGICPRISM'
+      'CT_MAGICPRISM4WAY'
+      'CT_MIRROR'
+      'CT_MIRRORBACKSLASH'
+      'CT_MIRRORSLASH'
+      'CT_NOENEMY'
+      'CT_NOFLYZONE'
+      'CT_NOJUMPZONE'
+      'CT_NONE'
+      'CT_OVERHEAD'
+      'CT_PIT'
+      'CT_PITB'
+      'CT_PITC'
+      'CT_PITD'
+      'CT_PITR'
+      'CT_POUND'
+      'CT_PUSHHEAVY'
+      'CT_PUSHHEAVY2'
+      'CT_PUSHHEAVY2WAIT'
+      'CT_PUSHHEAVYWAIT'
+      'CT_PUSHWAIT'
+      'CT_RESET'
+      'CT_RIGHTSTATUE'
+      'CT_SAVE'
+      'CT_SAVE2'
+      'CT_SCREENFREEZE'
+      'CT_SCREENFREEZEFF'
+      'CT_SHALLOWWATER'
+      'CT_SLASH'
+      'CT_SLASHITEM'
+      'CT_SLASHNEXT'
+      'CT_SLASHNEXTITEM'
+      'CT_SPINTILE1'
+      'CT_SPINTILE2'
+      'CT_STAIR'
+      'CT_STAIRB'
+      'CT_STAIRC'
+      'CT_STAIRD'
+      'CT_STAIRR'
+      'CT_STEP'
+      'CT_STEPALL'
+      'CT_STEPCOPY'
+      'CT_STEPSAME'
+      'CT_STRIGFLAG'
+      'CT_STRIGNOFLAG'
+      'CT_SWARPA'
+      'CT_SWARPB'
+      'CT_SWARPC'
+      'CT_SWARPD'
+      'CT_SWARPR'
+      'CT_SWIMWARP'
+      'CT_SWIMWARPB'
+      'CT_SWIMWARPC'
+      'CT_SWIMWARPD'
+      'CT_TALLGRASS'
+      'CT_TRAP4WAY'
+      'CT_TRAPH'
+      'CT_TRAPLEFTRIGHT'
+      'CT_TRAPUPDOWN'
+      'CT_TRAPV'
+      'CT_TRIGFLAG'
+      'CT_TRIGNOFLAG'
+      'CT_WALKSLOW'
+      'CT_WATER'
+      'CT_ZELDA'
+      'D_1WAYSHUTTER'
+      'D_BOMB'
+      'D_BOMBED'
+      'D_BOSSLOCKED'
+      'D_BOSSUNLOCKED'
+      'D_LOCKED'
+      'D_OPEN'
+      'D_OPENSHUTTER'
+      'D_SHUTTER'
+      'D_UNLOCKED'
+      'D_WALKTHRU'
+      'D_WALL'
+      'DIR_DOWN'
+      'DIR_LEFT'
+      'DIR_LEFTDOWN'
+      'DIR_LEFTUP'
+      'DIR_RIGHT'
+      'DIR_RIGHTDOWN'
+      'DIR_RIGHTUP'
+      'DIR_UP'
+      'DS_CLOAKED'
+      'DS_LINK'
+      'DS_NORMAL'
+      'DS_PHANTOM'
+      'EW_ARROW'
+      'EW_BEAM'
+      'EW_BOMB'
+      'EW_BOMBBLAST'
+      'EW_BRANG'
+      'EW_FIRE'
+      'EW_FIREBALL'
+      'EW_FIREBALL2'
+      'EW_FIRETRAIL'
+      'EW_MAGIC'
+      'EW_ROCK'
+      'EW_SBOMB'
+      'EW_SBOMBBLAST'
+      'EW_SCRIPT1'
+      'EW_SCRIPT10'
+      'EW_SCRIPT2'
+      'EW_SCRIPT3'
+      'EW_SCRIPT4'
+      'EW_SCRIPT5'
+      'EW_SCRIPT6'
+      'EW_SCRIPT7'
+      'EW_SCRIPT8'
+      'EW_SCRIPT9'
+      'EW_WIND'
+      'EXT_NONE'
+      'EXT_NORMAL'
+      'EXT_NOSHADOW'
+      'FFCF_CARRYOVER'
+      'FFCF_CHANGER'
+      'FFCF_ETHEREAL'
+      'FFCF_LENSVIS'
+      'FFCF_OVERLAY'
+      'FFCF_PRELOAD'
+      'FFCF_RESET'
+      'FFCF_SOLID'
+      'FFCF_STATIONARY'
+      'FFCF_TRANS'
+      'GEN_CANSLASH'
+      'GEN_CONTINUEHEARTS'
+      'GEN_CONTINUEISPERCENT'
+      'GEN_HCPPERHC'
+      'GEN_HEARTPIECES'
+      'GEN_MAGICDRAINRATE'
+      'GEN_WARPLEVEL'
+      'I_AMULET1'
+      'I_AMULET2'
+      'I_ARROW1'
+      'I_ARROW2'
+      'I_ARROW3'
+      'I_ARROWAMMO1'
+      'I_ARROWAMMO10'
+      'I_ARROWAMMO30'
+      'I_ARROWAMMO5'
+      'I_BAIT'
+      'I_BOMB'
+      'I_BOMBAMMO1'
+      'I_BOMBAMMO30'
+      'I_BOMBAMMO4'
+      'I_BOMBAMMO8'
+      'I_BOMBBAG1'
+      'I_BOMBBAG2'
+      'I_BOMBBAG3'
+      'I_BOMBBAG4'
+      'I_BOOK'
+      'I_BOOTS'
+      'I_BOSSKEY'
+      'I_BOW1'
+      'I_BOW2'
+      'I_BRACELET1'
+      'I_BRACELET2'
+      'I_BRACELET3'
+      'I_BRANG1'
+      'I_BRANG2'
+      'I_BRANG3'
+      'I_CANDLE1'
+      'I_CANDLE2'
+      'I_CBYRNA'
+      'I_CHARGERING1'
+      'I_CHARGERING2'
+      'I_CLOCK'
+      'I_COMPASS'
+      'I_CROSSSCROLL'
+      'I_DINSFIRE'
+      'I_DUST_PILE'
+      'I_FAIRY'
+      'I_FAIRYSTILL'
+      'I_FARORESWIND'
+      'I_FLIPPERS'
+      'I_HAMMER'
+      'I_HCPIECE'
+      'I_HEART'
+      'I_HEARTCONTAINER'
+      'I_HEARTRING1'
+      'I_HEARTRING2'
+      'I_HEARTRING3'
+      'I_HOOKSHOT1'
+      'I_HOOKSHOT2'
+      'I_HOVERBOOTS'
+      'I_KEY'
+      'I_KILLALL'
+      'I_LADDER1'
+      'I_LADDER2'
+      'I_LENS'
+      'I_LETTER'
+      'I_LETTERUSED'
+      'I_LEVELKEY'
+      'I_MAGICCONTAINER'
+      'I_MAGICJAR1'
+      'I_MAGICJAR2'
+      'I_MAGICKEY'
+      'I_MAGICRING1'
+      'I_MAGICRING2'
+      'I_MAGICRING3'
+      'I_MAGICRING4'
+      'I_MAP'
+      'I_MISC1'
+      'I_MISC2'
+      'I_NAYRUSLOVE'
+      'I_PERILRING'
+      'I_PERILSCROLL'
+      'I_POTION1'
+      'I_POTION2'
+      'I_QUAKESCROLL1'
+      'I_QUAKESCROLL2'
+      'I_QUIVER1'
+      'I_QUIVER2'
+      'I_QUIVER3'
+      'I_QUIVER4'
+      'I_RAFT'
+      'I_RING1'
+      'I_RING2'
+      'I_RING3'
+      'I_ROCSFEATHER'
+      'I_RUPEE1'
+      'I_RUPEE10'
+      'I_RUPEE100'
+      'I_RUPEE20'
+      'I_RUPEE200'
+      'I_RUPEE5'
+      'I_RUPEE50'
+      'I_SBOMB'
+      'I_SELECTA'
+      'I_SELECTB'
+      'I_SHIELD1'
+      'I_SHIELD2'
+      'I_SHIELD3'
+      'I_SPINSCROLL1'
+      'I_SPINSCROLL2'
+      'I_STOMPBOOTS'
+      'I_STONEAGONY'
+      'I_SWORD1'
+      'I_SWORD2'
+      'I_SWORD3'
+      'I_SWORD4'
+      'I_TRIFORCE'
+      'I_TRIFORCEBIG'
+      'I_WALLET500'
+      'I_WALLET999'
+      'I_WALLETA'
+      'I_WAND'
+      'I_WEALTHMEDAL'
+      'I_WEALTHMEDAL2'
+      'I_WEALTHMEDAL3'
+      'I_WHIMSICALRING'
+      'I_WHISPRING1'
+      'I_WHISPRING2'
+      'I_WHISTLE'
+      'IC_AMULET'
+      'IC_ARROW'
+      'IC_ARROWAMMO'
+      'IC_BAIT'
+      'IC_BOMB'
+      'IC_BOMBAMMO'
+      'IC_BOMBBAG'
+      'IC_BOOK'
+      'IC_BOOTS'
+      'IC_BOSSKEY'
+      'IC_BOW'
+      'IC_BRACELET'
+      'IC_BRANG'
+      'IC_CANDLE'
+      'IC_CBYRNA'
+      'IC_CHARGERING'
+      'IC_CLOCK'
+      'IC_COMPASS'
+      'IC_CROSSSCROLL'
+      'IC_DINSFIRE'
+      'IC_FAIRY'
+      'IC_FARORESWIND'
+      'IC_FLIPPERS'
+      'IC_HAMMER'
+      'IC_HEART'
+      'IC_HEARTCONTAINER'
+      'IC_HEARTPIECE'
+      'IC_HEARTRING'
+      'IC_HOOKSHOT'
+      'IC_HOVERBOOTS'
+      'IC_HURRICANESCROLL'
+      'IC_KEY'
+      'IC_KILLALL'
+      'IC_LADDER'
+      'IC_LENS'
+      'IC_LETTER'
+      'IC_LEVELKEY'
+      'IC_MAGIC'
+      'IC_MAGICCONTAINER'
+      'IC_MAGICKEY'
+      'IC_MAGICRING'
+      'IC_MAP'
+      'IC_NAYRUSLOVE'
+      'IC_PERILRING'
+      'IC_PERILSCROLL'
+      'IC_POTION'
+      'IC_QUAKESCROLL'
+      'IC_QUIVER'
+      'IC_RAFT'
+      'IC_RING'
+      'IC_ROCS'
+      'IC_RUPEE'
+      'IC_SBOMB'
+      'IC_SHIELD'
+      'IC_SPINSCROLL'
+      'IC_SQUAKESCROLL'
+      'IC_STOMPBOOTS'
+      'IC_STONEAGONY'
+      'IC_SWORD'
+      'IC_TRIFORCE'
+      'IC_WALLET'
+      'IC_WAND'
+      'IC_WEALTHMEDAL'
+      'IC_WHIMSICALRING'
+      'IC_WHISPRING'
+      'IC_WHISTLE'
+      'ids.'
+      'IS_BOMB100'
+      'IS_BOMBS'
+      'IS_DEFAULT'
+      'IS_LIFE'
+      'IS_MAGIC'
+      'IS_MAGIC2'
+      'IS_MAGICBOMBS'
+      'IS_MAGICLIFE'
+      'IS_MAGICMONEY'
+      'IS_MONEY'
+      'IS_NONE'
+      'IS_SBOMB100'
+      'LA_ATTACKING'
+      'LA_CASTING'
+      'LA_CAVEWALKDOWN'
+      'LA_CAVEWALKUP'
+      'LA_CHARGING'
+      'LA_DIVING'
+      'LA_DROWNING'
+      'LA_DYING'
+      'LA_FROZEN'
+      'LA_GOTHURTLAND'
+      'LA_GOTHURTWATER'
+      'LA_HOLD1LAND'
+      'LA_HOLD1WATER'
+      'LA_HOLD2LAND'
+      'LA_HOLD2WATER'
+      'LA_HOPPING'
+      'LA_INWIND'
+      'LA_NONE'
+      'LA_RAFTING'
+      'LA_SCROLLING'
+      'LA_SPINNING'
+      'LA_SWIMMING'
+      'LA_WALKING'
+      'LA_WINNING'
+      'LI_BOSS'
+      'LI_BOSSKEY'
+      'LI_COMPASS'
+      'LI_MAP'
+      'LI_TRIFORCE'
+      'LW_ARROW'
+      'LW_BAIT'
+      'LW_BEAM'
+      'LW_BOMB'
+      'LW_BOMBBLAST'
+      'LW_BRANG'
+      'LW_CANDLE'
+      'LW_FIRE'
+      'LW_FIRESPARKLE'
+      'LW_HAMMER'
+      'LW_HOOKSHOT'
+      'LW_MAGIC'
+      'LW_REFBEAM'
+      'LW_REFFIREBALL'
+      'LW_REFMAGIC'
+      'LW_REFROCK'
+      'LW_SBOMB'
+      'LW_SBOMBBLAST'
+      'LW_SCRIPT1'
+      'LW_SCRIPT10'
+      'LW_SCRIPT2'
+      'LW_SCRIPT3'
+      'LW_SCRIPT4'
+      'LW_SCRIPT5'
+      'LW_SCRIPT6'
+      'LW_SCRIPT7'
+      'LW_SCRIPT8'
+      'LW_SCRIPT9'
+      'LW_SPARKLE'
+      'LW_SWORD'
+      'LW_WAND'
+      'LW_WHISTLE'
+      'LW_WIND'
+      'NPC_ABEI'
+      'NPC_ABEI2'
+      'NPC_AMA'
+      'NPC_AQUAMENTUSL'
+      'NPC_AQUAMENTUSR'
+      'NPC_ARMOS'
+      'NPC_BAT'
+      'NPC_BOMBCHU'
+      'NPC_BOULDER'
+      'NPC_BUBBLEITEMP'
+      'NPC_BUBBLEITEMR'
+      'NPC_BUBBLEITEMT'
+      'NPC_BUBBLESWORDP'
+      'NPC_BUBBLESWORDR'
+      'NPC_BUBBLESWORDT'
+      'NPC_CEILINGMASTER'
+      'NPC_DARKNUT1'
+      'NPC_DARKNUT2'
+      'NPC_DARKNUT3'
+      'NPC_DARKNUT4'
+      'NPC_DARKNUT5'
+      'NPC_DIGDOGGER1'
+      'NPC_DIGDOGGER3'
+      'NPC_DIGKID1'
+      'NPC_DIGKID2'
+      'NPC_DIGKID3'
+      'NPC_DIGKID4'
+      'NPC_DODONGO'
+      'NPC_DODONGOBS'
+      'NPC_DODONGOFIRE'
+      'NPC_ENEMYFIRE'
+      'NPC_FAIRY'
+      'NPC_FIRE'
+      'NPC_FLOORMASTER'
+      'NPC_GANON'
+      'NPC_GEL'
+      'NPC_GELFIRE'
+      'NPC_GELFIRETRIB'
+      'NPC_GELTRIB'
+      'NPC_GHINI1'
+      'NPC_GHINI2'
+      'NPC_GHINIMGC'
+      'NPC_GIBDO'
+      'NPC_GLEEOK1'
+      'NPC_GLEEOK1FIRE'
+      'NPC_GLEEOK2'
+      'NPC_GLEEOK2FIRE'
+      'NPC_GLEEOK3'
+      'NPC_GLEEOK3FIRE'
+      'NPC_GLEEOK4'
+      'NPC_GLEEOK4FIRE'
+      'NPC_GOHMA1'
+      'NPC_GOHMA2'
+      'NPC_GOHMA3'
+      'NPC_GOHMAFIRE'
+      'NPC_GORIYA'
+      'NPC_GORIYA1'
+      'NPC_GORIYA2'
+      'NPC_GORIYA3'
+      'NPC_GRAPBUGHP'
+      'NPC_GRAPBUGMP'
+      'NPC_ITEMFAIRY'
+      'NPC_KEESE1'
+      'NPC_KEESE2'
+      'NPC_KEESE3'
+      'NPC_KEESETRIB'
+      'NPC_LANMOLA1'
+      'NPC_LANMOLA2'
+      'NPC_LEEVER1'
+      'NPC_LEEVER2'
+      'NPC_LEEVER3'
+      'NPC_LIKELIKE'
+      'NPC_LYNEL1'
+      'NPC_LYNEL2'
+      'NPC_LYNEL3'
+      'NPC_MANHANDLA'
+      'NPC_MANHANDLA2'
+      'NPC_MERCHANT'
+      'NPC_MOBLIN'
+      'NPC_MOBLIN1'
+      'NPC_MOBLIN2'
+      'NPC_MOLDORM'
+      'NPC_OCTOROCK1F'
+      'NPC_OCTOROCK1S'
+      'NPC_OCTOROCK2F'
+      'NPC_OCTOROCK2S'
+      'NPC_OCTOROCKBOMBF'
+      'NPC_OCTOROCKBOMBS'
+      'NPC_OCTOROCKFIREF'
+      'NPC_OCTOROCKFIRES'
+      'NPC_OCTOROCKMGC'
+      'NPC_PATRA1'
+      'NPC_PATRA2'
+      'NPC_PATRA3'
+      'NPC_PATRABS'
+      'NPC_PATRAOVAL'
+      'NPC_PEAHAT'
+      'NPC_PEAHATFIRE'
+      'NPC_POLSVOICE'
+      'NPC_POLSVOICEBS'
+      'NPC_POLSVOICEMGC'
+      'NPC_ROCK'
+      'NPC_ROPE1'
+      'NPC_ROPE2'
+      'NPC_SHOOTFBALL'
+      'NPC_SHOOTFLAME'
+      'NPC_SHOOTFLAME2'
+      'NPC_SHOOTMAGIC'
+      'NPC_SHOOTROCK'
+      'NPC_SHOOTSPEAR'
+      'NPC_SHOOTSWORD'
+      'NPC_SPINTILE'
+      'NPC_SPINTILERND'
+      'NPC_STALFOS1'
+      'NPC_STALFOS2'
+      'NPC_STALFOS3'
+      'NPC_TEKTITE1'
+      'NPC_TEKTITE2'
+      'NPC_TEKTITE3'
+      'NPC_TRAP'
+      'NPC_TRAP8WAY'
+      'NPC_TRAPBACKSLASHC'
+      'NPC_TRAPBACKSLASHLOS'
+      'NPC_TRAPCCLOCKWISEC'
+      'NPC_TRAPCCLOCKWISELOS'
+      'NPC_TRAPCLOCKWISEC'
+      'NPC_TRAPCLOCKWISELOS'
+      'NPC_TRAPDIAG'
+      'NPC_TRAPHORIZC'
+      'NPC_TRAPHORIZLOS'
+      'NPC_TRAPSLASHC'
+      'NPC_TRAPSLASHLOS'
+      'NPC_TRAPVERTC'
+      'NPC_TRAPVERTLOS'
+      'NPC_TRIGGER'
+      'NPC_VIRE'
+      'NPC_VIRETRIB'
+      'NPC_WALLMASTER'
+      'NPC_WIZZROBE1'
+      'NPC_WIZZROBE2'
+      'NPC_WIZZROBEBAT'
+      'NPC_WIZZROBEBAT2'
+      'NPC_WIZZROBEFIRE'
+      'NPC_WIZZROBEICE'
+      'NPC_WIZZROBEMIRR'
+      'NPC_WIZZROBESUMM'
+      'NPC_WIZZROBEWIND'
+      'NPC_ZELDA'
+      'NPC_ZOL'
+      'NPC_ZOLFIRE'
+      'NPC_ZOLFIRETRIB'
+      'NPC_ZOLTRIB'
+      'NPC_ZORA'
+      'SFX_ARROW'
+      'SFX_BEAM'
+      'SFX_BOMB'
+      'SFX_BRANG'
+      'SFX_CHARGE1'
+      'SFX_CHARGE2'
+      'SFX_CLEARED'
+      'SFX_CLINK'
+      'SFX_CURSOR'
+      'SFX_DINSFIRE'
+      'SFX_DODONGO'
+      'SFX_EDEAD'
+      'SFX_EHIT'
+      'SFX_FALL'
+      'SFX_FARORESWIND'
+      'SFX_FIRE'
+      'SFX_FIREBALL'
+      'SFX_GANON'
+      'SFX_GASP'
+      'SFX_GRASSCUT'
+      'SFX_HAMMER'
+      'SFX_HAMMERPOST'
+      'SFX_HOOKSHOT'
+      'SFX_HOVER'
+      'SFX_ICE'
+      'SFX_JUMP'
+      'SFX_LENSOFF'
+      'SFX_LENSON'
+      'SFX_LOWHP'
+      'SFX_MSG'
+      'SFX_NAYRUSLOVE1'
+      'SFX_NAYRUSLOVE2'
+      'SFX_OUCH'
+      'SFX_PATRA'
+      'SFX_PICKUP'
+      'SFX_PLACE'
+      'SFX_PLINK'
+      'SFX_PUSHBLOCK'
+      'SFX_REFILL'
+      'SFX_ROAR'
+      'SFX_ROCK'
+      'SFX_ROCKETDOWN'
+      'SFX_ROCKETUP'
+      'SFX_SCALE'
+      'SFX_SEA'
+      'SFX_SECRET'
+      'SFX_SHUTTER'
+      'SFX_SPINATTACK'
+      'SFX_SPIRAL'
+      'SFX_SPLASH'
+      'SFX_STAIRS'
+      'SFX_SUMMON'
+      'SFX_SWORD'
+      'SFX_TAP1'
+      'SFX_TAP2'
+      'SFX_WAND'
+      'SFX_WHIRLWIND'
+      'SFX_WHISTLE'
+      'SFX_ZELDA'
+      'SL_DECORATIONS'
+      'SL_EWPNS'
+      'SL_GUYS'
+      'SL_ITEMS'
+      'SL_LWPNS'
+      'SL_PARTICLES'
+      'ST_BOSSCHEST'
+      'ST_BOSSLOCKBLOCK'
+      'ST_CHEST'
+      'ST_DOORDOWN'
+      'ST_DOORLEFT'
+      'ST_DOORRIGHT'
+      'ST_DOORUP'
+      'ST_ENEMYNORETURN'
+      'ST_ITEM'
+      'ST_LOCKBLOCK'
+      'ST_LOCKEDCHEST'
+      'ST_SECRET'
+      'ST_SPECIALITEM'
+      'ST_TEMPNORETURN'
+      'ST_VISITED'
+      'WDS_ARROW'
+      'WDS_BEAMSHARDS'
+      'WDS_BOUNCE'
+      'WDS_DEAD'
+      'WDS_NOHIT'
+      'WPN_ENEMYARROW'
+      'WPN_ENEMYBOMB'
+      'WPN_ENEMYBRANG'
+      'WPN_ENEMYFIREBALL'
+      'WPN_ENEMYFIRETRAIL'
+      'WPN_ENEMYFLAME'
+      'WPN_ENEMYFLAME2'
+      'WPN_ENEMYFLAME2TRAIL'
+      'WPN_ENEMYICE'
+      'WPN_ENEMYLITBOMB'
+      'WPN_ENEMYLITSBOMB'
+      'WPN_ENEMYMAGIC'
+      'WPN_ENEMYROCK'
+      'WPN_ENEMYSBOMB'
+      'WPN_ENEMYSWORD'
+      'WPN_ENEMYWIND'
+      'WPN_FIREBALLRISING'
+      'WPN_NONE'
+    )
+    Objects.Strings = (
+      'GAME'
+      'LINK_>'
+      'SCREEN'
+    )
+    NumberAttri.Foreground = clRed
+    NumberAttri.FrameColor = clNone
+    PreprocessorAttri.Foreground = clLime
+    PreprocessorAttri.FrameColor = clNone
+    SpaceAttri.Foreground = clNavy
+    SpaceAttri.FrameColor = clNone
+    StringAttri.Foreground = clBlue
+    StringAttri.FrameColor = clNone
+    SymbolAttri.Foreground = clBlue
+    SymbolAttri.FrameColor = clNone
+    SymbolAttri.Style = [fsBold]
+    StringDelim = sdDoubleQuote
+    ActiveDot = True
+    left = 824
+  end
+  object saveme: TSaveDialog
+    DefaultExt = '.z'
+    Filter = 'Zscript|*.z|Zscript Headers|*.zh|All Files|*.*'
+    left = 792
+    top = 32
+  end
+  object openme: TOpenDialog
+    DefaultExt = '.z'
+    Filter = 'Zscript|*.z|Zscript Headers|*.zh|All Files|*.*'
+    left = 824
+    top = 32
+  end
+  object PopupMenu1: TPopupMenu
+    left = 760
+    top = 32
+    object MenuItem14: TMenuItem
+      Caption = 'Undo'
+      OnClick = MenuItem14Click
+    end
+    object MenuItem7: TMenuItem
+      Caption = '-----'
+    end
+    object MenuItem15: TMenuItem
+      Caption = 'Cut'
+      OnClick = MenuItem15Click
+    end
+    object MenuItem12: TMenuItem
+      Caption = 'Copy'
+      OnClick = MenuItem12Click
+    end
+    object MenuItem13: TMenuItem
+      Caption = 'Paste'
+      OnClick = MenuItem13Click
+    end
+    object MenuItem8: TMenuItem
+      Caption = '-----'
+    end
+    object MenuItem9: TMenuItem
+      Caption = 'Select All'
+      OnClick = MenuItem9Click
+    end
+  end
+  object highligtme: TSynUniSyn
+    Enabled = False
+    left = 722
+    top = 249
+  end
+  object SynMultiSyn1: TSynMultiSyn
+    Enabled = False
+    Schemes = <>
+    left = 584
+    top = 186
+  end
+end

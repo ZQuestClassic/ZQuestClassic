@@ -1,0 +1,68 @@
++-----------------------------+
+| STRING CONTROL CODES        |
++-----------------------------+
+
+Enter these control codes into a message string for special formatting, effects, basic dialog
+branching, or modification. (Henceforth, "X" denotes a number from 0
+to 9999.)
+
++-----------------------------+
+| FORMATTING CODES            |
++-----------------------------+
+
+\1\X\X - Text Colour. Changes the following text to a certain colour. Argument 1 is the CSet, and argument 2 is the colour within that CSet. The text in the Preview Pane changes to reflect the addition and modification of this Control Code. 
+
+\2\X - Text Speed. Changes the length of the delay between text characters appearing. If 0, text appears instantaneously. Argument 1 is the speed. 
+
+\25 - New Line. Equivalent to pressing Enter in a document. Best used when text wrapping is enabled.
+
+\32 through \126 - ASCII Character. Prints a character based on its ASCII code. For example, \91 allows you to display a backslash.
+
++-----------------------------+
+| SWITCH CODES                |
++-----------------------------+
+
+    (Note: If you switch to a string that hasn't been created yet, then ZC will act as if you switched to a string with no characters in it. )
+
+\3\X\X\X - Goto If Screen Variable. If one of the Screen->D[] variables of the current screen is at or above a certain value, then ZC switches to another string. Argument 1 is the index into the screen's D array, argument 2 is the value, and argument 3 is the string to switch to. 
+
+\4\X\X - Goto If Random. There is a one-in-(argument 1) chance that ZC switches to another string (argument 2). 
+
+\5\X\X - Goto If Item. If Link has a certain item, then ZC switches to another string. Argument 1 is the item ID, and argument 2 is the string to switch to. 
+
+\6\X\X\X - Goto If Counter. If a counter is at or above a certain value, then ZC switches to another string. Argument 1 is the counter, argument 2 is the value, and argument 3 is the string to switch to. 
+
+\7\X\X\X - Goto If Counter %. If a counter is at or above a certain percentage of its maximum, then ZC switches to another string. 
+
+\8\X\X - Goto If Triforce. If Link has acquired the Triforce from a certain level, then ZC switches to another string. Argument 1 is the level, and argument 2 is the string to switch to. 
+
+\9\X\X - Goto If Triforce Count. If Link has acquired a certain number of Triforce pieces, then ZC switches to another string. Argument 1 is the quantity, and argument 2 is the string to switch to.
+
++-----------------------------+
+| COUNTER UP/DOWN CODES       |
++-----------------------------+
+
+\10\X\X - Counter Up. Increases a counter by a certain value. Argument 1 is the counter, and argument 2 is the value. 
+
+\11\X\X - Counter Down. Reduces a counter by a certain value. Argument 1 is the counter, and argument 2 is the value. 
+
+\12\X\X - Counter Set. Sets a counter to a certain value. Argument 1 is the counter, and argument 2 is the value. 
+
+\13\X\X - Counter Up %. Increases a counter by a certain percentage of its maximum. Argument 1 is the counter, and argument 2 is the percentage. 
+
+\14\X\X - Counter Down %. Reduces a counter by a certain percentage of its maximum. Argument 1 is the counter, and argument 2 is the percentage. 
+
+\15\X\X - Counter Set %. Sets a counter to a certain percentage of its maximum. Argument 1 is the counter, and argument 2 is the percentage. 
+
+\16\X - Give Item. An item is silently added to Link's inventory. Link does not hold up the item, and the item's Pickup Script does not run - though the item's counter modifications will still take effect. Argument 1 is the item ID. 
+
+\17\X - Take Item. An item is removed from Link's inventory. The item's counter modifications will be undone when this occurs. Argument 1 is the item ID.
+
++-----------------------------+
+| AUDIO EFFECT CODES          |
++-----------------------------+
+
+\20\X - Sound Effect. Argument 1 is the sound effect number. 
+
+\21\X - Play MIDI. Argument 1 is the quest MIDI number. You cannot play the built-in MIDIs using this.
+

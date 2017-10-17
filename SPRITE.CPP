@@ -12,12 +12,20 @@
 //
 //--------------------------------------------------------
 
+#ifndef __GTHREAD_HIDE_WIN32API
+#define __GTHREAD_HIDE_WIN32API 1
+#endif                            //prevent indirectly including windows.h
+
 #include "zdefs.h"
 #include "sprite.h"
 #include "tiles.h"
 
-extern bool debug;
+extern bool get_debug();
 extern bool halt;
+extern bool show_sprites;
+extern bool show_hitboxes;
+extern bool is_zquest();
+extern void debugging_box(int x1, int y1, int x2, int y2);
 
 /**********************************/
 /******* Sprite Base Class ********/
@@ -25,35 +33,180 @@ extern bool halt;
 
 sprite::sprite()
 {
-  x=y=tile=shadowtile=cs=flip=clk=xofs=hxofs=hyofs=0;
+  uid = getNextUID();
+  x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
+  txsz=1;tysz=1;
   id=-1;
   hxsz=hysz=16;
-  yofs=56;
+  hzsz=1;
+  yofs=playing_field_offset;
   dir=down;
   angular=canfreeze=false;
   drawstyle=0;
+  extend=0;
+
+  /*ewpnclass=0;
+  lwpnclass=0;
+  guyclass=0;*/ //Not implemented
+  //ewpnref=0;
+  //lwpnref=0;
+  //guyref=0;
+  //itemref=0;
+  lasthitclk=0;
+  lasthit=0;
+  angle=0;
+  misc=0;
+
+  for(int i=0; i<10; i++)
+  {
+    dummy_int[i]=0;
+    dummy_fix[i]=0;
+    dummy_float[i]=0;
+    dummy_bool[i]=0;
+  }
+  /*for(int i=0;i<8;i++)
+  {
+    if(i<2) a[i]=0;
+    d[i]=0;
+  }
+  scriptflag=0;
+  pc=0;
+  sp=0;
+  itemclass=0;
+  ffcref=0; */
+  //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
+  //doscript=1;
+  for(int i=0;i<16;i++) miscellaneous[i] = 0;
+  scriptcoldet = 1;
+}
+
+sprite::sprite(sprite const & other):
+  x(other.x),
+  y(other.y),
+  z(other.z),
+  fall(other.fall),
+  tile(other.tile),
+  shadowtile(other.shadowtile),
+  cs(other.cs),
+  flip(other.flip),
+  c_clk(other.c_clk),
+  clk(other.clk),
+  misc(other.misc),
+  xofs(other.xofs),
+  yofs(other.yofs),
+  zofs(other.zofs),
+  hxofs(other.hxofs),
+  hyofs(other.hyofs),
+  hxsz(other.hxsz),
+  hysz(other.hysz),
+  hzsz(other.hzsz),
+  txsz(other.txsz),
+  tysz(other.tysz),
+  id(other.id),
+  dir(other.dir),
+  angular(other.angular),
+  canfreeze(other.canfreeze),
+  angle(other.angle),
+  lasthit(other.lasthit),
+  lasthitclk(other.lasthitclk),
+  drawstyle(other.drawstyle),
+  extend(other.extend)
+  //scriptData(other.scriptData),
+  /*ffcref(other.ffcref),
+  itemref(other.itemref),
+  guyref(other.guyref),
+  lwpnref(other.lwpnref),
+  ewpnref(other.ewpnref),
+  sp(other.sp),
+  pc(other.pc),
+  scriptflag(other.scriptflag),
+  doscript(other.doscript),
+  itemclass(other.itemclass)
+  guyclass(other.guyclass),
+  lwpnclass(other.lwpnclass),
+  ewpnclass(other.ewpnclass)*/
+{
+  uid = getNextUID();
+  for (int i=0; i<10; ++i)
+  {
+    dummy_int[i]=other.dummy_int[i];
+    dummy_fix[i]=other.dummy_fix[i];
+    dummy_float[i]=other.dummy_float[i];
+    dummy_bool[i]=other.dummy_bool[i];
+  }
+  /*for (int i=0; i<8; ++i)
+  {
+    d[i]=other.d[i];
+  }
+  for (int i=0; i<2; ++i)
+  {
+    a[i]=other.a[i];
+  }*/
+  for(int i=0;i<16;i++) miscellaneous[i] = other.miscellaneous[i];
+  scriptcoldet = other.scriptcoldet;
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
-x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
+  x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
+  uid = getNextUID();
   hxsz=hysz=16;
   hxofs=hyofs=xofs=0;
+  txsz=1; tysz=1;
   id=-1;
   dir=down;
   angular=canfreeze=false;
+  extend=0;
+  /*for(int i=0;i<8;i++)
+  {
+    if(i<2) a[i]=0;
+    d[i]=0;
+  }
+  scriptflag=0;
+  pc=0;
+  sp=0;
+  ffcref=0;
+  doscript=1;*/
+  //itemclass=0;
+  for(int i=0;i<16;i++) miscellaneous[i] = 0;
+  scriptcoldet = 1;
+
+  //scriptData.Clear();
+  /*ewpnclass=0;
+  lwpnclass=0;
+  guyclass=0;*/ //Not implemented
+  /*ewpnref=0;
+  lwpnref=0;
+  guyref=0;
+  itemref=0;*/
+  drawstyle=0;
+  lasthitclk=0;
+  lasthit=0;
+  angle=0;
+  hzsz=1;
+  misc=0;
+  c_clk=0;
+  shadowtile=0;
 }
 
-sprite::~sprite() {}
-void sprite::draw2(BITMAP* dest)                            // top layer for special needs
+sprite::~sprite() {
+}
+
+long sprite::getNextUID()
+{
+	static long nextid = 0;
+	return nextid++;
+}
+
+void sprite::draw2(BITMAP *)                            // top layer for special needs
 {
 }
 
-void sprite::drawcloaked2(BITMAP* dest)                     // top layer for special needs
+void sprite::drawcloaked2(BITMAP *)                     // top layer for special needs
 {
 }
 
-bool sprite::animate(int index) { return false; }
+bool sprite::animate(int ) { ++c_clk; return false; }
 int sprite::real_x(fix fx)
 {
   int rx=fx.v>>16;
@@ -61,9 +214,9 @@ int sprite::real_x(fix fx)
   {
     case 9:
     case 13:
-      if(fx.v&0xFFFF)
-        ++rx;
-      break;
+    if(fx.v&0xFFFF)
+      ++rx;
+    break;
   }
   return rx;
 }
@@ -71,45 +224,39 @@ int sprite::real_x(fix fx)
 int sprite::real_y(fix fy)
 {
   return fy.v>>16;
+}
 
-
-
-
+int sprite::real_z(fix fz)
+{
+  return fz.v>>16;
 }
 
 bool sprite::hit(sprite *s)
 {
+  if(!(scriptcoldet&1)) return false;
   if(id<0 || s->id<0 || clk<0) return false;
   if (halt)
   {
-    al_trace("-- %3d %3d %3d %3d %3d %3d\n", int(s->x), int(s->hxofs), int(s->hxsz), int(s->y), int(s->hyofs),  int(s->hysz));
   }
-  return hit(s->x+s->hxofs,s->y+s->hyofs,s->hxsz,s->hysz);
+  return hit(s->x+s->hxofs,s->y+s->hyofs,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
 }
 
-bool sprite::hit(int tx,int ty,int txsz,int tysz)
+bool sprite::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
 {
+  if(!(scriptcoldet&1)) return false;
   if(id<0 || clk<0) return false;
-  if(halt)
-  {
-    al_trace("** %3d %3d %3d %3d %3d %3d\n", int(x), int(hxofs), int(hxsz), int(y), int(hyofs),  int(hysz));
-    if(id==0)
-    {
-      //al_trace("L4 ");
-    }
-    //al_trace("%3d>%3d %3d>%3d %3d<%3d %3d<%3d\n", int(tx+txsz), int(x+hxofs),  int(ty+tysz), int(y+hyofs), int(tx), int(x+hxofs+hxsz), int(ty), int(y+hyofs+hysz));
-  }
-  return (tx+txsz>x+hxofs && ty+tysz>y+hyofs && tx<x+hxofs+hxsz
-    && ty<y+hyofs+hysz);
+  return (tx+txsz2>x+hxofs && ty+tysz2>y+hyofs && tz+tzsz2>z+zofs &&
+          tx<x+hxofs+hxsz && ty<y+hyofs+hysz && tz<z+zofs+hzsz);
 }
 
-int sprite::hitdir(int tx,int ty,int txsz,int tysz,int dir)
+int sprite::hitdir(int tx,int ty,int txsz2,int tysz2,int dir2)
 {
+  if(!(scriptcoldet&1)) return 0xFF;
   int cx1=x+hxofs+(hxsz>>1);
   int cy1=y+hyofs+(hysz>>1);
-  int cx2=tx+(txsz>>1);
-  int cy2=ty+(tysz>>1);
-  if(dir>=left && abs(cy1-cy2)<=8)
+  int cx2=tx+(txsz2>>1);
+  int cy2=ty+(tysz2>>1);
+  if(dir2>=left && abs(cy1-cy2)<=8)
     return (cx2-cx1<0)?left:right;
   return (cy2-cy1<0)?up:down;
 }
@@ -146,21 +293,30 @@ void sprite::move(fix s)
     case l_down: x-=s; y+=s; break;
     case 11:
     case r_down: x+=s; y+=s; break;
+	case -1: break;
   }
 }
 
 void sprite::draw(BITMAP* dest)
 {
+  if (!show_sprites)
+  {
+    return;
+  }
   int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
+  int sy = real_y(y+yofs)-real_z(z+zofs);
 
   if(id<0)
     return;
+
+  int e = extend>=3 ? 3 : extend;
+
   if(clk>=0)
   {
-    switch (drawstyle)
+    /*switch (drawstyle)
     {
       case 0:                                               //normal
+	  case 3:												//link
         overtile16(dest,tile,sx,sy,cs,flip);
         break;
       case 1:                                               //phantom
@@ -169,33 +325,199 @@ void sprite::draw(BITMAP* dest)
       case 2:                                               //cloaked
         overtilecloaked16(dest,tile,sx,sy,flip);
         break;
+	}*/
+        switch(e)
+        {
+          BITMAP *temp;
+          case 1:
+          temp = create_bitmap_ex(8,16,32);
+		  blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
+		  if(drawstyle==0 || drawstyle==3)
+		  {
+            overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
+            overtile16(temp,tile,0,16,cs,flip);
+		  }
+		  if(drawstyle==1)
+		  {
+            overtiletranslucent16(temp,tile-TILES_PER_ROW,0,0,cs,flip,128);
+            overtiletranslucent16(temp,tile,0,16,cs,flip,128);
+		  }
+		  if(drawstyle==2)
+		  {
+            overtilecloaked16(temp,tile-TILES_PER_ROW,0,0,flip);
+            overtilecloaked16(temp,tile,0,16,flip);
+		  }
+          masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+          destroy_bitmap(temp);
+          break;
+          case 2:
+          temp = create_bitmap_ex(8,48,32);
+          blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
+		  if(drawstyle==0 || drawstyle==3)
+		  {
+            overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
+            overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
+            overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
+            overtile16(temp,tile,16,16,cs,flip);
+            overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
+            overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
+		  }
+		  if(drawstyle==1)
+		  {
+            overtiletranslucent16(temp,tile-TILES_PER_ROW,16,0,cs,flip,128);
+            overtiletranslucent16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip,128);
+            overtiletranslucent16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip,128);
+            overtiletranslucent16(temp,tile,16,16,cs,flip,128);
+            overtiletranslucent16(temp,tile-(flip?-1:1),0,16,cs,flip,128);
+            overtiletranslucent16(temp,tile+(flip?-1:1),32,16,cs,flip,128);
+		  }
+		  if(drawstyle==2)
+		  {
+            overtilecloaked16(temp,tile-TILES_PER_ROW,16,0,flip);
+            overtilecloaked16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,flip);
+            overtilecloaked16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,flip);
+            overtilecloaked16(temp,tile,16,16,flip);
+            overtilecloaked16(temp,tile-(flip?-1:1),0,16,flip);
+            overtilecloaked16(temp,tile+(flip?-1:1),32,16,flip);
+		  }
+          masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+          destroy_bitmap(temp);
+          break;
+		  case 3:
+		  {
+		    switch(flip)
+		    {
+		      case 1:
+			    for(int i=0;i<tysz;i++)
+				{
+				  for(int j=txsz-1; j>=0; j--)
+				  {
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+i*16,flip);
+				  }
+				}
+				break;
+			  case 2:
+			    for(int i=tysz-1;i>=0;i--)
+				{
+				  for(int j=0; j<txsz; j++)
+				  {
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+(tysz-i-1)*16,flip);
+				  }
+				}
+				break;
+			  case 3:
+			    for(int i=tysz-1;i>=0;i--)
+				{
+				  for(int j=txsz-1; j>=0; j--)
+				  {
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
+				  }
+				}
+				break;
+			  case 0:
+			    for(int i=0;i<tysz;i++)
+				{
+				  for(int j=0; j<txsz; j++)
+				  {
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+i*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+i*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+i*16,flip);
+				  }
+				}
+				break;
+			}
+		  case 0:
+		  default:
+		  if(drawstyle==0 || drawstyle==3)
+            overtile16(dest,tile,sx,sy,cs,flip);
+		  else if(drawstyle==1)
+            overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+		  else if(drawstyle==2)
+            overtilecloaked16(dest,tile,sx,sy,flip);
+          break;
+        }
+        break;
     }
   }
   else
   {
-    int t  = wpnsbuf[iwSpawn].tile;
-    int cs = wpnsbuf[iwSpawn].csets&15;
-    if(BSZ)
-    {
-      if(clk>=-10) ++t;
-      if(clk>=-5) ++t;
-    }
-    else
-    {
-      if(clk>=-12) ++t;
-      if(clk>=-6) ++t;
-    }
-    overtile16(dest,t,x,sy,cs,0);
+    if(e!=3)
+	{
+      int t  = wpnsbuf[iwSpawn].tile;
+      int cs2 = wpnsbuf[iwSpawn].csets&15;
+      if(BSZ)
+      {
+        if(clk>=-10) ++t;
+        if(clk>=-5) ++t;
+      }
+      else
+      {
+        if(clk>=-12) ++t;
+        if(clk>=-6) ++t;
+      }
+      overtile16(dest,t,sx,sy,cs2,0);
+	}
+	else
+	{
+	  sprite *w = new sprite((fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+	  w->xofs = xofs;
+	  w->yofs = yofs;
+	  w->zofs = zofs;
+	  w->txsz = txsz;
+	  w->tysz = tysz;
+	  w->extend = 3;
+	  if(BSZ)
+      {
+        if(clk>=-10)
+	    {
+		  if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+		    w->tile+=txsz;
+		  else
+		    w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+	    }
+        if(clk>=-5)
+	    {
+		  if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+		    w->tile+=txsz;
+		  else
+		    w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+	    }
+      }
+      else
+      {
+        if(clk>=-12)
+	    {
+		  if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+		    w->tile+=txsz;
+		  else
+		    w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+	    }
+        if(clk>=-6)
+	    {
+		  if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+		    w->tile+=txsz;
+		  else
+		    w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+	    }
+      }
+	  w->draw(dest);
+	  delete w;
+	}
   }
-
-  if(debug && key[KEY_O])
-    rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(id));
+  if(show_hitboxes && !is_zquest())
+    rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
 }
 
 void sprite::draw8(BITMAP* dest)
 {
   int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
+  int sy = real_y(y+yofs)-real_z(z+zofs);
 
   if(id<0)
     return;
@@ -204,11 +526,11 @@ void sprite::draw8(BITMAP* dest)
     switch (drawstyle)
     {
       case 0:                                               //normal
-        overtile8(dest,tile,sx,sy,cs,flip);
-        break;
+      overtile8(dest,tile,sx,sy,cs,flip);
+      break;
       case 1:                                               //phantom
-        overtiletranslucent8(dest,tile,sx,sy,cs,flip,128);
-        break;
+      overtiletranslucent8(dest,tile,sx,sy,cs,flip,128);
+      break;
     }
   }
 }
@@ -216,7 +538,7 @@ void sprite::draw8(BITMAP* dest)
 void sprite::drawcloaked(BITMAP* dest)
 {
   int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
+  int sy = real_y(y+yofs)-real_z(z+zofs);
 
   if(id<0)
     return;
@@ -227,7 +549,7 @@ void sprite::drawcloaked(BITMAP* dest)
   else
   {
     int t  = wpnsbuf[iwSpawn].tile;
-    int cs = wpnsbuf[iwSpawn].csets&15;
+    int cs2 = wpnsbuf[iwSpawn].csets&15;
     if(BSZ)
     {
       if(clk>=-10) ++t;
@@ -238,70 +560,38 @@ void sprite::drawcloaked(BITMAP* dest)
       if(clk>=-12) ++t;
       if(clk>=-6) ++t;
     }
-    overtile16(dest,t,x,sy,cs,0);
+    overtile16(dest,t,x,sy,cs2,0);
   }
 
-  if(debug && key[KEY_O])
+  if(get_debug() && key[KEY_O])
     rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(id));
 }
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)
 {
-  if (shadowtile==0)
+  if (extend == 4 || shadowtile==0 || id<0)
   {
     return;
   }
-  int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
 
-  if(id<0)
-    return;
+  int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
+  int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
+
+  int sx = real_x(x+xofs)+(txsz-1)*8;
+  int sy = real_y(y+yofs+(tysz-1)*16);
+
   if(clk>=0)
   {
     if (translucent)
     {
-      overtiletranslucent16(dest,shadowtile,sx,sy,cs,flip,128);
+      overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
     }
     else
     {
-      overtile16(dest,shadowtile,sx,sy,cs,flip);
+      overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
     }
   }
 }
-
-/*
-void sprite::check_conveyor()
-{
-  if (conveyclk<=0) {
-    int ctype=(combobuf[MAPDATA(x+8,y+8)].type);
-    if((ctype>=cCVUP) && (ctype<=cCVRIGHT)) {
-      switch (ctype-cCVUP) {
-        case up:
-         if(!_walkflag(x,y+8-2,2)) {
-            y=y-2;
-          }
-break;
-case down:
-if(!_walkflag(x,y+15+2,2)) {
-y=y+2;
-}
-break;
-case left:
-if(!_walkflag(x-2,y+8,1)) {
-x=x-2;
-}
-break;
-case right:
-
-if(!_walkflag(x+15+2,y+8,1)) {
-x=x+2;
-}
-break;
-}
-}
-}
-}
-*/
 
 /***************************************************************************/
 
@@ -330,6 +620,9 @@ bool sprite_list::swap(int a,int b)
   sprite *c = sprites[a];
   sprites[a] = sprites[b];
   sprites[b] = c;
+  containedUIDs[sprites[a]->getUID()] = a;
+  containedUIDs[sprites[b]->getUID()] = b;
+ // checkConsistency();
   return true;
 }
 
@@ -340,26 +633,35 @@ bool sprite_list::add(sprite *s)
     delete s;
     return false;
   }
+  containedUIDs[s->getUID()] = count;
   sprites[count++]=s;
+  //checkConsistency();
   return true;
 }
 
 bool sprite_list::remove(sprite *s)
-// removes pointer from list but doesn't delete it
+  // removes pointer from list but doesn't delete it
 {
+	map<long, int>::iterator it = containedUIDs.find(s->getUID());
+	if(it != containedUIDs.end())
+		containedUIDs.erase(it);
   int j=0;
   for( ; j<count; j++)
     if(sprites[j] == s)
       goto gotit;
 
-  return false;
+    return false;
 
-  gotit:
+gotit:
 
   for(int i=j; i<count-1; i++)
+  {
     sprites[i]=sprites[i+1];
+	containedUIDs[sprites[i]->getUID()] = i;
+  }
 
   --count;
+  //checkConsistency();
   return true;
 }
 
@@ -403,11 +705,17 @@ bool sprite_list::del(int j)
 {
   if(j<0||j>=count)
     return false;
-
+  map<long, int>::iterator it = containedUIDs.find(sprites[j]->getUID());
+  if(it != containedUIDs.end())
+	  containedUIDs.erase(it);
   delete sprites[j];
   for(int i=j; i<count-1; i++)
+  {
     sprites[i]=sprites[i+1];
+	containedUIDs[sprites[i]->getUID()] = i;
+  }
   --count;
+  //checkConsistency();
   return true;
 }
 
@@ -416,17 +724,17 @@ void sprite_list::draw(BITMAP* dest,bool lowfirst)
   switch(lowfirst)
   {
     case true:
-      for(int i=0; i<count; i++)
-      {
-        sprites[i]->draw(dest);
-      }
-      break;
+    for(int i=0; i<count; i++)
+    {
+      sprites[i]->draw(dest);
+    }
+    break;
     case false:
-      for(int i=count-1; i>=0; i--)
-      {
-        sprites[i]->draw(dest);
-      }
-      break;
+    for(int i=count-1; i>=0; i--)
+    {
+      sprites[i]->draw(dest);
+    }
+    break;
   }
 }
 
@@ -435,13 +743,13 @@ void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
   switch(lowfirst)
   {
     case true:
-      for(int i=0; i<count; i++)
-        sprites[i]->drawshadow(dest,translucent);
-      break;
+    for(int i=0; i<count; i++)
+      sprites[i]->drawshadow(dest,translucent);
+    break;
     case false:
-      for(int i=count-1; i>=0; i--)
-        sprites[i]->drawshadow(dest,translucent);
-      break;
+    for(int i=count-1; i>=0; i--)
+      sprites[i]->drawshadow(dest,translucent);
+    break;
   }
 }
 
@@ -450,13 +758,13 @@ void sprite_list::draw2(BITMAP* dest,bool lowfirst)
   switch(lowfirst)
   {
     case true:
-      for(int i=0; i<count; i++)
-        sprites[i]->draw2(dest);
-      break;
+    for(int i=0; i<count; i++)
+      sprites[i]->draw2(dest);
+    break;
     case false:
-      for(int i=count-1; i>=0; i--)
-        sprites[i]->draw2(dest);
-      break;
+    for(int i=count-1; i>=0; i--)
+      sprites[i]->draw2(dest);
+    break;
   }
 }
 
@@ -465,14 +773,14 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
   switch(lowfirst)
   {
     case true:
-      for(int i=0; i<count; i++)
-        sprites[i]->drawcloaked2(dest);
-      break;
+    for(int i=0; i<count; i++)
+      sprites[i]->drawcloaked2(dest);
+    break;
     case false:
 
-      for(int i=count-1; i>=0; i--)
-        sprites[i]->drawcloaked2(dest);
-      break;
+    for(int i=count-1; i>=0; i--)
+      sprites[i]->drawcloaked2(dest);
+    break;
   }
 }
 
@@ -485,7 +793,7 @@ void sprite_list::animate()
     {
       if(sprites[i]->animate(i))
       {
-        del(i);
+	    del(i);
         --i;
       }
     }
@@ -510,15 +818,15 @@ int sprite_list::hit(sprite *s)
   for(int i=0; i<count; i++)
     if(sprites[i]->hit(s))
       return i;
-  return -1;
+    return -1;
 }
 
-int sprite_list::hit(int x,int y,int xsize, int ysize)
+int sprite_list::hit(int x,int y,int z, int xsize, int ysize, int zsize)
 {
   for(int i=0; i<count; i++)
-    if(sprites[i]->hit(x,y,xsize,ysize))
+    if(sprites[i]->hit(x,y,z,xsize,ysize,zsize))
       return i;
-  return -1;
+    return -1;
 }
 
 // returns the number of sprites with matching id
@@ -579,6 +887,21 @@ int sprite_list::idLast(int id)
   return idLast(id,0xFFFF);
 }
 
+sprite * sprite_list::getByUID(long uid)
+{
+	map<long, int>::iterator it = containedUIDs.find(uid);
+	if(it != containedUIDs.end())
+		return spr(it->second);
+	return NULL;
+}
+
+void sprite_list::checkConsistency()
+{
+	assert((int)containedUIDs.size() == count);
+	for(int i=0; i<count; i++)
+		assert(sprites[i] == getByUID(sprites[i]->getUID()));
+}
+
 /**********************************/
 /********** Moving Block **********/
 /**********************************/
@@ -588,88 +911,14 @@ movingblock::movingblock() : sprite()
   id=1;
 }
 
-/*
-  void movingblock::push(fix bx,fix by,int d,int f)
-  {
-   trigger=false;
-   endx=x=bx; endy=y=by; dir=d; oldflag=f;
-   word *di = &(tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]);
-   byte *ci = &(tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]);
-//   bcombo = ((*di)&0xFF)+(tmpscr->cpage<<8);
-   bcombo =  tmpscr->data[(int(y)&0xF0)+(int(x)>>4)];
-   cs     =  tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)];
-   tile = combobuf[bcombo].tile;
-flip = combobuf[bcombo].flip;
-//   cs = ((*di)&0x700)>>8;
-*di = tmpscr->undercombo;
-*ci = tmpscr->undercset;
-putcombo(scrollbuf,x,y,*di,*ci);
-clk=32;
-blockmoving=true;
-}
-
-bool movingblock::animate(int index)
-{
-if(clk<=0)
-return false;
-
-move((fix)0.5);
-
-if(--clk==0) {
-blockmoving=false;
-tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
-tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=cs;
-if (tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]==mfBLOCKTRIGGER) {
-trigger=true;
-}
-tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
-if (oldflag>=mfPUSHUDINS&&!trigger) {
-tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=oldflag;
-}
-for (int i=0; i<176; i++) {
-if (tmpscr->sflag[i]==mfBLOCKTRIGGER) {
-trigger=false;
-}
-}
-
-if (oldflag<mfPUSHUDNS||trigger) { //triggers a secret
-if(hiddenstair(0,true)) {
-if(!nosecretsounds) {
-sfx(WAV_SECRET,128);
-}
-} else {
-hidden_entrance(0,true,true);
-if(((combobuf[bcombo].type == cPUSH_WAIT) ||
-(combobuf[bcombo].type == cPUSH_HW) ||
-(combobuf[bcombo].type == cPUSH_HW2) || trigger) &&
-(!nosecretsounds)) {
-sfx(WAV_SECRET,128);
-}
-}
-
-if(isdungeon() && tmpscr->flags&fSHUTTERS) {
-opendoors=8;
-}
-
-if(!isdungeon()) {
-if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
-|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2) {
-setmapflag(mSECRET);
-}
-}
-}
-putcombo(scrollbuf,x,y,bcombo,cs);
-}
-return false;
-}
-*/
 void movingblock::draw(BITMAP *dest)
 {
   if(clk)
   {
-//    sprite::draw(dest);
+    //    sprite::draw(dest);
     overcombo(dest,real_x(x+xofs),real_y(y+yofs),bcombo ,cs);
   }
 }
 
 /*** end of sprite.cc ***/
+

@@ -8,8 +8,8 @@
 //
 //--------------------------------------------------------
 
-//inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-//inline void SCRFIX() {}
+//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+//INLINE void SCRFIX() {}
 
 #ifndef _ZQ_MISC_H_
 #define _ZQ_MISC_H_
@@ -17,75 +17,96 @@
 #include "zc_alleg.h"
 #include "zdefs.h"
 #include "jwin.h"
+#include "sfx.h"
 
-#define ITEMCNT   iMax
-#define WPNCNT    wMAX
+#define MAXSCREENS 128
 #define MAXROOMTYPES   rMAX
 #define MAXWARPTYPES   wtMAX-1                              // minus whistle
 #define MAXWARPEFFECTS   weMAX
 #define MAXCOMBOTYPES  cMAX
 #define MAXFLAGS    mfMAX
-#define zqMAXGUYS    9
-#define MAXPATTERNS  2
-#define MAXMIDIS_ZQ  4+MAXMIDIS
+#define MAXPATTERNS  6
+#define MAXCUSTOMMIDIS_ZQ  (4+MAXCUSTOMMIDIS)
 
-#define cWALK      1
-#define cFLAGS     2
-#define cDARK      4
-#define cCSET      8
-#define cNODARK    16
-#define cNOITEM    32
-#define cCTYPE     64
-#define cDEBUG     128
+#define cWALK            1
+#define cFLAGS           2
+#define cDARK            4
+#define cCSET            8
+#define cNODARK         16
+#define cNOITEM         32
+#define cCTYPE          64
+#define cDEBUG         128
 
-#define rMAP       1
-#define rCOMBOS    2
-#define rSCRMAP    4
-#define rMENU      8
-#define rCOMBO     16
-#define rALL       0x0FF
-#define rCLEAR     0x100
+#define rMAP             1
+#define rCOMBOS          2
+#define rSCRMAP          4
+#define rMENU            8
+#define rCOMBO          16
+#define rFAVORITES      32
+#define rCOMMANDS       64
+#define rOTHER         128
+#define rALL        0x0FFF
+#define rCLEAR      0x1000
+#define rNOCURSOR   0x2000
 
 #define C(x)   ((x)-'a'+1)
 
-inline int popup_menu(MENU *menu,int x,int y)
+INLINE int popup_menu(MENU *menu,int x,int y)
 {
-  while(gui_mouse_b());
+  while(gui_mouse_b()) { /* do nothing */ }
   return jwin_do_menu(menu,x,y);
 }
 
-inline int bit(int val,int b)
+INLINE int bit(int val,int b)
 {
   return (val>>b)&1;
 }
 
-enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
-extern char *imgstr[6];
+enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU, ftZQT, ftQST, ftMAX };
+extern const char *imgstr[ftMAX];
+extern char ns_string[4];
+extern const char *old_item_string[iLast];
+extern const char *old_weapon_string[wLast];
+extern const char *old_sfx_string[Z35];
 extern char *item_string[ITEMCNT];
 extern char *weapon_string[WPNCNT];
-extern char *roomtype_string[MAXROOMTYPES];
-extern char *catchall_string[MAXROOMTYPES];
-extern char *warptype_string[MAXWARPTYPES];
-extern char *warpeffect_string[MAXWARPEFFECTS];
-extern char *combotype_string[MAXCOMBOTYPES];
-extern char *flag_string[MAXFLAGS];
+extern char *sfx_string[WAV_COUNT];
+extern const char *roomtype_string[MAXROOMTYPES];
+extern const char *catchall_string[MAXROOMTYPES];
+extern const char *warptype_string[MAXWARPTYPES];
+extern const char *warpeffect_string[MAXWARPEFFECTS];
+//extern const char *combotype_string[MAXCOMBOTYPES];
+extern const char *flag_string[MAXFLAGS];
+extern const char *flag_help_string[(mfMAX)*3];
+extern const char *itemclass_help_string[itype_custom1*3];
+extern const char *combotype_help_string[cMAX*3];
+extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
-extern char *pattern_string[MAXPATTERNS];
-extern char *short_pattern_string[MAXPATTERNS];
-extern char *midi_string[MAXMIDIS_ZQ];
+extern const char *pattern_string[MAXPATTERNS];
+extern const char *short_pattern_string[MAXPATTERNS];
+extern const char *walkmisc1_string[e1tLAST];
+extern const char *walkmisc2_string[e2tTRIBBLE+1];
+extern const char *walkmisc7_string[e7tEATHURT+1];
+extern const char *walkmisc9_string[e9tARMOS+1];
+extern const char *midi_string[MAXCUSTOMMIDIS_ZQ];
+extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
+extern const char *enetype_string[eeMAX];
+extern const char *eneanim_string[aMAX];
+//extern char *itemset_string[isMAX];
+extern const char *eweapon_string[wMax-wEnemyWeapons];
 extern int gocnt;
 
-int filetype(char *path);
+int filetype(const char *path);
 void load_mice();
 void load_icons();
+void load_panel_button_icons();
 void load_selections();
 void load_arrows();
 void dump_pal();
 
-int bound(int &x,int low,int high);
 int wrap(int x,int low,int high);
-bool readfile(char *path,void *buf,int count);
-bool writefile(char *path,void *buf,int count);
+bool readfile(const char *path,void *buf,int count);
+bool writefile(const char *path,void *buf,int count);
 
 /***  from allegro's guiproc.c  ***/
 void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg);
@@ -126,6 +147,18 @@ int onPasteAllToAll();
 int onDelete();
 int onDeleteMap();
 
+int onPasteUnderCombo();
+int onPasteSecretCombos();
+int onPasteFFCombos();
+int onPasteWarps();
+int onPasteScreenData();
+int onPasteWarpLocations();
+int onPasteDoors();
+int onPasteLayers();
+int onPasteRoom();
+int onPasteGuy();
+int onPasteEnemies();
+
 int onTemplate();
 int onDoors();
 int onCSetFix();
@@ -144,8 +177,8 @@ int onLeft();
 int onRight();
 int onPgUp();
 int onPgDn();
-int onPlus();
-int onMinus();
+int onIncreaseCSet();
+int onDecreaseCSet();
 
 int  onHelp();
 void doHelp(int bg,int fg);
@@ -166,7 +199,12 @@ int onUnderCombo();
 int onSecretCombo();
 
 int onHeader();
-int onRules();
+int onAnimationRules();
+int onComboRules();
+int onItemRules();
+int onEnemyRules();
+int onFixesRules();
+int onMiscRules();
 int onRules2();
 int onCheats();
 int onStrings();
@@ -198,6 +236,7 @@ int onImport_DMaps();
 int onImport_Msgs();
 int onImport_Combos();
 int onImport_Tiles();
+int onImport_Subscreen();
 int onImport_Pals();
 int onImport_ZGP();
 int onImport_ZQT();
@@ -206,8 +245,10 @@ int onImport_UnencodedQuest();
 int onExport_Map();
 int onExport_DMaps();
 int onExport_Msgs();
+int onExport_MsgsText();
 int onExport_Combos();
 int onExport_Tiles();
+int onExport_Subscreen();
 int onExport_Pals();
 int onExport_ZGP();
 int onExport_ZQT();
@@ -236,7 +277,7 @@ int onTestOptions();
 
 int onOptions();
 
-void edit_combo(int c,bool freshen,int cs);
+bool edit_combo(int c,bool freshen,int cs);
 
 void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg,bool value);
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int value);
@@ -249,14 +290,19 @@ void comeback();
 int checksave();
 int onExit();
 int onAbout();
-int onW();
-int onF();
-int onQ();
-int onL();
+int onShowCSet();
+int onShowCType();
+int onShowWalkability();
+int onPreviewMode();
+int onShowFlags();
+int onP();
+int onShowComboInfoCSet();
+int onShowDarkness();
+int onJ();
 int onM();
 void setFlagColor();
-int onTimes();
-int onDivide();
+int onIncreaseFlag();
+int onDecreaseFlag();
 int on0();
 int on1();
 int on2();
@@ -272,8 +318,9 @@ int on11();
 int on12();
 int on13();
 int on14();
-int onD();
+int onToggleDarkness();
 int onIncMap();
 int onDecMap();
 int onDumpScr();
 #endif
+

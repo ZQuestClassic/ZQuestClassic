@@ -10,24 +10,37 @@
 
 /*  Allegro MIDI struct
 
-typedef struct MIDI                    // a midi file
-{
-   int divisions;                      // number of ticks per quarter note
-   struct {
-      unsigned char *data;             // MIDI message stream
-      int len;                         // length of the track data
-   } track[MIDI_TRACKS];
-} MIDI;
+  typedef struct MIDI                    // a midi file
+  {
+  int divisions;                      // number of ticks per quarter note
+  struct {
+  unsigned char *data;             // MIDI message stream
+  int len;                         // length of the track data
+  } track[MIDI_TRACKS];
+  } MIDI;
 
-*/
+  */
 
-#include "midi.h"
+#ifndef __GTHREAD_HIDE_WIN32API
+#define __GTHREAD_HIDE_WIN32API 1
+#endif                            //prevent indirectly including windows.h
+
 #include <string.h>
 #include <stdio.h>
+
+
+#include "midi.h"
+#include "zsys.h"
 /* save_midi:
- *  Saves a standard MIDI file, returning 0 on success,
- *  or non-zero on error.
- */
+  *  Saves a standard MIDI file, returning 0 on success,
+  *  or non-zero on error.
+  */
+
+// snprintf is defined as _snprintf in windows stdio.h
+#ifdef _MSC_VER
+	#define snprintf _snprintf
+#endif
+
 int save_midi(char *filename, MIDI *midi)
 {
   int c;
@@ -38,7 +51,7 @@ int save_midi(char *filename, MIDI *midi)
   if(!midi)
     return 1;
 
-  fp = pack_fopen(filename, F_WRITE);                       /* open the file */
+  fp = pack_fopen_password(filename, F_WRITE,"");                       /* open the file */
   if (!fp)
     return 2;
 
@@ -46,7 +59,7 @@ int save_midi(char *filename, MIDI *midi)
     if(midi->track[c].len > 0)
       num_tracks++;
 
-  pack_fwrite((void *) "MThd", 4, fp);                      /* write midi header */
+    pack_fwrite((void *) "MThd", 4, fp);                      /* write midi header */
 
   pack_mputl(6, fp);                                        /* header chunk length = 6 */
 
@@ -71,7 +84,7 @@ int save_midi(char *filename, MIDI *midi)
   return 0;
 
   /* oh dear... */
-  err:
+err:
   pack_fclose(fp);
   delete_file(filename);
   return 3;
@@ -80,42 +93,42 @@ int save_midi(char *filename, MIDI *midi)
 /* ---  All this code just to calculate the length of a MIDI song.  --- */
 
 /*
-#define MAX_TEMPO_CHANGES 512
+  #define MAX_TEMPO_CHANGES 512
 
-typedef struct midi_info
-{
+  typedef struct midi_info
+  {
   // midi info
   int format;
   int num_tracks;
   int divisions;
   int len_beats;
-double len_sec;
-int tempo_changes;
-double tempo[MAX_TEMPO_CHANGES];         // tempo can change during song
-dword  tempo_c[MAX_TEMPO_CHANGES];       // store the total delta time before each change in tempo
+  double len_sec;
+  int tempo_changes;
+  double tempo[MAX_TEMPO_CHANGES];         // tempo can change during song
+  dword  tempo_c[MAX_TEMPO_CHANGES];       // store the total delta time before each change in tempo
 
-// MTrk event info (used by parse_mtrk())
-dword dt,nbytes;
-byte event,running_status,type,byte2;
-byte *buf;
+  // MTrk event info (used by parse_mtrk())
+  dword dt,nbytes;
+  byte event,running_status,type,byte2;
+  byte *buf;
 
-} midi_info;
+  } midi_info;
 
-typedef struct mtrkevent
-// sort of... it's actually not a true MTrk event because it can be a
-// combination of events, such as a "note on" event plus a "note off" event
-{
-// basic mtrk event but with total time instead of delta-time
-byte *buf;       // buffer for extra data
-dword t;         // total time from start in delta-time units
-word dur;        // duration of note
-word event;      // event + extra byte of info
-word nbytes;     // number of bytes in "buf" or note off velocity
-byte type;       // meta type, note number, etc.
-byte byte2;      // byte 2 or note on velocity
-} mtrkevent;
+  typedef struct mtrkevent
+  // sort of... it's actually not a true MTrk event because it can be a
+  // combination of events, such as a "note on" event plus a "note off" event
+  {
+  // basic mtrk event but with total time instead of delta-time
+  byte *buf;       // buffer for extra data
+  dword t;         // total time from start in delta-time units
+  word dur;        // duration of note
+  word event;      // event + extra byte of info
+  word nbytes;     // number of bytes in "buf" or note off velocity
+  byte type;       // meta type, note number, etc.
+  byte byte2;      // byte 2 or note on velocity
+  } mtrkevent;
 
-*/
+  */
 
 dword getval(byte *buf,int nbytes)
 {
@@ -146,7 +159,7 @@ dword parse_var_len(byte **data)
 }
 
 dword parse_mtrk(byte **data, midi_info *mi)
-// returns length of the <MTrk event>
+  // returns length of the <MTrk event>
 {
   byte *start = *data;
 
@@ -169,30 +182,30 @@ dword parse_mtrk(byte **data, midi_info *mi)
   switch(mi->event)
   {
     case 0xFF:                                              // <meta-event>
-      mi->type = **data; (*data)++;
+    mi->type = **data; (*data)++;
     case 0xF0:
     case 0xF7:                                              // <sysex events>
-      mi->nbytes = parse_var_len(data);
-      mi->buf = *data;
-      (*data) += mi->nbytes;
-      break;
+    mi->nbytes = parse_var_len(data);
+    mi->buf = *data;
+    (*data) += mi->nbytes;
+    break;
 
     case 0xF2:  (*data)+=2; break;
     case 0xF3:  (*data)++; break;
 
     default:
-      switch(mi->event&0xF0)
-      {
-        case 0x80:
-        case 0x90:
-        case 0xA0:
-        case 0xB0:
-        case 0xE0:  mi->type  = **data; (*data)++;
-        mi->byte2 = **data; (*data)++;
-        break;
-        case 0xC0:
-        case 0xD0:  mi->type = **data; (*data)++; break;
-      }
+    switch(mi->event&0xF0)
+    {
+      case 0x80:
+      case 0x90:
+      case 0xA0:
+      case 0xB0:
+      case 0xE0:  mi->type  = **data; (*data)++;
+      mi->byte2 = **data; (*data)++;
+      break;
+      case 0xC0:
+      case 0xD0:  mi->type = **data; (*data)++; break;
+    }
   }
 
   return (*data) - start;
@@ -287,10 +300,10 @@ void get_midi_info(MIDI *midi, midi_info *mi)
         gottempo=true;
       }
     }
-    max_dt = max(max_dt,total_dt);
+    max_dt = zc_max(max_dt,total_dt);
   }
 
-  done:
+done:
 
   if(mi->tempo_changes==0)                                  // then guess
   {
@@ -317,25 +330,27 @@ char *timestr(double sec)
   return buf;
 }
 
-bool decode_text_event(char *s,byte type,byte *buf)
+bool decode_text_event(char *s,int length, byte type,byte *buf)
 {
   switch(type)
   {
-    case 0x01: sprintf(s,"T: %s\n",buf); break;
-    case 0x02: sprintf(s,"C: %s\n",buf); break;
-    case 0x03: sprintf(s,"N: %s\n",buf); break;
-    case 0x04: sprintf(s,"I: %s\n",buf); break;
+    case 0x01: snprintf(s,length,"T: %s\n",buf); break;
+    case 0x02: snprintf(s,length,"C: %s\n",buf); break;
+    case 0x03: snprintf(s,length,"N: %s\n",buf); break;
+    case 0x04: snprintf(s,length,"I: %s\n",buf); break;
     default:
-      return false;
+    return false;
   }
   return true;
 }
 
 void get_midi_text(MIDI *midi, midi_info *mi, char *text)
-// must have called get_midi_info() first
+  // must have called get_midi_info() first
 {
-  byte buf[512];
+  byte buf[1024];
   char *out = text;
+  int length=4096;
+  dword nbytes;
 
   text[0] = 0;
 
@@ -354,11 +369,16 @@ void get_midi_text(MIDI *midi, midi_info *mi, char *text)
 
       if(mi->event==0xFF)
       {
-        memcpy(buf,mi->buf,mi->nbytes);
-        buf[mi->nbytes]=0;
-        if(decode_text_event(out,mi->type,buf))
+        nbytes=zc_min(mi->nbytes, 1023);
+        memcpy(buf,mi->buf,nbytes);
+        buf[nbytes]=0;
+        if(decode_text_event(out,length,mi->type,buf))
+        {
+          length-=strlen(out);
           out+=strlen(out);
+        }
       }
     }
   }
 }
+

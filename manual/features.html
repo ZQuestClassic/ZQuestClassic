@@ -1,0 +1,407 @@
+<html>
+<head>
+<title>ZC Manual - ZC Features</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<h1 id="zquestfeatures">Zquest Features</h1>
+<h2 id="maps">Maps</h2>
+<p>A map is a 6x8 collection of screens. The limit is 255 maps to a quest, but you can have more than one Dmap per map. At any time in the game Link is both on a map and a dmap. The map/screen contains the actual combos, the dmap the palette/music and other information.</p>
+<p>The last four screens in a map have specific uses:
+<list>
+<li /> 0x80:  Default cave or item room (where you put special items and overworld guys) 
+<li /> 0x81:  3-stair warp cave in the overworld, passageway in dungeons 
+<li /> 0x82:  Reserved 
+<li /> 0x83:  Screen template (see template section), used mainly in dungeons  
+</list>
+</p>
+<p>
+<i>Warning: Do not use theese screens as normal screens in your game.</i> <br />
+Any warp of type "Cave/Item room" will take you to screen 80 on the current map, and when you leave it back to the screen you came from. 
+</p>
+<h2 id="graphics">Graphics: Palettes, Csets</h2>
+<p>The ZC palette is divided up into 15 blocks of 16 colors each. These blocks are called "Csets" (color sets). The first color in each Cset is transparent. <br />
+Csets 0-5 are background colors and 6-14 are sprite colors. Below is an explanation of each: </p>
+
+<p>
+<b>Background colors: </b>
+<list>
+<li />	0,1: used for subscreen colors and map colors 
+<li />	2-4: loaded with different "level colors" * 
+<li />	5: extra bkg CSet, independent of level
+</list>
+Additionally Csets 6-11 can now be used as background Csets in the main editor.</p>
+
+<p>
+<b>Sprite colors: </b>
+<list>
+<li />	6: Link's colors 
+<li />	7-8: constant sprite colors 
+<li />	9: level-defined sprite colors * 
+<li />	10-13: extra constant sprite color Csets 
+<li />	14: used for boss colors, which are loaded as needed
+</list>
+* Tiles using CSet 9 will change color according to the level the player is in. </p>
+
+<p>
+<b>Levels</b>
+<list>
+<li />	00: Overworld Dmap Csets that change according to level 
+<li />	01-09: Palettes for Levels 1-9 Dmaps 
+<li />	0A: Palettes for cave Dmaps 
+<li />	0B: Palettes for passageways and item rooms in dungeons. 
+<li />	0C-FF: Extra level Dmap palettes 
+</list>
+Note: The white numbers on the left in the level palette editor are the regular colors for the dungeon Csets. <br />
+The black numbers show what that Csets turns to when the room is dark. <br />
+The 2 shades of grey numbers are the in-between colors that Csets go through when fading from light to dark or vice versa. </p>
+
+<p>
+<b>Sprite Palettes - Extra Sprite Palette 1: </b>
+<list>
+<li />	0: Aquamentus Cset 
+<li />	1: Gleeok Cset 
+<li />	2: Digdogger and its kids Cset 
+<li />	3: Ganon Cset 
+<li />	4: Ganon stunned Cset 
+<li />	5: Ganon dying Cset 
+<li />	6: Link with blue ring Cset 
+<li />	7: Link with red ring Cset 
+<li />	8: Link with gold ring Cset 
+<li />	9-12: Game Icon Csets: no ring, blue ring, red ring, gold ring. 
+<li />	13: Gleeok 2 Cset 
+<li />	14: 
+<li />	15: PatraBS Cset 
+</list>
+<b>Extra Sprite Palette 2:</b> If you need extra sprite c-sets in making custom quests, load them here.
+</p> 
+<h4 id="paletteeditor">The Palette Edit Dialog </h4>
+<img src="man_pics/palettes.gif" />
+<p>This dialog is under Quest-Graphics-Palettes.</p>
+<p>You can copy an entire Cset over to a different Cset: highlight the Cset you wish to copy and press 'C', then highlight the any other Cset and press 'V'. Presto, you have copied the Cset. This can save a lot of time if you want to copy animated palettes, like the water and fire in dungeons, over to different levels. </p>
+<p>When editing a palette, you can copy a single color to one of the other 16 colors in the palette. When editing a palette's colors, you can use the numeric keys  : </p>
+<list>
+<li />1, 2, 3, to move RGB values down (respectively)
+<li />7, 8, 9 to move RGB values up (respectively)
+<li />4 to move the cursor left
+<li />6 to move it right. 
+</list>
+<p>This is easier than adjusting with the cross on the color spectrum and Inserting. In the level palettes there is a name field where you can name the palette for easy identification. The U in palette editor is Undo.</p>
+
+<h2 id="combos">Combos</h2>
+<p>
+Combos are the building blocks of maps. Combos are a tile with extra game info, such as a type that can be water, stairs, cave, etc. , walk flags that can be set for each 8x8 corner, inherent flags, and animation. The tile can be flipped horizontally and/or vertically. What you place on your screens are combos (and not just tiles).</p>
+
+<p>The combo viewer/editor is under Quest/Graphics/combos. Hot keys are: 
+<list>
+<li />Enter: select current combo and close
+<li />ESC: close
+<li />space: toggle horizontal and vertical views 
+<li />Numpad +,-: change CSet 
+<li />Ctrl + Numpad +,-: change tile of selected combos by +/- 1.
+<li />Arrows: move selection
+<li />Shift + Arrows: Select a range.
+<li />P : go to page
+<li />E: edit current combo 
+<li />C: copy (select) a combo.
+<li />O: overwrite the destination combo with the source combo.
+<li />S: swap source and destination combos.
+<li />H , V (when no combos copied) : horizontally or vertically flip the tile of this combo
+<li />M : move combos (when copied). Moves the source here and deletes the source combos, removing their places in the combo table.
+<li />V (when combos copied) : paste. This will copy the source combos to the destination.  
+<li />Shift - V : mass paste. Select a range and press to fill the whole range with the source combos, repeating them if necesary.
+<li />Ctrl - V : advanced paste. Brings up a dialog where you can select which properties of the combo you want to copy. note that you can only advance paste from one source combo and that mass paste applies automatically.
+<li />PgUp, PgDown: changes the combo page
+<li />Del: delete a combo, leaving an empty space in the combo page.
+<li />I : insert an empty combo before the current combo, moving all following combos one to the right.
+<li />Shift - I : delete the current combo and move all following ones one space to the left. Unlike Del this does not leave an empty space.
+<li />U : undo last action
+</list>
+
+Note: To copy and paste a whole combo page (or part of one), click on the first combo, hold shift and click on the last combo. Press C. Go to the combo page you want to copy to. Click on the first space and hit C. This method can also be used to delete a number of combos by pressing delete after selecting the combos. </p>
+
+<h4>The Combo Edit Dialog:</h4>
+<img src="man_pics/editcombo.gif" />
+
+<p>This can be brough up by pressing E in the combo pages, or right-clicking a combo in the combo page or the combo panel on the main screen.</p>
+<p>
+<list>
+<li /> Click on the tile (first square) to edit the tile and/or flip status. 
+<li /> The square next to the tile shows the places you can't walk. Click corners to toggle grey for walkable and red for unwalkable. 
+<li /> The second square is used if you want to use more than one Cset on the tile. Click the corners to toggle grey (regular Cset) and blue (2nd Cset). 
+<li /> Enter the difference between the Cset and the number of the 2nd Cset on the CSet 2 line. With this, you can also make combos that use Cset 6, 7, 8, 9, 10, or 11 by making the entire square blue.
+<li /> Next: This square is used to show what combo will be next for combo cycling.
+<li /> A. Frames: Number of frames for animated combo. 
+<li /> A. Speed: Speed of animation. 
+<li /> A. Skip X and Y : how many tiles the combo skips each time it advances to the next frame.
+<li /> Type: See list below.
+<li /> Flag: Inherent flags. A combo can have both an inherent and a normal flag, see the flags section for a list of types.
+<li /> Refresh anim. : Restarts animation on the first tile whenever you enter the room.
+</list>
+</p>
+
+<h4>Combo Types</h4>
+<dl>
+<dt> --</dt><dd> Ordinary tile.</dd>
+<dt>Armos</dt><dd> When touched, this combo turns into the Armos sprite.</dd>
+<dt>Auto-warp A,B,C,D</dt><dd> Warps you to warp target specified automatically, as soon as it appears on screen. Link doesn't have to stand on it. (Used mainly as secret combo)</dd>
+<dt>Auto-warp [Random]</dt><dd> same, but chooses one of the four targets randomly.</dd>
+<dt>Block all</dt><dd> no arrows or boomerangs can pass this combo.</dd>
+<dt>Block arrow (All, Wood+Silver,Wooden)</dt><dd> Arrows of the these types cannot fly over the combo.</dd>
+<dt>Block Brang (All, Wood+Magic, Wooden)</dt><dd> Same for boomerangs.</dd>
+<dt>Block Fireball</dt><dd> Enemy fireballs can't pass.</dd>
+<dt>Block Sword Beam</dt><dd> Sword beams you shoot don't pass this combo.</dd>
+<dt>BS grave</dt><dd> When touched, these release a Ghini2, just like a regular grave. However, after doing so, the combo changes to the next combo in the combo list (like with pound combos). This allows you to create graves that release one Ghini2 per visit to the screen (like in BS Zelda) or any particular number of Ghini2's (if multiple BS Grave combos are in a row in the combo list).</dd>
+<dt>Bush</dt><dd> Same as slash->item, but this does the leaf animation.  This is a customizable sprite (bush leaves).</dd>
+<dt>Bush->Next</dt><dd> changes to the next combo on the page when slashed.</dd>
+<dt>Cave (Walk down) A-D </dt><dd> Warp tile. Set tile warp A-D.</dd>
+<dt>Cave (Walk up) A-D </dt><dd> Like cave, but Link seems to be walking straight in instead of down.</dd>
+<dt>Center Statue</dt><dd> If the "Statues shoot fire" enemy flag is checked these tiles shoot fire from their center.  </dd>
+<dt>Conveyor (Down, Left, Right, Up)</dt><dd> These move Link in the indicated direction.</dd>
+<dt>Damage (1, 1/2, 16, 2, 32, 4, 8) Hearts </dt><dd> If Link touches these combos he will take damage, The number after the combo shows the amount of damage in hearts. The boots protect Link from damage combos.  </dd>
+<dt>Direct Warp (A,B,C,D)</dt><dd> Warps Link to the screen set, without cave animation.</dd>
+<dt>Direct Warp [Random]</dt><dd> Same, but chooses the target at random from the four.</dd>
+<dt>Dive warp(A,B,C,D) </dt><dd> Same as swim warp, but Link must dive to activate the warp. </dd>
+<dt>Dock</dt><dd> Needed at the beginning and end of a raft path. You step on or off the raft here.</dd>
+<dt>Eyeball (A/B)</dt><dd> Changes its appearance based on where Link is located in relation to it. You could use them to make eyeballs that look at Link wherever he is, or townspeople that turn in his direction.  The eyeball combos use 8 tiles each 1 for each direction. They are set up left to right starting with "up" and going clockwise. They also change when you move the mouse around in ZQuest.</dd>
+<dt>FF Combo Attr. Change</dt><dd> ###gotta look this up</dd>
+<dt>Flowers</dt><dd> Same as bush, but uses a different animation sprite (flower clippings).</dd>
+<dt>Grave</dt><dd> When Link touches a grave tile, an unkillable Ghini will be produced.</dd>
+<dt>Hookshot Grab</dt><dd> If Link hits this combo with the hookshot, he will be pulled over to it. Used to cross combos not otherwise crossable.  </dd>
+<dt>Hookshot Only</dt><dd> A combo that can only be crossed over by using the hookshot. </dd>
+<dt>Ice</dt><dd> Link walks faster on ice but can't stop at once. Slippery.</dd>
+<dt>Ladder Only</dt><dd> A combo that can only be crossed over by using the Ladder. </dd>
+<dt>Ladder or Hookshot</dt><dd> Use either item to cross this combo.</dd>
+<dt>Left statue</dt><dd> If the "Statues shoot fire" enemy flag is checked these tiles shoot fire from their left sides. </dd>
+<dt>Lock Block (Boss)</dt><dd> Same as lock block but opens with boss key.</dd>
+<dt>Lock Block (Boss, Copycat)</dt><dd> Same as lock block (copycat), but activated by the boss lock block on the screen.</dd>
+<dt>Lock Block (Normal)</dt><dd> Acts like a door. Can only use one per screen.  When you push on it a little and have a key, it will change to the next combo in the combo buffer, as will any other lock block on the screen. This allows you to create lock blocks as large as you want (you can have large, intricate doors, if you choose). This even works on layers</dd>
+<dt>Lock Block (Normal, Copycat)</dt><dd> Doesn't open with a key, but when a regular lock block is opened, all lock block 2's on the screen will open (change) also.</dd>
+<dt>Magic Mirror (4-Way)</dt><dd> Reflects magic back in the direction it came from.</dd>
+<dt>Magic Mirror (UL/DR and UR/DL)</dt><dd> Magic beams are reflected at a 90 degree angle.</dd>
+<dt>Magic Prism (3 way, 4 Way)</dt><dd> A magic beam hitting this combo splits and is sent back out 3 or 4 ways.</dd>
+<dt>Magic Sponge</dt><dd> Absorbs magic beams.</dd>
+<dt>No Enemies</dt><dd> Enemies cannot spawn or move onto this combo.</dd>
+<dt>No Fly Zone</dt><dd> Flying enemies cannot fly over these combos. </dd>
+<dt>No Jump Zone</dt><dd> Tektites can't jump on or over this.</dd>
+<dt>Overhead</dt><dd> Link will seem to walk under these combos. Used for simple overhead effects without having to resort to layering. Do not use overhead combos for layering, or for any tile at the edge of a screen (for instance, dungeon doorways on a non-dungeon Dmap). </dd>
+<dt>Pound</dt><dd> If hit with the hammer this combo will change to the next combo to the right on the combo page. </dd>
+<dt><i>Push blocks</dt><dd> All these require a "push" type flag to work. For a block you can push without any further ado, just place the flag and don't set a combo type.</i></dd>
+<dt>Push (Heavy)</dt><dd> Link must have the level-1 power bracelet to push.</dd>
+<dt>Push (Heavy, Wait)</dt><dd>  Same, and all enemies on screen must be dead.</dd>
+<dt>Push (Very Heavy)</dt><dd> Link must have the level-2 power bracelet to push.</dd>
+<dt>Push (Very Heavy, Wait)</dt><dd> Same, and all enemies on screen must be dead.</dd>
+<dt>Push (Wait)</dt><dd>  Link can only push this when all enemies on screen are dead.</dd>
+<dt>Reset Room</dt><dd> Use as secret combo - this resets secrets in the room.</dd>
+<dt>Right Statue</dt><dd> Like left statue,but  fire originates on the right side of statue.</dd>
+<dt>Save Point</dt><dd> Pressing Start on this combo saves the game. For games where saving is disabled by default.</dd>
+<dt>Save-Quit Point</dt><dd> Pressing Start on this combo saves the game, and quits. </dd>
+<dt>Sensitive Warp (A,B,C,D)</dt><dd> ###check</dd>
+<dt>Sensitive Warp [R]</dt><dd> Same, but chooses target at random.</dd>
+<dt>Shallow Water</dt><dd> This makes the new "ripples" sprite show and animate when Link is walking on this combo type.</dd>
+<dt>Slash</dt><dd> These tiles can be removed by Link's sword. Set undercombo.</dd>
+<dt>Slash->Item</dt><dd> Same as above but an item will be revealed where the tile was...1 rupee or a heart unless another item is set.  </dd>
+<dt>Slash->Next</dt><dd> A slash combo that changes into the next combo on the combo page when slashed.</dd>
+<dt>Slash->Next (Item)</dt><dd> A slash->next where the screen's item appears when you slash it (think treasure chest).</dd>
+<dt>Slow Walk</dt><dd> This combo makes Link walk slowly on it.   </dd>
+<dt>Spinning tile (immediate / random) </dt><dd> ###</dd>
+<dt>Stairs (A,B,C,D, Random) </dt><dd> Warp tile. Set tile warp.</dd>
+<dt>Step->Next</dt><dd> Turns into the next combo in the list when walked on.</dd>
+<dt>Step->Next (All)</dt><dd> Turns all step->next combos into the next combo in the list when walked on.</dd>
+<dt>Step->Next (Copycat)</dt><dd> Turns into the next combo in the list when you stand on a step->next.</dd>
+<dt>Step->Next (Same)</dt><dd> ### check</dd>
+<dt>Swim Warp (A,B,C,D)</dt><dd> If Link touches this combo while swimming and the tile warp is set, he will warp to the set location. </dd>
+<dt>Tall Grass</dt><dd> Same as bush, but uses a different animation sequence and sprite "grass clippings". Also, has a tall grass sprite that shows and animates in front of Link when he walks on the tall grass combo.</dd>
+<dt>Trap (4-way)</dt><dd> Move in all 4 directions to attack Link. </dd>
+<dt>Trap (Horizontal, Constant)</dt><dd> Move horizontally backwars and forwards all the time.</dd>
+<dt>Trap (Horizontal, Line of Sight)</dt><dd> Only move when Link is in their path.</dd>
+<dt>Trap (Vertical, Constant)</dt><dd> Move vertically to attack Link, all the time.</dd>
+<dt>Trap (Vertical, Line of Sight)</dt><dd> Only move when Link is in their path.</dd>
+<dt>Treasure Chest (Boss)</dt><dd> Requires a boss key to open, then gives you an item if set.</dd>
+<dt>Treasure Chest (Boss, Copycat)</dt><dd> Triggers when you open a boss chest. </dd>
+<dt>Treasure Chest (Locked)</dt><dd> Removes one key from your inventory when opened.</dd>
+<dt>Treasure Chest (Locked, Copycat)</dt><dd> Triggers when you open a locked chest. </dd>
+<dt>Treasure Chest (Normal)</dt><dd> Doesn't require a key.</dd>
+<dt>Treasure Chest (Normal, Copycat)</dt><dd> Triggers when you open a normal chest. </dd>
+<dt>Trigger (Permanent)</dt><dd> </dd>
+<dt>Trigger (Sensitive, Permanent)</dt><dd> </dd>
+<dt>Trigger (Sensitive, Temporary)</dt><dd> </dd>
+<dt>Trigger (Temporary)</dt><dd></dd>
+<dt>Undefined</dt><dd> Don't use. Use -- (first in list) instead.</dd>
+<dt>Water</dt><dd> Gives the combo "water" characteristics: Link can swim in it with the flippers, it activates the ladder if "use ladder" screen flag is checked, etc. Is usually made unwalkable. </dd>
+<dt>Win Game</dt><dd> replaced by the Zelda flag. Don't use.</dd>
+</dl>
+
+<h2 id="enemies">Enemy Editor</h2>
+<p>
+The enemy editor is under Quest/Graphics/Sprites/Enemies. 
+</p>
+<h4>Page 1 - Data</h4>
+<img src="man_pics/enemyedit1.gif" />
+<dl>
+<dt>Name</dt><dd>Give your enemy a custom name here.</dd>
+<dt>O. Tile</dt><dd></dd>
+<dt>S. Tile</dt><dd></dd>
+<dt>E. Tile</dt><dd></dd>
+<dt>W. and H.</dt><dd></dd>
+<dt>HP</dt><dd>Hit points - two HP is equivalent to one hit of the wooden sword.</dd>
+<dt>Damage</dt><dd>How many quarter hearts one collision with this enemy takes away from Link.</dd>
+<dt>W. Damage</dt><dd>How many quarter hearts one weapon from this enemy takes away from Link.</dd>
+<dt>Weapon</dt><dd>What this enemy fires. Leave at none to not fire anything.</dd>
+<dt>Hunger</dt><dd></dd>
+<dt>Type</dt><dd>The enemy's general behaviour.</dd>
+<dt>O. Anim</dt><dd></dd>
+<dt>E. Anim</dt><dd></dd>
+<dt>Item set</dt><dd>What this enemy can drop when killed.</dd>
+<dt>Random rate</dt><dd>How often this enemy changes direction.</dd>
+<dt>Halt rate</dt><dd>How often this enemy stops to fire.</dd>
+<dt>Homing factor</dt><dd>How much this enemy tends to follow Link.</dd>
+<dt>Step speed</dt><dd>How fast this enemy walks.</dd>
+<dt>BG SFX</dt><dd></dd>
+<dt>Pal CSet</dt><dd></dd>
+</dl>
+
+<h4>Page 2 - Data 2</h4>
+<img src="man_pics/enemyedit2.gif" />
+<dl>
+<dt>Misc Attribute 1</dt><dd></dd>
+<dt>Misc Attribute 2</dt><dd></dd>
+<dt>Misc Attribute 3</dt><dd></dd>
+<dt>Misc Attribute 4</dt><dd></dd>
+<dt>Misc Attribute 5</dt><dd></dd>
+<dt>Misc Attribute 6</dt><dd></dd>
+<dt>Misc Attribute 7</dt><dd></dd>
+<dt>Misc Attribute 8</dt><dd></dd>
+<dt>Misc Attribute 9</dt><dd></dd>
+<dt>Misc Attribute 10</dt><dd></dd>
+<dt>O. frame rate</dt><dd></dd>
+<dt>E. frame rate</dt><dd></dd>
+</dl>
+
+<h4>Page 3 - Flags 1</h4>
+<img src="man_pics/enemyedit3.gif" />
+<dl>
+<dt>Can be stunned by Boomerang</dt><dd>Vulnerability to all boomerangs.</dd>
+<dt>Is invisible</dt><dd>For an always-invisible enemy, when you don't have the amulet.</dd>
+<dt>Never returns after death (Boss)</dt><dd>This enemy never respawns once killed.</dd>
+<dt>Is invincible</dt><dd>For bubbles and the like. HP and hits are ignored.</dd>
+<dt>Invulnerable to ...</dt><dd>By default, all Link's weapons hurt an enemy. Here you can turn some off.</dd>
+</dl>
+
+<h4>Page 4 - Flags 2</h4>
+<img src="man_pics/enemyedit4.gif" />
+<dl>
+<dt>Invulnerable to ...</dt><dd>By default, all Link's weapons hurt an enemy. Here you can turn some off.</dd>
+<dt>Extra unused flag</dt><dd>Don't touch. (Doesn't do anything yet)</dd>
+<dt>Invulnerable in ...</dt><dd>For darknut-type enemies. You must hit the right side of the enemy to hurt it.</dd>
+<dt>Weak to whistle</dt><dd>Gets killed instantly by whistle (like big Digodgger).</dd>
+<dt>Weak to arrow</dt><dd>Gets killed instantly by arrows (Like Pol's voice).</dd>
+<dt>Weak to L3 boomerang</dt><dd>The fire boomerang hurts this enemy even if boomerangs do not stun it (Peahats).</dd>
+<dt>Can only be seen by lens of truth</dt><dd>For invisible enemies that even the amulet can't see.</dd>
+</dl>
+
+<h4>Page 5 - Flags 3</h4>
+<p>For all spawned by ... flags, exactly one enemy should have each one turned on or else unpredictable things could happen.</p>
+<img src="man_pics/enemyedit3.gif" />
+<dl>
+<dt>Is flashing</dt><dd>This enemy flashes (like Rope 2).</dd>
+<dt>Spawned by ... enemy flag.</dt><dd>If the said flag is set for the screen, this type of enemy can appear. So far, Zoras, Rocks and Traps do this.</dd>
+<dt>Spawned by ... trap combo type.</dt><dd>For technical reasons, trap combos spawn a trap enemy on them. </dd>
+<dt>Spawned by Statue Fire enemy flag</dt><dd>Used for the fireball statues fire.</dd>
+<dt>Spawned by Armos combo type</dt><dd>Armos turn into this enemy when touched.</dd>
+<dt>Spawned by grave combo type</dt><dd>Grave combos you touch spawn these (usually Ghinis).</dd>
+<dt>Spawned by Ganon room type</dt><dd>A Ganon room automatically spawns one of these (Ganon).</dd>
+</dl>
+
+<b>GFX Page: </b>
+<list>
+<li /> Click the tile to select a new one.
+<li /> Check the Flash box if you want the item to "flash" a different Cset, then enter that Cset # under flash Cset.
+<li /> 2-Hand box: When checked, Link uses both hands to pick up the item. Recommended for large items such as raft and ladder. 
+<li /> For animated items, enter the number of animation frames and the animation speed on the proper lines. In this case the tiles for the animation should be in the order you want them to show from left to right in the tileset, and the item in the box should be the first tile in that sequence. 
+<li /> Initial. Delay: The delay before rerunning the animation sequence. The Number entered is a multiple (2=2x, etc.). 
+<li /> Link tile mod. : Changes Link's appearance when he has this item. All Link tiles are changed to the one this many tiles after the current one. A bit of maths is needed to get these set up properly.
+</list>
+<b>Action Page:</b>
+<list>
+<li /> These are the item's properties that control what slot this item uses on the subscreen and more.
+<list>
+<li />Class Number: Each item class (swords, boomerangs, bows ...) has a class number.
+Giving an item a class no. of an item slot on the subscreen makes it appear there.
+<li />Class Level: The level of this item in its class, for instance wooden sword=1, white sword=2 ...
+### insert list
+</list>
+<li /> Counters: Some items (keys) you can have several of, these items use one of 32 counters. To make such items set:
+<list>
+<li /> Increase Amount: If set, picking up one of this item adds that many to the number of this counter.
+<li /> Counter reference: which counter is increased, -1 = none. 
+<li /> DCounter: Set this for counters 1 and 4, for others leave it unchecked.
+<li /> Currently implemented counters:
+0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, and 6 - super bombs,
+</list>
+<li /> Full Max: The absolute maximum that the item can increase the maximum of the counter to. For example, a heart container will have a value of 256, which is 16 hearts (one heart is 16 HP), which means that a heart container cannot increase the heart count to above 16.
+<li /> +Max: The amount to increase the maximum counter by. For a heart container, this is 16, representing one heart. Note that the increase amount for a heart container is also 16. Yes, you can increase the active counter AND the maximum counter at the same time.
+<li /> Keep Item when Collected: specifies whether you keep an item in your inventory when collected. For example, a sword and a shield would have this checked. A rupee and a heart would not.
+</list>
+</p>
+
+<h4>Currently implemented items</h4>
+<list>
+<li />Amulet 1,2: Makes invisible enemies visible. Amulet 2 doesn't do anything yet.
+<li />Arrows (Wooden, Silver, Golden): These represent the ability to fire arrows of the said type, if you have any (and a bow). Not the actual arrows.
+<li />Arrow ammunition: The actual arrows. When you have the true arrows rule on, you need these to fire arrows, otherwise rupees. 
+<li />Bait: Drop this to distract enemies, or feed hungry Goriyas that won't let you past.
+<li />Bomb (Normal): Blows things up. Effective against most enemies, and some walls too. 
+<li />Bomb(Super): Blows even more things up. 
+<li />Bomb ammunition: When the quest rule is checked, you need these to drop bombs.
+<li />Bomb Bag: Carries bombs.
+<li />Boomerangs: Throw these at enemies to stun them. The fire boomerang does damage too.
+<li />Boots: Allows you to walk over spikes without getting hurt.
+<li />Bow: Required to shoot arrows. The bow 2 shoots faster.
+<li />Bracelet 1,2 : allows you to push heavy objects.
+<li />Candle (blue, red): Burns things. The blue one only fires once per screen.
+<li />Cane of Byrna: not implemented yet.
+<li />Clock: Freezes all enemies.
+<li />Compass: Shows you the room the dungeon boss is in.
+<li />Din's fire: Hot stuff. Creates a ring of fire around Link.
+<li />Dust Pile: This is what Ganon turns into.
+<li />Faeries: Heal Link.
+<li />Farore's Wind: Carries Link back to the entrance of the current Dmap.
+<li />Flippers: Link can swim with these.
+<li />Hammer: Used to beat down stakes and enemies, breaks darknuts' shields.
+<li />Heart: Heals one heart.
+<li />Heart container: Your Life.
+<li />Heart container piece: 1/4 of a heart container.
+<li />Hookshot: Grab things and lets you travel across some holes, also stuns things you hit with it.
+<li />Key (Boss): Used to cross boss doors and boss locks.
+<li />Key (Level specific): A normal key that you can only use in one level.
+<li />Key (Magic): Opens all doors. The magic part is you can use it more than once.
+<li />Key (Normal): Opens locks.
+<li />Kill all enemies: What it says. Pick it up and it will trigger at once.
+<li />Ladder: To cross holes one tile wide.
+<li />Lens of Truth: Used to see secrets on the screen.
+<li />Letter: Give this to the potion shop owner and you can buy things there.
+<li />Letter (used): The letter, after it's been used.
+<li />Magic Book: With this the wand makes fires appear.
+<li />Magic container: Allows you to have more magic power.
+<li />Magic Jar: ###
+<li />Map: Shows you the rooms in a dungeon.
+<li />Misc 1,2:They don't do anything, except if you give them a script.
+<li />Nayru's Love: Puts a shield around Link, during which time he is invincible. He can, however, still get knocked around when hit.
+<li />Potion: Heals Link. the red one can be used twice.
+<li />Quiver: Allows Link to carry true arrows.
+<li />Raft: Link can ride raft paths with this and cross the waters.
+<li />Ring 1,2,3: Halves the damage Link takes from enemies. 
+<li />Rupee: Basic currency unit of Hyrule.
+<li />Selection: Doesn't do anything.
+<li />Shield 1,2: Blocks or (shield 2) reflects most enemy weapons.
+<li />Swords: Link's main means of getting past enemies.
+<li />Triforce fragment: The object of the game is usually to collect these.
+<li />Triforce whole: Link holds this up when he's won the game.
+<li />Wallet: Lets you carry more rupees.
+<li />Wand: Fires magic.
+<li />Whistle: Triggers some secrets and warps Link to dungeons.
+</list>
+
+</body>
+</html>
