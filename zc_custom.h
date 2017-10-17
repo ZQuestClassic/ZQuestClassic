@@ -19,6 +19,7 @@ enum
 enum {spr_tile, spr_flip};
 enum {spr_standhold, spr_swimhold};
 enum {spr_hold1, spr_hold2};
+enum { las_original, las_bszelda, las_max };
 
 extern int swimspr, slashspr, linkspr;
 extern int walkspr[4][2];                                   //dir, tile/flip

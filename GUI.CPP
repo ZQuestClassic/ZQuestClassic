@@ -41,6 +41,20 @@
 // make it global so the joystick button routine can set joy_on=TRUE
 DIALOG_PLAYER *player;
 
+int zc_do_dialog(DIALOG *d, int f)
+{
+  int ret=do_dialog(d,f);
+  position_mouse_z(0);
+  return ret;
+}
+
+int zc_popup_dialog(DIALOG *d, int f)
+{
+  int ret=popup_dialog(d,f);
+  position_mouse_z(0);
+  return ret;
+}
+
 int do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
 {
   BITMAP* orig_screen = screen;
@@ -51,6 +65,7 @@ int do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
   screen = orig_screen;
   blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
 
+  position_mouse_z(0);
   return ret;
 }
 
@@ -64,6 +79,7 @@ int PopUp_dialog(DIALOG *d,int f)
 
   int ret = shutdown_dialog(player);
   comeback();
+  position_mouse_z(0);
   return ret;
 }
 
@@ -93,6 +109,7 @@ int popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
     destroy_bitmap(bmp);
   }
 
+  position_mouse_z(0);
   return ret;
 }
 
@@ -106,6 +123,7 @@ int PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f)
 
   int ret = shutdown_dialog(player);
   comeback();
+  position_mouse_z(0);
   return ret;
 }
 

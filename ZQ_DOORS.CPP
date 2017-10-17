@@ -18,6 +18,7 @@
 #include "zq_class.h"
 #include <strings.h>
 #include "zq_tiles.h"
+#include "gui.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_combo_proc(int msg,DIALOG *d,int c);
@@ -126,7 +127,7 @@ int onDoors()
   door_select_dlg[9].d1=Map.CurrScr()->door_combo_set;
   do
   {
-    ret = popup_dialog(door_select_dlg,-1);
+    ret = zc_popup_dialog(door_select_dlg,-1);
     Map.CurrScr()->door_combo_set=door_select_dlg[9].d1;
     switch (ret)
     {
@@ -757,8 +758,8 @@ static DIALOG doorcomboset_dlg[] =
   //Walkthrough
   { d_combo_proc,     248,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL },
 
-  
-  
+
+
   //70
   { jwin_ctext_proc,      64,   64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Wall" },
   { jwin_ctext_proc,      112,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Locked" },
@@ -785,7 +786,7 @@ static DIALOG doorcomboset_dlg[] =
   { jwin_frame_proc,   46,    96,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL },
   { jwin_frame_proc,   238,   80,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL },
   { jwin_frame_proc,   246,   152,      20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL },
-  
+
   //93
   //Passage
   { d_combo_proc,      48,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL },
@@ -848,9 +849,9 @@ static DIALOG doorcomboset_dlg[] =
   //Walkthrough
   { d_combo_proc,     248,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL },
 
-  
-  
-  
+
+
+
   //132
   { jwin_ctext_proc,      56,   64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Wall" },
   { jwin_ctext_proc,      104,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Locked" },
@@ -1070,9 +1071,9 @@ static DIALOG doorcomboset_dlg[] =
 
   //Walkthrough
   { d_combo_proc,     248,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL },
-  
+
   { jwin_check_proc,  184,  202, 112,  9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Overlay Walkthrough" },
-  
+
   { NULL }
 };
 
@@ -1097,7 +1098,7 @@ void fill_dcs_dlg()
 
   doorcomboset_dlg[69].d1 = working_dcs.walkthroughcombo[0];
   doorcomboset_dlg[69].fg = working_dcs.walkthroughcset[0];
-  
+
 
   //south doors
   for (int x=0; x<dt_max-1; x++)
@@ -1117,7 +1118,7 @@ void fill_dcs_dlg()
 
   doorcomboset_dlg[131].d1 = working_dcs.walkthroughcombo[1];
   doorcomboset_dlg[131].fg = working_dcs.walkthroughcset[1];
-  
+
 
   //east doors
   for (int x=0; x<dt_max-1; x++)
@@ -1138,7 +1139,7 @@ void fill_dcs_dlg()
   doorcomboset_dlg[212].d1 = working_dcs.walkthroughcombo[2];
   doorcomboset_dlg[212].fg = working_dcs.walkthroughcset[2];
 
-  
+
   //west doors
   for (int x=0; x<dt_max-1; x++)
   {
@@ -1181,7 +1182,7 @@ void extract_dcs_dlg()
 
   working_dcs.walkthroughcombo[0] = doorcomboset_dlg[69].d1;
   working_dcs.walkthroughcset[0] = doorcomboset_dlg[69].fg;
-  
+
 
   //south doors
   for (int x=0; x<dt_max-1; x++)
@@ -1201,7 +1202,7 @@ void extract_dcs_dlg()
 
   working_dcs.walkthroughcombo[1] = doorcomboset_dlg[131].d1;
   working_dcs.walkthroughcset[1] = doorcomboset_dlg[131].fg;
-  
+
 
   //east doors
   for (int x=0; x<dt_max-1; x++)
@@ -1222,7 +1223,7 @@ void extract_dcs_dlg()
   working_dcs.walkthroughcombo[2] = doorcomboset_dlg[212].d1;
   working_dcs.walkthroughcset[2] = doorcomboset_dlg[212].fg;
 
-  
+
   //west doors
   for (int x=0; x<dt_max-1; x++)
   {
@@ -1330,10 +1331,10 @@ int edit_dcs(int index)
   doorcomboset_dlg[6].dp = door_combo_set_name;
 
   fill_dcs_dlg();
-  
+
   doorcomboset_dlg[294].flags = get_bit(working_dcs.flags,df_walktrans) ? D_SELECTED : 0;
 
-  int ret = popup_dialog(doorcomboset_dlg,4);
+  int ret = zc_popup_dialog(doorcomboset_dlg,4);
 
   if (ret==2)
   {
@@ -1496,7 +1497,7 @@ int onDoorCombos()
       strcpy(DoorComboSets[door_combo_set_count++].name,"<New Door Combo Set>");
     }
 
-    int ret=popup_dialog(doorcombosetlist_dlg,2);
+    int ret=zc_popup_dialog(doorcombosetlist_dlg,2);
     index=doorcombosetlist_dlg[2].d1;
 
     int doedit=false;

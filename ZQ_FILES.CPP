@@ -415,7 +415,7 @@ int onSaveAs()
       jwin_alert("ZQuest","Overwriting quests is","disabled in this version.",NULL,"O&K",NULL,'k',0,lfont);
       return D_O_K;
     }
-    
+
     if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
     {
       return D_O_K;
@@ -451,7 +451,7 @@ int onOpen()
   if(!getname("Load Quest File (.qst)","qst",filepath,true))
     return D_O_K;
 
-  int ret = load_quest(temppath, true);
+  int ret = load_quest(temppath, true, true);
   if(!ret)
   {
     strcpy(filepath,temppath);
@@ -479,7 +479,7 @@ int onRevert()
 
   if (filepath[0]!=0)
   {
-    int ret = load_quest(filepath, true);
+    int ret = load_quest(filepath, true, true);
     if(!ret)
     {
       saved = true;
@@ -567,12 +567,6 @@ int onImport_Map()
 
 int onExport_Map()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(Map.getCurrMap()>=Map.getMapCount())
     return D_O_K;
   if(!getname("Export Map (.map)","map",datapath,false))
@@ -591,7 +585,6 @@ int onExport_Map()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
@@ -612,12 +605,6 @@ int onImport_DMaps()
 
 int onExport_DMaps()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export DMaps (.dmp)","dmp",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -633,7 +620,6 @@ int onExport_DMaps()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
@@ -654,12 +640,6 @@ int onImport_Pals()
 
 int onExport_Pals()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export Palettes (.zpl)","zpl",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -675,7 +655,6 @@ int onExport_Pals()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
@@ -696,12 +675,6 @@ int onImport_Msgs()
 
 int onExport_Msgs()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export String Table (.zqs)","zqs",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -717,13 +690,16 @@ int onExport_Msgs()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
 int onImport_Combos()
 {
   int ret=getnumber("Import Start Page",0);
+  if (cancelgetnum)
+  {
+    return D_O_K;
+  }
   bound(ret,0,COMBO_PAGES-1);
 
   if(!getname("Import Combo Table (.cmb)","cmb",datapath,false))
@@ -744,12 +720,6 @@ int onImport_Combos()
 
 int onExport_Combos()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export Combo Table (.cmb)","cmb",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -765,13 +735,16 @@ int onExport_Combos()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
 int onImport_Tiles()
 {
   int ret=getnumber("Import Start Page",0);
+  if (cancelgetnum)
+  {
+    return D_O_K;
+  }
   bound(ret,0,TILE_PAGES-1);
 
   if(!getname("Import Tiles (.til)","til",datapath,false))
@@ -791,12 +764,6 @@ int onImport_Tiles()
 
 int onExport_Tiles()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export Tiles (.til)","til",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -812,7 +779,6 @@ int onExport_Tiles()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
@@ -835,12 +801,6 @@ int onImport_ZGP()
 
 int onExport_ZGP()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export Graphics Pack (.zgp)","zgp",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -856,7 +816,6 @@ int onExport_ZGP()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
@@ -866,31 +825,29 @@ int onImport_ZQT()
     return D_O_K;
   saved=false;
   // usetiles=true;
-  if(!load_zqt(temppath))
+  if(load_quest(temppath,true, false))
   {
     char buf[80],name[13];
     extract_name(temppath,name,FILENAME8_3);
     sprintf(buf,"Unable to load %s",name);
     jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
   }
+  register_blank_tiles();
+  loadlvlpal(Color);
+  setup_combo_animations();
+  Map.setCurrMap(Map.getCurrMap());                         // for bound checking
   refresh(rALL);
+  refresh_pal();
   return D_O_K;
 }
 
 int onExport_ZQT()
-
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export Quest Template (.zqt)","zqt",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
   extract_name(temppath,name,FILENAME8_3);
-  if(save_zqt(temppath))
+  if(!save_unencoded_quest(temppath, true))
   {
     sprintf(buf,"ZQuest");
     sprintf(buf2,"Saved %s",name);
@@ -901,7 +858,6 @@ int onExport_ZQT()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 
@@ -911,7 +867,7 @@ int onImport_UnencodedQuest()
     return D_O_K;
   saved=false;
   // usetiles=true;
-  if(load_quest(temppath,false))
+  if(load_quest(temppath,false, false))
   {
     char buf[80],name[13];
     extract_name(temppath,name,FILENAME8_3);
@@ -929,12 +885,6 @@ int onImport_UnencodedQuest()
 
 int onExport_UnencodedQuest()
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   if(!getname("Export Unencoded Quest (.qsu)","qsu",datapath,false))
     return D_O_K;
   char buf[80],buf2[80],name[13];
@@ -950,7 +900,6 @@ int onExport_UnencodedQuest()
     sprintf(buf2,"Error saving %s",name);
   }
   jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
-  #endif
   return D_O_K;
 }
 

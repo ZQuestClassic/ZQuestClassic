@@ -13,6 +13,7 @@
 #include "jwin.h"
 #include "zsys.h"
 #include <stdio.h>
+#include "gui.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -626,7 +627,7 @@ static DIALOG init_dlg[] =
 
 
 
-  // 271  
+  // 271
   { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
   { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
   { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
@@ -679,10 +680,10 @@ static DIALOG init_dlg[] =
   { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
   { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
   { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-  
-  
-  
-  // 323  
+
+
+
+  // 323
   { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
   { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
   { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
@@ -737,7 +738,7 @@ static DIALOG init_dlg[] =
   { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
 
 
-  
+
   // 375
   { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "0" },
   { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "1" },
@@ -1305,7 +1306,7 @@ static DIALOG init_dlg[] =
   { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
   { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
   { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-  
+
 
 
   // 887
@@ -2272,9 +2273,9 @@ static DIALOG init_dlg[] =
 /**/
   //1642
   { NULL }
-};  
+};
 
-  
+
 int onInit()
 {
   init_dlg[0].dp2=lfont;
@@ -2333,7 +2334,7 @@ int onInit()
   {
     init_dlg[i+44].flags = zinit.boots&(1<<i) ? D_SELECTED : 0;
   }
-  
+
   // items
   char bombstring[5];
   char maxbombstring[5];
@@ -2462,8 +2463,8 @@ int onInit()
   init_dlg[1689].dp=magicstring;
   init_dlg[1690].dp=maxmagicstring;
   init_dlg[1691].flags = get_bit(zinit.misc,idM_DOUBLEMAGIC) ? D_SELECTED : 0;
-  
-  int ret = popup_dialog(init_dlg,1);
+
+  int ret = zc_popup_dialog(init_dlg,1);
   if (ret==2)
   {
 
@@ -2712,7 +2713,7 @@ int onInit()
     }
 
 
-    // misc  
+    // misc
     zinit.start_dmap = init_dlg[1656].d1;
     zinit.hc = atoi(hcstring);
 	zinit.start_heart = atoi(sheartstring);

@@ -88,7 +88,7 @@ void update_game_icons();
 void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to);
 void go();
 void comeback();
-void waitvsync(bool fast);
+void waitvsync();
 int  input_idle(bool checkmouse);
 int  after_time();
 void hit_close_button();
@@ -199,7 +199,7 @@ extern float avgfps;
 
 extern bool nosecretsounds;
 extern bool blockmoving;
-extern bool Vsync, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
+extern bool Throttlefps, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
 extern bool refreshpal,blockpath,wand_dead,debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,DXtitle,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown;
@@ -233,6 +233,7 @@ extern int cheat;                                           // 0 = none; 1,2,3,4
 extern int  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
 extern int idle_count;
 extern char *qstpath;
+extern char *qstdir;
 extern gamedata *saves;
 extern gamedata game;
 

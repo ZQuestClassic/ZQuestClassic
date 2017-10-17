@@ -48,6 +48,11 @@ enum
   zgp_maps, zgp_doors
 };
 
+enum
+{
+  skip_header, skip_rules, skip_strings, skip_misc, skip_tiles, skip_combos, skip_comboaliases, skip_csets, skip_maps, skip_dmaps, skip_doors, skip_items, skip_weapons, skip_colors, skip_icons, skip_initdata, skip_guys, skip_linksprites, skip_subscreens, skip_ffscript, skip_sfx, skip_midis, skip_cheats, skip_max
+};
+
 extern char *qst_error[];
 extern word msg_count;
 extern word door_combo_set_count;
@@ -75,11 +80,8 @@ int count_infos(miscQdata *misc);
 int count_warprings(miscQdata *misc);
 int count_palcycles(miscQdata *misc);
 int count_windwarps(miscQdata *misc);
-int loadquest(char *filename, zquestheader *header,
-miscQdata *misc, music *midis, bool show_progress, bool compressed);
-
-int loadquest2(char *filename, zquestheader *header,
-miscQdata *misc, music *midis);
+int loadquest(char *filename, zquestheader *Header, miscQdata *Misc, music *midis, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags);
+int loadquest2(char *filename, zquestheader *header,miscQdata *misc, music *midis);
 
 char *byte_conversion(int number, int format);
 char *byte_conversion2(int number1, int number2, int format1, int format2);
@@ -107,7 +109,7 @@ int readmapscreen(PACKFILE *f, zquestheader *header, mapscr *temp_mapscr);
 int readmaps(PACKFILE *f, zquestheader *header, bool keepdata);
 int readcombos(PACKFILE *f, zquestheader *header, word version, word build, word start_combo, word max_combos, bool keepdata);
 int readcolordata(PACKFILE *f, miscQdata *misc, word version, word build, word start_cset, word max_csets, bool keepdata);
-int readtiles(PACKFILE *f, zquestheader *header, word version, word build, word start_tile, word max_tiles, bool from_init, bool keepdata);
+int readtiles(PACKFILE *f, byte *buf, zquestheader *header, word version, word build, word start_tile, word max_tiles, bool from_init, bool keepdata);
 int readmidis(PACKFILE *f, zquestheader *header, music *midis, bool keepdata);
 int readcheatcodes(PACKFILE *f, zquestheader *header, bool keepdata);
 int readinitdata(PACKFILE *f, zquestheader *header, bool keepdata);
@@ -121,9 +123,9 @@ inline int skipheader(PACKFILE *f, zquestheader *header)
 {
   return readheader(f, header, false);
 }
-inline int skiptiles(PACKFILE *f, zquestheader *header, word version, word build, word start_tile, word max_tiles)
+inline int skiptiles(PACKFILE *f, byte *buf, zquestheader *header, word version, word build, word start_tile, word max_tiles)
 {
-  return readtiles(f, header, version, build, start_tile, max_tiles, false, false);
+  return readtiles(f, buf, header, version, build, start_tile, max_tiles, false, false);
 }
 inline int skipcombos(PACKFILE *f, zquestheader *header, word version, word build, word start_combo, word max_combos)
 {

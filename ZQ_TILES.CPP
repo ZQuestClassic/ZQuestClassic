@@ -20,6 +20,7 @@
 #include "jwin.h"
 #include "jwinfsel.h"
 #include <string.h>
+#include "gui.h"
 
 /*********************************/
 /*****    Tiles & Combos    ******/
@@ -77,7 +78,7 @@ void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
     zoomgridpattern->line[1][0]=vc(15);
     zoomgridpattern->line[1][1]=vc(0);
   }
-  
+
   drawing_mode(DRAW_MODE_COPY_PATTERN, zoomgridpattern, 0, 0);
   rectfill(dest,x,y,x+(16*m)-2,y+(16*m)-2,0);
   solid_mode();
@@ -421,7 +422,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile)
   masked_blit((BITMAP *)zcdata[BMP_MOUSESMALL].dat, screen2, 0, 0, 144, 172, 42, 39);
   little_x(screen2,149,179,c1==0?210:208,2);
   little_x(screen2,159,176,c2==0?210:209,2);
-  
+
   draw_button(screen2,224,168,61,21,"OK",vc(1),vc(14),0,true);
   draw_button(screen2,224,192,61,21,"Cancel",vc(1),vc(14),0,true);
   draw_button(screen2,24,184,61,21,"Edit",vc(1),vc(14),0,true);
@@ -470,7 +471,7 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
     if (!rect_sel || ((tile_col(temptile)>=left) && (tile_col(temptile)<=left+columns-1)))
     {
       unpack_tile(temptile, 0, false);
-  
+
       if(flip&1)
       {
         for(int y=0; y<16; y++)
@@ -491,7 +492,7 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
           }
         }
       }
-  
+
       pack_tile(unpackbuf,temptile);
     }
   }
@@ -543,7 +544,7 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
     }
     memcpy(unpackbuf,buf,256);
   }
-  
+
   //horizontal
   if (horizontal)
   {
@@ -599,7 +600,7 @@ void edit_tile(int tile,int flip,int &cs)
 
   int move_origin_x=-1, move_origin_y=-1;
   int prev_x=-1, prev_y=-1;
-  
+
   do
   {
     bool redraw=false;
@@ -749,7 +750,7 @@ void edit_tile(int tile,int flip,int &cs)
         set_mouse_range(0,0,SCREEN_W-1,SCREEN_H-1);
       }
     }
-    
+
     if(key[KEY_ALT] || key[KEY_ALTGR])
     {
       if (old_tool==-1)
@@ -1112,7 +1113,7 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
   byte buf[64];
   memset(buf,0,64);
   byte *oldsrc=src;
-  
+
   //for 8 lines in the source image...
   for(int line=0; line<(nesmode?4:8); line++)
   {
@@ -1174,7 +1175,7 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
       int  bx=line<<4;
       //b is a byte in the source image (either an entire line in 1bp or the start of a line in others)
       byte b=src[(line+4)<<1];
-  
+
       //fill the storage buffer with data from the source image
       for(int i=7; i>=0; --i)
       {
@@ -1490,7 +1491,7 @@ void load_imagebuf()
       break;
 
     case ftBIN:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       if(imagesize)
       {
         imagebuf = malloc(imagesize);
@@ -1504,7 +1505,7 @@ void load_imagebuf()
       break;
 
     case ftTIL:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       f = pack_fopen(imagepath,F_READ);
       if(!p_igetw(&version,f,true))
         goto error;
@@ -1532,7 +1533,7 @@ void load_imagebuf()
       break;
 
     case ftZGP:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
 
       //open the file
       f=pack_fopen(imagepath,F_READ);
@@ -1570,7 +1571,7 @@ void load_imagebuf()
       break;
 
     case ftQSU:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
 
       f = pack_fopen(imagepath,F_READ);
 
@@ -1705,7 +1706,7 @@ void leech_tiles(byte *dest,int start)
     leech_dlg[(DuplicateAction[i])+16+(i*3)].flags=D_SELECTED;
   }
 
-  int ret = popup_dialog(leech_dlg,3);
+  int ret = zc_popup_dialog(leech_dlg,3);
   if (ret==2)
   {
     return;
@@ -1983,8 +1984,8 @@ void grab_tile(int tile,int &cs)
     { "Gameboy Advanced ROM Image (*.gba)", "gba" },
     { NULL }
   };
-  
-  
+
+
   memset(cset_reduce_table, 0, 256);
   memset(col_diff,0,3*128);
   bool bdown=false;
@@ -1999,8 +2000,8 @@ void grab_tile(int tile,int &cs)
 
   int jwin_pal2[jcMAX];
   memcpy(jwin_pal2, jwin_pal, sizeof(int)*jcMAX);
-  
-  
+
+
   if(imagebuf==NULL)
     load_imagebuf();
 
@@ -2231,7 +2232,7 @@ void grab_tile(int tile,int &cs)
       dopal=false;
       redraw=true;
     }
-    
+
     if(redraw)
     {
       draw_grab_scr(tile,cs,newtile,black,white,pal?white:vc(11), selwidth, selheight);
@@ -2266,8 +2267,8 @@ void grab_tile(int tile,int &cs)
   gui_fg_color=jwin_pal[jcBOXFG];
   gui_mg_color=jwin_pal[jcMEDDARK];
   jwin_set_colors(jwin_pal);
-  
-  
+
+
   if(done==2)
   {
     go_tiles();
@@ -2326,8 +2327,8 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
   jwin_draw_win(screen2,0, 208, 320, 32, FR_WIN);
   jwin_draw_frame(screen2,34,214,20,20,FR_DEEP);
   int coldiff=tile_col(copy)-tile_col(copy+copycnt-1);
-  
-  
+
+
   if(copy>=0)
   {
     puttile16(screen2,rect_sel&&coldiff>0?copy-coldiff:copy,36,216,cs,0);
@@ -2351,8 +2352,8 @@ void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool re
       }
     }
   }
-  
-  
+
+
   //current tile
   jwin_draw_frame(screen2,106,214,20,20,FR_DEEP);
   puttile16(screen2,tile,108,216,cs,0);
@@ -2416,7 +2417,7 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
   textprintf_ex(screen2,pfont,60,220,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldcs);
   textprintf_right_ex(screen2,pfont,56,228,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
   textprintf_ex(screen2,pfont,60,228,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldflip);
-  
+
   jwin_draw_frame(screen2,146,214,20,20,FR_DEEP);
   puttile16(screen2,tile,148,216,cs,flip);
   textprintf_right_ex(screen2,pfont,201,212,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New Tile:");
@@ -2497,7 +2498,7 @@ void copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool
     al_trace("tile_col(t+srcfirst)<=tile_col(srcfirst+copies-1)=%d\n", tile_col(t+srcfirst)<=tile_col(srcfirst+copies-1)?1:0);
     al_trace("destfirst+t<NEWMAXTILES=%d\n", destfirst+t<NEWMAXTILES?1:0);
     al_trace("\n");
-   
+
 */
     if ((!rect_sel || ((tile_col(t+srcfirst)>=tile_col(srcfirst)) && (tile_col(t+srcfirst)<=tile_col(srcfirst+copies-1)))) && destfirst+t<NEWMAXTILES)
     {
@@ -2782,7 +2783,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs)
       position_mouse_z(0);
       redraw=true;
     }
-    
+
     if(keypressed())
     {
       //tile_page=(tile/TILES_PER_PAGE);
@@ -3020,7 +3021,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs)
         case KEY_PGDN:  sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-tile_row(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);  redraw=true; break;
         case KEY_HOME:  sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));   redraw=true; break;
         case KEY_END:   sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1); redraw=true; break;
-        case KEY_P:     sel_tile(tile,tile2,first,type,((getnumber("Goto Page", tile_page(tile))-tile_page(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);  break;   
+        case KEY_P:     sel_tile(tile,tile2,first,type,((getnumber("Goto Page", tile_page(tile))-tile_page(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);  break;
         case KEY_O:     if(type==0 && copy>=0) { overlay_tile(tile,copy); redraw=true; } break;
         case KEY_E:     if(type==0) { edit_tile(tile,flip,cs); redraw=true; } break;
         case KEY_G:     if(type==0) { grab_tile(tile,cs); redraw=true; } break;
@@ -3346,7 +3347,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
   {
     draw_button(screen2,247,213,44,21,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
   }
-  
+
   textprintf_ex(screen2,font,305,212,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
   textprintf_ex(screen2,pfont,293,220,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
   textprintf_centre_ex(screen2,pfont,309,220,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
@@ -3462,7 +3463,7 @@ int select_combo_2(int &tile,int &cs)
         case KEY_RIGHT: sel_combo(tile,tile2,1,combo_cols);   redraw=true; break;
         case KEY_PGUP:  if(page>0)             { --page;      tile=tile2=(page<<8)+(tile&0xFF); } redraw=true; break;
         case KEY_PGDN:  if(page<COMBO_PAGES-1) { ++page;      tile=tile2=(page<<8)+(tile&0xFF); } redraw=true; break;
-        case KEY_P:     page=(getnumber("Goto Page", page));  tile=tile2=(page<<8)+(tile&0xFF); redraw=true; break;   
+        case KEY_P:     page=(getnumber("Goto Page", page));  tile=tile2=(page<<8)+(tile&0xFF); redraw=true; break;
       }
     }
 
@@ -3521,7 +3522,7 @@ int select_combo_2(int &tile,int &cs)
 
 
 
-        
+
       }
       else if(x>300 && !bdown)
       {
@@ -3635,7 +3636,7 @@ int combo_screen()
 
   int tile_clicked=-1;
   int t2;
-  
+
   select_tile_rc_menu[5].text = NULL;
 
   for(int i=0; i<MAXCOMBOS; i++)
@@ -3685,7 +3686,7 @@ int combo_screen()
         case KEY_RIGHT: sel_combo(tile,tile2,1,combo_cols);   redraw=true; break;
         case KEY_PGUP:  if(page>0)             { --page;      tile=tile2=(page<<8)+(tile&0xFF); } redraw=true; break;
         case KEY_PGDN:  if(page<COMBO_PAGES-1) { ++page;      tile=tile2=(page<<8)+(tile&0xFF); } redraw=true; break;
-        case KEY_P:     page=(getnumber("Goto Page", page));  tile=tile2=(page<<8)+(tile&0xFF); redraw=true; break;   
+        case KEY_P:     page=(getnumber("Goto Page", page));  tile=tile2=(page<<8)+(tile&0xFF); redraw=true; break;
         case KEY_U:     comeback_combos(); redraw=true; break;
         case KEY_E:     go_combos();  edit_combo(tile,false,cs); redraw=true; setup_combo_animations(); break;
         case KEY_C:     go_combos(); copy=min(tile,tile2); copycnt=abs(tile-tile2)+1; redraw=true; break;
@@ -3823,7 +3824,7 @@ int combo_screen()
         if(y>=224 && page<COMBO_PAGES-1) { ++page; redraw=true; }
         bdown=true;
       }
-      
+
       if(!bdown && isinRect(x,y,202,213,202+44,213+21))
       {
         if(do_button(202,213,44,21,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
@@ -4253,7 +4254,7 @@ void edit_combo(int c,bool freshen,int cs)
   combo_dlg[24].dp = (void *) combotypelist; //*
 //  combo_dlg[1].fg = cs;
   edit_combo_cset = cs;
-  int ret=popup_dialog(combo_dlg,4);
+  int ret=zc_popup_dialog(combo_dlg,4);
   if(freshen)
   {
     refresh(rALL);
@@ -4286,7 +4287,7 @@ void edit_combo(int c,bool freshen,int cs)
         curr_combo.csets &= ~(16<<i);
       }
     }
-  
+
     curr_combo.frames = atoi(frm);
     curr_combo.speed = atoi(spd);
     curr_combo.type = bict[combo_dlg[24].d1].i;
@@ -4359,7 +4360,7 @@ int onIcons()
   }
 
   set_palette(pal);
-  int ret = popup_dialog(icon_dlg,7);
+  int ret = zc_popup_dialog(icon_dlg,7);
 
   if(ret==6)
     for(int i=0; i<4; i++)

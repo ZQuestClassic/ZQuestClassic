@@ -2525,8 +2525,16 @@ bool eGelTrib::animate(int index)
   if (clk4==256)
   {
     int kids = guys.Count();
-    guys.add(new eZolTrib((fix)x,(fix)y,eZOLTRIB,-21));
-    ((enemy*)guys.spr(kids))->count_enemy = false;
+    if(get_bit(quest_rules, qr_OLDTRIBBLES))
+    {
+      guys.add(new eZol((fix)x,(fix)y,eZOL,-21));
+    }
+    else
+    {
+      guys.add(new eZolTrib((fix)x,(fix)y,eZOLTRIB,-21));
+    }
+//    ((enemy*)guys.spr(kids))->count_enemy = false;
+    ((enemy*)guys.spr(kids))->count_enemy = count_enemy;
     return true;
   }
   return enemy::animate(index);
@@ -4213,8 +4221,16 @@ bool eKeeseTrib::animate(int index)
       int kids = guys.Count();
       //        guys.add(new eVire(x,y,eVIRE,-24));
       //        keesetribgrow(x, y);
-      guys.add(new eVireTrib((fix)x,(fix)y,eVIRETRIB,-24));
-      ((enemy*)guys.spr(kids))->count_enemy = false;
+      if(get_bit(quest_rules, qr_OLDTRIBBLES))
+      {
+        guys.add(new eVire((fix)x,(fix)y,eVIRE,-24));
+      }
+      else
+      {
+        guys.add(new eVireTrib((fix)x,(fix)y,eVIRETRIB,-24));
+      }
+//      ((enemy*)guys.spr(kids))->count_enemy = false;
+      ((enemy*)guys.spr(kids))->count_enemy = count_enemy;
       return true;
     }
     else
@@ -7702,7 +7718,7 @@ bool eGleeok::animate(int index)
     for(int i=0; i<misc; i++)
       ((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
   }
-  
+
   for(int i=0; i<clk3; i++)
   {
     enemy *head = ((enemy*)guys.spr(index+i+1));
@@ -10167,7 +10183,7 @@ void setupscreen()
           QMisc.shop[tmpscr[t].catchall].price[i+1]=0;
         }
       }
-      
+
       if(count==1)
       {
         base = 88+32;

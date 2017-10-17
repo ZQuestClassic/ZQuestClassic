@@ -105,6 +105,45 @@ void chop_path(char *path)
     path[p-f]=0;
 }
 
+char *temp_name(char *s)
+{
+  int tempnum;
+  static char *temporaryname=(char*)malloc(L_tmpnam);
+  //  sprintf(temporaryname, "tempfile.qsu");
+  //  return temporaryname;
+
+
+  for (int i=0; i<1000; ++i)
+  {
+    sprintf(temporaryname, "00000000.tmp");
+    for (int j=0; j<8; ++j)
+    {
+      tempnum=rand()%62;
+      if (tempnum<26)
+      {
+        temporaryname[j]='A'+tempnum;
+      }
+      else if (tempnum<52)
+        {
+          temporaryname[j]='A'+tempnum-26;
+        }
+        else
+        {
+          temporaryname[j]='0'+tempnum-52;
+        }
+    }
+    if (!exists(temporaryname))
+    {
+      break;
+    }
+  }
+  if (s!=NULL)
+  {
+    sprintf(s, "%s", temporaryname);
+  }
+  return temporaryname;
+}
+
 int vbound(int x,int low,int high)
 {
   if(x<low) x=low;
@@ -432,7 +471,7 @@ int decode_file_007(char *srcfile, char *destfile, char *header, int method, boo
   short c1 = 0, c2 = 0, check1, check2;
 
   // open files
-  size = file_size(srcfile);
+  size = file_size_ex(srcfile);
   if(size < 1)
   {
     return 1;

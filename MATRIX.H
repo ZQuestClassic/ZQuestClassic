@@ -13,7 +13,7 @@
 
 #include "zc_alleg.h"
 
-extern void waitvsync(bool fast);
+extern void waitvsync();
 extern int  input_idle(bool checkmouse);
 
 void Matrix(int speed, int density, int mousedelay);

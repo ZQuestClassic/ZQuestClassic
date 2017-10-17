@@ -165,9 +165,9 @@ class LinkClass : public sprite
     bool isSwimming();
     void setDontDraw(bool new_dontdraw);
     void setHClk(int newhclk);
-    int LinkClass::getHClk();
-    void LinkClass::setNayrusLoveShieldClk(int newclk);
-    int LinkClass::getNayrusLoveShieldClk();
+    int  getHClk();
+    void setNayrusLoveShieldClk(int newclk);
+    int  getNayrusLoveShieldClk();
 };
 
 bool isRaftFlag(int flag);

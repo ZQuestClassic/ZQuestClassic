@@ -64,7 +64,7 @@ void Matrix(int speed, int density, int mousedelay)
 
   while(true)
   {
-    waitvsync(false);
+    waitvsync();
 
     AddTracer();
     AddEraser(-1);

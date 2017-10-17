@@ -361,7 +361,7 @@ void ending()
             case 656: textout_ex(scrollbuf,zfont,"ANOTHER QUEST WILL START",32,224,white,0); break;
             case 672: textout_ex(scrollbuf,zfont,"FROM HERE.",88,224,white,0); break;
             case 696: textout_ex(scrollbuf,zfont,"PRESS THE START BUTTON.",40,224,white,0); break;
-            case 760: textprintf_ex(scrollbuf,zfont,72,224,white,0,"%c1986 NINTENDO",0xA9); break;
+            case 760: textprintf_ex(scrollbuf,zfont,72,224,white,0,"%c1986 NINTENDO",0xBB); break;
           }
           break;
 
@@ -376,7 +376,7 @@ void ending()
                     case 880: textout_ex(scrollbuf,zfont,"END OF",104,224,white); break;
                     case 896: textout_ex(scrollbuf,zfont,"\"THE LEGEND OF ZELDA 1\"",32,224,white); break;
             */
-            case 912: textprintf_ex(scrollbuf,zfont,72,224,blue,0,"%c1986 NINTENDO",0xA9); break;
+            case 912: textprintf_ex(scrollbuf,zfont,72,224,blue,0,"%c1986 NINTENDO",0xBB); break;
           }
           break;
 
@@ -389,7 +389,7 @@ void ending()
             case 832: textout_ex(scrollbuf,zfont,"WISDOM AND POWER.",64,224,white,0); break;
             case 880: textout_ex(scrollbuf,zfont,"END OF",104,224,white,0); break;
             case 896: textout_ex(scrollbuf,zfont,"\"THE LEGEND OF ZELDA 1\"",32,224,white,0); break;
-            case 912: textprintf_ex(scrollbuf,zfont,72,224,blue,0,"%c1986 NINTENDO",0xA9); break;
+            case 912: textprintf_ex(scrollbuf,zfont,72,224,blue,0,"%c1986 NINTENDO",0xBB); break;
           }
           break;
 
@@ -403,7 +403,7 @@ void ending()
             case 816: textout_centre_ex(scrollbuf,zfont,"You beat a",128,224,white,0); break;
             case 832: textout_centre_ex(scrollbuf,zfont,"custom quest.",128,224,white,0); break;
             case 880: textout_centre_ex(scrollbuf,zfont,"ZELDA CLASSIC",128,224,white,0); break;
-            case 896: textout_centre_ex(scrollbuf,zfont,"1999-2000",128,224,white,0); break;
+            case 896: textout_centre_ex(scrollbuf,zfont,"1999-2007",128,224,white,0); break;
             case 912: textout_centre_ex(scrollbuf,zfont,"Armageddon Games",128,224,blue,0); break;
           }
           break;
@@ -454,10 +454,13 @@ void ending()
     inc_quest();
   }
 
+  ringcolor();
   packfile_password(datapwd);
   load_quest(&game);
   packfile_password(NULL);
   load_game_icon(&game);
+  game.continue_dmap=zinit.start_dmap;
+  game.continue_scrn=0xFF;
   saves[currgame] = game;
   save_savedgames();
 }
@@ -466,7 +469,7 @@ void inc_quest()
 {
   char name[9];
   strcpy(name,game.name);
-  int quest = min(game.quest+1,QUEST_COUNT-1);
+  int quest = min(game.quest+1,QUEST_COUNT);
   int deaths = game.deaths;
 
   int *di = (int*)(&game);

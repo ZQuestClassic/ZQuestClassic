@@ -21,6 +21,7 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
+#include "gui.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -113,7 +114,7 @@ void colormixer(int color,int gray,int ratio)
 
   jwin_draw_frame(screen, color_x-2, color_y-2, color_w+4, color_h+4, FR_DEEP);
   rectfill(screen,color_x,color_y,color_x+color_w-1,color_y+color_h-1,edc);
-  
+
   hline(screen,color_x,gray+color_y,color_x+color_w-1,edi);
   vline(screen,color+color_x,color_y,color_y+color_h-1,edi);
   hline(screen,sat_x,ratio+sat_y,sat_x+sat_w-1,edi);
@@ -333,7 +334,7 @@ void grab_dataset(int dataset)
     return;
 
   get_palette(imagepal);
-  
+
   create_rgb_table(&rgb_table, imagepal, NULL);
   rgb_map = &rgb_table;
   create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
@@ -585,7 +586,7 @@ void edit_cycles(int level)
   for(int i=0; i<15; i++)
     cycle_dlg[i+10].dp = buf[i];
 
-  if(popup_dialog(cycle_dlg,3)==2)
+  if(zc_popup_dialog(cycle_dlg,3)==2)
   {
     saved=false;
     reset_pal_cycling();
@@ -869,7 +870,7 @@ int EditColors(char *caption,int first,int count,byte *label)
     clear_to_color(screen,0);
     unscare_mouse();
 
-    colors_dlg[19].flags = 
+    colors_dlg[19].flags =
       colors_dlg[20].flags =
       colors_dlg[23].flags = D_EXIT;
 

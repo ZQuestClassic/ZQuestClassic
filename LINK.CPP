@@ -470,14 +470,7 @@ void LinkClass::draw(BITMAP* dest)
           linktile(&tile, &flip, ls_swim, dir, zinit.linkwalkstyle);
           if (lstep>=6)
           {
-            if (dir==up)
-            {
-              ++flip;
-            }
-            else
-            {
-              ++tile;
-            }
+            ++tile;
           }
           if (diveclk>30)
           {
@@ -569,7 +562,7 @@ void LinkClass::draw(BITMAP* dest)
     }
   }
 
-  if (useltm)
+  if (useltm&&action!=casting)
   {
     tile+=item_tile_mod();
   }
@@ -4255,15 +4248,18 @@ bool LinkClass::dowarp(int type)
       homescr = currscr = wscr + (((DMaps[wdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[wdmap].xoff);
       if (!intradmap)
       {
-        if (dlevel)
+        if(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))
         {
-          lastentrance = currscr;
+          if (dlevel)
+          {
+            lastentrance = currscr;
+          }
+          else
+          {
+            lastentrance = DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+          }
+          lastentrance_dmap = wdmap;
         }
-        else
-        {
-          lastentrance = DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
-        }
-        lastentrance_dmap = wdmap;
       }
       if(DMaps[currdmap].color != c)
         loadlvlpal(DMaps[currdmap].color);
@@ -4402,24 +4398,27 @@ bool LinkClass::dowarp(int type)
     if (dlevel)
     {
       if ( (wtype == wtEXIT)
-        || ((wtype == wtSCROLL) && !intradmap) )
+          || (((wtype == wtSCROLL) && !intradmap)))
       {
-        game.continue_scrn = homescr;
-        //Z_message("continue_scrn = %02X\n e/e",game.continue_scrn);
+        if(!(wtype==wtSCROLL)||!(get_bit(quest_rules,qr_NOSCROLLCONTINUE)))
+        {
+          game.continue_scrn=homescr;
+          //Z_message("continue_scrn = %02X\n e/e",get_gamedata_continue_scrn(game));
+        }
       }
       else
       {
         if (currdmap != game.continue_dmap)
         {
-          game.continue_scrn = DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
-          //Z_message("continue_scrn = %02X\n dlevel",game.continue_scrn);
+          game.continue_scrn=DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+          //Z_message("continue_scrn = %02X\n dlevel",game->continue_scrn);
         }
       }
     }
     else
     {
-      game.continue_scrn = DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
-      //Z_message("continue_scrn = %02X\n !dlevel",game.continue_scrn);
+      game.continue_scrn=DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+      //Z_message("continue_scrn = %02X\n !dlevel",game->continue_scrn);
     }
     game.continue_dmap=currdmap;
     lastentrance_dmap = currdmap;
@@ -5019,6 +5018,8 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
       drawit=true;
     }
     draw_screen(tmpscr, 0, 0);
+    if(cx==scx)
+      rehydratelake();
     advanceframe();
     if(Quit)
     {

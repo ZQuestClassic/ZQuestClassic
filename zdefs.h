@@ -83,24 +83,25 @@
 
 #include <math.h>
 #include "zc_alleg.h"
+#include <string.h>
 
 #define ZELDA_VERSION       0x0210                          //version of the program
-#define VERSION_BUILD       0                               //build number of this version
+#define VERSION_BUILD       1                               //build number of this version
 #define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "January 1, 2005"
+#define DATE_STR            "January 1, 2007"
 
 #define MIN_VERSION         0x0184
 
 #define ZELDADAT_VERSION      0x0210                        //version of zelda.dat
-#define ZELDADAT_BUILD        0                             //build of zelda.dat
+#define ZELDADAT_BUILD        1                             //build of zelda.dat
 #define SFXDAT_VERSION        0x0210                        //version of sfx.dat
-#define SFXDAT_BUILD          0                             //build of sfx.dat
+#define SFXDAT_BUILD          1                             //build of sfx.dat
 #define FONTSDAT_VERSION      0x0210                        //version of fonts.dat
-#define FONTSDAT_BUILD        0                             //build of fonts.dat
-#define ZGPDAT_VERSION        0x0210                        //version of fonts.dat
-#define ZGPDAT_BUILD          0                             //build of fonts.dat
+#define FONTSDAT_BUILD        1                             //build of fonts.dat
+#define QSTDAT_VERSION        0x0210                        //version of fonts.dat
+#define QSTDAT_BUILD          1                             //build of fonts.dat
 #define ZQUESTDAT_VERSION     0x0210                        //version of fonts.dat
-#define ZQUESTDAT_BUILD       0                             //build of fonts.dat
+#define ZQUESTDAT_BUILD       1                             //build of fonts.dat
 
 /*
 #define ENC_METHOD_192B104  0
@@ -136,9 +137,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_M
 #define PI 3.14159265358979323846
 #endif
 
-//comment out the next line to enable file saving
-//#define _CRASHONSAVE_
-
 #define QUEST_COUNT           3
 #define HP_PER_HEART          16
 #define DAMAGE_MULTIPLIER     2
@@ -147,46 +145,48 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_M
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
 //ID values of the different section types
-#define ID_HEADER       ZC_ID('H','D','R',' ')              //quest header
-#define ID_RULES        ZC_ID('R','U','L','E')              //quest rules
-#define ID_STRINGS      ZC_ID('S','T','R',' ')              //message strings
-#define ID_MISC         ZC_ID('M','I','S','C')              //misc data
-#define ID_TILES        ZC_ID('T','I','L','E')              //tiles
-#define ID_COMBOS       ZC_ID('C','M','B','O')              //combos
-#define ID_CSETS        ZC_ID('C','S','E','T')              //csets (and pal names?)
-#define ID_MAPS         ZC_ID('M','A','P',' ')              //maps
-#define ID_DMAPS        ZC_ID('D','M','A','P')              //dmaps
-#define ID_DOORS        ZC_ID('D','O','O','R')              //door combo sets
-#define ID_ITEMS        ZC_ID('I','T','E','M')              //items
-#define ID_WEAPONS      ZC_ID('W','P','N',' ')              //weapons
-#define ID_COLORS       ZC_ID('C','L','R',' ')              //not sure
-#define ID_ICONS        ZC_ID('I','C','O','N')              //not sure
-#define ID_INITDATA     ZC_ID('I','N','I','T')              //initialization data
-#define ID_GUYS         ZC_ID('G','U','Y',' ')              //guys
-#define ID_MIDIS        ZC_ID('M','I','D','I')              //midis
-#define ID_CHEATS       ZC_ID('C','H','T',' ')              //cheats
-#define ID_SAVEGAME     ZC_ID('S','V','G','M')              //save game data (used in the save game file)
+#define ID_HEADER         ZC_ID('H','D','R',' ')              //quest header
+#define ID_RULES          ZC_ID('R','U','L','E')              //quest rules
+#define ID_STRINGS        ZC_ID('S','T','R',' ')              //message strings
+#define ID_MISC           ZC_ID('M','I','S','C')              //misc data
+#define ID_TILES          ZC_ID('T','I','L','E')              //tiles
+#define ID_COMBOS         ZC_ID('C','M','B','O')              //combos
+#define ID_CSETS          ZC_ID('C','S','E','T')              //csets (and pal names?)
+#define ID_MAPS           ZC_ID('M','A','P',' ')              //maps
+#define ID_DMAPS          ZC_ID('D','M','A','P')              //dmaps
+#define ID_DOORS          ZC_ID('D','O','O','R')              //door combo sets
+#define ID_ITEMS          ZC_ID('I','T','E','M')              //items
+#define ID_WEAPONS        ZC_ID('W','P','N',' ')              //weapons
+#define ID_COLORS         ZC_ID('C','L','R',' ')              //not sure
+#define ID_ICONS          ZC_ID('I','C','O','N')              //not sure
+#define ID_GRAPHICSPACK   ZC_ID('G','P','A','K')              //graphics pack header
+#define ID_INITDATA       ZC_ID('I','N','I','T')              //initialization data
+#define ID_GUYS           ZC_ID('G','U','Y',' ')              //guys
+#define ID_MIDIS          ZC_ID('M','I','D','I')              //midis
+#define ID_CHEATS         ZC_ID('C','H','T',' ')              //cheats
+#define ID_SAVEGAME       ZC_ID('S','V','G','M')              //save game data (used in the save game file)
 
 //Version number of the different section types
-#define V_HEADER        1
-#define V_RULES         1
-#define V_STRINGS       1
-#define V_MISC          1
-#define V_TILES         1
-#define V_COMBOS        1
-#define V_CSETS         1
-#define V_MAPS          2
-#define V_DMAPS         1
-#define V_DOORS         1
-#define V_ITEMS         1
-#define V_WEAPONS       1
-#define V_COLORS        1
-#define V_ICONS         1
-#define V_INITDATA      1
-#define V_GUYS          1
-#define V_MIDIS         1
-#define V_CHEATS        1
-#define V_SAVEGAME      1
+#define V_HEADER          1
+#define V_RULES           1
+#define V_STRINGS         1
+#define V_MISC            1
+#define V_TILES           1
+#define V_COMBOS          1
+#define V_CSETS           1
+#define V_MAPS            2
+#define V_DMAPS           1
+#define V_DOORS           1
+#define V_ITEMS           1
+#define V_WEAPONS         1
+#define V_COLORS          1
+#define V_ICONS           1
+#define V_GRAPHICSPACK    1
+#define V_INITDATA        1
+#define V_GUYS            1
+#define V_MIDIS           1
+#define V_CHEATS          1
+#define V_SAVEGAME        1
 
 /*
  * Compatible version number of the different section types
@@ -210,6 +210,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_M
 #define CV_WEAPONS      1
 #define CV_COLORS       1
 #define CV_ICONS        1
+#define CV_GRAPHICSPACK 1
 #define CV_INITDATA     1
 #define CV_GUYS         1
 #define CV_MIDIS        1
@@ -226,6 +227,8 @@ typedef unsigned char        byte;                               //0-           
 typedef unsigned short       word;                               //0-                    65,535  (16 bits)
 typedef unsigned long        dword;                              //0-             4,294,967,295  (32 bits)
 typedef unsigned long long   qword;                              //0-18,446,744,073,709,551,616  (64 bits)
+
+extern int readsize, writesize;
 
 // system colors
 #define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)
@@ -476,8 +479,8 @@ enum
   qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_FULLLTM,
   qr_NOPOTIONCOMBINE, qr_LINKFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
 
-  qr_NOBOMBPALFLASH, qr_TRANSLUCENTNAYRUSLOVESHIELD, qr_FLICKERINGNAYRUSLOVESHIELD, qr_TRANSLUCENTNAYRUSLOVEROCKET, 
-  qr_FLICKERINGNAYRUSLOVEROCKET,
+  qr_NOBOMBPALFLASH, qr_TRANSLUCENTNAYRUSLOVESHIELD, qr_FLICKERINGNAYRUSLOVESHIELD, qr_TRANSLUCENTNAYRUSLOVEROCKET,
+  qr_FLICKERINGNAYRUSLOVEROCKET, qr_NOSCROLLCONTINUE, qr_OLDTRIBBLES,
 
   qr_MAX
 };
@@ -556,8 +559,8 @@ enum
   iwMore, iwBossMarker, iwLinkSlash, wSWORDSLASH,wWSWORDSLASH,
   wMSWORDSLASH,wXSWORDSLASH,iwShadow,iwLargeShadow,iwBushLeaves,
   iwFlowerClippings, iwGrassClippings, iwTallGrass, iwRipples, iwNPCs,
-  wNAYRUSLOVE1A, wNAYRUSLOVE1B, wNAYRUSLOVES1A, wNAYRUSLOVES1B, 
-  wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A, wNAYRUSLOVES2B, 
+  wNAYRUSLOVE1A, wNAYRUSLOVE1B, wNAYRUSLOVES1A, wNAYRUSLOVES1B,
+  wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A, wNAYRUSLOVES2B,
   iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, wMAX
 };
 
@@ -1324,29 +1327,51 @@ static inline void swap(T &a,T &b)
   b = c;
 }
 
-inline bool pfwrite(void *p,long n,PACKFILE *f)
+#define NEWALLEGRO
+
+INLINE bool pfwrite(void *p,long n,PACKFILE *f)
 {
-  return pack_fwrite(p,n,f)==n;
+  bool success=(pack_fwrite(p,n,f)==n);
+  if (success)
+  {
+    writesize+=n;
+  }
+  return success;
 }
 
-inline bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
+INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
 {
+  bool success;
   if (keepdata==true)
   {
-    return pack_fread(p,n,f)==n;
+    success=(pack_fread(p,n,f)==n);
+    if (success)
+    {
+      readsize+=n;
+    }
+    return success;
   }
   else
   {
-    return pack_fseek(f,n)==0;
+    success=(pack_fseek(f,n)==0);
+    if (success)
+    {
+      readsize+=n;
+    }
+    return success;
   }
 }
 
-inline bool p_getc(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
 {
   unsigned char *cp = (unsigned char *)p;
   int c;
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
   if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
 
   if (pack_feof(f))
   {
@@ -1361,24 +1386,38 @@ inline bool p_getc(void *p,PACKFILE *f,bool keepdata)
   {
     *cp = c;
   }
+  readsize+=1;
   return true;
 }
 
-inline bool p_putc(int c,PACKFILE *f)
+INLINE bool p_putc(int c,PACKFILE *f)
 {
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false; //must be writing to file
+#else
   if (!(f->flags&PACKFILE_FLAG_WRITE)) return false;        //must be writing to file
+#endif
 
   pack_putc(c,f);
-  return pack_ferror(f)==0;
+  bool success=(pack_ferror(f)==0);
+  if (success)
+  {
+    writesize+=1;
+  }
+  return success;
 }
 
-inline bool p_igetw(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
 {
   short *cp = (short *)p;
   int c;
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
   if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
 
   if (pack_feof(f))
   {
@@ -1393,24 +1432,38 @@ inline bool p_igetw(void *p,PACKFILE *f,bool keepdata)
   {
     *cp = c;
   }
+  readsize+=2;
   return true;
 }
 
-inline bool p_iputw(int c,PACKFILE *f)
+INLINE bool p_iputw(int c,PACKFILE *f)
 {
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false; //must be writing to file
+#else
   if (!(f->flags&PACKFILE_FLAG_WRITE)) return false;        //must be writing to file
+#endif
 
   pack_iputw(c,f);
-  return pack_ferror(f)==0;
+  bool success=(pack_ferror(f)==0);
+  if (success)
+  {
+    writesize+=2;
+  }
+  return success;
 }
 
-inline bool p_igetl(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 {
   dword *cp = (dword *)p;
   long c;
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
   if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
 
   if (pack_feof(f))
   {
@@ -1425,24 +1478,80 @@ inline bool p_igetl(void *p,PACKFILE *f,bool keepdata)
   {
     *cp = c;
   }
+  readsize+=4;
   return true;
 }
 
-inline bool p_iputl(long c,PACKFILE *f)
+INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
 {
-  if (!f) return false;
-  if (!(f->flags&PACKFILE_FLAG_WRITE)) return false;        //must be writing to file
-
-  pack_iputl(c,f);
-  return pack_ferror(f)==0;
+	long temp;
+	bool result = p_igetl(&temp,f,keepdata);
+	*(int *)p=(int)temp;
+	return result;
 }
 
-inline bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
+{
+	if(!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
+  if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
+  if (pack_feof(f))
+  {
+    return false;
+  }
+  byte tempfloat[sizeof(float)];
+  if(!pfread(tempfloat,sizeof(float),f,true))
+	  return false;
+  if(keepdata)
+  {
+	memset(p, 0,sizeof(float));
+#ifdef ALLEGRO_MACOSX
+	for(int i=0; i<(int)sizeof(float); i++)
+	{
+		((byte *)p)[i] = tempfloat[i];
+	}
+#else
+	for(int i=0; i<(int)sizeof(float); i++)
+	{
+		((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
+	}
+#endif
+  }
+  readsize += sizeof(float);
+  return true;
+}
+
+INLINE bool p_iputl(long c,PACKFILE *f)
+{
+  if (!f) return false;
+#ifdef NEWALLEGRO
+  if (!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false; //must be writing to file
+#else
+  if (!(f->flags&PACKFILE_FLAG_WRITE)) return false;        //must be writing to file
+#endif
+
+  pack_iputl(c,f);
+  bool success=(pack_ferror(f)==0);
+  if (success)
+  {
+    writesize+=4;
+  }
+  return success;
+}
+
+INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
 {
   short *cp = (short *)p;
   int c;
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
   if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
 
   if (pack_feof(f))
   {
@@ -1457,24 +1566,38 @@ inline bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
   {
     *cp = c;
   }
+  readsize+=2;
   return true;
 }
 
-inline bool p_mputw(int c,PACKFILE *f)
+INLINE bool p_mputw(int c,PACKFILE *f)
 {
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false; //must be writing to file
+#else
   if (!(f->flags&PACKFILE_FLAG_WRITE)) return false;        //must be writing to file
+#endif
 
   pack_mputw(c,f);
-  return pack_ferror(f)==0;
+  bool success=(pack_ferror(f)==0);
+  if (success)
+  {
+    writesize+=2;
+  }
+  return success;
 }
 
-inline bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
 {
   dword *cp = (dword *)p;
   long c;
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
   if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
 
   if (pack_feof(f))
   {
@@ -1489,16 +1612,26 @@ inline bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
   {
     *cp = c;
   }
+  readsize+=4;
   return true;
 }
 
-inline bool p_mputl(long c,PACKFILE *f)
+INLINE bool p_mputl(long c,PACKFILE *f)
 {
   if (!f) return false;
+#ifdef NEWALLEGRO
+  if (!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false; //must be writing to file
+#else
   if (!(f->flags&PACKFILE_FLAG_WRITE)) return false;        //must be writing to file
+#endif
 
   pack_mputl(c,f);
-  return pack_ferror(f)==0;
+  bool success=(pack_ferror(f)==0);
+  if (success)
+  {
+    writesize+=4;
+  }
+  return success;
 }
 
 inline bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)

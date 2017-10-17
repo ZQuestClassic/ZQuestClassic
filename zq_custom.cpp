@@ -156,7 +156,7 @@ void edit_itemdata(int index)
 
   do
   {
-    ret = popup_dialog(itemdata_dlg,3);
+    ret = zc_popup_dialog(itemdata_dlg,3);
 
     test.tile  = itemdata_dlg[2].d1;
     test.csets = itemdata_dlg[2].d2;
@@ -247,9 +247,9 @@ static DIALOG wpndata_dlg[] =
   { jwin_edit_proc,    160,  118,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
   { NULL }
 };
-  
-  
-  
+
+
+
 
 void edit_weapondata(int index)
 {
@@ -277,7 +277,7 @@ void edit_weapondata(int index)
 
   do
   {
-    ret = popup_dialog(wpndata_dlg,3);
+    ret = zc_popup_dialog(wpndata_dlg,3);
 
     test.tile  = wpndata_dlg[2].d1;
     test.csets = wpndata_dlg[2].d2;
@@ -345,7 +345,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
   int *p=(int*)d->dp3;
   int oldtile=0;
   int oldflip=0;
-  
+
   switch(msg)
   {
     case MSG_START:
@@ -662,6 +662,30 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 }
 
 
+char *animationstyles[]= { "Original", "BS-Zelda" };
+
+char *animationstylelist(int index, int *list_size)
+{
+  if(index>=0)
+  {
+    return animationstyles[index];
+  }
+  *list_size=las_max;
+  return NULL;
+}
+
+int jwin_as_droplist_proc(int msg,DIALOG *d,int c)
+{
+  int ret = jwin_droplist_proc(msg,d,c);
+  switch(msg)
+  {
+    case MSG_CHAR:
+    case MSG_CLICK:
+    zinit.linkwalkstyle=d->d1;
+  }
+  return ret;
+}
+
 static DIALOG linktile_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -724,6 +748,9 @@ static DIALOG linktile_dlg[] =
   { d_ltile_proc,       185, 110,   20,   20,   6,       jwin_pal[jcBOX],      0,       0,          0,             ls_swimhold2,       NULL },
   // casting
   { d_ltile_proc,       122, 140,   20,   20,   6,       jwin_pal[jcBOX],      0,       0,          0,             ls_cast,       NULL },
+  { jwin_text_proc,      32,  196,   16+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Animation Style:", NULL, NULL },
+  { jwin_as_droplist_proc, 105,  192,   78,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) animationstylelist, NULL, NULL },
+
   { NULL }
 };
 
@@ -731,8 +758,13 @@ int onCustomLink()
 {
   setuplinktiles(zinit.linkwalkstyle);
   linktile_dlg[0].dp2=lfont;
+  int walkstyle_temp=zinit.linkwalkstyle;
+  linktile_dlg[49].d1=walkstyle_temp;
   int ret = popup_dialog_through_bitmap(screen2,linktile_dlg,3);
-  ret=ret;
+  if (ret!=3)
+  {
+    zinit.linkwalkstyle=walkstyle_temp;
+  }
   return D_O_K;
 }
 

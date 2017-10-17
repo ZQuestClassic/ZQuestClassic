@@ -89,7 +89,7 @@ bool zmap::reset_templates(bool validate)
   {
     return false;
   }
-  
+
   char *deletefilename;
   deletefilename=(char *)malloc(1);
   deletefilename[0]=0;
@@ -100,7 +100,7 @@ bool zmap::reset_templates(bool validate)
   word temp_map_count;
   mapscr temp_mapscr;
   PACKFILE *f=NULL;
-  
+
   packfile_password(datapwd);
   f=open_quest_template(&header, deletefilename, validate);
   get_version_and_build(f, &version, &build);
@@ -156,7 +156,7 @@ bool zmap::reset_templates(bool validate)
     delete_file(deletefilename);
   }
   packfile_password(NULL);
-  
+
   return true;
 }
 
@@ -504,9 +504,8 @@ int zmap::save(char *path)
     return 3;
   }
   for(int i=0; i<MAPSCRS; i++)
-
   {
-    if(!pfwrite(screens+i,sizeof(mapscr),f)<1)
+    if(!pfwrite(screens+i,sizeof(mapscr),f))
     {
       pack_fclose(f);
       return 2;
@@ -1195,7 +1194,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
   int dark = layer->flags&4;
 
   resize_mouse_pos=true;
- 
+
   if (LayerMaskInt[0]!=0)
   {
     for(int i=0; i<176; i++)
@@ -2590,40 +2589,55 @@ void zmap::dowarp(int ring,int index)
 
 /******************************/
 /******** ZQuest stuff ********/
-
 /******************************/
 char *MsgString(int index)
 {
   bound(index,0,MAXMSGS-1);
-  char *s=MsgStrings[index].s;
-  while(*s==' ')
-    ++s;
-  return s;
+  char *s;
+  char u[80];
+  sprintf(u, "%d", index);
+  s=strcat(u,": ");
+
+  char *t = new char[73];
+  memset(t, 0, 73);
+  int i=0;
+  //return s;
+
+  //remove preceding spaces;
+  for(; MsgStrings[index].s[i]==' '; i++);
+  int msgptr=0;
+  for(; msgptr<72 && i<72; i++)
+  {
+    if(MsgStrings[index].s[i]>=32 && MsgStrings[index].s[i]<=126)
+    {
+      t[msgptr++]=MsgStrings[index].s[i];
+    }
+  }
+  for(;msgptr<=72;msgptr++)
+    t[msgptr]=0;
+  return strcat(s,t);
 }
 
 void reset_msgstr(int index)
 {
   bound(index,0,MAXMSGS-1);
   /*
-   char *s=MsgStrings[index].s;
-   for(int i=0; i<76; i++)
-     *(s++)=0;
-  */
+    char *s=MsgStrings[index].s;
+    for(int i=0; i<76; i++)
+    *(s++)=0;
+    */
   memset(MsgStrings[index].s, 0, 73);
   MsgStrings[index].nextstring=0;
-  memset(MsgStrings[index].expansion, 0, 32);
+  //memset(MsgStrings[index].expansion, 0, 32);
 }
 
 void init_msgstrs()
-
 {
   for(int i=0; i<MAXMSGS; i++)
     reset_msgstr(i);
   strcpy(MsgStrings[0].s,"(None)");
   msg_count=1;
 }
-
-const char zqsheader[30]="Zelda Classic String Table\n\x01";
 
 bool save_msgstrs(char *path)
 {
@@ -2641,52 +2655,26 @@ bool save_msgstrs(char *path)
 
   pack_fclose(f);
   return false;
-
-  /*
-   PACKFILE *f=pack_fopen(path,F_WRITE);
-   if(!f)
-    return false;
-
-   short version=ZELDA_VERSION;
-   byte build=VERSION_BUILD;
-   if(!p_iputw(version,f)) {
-     goto error;
-   }
-   if(!p_getc(&build,f)) {
-  goto error;
-  }
-
-  if(!p_iputw(msg_count,f)) {
-  goto error;
-  }
-  if(!pfwrite(MsgStrings,sizeof(MsgStr)*msg_count,f)) {
-  goto error;
-  }
-  pack_fclose(f);
-  return true;
-
-  error:
-  pack_fclose(f);
-  return false;
-  */
 }
 
 bool load_msgstrs(char *path, int startstring)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  startstring=startstring;
+
   dword section_id;
   PACKFILE *f = pack_fopen(path,F_READ);
   if (!f)
   {
     return false;
   }
-
   if(!p_mgetl(&section_id,f,true))
   {
     return false;
   }
   if(section_id==ID_STRINGS)
   {
-    if (readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startstring, MAXMSGS-startstring, true)==0)
+    if (readstrings(f, &header, true)==0)
     {
       pack_fclose(f);
       return true;
@@ -2697,6 +2685,7 @@ bool load_msgstrs(char *path, int startstring)
       return false;
     }
   }
+  pack_fclose(f);
   return false;
 }
 
@@ -2706,7 +2695,6 @@ bool save_pals(char *path)
   if (!f)
   {
     return false;
-
   }
 
   if (writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newpdTOTAL)==0)
@@ -2723,6 +2711,10 @@ bool load_pals(char *path, int startcset)
 {
   dword section_id;
   PACKFILE *f = pack_fopen(path,F_READ);
+  if (!f)
+  {
+    return false;
+  }
   if(!p_mgetl(&section_id,f,true))
   {
     return false;
@@ -2732,12 +2724,12 @@ bool load_pals(char *path, int startcset)
     if (readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newpdTOTAL-startcset, true)==0)
     {
       pack_fclose(f);
+      loadlvlpal(Color);
       return true;
     }
     else
     {
       pack_fclose(f);
-      init_tiles(true, &header);
       return false;
     }
   }
@@ -2770,7 +2762,6 @@ bool load_dmaps(char *path, int startdmap)
   {
     return false;
   }
-
   if(!p_mgetl(&section_id,f,true))
   {
     return false;
@@ -2791,9 +2782,6 @@ bool load_dmaps(char *path, int startdmap)
   return false;
 }
 
-char combo_header[16] = "ZQuest combos  ";
-char combo_header2[12]= "Enhanced   ";
-
 bool save_combos(char *path)
 {
   PACKFILE *f = pack_fopen(path,F_WRITE);
@@ -2803,6 +2791,7 @@ bool save_combos(char *path)
   }
 
   reset_combo_animations();
+  //reset_combo_animations2();  //not sure what this is; it came from 2.11
   if (writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)==0)
   {
     pack_fclose(f);
@@ -2821,7 +2810,6 @@ bool load_combos(char *path, int startcombo)
   {
     return false;
   }
-
   if(!p_mgetl(&section_id,f,true))
   {
     return false;
@@ -2866,13 +2854,17 @@ bool load_tiles(char *path, int starttile)
 {
   dword section_id;
   PACKFILE *f = pack_fopen(path,F_READ);
+  if (!f)
+  {
+    return false;
+  }
   if(!p_mgetl(&section_id,f,true))
   {
     return false;
   }
   if(section_id==ID_TILES)
   {
-    if (readtiles(f, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
+    if (readtiles(f, tilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
     {
       pack_fclose(f);
       return true;
@@ -2974,74 +2966,10 @@ bool setMapCount2(int c, bool reload)
 int init_quest()
 {
   char buf[2048];
-  load_quest("zgp.dat#DAT_NESZGP",true);
+  load_quest("qst.dat#DAT_NESQST",true,true);
   sprintf(buf,"ZQuest - Untitled Quest");
   set_window_title(buf);
-  return 0;
-
-  char tpath[280];
-  strcpy(tpath, header.templatepath);
-  memset(&header, 0, sizeof(zquestheader));
-  strcpy(header.templatepath, tpath);
-  memset(&zcheats, 0, sizeof(ZCHEATS));
-
-  strcpy(header.id_str,QH_IDSTR);
-  header.zelda_version = ZELDA_VERSION;
-  header.internal = INTERNAL_VERSION;
-  header.build=VERSION_BUILD;
-  for(int i=0; i<ZQ_MAXDATA; i++)
-    header.data_flags[i]=0;
-
-  setMapCount2(2,false);
-  Map.clearall(false);
-  init_msgstrs();
-  msg_count=1;
-
-  init_tiles(false, &header);
-  init_combos(false, &header);
-
-  reset_dmaps();
-  reset_midis(customMIDIs);
-
-  memset(&misc, 0, sizeof(miscQdata));
-
-  init_colordata(false, &header, &misc);
-  reset_items(false, &header);
-  reset_wpns(false, &header);
-  reset_doorcombosets(false, &header);
-
-  reset_mapstyles(false, &header, &misc);
-
-  refresh_pal();
-
-  memset(&zinit, 0, sizeof(zinitdata));
-  zinit.shield=i_smallshield;
-  zinit.hc=3;
-  zinit.start_heart=3;
-  zinit.cont_heart=3;
-  zinit.max_bombs=8;
-
-  zinit.sword_hearts[0]=0;
-  zinit.sword_hearts[1]=5;
-  zinit.sword_hearts[2]=12;
-  zinit.sword_hearts[3]=21;
-  zinit.beam_hearts[0]=100;
-  zinit.beam_hearts[1]=100;
-  zinit.beam_hearts[2]=100;
-  zinit.beam_hearts[3]=100;
-  for(int i=0; i<idBP_MAX; i++)
-  {
-    set_bit(&(zinit.beam_percent),i,1);
-  }
-  zinit.beam_power[0]=100;
-  zinit.beam_power[1]=100;
-  zinit.beam_power[2]=100;
-  zinit.beam_power[3]=100;
-  zinit.hookshot_links=6;
-
   saved=true;
-  sprintf(buf,"ZQuest - Untitled Quest");
-  set_window_title(buf);
   return 0;
 }
 
@@ -3104,27 +3032,17 @@ static DIALOG pwd_dlg[] =
   { NULL }
 };
 
-bool quest_access(char *filename, bool compressed)
+bool quest_access(char *filename, zquestheader *hdr, bool compressed)
 {
-
   if (!compressed)
   {
     return true;
   }
-  if(debug || header.pwdkey==0)
+  if(debug || hdr->pwdkey==0)
       return true;
 
   char pwd[32];
   char prompt[32]="";
-
-  /*
-    pwd_dlg[3].dp=get_filename(filename);
-    get_questpwd(pwd);
-    pwd_dlg[5].dp=prompt;
-    popup_dialog(pwd_dlg,5);
-
-    return strcmp(pwd,prompt)==0;
-  */
 
   char keyfilename[256];
   replace_extension(keyfilename, filename, "key", 255);
@@ -3170,18 +3088,23 @@ bool quest_access(char *filename, bool compressed)
 }
 
 // wrapper to reinitialize everything on an error
-int load_quest(char *filename, bool compressed)
+int load_quest(char *filename, bool compressed, bool encrypted)
 {
   char buf[2048];
-  if(compressed) packfile_password(datapwd);
-  int ret=loadquest(filename,&header,&misc,customMIDIs,true,compressed);
+  if(encrypted) packfile_password(datapwd);
+  byte skip_flags[4];
+  for (int i=0; i<4; ++i)
+  {
+    skip_flags[i]=0;
+  }
+  int ret=loadquest(filename,&header,&misc,customMIDIs,true,compressed,encrypted,true,skip_flags);
   packfile_password(NULL);
 
   if(ret!=qe_OK)
   {
     init_quest();
   }
-  else if(!quest_access(filename, compressed))
+  else if(!quest_access(filename, &header, compressed))
   {
     init_quest();
     ret=qe_pwd;
@@ -3191,6 +3114,13 @@ int load_quest(char *filename, bool compressed)
     Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
     refresh(rALL);
     refresh_pal();
+/* Not sure what this is for
+    if(map != NULL)
+    {
+      destroy_bitmap(map);
+      map=NULL;
+    }
+*/
     sprintf(buf,"ZQuest - [%s]", get_filename(filename));
     if (compressed)
     {
@@ -3698,7 +3628,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
     return 5;
   }
 
-  
+
   for (int i=start_dmap; i<start_dmap+dmap_count; i++)
   {
     if(!p_putc(DMaps[i].map,f))
@@ -3803,10 +3733,11 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   word warprings=count_warprings(misc);
   word windwarps=count_windwarps(misc);
   word triforces=8;
+  writesize=0;
 //  dword section_size=0;
   dword section_size = sizeof(word) + shops * 3 * (sizeof(char) + sizeof(word))
                      + sizeof(word) + infos * 3 * 2 * sizeof(word)
-                     + sizeof(word) + warprings * (8 * sizeof(char) + sizeof(char))
+                     + sizeof(word) + warprings * ((8 * (2 * sizeof(char))) + sizeof(char))
                      + sizeof(word) + windwarps * 2 * sizeof(char)
                      + triforces * sizeof(char)
                      + 21 * sizeof(char) + 6 * sizeof(word)
@@ -3839,7 +3770,7 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   }
 
 
-  //infos
+  //shops
   if(!p_iputw(shops,f))
   {
     return qe_invalid;
@@ -3913,7 +3844,6 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   }
 
   //wind warps
-
   if(!p_iputw(windwarps,f))
   {
     return qe_invalid;
@@ -4509,11 +4439,15 @@ int writemaps(PACKFILE *f, zquestheader *header)
 
 int writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word combos_used;
   dword section_id=ID_COMBOS;
   dword section_version=V_COMBOS;
   dword section_cversion=CV_COMBOS;
-//  dword section_size=0;
+  //  dword section_size=0;
   combos_used = count_combos()-start_combo;
   combos_used = min(combos_used, max_combos);
   combos_used = min(combos_used, MAXCOMBOS);
@@ -4594,10 +4528,16 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 
 int writecolordata(PACKFILE *f, miscQdata *misc, word version, word build, word start_cset, word max_csets)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+  start_cset=start_cset;
+  max_csets=max_csets;
+
   dword section_id=ID_CSETS;
   dword section_version=V_CSETS;
   dword section_cversion=CV_CSETS;
-//  dword section_size=0;
+  //  dword section_size=0;
   int palcycles = count_palcycles(misc);
   dword section_size = newpsTOTAL
                      + MAXLEVELS * PALNAMESIZE
@@ -4719,16 +4659,19 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
 
 int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word tiles_used;
   dword section_id=ID_TILES;
   dword section_version=V_TILES;
   dword section_cversion=CV_TILES;
-//  dword section_size=0;
-  tiles_used = count_tiles()-start_tile;
+  //  dword section_size=0;
+  tiles_used = count_tiles(tilebuf)-start_tile;
   tiles_used = min(tiles_used, max_tiles);
   tiles_used = min(tiles_used, NEWMAXTILES);
-  dword section_size = sizeof(word)
-                     + (int)tiles_used * (int)SINGLE_TILE_SIZE;
+  dword section_size = sizeof(word) + (int)tiles_used * (int)SINGLE_TILE_SIZE;
 
   //section id
   if(!p_mputl(section_id,f))
@@ -4753,7 +4696,7 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
   }
 
   //finally...  section data
-  tiles_used=count_tiles()-start_tile;
+  tiles_used=count_tiles(tilebuf)-start_tile;
   tiles_used=min(tiles_used, max_tiles);
   tiles_used=min(tiles_used, NEWMAXTILES);
   if(!p_iputw(tiles_used,f))
@@ -4761,9 +4704,12 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
     return 5;
   }
 
-  if(!pfwrite(tilebuf+start_tile,dword(dword(SINGLE_TILE_SIZE)*dword(tiles_used)),f))
+  for (dword i=0; i<tiles_used; ++i)
   {
-    return 6;
+    if(!pfwrite(tilebuf+((start_tile+i)*SINGLE_TILE_SIZE),SINGLE_TILE_SIZE,f))
+    {
+      return 7;
+    }
   }
   return 0;
 }
@@ -4949,7 +4895,7 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   dword section_cversion=CV_INITDATA;
 //  dword section_size=0;
   dword section_size = 174;
-  
+
   zinit.last_map=Map.getCurrMap();
   zinit.last_screen=Map.getCurrScr();
 
@@ -5228,12 +5174,6 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
 
 int save_unencoded_quest(char *filename, bool compressed)
 {
-  #ifdef _CRASHONSAVE_
-  crash();
-  crash2();
-  crash3();
-  crash4();
-  #else
   reset_combo_animations();
   strcpy(header.id_str,QH_NEWIDSTR);
   header.zelda_version = ZELDA_VERSION;
@@ -5415,7 +5355,6 @@ int save_unencoded_quest(char *filename, bool compressed)
     pack_fclose(fp);
     packfile_password(datapwd);
   }
-  #endif
   return 0;
 }
 
@@ -5458,141 +5397,174 @@ int save_quest(char *filename)
 
 bool load_zgp(char *path)
 {
-  word tiles_used;
-  word combos_used;
-  clear_tiles();
-  clear_combos();
-  //open the file
+  dword section_id;
+  dword section_version;
+  dword section_cversion;
+
   PACKFILE *f=pack_fopen(path,F_READ);
   if(!f)
     return false;
 
-  short version;
-  byte build;
-
-  //read the version and make sure it worked
-  if(!p_igetw(&version,f,true))
-    goto error;
-
-  //read the build and make sure it worked
-  if(!p_getc(&build,f,true))
-    goto error;
-
-  //read the tile info and make sure it worked
-  if(!p_igetw(&tiles_used,f,true))
-    goto error;
-  if(!pfread(tilebuf,dword(dword(SINGLE_TILE_SIZE)*dword(tiles_used)),f,true))
-    goto error;
-
-  //read the combo info and make sure it worked
-  if(!p_igetw(&combos_used,f,true))
+  if(!p_mgetl(&section_id,f,true))
   {
-    goto error;
+    pack_fclose(f);
+    return false;
   }
-  if(!pfread(combobuf,sizeof(newcombo)*combos_used,f,true))
+  if(section_id!=ID_GRAPHICSPACK)
   {
-    goto error;
+    pack_fclose(f);
+    return false;
   }
 
-  //read the palette info and make sure it worked
-  if(!pfread(colordata,newpsTOTAL,f,true))
+  //section version info
+  if(!p_igetw(&section_version,f,true))
   {
-    goto error;
+    return 2;
   }
-  if(!pfread(misc.cycles,sizeof(palcycle)*256*3,f,true))
+  if(!p_igetw(&section_cversion,f,true))
   {
-    goto error;
+    return 3;
   }
-  if(!pfread(palnames,MAXLEVELS*PALNAMESIZE,f,true))
-  {
-    goto error;
-  }
-  loadlvlpal(Color);
 
-  //read the sprite info and make sure it worked
-  if(!pfread(itemsbuf,sizeof(itemdata)*MAXITEMS,f,true))
+  //tiles
+  if(!p_mgetl(&section_id,f,true))
   {
-    goto error;
+    pack_fclose(f);
+    return false;
   }
-  if(!pfread(wpnsbuf,sizeof(wpndata)*MAXWPNS,f,true))
+  if(section_id==ID_TILES)
   {
-    goto error;
+    if (readtiles(f, tilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
+    {
+      pack_fclose(f);
+      init_tiles(true, &header);
+      return false;
+    }
+  }
+  else
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //combos
+  if(!p_mgetl(&section_id,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+  if(section_id==ID_COMBOS)
+  {
+    if (readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS, true)!=0)
+    {
+      pack_fclose(f);
+      //      init_combos(true, &header);
+      return false;
+    }
+  }
+  else
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //palettes
+  if(!p_mgetl(&section_id,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+  if(section_id==ID_CSETS)
+  {
+    if (readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newpdTOTAL, true)!=0)
+    {
+      pack_fclose(f);
+      return false;
+    }
+  }
+  else
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //items
+  if(!p_mgetl(&section_id,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+  if(section_id==ID_ITEMS)
+  {
+    if (readitems(f, ZELDA_VERSION, VERSION_BUILD, true)!=0)
+    {
+      pack_fclose(f);
+      return false;
+    }
+  }
+  else
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //weapons
+  if(!p_mgetl(&section_id,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+  if(section_id==ID_WEAPONS)
+  {
+    if (readweapons(f, &header, true)!=0)
+    {
+      pack_fclose(f);
+      return false;
+    }
+  }
+  else
+  {
+    pack_fclose(f);
+    return false;
   }
 
   //read the triforce pieces info and make sure it worked
-  for (int i=0; i<8; ++i)
+  //really do this?
+
+  //read the door combo sets and make sure it worked
+  if(!p_mgetl(&section_id,f,true))
   {
-    if(!p_getc(&(misc.triforce[i]),f,true))
+    pack_fclose(f);
+    return false;
+  }
+  if(section_id==ID_DOORS)
+  {
+    if (readdoorcombosets(f, &header, true)!=0)
     {
-      goto error;
+      pack_fclose(f);
+      return false;
     }
   }
-
-  //read the game icons info and make sure it worked
-  for (int i=0; i<4; i++)
+  else
   {
-    if(!p_igetw(&(misc.icons[i]),f,true))
-    {
-      goto error;
-    }
-  }
-
-  //read the misc colors info and map styles info and make sure it worked
-  if(!pfread(&misc.colors,sizeof(zcolors),f,true))
-  {
-    goto error;
+    pack_fclose(f);
+    return false;
   }
 
   //read the template screens and make sure it worked
-  byte num_maps;
-  if(!p_getc(&num_maps,f,true))
-  {
-    goto error;
-  }
-  if (map_count<num_maps)
-  {
-    setMapCount2(num_maps,true);
-  }
-  if(!pfread(TheMaps+128,sizeof(mapscr)*TEMPLATES,f,true))
-  {
-    goto error;
-  }
-  if (num_maps>1)                                           //dungeon templates
-  {
-    if(!pfread(TheMaps+MAPSCRS+128,sizeof(mapscr)*TEMPLATES,f,true))
-    {
-      goto error;
-    }
-  }
-
-  for(int i=0; i<MAXDOORCOMBOSETS; i++)
-  {
-    memset(DoorComboSets+i, 0, sizeof(DoorComboSet));
-  }
-  door_combo_set_count=0;
-
-  if(!p_igetw(&door_combo_set_count,f,true))
-  {
-    goto error;
-  }
-  if(!pfread(DoorComboSets,sizeof(DoorComboSet)*door_combo_set_count,f,true))
-  {
-    goto error;
-  }
-
-  setup_combo_animations();
+  //really do this?
 
   //yay!  it worked!  close the file and say everything was ok.
+  loadlvlpal(Color);
+  setup_combo_animations();
   pack_fclose(f);
   return true;
-
-  error:
-  pack_fclose(f);
-  return false;
 }
 
 bool save_zgp(char *path)
 {
+//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+//  return false;
   reset_combo_animations();
 
   //open the file
@@ -5600,128 +5572,82 @@ bool save_zgp(char *path)
   if(!f)
     return false;
 
-  short version=ZELDA_VERSION;
-  byte  build=VERSION_BUILD;
+  dword section_id=ID_GRAPHICSPACK;
+  dword section_version=V_GRAPHICSPACK;
+  dword section_cversion=CV_GRAPHICSPACK;
 
-  //write the version and make sure it worked
-  if(!p_iputw(version,f))
-    goto error;
-
-  //write the build and make sure it worked
-  if(!p_putc(build,f))
-    goto error;
-
-  //write the tile info and make sure it worked
-  word tiles_used;
-  tiles_used=count_tiles();
-  if(!p_iputw(tiles_used,f))
-    goto error;
-  if(!pfwrite(tilebuf,dword(dword(SINGLE_TILE_SIZE)*dword(tiles_used)),f))
-    goto error;
-
-  //write the combo info and make sure it worked
-  word combos_used;
-  combos_used=count_combos();
-  if(!p_iputw(combos_used,f))
+  //section id
+  if(!p_mputl(section_id,f))
   {
-    goto error;
-  }
-  if(!pfwrite(combobuf,sizeof(newcombo)*combos_used,f))
-  {
-    goto error;
+    return 1;
   }
 
-  //write the palette info and make sure it worked
-  if(!pfwrite(colordata,newpsTOTAL,f))
+  //section version info
+  if(!p_iputw(section_version,f))
   {
-    goto error;
+    return 2;
   }
-  if(!pfwrite(misc.cycles,sizeof(palcycle)*256*3,f))
+  if(!p_iputw(section_cversion,f))
   {
-    goto error;
-  }
-  if(!pfwrite(palnames,MAXLEVELS*PALNAMESIZE,f))
-  {
-    goto error;
+    return 3;
   }
 
-  //write the sprite info and make sure it worked
-  if(!pfwrite(itemsbuf,sizeof(itemdata)*MAXITEMS,f))
+  //tiles
+  if (writetiles(f, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES)!=0)
   {
-    goto error;
+    pack_fclose(f);
+    return false;
   }
-  if(!pfwrite(wpnsbuf,sizeof(wpndata)*MAXWPNS,f))
+  //combos
+  if (writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)!=0)
   {
-    goto error;
+    pack_fclose(f);
+    return false;
+  }
+
+  //palettes
+  if (writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newpdTOTAL)!=0)
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //items
+  if (writeitems(f, &header)!=0)
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //weapons
+  if (writeweapons(f, &header)!=0)
+  {
+    pack_fclose(f);
+    return false;
   }
 
   //write the triforce pieces info and make sure it worked
-  for (int i=0; i<8; i++)
-  {
-    if(!p_putc(misc.triforce[i],f))
-    {
-      goto error;
-    }
-  }
+  //really do this?
 
-  //write the game icons info and make sure it worked
-  for (int i=0; i<4; i++)
+  //write the door combo sets and make sure it worked
+  if (writedoorcombosets(f, &header)!=0)
   {
-    if(!p_iputw(misc.icons[i],f))
-    {
-      goto error;
-    }
-  }
-
-  //write the misc colors info and map styles info and make sure it worked
-  if(!pfwrite(&misc.colors,sizeof(zcolors),f))
-  {
-    goto error;
+    pack_fclose(f);
+    return false;
   }
 
   //write the template screens and make sure it worked
-  byte num_maps;
-  num_maps=(((map_count)<2)?1:2);
-  if(!p_putc(num_maps,f))
-  {
-    goto error;
-  }
-  if(!pfwrite(TheMaps+128,sizeof(mapscr)*TEMPLATES,f))
-  {
-    goto error;
-  }
-  if (num_maps>1)                                           //dungeon templates
-  {
-    if(!pfwrite(TheMaps+MAPSCRS+128,sizeof(mapscr)*TEMPLATES,f))
-    {
-      goto error;
-    }
-  }
+  //really do this?
 
-  if(!p_iputw(door_combo_set_count,f))
-  {
-    goto error;
-  }
-  if(!pfwrite(DoorComboSets,sizeof(DoorComboSet)*door_combo_set_count,f))
-  {
-    goto error;
-  }
-
-  //yay!  it worked!  close the file and say everything was ok.
   pack_fclose(f);
   return true;
-
-  error:
-  pack_fclose(f);
-  return false;
-
 }
 
 bool load_zqt(char *path)
 {
   word tiles_used;
   word combos_used;
-  clear_tiles();
+  clear_tiles(tilebuf);
   clear_combos();
   //open the file
   PACKFILE *f = pack_fopen(path, F_READ_PACKED);
@@ -5872,7 +5798,7 @@ bool save_zqt(char *path)
 
   //write the tile info and make sure it worked
   word tiles_used;
-  tiles_used=count_tiles();
+  tiles_used=count_tiles(tilebuf);
   if(!p_iputw(tiles_used,f))
     goto error;
   if(!pfwrite(tilebuf,dword(dword(SINGLE_TILE_SIZE)*dword(tiles_used)),f))
@@ -5997,7 +5923,7 @@ bool save_qsu(char *path)
   header.build=VERSION_BUILD;
 
   word combos_used=count_combos();
-  word tiles_used=count_tiles();
+  word tiles_used=count_tiles(tilebuf);
 
   for(int i=0; i<MAXMIDIS; i++)
     set_bit(midi_flags,i,int(customMIDIs[i].midi!=NULL));
@@ -6118,7 +6044,7 @@ bool save_qsu(char *path)
 bool load_qsu(char *path)
 {
   word combos_used=count_combos();
-  word tiles_used=count_tiles();
+  word tiles_used=count_tiles(tilebuf);
   int i;
 
   PACKFILE *f = pack_fopen(path,F_READ);

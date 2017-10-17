@@ -14,6 +14,7 @@
 #include "jwin.h"
 #include "zsys.h"
 #include "zquest.h"
+#include "gui.h"
 
 static int rules1_list[] =
 {
@@ -168,19 +169,18 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      20,  115,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Potion Combining" },
   { jwin_check_proc,      20,  125,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Invincible Link Flickers" },
   { jwin_check_proc,      20,  135,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Shadows Flicker" },
-//  { jwin_check_proc,      20,  145,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "" },
+  { jwin_check_proc,      20,  145,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fliers Can Appear on Walls" },
 
-  { jwin_check_proc,     170,   75,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fliers Can Appear on Walls" },
-  { jwin_check_proc,     170,   85,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Bomb Palette Flash" },
-  { jwin_check_proc,     170,   95,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Trans. N. Love Shield" },
-  { jwin_check_proc,     170,  105,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "N. Love Shield Flickers" },
+  { jwin_check_proc,     170,   75,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Bomb Palette Flash" },
+  { jwin_check_proc,     170,   85,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Trans. N. Love Shield" },
+  { jwin_check_proc,     170,   95,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "N. Love Shield Flickers" },
+  { jwin_check_proc,     170,  105,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Trans. N. Love Rocket" },
 
-  { jwin_check_proc,     170,  115,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Trans. N. Love Rocket" },
-  { jwin_check_proc,     170,  125,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "N. Love Rocket Flickers" },
-//  { jwin_check_proc,     170,  135,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "" },
+  { jwin_check_proc,     170,  115,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "N. Love Rocket Flickers" },
+  { jwin_check_proc,     170,  125,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Scroll Warp Continue" },
+  { jwin_check_proc,     170,  135,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Old-Style Tribbles" },
 //  { jwin_check_proc,     170,  145,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "" },
 
-  { d_dummy_proc,          0,   0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
   { d_dummy_proc,          0,   0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
   { d_dummy_proc,          0,   0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
   { d_dummy_proc,          0,   0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
@@ -210,7 +210,7 @@ int onRules()
     rules_dlg[i+7].flags = get_bit(quest_rules,i) ? D_SELECTED : 0;
   }
 
-  int ret = popup_dialog(rules_dlg,4);
+  int ret = zc_popup_dialog(rules_dlg,4);
 
   if(ret==4)
   {

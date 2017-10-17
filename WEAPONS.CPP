@@ -536,18 +536,26 @@ bool weapon::animate(int index)
 
     case wLitBomb:
     case wBomb:
-      if(clk==48)
-      {
-        id = wBomb;
-        hxofs=1000;
-      }
+		{
+			if(clk==48)
+			{
+				id = wBomb;
+				hxofs=1000;
+			}
+			if(clk==49)
+			{
+				sfx(WAV_BOMB,pan(int(x)));
+				hxofs=hyofs=-8;
+				hxsz=hysz=32;
+			}
+			if(clk==81)
+			{
+				hxofs=1000;
+			}
       if(clk==49)
       {
-        sfx(WAV_BOMB,pan(int(x)));
         findentrance(x,y,mfBOMB,true);
         findentrance(x,y,mfSTRIKE,true);
-        hxofs=hyofs=-7;
-        hxsz=hysz=30;
       }
       if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
       {
@@ -582,9 +590,16 @@ bool weapon::animate(int index)
           refreshpal = true;
         }
       }
-      if(clk==80) bombdoor(x,y);
-      if(clk==84) dead=1;
-      break;
+      if(clk==80)
+      {
+        bombdoor(x,y);
+      }
+			if(clk==84)
+			{
+        dead=1;
+			}
+			break;
+		}
 
     case wArrow:
       if (findentrance(x,y,mfSTRIKE,true)) dead=4;

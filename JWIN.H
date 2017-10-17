@@ -1,39 +1,39 @@
 /*                 __                  __
- *                /_/\  __  __  __    /_/\  ______
- *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \ 
- *              / /\  / / / / / / / / /\  / /\_ / /\ 
- *         __  / / / / /_/ /_/ / / / / / / / / / / /
- *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
- *        \____/ /  \_________\/  \_\/  \_\/  \_\/
- *         \___\/
- *
- *
- *
- *     jwin.h
- *
- *     Windows(R) style GUI for Allegro.
- *     by Jeremy Craner
- *
- *     Most routines are adaptations of Allegro code.
- *     Allegro is by Shawn Hargreaves, et al.
- *
- *     Version: 3/22/00
- *     Allegro version: 3.1x  (don't know if it works with WIP)
- *
- *     How to use:
- *
- *     - include jwin.c in your project
- *     - include this header in your code
- *
- *     - do the same for jwinfsel.* if you want to use the file selector
- *
- *     - call jwin_set_colors() at program start up
- *       (send jwin_colors for default colors or make your own array
- *       of colors and send them to jwin_set_colors()... see jwin.c)
- *
- *     - use the DIALOG procs the same way you use the default Allegro ones
- *
- */
+  *                /_/\  __  __  __    /_/\  ______
+  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
+  *              / /\  / / / / / / / / /\  / /\_ / /\
+  *         __  / / / / /_/ /_/ / / / / / / / / / / /
+  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
+  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
+  *         \___\/
+  *
+  *
+  *
+  *     jwin.h
+  *
+  *     Windows(R) style GUI for Allegro.
+  *     by Jeremy Craner
+  *
+  *     Most routines are adaptations of Allegro code.
+  *     Allegro is by Shawn Hargreaves, et al.
+  *
+  *     Version: 3/22/00
+  *     Allegro version: 3.1x  (don't know if it works with WIP)
+  *
+  *     How to use:
+  *
+  *     - include jwin.c in your project
+  *     - include this header in your code
+  *
+  *     - do the same for jwinfsel.* if you want to use the file selector
+  *
+  *     - call jwin_set_colors() at program start up
+  *       (send jwin_colors for default colors or make your own array
+  *       of colors and send them to jwin_set_colors()... see jwin.c)
+  *
+  *     - use the DIALOG procs the same way you use the default Allegro ones
+  *
+  */
 
 /* This code is not fully tested */
 
@@ -46,10 +46,10 @@
 #ifdef __cplusplus
 extern "C"
 {
-  #endif
+#endif
 
   /* read only flag for jwin_edit_proc */
-  #define D_READONLY      D_USER
+#define D_READONLY      D_USER
 
   /* frame styles */
   enum { FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK };
@@ -70,7 +70,7 @@ extern "C"
   extern int mix_value(int c1,int c2,int pos,int max);
 
   /* 1.5k lookup table for color matching */
-  extern unsigned int col_diff[3*128]; 
+  extern unsigned int col_diff[3*128];
 
   /* you should call this before using the other procedures */
   void jwin_set_colors(int *colors);
@@ -80,6 +80,7 @@ extern "C"
   void jwin_draw_win(BITMAP *dest,int x,int y,int w,int h,int frame);
   void jwin_draw_button(BITMAP *dest,int x,int y,int w,int h,int state,int type);
   void draw_x_button(BITMAP *dest, int x, int y, int state);
+  char *shorten_string(char *dest, char *src, FONT *usefont, int maxchars, int maxwidth);
   void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, char *str, bool draw_button);
   void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, char *str, int flags, bool show_dotted_rect);
 
@@ -101,6 +102,7 @@ extern "C"
   int jwin_droplist_proc(int msg, DIALOG *d, int c);
   int jwin_abclist_proc(int msg, DIALOG *d, int c);
   int jwin_check_proc(int msg, DIALOG *d, int c);
+  int jwin_checkfont_proc(int msg, DIALOG *d, int c);
   int jwin_radio_proc(int msg, DIALOG *d, int c);
   int jwin_tab_proc(int msg, DIALOG *d, int c);
   int jwin_hline_proc(int msg, DIALOG *d, int c);
@@ -134,7 +136,19 @@ extern "C"
                    int src_color1, int src_color2, unsigned char dest_color1,
                    unsigned char dest_color2);
   void jwin_center_dialog(DIALOG *dialog);
-  #ifdef __cplusplus
+
+  void _calc_scroll_bar(int h, int height, int listsize, int offset,
+                             int *bh, int *len, int *pos);
+  void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state);
+  void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state);
+
+  
+  void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg);
+  void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int type);
+  void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset);
+
+
+#ifdef __cplusplus
 }
 #endif
 #endif                                                      // _JWIN_H_

@@ -801,7 +801,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
 {
   int cmby2=0;
   int pcounter;
-  
+
   if (layer2!=NULL)
   {
     putscr(scrollbuf,x2,y2,layer2);
@@ -1019,7 +1019,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         int c1 = framebuf->line[y+56][x];
         int c2 = msgdisplaybuf->line[y][x];
         int c3 = pricesdisplaybuf->line[y][x];
-  
+
         if (c3 && (c0 != c1))
         {
           framebuf->line[y+56][x] = c3;
@@ -1087,7 +1087,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         int c1 = framebuf->line[y+56][x];
         int c2 = msgdisplaybuf->line[y][x];
         int c3 = pricesdisplaybuf->line[y][x];
-  
+
         if (c3 && (c0 != c1))
         {
           framebuf->line[y+56][x] = c3;
@@ -1135,7 +1135,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
           }
         }
       }
-  
+
       for(int i=0; i<guys.Count(); i++)
       {
         if(isflier(guys.spr(i)->id))
@@ -1646,6 +1646,126 @@ void loadscr(int tmp,int scr,int ldir)
   }
 }
 
+void loadscr2(int tmp,int scr,int ldir)
+{
+  //these are here to bypass compiler warnings about unused arguments
+  ldir=ldir;
+
+  //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+  for (word x=0; x<animated_combos; x++)
+  {
+    if (combobuf[animated_combo_table4[x][0]].nextcombo!=0)
+    {
+      animated_combo_table4[x][1]=0;
+    }
+  }
+  tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+  if (tmp==0)
+  {
+    for (int i=0; i<6; i++)
+    {
+      if (tmpscr[tmp].layermap[i]>0)
+      {
+        tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+      }
+      else
+      {
+        memset(tmpscr2+i,0,sizeof(mapscr));
+      }
+    }
+  }
+  if(!isdungeon())
+  {
+    if(game.maps[(currmap<<7)+scr]&mSECRET)               // if special stuff done before
+    {
+      hiddenstair(tmp,false);
+      hidden_entrance(tmp,false);
+    }
+  }
+
+  if(game.maps[(currmap<<7)+scr]&mLOCKBLOCK)              // if special stuff done before
+  {
+    remove_lockblocks(tmp,false);
+  }
+
+  if(game.maps[(currmap<<7)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
+  {
+    remove_bosslockblocks(tmp,false);
+  }
+
+//  if(game.maps[(currmap<<7)+scr]&mCHEST)              // if special stuff done before
+//  {
+//    remove_chests(tmp,false);
+//  }
+//
+//  if(game.maps[(currmap<<7)+scr]&mLOCKEDCHEST)              // if special stuff done before
+//  {
+//    remove_lockedchests(tmp,false);
+//  }
+//
+//  if(game.maps[(currmap<<7)+scr]&mBOSSCHEST)              // if special stuff done before
+//  {
+//    remove_bosschests(tmp,false);
+//  }
+
+  // check doors
+  if(isdungeon())
+  {
+    for(int i=0; i<4; i++)
+    {
+      int door=tmpscr[tmp].door[i];
+      bool putit=true;
+
+      switch(door)
+      {
+        case d1WAYSHUTTER:
+        case dSHUTTER:
+/*
+        if((ldir^1)==i)
+        {
+          tmpscr[tmp].door[i]=dOPENSHUTTER;
+          //          putit=false;
+        }
+*/
+        break;
+
+        case dLOCKED:
+        if(game.maps[(currmap<<7)+scr]&(1<<i))
+        {
+          tmpscr[tmp].door[i]=dUNLOCKED;
+          //          putit=false;
+        }
+        break;
+
+        case dBOSS:
+        if(game.maps[(currmap<<7)+scr]&(1<<i))
+        {
+          tmpscr[tmp].door[i]=dOPENBOSS;
+          //          putit=false;
+        }
+        break;
+
+        case dBOMB:
+        if(game.maps[(currmap<<7)+scr]&(1<<i))
+        {
+          tmpscr[tmp].door[i]=dBOMBED;
+        }
+        break;
+      }
+
+      if(putit)
+      {
+        putdoor(tmp,i,tmpscr[tmp].door[i],false);
+      }
+      if (door==dSHUTTER||door==d1WAYSHUTTER)
+      {
+        tmpscr[tmp].door[i]=door;
+      }
+
+    }
+  }
+}
+
 void putscr(BITMAP* dest,int x,int y,mapscr* screen)
 {
   if(screen->valid==0)
@@ -1814,6 +1934,17 @@ int mapres = 0;
 
 void ViewMap()
 {
+  mapscr tmpscr_b[2];
+  mapscr tmpscr_c[6];
+  for (int i=0; i<6; ++i)
+  {
+    memcpy(&(tmpscr_c[i]), &(tmpscr2[i]), sizeof(mapscr));
+    if (i>=2)
+    {
+      continue;
+    }
+    memcpy(&(tmpscr_b[i]), &(tmpscr[i]), sizeof(mapscr));
+  }
   BITMAP* mappic = NULL;
   static double scales[17] =
   {
@@ -1829,8 +1960,6 @@ void ViewMap()
 
   bool done=false, redraw=true;
 
-  //  if(!mappic)
-  //  {
   mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
 
   if(!mappic)
@@ -1840,89 +1969,49 @@ void ViewMap()
     game_pal();
     return;
   }
-  //  }
-
-  int layermap, layerscreen;
-  int x2=256, y2=-56;
 
   // draw the map
   for(int y=0; y<8; y++)
-    for(int x=0; x<16; x++)
   {
-    int s = (y<<4) + x;
-
-    if(!(game.maps[(currmap<<7)+s]&mVISITED))
-      rectfill(scrollbuf, 256, 0, 511, 223, WHITE);
-    /*
-          else if(s == currscr)
-            blit(scrollbuf, scrollbuf, 0, 0, 256, 0, 256, 176);
-    */
-    else
+    for(int x=0; x<16; x++)
     {
-      loadscr(1,s,-1);
-      putscr(scrollbuf, 256, 0, tmpscr+1);
-      //        TheMaps[currmap*MAPSCRS+s]
+      int s = (y<<4) + x;
 
-      for (int k=0; k<4; k++)
+      if(!(game.maps[(currmap<<7)+s]&mVISITED))
       {
-        layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
-        if (layermap>-1)
+        rectfill(scrollbuf, 256, 0, 511, 223, WHITE);
+      }
+      else
+      {
+        loadscr2(1,s,-1);
+        for (int i=0; i<6; i++)
         {
-          layerscreen=layermap*MAPSCRS+TheMaps[currmap*MAPSCRS+s].layerscreen[k];
-          if (TheMaps[currmap*MAPSCRS+s].layeropacity[k]==255)
+          if (tmpscr[1].layermap[i]>0)
           {
-            for (int i=0; i<176; i++)
-            {
-              overcombo(scrollbuf,((i&15)<<4)+x2,(i&0xF0)+56+y2,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-            }
+            tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
           }
           else
           {
-            for (int i=0; i<176; i++)
-            {
-              overcombotranslucent(scrollbuf,((i&15)<<4)+x2,(i&0xF0)+56+y2,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
-            }
+            memset(tmpscr2+i,0,sizeof(mapscr));
           }
         }
-      }
 
-      for (int i=0; i<176; i++)
-      {
-//        if (COMBOTYPE((i&15)<<4,i&0xF0)==cOVERHEAD)
-        if (combobuf[TheMaps[currmap*MAPSCRS+s].data[i]].type==cOVERHEAD)
-        {
-//          overcombo(scrollbuf,((i&15)<<4)+x2,(i&0xF0)+56+y2,MAPDATA((i&15)<<4,i&0xF0),MAPCSET((i&15)<<4,i&0xF0));
-          overcombo(scrollbuf,((i&15)<<4)+x2,(i&0xF0)+56+y2,TheMaps[currmap*MAPSCRS+s].data[i],TheMaps[currmap*MAPSCRS+s].cset[i]);
-        }
-      }
+//		if((tmpscr+1)->flags7&fLAYER2BG) do_layer(1, tmpscr+1, -256, 56, 2);
+//		if((tmpscr+1)->flags7&fLAYER3BG) do_layer(2, tmpscr+1, -256, 56, 2);
+        putscr(scrollbuf,256,0,tmpscr+1);
+        do_layer(0, tmpscr+1, -256, 56, 2);
+//        if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(1, tmpscr+1, -256, 56, 2);
+        do_layer(-2, tmpscr+1, -256, 56, 2);
+//        if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(2, tmpscr+1, -256, 56, 2);
+        do_layer(3, tmpscr+1, -256, 56, 2);
+        do_layer(-1, tmpscr+1, -256, 56, 2);
+        do_layer(4, tmpscr+1, -256, 56, 2);
+        do_layer(5, tmpscr+1, -256, 56, 2);
 
-      for (int k=4; k<6; k++)
-      {
-        layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
-        if (layermap>-1)
-        {
-          layerscreen=layermap*MAPSCRS+TheMaps[currmap*MAPSCRS+s].layerscreen[k];
-          if (TheMaps[currmap*MAPSCRS+s].layeropacity[k]==255)
-          {
-            for (int i=0; i<176; i++)
-            {
-              overcombo(scrollbuf,((i&15)<<4)+x2,(i&0xF0)+56+y2,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-            }
-          }
-          else
-          {
-            for (int i=0; i<176; i++)
-            {
-              overcombotranslucent(scrollbuf,((i&15)<<4)+x2,(i&0xF0)+56+y2,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
-            }
-          }
-        }
       }
+      stretch_blit(scrollbuf, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
     }
-    stretch_blit(scrollbuf, mappic, 256, 0, 256, 176,
-      x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
   }
-
   clear_keybuf();
 
   // view it
@@ -1931,6 +2020,7 @@ void ViewMap()
 
   do
   {
+//	load_control_state();
     int step = int(16.0/scales[sc]);
     step = (step>>1) + (step&1);
     bool r = cRbtn();
@@ -1982,8 +2072,8 @@ void ViewMap()
     {
       clear_to_color(framebuf,BLACK);
       stretch_blit(mappic,framebuf,0,0,mappic->w,mappic->h,
-        int(256+(px-mappic->w)*scale)/2,int(224+(py-mappic->h)*scale)/2,
-        int(mappic->w*scale),int(mappic->h*scale));
+                   int(256+(px-mappic->w)*scale)/2,int(224+(py-mappic->h)*scale)/2,
+                   int(mappic->w*scale),int(mappic->h*scale));
 
       blit(framebuf,scrollbuf,0,0,256,0,256,224);
       redraw=false;
@@ -2015,6 +2105,16 @@ void ViewMap()
 
   } while(!done && !Quit);
   destroy_bitmap(mappic);
+  loadscr2(0,currscr,-1);
+  for (int i=0; i<6; ++i)
+  {
+    memcpy(&(tmpscr2[i]), &(tmpscr_c[i]), sizeof(mapscr));
+    if (i>=2)
+    {
+      continue;
+    }
+    memcpy(&(tmpscr[i]), &(tmpscr_b[i]), sizeof(mapscr));
+  }
 
 }
 

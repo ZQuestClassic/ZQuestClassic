@@ -94,7 +94,8 @@ void load_game_configs()
   midi_volume = get_config_int(cfg_sect,"music",255);
   pan_style = get_config_int(cfg_sect,"pan",1);
   volkeys = (bool)get_config_int(cfg_sect,"volkeys",0);
-  Vsync = (bool)get_config_int(cfg_sect,"vsync",0);
+//  Vsync = (bool)get_config_int(cfg_sect,"vsync",0);
+  Throttlefps = get_config_int(cfg_sect,"throttlefps",1)!=0;
   TransLayers = (bool)get_config_int(cfg_sect,"translayers",1);
   ShowFPS = (bool)get_config_int(cfg_sect,"showfps",0);
   NESquit = (bool)get_config_int(cfg_sect,"fastquit",0);
@@ -130,6 +131,7 @@ void load_game_configs()
   ss_density = vbound(get_config_int(cfg_sect,"ss_density",3), 0, 6);
   heart_beep = get_config_int(cfg_sect,"heart_beep",1);
   gui_colorset = get_config_int(cfg_sect,"gui_colorset",0);
+  midi_strict = get_config_int(cfg_sect,"strict_midi",1);
 }
 
 void save_game_configs()
@@ -158,12 +160,13 @@ void save_game_configs()
   set_config_int(cfg_sect,"music",midi_volume);
   set_config_int(cfg_sect,"pan",pan_style);
   set_config_int(cfg_sect,"volkeys",(int)volkeys);
-  set_config_int(cfg_sect,"vsync",(int)Vsync);
+//  set_config_int(cfg_sect,"vsync",(int)Vsync);
+  set_config_int(cfg_sect,"throttlefps", (int)Throttlefps);
   set_config_int(cfg_sect,"translayers",(int)TransLayers);
   set_config_int(cfg_sect,"showfps",(int)ShowFPS);
   set_config_int(cfg_sect,"fastquit",(int)NESquit);
   set_config_int(cfg_sect,"title",(int)DXtitle);
-  
+
 #ifdef ALLEGRO_DOS
   set_config_int(cfg_sect,"dos_mode",VidMode);
 #elif defined(ALLEGRO_WINDOWS)
@@ -173,7 +176,7 @@ void save_game_configs()
 #elif defined(ALLEGRO_MACOSX)
   set_config_int(cfg_sect,"macosx_mode",VidMode);
 #endif
-  
+
   set_config_int(cfg_sect,"resx",resx);
   set_config_int(cfg_sect,"resy",resy);
   set_config_int(cfg_sect,"sbig",sbig);
@@ -185,6 +188,7 @@ void save_game_configs()
   set_config_int(cfg_sect,"ss_density",ss_density);
   set_config_int(cfg_sect,"heart_beep",heart_beep);
   set_config_int(cfg_sect,"gui_colorset",gui_colorset);
+  set_config_int(cfg_sect,"strict_midi",midi_strict);
 }
 
 //----------------------------------------------------------------
@@ -568,7 +572,7 @@ byte triangles[4][16][8]= //[direction][value][line]
     {
        8,  8,  8,  8,  8,  8,  8,  8
     }
-  },  
+  },
   {
     {
        0,  0,  0,  0,  0,  0,  0,  0
@@ -618,7 +622,7 @@ byte triangles[4][16][8]= //[direction][value][line]
     {
        8,  8,  8,  8,  8,  8,  8,  8
     }
-  },  
+  },
   {
     {
        0,  0,  0,  0,  0,  0,  0,  0
@@ -1017,7 +1021,7 @@ qword triangles[4][16][8]= //[direction][value][line]
       0xFDFDFDFDFDFDFDFDULL,
       0xFDFDFDFDFDFDFDFDULL
     }
-  },  
+  },
   {
     {
       0x0000000000000000ULL,
@@ -1179,7 +1183,7 @@ qword triangles[4][16][8]= //[direction][value][line]
       0xFDFDFDFDFDFDFDFDULL,
       0xFDFDFDFDFDFDFDFDULL
     }
-  },  
+  },
   {
     {
       0x0000000000000000ULL,
@@ -1366,7 +1370,7 @@ void close_black_opening(int x, int y, bool wait)
   black_opening_y = y;
   lensclk = 0;
   //black_opening_shape=(black_opening_shape+1)%bosMAX;
-  
+
   if(wait)
   {
     for(int i=0; i<66; i++)
@@ -3056,213 +3060,173 @@ void draw_fuzzy(int fuzz)
   }
 }
 
-void waitvsync(bool fast)
+void waitvsync()
 {
-/*
-    if((Vsync&&!key[KEY_TILDE])||
-       (!Vsync&&key[KEY_TILDE]))
-  */
-/*
-  if((Vsync?1:0)!=(key[KEY_TILDE]?1:0))
-    vsync();
-  else if(!debug || !fast)
-    while(!myvsync);
-  myvsync=0;
-*/
-  if((!debug || !fast)||((Vsync?1:0)!=(key[KEY_TILDE]?1:0)))
+  if((Throttlefps ^ (debug && key[KEY_TILDE])))
   {
-    while(!myvsync);
-//    vsync();
+    while(!myvsync) rest(1);
+    //    vsync();
   }
   myvsync=0;
 }
 
 void updatescr()
 {
-  rest(1);
-  if (halt)
-  {
-    char buf[20];
-    int num=0;
-    do
-    {
-      sprintf(buf, "zelda%03d.bmp", ++num);
-    } while(num<999 && exists(buf));
+	//rest(1);
+	if (halt)
+	{
+		char buf[20];
+		int num=0;
+		do
+		{
+			sprintf(buf, "zelda%03d.bmp", ++num);
+		} while(num<999 && exists(buf));
 
-    PALETTE tpal;
-    get_palette(tpal);
-    BITMAP *panorama = create_bitmap_ex(8,256,168);
-    if (tmpscr->flags3&fNOSUBSCR)
-    {
-      clear_to_color(panorama,0);
-      blit(framebuf,panorama,0,56,0,0,256,168);
-      save_bitmap(buf,panorama,tpal);
-    }
-    else
-    {
-      save_bitmap(buf,framebuf,tpal);
-    }
-    destroy_bitmap(panorama);
-  }
+		PALETTE tpal;
+		get_palette(tpal);
+		if (tmpscr->flags3&fNOSUBSCR)
+		{
+			BITMAP *ssbuf = create_bitmap_ex(8,256,168);
+			clear_to_color(ssbuf,0);
+			blit(framebuf,ssbuf,0,56,0,0,256,168);
+			save_bitmap(buf,ssbuf,tpal);
+			destroy_bitmap(ssbuf);
+		}
+		else
+		{
+			save_bitmap(buf,framebuf,tpal);
+		}
+	}
 
-  if(toogam)
-  {
-    textout_ex(framebuf,font,"no walls",8,216,1,-1);
-  }
+	if(toogam)
+	{
+		textout_ex(framebuf,font,"no walls",8,216,1,-1);
+	}
 
-  if(Showpal)
-    dump_pal(framebuf);
+	if(Showpal)
+		dump_pal(framebuf);
 
-  if(!Playing)
-    black_opening_count=0;
+	if(!Playing)
+		black_opening_count=0;
 
-  if(black_opening_count<0) //shape is opening up
-  {
-    black_opening(framebuf,black_opening_x,black_opening_y,(66+black_opening_count),66);
-    if (Advance||(!Paused))
-    {
-      ++black_opening_count;
-    }
-  }
-  else if(black_opening_count>0) //shape is closing
-  {
-    black_opening(framebuf,black_opening_x,black_opening_y,black_opening_count,66);
-    if (Advance||(!Paused))
-    {
-      --black_opening_count;
-    }
-  }
+	if(black_opening_count<0) //shape is opening up
+	{
+		black_opening(framebuf,black_opening_x,black_opening_y,(66+black_opening_count),66);
+		if (Advance||(!Paused))
+		{
+			++black_opening_count;
+		}
+	}
+	else if(black_opening_count>0) //shape is closing
+	{
+		black_opening(framebuf,black_opening_x,black_opening_y,black_opening_count,66);
+		if (Advance||(!Paused))
+		{
+			--black_opening_count;
+		}
+	}
 
-//redo this and waitvsync(), too
+	//redo this and waitvsync(), too
 
-  if (triplebuffer_not_available)
-  {
-    waitvsync(true);
-  }
-  else
-  {
-//    myvsync=0;
-  }
+	if (triplebuffer_not_available)
+	{
+		waitvsync();
+	}
+	else
+	{
+		//    myvsync=0;
+	}
 
 
-  if(refreshpal)
-  {
-    refreshpal=false;
-    RAMpal[253] = _RGB(0,0,0);
-    RAMpal[254] = _RGB(63,63,63);
-    set_palette_range(RAMpal,0,255,false);
-  }
+	if(refreshpal)
+	{
+		refreshpal=false;
+		RAMpal[253] = _RGB(0,0,0);
+		RAMpal[254] = _RGB(63,63,63);
+		set_palette_range(RAMpal,0,255,false);
+	}
 
-  show_details();
+	show_details();
 
-  if (Link.DrunkClock())
-  {
-    draw_wavy(Link.DrunkClock()/(MAXDRUNKCLOCK/32));
-  }
-  if (triplebuffer_not_available||((Vsync?1:0)!=(key[KEY_TILDE]?1:0)))
-  {
-    BITMAP *panorama = NULL;
-    bool nosubscr = tmpscr->flags3&fNOSUBSCR;
-    if (nosubscr)
-    {
-      panorama = create_bitmap_ex(8,256,224);
-      rectfill(panorama,0,0,255,28,0);
-      rectfill(panorama,0,196,255,223,0);
-      blit(framebuf,panorama,0,56,0,28,256,224-56);
-    }
-    else
-    {
-      panorama = framebuf;
-    }
-  
-    if (scanlines && sbig)
-    {
-      BITMAP *scanlinesbmp = create_bitmap_ex(8,512,448);
-      stretch_blit(panorama,scanlinesbmp,0,0,256,224,0,0    ,512,448);
-      for (int i=0; i<224; ++i)
-      {
-        hline(scanlinesbmp, 0, i*2+1, 512, 0);
-      }
-      blit(scanlinesbmp,screen,0,0,scrx+32-128,scry+8-112,512,448);
-  
-      destroy_bitmap(scanlinesbmp);
-    }
-    else if (sbig)
-    {
-      stretch_blit(panorama,screen,0,0,256,224,scrx+32-128,scry+8-112,512,448);
-    }
-    else
-    {
-      blit(panorama,screen,0,0,scrx+32,scry+8,256,224);
-    }
-    if (nosubscr) destroy_bitmap(panorama);
-  }
-  else
-  {
-    BITMAP *panorama = NULL;
-    bool nosubscr = tmpscr->flags3&fNOSUBSCR;
-    if (nosubscr)
-    {
-      panorama = create_bitmap_ex(8,256,224);
-      rectfill(panorama,0,0,255,28,0);
-      rectfill(panorama,0,196,255,223,0);
-      blit(framebuf,panorama,0,56,0,28,256,224-56);
-    }
-    else
-    {
-      panorama = framebuf;
-    }
-  
-    if (scanlines && sbig)
-    {
-      BITMAP *scanlinesbmp = create_bitmap_ex(8,512,448);
-      stretch_blit(panorama,scanlinesbmp,0,0,256,224,0,0    ,512,448);
-      for (int i=0; i<224; ++i)
-      {
-        hline(scanlinesbmp, 0, i*2+1, 512, 0);
-      }
-      blit(scanlinesbmp,tb_page[curr_tb_page],0,0,scrx+32-128,scry+8-112,512,448);
-  
-      destroy_bitmap(scanlinesbmp);
-    }
-    else if (sbig)
-    {
-      stretch_blit(panorama,tb_page[curr_tb_page],0,0,256,224,scrx+32-128,scry+8-112,512,448);
-    }
-    else
-    {
-      blit(panorama,tb_page[curr_tb_page],0,0,scrx+32,scry+8,256,224);
-    }
-    if (nosubscr) destroy_bitmap(panorama);
-/*
-    do {
-    } while (poll_scroll());
-    request_video_bitmap(tb_page[curr_tb_page]);
-    curr_tb_page=(curr_tb_page+1)%3;
-*/
-    if(!poll_scroll())
-    {
-      request_video_bitmap(tb_page[curr_tb_page]);
-      curr_tb_page=(curr_tb_page+1)%3;
-      clear_to_color(tb_page[curr_tb_page],BLACK);
-    }
-    waitvsync(false);
-  }
-  
-  
-  if(ShowFPS)
-    show_fps();
-  
-  
-  if(Paused)
-    show_paused();
+	if (Link.DrunkClock())
+	{
+		draw_wavy(Link.DrunkClock()/(MAXDRUNKCLOCK/32));
+	}
+	BITMAP *panorama = NULL;
 
-  if(details)
-  {
-    textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
-  }
+	bool nosubscr = (tmpscr->flags3&fNOSUBSCR) != 0;
 
-  ++framecnt;
+	if (nosubscr)
+	{
+		panorama = create_bitmap_ex(8,256,224);
+		rectfill(panorama,0,0,255,56/2,0);
+		rectfill(panorama,0,168+56/2,255,168+56-1,0);
+		blit(framebuf,panorama,0,56,0,56/2,256,224-56);
+	}
+	BITMAP *target;
+	bool dontusetb = triplebuffer_not_available ||
+		!(Throttlefps ^ (debug && key[KEY_TILDE]));
+	if(dontusetb)
+		target=screen;
+	else
+		target=tb_page[curr_tb_page];
+
+	if (scanlines && sbig)
+	{
+		BITMAP *scanlinesbmp = create_bitmap_ex(8,512,448);
+		stretch_blit(nosubscr?panorama:framebuf,scanlinesbmp,0,0,256,224,0,0    ,512,448);
+		for (int i=0; i<224; ++i)
+		{
+			_allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
+		}
+		blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
+
+		destroy_bitmap(scanlinesbmp);
+	}
+	else if (sbig)
+	{
+		//jman2050, what are you doing with this line below?
+		//exists((char*)panorama); exists((char*)screen);
+		//did you mean
+		//assert((char*)panorama); assert((char*)screen);
+		BITMAP *tempscreen = create_bitmap_ex(8,512,448);
+		clear_bitmap(tempscreen);
+		stretch_blit(nosubscr?panorama:framebuf,tempscreen,0,0,256,224,0,0,512,448);
+		blit(tempscreen,target,0,0,scrx+32-128,scry+8-112,512,448);
+		destroy_bitmap(tempscreen);
+	}
+	else
+	{
+		blit(nosubscr?panorama:framebuf,target,0,0,scrx+32,scry+8,256,224);
+	}
+
+	if (!dontusetb)
+	{
+		if(!poll_scroll())
+		{
+			request_video_bitmap(tb_page[curr_tb_page]);
+			curr_tb_page=(curr_tb_page+1)%3;
+			clear_to_color(tb_page[curr_tb_page],BLACK);
+		}
+		waitvsync();
+	}
+
+
+	if(ShowFPS)
+		show_fps();
+
+
+	if(Paused)
+		show_paused();
+
+	if(details)
+	{
+		textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
+	}
+
+	if(panorama!=NULL) destroy_bitmap(panorama);
+
+	++framecnt;
 }
 
 //----------------------------------------------------------------
@@ -3527,10 +3491,12 @@ void syskeys()
     if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
       halt=!halt;
+      //zinit.subscreen=(zinit.subscreen+1)%ssdtMAX;
     }
     else
     {
-      Vsync=!Vsync;
+      Throttlefps=!Throttlefps;
+      logic_counter=0;
     }
   }
                                                             //  if(ReadKey(KEY_F1))    Vsync=!Vsync;
@@ -3610,15 +3576,16 @@ void syskeys()
   if(ReadKey(KEY_W))   setClock((watch=true));
   if(ReadKey(KEY_V))
   {
-    Vsync=!Vsync;
-                                                            /*
-        remove_int(fps_callback);
-        remove_int(myvsync_callback);
+    Throttlefps=!Throttlefps;
+    /*
+      remove_int(fps_callback);
+      remove_int(myvsync_callback);
 
-        install_int_ex(fps_callback,SECS_TO_TIMER(1));
-        install_int_ex(myvsync_callback,BPS_TO_TIMER(60));
-    */
+      install_int_ex(fps_callback,SECS_TO_TIMER(1));
+      install_int_ex(myvsync_callback,BPS_TO_TIMER(60));
+      */
     avgfps=fps_secs=framecnt=0;
+    logic_counter = 0;
   }
   if(ReadKey(KEY_P))   Paused=!Paused;
   if(ReadKey(KEY_A)) { Paused=true; Advance=true; }
@@ -3725,6 +3692,12 @@ void syskeys()
 
 void advanceframe()
 {
+  if((Throttlefps ^ (debug && key[KEY_TILDE])))
+  {
+
+    while(!logic_counter) rest(1);
+    logic_counter=0;
+  }
   if (zcmusic!=NULL)
   {
     zcmusic_poll();
@@ -3735,6 +3708,11 @@ void advanceframe()
     syskeys();
     // to keep fps constant
     updatescr();
+    // to keep music playing
+    if (zcmusic!=NULL)
+    {
+      zcmusic_poll();
+    }
   }
   if(Quit)
     return;
@@ -3747,6 +3725,7 @@ void advanceframe()
 
   syskeys();
   updatescr();
+  //textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
   sfx_cleanup();
 }
 
@@ -4121,7 +4100,7 @@ void openscreen()
   }
 
   int x=128;
-  
+
   for(int i=0; i<80; i++)
   {
     draw_screen(tmpscr, 0, 0);
@@ -4176,23 +4155,16 @@ int onEsc()
 
 int onVsync()
 {
-  Vsync = !Vsync;
+  Throttlefps = !Throttlefps;
   return D_O_K;
 }
 
-                                                            /*
 int onFrameSkip()
 {
   FrameSkip = !FrameSkip;
-  if (FrameSkip) {
-    logic_counter=0;
-    install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
-  } else {
-    remove_int(update_logic_counter);
-  }
   return D_O_K;
 }
-*/
+
 int onTransLayers()
 {
   TransLayers = !TransLayers;
@@ -4346,7 +4318,7 @@ char *key_str[] =
 };
 
 char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
-char zcmusic_bufsz = 10;
+//char zcmusic_bufsz = 10;
 
 static char str_a[44],str_b[44],str_s[44],str_m[16],str_l[16],str_r[16],str_p[16];
 
@@ -4523,7 +4495,7 @@ int buf_dp[3]  = {0,147,152};
 static DIALOG sound_dlg[] =
 {
   /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)  (dp2)    (dp3) */
-  { jwin_win_proc,       32,   64,   256,  146,  0,       0,       0,       D_EXIT,    0,        0,       (void *) "Sound Settings" },
+  { jwin_win_proc,       32,   64,   256,  162,  0,       0,       0,       D_EXIT,    0,        0,       (void *) "Sound Settings" },
   { d_stringloader,      0,    0,    3 },
   { jwin_frame_proc,     42,   92,   236,  80,   0,       0,       0,       0,         FR_ETCHED,0,       NULL },
   { jwin_rtext_proc,     147,  104,  40,   8,    vc(7),   vc(11),  0,       0,         0,        0,       (void *) str_a },
@@ -4535,11 +4507,12 @@ static DIALOG sound_dlg[] =
   { jwin_text_proc,      60,   104,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "BG Vol" },
   { jwin_text_proc,      60,   120,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "SFX Vol" },
   { jwin_text_proc,      60,   136,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "SFX Pan" },
-  { jwin_button_proc,    90,   180,  61,   21,   0,       0,       0,       D_EXIT,    0,        0,       (void *) "OK" },
-  { jwin_button_proc,    170,  180,  61,   21,   0,       0,       0,       D_EXIT,    0,        0,       (void *) "Cancel" },
+  { jwin_button_proc,    90,   196,  61,   21,   0,       0,       0,       D_EXIT,    0,        0,       (void *) "OK" },
+  { jwin_button_proc,    170,  196,  61,   21,   0,       0,       0,       D_EXIT,    0,        0,       (void *) "Cancel" },
   { jwin_rtext_proc,     147,  152,  40,   8,    vc(7),   vc(11),  0,       0,         0,        0,       (void *) str_m },
   { jwin_slider_proc,    164,  152,  96,   8,    vc(0),   jwin_pal[jcBOX],  0,       0,         31,       0,       NULL, (void *) set_buf, buf_dp },
   { jwin_text_proc,      60,   152,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "BG Buf" },
+  { jwin_check_proc,     60,   168,  48,   9,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "Strict MIDI" },
   { NULL }
 };
 
@@ -4809,7 +4782,7 @@ int onCredits()
     if(c<=64)
       fade_interpolate(black_palette,pal,tmppal,c,0,127);
 
-    waitvsync(false);
+    waitvsync();
 
     if(c<=64)
       set_palette_range(tmppal,0,127,false);
@@ -5200,12 +5173,15 @@ int onSound()
   sound_dlg[6].d2 = (midi_volume==255) ? 32 : midi_volume>>3;
   sound_dlg[7].d2 = (digi_volume==255) ? 32 : digi_volume>>3;
   sound_dlg[8].d2 = pan_style;
+  sound_dlg[17].flags = midi_strict?D_SELECTED:0;
 
   int ret = PopUp_dialog(sound_dlg,12);
 
   if(ret==12)
-
+  {
     master_volume(digi_volume,midi_volume);
+    midi_strict=sound_dlg[17].flags&D_SELECTED?1:0;
+  }
   else
   {
     digi_volume = d;
@@ -5509,7 +5485,7 @@ int getnumber(char *prompt,int initialval)
   getnum_dlg[0].dp=prompt;
   getnum_dlg[0].dp2=lfont;
   getnum_dlg[2].dp=buf;
-  if(popup_dialog(getnum_dlg,2)==3)
+  if(zc_popup_dialog(getnum_dlg,2)==3)
     return atoi(buf);
   return initialval;
 }
@@ -5740,12 +5716,13 @@ static MENU settings_menu[] =
   { "&Sound...",            onSound,        NULL },
   { "&Title Screen",        NULL,           title_menu },
   { "" },
-  { "&Vsync\tF1",           onVsync,        NULL },
+  { "T&hrottle FPS\tF1",    onVsync,        NULL },
   { "Show &FPS\tF2",        onShowFPS,      NULL },
   { "&Show Trans. Lyrs.",   onTransLayers,  NULL },
   { "Fast &Quit",           onNESquit,      NULL },
   { "Volume &Keys",         onVolKeys,      NULL },
   { "Cont. Heart Beep",     onHeartBeep,    NULL },
+  //{ "Frame Skip",          onFrameSkip,        NULL },
   { "" },
   { "Debug",                onDebug,        NULL },
   { NULL }
@@ -5874,7 +5851,7 @@ void system_pal()
     pal[i].b = i-128;
   }
 
-  
+
   switch (gui_colorset)
   {
     /*
@@ -5895,7 +5872,7 @@ void system_pal()
         pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
         pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
         pal[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-      
+
         byte palrstart=  0*63/255, palrend=166*63/255,
              palgstart=  0*63/255, palgend=202*63/255,
              palbstart=128*63/255, palbend=240*63/255,
@@ -5906,7 +5883,7 @@ void system_pal()
           pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
           pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
         }
-  
+
         jwin_pal[jcBOX]    =dvc(3);
         jwin_pal[jcLIGHT]  =dvc(5);
         jwin_pal[jcMEDLT]  =dvc(4);
@@ -5933,10 +5910,10 @@ void system_pal()
         pal[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
         pal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
         pal[dvc(9)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-      
+
         byte palrstart=  0*63/255, palrend=166*63/255,
              palgstart=  0*63/255, palgend=202*63/255,
-      
+
              palbstart=128*63/255, palbend=240*63/255,
              paldivs=6;
         for(int i=0; i<paldivs; i++)
@@ -5945,7 +5922,7 @@ void system_pal()
           pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
           pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
         }
-  
+
         jwin_pal[jcBOX]    =dvc(4);
         jwin_pal[jcLIGHT]  =dvc(6);
         jwin_pal[jcMEDLT]  =dvc(5);
@@ -5971,7 +5948,7 @@ void system_pal()
         pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 127*63/255);
         pal[dvc(7)] = _RGB(255*63/255, 225*63/255,  63*63/255);
         pal[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-      
+
         byte palrstart=  0*63/255, palrend=162*63/255,
              palgstart=  0*63/255, palgend=158*63/255,
              palbstart= 80*63/255, palbend=250*63/255,
@@ -5982,7 +5959,7 @@ void system_pal()
           pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
           pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
         }
-  
+
         jwin_pal[jcBOX]    =dvc(4);
         jwin_pal[jcLIGHT]  =dvc(5);
         jwin_pal[jcMEDLT]  =dvc(4);
@@ -6009,7 +5986,7 @@ void system_pal()
         pal[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
         pal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
         pal[dvc(9)] = _RGB( 80*63/255,  80*63/255,   0*63/255);
-      
+
         byte palrstart=128*63/255, palrend=240*63/255,
              palgstart=128*63/255, palgend=202*63/255,
              palbstart=  0*63/255, palbend=166*63/255,
@@ -6020,7 +5997,7 @@ void system_pal()
           pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
           pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
         }
-  
+
         jwin_pal[jcBOX]    =dvc(4);
         jwin_pal[jcLIGHT]  =dvc(6);
         jwin_pal[jcMEDLT]  =dvc(5);
@@ -6057,7 +6034,7 @@ void system_pal()
           pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
           pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
         }
-        
+
         jwin_pal[jcBOX]    =dvc(4);
         jwin_pal[jcLIGHT]  =dvc(5);
         jwin_pal[jcMEDLT]  =dvc(4);
@@ -6083,7 +6060,7 @@ void system_pal()
         pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
         pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
         pal[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-      
+
         byte palrstart= 10*63/255, palrend=166*63/255,
              palgstart= 36*63/255, palgend=202*63/255,
              palbstart=106*63/255, palbend=240*63/255,
@@ -6094,7 +6071,7 @@ void system_pal()
           pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
           pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
         }
-  
+
         jwin_pal[jcBOX]    =dvc(4);
         jwin_pal[jcLIGHT]  =dvc(5);
         jwin_pal[jcMEDLT]  =dvc(4);
@@ -6117,7 +6094,7 @@ void system_pal()
   gui_mg_color=jwin_pal[jcMEDDARK];
 
   jwin_set_colors(jwin_pal);
-  
+
   color_layer(pal, pal, 24,16,16, 28, 128,191);
 
   for(int i=0; i<256; i+=2)
@@ -6139,7 +6116,7 @@ void system_pal()
   {
     hline(tmp_scr,0,i,319,192+(i*31/239));
   }
-/*  
+/*
    palrstart= 10*63/255; palrend=166*63/255;
    palgstart= 36*63/255; palgend=202*63/255;
    palbstart=106*63/255; palbend=240*63/255;
@@ -6150,7 +6127,7 @@ void system_pal()
      pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
      pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
    }
-*/  
+*/
   BITMAP *panorama = create_bitmap_ex(8,256,224);
   int ts_height, ts_start;
   if (tmpscr->flags3&fNOSUBSCR)
@@ -6274,8 +6251,8 @@ void system_pal2()
   }
 */
 
-  
-  
+
+
   RAMpal[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
   RAMpal[dvc(2)] = _RGB( 64*63/255,  64*63/255,  64*63/255);
   RAMpal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
@@ -6318,7 +6295,7 @@ void system_pal2()
     RAMpal[128+i] = _RGB(i,i,i)1));
   }
 */
- 
+
 /*
 
   pal[vc(1)]  = _RGB(0x00,0x00,0x14);
@@ -6371,7 +6348,7 @@ void system_pal2()
      pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
      pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
    }
-*/  
+*/
   BITMAP *panorama = create_bitmap_ex(8,256,224);
   int ts_height, ts_start;
   if (tmpscr->flags3&fNOSUBSCR)
@@ -6513,7 +6490,7 @@ void System()
     title_menu[0].flags = DXtitle ? 0 : D_SELECTED;
     title_menu[1].flags = title_menu[0].flags ^ D_SELECTED;
 
-    settings_menu[6].flags = Vsync?D_SELECTED:0;
+    settings_menu[6].flags = Throttlefps?D_SELECTED:0;
     settings_menu[7].flags = ShowFPS?D_SELECTED:0;
     settings_menu[8].flags = TransLayers?D_SELECTED:0;
     settings_menu[9].flags = NESquit?D_SELECTED:0;
@@ -6542,6 +6519,7 @@ void System()
     {
       settings_menu[13].flags = debug ? D_SELECTED : 0;
     }
+    //settings_menu[12].flags = FrameSkip ? D_SELECTED : 0;
 
     if(gui_mouse_b() && !mouse_down)
       break;

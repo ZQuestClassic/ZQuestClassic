@@ -130,7 +130,7 @@ static void mainscreen(int f)
     sprintf(tbuf, " 1986 NINTENDO");
     tbuf[0]=0xBB;
     textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
-    sprintf(tbuf, " 2004 AG");
+    sprintf(tbuf, " 2007 AG");
     tbuf[0]=0xBC;
     textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
   }
@@ -515,7 +515,7 @@ static void DX_mainscreen(int f)
     sprintf(tbuf, " 1986 Nintendo");
     tbuf[0]=0xBB;
     textout_ex(framebuf,font,tbuf,46,138,255,-1);
-    sprintf(tbuf, " 2004 Armageddon Games");
+    sprintf(tbuf, " 2007 Armageddon Games");
     tbuf[0]=0xBC;
     textout_ex(framebuf,font,tbuf,46,146,255,-1);
     //    text_mode(0);
@@ -811,7 +811,7 @@ int load_savedgames()
   }
 
   // see if it's there
-  if (file_size(fname)==0)
+  if (file_size_ex(fname)==0)
   {
     goto newdata;
   }
@@ -1449,7 +1449,7 @@ static int get_quest_info(zquestheader *header,char *str)
     return 0;
   }
   bool oldquest=false;
-  
+
   // default error
   strcpy(str,"Error: Invalid quest file");
 
@@ -1457,7 +1457,7 @@ static int get_quest_info(zquestheader *header,char *str)
   char *tmpfilename = tmpnam(tmpbuf);
   int ret;
   PACKFILE *f;
-  
+
   packfile_password(datapwd);
   ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, strstr(qstpath, ".dat#")!=NULL);
   if(ret)

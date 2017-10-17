@@ -126,10 +126,10 @@ bool setMapCount2(int c, bool reload);
 int init_quest();
 void set_questpwd(char *pwd);
 void get_questpwd(char *pwd);
-bool quest_access(char *filename);
+bool quest_access(char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
 bool write_unencoded_midi(MIDI *m,FILE *f);
-int load_quest(char *filename, bool compressed);
+int load_quest(char *filename, bool compressed, bool encrypted);
 int save_unencoded_quest(char *filename, bool compressed);
 int save_quest(char *filename);
 

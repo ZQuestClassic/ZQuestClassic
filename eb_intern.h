@@ -78,7 +78,7 @@ extern "C"
 
   int eb_delete(char *s, int index, int w);
 
-  int is_color_font(const FONT *fnt);
+//  int is_color_font(const FONT *fnt);
 
   #ifdef __cplusplus
 }

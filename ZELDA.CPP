@@ -94,6 +94,8 @@ bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;
 
+int readsize, writesize;
+
 int jwin_pal[jcMAX];
 int gui_colorset=0;
 
@@ -116,7 +118,7 @@ int checkx, checky;
 
 bool nosecretsounds=false;
 
-bool Vsync, Paused=false, Advance=false, ShowFPS, Showpal=false;
+bool Throttlefps, Paused=false, Advance=false, ShowFPS, Showpal=false;
 bool Playing, FrameSkip=false, TransLayers;
 bool debug=false,debug_enabled;
 bool refreshpal,blockpath,wand_dead,loaded_guys,freeze_guys,
@@ -169,6 +171,7 @@ miscQdata    QMisc;
 mapscr       *TheMaps;
 
 char     *qstpath=NULL;
+char     *qstdir=NULL;
 gamedata *saves=NULL;
 
 volatile int lastfps=0;
@@ -190,7 +193,7 @@ const char gambledat[12*6] =
   -10,-10,50, -10,-10,50, -10,-40,50, -40,-10,50
 };
 const byte stx[4][9] = {
-                         { 48, 80, 80, 96,112,144,160,160,192}, 
+                         { 48, 80, 80, 96,112,144,160,160,192},
                          { 48, 80, 80, 96,128,144,160,160,192},
                          { 80, 80,128,128,160,160,192,192,208},
                          { 32, 48, 48, 80, 80,112,112,160,160}
@@ -383,13 +386,48 @@ int load_quest(gamedata *g, bool report)
 {
   //  packfile_password(datapwd);
   chop_path(qstpath);
+  char *tempdir="";
+#ifndef ALLEGRO_MACOSX
+  tempdir=qstdir;
+#endif
 
   if(g->quest<255)
-    sprintf(qstpath,"%s%s.qst",qstpath,ordinal(g->quest));
+  {
+    sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->quest));
+  }
   else
-    sprintf(qstpath,"%s%s",qstpath,get_filename(g->qstpath));
+  {
+    if (is_relative_filename(g->qstpath))
+    {
+      sprintf(qstpath,"%s%s",qstdir,g->qstpath);
+    }
+    else
+    {
+      sprintf(qstpath,"%s", g->qstpath);
+    }
+  }
 
-  int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+MUSIC_COUNT,false,true);
+  packfile_password(datapwd);
+  byte skip_flags[4];
+  for (int i=0; i<4; ++i)
+  {
+    skip_flags[i]=0;
+  }
+  int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+MUSIC_COUNT,false,true,true,true,skip_flags);
+  packfile_password(NULL);
+
+  /*
+    for(int j=0;j<MAXCOMBOALIASES;j++) {
+    if(combo_aliases[j].combos != NULL)
+    {
+    delete[] combo_aliases[j].combos;
+    }
+    if(combo_aliases[j].csets != NULL)
+    {
+    delete[] combo_aliases[j].csets;
+    }
+    }
+    */
 
   if(!g->title[0] || !g->hasplayed)
   {
@@ -1025,7 +1063,7 @@ void show_details()
                                                             int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs),
                                                             int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
       if(halt)
-      {        
+      {
 //        al_trace("/%3d %3d %3d %3d %3d %3d\n", int(s->x), int(s->hxofs), int(s->hxsz), int(s->y), int(s->hyofs),  int(s->hysz));
         al_trace("L1 %3d %3d %3d %3d %3d %3d\n", int(Link.getX()), int(Link.getHXOfs()), int(Link.getHXSz()), int(Link.getY()), int(Link.getHYOfs()), int(Link.getHYSz()));
         //al_trace("L2 %3d>%3d %3d>%3d %3d<%3d %3d<%3d\n", int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs), int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
@@ -1443,7 +1481,7 @@ char cfg_error[] =
 
 int main(int argc, char* argv[])
 {
-  
+
   switch (IS_BETA)
   {
     case -1:
@@ -1458,20 +1496,20 @@ int main(int argc, char* argv[])
 
   // check for the ag.cfg file and 1st.qst
   Z_message("Checking Files... ");
-  int helpsize = file_size("zquest.txt");
+  int helpsize = file_size_ex("zquest.txt");
   if(helpsize==0)
   {
     Z_error("zquest.txt not found");
   }
-  if(file_size("1st.qst")==0)
+  if(file_size_ex("1st.qst")==0)
   {
     Z_error("\"1st.qst\" not found.");
   }
-  if(file_size("2nd.qst")==0)
+  if(file_size_ex("2nd.qst")==0)
   {
     Z_error("\"2nd.qst\" not found.");
   }
-  if(file_size("3rd.qst")==0)
+  if(file_size_ex("3rd.qst")==0)
   {
     Z_error("\"3rd.qst\" not found.");
   }
@@ -1479,15 +1517,24 @@ int main(int argc, char* argv[])
 
   // allocate quest data buffers
 
-  memrequested+=280;
-  Z_message("Allocating quest path buffer (%s)...", byte_conversion2(280,memrequested,-1,-1));
-  qstpath = (char*)malloc(280);
-  if(!qstpath)
+  memrequested+=4096;
+  Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
+  qstdir = (char*)malloc(2048);
+  qstpath = (char*)malloc(2048);
+  if(!qstdir||!qstpath)
   {
     Z_error("Error");
   }
+  qstdir[0] = 0;
   qstpath[0] = 0;
+
+#ifdef ALLEGRO_MACOSX
+  sprintf(qstdir, "../");
+  sprintf(qstpath, "../");
+#endif
+
   Z_message("OK\n");
+
   get_qst_buffers();
 
   // initialize Allegro
@@ -1561,8 +1608,8 @@ int main(int argc, char* argv[])
   int mode = VidMode;                                       // from config file
   int res_arg = used_switch(argc,argv,"-res");
 
-  if(used_switch(argc,argv,"-v0")) Vsync=false;
-  if(used_switch(argc,argv,"-v1")) Vsync=true;
+  if(used_switch(argc,argv,"-v0")) Throttlefps=false;
+  if(used_switch(argc,argv,"-v1")) Throttlefps=true;
   /*
     if(used_switch(argc,argv,"-16bit")) {
       colordepth=16;
@@ -1668,7 +1715,7 @@ int main(int argc, char* argv[])
 
   Z_init_sound();
 
-  
+
   // CD player
 
   /*
@@ -1759,7 +1806,7 @@ int main(int argc, char* argv[])
   if (!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) {
      triplebuffer_not_available = TRUE;
   }
-  
+
   if(!triplebuffer_not_available)
   {
     for (int i=0; i<3; ++i)
@@ -1787,7 +1834,7 @@ int main(int argc, char* argv[])
   }
 
   al_trace("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
-  
+
   set_close_button_callback((void (*)()) hit_close_button);
   set_window_title("Zelda Classic");
 
@@ -1805,12 +1852,14 @@ int main(int argc, char* argv[])
 
   // play the game
   fix_menu();
+  al_trace("Resetting items\n");
   reset_items(true, &QHeader);
+  al_trace("Reset items\n");
 
   Quit = fast_start ? qQUIT : qRESET;
 
   rgb_map = &rgb_table;
-  
+
   while(Quit!=qEXIT)
   {
     toogam = false;
@@ -1865,6 +1914,7 @@ int main(int argc, char* argv[])
         show_subscreen_items=true;
         show_subscreen_life=true;
         game_over();
+        introclk=intropos=0;
       } break;
       case qWON:
       {
@@ -1875,7 +1925,7 @@ int main(int argc, char* argv[])
         show_subscreen_life=true;
         ending();
       } break;
-        
+
     }
     kill_sfx();
     music_stop();

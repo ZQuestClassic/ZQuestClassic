@@ -26,6 +26,7 @@
 //#define ed15 253
 //#define FLASH 243
 
+extern bool cancelgetnum;
 extern bool disable_saving, OverwriteProtection;
 extern int zq_scale;
 

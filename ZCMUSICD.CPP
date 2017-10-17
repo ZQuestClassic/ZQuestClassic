@@ -8,10 +8,10 @@
 #ifdef __cplusplus
 extern "C"
 {
-  #endif
+#endif
 
-  char const * zcmusic_types = "ogg;mp3;mod;s3m;xm;it;spc";
+  char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 
-  #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif

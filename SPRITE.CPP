@@ -264,10 +264,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
     }
     else
     {
-      if (frame&1)
-      {
-        overtile16(dest,shadowtile,sx,sy,cs,flip);
-      }
+      overtile16(dest,shadowtile,sx,sy,cs,flip);
     }
   }
 }

@@ -76,7 +76,7 @@ void register_blank_tiles()
 }
 
 //returns the number of tiles
-word count_tiles()
+word count_tiles(byte *buf)
 {
   word tiles_used;
   bool used;
@@ -86,7 +86,7 @@ word count_tiles()
     used=false;
     for (x=0; x<128; ++x)
     {
-      used=used || (tilebuf[(tiles_used-1)*128+x]!=0);
+      used=used || (buf[(tiles_used-1)*128+x]!=0);
     }
     if (used)
     {
@@ -112,8 +112,8 @@ word count_combos()
 
 void setup_combo_animations()
 {
-  memset(animated_combo_table, 0, 65535*2);
-  memset(animated_combo_table4, 0, 65535*2);
+  memset(animated_combo_table, 0, MAXCOMBOS*2*2);
+  memset(animated_combo_table4, 0, MAXCOMBOS*2*2);
   int y=0;
   for (word x=0; x<MAXCOMBOS; ++x)
   {
@@ -127,6 +127,20 @@ void setup_combo_animations()
     }
   }
   animated_combos=y;
+}
+
+void reset_combo_animation(int c)
+{
+  for (word x=0; x<animated_combos; ++x)
+  {
+    int y=animated_combo_table4[x][0];                      //combo number
+    if (y==c)
+    {
+      combobuf[y].tile=animated_combo_table[y][1];        //reset tile
+      animated_combo_table4[x][1]=0;                        //reset clock
+      return;
+    }
+  }
 }
 
 void reset_combo_animations()
@@ -165,11 +179,11 @@ void animate_combos()
 }
 
 //clears the tile buffer
-void clear_tiles()
+void clear_tiles(byte *buf)
 {
   dword i=0;
   for( ; i<NEWTILE_SIZE2/4; ++i)
-    ((dword*)tilebuf)[i] = 0;
+    ((dword*)buf)[i] = 0;
 }
 
 // unpacks from tilebuf to unpackbuf
@@ -1266,7 +1280,7 @@ void puttile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
 
   switch(flip&2)
   {
-/*  
+/*
     case 1:
     {
       byte *si = unpackbuf;

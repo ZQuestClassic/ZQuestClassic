@@ -35,6 +35,7 @@ char *time_str_long(dword time);
 
 void extract_name(char *path,char *name,int type);
 void chop_path(char *path);
+char *temp_name(char *s);
 int  vbound(int x,int low,int high);
 float vbound(float x,float low,float high);
 int  used_switch(int argc,char *argv[],char *s);
