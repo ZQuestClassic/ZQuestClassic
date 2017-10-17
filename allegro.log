@@ -1,0 +1,43 @@
+Zelda Classic v2.10 (Build 1)
+Checking Files... OK
+Allocating quest path buffers (4.00k/4.00k)...OK
+Allocating map buffer (185.94k/189.94k)... OK
+Allocating string buffer (6.75M/6.94M)... OK
+Allocating door combo buffer (159.50k/7.09M)... OK
+Allocating dmap buffer (51.00k/7.14M)... OK
+Allocating combo buffer (1.49M/8.64M)... OK
+Allocating color data buffer (158.11k/8.79M)... OK
+Allocating tile buffer (8.00M/16.79M)... OK
+Allocating trash buffer (97.66k/16.88M)... OK
+Allocating item buffer (6.00k/16.89M)... OK
+Allocating weapon buffer (2.00k/16.89M)... OK
+Allocating guy buffer (14.00k/16.90M)... OK
+Initializing Allegro... OK
+Allocating bitmap buffers... OK
+Loading data files:
+Zelda.Dat...OK
+Fonts.Dat...OK
+SFX.Dat...OK
+Loading saved games... Save file not found.  Creating new save file.OK
+Initializing sound driver... OK
+Setting video mode...
+Set video mode...
+Triplebuffer not available
+Loading Quest...
+
+Decrypting ...okay.
+Opening...okay.
+Loading Quest...
+
+Decrypting ...okay.
+Opening...okay.
+Loading Quest...
+
+Decrypting ...okay.
+Opening...okay.
+Loading Quest...
+
+Decrypting ...okay.
+Opening...okay.
+Armageddon Games web site: http://www.armageddongames.com
+Zelda Classic web site: http://www.zeldaclassic.com

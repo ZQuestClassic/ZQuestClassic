@@ -712,7 +712,7 @@ void bombdoor(int x,int y)
   }
 }
 
-void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)
+void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)
 {
   if (!drawit)
   {
@@ -720,6 +720,7 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
   }
   int i;
   static int mf;
+  mapscr *tscr;
   switch (type)
   {
     case -2:                                                //push blocks
@@ -729,7 +730,7 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
         if (mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED ||
           ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
         {
-          overcombo(framebuf,((i&15)<<4)-x,(i&0xF0)+56-y,layer->data[i],layer->cset[i]);
+          overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+56-y,layer->data[i],layer->cset[i]);
         }
       }
       break;
@@ -738,7 +739,7 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
       {
         if (combobuf[layer->data[i]].type==cOVERHEAD)
         {
-          overcombo(framebuf,((i&15)<<4)-x,(i&0xF0)+56-y,layer->data[i],layer->cset[i]);
+          overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+56-y,layer->data[i],layer->cset[i]);
         }
       }
       break;
@@ -748,6 +749,14 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
     case 3:
     case 4:
     case 5:
+      if (tempscreen==2)
+      {
+        tscr=tmpscr2+type;
+      }
+      else
+      {
+        tscr=tmpscr3+type;
+      }
       if (TransLayers || layer->layeropacity[type]==255)
       {
         if (layer->layermap[type]>0)
@@ -758,14 +767,14 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
             {
               for (i=0; i<176; i++)
               {
-                overcombo(framebuf,((i&15)<<4)-x,(i&0xF0)+56-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
+                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+56-y,tscr->data[i],tscr->cset[i]);
               }
             }
             else
             {
               for (int i=0; i<176; i++)
               {
-                overcombotranslucent(framebuf,((i&15)<<4)-x,(i&0xF0)+56-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr3[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+56-y,tscr->data[i],tscr->cset[i],layer->layeropacity[type]);
               }
             }
           }
@@ -775,14 +784,14 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
             {
               for (i=0; i<176; i++)
               {
-                overcombo(framebuf,((i&15)<<4)-x,(i&0xF0)+56-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
+                overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+56-y,tscr->data[i],tscr->cset[i]);
               }
             }
             else
             {
               for (i=0; i<176; i++)
               {
-                overcombotranslucent(framebuf,((i&15)<<4)-x,(i&0xF0)+56-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+56-y,tscr->data[i],tscr->cset[i],layer->layeropacity[type]);
               }
             }
           }
@@ -792,9 +801,9 @@ void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, i
   }
 }
 
-void do_layer(int type, mapscr* layer, int x, int y, int tempscreen)
+void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen)
 {
-  do_scrolling_layer(type, layer, x, y, false, tempscreen);
+  do_scrolling_layer(bmp, type, layer, x, y, false, tempscreen);
 }
 
 void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
@@ -839,11 +848,11 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   }
   if (layer2!=NULL)
   {
-    do_layer(0, layer2, x2, y2, 3);
-    do_layer(1, layer2, x2, y2, 3);
-    do_layer(-2, layer2, x2, y2, 3);
+    do_layer(framebuf, 0, layer2, x2, y2, 3);
+    do_layer(framebuf, 1, layer2, x2, y2, 3);
+    do_layer(framebuf, -2, layer2, x2, y2, 3);
   }
-  do_layer(0, layer1, x1, y1, 2);
+  do_layer(framebuf, 0, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==0)
@@ -852,7 +861,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       //particles.del(pcounter);
     }
   }
-  do_layer(1, layer1, x1, y1, 2);
+  do_layer(framebuf, 1, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==1)
@@ -861,7 +870,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       //particles.del(pcounter);
     }
   }
-  do_layer(-2, layer1, x1, y1, 2);
+  do_layer(framebuf, -2, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==-2)
@@ -958,9 +967,9 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
 
   if (layer2!=NULL)
   {
-    do_layer(2, layer2, x2, y2, 3);
-    do_layer(3, layer2, x2, y2, 3);
-    do_layer(-1, layer2, x2, y2, 3);
+    do_layer(framebuf, 2, layer2, x2, y2, 3);
+    do_layer(framebuf, 3, layer2, x2, y2, 3);
+    do_layer(framebuf, -1, layer2, x2, y2, 3);
   }
 
 
@@ -973,7 +982,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     blit(framebuf,scrollbuf,0,56,0,0,256,168);
   }
 
-  do_layer(2, layer1, x1, y1, 2);
+  do_layer(framebuf, 2, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==2)
@@ -982,7 +991,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       //particles.del(pcounter);
     }
   }
-  do_layer(3, layer1, x1, y1, 2);
+  do_layer(framebuf, 3, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==3)
@@ -991,7 +1000,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       //particles.del(pcounter);
     }
   }
-  do_layer(-1, layer1, x1, y1, 2);
+  do_layer(framebuf, -1, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==-1)
@@ -1041,8 +1050,8 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   }
   if (layer2!=NULL)
   {
-    do_layer(4, layer2, x2, y2, 3);
-    do_layer(5, layer2, x2, y2, 3);
+    do_layer(framebuf, 4, layer2, x2, y2, 3);
+    do_layer(framebuf, 5, layer2, x2, y2, 3);
   }
 
   //at this point save screen for messages comparison later
@@ -1053,7 +1062,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     blit(framebuf,scrollbuf,0,56,0,0,256,168);
   }
 
-  do_layer(4, layer1, x1, y1, 2);
+  do_layer(framebuf, 4, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==4)
@@ -1062,7 +1071,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       //particles.del(pcounter);
     }
   }
-  do_layer(5, layer1, x1, y1, 2);
+  do_layer(framebuf, 5, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==5)
@@ -1996,17 +2005,17 @@ void ViewMap()
           }
         }
 
-//		if((tmpscr+1)->flags7&fLAYER2BG) do_layer(1, tmpscr+1, -256, 56, 2);
-//		if((tmpscr+1)->flags7&fLAYER3BG) do_layer(2, tmpscr+1, -256, 56, 2);
+//		if((tmpscr+1)->flags7&fLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, 56, 2);
+//		if((tmpscr+1)->flags7&fLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, 56, 2);
         putscr(scrollbuf,256,0,tmpscr+1);
-        do_layer(0, tmpscr+1, -256, 56, 2);
-//        if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(1, tmpscr+1, -256, 56, 2);
-        do_layer(-2, tmpscr+1, -256, 56, 2);
-//        if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(2, tmpscr+1, -256, 56, 2);
-        do_layer(3, tmpscr+1, -256, 56, 2);
-        do_layer(-1, tmpscr+1, -256, 56, 2);
-        do_layer(4, tmpscr+1, -256, 56, 2);
-        do_layer(5, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf, 0, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf, 1, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf,-2, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf, 2, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf, 3, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf,-1, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf, 4, tmpscr+1, -256, 56, 2);
+        do_layer(scrollbuf, 5, tmpscr+1, -256, 56, 2);
 
       }
       stretch_blit(scrollbuf, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
@@ -2020,7 +2029,6 @@ void ViewMap()
 
   do
   {
-//	load_control_state();
     int step = int(16.0/scales[sc]);
     step = (step>>1) + (step&1);
     bool r = cRbtn();
@@ -2133,5 +2141,6 @@ int onViewMap()
   }
   return D_O_K;
 }
+
 
 /*** end of maps.cc ***/

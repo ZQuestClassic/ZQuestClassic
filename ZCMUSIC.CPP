@@ -4,10 +4,10 @@
 /* supported music file formats.       */
 
 #include "zc_alleg.h"
-#include <string.h>
-#include <aldumb.h>
-#include <alogg.h>
-#include <almp3.h>
+#include "string.h"
+#include "aldumb.h"
+#include "alogg.h"
+#include "almp3.h"
 
 #undef	int8_t
 #undef	uint8_t

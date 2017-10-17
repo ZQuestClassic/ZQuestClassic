@@ -106,7 +106,7 @@ void LinkClass::Catch()
 
 bool LinkClass::getClock() { return superman; }
 void LinkClass::setClock(bool state) { superman=state; }
-int  LinkClass::getAction() { return action; };
+int  LinkClass::getAction() { return action; }
 bool LinkClass::isDiving() { return (diveclk>30); }
 bool LinkClass::isSwimming()
 {
@@ -5169,29 +5169,29 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
     //    linkstep();
     //    draw_screen(newscr, oldscr, tx, ty, tx2, ty2);
 
-    do_layer(0, oldscr, tx2, ty2, 3);
-    do_layer(1, oldscr, tx2, ty2, 3);
-    do_layer(0, newscr, tx, ty, 2);
-    do_layer(1, newscr, tx, ty, 2);
-    do_layer(-2, oldscr, tx2, ty2, 3);
-    do_layer(-2, newscr, tx, ty, 2);
+    do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, 1, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, 0, newscr, tx, ty, 2);
+    do_layer(framebuf, 1, newscr, tx, ty, 2);
+    do_layer(framebuf, -2, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, -2, newscr, tx, ty, 2);
     linkstep();
     if(!isdungeon()||get_bit(quest_rules,qr_FREEFORM))
     {
       draw_under(framebuf);
       draw(framebuf);
     }
-    do_layer(2, oldscr, tx2, ty2, 3);
-    do_layer(3, oldscr, tx2, ty2, 3);
-    do_layer(-1, oldscr, tx2, ty2, 3);
-    do_layer(4, oldscr, tx2, ty2, 3);
-    do_layer(5, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, 2, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, 3, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, -1, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, 4, oldscr, tx2, ty2, 3);
+    do_layer(framebuf, 5, oldscr, tx2, ty2, 3);
 
-    do_layer(2, newscr, tx, ty, 2);
-    do_layer(3, newscr, tx, ty, 2);
-    do_layer(-1, newscr, tx, ty, 2);
-    do_layer(4, newscr, tx, ty, 2);
-    do_layer(5, newscr, tx, ty, 2);
+    do_layer(framebuf, 2, newscr, tx, ty, 2);
+    do_layer(framebuf, 3, newscr, tx, ty, 2);
+    do_layer(framebuf, -1, newscr, tx, ty, 2);
+    do_layer(framebuf, 4, newscr, tx, ty, 2);
+    do_layer(framebuf, 5, newscr, tx, ty, 2);
 
     putsubscr(framebuf,0,0);
 
@@ -6503,9 +6503,9 @@ void setup_red_screen()
   rectfill(scrollbuf, 0, 0, 255, 167, 0);
   putscr(scrollbuf, 0, 0, tmpscr);
   blit(scrollbuf, framebuf, 0, 0, 0, 56, 256, 168);
-  do_layer(0, tmpscr, 0, 0, 2);
-  do_layer(1, tmpscr, 0, 0, 2);
-  do_layer(-2, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+  do_layer(framebuf, -2, tmpscr, 0, 0, 2);
 
   if(!(msgdisplaybuf->clip))
   {
@@ -6538,11 +6538,11 @@ void setup_red_screen()
         && tmpscr->layermap[5]==0
         && !overheadcombos(tmpscr)))
   {
-    do_layer(2, tmpscr, 0, 0, 2);
-    do_layer(3, tmpscr, 0, 0, 2);
-    do_layer(-1, tmpscr, 0, 0, 2);
-    do_layer(4, tmpscr, 0, 0, 2);
-    do_layer(5, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 5, tmpscr, 0, 0, 2);
 
     //do an AND masked blit for messages on top of layers
     if(!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip))
@@ -6952,6 +6952,11 @@ void LinkClass::reset_hookshot()
   }
   hs_xdist=0;
   hs_ydist=0;
+}
+
+void LinkClass::reset_ladder()
+{
+  ladderx=laddery=0;
 }
 
 void LinkClass::check_conveyor()

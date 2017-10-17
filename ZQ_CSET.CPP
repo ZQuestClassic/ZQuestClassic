@@ -831,7 +831,7 @@ int EditColors(char *caption,int first,int count,byte *label)
   colors_dlg[26].d1   =(count==pdLEVEL)?16:0;
   colors_dlg[26].dp   =(count==pdLEVEL)?palnames[(first-poLEVEL)/pdLEVEL]:NULL;
 
-  char buf[count][4];
+  char buf[50][4];
 
   for(int i=0; i<15; i++)
   {

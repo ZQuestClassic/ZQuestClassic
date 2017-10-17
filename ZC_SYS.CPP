@@ -202,14 +202,14 @@ void fps_callback()
   framecnt=0;
 }
 
-END_OF_FUNCTION(fps_callback);
+END_OF_FUNCTION(fps_callback)
 
 void myvsync_callback()
 {
   ++myvsync;
 }
 
-END_OF_FUNCTION(myvsync_callback);
+END_OF_FUNCTION(myvsync_callback)
 
 void Z_init_timers()
 {
@@ -380,7 +380,8 @@ bool game_vid_mode(int mode,int wait)
   #elif defined(ALLEGRO_LINUX)
   switch(mode)
   {
-    case GFX_AUTODETECT_WINDOWED:
+case GFX_AUTODETECT_FULLSCREEN:    
+case GFX_AUTODETECT_WINDOWED:
       if(set_gfx_mode(GFX_AUTODETECT_WINDOWED,resx,resy,0,0)==0)
       {
         VidMode=GFX_AUTODETECT_WINDOWED;
@@ -3062,7 +3063,7 @@ void draw_fuzzy(int fuzz)
 
 void waitvsync()
 {
-  if((Throttlefps ^ (debug && key[KEY_TILDE])))
+  if((Throttlefps ^ (true && key[KEY_TILDE])))
   {
     while(!myvsync) rest(1);
     //    vsync();
@@ -3165,7 +3166,7 @@ void updatescr()
 	}
 	BITMAP *target;
 	bool dontusetb = triplebuffer_not_available ||
-		!(Throttlefps ^ (debug && key[KEY_TILDE]));
+		!(Throttlefps ^ (true && key[KEY_TILDE]));
 	if(dontusetb)
 		target=screen;
 	else
@@ -3692,7 +3693,7 @@ void syskeys()
 
 void advanceframe()
 {
-  if((Throttlefps ^ (debug && key[KEY_TILDE])))
+  if((Throttlefps ^ (true && key[KEY_TILDE])))
   {
 
     while(!logic_counter) rest(1);
@@ -3735,14 +3736,14 @@ void zapout()
                                                             /*
     putsubscr(framebuf,0,0);
     blit(scrollbuf,framebuf,0,0,0,56,256,168);
-    do_layer(0, tmpscr, 0, 0, 2);
-    do_layer(1, tmpscr, 0, 0, 2);
-    do_layer(-2, tmpscr, 0, 0, 2);
-    do_layer(2, tmpscr, 0, 0, 2);
-    do_layer(3, tmpscr, 0, 0, 2);
-    do_layer(-1, tmpscr, 0, 0, 2);
-    do_layer(4, tmpscr, 0, 0, 2);
-    do_layer(5, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 5, tmpscr, 0, 0, 2);
   */
   blit(framebuf,scrollbuf,0,0,256,0,256,224);
 
@@ -3765,14 +3766,14 @@ void zapin()
                                                             /*
     putsubscr(framebuf,0,0);
     blit(scrollbuf,framebuf,0,0,0,56,256,168);
-    do_layer(0, tmpscr, 0, 0, 2);
-    do_layer(1, tmpscr, 0, 0, 2);
-    do_layer(-2, tmpscr, 0, 0, 2);
-    do_layer(2, tmpscr, 0, 0, 2);
-    do_layer(3, tmpscr, 0, 0, 2);
-    do_layer(-1, tmpscr, 0, 0, 2);
-    do_layer(4, tmpscr, 0, 0, 2);
-    do_layer(5, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 5, tmpscr, 0, 0, 2);
   */
   draw_screen(tmpscr, 0, 0);
   putsubscr(framebuf,0,0);
@@ -3798,22 +3799,22 @@ void wavyout()
     // draw screen on right half of scrollbuf
     putsubscr(framebuf,0,0);
     blit(scrollbuf,framebuf,0,0,0,56,256,168);
-    do_layer(0, tmpscr, 0, 0, 2);
-    do_layer(1, tmpscr, 0, 0, 2);
-    do_layer(-2, tmpscr, 0, 0, 2);
-    do_layer(2, tmpscr, 0, 0, 2);
-    do_layer(3, tmpscr, 0, 0, 2);
-    do_layer(-1, tmpscr, 0, 0, 2);
-    do_layer(4, tmpscr, 0, 0, 2);
-  do_layer(5, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 5, tmpscr, 0, 0, 2);
   */
 
                                                             /*
     putsubscr(framebuf,0,0);
     blit(scrollbuf,framebuf,0,0,0,56,256,168);
-    do_layer(0, tmpscr, 0, 0, 2);
-    do_layer(1, tmpscr, 0, 0, 2);
-    do_layer(-2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -2, tmpscr, 0, 0, 2);
     if(lensclk || (debug && key[KEY_L]))
   draw_lens_under();
   if (tmpscr->layermap[2]==0 && tmpscr->layermap[3]==0 &&
@@ -3861,16 +3862,16 @@ void wavyout()
   }
   }
 
-  do_layer(2, tmpscr, 0, 0, 2);
-  do_layer(3, tmpscr, 0, 0, 2);
-  do_layer(-1, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+  do_layer(framebuf, -1, tmpscr, 0, 0, 2);
   for(int i=0; i<guys.Count(); i++) {
   if(isflier(guys.spr(i)->id)) {
   guys.spr(i)->draw(framebuf);
   }
   }
-  do_layer(4, tmpscr, 0, 0, 2);
-  do_layer(5, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 5, tmpscr, 0, 0, 2);
   putsubscr(framebuf,0,0);
   */
   draw_screen(tmpscr, 0, 0);
@@ -3931,22 +3932,22 @@ void wavyin()
     // draw screen on right half of scrollbuf
     putsubscr(framebuf,0,0);
     blit(scrollbuf,framebuf,0,0,0,56,256,168);
-    do_layer(0, tmpscr, 0, 0, 2);
-    do_layer(1, tmpscr, 0, 0, 2);
-    do_layer(-2, tmpscr, 0, 0, 2);
-    do_layer(2, tmpscr, 0, 0, 2);
-    do_layer(3, tmpscr, 0, 0, 2);
-    do_layer(-1, tmpscr, 0, 0, 2);
-    do_layer(4, tmpscr, 0, 0, 2);
-  do_layer(5, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 5, tmpscr, 0, 0, 2);
   */
 
                                                             /*
     putsubscr(framebuf,0,0);
     blit(scrollbuf,framebuf,0,0,0,56,256,168);
-    do_layer(0, tmpscr, 0, 0, 2);
-    do_layer(1, tmpscr, 0, 0, 2);
-    do_layer(-2, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 1, tmpscr, 0, 0, 2);
+    do_layer(framebuf, -2, tmpscr, 0, 0, 2);
     if(lensclk || (debug && key[KEY_L]))
   draw_lens_under();
   if (tmpscr->layermap[2]==0 && tmpscr->layermap[3]==0 &&
@@ -3994,16 +3995,16 @@ void wavyin()
   }
   }
 
-  do_layer(2, tmpscr, 0, 0, 2);
-  do_layer(3, tmpscr, 0, 0, 2);
-  do_layer(-1, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 2, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 3, tmpscr, 0, 0, 2);
+  do_layer(framebuf, -1, tmpscr, 0, 0, 2);
   for(int i=0; i<guys.Count(); i++) {
   if(isflier(guys.spr(i)->id)) {
   guys.spr(i)->draw(framebuf);
   }
   }
-  do_layer(4, tmpscr, 0, 0, 2);
-  do_layer(5, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 4, tmpscr, 0, 0, 2);
+  do_layer(framebuf, 5, tmpscr, 0, 0, 2);
   putsubscr(framebuf,0,0);
   */
   draw_screen(tmpscr, 0, 0);
@@ -4304,17 +4305,38 @@ int d_jbutton_proc(int msg,DIALOG *d,int c)
                                                             //shnarf
 char *key_str[] =
 {
-  "(none)","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",
-  "p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5",
-  "6","7","8","9","num 0","num 1","num 2","num 3","num 4","num 5","num 6",
-  "num 7","num 8","num 9","f1","f2","f3","f4","f5","f6","f7","f8","f9",
-  "f10","f11","f12","esc","~","-","=","backspace","tab","[","]","enter",
-  ":","QUOTE","\\","\\ (2)",",","STOP","/","space","ins","del","home",
-  "end","pg up","pg dn","left","right","up","down","num /","*","num -",
-  "num +","num del","num enter","prtscr","pause","ABNT_C1","YEN","KANA",
-  "CONVERT","NOCONVERT","AT","CIRCUMFLEX","COLON2","KANJI","l shift",
-  "r shift","l ctrl","r ctrl","l alt","r alt","l win","r win","menu",
-  "scrl lock","num lck","caps lck","MAX"
+  "(none)",         "a",              "b",              "c",
+  "d",              "e",              "f",              "g",
+  "h",              "i",              "j",              "k",
+  "l",              "m",              "n",              "o",
+  "p",              "q",              "r",              "s",
+  "t",              "u",              "v",              "w",
+  "x",              "y",              "z",              "0",
+  "1",              "2",              "3",              "4",
+  "5",              "6",              "7",              "8",
+  "9",              "num 0",          "num 1",          "num 2",
+  "num 3",          "num 4",          "num 5",          "num 6",
+  "num 7",          "num 8",          "num 9",          "f1",
+  "f2",             "f3",             "f4",             "f5",
+  "f6",             "f7",             "f8",             "f9",
+  "f10",            "f11",            "f12",            "esc",
+  "~",              "-",              "=",              "backspace",
+  "tab",            "{",              "}",              "enter",
+  ":",              "quote",          "\\",             "\\ (2)",
+  ",",              ".",              "/",              "space",
+  "insert",         "delete",         "home",           "end",
+  "page up",        "page down",      "left",           "right",
+  "up",             "down",           "num /",          "num *",
+  "num -",          "num +",          "num delete",     "num enter",
+  "print screen",   "pause",          "abnt c1",        "yen",
+  "kana",           "convert",        "no convert",     "at",
+  "circumflex",     ": (2)",          "kanji",          "num =",
+  "back quote",     ";",              "command",        "unknown (0)",
+  "unknown (1)",    "unknown (2)",    "unknown (3)",    "unknown (4)",
+  "unknown (5)",    "unknown (6)",    "unknown (7)",    "left shift",
+  "right shift",    "left control",   "right control",  "alt",
+  "alt gr",         "left win",       "right win",      "menu",
+  "scroll lock",    "number lock",    "caps lock",      "MAX"
 };
 
 char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
@@ -4497,7 +4519,7 @@ static DIALOG sound_dlg[] =
   /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)  (dp2)    (dp3) */
   { jwin_win_proc,       32,   64,   256,  162,  0,       0,       0,       D_EXIT,    0,        0,       (void *) "Sound Settings" },
   { d_stringloader,      0,    0,    3 },
-  { jwin_frame_proc,     42,   92,   236,  80,   0,       0,       0,       0,         FR_ETCHED,0,       NULL },
+  { jwin_frame_proc,     42,   92,   236,  96,   0,       0,       0,       0,         FR_ETCHED,0,       NULL },
   { jwin_rtext_proc,     147,  104,  40,   8,    vc(7),   vc(11),  0,       0,         0,        0,       (void *) str_a },
   { jwin_rtext_proc,     147,  120,  40,   8,    vc(7),   vc(11),  0,       0,         0,        0,       (void *) str_b },
   { jwin_rtext_proc,     147,  136,  40,   8,    vc(7),   vc(11),  0,       0,         0,        0,       (void *) str_s },
@@ -5553,28 +5575,27 @@ int onCheat()
   if(!zcheats.flags && !debug)
     return D_O_K;
 
-  str_a[0] = 0;
+  str_a[0]=0;
   cheat_dlg[0].dp2=lfont;
-  if((PopUp_dialog(cheat_dlg,1)==2) && strlen(str_a))
+  cheat_dlg[1].dp=str_a;
+  int ret=zc_popup_dialog(cheat_dlg,1);
+  if((ret==2) && strlen(str_a))
   {
     char str[80];
-
     for(int i=0; i<4; i++)
     {
       if(!strcmp(str_a, zcheats.codes[i]))
       {
         cheat   = i + 1;
         sprintf(str, "Cheat level %d enabled", i+1);
-                                                            //        str[12] = i + '1';
-        jwin_alert(NULL,NULL,str,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("ZQuest",NULL,str,NULL,"OK",NULL,13,27,lfont);
         goto done;
       }
     }
-
-    jwin_alert(NULL,NULL,"Invalid cheat code",NULL,"OK",NULL,13,27,lfont);
+    jwin_alert("ZQuest",NULL,"Invalid cheat code",NULL,"OK",NULL,13,27,lfont);
   }
 
-  done:
+done:
   return D_O_K;
 }
 
@@ -6677,13 +6698,13 @@ void jukebox(int index)
 
 void play_DmapMusic()
 {
-  static char tfile[56];
+  static char tfile[2048];
   bool domidi=false;
   if (DMaps[currdmap].tmusic[0]!=0)
   {
     if((zcmusic==NULL) || (strcmp(tfile,DMaps[currdmap].tmusic)!=0))
     {
-      char tmfname[280];
+      char tmfname[2048];
 
       if(zcmusic != NULL)
       {
@@ -6692,7 +6713,7 @@ void play_DmapMusic()
         zcmusic = NULL;
       }
 
-      sprintf(tmfname, "%s",qstpath);
+      sprintf(tmfname, "%s",qstdir);
       chop_path(tmfname);
       strcat(tmfname, DMaps[currdmap].tmusic);
 

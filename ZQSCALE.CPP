@@ -83,7 +83,9 @@ void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, in
 		masked_stretch_blit(src, dest, sx, sy, sw, sh, dx, dy, dw, dh);
 	else
 		stretch_blit(src, dest, sx, sy, sw, sh, dx, dy, dw, dh);
+
 }
+
 
 void clip_and_stretch_sprite(BITMAP *dest, BITMAP *src, int x, int y, int w, int h)
 {
@@ -612,9 +614,10 @@ bool zqwin_set_scale(int scale, bool defer)
       }
     }
   }
-
+#ifdef ALLEGRO_WINDOWS
   gui_mouse_x=zqscale_mouse_x;
   gui_mouse_y=zqscale_mouse_y;
+#endif
   return true;
 }
 

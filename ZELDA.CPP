@@ -54,7 +54,7 @@ void update_logic_counter()
   ++logic_counter;
 }
 
-END_OF_FUNCTION(update_logic_counter);
+END_OF_FUNCTION(update_logic_counter)
 
 /**********************************/
 /******** Global Variables ********/
@@ -486,6 +486,7 @@ int init_game()
   didpit=false;
   Link.unfreeze();
   Link.reset_hookshot();
+  Link.reset_ladder();
   linkedmsgclk=0;
   blockmoving=false;
   add_asparkle=0;
@@ -857,6 +858,7 @@ int cont_game()
   didpit=false;
   Link.unfreeze();
   Link.reset_hookshot();
+  Link.reset_ladder();
   linkedmsgclk=0;
   blockmoving=0;
   add_asparkle=0;
@@ -1852,9 +1854,7 @@ int main(int argc, char* argv[])
 
   // play the game
   fix_menu();
-  al_trace("Resetting items\n");
   reset_items(true, &QHeader);
-  al_trace("Reset items\n");
 
   Quit = fast_start ? qQUIT : qRESET;
 
@@ -1967,5 +1967,5 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
 /*** end of zelda.cc ***/

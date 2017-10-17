@@ -46,8 +46,8 @@ bool hitcombo(int x, int y, int combotype);
 bool hitflag(int x, int y, int flagtype);
 int nextscr(int dir);
 void bombdoor(int x,int y);
-void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen);
-void do_layer(int type, mapscr* layer, int x, int y, int tempscreen);
+void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen);
+void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen);
 void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2);
 
 inline void draw_screen(mapscr* layer, int x, int y)

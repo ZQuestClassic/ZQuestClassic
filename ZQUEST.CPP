@@ -251,7 +251,7 @@ void myvsync_callback()
   ++myvsync;
 }
 
-END_OF_FUNCTION(myvsync_callback);
+END_OF_FUNCTION(myvsync_callback)
 
 
 
@@ -1530,7 +1530,7 @@ int playTune()
 int stopMIDI()
 {
   stop_midi();
-  etc_menu[9].flags = etc_menu[9].flags = 0;
+  etc_menu[8].flags = etc_menu[9].flags = 0;
   return D_O_K;
 }
 
@@ -2129,7 +2129,7 @@ void drawpanel(int panel)
 //      textprintf_ex(menu1,font,panel_4_x+7,panel_4_y+8,vc(7),-1,"Guy:");
 //      textprintf_ex(menu1,font,panel_4_x+7,panel_4_y+16,vc(7),-1,"Str:");
 //      textprintf_ex(menu1,font,panel_4_x+7,panel_4_y+24,vc(7),-1,"Room:");
-      char stripped_string[strlen(MsgString(scr->str))];
+      char stripped_string[256];
       memcpy(stripped_string, MsgString(scr->str),strlen(MsgString(scr->str)));
       strip_extra_spaces(stripped_string);
       textprintf_disabled(menu1,pfont,panel_4_x+6,panel_1_y+8,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Guy:");
@@ -3160,34 +3160,34 @@ void peek(int c)
 void set_brush_width(int width);
 void set_brush_height(int height);
 
-int set_brush_width_1() {set_brush_width(1); return D_O_K;};
-int set_brush_width_2() {set_brush_width(2); return D_O_K;};
-int set_brush_width_3() {set_brush_width(3); return D_O_K;};
-int set_brush_width_4() {set_brush_width(4); return D_O_K;};
-int set_brush_width_5() {set_brush_width(5); return D_O_K;};
-int set_brush_width_6() {set_brush_width(6); return D_O_K;};
-int set_brush_width_7() {set_brush_width(7); return D_O_K;};
-int set_brush_width_8() {set_brush_width(8); return D_O_K;};
-int set_brush_width_9() {set_brush_width(9); return D_O_K;};
-int set_brush_width_10() {set_brush_width(10); return D_O_K;};
-int set_brush_width_11() {set_brush_width(11); return D_O_K;};
-int set_brush_width_12() {set_brush_width(12); return D_O_K;};
-int set_brush_width_13() {set_brush_width(13); return D_O_K;};
-int set_brush_width_14() {set_brush_width(14); return D_O_K;};
-int set_brush_width_15() {set_brush_width(15); return D_O_K;};
-int set_brush_width_16() {set_brush_width(16); return D_O_K;};
+int set_brush_width_1() {set_brush_width(1); return D_O_K;}
+int set_brush_width_2() {set_brush_width(2); return D_O_K;}
+int set_brush_width_3() {set_brush_width(3); return D_O_K;}
+int set_brush_width_4() {set_brush_width(4); return D_O_K;}
+int set_brush_width_5() {set_brush_width(5); return D_O_K;}
+int set_brush_width_6() {set_brush_width(6); return D_O_K;}
+int set_brush_width_7() {set_brush_width(7); return D_O_K;}
+int set_brush_width_8() {set_brush_width(8); return D_O_K;}
+int set_brush_width_9() {set_brush_width(9); return D_O_K;}
+int set_brush_width_10() {set_brush_width(10); return D_O_K;}
+int set_brush_width_11() {set_brush_width(11); return D_O_K;}
+int set_brush_width_12() {set_brush_width(12); return D_O_K;}
+int set_brush_width_13() {set_brush_width(13); return D_O_K;}
+int set_brush_width_14() {set_brush_width(14); return D_O_K;}
+int set_brush_width_15() {set_brush_width(15); return D_O_K;}
+int set_brush_width_16() {set_brush_width(16); return D_O_K;}
 
-int set_brush_height_1() {set_brush_height(1); return D_O_K;};
-int set_brush_height_2() {set_brush_height(2); return D_O_K;};
-int set_brush_height_3() {set_brush_height(3); return D_O_K;};
-int set_brush_height_4() {set_brush_height(4); return D_O_K;};
-int set_brush_height_5() {set_brush_height(5); return D_O_K;};
-int set_brush_height_6() {set_brush_height(6); return D_O_K;};
-int set_brush_height_7() {set_brush_height(7); return D_O_K;};
-int set_brush_height_8() {set_brush_height(8); return D_O_K;};
-int set_brush_height_9() {set_brush_height(9); return D_O_K;};
-int set_brush_height_10() {set_brush_height(10); return D_O_K;};
-int set_brush_height_11() {set_brush_height(11); return D_O_K;};
+int set_brush_height_1() {set_brush_height(1); return D_O_K;}
+int set_brush_height_2() {set_brush_height(2); return D_O_K;}
+int set_brush_height_3() {set_brush_height(3); return D_O_K;}
+int set_brush_height_4() {set_brush_height(4); return D_O_K;}
+int set_brush_height_5() {set_brush_height(5); return D_O_K;}
+int set_brush_height_6() {set_brush_height(6); return D_O_K;}
+int set_brush_height_7() {set_brush_height(7); return D_O_K;}
+int set_brush_height_8() {set_brush_height(8); return D_O_K;}
+int set_brush_height_9() {set_brush_height(9); return D_O_K;}
+int set_brush_height_10() {set_brush_height(10); return D_O_K;}
+int set_brush_height_11() {set_brush_height(11); return D_O_K;}
 
 static MENU brush_width_menu[] =
 {
@@ -3310,7 +3310,7 @@ void fill_4()
       (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 0);
     refresh(rMAP+rSCRMAP);
   }
-};
+}
 
 void fill_8()
 {
@@ -3349,7 +3349,7 @@ void fill_8()
       (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1);
     refresh(rMAP+rSCRMAP);
   }
-};
+}
 
 void fill2_4()
 {
@@ -3384,7 +3384,7 @@ void fill2_4()
   }
   fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 0);
   refresh(rMAP+rSCRMAP);
-};
+}
 
 void fill2_8()
 {
@@ -3418,7 +3418,7 @@ void fill2_8()
   }
   fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 1);
   refresh(rMAP+rSCRMAP);
-};
+}
 
 static MENU fill_menu[] =
 {
@@ -3439,7 +3439,7 @@ int set_flood()
   fill_menu[0].flags=D_SELECTED;
   fill_type=0;
   return D_O_K;
-};
+}
 
 int set_fill_4()
 {
@@ -3450,7 +3450,7 @@ int set_fill_4()
   fill_menu[1].flags=D_SELECTED;
   fill_type=1;
   return D_O_K;
-};
+}
 
 int set_fill_8()
 {
@@ -3461,7 +3461,7 @@ int set_fill_8()
   fill_menu[2].flags=D_SELECTED;
   fill_type=2;
   return D_O_K;
-};
+}
 
 int set_fill2_4()
 {
@@ -3472,7 +3472,7 @@ int set_fill2_4()
   fill_menu[3].flags=D_SELECTED;
   fill_type=3;
   return D_O_K;
-};
+}
 
 int set_fill2_8()
 {
@@ -3483,7 +3483,7 @@ int set_fill2_8()
   fill_menu[4].flags=D_SELECTED;
   fill_type=4;
   return D_O_K;
-};
+}
 
 static MENU draw_rc_menu[] =
 {
@@ -9742,7 +9742,7 @@ void fps_callback()
   framecnt=0;
 }
 
-END_OF_FUNCTION(fps_callback);
+END_OF_FUNCTION(fps_callback)
 
 //unsigned int col_diff[3*128];
 /*
@@ -10563,6 +10563,7 @@ int main(int argc,char **argv)
 #elif defined(ALLEGRO_LINUX)
   switch(mode)
   {
+    case GFX_AUTODETECT_FULLSCREEN:
     case GFX_AUTODETECT_WINDOWED:
     if(set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0)==0)
     {
@@ -11092,7 +11093,7 @@ int main(int argc,char **argv)
   return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
 
 void center_zquest_dialogs()
 {

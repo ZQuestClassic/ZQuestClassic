@@ -2,8 +2,8 @@
 
 AUDIO_LIBS = -lgme -lalogg -lalmp3 -laldmb -ldumb
 IMAGE_LIBS = -ljpgal -lldpng -lpng -lz
-#LINKOPTS = -pg -g
-#OPTS = -pg -g
+LINKOPTS = -pg -g
+OPTS = -pg -g
 #OPTS = -O3
 #COMPRESS = 1
 
@@ -31,6 +31,7 @@ ifdef COMPILE_FOR_LINUX
   ZELDA_PREFIX = zelda
   ZQUEST_PREFIX = zquest
   CC = g++
+  LIBDIR = -L./libs/linux
 else
 ifdef COMPILE_FOR_DOS
   ALLEG_LIB = -lalleg

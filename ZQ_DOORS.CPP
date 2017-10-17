@@ -144,11 +144,15 @@ int onDoors()
         }
         done=true;
         break;
+      case 0:
       case 7:
+        //why is this here?
+/*
         for (int i=0; i>4; i++)
         {
           Map.putdoor(i,Map.CurrScr()->door[i]);
         }
+*/
         Map.Uhuilai();
         done=true;
     }

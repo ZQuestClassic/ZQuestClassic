@@ -943,7 +943,7 @@ bool init_palnames()
   }
 
   return true;
-};
+}
 
 static void *read_block(PACKFILE *f, int size, int alloc_size, bool keepdata)
 {

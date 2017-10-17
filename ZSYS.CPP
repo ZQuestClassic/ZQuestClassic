@@ -1020,7 +1020,7 @@ void dclick_check(void)
   }
 }
 
-END_OF_FUNCTION(dclick_check);
+END_OF_FUNCTION(dclick_check)
 
 void lock_dclick_function()
 {
