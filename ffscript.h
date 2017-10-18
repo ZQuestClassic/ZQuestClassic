@@ -17,19 +17,19 @@ void clearScriptHelperData();
 
 struct script_command
 {
-  char name[16];
-  byte args;
-  byte arg1_type; //0=reg, 1=val;
-  byte arg2_type; //0=reg, 1=val;
-  bool more_stuff;
+    char name[16];
+    byte args;
+    byte arg1_type; //0=reg, 1=val;
+    byte arg2_type; //0=reg, 1=val;
+    bool more_stuff;
 };
 
 struct script_variable
 {
-  char name[16];
-  long id;
-  word maxcount;
-  byte multiple;
+    char name[16];
+    long id;
+    word maxcount;
+    byte multiple;
 };
 
 // Defines for script flags
@@ -44,249 +44,249 @@ struct script_variable
 // Defines for the ASM operations
 enum ASM_DEFINE
 {
-  SETV,                 //0x0000
-  SETR,                 //0x0001
-  ADDR,                 //0x0002
-  ADDV,                 //0x0003
-  SUBR,                 //0x0004
-  SUBV,                 //0x0005
-  MULTR,                //0x0006
-  MULTV,                //0x0007
-  DIVR,                 //0x0008
-  DIVV,                 //0x0009
-  WAITFRAME,            //0x000A
-  GOTO,                 //0x000B
-  CHECKTRIG,            //0x000C //NOT IMPLEMENTED
-  WARP,                 //0x000D
-  COMPARER,             //0x000E
-  COMPAREV,             //0x000F
-  GOTOTRUE,             //0x0010
-  GOTOFALSE,            //0x0011
-  GOTOLESS,             //0x0012
-  GOTOMORE,             //0x0013
-  LOAD1,                //0x0014
-  LOAD2,                //0x0015
-  SETA1,                //0x0016
-  SETA2,                //0x0017
-  QUIT,                 //0x0018
-  SINR,                 //0x0019
-  SINV,                 //0x001A
-  COSR,                 //0x001B
-  COSV,                 //0x001C
-  TANR,                 //0x001D
-  TANV,                 //0x001E
-  MODR,                 //0x001F
-  MODV,                 //0x0020
-  ABSR,                 //0x0021
-  MINR,                 //0x0022
-  MINV,                 //0x0023
-  MAXR,                 //0x0024
-  MAXV,                 //0x0025
-  RNDR,                 //0x0026
-  RNDV,                 //0x0027
-  FACTORIAL,            //0x0028
-  POWERR,               //0x0029
-  POWERV,               //0x002A
-  IPOWERR,              //0x002B
-  IPOWERV,              //0x002C
-  ANDR,                 //0x002D
-  ANDV,                 //0x002E
-  ORR,                  //0x002F
-  ORV,                  //0x0030
-  XORR,                 //0x0031
-  XORV,                 //0x0032
-  NANDR,                //0x0033
-  NANDV,                //0x0034
-  NORR,                 //0x0035
-  NORV,                 //0x0036
-  XNORR,                //0x0037
-  XNORV,                //0x0038
-  NOT,                  //0x0039
-  LSHIFTR,              //0x003A
-  LSHIFTV,              //0x003B
-  RSHIFTR,              //0x003C
-  RSHIFTV,              //0x003D
-  TRACER,               //0x003E
-  TRACEV,               //0x003F
-  TRACE3,               //0x0040
-  LOOP,                 //0x0041
-  PUSHR,                //0x0042
-  PUSHV,                //0x0043
-  POP,                  //0x0044
-  ENQUEUER,             //0x0045 //NOT IMPLEMENTED
-  ENQUEUEV,             //0x0046 //NOT IMPLEMENTED
-  DEQUEUE,              //0x0047 //NOT IMPLEMENTED
-  PLAYSOUNDR,           //0x0048
-  PLAYSOUNDV,           //0x0049
-  LOADLWEAPONR,          //0x004A
-  LOADLWEAPONV,          //0x004B
-  LOADITEMR,             //0x004C
-  LOADITEMV,             //0x004D
-  LOADNPCR,              //0x004E
-  LOADNPCV,              //0x004F
-  CREATELWEAPONR,        //0x0050
-  CREATELWEAPONV,        //0x0051
-  CREATEITEMR,           //0x0052
-  CREATEITEMV,           //0x0053
-  CREATENPCR,            //0x0054
-  CREATENPCV,            //0x0055
-  LOADI,                 //0x0056
-  STOREI,                //0x0057
-  GOTOR,                 //0x0058
-  SQROOTV,               //0x0059
-  SQROOTR,               //0x005A
-  CREATEEWEAPONR,        //0x005B
-  CREATEEWEAPONV,        //0x005C
-  PITWARP,               //0x005D
-  WARPR,                 //0x005E
-  PITWARPR,              //0x005F
-  CLEARSPRITESR,         //0x0060
-  CLEARSPRITESV,         //0x0061
-  RECTR,                 //0x0062
-  CIRCLER,               //0x0063
-  ARCR,                  //0x0064
-  ELLIPSER,              //0x0065
-  LINER,                 //0x0066
-  PUTPIXELR,             //0x0067
-  DRAWTILER,             //0x0068
-  DRAWCOMBOR,            //0x0069
-  ELLIPSE2,              //0x006A
-  SPLINER,               //0x006B
-  FLOODFILL,             //0x006C
-  COMPOUNDR,             //0x006D
-  COMPOUNDV,             //0x006E
-  MSGSTRR,               //0x006F
-  MSGSTRV,               //0x0070
-  ISVALIDITEM,           //0x0071
-  ISVALIDNPC,            //0x0072
-  PLAYMIDIR,             //0x0073
-  PLAYMIDIV,             //0x0074
-  COPYTILEVV,            //0x0075
-  COPYTILEVR,            //0x0076
-  COPYTILERV,            //0x0077
-  COPYTILERR,            //0x0078
-  SWAPTILEVV,            //0x0079
-  SWAPTILEVR,            //0x007A
-  SWAPTILERV,            //0x007B
-  SWAPTILERR,            //0x007C
-  CLEARTILEV,            //0x007D
-  CLEARTILER,            //0x007E
-  OVERLAYTILEVV,         //0x007F
-  OVERLAYTILEVR,         //0x0080
-  OVERLAYTILERV,         //0x0081
-  OVERLAYTILERR,         //0x0082
-  FLIPROTTILEVV,         //0x0083
-  FLIPROTTILEVR,         //0x0084
-  FLIPROTTILERV,         //0x0085
-  FLIPROTTILERR,         //0x0086
-  GETTILEPIXELV,         //0x0087
-  GETTILEPIXELR,         //0x0088
-  SETTILEPIXELV,         //0x0089
-  SETTILEPIXELR,         //0x008A
-  SHIFTTILEVV,           //0x008B
-  SHIFTTILEVR,           //0x008C
-  SHIFTTILERV,           //0x008D
-  SHIFTTILERR,           //0x008E
-  ISVALIDLWPN,           //0x008F
-  ISVALIDEWPN,           //0x0090
-  LOADEWEAPONR,          //0x0091
-  LOADEWEAPONV,          //0x0092
-  ALLOCATEMEMR,          //0x0093
-  ALLOCATEMEMV,          //0x0094
-  ALLOCATEGMEMV,         //0x0095
-  DEALLOCATEMEMR,		 //0x0096
-  DEALLOCATEMEMV,		 //0x0097 //Pointless, can't deallocate a value
-  WAITDRAW,				 //0x0098
-  ARCTANR,				 //0x0099
-  LWPNUSESPRITER,		 //0x09A
-  LWPNUSESPRITEV,		 //0x09B
-  EWPNUSESPRITER,		 //0x09C
-  EWPNUSESPRITEV,		 //0x09D
-  LOADITEMDATAR,		 //0x09E
-  LOADITEMDATAV,		 //0x09F
-  BITNOT,				 //0x00A0
-  LOG10,				 //0x00A1
-  LOGE,                  //0x00A2
-  ISSOLID,               //0x00A3
-  LAYERSCREEN,           //0x00A4
-  LAYERMAP,              //0x00A5
-  TRACE2R,		    //0x00A6
-  TRACE2V,		    //0x00A7
-  TRACE4,			    //0x00A8
-  TRACE5,			    //0x00A9
-  SECRETS,		    //0x00AA
-  DRAWCHARR,		    //0x00AB
-  GETSCREENFLAGS,	    //0x00AC
-  QUADR,              //0X00AD
-  TRIANGLER,          //0X00AE
-  ARCSINR,              //0x00AF
-  ARCSINV,              //0x00B0
-  ARCCOSR,              //0x00B1
-  ARCCOSV,              //0x00B2
-  GAMEEND,              //0x00B3
-  DRAWINTR,             //0x00B4
-  SETTRUE,              //0x00B5
-  SETFALSE,             //0x00B6
-  SETMORE,              //0x00B7
-  SETLESS,              //0x00B8
-  FASTTILER,            //0x00B9
-  FASTCOMBOR,           //0x00BA
-  DRAWSTRINGR,          //0x00BB
-  SETSIDEWARP,			//0x00BC
-  SAVE,				    //0x00BD
-  TRACE6,				//0x00BE
-  WHATNO0x00BF, //PTROFF,//0x00BF
-  QUAD3DR,              //0x00C0
-  TRIANGLE3DR,          //0x00C1
-  SETCOLORB,        	//0x00C2 for 2.6
-  SETDEPTHB,        	//0x00C3 '
-  GETCOLORB,        	//0x00C4 '
-  GETDEPTHB,        	//0x00C5 '
-  COMBOTILE,			//0x00C6
-  SETTILEWARP,			//0x00C7
-  GETSCREENEFLAGS,		//0x00C8
-  GETSAVENAME,          //0x00C9
-  ARRAYSIZE,            //0x00CA
-  ITEMNAME,             //0x00CB
-  SETSAVENAME,          //0x00CC
-  NPCNAME,         		//0x00CD
-  GETMESSAGE,			//0x00CE
-  GETDMAPNAME,			//0x00CF
-  GETDMAPTITLE,			//0x00D0
-  GETDMAPINTRO,			//0x00D1
-  ALLOCATEGMEMR,        //0x00D2
-  BITMAPR,         		//0x00D3
-  SETRENDERTARGET,      //0x00D4
-  PLAYENHMUSIC,         //0x00D5
-  GETMUSICFILE,         //0x00D6
-  GETMUSICTRACK,        //0x00D7
-  SETDMAPENHMUSIC,      //0x00D8
-  DRAWLAYERR,           //0x00D9
-  DRAWSCREENR,          //0x00DA
-  BREAKSHIELD,          //0x00DB
-  SAVESCREEN,           //0x00DC
-  SAVEQUITSCREEN,       //0x00DD
-  SELECTAWPNR,          //0x00DE
-  SELECTAWPNV,          //0x00DF
-  SELECTBWPNR,          //0x00E0
-  SELECTBWPNV,          //0x00E1
-  GETSIDEWARPDMAP,      //0x00E2
-  GETSIDEWARPSCR,       //0x00E3
-  GETSIDEWARPTYPE,      //0x00E4
-  GETTILEWARPDMAP,      //0x00E5
-  GETTILEWARPSCR,       //0x00E6
-  GETTILEWARPTYPE,      //0x00E7
-  GETFFCSCRIPT,         //0x00E8
-/* ..sorry, forgot about these ...for now. -Gleeok
-  CALCSPLINE,           //0x00
-  COLLISIONRECT,  ?      //0x00
-  COLLISIONBOX,   ?      //0x00
-  SETBITMAPBUFFER,
-  GETBITMAPBUFFER,
-  CLEARBITMAPBUFFER,
-  RENDERBITMAPBUFFER,
-*/
-  NUMCOMMANDS           //0x00E9
+    SETV,                 //0x0000
+    SETR,                 //0x0001
+    ADDR,                 //0x0002
+    ADDV,                 //0x0003
+    SUBR,                 //0x0004
+    SUBV,                 //0x0005
+    MULTR,                //0x0006
+    MULTV,                //0x0007
+    DIVR,                 //0x0008
+    DIVV,                 //0x0009
+    WAITFRAME,            //0x000A
+    GOTO,                 //0x000B
+    CHECKTRIG,            //0x000C //NOT IMPLEMENTED
+    WARP,                 //0x000D
+    COMPARER,             //0x000E
+    COMPAREV,             //0x000F
+    GOTOTRUE,             //0x0010
+    GOTOFALSE,            //0x0011
+    GOTOLESS,             //0x0012
+    GOTOMORE,             //0x0013
+    LOAD1,                //0x0014
+    LOAD2,                //0x0015
+    SETA1,                //0x0016
+    SETA2,                //0x0017
+    QUIT,                 //0x0018
+    SINR,                 //0x0019
+    SINV,                 //0x001A
+    COSR,                 //0x001B
+    COSV,                 //0x001C
+    TANR,                 //0x001D
+    TANV,                 //0x001E
+    MODR,                 //0x001F
+    MODV,                 //0x0020
+    ABSR,                 //0x0021
+    MINR,                 //0x0022
+    MINV,                 //0x0023
+    MAXR,                 //0x0024
+    MAXV,                 //0x0025
+    RNDR,                 //0x0026
+    RNDV,                 //0x0027
+    FACTORIAL,            //0x0028
+    POWERR,               //0x0029
+    POWERV,               //0x002A
+    IPOWERR,              //0x002B
+    IPOWERV,              //0x002C
+    ANDR,                 //0x002D
+    ANDV,                 //0x002E
+    ORR,                  //0x002F
+    ORV,                  //0x0030
+    XORR,                 //0x0031
+    XORV,                 //0x0032
+    NANDR,                //0x0033
+    NANDV,                //0x0034
+    NORR,                 //0x0035
+    NORV,                 //0x0036
+    XNORR,                //0x0037
+    XNORV,                //0x0038
+    NOT,                  //0x0039
+    LSHIFTR,              //0x003A
+    LSHIFTV,              //0x003B
+    RSHIFTR,              //0x003C
+    RSHIFTV,              //0x003D
+    TRACER,               //0x003E
+    TRACEV,               //0x003F
+    TRACE3,               //0x0040
+    LOOP,                 //0x0041
+    PUSHR,                //0x0042
+    PUSHV,                //0x0043
+    POP,                  //0x0044
+    ENQUEUER,             //0x0045 //NOT IMPLEMENTED
+    ENQUEUEV,             //0x0046 //NOT IMPLEMENTED
+    DEQUEUE,              //0x0047 //NOT IMPLEMENTED
+    PLAYSOUNDR,           //0x0048
+    PLAYSOUNDV,           //0x0049
+    LOADLWEAPONR,          //0x004A
+    LOADLWEAPONV,          //0x004B
+    LOADITEMR,             //0x004C
+    LOADITEMV,             //0x004D
+    LOADNPCR,              //0x004E
+    LOADNPCV,              //0x004F
+    CREATELWEAPONR,        //0x0050
+    CREATELWEAPONV,        //0x0051
+    CREATEITEMR,           //0x0052
+    CREATEITEMV,           //0x0053
+    CREATENPCR,            //0x0054
+    CREATENPCV,            //0x0055
+    LOADI,                 //0x0056
+    STOREI,                //0x0057
+    GOTOR,                 //0x0058
+    SQROOTV,               //0x0059
+    SQROOTR,               //0x005A
+    CREATEEWEAPONR,        //0x005B
+    CREATEEWEAPONV,        //0x005C
+    PITWARP,               //0x005D
+    WARPR,                 //0x005E
+    PITWARPR,              //0x005F
+    CLEARSPRITESR,         //0x0060
+    CLEARSPRITESV,         //0x0061
+    RECTR,                 //0x0062
+    CIRCLER,               //0x0063
+    ARCR,                  //0x0064
+    ELLIPSER,              //0x0065
+    LINER,                 //0x0066
+    PUTPIXELR,             //0x0067
+    DRAWTILER,             //0x0068
+    DRAWCOMBOR,            //0x0069
+    ELLIPSE2,              //0x006A
+    SPLINER,               //0x006B
+    FLOODFILL,             //0x006C
+    COMPOUNDR,             //0x006D
+    COMPOUNDV,             //0x006E
+    MSGSTRR,               //0x006F
+    MSGSTRV,               //0x0070
+    ISVALIDITEM,           //0x0071
+    ISVALIDNPC,            //0x0072
+    PLAYMIDIR,             //0x0073
+    PLAYMIDIV,             //0x0074
+    COPYTILEVV,            //0x0075
+    COPYTILEVR,            //0x0076
+    COPYTILERV,            //0x0077
+    COPYTILERR,            //0x0078
+    SWAPTILEVV,            //0x0079
+    SWAPTILEVR,            //0x007A
+    SWAPTILERV,            //0x007B
+    SWAPTILERR,            //0x007C
+    CLEARTILEV,            //0x007D
+    CLEARTILER,            //0x007E
+    OVERLAYTILEVV,         //0x007F
+    OVERLAYTILEVR,         //0x0080
+    OVERLAYTILERV,         //0x0081
+    OVERLAYTILERR,         //0x0082
+    FLIPROTTILEVV,         //0x0083
+    FLIPROTTILEVR,         //0x0084
+    FLIPROTTILERV,         //0x0085
+    FLIPROTTILERR,         //0x0086
+    GETTILEPIXELV,         //0x0087
+    GETTILEPIXELR,         //0x0088
+    SETTILEPIXELV,         //0x0089
+    SETTILEPIXELR,         //0x008A
+    SHIFTTILEVV,           //0x008B
+    SHIFTTILEVR,           //0x008C
+    SHIFTTILERV,           //0x008D
+    SHIFTTILERR,           //0x008E
+    ISVALIDLWPN,           //0x008F
+    ISVALIDEWPN,           //0x0090
+    LOADEWEAPONR,          //0x0091
+    LOADEWEAPONV,          //0x0092
+    ALLOCATEMEMR,          //0x0093
+    ALLOCATEMEMV,          //0x0094
+    ALLOCATEGMEMV,         //0x0095
+    DEALLOCATEMEMR,		 //0x0096
+    DEALLOCATEMEMV,		 //0x0097 //Pointless, can't deallocate a value
+    WAITDRAW,				 //0x0098
+    ARCTANR,				 //0x0099
+    LWPNUSESPRITER,		 //0x09A
+    LWPNUSESPRITEV,		 //0x09B
+    EWPNUSESPRITER,		 //0x09C
+    EWPNUSESPRITEV,		 //0x09D
+    LOADITEMDATAR,		 //0x09E
+    LOADITEMDATAV,		 //0x09F
+    BITNOT,				 //0x00A0
+    LOG10,				 //0x00A1
+    LOGE,                  //0x00A2
+    ISSOLID,               //0x00A3
+    LAYERSCREEN,           //0x00A4
+    LAYERMAP,              //0x00A5
+    TRACE2R,		    //0x00A6
+    TRACE2V,		    //0x00A7
+    TRACE4,			    //0x00A8
+    TRACE5,			    //0x00A9
+    SECRETS,		    //0x00AA
+    DRAWCHARR,		    //0x00AB
+    GETSCREENFLAGS,	    //0x00AC
+    QUADR,              //0X00AD
+    TRIANGLER,          //0X00AE
+    ARCSINR,              //0x00AF
+    ARCSINV,              //0x00B0
+    ARCCOSR,              //0x00B1
+    ARCCOSV,              //0x00B2
+    GAMEEND,              //0x00B3
+    DRAWINTR,             //0x00B4
+    SETTRUE,              //0x00B5
+    SETFALSE,             //0x00B6
+    SETMORE,              //0x00B7
+    SETLESS,              //0x00B8
+    FASTTILER,            //0x00B9
+    FASTCOMBOR,           //0x00BA
+    DRAWSTRINGR,          //0x00BB
+    SETSIDEWARP,			//0x00BC
+    SAVE,				    //0x00BD
+    TRACE6,				//0x00BE
+    WHATNO0x00BF, //PTROFF,//0x00BF
+    QUAD3DR,              //0x00C0
+    TRIANGLE3DR,          //0x00C1
+    SETCOLORB,        	//0x00C2 for 2.6
+    SETDEPTHB,        	//0x00C3 '
+    GETCOLORB,        	//0x00C4 '
+    GETDEPTHB,        	//0x00C5 '
+    COMBOTILE,			//0x00C6
+    SETTILEWARP,			//0x00C7
+    GETSCREENEFLAGS,		//0x00C8
+    GETSAVENAME,          //0x00C9
+    ARRAYSIZE,            //0x00CA
+    ITEMNAME,             //0x00CB
+    SETSAVENAME,          //0x00CC
+    NPCNAME,         		//0x00CD
+    GETMESSAGE,			//0x00CE
+    GETDMAPNAME,			//0x00CF
+    GETDMAPTITLE,			//0x00D0
+    GETDMAPINTRO,			//0x00D1
+    ALLOCATEGMEMR,        //0x00D2
+    BITMAPR,         		//0x00D3
+    SETRENDERTARGET,      //0x00D4
+    PLAYENHMUSIC,         //0x00D5
+    GETMUSICFILE,         //0x00D6
+    GETMUSICTRACK,        //0x00D7
+    SETDMAPENHMUSIC,      //0x00D8
+    DRAWLAYERR,           //0x00D9
+    DRAWSCREENR,          //0x00DA
+    BREAKSHIELD,          //0x00DB
+    SAVESCREEN,           //0x00DC
+    SAVEQUITSCREEN,       //0x00DD
+    SELECTAWPNR,          //0x00DE
+    SELECTAWPNV,          //0x00DF
+    SELECTBWPNR,          //0x00E0
+    SELECTBWPNV,          //0x00E1
+    GETSIDEWARPDMAP,      //0x00E2
+    GETSIDEWARPSCR,       //0x00E3
+    GETSIDEWARPTYPE,      //0x00E4
+    GETTILEWARPDMAP,      //0x00E5
+    GETTILEWARPSCR,       //0x00E6
+    GETTILEWARPTYPE,      //0x00E7
+    GETFFCSCRIPT,         //0x00E8
+    /* ..sorry, forgot about these ...for now. -Gleeok
+      CALCSPLINE,           //0x00
+      COLLISIONRECT,  ?      //0x00
+      COLLISIONBOX,   ?      //0x00
+      SETBITMAPBUFFER,
+      GETBITMAPBUFFER,
+      CLEARBITMAPBUFFER,
+      RENDERBITMAPBUFFER,
+    */
+    NUMCOMMANDS           //0x00E9
 };
 
 //ZASM registers
@@ -788,16 +788,16 @@ enum ASM_DEFINE
 
 struct quad3Dstruct
 {
-	int index;
-	float pos[12], uv[8];
-	int size[2], color[4];
+    int index;
+    float pos[12], uv[8];
+    int size[2], color[4];
 };
 
 struct triangle3Dstruct
 {
-	int index;
-	float pos[9], uv[6];
-	int size[2], color[3];
+    int index;
+    float pos[9], uv[6];
+    int size[2], color[3];
 };
 
 #endif

@@ -24,25 +24,25 @@ bool freeze_guys=false;
 
 void sprite::check_conveyor()
 {
-  return;
+    return;
 }
 
 void movingblock::push(fix bx,fix by,int d2,int f)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  bx=bx;
-  by=by;
-  d2=d2;
-  f=f;
-
-  return;
+    //these are here to bypass compiler warnings about unused arguments
+    bx=bx;
+    by=by;
+    d2=d2;
+    f=f;
+    
+    return;
 }
 
 bool movingblock::animate(int index)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  index=index;
-
-  return false;
+    //these are here to bypass compiler warnings about unused arguments
+    index=index;
+    
+    return false;
 }
- 
+

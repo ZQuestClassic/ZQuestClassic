@@ -18,8 +18,8 @@ int jwin_as_droplist_proc(int msg,DIALOG *d,int c);
 
 struct list_data_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 };
 
 /*****************************/

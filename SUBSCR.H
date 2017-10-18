@@ -39,7 +39,7 @@ void delete_selectors();
 
 INLINE void putdot(BITMAP *dest,int x,int y,int c)
 {
-  rectfill(dest,x,y,x+2,y+2,c);
+    rectfill(dest,x,y,x+2,y+2,c);
 }
 
 // subscreen default types
@@ -51,10 +51,11 @@ enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 
 // subscreen object types
 enum { ssoNULL, ssoNONE, sso2X2FRAME, ssoTEXT,
-  ssoLINE, ssoRECT, ssoBSTIME, ssoTIME, ssoSSTIME, ssoMAGICMETER, ssoLIFEMETER, ssoBUTTONITEM, ssoICON, ssoCOUNTER,
-  ssoCOUNTERS, ssoMINIMAPTITLE, ssoMINIMAP, ssoLARGEMAP, ssoCLEAR, ssoCURRENTITEM, ssoITEM, ssoTRIFRAME, ssoTRIFORCE, ssoTILEBLOCK, ssoMINITILE, ssoSELECTOR1, ssoSELECTOR2,
-  ssoMAGICGAUGE, ssoLIFEGAUGE, ssoTEXTBOX, ssoCURRENTITEMTILE, ssoSELECTEDITEMTILE, ssoCURRENTITEMTEXT, ssoCURRENTITEMNAME, ssoSELECTEDITEMNAME, ssoCURRENTITEMCLASSTEXT,
-  ssoCURRENTITEMCLASSNAME, ssoSELECTEDITEMCLASSNAME, ssoMAX };
+       ssoLINE, ssoRECT, ssoBSTIME, ssoTIME, ssoSSTIME, ssoMAGICMETER, ssoLIFEMETER, ssoBUTTONITEM, ssoICON, ssoCOUNTER,
+       ssoCOUNTERS, ssoMINIMAPTITLE, ssoMINIMAP, ssoLARGEMAP, ssoCLEAR, ssoCURRENTITEM, ssoITEM, ssoTRIFRAME, ssoTRIFORCE, ssoTILEBLOCK, ssoMINITILE, ssoSELECTOR1, ssoSELECTOR2,
+       ssoMAGICGAUGE, ssoLIFEGAUGE, ssoTEXTBOX, ssoCURRENTITEMTILE, ssoSELECTEDITEMTILE, ssoCURRENTITEMTEXT, ssoCURRENTITEMNAME, ssoSELECTEDITEMNAME, ssoCURRENTITEMCLASSTEXT,
+       ssoCURRENTITEMCLASSNAME, ssoSELECTEDITEMCLASSNAME, ssoMAX
+     };
 //ssoCURRENTITEM shows what item of that type you currently have.  if the itemtype is sword, it will show what sword you have
 //ssoBUTTONITEM shows what item is currently assigned to the A or B button
 //ssoITEMTILE shows a requested item
@@ -73,14 +74,16 @@ enum { sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsO
 //subscreen fonts
 enum { ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL, ssfGBLA, ssfZ3,
        ssfGORON, ssfZORAN, ssfHYLIAN1, ssfHYLIAN2, ssfHYLIAN3, ssfHYLIAN4, ssfPROP, ssfGBORACLE, ssfGBORACLEP,
-       ssfDSPHANTOM, ssfDSPHANTOMP, ssfMAX };
+       ssfDSPHANTOM, ssfDSPHANTOMP, ssfMAX
+     };
 
 // subscreen color types
 enum { ssctSYSTEM=0xFE, ssctMISC=0xFF };
 
 // special colors
 enum { ssctTEXT, ssctCAPTION, ssctOVERWBG, ssctDNGNBG, ssctDNGNFG, ssctCAVEFG, ssctBSDK, ssctBSGOAL, ssctCOMPASSLT, ssctCOMPASSDK, ssctSUBSCRBG, ssctSUBSCRSHADOW,
-  ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG, ssctLINKDOT, ssctMSGTEXT, ssctMAX };
+       ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG, ssctLINKDOT, ssctMSGTEXT, ssctMAX
+     };
 
 // special csets
 enum { sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPCSET, sscsBLUEFRAMECSET, sscsHCPIECESCSET, sscsSSVINECSET, sscsMAX };
@@ -97,7 +100,8 @@ enum { sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
        sscSCRIPT11, sscSCRIPT12, sscSCRIPT13, sscSCRIPT14,
        sscSCRIPT15, sscSCRIPT16, sscSCRIPT17, sscSCRIPT18,
        sscSCRIPT19, sscSCRIPT20, sscSCRIPT21, sscSCRIPT22,
-       sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscMAX };
+       sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscMAX
+     };
 
 
 //subscreen items
@@ -117,8 +121,8 @@ enum { sstaLEFT, sstaCENTER, sstaRIGHT };
 
 struct sso_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 };
 
 extern sso_struct bisso[ssoMAX];
@@ -126,40 +130,40 @@ extern sso_struct bisso[ssoMAX];
 
 struct subscreen_object
 {
-  byte  type;
-  byte  pos;
-  word  x;
-  word  y;
-  word  w;
-  word  h;
-  byte  colortype1;
-  short color1;
-  byte  colortype2;
-  short color2;
-  byte  colortype3;
-  short color3;
-  int   d1;
-  int   d2;
-  int   d3; //pos
-  int   d4; //up
-  int   d5; //down
-  int   d6; //left
-  int   d7; //right
-  int   d8;
-  int   d9;
-  int   d10;
-  byte  frames;
-  byte  speed;
-  byte  delay;
-  word  frame;
-  void  *dp1;
+    byte  type;
+    byte  pos;
+    word  x;
+    word  y;
+    word  w;
+    word  h;
+    byte  colortype1;
+    short color1;
+    byte  colortype2;
+    short color2;
+    byte  colortype3;
+    short color3;
+    int   d1;
+    int   d2;
+    int   d3; //pos
+    int   d4; //up
+    int   d5; //down
+    int   d6; //left
+    int   d7; //right
+    int   d8;
+    int   d9;
+    int   d10;
+    byte  frames;
+    byte  speed;
+    byte  delay;
+    word  frame;
+    void  *dp1;
 };
 
 struct subscreen_group
 {
-  byte             ss_type;
-  char             name[64];
-  subscreen_object objects[MAXSUBSCREENITEMS];
+    byte             ss_type;
+    char             name[64];
+    subscreen_object objects[MAXSUBSCREENITEMS];
 };
 
 
@@ -181,65 +185,67 @@ extern item *Bitem, *Aitem;
 extern int   Bid, Aid;
 const byte tripiece[2][8][3] =
 {
-  //  112,112,0, 128,112,1, 96,128,0, 144,128,1,
-  //  112,128,2, 112,128,1, 128,128,3, 128,128,0
-  { //old style
-    {32,8,0},
-    {48,8,1},
-    {16,24,0},
-    {64,24,1},
-    {32,24,2},
-    {32,24,1},
-    {48,24,3},
-    {48,24,0}
-  },
-  { //bs style
-    {32,8,0},
-    {56,8,1},
-    {8,56,0},
-    {80,56,1},
-    {32,56,2},
-    {32,56,1},
-    {56,56,3},
-    {56,56,0}
-  }
+    //  112,112,0, 128,112,1, 96,128,0, 144,128,1,
+    //  112,128,2, 112,128,1, 128,128,3, 128,128,0
+    {
+        //old style
+        {32,8,0},
+        {48,8,1},
+        {16,24,0},
+        {64,24,1},
+        {32,24,2},
+        {32,24,1},
+        {48,24,3},
+        {48,24,0}
+    },
+    {
+        //bs style
+        {32,8,0},
+        {56,8,1},
+        {8,56,0},
+        {80,56,1},
+        {32,56,2},
+        {32,56,1},
+        {56,56,3},
+        {56,56,0}
+    }
 };
 const byte bmap_original[2][16] =
 {
-  {0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,0},
-  {0,3,0,0,0,3,0,0,0,0,3,0,0,0,3,0}
+    {0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,0},
+    {0,3,0,0,0,3,0,0,0,0,3,0,0,0,3,0}
 };
 const byte bmap_bs[2][12] =
 {
-  {0,0,1,0,0,1,0,0,1,0,1,0},
-  {0,3,0,0,3,0,0,3,0,3,0,0}
+    {0,0,1,0,0,1,0,0,1,0,1,0},
+    {0,3,0,0,3,0,0,3,0,3,0,0}
 };
 const int fringe[8] = { 6,2,4,7,6,8,7,5 };
 const byte bmaptiles_old[8*5] =
 {
-  0, 1, 2, 3, 2, 3, 3, 4,
-  20,21,22,23,22,23,23,24,
-  20,21,22,23,22,23,23,24,
-  20,21,22,23,22,23,23,24,
-  40,41,42,43,42,43,43,44
+    0, 1, 2, 3, 2, 3, 3, 4,
+    20,21,22,23,22,23,23,24,
+    20,21,22,23,22,23,23,24,
+    20,21,22,23,22,23,23,24,
+    40,41,42,43,42,43,43,44
 };
 
 const byte bmaptiles_original[5][8] =
 {
-  {0, 1, 2, 3, 2, 3, 3, 4},
-  {20,21,22,23,22,23,23,24},
-  {20,21,22,23,22,23,23,24},
-  {20,21,22,23,22,23,23,24},
-  {40,41,42,43,42,43,43,44}
+    {0, 1, 2, 3, 2, 3, 3, 4},
+    {20,21,22,23,22,23,23,24},
+    {20,21,22,23,22,23,23,24},
+    {20,21,22,23,22,23,23,24},
+    {40,41,42,43,42,43,43,44}
 };
 
 const byte bmaptiles_bs[5][6] =
 {
-  {0, 1, 2, 3, 3, 4},
-  {20,21,22,23,23,24},
-  {20,21,22,23,23,24},
-  {20,21,22,23,23,24},
-  {40,41,42,43,43,44}
+    {0, 1, 2, 3, 3, 4},
+    {20,21,22,23,23,24},
+    {20,21,22,23,23,24},
+    {20,21,22,23,23,24},
+    {40,41,42,43,43,44}
 };
 
 void reset_subscr_items();

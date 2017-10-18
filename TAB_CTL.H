@@ -34,27 +34,27 @@
 extern "C"
 {
 #endif
-  int vc2(int x);
-  /* a tab panel */
-  typedef struct TABPANEL
-  {
+int vc2(int x);
+/* a tab panel */
+typedef struct TABPANEL
+{
     char *text;                   /* menu item text */
-                                  // AL_METHOD(int, proc, (void)); /* callback function */
-                                  // struct MENU *child;           /* to allow nested menus */
+    // AL_METHOD(int, proc, (void)); /* callback function */
+    // struct MENU *child;           /* to allow nested menus */
     int flags;                    /* flags about the menu state */
     int *dialog;                  /* pointer to group of dialog objects that this tab contains */
     int objects;                  /* count of number of objects this tab handles; auto-calculated */
     int *xy;                      /* x and y coords of those dialog objects. */
-  } TABPANEL;
+} TABPANEL;
 
-  bool uses_tab_arrows(TABPANEL *panel, int maxwidth);
-  int tab_count(TABPANEL *panel);
-  int last_visible_tab(TABPANEL *panel, int first_tab, int maxwidth);
-  int d_tab_proc(int msg, DIALOG *d, int c);
+bool uses_tab_arrows(TABPANEL *panel, int maxwidth);
+int tab_count(TABPANEL *panel);
+int last_visible_tab(TABPANEL *panel, int first_tab, int maxwidth);
+int d_tab_proc(int msg, DIALOG *d, int c);
 #ifdef __cplusplus
 }
 #endif
 #endif
 
 /***  The End  ***/
- 
+

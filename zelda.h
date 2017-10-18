@@ -69,15 +69,15 @@ enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qWON, qERROR };
 // "special" walk flags
 enum
 {
-  spw_none, spw_door, spw_clipright, spw_floater, spw_trap, spw_halfstep,
-  spw_water, spw_wizzrobe, spw_clipbottomright
+    spw_none, spw_door, spw_clipright, spw_floater, spw_trap, spw_halfstep,
+    spw_water, spw_wizzrobe, spw_clipbottomright
 };
 
 // death & fade defs
 enum
 {
-  fade_none, fade_flicker, fade_invisible, fade_flash_die,
-  fade_blue_poof
+    fade_none, fade_flicker, fade_invisible, fade_flash_die,
+    fade_blue_poof
 };
 
 /*********************************/
@@ -168,8 +168,14 @@ bool is_zquest();
 //void quit_game();
 int d_timer_proc(int msg, DIALOG *d, int c);
 
-INLINE void sfx(int index)         { sfx(index,128,false); }
-INLINE void sfx(int index,int pan) { sfx(index,vbound(pan, 0, 255) ,false); }
+INLINE void sfx(int index)
+{
+    sfx(index,128,false);
+}
+INLINE void sfx(int index,int pan)
+{
+    sfx(index,vbound(pan, 0, 255) ,false);
+}
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
@@ -196,7 +202,7 @@ extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
-             *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
+       *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
 //extern FONT custom_fonts[MAXFONTS];
 extern PALETTE  RAMpal;
 extern byte     *colordata;
@@ -231,13 +237,13 @@ extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of bla
 */
 extern bool ewind_restart;
 extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcolour, msgspeed,msg_w,
-   msg_h,
-   msg_count,
-   msgorig,
-   msg_xpos,
-   msg_ypos,
-   cursor_x,
-   cursor_y;
+       msg_h,
+       msg_count,
+       msgorig,
+       msg_xpos,
+       msg_ypos,
+       cursor_x,
+       cursor_y;
 extern bool msg_onscreen, msg_active,msgspace;
 extern FONT	*msgfont;
 extern word     door_combo_set_count;

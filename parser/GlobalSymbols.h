@@ -19,137 +19,167 @@ static const int FUNCTION = 2;
 
 struct AccessorTable
 {
-	string name;
-	int rettype;
-	int setorget;
-	int var;
-	int numindex;
-	int params[20];
+    string name;
+    int rettype;
+    int setorget;
+    int var;
+    int numindex;
+    int params[20];
 };
 
 class LibrarySymbols
 {
 public:
-	virtual void addSymbolsToScope(Scope *scope, SymbolTable *t);
-	virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
-	virtual pair<int, vector<int> > matchFunction(string name, SymbolTable *t);
+    virtual void addSymbolsToScope(Scope *scope, SymbolTable *t);
+    virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    virtual pair<int, vector<int> > matchFunction(string name, SymbolTable *t);
     virtual ~LibrarySymbols();
 protected:
-	AccessorTable *table;
-	LibrarySymbols() {}
-	int firstid;
-	int refVar;
-	map<string, int> memberids;
-	virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
-	virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
-	virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
-	virtual vector<Opcode *> getIndexedVariable(LinkTable &lt, int id, int var);
-	virtual vector<Opcode *> setIndexedVariable(LinkTable &lt, int id, int var);
-
+    AccessorTable *table;
+    LibrarySymbols() {}
+    int firstid;
+    int refVar;
+    map<string, int> memberids;
+    virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
+    virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
+    virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
+    virtual vector<Opcode *> getIndexedVariable(LinkTable &lt, int id, int var);
+    virtual vector<Opcode *> setIndexedVariable(LinkTable &lt, int id, int var);
+    
 };
 
 class GlobalSymbols : public LibrarySymbols
 {
 public:
-	static GlobalSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static GlobalSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 private:
-	static GlobalSymbols singleton;
-	GlobalSymbols();
+    static GlobalSymbols singleton;
+    GlobalSymbols();
 };
 
 class FFCSymbols : public LibrarySymbols
 {
 public:
-	static FFCSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static FFCSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 private:
-	static FFCSymbols singleton;
-	FFCSymbols();
+    static FFCSymbols singleton;
+    FFCSymbols();
 };
 
 class LinkSymbols : public LibrarySymbols
 {
 public:
-	static LinkSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static LinkSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 private:
-	static LinkSymbols singleton;
-	LinkSymbols();
+    static LinkSymbols singleton;
+    LinkSymbols();
 };
 
 class ScreenSymbols : public LibrarySymbols
 {
 public:
-	static ScreenSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static ScreenSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 private:
-	static ScreenSymbols singleton;
-	ScreenSymbols();
+    static ScreenSymbols singleton;
+    ScreenSymbols();
 };
 
 class ItemSymbols : public LibrarySymbols
 {
 public:
-	static ItemSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static ItemSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 protected:
 private:
-	static ItemSymbols singleton;
-	ItemSymbols();
+    static ItemSymbols singleton;
+    ItemSymbols();
 };
 
 class ItemclassSymbols : public LibrarySymbols
 {
 public:
-	static ItemclassSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static ItemclassSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 private:
-	static ItemclassSymbols singleton;
-	ItemclassSymbols();
+    static ItemclassSymbols singleton;
+    ItemclassSymbols();
 };
 
 class GameSymbols : public LibrarySymbols
 {
 public:
-	static GameSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static GameSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 private:
-	static GameSymbols singleton;
-	GameSymbols();
+    static GameSymbols singleton;
+    GameSymbols();
 };
 
 class NPCSymbols : public LibrarySymbols
 {
 public:
-	static NPCSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static NPCSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 protected:
 private:
-	static NPCSymbols singleton;
-	NPCSymbols();
+    static NPCSymbols singleton;
+    NPCSymbols();
 };
 
 class LinkWeaponSymbols : public LibrarySymbols
 {
 public:
-	static LinkWeaponSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static LinkWeaponSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 protected:
 private:
-	static LinkWeaponSymbols singleton;
-	LinkWeaponSymbols();
+    static LinkWeaponSymbols singleton;
+    LinkWeaponSymbols();
 };
 
 class EnemyWeaponSymbols : public LibrarySymbols
 {
 public:
-	static EnemyWeaponSymbols &getInst() {return singleton;}
-	map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+    static EnemyWeaponSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
 protected:
 private:
-	static EnemyWeaponSymbols singleton;
-	EnemyWeaponSymbols();
+    static EnemyWeaponSymbols singleton;
+    EnemyWeaponSymbols();
 };
 
 

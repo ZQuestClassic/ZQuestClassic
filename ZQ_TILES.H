@@ -84,7 +84,7 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs);
 void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white,int width, int height, byte *newformat);
 void load_imagebuf();
 bool leech_tiles(tiledata *dest,int start,int cs);
-void grab(byte (*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
+void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
 void grab_tile(int tile,int &cs);
 void draw_tiles(int first,int cs, int f);
 int tile_col(int tile);
@@ -92,7 +92,7 @@ int tile_row(int tile);
 int tile_page(int tile);
 int tile_page_row(int tile);
 void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool rect_sel);
-void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int copy,int page);
+void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int copy,int page, bool always_use_flip=false);
 //void reset_tile(tiledata *buf, int t, int format);
 bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
 bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
@@ -101,7 +101,7 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt);
 void delete_tiles(int &tile,int &tile2,bool rect_sel);
 void overlay_tile2(int dest,int src,int cs,bool backwards);
 void sel_tile(int &tile, int &tile2, int &first, int type, int s);
-int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs, int exnow=0);
+int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs, int exnow=0, bool always_use_flip=false);
 int onTiles();
 void draw_combo(BITMAP *dest, int x,int y,int c,int cs);
 void draw_combos(int page,int cs,bool cols);
@@ -121,8 +121,8 @@ int d_combo_loader(int msg,DIALOG *d,int c);
 
 typedef struct combotype_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 } combotype_struct;
 
 //extern combotype_struct bict[cMAX];
@@ -142,4 +142,4 @@ void center_zq_tiles_dialogs();
 int d_combo_proc(int msg,DIALOG *d,int c);
 void center_zq_tiles_dialog();
 #endif
- 
+

@@ -133,6 +133,7 @@ void comeback();
 void dump_pal(BITMAP *dest);
 void show_paused(BITMAP *target);
 void show_fps(BITMAP *target);
+void show_saving(BITMAP *target);
 bool game_vid_mode(int mode,int wait);
 void init_NES_mode();
 

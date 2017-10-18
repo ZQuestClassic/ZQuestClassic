@@ -23,10 +23,10 @@ extern "C"
 {
 #endif
 
-  //extern FONT *zfont;
-  extern FONT *create_font();
+//extern FONT *zfont;
+extern FONT *create_font();
 #ifdef __cplusplus
 }
 #endif
 #endif                                                      //__FONT_H__
- 
+

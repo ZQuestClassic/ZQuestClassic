@@ -77,7 +77,7 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
 
 INLINE void draw_screen(mapscr* layer, int x, int y, bool showlink = true)
 {
-  draw_screen(layer, NULL, x, y, 0, 0, showlink);
+    draw_screen(layer, NULL, x, y, 0, 0, showlink);
 }
 /*
   INLINE void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)

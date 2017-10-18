@@ -49,8 +49,8 @@ void setZScriptVersion(int); //Intentionally does nothing >_<
 
 enum
 {
-  m_block, m_coords, m_flags, m_guy, m_warp, m_misc, m_layers, m_coords2,
-  m_menucount
+    m_block, m_coords, m_flags, m_guy, m_warp, m_misc, m_layers, m_coords2,
+    m_menucount
 };
 
 enum {MOUSE_BMP_NORMAL=0, MOUSE_BMP_POINT_BOX, MOUSE_BMP_FLAG, MOUSE_BMP_BOX, MOUSE_BMP_SWORD, MOUSE_BMP_POTION, MOUSE_BMP_WAND, MOUSE_BMP_LENS, MOUSE_BMP_GLOVE, MOUSE_BMP_HOOKSHOT, MOUSE_BMP_WAND2, MOUSE_BMP_BLANK, MOUSE_BMP_MAX};
@@ -109,7 +109,7 @@ extern bool resize_mouse_pos;                               //for eyeball combos
 
 extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
-                                                            //extern int mode, switch_mode, orig_mode;
+//extern int mode, switch_mode, orig_mode;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern char *datafile_str;
@@ -117,7 +117,7 @@ extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
 extern FONT *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
-            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
+       *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
@@ -146,9 +146,9 @@ extern int BrushPosition;                                   //top left, middle, 
 extern int FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
 
 extern int OpenLastQuest;                                   //makes the program reopen the quest that was
-                                                            //open at the time you quit
+//open at the time you quit
 extern int ShowMisalignments;                               //makes the program display arrows over combos that are
-                                                            //not aligned with the next screen.
+//not aligned with the next screen.
 extern int AnimationOn;                                     //animate the combos in zquest?
 extern int AutoBackupRetention;                             //use auto-backup feature?  if so, how many backups (1-10) to keep
 extern int AutoSaveInterval;                                //how often a timed autosave is made (not overwriting the current file)
@@ -393,7 +393,10 @@ extern int  pblack,pwhite;
 extern double scale;
 extern bool vp_showpal, vp_showsize, vp_center;
 
-INLINE int pal_sum(RGB p) { return p.r + p.g + p.b; }
+INLINE int pal_sum(RGB p)
+{
+    return p.r + p.g + p.b;
+}
 
 void get_bw(RGB *pal,int &black,int &white);
 void draw_bw_mouse(int white, int old_mouse, int new_mouse);
@@ -494,16 +497,16 @@ int onCompileScript();
 
 typedef struct item_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 } item_struct;
 
 extern item_struct bii[iMax+1];
 
 typedef struct weapon_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 } weapon_struct;
 
 extern weapon_struct biw[wMAX];
@@ -517,160 +520,161 @@ extern int biitems_cnt;
 
 typedef struct command_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 } command_struct;
 
 enum
 {
-  cmdNULL,
-  cmdAbout,
-  cmdCatchall,
-  cmdChangeTrack,
-  cmdCheats,
-  cmdCSetFix,
-  cmdDrawingModeAlias,
-  cmdEditComboAlias,
-  cmdCombos,
-  cmdCompileScript,
-  cmdCopy,
-  cmdDefault_Combos,
-  cmdDeleteMap,
-  cmdDelete,
-  cmdDmaps,
-  cmdDoorCombos,
-  cmdDoors,
-  cmdPasteDoors,
-  cmdDrawingModeDungeon,
-  cmdEndString,
-  cmdCustomEnemies,
-  cmdDefault_Guys,
-  cmdEnemies,
-  cmdPasteEnemies,
-  cmdEnhancedMusic,
-  cmdCmdExit,
-  cmdExport_Combos,
-  cmdExport_DMaps,
-  cmdExport_Map,
-  cmdExport_Pals,
-  cmdExport_ZQT,
-  cmdExport_Msgs,
-  cmdExport_Subscreen,
-  cmdExport_Tiles,
-  cmdExport_UnencodedQuest,
-  cmdExport_ZGP,
-  cmdFlags,
-  cmdPasteFFCombos,
-  cmdSelectFFCombo,
-  cmdFullScreen,
-  cmdIcons,
-  cmdGotoMap,
-  cmdGuy,
-  cmdPasteGuy,
-  cmdHeader,
-  cmdHelp,
-  cmdImportFFScript,
-  cmdImportGScript,
-  cmdImportItemScript,
-  cmdImport_Combos,
-  cmdImport_DMaps,
-  cmdImport_ZGP,
-  cmdImport_Map,
-  cmdImport_Pals,
-  cmdImport_ZQT,
-  cmdImport_Msgs,
-  cmdImport_Subscreen,
-  cmdImport_Tiles,
-  cmdImport_UnencodedQuest,
-  cmdInfoTypes,
-  cmdInit,
-  cmdIntegrityCheckAll,
-  cmdIntegrityCheckRooms,
-  cmdIntegrityCheckWarps,
-  cmdItem,
-  cmdItemLocationReport,
-  cmdCustomItems,
-  cmdLayers,
-  cmdPasteLayers,
-  cmdColors_Levels,
-  cmdCustomLink,
-  cmdUsedCombos,
-  cmdColors_Main,
-  cmdMapCount,
-  cmdDefault_MapStyles,
-  cmdMapStyles,
-  cmdSubscreen,
-  cmdString,
-  cmdMidis,
-  cmdMiscColors,
-  cmdNew,
-  cmdDrawingModeNormal,
-  cmdOpen,
-  cmdOptions,
-  cmdScreenPalette,
-  cmdDefault_Pals,
-  cmdPaste,
-  cmdPasteAll,
-  cmdPasteAllToAll,
-  cmdPasteToAll,
-  cmdPath,
-  cmdPlayMusic,
-  cmdX,
-  cmdQuestTemplates,
-  cmdReTemplate,
-  cmdDrawingModeRelational,
-  cmdRevert,
-  cmdRType,
-  cmdPasteRoom,
-  cmdAnimationRules,
-  cmdSave,
-  cmdSaveAs,
-  cmdPasteScreenData,
-  cmdScrData,
-  cmdPasteSecretCombos,
-  cmdSecretCombo,
-  cmdEditSFX,
-  cmdShopTypes,
-  cmdSideWarp,
-  cmdColors_Sprites,
-  cmdDefault_Weapons,
-  cmdStopMusic,
-  cmdStrings,
-  cmdEditSubscreens,
-  cmdSnapshot,
-  cmdPlayTune,
-  cmdTemplate,
-  cmdTemplates,
-  cmdTileWarp,
-  cmdDefault_Tiles,
-  cmdTiles,
-  cmdToggleGrid,
-  cmdTriPieces,
-  cmdUnderCombo,
-  cmdPasteUnderCombo,
-  cmdUndo,
-  cmdZQVidMode,
-  cmdViewMap,
-  cmdShowPal,
-  cmdViewPic,
-  cmdPasteWarpLocations,
-  cmdWarpRings,
-  cmdPasteWarps,
-  cmdCustomWpns,
-  cmdShowDark,
-  cmdShowWalkable,
-  cmdShowFlags,
-  cmdShowCSet,
-  cmdShowType,
-  cmdComboRules,
-  cmdItemRules,
-  cmdEnemyRules,
-  cmdFixesRules,
-  cmdMiscRules,
-  cmdDefault_Items,
-  cmdItemDropSets,
-  cmdPastePalette,
-  cmdMAX
+    cmdNULL,
+    cmdAbout,
+    cmdCatchall,
+    cmdChangeTrack,
+    cmdCheats,
+    cmdCSetFix,
+    cmdDrawingModeAlias,
+    cmdEditComboAlias,
+    cmdCombos,
+    cmdCompileScript,
+    cmdCopy,
+    cmdDefault_Combos,
+    cmdDeleteMap,
+    cmdDelete,
+    cmdDmaps,
+    cmdDoorCombos,
+    cmdDoors,
+    cmdPasteDoors,
+    cmdDrawingModeDungeon,
+    cmdEndString,
+    cmdCustomEnemies,
+    cmdDefault_Guys,
+    cmdEnemies,
+    cmdPasteEnemies,
+    cmdEnhancedMusic,
+    cmdCmdExit,
+    cmdExport_Combos,
+    cmdExport_DMaps,
+    cmdExport_Map,
+    cmdExport_Pals,
+    cmdExport_ZQT,
+    cmdExport_Msgs,
+    cmdExport_Subscreen,
+    cmdExport_Tiles,
+    cmdExport_UnencodedQuest,
+    cmdExport_ZGP,
+    cmdFlags,
+    cmdPasteFFCombos,
+    cmdSelectFFCombo,
+    cmdFullScreen,
+    cmdIcons,
+    cmdGotoMap,
+    cmdGuy,
+    cmdPasteGuy,
+    cmdHeader,
+    cmdHelp,
+    cmdImportFFScript,
+    cmdImportGScript,
+    cmdImportItemScript,
+    cmdImport_Combos,
+    cmdImport_DMaps,
+    cmdImport_ZGP,
+    cmdImport_Map,
+    cmdImport_Pals,
+    cmdImport_ZQT,
+    cmdImport_Msgs,
+    cmdImport_Subscreen,
+    cmdImport_Tiles,
+    cmdImport_UnencodedQuest,
+    cmdInfoTypes,
+    cmdInit,
+    cmdIntegrityCheckAll,
+    cmdIntegrityCheckRooms,
+    cmdIntegrityCheckWarps,
+    cmdItem,
+    cmdItemLocationReport,
+    cmdCustomItems,
+    cmdLayers,
+    cmdPasteLayers,
+    cmdColors_Levels,
+    cmdCustomLink,
+    cmdUsedCombos,
+    cmdColors_Main,
+    cmdMapCount,
+    cmdDefault_MapStyles,
+    cmdMapStyles,
+    cmdSubscreen,
+    cmdString,
+    cmdMidis,
+    cmdMiscColors,
+    cmdNew,
+    cmdDrawingModeNormal,
+    cmdOpen,
+    cmdOptions,
+    cmdScreenPalette,
+    cmdDefault_Pals,
+    cmdPaste,
+    cmdPasteAll,
+    cmdPasteAllToAll,
+    cmdPasteToAll,
+    cmdPath,
+    cmdPlayMusic,
+    cmdX,
+    cmdQuestTemplates,
+    cmdReTemplate,
+    cmdDrawingModeRelational,
+    cmdRevert,
+    cmdRType,
+    cmdPasteRoom,
+    cmdAnimationRules,
+    cmdSave,
+    cmdSaveAs,
+    cmdPasteScreenData,
+    cmdScrData,
+    cmdPasteSecretCombos,
+    cmdSecretCombo,
+    cmdEditSFX,
+    cmdShopTypes,
+    cmdSideWarp,
+    cmdColors_Sprites,
+    cmdDefault_Weapons,
+    cmdStopMusic,
+    cmdStrings,
+    cmdEditSubscreens,
+    cmdSnapshot,
+    cmdPlayTune,
+    cmdTemplate,
+    cmdTemplates,
+    cmdTileWarp,
+    cmdDefault_Tiles,
+    cmdTiles,
+    cmdToggleGrid,
+    cmdTriPieces,
+    cmdUnderCombo,
+    cmdPasteUnderCombo,
+    cmdUndo,
+    cmdZQVidMode,
+    cmdViewMap,
+    cmdShowPal,
+    cmdViewPic,
+    cmdPasteWarpLocations,
+    cmdWarpRings,
+    cmdPasteWarps,
+    cmdCustomWpns,
+    cmdShowDark,
+    cmdShowWalkable,
+    cmdShowFlags,
+    cmdShowCSet,
+    cmdShowType,
+    cmdComboRules,
+    cmdItemRules,
+    cmdEnemyRules,
+    cmdFixesRules,
+    cmdMiscRules,
+    cmdDefault_Items,
+    cmdItemDropSets,
+    cmdPastePalette,
+    cmdCompatRules,
+    cmdMAX
 };
 
 extern command_struct bic[cmdMAX];
@@ -766,8 +770,14 @@ int d_nidroplist_proc(int msg,DIALOG *d,int c);
 int d_ilist_proc(int msg,DIALOG *d,int c);
 int d_wlist_proc(int msg,DIALOG *d,int c);
 int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list);
-INLINE int d_enelist_proc(int msg,DIALOG *d,int c) { return enelist_proc(msg,d,c,true); }
-INLINE int d_enelistnoabc_proc(int msg,DIALOG *d,int c) { return enelist_proc(msg,d,c,false); }
+INLINE int d_enelist_proc(int msg,DIALOG *d,int c)
+{
+    return enelist_proc(msg,d,c,true);
+}
+INLINE int d_enelistnoabc_proc(int msg,DIALOG *d,int c)
+{
+    return enelist_proc(msg,d,c,false);
+}
 void editmsg(int index, int duplicate);
 int strlist_del();
 void fix_string(word &str, word index);
@@ -948,8 +958,8 @@ const char *enemy_viewer(int index, int *list_size);
 
 typedef struct enemy_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 } enemy_struct;
 
 #define zqMAXGUYS    gDUMMY1

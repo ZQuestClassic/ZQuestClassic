@@ -6,10 +6,10 @@ extern "C"
 {
 #endif
 
-  int save_gif(const char *filename, BITMAP *bmp, const RGB *pal);
+int save_gif(const char *filename, BITMAP *bmp, const RGB *pal);
 
 #ifdef __cplusplus
 }
 #endif
 #endif
- 
+

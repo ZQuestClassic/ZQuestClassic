@@ -6,10 +6,10 @@ extern "C"
 {
 #endif
 
-  BITMAP *load_gif(const char *filename, RGB *pal);
+BITMAP *load_gif(const char *filename, RGB *pal);
 
 #ifdef __cplusplus
 }
 #endif
 #endif
- 
+

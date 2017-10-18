@@ -19,16 +19,17 @@ extern "C"
    and always using it seems to have few disadvantages.  */
 typedef unsigned long cvs_uint32;
 
-typedef struct {
-	cvs_uint32 buf[4];
-	cvs_uint32 bits[2];
-	unsigned char in[64];
+typedef struct
+{
+    cvs_uint32 buf[4];
+    cvs_uint32 bits[2];
+    unsigned char in[64];
 } cvs_MD5Context;
 
-void cvs_MD5Init (cvs_MD5Context *context);
-void cvs_MD5Update (cvs_MD5Context *context, unsigned char const *buf, unsigned len);
-void cvs_MD5Final (unsigned char digest[16], cvs_MD5Context *context);
-void cvs_MD5Transform (cvs_uint32 buf[4], const unsigned char in[64]);
+void cvs_MD5Init(cvs_MD5Context *context);
+void cvs_MD5Update(cvs_MD5Context *context, unsigned char const *buf, unsigned len);
+void cvs_MD5Final(unsigned char digest[16], cvs_MD5Context *context);
+void cvs_MD5Transform(cvs_uint32 buf[4], const unsigned char in[64]);
 
 #ifdef __cplusplus
 } /* extern "C" */

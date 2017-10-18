@@ -33,15 +33,15 @@ bool is_side_view();
 class item : public sprite
 {
 public:
-  int pickup,clk2;
-  int aclk,aframe;
-  char PriceIndex;
-  bool flash,twohand,anim, subscreenItem;
-  int o_tile,o_cset, o_speed, o_delay, frames;
-  item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
-  virtual ~item();
-  virtual bool animate(int index);
-  virtual void draw(BITMAP *dest);
+    int pickup,clk2;
+    int aclk,aframe;
+    char PriceIndex;
+    bool flash,twohand,anim, subscreenItem;
+    int o_tile,o_cset, o_speed, o_delay, frames;
+    item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
+    virtual ~item();
+    virtual bool animate(int index);
+    virtual void draw(BITMAP *dest);
 };
 
 // easy way to draw an item

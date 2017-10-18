@@ -39,26 +39,26 @@ extern bool bad_version(int ver);
 
 enum
 {
-  qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
-  qe_missing, qe_internal, qe_pwd, qe_match, qe_minver,
-  qe_nomem, qe_debug, qe_cancel
+    qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
+    qe_missing, qe_internal, qe_pwd, qe_match, qe_minver,
+    qe_nomem, qe_debug, qe_cancel
 };
 
 enum
 {
-  zgp_tiles, zgp_combos, zgp_pals, zgp_items, zgp_wpns, zgp_misc,
-  zgp_maps, zgp_doors
+    zgp_tiles, zgp_combos, zgp_pals, zgp_items, zgp_wpns, zgp_misc,
+    zgp_maps, zgp_doors
 };
 
 enum
 {
-  skip_header, skip_rules, skip_strings, skip_misc,
-  skip_tiles, skip_combos, skip_comboaliases, skip_csets,
-  skip_maps, skip_dmaps, skip_doors, skip_items,
-  skip_weapons, skip_colors, skip_icons, skip_initdata,
-  skip_guys, skip_linksprites, skip_subscreens, skip_ffscript,
-  skip_sfx, skip_midis, skip_cheats, skip_itemdropsets,
-  skip_favorites, skip_max
+    skip_header, skip_rules, skip_strings, skip_misc,
+    skip_tiles, skip_combos, skip_comboaliases, skip_csets,
+    skip_maps, skip_dmaps, skip_doors, skip_items,
+    skip_weapons, skip_colors, skip_icons, skip_initdata,
+    skip_guys, skip_linksprites, skip_subscreens, skip_ffscript,
+    skip_sfx, skip_midis, skip_cheats, skip_itemdropsets,
+    skip_favorites, skip_max
 };
 
 extern const char *qst_error[];
@@ -91,14 +91,14 @@ int count_infos(miscQdata *Misc);
 int count_warprings(miscQdata *Misc);
 int count_palcycles(miscQdata *Misc);
 int loadquest(const char *filename, zquestheader *Header,
-miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags);
+              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags);
 
 char *byte_conversion(int number, int format);
 char *byte_conversion2(int number1, int number2, int format1, int format2);
 
 bool valid_zqt(PACKFILE *f);
 bool valid_zqt(const char *filename);
-bool reset_mapstyles(bool validate, zquestheader *Header, miscQdata *Misc);
+bool reset_mapstyles(bool validate, miscQdata *Misc);
 bool reset_items(bool validate, zquestheader *Header);
 bool reset_guys();
 bool reset_wpns(bool validate, zquestheader *Header);
@@ -150,32 +150,32 @@ bool find_section(PACKFILE *f, long section_id_requested);
 
 INLINE int skipheader(PACKFILE *f, zquestheader *Header)
 {
-  return readheader(f, Header, false);
+    return readheader(f, Header, false);
 }
 INLINE int skiptiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, word max_tiles)
 {
-  return readtiles(f, buf, Header, version, build, start_tile, max_tiles, false, false);
+    return readtiles(f, buf, Header, version, build, start_tile, max_tiles, false, false);
 }
 INLINE int skipcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
 {
-  return readcombos(f, Header, version, build, start_combo, max_combos, false);
+    return readcombos(f, Header, version, build, start_combo, max_combos, false);
 }
 INLINE int skipcolordata(PACKFILE *f, zquestheader *Header, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
-	(void)Header;
-  return readcolordata(f, Misc, version, build, start_cset, max_csets, false);
+    (void)Header;
+    return readcolordata(f, Misc, version, build, start_cset, max_csets, false);
 }
 INLINE int skipstrings(PACKFILE *f, zquestheader *Header, word version, word build, word start_string, word max_strings)
 {
-	(void)max_strings;
-	(void)start_string;
-	(void)build;
-	(void)version;
-  return readstrings(f, Header, false);
+    (void)max_strings;
+    (void)start_string;
+    (void)build;
+    (void)version;
+    return readstrings(f, Header, false);
 }
 INLINE int skipdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word start_dmap, word max_dmaps)
 {
-  return readdmaps(f, Header, version, build, start_dmap, max_dmaps, false);
+    return readdmaps(f, Header, version, build, start_dmap, max_dmaps, false);
 }
 
 extern void delete_combo_aliases();

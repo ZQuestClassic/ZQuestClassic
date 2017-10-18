@@ -317,7 +317,7 @@ int GetLayerComboF(int layer, int pos) {
 //Layer 0 is the screen itself.
 void SetLayerComboF(int layer, int pos, int flag) {
   if (layer == 0)
-    Screen->ComboD[pos] = flag;
+    Screen->ComboF[pos] = flag;
   else
     Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
 }
@@ -639,12 +639,14 @@ int OppositeDir(int dir) {
 
 //Converts directions to go round in a circle rather than U, D, L, R
 int SpinDir(int dir) {
-	if(dir == DIR_DOWN || dir == DIR_RIGHT)
-        return dir;
-	else if(dir == DIR_LEFT)
-		return DIR_UP;
-	else if(dir == DIR_UP)
-	    return DIR_LEFT;
+    if(dir==0)
+        return DIR_UP;
+    else if(dir==1)
+        return DIR_RIGHT;
+    else if(dir==2)
+        return DIR_DOWN;
+    else if(dir==3)
+        return DIR_LEFT;
 	return -1;
 }
 
@@ -1029,6 +1031,7 @@ int GetEquipmentA() {
 }
 
 
+
 //Returns the item ID of the item equipped to Link's B button
 int GetEquipmentB() {
 	return ((Link->Equipment&0xFF00)>>8);
@@ -1113,32 +1116,40 @@ void SetLevelItem(int itm, bool state) {
 //Create an NPC and set its X and Y position in one command
 npc CreateNPCAt(int id, int x, int y) {
   npc nme = Screen->CreateNPC(id);
-  nme->X = x;
-  nme->Y = y;
+  if(nme->isValid()) {
+    nme->X = x;
+    nme->Y = y;
+  }
   return nme;
 }
 
 //Create an Item and set its X and Y position in one command
 item CreateItemAt(int id, int x, int y) {
   item it = Screen->CreateItem(id);
-  it->X = x;
-  it->Y = y;
+  if(it->isValid()) {
+    it->X = x;
+    it->Y = y;
+  }
   return it;
 }
 
 //Create an LWeapon and set its X and Y position in one command
 lweapon CreateLWeaponAt(int id, int x, int y) {
   lweapon lw = Screen->CreateLWeapon(id);
-  lw->X = x;
-  lw->Y = y;
+  if(lw->isValid()) {
+    lw->X = x;
+    lw->Y = y;
+  }
   return lw;
 }
 
 //Create an EWeapon and set its X and Y position in one command
 eweapon CreateEWeaponAt(int id, int x, int y) {
   eweapon ew = Screen->CreateEWeapon(id);
-  ew->X = x;
-  ew->Y = y;
+  if(ew->isValid()) {
+    ew->X = x;
+    ew->Y = y;
+  }
   return ew;
 }
 
@@ -1146,7 +1157,9 @@ eweapon CreateEWeaponAt(int id, int x, int y) {
 //Creates an lweapon at 'distx,disty' away from where Link is facing
 lweapon NextToLink(int id, int distx, int disty) {
 	lweapon l = CreateLWeaponAt(id, Link->X+InFrontX(Link->Dir, distx), Link->Y+InFrontY(Link->Dir, disty));
-	l->Dir = Link->Dir;
+	if(l->isValid()) {
+    	l->Dir = Link->Dir;
+	}
 	return l;
 }
 
@@ -1157,7 +1170,9 @@ lweapon NextToLink(int id, int dist) {
 
 eweapon NextToNPC(npc n, int id, int distx, int disty) {
 	eweapon e = CreateEWeaponAt(id, n->X+InFrontX(n->Dir, distx), n->Y+InFrontY(n->Dir, disty));
-	e->Dir = n->Dir;
+	if(e->isValid()) {
+    	e->Dir = n->Dir;
+	}
 	return e;
 }
 eweapon NextToNPC(npc n, int id, int dist) {

@@ -60,7 +60,7 @@ void TraceB(bool state);
 * Takes the array pointer as its argument, and prints it as a string to allegro.log
 * Maximum 512 characters. Functions from string.zh can be used to split larger strings.
 */
-void TraceS(int[] s);
+void TraceS(int s[]);
 
 /**
 * Prints a line in allegro.log representing 'val' in numerical base 'base', * where 2 <= base <= 36, with minimum digits 'mindigits'.
@@ -1174,7 +1174,7 @@ namespace Screen
 	* Values other than OP_OPAQUE and OP_TRANS are currently undefined.
 	// (Psuedo) 3D drawing
 	*/
-	void DrawString( int layer, int x, int y, int font,int color, int background_color,int format, int[] ptr, int opacity );
+	void DrawString( int layer, int x, int y, int font,int color, int background_color,int format, int ptr[], int opacity );
 
 	/**
 	* Draws a quad on the specified layer with the corners x1,y1 through x4,y4.
@@ -1187,6 +1187,7 @@ namespace Screen
 	* A positive vale in texture will draw the image from the tilesheet pages, * whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
 	* Both w and h are undefined unless 1 <= blockh, blockw <= 16, and it is a power of
 	* two. ie: 1, 2 are acceptable, but 2, 15 are not.
+
 	* Flip specifies how the tiles/combos should be flipped when drawn:
 	* 0: No flip
 	* 1: Horizontal flip
@@ -1221,7 +1222,7 @@ namespace Screen
 	* [2]size - w, h, of the texture.
 	*** See std.zh for a list of all available render_mode arguments.
 	*/
-	void Quad3D( int layer, int[] pos, int[] uv, int[] cset, int[] size, int flip, int texture, int render_mode );
+	void Quad3D( int layer, int pos[], int uv[], int cset[], int size[], int flip, int texture, int render_mode );
 
 	/**
 	* Draws a Quad on the specified layer similar to Quad.
@@ -1232,7 +1233,7 @@ namespace Screen
 	*** See std.zh for a list of all available render_mode arguments.
 	// Bitmap Drawing
 	*/
-	void Quad3D( int layer, int[] pos, int[] uv, int[] cset, int[] size, int flip, int texture, int render_mode );
+	void Quad3D( int layer, int pos[], int uv[], int cset[], int size[], int flip, int texture, int render_mode );
 
 	/**
 	* Sets the target bitmap for all succesive drawing commands.
@@ -1896,10 +1897,10 @@ namespace Game
 
 	/**
 	* An array of 512 integers containing the map used by each DMap.
-	* Game->DMapOffset is read-only; while setting it is not syntactically
+	* Game->DMapMap is read-only; while setting it is not syntactically
 	* incorrect, it does nothing.
 	*/
-	int DMapOffset[];
+	int DMapMap[];
 
 	/**
 	* The number of times Link has perished during this quest.
@@ -2089,13 +2090,13 @@ namespace Game
 	* The filename cannot be more than 255 characters. If the music format
 	* does not support multiple tracks, the track argument will be ignored.
 	*/
-	bool PlayEnhancedMusic(int[] filename, int track);
+	bool PlayEnhancedMusic(int filename[], int track);
 
 	/**
 	* Load the filename of the given DMap's enhanced music into buf.
 	* buf should be at least 256 elements in size.
 	*/
-	void GetDMapMusicFilename(int dmap, int[] buf);
+	void GetDMapMusicFilename(int dmap, int buf[]);
 
 	/**
 	* Returns the given DMap's enhanced music track. This is valid but
@@ -2109,7 +2110,7 @@ namespace Game
 	* the track argument will be ignored. The filename must not be more
 	* than 255 characters.
 	*/
-	void SetDMapEnhancedMusic(int dmap, int[] filename, int track);
+	void SetDMapEnhancedMusic(int dmap, int filename[], int track);
 
 	/**
 	* Grabs a particular combo reference from anywhere in the game
@@ -2270,7 +2271,7 @@ namespace Game
 	* Returns the number of the script with the given name or -1 if there is
 	* no such script.
 	*/
-	int GetFFCScript(int[] name);
+	int GetFFCScript(int name[]);
 	
 	/**
 	* If this is false, the "Click to Freeze" setting will not function, ensuring

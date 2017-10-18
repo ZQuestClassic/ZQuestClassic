@@ -25,38 +25,38 @@
 
 void movefairy(fix&,fix&,int)
 {
-  return;
+    return;
 }
 
 void killfairy(int)
 {
-  return;
+    return;
 }
 
 bool addfairy(fix, fix, int, int)
 {
-  return false;
+    return false;
 }
 
 bool can_drop(fix, fix)
 {
-  return false;
+    return false;
 }
 
 int select_dropitem(int, int, int)
 {
-  return 0;
+    return 0;
 }
 
 bool is_side_view()
 {
-  return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
+    return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
 }
 
 void getitem(int, bool)
 {
-  return;
+    return;
 }
 /*** end of sprite.cc ***/
 
- 
+

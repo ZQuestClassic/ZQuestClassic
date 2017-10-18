@@ -53,13 +53,17 @@
 
 INLINE int popup_menu(MENU *menu,int x,int y)
 {
-  while(gui_mouse_b()) { /* do nothing */ }
-  return jwin_do_menu(menu,x,y);
+    while(gui_mouse_b())
+    {
+        /* do nothing */
+    }
+    
+    return jwin_do_menu(menu,x,y);
 }
 
 INLINE int bit(int val,int b)
 {
-  return (val>>b)&1;
+    return (val>>b)&1;
 }
 
 enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU, ftZQT, ftQST, ftMAX };
@@ -78,7 +82,7 @@ extern const char *warpeffect_string[MAXWARPEFFECTS];
 //extern const char *combotype_string[MAXCOMBOTYPES];
 extern const char *flag_string[MAXFLAGS];
 extern const char *flag_help_string[(mfMAX)*3];
-extern const char *itemclass_help_string[itype_custom1*3];
+extern const char *itemclass_help_string[(itype_last-20)*3];
 extern const char *combotype_help_string[cMAX*3];
 extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
@@ -205,6 +209,7 @@ int onItemRules();
 int onEnemyRules();
 int onFixesRules();
 int onMiscRules();
+int onCompatRules();
 int onRules2();
 int onCheats();
 int onStrings();

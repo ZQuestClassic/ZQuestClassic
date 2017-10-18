@@ -32,17 +32,17 @@
 //{
 //#endif
 
-  enum {eb_wrap_none, eb_wrap_char, eb_wrap_word};
-  enum {eb_crlf_n, eb_crlf_nr, eb_crlf_r, eb_crlf_rn, eb_crlf_any};
-  enum {eb_scrollbar_optional, eb_scrollbar_on, eb_scrollbar_off};
-  enum {eb_handle_vscroll, eb_handle_hscroll};
+enum {eb_wrap_none, eb_wrap_char, eb_wrap_word};
+enum {eb_crlf_n, eb_crlf_nr, eb_crlf_r, eb_crlf_rn, eb_crlf_any};
+enum {eb_scrollbar_optional, eb_scrollbar_on, eb_scrollbar_off};
+enum {eb_handle_vscroll, eb_handle_hscroll};
 
-  int d_editbox_proc(int msg, DIALOG *d, int c);
+int d_editbox_proc(int msg, DIALOG *d, int c);
 
-  typedef struct editbox_data
-  {
-   // char **text;
-	std::string text;
+typedef struct editbox_data
+{
+    // char **text;
+    std::string text;
     int showcursor;
     int lines;
     int currtextline;
@@ -64,7 +64,7 @@
     FONT *font;
     //char *clipboard;
     //int clipboardsize;
-	std::string clipboard;
+    std::string clipboard;
     int defaulttabsize;
     int tabunits;
     int customtabs;
@@ -75,7 +75,7 @@
     int selfg;
     int selbg;
     int postpaste_dontmove;
-  } editbox_data;
+} editbox_data;
 
 //#ifdef __cplusplus
 //}
@@ -83,4 +83,4 @@
 #endif
 
 /***  The End  ***/
- 
+

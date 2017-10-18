@@ -17,8 +17,8 @@
 
 typedef struct item_class_struct
 {
-  char *s;
-  int i;
+    char *s;
+    int i;
 } item_class_struct;
 
 extern item_class_struct biic[itype_max];
@@ -38,4 +38,4 @@ extern TABPANEL init_tabs[];
 int doInit(zinitdata *zinit);
 void resetItems(gamedata *data, zinitdata *zinit, bool lvlitems);
 #endif
- 
+

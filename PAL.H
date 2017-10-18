@@ -44,7 +44,7 @@ extern void cycle_palette();
 
 INLINE RGB NESpal(int i)
 {
-  return _RGB(nes_pal+i*3);
+    return _RGB(nes_pal+i*3);
 }
 extern int reverse_NESpal(RGB c);
 

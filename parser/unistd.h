@@ -24,7 +24,7 @@ extern "C" {
 int ftruncate(int, off_t);
 /*__CRT_INLINE*/inline int ftruncate(int __fd, off_t __length)
 {
-  return _chsize (__fd, __length);
+    return _chsize(__fd, __length);
 }
 
 #ifdef __cplusplus
@@ -34,4 +34,4 @@ int ftruncate(int, off_t);
 #endif /* _UNISTD_H */
 
 #endif //_MSC_VER
- 
+
