@@ -8,6 +8,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include "subscr.h"
 #include "zelda.h"
 #include "tiles.h"

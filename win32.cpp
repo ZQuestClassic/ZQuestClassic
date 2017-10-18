@@ -1,4 +1,7 @@
 
+#include "precompiled.h" //always first
+
+
 #ifdef _WIN32
 
 #include <stdio.h>
@@ -6,6 +9,20 @@
 #include <assert.h>
 
 #include "win32.h"
+
+
+bool is_only_instance(const char* name)
+{
+    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, name);
+	
+    if (!hMutex)
+	{
+		hMutex = CreateMutex(0, 0, name);
+		return true;
+	}
+    else
+		return false;
+}
 
 
 Win32Data win32data;
@@ -213,34 +230,34 @@ LRESULT CALLBACK Win32Data::zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
     
     switch(uMsg)
     {
-    case WM_SETFOCUS:
-    {
-        win32data.hasFocus = true;
-    }
-    break;
-    
-    case WM_KILLFOCUS:
-    {
-        win32data.hasFocus = false;
-    }
-    break;
-    
-    case WM_SYSCOMMAND:
-    {
-        switch(wParam)
-        {
-            // *Don't let the monitor enter screen-save mode.*
-            // -this is actually an annoying bug on my laptop: what happens is if allegro
-            // is running and we go into powersave, (joystick input is not considered activity),
-            // the damn thing locks up sometimes and I have to enter stand-by mode... :/ -Gleeok
-        case SC_SCREENSAVE:
-        case SC_MONITORPOWER:
-            //fall through
-            return 0;
-        }
-        
-        break;
-    }
+		case WM_SETFOCUS:
+		{
+			win32data.hasFocus = true;
+		}
+		break;
+	    
+		case WM_KILLFOCUS:
+		{
+			win32data.hasFocus = false;
+		}
+		break;
+	    
+		case WM_SYSCOMMAND:
+		{
+			switch(wParam)
+			{
+				// *Don't let the monitor enter screen-save mode.*
+				// -this is actually an annoying bug on my laptop: what happens is if allegro
+				// is running and we go into powersave, (joystick input is not considered activity),
+				// the damn thing locks up sometimes and I have to enter stand-by mode... :/ -Gleeok
+			case SC_SCREENSAVE:
+			case SC_MONITORPOWER:
+				//fall through
+				return 0;
+			}
+	        
+			break;
+		}
     }
     
     //ship the rest for allegro to handle
@@ -248,4 +265,6 @@ LRESULT CALLBACK Win32Data::zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
     
     return result;
 }
+
+
 #endif //_WIN32

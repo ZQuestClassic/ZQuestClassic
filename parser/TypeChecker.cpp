@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "TypeChecker.h"
 #include "ParseError.h"
 #include "GlobalSymbols.h"

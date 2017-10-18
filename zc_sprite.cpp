@@ -12,6 +12,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include "sprite.h"
 #include "zelda.h"
 #include "maps.h"
@@ -193,9 +195,21 @@ bool movingblock::animate(int index)
         //triggers a secret
         f2 = MAPCOMBOFLAG(x,y);
         
-        if((oldflag==mfPUSHUD || oldflag==mfPUSH4 || (oldflag>=mfPUSHLR && oldflag<=mfPUSHR)) ||
-                ((oldflag<mfPUSHUDNS || oldflag>mfPUSHRINS) && (f2==mfPUSHUD || f2==mfPUSH4 || (f2>=mfPUSHLR && f2<=mfPUSHR))) ||
-                trigger)
+        if((oldflag==mfPUSH4 ||
+            (oldflag==mfPUSHUD && dir<=down) ||
+            (oldflag==mfPUSHLR && dir>=left) ||
+            (oldflag==mfPUSHU && dir==up) ||
+            (oldflag==mfPUSHD && dir==down) ||
+            (oldflag==mfPUSHL && dir==left) ||
+            (oldflag==mfPUSHR && dir==right) ||
+            f2==mfPUSH4 ||
+            (f2==mfPUSHUD && dir<=down) ||
+            (f2==mfPUSHLR && dir>=left) ||
+            (f2==mfPUSHU && dir==up) ||
+            (f2==mfPUSHD && dir==down) ||
+            (f2==mfPUSHL && dir==left) ||
+            (f2==mfPUSHR && dir==right)) ||
+           trigger)
             //if(oldflag<mfPUSHUDNS||trigger)
         {
             if(hiddenstair(0,true))

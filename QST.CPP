@@ -12,6 +12,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -3494,7 +3496,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
         }
         
         if((tempDMap.type & dmfTYPE) == dmOVERW &&
-           Header->zelda_version >= 0x210) // Not sure exactly when this changed
+           (!Header || Header->zelda_version >= 0x210)) // Not sure exactly when this changed
             tempDMap.xoff = 0;
             
         for(int j=0; j<8; j++)

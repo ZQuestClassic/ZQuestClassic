@@ -11,6 +11,9 @@
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
+
+#include "precompiled.h" //always first
+
 #include <map>
 
 #include "gui.h"

@@ -14,6 +14,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include <string.h>
 #include <set>
 #include <stdio.h>
@@ -89,7 +91,8 @@ bool is_moving()
 // called by ALLOFF()
 void LinkClass::resetflags(bool all)
 {
-    refilling=inwallm=false;
+    refilling=REFILL_NONE;
+    inwallm=false;
     inlikelike=blowcnt=whirlwind=specialcave=hclk=fairyclk=refill_why=didstuff=0;
     
     if(swordclk>0 || all)
@@ -448,6 +451,11 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         
         if(attack==wHookshot)
             reset_hookshot();
+    }
+    if(new_action != isspinning)
+    {
+        charging = 0;
+        spins = 0;
     }
     
     switch(new_action)
@@ -3059,6 +3067,7 @@ killweapon:
         
         if(hclk==0 && s->id==wWind && s->hit(x+7,y+7,z,2,2,1) && !fairyclk)
         {
+            reset_hookshot();
             xofs=1000;
             action=inwind;
             dir=s->dir;
@@ -4499,7 +4508,7 @@ bool LinkClass::startwpn(int itemid)
         {
             refill_what=REFILL_ALL;
             refill_why=itemid;
-            StartRefill();
+            StartRefill(REFILL_ALL);
             potion_life = game->get_life();
             potion_magic = game->get_magic();
             
@@ -6128,7 +6137,8 @@ void LinkClass::movelink()
             if(dir==up&&yoff)
             {
                 info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
-                info = info || walkflagMBlock(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]));
+                if(blockmoving)
+                    info = info || walkflagMBlock(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]));
                 execute(info);
                 
                 if(!info.isUnwalkable())
@@ -6146,7 +6156,8 @@ void LinkClass::movelink()
             if(dir==down&&yoff)
             {
                 info = walkflag(x,y+15+int(lsteps[int(y)&7]),2,down);
-                info = info || walkflagMBlock(x+8,y+15+int(lsteps[int(y)&7]));
+                if(blockmoving)
+                    info = info || walkflagMBlock(x+8,y+15+int(lsteps[int(y)&7]));
                 execute(info);
                 
                 if(!info.isUnwalkable())
@@ -6280,7 +6291,7 @@ void LinkClass::movelink()
                     
                     if(int(x) & 7)
                         info = info || walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up);
-                    else
+                    else if(blockmoving)
                         info = info || walkflagMBlock(x+16, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step);
                         
                     execute(info);
@@ -6294,7 +6305,7 @@ void LinkClass::movelink()
                             
                             if(int(x)&7)
                                 info = info || walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up);
-                            else
+                            else if(blockmoving)
                                 info = info || walkflagMBlock(x+16, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step);
                                 
                             execute(info);
@@ -6449,7 +6460,7 @@ void LinkClass::movelink()
                     
                     if(int(x)&7)
                         info = info || walkflag(x+16,y+15+z3step,1,down);
-                    else
+                    else if(blockmoving)
                         info = info || walkflagMBlock(x+16, y+15+z3step);
                     
                     execute(info);
@@ -6463,7 +6474,7 @@ void LinkClass::movelink()
                             
                             if(int(x)&7)
                                 info = info || walkflag(x+16,y+15+z3step,1,down);
-                            else
+                            else if(blockmoving)
                                 info = info || walkflagMBlock(x+16, y+15+z3step);
                                 
                             execute(info);
@@ -7028,8 +7039,9 @@ void LinkClass::movelink()
             }
             else
             {
-                info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up) ||
-                walkflagMBlock(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]));
+                info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
+                if(blockmoving)
+                    info = info || walkflagMBlock(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]));
             }
             
             execute(info);
@@ -7109,8 +7121,9 @@ void LinkClass::movelink()
             }
             else
             {
-                info=walkflag(x,y+15+int(lsteps[int(y)&7]),2,down) ||
-                     walkflagMBlock(x+8,y+15+int(lsteps[int(y)&7]));
+                info=walkflag(x,y+15+int(lsteps[int(y)&7]),2,down);
+                if(blockmoving)
+                     info = info || walkflagMBlock(x+8,y+15+int(lsteps[int(y)&7]));
             }
             
             execute(info);
@@ -8514,7 +8527,6 @@ void LinkClass::checkchest(int type)
     
     itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
     itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
-    remove_chests((currscr>=128)?1:0);
     itemflag |= MAPFLAG(bx,by)==mfARMOS_ITEM;
     itemflag |= MAPFLAG(bx2,by)==mfARMOS_ITEM;
     itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
@@ -8786,7 +8798,7 @@ void LinkClass::fairycircle(int type)
         
         refill_what=type;
         refill_why=REFILL_FAIRY;
-        StartRefill();
+        StartRefill(type);
         action=freeze;
         holdclk=0;
         hopclk=0;
@@ -8794,7 +8806,13 @@ void LinkClass::fairycircle(int type)
     
     ++fairyclk;
     
-    if(!refill() && ++holdclk>80)
+    if(refilling!=REFILL_FAIRYDONE)
+    {
+        if(!refill())
+            refilling=REFILL_FAIRYDONE;
+    }
+    
+    else if(++holdclk>80)
     {
         reset_swordcharge();
         attackclk=0;
@@ -8802,6 +8820,7 @@ void LinkClass::fairycircle(int type)
         fairyclk=0;
         holdclk=0;
         refill_why = 0;
+        refilling=REFILL_NONE;
         map_bkgsfx(true);
     }
 }
@@ -9225,107 +9244,107 @@ void LinkClass::checkspecial2(int *ls)
     for(int i=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8; i<16; i+=get_bit(quest_rules,qr_LTTPCOLLISION)?15:7)
     {
         for(int j=0; j<16; j+=15) for(int k=0; k<2; k++)
+        {
+            int stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
+            
+            if(stype==cSWARPA)
             {
-                int stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
-                
-                if(stype==cSWARPA)
+                if(tmpscr->flags5&fDIRECTSWARP)
                 {
-                    if(tmpscr->flags5&fDIRECTSWARP)
-                    {
-                        didpit=true;
-                        pitx=x;
-                        pity=y;
-                    }
-                    
-                    sdir=dir;
-                    dowarp(0,0);
-                    return;
+                    didpit=true;
+                    pitx=x;
+                    pity=y;
                 }
                 
-                if(stype==cSWARPB)
+                sdir=dir;
+                dowarp(0,0);
+                return;
+            }
+            
+            if(stype==cSWARPB)
+            {
+                if(tmpscr->flags5&fDIRECTSWARP)
                 {
-                    if(tmpscr->flags5&fDIRECTSWARP)
-                    {
-                        didpit=true;
-                        pitx=x;
-                        pity=y;
-                    }
-                    
-                    sdir=dir;
-                    dowarp(0,1);
-                    return;
+                    didpit=true;
+                    pitx=x;
+                    pity=y;
                 }
                 
-                if(stype==cSWARPC)
+                sdir=dir;
+                dowarp(0,1);
+                return;
+            }
+            
+            if(stype==cSWARPC)
+            {
+                if(tmpscr->flags5&fDIRECTSWARP)
                 {
-                    if(tmpscr->flags5&fDIRECTSWARP)
-                    {
-                        didpit=true;
-                        pitx=x;
-                        pity=y;
-                    }
-                    
-                    sdir=dir;
-                    dowarp(0,2);
-                    return;
+                    didpit=true;
+                    pitx=x;
+                    pity=y;
                 }
                 
-                if(stype==cSWARPD)
+                sdir=dir;
+                dowarp(0,2);
+                return;
+            }
+            
+            if(stype==cSWARPD)
+            {
+                if(tmpscr->flags5&fDIRECTSWARP)
                 {
-                    if(tmpscr->flags5&fDIRECTSWARP)
-                    {
-                        didpit=true;
-                        pitx=x;
-                        pity=y;
-                    }
-                    
-                    sdir=dir;
-                    dowarp(0,3);
-                    return;
+                    didpit=true;
+                    pitx=x;
+                    pity=y;
                 }
                 
-                if(stype==cSWARPR)
+                sdir=dir;
+                dowarp(0,3);
+                return;
+            }
+            
+            if(stype==cSWARPR)
+            {
+                if(tmpscr->flags5&fDIRECTSWARP)
                 {
-                    if(tmpscr->flags5&fDIRECTSWARP)
-                    {
-                        didpit=true;
-                        pitx=x;
-                        pity=y;
-                    }
-                    
-                    sdir=dir;
-                    dowarp(0,rand()%4);
-                    return;
+                    didpit=true;
+                    pitx=x;
+                    pity=y;
                 }
                 
-                if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
+                sdir=dir;
+                dowarp(0,rand()%4);
+                return;
+            }
+            
+            if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
+            {
+                if(stype==cSTRIGFLAG && !isdungeon())
                 {
-                    if(stype==cSTRIGFLAG && !isdungeon())
+                    if(!didstrig)
                     {
-                        if(!didstrig)
+                        stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
+                        
+                        if(!(tmpscr->flags5&fTEMPSECRETS))
                         {
-                            stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
-                            
-                            if(!(tmpscr->flags5&fTEMPSECRETS))
-                            {
-                                setmapflag(mSECRET);
-                            }
-                            
-                            hidden_entrance(0,true,false);
-                            didstrig = true;
+                            setmapflag(mSECRET);
                         }
+                        
+                        hidden_entrance(0,true,false);
+                        didstrig = true;
                     }
-                    else
+                }
+                else
+                {
+                    if(!didstrig)
                     {
-                        if(!didstrig)
-                        {
-                            stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
-                            hidden_entrance(0,true,true);
-                            didstrig = true;
-                        }
+                        stepsecret = ((int)(y+i)&0xF0)+((int)(x+j)>>4);
+                        hidden_entrance(0,true,true);
+                        didstrig = true;
                     }
                 }
             }
+        }
     }
     
     // check if he's standing on a warp he just came out of
@@ -9693,23 +9712,31 @@ void LinkClass::checkspecial2(int *ls)
     if(type==cSAVE2&&currscr<128)
         *ls=2;
         
-    if(flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
+    if(refilling==REFILL_LIFE || flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
     {
         fairycircle(REFILL_LIFE);
         
         if(fairyclk!=0) return;
     }
     
-    if(flag==mfMAGICFAIRY||flag2==mfMAGICFAIRY||flag3==mfMAGICFAIRY)
+    if(refilling==REFILL_MAGIC || flag==mfMAGICFAIRY||flag2==mfMAGICFAIRY||flag3==mfMAGICFAIRY)
     {
         fairycircle(REFILL_MAGIC);
         
         if(fairyclk!=0) return;
     }
     
-    if(flag==mfALLFAIRY||flag2==mfALLFAIRY||flag3==mfALLFAIRY)
+    if(refilling==REFILL_ALL || flag==mfALLFAIRY||flag2==mfALLFAIRY||flag3==mfALLFAIRY)
     {
         fairycircle(REFILL_ALL);
+        
+        if(fairyclk!=0) return;
+    }
+    
+    // Just in case Link was moved off of the fairy flag
+    if(refilling==REFILL_FAIRYDONE)
+    {
+        fairycircle(REFILL_NONE);
         
         if(fairyclk!=0) return;
     }
@@ -9838,7 +9865,7 @@ void LinkClass::checkspecial2(int *ls)
             //        if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
             if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && z==0 && combo_class_buf[type].dock)
             {
-                if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+                if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
                 {
                     reset_swordcharge();
                     action=rafting;
@@ -14005,14 +14032,14 @@ void LinkClass::checkitems(int index)
     }
 }
 
-void LinkClass::StartRefill()
+void LinkClass::StartRefill(int refillWhat)
 {
     if(!refilling)
     {
         refillclk=21;
         stop_sfx(WAV_ER);
         sfx(WAV_REFILL,128,true);
-        refilling=true;
+        refilling=refillWhat;
         
         if(refill_why>=0) // Item index
         {
@@ -14041,7 +14068,7 @@ void LinkClass::StartRefill()
 
 bool LinkClass::refill()
 {
-    if(!refilling)
+    if(refilling==REFILL_NONE || refilling==REFILL_FAIRYDONE)
         return false;
         
     ++refillclk;
@@ -14068,7 +14095,7 @@ bool LinkClass::refill()
                 game->set_life(refill_heart_stop);
                 kill_sfx();
                 sfx(WAV_MSG);
-                refilling=false;
+                refilling=REFILL_NONE;
                 return false;
             }
             
@@ -14082,7 +14109,7 @@ bool LinkClass::refill()
                 game->set_magic(refill_magic_stop);
                 kill_sfx();
                 sfx(WAV_MSG);
-                refilling=false;
+                refilling=REFILL_NONE;
                 return false;
             }
             
@@ -14098,7 +14125,7 @@ bool LinkClass::refill()
                 game->set_magic(refill_magic_stop);
                 kill_sfx();
                 sfx(WAV_MSG);
-                refilling=false;
+                refilling=REFILL_NONE;
                 return false;
             }
             
@@ -14210,7 +14237,7 @@ void LinkClass::getTriforce(int id2)
             {
                 refill_what=REFILL_ALL;
                 refill_why=id2;
-                StartRefill();
+                StartRefill(REFILL_ALL);
                 refill();
             }
             

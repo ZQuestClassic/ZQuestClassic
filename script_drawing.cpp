@@ -1,4 +1,7 @@
 
+
+#include "precompiled.h" //always first
+
 #include <allegro.h>
 #include "script_drawing.h"
 #include "rendertarget.h"

@@ -8,6 +8,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include <string.h>
 #include <stdio.h>
 #include "zc_alleg.h"
@@ -740,6 +742,7 @@ void enemy::FireWeapon()
 
 
 // Hit the shield(s)?
+// Apparently, this function is only used for hookshots...
 bool enemy::hitshield(int wpnx, int wpny, int xdir)
 {
     if(!(family==eeWALK || family==eeFIRE || family==eeOTHER))
@@ -795,6 +798,22 @@ bool enemy::candamage(int power, int edef)
 // -1: do damage
 int enemy::defend(int wpnId, int *power, int edef)
 {
+    if(shieldCanBlock)
+    {
+        switch(defense[edef])
+        {
+        case edIGNORE:
+            return 0;
+        case edIGNOREL1:
+        case edSTUNORIGNORE:
+            if(*power <= 0)
+                return 0;
+        }
+        
+        sfx(WAV_CHINK,pan(int(x)));
+        return 1;
+    }
+    
     switch(defense[edef])
     {
     case edSTUNORCHINK:
@@ -1000,6 +1019,7 @@ int enemy::takehit(weapon *w)
     }
     
     int xdir = dir;
+    shieldCanBlock=false;
     
     //if (family==eeFLOAT && flags&(inv_front|inv_back_inv_left|inv_right)) xdir=down;
     if((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
@@ -1019,8 +1039,8 @@ int enemy::takehit(weapon *w)
         case wHookshot:
         case wHSHandle:
         case wBrang:
-            sfx(WAV_CHINK,pan(int(x)));
-            return 1;
+            shieldCanBlock=true;
+            break;
             
         case wBeam:
         case wRefBeam:
@@ -1055,8 +1075,8 @@ int enemy::takehit(weapon *w)
                 
             //fallthrough
         default:
-            sfx(WAV_CHINK,pan(int(x)));
-            return 1;
+            shieldCanBlock=true;
+            break;
             
             // Bombs
         case wSBomb:
@@ -12749,7 +12769,10 @@ void putprices(bool sign)
     
     for(int i=0; i<3; i++)
     {
-        if(prices[i])
+        // Kind of stupid, but it works: 100000 is used to indicate that an item
+        // has a price of zero rather than there being no item.
+        // 100000 isn't a valid price, so this doesn't cause problems.
+        if(prices[i]!=0 && prices[i]<100000)
         {
             char buf[8];
             sprintf(buf,sign?"%+3d":"%3d",prices[i]);
@@ -12813,7 +12836,8 @@ void setupscreen()
                 additem((i << step)+base, 89, iRupy, ipMONEY + ipDUMMY);
                 ((item*)items.spr(items.Count()-1))->PriceIndex = i;
                 prices[i] = -(QMisc.info[tmpscr[t].catchall].price[i]);
-                
+                if(prices[i]==0)
+                    prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
                 int itemid = current_item_id(itype_wealthmedal);
                 
                 if(itemid >= 0)
@@ -12919,6 +12943,8 @@ void setupscreen()
             if(tmpscr[t].room != rTAKEONE)
             {
                 prices[i] = QMisc.shop[tmpscr[t].catchall].price[i];
+                if(prices[i]==0)
+                    prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
                 int itemid = current_item_id(itype_wealthmedal);
                 
                 if(itemid >= 0)
@@ -12992,13 +13018,11 @@ void setupscreen()
 // Increments msgptr and returns the control code argument pointed at.
 word grab_next_argument()
 {
-    // Use a temporary variable because all casting was
-    // messing up the values pretty badly...
     byte val=MsgStrings[msgstr].s[++msgptr]-1;
-    word ret = val;
+    word ret=val;
     
-    // If an argument is succeeded by 255, then it's a three-byte number
-    // (that is, between 254 and 65535)
+    // If an argument is succeeded by 255, then it's a three-byte argument -
+    // between 254 and 65535 (or whatever the maximum actually is)
     if((unsigned char)(MsgStrings[msgstr].s[msgptr+1]) == 255)
     {
         val=MsgStrings[msgstr].s[msgptr+2];

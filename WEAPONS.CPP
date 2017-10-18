@@ -16,6 +16,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include <string.h>
 
 #include "weapons.h"

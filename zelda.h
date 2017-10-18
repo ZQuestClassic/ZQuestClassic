@@ -283,7 +283,7 @@ extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
-extern int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
+extern int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density, ss_enable;
 extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;

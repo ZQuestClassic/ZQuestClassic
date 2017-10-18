@@ -2,6 +2,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include <deque>
 //#include <algorithm>
 #include <string>
@@ -1132,7 +1134,7 @@ long get_register(const long arg)
         break;
         
     case LINKEQUIP:
-        ret = (Awpn|(Bwpn<<8))*10000;
+        ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
         break;
         
     case LINKINVIS:

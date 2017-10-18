@@ -1238,18 +1238,19 @@ const int IS_COMBOS				= 12; // Used by Tall Grass / Bush / Slash combos.
 //Boss palettes. Use with npc->BossPal
 const int BPAL_AQUA             = 0;
 const int BPAL_GLEEOK           = 1;
-const int BPAL_GANON            = 2;
-const int BPAL_BROWN            = 3;
-const int BPAL_PILE             = 4; // Used for the Dust Pile.
-const int BPAL_BLUE             = 5;
-const int BPAL_RED              = 6;
-const int BPAL_GOLD             = 7;
-const int BPAL_ICON1            = 8; // Used for Quest Icon 1.
-const int BPAL_ICON2            = 9; // Used for Quest Icon 2.
-const int BPAL_ICON3            = 10; // Used for Quest Icon 3.
-const int BPAL_ICON4            = 11; // Used for Quest Icon 4.
-const int BPAL_GLEEOKF          = 12;
-const int BPAL_FROZEN           = 13; // Unused
+const int BPAL_DODONGO          = 2;
+const int BPAL_GANON            = 3;
+const int BPAL_BROWN            = 4;
+const int BPAL_PILE             = 5;  // Used for the Dust Pile.
+const int BPAL_BLUE             = 6;
+const int BPAL_RED              = 7;
+const int BPAL_GOLD             = 8;
+const int BPAL_ICON1            = 9;  // Used for Quest Icon 1.
+const int BPAL_ICON2            = 10; // Used for Quest Icon 2.
+const int BPAL_ICON3            = 11; // Used for Quest Icon 3.
+const int BPAL_ICON4            = 12; // Used for Quest Icon 4.
+const int BPAL_GLEEOKF          = 13;
+const int BPAL_FROZEN           = 14; // Unused
 
 //Sprite lists. Use with Screen->ClearSprites()
 const int SL_GUYS               = 0; // Enemies

@@ -9,6 +9,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

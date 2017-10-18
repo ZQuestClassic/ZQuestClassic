@@ -69,6 +69,8 @@
 /* Line 189 of yacc.c  */
 #line 10 "ffscript.ypp"
 
+#include "../precompiled.h" //always first
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>

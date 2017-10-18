@@ -10,6 +10,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include "zc_alleg.h"
 #include <string.h>
 

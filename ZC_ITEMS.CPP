@@ -20,6 +20,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include "zelda.h"
 #include "guys.h"
 #include "zdefs.h"

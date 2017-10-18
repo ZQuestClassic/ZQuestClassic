@@ -16,6 +16,8 @@
 /**********  Item Class  **********/
 /**********************************/
 
+#include "precompiled.h" //always first
+
 #include "particles.h"
 
 particle::~particle()

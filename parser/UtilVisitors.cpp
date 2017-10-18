@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "UtilVisitors.h"
 #include <assert.h>
 #include "../zsyssimple.h"

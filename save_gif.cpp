@@ -2,6 +2,8 @@
   * by Paul Bartrum
   */
 
+#include "precompiled.h" //always first
+
 #ifdef MSS
 #include <mss.h>                                            /* For all those memory debugging fans ;-) */
 #endif

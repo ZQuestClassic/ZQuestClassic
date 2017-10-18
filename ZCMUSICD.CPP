@@ -3,6 +3,8 @@
 /* Wrapper for transparently extending  */
 /* supported music file formats.        */
 
+#include "precompiled.h" //always first
+
 #include "zcmusic.h"
 
 #ifdef __cplusplus

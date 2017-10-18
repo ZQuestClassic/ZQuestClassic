@@ -7,6 +7,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
 #include <string.h>
 #include <aldumb.h>
@@ -764,6 +766,7 @@ error:
         case ZCMF_GME:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
+                pthread_mutex_lock(&playlistmutex);
                 int t=((GMEFILE*)zcm)->emu->track_count();
                 
                 if(tracknum<0 || tracknum>=t)
@@ -773,6 +776,7 @@ error:
                 
                 ((GMEFILE*)zcm)->emu->start_track(tracknum);
                 zcm->track=tracknum;
+                pthread_mutex_unlock(&playlistmutex);
                 return tracknum;
             }
             else

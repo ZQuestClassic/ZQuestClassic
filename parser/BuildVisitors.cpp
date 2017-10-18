@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "BuildVisitors.h"
 #include <assert.h>
 #include "ParseError.h"

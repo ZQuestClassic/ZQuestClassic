@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "ByteCode.h"
 #include "DataStructs.h"
 #include "ParseError.h"

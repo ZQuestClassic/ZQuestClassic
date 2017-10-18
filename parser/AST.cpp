@@ -1,4 +1,7 @@
+
+#include "../precompiled.h" //always first
 #include "AST.h"
+
 
 ASTProgram::~ASTProgram()
 {

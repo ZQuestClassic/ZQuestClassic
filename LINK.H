@@ -175,8 +175,9 @@ class LinkClass : public sprite
     
     void execute(WalkflagInfo info);
     
-    bool autostep,superman,refilling,inwallm,tapping,stomping,last_hurrah;
-    int ladderx,
+    bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+    int refilling,
+        ladderx,
         laddery,
         stepnext,  //location of step->next just triggered (don't recursively trigger it)
         stepsecret,  //location of step->secrets just triggered (don't recursively trigger it)
@@ -285,7 +286,7 @@ private:
     void positionSword(weapon* w,int itemid);
     void checkstab();
     void fairycircle(int type);
-    void StartRefill();
+    void StartRefill(int refillWhat);
     int  EwpnHit();
     int  LwpnHit();
     void gameover();

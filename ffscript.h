@@ -1,7 +1,6 @@
 #ifndef _FFSCRIPT_H_
 #define _FFSCRIPT_H_
 #include "zdefs.h"
-#include <deque>
 #include <utility>
 #include <string>
 #include <list>

@@ -9,6 +9,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,8 +127,15 @@ void throttleFPS()
     {
         if(zc_vsync == FALSE)
         {
+			int t = 0;
             while(logic_counter < 1)
-                rest(frame_rest_suggest);
+			{
+				// bugfix: win xp/7/8 have incompatible timers.
+				// preserve 60 fps and CPU based on user settings. -Gleeok
+				int ms = t >= 16 ? 0 : frame_rest_suggest;
+                rest(ms);
+				t += frame_rest_suggest;
+			}
         }
         else
         {
@@ -258,7 +267,7 @@ int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
-int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
+int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density, ss_enable;
 int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
 int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;

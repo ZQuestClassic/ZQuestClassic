@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "SymbolVisitors.h"
 #include "DataStructs.h"
 #include "UtilVisitors.h"

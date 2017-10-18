@@ -8,6 +8,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include "matrix.h"
 
 // external FONTs
@@ -57,6 +59,9 @@ static void UpdateColumns();
 static void DrawLetter(int x, int y, int color);
 static void DrawEraser(int x, int y, int type);
 
+extern void throttleFPS();
+
+
 void Matrix(int speed, int density, int mousedelay)
 {
     // speed 0-6, density 0-6
@@ -67,7 +72,9 @@ void Matrix(int speed, int density, int mousedelay)
     
     for(;;)
     {
-        vsync();
+        //vsync();
+		throttleFPS();
+
         AddTracer();
         AddEraser(-1);
         UpdateTracers();

@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "ParseError.h"
 #include "y.tab.hpp"
 #include "TypeChecker.h"

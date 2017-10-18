@@ -24,6 +24,8 @@
 
 /* This code is not fully tested */
 
+#include "precompiled.h" //always first
+
 #include <ctype.h>
 #include <string.h>
 #include "zc_alleg.h"

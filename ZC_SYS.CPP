@@ -12,6 +12,8 @@
 // to prevent <map> from generating errors
 #define __GTHREAD_HIDE_WIN32API 1
 
+#include "precompiled.h" //always first
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -337,6 +339,7 @@ void load_game_configs()
     }
     
     strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
+	ss_enable = get_config_int(cfg_sect,"ss_enable",1) ? 1 : 0;
     ss_after = vbound(get_config_int(cfg_sect,"ss_after",5), 0, 14);
     ss_speed = vbound(get_config_int(cfg_sect,"ss_speed",2), 0, 6);
     ss_density = vbound(get_config_int(cfg_sect,"ss_density",3), 0, 6);
@@ -407,6 +410,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"load_last",loadlast);
     chop_path(qstdir);
     set_config_string(cfg_sect,qst_dir_name,qstdir);
+    set_config_int(cfg_sect,"ss_enable",ss_enable);
     set_config_int(cfg_sect,"ss_after",ss_after);
     set_config_int(cfg_sect,"ss_speed",ss_speed);
     set_config_int(cfg_sect,"ss_density",ss_density);
@@ -3934,11 +3938,11 @@ void syskeys()
         Advance=true;
     }
     
-    if(ReadKey(KEY_F6))    f_Quit(qQUIT);
+    if(ReadKey(KEY_F6))    if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
     
-    if(ReadKey(KEY_F7))    f_Quit(qRESET);
+    if(ReadKey(KEY_F9))    f_Quit(qRESET);
     
-    if(ReadKey(KEY_F8))    f_Quit(qEXIT);
+    if(ReadKey(KEY_F10))   f_Quit(qEXIT);
     
     if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))    onSaveMapPic();
     
@@ -4074,9 +4078,9 @@ void syskeys()
     
     if(ReadKey(KEY_G))   db=(db==999)?0:999;
     
-    if(ReadKey(KEY_F10))  Showpal=!Showpal;
+    if(ReadKey(KEY_F8))  Showpal=!Showpal;
     
-    if(ReadKey(KEY_F9))
+    if(ReadKey(KEY_F7))
     {
         Matrix(ss_speed, ss_density, 0);
         game_pal();
@@ -6391,6 +6395,9 @@ int onCheatBombs()
 
 int after_time()
 {
+	if(ss_enable == 0)
+		return INT_MAX;
+
     if(ss_after <= 0)
         return 5 * 60;
         
@@ -6482,8 +6489,8 @@ static MENU game_menu[] =
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
-    { (char *)"&Reset\tF7",                onReset,                  NULL,                      0, NULL },
-    { (char *)"&Quit\tF8",                 onExit,                   NULL,                      0, NULL },
+    { (char *)"&Reset\tF9",                onReset,                  NULL,                      0, NULL },
+    { (char *)"&Quit\tF10",                onExit,                   NULL,                      0, NULL },
     { NULL,                                NULL,                     NULL,                      0, NULL }
 };
 
@@ -6684,8 +6691,8 @@ static DIALOG system_dlg2[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,   0, (void *) onReset, NULL,  NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,   0, (void *) onExit, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
     { d_timer_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
@@ -7543,12 +7550,16 @@ void System()
             if(input_idle(true) > after_time())
                 // run Screeen Saver
             {
+				// Removing the screen saver over menus for now to either
+				// fix or track down the long-standing ZC idle-freeze bug. -Gleeok
+				/*
                 clear_keybuf();
                 scare_mouse();
                 Matrix(ss_speed, ss_density, 0);
                 system_pal();
                 unscare_mouse();
                 broadcast_dialog_message(MSG_DRAW, 0);
+				*/
             }
         }
         

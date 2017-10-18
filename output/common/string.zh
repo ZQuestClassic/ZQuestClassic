@@ -551,50 +551,82 @@ int xtoa(int string, int num)
 //regardless of the most significant digit
 int ftoa(int string, int pos, float num, bool printall)
 {
-	int ret = 0;
-	if(num < 0)
-	{
-		string[pos] = '-';
-		ret++;
-		num = -num;
-	}
-
-	int decimal = (num - Floor(num)) * 10000;
-	num = Floor(num);
-
-	if(num == 0)
-	{
-		string[pos + ret] = '0';
-		ret++;
-	}
-	else
-	{
-		int digits = Floor(Log10(num) + 1);
-		for(int i = 0; i < digits; i++)
-			string[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
-		ret += digits;
-	}
-
-	string[pos + ret] = '.';
-	ret++;
-	if(decimal == 0)
-	{
-		int digits = Cond(printall, 4, 1);
-		for(int i = 0; i < digits; i++)
-			string[pos + ret + i] = '0';
-		ret += digits;
-	}
-	else
-	{
-		if(!printall)
-			while(decimal % 10 == 0)
-				decimal /= 10;
-		int digits = Floor(Log10(decimal) + 1);
-		for(int i = 0; i < digits; i++)
-			string[pos + ret + i] = (Floor(decimal / Pow(10, digits - i - 1)) % 10) + '0';
-		ret += digits;
-	}
-	return ret;
+    int oldPos=pos;
+    int place=100000;
+    int digit;
+    bool printZero=false;
+    int storedZeroes=0;
+    
+    if(num<0)
+    {
+        string[pos]='-';
+        pos++;
+        num=-num;
+    }
+        
+    
+    for(int i=0; i<10; i++)
+    {
+        digit=((num/place)<<0)%10;
+        
+        // If the fractional part hasn't been reached yet, or
+        // if all four of its digits are to be printed, this is easy.
+        if(place>=1 || printall)
+        {
+            if(digit>0 || printZero)
+            {
+                string[pos]=digit+'0';
+                pos++;
+                
+                // Start printing 0 at the first non-zero digit.
+                printZero=true;
+            }
+        }
+        
+        // Otherwise, it's trickier.
+        else
+        {
+            // A zero isn't printed unless there's something else after it.
+            // Don't print it, just keep count.
+            if(digit==0)
+                storedZeroes++;
+            
+            // Any other digit flushes the zeroes and then is printed.
+            else
+            {
+                for(; storedZeroes>0; storedZeroes--)
+                {
+                    string[pos]='0';
+                    pos++;
+                }
+                
+                string[pos]=digit+'0';
+                pos++;
+            }
+        }
+        
+        num%=place; // To make sure num/place doesn't overflow when place<1
+        place/=10;
+        
+        if(place==1) // Last digit before the decimal point
+            printZero=true;
+        
+        else if(place==0.1) // Reached the fractional part
+        {
+            string[pos]='.';
+            pos++;
+        }
+    }
+    
+    if(storedZeroes==4)
+    {
+        // printall is false and the number is an integer;
+        // just add one zero to the end.
+        string[pos]='0';
+        pos++;
+    }
+    
+    return pos-oldPos;
 }
 int ftoa(int string, float num, bool printall)
 {

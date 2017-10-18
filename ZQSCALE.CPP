@@ -2,6 +2,9 @@
 // SHOULD WORK FOR ALL WINDOWED DRIVERS ON ANY SYSTEM
 //
 //
+
+#include "precompiled.h" //always first
+
 #include "allegro.h"
 
 extern int zq_screen_w, zq_screen_h;

@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "GlobalSymbols.h"
 #include "ByteCode.h"
 #include "../zsyssimple.h"

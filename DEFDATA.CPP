@@ -12,6 +12,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include "defdata.h"
 #include "sfx.h"
 

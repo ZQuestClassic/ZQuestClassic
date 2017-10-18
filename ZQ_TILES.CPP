@@ -12,6 +12,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include <string.h>
 
 #include "gui.h"
@@ -28,6 +30,7 @@
 #include "jwinfsel.h"
 #include "zqscale.h"
 #include "zc_custom.h"
+#include "questReport.h"
 #include "mem_debug.h"
 
 #ifdef _MSC_VER

@@ -9,6 +9,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -34,6 +36,7 @@
 #ifdef _MSC_VER
 #define strupr _strupr
 #define stricmp _stricmp
+#define snprintf _snprintf
 #endif
 
 extern int loadlast;

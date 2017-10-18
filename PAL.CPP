@@ -9,6 +9,8 @@
 //--------------------------------------------------------
 
 
+#include "precompiled.h" //always first
+
 #include "zc_alleg.h"
 #include "zdefs.h"
 #include "maps.h"
@@ -477,18 +479,7 @@ void cycle_palette()
         }
     }
     
-    if(refreshpal)
-    {
-        create_rgb_table(&rgb_table, RAMpal, NULL);
-        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
-        memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-        
-        for(int q=0; q<PAL_SIZE; q++)
-        {
-            trans_table2.data[0][q] = q;
-            trans_table2.data[q][q] = q;
-        }
-    }
+    // No need to do handle refreshpal here; it's done in updatescr().
 }
 
 int reverse_NESpal(RGB c)

@@ -12,6 +12,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
+#include "precompiled.h" //always first
+
 #include <string.h>
 #include <stdio.h>
 
@@ -1000,6 +1002,34 @@ int onImport_DMaps()
         extract_name(temppath,name,FILENAME8_3);
         sprintf(buf,"Unable to load %s",name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    }
+    else
+    {
+        int maxMap=0;
+        for(int i=0; i<MAXDMAPS; i++)
+        {
+            if(DMaps[i].map>maxMap)
+                maxMap=DMaps[i].map;
+        }
+        
+        if(maxMap>map_count)
+        {
+            int ret=jwin_alert("Not enough maps",
+                               "The imported DMaps use more maps than are",
+                               " currently available. Do you want to add",
+                               "more maps or change the DMaps' settings?",
+                               "&Add maps","&Modify DMaps",'a','m',lfont);
+            if(ret==1)
+                setMapCount2(maxMap+1);
+            else
+            {
+                for(int i=0; i<MAXDMAPS; i++)
+                {
+                    if(DMaps[i].map>=map_count)
+                        DMaps[i].map=0;
+                }
+            }
+        }
     }
     
     return D_O_K;

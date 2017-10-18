@@ -39,10 +39,14 @@
   *      See readme.txt for copyright information.
   */
 
+#include "precompiled.h" //always first
+
 #include <string.h>
 
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
+#include <allegro/alcompat.h>
+
 #include "jwin.h"
 #include "jwinfsel.h"
 #include "zsys.h"

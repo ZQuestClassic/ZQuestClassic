@@ -9,6 +9,8 @@
 //
 //--------------------------------------------------------
 
+#include "precompiled.h" //always first
+
 #include <stdio.h>
 #include "zc_alleg.h"
 #include "zdefs.h"

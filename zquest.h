@@ -326,26 +326,6 @@ int onPgDn();
 int onIncreaseCSet();
 int onDecreaseCSet();
 int onGotoPage();
-int onIntegrityCheckRooms();
-int onIntegrityCheckWarps();
-int onIntegrityCheckAll();
-int onItemLocationReport();
-int onEnemyLocationReport();
-int onScriptLocationReport();
-int onComboLocationReport();
-int onComboTypeLocationReport();
-int onWhatWarpsReport();
-//Integrity booleans
-bool integrityBoolSpecialItem(mapscr *ts);
-bool integrityBoolEnemiesSecret(mapscr *ts);
-bool integrityBoolEnemiesItem(mapscr *ts);
-bool integrityBoolStringNoGuy(mapscr *ts);
-bool integrityBoolGuyNoString(mapscr *ts);
-bool integrityBoolRoomNoGuy(mapscr *ts);
-bool integrityBoolRoomNoString(mapscr *ts);
-bool integrityBoolRoomNoGuyNoString(mapscr *ts);
-bool integrityBoolSaveCombo(mapscr *ts, int ctype);
-bool integrityBoolUnderCombo(mapscr *ts, int ctype);
 
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);

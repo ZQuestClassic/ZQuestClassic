@@ -24,6 +24,8 @@
 
 /* This code is not fully tested */
 
+#include "precompiled.h" //always first
+
 #define ALLEGRO_NO_COMPATIBILITY
 #include <allegro.h>
 #include "tab_ctl.h"

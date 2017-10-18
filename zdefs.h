@@ -618,7 +618,7 @@ enum
 enum direction { up, down, left, right, l_up, r_up, l_down, r_down };
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 // refill stuff
-enum { REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
+enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
 #define REFILL_FAIRY -1
 
 //Z-axis related

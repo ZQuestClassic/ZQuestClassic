@@ -192,6 +192,7 @@ var
   ZCResY:    string;
   ZCProcFix: string;
   ZQProcFix: string;
+  MultiZC:   string;
 
   //This is to launch ZC
   ZCLaunch: TProcess;
@@ -206,8 +207,9 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   //Settings Defaults This is for when you first start ZCL - ADJUST THIS SEAN! :-P
   {ZCFullWindow := '-windowed ';
-  VsynchThrot  := '-v0 ';
-  ZQLarge      := '-large ';}
+  VsynchThrot   := '-v0 ';
+  ZQLarge       := '-large ';
+  MultiZC       := ' '; }
 
   //This part reads the settings if there is no settings then we will create the default options
 
@@ -335,11 +337,23 @@ begin
     begin
       zcqicons.Text := 'No';
       Quickload     := '-quickload ';
+      LoadQuest     := '-load 1 ';
     end
     else
     begin
       zcqicons.Text := 'Yes';
       Quickload     := ' ';
+      LoadQuest     := ' ';
+    end;
+
+    //ZC Multiple instances
+    if agcfg.readstring('ZCL', 'multiple_instances', '') = '1' then
+    begin
+      MultiZC := '-multiple ';
+    end
+    else
+    begin
+      MultiZC := ' ';
     end;
 
     //ZQ Fullscreen / Window Mode
@@ -785,6 +799,7 @@ begin
   begin
     zcqld.Enabled := True;
     zcqld.Text    := 'Slot 1';
+    LoadQuest     := '-load 1';
   end
   else
   begin
@@ -867,7 +882,7 @@ memo3.Lines.LoadFromFile('allegro.log');
 
 
   try
-    unix.Shell('./zelda-l ' + ZCFullWindow + Res1 + Sound1 + Logo1 +
+    unix.Shell('./zelda-l ' + MultiZC + ZCFullWindow + Res1 + Sound1 + Logo1 +
       Quickload + LoadQuest + ' & ')
   except
   end;
@@ -1267,11 +1282,13 @@ begin
   if zcqicons.Text = 'No' then
   begin
     Quickload := '-quickload ';
+    LoadQuest := '-load 1 ';
     agcfg.writestring('ZCL', 'quickload', '1');
   end;
   if zcqicons.Text = 'Yes' then
   begin
     Quickload := ' ';
+    LoadQuest := ' ';
     agcfg.writestring('ZCL', 'quickload', '0');
   end;
 end;

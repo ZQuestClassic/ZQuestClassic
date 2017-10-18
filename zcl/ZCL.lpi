@@ -19,7 +19,7 @@
       <MajorVersionNr Value="2"/>
       <MinorVersionNr Value="5"/>
       <RevisionNr Value="3"/>
-      <BuildNr Value="299"/>
+      <BuildNr Value="301"/>
       <StringTable Comments="Zelda Classic Launcher" CompanyName="Deviansoft" ProductName="Zelda Classic Launcher" ProductVersion="2.5.0.587"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -55,10 +55,11 @@
         <Filename Value="ZCL.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ZCL"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="33" Y="12"/>
+        <CursorPos X="14" Y="23"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -71,12 +72,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="zclmain"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="707"/>
-        <CursorPos X="9" Y="753"/>
-        <FoldState Value=" T0mB42M5br"/>
+        <TopLine Value="1655"/>
+        <CursorPos X="38" Y="1674"/>
+        <FoldState Value=" T0mD4252B]562T-"/>
         <UsageCount Value="208"/>
         <Bookmarks Count="1">
           <Item0 X="1" Y="1" ID="1"/>
@@ -92,8 +92,8 @@
         <UnitName Value="Unit6"/>
         <TopLine Value="12"/>
         <CursorPos X="25" Y="20"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="25"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="../zcll/unit1.pas"/>
@@ -103,21 +103,22 @@
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
         <UsageCount Value="1"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="Unit1.lfm"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <SyntaxHighlighter Value="LFM"/>
         <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit4>
       <Unit5>
         <Filename Value="unit2.pas"/>
         <UnitName Value="Unit2"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
         <Filename Value="unit3.pas"/>
@@ -125,28 +126,30 @@
         <UnitName Value="Unit3"/>
         <TopLine Value="4"/>
         <CursorPos X="53" Y="13"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
         <Filename Value="Unit4.pas"/>
         <UnitName Value="Unit4"/>
         <TopLine Value="1"/>
         <CursorPos X="14" Y="11"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="1"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
         <Filename Value="../lazarus/lcl/include/application.inc"/>
         <TopLine Value="299"/>
         <CursorPos X="1" Y="312"/>
         <UsageCount Value="1"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
         <Filename Value="../lazarus/lcl/include/winapi.inc"/>
         <TopLine Value="267"/>
         <CursorPos X="1" Y="280"/>
         <UsageCount Value="1"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="../lazarus/lcl/forms.pp"/>
@@ -154,6 +157,7 @@
         <TopLine Value="147"/>
         <CursorPos X="1" Y="147"/>
         <UsageCount Value="3"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
         <Filename Value="usr/share/lazarus/components/rtticontrols/rttictrls.pas"/>
@@ -161,6 +165,7 @@
         <TopLine Value="19"/>
         <CursorPos X="31" Y="33"/>
         <UsageCount Value="3"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
         <Filename Value="../lazarus/components/rtticontrols/runtimetypeinfocontrols.pas"/>
@@ -168,6 +173,7 @@
         <TopLine Value="1"/>
         <CursorPos X="5" Y="1"/>
         <UsageCount Value="3"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
       <Unit13>
         <Filename Value="../lazarus/lazarus/ide/lazarus.pp"/>
@@ -175,6 +181,7 @@
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
         <UsageCount Value="4"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
         <Filename Value="../lazarus/lazarus/lcl/interfaces/win32/win32int.pp"/>
@@ -182,6 +189,7 @@
         <TopLine Value="21"/>
         <CursorPos X="18" Y="41"/>
         <UsageCount Value="3"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit14>
       <Unit15>
         <Filename Value="zctitle.pas"/>
@@ -189,16 +197,16 @@
         <UnitName Value="zctitle"/>
         <TopLine Value="44"/>
         <CursorPos X="3" Y="59"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="63"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="crc32.pas"/>
         <UnitName Value="CRC32"/>
         <TopLine Value="36"/>
         <CursorPos X="23" Y="80"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="45"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="../lazarus/lcl/extctrls.pp"/>
@@ -206,6 +214,7 @@
         <TopLine Value="23"/>
         <CursorPos X="11" Y="36"/>
         <UsageCount Value="6"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
         <Filename Value="../lazarus/components/rtticontrols/rttictrls.pas"/>
@@ -213,6 +222,7 @@
         <TopLine Value="20"/>
         <CursorPos X="31" Y="33"/>
         <UsageCount Value="5"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit18>
       <Unit19>
         <Filename Value="zclnewlook.pas"/>
@@ -220,15 +230,15 @@
         <UnitName Value="zclnewlook"/>
         <TopLine Value="24"/>
         <CursorPos X="3" Y="44"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="19"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
         <Filename Value="../lazarus/components/jpeg/readme.txt"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <SyntaxHighlighter Value="None"/>
         <UsageCount Value="15"/>
+        <DefaultSyntaxHighlighter Value="None"/>
       </Unit20>
       <Unit21>
         <Filename Value="../lazarus/converter/lazxmlforms.pas"/>
@@ -236,6 +246,7 @@
         <TopLine Value="46"/>
         <CursorPos X="17" Y="60"/>
         <UsageCount Value="7"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit21>
       <Unit22>
         <Filename Value="../lazarus/ide/lazarus.pp"/>
@@ -243,6 +254,7 @@
         <TopLine Value="89"/>
         <CursorPos X="1" Y="115"/>
         <UsageCount Value="7"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit22>
       <Unit23>
         <Filename Value="lazarus/ide/environmentopts.pp"/>
@@ -252,6 +264,7 @@
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
         <UsageCount Value="6"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit23>
       <Unit24>
         <Filename Value="lazarus/components/editortoolbar/jumpto_impl.pas"/>
@@ -259,6 +272,7 @@
         <TopLine Value="91"/>
         <CursorPos X="40" Y="98"/>
         <UsageCount Value="6"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit24>
       <Unit25>
         <Filename Value="usr/lib/lazarus/ide/lazarus.pp"/>
@@ -266,6 +280,7 @@
         <TopLine Value="58"/>
         <CursorPos X="20" Y="74"/>
         <UsageCount Value="6"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
         <Filename Value="zscript.pas"/>
@@ -274,15 +289,15 @@
         <UnitName Value="zscript"/>
         <TopLine Value="1"/>
         <CursorPos X="3" Y="206"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="66"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit26>
       <Unit27>
         <Filename Value="zscript.lfm"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <SyntaxHighlighter Value="LFM"/>
         <UsageCount Value="28"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit27>
       <Unit28>
         <Filename Value="../lazarus/components/synunihighlighter/synunidesigner.pas"/>
@@ -290,6 +305,7 @@
         <TopLine Value="202"/>
         <CursorPos X="4" Y="215"/>
         <UsageCount Value="6"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit28>
       <Unit29>
         <Filename Value="../lazarus/components/synedit/synhighlightercpp.pp"/>
@@ -297,6 +313,7 @@
         <TopLine Value="386"/>
         <CursorPos X="43" Y="399"/>
         <UsageCount Value="6"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit29>
       <Unit30>
         <Filename Value="updater.pas"/>
@@ -305,8 +322,8 @@
         <UnitName Value="updater"/>
         <TopLine Value="10"/>
         <CursorPos X="28" Y="102"/>
-        <SyntaxHighlighter Value="Delphi"/>
         <UsageCount Value="45"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit30>
       <Unit31>
         <Filename Value="zclmain.lfm"/>
@@ -319,123 +336,127 @@
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit31>
     </Units>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="116" Column="20" TopLine="81"/>
       </Position1>
       <Position2>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="14" Column="67" TopLine="1"/>
+        <Caret Line="117" Column="20" TopLine="82"/>
       </Position2>
       <Position3>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="116" Column="20" TopLine="81"/>
+        <Caret Line="124" Column="9" TopLine="89"/>
       </Position3>
       <Position4>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="117" Column="20" TopLine="82"/>
+        <Caret Line="125" Column="9" TopLine="90"/>
       </Position4>
       <Position5>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="124" Column="9" TopLine="89"/>
+        <Caret Line="126" Column="9" TopLine="91"/>
       </Position5>
       <Position6>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="125" Column="9" TopLine="90"/>
+        <Caret Line="127" Column="9" TopLine="92"/>
       </Position6>
       <Position7>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="126" Column="9" TopLine="91"/>
+        <Caret Line="148" Column="1" TopLine="148"/>
       </Position7>
       <Position8>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="127" Column="9" TopLine="92"/>
+        <Caret Line="194" Column="21" TopLine="156"/>
       </Position8>
       <Position9>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="148" Column="1" TopLine="148"/>
+        <Caret Line="224" Column="5" TopLine="202"/>
       </Position9>
       <Position10>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="194" Column="21" TopLine="156"/>
+        <Caret Line="719" Column="33" TopLine="684"/>
       </Position10>
       <Position11>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="224" Column="5" TopLine="202"/>
+        <Caret Line="1168" Column="31" TopLine="1133"/>
       </Position11>
       <Position12>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="719" Column="33" TopLine="684"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position12>
       <Position13>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="1168" Column="31" TopLine="1133"/>
+        <Caret Line="66" Column="10" TopLine="31"/>
       </Position13>
       <Position14>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="167" Column="20" TopLine="132"/>
       </Position14>
       <Position15>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="66" Column="10" TopLine="31"/>
+        <Caret Line="183" Column="12" TopLine="157"/>
       </Position15>
       <Position16>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="167" Column="20" TopLine="132"/>
+        <Caret Line="208" Column="25" TopLine="173"/>
       </Position16>
       <Position17>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="183" Column="12" TopLine="157"/>
+        <Caret Line="264" Column="16" TopLine="229"/>
       </Position17>
       <Position18>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="208" Column="25" TopLine="173"/>
+        <Caret Line="268" Column="29" TopLine="233"/>
       </Position18>
       <Position19>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="264" Column="16" TopLine="229"/>
+        <Caret Line="269" Column="30" TopLine="234"/>
       </Position19>
       <Position20>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="268" Column="29" TopLine="233"/>
+        <Caret Line="345" Column="26" TopLine="310"/>
       </Position20>
       <Position21>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="269" Column="30" TopLine="234"/>
+        <Caret Line="348" Column="12" TopLine="313"/>
       </Position21>
       <Position22>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="345" Column="26" TopLine="310"/>
+        <Caret Line="352" Column="32" TopLine="317"/>
       </Position22>
       <Position23>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="348" Column="12" TopLine="313"/>
+        <Caret Line="719" Column="29" TopLine="684"/>
       </Position23>
       <Position24>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="352" Column="32" TopLine="317"/>
+        <Caret Line="737" Column="1" TopLine="702"/>
       </Position24>
       <Position25>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="719" Column="29" TopLine="684"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position25>
       <Position26>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="737" Column="1" TopLine="702"/>
+        <Caret Line="191" Column="9" TopLine="156"/>
       </Position26>
       <Position27>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="750" Column="32" TopLine="682"/>
       </Position27>
       <Position28>
         <Filename Value="zclmain.pas"/>
-        <Caret Line="191" Column="9" TopLine="156"/>
+        <Caret Line="730" Column="58" TopLine="707"/>
       </Position28>
       <Position29>
-        <Filename Value="zclmain.pas"/>
-        <Caret Line="750" Column="32" TopLine="682"/>
+        <Filename Value="ZCL.lpr"/>
+        <Caret Line="12" Column="33" TopLine="1"/>
       </Position29>
+      <Position30>
+        <Filename Value="ZCL.lpr"/>
+        <Caret Line="25" Column="54" TopLine="1"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -448,10 +469,10 @@
       </SyntaxOptions>
     </Parsing>
     <CodeGeneration>
-      <SmartLinkUnit Value="True"/>
+      <SmallerCode Value="True"/>
       <TargetCPU Value="i386"/>
       <Optimizations>
-        <OptimizationLevel Value="0"/>
+        <OptimizationLevel Value="3"/>
       </Optimizations>
     </CodeGeneration>
     <Linking>
@@ -473,6 +494,9 @@
         <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
         <ShowHintsForSenderNotUsed Value="True"/>
       </Verbosity>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
       <CompilerPath Value="$(CompPath)"/>
       <CreateMakefileOnBuild Value="True"/>
     </Other>

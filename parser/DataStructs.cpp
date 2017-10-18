@@ -1,3 +1,6 @@
+
+#include "../precompiled.h" //always first
+
 #include "DataStructs.h"
 #include "../zsyssimple.h"
 #include <assert.h>
