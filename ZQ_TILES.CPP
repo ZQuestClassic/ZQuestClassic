@@ -62,6 +62,8 @@ enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, select
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
+word combobufFoo[MAXCOMBOS] = {}; //No idea what this actually does...
+
 
 BITMAP *intersection_pattern;
 
@@ -9665,7 +9667,7 @@ int select_combo_2(int &tile,int &cs)
     
     for(int i=0; i<MAXCOMBOS; i++)
         //   for (int x=0; x<9; x++)
-        combobuf[i].foo=i;
+        combobufFoo[i]=i;
         
     go();
     int window_xofs=0;
@@ -10005,7 +10007,7 @@ int select_combo_2(int &tile,int &cs)
             
             for(int j=0; j<256; j++)
             {
-                if(combobuf[j+p].foo==i+p)
+                if(combobufFoo[j+p]==i+p)
                 {
                     pos=j+p;
                     goto down;
@@ -10124,7 +10126,7 @@ int combo_screen(int pg, int tl)
     
     for(int i=0; i<MAXCOMBOS; i++)
     {
-        combobuf[i].foo=i;
+        combobufFoo[i]=i;
     }
     
     go();

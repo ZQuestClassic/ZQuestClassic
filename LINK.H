@@ -32,6 +32,7 @@
 #include "zc_custom.h"
 #include "subscr.h"
 #include "item/itemEffect.h"
+class asIScriptFunction;
 class ItemAction;
 
 extern movingblock mblock2;                                 //mblock[4]?
@@ -269,9 +270,6 @@ private:
     int  EwpnHit();
     int  LwpnHit();
     void saved_Zelda();
-    void check_slash_block(int bx, int by);
-    void check_wand_block(int bx, int by);
-    void check_pound_block(int bx, int by);
     void check_conveyor();
     bool sideviewhammerpound();
     bool agonyflag(int flag);
@@ -300,8 +298,6 @@ public:
     void unfreeze();
     void finishedmsg();
     void Drown();
-    int getEaten();
-    void setEaten(int i);
     fix  getFall();
     fix  getXOfs();
     fix  getYOfs();
@@ -357,12 +353,18 @@ public:
     // Cancels charging when the wand or sword hits an enemy.
     void onMeleeWeaponHit();
     
+    // Load up script functions
+    void scriptInit();
+    
 private:
+    asIScriptFunction* asUpdate;
+    
     void updateGravity();
     void checkLadderRemoval();
     
     friend class LinkHandler;
     friend class LinkZScriptInterface;
+    friend void registerLink();
 };
 
 bool isRaftFlag(int flag);

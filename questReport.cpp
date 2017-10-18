@@ -1062,7 +1062,6 @@ bool integrityBoolRoomNoGuy(mapscr *ts)
     case rBOMBS:
     case rSWINDLE:
     case rWARP:
-    case rITEMPOND:
     case rMUPGRADE:
     case rLEARNSLASH:
     case rARROWS:
@@ -1132,7 +1131,6 @@ bool integrityBoolRoomNoString(mapscr *ts)
     case rBOMBS:
     case rSWINDLE:
     case rWARP:
-    case rITEMPOND:
     case rMUPGRADE:
     case rLEARNSLASH:
     case rARROWS:
@@ -1203,7 +1201,6 @@ bool integrityBoolRoomNoGuyNoString(mapscr *ts)
     case rBOMBS:
     case rSWINDLE:
     case rWARP:
-    case rITEMPOND:
     case rMUPGRADE:
     case rLEARNSLASH:
     case rARROWS:

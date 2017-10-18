@@ -24,9 +24,9 @@ DialogController* GtkWidgetFactory::controller() const
     return new ZCGtkController();
 }
 
-BitmapWidget* GtkWidgetFactory::bitmap(BitmapBackend* backend) const
+BitmapWidget* GtkWidgetFactory::bitmap(BitmapBackend* backend, int scale) const
 {
-    backend->setRenderer(new GUIBitmapRenderer(2)); // TODO: scaling
+    backend->setRenderer(new GUIBitmapRenderer(scale));
     return new ZCGtkBitmap(backend);
 }
 
@@ -70,73 +70,43 @@ Widget* GtkWidgetFactory::frame(const std::string& label, Widget* content) const
     return new ZCGtkFrame(label, dynamic_cast<ZCGtkWidget*>(content));
 }
 
-SerialContainer* GtkWidgetFactory::column(int numWidgets, ...) const
+SerialContainer* GtkWidgetFactory::column(const Contents& contents) const
 {
     ZCGtkSerialContainer* col=new ZCGtkSerialContainer(true, false);
-    va_list args;
-    va_start(args, numWidgets);
-    for(int i=0; i<numWidgets; i++)
-    {
-        Widget* w=va_arg(args, Widget*);
-        col->add(w);
-    }
-    va_end(args);
+    for(int i=0; i<contents.size(); i++)
+        col->add(contents[i]);
     return col;
 }
 
-SerialContainer* GtkWidgetFactory::spacedColumn(int numWidgets, ...) const
+SerialContainer* GtkWidgetFactory::spacedColumn(const Contents& contents) const
 {
     ZCGtkSerialContainer* col=new ZCGtkSerialContainer(true, true);
-    va_list args;
-    va_start(args, numWidgets);
-    for(int i=0; i<numWidgets; i++)
-    {
-        Widget* w=va_arg(args, Widget*);
-        col->add(w);
-    }
-    va_end(args);
+    for(int i=0; i<contents.size(); i++)
+        col->add(contents[i]);
     return col;
 }
 
-SerialContainer* GtkWidgetFactory::row(int numWidgets, ...) const
+SerialContainer* GtkWidgetFactory::row(const Contents& contents) const
 {
     ZCGtkSerialContainer* row=new ZCGtkSerialContainer(false, false);
-    va_list args;
-    va_start(args, numWidgets);
-    for(int i=0; i<numWidgets; i++)
-    {
-        Widget* w=va_arg(args, Widget*);
-        row->add(w);
-    }
-    va_end(args);
+    for(int i=0; i<contents.size(); i++)
+        row->add(contents[i]);
     return row;
 }
 
-SerialContainer* GtkWidgetFactory::spacedRow(int numWidgets, ...) const
+SerialContainer* GtkWidgetFactory::spacedRow(const Contents& contents) const
 {
     ZCGtkSerialContainer* row=new ZCGtkSerialContainer(false, true);
-    va_list args;
-    va_start(args, numWidgets);
-    for(int i=0; i<numWidgets; i++)
-    {
-        Widget* w=va_arg(args, Widget*);
-        row->add(w);
-    }
-    va_end(args);
+    for(int i=0; i<contents.size(); i++)
+        row->add(contents[i]);
     return row;
 }
 
-SerialContainer* GtkWidgetFactory::buttonRow(int numWidgets, ...) const
+SerialContainer* GtkWidgetFactory::buttonRow(const Contents& contents) const
 {
     ZCGtkButtonRow* row=new ZCGtkButtonRow();
-    va_list args;
-    va_start(args, numWidgets);
-    for(int i=0; i<numWidgets; i++)
-    {
-        Widget* w=va_arg(args, Widget*);
-        row->add(w);
-    }
-    va_end(args);
+    for(int i=0; i<contents.size(); i++)
+        row->add(contents[i]);
     return row;
 }
 

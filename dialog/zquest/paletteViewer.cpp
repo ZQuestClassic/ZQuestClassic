@@ -37,9 +37,9 @@ public:
 GUI::Widget* PaletteViewer::createDialog(const GUI::WidgetFactory& f)
 {
     return f.window("Current palette",
-      f.column(2,
-        f.bitmap(new PaletteViewerBitmap()),
+      f.column(GUI::Contents(
+        f.bitmap(new PaletteViewerBitmap(), 1),
         f.button("O&K", boost::bind(&PaletteViewer::shutDown, this))
-      )
+      ))
     );
 }

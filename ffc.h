@@ -108,11 +108,54 @@ public:
     inline FFC& operator[](int index) { return ffcs[index]; }
     inline const FFC& operator[](int index) const { return ffcs[index]; }
     
+    // For AngelScript
+    inline FFC* getPtr(int index) { return ffcs+index; }
+    
 private:
     FFC ffcs[32];
     
     /// Called when a changer with a swap flag is triggered.
     void swapData(FFC& f1, FFC& f2);
 };
+
+
+class SparseFFCSetArray
+{
+public:
+	enum { MAX_SCREENS = 65535 };
+
+	/// Gets a screen ffcset. Can be null.
+	FFCSet* GetFFCSet(int screenIndex)
+	{
+		//assert(screenIndex < MAX_SCREENS);
+		return screenFFCSets[screenIndex];
+	}
+
+	/// Gets a screen ffcset. If it does not exist a new ffcset is created.
+	FFCSet* GetOrCreateFFCSet(int screenIndex)
+	{
+		//assert(screenIndex < MAX_SCREENS);
+		if(screenFFCSets[screenIndex] == 0)
+			screenFFCSets[screenIndex] = new FFCSet();
+
+		return screenFFCSets[screenIndex];
+	}
+
+	void Clear()
+	{
+		for(int i(0); i < MAX_SCREENS; ++i)
+		{
+			if(screenFFCSets[i])
+			{
+				delete screenFFCSets[i];
+				screenFFCSets[i] = 0;
+			}
+		}
+	}
+
+	FFCSet blankFFCSet;
+	FFCSet* screenFFCSets[MAX_SCREENS];
+};
+
 
 #endif

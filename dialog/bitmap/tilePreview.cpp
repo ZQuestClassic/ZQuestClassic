@@ -1,5 +1,13 @@
 #include "tilePreview.h"
 
+TilePreviewBitmap::TilePreviewBitmap():
+    tile(0),
+    cset(0),
+    orientation(0),
+    needsRedrawn(true)
+{
+}
+
 TilePreviewBitmap::TilePreviewBitmap(int t, int cs, Orientation o):
     tile(t),
     cset(cs),

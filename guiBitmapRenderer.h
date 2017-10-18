@@ -10,6 +10,7 @@ public:
     GUIBitmapRenderer(int scale);
     ~GUIBitmapRenderer();
     void initialize(int width, int height);
+    inline BITMAP* getBitmap() { return bmp; }
     void* getData();
     void getActualSize(int& width, int& height) const;
     inline int getScale() const { return scale; }

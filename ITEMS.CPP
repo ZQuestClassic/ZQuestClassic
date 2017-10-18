@@ -27,6 +27,7 @@
 #include "zdefs.h"
 #include "mem_debug.h"
 #include "sound.h"
+#include "angelscript/aszc.h"
 
 #include <queue>
 
@@ -287,6 +288,8 @@ void item::init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy)
       if(j<2) a[j]=itemsbuf[id].initiala[j]*10000;
       d[j]=itemsbuf[id].initiald[j];
     }*/
+    
+    assignItemScript(this, "item");
 }
 
 // easy way to draw an item

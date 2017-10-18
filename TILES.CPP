@@ -32,12 +32,14 @@ extern byte        quest_rules[QUESTRULES_SIZE];
 //BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
 newcombo *combobuf;
+
 word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 word animated_combos;
 word animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 word animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 word animated_combos2;
+
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool used_tile_table[NEWMAXTILES];                          //keeps track of used tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tile quarters
@@ -199,7 +201,8 @@ void setup_combo_animations2()
 
 void reset_combo_animation(int c)
 {
-    for(word x=0; x<animated_combos; ++x)
+	const int count = animated_combos;
+    for(int x=0; x<count; ++x)
     {
         int y=animated_combo_table4[x][0];                      //combo number
         
@@ -214,7 +217,8 @@ void reset_combo_animation(int c)
 
 void reset_combo_animation2(int c)
 {
-    for(word x=0; x<animated_combos2; ++x)
+	const int count2 = animated_combos2;
+    for(int x=0; x<count2; ++x)
     {
         int y=animated_combo_table24[x][0];                      //combo number
         
@@ -229,7 +233,8 @@ void reset_combo_animation2(int c)
 
 void reset_combo_animations()
 {
-    for(word x=0; x<animated_combos; ++x)
+	const int count = animated_combos;
+    for(int x=0; x<count; ++x)
     {
         combobuf[animated_combo_table4[x][0]].tile=animated_combo_table[animated_combo_table4[x][0]][1];
     }
@@ -237,7 +242,8 @@ void reset_combo_animations()
 
 void reset_combo_animations2()
 {
-    for(word x=0; x<animated_combos; ++x)
+	const int count2 = animated_combos2;
+    for(int x=0; x<count2; ++x)
     {
         combobuf[animated_combo_table24[x][0]].tile=animated_combo_table2[animated_combo_table24[x][0]][1];
     }
@@ -248,8 +254,9 @@ extern void update_combo_cycling();
 void animate_combos()
 {
     update_combo_cycling();
-    
-    for(word x=0; x<animated_combos; ++x)
+
+	const int count = animated_combos;
+    for(int x=0; x<count; ++x)
     {
         int y=animated_combo_table4[x][0];                      //combo number
         
@@ -280,7 +287,8 @@ void animate_combos()
         }
     }
     
-    for(word x=0; x<animated_combos2; ++x)
+	const int count2 = animated_combos2;
+    for(int x=0; x<count2; ++x)
     {
         int y=animated_combo_table24[x][0];                      //combo number
         

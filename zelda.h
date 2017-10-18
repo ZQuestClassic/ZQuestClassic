@@ -228,8 +228,6 @@ extern word     door_combo_set_count;
 extern short    lensclk;
 extern int     lensid;
 extern int    Bpos;
-extern byte screengrid[22];
-extern byte ffcgrid[4];
 extern volatile int logic_counter;
 #ifdef _SCRIPT_COUNTER
 extern volatile int script_counter;

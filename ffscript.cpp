@@ -480,11 +480,9 @@ public:
     
     static bool hasLink()
     {
-        if(tempenemy->family == eeWALLM)
-            return ((eWallM *) tempenemy)->haslink;
-            
-        if(tempenemy->family == eeWALK)
-            return ((eStalfos *) tempenemy)->haslink;
+        if(tempenemy->family == eeWALLM ||
+          tempenemy->family == eeWALK)
+            return ((ASEnemy *) tempenemy)->haslink;
             
         return false;
     }
@@ -2596,12 +2594,14 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
-        int layr = whichlayer(scr);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        if(pos>=0 && pos<176 &&
+          scr>=0 && scr<MAPSCRS &&
+          m>=0 && m<map_count)
         {
+            int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->data[pos]*10000;
             else if(layr>-1)
@@ -2617,12 +2617,14 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
-        int layr = whichlayer(scr);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        if(pos>=0 && pos<176 &&
+          scr>=0 && scr<MAPSCRS &&
+          m>=0 && m<map_count)
         {
+            int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->cset[pos]*10000;
             else if(layr>-1)
@@ -2638,12 +2640,14 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
-        int layr = whichlayer(scr);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        if(pos>=0 && pos<176 &&
+          scr>=0 && scr<MAPSCRS &&
+          m>=0 && m<map_count)
         {
+            int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=tmpscr->sflag[pos]*10000;
             else if(layr>-1)
@@ -2659,12 +2663,14 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
-        int layr = whichlayer(scr);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        if(pos>=0 && pos<176 &&
+          scr>=0 && scr<MAPSCRS &&
+          m>=0 && m<map_count)
         {
+            int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].type*10000;
             else if(layr>-1)
@@ -2681,12 +2687,14 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
-        int layr = whichlayer(scr);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        if(pos>=0 && pos<176 &&
+          scr>=0 && scr<MAPSCRS &&
+          m>=0 && m<map_count)
         {
+            int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=combobuf[tmpscr->data[pos]].flag*10000;
             else if(layr>-1)
@@ -2702,12 +2710,14 @@ else \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
-        int layr = whichlayer(scr);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+        if(pos>=0 && pos<176 &&
+          scr>=0 && scr<MAPSCRS &&
+          m>=0 && m<map_count)
         {
+            int layr = whichlayer(scr);
             if(scr==(currmap*MAPSCRS+currscr))
                 ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
             else if(layr>-1)
@@ -4563,10 +4573,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        if(pos<0 || pos>=176 ||
+          scr<0 || scr>=MAPSCRS ||
+          m<0 || m>=map_count)
+            break;
         
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
@@ -4596,10 +4609,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        if(pos<0 || pos>=176 ||
+          scr<0 || scr>=MAPSCRS ||
+          m<0 || m>=map_count)
+            break;
         
         TheMaps[scr].cset[pos]=(value/10000)&15;
         
@@ -4617,10 +4633,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
+        if(pos<0 || pos>=176 ||
+          scr<0 || scr>=MAPSCRS ||
+          m<0 || m>=map_count)
+            break;
         
         TheMaps[scr].sflag[pos]=value/10000;
         
@@ -4638,10 +4657,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+        if(pos<0 || pos>=176 ||
+          scr<0 || scr>=MAPSCRS ||
+          m<0 || m>=map_count)
             break;
             
         int cdata = TheMaps[scr].data[pos];
@@ -4671,10 +4692,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         int pos = (ri->d[0])/10000;
         int sc = (ri->d[2]/10000);
-        int m = zc_max((ri->d[1]/10000)-1,0);
-        long scr = zc_max(m*MAPSCRS+sc,0);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count))
+        if(pos<0 || pos>=176 ||
+          scr<0 || scr>=MAPSCRS ||
+          m<0 || m>=map_count)
             break;
             
         combobuf[TheMaps[scr].data[pos]].flag=value/10000;
@@ -4684,9 +4707,14 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case COMBOSDM:
     {
         int pos = (ri->d[0])/10000;
-        long scr = (ri->d[1]/10000)*MAPSCRS+(ri->d[2]/10000);
+        int sc = (ri->d[2]/10000);
+        int m = (ri->d[1]/10000)-1;
+        long scr = m*MAPSCRS+sc;
         
-        if(pos < 0 || pos >= 176 || scr < 0) break;
+        if(pos<0 || pos>=176 ||
+          scr<0 || scr>=MAPSCRS ||
+          m<0 || m>=map_count)
+            break;
         
         combobuf[TheMaps[scr].data[pos]].walk=(value/10000)&15;
     }
@@ -4819,6 +4847,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 void do_set(const bool v, byte whichFFC)
 {
     // Trying to change the current script?
+	// -Checking for a ffc here is slow. Any way to make this go away?
     if(sarg1==FFSCRIPT && ri->ffcref==whichFFC)
         return;
         

@@ -14,8 +14,6 @@
 #include "ffscript.h"
 #include <stdio.h>
 
-#define DegtoFix(d)     ((d)*0.7111111111111)
-#define RadtoFix(d)     ((d)*40.743665431525)
 
 template<class T> inline
 fixed degrees_to_fixed(T d)

@@ -68,7 +68,7 @@
 #include "sequence.h"
 #include "sfxManager.h"
 #include "sound.h"
-
+#include "angelscript/aszc.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -278,8 +278,6 @@ word     door_combo_set_count;
 short    lensclk;
 int     lensid; // Lens's item id. -1 if lens is off.
 int    Bpos;
-byte screengrid[22];
-byte ffcgrid[4];
 bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;
@@ -1487,7 +1485,7 @@ void restart_level()
 void show_details()
 {
     //textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
-    textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
+    textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon()?1:0);
     textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
     
 //    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getPushing());
@@ -2139,6 +2137,10 @@ int main(int argc, char* argv[])
         Z_error("Error");
         quit_game();
     }
+    
+    Z_message("Initializing AngelScript... ");
+    initializeAngelScript(); // Doesn't report failure yet
+    Z_message("OK\n");
     
     // initialize Allegro
     
@@ -3112,7 +3114,8 @@ void quit_game()
     //if(TheMaps[i].sflag != NULL) delete [] TheMaps[i].sflag;
     //if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
     //}
-    al_trace("Screen Data... \n");
+    al_trace("Screen Data... \n"); // Um, okay?
+    shutDownAngelScript();
     
     al_trace("Deleting quest buffers... \n");
     del_qst_buffers();

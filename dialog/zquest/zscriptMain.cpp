@@ -4,6 +4,7 @@
 #include "../../gui/manager.h"
 #include "../../gui/text.h"
 #include "../../zquest.h"
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <cstdio>
 
@@ -20,18 +21,18 @@ GUI::Widget* ZScriptMainDialog::createDialog(const GUI::WidgetFactory& f)
 {
     GUI::Window* win=
       f.window("Compile ZScript",
-        f.column(4,
+        f.column(GUI::Contents(
           sizeText=f.text(""),
-          f.buttonRow(2,
+          f.buttonRow(GUI::Contents(
             f.button("&Edit", CB(onEdit)),
             f.button("&Compile", CB(onCompile))
-          ),
-          f.buttonRow(2,
+          )),
+          f.buttonRow(GUI::Contents(
             f.button("&Import", CB(onImport)),
             f.button("E&xport", CB(onExport))
-          ),
+          )),
           f.button("C&lose", CB(shutDown))
-        )
+        ))
       );
     
     setSizeText();
@@ -81,6 +82,7 @@ void ZScriptMainDialog::onImport()
     }
     
     std::fclose(newScript);
+    setSizeText();
     saved = false;
 }
 

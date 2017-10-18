@@ -20,6 +20,9 @@
 #include <set>
 #include <map>
 
+class EntityScriptData;
+class asIScriptObject;
+
 using std::map;
 // this code needs some patching for use in zquest.cc
 
@@ -73,26 +76,6 @@ public:
     // Scripting additions
     long miscellaneous[16];
     byte scriptcoldet;
-    //long stack[256];
-    //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
-    //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
-    
-    //refInfo scriptData; //For when we have npc scripts maybe
-    /*long d[8];
-    long a[2];
-    byte ffcref;
-    dword itemref;
-    dword guyref;
-    dword lwpnref;
-    dword ewpnref;
-    byte sp;
-    word pc;
-    dword scriptflag;
-    word doscript;
-    byte itemclass;*/
-    //byte guyclass; //Not implemented
-    //byte lwpnclass;
-    //byte ewpnclass;
     
     sprite();
     sprite(sprite const & other);
@@ -132,11 +115,21 @@ public:
     inline void markForDeletion() { toBeDeleted=true; }
     inline bool isMarkedForDeletion() const { return toBeDeleted; }
     
+    inline void setScriptData(EntityScriptData* esd) { scriptData=esd; }
+    asIScriptObject* getScriptObject();
+    
+protected:
+    EntityScriptData* scriptData;
+    
 private:
     bool toBeDeleted;
     EntityRef* ref;
     
+    void scriptDraw();                        // main layer
+    void scriptDrawCloaked();                 // main layer
+    
     template<typename T> friend class EntityPtr;
+    friend void registerSprite();
 };
 
 

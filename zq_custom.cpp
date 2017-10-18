@@ -3218,9 +3218,7 @@ int onCustomEnemies()
     while(index >= 0)
     {
         //I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
-        //,,.Someone feel free to fix the thing properly later on.
-        //Right now creating custom enemies remains a long painful process, but it shouldn't be this hard for users to use.
-        //-Two cents worth. -Gleeok
+        //,,.Someone feel free to fix the thing properly later on. -Gleeok
         if(key[KEY_OPENBRACE])   //copy
         {
             if(index != 0)

@@ -69,12 +69,12 @@ Widget* Alert::createDialog(const GUI::WidgetFactory& f)
     GUI::SerialContainer* btns;
     
     GUI::Window* win=f.window(title,
-      f.column(2,
+      f.column(GUI::Contents(
         f.text(text),
-        btns=f.buttonRow(1,
-          f.button(btn1, SETVAL(1))
+        btns=f.buttonRow(GUI::Contents(
+          f.button(btn1, SETVAL(1)))
         )
-      )
+      ))
     );
     
     if(numButtons>1)

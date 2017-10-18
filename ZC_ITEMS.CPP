@@ -59,8 +59,8 @@ bool item::canPickUp(LinkClass* link)
         // This should be moved, but it'll have to wait...
         if((pickup&ipMONEY)!=0)
         {
-            if(onGetDummyMoney)
-                onGetDummyMoney();
+           // if(onGetDummyMoney)
+           //     onGetDummyMoney();
         }
         
         return false;

@@ -2,6 +2,7 @@
 #define _ZC_MESSAGEMANAGER_H_
 
 #include <boost/function.hpp>
+
 class Message;
 struct MsgStr;
 struct BITMAP;

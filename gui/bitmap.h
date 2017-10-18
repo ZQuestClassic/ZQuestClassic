@@ -4,6 +4,7 @@
 #include "widget.h"
 #include "../guiBitmapRenderer.h"
 #include "../scoped_ptr.h"
+struct BITMAP;
 struct MouseInput;
 
 namespace GUI
@@ -36,6 +37,12 @@ public:
     inline int getScale() const
     {
         return renderer->getScale();
+    }
+    
+    /// Returns an Allegro BITMAP.
+    inline BITMAP* getBitmap()
+    {
+        return renderer->getBitmap();
     }
     
     /// Returns pixel data that can be used to construct a GdkPixbuf.

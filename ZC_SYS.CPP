@@ -6572,7 +6572,7 @@ int next_press_btn()
     }
 }
 
-static bool rButton(bool(proc)(),bool &flag)
+bool rButton(bool(proc)(),bool &flag)
 {
     if(!proc())
     {

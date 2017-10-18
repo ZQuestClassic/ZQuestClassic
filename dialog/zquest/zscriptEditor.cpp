@@ -4,6 +4,7 @@
 #include <gui/manager.h>
 #include <gui/textBox.h>
 #include <zquest.h>
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 
 #define CB(func) boost::bind(&ZScriptEditor::func, this)

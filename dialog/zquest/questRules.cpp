@@ -2,6 +2,7 @@
 #include "../../gui/factory.h"
 #include "../../zdefs.h"
 #include "../../zsys.h"
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <string>
 
@@ -170,8 +171,8 @@ const RuleData compatRules[]={
   { -1, "" }
 };
 
-void addTab(const std::string& name, const RuleData* rules, const WidgetFactory& f,
-  TabPanel* tp, std::vector<Checkbox*>& checkboxes)
+void addTab(const std::string& name, const RuleData* rules,
+  const WidgetFactory& f, TabPanel* tp, std::vector<Checkbox*>& checkboxes)
 {
     SerialContainer* column=f.column();
     
@@ -196,15 +197,16 @@ Widget* QuestRulesEditor::createDialog(const WidgetFactory& f)
     TabPanel* tabPanel;
     
     Window* win=f.window("Quest rules",
-      f.column(2,
+      f.column(Contents(
         tabPanel=f.tabPanel(),
-        f.buttonRow(2,
+        f.buttonRow(Contents(
           f.button("O&K", CB(onOK)),
           f.button("&Cancel", CB(shutDown))
-        )
-      )
+        ))
+      ))
     );
     
+    checkboxes.reserve(160);
     addTab("&Animation", animationRules, f, tabPanel, checkboxes);
     addTab("C&ombos", comboRules, f, tabPanel, checkboxes);
     addTab("&Items", itemRules, f, tabPanel, checkboxes);

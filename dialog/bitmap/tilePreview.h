@@ -8,6 +8,7 @@
 class TilePreviewBitmap: public GUI::BitmapBackend
 {
 public:
+    TilePreviewBitmap();
     TilePreviewBitmap(int tile, int cset, Orientation orientation);
     void initialize();
     void redraw();

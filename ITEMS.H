@@ -17,7 +17,7 @@
 
 #include "sprite.h"
 #include "zdefs.h"
-#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 class LinkClass;
 
@@ -46,6 +46,7 @@ public:
     item(int id);
     item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
+
     void setPickupFlags(int newPickup);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
@@ -62,9 +63,10 @@ public:
      */
     int getUpgradeResult() const;
     
+	//TODO: These are broken. There should be a less clever way to do this.
     // public for now...
-    boost::function<void()> onGetDummyMoney;
-    boost::function<void()> onPickUp;
+	void* onGetDummyMoney; // ..WHY??
+    void* onPickUp;
     
     inline void setPrice(int newPrice)
     {

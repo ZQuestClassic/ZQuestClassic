@@ -6,6 +6,7 @@
 #include <gui/spinner.h>
 #include <gui/text.h>
 #include <util.h>
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <cstdio>
 
@@ -29,7 +30,7 @@ GUI::Widget* TileSelector::createDialog(const GUI::WidgetFactory& f)
     char tileBuf[20];
     std::sprintf(tileBuf, "Old tile: %d", tileBmp2->getTile());
     
-    GUI::SerialContainer* rightColumn=f.column(7,
+    GUI::SerialContainer* rightColumn=f.column(GUI::Contents(
       f.text("Page:"),
       pageSelector=f.spinner(0, backend.lastPage),
       f.bitmap(currTileBmp),
@@ -37,19 +38,19 @@ GUI::Widget* TileSelector::createDialog(const GUI::WidgetFactory& f)
       currCSetText=f.text(""),
       f.bitmap(tileBmp2),
       f.text(tileBuf)
-    );
+    ));
     
     GUI::Window* win=f.window("Select tile",
-      f.column(2,
-        f.row(2,
+      f.column(GUI::Contents(
+        f.row(GUI::Contents(
           f.bitmap(tsBmp),
           rightColumn
-        ),
-        f.buttonRow(2,
+        )),
+        f.buttonRow(GUI::Contents(
           f.button("O&K", CB(onOK)),
           f.button("&Cancel", CB(shutDown))
-        )
-      )
+        ))
+      ))
     );
     
     pageSelector->setOnValueChanged(

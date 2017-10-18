@@ -68,6 +68,7 @@ bool DrunkDown();
 bool DrunkLeft();
 bool DrunkRight();
 
+bool rButton(bool(proc)(),bool &flag);
 bool rUp();
 bool rDown();
 bool rLeft();

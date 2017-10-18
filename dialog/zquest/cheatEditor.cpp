@@ -12,17 +12,17 @@ extern bool saved;
 GUI::Widget* CheatEditor::createDialog(const GUI::WidgetFactory& f)
 {
     GUI::Window* win=f.window("Cheat codes",
-      f.column(6,
+      f.column(GUI::Contents(
         enabledCB=f.checkbox("Cheats &enabled"),
-        f.row(2, f.text("Level 1"), code1=f.textField(40)),
-        f.row(2, f.text("Level 2"), code2=f.textField(40)),
-        f.row(2, f.text("Level 3"), code3=f.textField(40)),
-        f.row(2, f.text("Level 4"), code4=f.textField(40)),
-        f.buttonRow(2,
+        f.row(GUI::Contents(f.text("Level 1"), code1=f.textField(40))),
+        f.row(GUI::Contents(f.text("Level 2"), code2=f.textField(40))),
+        f.row(GUI::Contents(f.text("Level 3"), code3=f.textField(40))),
+        f.row(GUI::Contents(f.text("Level 4"), code4=f.textField(40))),
+        f.buttonRow(GUI::Contents(
           f.button("O&K", CB(onOK)),
           f.button("&Cancel", CB(shutDown))
-        )
-      )
+        ))
+      ))
     );
     
     enabledCB->setValue((zcheats.flags&1)!=0);

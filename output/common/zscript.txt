@@ -1289,9 +1289,10 @@ namespace Screen
 	based on the order of which layer they need to be drawn to. Drawing to or from
 	seperate render tagets or bitmaps is no exception! So keep in mind in order to 
 	eliminate unwanted drawing orders or bugs.
-	// Screen/Layer Drawing
 	*/
 	void DrawBitmap( int layer, int bitmap_id, int source_x, int source_y, int source_w, int source_h, int dest_x, int dest_y, int dest_w, int dest_h, float rotation, bool mask);
+
+	// Screen/Layer Drawing
 
 	/**
 	* Draws an entire Layer from source_screen on source_map on the specified layer of the current screen at (x,y).
@@ -2580,6 +2581,7 @@ class npc
 	* The npc's Misc. Flags as 14 bits ORed together, starting with 'Damaged by Power 0 Weapons',
 	* and working down the flags in the order they are shown in the Enemy Editor.
 	* npc->MiscFlags is read-only; while setting it is not syntactically incorrect, it does nothing.
+
 	* If you are not comfortable with binary operations, you can use 'GetNPCMiscFlag' from std.zh
 	*/
 	int MiscFlags;

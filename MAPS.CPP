@@ -46,7 +46,6 @@
 
 #define EPSILON 0.01 // Define your own tolerance
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
-#define DegtoFix(d)     ((d)*0.71111111)
 
 
 //MSVC does not provide a log2 funcion in <cmath>
@@ -137,7 +136,7 @@ void clear_dmaps()
     }
 }
 
-int isdungeon(int dmap, int scr) // The arg is only used by loadscr2 and loadscr
+bool isdungeon(int dmap, int scr) // The arg is only used by loadscr2 and loadscr
 {
     if(scr < 0) scr=currscr;
     
@@ -147,16 +146,16 @@ int isdungeon(int dmap, int scr) // The arg is only used by loadscr2 and loadscr
     if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
     {
         if(TheMaps[(currmap*MAPSCRS)+scr].flags6&fCAVEROOM)
-            return 0;
+            return false;
             
-        return 1;
+        return true;
     }
     
     // dlevels that aren't dungeons are caves
     if(TheMaps[(currmap*MAPSCRS)+scr].flags6&fDUNGEONROOM)
-        return 1;
+        return true;
         
-    return 0;
+    return false;
 }
 
 int MAPCOMBO(int x,int y)
@@ -2872,17 +2871,10 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     for(int i=0; i<guys.Count(); i++)
     {
-        if(((enemy*)guys.spr(i))->family == eeWALK)
+        if(((enemy*)guys.spr(i))->family == eeWALLM
+           || ((enemy*)guys.spr(i))->family == eeWALK)
         {
-            if(((eStalfos*)guys.spr(i))->haslink)
-            {
-                guys.spr(i)->draw(framebuf);
-            }
-        }
-        
-        if(((enemy*)guys.spr(i))->family == eeWALLM)
-        {
-            if(((eWallM*)guys.spr(i))->haslink)
+            if(((ASEnemy*)guys.spr(i))->haslink)
             {
                 guys.spr(i)->draw(framebuf);
             }
@@ -4200,6 +4192,45 @@ void map_bkgsfx(bool on)
                 stop_sfx(((enemy*)guys.spr(i))->bgsfx);
         }
     }
+}
+
+/**** Script Functions ****/
+
+bool asScreenFlagIsSet(int flag)
+{
+    int flagSet=flag>>8;
+    flag&=0xFF;
+    switch(flagSet)
+    {
+    case 0:
+        return tmpscr->flags&flag;
+    case 1:
+        return tmpscr->flags2&flag;
+    case 2:
+        return tmpscr->flags3&flag;
+    case 3:
+        return tmpscr->flags4&flag;
+    case 4:
+        return tmpscr->flags5&flag;
+    case 5:
+        return tmpscr->flags6&flag;
+    case 6:
+        return tmpscr->flags7&flag;
+    case 7:
+        return tmpscr->flags8&flag;
+    case 8:
+        return tmpscr->flags9&flag;
+    case 9:
+        return tmpscr->flags10&flag;
+    
+    default:
+        return false;
+    }
+}
+
+int asGetComboType(int pos)
+{
+    return combobuf[tmpscr->data[pos]].type;
 }
 
 /****  View Map  ****/

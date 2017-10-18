@@ -7,8 +7,16 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 
 /*
   #define  INTERNAL_VERSION  0xA721
@@ -24,6 +32,7 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include <util.h>
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -124,13 +133,20 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #define snprintf _snprintf
 #endif
 
+#include "messageList.h"
 #include "dialog/zquest/cheatEditor.h"
+#include "dialog/zquest/infoShopEditor.h"
 #include "dialog/zquest/paletteViewer.h"
 #include "dialog/zquest/questRules.h"
+#include "dialog/zquest/shopEditor.h"
+#include "dialog/zquest/simpleListSelector.h"
 #include "dialog/zquest/zscriptMain.h"
-#include "gui/gtk/manager.h"
-GUI::GUIManager* gui;
+//#include "gui/gtk/manager.h"
+#include "gui/allegro/manager.h"
+#include <boost/bind.hpp>
 
+GUI::GUIManager* gui;
+MessageList msgList; // Trivial for now
 
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -6049,14 +6065,6 @@ void doxypos(byte &px2,byte &py2,int color,int mask, bool immediately, int curso
         
         do_animations();
         refresh(rALL | rNOCURSOR);
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        // else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
     }
     
 finished:
@@ -6211,14 +6219,6 @@ void doflags()
         
         do_animations();
         refresh(rALL | rNOCURSOR);
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        // else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
     }
     
 finished:
@@ -9481,18 +9481,6 @@ static DIALOG wlist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG rlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     70,   163,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     190,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     130,  163,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 
 
 /*
@@ -9729,184 +9717,6 @@ int select_weapon(const char *prompt,int weapon)
     return biw[index].i;
 }
 
-
-item_struct bir[rMAX];
-int bir_cnt=-1;
-
-void build_bir_list()
-{
-    bir_cnt=0;
-    
-    for(int i=0; i<rMAX; i++)
-    {
-        if(roomtype_string[i][0]!='-')
-        {
-            bir[bir_cnt].s = (char *)roomtype_string[i];
-            bir[bir_cnt].i = i;
-            ++bir_cnt;
-        }
-    }
-    
-    for(int i=0; i<bir_cnt-1; i++)
-    {
-        for(int j=i+1; j<bir_cnt; j++)
-        {
-            if(stricmp(bir[i].s,bir[j].s)>0)
-            {
-                zc_swap(bir[i],bir[j]);
-            }
-        }
-    }
-}
-
-const char *roomlist(int index, int *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bir_cnt;
-        return NULL;
-    }
-    
-    return bir[index].s;
-}
-
-int select_room(const char *prompt,int room)
-{
-    if(bir_cnt==-1)
-    {
-        build_bir_list();
-    }
-    
-    int index=0;
-    
-    for(int j=0; j<bir_cnt; j++)
-    {
-        if(bir[j].i == room)
-        {
-            index=j;
-        }
-    }
-    
-    rlist_dlg[0].dp=(void *)prompt;
-    rlist_dlg[0].dp2=lfont;
-    rlist_dlg[2].d1=index;
-    ListData room_list(roomlist, &font);
-    rlist_dlg[2].dp=(void *) &room_list;
-    
-    if(is_large)
-        large_dialog(rlist_dlg);
-        
-    int ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(rlist_dlg,2);
-        
-        if(ret==5)
-        {
-            int id = bir[rlist_dlg[2].d1].i;
-            
-            switch(id)
-            {
-            case rSP_ITEM:
-                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer an item to Link.","Also used for Item Cellar warps, and","'Armos/Chest->Item' and 'Dive For Item' combo flags.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rINFO:
-                jwin_alert(roomtype_string[id],"Pay rupees to make one of three strings appear.","Strings and prices are set in","Misc. Data -> Info Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rMONEY:
-                jwin_alert(roomtype_string[id],"If a Guy is set, he will offer rupees to Link.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGAMBLE:
-                jwin_alert(roomtype_string[id],"The 'Money-Making Game' from The Legend of Zelda.","Risk losing up to 40 rupees for a","chance to win up to 50 rupees.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rREPAIR:
-                jwin_alert(roomtype_string[id],"When the Guy's String vanishes,","Link loses a given amount of rupees.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rRP_HC:
-                jwin_alert(roomtype_string[id],"The Guy offers item 28 and item 30 to Link.","Taking one makes the other vanish forever.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGRUMBLE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link uses (and thus loses) a Bait item.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rTRIFORCE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","unless Link has Triforces from levels 1-8.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rP_SHOP:
-                jwin_alert(roomtype_string[id],"Similar to a Shop, but the items and String","won't appear until Link uses a Letter item.","(Or, if Link already has a Level 2 Letter item.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rSHOP:
-                jwin_alert(roomtype_string[id],"The Guy offers three items for a fee.","You can use the Shop as often as you want.","Items and prices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rBOMBS:
-                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Bombs","and Max. Bombs by 4, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rSWINDLE:
-                jwin_alert(roomtype_string[id],"The Guy and his invisible wall won't vanish","until Link pays the fee or forfeits a Heart Container.","(Shutters won't open until the Guy vanishes, too.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case r10RUPIES:
-                jwin_alert(roomtype_string[id],"10 instances of item 0 appear in a","diamond formation in the center of the screen.","No Guy or String needs to be set for this.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rWARP:
-                jwin_alert(roomtype_string[id],"All 'Stair [A]' type combos send Link to","a destination in a given Warp Ring, based","on the combo's X position (<112, >136, or between).","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rGANON:
-                jwin_alert(roomtype_string[id],"Link holds up the Triforce, and Ganon appears.",NULL,"(Unless the current DMap's Dungeon Boss was beaten.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rZELDA:
-                jwin_alert(roomtype_string[id],"Four instances of enemy 85 appear","on the screen in front of the Guy.","(That's all it does.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rMUPGRADE:
-                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the 1/2 Magic Usage attribute.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rLEARNSLASH:
-                jwin_alert(roomtype_string[id],"When the Guy's String finishes,","Link gains the Slash attribute.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rARROWS:
-                jwin_alert(roomtype_string[id],"The Guy offers to increase Link's Arrows","and Max. Arrows by 10, for a fee.","You can only buy it once.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case rTAKEONE:
-                jwin_alert(roomtype_string[id],"The Guy offers three items.","Taking one makes the others vanish forever.","Item choices are set in Misc. Data -> Shop Types.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Room Type, then click","Help to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-            }
-        }
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    else
-        index = rlist_dlg[2].d1;
-        
-    position_mouse_z(0);
-    return bir[index].i;
-}
 
 int select_data(const char *prompt,int index,const char *(proc)(int,int*), FONT *title_font)
 {
@@ -11090,90 +10900,187 @@ int onItem()
     return D_O_K;
 }
 
+namespace
+{
+
+struct RoomOrGuyData // Whatever
+{
+    int value;
+    const char* name;
+    const char* info;
+};
+
+const RoomOrGuyData roomData[]={
+    { rNONE, "(None)", "Select a Room Type, then click Help to find out what it does." },
+    { rMUPGRADE, "1/2 magic upgrade", "When the Guy's message finishes, Link gains the 1/2 Magic Usage attribute." },
+    { r10RUPIES, "10 rupees", "10 instances of item 0 appear in a diamond formation in the center of the screen. No Guy or String needs to be set for this." },
+    { rWARP, "3-stair warp", "All 'Stair [A]' type combos send Link to a destination in a given Warp Ring, based on the combo's X position (<112, >136, or between)." },
+    { rREPAIR, "Door repair", "When the Guy's String vanishes, Link loses a given amount of rupees." },
+    { rGRUMBLE, "Feed the Goriya", "The Guy and his invisible wall won't vanish until Link uses (and thus loses) a Bait item. (Shutters won't open until the Guy vanishes, too.)" },
+    { rGAMBLE, "Gamble", "The 'Money-Making Game' from The Legend of Zelda. Risk losing up to 40 rupees for a chance to win up to 50 rupees." },
+    { rGANON, "Ganon", "Link holds up the Triforce and Ganon appears unless the current DMap's dungeon boss has been beaten." },
+    { rLEARNSLASH, "Learn slash", "When the Guy's message finishes, Link gains the Slash attribute." },
+    { rSWINDLE, "Leave money or life", "The Guy and his invisible wall won't vanish until Link pays the fee or forfeits a Heart Container. (Shutters won't open until the Guy vanishes, too.)" },
+    { rTRIFORCE, "Level 9 entrance", "The Guy and his invisible wall won't vanish unless Link has Triforce pieces from levels 1-8. (Shutters won't open until the Guy vanishes, too.)" },
+    { rARROWS, "More arrows", "The Guy offers to increase Link's Arrows and Max. Arrows by 10 for a fee. You can only buy it once." },
+    { rBOMBS, "More bombs", "The Guy offers to increase Link's Bombs and Max. Bombs by 4 for a fee. You can only buy it once." },
+    { rINFO, "Pay for info", "Pay rupees to make one of three messages appear. Messages and prices are set in Misc. Data -> Info Types." },
+    { rP_SHOP, "Potion shop", "Similar to a shop, but the items and message won't appear until Link uses a Letter item (Or if Link already has a Level 2 Letter item)." },
+    { rRP_HC, "Red potion or heart container", "The Guy offers item 28 and item 30 to Link. Taking one makes the other vanish forever." },
+    { rMONEY, "Secret money", "If a Guy is set, he will offer rupees to Link." },
+    { rSHOP, "Shop", "The Guy offers up to three items for a fee. You can use the shop as often as you want. Items and prices are set in Misc. Data -> Shop Types." },
+    { rSP_ITEM, "Special item", "If a Guy is set, he will offer an item to Link. Also used for Item Cellar warps and 'Armos/Chest->Item' and 'Dive For Item' combo flags." },
+    { rTAKEONE, "Take one item", "The Guy offers up to three items. Taking one makes the others vanish forever. Item choices are set in Misc. Data -> Shop Types." },
+    { rZELDA, "Zelda", "Four instances of enemy 85 appear on the screen in front of the Guy. That's all it does." }
+};
+
+const RoomOrGuyData guyData[]={ // There's already a "guydata"... Ugh.
+    { gNONE, "(None)", "" },
+    { gABEI, "Abei", "The old man. Uses tile 84." },
+    { gABEI2, "Abei 2", "A different old man. Uses tile 87." },
+    { gAMA, "Ama", "The old woman. Uses tile 85." },
+    { gEMPTY, "Empty", "An invisible Guy. Uses tile 259, which is usually empty. Use it when you just want the String to appear without a visible Guy." },
+    { gFAIRY, "Fairy", "A fairy. Uses tiles 63 and 64. Even if the DMap uses 'Special Rooms/Guys In Caves Only' she will still appear in regular screens." },
+    { gFIRE, "Fire", "A sentient flame. Uses tile 65 and flips horizontally as it animates." },
+    { gGORIYA, "Goriya", "The hungry Goriya. Uses tile 132. He isn't actually necessary to make use of the 'Feed the Goriya' Room Type." },
+    { gDUDE, "Merchant", "The shopkeeper. Uses tile 86." },
+    { gMOBLIN, "Moblin", "The generous Moblin. Uses tile 116." },
+    { gZELDA, "Zelda", "The princess. Uses tiles 35 and 36. Approaching her won't cause the game to end (Unless you touch a Zelda combo flag)." }
+};
+
+} // Namespace
+
+std::string getRoomName(int id)
+{
+    return roomData[id].name;
+}
+
+void showRoomInfo(int id)
+{
+    gui->alert(roomData[id].name, roomData[id].info);
+}
+
 int onRType()
 {
-    if(prv_mode)
+    int init=0;
+    for(int i=0; i<21; i++)
     {
-        Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
-        Map.set_prvcmb(0);
-        return D_O_K;
+        if(roomData[i].value==Map.CurrScr()->room)
+        {
+            init=i;
+            break;
+        }
     }
     
-    restore_mouse();
-    build_bir_list();
-    int ret=select_room("Select Room Type",Map.CurrScr()->room);
-    
+    SimpleListSelector sls("Select room type", getRoomName, 21, showRoomInfo, false, init);
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
     if(ret>=0)
     {
+        Map.CurrScr()->room=roomData[ret].value;
         saved=false;
-        Map.CurrScr()->room=ret;
+        if(ret==rSP_ITEM)
+            Map.CurrScr()->catchall=clamp(Map.CurrScr()->catchall, 0, ITEMCNT-1);
+        // That's the only one it checks for? The others must be handled elsewhere...
     }
-    
-    int c=Map.CurrScr()->catchall;
-    
-    switch(Map.CurrScr()->room)
-    {
-    case rSP_ITEM:
-        Map.CurrScr()->catchall=bound(c,0,ITEMCNT-1);
-        break;
-        // etc...
-    }
-    
-    refresh(rMENU);
-    
     return D_O_K;
+}
+
+std::string getGuyName(int id)
+{
+    return guyData[id].name;
+}
+
+void showGuyInfo(int id)
+{
+    gui->alert(guyData[id].name, guyData[id].info);
 }
 
 int onGuy()
 {
-    restore_mouse();
-    build_big_list(true);
-    int ret=select_guy("Select Guy",Map.CurrScr()->guy);
-    
-    if(ret>=0)
+    int init=0;
+    for(int i=0; i<11; i++)
     {
-        saved=false;
-        Map.CurrScr()->guy=ret;
+        if(guyData[i].value==Map.CurrScr()->guy)
+        {
+            init=i;
+            break;
+        }
     }
     
-    refresh(rMAP+rMENU);
+    SimpleListSelector sls("Select guy", getGuyName, 11, showGuyInfo, false, init);
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
+    if(ret>=0)
+    {
+        Map.CurrScr()->guy=guyData[ret].value;
+        saved=false;
+    }
     return D_O_K;
+}
+
+std::string getMessage(int id)
+{
+    // ...
+    return msgList.getListMessageText(id);
 }
 
 int onString()
 {
-    if(prv_mode)
-    {
-        Map.prv_secrets(false);
-        refresh(rALL);
-        return D_O_K;
-    }
-    
-    restore_mouse();
-    int ret=select_data("Select Message String",MsgStrings[Map.CurrScr()->str].listpos,msgslist,lfont);
-    
+    SimpleListSelector sls("Select screen message",
+      boost::bind(&MessageList::getListMessageText, &msgList, 1),
+      msgList.getNumMessages(), false, 0);
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
     if(ret>=0)
     {
+        Map.CurrScr()->str=msgList.getMessageNum(ret);
         saved=false;
-        Map.CurrScr()->str=msglistcache[ret];
     }
-    
-    refresh(rMENU);
     return D_O_K;
 }
 
 int onEndString()
 {
-    int ret=select_data("Select Ending String",misc.endstring,msgslist,lfont);
-    
+    SimpleListSelector sls("Select ending message",
+      boost::bind(&MessageList::getListMessageText, &msgList, 1), 
+      msgList.getNumMessages(), false, 0);
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
     if(ret>=0)
     {
+        misc.endstring=msgList.getMessageNum(ret);
         saved=false;
-        misc.endstring=msglistcache[ret];
+    }
+    return D_O_K;
+}
+
+static std::string getShopListItem(int index); // Move this...
+void onCatchallShop(int roomType)
+{
+    const char* title;
+    int init=clamp(Map.CurrScr()->catchall, 0, 255);
+    std::string (*strFunc)(int);
+    switch(roomType)
+    {
+        case rINFO:
+            title="Select info type";
+            strFunc=getShopListItem;
+            break;
+            
+        case rP_SHOP:
+        case rSHOP:
+        case rTAKEONE:
+            title="Select shop type";
+            strFunc=getShopListItem;
+            break;
     }
     
-    refresh(rMENU);
-    return D_O_K;
+    SimpleListSelector sls(title, strFunc, 256, false, init);
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
+    if(ret>=0)
+        Map.CurrScr()->catchall=ret;
 }
 
 int onCatchall()
@@ -11192,6 +11099,12 @@ int onCatchall()
     restore_mouse();
     int ret=-1;
     int rtype=Map.CurrScr()->room;
+    
+    if(rtype==rINFO || rtype==rSHOP || rtype==rP_SHOP || rtype==rTAKEONE)
+    {
+        onCatchallShop(rtype);
+        return D_O_K;
+    }
     
     switch(rtype)
     {
@@ -11212,22 +11125,6 @@ int onCatchall()
         }
         while(exit_status == 5);
         
-        break;
-        
-    case rINFO:
-        info_list_size = 256;
-        ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
-        break;
-        
-    case rTAKEONE:
-        shop_list_size = 256;
-        ret = select_data("Select \"Take One Item\" Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
-        break;
-        
-    case rP_SHOP:
-    case rSHOP:
-        shop_list_size = 256;
-        ret = select_data("Select Shop Type",Map.CurrScr()->catchall,shoplist,"OK","Cancel",lfont);
         break;
         
     default:
@@ -15058,137 +14955,27 @@ int onPath()
 /********* onInfoTypes **********/
 /********************************/
 
-static DIALOG editinfo_dlg[] =
+static std::string getInfoShopListItem(int index)
 {
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,       0,   10,  208,  204,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     24,   60,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "1st", NULL, NULL },
-    { jwin_text_proc,     24,  106,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "2nd", NULL, NULL },
-    { jwin_text_proc,     24,  152,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "3rd", NULL, NULL },
-    { jwin_text_proc,     56,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
-    { jwin_text_proc,     56,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
-    { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
-    // 8
-    { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_ndroplist_proc,   56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_ndroplist_proc,   56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_ndroplist_proc,   56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
-    // 16
-    { jwin_button_proc,   34,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,  114,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL,                           NULL,  NULL }
-};
-
-void EditInfoType(int index)
-{
-    char ps1[6],ps2[6],ps3[6];
-    char infoname[32];
-    char caption[40];
-    
-    int str1, str2, str3;
-    
-    sprintf(caption,"Info Data %d",index);
-    editinfo_dlg[0].dp = caption;
-    editinfo_dlg[0].dp2 = lfont;
-    
-    sprintf(ps1,"%d",misc.info[index].price[0]);
-    sprintf(ps2,"%d",misc.info[index].price[1]);
-    sprintf(ps3,"%d",misc.info[index].price[2]);
-    snprintf(infoname,32,"%s",misc.info[index].name);
-    editinfo_dlg[8].dp  = ps1;
-    editinfo_dlg[10].dp = ps2;
-    editinfo_dlg[12].dp = ps3;
-    editinfo_dlg[15].dp = infoname;
-    str1 = misc.info[index].str[0];
-    str2 = misc.info[index].str[1];
-    str3 = misc.info[index].str[2];
-    editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
-    editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
-    editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
-//  ListData msgs_list(msgslist, is_large ? &sfont3 : &font);
-    ListData msgs_list(msgslist2, is_large ? &lfont_l : &font);
-    editinfo_dlg[9].dp  =
-        editinfo_dlg[11].dp =
-            editinfo_dlg[13].dp = (void *) &msgs_list;
-            
-    if(is_large)
-        large_dialog(editinfo_dlg);
-        
-    int ret = zc_popup_dialog(editinfo_dlg,-1);
-    
-    if(ret==16)
-    {
-        saved=false;
-        misc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        misc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        misc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
-        snprintf(misc.info[index].name,32,"%s",infoname);
-        str1 = editinfo_dlg[9].d1;
-        str2 = editinfo_dlg[11].d1;
-        str3 = editinfo_dlg[13].d1;
-        misc.info[index].str[0] = msg_at_pos(str1);
-        misc.info[index].str[1] = msg_at_pos(str2);
-        misc.info[index].str[2] = msg_at_pos(str3);
-        
-        //move 0s to the end
-        word swaptmp;
-        
-        if(misc.info[index].str[0] == 0)
-        {
-            //possibly permute the infos
-            if(misc.info[index].str[1] != 0)
-            {
-                //swap
-                swaptmp = misc.info[index].str[0];
-                misc.info[index].str[0] = misc.info[index].str[1];
-                misc.info[index].str[1] = swaptmp;
-                swaptmp = misc.info[index].price[0];
-                misc.info[index].price[0] = misc.info[index].price[1];
-                misc.info[index].price[1] = swaptmp;
-            }
-            else if(misc.info[index].str[2] != 0)
-            {
-                //move info 0 to 1, 1 to 2, and 2 to 0
-                swaptmp = misc.info[index].str[0];
-                misc.info[index].str[0] = misc.info[index].str[2];
-                misc.info[index].str[2] = misc.info[index].str[1];
-                misc.info[index].str[1] = swaptmp;
-                swaptmp = misc.info[index].price[0];
-                misc.info[index].price[0] = misc.info[index].price[2];
-                misc.info[index].price[2] = misc.info[index].price[1];
-                misc.info[index].price[1] = swaptmp;
-            }
-        }
-        
-        if(misc.info[index].str[1] == 0 && misc.info[index].str[2] != 0)
-            //swap
-        {
-            swaptmp = misc.info[index].str[1];
-            misc.info[index].str[1] = misc.info[index].str[2];
-            misc.info[index].str[2] = swaptmp;
-            swaptmp = misc.info[index].price[1];
-            misc.info[index].price[1] = misc.info[index].price[2];
-            misc.info[index].price[2] = swaptmp;
-        }
-    }
+    char buf[37];
+    sprintf(buf, "%d: %s", index, misc.info[index].name);
+    return buf;
 }
 
 int onInfoTypes()
 {
-    info_list_size = 256;
+    SimpleListSelector sls("Info shop types", getInfoShopListItem, 256, true, 0);
     
-    int index = select_data("Info Types",0,infolist,"Edit","Done",lfont);
-    
-    while(index!=-1)
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
+    while(ret>=0)
     {
-        EditInfoType(index);
+        InfoShopEditor ise(misc.info[ret], msgList);
+        gui->showDialog(ise);
         
-        index = select_data("Info Types",index,infolist,"Edit","Done",lfont);
+        sls.setInitialSelection(ret);
+        gui->showDialog(sls);
+        ret=sls.getSelected();
     }
     
     return D_O_K;
@@ -15198,141 +14985,27 @@ int onInfoTypes()
 /********* onShopTypes **********/
 /********************************/
 
-static DIALOG editshop_dlg[] =
+static std::string getShopListItem(int index)
 {
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,       0,   10,  221,  204,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     24,   60,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "1st", NULL, NULL },
-    { jwin_text_proc,     24,  106,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "2nd", NULL, NULL },
-    { jwin_text_proc,     24,  152,   48,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "3rd", NULL, NULL },
-    { jwin_text_proc,     56,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
-    { jwin_text_proc,     56,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
-    { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Price:", NULL, NULL },
-    // 8
-    { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
-    { d_nidroplist_proc,  56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
-    
-    // 16
-    { jwin_button_proc,   40,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,  121,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void EditShopType(int index)
-{
-
-    build_bii_list(true);
-    char ps1[6],ps2[6],ps3[6];
-    char shopname[32];
-    char caption[40];
-    
-    sprintf(caption,"Shop Data %d",index);
-    editshop_dlg[0].dp = caption;
-    editshop_dlg[0].dp2=lfont;
-    
-    sprintf(ps1,"%d",misc.shop[index].price[0]);
-    sprintf(ps2,"%d",misc.shop[index].price[1]);
-    sprintf(ps3,"%d",misc.shop[index].price[2]);
-    sprintf(shopname,"%s",misc.shop[index].name);
-    editshop_dlg[8].dp  = ps1;
-    editshop_dlg[10].dp = ps2;
-    editshop_dlg[12].dp = ps3;
-    editshop_dlg[15].dp = shopname;
-    
-//  ListData item_list(itemlist, is_large ? &sfont3 : &font);
-    ListData item_list(itemlist, is_large ? &lfont_l : &font);
-    
-    editshop_dlg[9].dp  = (void *) &item_list;
-    editshop_dlg[11].dp  = (void *) &item_list;
-    editshop_dlg[13].dp  = (void *) &item_list;
-    
-    for(int i=0; i<3; ++i)
-    {
-        if(misc.shop[index].hasitem[i])
-        {
-            for(int j=0; j<bii_cnt; j++)
-            {
-                if(bii[j].i == misc.shop[index].item[i])
-                {
-                    editshop_dlg[9+(i<<1)].d1  = j;
-                }
-            }
-        }
-        else
-        {
-            editshop_dlg[9+(i<<1)].d1 = -2;
-        }
-    }
-    
-    if(is_large)
-        large_dialog(editshop_dlg);
-        
-    int ret = zc_popup_dialog(editshop_dlg,-1);
-    
-    if(ret==16)
-    {
-        saved=false;
-        misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        misc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
-        snprintf(misc.shop[index].name, 32, "%s",shopname);
-        
-        for(int i=0; i<3; ++i)
-        {
-            if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
-            {
-                misc.shop[index].hasitem[i] = 0;
-                misc.shop[index].item[i] = 0;
-                misc.shop[index].price[i] = 0;
-            }
-            else
-            {
-                misc.shop[index].hasitem[i] = 1;
-                misc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
-            }
-        }
-        
-        //filter all the 0 items to the end (yeah, bubble sort; sue me)
-        word swaptmp;
-        
-        for(int j=0; j<3-1; j++)
-        {
-            for(int k=0; k<2-j; k++)
-            {
-                if(misc.shop[index].hasitem[k]==0)
-                {
-                    swaptmp = misc.shop[index].item[k];
-                    misc.shop[index].item[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].item[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].price[k];
-                    misc.shop[index].price[k] = misc.shop[index].price[k+1];
-                    misc.shop[index].price[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].hasitem[k];
-                    misc.shop[index].hasitem[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].hasitem[k+1] = swaptmp;
-                }
-            }
-        }
-    }
+    char buf[37];
+    sprintf(buf, "%d: %s", index, misc.shop[index].name);
+    return buf;
 }
 
 int onShopTypes()
 {
-    shop_list_size = 256;
-    
-    int index = select_data("Shop Types",0,shoplist,"Edit","Done",lfont);
-    
-    while(index!=-1)
+    build_bii_list(true); // ...
+    SimpleListSelector sls("Shop types", getShopListItem, 256, true, 0);
+    gui->showDialog(sls);
+    int ret=sls.getSelected();
+    while(ret>=0)
     {
-        EditShopType(index);
-        index = select_data("Shop Types",index,shoplist,"Edit","Done",lfont);
+        ShopEditor se(misc.shop[ret], bii);
+        gui->showDialog(se);
+        
+        sls.setInitialSelection(ret);
+        gui->showDialog(sls);
+        ret=sls.getSelected();
     }
     
     return D_O_K;
@@ -15649,24 +15322,6 @@ void EditWarpRingScr(int ring,int index)
     warp_dlg[12].x = SCREEN_W+10;
     warp_dlg[13].x = SCREEN_W+10;
     
-    /*warp_dlg[20].x = SCREEN_W+10;
-      warp_dlg[21].x = SCREEN_W+10;
-      warp_dlg[25].x = SCREEN_W+10;
-      warp_dlg[26].x = SCREEN_W+10;
-      warp_dlg[27].x = SCREEN_W+10;
-      warp_dlg[28].x = SCREEN_W+10;
-      warp_dlg[32].x = SCREEN_W+10;
-      warp_dlg[33].x = SCREEN_W+10;
-      warp_dlg[37].x = SCREEN_W+10;
-      warp_dlg[38].x = SCREEN_W+10;
-      warp_dlg[39].x = SCREEN_W+10;
-      warp_dlg[40].x = SCREEN_W+10;
-      warp_dlg[44].x = SCREEN_W+10;
-      warp_dlg[45].x = SCREEN_W+10;
-      warp_dlg[49].x = SCREEN_W+10;
-      warp_dlg[50].x = SCREEN_W+10;
-      warp_dlg[51].x = SCREEN_W+10;
-      warp_dlg[52].x = SCREEN_W+10;*/
     for(int i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0;
@@ -15726,26 +15381,6 @@ void EditWarpRingScr(int ring,int index)
         warp_dlg[m].x=tempx[m-17];
     }
     
-    /*warp_dlg[20].x = tempx20;
-      warp_dlg[21].x = tempx21;
-      warp_dlg[25].x = tempx25;
-      warp_dlg[26].x = tempx26;
-      warp_dlg[27].x = tempx27;
-      warp_dlg[28].x = tempx28;
-    
-      warp_dlg[32].x = tempx32;
-      warp_dlg[33].x = tempx33;
-      warp_dlg[37].x = tempx37;
-      warp_dlg[38].x = tempx38;
-      warp_dlg[39].x = tempx39;
-      warp_dlg[40].x = tempx40;
-    
-      warp_dlg[44].x = tempx44;
-      warp_dlg[45].x = tempx45;
-      warp_dlg[49].x = tempx49;
-      warp_dlg[50].x = tempx50;
-      warp_dlg[51].x = tempx51;
-      warp_dlg[52].x = tempx52;*/
     for(int i=0; i<4; i++)
     {
         warp_dlg[10+i].d2 = 0x80;
@@ -16095,18 +15730,6 @@ DIALOG elist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG glist_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   220,  145,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,    62,   68,   196,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     70,   160,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     190,  160,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     130,  160,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int efrontfacingtile(int id)
 {
     int anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
@@ -16311,102 +15934,6 @@ int select_enemy(const char *prompt,int enemy,bool hide,bool is_editor,int &exit
     
     index = elist_dlg[2].d1;
     return bie[index].i;
-}
-
-int select_guy(const char *prompt,int guy)
-{
-    //  if(bie_cnt==-1)
-    {
-        build_big_list(true);
-    }
-    
-    int index=0;
-    
-    for(int j=0; j<big_cnt; j++)
-    {
-        if(big[j].i == guy)
-        {
-            index=j;
-        }
-    }
-    
-    glist_dlg[0].dp=(void *)prompt;
-    glist_dlg[0].dp2=lfont;
-    glist_dlg[2].d1=index;
-    ListData guy_list(guylist, &font);
-    glist_dlg[2].dp=(void *) &guy_list;
-    
-    if(is_large)
-        large_dialog(glist_dlg);
-        
-    int ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(glist_dlg,2);
-        
-        if(ret==5)
-        {
-            int id = big[glist_dlg[2].d1].i;
-            
-            switch(id)
-            {
-            case gABEI:
-                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gAMA:
-                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gDUDE:
-                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gMOBLIN:
-                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gGORIYA:
-                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gFIRE:
-                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gFAIRY:
-                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gZELDA:
-                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gABEI2:
-                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-                
-            case gEMPTY:
-                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,lfont);
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,lfont);
-                break;
-            }
-        }
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-        return -1;
-    }
-    
-    
-    index = glist_dlg[2].d1;
-    return big[index].i;
 }
 
 unsigned char check[2] = { (unsigned char)'\x81',0 };
@@ -16834,15 +16361,6 @@ bool do_x_button(BITMAP *dest, int x, int y)
                 unscare_mouse();
                 over=false;
             }
-        }
-        
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        //else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
         }
     }
     
@@ -19738,7 +19256,7 @@ int onEditSFX(int index)
                     char *t = get_filename(temppath);
                     int j;
                     
-                    for(j=0; j<36 && t[j]!=0 && t[j]!='.'; j++)
+                    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
                     {
                         sfxtitle[j]=t[j];
                     }
@@ -20537,22 +20055,6 @@ void fps_callback()
 
 END_OF_FUNCTION(fps_callback)
 
-//unsigned int col_diff[3*128];
-/*
-  void bestfit_init(void)
-  {
-  int i;
-
-  for (i=1; i<64; i++)
-
-  {
-  int k = i * i;
-  col_diff[0  +i] = col_diff[0  +128-i] = k * (59 * 59);
-  col_diff[128+i] = col_diff[128+128-i] = k * (30 * 30);
-  col_diff[256+i] = col_diff[256+128-i] = k * (11 * 11);
-  }
-  }
-  */
 void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int pos))
 {
 #define UNUSED 65535
@@ -20797,23 +20299,6 @@ void hit_close_button()
 /******  MAIN  ******/
 /********************/
 
-/*
-  enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-
-  enum { light gray, white, off-white, gray, dark gray, black,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-  */
-
-/*
-  static int jwin_pal[jcMAX] =
-  {
-  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
-  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
-  };
-  */
 void custom_vsync()
 {
     ++framecnt;
@@ -20975,7 +20460,8 @@ sprite_list Sitems, Lwpns;
 
 int main(int argc,char **argv)
 {
-    gui=new GUI::GtkGUIManager();
+    //gui=new GUI::GtkGUIManager();
+    gui=new GUI::AllegroGUIManager();
     
     switch(IS_BETA)
     {
@@ -22826,18 +22312,15 @@ void center_zquest_dialogs()
     center_zq_door_dialogs();
     jwin_center_dialog(editcomboa_dlg);
     jwin_center_dialog(editdmap_dlg);
-    jwin_center_dialog(editinfo_dlg);
     jwin_center_dialog(editmidi_dlg);
     jwin_center_dialog(editmsg_dlg);
     jwin_center_dialog(editmusic_dlg);
-    jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(elist_dlg);
     jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(ffscript_sel_dlg);
     jwin_center_dialog(getnum_dlg);
-    jwin_center_dialog(glist_dlg);
     jwin_center_dialog(gscript_sel_dlg);
     jwin_center_dialog(header_dlg);
     jwin_center_dialog(help_dlg);
@@ -22855,7 +22338,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(password_dlg);
     jwin_center_dialog(pattern_dlg);
-    jwin_center_dialog(rlist_dlg);
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
@@ -23134,28 +22616,12 @@ void dopreview()
             {
                 do_animations();
                 Map.set_prvadvance(0);
-                //if(zqwin_scale > 1)
-                {
-                    //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                // else
-                {
-                    //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
             }
         }
         else
         {
             do_animations();
             Map.set_prvadvance(0);
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            //else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
         }
         
         refresh(rALL);
@@ -24052,4 +23518,5 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
 
 
 /* end */
+
 

@@ -7,9 +7,16 @@
 //  Code for loading '.qst' files in ZC and ZQuest.
 //
 //--------------------------------------------------------
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -41,6 +48,10 @@
 #include "md5.h"
 #include "scoped_ptr.h"
 
+
+#ifdef _MSC_VER
+	#define strncasecmp _strnicmp
+#endif
 
 #ifndef _AL_MALLOC
 #define _AL_MALLOC(a) _al_malloc(a)
@@ -10959,7 +10970,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
     
     if(keepdata==true)
     {
-        memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos-start_combo);
+        memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
     }
     
     if(version > 0x192)

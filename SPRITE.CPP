@@ -25,6 +25,7 @@
 #include "entityPtr.h"
 #include "zdefs.h"
 #include "tiles.h"
+#include "angelscript/scriptData.h"
 
 extern bool get_debug();
 extern bool halt;
@@ -32,12 +33,14 @@ extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int x1, int y1, int x2, int y2);
+extern BITMAP* scriptDrawingTarget;
 
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
 
 sprite::sprite():
+    scriptData(0),
     toBeDeleted(false),
     ref(new EntityRef())
 {
@@ -53,31 +56,10 @@ sprite::sprite():
     angular=canfreeze=false;
     drawstyle=0;
     extend=0;
-    
-    /*ewpnclass=0;
-    lwpnclass=0;
-    guyclass=0;*/ //Not implemented
-    //ewpnref=0;
-    //lwpnref=0;
-    //guyref=0;
-    //itemref=0;
     lasthitclk=0;
     lasthit=0;
     angle=0;
     misc=0;
-    
-    /*for(int i=0;i<8;i++)
-    {
-      if(i<2) a[i]=0;
-      d[i]=0;
-    }
-    scriptflag=0;
-    pc=0;
-    sp=0;
-    itemclass=0;
-    ffcref=0; */
-    //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
-    //doscript=1;
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
@@ -114,33 +96,11 @@ sprite::sprite(sprite const & other):
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
     extend(other.extend),
+    scriptData(0),
     toBeDeleted(false),
     ref(new EntityRef())
-    //scriptData(other.scriptData),
-/*ffcref(other.ffcref),
-itemref(other.itemref),
-guyref(other.guyref),
-lwpnref(other.lwpnref),
-ewpnref(other.ewpnref),
-sp(other.sp),
-pc(other.pc),
-scriptflag(other.scriptflag),
-doscript(other.doscript),
-itemclass(other.itemclass)
-guyclass(other.guyclass),
-lwpnclass(other.lwpnclass),
-ewpnclass(other.ewpnclass)*/
 {
     uid = getNextUID();
-    
-    /*for (int i=0; i<8; ++i)
-    {
-      d[i]=other.d[i];
-    }
-    for (int i=0; i<2; ++i)
-    {
-      a[i]=other.a[i];
-    }*/
     for(int i=0; i<16; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
@@ -148,6 +108,7 @@ ewpnclass(other.ewpnclass)*/
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs),
+    scriptData(0),
     toBeDeleted(false),
     ref(new EntityRef())
 {
@@ -160,30 +121,9 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     dir=down;
     angular=canfreeze=false;
     extend=0;
-    
-    /*for(int i=0;i<8;i++)
-    {
-      if(i<2) a[i]=0;
-      d[i]=0;
-    }
-    scriptflag=0;
-    pc=0;
-    sp=0;
-    ffcref=0;
-    doscript=1;*/
-    //itemclass=0;
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
-    
-    //scriptData.Clear();
-    /*ewpnclass=0;
-    lwpnclass=0;
-    guyclass=0;*/ //Not implemented
-    /*ewpnref=0;
-    lwpnref=0;
-    guyref=0;
-    itemref=0;*/
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;
@@ -197,6 +137,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
 sprite::~sprite()
 {
     ref->onEntityDelete();
+    delete scriptData;
 }
 
 long sprite::getNextUID()
@@ -693,6 +634,21 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
             overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
         }
     }
+}
+
+asIScriptObject* sprite::getScriptObject()
+{
+    return scriptData->getObject();
+}
+
+void sprite::scriptDraw()
+{
+    sprite::draw(scriptDrawingTarget);
+}
+
+void sprite::scriptDrawCloaked()
+{
+    sprite::drawcloaked(scriptDrawingTarget);
 }
 
 /***************************************************************************/

@@ -98,9 +98,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       28                              //build number of this version
+#define VERSION_BUILD       29                              //build number of this version
 #define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "October 4, 2014"
+#define DATE_STR            "October 22, 2015"
 
 #define MIN_VERSION         0x0184
 
@@ -609,7 +609,7 @@ enum
 {
     rNONE, rSP_ITEM, rINFO, rMONEY, rGAMBLE, rREPAIR, rRP_HC, rGRUMBLE,
     rTRIFORCE, rP_SHOP, rSHOP, rBOMBS, rSWINDLE, r10RUPIES, rWARP,
-    rGANON, rZELDA, rITEMPOND, rMUPGRADE, rLEARNSLASH, rARROWS, rTAKEONE,
+    rGANON, rZELDA, rUNUSED, rMUPGRADE, rLEARNSLASH, rARROWS, rTAKEONE,
     rMAX
 };
 
@@ -1216,7 +1216,7 @@ struct mapscr
     word secretcombo[128];
     byte secretcset[128];
     byte secretflag[128];
-    // you're listening to ptr radio, the sounds of insane. ;)
+    
     std::vector<word> data;
     std::vector<byte> sflag;
     std::vector<byte> cset;
@@ -1224,10 +1224,12 @@ struct mapscr
     word viewY;
     byte scrWidth;
     byte scrHeight;
-    
+
+	///TODO: This is just plain wasteful and needs fixing at some point.
     FFCSet ffcs;
+	//FFCSet* ffcs;
+
     dword ffcsUsed; // Each bit corresponds to an FFC
-    
     byte oceansfx;
     byte bosssfx;
     byte secretsfx;
@@ -1341,12 +1343,31 @@ struct mapscr
     
     mapscr()
     {
-        data.resize(176,0);
-        sflag.resize(176,0);
-        cset.resize(176,0);
+		// TODO: We can just create a single contiguous block for these.
+		//zero_memory() already assigns these to 0.
+        //data.resize(176,0);
+        //sflag.resize(176,0);
+        //cset.resize(176,0);
+
         zero_memory();
     }
     
+    // Functions for AngelScript
+    word getData(int index) const { return data[index]; }
+    void setData(int index, word value) { data[index]=value; }
+    byte getCSet(int index) const { return cset[index]; }
+    void setCSet(int index, byte value) { cset[index]=value; }
+    byte getSFlag(int index) const { return sflag[index]; }
+    void setSFlag(int index, byte value) { sflag[index]=value; }
+    
+    word getSecretCombo(int index) const { return secretcombo[index]; }
+    void setSecretCombo(int index, word value) { secretcombo[index]=value; }
+    byte getSecretCSet(int index) const { return secretcset[index]; }
+    void setSecretCSet(int index, byte value) { secretcset[index]=value; }
+    byte getSecretFlag(int index) const { return secretflag[index]; }
+    void setSecretFlag(int index, byte value) { secretflag[index]=value; }
+    
+    FFC* getFFC(int index) { return ffcs.getPtr(index); }
 };
 
 struct ffscript
@@ -1441,22 +1462,21 @@ enum {cfOFFSET, cfMAX};
 struct newcombo
 {
     word tile;
+    word nextcombo;
+	word nexttimer;
     byte flip;
     byte walk;
     byte type;
     byte csets;
-    word foo; // used in zq_tiles for some reason. May be redundant. -- L.
-    byte frames;
-    byte speed;
-    word nextcombo;
+	byte frames;
+	byte speed;
     byte nextcset;
     byte flag;
     byte skipanim;
-    word nexttimer;
     byte skipanimy;
     byte animflags;
-    byte expansion[6];
-    //24
+	// TODO: It might be worth compressing newcombo into an aligned 16 byte block.
+    //17 (+3)
 };
 
 #define AF_FRESH 1

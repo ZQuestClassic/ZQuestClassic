@@ -50,7 +50,7 @@ ifdef COMPILE_FOR_WIN
   CFLAG = $(CFLAGBASE) `pkg-config --cflags gtk+-3.0` -pedantic -I./include/dumb/ -I./include/alogg/ -I./include/almp3 -I./include/lpng1212/ -I./include/loadpng/ -I./include/lpng1212/ -I./include/jpgalleg-2.5/ -I./include/zlib123/ -I./gme -I.
   LIBDIR = -L./libs/mingw `pkg-config --libs gtk+-3.0`
   
-  ZCSOUND_SO = libs/mingwg/libzcsound.dll
+  ZCSOUND_SO = libs/mingw/libzcsound.dll
   ZCSOUND_LIB = -Wl,-rpath,. -lzcsound
   ZCSOUND_LINKOPTS = $(LINKOPTS) -shared -Wl,-soname,zcsound.dll
   ZCSOUND_ALLEG_LIB = $(ALLEG_LIB)
@@ -163,18 +163,24 @@ ZELDA_EXE = $(ZELDA_PREFIX)$(PLATEXT)$(EXEEXT)
 ZQUEST_EXE = $(ZQUEST_PREFIX)$(PLATEXT)$(EXEEXT)
 ROMVIEW_EXE = $(ROMVIEW_PREFIX)$(PLATEXT)$(EXEEXT)
 
-ZELDA_OBJECTS = aglogo.o colors.o debug.o decorations.o defdata.o editbox.o EditboxModel.o EditboxView.o encryption.o ending.o ffc.o ffscript.o fontClass.o gamedata.o gui.o guys.o init.o items.o jwin.o jwinfsel.o link.o linkHandler.o linkZScriptInterface.o load_gif.o maps.o matrix.o md5.o message.o messageManager.o messageRenderer.o messageStream.o midi.o pal.o particles.o qst.o refInfo.o room.o save_gif.o screenFreezeState.o screenWipe.o script_drawing.o sequence.o $(SINGLE_INSTANCE_O) sfxAllegro.o sfxClass.o sfxManager.o sound.o sprite.o subscr.o tab_ctl.o tiles.o title.o weapons.o win32.o zc_custom.o zc_init.o zc_items.o zc_sprite.o zc_subscr.o zc_sys.o zelda.o zscriptversion.o zsys.o \
-item/clock.o item/dinsFire.o item/faroresWind.o item/hookshot.o item/itemEffect.o item/nayrusLove.o \
+GTK_GUI_OBJECTS = gui/gtk/bitmap.o gui/gtk/button.o gui/gtk/buttonRow.o gui/gtk/checkbox.o gui/gtk/controller.o gui/gtk/factory.o gui/gtk/frame.o gui/gtk/manager.o gui/gtk/serialContainer.o gui/gtk/spinner.o gui/gtk/tabPanel.o gui/gtk/text.o gui/gtk/textBox.o gui/gtk/textField.o gui/gtk/util.o gui/gtk/widget.o gui/gtk/window.o
+
+ALLEGRO_GUI_OBJECTS = gui/allegro/bitmap.o gui/allegro/button.o gui/allegro/checkbox.o gui/allegro/column.o gui/allegro/common.o gui/allegro/controller.o gui/allegro/dummy.o gui/allegro/editableText.o gui/allegro/factory.o gui/allegro/renderer.o gui/allegro/row.o gui/allegro/scrollbar.o gui/allegro/scrollingPane.o gui/allegro/serialContainer.o gui/allegro/standardWidget.o gui/allegro/tab.o gui/allegro/tabBar.o gui/allegro/tabPanel.o gui/allegro/text.o gui/allegro/textField.o gui/allegro/window.o
+
+ZELDA_OBJECTS = aglogo.o colors.o debug.o decorations.o defdata.o editbox.o EditboxModel.o EditboxView.o encryption.o ending.o enemyAttack.o ffc.o ffscript.o fontClass.o gamedata.o gui.o guys.o init.o items.o jwin.o jwinfsel.o link.o linkHandler.o linkZScriptInterface.o load_gif.o maps.o matrix.o md5.o message.o messageManager.o messageRenderer.o messageStream.o midi.o pal.o particles.o qst.o refInfo.o room.o save_gif.o screenFreezeState.o screenWipe.o script_drawing.o sequence.o $(SINGLEINSTANCE_O) sfxAllegro.o sfxClass.o sfxManager.o sound.o sprite.o subscr.o tab_ctl.o tiles.o title.o weapons.o zc_custom.o zc_init.o zc_items.o zc_sprite.o zc_subscr.o zc_sys.o zelda.o zscriptversion.o zsys.o \
+item/clock.o item/dinsFire.o item/hookshot.o item/faroresWind.o item/itemEffect.o item/nayrusLove.o \
 sequence/gameOver.o sequence/ganonIntro.o sequence/getBigTriforce.o sequence/getTriforce.o sequence/potion.o sequence/whistle.o \
+angelscript/aszc.o angelscript/scriptData.o angelscript/util.o angelscript/scriptarray/scriptarray.o angelscript/scriptbuilder/scriptbuilder.o angelscript/scriptmath/scriptmath.o angelscript/scriptstdstring/scriptstdstring.o \
+tempStuff.o \
 $(ZC_ICON)
 
-ZQUEST_OBJECTS = zquest.o colors.o defdata.o editbox.o EditboxModel.o EditboxView.o encryption.o enemyAttack.o ffc.o gamedata.o gui.o init.o items.o jwin.o jwinfsel.o load_gif.o md5.o midi.o particles.o qst.o questReport.o refInfo.o save_gif.o sprite.o subscr.o tab_ctl.o tiles.o zc_custom.o zq_class.o zq_cset.o zq_custom.o zq_doors.o zq_files.o zq_items.o zq_init.o zq_misc.o zq_sprite.o zq_strings.o zq_subscr.o zq_tiles.o zqscale.o zsys.o ffasm.o parser/AST.o parser/BuildVisitors.o parser/ByteCode.o parser/DataStructs.o parser/GlobalSymbols.o parser/lex.yy.o parser/ParseError.o parser/ScriptParser.o parser/SymbolVisitors.o parser/TypeChecker.o parser/UtilVisitors.o parser/y.tab.o \
+ZQUEST_OBJECTS = zquest.o colors.o defdata.o dummyZQ.o editbox.o EditboxModel.o EditboxView.o encryption.o ffc.o gamedata.o gui.o init.o items.o jwin.o jwinfsel.o load_gif.o md5.o messageList.o midi.o particles.o qst.o questReport.o refInfo.o save_gif.o sprite.o subscr.o tab_ctl.o tiles.o zc_custom.o zq_class.o zq_cset.o zq_custom.o zq_doors.o zq_files.o zq_items.o zq_init.o zq_misc.o zq_sprite.o zq_strings.o zq_subscr.o zq_tiles.o zqscale.o zsys.o ffasm.o parser/AST.o parser/BuildVisitors.o parser/ByteCode.o parser/DataStructs.o parser/GlobalSymbols.o parser/lex.yy.o parser/ParseError.o parser/ScriptParser.o parser/SymbolVisitors.o parser/TypeChecker.o parser/UtilVisitors.o parser/y.tab.o \
 guiBitmapRenderer.o \
-gui/alert.o gui/controller.o gui/dialog.o gui/manager.o \
-gui/gtk/bitmap.o gui/gtk/button.o gui/gtk/buttonRow.o gui/gtk/checkbox.o gui/gtk/controller.o gui/gtk/factory.o gui/gtk/frame.o gui/gtk/manager.o gui/gtk/serialContainer.o gui/gtk/spinner.o gui/gtk/tabPanel.o gui/gtk/text.o gui/gtk/textBox.o gui/gtk/textField.o gui/gtk/util.o gui/gtk/widget.o gui/gtk/window.o \
+gui/alert.o gui/contents.o gui/controller.o gui/dialog.o gui/manager.o \
+$(ALLEGRO_GUI_OBJECTS) \
 dialog/bitmap/tilePreview.o dialog/bitmap/tileSelector.o \
-dialog/zquest/cheatEditor.o dialog/zquest/paletteViewer.o dialog/zquest/questRules.o dialog/zquest/tileSelector.o dialog/zquest/tileSelectorBackend.o dialog/zquest/zscriptEditor.o dialog/zquest/zscriptMain.o \
-tempStuff.o \
+dialog/zquest/cheatEditor.o dialog/zquest/infoShopEditor.o dialog/zquest/paletteViewer.o dialog/zquest/questRules.o dialog/zquest/shopEditor.o dialog/zquest/simpleListSelector.o dialog/zquest/tileEditor.o dialog/zquest/tileSelector.o dialog/zquest/tileSelectorBackend.o dialog/zquest/zscriptEditor.o dialog/zquest/zscriptMain.o \
+angelscript/scriptData.o \
 $(ZQ_ICON)
 
 ROMVIEW_OBJECTS = editbox.o EditboxModel.o EditboxView.o gui.o jwin.o jwinfsel.o load_gif.o romview.o save_gif.o tab_ctl.o zqscale.o zsys.o \
@@ -441,6 +447,8 @@ decorations.o: decorations.cpp decorations.h gamedata.h jwin.h maps.h sfx.h spri
 	$(CC) $(OPTS) $(CFLAG) -c decorations.cpp -o decorations.o $(SFLAG) $(WINFLAG)
 defdata.o: defdata.cpp defdata.h gamedata.h guys.h items.h sfx.h sprite.h weapons.h zc_alleg.h zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c defdata.cpp -o defdata.o $(SFLAG) $(WINFLAG)
+dummyZQ.o: dummyZQ.cpp
+	$(CC) $(OPTS) $(CFLAG) -c dummyZQ.cpp -o dummyZQ.o $(SFLAG) $(WINFLAG)
 editbox.o: editbox.cpp EditboxNew.h jwin.h tab_ctl.h zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c editbox.cpp -o editbox.o $(SFLAG) $(WINFLAG)
 EditboxModel.o: EditboxModel.cpp editbox.h EditboxNew.h gamedata.h gui.h jwin.h tab_ctl.h zc_alleg.h zdefs.h
@@ -457,7 +465,7 @@ ffasm.o: ffasm.cpp ffasm.h ffscript.h gamedata.h jwin.h jwinfsel.h midi.h sprite
 	$(CC) $(OPTS) $(CFLAG) -c ffasm.cpp -o ffasm.o $(SFLAG) $(WINFLAG)
 ffc.o: ffc.cpp ffc.h refInfo.h types.h zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c ffc.cpp -o ffc.o $(SFLAG) $(WINFLAG)
-ffscript.o: ffscript.cpp aglogo.h colors.h ffc.h ffscript.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_init.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+ffscript.o: ffscript.cpp aglogo.h colors.h ffc.h ffscript.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_init.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h rendertarget.h
 	$(CC) $(OPTS) $(CFLAG) -c ffscript.cpp -o ffscript.o $(SFLAG) $(WINFLAG)
 font.o: /allegro/tools/datedit.h font.cpp font.h zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c font.cpp -o font.o $(SFLAG) $(WINFLAG)
@@ -467,7 +475,7 @@ gamedata.o: gamedata.cpp gamedata.h items.h jwin.h sfx.h sprite.h tab_ctl.h zc_a
 	$(CC) $(OPTS) $(CFLAG) -c gamedata.cpp -o gamedata.o $(SFLAG) $(WINFLAG)
 gui.o: gui.cpp colors.h debug.h gamedata.h gui.h items.h jwin.h jwinfsel.h midi.h pal.h qst.h sfx.h sprite.h subscr.h tab_ctl.h tiles.h zc_alleg.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zquest.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c gui.cpp -o gui.o $(SFLAG) $(WINFLAG)
-guys.o: guys.cpp aglogo.h colors.h defdata.h ffscript.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h room.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+guys.o: guys.cpp aglogo.h colors.h defdata.h ffscript.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h room.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h angelscript/scriptData.h
 	$(CC) $(OPTS) $(CFLAG) -c guys.cpp -o guys.o $(SFLAG) $(WINFLAG)
 init.o: init.cpp gamedata.h gui.h init.h jwin.h sfx.h tab_ctl.h zc_alleg.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
 	$(CC) $(CFLAG) -c init.cpp -o init.o $(SFLAG) $(WINFLAG)
@@ -487,7 +495,7 @@ linkZScriptInterface.o: linkZScriptInterface.cpp linkZScriptInterface.h link.h z
 	$(CC) $(OPTS) $(CFLAG) -c linkZScriptInterface.cpp -o linkZScriptInterface.o $(SFLAG) $(WINFLAG)
 load_gif.o: load_gif.cpp load_gif.h zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c load_gif.cpp -o load_gif.o $(SFLAG) $(WINFLAG)
-maps.o: maps.cpp aglogo.h colors.h ffc.h ffscript.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h particles.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_subscr.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+maps.o: maps.cpp aglogo.h colors.h ffc.h ffscript.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h particles.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_subscr.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h rendertarget.h
 	$(CC) $(OPTS) -O3 $(CFLAG) -c maps.cpp -o maps.o $(SFLAG) $(WINFLAG)
 matrix.o: matrix.cpp gamedata.h matrix.h zc_alleg.h zc_sys.h zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c matrix.cpp -o matrix.o $(SFLAG) $(WINFLAG)
@@ -549,7 +557,7 @@ tiles.o: tiles.cpp gamedata.h jwin.h tab_ctl.h tiles.h zc_alleg.h zdefs.h zsys.h
 	$(CC) $(OPTS) -O3 $(CFLAG) -c tiles.cpp -o tiles.o $(SFLAG) $(WINFLAG)
 title.o: title.cpp aglogo.h colors.h encryption.h gamedata.h gui.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h title.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c title.cpp -o title.o $(SFLAG) $(WINFLAG)
-weapons.o: weapons.cpp aglogo.h colors.h gamedata.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h sfx.h sprite.h subscr.h tab_ctl.h tiles.h sound.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+weapons.o: weapons.cpp aglogo.h colors.h gamedata.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c weapons.cpp -o weapons.o $(SFLAG) $(WINFLAG)
 zc_custom.o: zc_custom.cpp gamedata.h jwin.h sfx.h tab_ctl.h zc_alleg.h zc_custom.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c zc_custom.cpp -o zc_custom.o $(SFLAG) $(WINFLAG)
@@ -563,14 +571,10 @@ zc_sprite.o: zc_sprite.cpp gamedata.h jwin.h maps.h sfx.h sound.h sprite.h tab_c
 	$(CC) $(OPTS) $(CFLAG) -c zc_sprite.cpp -o zc_sprite.o $(SFLAG) $(WINFLAG)
 zc_subscr.o: zc_subscr.cpp aglogo.h colors.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h weapons.h zc_alleg.h zc_custom.h zc_subscr.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c zc_subscr.cpp -o zc_subscr.o $(SFLAG) $(WINFLAG)
-zc_sys.o: zc_sys.cpp zc_sys.h aglogo.h colors.h debug.h gamedata.h gui.h guys.h init.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h midi.h pal.h particles.h qst.h screenWipe.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_init.h zcmusic.h zdefs.h zelda.h zeldadat.h zquest.h zsys.h
+zc_sys.o: zc_sys.cpp aglogo.h colors.h debug.h gamedata.h gui.h guys.h init.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h midi.h pal.h particles.h qst.h screenWipe.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_init.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zquest.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c zc_sys.cpp -o zc_sys.o $(SFLAG) $(WINFLAG)
-zelda.o: zelda.cpp aglogo.h colors.h ending.h ffc.h ffscript.h fontsdat.h gamedata.h guys.h init.h items.h jwin.h jwinfsel.h link.h load_gif.h maps.h matrix.h pal.h particles.h qst.h save_gif.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
+zelda.o: zelda.cpp aglogo.h colors.h ending.h ffc.h ffscript.h fontsdat.h gamedata.h guys.h init.h items.h jwin.h jwinfsel.h link.h load_gif.h maps.h matrix.h pal.h particles.h qst.h save_gif.h sfx.h sound.h sprite.h subscr.h tab_ctl.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h rendertarget.h
 	$(CC) $(OPTS) $(CFLAG) -c zelda.cpp -o zelda.o $(SFLAG) $(WINFLAG)
-zscriptversion.o: zscriptversion.cpp zscriptversion.h zelda.h link.h zdefs.h
-	$(CC) $(OPTS) $(CFLAG) -c zscriptversion.cpp -o zscriptversion.o $(SFLAG) $(WINFLAG)
-win32.o: win32.cpp win32.h
-	$(CC) $(OPTS) $(CFLAG) -c win32.cpp -o win32.o $(SFLAG) $(WINFLAG)
 zq_class.o: zq_class.cpp colors.h encryption.h ffc.h gamedata.h gui.h items.h jwin.h jwinfsel.h maps.h md5.h midi.h qst.h sfx.h sprite.h subscr.h tab_ctl.h tiles.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zq_class.h zq_misc.h zq_subscr.h zquest.h zquestdat.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c zq_class.cpp -o zq_class.o $(SFLAG) $(WINFLAG)
 zq_cset.o: zq_cset.cpp colors.h gamedata.h gfxpal.h gui.h jwin.h jwinfsel.h midi.h pal.h sfx.h sprite.h tab_ctl.h zc_alleg.h zcmusic.h zdefs.h zq_cset.h zq_misc.h zq_tiles.h zquest.h zsys.h
@@ -601,8 +605,25 @@ zqscale.o: zqscale.cpp
 	$(CC) $(OPTS) $(CFLAG) -c zqscale.cpp -o zqscale.o $(SFLAG) $(WINFLAG)
 zquest.o: zquest.cpp colors.h editbox.h EditboxNew.h ffasm.h ffc.h ffscript.h fontsdat.h gamedata.h gui.h items.h jwin.h jwinfsel.h load_gif.h midi.h parser/Compiler.h qst.h save_gif.h sfx.h sprite.h subscr.h tab_ctl.h tiles.h zc_alleg.h zcmusic.h zdefs.h zq_class.h zq_cset.h zq_custom.h zq_doors.h zq_files.h zq_init.h zq_misc.h zq_subscr.h zq_tiles.h zquest.h zquestdat.h zsys.h
 	$(CC) $(OPTS) -D_ZQUEST_SCALE_ $(CFLAG) -c zquest.cpp -o zquest.o $(SFLAG) $(WINFLAG)
+zscriptversion.o: zscriptversion.cpp zelda.h link.h
+	$(CC) $(OPTS) $(CFLAG) -c zscriptversion.cpp -o zscriptversion.o $(SFLAG) $(WINFLAG)
 zsys.o: zsys.cpp gamedata.h jwin.h tab_ctl.h zc_alleg.h zc_sys.h zdefs.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c zsys.cpp -o zsys.o $(SFLAG) $(WINFLAG)
+
+angelscript/aszc.o: angelscript/aszc.cpp angelscript/aszc.h zc_alleg.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/aszc.cpp -o angelscript/aszc.o $(SFLAG) $(WINFLAG)
+angelscript/scriptData.o: angelscript/scriptData.cpp angelscript/scriptData.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/scriptData.cpp -o angelscript/scriptData.o $(SFLAG) $(WINFLAG)
+angelscript/util.o: angelscript/util.cpp angelscript/util.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/util.cpp -o angelscript/util.o $(SFLAG) $(WINFLAG)
+angelscript/scriptarray/scriptarray.o: angelscript/scriptarray/scriptarray.cpp angelscript/scriptarray/scriptarray.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/scriptarray/scriptarray.cpp -o angelscript/scriptarray/scriptarray.o $(SFLAG) $(WINFLAG)
+angelscript/scriptbuilder/scriptbuilder.o: angelscript/scriptbuilder/scriptbuilder.cpp angelscript/scriptbuilder/scriptbuilder.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/scriptbuilder/scriptbuilder.cpp -o angelscript/scriptbuilder/scriptbuilder.o $(SFLAG) $(WINFLAG)
+angelscript/scriptmath/scriptmath.o: angelscript/scriptmath/scriptmath.cpp angelscript/scriptmath/scriptmath.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/scriptmath/scriptmath.cpp -o angelscript/scriptmath/scriptmath.o $(SFLAG) $(WINFLAG)
+angelscript/scriptstdstring/scriptstdstring.o: angelscript/scriptstdstring/scriptstdstring.cpp angelscript/scriptstdstring/scriptstdstring.h
+	$(CC) $(OPTS) $(CFLAG) -c angelscript/scriptstdstring/scriptstdstring.cpp -o angelscript/scriptstdstring/scriptstdstring.o $(SFLAG) $(WINFLAG)
 
 item/clock.o: item/clock.cpp item/clock.h link.h
 	$(CC) $(OPTS) $(CFLAG) -c item/clock.cpp -o item/clock.o $(SFLAG) $(WINFLAG)
@@ -644,6 +665,66 @@ parser/y.tab.o: parser/y.tab.cpp zsyssimple.h parser/AST.h parser/Compiler.h par
 
 guiBitmapRenderer.o: guiBitmapRenderer.cpp guiBitmapRenderer.h
 	$(CC) $(OPTS) $(CFLAG) -c guiBitmapRenderer.cpp -o guiBitmapRenderer.o $(SFLAG) $(WINFLAG)
+
+gui/alert.o: gui/alert.cpp gui/alert.h gui/dialog.h gui/factory.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/alert.cpp -o gui/alert.o $(SFLAG) $(WINFLAG)
+gui/contents.o: gui/contents.cpp gui/contents.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/contents.cpp -o gui/contents.o $(SFLAG) $(WINFLAG)
+gui/controller.o: gui/controller.cpp gui/controller.h gui/dialog.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/controller.cpp -o gui/controller.o $(SFLAG) $(WINFLAG)
+gui/dialog.o: gui/dialog.cpp gui/dialog.h gui/controller.h gui/factory.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/dialog.cpp -o gui/dialog.o $(SFLAG) $(WINFLAG)
+gui/manager.o: gui/manager.cpp gui/manager.h gui/alert.h gui/dialog.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/manager.cpp -o gui/manager.o $(SFLAG) $(WINFLAG)
+
+gui/allegro/bitmap.o: gui/allegro/bitmap.cpp gui/allegro/bitmap.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/bitmap.cpp -o gui/allegro/bitmap.o $(SFLAG) $(WINFLAG)
+gui/allegro/button.o: gui/allegro/button.cpp gui/allegro/button.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/button.cpp -o gui/allegro/button.o $(SFLAG) $(WINFLAG)
+gui/allegro/checkbox.o: gui/allegro/checkbox.cpp gui/allegro/checkbox.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/checkbox.cpp -o gui/allegro/checkbox.o $(SFLAG) $(WINFLAG)
+gui/allegro/column.o: gui/allegro/column.cpp gui/allegro/column.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/column.cpp -o gui/allegro/column.o $(SFLAG) $(WINFLAG)
+gui/allegro/comboBox.o: gui/allegro/comboBox.cpp gui/allegro/comboBox.h gui/allegro/list.h gui/list.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/comboBox.cpp -o gui/allegro/comboBox.o $(SFLAG) $(WINFLAG)
+gui/allegro/controller.o: gui/allegro/controller.cpp gui/allegro/controller.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/controller.cpp -o gui/allegro/controller.o $(SFLAG) $(WINFLAG)
+gui/allegro/dummy.o: gui/allegro/dummy.cpp gui/allegro/dummy.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/dummy.cpp -o gui/allegro/dummy.o $(SFLAG) $(WINFLAG)
+gui/allegro/editableText.o: gui/allegro/editableText.cpp gui/allegro/editableText.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/editableText.cpp -o gui/allegro/editableText.o $(SFLAG) $(WINFLAG)
+gui/allegro/factory.o: gui/allegro/factory.cpp gui/allegro/factory.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/factory.cpp -o gui/allegro/factory.o $(SFLAG) $(WINFLAG)
+gui/allegro/frame.o: gui/allegro/frame.cpp gui/allegro/frame.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/frame.cpp -o gui/allegro/frame.o $(SFLAG) $(WINFLAG)
+gui/allegro/list.o: gui/allegro/list.cpp gui/allegro/list.h gui/allegro/scrollingPane.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/list.cpp -o gui/allegro/list.o $(SFLAG) $(WINFLAG)
+gui/allegro/renderer.o: gui/allegro/renderer.cpp gui/allegro/renderer.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/renderer.cpp -o gui/allegro/renderer.o $(SFLAG) $(WINFLAG)
+gui/allegro/row.o: gui/allegro/row.cpp gui/allegro/row.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/row.cpp -o gui/allegro/row.o $(SFLAG) $(WINFLAG)
+gui/allegro/scrollbar.o: gui/allegro/scrollbar.cpp gui/allegro/scrollbar.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/scrollbar.cpp -o gui/allegro/scrollbar.o $(SFLAG) $(WINFLAG)
+gui/allegro/scrollingPane.o: gui/allegro/scrollingPane.cpp gui/allegro/scrollingPane.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/scrollingPane.cpp -o gui/allegro/scrollingPane.o $(SFLAG) $(WINFLAG)
+gui/allegro/serialContainer.o: gui/allegro/serialContainer.cpp gui/allegro/serialContainer.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/serialContainer.cpp -o gui/allegro/serialContainer.o $(SFLAG) $(WINFLAG)
+gui/allegro/standardWidget.o: gui/allegro/standardWidget.cpp gui/allegro/standardWidget.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/standardWidget.cpp -o gui/allegro/standardWidget.o $(SFLAG) $(WINFLAG)
+gui/allegro/tab.o: gui/allegro/tab.cpp gui/allegro/tab.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/tab.cpp -o gui/allegro/tab.o $(SFLAG) $(WINFLAG)
+gui/allegro/tabBar.o: gui/allegro/tabBar.cpp gui/allegro/tabBar.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/tabBar.cpp -o gui/allegro/tabBar.o $(SFLAG) $(WINFLAG)
+gui/allegro/tabPanel.o: gui/allegro/tabPanel.cpp gui/allegro/tabPanel.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/tabPanel.cpp -o gui/allegro/tabPanel.o $(SFLAG) $(WINFLAG)
+gui/allegro/text.o: gui/allegro/text.cpp gui/allegro/text.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/text.cpp -o gui/allegro/text.o $(SFLAG) $(WINFLAG)
+gui/allegro/textField.o: gui/allegro/textField.cpp gui/allegro/textField.h gui/allegro/editableText.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/textField.cpp -o gui/allegro/textField.o $(SFLAG) $(WINFLAG)
+gui/allegro/common.o: gui/allegro/common.cpp gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/common.cpp -o gui/allegro/common.o $(SFLAG) $(WINFLAG)
+gui/allegro/window.o: gui/allegro/window.cpp gui/allegro/window.h gui/allegro/common.h
+	$(CC) $(OPTS) $(CFLAG) -c gui/allegro/window.cpp -o gui/allegro/window.o $(SFLAG) $(WINFLAG)
 
 gui/gtk/bitmap.o: gui/gtk/bitmap.cpp gui/gtk/bitmap.h guiBitmapRenderer.h gui/mouse.h gui/widget.h gui/bitmap.h gui/gtk/util.h gui/gtk/widget.h
 	$(CC) $(OPTS) $(CFLAG) -c gui/gtk/bitmap.cpp -o gui/gtk/bitmap.o $(SFLAG) $(WINFLAG)
@@ -687,10 +768,18 @@ dialog/bitmap/tileSelector.o: dialog/bitmap/tileSelector.cpp dialog/bitmap/tileS
 
 dialog/zquest/cheatEditor.o: dialog/zquest/cheatEditor.cpp dialog/zquest/cheatEditor.h gui/dialog.h zdefs.h gui/factory.h
 	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/cheatEditor.cpp -o dialog/zquest/cheatEditor.o $(SFLAG) $(WINFLAG)
+dialog/zquest/infoShopEditor.o: dialog/zquest/infoShopEditor.cpp dialog/zquest/infoShopEditor.h gui/dialog.h
+	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/infoShopEditor.cpp -o dialog/zquest/infoShopEditor.o $(SFLAG) $(WINFLAG)
 dialog/zquest/paletteViewer.o: dialog/zquest/paletteViewer.cpp dialog/zquest/paletteViewer.h gui/dialog.h gui/bitmap.h gui/factory.h
 	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/paletteViewer.cpp -o dialog/zquest/paletteViewer.o $(SFLAG) $(WINFLAG)
 dialog/zquest/questRules.o: dialog/zquest/questRules.cpp dialog/zquest/questRules.h zdefs.h  zsys.h gui/dialog.h gui/factory.h
 	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/questRules.cpp -o dialog/zquest/questRules.o $(SFLAG) $(WINFLAG)
+dialog/zquest/shopEditor.o: dialog/zquest/shopEditor.cpp dialog/zquest/shopEditor.h gui/dialog.h
+	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/shopEditor.cpp -o dialog/zquest/shopEditor.o $(SFLAG) $(WINFLAG)
+dialog/zquest/simpleListSelector.o: dialog/zquest/simpleListSelector.cpp dialog/zquest/simpleListSelector.h gui/dialog.h
+	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/simpleListSelector.cpp -o dialog/zquest/simpleListSelector.o $(SFLAG) $(WINFLAG)
+dialog/zquest/tileEditor.o: dialog/zquest/tileEditor.cpp dialog/zquest/tileEditor.h gui/dialog.h
+	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/tileEditor.cpp -o dialog/zquest/tileEditor.o $(SFLAG) $(WINFLAG)
 dialog/zquest/tileSelector.o: dialog/zquest/tileSelector.cpp dialog/zquest/tileSelector.h dialog/bitmap/tileSelector.h gui/dialog.h
 	$(CC) $(OPTS) $(CFLAG) -c dialog/zquest/tileSelector.cpp -o dialog/zquest/tileSelector.o $(SFLAG) $(WINFLAG)
 dialog/zquest/tileSelectorBackend.o: dialog/zquest/tileSelectorBackend.cpp dialog/zquest/tileSelectorBackend.cpp dialog/zquest/tileSelector.h

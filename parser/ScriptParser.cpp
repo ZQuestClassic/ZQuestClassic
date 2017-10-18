@@ -1344,8 +1344,18 @@ vector<Opcode *> ScriptParser::assembleOne(vector<Opcode *> script, map<int, vec
 
 pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 {
+    // Not sure if this should really check for negative numbers;
+    // in most contexts, that's checked beforehand. parts only
+    // includes the minus if this is a constant. - Saf
+    bool negative=false;
     pair<long, bool> rval;
     rval.second=true;
+    
+    if(parts.first.data()[0]=='-')
+    {
+        negative=true;
+        parts.first = parts.first.substr(1);
+    }
     
     if(parts.second.size() > 4)
     {
@@ -1389,6 +1399,8 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
     	fpart += atoi(tmp);
     }*/
     rval.first = intval + fpart;
+    if(negative)
+        rval.first = -rval.first;
     return rval;
 }
 

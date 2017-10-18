@@ -28,7 +28,7 @@ void TileSelectorBitmap::redraw()
         for(int y=0; y<backend.pageHeight; y++)
         {
             renderer->putTile(backend.getTileAt(x, y), backend.getCSet(),
-              241, x*16, y*16);
+              0, x*16, y*16);
             
             if(cursorTimer<10 &&
               backend.tileIsSelected(x, y))

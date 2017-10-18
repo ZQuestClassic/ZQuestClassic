@@ -8,7 +8,7 @@
 #include <zdefs.h>
 #include <zelda.h>
 #include <zeldadat.h>
-#include <tempStuff.h>
+//#include <tempStuff.h>
 extern LinkClass Link;
 extern SFXManager sfxMgr;
 extern mapscr tmpscr[2];

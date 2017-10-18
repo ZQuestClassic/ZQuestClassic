@@ -34,6 +34,7 @@
 #include "sfxManager.h"
 #include "sound.h"
 #include "mem_debug.h"
+#include "angelscript/aszc.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
@@ -189,6 +190,7 @@ weapon::weapon(weapon const & other):
     aimedBrang(other.aimedBrang),
     sparkleFunc(other.sparkleFunc)
 {
+    assignWeaponScript(this, "weapon");
 }
 
 // Let's dispose of some sound effects!
@@ -1271,6 +1273,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         step *=2;
     }
+    
+    assignWeaponScript(this, "weapon");
 }
 
 void weapon::LOADGFX(int wpn)
